@@ -16,6 +16,7 @@ import (
 	"strings"
 	"time"
 
+	"github.com/harne8/pose-mcp/internal/cli/cliout"
 	posemodel "github.com/harne8/pose-mcp/internal/pose"
 )
 
@@ -1805,6 +1806,7 @@ func cmdCloseLocalWithEffect(root, ref string, guard func() error, stdout, stder
 			return 1
 		}
 		fmt.Fprintf(stdout, "Milestone closeout verified: %s\n", ref)
+		renderCloseNext(render(stdout, stderr), nextCloses(store, ref))
 		return 0
 	}
 	var path string
@@ -1920,7 +1922,41 @@ func cmdCloseLocalWithEffect(root, ref string, guard func() error, stdout, stder
 		transitioned()
 	}
 	fmt.Fprintf(stdout, "Closed: %s\n", ref)
+	renderCloseNext(render(stdout, stderr), nextCloses(store, ref))
 	return 0
+}
+
+// nextCloses names what the close of a scope leaves reachable: the milestones a
+// spec finished, or the roadmap a milestone finished (spec
+// pose-milestone-closes-when-reached R3). A failed read is reported in its place,
+// since the close itself stands.
+func nextCloses(store posemodel.Store, ref string) []string {
+	scope, err := posemodel.ParseScopeRef(ref)
+	if err != nil {
+		return nil
+	}
+	next := []string{}
+	switch scope.Kind {
+	case "spec":
+		reached, err := store.ReachedMilestones(scope.Slug)
+		if err != nil {
+			return []string{"unavailable: " + err.Error()}
+		}
+		for _, milestone := range reached {
+			next = append(next, "pose close "+milestone)
+		}
+	case "milestone":
+		if store.RoadmapReached(scope.Roadmap) {
+			next = append(next, "pose close roadmap:"+scope.Roadmap)
+		}
+	}
+	return next
+}
+
+func renderCloseNext(out *cliout.Renderer, next []string) {
+	for _, step := range next {
+		out.Field("close.next", step)
+	}
 }
 
 type continuousCloseoutSelection struct {

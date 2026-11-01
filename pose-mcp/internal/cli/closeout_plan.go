@@ -187,6 +187,8 @@ type closeApplyData struct {
 	BundleID      string                  `json:"bundle_id,omitempty"`
 	EvidenceRefs  []string                `json:"evidence_refs,omitempty"`
 	AttestCommand string                  `json:"attest_command,omitempty"`
+	// NextCloses names the closes this one left reachable.
+	NextCloses []string `json:"next_closes,omitempty"`
 	// ReplacedCheckpoint is the checkpoint of an earlier run whose recorded
 	// progress the repository no longer reflects, replaced by this run
 	// because the caller applied the plan it reviewed.
@@ -472,6 +474,7 @@ func applyClosePlan(root string, store posemodel.Store, ref, mode, digest, revie
 	}
 	result.Outcome = posemodel.OutcomeCompleted
 	result.NextAction = "commit the closeout (spec, index, results, bundle, attestation) in one commit with its POSE-Spec trailer"
+	data.NextCloses = nextCloses(store, ref)
 	return result
 }
 
@@ -503,6 +506,9 @@ func renderClosePlanResult(out *cliout.Renderer, result posemodel.OperationResul
 			out.Field("closeout_plan.result", "closed "+result.Scope+"; "+result.NextAction)
 		} else {
 			out.Field("closeout_plan.result", "completed-steps "+result.Scope+"; no lifecycle transition was executed by this call; "+result.NextAction)
+		}
+		if data != nil {
+			renderCloseNext(out, data.NextCloses)
 		}
 	case posemodel.OutcomeAlreadySatisfied:
 		out.Field("closeout_plan.result", "already-satisfied "+result.Scope+"; "+result.NextAction)

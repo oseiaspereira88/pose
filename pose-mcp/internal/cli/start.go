@@ -176,6 +176,9 @@ func cmdStart(root string, args []string, stdout, stderr io.Writer) int {
 		}
 		r.Field("start.phase", record.Phase)
 		r.Field("start.baseline", record.Baseline.Digest)
+		for _, warning := range plan.Warnings {
+			r.Field("start.warning", warning)
+		}
 		return 0
 	default:
 		plan, err := store.PreviewStart(slug)
@@ -195,6 +198,9 @@ func cmdStart(root string, args []string, stdout, stderr io.Writer) int {
 		}
 		for _, waiting := range plan.WaitingOn {
 			r.Field("start.waiting_on", waiting.Ref+": "+waiting.Reason)
+		}
+		for _, warning := range plan.Warnings {
+			r.Field("start.warning", warning)
 		}
 		r.Field("start.obligations", strings.Join(plan.Obligations, ","))
 		r.Field("start.baseline", plan.Baseline.Digest)

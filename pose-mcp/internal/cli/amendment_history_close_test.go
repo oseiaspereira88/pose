@@ -54,12 +54,17 @@ func TestAmendmentHistoryInProgressWarnsBeforeDone(t *testing.T) {
 	body := strings.Replace(amendSpec, "status: done", "status: in-progress", 1)
 	body = strings.Replace(body, "keep behaving.", "new behavior.", 1)
 	mustWrite(t, path, body)
+	// The finding was a nonfatal warning until spec pose-milestone-closes-when-reached
+	// D4: it reaches the operator before done, now as a failure strict lint can act on.
 	var out, errOut bytes.Buffer
-	if code := lintOneSpec(path, false, false, &out, &errOut); code != 0 {
-		t.Fatalf("warning became fatal %d: %s%s", code, out.String(), errOut.String())
+	if code := lintOneSpec(path, false, false, &out, &errOut); code == 0 {
+		t.Fatalf("an unacknowledged change passed: %s%s", out.String(), errOut.String())
 	}
 	if !strings.Contains(out.String(), "R2 changed after its last acknowledged amendment") {
-		t.Fatalf("no warning: %s%s", out.String(), errOut.String())
+		t.Fatalf("no finding: %s%s", out.String(), errOut.String())
+	}
+	if code, tolerated := runPose(t, root, "lint-spec", "amended", "--tolerant"); code != 0 {
+		t.Fatalf("tolerant lint did not tolerate it: %d %s", code, tolerated)
 	}
 }
 

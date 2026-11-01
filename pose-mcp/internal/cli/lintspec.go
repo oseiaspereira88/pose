@@ -812,8 +812,9 @@ func lintOneSpecWith(r *cliout.Renderer, fields bool, specPath string, requiredO
 	}
 
 	// Amendment history gate (spec pose-spec-amendment-history): when the
-	// append-only event log exists, a done spec must acknowledge the current
-	// requirement state — silent post-evidence rewrites are rejected.
+	// append-only event log exists, a started spec must acknowledge the current
+	// requirement state — silent post-evidence rewrites are rejected before
+	// validation and review are spent on them, not only at close.
 	amendFailures, amendEvents := 0, 0
 	events, findings, aerr := (posepkg.Store{Root: lintProjectRoot(specPath)}).InspectAmendmentHistory(posepkg.Spec{Slug: slug, Path: specPath, Body: text})
 	amendEvents = len(events)
@@ -822,12 +823,8 @@ func lintOneSpecWith(r *cliout.Renderer, fields bool, specPath string, requiredO
 		amendFailures++
 	} else if specStatus == "done" || specStatus == "in-progress" {
 		for _, finding := range findings {
-			severity := cliout.StateWarning
-			if specStatus == "done" {
-				severity = cliout.StateError
-				amendFailures++
-			}
-			lint.finding(severity, "amendments", "amendment history: "+finding)
+			lint.finding(cliout.StateError, "amendments", "amendment history: "+finding)
+			amendFailures++
 		}
 	}
 

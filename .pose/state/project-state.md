@@ -1,7 +1,7 @@
 ---
 schema_version: 1
-generated_at: 2026-11-01T17:35:51Z
-baseline_commit: cc6203a8d3d761961a76336ba62a823b11b9d033
+generated_at: 2026-11-01T20:28:34Z
+baseline_commit: 3b60cc9fbfe1d19edeb77f242deb6bf6222a5af0
 staleness_policy: max_age_days=7,max_commits=20
 refresh_pending: 
 ---
@@ -27,17 +27,17 @@ próprio deste repositório (produtização v2, DX) segue disponível conforme
 capacidade.
 
 ## Specs & Roadmaps
-<!-- state:derived hash:e2f40579ea33 -->
+<!-- state:derived hash:3881827a52e8 -->
 
-- specs: total=472 draft=18 in-progress=18 blocked=0 done=434 superseded=0 abandoned=2
-- roadmaps: total=23 active=3 done=12
+- specs: total=473 draft=18 in-progress=18 blocked=0 done=435 superseded=0 abandoned=2
+- roadmaps: total=23 active=3 done=13
 - últimos closeouts:
+  - spec:pose-closeout-judges-the-manifest (2026-11-01)
   - spec:pose-roadmap-close-keeps-its-approvals (2026-11-01)
   - spec:pose-process-inventory-tolerates-exit (2026-11-01)
+  - spec:pose-validate-refuses-empty-go-checks (2026-10-31)
   - spec:pose-delegated-review-expired-session (2026-10-31)
-  - spec:pose-removal-witness-freshness (2026-10-31)
-  - spec:pose-review-approval-follows-children (2026-10-31)
-  - ... e mais 429 (ver `pose_list_specs status:done`)
+  - ... e mais 430 (ver `pose_list_specs status:done`)
 
 ## Follow-ups
 <!-- state:derived hash:ed06c5d43648 -->
@@ -65,14 +65,14 @@ capacidade.
 - mecanismos: 16, score médio=4, target médio=5, retirados=0
 
 ## Decisões & Conhecimento
-<!-- state:derived hash:b04782133c22 -->
+<!-- state:derived hash:a7f583a5a2e6 -->
 
-- ADRs: total=91
+- ADRs: total=92
+  - adr:2026-11-01-a-milestone-answers-to-its-own-edges.md
   - adr:2026-10-31-review-reads-raw-history-and-roots-diff-from-the-empty-tree.md
   - adr:2026-10-29-make-delegated-review-adoption-explicit-and-recoverable.md
   - adr:2026-10-26-delegation-is-a-first-class-execution-surface.md
   - adr:2026-10-25-reserve-delegated-attempts-before-launch-and-witness-immutable-runs.md
-  - adr:2026-10-25-continue-delegated-runs-under-one-immutable-attempt.md
 - knowledge: total=18 ativo=18 expirado=0
 
 ## Validação & Evidência

@@ -48,6 +48,7 @@ var DiagnosticCatalog = map[string]struct {
 	"amendment-history-invalid":       {DiagnosticCloseout, "the existing amendment journal acknowledges the applicable node state and is readable"},
 	"lifecycle-not-done":              {DiagnosticCloseout, "the guarded lifecycle transition sets status done"},
 	"child-scope-open":                {DiagnosticCloseout, "the child scope's closeout is terminal"},
+	"milestone-reached":               {DiagnosticCloseout, "the milestone is approved and closed"},
 	"external-member-unaccepted":      {DiagnosticCloseout, "federated acceptance of the external member"},
 	"federated-acceptance-blocker":    {DiagnosticCloseout, "the federated acceptance blocker is resolved at its source"},
 	"review-criterion-owed":           {DiagnosticStart, "the criterion is answered at closeout review"},

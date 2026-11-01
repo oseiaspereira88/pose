@@ -161,7 +161,12 @@ func (s Store) ProjectObligations(q ObligationQuery) (ObligationReport, error) {
 	}{
 		{"readiness", func() ([]Obligation, error) { return s.readinessObligations(project, specs) }},
 		{"closeout", func() ([]Obligation, error) {
-			return s.closeoutObligations(project, specs, report.producerState, assurance)
+			items, err := s.closeoutObligations(project, specs, report.producerState, assurance)
+			if err != nil {
+				return nil, err
+			}
+			reached, err := s.milestoneReachedObligations(project, q.Scope)
+			return append(items, reached...), err
 		}},
 		{"start", func() ([]Obligation, error) {
 			return s.startObligationItems(project, specs, report.producerState["start"])
@@ -540,6 +545,40 @@ func (s Store) closeoutObligations(project string, specs []Spec, coverage map[st
 		}
 		return out, nil
 	})
+}
+
+// milestoneReachedObligations projects the milestones that can be closed. The
+// rule restricts nothing: a reached milestone waits for an operator to close it,
+// and the roadmap's own close refuses it anyway.
+func (s Store) milestoneReachedObligations(project, scope string) ([]Obligation, error) {
+	spec := ""
+	if ref, err := ParseScopeRef(scope); scope != "" && err == nil && ref.Kind == "spec" {
+		spec = ref.Slug
+	}
+	reached, err := s.ReachedMilestones(spec)
+	if err != nil {
+		return nil, err
+	}
+	var out []Obligation
+	for _, ref := range reached {
+		parsed, err := ParseScopeRef(ref)
+		if err != nil {
+			return nil, err
+		}
+		if spec == "" && scope != "" && scope != ref && scope != "roadmap:"+parsed.Roadmap {
+			continue
+		}
+		source := QualifyNodeRef(project, ArtifactRef{Kind: "milestone", Slug: parsed.Roadmap, Milestone: parsed.Milestone}, "", "")
+		o := newObligation(project, "closeout", source, "milestone-reached", ref)
+		o.Category = ObligationReconciliation
+		o.ReasonCode = "milestone-reached"
+		o.Condition = DiagnosticCatalog["milestone-reached"].Condition
+		o.Effects = []ObligationEffect{{Phase: PhaseCloseout, Mode: EffectAdvisory}}
+		o.Waiting = WaitingActor
+		o.Message = ref + " is reached: pose close " + ref
+		out = append(out, o)
+	}
+	return out, nil
 }
 
 // startObligationItems projects start reconciliation needs, which exist only

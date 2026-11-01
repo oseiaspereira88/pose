@@ -43,6 +43,9 @@ type StartPlan struct {
 	ObligationItems []Diagnostic            `json:"obligation_items,omitempty"`
 	Baseline        ContractNodesProjection `json:"baseline"`
 	Digest          string                  `json:"digest"`
+	// Warnings report and do not refuse, so they stay outside the digest: closing
+	// a predecessor between preview and apply does not change what was reviewed.
+	Warnings []string `json:"warnings,omitempty"`
 }
 
 // StartRecord is the journal of one applied start.
@@ -173,6 +176,13 @@ func (s Store) PreviewStart(slug string) (StartPlan, error) {
 	}
 	plan.Baseline = ProjectContractNodesIn(s.fsys(), slug, spec.Body)
 	plan.Digest = startPlanDigest(plan)
+	predecessors, err := s.unapprovedPredecessors(slug)
+	if err != nil {
+		return plan, err
+	}
+	for _, ref := range predecessors {
+		plan.Warnings = append(plan.Warnings, ref+" comes before this spec and is not closed: pose close "+ref)
+	}
 	return plan, nil
 }
 
@@ -196,7 +206,7 @@ func (s Store) startObligations(slug string) []string {
 }
 
 func startPlanDigest(plan StartPlan) string {
-	plan.Digest = ""
+	plan.Digest, plan.Warnings = "", nil
 	raw, _ := json.Marshal(plan)
 	sum := sha256.Sum256(raw)
 	return hex.EncodeToString(sum[:])

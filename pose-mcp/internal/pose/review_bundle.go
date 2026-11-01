@@ -4198,6 +4198,33 @@ func retainedManifestChanged(bundle *ReviewBundle, scope string) string {
 // not-done blocker of a dependency that reached done. Anything not proved to be that
 // is a difference (spec pose-roadmap-close-keeps-its-approvals R1-R3).
 func (s Store) federatedManifestStands(sealed, current *FederatedRoadmapManifest) bool {
+	if s.manifestStandsOver(sealed, current) {
+		return true
+	}
+	wider := s.milestoneManifestWithItsRoadmapDependencies(sealed)
+	return wider != nil && s.manifestStandsOver(sealed, wider)
+}
+
+// milestoneManifestWithItsRoadmapDependencies is the manifest a milestone sealed
+// before the depends_on of its roadmap stopped binding it (ADR
+// a-milestone-answers-to-its-own-edges) would hold now. The edge moved by rule, so
+// it is judged where it was sealed, for as long as the roadmap still declares it.
+func (s Store) milestoneManifestWithItsRoadmapDependencies(sealed *FederatedRoadmapManifest) *FederatedRoadmapManifest {
+	if sealed == nil || sealed.Coordinator.Kind != "milestone" || s.FederatedResolver == nil {
+		return nil
+	}
+	rm, err := s.GetRoadmap(sealed.Coordinator.Slug)
+	if err != nil || len(rm.DependsOn) == 0 {
+		return nil
+	}
+	report, err := s.milestoneAcceptance(s.FederatedProjectID, rm.Slug, sealed.Coordinator.Milestone, *s.FederatedResolver, true)
+	if err != nil {
+		return nil
+	}
+	return &report.Manifest
+}
+
+func (s Store) manifestStandsOver(sealed, current *FederatedRoadmapManifest) bool {
 	if sameFederatedManifest(sealed, current) {
 		return true
 	}

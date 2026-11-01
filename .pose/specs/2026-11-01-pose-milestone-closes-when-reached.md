@@ -62,6 +62,7 @@ The eleven milestones of `delegation` piled up for the end of the roadmap for tw
 
 - Bundles sealed with the wider manifest are read as they are, by R2. New seals carry the narrower one.
 - An instance with an in-progress spec edited without an amendment sees `lint-spec --strict` fail earlier than `pose close` would. `--tolerant` tolerates it, as it does every failure.
+- R3 of `pose-amendment-history-holds-before-close` no longer holds as written: the spec stays closed as a record, and the test its trace cites now measures the failure.
 
 ## 3. Technical Plan
 
@@ -80,9 +81,18 @@ The eleven milestones of `delegation` piled up for the end of the roadmap for tw
 - modified: pose-mcp/internal/pose/review_bundle.go
 - modified: pose-mcp/internal/pose/obligation_projection.go
 - modified: pose-mcp/internal/pose/roadmaps.go
+- modified: pose-mcp/internal/pose/start.go
+- modified: pose-mcp/internal/pose/diagnostic_codes.go
 - modified: pose-mcp/internal/cli/review_closeout.go
 - modified: pose-mcp/internal/cli/start.go
 - modified: pose-mcp/internal/cli/lintspec.go
+- modified: pose-mcp/internal/cli/closeout_plan.go
+- modified: .agents/skills/pose-spec-closeout/SKILL.md
+- modified: locales/pt-BR/.agents/skills/pose-spec-closeout/SKILL.md
+- modified: pose-mcp/internal/scaffold/dist/.agents/skills/pose-spec-closeout/SKILL.md
+- modified: pose-mcp/internal/scaffold/dist/locales/pt-BR/.agents/skills/pose-spec-closeout/SKILL.md
+- modified: pose-mcp/internal/cli/amendment_history_close_test.go
+- modified: pose-mcp/internal/pose/roadmap_close_keeps_approvals_test.go
 - created: pose-mcp/internal/pose/milestone_closes_when_reached_test.go
 - created: pose-mcp/internal/cli/milestone_closes_when_reached_test.go
 
@@ -134,7 +144,7 @@ A milestone's manifest no longer lists the `depends_on` of its roadmap. `pose cl
 - Minimal option: keep the check in the operator's closeout script
 - Selected option: the finding is an error on an in-progress spec as on a done one, so strict lint fails and tolerant lint tolerates it
 - Rationale: the finding was already computed and only its severity let it pass, which cost a full revalidation, seal and attestation
-- Consequences: an edit of a requirement needs its amendment before strict lint passes, not only before close
+- Consequences: an edit of a requirement needs its amendment before strict lint passes, not only before close; this reverses R3 of `pose-amendment-history-holds-before-close`, which asked for a nonfatal warning, and `--strict` being the default mode leaves no way to keep both
 - Falsifier: a legitimate in-progress edit that cannot be amended
 
 ## 6. Validation
@@ -145,13 +155,13 @@ Integration tests over real roadmaps and commits, with each gate seen failing fi
 
 ### Requirement trace
 
-- R1 [planned] capability:milestone-closes-when-reached evidence:integration check:milestone-closes-when-reached-integration test:TestMilestoneClosesBeforeTheDependencyOfItsRoadmap test:TestRoadmapStillWaitsForItsDependency
-- R2 [planned] check:milestone-closes-when-reached-integration test:TestSealedRoadmapEdgeKeepsTheApproval test:TestOtherMissingEdgeStales
-- R3 [planned] check:milestone-closes-when-reached-integration test:TestCloseNamesTheNextClose
-- R4 [planned] check:milestone-closes-when-reached-integration test:TestAttentionListsReachedMilestones
-- R5 [planned] check:milestone-closes-when-reached-integration test:TestStartWarnsOfAnUnclosedAfter
+- R1 [planned] capability:milestone-closes-when-reached evidence:integration check:milestone-closes-when-reached-integration test:TestMilestoneClosesBeforeTheDependencyOfItsRoadmap test:TestRoadmapStillWaitsForItsDependency test:TestAfterStillBindsAMilestoneToARoadmap
+- R2 [planned] check:milestone-closes-when-reached-integration test:TestSealedRoadmapEdgeKeepsTheApproval test:TestSealedRoadmapEdgeStandsWhenTheDependencyCloses test:TestOtherMissingEdgeStales
+- R3 [planned] check:milestone-closes-when-reached-integration test:TestCloseNamesTheNextClose test:TestCloseOfTheLastMilestoneNamesTheRoadmap test:TestRoadmapIsReachedWhenEveryMilestoneIsApproved
+- R4 [planned] check:milestone-closes-when-reached-integration test:TestAttentionListsReachedMilestones test:TestReachedMilestoneOfADoneRoadmapIsNotListed
+- R5 [planned] check:milestone-closes-when-reached-integration test:TestStartWarnsOfAnUnclosedAfter test:TestStartPrintsItsWarning
 - R6 [planned] check:milestone-closes-when-reached-integration test:TestUncommittedSourceSaysSo
-- R7 [planned] check:milestone-closes-when-reached-integration test:TestStrictLintFailsOnAnUnacknowledgedChange
+- R7 [planned] check:milestone-closes-when-reached-integration test:TestStrictLintFailsOnAnUnacknowledgedChange test:TestAmendmentHistoryInProgressWarnsBeforeDone
 - R8 [planned] check:milestone-closes-when-reached-integration test:TestCloseoutSkillNamesTheMilestoneClose
 
 ## 7. Final Report

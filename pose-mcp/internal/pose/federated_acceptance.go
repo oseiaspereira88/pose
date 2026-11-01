@@ -274,10 +274,19 @@ func (s Store) FederatedRoadmapAcceptance(projectID, slug string, resolver Artif
 }
 
 // FederatedMilestoneAcceptance restricts roadmap acceptance to one milestone:
-// the roadmap's own prerequisites and consumed outcomes, plus that milestone's
-// predecessors, member specs and consumed outcomes. Members of a later
-// milestone do not gate an earlier one, matching local milestone closeout.
+// the roadmap's consumed outcomes, plus that milestone's predecessors, member
+// specs and consumed outcomes. Members of a later milestone do not gate an
+// earlier one, matching local milestone closeout, and the depends_on of the
+// roadmap binds the close of the roadmap alone (ADR
+// a-milestone-answers-to-its-own-edges).
 func (s Store) FederatedMilestoneAcceptance(projectID, slug, milestone string, resolver ArtifactResolver) (FederatedRoadmapAcceptanceReport, error) {
+	return s.milestoneAcceptance(projectID, slug, milestone, resolver, false)
+}
+
+// milestoneAcceptance builds the acceptance of one milestone. roadmapDependencies
+// keeps the depends_on of the roadmap, which is how a bundle sealed before that
+// edge moved to the roadmap reads.
+func (s Store) milestoneAcceptance(projectID, slug, milestone string, resolver ArtifactResolver, roadmapDependencies bool) (FederatedRoadmapAcceptanceReport, error) {
 	rm, err := s.GetRoadmap(slug)
 	if err != nil {
 		return FederatedRoadmapAcceptanceReport{}, err
@@ -287,6 +296,9 @@ func (s Store) FederatedMilestoneAcceptance(projectID, slug, milestone string, r
 	}
 	selected := *rm
 	selected.Milestones = nil
+	if !roadmapDependencies {
+		selected.DependsOn = nil
+	}
 	for _, candidate := range rm.Milestones {
 		if candidate.ID == milestone {
 			selected.Milestones = append(selected.Milestones, candidate)
@@ -425,7 +437,11 @@ func (s Store) federatedAcceptance(projectID string, coordinator ArtifactRef, ed
 		if err := verifyFederatedArtifactAtRevision(s.fsys(), source, identity, resolved); err != nil {
 			artifactValid = false
 			entry.ResolutionState = err.Error()
-			report.Blockers = append(report.Blockers, key+":"+err.Error())
+			blocker := key + ":" + err.Error()
+			if err.Error() == federatedSourceUncommitted {
+				blocker += ": commit the artifact, its working file differs from its revision"
+			}
+			report.Blockers = append(report.Blockers, blocker)
 		}
 		// Same-project dependencies need the revision of their own artifact.
 		// Using repository HEAD makes every unrelated evidence commit stale a
@@ -586,6 +602,8 @@ func collectFederatedRoadmapEdges(project string, rm *Roadmap) []federatedRoadma
 	return edges
 }
 
+const federatedSourceUncommitted = "source-artifact-uncommitted"
+
 func verifyFederatedArtifactAtRevision(files Files, source Store, identity ArtifactRef, resolved ArtifactResolution) error {
 	if resolved.Revision == "" {
 		return fmt.Errorf("source-revision-unavailable")
@@ -618,7 +636,7 @@ func verifyFederatedArtifactAtRevision(files Files, source Store, identity Artif
 	}
 	sum := sha256.Sum256(committed)
 	if hex.EncodeToString(sum[:]) != resolved.Digest {
-		return fmt.Errorf("source-artifact-revision-mismatch")
+		return errors.New(federatedSourceUncommitted)
 	}
 	return nil
 }

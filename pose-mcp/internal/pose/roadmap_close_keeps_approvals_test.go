@@ -210,7 +210,7 @@ func TestBodyBehindAPaddedDelimiterStales(t *testing.T) {
 func TestClosingARoadmapKeepsItsParentAndAWaitingMilestone(t *testing.T) {
 	root, s, _, _ := federatedTestMilestoneConsumer(t)
 	federatedTestWrite(t, root, ".pose/roadmaps/base.md", "---\nslug: base\nstatus: active\n---\n\n## Milestone: ground\n- exit: the ground holds\n")
-	federatedTestWrite(t, root, ".pose/roadmaps/program.md", "---\nslug: program\nstatus: active\ndepends_on: base\nconsumes: xref:source/roadmap:component\n---\n\n## Milestone: core\n- specs: backend\n")
+	federatedTestWrite(t, root, ".pose/roadmaps/program.md", "---\nslug: program\nstatus: active\ndepends_on: base\nconsumes: xref:source/roadmap:component\n---\n\n## Milestone: core\n- after: roadmap:base\n- specs: backend\n")
 	federatedTestGit(t, root, "add", "--all")
 	federatedTestGit(t, root, "commit", "-q", "-m", "two roadmaps")
 	now := time.Date(2026, 9, 26, 18, 0, 0, 0, time.UTC)

@@ -35,6 +35,117 @@ type Milestone struct {
 
 var milestoneHeadingRE = regexp.MustCompile(`^##\s+Milestone:\s*(.+?)\s*$`)
 
+// ReachedMilestones lists the scopes of the milestones of roadmaps not yet done
+// whose members are all terminal and which hold no approval: the milestones
+// `pose close` can be asked for (spec pose-milestone-closes-when-reached). A spec
+// keeps the ones it is a member of.
+func (s Store) ReachedMilestones(spec string) ([]string, error) {
+	roadmaps, err := s.ListRoadmaps()
+	if err != nil {
+		return nil, err
+	}
+	specs, err := s.ListSpecs("", "")
+	if err != nil {
+		return nil, err
+	}
+	statuses := map[string]string{}
+	for _, sp := range specs {
+		statuses[sp.Slug] = sp.Status
+	}
+	reached := []string{}
+	for _, rm := range roadmaps {
+		if rm.Status == "done" {
+			continue
+		}
+		for _, milestone := range rm.Milestones {
+			if !s.milestoneMembersTerminal(milestone, statuses, spec) {
+				continue
+			}
+			if ref := "milestone:" + rm.Slug + "/" + milestone.ID; !s.scopeApproved(ref) {
+				reached = append(reached, ref)
+			}
+		}
+	}
+	return reached, nil
+}
+
+// milestoneMembersTerminal also reports that a milestone has spec as a member,
+// when one is named.
+func (s Store) milestoneMembersTerminal(milestone Milestone, statuses map[string]string, spec string) bool {
+	member := spec == ""
+	for _, raw := range milestone.Specs {
+		slug, external := s.milestoneMember(raw)
+		if external && !s.externalMemberDone(raw) {
+			return false
+		}
+		if !external {
+			slug = strings.TrimPrefix(slug, "spec:")
+			if !terminalStatuses[statuses[slug]] {
+				return false
+			}
+			member = member || slug == spec
+		}
+	}
+	return member && len(milestone.Specs) > 0
+}
+
+func (s Store) scopeApproved(ref string) bool {
+	eval, err := s.ReviewCheck(ref)
+	return err == nil && (eval.Approved || !eval.Required)
+}
+
+// RoadmapReached reports that every milestone of a roadmap not yet done is
+// approved, so `pose close roadmap:` is the next step.
+func (s Store) RoadmapReached(slug string) bool {
+	rm, err := s.GetRoadmap(slug)
+	if err != nil || rm.Status == "done" || len(rm.Milestones) == 0 {
+		return false
+	}
+	for _, milestone := range rm.Milestones {
+		if !s.scopeApproved("milestone:" + slug + "/" + milestone.ID) {
+			return false
+		}
+	}
+	return true
+}
+
+// unapprovedPredecessors lists the milestones named in the after: of the
+// milestones a spec belongs to that hold no approval. Other forms of after: are
+// not milestones of this roadmap, and readiness answers for them.
+func (s Store) unapprovedPredecessors(spec string) ([]string, error) {
+	roadmaps, err := s.ListRoadmaps()
+	if err != nil {
+		return nil, err
+	}
+	found := map[string]bool{}
+	for _, rm := range roadmaps {
+		for _, milestone := range rm.Milestones {
+			member := false
+			for _, raw := range milestone.Specs {
+				slug, external := s.milestoneMember(raw)
+				member = member || !external && strings.TrimPrefix(slug, "spec:") == spec
+			}
+			if !member {
+				continue
+			}
+			for _, after := range milestone.After {
+				if !strings.Contains(after, ":") {
+					after = "milestone:" + rm.Slug + "/" + after
+				}
+				if ref, err := ParseArtifactRef(after); err == nil && ref.Kind == "milestone" && ref.Project == "" && !s.scopeApproved(after) {
+					found[after] = true
+				}
+			}
+		}
+	}
+	out := make([]string, 0, len(found))
+	for ref := range found {
+		out = append(out, ref)
+	}
+	sort.Strings(out)
+	return out, nil
+}
+
 func (s Store) roadmapsDir() string { return filepath.Join(s.Root, ".pose", "roadmaps") }
 
 // GetRoadmap returns one roadmap by slug, body included.
