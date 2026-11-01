@@ -1,6 +1,6 @@
 ---
 slug: pose-reports-name-the-declared-project
-status: draft
+status: in-progress
 created_at: 2026-11-01
 supersedes:
 depends_on:
