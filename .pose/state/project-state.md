@@ -1,7 +1,7 @@
 ---
 schema_version: 1
-generated_at: 2026-11-01T20:28:34Z
-baseline_commit: 3b60cc9fbfe1d19edeb77f242deb6bf6222a5af0
+generated_at: 2026-11-01T21:44:03Z
+baseline_commit: edf2ca95fc271042d329343087677862d54897b3
 staleness_policy: max_age_days=7,max_commits=20
 refresh_pending: 
 ---
@@ -27,9 +27,9 @@ próprio deste repositório (produtização v2, DX) segue disponível conforme
 capacidade.
 
 ## Specs & Roadmaps
-<!-- state:derived hash:3881827a52e8 -->
+<!-- state:derived hash:8dec00f185d5 -->
 
-- specs: total=473 draft=18 in-progress=18 blocked=0 done=435 superseded=0 abandoned=2
+- specs: total=475 draft=18 in-progress=20 blocked=0 done=435 superseded=0 abandoned=2
 - roadmaps: total=23 active=3 done=13
 - últimos closeouts:
   - spec:pose-closeout-judges-the-manifest (2026-11-01)

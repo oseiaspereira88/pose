@@ -29,7 +29,7 @@ The eleven milestones of `delegation` piled up for the end of the roadmap for tw
 - A milestone still answers to its `after:` edges, its members and its own `consumes`.
 - A roadmap still answers to its `depends_on` in full.
 - Closed milestones keep their approvals: no reseal follows from this spec.
-- The new signals add no cost to `pose check`.
+- The new signals add no cost to `pose check`, and no review to `pose state --attention`.
 
 ### Non-goals
 
@@ -44,8 +44,8 @@ The eleven milestones of `delegation` piled up for the end of the roadmap for tw
 - R1: The federated acceptance of a milestone shall not carry the `depends_on` of its roadmap, and the acceptance of the roadmap shall.
 - R2: A closed milestone sealed with an edge that the `depends_on` of its roadmap still names shall keep its approval, and any other edge missing from the current manifest shall stale it.
 - R3: When `pose close spec:` leaves a milestone with every member terminal and without approval, it shall name `pose close milestone:` for that milestone, and when `pose close milestone:` leaves every milestone of a roadmap verified, it shall name `pose close roadmap:`.
-- R4: `pose state --attention` shall list a milestone of a roadmap not yet done whose members are all terminal and which has no approval.
-- R5: `pose start` shall report, without refusing, a milestone that the spec's own milestone names in `after:` and that has no approval.
+- R4: `pose state --attention` shall list, without running a review, a milestone of a roadmap not yet done whose members are all terminal and which has no recorded approval, and shall report its coverage incomplete when those records cannot be read.
+- R5: `pose start` shall report, without refusing even when the report cannot be read, a milestone that the spec's own milestone names in `after:` and that has no approval.
 - R6: A federated source whose working file differs from the file at its revision shall be reported as `source-artifact-uncommitted`, and the blocker shall say that the artifact has to be committed.
 - R7: `pose lint-spec --strict` shall fail on an in-progress spec with a changed node that no amendment acknowledges.
 - R8: The closeout skill, in both locales and in the scaffold, shall tell the operator to close a milestone when it is reached.
@@ -136,7 +136,7 @@ A milestone's manifest no longer lists the `depends_on` of its roadmap. `pose cl
 - Minimal option: a warning in `pose check`
 - Selected option: signals in `pose close`, `pose start` and `pose state --attention`, none in `pose check`
 - Rationale: `pose check` already takes 425 seconds here, and those three commands are the moments the operator acts on
-- Consequences: a run that only reads `pose check` does not see a reached milestone
+- Consequences: a run that only reads `pose check` does not see a reached milestone; `pose state --attention` reads the attestations on file and verifies none, because a review of each candidate took it from 4 to 212 seconds, so an approval gone stale is reported by the close of the milestone and not there
 - Falsifier: reached milestones piling up on a roadmap while these signals are printed
 
 ### Decision D4
@@ -158,8 +158,8 @@ Integration tests over real roadmaps and commits, with each gate seen failing fi
 - R1 [planned] capability:milestone-closes-when-reached evidence:integration check:milestone-closes-when-reached-integration test:TestMilestoneClosesBeforeTheDependencyOfItsRoadmap test:TestRoadmapStillWaitsForItsDependency test:TestAfterStillBindsAMilestoneToARoadmap
 - R2 [planned] check:milestone-closes-when-reached-integration test:TestSealedRoadmapEdgeKeepsTheApproval test:TestSealedRoadmapEdgeStandsWhenTheDependencyCloses test:TestOtherMissingEdgeStales
 - R3 [planned] check:milestone-closes-when-reached-integration test:TestCloseNamesTheNextClose test:TestCloseOfTheLastMilestoneNamesTheRoadmap test:TestRoadmapIsReachedWhenEveryMilestoneIsApproved
-- R4 [planned] check:milestone-closes-when-reached-integration test:TestAttentionListsReachedMilestones test:TestReachedMilestoneOfADoneRoadmapIsNotListed
-- R5 [planned] check:milestone-closes-when-reached-integration test:TestStartWarnsOfAnUnclosedAfter test:TestStartPrintsItsWarning
+- R4 [planned] check:milestone-closes-when-reached-integration test:TestAttentionListsReachedMilestones test:TestReachedMilestoneOfADoneRoadmapIsNotListed test:TestReachedListRunsNoReview test:TestAStaleApprovalIsLeftToTheClose test:TestAnUnreadableApprovalIsNotReached
+- R5 [planned] check:milestone-closes-when-reached-integration test:TestStartWarnsOfAnUnclosedAfter test:TestStartPrintsItsWarning test:TestAStartWarningNeverRefuses
 - R6 [planned] check:milestone-closes-when-reached-integration test:TestUncommittedSourceSaysSo
 - R7 [planned] check:milestone-closes-when-reached-integration test:TestStrictLintFailsOnAnUnacknowledgedChange test:TestAmendmentHistoryInProgressWarnsBeforeDone
 - R8 [planned] check:milestone-closes-when-reached-integration test:TestCloseoutSkillNamesTheMilestoneClose

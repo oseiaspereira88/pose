@@ -1,6 +1,8 @@
 package pose
 
 import (
+	"bytes"
+	"encoding/json"
 	"fmt"
 	"os"
 	"path/filepath"
@@ -38,8 +40,30 @@ var milestoneHeadingRE = regexp.MustCompile(`^##\s+Milestone:\s*(.+?)\s*$`)
 // ReachedMilestones lists the scopes of the milestones of roadmaps not yet done
 // whose members are all terminal and which hold no approval: the milestones
 // `pose close` can be asked for (spec pose-milestone-closes-when-reached). A spec
-// keeps the ones it is a member of.
+// keeps the ones it is a member of. It runs the review of each one, so it is for a
+// single close; a whole-repository read uses milestonesWithRecordedApproval.
 func (s Store) ReachedMilestones(spec string) ([]string, error) {
+	candidates, err := s.milestonesWithTerminalMembers(spec, "")
+	if err != nil {
+		return nil, err
+	}
+	reached := []string{}
+	for _, ref := range candidates {
+		approved, err := s.scopeApproved(ref)
+		if err != nil {
+			return reached, err
+		}
+		if !approved {
+			reached = append(reached, ref)
+		}
+	}
+	return reached, nil
+}
+
+// milestonesWithTerminalMembers lists the milestones of roadmaps not yet done whose
+// members are all terminal. A spec keeps the ones it is a member of; a scope, a
+// milestone or a roadmap, keeps the ones inside it.
+func (s Store) milestonesWithTerminalMembers(spec, scope string) ([]string, error) {
 	roadmaps, err := s.ListRoadmaps()
 	if err != nil {
 		return nil, err
@@ -52,21 +76,22 @@ func (s Store) ReachedMilestones(spec string) ([]string, error) {
 	for _, sp := range specs {
 		statuses[sp.Slug] = sp.Status
 	}
-	reached := []string{}
+	found := []string{}
 	for _, rm := range roadmaps {
 		if rm.Status == "done" {
 			continue
 		}
 		for _, milestone := range rm.Milestones {
-			if !s.milestoneMembersTerminal(milestone, statuses, spec) {
+			ref := "milestone:" + rm.Slug + "/" + milestone.ID
+			if scope != "" && scope != ref && scope != "roadmap:"+rm.Slug {
 				continue
 			}
-			if ref := "milestone:" + rm.Slug + "/" + milestone.ID; !s.scopeApproved(ref) {
-				reached = append(reached, ref)
+			if s.milestoneMembersTerminal(milestone, statuses, spec) {
+				found = append(found, ref)
 			}
 		}
 	}
-	return reached, nil
+	return found, nil
 }
 
 // milestoneMembersTerminal also reports that a milestone has spec as a member,
@@ -89,9 +114,86 @@ func (s Store) milestoneMembersTerminal(milestone Milestone, statuses map[string
 	return member && len(milestone.Specs) > 0
 }
 
-func (s Store) scopeApproved(ref string) bool {
+func (s Store) scopeApproved(ref string) (bool, error) {
 	eval, err := s.ReviewCheck(ref)
-	return err == nil && (eval.Approved || !eval.Required)
+	if err != nil {
+		return false, err
+	}
+	return eval.Approved || !eval.Required, nil
+}
+
+// milestonesWithRecordedApproval says which of refs have an approved attestation on
+// file. It reads records and verifies none: `pose state --attention` asks this about
+// every candidate of the repository, where a review each costs minutes, and a stale
+// approval is for the milestone's own close to refuse.
+func (s Store) milestonesWithRecordedApproval(refs []string) (map[string]bool, error) {
+	recorded := map[string]bool{}
+	if len(refs) == 0 {
+		return recorded, nil
+	}
+	files := s.fsys()
+	attestations, err := files.ReadDir(s.reviewAttestationsDir())
+	if os.IsNotExist(err) {
+		return recorded, nil
+	}
+	if err != nil {
+		return nil, err
+	}
+	approved := map[string]bool{}
+	for _, entry := range attestations {
+		if !strings.HasSuffix(entry.Name(), ".json") {
+			continue
+		}
+		raw, err := files.ReadFile(filepath.Join(s.reviewAttestationsDir(), entry.Name()))
+		if err != nil {
+			return nil, err
+		}
+		var record struct {
+			BundleID string `json:"bundle_id"`
+			Decision string `json:"decision"`
+		}
+		if err := json.Unmarshal(raw, &record); err != nil {
+			return nil, fmt.Errorf("pose: attestation %s: %w", entry.Name(), err)
+		}
+		if record.Decision == "approved" {
+			approved[record.BundleID] = true
+		}
+	}
+	bundles, err := files.ReadDir(s.reviewBundlesDir())
+	if os.IsNotExist(err) {
+		return recorded, nil
+	}
+	if err != nil {
+		return nil, err
+	}
+	for _, entry := range bundles {
+		id, isBundle := strings.CutSuffix(entry.Name(), ".json")
+		if !isBundle || !approved[id] {
+			continue
+		}
+		raw, err := files.ReadFile(filepath.Join(s.reviewBundlesDir(), entry.Name()))
+		if err != nil {
+			return nil, err
+		}
+		for _, ref := range refs {
+			if !bytes.Contains(raw, []byte(ref)) {
+				continue
+			}
+			var bundle struct {
+				Payload struct {
+					Scope struct {
+						Ref string `json:"ref"`
+					} `json:"scope"`
+				} `json:"payload"`
+			}
+			if err := json.Unmarshal(raw, &bundle); err != nil {
+				return nil, fmt.Errorf("pose: bundle %s: %w", entry.Name(), err)
+			}
+			recorded[bundle.Payload.Scope.Ref] = true
+			break
+		}
+	}
+	return recorded, nil
 }
 
 // RoadmapReached reports that every milestone of a roadmap not yet done is
@@ -102,22 +204,23 @@ func (s Store) RoadmapReached(slug string) bool {
 		return false
 	}
 	for _, milestone := range rm.Milestones {
-		if !s.scopeApproved("milestone:" + slug + "/" + milestone.ID) {
+		if approved, err := s.scopeApproved("milestone:" + slug + "/" + milestone.ID); err != nil || !approved {
 			return false
 		}
 	}
 	return true
 }
 
-// unapprovedPredecessors lists the milestones named in the after: of the
-// milestones a spec belongs to that hold no approval. Other forms of after: are
-// not milestones of this roadmap, and readiness answers for them.
-func (s Store) unapprovedPredecessors(spec string) ([]string, error) {
+// startWarnings reports the milestones named in the after: of the milestones a spec
+// belongs to that hold no approval. Other forms of after: are not milestones of this
+// roadmap, and readiness answers for them. A warning never refuses, so what cannot be
+// read is a warning too.
+func (s Store) startWarnings(spec string) []string {
 	roadmaps, err := s.ListRoadmaps()
 	if err != nil {
-		return nil, err
+		return []string{"the milestones before this spec could not be read: " + err.Error()}
 	}
-	found := map[string]bool{}
+	found := map[string]string{}
 	for _, rm := range roadmaps {
 		for _, milestone := range rm.Milestones {
 			member := false
@@ -132,18 +235,24 @@ func (s Store) unapprovedPredecessors(spec string) ([]string, error) {
 				if !strings.Contains(after, ":") {
 					after = "milestone:" + rm.Slug + "/" + after
 				}
-				if ref, err := ParseArtifactRef(after); err == nil && ref.Kind == "milestone" && ref.Project == "" && !s.scopeApproved(after) {
-					found[after] = true
+				ref, err := ParseArtifactRef(after)
+				if err != nil || ref.Kind != "milestone" || ref.Project != "" {
+					continue
+				}
+				if approved, err := s.scopeApproved(after); err != nil {
+					found[after] = after + " comes before this spec and its approval could not be read: " + err.Error()
+				} else if !approved {
+					found[after] = after + " comes before this spec and is not closed: pose close " + after
 				}
 			}
 		}
 	}
 	out := make([]string, 0, len(found))
-	for ref := range found {
-		out = append(out, ref)
+	for _, warning := range found {
+		out = append(out, warning)
 	}
 	sort.Strings(out)
-	return out, nil
+	return out
 }
 
 func (s Store) roadmapsDir() string { return filepath.Join(s.Root, ".pose", "roadmaps") }

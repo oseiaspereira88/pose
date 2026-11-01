@@ -176,13 +176,7 @@ func (s Store) PreviewStart(slug string) (StartPlan, error) {
 	}
 	plan.Baseline = ProjectContractNodesIn(s.fsys(), slug, spec.Body)
 	plan.Digest = startPlanDigest(plan)
-	predecessors, err := s.unapprovedPredecessors(slug)
-	if err != nil {
-		return plan, err
-	}
-	for _, ref := range predecessors {
-		plan.Warnings = append(plan.Warnings, ref+" comes before this spec and is not closed: pose close "+ref)
-	}
+	plan.Warnings = s.startWarnings(slug)
 	return plan, nil
 }
 

@@ -282,6 +282,7 @@ func applyClosePlan(root string, store posemodel.Store, ref, mode, digest, revie
 			result.NextAction = plan.NextAction
 			return result
 		}
+		data.NextCloses = nextCloses(store, ref)
 		result.Outcome = posemodel.OutcomeAlreadySatisfied
 		result.NextAction = "the applicable terminal verifier passed; no lifecycle operation ran; repeat verification with `pose closeout-check " + ref + "`"
 		return result
@@ -512,6 +513,9 @@ func renderClosePlanResult(out *cliout.Renderer, result posemodel.OperationResul
 		}
 	case posemodel.OutcomeAlreadySatisfied:
 		out.Field("closeout_plan.result", "already-satisfied "+result.Scope+"; "+result.NextAction)
+		if data != nil {
+			renderCloseNext(out, data.NextCloses)
+		}
 	case posemodel.OutcomeWaiting:
 		if data != nil && data.Plan != nil {
 			renderCloseoutPlan(out, *data.Plan)

@@ -41,6 +41,9 @@ func TestCloseNamesTheNextClose(t *testing.T) {
 	if strings.Contains(out, "milestone:program/second") {
 		t.Fatalf("closing a member named a milestone it does not finish: %s", out)
 	}
+	if code, again := runPose(t, root, "close", "spec:bundle", "--apply", "--reviewer", "agent:closeout-reviewer"); code != 0 || !strings.Contains(again, "close.next=pose close milestone:program/first") {
+		t.Fatalf("a repeated close lost the milestone: %d %s", code, again)
+	}
 }
 
 func TestCloseOfTheLastMilestoneNamesTheRoadmap(t *testing.T) {
@@ -50,6 +53,7 @@ func TestCloseOfTheLastMilestoneNamesTheRoadmap(t *testing.T) {
 		artifactGit(t, root, "-c", "user.name=fixture", "-c", "user.email=fixture@example.invalid", "-c", "commit.gpgsign=false", "commit", "-qm", message)
 	}
 	writeCloseoutCLIFile(t, root, ".pose/roadmaps/program.md", "---\nslug: program\nstatus: active\n---\n\n## Milestone: first\n- specs: bundle\n")
+	writeCloseoutCLIFile(t, root, ".pose/indexes/validation-matrix.json", `{"defaults":{"mode":"strict"},"deliveryProfiles":{"api-contract":{"kind":"contract","requiredEvidenceClasses":["integration","unit"]}}}`)
 	commit("one milestone")
 	if code, out := runPose(t, root, "close", "spec:bundle", "--apply", "--reviewer", "agent:closeout-reviewer"); code != 0 {
 		t.Fatalf("close spec %d %s", code, out)
@@ -66,11 +70,12 @@ func TestCloseOfTheLastMilestoneNamesTheRoadmap(t *testing.T) {
 	if code, out := runPose(t, root, attest...); code != 0 {
 		t.Fatalf("attest %d %s", code, out)
 	}
-	// The milestone gate reads delivery profiles this fixture does not declare, and
-	// passing it is not what is measured: this is the line that gate leads to.
-	next := nextCloses(cliGovernedStore(root), "milestone:program/first")
-	if len(next) != 1 || next[0] != "pose close roadmap:program" {
-		t.Fatalf("closing the last milestone did not name the roadmap: %v", next)
+	code, out := runPose(t, root, "close", "milestone:program/first")
+	if code != 0 {
+		t.Fatalf("close milestone %d %s", code, out)
+	}
+	if !strings.Contains(out, "close.next=pose close roadmap:program") {
+		t.Fatalf("closing the last milestone did not name the roadmap: %s", out)
 	}
 }
 

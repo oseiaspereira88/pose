@@ -165,7 +165,7 @@ func (s Store) ProjectObligations(q ObligationQuery) (ObligationReport, error) {
 			if err != nil {
 				return nil, err
 			}
-			reached, err := s.milestoneReachedObligations(project, q.Scope)
+			reached, err := s.milestoneReachedObligations(project, q.Scope, report.producerState["closeout"])
 			return append(items, reached...), err
 		}},
 		{"start", func() ([]Obligation, error) {
@@ -549,23 +549,40 @@ func (s Store) closeoutObligations(project string, specs []Spec, coverage map[st
 
 // milestoneReachedObligations projects the milestones that can be closed. The
 // rule restricts nothing: a reached milestone waits for an operator to close it,
-// and the roadmap's own close refuses it anyway.
-func (s Store) milestoneReachedObligations(project, scope string) ([]Obligation, error) {
-	spec := ""
-	if ref, err := ParseScopeRef(scope); scope != "" && err == nil && ref.Kind == "spec" {
-		spec = ref.Slug
+// and the roadmap's own close refuses it anyway. What cannot be read leaves the
+// producer's coverage incomplete and never reads as reached.
+func (s Store) milestoneReachedObligations(project, scope string, coverage *Coverage) ([]Obligation, error) {
+	lost := func(err error) ([]Obligation, error) {
+		markCoverageIncomplete(coverage, "reached milestones could not be read: "+err.Error())
+		return nil, nil
 	}
-	reached, err := s.ReachedMilestones(spec)
+	spec, within := "", scope
+	if ref, err := ParseScopeRef(scope); scope != "" && err == nil && ref.Kind == "spec" {
+		spec, within = ref.Slug, ""
+	}
+	candidates, err := s.milestonesWithTerminalMembers(spec, within)
 	if err != nil {
-		return nil, err
+		return lost(err)
+	}
+	recorded, err := s.milestonesWithRecordedApproval(candidates)
+	if err != nil {
+		return lost(err)
+	}
+	policy, _, err := s.loadReviewPolicy()
+	if err != nil {
+		return lost(err)
 	}
 	var out []Obligation
-	for _, ref := range reached {
+	for _, ref := range candidates {
 		parsed, err := ParseScopeRef(ref)
 		if err != nil {
 			return nil, err
 		}
-		if spec == "" && scope != "" && scope != ref && scope != "roadmap:"+parsed.Roadmap {
+		required, err := s.reviewRequiredForScope(parsed, policy)
+		if err != nil {
+			return lost(err)
+		}
+		if recorded[ref] || !required {
 			continue
 		}
 		source := QualifyNodeRef(project, ArtifactRef{Kind: "milestone", Slug: parsed.Roadmap, Milestone: parsed.Milestone}, "", "")

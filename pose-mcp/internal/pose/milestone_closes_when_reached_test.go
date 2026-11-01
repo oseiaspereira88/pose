@@ -1,7 +1,9 @@
 package pose
 
 import (
+	"io/fs"
 	"strings"
+	"sync/atomic"
 	"testing"
 	"time"
 )
@@ -283,5 +285,101 @@ func TestUncommittedSourceSaysSo(t *testing.T) {
 		if dep.Identity.Slug == "prereq" && dep.ResolutionState != federatedSourceUncommitted {
 			t.Fatalf("the state is not the code: %+v", dep)
 		}
+	}
+}
+
+type deniedFiles struct {
+	Files
+	suffix string
+}
+
+func (f deniedFiles) ReadFile(name string) ([]byte, error) {
+	if strings.HasSuffix(name, f.suffix) {
+		return nil, fs.ErrPermission
+	}
+	return f.Files.ReadFile(name)
+}
+
+func (f deniedFiles) ReadDir(name string) ([]fs.DirEntry, error) {
+	if strings.HasSuffix(name, f.suffix) {
+		return nil, fs.ErrPermission
+	}
+	return f.Files.ReadDir(name)
+}
+
+type profileReads struct {
+	Files
+	count *atomic.Int64
+}
+
+func (f profileReads) ReadFile(name string) ([]byte, error) {
+	if strings.Contains(name, "review-profiles") {
+		f.count.Add(1)
+	}
+	return f.Files.ReadFile(name)
+}
+
+// A review of each candidate took `pose state --attention` from 4 to 212 seconds here.
+func TestReachedListRunsNoReview(t *testing.T) {
+	_, s := roadmapDependencyFixture(t)
+	reads := &atomic.Int64{}
+	s.FS = profileReads{Files: NativeFiles(), count: reads}
+	cov := &Coverage{Producer: "closeout", State: CoverageStateCurrent}
+	items, err := s.milestoneReachedObligations("coordinator", "", cov)
+	if err != nil || len(items) != 1 {
+		t.Fatalf("the milestone is not listed: %v %v", items, err)
+	}
+	if reads.Load() != 0 {
+		t.Fatalf("listing reached milestones ran a review: %d profile reads", reads.Load())
+	}
+}
+
+func TestAStaleApprovalIsLeftToTheClose(t *testing.T) {
+	root, s := roadmapDependencyFixture(t)
+	now := time.Date(2026, 9, 26, 18, 0, 0, 0, time.UTC)
+	approveMember(t, s, now)
+	approveCore(t, s, now.Add(2*time.Minute))
+	editRoadmapFixture(t, root, "## Milestone: core", "Edited.\n\n## Milestone: core")
+	cov := &Coverage{Producer: "closeout", State: CoverageStateCurrent}
+	if items, err := s.milestoneReachedObligations("coordinator", "", cov); err != nil || len(items) != 0 {
+		t.Fatalf("a recorded approval was listed: %v %v", items, err)
+	}
+	if reached, err := s.ReachedMilestones("backend"); err != nil || len(reached) != 1 {
+		t.Fatalf("the close of a member does not see the stale approval: %v %v", reached, err)
+	}
+}
+
+func TestAnUnreadableApprovalIsNotReached(t *testing.T) {
+	_, s := roadmapDependencyFixture(t)
+	s.FS = deniedFiles{Files: NativeFiles(), suffix: "review-attestations"}
+	cov := &Coverage{Producer: "closeout", State: CoverageStateCurrent}
+	items, err := s.milestoneReachedObligations("coordinator", "", cov)
+	if err != nil || len(items) != 0 || cov.State != CoverageStateIncomplete {
+		t.Fatalf("a lost read reported a reached milestone: %v %v %+v", items, err, cov)
+	}
+	s.FS = deniedFiles{Files: NativeFiles(), suffix: "review.json"}
+	if reached, err := s.ReachedMilestones(""); err == nil {
+		t.Fatalf("a failed review read as no approval: %v", reached)
+	}
+}
+
+func TestAStartWarningNeverRefuses(t *testing.T) {
+	_, s := roadmapDependencyFixture(t)
+	want, err := s.PreviewStart("pending")
+	if err != nil {
+		t.Fatal(err)
+	}
+	s.FS = deniedFiles{Files: NativeFiles(), suffix: "roadmaps"}
+	plan, err := s.PreviewStart("pending")
+	if err != nil {
+		t.Fatalf("a warning that cannot be read refused the start: %v", err)
+	}
+	if plan.Digest != want.Digest || len(plan.Warnings) != 1 || !strings.Contains(plan.Warnings[0], "could not be read") {
+		t.Fatalf("the plan does not report the lost read: %+v", plan)
+	}
+	s.FS = deniedFiles{Files: NativeFiles(), suffix: "review.json"}
+	plan, err = s.PreviewStart("pending")
+	if err == nil && !strings.Contains(strings.Join(plan.Warnings, " "), "approval could not be read") {
+		t.Fatalf("a lost approval read as an unclosed predecessor: %+v", plan.Warnings)
 	}
 }
