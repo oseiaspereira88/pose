@@ -1,8 +1,6 @@
 package pose
 
 import (
-	"bytes"
-	"encoding/json"
 	"fmt"
 	"os"
 	"path/filepath"
@@ -122,78 +120,79 @@ func (s Store) scopeApproved(ref string) (bool, error) {
 	return eval.Approved || !eval.Required, nil
 }
 
-// milestonesWithRecordedApproval says which of refs have an approved attestation on
-// file. It reads records and verifies none: `pose state --attention` asks this about
-// every candidate of the repository, where a review each costs minutes, and a stale
-// approval is for the milestone's own close to refuse.
+// milestonesWithRecordedApproval says which of refs stand approved on file: the
+// latest bundle of the scope, whose latest attestation approves it. It goes through
+// the canonical readers and verifies nothing, since `pose state --attention` asks this
+// about every candidate of the repository, where a review each costs minutes: an
+// approval gone stale is for the milestone's own close to refuse. A record that cannot
+// be read is an error, never an absence.
 func (s Store) milestonesWithRecordedApproval(refs []string) (map[string]bool, error) {
 	recorded := map[string]bool{}
 	if len(refs) == 0 {
 		return recorded, nil
 	}
-	files := s.fsys()
-	attestations, err := files.ReadDir(s.reviewAttestationsDir())
-	if os.IsNotExist(err) {
-		return recorded, nil
-	}
+	attestations, err := s.ReadReviewAttestations("")
 	if err != nil {
 		return nil, err
 	}
-	approved := map[string]bool{}
-	for _, entry := range attestations {
-		if !strings.HasSuffix(entry.Name(), ".json") {
-			continue
-		}
-		raw, err := files.ReadFile(filepath.Join(s.reviewAttestationsDir(), entry.Name()))
-		if err != nil {
-			return nil, err
-		}
-		var record struct {
-			BundleID string `json:"bundle_id"`
-			Decision string `json:"decision"`
-		}
-		if err := json.Unmarshal(raw, &record); err != nil {
-			return nil, fmt.Errorf("pose: attestation %s: %w", entry.Name(), err)
-		}
-		if record.Decision == "approved" {
-			approved[record.BundleID] = true
-		}
-	}
-	bundles, err := files.ReadDir(s.reviewBundlesDir())
-	if os.IsNotExist(err) {
-		return recorded, nil
-	}
+	latest, err := s.latestBundlesOf(refs)
 	if err != nil {
 		return nil, err
 	}
-	for _, entry := range bundles {
-		id, isBundle := strings.CutSuffix(entry.Name(), ".json")
-		if !isBundle || !approved[id] {
-			continue
+	decided := map[string]ReviewAttestation{}
+	for _, att := range attestations.Attestations {
+		if att.AttestedAt >= decided[att.BundleID].AttestedAt {
+			decided[att.BundleID] = att
 		}
-		raw, err := files.ReadFile(filepath.Join(s.reviewBundlesDir(), entry.Name()))
-		if err != nil {
-			return nil, err
+	}
+	for ref, bundle := range latest {
+		if !attestations.Coverage.CompleteFor(bundle) {
+			return nil, fmt.Errorf("pose: the attestations of %s could not all be read", ref)
 		}
-		for _, ref := range refs {
-			if !bytes.Contains(raw, []byte(ref)) {
-				continue
-			}
-			var bundle struct {
-				Payload struct {
-					Scope struct {
-						Ref string `json:"ref"`
-					} `json:"scope"`
-				} `json:"payload"`
-			}
-			if err := json.Unmarshal(raw, &bundle); err != nil {
-				return nil, fmt.Errorf("pose: bundle %s: %w", entry.Name(), err)
-			}
-			recorded[bundle.Payload.Scope.Ref] = true
-			break
-		}
+		decision := decided[bundle].Decision
+		recorded[ref] = decision == "approved" || decision == "approved-with-reservations"
 	}
 	return recorded, nil
+}
+
+// latestBundlesOf names the latest bundle sealed for each of refs, from the header of
+// each record: reading every bundle whole is most of a minute here. A header that
+// cannot be read may be any scope's, so it is an error.
+func (s Store) latestBundlesOf(refs []string) (map[string]string, error) {
+	wanted := map[string]bool{}
+	for _, ref := range refs {
+		wanted[ref] = true
+	}
+	dir := s.reviewBundlesDir()
+	entries, err := s.fsys().ReadDir(dir)
+	if os.IsNotExist(err) {
+		return map[string]string{}, nil
+	}
+	if err != nil {
+		return nil, err
+	}
+	latest, sealed := map[string]string{}, map[string]string{}
+	for _, entry := range entries {
+		id, isBundle := strings.CutSuffix(entry.Name(), ".json")
+		if !isBundle {
+			continue
+		}
+		raw, err := s.fsys().ReadFile(filepath.Join(dir, entry.Name()))
+		if err != nil {
+			return nil, err
+		}
+		ref, found, ambiguous := sniffJSONString(raw, "payload", "scope", "ref")
+		if !found || ambiguous {
+			return nil, fmt.Errorf("pose: bundle %s names no single scope", id)
+		}
+		if !wanted[ref] {
+			continue
+		}
+		if at, _, _ := sniffJSONString(raw, "sealed_at"); at >= sealed[ref] {
+			latest[ref], sealed[ref] = id, at
+		}
+	}
+	return latest, nil
 }
 
 // RoadmapReached reports that every milestone of a roadmap not yet done is

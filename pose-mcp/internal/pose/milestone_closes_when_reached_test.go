@@ -2,6 +2,8 @@ package pose
 
 import (
 	"io/fs"
+	"os"
+	"path/filepath"
 	"strings"
 	"sync/atomic"
 	"testing"
@@ -351,6 +353,7 @@ func TestAStaleApprovalIsLeftToTheClose(t *testing.T) {
 
 func TestAnUnreadableApprovalIsNotReached(t *testing.T) {
 	_, s := roadmapDependencyFixture(t)
+	approveMember(t, s, time.Date(2026, 9, 26, 18, 0, 0, 0, time.UTC))
 	s.FS = deniedFiles{Files: NativeFiles(), suffix: "review-attestations"}
 	cov := &Coverage{Producer: "closeout", State: CoverageStateCurrent}
 	items, err := s.milestoneReachedObligations("coordinator", "", cov)
@@ -379,7 +382,91 @@ func TestAStartWarningNeverRefuses(t *testing.T) {
 	}
 	s.FS = deniedFiles{Files: NativeFiles(), suffix: "review.json"}
 	plan, err = s.PreviewStart("pending")
-	if err == nil && !strings.Contains(strings.Join(plan.Warnings, " "), "approval could not be read") {
+	if err != nil {
+		t.Fatalf("a lost approval refused the start: %v", err)
+	}
+	if !strings.Contains(strings.Join(plan.Warnings, " "), "approval could not be read") {
 		t.Fatalf("a lost approval read as an unclosed predecessor: %+v", plan.Warnings)
+	}
+}
+
+func attentionListsCore(t *testing.T, s Store) bool {
+	t.Helper()
+	cov := &Coverage{Producer: "closeout", State: CoverageStateCurrent}
+	items, err := s.milestoneReachedObligations("coordinator", "milestone:program/core", cov)
+	if err != nil || cov.State != CoverageStateCurrent {
+		t.Fatalf("the read was not complete: %v %+v", err, cov)
+	}
+	return len(items) == 1
+}
+
+func TestALaterRejectionIsNotAnApproval(t *testing.T) {
+	_, s := roadmapDependencyFixture(t)
+	now := time.Date(2026, 9, 26, 18, 0, 0, 0, time.UTC)
+	approveMember(t, s, now)
+	bundle, err := s.SealReviewBundle("milestone:program/core", now.Add(2*time.Minute))
+	if err != nil {
+		t.Fatal(err, bundle.Blockers)
+	}
+	attestChildReview(t, s, bundle, now.Add(3*time.Minute), "approved")
+	if attentionListsCore(t, s) {
+		t.Fatal("an approved milestone is listed")
+	}
+	attestChildReview(t, s, bundle, now.Add(4*time.Minute), "rejected")
+	if !attentionListsCore(t, s) {
+		t.Fatal("an approval followed by a rejection hid the milestone")
+	}
+}
+
+func TestAReservedApprovalIsAnApproval(t *testing.T) {
+	root, s := roadmapDependencyFixture(t)
+	path := filepath.Join(root, ".pose/policy/review.json")
+	raw, err := os.ReadFile(path)
+	if err != nil {
+		t.Fatal(err)
+	}
+	policy := strings.Replace(string(raw), `{`, `{"allow_approved_with_reservations":true,`, 1)
+	federatedTestWrite(t, root, ".pose/policy/review.json", policy)
+	federatedTestGit(t, root, "add", "--all")
+	federatedTestGit(t, root, "commit", "-q", "-m", "allow reservations")
+	now := time.Date(2026, 9, 26, 18, 0, 0, 0, time.UTC)
+	approveMember(t, s, now)
+	bundle, err := s.SealReviewBundle("milestone:program/core", now.Add(2*time.Minute))
+	if err != nil {
+		t.Fatal(err, bundle.Blockers)
+	}
+	attestChildReview(t, s, bundle, now.Add(3*time.Minute), "approved-with-reservations")
+	if eval, err := s.ReviewCheck("milestone:program/core"); err != nil || !eval.Approved {
+		t.Fatalf("the fixture is not approved: %+v %v", eval, err)
+	}
+	if attentionListsCore(t, s) {
+		t.Fatal("an approval with reservations read as none")
+	}
+}
+
+func TestAnAmbiguousRecordIsNotAnApproval(t *testing.T) {
+	_, s := roadmapDependencyFixture(t)
+	now := time.Date(2026, 9, 26, 18, 0, 0, 0, time.UTC)
+	approveMember(t, s, now)
+	approveCore(t, s, now.Add(2*time.Minute))
+	path := s.reviewAttestationsDir()
+	entries, err := os.ReadDir(path)
+	if err != nil {
+		t.Fatal(err)
+	}
+	for _, entry := range entries {
+		raw, err := os.ReadFile(filepath.Join(path, entry.Name()))
+		if err != nil {
+			t.Fatal(err)
+		}
+		edited := strings.Replace(string(raw), `"decision": "approved"`, `"decision": "rejected", "decision": "approved"`, 1)
+		if err := os.WriteFile(filepath.Join(path, entry.Name()), []byte(edited), 0o644); err != nil {
+			t.Fatal(err)
+		}
+	}
+	cov := &Coverage{Producer: "closeout", State: CoverageStateCurrent}
+	items, err := s.milestoneReachedObligations("coordinator", "", cov)
+	if err != nil || len(items) != 0 || cov.State != CoverageStateIncomplete {
+		t.Fatalf("an ambiguous record read as a clean answer: %v %v %+v", items, err, cov)
 	}
 }
