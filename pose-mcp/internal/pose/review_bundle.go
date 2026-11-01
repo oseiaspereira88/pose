@@ -522,7 +522,9 @@ func (s Store) prepareReviewBundle(ref string, legacyMilestoneManifest bool) (Re
 		for i := range bundle.Payload.Evidence {
 			bundle.Payload.Evidence[i].SubjectObservation = ReviewEvidenceObservationForSubject(bundle.Payload.Subject, bundle.Payload.Evidence[i])
 		}
-		if len(bundle.Payload.Evidence) == 0 && s.reviewScopeRequiresValidationEvidence(scope, bundle.Payload.Plan, graph) {
+		// Without a change set no evidence can be attributed: that blocker already
+		// names the cause, and a second one would send the operator to re-validate.
+		if !reportsMissingChangeSet(bundle.Blockers) && len(bundle.Payload.Evidence) == 0 && s.reviewScopeRequiresValidationEvidence(scope, bundle.Payload.Plan, graph) {
 			bundle.Blockers = append(bundle.Blockers, "no passed structured validation evidence is attributed to the review scope")
 		}
 		bundle.Warnings = append(bundle.Warnings, staleEvidenceWarnings(bundle.Payload.Subject, bundle.Payload.Evidence)...)
@@ -734,7 +736,11 @@ func (s Store) reviewBundleSubject(scope ScopeRef, components []ReviewPlanCompon
 		return subject, excluded, blockers, nil
 	}
 	if len(sets) == 0 {
-		blockers = append(blockers, "no immutable attributed change set exists for "+scope.String())
+		missing := missingChangeSetBlocker + scope.String()
+		if scope.Kind == "spec" {
+			missing += "; the index holds no commit with `POSE-Spec: " + scope.Slug + "`: add the line to the implementing commit, run `pose index` and confirm with `pose artifact-check --spec " + scope.Slug + "`"
+		}
+		blockers = append(blockers, missing)
 		return subject, excluded, blockers, nil
 	}
 	sort.Slice(sets, func(i, j int) bool { return sets[i].ID < sets[j].ID })
@@ -1644,6 +1650,17 @@ func (s Store) reviewScopeRequiresValidationEvidence(scope ScopeRef, plan Review
 	default:
 		return true
 	}
+}
+
+const missingChangeSetBlocker = "no immutable attributed change set exists for "
+
+func reportsMissingChangeSet(blockers []string) bool {
+	for _, blocker := range blockers {
+		if strings.HasPrefix(blocker, missingChangeSetBlocker) {
+			return true
+		}
+	}
+	return false
 }
 
 // milestoneOnlyExternal reports a milestone whose members all belong to other
