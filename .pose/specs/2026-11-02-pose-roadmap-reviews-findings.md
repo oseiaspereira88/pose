@@ -42,6 +42,7 @@ A premise stops being watched the moment its spec is done, which is when a decis
 - R3: A close whose transition took effect with durability unconfirmed shall report the close and say so on every path, `close --apply` included.
 - R4: A state refresh that published with durability unconfirmed shall finish its later effects, log `unsynced`, and succeed saying so, except under `strict_refresh`, which asks for durability, fails, and fails a replay until a publication is durable. A later effect that fails shall not hide the publication or its durability, and where the refresh log itself failed, `refresh_pending` shall say what took effect.
 - R5: An immutable publication shall fall back to an exclusive write only where a link is unavailable, and the fallback shall report its durability like any publication, a complete record included.
+- R7: A delegated run whose brief was accepted whole shall not fail because `Wait` closed the pipe before the writer did.
 - R6: The cleanup plan shall hold a dry run of both corpora, with the content of each unchanged.
 
 ### Non-functional
@@ -60,7 +61,7 @@ A premise stops being watched the moment its spec is done, which is when a decis
 
 ### Affected areas
 
-`internal/pose/premise_validity.go`, `internal/pose/git_snapshot_integrity.go`, `internal/pose/release_lifecycle.go`, `internal/pose/discovery.go`, `internal/pose/operation_result.go`, `internal/pose/writer_publication.go`, `internal/cli/review_closeout.go`, `internal/cli/closeout_plan.go`, `internal/cli/state_refresh.go`, `internal/cli/state.go`, `internal/cli/state_hooks.go`.
+`internal/pose/premise_validity.go`, `internal/pose/git_snapshot_integrity.go`, `internal/pose/release_lifecycle.go`, `internal/pose/discovery.go`, `internal/pose/review_run_provenance.go`, `internal/pose/operation_result.go`, `internal/pose/writer_publication.go`, `internal/cli/review_closeout.go`, `internal/cli/closeout_plan.go`, `internal/cli/state_refresh.go`, `internal/cli/state.go`, `internal/cli/state_hooks.go`.
 
 ### Artifacts
 
@@ -73,6 +74,7 @@ A premise stops being watched the moment its spec is done, which is when a decis
 - modified: pose-mcp/internal/pose/git_snapshot_integrity.go
 - modified: pose-mcp/internal/pose/release_lifecycle.go
 - modified: pose-mcp/internal/pose/discovery.go
+- modified: pose-mcp/internal/pose/review_run_provenance.go
 - modified: pose-mcp/internal/pose/operation_result.go
 - modified: pose-mcp/internal/pose/writer_publication.go
 - modified: pose-mcp/internal/cli/review_closeout.go
@@ -133,13 +135,14 @@ Each guard is seen failing under a mutant. The full suite passes with an empty `
 - R3 [satisfied] check:roadmap-reviews-findings-integration test:TestAnUnsyncedCloseSaysItClosed report:.pose/results/delivery-validation.json commit:21e17d61da9644f3b57b287fc5989eb6b43c3d96
 - R4 [satisfied] check:roadmap-reviews-findings-integration test:TestAnUnsyncedRefreshDoesNotReadAsFailed test:TestAManualUnsyncedRefreshSaysSoAndSucceeds test:TestAStrictPolicyRefusesAnUnsyncedRefresh test:TestAStrictReplayDoesNotReadAsDurable test:TestAPolicyMadeStrictLaterAsksAgain test:TestACombinedRefreshFailureSaysBoth test:TestASkippedReplayIsNoDurabilityUnderAStrictPolicy report:.pose/results/delivery-validation.json commit:21e17d61da9644f3b57b287fc5989eb6b43c3d96
 - R5 [satisfied] check:roadmap-reviews-findings-integration test:TestOnlyAMissingLinkFallsBack test:TestTheFallbackAnswersForItsDirectory test:TestACompleteFallbackReportsItsDurability report:.pose/results/delivery-validation.json commit:21e17d61da9644f3b57b287fc5989eb6b43c3d96
+- R7 [satisfied] check:roadmap-reviews-findings-integration test:TestABriefAcceptedWholeIsDelivered report:.pose/results/delivery-validation.json commit:796a9b226bc2c4744152245e25c22c78bcb1837b
 - R6 [satisfied] check:roadmap-reviews-findings-integration test:TestTheCleanupPlanHoldsBothCorpora report:.pose/results/delivery-validation.json commit:21e17d61da9644f3b57b287fc5989eb6b43c3d96
 
 ## 7. Final Report
 
 ### Delivered scope
 
-A premise is watched after delivery, and a withdrawn one asks for nothing. An empty `.git` directory is no repository, while a bare repository and one reached through a link are, and the ignore walk tells a repository by file identity and enters each once. A publication whose durability is unconfirmed is reported for what it did by `close --apply`, by every refresh entry point and by the immutable fallback, a strict policy refuses it on replay too, and the fallback runs only where a link is unavailable. The cleanup plan holds a dry run of both corpora.
+A brief accepted whole is delivered, whichever of `Wait` and the writer closes the pipe. A premise is watched after delivery, and a withdrawn one asks for nothing. An empty `.git` directory is no repository, while a bare repository and one reached through a link are, and the ignore walk tells a repository by file identity and enters each once. A publication whose durability is unconfirmed is reported for what it did by `close --apply`, by every refresh entry point and by the immutable fallback, a strict policy refuses it on replay too, and the fallback runs only where a link is unavailable. The cleanup plan holds a dry run of both corpora.
 
 ### Residual risks
 
