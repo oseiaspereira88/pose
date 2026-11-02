@@ -5,6 +5,7 @@ import (
 	"os"
 	"os/exec"
 	"path/filepath"
+	"strings"
 	"testing"
 	"time"
 )
@@ -314,8 +315,8 @@ func TestB07R4BUnknownTopLevel(t *testing.T) {
 	t.Setenv("PATH", bin+string(os.PathListSeparator)+os.Getenv("PATH"))
 	d, e := WorktreeDivergence(sub, head, nil)
 	t.Logf("unknown root divergence=%v err=%v", d, e)
-	if e == nil && len(d) == 0 {
-		t.Error("unknown worktree root converted to clean copy")
+	if e == nil || !strings.Contains(e.Error(), "exit status 97") {
+		t.Errorf("the injected failure did not reach the reader: divergence=%v err=%v", d, e)
 	}
 }
 func TestB07R4BMissingRun(t *testing.T) {

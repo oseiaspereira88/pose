@@ -32,6 +32,7 @@ No reading of a repository by the engine can be redirected by a replace ref or a
 ### Non-goals
 
 - Authenticating a tag: a signature is another concern.
+- An adversary inside the source: the test guards against a call written by habit, and reflection or a generated program would pass it.
 - Executable Git configuration of the repository, such as `core.fsmonitor`, which the raw reader does not disarm.
 - Shell scripts the repository ships, and declared external checks: the rule covers the Go sources of the engine.
 - `.git/shallow`, handled by `pose-review-reads-raw-history-and-roots-diff`.
