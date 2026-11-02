@@ -1,0 +1,90 @@
+{
+  "schema_version": 1,
+  "attestation_id": "rva-49b11a5dd410f450",
+  "bundle_id": "rvb-c3bbd09fddc8e5b9",
+  "bundle_digest": "sha256:c3bbd09fddc8e5b9141665f8dc22199931ea605560661cc0e1266d71359b1c73",
+  "reviewer": "agent:independent-reached-milestones-sol-20261101",
+  "decision": "approved",
+  "criteria": [
+    {
+      "id": "exit-gate",
+      "disposition": "passed",
+      "evidence": "integration:pose-mcp/go/review-attribution-roles-integration",
+      "rationale": "Inspected shared assurance/attribution disclosure, proof checks and optional attribution serialization. The630Cycle probe verifies human:oseias renders declared identity, unverified separation and legacy-undifferentiated attribution; no human conclusion/confirmation is invented. Legacy serialization omits attribution; supplements clarify without mutating old records. Supplemental proof/attribution probes pass."
+    },
+    {
+      "id": "integration",
+      "disposition": "passed",
+      "evidence": "integration:pose-mcp/go/review-attribution-roles-integration",
+      "rationale": "Native auto-attest mechanical preparation resolves this criterion from sealed integration evidence; independent source and executable probes provide the scope-specific integration judgment stated in exit-gate."
+    },
+    {
+      "id": "membership",
+      "disposition": "passed",
+      "evidence": "integration:pose-mcp/go/review-attribution-roles-integration",
+      "rationale": "Roadmap membership matches sealed child refs: pose-review-assurance-disclosure, pose-review-attribution-roles. Read each member status done and ran review verify spec:\u003cmember\u003e: each is closed, fresh=true, approved=true. These are retained child approvals, not current engine qualification by themselves."
+    },
+    {
+      "id": "regression",
+      "disposition": "passed",
+      "evidence": "integration:pose-mcp/go/review-attribution-roles-integration",
+      "rationale": "Independent current build passes. Supplied sealed strict report at aff41dc2 records 180/180 pass with matching matrix SHA-256; inspected, not independently reproduced. Fresh full suites at HEAD and control 18c6399b both fail with the identical 333 test/subtest identities and zero Go source delta. Git-less fixtures and sandbox ownership limits are not called new regressions. Independent test-only Git fixture overlay yields 223 passes; production source is unchanged. Fresh native validate --strict --module pose-mcp fails: 177 steps, 125 pass and 52 fail; this is not a fresh green qualification. The full-suite control comparison and supplemental fixture probes distinguish these known limitations from a demonstrated milestone regression. No evidence of a later regression in this milestone was found within these checks."
+    },
+    {
+      "id": "residual-risk",
+      "disposition": "passed",
+      "evidence": "integration:pose-mcp/go/review-attribution-roles-integration",
+      "rationale": "No member open follow-up. Declared identities and role supplements remain declarations; no human review, authenticated separation or cognitive independence is implied. New roles are prospective and optional; a supplement cannot supply a bound confirmation. Requiring verified identity universally remains a separate policy decision."
+    }
+  ],
+  "tools": [
+    {
+      "id": "assess-discover",
+      "component": "pose-mcp",
+      "disposition": "not-used",
+      "rationale": "Skipped recommended rescan: inspected component source, mapping and current milestone/child plans directly; no implementation or lifecycle transition requested."
+    },
+    {
+      "id": "assess-tech-debt",
+      "disposition": "passed",
+      "evidence": "integration:pose-mcp/go/review-attribution-roles-integration",
+      "rationale": "Fresh assessment in scratch clone: one covered TODO, no uncovered markers; INCOMPLETE due to two invalid historical spec sources. Not a complete debt census."
+    },
+    {
+      "id": "closeout-check",
+      "disposition": "deferred",
+      "rationale": "Completion gate deferred; no close authorized."
+    },
+    {
+      "id": "review-check",
+      "disposition": "deferred",
+      "rationale": "Completion gate deferred until attestation; run verify and review-check immediately after apply."
+    },
+    {
+      "id": "suggest-review",
+      "component": "pose-mcp",
+      "disposition": "passed",
+      "evidence": "integration:pose-mcp/go/review-attribution-roles-integration",
+      "rationale": "Fresh suggest review --path pose-mcp selected backend-go, security, documentation-style; delivery-evidence and knowledge-governance also read."
+    },
+    {
+      "id": "validate",
+      "component": "pose-mcp",
+      "disposition": "passed",
+      "evidence": "integration:pose-mcp/go/review-attribution-roles-integration",
+      "rationale": "Independent current build passes. Supplied sealed strict report at aff41dc2 records 180/180 pass with matching matrix SHA-256; inspected, not independently reproduced. Fresh full suites at HEAD and control 18c6399b both fail with the identical 333 test/subtest identities and zero Go source delta. Git-less fixtures and sandbox ownership limits are not called new regressions. Independent test-only Git fixture overlay yields 223 passes; production source is unchanged. Fresh native validate --strict --module pose-mcp fails: 177 steps, 125 pass and 52 fail; this is not a fresh green qualification. The full-suite control comparison and supplemental fixture probes distinguish these known limitations from a demonstrated milestone regression. No evidence of a later regression in this milestone was found within these checks."
+    }
+  ],
+  "evidence_refs": [
+    "integration:pose-mcp/go/review-attribution-roles-integration"
+  ],
+  "findings": [],
+  "attribution": {
+    "schema_version": 1,
+    "prepared_by": "agent:independent-reached-milestones-sol-20261101",
+    "concluded_by": "agent:independent-reached-milestones-sol-20261101",
+    "applied_by": "agent:codex"
+  },
+  "attested_at": "2026-11-02T02:42:02Z",
+  "path": ".pose/review-attestations/rva-49b11a5dd410f450.json"
+}

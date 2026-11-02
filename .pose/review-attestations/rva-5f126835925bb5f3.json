@@ -1,0 +1,90 @@
+{
+  "schema_version": 1,
+  "attestation_id": "rva-5f126835925bb5f3",
+  "bundle_id": "rvb-d28b0e6e620c0826",
+  "bundle_digest": "sha256:d28b0e6e620c08269f86df65a2ef63bd05939301ba3a7bd71213fbd308a9758f",
+  "reviewer": "agent:independent-reached-milestones-sol-20261101",
+  "decision": "approved",
+  "criteria": [
+    {
+      "id": "exit-gate",
+      "disposition": "passed",
+      "evidence": "integration:pose-mcp/go/historical-trust-reuse-integration",
+      "rationale": "Inspected review_trust_time.go explicit operation clock, signed issuer-asserted historical claim versus current validity/trust, and historical_authorization=not-established. review_reuse_provenance.go verifies sources or declares current reaffirmation, detects cycles and caps depth 16/nodes 32/edges 128/bytes 16 MiB. Supplemental deterministic temporal/reuse and action-read/assurance probes pass; #157 behavior remains checked."
+    },
+    {
+      "id": "integration",
+      "disposition": "passed",
+      "evidence": "integration:pose-mcp/go/historical-trust-reuse-integration",
+      "rationale": "Native auto-attest mechanical preparation resolves this criterion from sealed integration evidence; independent source and executable probes provide the scope-specific integration judgment stated in exit-gate."
+    },
+    {
+      "id": "membership",
+      "disposition": "passed",
+      "evidence": "integration:pose-mcp/go/historical-trust-reuse-integration",
+      "rationale": "Roadmap membership matches sealed child refs: pose-historical-trust-and-review-reuse. Read each member status done and ran review verify spec:\u003cmember\u003e: each is closed, fresh=true, approved=true. These are retained child approvals, not current engine qualification by themselves."
+    },
+    {
+      "id": "regression",
+      "disposition": "passed",
+      "evidence": "integration:pose-mcp/go/historical-trust-reuse-integration",
+      "rationale": "Independent current build passes. Supplied sealed strict report at aff41dc2 records 180/180 pass with matching matrix SHA-256; inspected, not independently reproduced. Fresh full suites at HEAD and control 18c6399b both fail with the identical 333 test/subtest identities and zero Go source delta. Git-less fixtures and sandbox ownership limits are not called new regressions. Independent test-only Git fixture overlay yields 223 passes; production source is unchanged. Fresh native validate --strict --module pose-mcp fails: 177 steps, 125 pass and 52 fail; this is not a fresh green qualification. The full-suite control comparison and supplemental fixture probes distinguish these known limitations from a demonstrated milestone regression. No evidence of a later regression in this milestone was found within these checks."
+    },
+    {
+      "id": "residual-risk",
+      "disposition": "passed",
+      "evidence": "integration:pose-mcp/go/historical-trust-reuse-integration",
+      "rationale": "No new residual follow-up closed. Signed payload proves issuer assertion, not wall-clock truth or an unrecorded historical authorization receipt. Current pins/grants stay live; legacy attested_at stays editable/not-established. Unreadable global inventory coverage is a separate scope; traversal budget exhaustion is explicitly inconclusive."
+    }
+  ],
+  "tools": [
+    {
+      "id": "assess-discover",
+      "component": "pose-mcp",
+      "disposition": "not-used",
+      "rationale": "Skipped recommended rescan: inspected component source, mapping and current milestone/child plans directly; no implementation or lifecycle transition requested."
+    },
+    {
+      "id": "assess-tech-debt",
+      "disposition": "passed",
+      "evidence": "integration:pose-mcp/go/historical-trust-reuse-integration",
+      "rationale": "Fresh assessment in scratch clone: one covered TODO, no uncovered markers; INCOMPLETE due to two invalid historical spec sources. Not a complete debt census."
+    },
+    {
+      "id": "closeout-check",
+      "disposition": "deferred",
+      "rationale": "Completion gate deferred; no close authorized."
+    },
+    {
+      "id": "review-check",
+      "disposition": "deferred",
+      "rationale": "Completion gate deferred until attestation; run verify and review-check immediately after apply."
+    },
+    {
+      "id": "suggest-review",
+      "component": "pose-mcp",
+      "disposition": "passed",
+      "evidence": "integration:pose-mcp/go/historical-trust-reuse-integration",
+      "rationale": "Fresh suggest review --path pose-mcp selected backend-go, security, documentation-style; delivery-evidence and knowledge-governance also read."
+    },
+    {
+      "id": "validate",
+      "component": "pose-mcp",
+      "disposition": "passed",
+      "evidence": "integration:pose-mcp/go/historical-trust-reuse-integration",
+      "rationale": "Independent current build passes. Supplied sealed strict report at aff41dc2 records 180/180 pass with matching matrix SHA-256; inspected, not independently reproduced. Fresh full suites at HEAD and control 18c6399b both fail with the identical 333 test/subtest identities and zero Go source delta. Git-less fixtures and sandbox ownership limits are not called new regressions. Independent test-only Git fixture overlay yields 223 passes; production source is unchanged. Fresh native validate --strict --module pose-mcp fails: 177 steps, 125 pass and 52 fail; this is not a fresh green qualification. The full-suite control comparison and supplemental fixture probes distinguish these known limitations from a demonstrated milestone regression. No evidence of a later regression in this milestone was found within these checks."
+    }
+  ],
+  "evidence_refs": [
+    "integration:pose-mcp/go/historical-trust-reuse-integration"
+  ],
+  "findings": [],
+  "attribution": {
+    "schema_version": 1,
+    "prepared_by": "agent:independent-reached-milestones-sol-20261101",
+    "concluded_by": "agent:independent-reached-milestones-sol-20261101",
+    "applied_by": "agent:codex"
+  },
+  "attested_at": "2026-11-02T02:42:13Z",
+  "path": ".pose/review-attestations/rva-5f126835925bb5f3.json"
+}

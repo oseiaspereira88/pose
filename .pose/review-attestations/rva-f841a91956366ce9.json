@@ -1,0 +1,120 @@
+{
+  "schema_version": 1,
+  "attestation_id": "rva-f841a91956366ce9",
+  "bundle_id": "rvb-6be61ed9bdf7179d",
+  "bundle_digest": "sha256:6be61ed9bdf7179d42eb525a2024179867c4dd455fd2ce39f24958904d83e657",
+  "reviewer": "agent:independent-reached-milestones-sol-20261101",
+  "decision": "approved",
+  "criteria": [
+    {
+      "id": "cross-component-integration",
+      "disposition": "passed",
+      "evidence": "integration:pose-mcp/go/legacy-contract-cutoffs-integration",
+      "rationale": "Native auto-attest mechanical preparation resolves this criterion from sealed integration evidence; independent source and executable probes provide the scope-specific integration judgment stated in exit-gate."
+    },
+    {
+      "id": "exit-gate",
+      "disposition": "passed",
+      "evidence": "integration:pose-mcp/go/legacy-contract-cutoffs-integration",
+      "rationale": "Inspected typed registry cutoff contract and provenance resolver: local candidate, retained prepared manifest, and sound published/verified release events are separate; release-read failure yields unknown rather than publication. Fresh cutoff (7) and amendment (40) tests pass; supplemental public-claims probes pass after synthetic fixtures gain Git. Flat journals resolve per spec and format migration retains them."
+    },
+    {
+      "id": "integration",
+      "disposition": "passed",
+      "evidence": "integration:pose-mcp/go/legacy-contract-cutoffs-integration",
+      "rationale": "Native auto-attest mechanical preparation resolves this criterion from sealed integration evidence; independent source and executable probes provide the scope-specific integration judgment stated in exit-gate."
+    },
+    {
+      "id": "membership",
+      "disposition": "passed",
+      "evidence": "integration:pose-mcp/go/legacy-contract-cutoffs-integration",
+      "rationale": "Roadmap membership matches sealed child refs: pose-legacy-contract-cutoffs, pose-public-claims-publication-provenance, pose-flat-spec-amendments. Read each member status done and ran review verify spec:\u003cmember\u003e: each is closed, fresh=true, approved=true. These are retained child approvals, not current engine qualification by themselves."
+    },
+    {
+      "id": "regression",
+      "disposition": "passed",
+      "evidence": "integration:pose-mcp/go/legacy-contract-cutoffs-integration",
+      "rationale": "Independent current build passes. Supplied sealed strict report at aff41dc2 records 180/180 pass with matching matrix SHA-256; inspected, not independently reproduced. Fresh full suites at HEAD and control 18c6399b both fail with the identical 333 test/subtest identities and zero Go source delta. Git-less fixtures and sandbox ownership limits are not called new regressions. Independent test-only Git fixture overlay yields 223 passes; production source is unchanged. Fresh native validate --strict --module pose-mcp fails: 177 steps, 125 pass and 52 fail; this is not a fresh green qualification. The full-suite control comparison and supplemental fixture probes distinguish these known limitations from a demonstrated milestone regression. No evidence of a later regression in this milestone was found within these checks."
+    },
+    {
+      "id": "residual-risk",
+      "disposition": "passed",
+      "evidence": "integration:pose-mcp/go/legacy-contract-cutoffs-integration",
+      "rationale": "No member open follow-up. Stamped legacy contracts remain authoritative; released_version remains a deprecated local candidate alias, not proof of publication. Local retained events are not live provider verification. The docs-site matrix declares no check; no docs build is claimed."
+    }
+  ],
+  "tools": [
+    {
+      "id": "assess-discover",
+      "component": "docs-site",
+      "disposition": "not-used",
+      "rationale": "Skipped recommended rescan: inspected component source, mapping and current milestone/child plans directly; no implementation or lifecycle transition requested."
+    },
+    {
+      "id": "assess-discover",
+      "component": "pose-mcp",
+      "disposition": "not-used",
+      "rationale": "Skipped recommended rescan: inspected component source, mapping and current milestone/child plans directly; no implementation or lifecycle transition requested."
+    },
+    {
+      "id": "assess-integrate",
+      "disposition": "passed",
+      "evidence": "integration:pose-mcp/go/legacy-contract-cutoffs-integration",
+      "rationale": "Fresh scratch assessment: 70 contracts, 6 active, 64 unobserved consumers. Heuristic inventory, not proof of every consumer; focused executable probes supplement it."
+    },
+    {
+      "id": "assess-tech-debt",
+      "disposition": "passed",
+      "evidence": "integration:pose-mcp/go/legacy-contract-cutoffs-integration",
+      "rationale": "Fresh assessment in scratch clone: one covered TODO, no uncovered markers; INCOMPLETE due to two invalid historical spec sources. Not a complete debt census."
+    },
+    {
+      "id": "closeout-check",
+      "disposition": "deferred",
+      "rationale": "Completion gate deferred; no close authorized."
+    },
+    {
+      "id": "review-check",
+      "disposition": "deferred",
+      "rationale": "Completion gate deferred until attestation; run verify and review-check immediately after apply."
+    },
+    {
+      "id": "suggest-review",
+      "component": "docs-site",
+      "disposition": "not-used",
+      "rationale": "Docs surface inspected under documentation-style and security. No frontend/infrastructure implementation or docs build claimed."
+    },
+    {
+      "id": "suggest-review",
+      "component": "pose-mcp",
+      "disposition": "passed",
+      "evidence": "integration:pose-mcp/go/legacy-contract-cutoffs-integration",
+      "rationale": "Fresh suggest review --path pose-mcp selected backend-go, security, documentation-style; delivery-evidence and knowledge-governance also read."
+    },
+    {
+      "id": "validate",
+      "component": "docs-site",
+      "disposition": "not-used",
+      "rationale": "the validation matrix declares this component runs no check, so no producer can emit evidence of class "
+    },
+    {
+      "id": "validate",
+      "component": "pose-mcp",
+      "disposition": "passed",
+      "evidence": "integration:pose-mcp/go/legacy-contract-cutoffs-integration",
+      "rationale": "Independent current build passes. Supplied sealed strict report at aff41dc2 records 180/180 pass with matching matrix SHA-256; inspected, not independently reproduced. Fresh full suites at HEAD and control 18c6399b both fail with the identical 333 test/subtest identities and zero Go source delta. Git-less fixtures and sandbox ownership limits are not called new regressions. Independent test-only Git fixture overlay yields 223 passes; production source is unchanged. Fresh native validate --strict --module pose-mcp fails: 177 steps, 125 pass and 52 fail; this is not a fresh green qualification. The full-suite control comparison and supplemental fixture probes distinguish these known limitations from a demonstrated milestone regression. No evidence of a later regression in this milestone was found within these checks."
+    }
+  ],
+  "evidence_refs": [
+    "integration:pose-mcp/go/legacy-contract-cutoffs-integration"
+  ],
+  "findings": [],
+  "attribution": {
+    "schema_version": 1,
+    "prepared_by": "agent:independent-reached-milestones-sol-20261101",
+    "concluded_by": "agent:independent-reached-milestones-sol-20261101",
+    "applied_by": "agent:codex"
+  },
+  "attested_at": "2026-11-02T02:41:30Z",
+  "path": ".pose/review-attestations/rva-f841a91956366ce9.json"
+}

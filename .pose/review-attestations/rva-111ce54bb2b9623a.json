@@ -1,0 +1,90 @@
+{
+  "schema_version": 1,
+  "attestation_id": "rva-111ce54bb2b9623a",
+  "bundle_id": "rvb-4e365392e35f651a",
+  "bundle_digest": "sha256:4e365392e35f651a034602ae66848dbdd3e1553b7d44ad9aea3ccd52878808fd",
+  "reviewer": "agent:independent-reached-milestones-sol-20261101",
+  "decision": "approved",
+  "criteria": [
+    {
+      "id": "exit-gate",
+      "disposition": "passed",
+      "evidence": "integration:pose-mcp/go/review-approval-domain-preflight-integration",
+      "rationale": "review_bundle.go recordReviewAttestation completes and admits before ensuring the artifact directory or writing. ReviewDomainPreflight probes exercise Store, CLI, signed import and MCP refusal, unchanged .pose snapshots, legitimate negatives and valid/retried approval. Current production code inspected; 223 supplemental fixture probes pass."
+    },
+    {
+      "id": "integration",
+      "disposition": "passed",
+      "evidence": "integration:pose-mcp/go/review-approval-domain-preflight-integration",
+      "rationale": "Native auto-attest mechanical preparation resolves this criterion from sealed integration evidence; independent source and executable probes provide the scope-specific integration judgment stated in exit-gate."
+    },
+    {
+      "id": "membership",
+      "disposition": "passed",
+      "evidence": "integration:pose-mcp/go/review-approval-domain-preflight-integration",
+      "rationale": "Roadmap membership matches sealed child refs: pose-review-approval-domain-preflight. Read each member status done and ran review verify spec:\u003cmember\u003e: each is closed, fresh=true, approved=true. These are retained child approvals, not current engine qualification by themselves."
+    },
+    {
+      "id": "regression",
+      "disposition": "passed",
+      "evidence": "integration:pose-mcp/go/review-approval-domain-preflight-integration",
+      "rationale": "Independent current build passes. Supplied sealed strict report at aff41dc2 records 180/180 pass with matching matrix SHA-256; inspected, not independently reproduced. Fresh full suites at HEAD and control 18c6399b both fail with the identical 333 test/subtest identities and zero Go source delta. Git-less fixtures and sandbox ownership limits are not called new regressions. Independent test-only Git fixture overlay yields 223 passes; production source is unchanged. Fresh native validate --strict --module pose-mcp fails: 177 steps, 125 pass and 52 fail; this is not a fresh green qualification. The full-suite control comparison and supplemental fixture probes distinguish these known limitations from a demonstrated milestone regression. No evidence of a later regression in this milestone was found within these checks."
+    },
+    {
+      "id": "residual-risk",
+      "disposition": "passed",
+      "evidence": "integration:pose-mcp/go/review-approval-domain-preflight-integration",
+      "rationale": "No member open follow-up. Retain member limits: legacy review record is separate, freshness preparation costs scale with bundle preparation, no additional race atomicity or observed historical authorization or cognition is proved. B06/B14 remain separate program scopes; stricter refusal was classified minor."
+    }
+  ],
+  "tools": [
+    {
+      "id": "assess-discover",
+      "component": "pose-mcp",
+      "disposition": "not-used",
+      "rationale": "Skipped recommended rescan: inspected component source, mapping and current milestone/child plans directly; no implementation or lifecycle transition requested."
+    },
+    {
+      "id": "assess-tech-debt",
+      "disposition": "passed",
+      "evidence": "integration:pose-mcp/go/review-approval-domain-preflight-integration",
+      "rationale": "Fresh assessment in scratch clone: one covered TODO, no uncovered markers; INCOMPLETE due to two invalid historical spec sources. Not a complete debt census."
+    },
+    {
+      "id": "closeout-check",
+      "disposition": "deferred",
+      "rationale": "Completion gate deferred; no close authorized."
+    },
+    {
+      "id": "review-check",
+      "disposition": "deferred",
+      "rationale": "Completion gate deferred until attestation; run verify and review-check immediately after apply."
+    },
+    {
+      "id": "suggest-review",
+      "component": "pose-mcp",
+      "disposition": "passed",
+      "evidence": "integration:pose-mcp/go/review-approval-domain-preflight-integration",
+      "rationale": "Fresh suggest review --path pose-mcp selected backend-go, security, documentation-style; delivery-evidence and knowledge-governance also read."
+    },
+    {
+      "id": "validate",
+      "component": "pose-mcp",
+      "disposition": "passed",
+      "evidence": "integration:pose-mcp/go/review-approval-domain-preflight-integration",
+      "rationale": "Independent current build passes. Supplied sealed strict report at aff41dc2 records 180/180 pass with matching matrix SHA-256; inspected, not independently reproduced. Fresh full suites at HEAD and control 18c6399b both fail with the identical 333 test/subtest identities and zero Go source delta. Git-less fixtures and sandbox ownership limits are not called new regressions. Independent test-only Git fixture overlay yields 223 passes; production source is unchanged. Fresh native validate --strict --module pose-mcp fails: 177 steps, 125 pass and 52 fail; this is not a fresh green qualification. The full-suite control comparison and supplemental fixture probes distinguish these known limitations from a demonstrated milestone regression. No evidence of a later regression in this milestone was found within these checks."
+    }
+  ],
+  "evidence_refs": [
+    "integration:pose-mcp/go/review-approval-domain-preflight-integration"
+  ],
+  "findings": [],
+  "attribution": {
+    "schema_version": 1,
+    "prepared_by": "agent:independent-reached-milestones-sol-20261101",
+    "concluded_by": "agent:independent-reached-milestones-sol-20261101",
+    "applied_by": "agent:codex"
+  },
+  "attested_at": "2026-11-02T02:41:19Z",
+  "path": ".pose/review-attestations/rva-111ce54bb2b9623a.json"
+}

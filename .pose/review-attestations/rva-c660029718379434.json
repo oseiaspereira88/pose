@@ -1,0 +1,100 @@
+{
+  "schema_version": 1,
+  "attestation_id": "rva-c660029718379434",
+  "bundle_id": "rvb-e0299caab3af3cc2",
+  "bundle_digest": "sha256:e0299caab3af3cc2c8c4a232d8955d80c14a4db82ecd9e505ac4f463dfb1ce52",
+  "reviewer": "agent:independent-reached-milestones-sol-20261101",
+  "decision": "approved",
+  "criteria": [
+    {
+      "id": "exit-gate",
+      "disposition": "passed",
+      "evidence": "integration:pose-mcp/go/historical-trust-reuse-integration",
+      "rationale": "Inspected read-time action verification and shared review-assurance verification against current signatures/pins, supplied bundle and authority bindings; persisted verified labels do not suffice. Supplemental ActionRead/ActionClaim, tampered proof, consumer agreement and historical-trust probes pass across domain, CLI and MCP. Both B01 children are closed with standing approval in B04 context."
+    },
+    {
+      "id": "integration",
+      "disposition": "passed",
+      "evidence": "integration:pose-mcp/go/historical-trust-reuse-integration",
+      "rationale": "Native auto-attest mechanical preparation resolves this criterion from sealed integration evidence; independent source and executable probes provide the scope-specific integration judgment stated in exit-gate."
+    },
+    {
+      "id": "membership",
+      "disposition": "passed",
+      "evidence": "integration:pose-mcp/go/historical-trust-reuse-integration",
+      "rationale": "Roadmap membership matches sealed child refs: pose-action-answers-reverify-on-read, pose-review-disclosure-requires-proof. Read each member status done and ran review verify spec:\u003cmember\u003e: each is closed, fresh=true, approved=true. These are retained child approvals, not current engine qualification by themselves."
+    },
+    {
+      "id": "regression",
+      "disposition": "passed",
+      "evidence": "integration:pose-mcp/go/historical-trust-reuse-integration",
+      "rationale": "Independent current build passes. Supplied sealed strict report at aff41dc2 records 180/180 pass with matching matrix SHA-256; inspected, not independently reproduced. Fresh full suites at HEAD and control 18c6399b both fail with the identical 333 test/subtest identities and zero Go source delta. Git-less fixtures and sandbox ownership limits are not called new regressions. Independent test-only Git fixture overlay yields 223 passes; production source is unchanged. Fresh native validate --strict --module pose-mcp fails: 177 steps, 125 pass and 52 fail; this is not a fresh green qualification. The full-suite control comparison and supplemental fixture probes distinguish these known limitations from a demonstrated milestone regression. No evidence of a later regression in this milestone was found within these checks."
+    },
+    {
+      "id": "residual-risk",
+      "disposition": "passed",
+      "evidence": "integration:pose-mcp/go/historical-trust-reuse-integration",
+      "rationale": "Both member follow-ups are marked done by B04; none open in these members. Retain live issuer-pin revocation and authenticated historical claim-time limits: no immutable historical authorization receipt, cognitive independence, or semantic approval from identity proof. No policy adoption was performed."
+    }
+  ],
+  "tools": [
+    {
+      "id": "assess-discover",
+      "component": "pose-mcp",
+      "disposition": "not-used",
+      "rationale": "Skipped recommended rescan: inspected component source, mapping and current milestone/child plans directly; no implementation or lifecycle transition requested."
+    },
+    {
+      "id": "assess-tech-debt",
+      "disposition": "passed",
+      "evidence": "integration:pose-mcp/go/historical-trust-reuse-integration",
+      "rationale": "Fresh assessment in scratch clone: one covered TODO, no uncovered markers; INCOMPLETE due to two invalid historical spec sources. Not a complete debt census."
+    },
+    {
+      "id": "closeout-check",
+      "disposition": "deferred",
+      "rationale": "Completion gate deferred; no close authorized."
+    },
+    {
+      "id": "history-check",
+      "disposition": "passed",
+      "evidence": "check:history-check"
+    },
+    {
+      "id": "knowledge-check",
+      "disposition": "passed",
+      "evidence": "check:knowledge-check"
+    },
+    {
+      "id": "review-check",
+      "disposition": "deferred",
+      "rationale": "Completion gate deferred until attestation; run verify and review-check immediately after apply."
+    },
+    {
+      "id": "suggest-review",
+      "component": "pose-mcp",
+      "disposition": "passed",
+      "evidence": "integration:pose-mcp/go/historical-trust-reuse-integration",
+      "rationale": "Fresh suggest review --path pose-mcp selected backend-go, security, documentation-style; delivery-evidence and knowledge-governance also read."
+    },
+    {
+      "id": "validate",
+      "component": "pose-mcp",
+      "disposition": "passed",
+      "evidence": "integration:pose-mcp/go/historical-trust-reuse-integration",
+      "rationale": "Independent current build passes. Supplied sealed strict report at aff41dc2 records 180/180 pass with matching matrix SHA-256; inspected, not independently reproduced. Fresh full suites at HEAD and control 18c6399b both fail with the identical 333 test/subtest identities and zero Go source delta. Git-less fixtures and sandbox ownership limits are not called new regressions. Independent test-only Git fixture overlay yields 223 passes; production source is unchanged. Fresh native validate --strict --module pose-mcp fails: 177 steps, 125 pass and 52 fail; this is not a fresh green qualification. The full-suite control comparison and supplemental fixture probes distinguish these known limitations from a demonstrated milestone regression. No evidence of a later regression in this milestone was found within these checks."
+    }
+  ],
+  "evidence_refs": [
+    "integration:pose-mcp/go/historical-trust-reuse-integration"
+  ],
+  "findings": [],
+  "attribution": {
+    "schema_version": 1,
+    "prepared_by": "agent:independent-reached-milestones-sol-20261101",
+    "concluded_by": "agent:independent-reached-milestones-sol-20261101",
+    "applied_by": "agent:codex"
+  },
+  "attested_at": "2026-11-02T02:42:22Z",
+  "path": ".pose/review-attestations/rva-c660029718379434.json"
+}
