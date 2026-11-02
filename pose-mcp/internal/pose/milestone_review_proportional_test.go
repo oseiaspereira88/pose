@@ -197,8 +197,14 @@ func TestAnApprovedOpenSpecIsNotInherited(t *testing.T) {
 	if err != nil || !member.Approved || !member.Fresh || member.State == "closed" {
 		t.Fatalf("the fixture is not an approved open spec: %+v %v", member, err)
 	}
-	if verification, err := s.VerifyReviewBundle("milestone:program/core"); err != nil || verification.Approved {
-		t.Fatalf("a milestone inherited from a spec not closed: %+v %v", verification, err)
+	// Twice: federated acceptance refuses an open member too, and a store with no
+	// resolver has only the state of the spec to go by.
+	unresolved := s
+	unresolved.FederatedResolver = nil
+	for _, store := range []Store{s, unresolved} {
+		if verification, err := store.VerifyReviewBundle("milestone:program/core"); err != nil || verification.Approved {
+			t.Fatalf("a milestone inherited from a spec not closed: %+v %v", verification, err)
+		}
 	}
 }
 
