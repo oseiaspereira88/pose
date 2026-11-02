@@ -14,6 +14,7 @@ import (
 	"os"
 	"os/exec"
 	"path/filepath"
+	"regexp"
 	"strings"
 	"testing"
 
@@ -297,5 +298,72 @@ func TestPublicClaimsStartCommandWorksOnAFreshInstance(t *testing.T) {
 	// And the gate must now get past the absent-contract path.
 	if _, after := runClaims(t, root, "--strict"); strings.Contains(after, "declares no public claims contract") {
 		t.Errorf("the contract was created but the gate still reports it absent: %s", after)
+	}
+}
+
+func TestPublicClaimsFailsOnAStaleReleaseTagLink(t *testing.T) {
+	root := t.TempDir()
+	writeClaimsFixture(t, root, `{"path":"README.md","version_claims":"current-only"}`)
+	writeSurface(t, root, "README.md", "The latest release is [v0.0.1](https://github.com/o/p/releases/tag/v0.0.1).\n")
+	code, out := runClaims(t, root, "--strict")
+	if code == 0 {
+		t.Fatalf("a link to another release passed as current: %s", out)
+	}
+	if !strings.Contains(out, "0.0.1") {
+		t.Errorf("the finding does not name the claim: %s", out)
+	}
+}
+
+func TestAHistoryTableIsNotAClaimButItsProseIs(t *testing.T) {
+	root := t.TempDir()
+	writeClaimsFixture(t, root, `{"path":"evolution.md","version_claims":"current-only","history_table":true}`)
+	row := "| [0.0.1](https://github.com/o/p/releases/tag/v0.0.1) | First. |\n"
+	writeSurface(t, root, "evolution.md", row)
+	if code, out := runClaims(t, root, "--strict"); code != 0 {
+		t.Fatalf("a row of the history failed the gate: %s", out)
+	}
+	writeSurface(t, root, "evolution.md", "Latest: [v0.0.1](https://github.com/o/p/releases/tag/v0.0.1).\n\n"+row)
+	if code, out := runClaims(t, root, "--strict"); code == 0 {
+		t.Fatalf("the prose of a history surface passed a stale claim: %s", out)
+	}
+}
+
+func repositoryFile(t *testing.T, rel string) string {
+	t.Helper()
+	raw, err := os.ReadFile(filepath.Join("..", "..", "..", rel))
+	if err != nil {
+		t.Fatal(err)
+	}
+	return string(raw)
+}
+
+func TestReadmeHoldsNoPerReleaseText(t *testing.T) {
+	stale := regexp.MustCompile(`releases/tag/v\d|\bv\d+\.\d+\.\d+, (dated|de) |\b\d+ (POSE governance tools|ferramentas de governança)|outside v\d|Editorial review|Revisão editorial`)
+	for _, rel := range []string{"README.md", "README.pt-BR.md"} {
+		if hit := stale.FindString(repositoryFile(t, rel)); hit != "" {
+			t.Errorf("%s holds text that a release turns false: %q", rel, hit)
+		}
+	}
+}
+
+func TestQuickstartDatesItsTiming(t *testing.T) {
+	body := repositoryFile(t, "docs-site/docs/quickstart.md")
+	var report struct {
+		Version    string `json:"version"`
+		MeasuredAt string `json:"measured_at"`
+	}
+	if err := json.Unmarshal([]byte(repositoryFile(t, ".pose/reports/2026-10-09-clean-quickstart.json")), &report); err != nil {
+		t.Fatal(err)
+	}
+	version := strings.TrimPrefix(report.Version, "pose ")
+	if !strings.Contains(body, "release v"+version) || !strings.Contains(body, report.MeasuredAt[:10]) {
+		t.Fatalf("the quickstart does not date its timing with %s at %s", version, report.MeasuredAt)
+	}
+}
+
+func TestDemoDoesNotClaimAClose(t *testing.T) {
+	body := repositoryFile(t, "examples/demo/record.sh")
+	if strings.Contains(body, " closed") && !strings.Contains(body, "pose close") {
+		t.Fatal("the demo says a delivery closed and runs no close")
 	}
 }

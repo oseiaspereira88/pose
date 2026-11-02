@@ -175,5 +175,5 @@ cd "$ROOT"
 rm -rf "$WORK"
 
 if [ "$VERIFY" -eq 1 ]; then
-  printf '\033[32mScenario verified: checks green, delivery blocked, then legitimately closed.\033[0m\n'
+  printf '\033[32mScenario verified: checks green, the closeout gate refuses, then clears once the promise is connected.\033[0m\n'
 fi

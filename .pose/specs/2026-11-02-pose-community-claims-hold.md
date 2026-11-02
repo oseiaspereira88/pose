@@ -38,7 +38,7 @@ The integration review of `community-launch` found the public gate passing a REA
 
 ### Functional
 
-- R1: `pose public-claims` shall treat a release tag link as a version claim.
+- R1: `pose public-claims` shall treat a release tag link as a version claim, except in the table rows of a surface declared `history_table`.
 - R2: The README, in both locales, shall hold no per-release text and no hardcoded tool count.
 - R3: The quickstart shall state the version and date of its timing.
 - R4: The demo shall not say a delivery closed unless a close ran.
@@ -53,7 +53,7 @@ The integration review of `community-launch` found the public gate passing a REA
 
 ### Compatibility
 
-- A surface that links an older release tag now fails the gate, unless the surface is declared as history.
+- A surface that links an older release tag now fails the gate, unless the link sits in a table of a surface declared `history_table`.
 
 ## 3. Technical Plan
 
@@ -73,6 +73,7 @@ The integration review of `community-launch` found the public gate passing a REA
 - modified: README.pt-BR.md
 - modified: docs-site/docs/quickstart.md
 - modified: examples/demo/record.sh
+- modified: .pose/public/claims.json
 
 ### Delivery targets
 
@@ -108,7 +109,7 @@ A negative case in the public gate, seen failing first, and the gate run over th
 
 ### Requirement trace
 
-- R1 [planned] capability:community-claims-hold evidence:integration check:community-claims-hold-integration test:TestPublicClaimsFailsOnAStaleReleaseTagLink
+- R1 [planned] capability:community-claims-hold evidence:integration check:community-claims-hold-integration test:TestPublicClaimsFailsOnAStaleReleaseTagLink test:TestAHistoryTableIsNotAClaimButItsProseIs
 - R2 [planned] check:community-claims-hold-integration test:TestReadmeHoldsNoPerReleaseText
 - R3 [planned] check:community-claims-hold-integration test:TestQuickstartDatesItsTiming
 - R4 [planned] check:community-claims-hold-integration test:TestDemoDoesNotClaimAClose

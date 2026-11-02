@@ -108,8 +108,8 @@ outputs shown.
 
 An all-green run would not show you anything. Any tool can agree with you.
 
-**Time budget.** Installing the current release and running the documented
-loop takes about 8 seconds of machine time, measured on a clean container by
+**Time budget.** Installing release v7.0.0 and running the documented loop took
+about 8 seconds of machine time on a clean container on 2026-10-09, measured by
 `tests/quickstart/measure-clean-environment.sh`. That excludes preparing the
 machine, reading this page and writing your own spec, which is where a first
 real use spends its time.

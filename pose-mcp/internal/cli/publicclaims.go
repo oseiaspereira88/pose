@@ -39,6 +39,8 @@ var publicVersionPatterns = []*regexp.Regexp{
 	regexp.MustCompile(`\$?V\s*=\s*"?(\d+\.\d+\.\d+)"?`),
 	// Pinned release asset URLs.
 	regexp.MustCompile(`releases/download/v(\d+\.\d+\.\d+)/`),
+	// A link to a release page, which names a release as much as a download does.
+	regexp.MustCompile(`releases/tag/v(\d+\.\d+\.\d+)\b`),
 	// Action pins: `pose-action@v1.7.10`, including HTML-escaped `&#64;`.
 	regexp.MustCompile(`pose-action(?:@|&#64;)v(\d+\.\d+\.\d+)`),
 	// Structured metadata.
@@ -60,6 +62,9 @@ const (
 type publicSurface struct {
 	Path          string `json:"path"`
 	VersionClaims string `json:"version_claims"`
+	// HistoryTable declares that the rows of its Markdown tables list past releases.
+	// They name versions on purpose; the prose around them stays a claim.
+	HistoryTable bool `json:"history_table,omitempty"`
 	Note          string `json:"note,omitempty"`
 }
 
@@ -210,6 +215,17 @@ func versionMatchesRelease(claim, release string) bool {
 	return true
 }
 
+func withoutTableRows(body string) string {
+	lines := strings.SplitAfter(body, "\n")
+	kept := lines[:0]
+	for _, line := range lines {
+		if !strings.HasPrefix(strings.TrimSpace(line), "|") {
+			kept = append(kept, line)
+		}
+	}
+	return strings.Join(kept, "")
+}
+
 func checkPublicSurface(root string, s publicSurface, c publicClaimsContract, release string) []publicClaimFinding {
 	var out []publicClaimFinding
 	add := func(claim, msg string) {
@@ -221,16 +237,20 @@ func checkPublicSurface(root string, s publicSurface, c publicClaimsContract, re
 		return out
 	}
 	body := string(raw)
+	claims := body
+	if s.HistoryTable {
+		claims = withoutTableRows(body)
+	}
 
 	switch s.VersionClaims {
 	case versionClaimsNone:
-		for _, v := range versionClaimsIn(body) {
+		for _, v := range versionClaimsIn(claims) {
 			add("version", fmt.Sprintf(
 				"declares version %s, but this surface is declared evergreen — a marketing surface should not age on every patch; move the version next to the install command or drop it",
 				v))
 		}
 	case versionClaimsCurrent:
-		for _, v := range versionClaimsIn(body) {
+		for _, v := range versionClaimsIn(claims) {
 			if !versionMatchesRelease(v, release) {
 				add("version", fmt.Sprintf(
 					"declares version %s but the released version is %s", v, release))

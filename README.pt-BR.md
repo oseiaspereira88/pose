@@ -88,11 +88,10 @@ sobre quem executa; ele não é neutro sobre quem é dono do lifecycle.
 
 ## O POSE atual
 
-Revisão editorial: **2026-10-20**. A última versão publicada é a
-[v7.4.1](https://github.com/oseiaspereira88/pose/releases/tag/v7.4.1), de 2026-10-10.
-A linha recente inclui configuração guiada, adoção explícita de capacidades,
-pendências por ator e fase, respostas assinadas, emissores locais para review
-e briefs derivados do bundle para revisão delegada.
+O POSE oferece configuração guiada, adoção explícita de capacidades, pendências
+por ator e fase, respostas assinadas, emissores locais para review e briefs
+derivados do bundle para revisão delegada. Cada versão e suas notas estão na
+[página de releases](https://github.com/oseiaspereira88/pose/releases).
 
 - [Operar a instância](docs-site/docs/operate.md): política efetiva e próximas ações.
 - [Review e confiança](docs-site/docs/review-and-trust.md): evidência, julgamento e identidade.
@@ -257,7 +256,7 @@ versionado.
 | `.pose/knowledge/`    | Handoffs, notas e decision logs governados por TTL                                               |
 | `.pose/reports/`      | Evidência versionável e histórico JSONL append-only                                              |
 | `.pose/indexes/`      | Projeções de repositório, módulo, tarefa, spec-graph e roadmap                                   |
-| `pose serve-mcp`      | 58 ferramentas de governança POSE e 3 reporters opcionais do Conductor via stdio ou Streamable HTTP |
+| `pose serve-mcp`      | Ferramentas de governança POSE e reporters opcionais do Conductor via stdio ou Streamable HTTP      |
 | `mcp-enforce/`        | Identidade opcional por projeto/execução, decisões OPA e auditoria                               |
 | `pose-action/`        | Adaptador de GitHub Action para gates determinísticos                                            |
 
