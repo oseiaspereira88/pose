@@ -582,7 +582,7 @@ func (s Store) milestoneReachedObligations(project, scope string, coverage *Cove
 		if err != nil {
 			return lost(err)
 		}
-		if recorded[ref] || !required {
+		if _, inherits := s.soleMemberOf(parsed); recorded[ref] || !required || inherits || s.declaredUnreviewed(parsed) != "" {
 			continue
 		}
 		source := QualifyNodeRef(project, ArtifactRef{Kind: "milestone", Slug: parsed.Roadmap, Milestone: parsed.Milestone}, "", "")

@@ -15,14 +15,17 @@ import (
 // sections with flat bullets. Keep the parser in sync with
 // the native CLI indexer.
 type Roadmap struct {
-	Slug       string      `json:"slug"`
-	Status     string      `json:"status"`
-	CreatedAt  string      `json:"created_at,omitempty"`
-	DependsOn  []string    `json:"depends_on,omitempty"`
-	Consumes   []string    `json:"consumes,omitempty"`
-	Milestones []Milestone `json:"milestones"`
-	Path       string      `json:"path"`
-	Body       string      `json:"body,omitempty"`
+	Slug      string   `json:"slug"`
+	Status    string   `json:"status"`
+	CreatedAt string   `json:"created_at,omitempty"`
+	DependsOn []string `json:"depends_on,omitempty"`
+	Consumes  []string `json:"consumes,omitempty"`
+	// UnreviewedMilestones is the reason a roadmap gives for its reached milestones
+	// standing without a review (ADR a-milestone-of-one-member-is-that-member).
+	UnreviewedMilestones string      `json:"-"`
+	Milestones           []Milestone `json:"milestones"`
+	Path                 string      `json:"path"`
+	Body                 string      `json:"body,omitempty"`
 }
 
 type Milestone struct {
@@ -32,6 +35,8 @@ type Milestone struct {
 	TargetStart string   `json:"target_start,omitempty"`
 	TargetDue   string   `json:"target_due,omitempty"`
 	Specs       []string `json:"specs"`
+	// ExitGate is the prose of the milestone's exit gate.
+	ExitGate string `json:"-"`
 }
 
 var milestoneHeadingRE = regexp.MustCompile(`^##\s+Milestone:\s*(.+?)\s*$`)
@@ -111,6 +116,52 @@ func (s Store) milestoneMembersTerminal(milestone Milestone, statuses map[string
 		}
 	}
 	return member && len(milestone.Specs) > 0
+}
+
+// soleMemberOf names the spec a milestone is made of, when it is made of one local spec.
+func (s Store) soleMemberOf(scope ScopeRef) (string, bool) {
+	if scope.Kind != "milestone" {
+		return "", false
+	}
+	rm, err := s.GetRoadmap(scope.Roadmap)
+	if err != nil {
+		return "", false
+	}
+	for _, milestone := range rm.Milestones {
+		if milestone.ID != scope.Milestone || len(milestone.Specs) != 1 {
+			continue
+		}
+		if slug, external := s.milestoneMember(milestone.Specs[0]); !external {
+			return strings.TrimPrefix(slug, "spec:"), true
+		}
+	}
+	return "", false
+}
+
+// declaredUnreviewed returns the reason a roadmap gives for a milestone standing with no
+// review: it applies to a milestone whose members are all terminal.
+func (s Store) declaredUnreviewed(scope ScopeRef) string {
+	if scope.Kind != "milestone" {
+		return ""
+	}
+	rm, err := s.GetRoadmap(scope.Roadmap)
+	if err != nil || rm.UnreviewedMilestones == "" {
+		return ""
+	}
+	specs, err := s.ListSpecs("", "")
+	if err != nil {
+		return ""
+	}
+	statuses := map[string]string{}
+	for _, sp := range specs {
+		statuses[sp.Slug] = sp.Status
+	}
+	for _, milestone := range rm.Milestones {
+		if milestone.ID == scope.Milestone && s.milestoneMembersTerminal(milestone, statuses, "") {
+			return rm.UnreviewedMilestones
+		}
+	}
+	return ""
 }
 
 func (s Store) scopeApproved(ref string) (bool, error) {
@@ -329,11 +380,26 @@ func parseRoadmapFile(files Files, path, slug string, includeBody bool) (*Roadma
 			rm.DependsOn = parseInlineList(value)
 		case "consumes":
 			rm.Consumes = parseInlineList(value)
+		case "unreviewed_milestones":
+			rm.UnreviewedMilestones = cleanValue(value)
 		}
 	}
 	var current *Milestone
+	inGate := false
 	for _, line := range strings.Split(body, "\n") {
 		stripped := strings.TrimSpace(line)
+		if inGate {
+			if stripped == "" || strings.HasPrefix(stripped, "#") {
+				inGate = false
+			} else {
+				current.ExitGate += " " + stripped
+				continue
+			}
+		}
+		if text, ok := strings.CutPrefix(stripped, "**Exit gate:**"); ok && current != nil {
+			current.ExitGate, inGate = strings.TrimSpace(text), true
+			continue
+		}
 		if m := milestoneHeadingRE.FindStringSubmatch(stripped); m != nil {
 			rm.Milestones = append(rm.Milestones, Milestone{ID: m[1]})
 			current = &rm.Milestones[len(rm.Milestones)-1]

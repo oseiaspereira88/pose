@@ -348,6 +348,7 @@ func (s Store) ReviewPlan(ref string) (ReviewPlan, error) {
 	}
 
 	plan.Criteria, plan.Blockers = composeReviewCriteria(profiles, plan.Blockers)
+	plan.Criteria, plan.Blockers = s.addMilestoneGateCriterion(scope, plan.Criteria, plan.Blockers)
 	var added bool
 	plan.Criteria, plan.Blockers, added = addCrossComponentReviewCriterion(plan.Criteria, plan.Blockers, len(plan.Components))
 	if added {
@@ -1035,6 +1036,43 @@ func composeReviewCriteria(profiles []ReviewProfile, blockers []string) ([]Revie
 			}
 			criterion := ReviewPlanCriterion{ID: item.ID, Description: item.Description, Required: required, Kind: kind, Rules: uniqueSorted(item.Rules), EvidenceClasses: classes, RequiresStructuralMapping: item.RequiresStructuralMapping, Profiles: []string{profile.Ref()}}
 			criteria, blockers = addReviewCriterion(criteria, criterion, blockers)
+		}
+	}
+	sort.Slice(criteria, func(i, j int) bool { return criteria[i].ID < criteria[j].ID })
+	return criteria, blockers
+}
+
+// addMilestoneGateCriterion carries the exit gate of a milestone into the review of the
+// open spec it is made of: that milestone has no review of its own, so this is where the
+// gate is judged. A done spec keeps the plan it was sealed with.
+func (s Store) addMilestoneGateCriterion(scope ScopeRef, criteria []ReviewPlanCriterion, blockers []string) ([]ReviewPlanCriterion, []string) {
+	if scope.Kind != "spec" {
+		return criteria, blockers
+	}
+	sp, err := s.GetSpec(scope.Slug)
+	if err != nil || sp.Status == "done" {
+		return criteria, blockers
+	}
+	roadmaps, err := s.ListRoadmaps()
+	if err != nil {
+		return criteria, blockers
+	}
+	for _, rm := range roadmaps {
+		for _, milestone := range rm.Milestones {
+			if milestone.ExitGate == "" {
+				continue
+			}
+			ref := ScopeRef{Kind: "milestone", Roadmap: rm.Slug, Milestone: milestone.ID}
+			if member, ok := s.soleMemberOf(ref); !ok || member != scope.Slug {
+				continue
+			}
+			criteria, blockers = addReviewCriterion(criteria, ReviewPlanCriterion{
+				ID:          "milestone-exit-gate",
+				Description: "The exit gate of milestone:" + rm.Slug + "/" + milestone.ID + " holds: " + milestone.ExitGate,
+				Required:    true,
+				Kind:        ReviewCriterionKindJudgment,
+				Profiles:    []string{"milestone-exit-gate"},
+			}, blockers)
 		}
 	}
 	sort.Slice(criteria, func(i, j int) bool { return criteria[i].ID < criteria[j].ID })

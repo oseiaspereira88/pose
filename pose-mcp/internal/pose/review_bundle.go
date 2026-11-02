@@ -470,6 +470,9 @@ type ReviewBundleVerification struct {
 	// currentManifest is the manifest the scope resolves to now, which a retained
 	// approval is judged against.
 	currentManifest *FederatedRoadmapManifest
+	// inherited marks a milestone that owes no review of its own: Bundle, when there is
+	// one, belongs to its spec.
+	inherited bool
 }
 
 // PrepareReviewBundle resolves a deterministic bundle without writing it.
@@ -1760,6 +1763,14 @@ func (s Store) reviewBundleChildren(scope ScopeRef) ([]ReviewBundleChild, []stri
 	parentDone, _ := s.scopeLifecycleDone(scope)
 	children, blockers := []ReviewBundleChild{}, []string{}
 	for _, ref := range refs {
+		if verification, err := s.verifyReviewBundle(ref); err == nil && verification.inherited {
+			// A declared milestone has no bundle to seal over: the reason is in the
+			// roadmap, which this bundle seals.
+			if verification.Bundle != nil {
+				children = append(children, ReviewBundleChild{Scope: ref, BundleID: verification.Bundle.BundleID, BundleDigest: verification.Bundle.BundleDigest})
+			}
+			continue
+		}
 		sealed, err := s.CurrentReviewBundle(ref)
 		if err != nil {
 			return nil, nil, err
@@ -3324,9 +3335,44 @@ func (s Store) verifyReviewBundle(scope string) (ReviewBundleVerification, error
 	if s.onReviewVerify != nil {
 		s.onReviewVerify(scope)
 	}
-	verification, err := s.computeReviewVerification(scope)
+	verification, err := s.proportionalReviewVerification(scope)
 	state.children[key] = childVerificationResult{verification, err}
 	return verification, err
+}
+
+// proportionalReviewVerification is the verification of a scope, and of a milestone that
+// owes no review of its own: one made of a single closed, approved spec, or one a roadmap
+// declares. Every reader of an approval comes through here, so they give one answer (ADR
+// a-milestone-of-one-member-is-that-member). A negative review recorded on it stands.
+func (s Store) proportionalReviewVerification(scope string) (ReviewBundleVerification, error) {
+	own, err := s.computeReviewVerification(scope)
+	if err != nil || own.Approved {
+		return own, err
+	}
+	ref, parseErr := ParseScopeRef(scope)
+	if parseErr != nil || ref.Kind != "milestone" {
+		return own, nil
+	}
+	if bundle, _ := s.latestNegativeReview(scope); bundle != nil {
+		return own, nil
+	}
+	if member, ok := s.soleMemberOf(ref); ok {
+		child, err := s.verifyReviewBundle("spec:" + member)
+		if err != nil || child.State != "closed" || !child.Fresh || !child.Approved {
+			return own, nil
+		}
+		return ReviewBundleVerification{
+			Scope: scope, State: "closed", Bundle: child.Bundle, Attestation: child.Attestation, Fresh: true, Approved: true,
+			NextAction: "none", Warnings: []string{"the approval of " + scope + " is inherited from spec:" + member + ", its only member"}, inherited: true,
+		}, nil
+	}
+	if reason := s.declaredUnreviewed(ref); reason != "" {
+		return ReviewBundleVerification{
+			Scope: scope, State: "closed", Fresh: true, Approved: true, NextAction: "none",
+			Warnings: []string{scope + " stands without a review, as its roadmap declares: " + reason}, inherited: true,
+		}, nil
+	}
+	return own, nil
 }
 
 func (s Store) computeReviewVerification(scope string) (ReviewBundleVerification, error) {

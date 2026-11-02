@@ -155,6 +155,7 @@ Antes de revisar ou fechar tarefa entre projetos, rode `pose context --task <xre
    Edição manual do frontmatter (`status: done`, `completed_at: <YYYY-MM-DD>`)
    só quando o fluxo Git exigir — e preservando o mesmo gate, nunca contornando-o.
    Se ele imprimir `close.next`, siga: um marco é fechado quando é atingido, não no fim do roadmap. Sele e ateste `milestone:<roadmap>/<id>` e rode `pose close milestone:<roadmap>/<id>`; o fechamento do último marco indica `pose close roadmap:<roadmap>`. `pose state --attention` lista o que foi atingido e segue aberto como `milestone-reached`.
+   Um marco de um membro não tem revisão própria: ele vale quando a spec fecha, e a revisão da spec responde pelo gate de saída. Um roadmap pode declarar `unreviewed_milestones: <motivo>` para marcos antigos; a revisão dele lê o motivo.
 8. Produzir o **changelog fragment** (pose-release-changelog) — o registro
    user-facing da entrega, consolidado por release no corte:
    ```bash
