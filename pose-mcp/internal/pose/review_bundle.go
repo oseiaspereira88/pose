@@ -470,6 +470,9 @@ type ReviewBundleVerification struct {
 	// currentManifest is the manifest the scope resolves to now, which a retained
 	// approval is judged against.
 	currentManifest *FederatedRoadmapManifest
+	// ApprovalOrigin says where the approval of a milestone with no review of its own
+	// comes from: the spec it inherits, or the roadmap that declares it.
+	ApprovalOrigin string `json:"approval_origin,omitempty"`
 	// inherited marks a milestone that owes no review of its own: Bundle, when there is
 	// one, belongs to its spec.
 	inherited bool
@@ -661,6 +664,9 @@ func (s Store) reviewBundleScopeProjection(scope ScopeRef) (ReviewBundleScope, [
 		// different ChangedSections key and reads as "changed" even though
 		// nothing changed. Every other scope kind already avoids this
 		// (spec uses section names, milestone uses the milestone ID).
+		if rm.UnreviewedMilestones != "" {
+			projection.Sections = append(projection.Sections, ReviewBundleInput{Kind: "unreviewed-milestones", Path: rm.UnreviewedMilestones, Digest: digestText(rm.UnreviewedMilestones), Reason: "the reason its roadmap gives for milestones standing without a review"})
+		}
 		projection.Sections = append(projection.Sections, ReviewBundleInput{Kind: "roadmap", Path: filepath.ToSlash(filepath.Join(".pose", "roadmaps", scope.Slug+".md")), Digest: digestText(normalizeBundleText(rm.Body)), Reason: "governed roadmap outcomes and ordered membership"})
 	}
 	return projection, excluded, nil
@@ -3353,7 +3359,12 @@ func (s Store) proportionalReviewVerification(scope string) (ReviewBundleVerific
 	if parseErr != nil || ref.Kind != "milestone" {
 		return own, nil
 	}
-	if bundle, _ := s.latestNegativeReview(scope); bundle != nil {
+	// A policy without bundles answers through its review attempts alone, and has no
+	// bundle of the spec to stand on.
+	if policy, err := s.GetReviewPolicy(); err != nil || !policy.ReviewBundles {
+		return own, nil
+	}
+	if s.milestoneReviewRefused(scope) {
 		return own, nil
 	}
 	// Edges still bind: a milestone inherits a review, not the acceptance of what it
@@ -3366,21 +3377,39 @@ func (s Store) proportionalReviewVerification(scope string) (ReviewBundleVerific
 	}
 	if member, ok := s.soleMemberOf(ref); ok {
 		child, err := s.verifyReviewBundle("spec:" + member)
-		if err != nil || child.State != "closed" || !child.Fresh || !child.Approved {
-			return own, nil
+		if err == nil && child.State == "closed" && child.Fresh && child.Approved {
+			return ReviewBundleVerification{
+				Scope: scope, State: "closed", Bundle: child.Bundle, Attestation: child.Attestation, Fresh: true, Approved: true,
+				NextAction: "none", Warnings: []string{"the approval of " + scope + " is inherited from spec:" + member + ", its only member"},
+				ApprovalOrigin: "inherited:spec:" + member, inherited: true,
+			}, nil
 		}
-		return ReviewBundleVerification{
-			Scope: scope, State: "closed", Bundle: child.Bundle, Attestation: child.Attestation, Fresh: true, Approved: true,
-			NextAction: "none", Warnings: []string{"the approval of " + scope + " is inherited from spec:" + member + ", its only member"}, inherited: true,
-		}, nil
 	}
 	if reason := s.declaredUnreviewed(ref); reason != "" {
 		return ReviewBundleVerification{
 			Scope: scope, State: "closed", Fresh: true, Approved: true, NextAction: "none",
-			Warnings: []string{scope + " stands without a review, as its roadmap declares: " + reason}, inherited: true,
+			Warnings:       []string{scope + " stands without a review, as its roadmap declares: " + reason},
+			ApprovalOrigin: "declared:roadmap:" + ref.Roadmap, inherited: true,
 		}, nil
 	}
 	return own, nil
+}
+
+// milestoneReviewRefused reports a refusal recorded on the milestone itself, in a bundle
+// or in a legacy attempt.
+func (s Store) milestoneReviewRefused(scope string) bool {
+	if bundle, _ := s.latestNegativeReview(scope); bundle != nil {
+		return true
+	}
+	attempts, err := s.ReadReviewAttempts(scope)
+	if err != nil || !attempts.Coverage.CompleteFor(scope) {
+		return true
+	}
+	if len(attempts.Attempts) == 0 {
+		return false
+	}
+	latest := attempts.Attempts[len(attempts.Attempts)-1]
+	return latest.Decision == "rejected" || latest.Decision == "changes-requested"
 }
 
 func (s Store) computeReviewVerification(scope string) (ReviewBundleVerification, error) {

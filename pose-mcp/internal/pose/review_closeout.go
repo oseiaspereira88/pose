@@ -1202,6 +1202,9 @@ func (s Store) ScopeDigest(ref string) (string, error) {
 		}
 		base["content"] = strings.ReplaceAll(strings.TrimSpace(rm.Body), "\r\n", "\n")
 		base["children"] = children
+		if rm.UnreviewedMilestones != "" {
+			base["unreviewed_milestones"] = rm.UnreviewedMilestones
+		}
 	}
 	return digestJSON(base)
 }
@@ -2469,7 +2472,8 @@ func (s Store) getCloseoutState(ref string, includeFederated bool) (CloseoutStat
 					return state, err
 				}
 				state.Children = append(state.Children, child)
-				if !child.Terminal {
+				// A roadmap may declare why a terminal member owes this milestone nothing.
+				if !child.Terminal && !(review.Approved && s.declaredUnreviewed(scope) != "") {
 					block(NewDiagnostic("child-scope-open", "child "+child.Scope+" is not closed", child.Scope))
 				}
 			}

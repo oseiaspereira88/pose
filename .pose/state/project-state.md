@@ -1,7 +1,7 @@
 ---
 schema_version: 1
-generated_at: 2026-11-02T07:17:17Z
-baseline_commit: aaf3a425f5af9535ecd673eddd9948740265059a
+generated_at: 2026-11-02T10:24:32Z
+baseline_commit: ed35532734b9f924f075b3a71294a338cc7c9045
 staleness_policy: max_age_days=7,max_commits=20
 refresh_pending: 
 ---
@@ -27,17 +27,17 @@ próprio deste repositório (produtização v2, DX) segue disponível conforme
 capacidade.
 
 ## Specs & Roadmaps
-<!-- state:derived hash:6253ae0067f7 -->
+<!-- state:derived hash:e164d0b58d29 -->
 
-- specs: total=478 draft=18 in-progress=19 blocked=0 done=439 superseded=0 abandoned=2
+- specs: total=479 draft=18 in-progress=18 blocked=0 done=441 superseded=0 abandoned=2
 - roadmaps: total=23 active=3 done=13
 - últimos closeouts:
   - spec:pose-evidence-gate-means-validation (2026-11-02)
-  - spec:pose-closeout-names-the-missing-trailer (2026-11-01)
-  - spec:pose-roadmap-close-keeps-its-approvals (2026-11-01)
+  - spec:pose-engine-reads-raw-history (2026-11-02)
+  - spec:pose-community-claims-hold (2026-11-02)
   - spec:pose-reports-name-the-declared-project (2026-11-01)
-  - spec:pose-process-inventory-tolerates-exit (2026-11-01)
-  - ... e mais 434 (ver `pose_list_specs status:done`)
+  - spec:pose-roadmap-close-keeps-its-approvals (2026-11-01)
+  - ... e mais 436 (ver `pose_list_specs status:done`)
 
 ## Follow-ups
 <!-- state:derived hash:ed06c5d43648 -->
@@ -65,14 +65,14 @@ capacidade.
 - mecanismos: 16, score médio=4, target médio=5, retirados=0
 
 ## Decisões & Conhecimento
-<!-- state:derived hash:a7f583a5a2e6 -->
+<!-- state:derived hash:ada13748516c -->
 
-- ADRs: total=92
+- ADRs: total=93
+  - adr:2026-11-02-a-milestone-of-one-member-is-that-member.md
   - adr:2026-11-01-a-milestone-answers-to-its-own-edges.md
   - adr:2026-10-31-review-reads-raw-history-and-roots-diff-from-the-empty-tree.md
   - adr:2026-10-29-make-delegated-review-adoption-explicit-and-recoverable.md
   - adr:2026-10-26-delegation-is-a-first-class-execution-surface.md
-  - adr:2026-10-25-reserve-delegated-attempts-before-launch-and-witness-immutable-runs.md
 - knowledge: total=18 ativo=18 expirado=0
 
 ## Validação & Evidência

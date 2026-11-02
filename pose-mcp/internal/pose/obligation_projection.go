@@ -564,7 +564,7 @@ func (s Store) milestoneReachedObligations(project, scope string, coverage *Cove
 	if err != nil {
 		return lost(err)
 	}
-	recorded, err := s.milestonesWithRecordedApproval(candidates)
+	recorded, err := s.milestonesWithRecordedApproval(append(candidates, s.soleMemberRefs(candidates)...))
 	if err != nil {
 		return lost(err)
 	}
@@ -582,7 +582,11 @@ func (s Store) milestoneReachedObligations(project, scope string, coverage *Cove
 		if err != nil {
 			return lost(err)
 		}
-		if _, inherits := s.soleMemberOf(parsed); recorded[ref] || !required || inherits || s.declaredUnreviewed(parsed) != "" {
+		member, sole := s.soleMemberOf(parsed)
+		owed := !recorded[ref] && !(sole && recorded["spec:"+member]) && s.declaredUnreviewed(parsed) == ""
+		if refused, err := s.milestoneHasRecordedRefusal(ref); err != nil {
+			return lost(err)
+		} else if !required || !owed && !refused {
 			continue
 		}
 		source := QualifyNodeRef(project, ArtifactRef{Kind: "milestone", Slug: parsed.Roadmap, Milestone: parsed.Milestone}, "", "")
@@ -596,6 +600,40 @@ func (s Store) milestoneReachedObligations(project, scope string, coverage *Cove
 		out = append(out, o)
 	}
 	return out, nil
+}
+
+// soleMemberRefs names the specs of the milestones among refs that have one member.
+func (s Store) soleMemberRefs(refs []string) []string {
+	out := []string{}
+	for _, ref := range refs {
+		parsed, err := ParseScopeRef(ref)
+		if err != nil {
+			continue
+		}
+		if member, ok := s.soleMemberOf(parsed); ok {
+			out = append(out, "spec:"+member)
+		}
+	}
+	return out
+}
+
+// milestoneHasRecordedRefusal reads the headers of the milestone's own bundles only,
+// which is what keeps the list free of reviews.
+func (s Store) milestoneHasRecordedRefusal(ref string) (bool, error) {
+	latest, err := s.latestBundlesOf([]string{ref})
+	if err != nil {
+		return false, err
+	}
+	for _, bundle := range latest[ref] {
+		attestations, err := s.ListReviewAttestations(bundle)
+		if err != nil {
+			return false, err
+		}
+		if n := len(attestations); n > 0 && !reviewDecisionApproves(attestations[n-1].Decision) {
+			return true, nil
+		}
+	}
+	return false, nil
 }
 
 // startObligationItems projects start reconciliation needs, which exist only

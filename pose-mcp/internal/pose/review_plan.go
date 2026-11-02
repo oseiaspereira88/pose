@@ -1050,7 +1050,7 @@ func (s Store) addMilestoneGateCriterion(scope ScopeRef, criteria []ReviewPlanCr
 		return criteria, blockers
 	}
 	sp, err := s.GetSpec(scope.Slug)
-	if err != nil || sp.Status == "done" {
+	if err != nil || terminalStatuses[sp.Status] {
 		return criteria, blockers
 	}
 	roadmaps, err := s.ListRoadmaps()
@@ -1058,6 +1058,9 @@ func (s Store) addMilestoneGateCriterion(scope ScopeRef, criteria []ReviewPlanCr
 		return criteria, blockers
 	}
 	for _, rm := range roadmaps {
+		if terminalStatuses[rm.Status] {
+			continue
+		}
 		for _, milestone := range rm.Milestones {
 			if milestone.ExitGate == "" {
 				continue
@@ -1067,7 +1070,7 @@ func (s Store) addMilestoneGateCriterion(scope ScopeRef, criteria []ReviewPlanCr
 				continue
 			}
 			criteria, blockers = addReviewCriterion(criteria, ReviewPlanCriterion{
-				ID:          "milestone-exit-gate",
+				ID:          "milestone-exit-gate-" + rm.Slug + "-" + milestone.ID,
 				Description: "The exit gate of milestone:" + rm.Slug + "/" + milestone.ID + " holds: " + milestone.ExitGate,
 				Required:    true,
 				Kind:        ReviewCriterionKindJudgment,

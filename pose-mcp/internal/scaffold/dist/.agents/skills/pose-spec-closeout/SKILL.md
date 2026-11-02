@@ -98,7 +98,7 @@ Before reviewing or closing a cross-project task, run `pose context --task <xref
 7. Propose each consequential disposition and obtain confirmation before writing it.
 8. Apply `pose close <spec-ref> [--expect-context <digest>]`; use a manual lifecycle edit only when the Git workflow requires it and preserve the same gate. For an external authority, pass its qualified `xref:<project>/spec:<slug>` and the latest context digest.
    If it prints `close.next`, follow it: a milestone is closed when it is reached, not at the end of its roadmap. Seal and attest `milestone:<roadmap>/<id>`, then `pose close milestone:<roadmap>/<id>`; the close of the last milestone names `pose close roadmap:<roadmap>`. `pose state --attention` lists what is reached and open as `milestone-reached`.
-   A milestone of one member has no review of its own: it stands when that spec closes, and the review of the spec answers for its exit gate. A roadmap may declare `unreviewed_milestones: <reason>` for old milestones; its own review reads the reason.
+   That applies to a milestone of several members. A milestone of one member has no review of its own: it stands once that spec is closed and approved, unless a review recorded on the milestone refused it or its edges do not hold, and the review of the spec answers for its exit gate. A roadmap may declare `unreviewed_milestones: <reason>` in its frontmatter for old milestones whose members are all terminal; the review of the roadmap seals and reads the reason.
 9. Produce a **changelog fragment** for the delivered spec:
    ```bash
    cp .pose/templates/changelog-fragment.md .pose/changelogs/unreleased/<slug>.md

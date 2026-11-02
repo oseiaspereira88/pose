@@ -424,7 +424,7 @@ func parseRoadmapFile(files Files, path, slug string, includeBody bool) (*Roadma
 	for _, line := range strings.Split(body, "\n") {
 		stripped := strings.TrimSpace(line)
 		if inGate {
-			if stripped == "" || strings.HasPrefix(stripped, "#") {
+			if stripped == "" || strings.HasPrefix(stripped, "#") || strings.HasPrefix(stripped, "- ") {
 				inGate = false
 			} else {
 				current.ExitGate += " " + stripped

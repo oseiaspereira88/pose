@@ -28,7 +28,7 @@ Reviewing the 42 reached milestones took a night and 145 thousand lines of bundl
 
 - `review verify`, closeout, the review of a roadmap and the federated proof give one answer.
 - A negative review recorded on a milestone stands.
-- Edges still bind: federated acceptance of the milestone is untouched.
+- Edges still bind: a milestone inherits a review, not the acceptance of what it depends on.
 - Closed scopes keep their approvals.
 
 ### Non-goals
@@ -40,12 +40,12 @@ Reviewing the 42 reached milestones took a night and 145 thousand lines of bundl
 
 ### Functional
 
-- R1: A milestone with exactly one local member, closed and approved, shall read approved and closed with no bundle of its own, and say the approval is inherited.
-- R2: A recorded negative review of such a milestone shall keep it unapproved, and a recorded approval shall stay as it is.
+- R1: Under a review policy with bundles, a milestone with exactly one local member, closed and approved, whose federated acceptance holds, shall read approved and closed with no bundle of its own, and say where the approval comes from.
+- R2: A negative review recorded on such a milestone, in a bundle or a legacy attempt, or an attempt history that cannot be read, shall keep it unapproved, and a recorded approval shall stay as it is.
 - R3: A milestone with an external member or with several members shall owe its review as before.
-- R4: The review plan of an open spec that is the only member of a milestone shall carry a required judgment criterion holding the exit gate of that milestone.
-- R5: A roadmap that declares `unreviewed_milestones` with a reason shall treat a milestone whose members are all terminal as standing, and its own review shall stay required.
-- R6: The review of a roadmap shall seal over inherited and declared milestones, and `pose state --attention` shall not list them as reached.
+- R4: The review plan of an open spec that is the only member of a milestone of a live roadmap shall carry a required judgment criterion holding the exit gate of that milestone, one criterion per gate.
+- R5: A roadmap that declares `unreviewed_milestones` with a reason shall treat a milestone whose members are all terminal as standing, in verification and closeout, one member or many, with the reason sealed and readable in the bundle of the roadmap, whose own review stays required and is what an external consumer holds.
+- R6: The review of a roadmap shall seal over inherited and declared milestones, and `pose state --attention` shall not list them as reached, while a milestone that does not stand stays listed.
 
 ### Non-functional
 
@@ -57,7 +57,7 @@ Reviewing the 42 reached milestones took a night and 145 thousand lines of bundl
 
 ### Compatibility
 
-- Bundles of milestones keep working. A spec in progress that is the only member of a milestone gains one criterion.
+- Bundles of milestones keep working. A spec in progress that is the only member of a milestone gains one criterion, so a bundle already sealed for it reads superseded and is sealed again. A policy without bundles is untouched.
 
 ## 3. Technical Plan
 
@@ -76,6 +76,9 @@ Reviewing the 42 reached milestones took a night and 145 thousand lines of bundl
 - modified: pose-mcp/internal/pose/review_plan.go
 - modified: pose-mcp/internal/pose/roadmaps.go
 - modified: pose-mcp/internal/pose/obligation_projection.go
+- modified: pose-mcp/internal/pose/review_closeout.go
+- modified: pose-mcp/internal/pose/federated_acceptance.go
+- modified: POSE.md
 - modified: .agents/skills/pose-spec-closeout/SKILL.md
 - modified: locales/pt-BR/.agents/skills/pose-spec-closeout/SKILL.md
 - modified: pose-mcp/internal/scaffold/dist/.agents/skills/pose-spec-closeout/SKILL.md
@@ -137,12 +140,12 @@ Integration tests over real bundles for each reader, seen failing first, and eve
 
 ### Requirement trace
 
-- R1 [planned] capability:milestone-review-proportional evidence:integration check:milestone-review-proportional-integration test:TestOneMemberMilestoneInheritsItsSpec test:TestAMilestoneInheritsNoAcceptance test:TestCloseOfAnInheritingMilestonesSpecNamesTheRoadmap
-- R2 [planned] check:milestone-review-proportional-integration test:TestANegativeReviewOfAMilestoneStands test:TestARecordedMilestoneApprovalStays
+- R1 [planned] capability:milestone-review-proportional evidence:integration check:milestone-review-proportional-integration test:TestOneMemberMilestoneInheritsItsSpec test:TestAMilestoneDoesNotInheritAnOpenOrUnapprovedSpec test:TestAnApprovedOpenSpecIsNotInherited test:TestAMilestoneInheritsNoAcceptance test:TestCloseOfAnInheritingMilestonesSpecNamesTheRoadmap
+- R2 [planned] check:milestone-review-proportional-integration test:TestANegativeReviewOfAMilestoneStands test:TestARecordedMilestoneApprovalStays test:TestARecordedLegacyRefusalStands
 - R3 [planned] check:milestone-review-proportional-integration test:TestOtherMilestonesOweTheirReview
-- R4 [planned] check:milestone-review-proportional-integration test:TestTheSpecAnswersForTheExitGate
-- R5 [planned] check:milestone-review-proportional-integration test:TestARoadmapDeclaresUnreviewedMilestones
-- R6 [planned] check:milestone-review-proportional-integration test:TestRoadmapSealsOverInheritedMilestones
+- R4 [planned] check:milestone-review-proportional-integration test:TestTheSpecAnswersForTheExitGate test:TestEachExitGateHasItsOwnCriterion
+- R5 [planned] check:milestone-review-proportional-integration test:TestARoadmapDeclaresUnreviewedMilestones test:TestTheReasonIsSealedByTheRoadmap test:TestADeclarationRescuesATerminalSingleton test:TestAnExternalConsumerHoldsTheRoadmapOfADeclaredMilestone
+- R6 [planned] check:milestone-review-proportional-integration test:TestRoadmapSealsOverInheritedMilestones test:TestAttentionKeepsWhatDoesNotStand
 
 ## 7. Final Report
 

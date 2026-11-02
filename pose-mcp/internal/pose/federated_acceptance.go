@@ -682,6 +682,11 @@ func federatedSourceProof(files Files, source Store, identity ArtifactRef, pinne
 		return "", "", "", "", nil, nil, []string{scope + ":source-closeout-not-terminal"}
 	}
 	verification, err := source.VerifyReviewBundle(scope)
+	// A milestone its roadmap declares has no review of its own: what a consumer can
+	// hold is the review of that roadmap, which sealed the declaration.
+	if err == nil && identity.Kind == "milestone" && strings.HasPrefix(verification.ApprovalOrigin, "declared:") {
+		verification, err = source.VerifyReviewBundle("roadmap:" + identity.Slug)
+	}
 	if err != nil || !verification.Fresh || !verification.Approved || verification.Bundle == nil || verification.Attestation == nil {
 		return "", "", "", "", nil, nil, []string{scope + ":source-review-not-approved"}
 	}

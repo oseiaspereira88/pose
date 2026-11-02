@@ -9,11 +9,11 @@ Accepted (2026-11-02), spec `pose-milestone-review-proportional`.
 
 ## Decision
 
-- A milestone with exactly one local member has no review of its own: its approval is the approval of that spec, once the spec is closed.
-- A negative review recorded on the milestone stands, and an approval already recorded on it stays as it is.
+- A milestone with exactly one local member has no review of its own: its approval is the approval of that spec, once the spec is closed. It inherits a review and nothing else: the acceptance of its edges still has to hold.
+- A negative review recorded on the milestone stands, in a bundle or a legacy attempt, and an approval already recorded on it stays as it is.
 - While that spec is open, its review answers for the exit gate of the milestone, as a criterion of the plan, so the gate is judged once and not never.
 - A milestone of several members keeps its integration review, where the review of `community-launch` found what no spec could.
-- A roadmap may declare `unreviewed_milestones: <reason>`, and its reached milestones then stand without a review. The reason is sealed with the roadmap, whose own review stays required.
+- A roadmap may declare `unreviewed_milestones: <reason>`, and its reached milestones then stand without a review. The reason is sealed with the roadmap, whose own review stays required and is what an external consumer holds for such a milestone.
 
 ## Consequences
 
