@@ -109,9 +109,9 @@ None but the environment noted under Compatibility.
 
 ## 4. Tasks
 
-- [ ] Route every Git subprocess through the raw reader
-- [ ] Forbid a direct one by test
-- [ ] Independent review and closeout
+- [x] Route every Git subprocess through the raw reader
+- [x] Forbid a direct one by test
+- [x] Independent review and closeout
 
 ## 5. Decisions
 
@@ -131,14 +131,21 @@ The falsifier of the milestone review as an integration test, domain and CLI, se
 
 ### Requirement trace
 
-- R1 [planned] capability:engine-reads-raw-history evidence:integration check:engine-reads-raw-history-integration test:TestAReplacedTagTreeIsRefused test:TestReleaseCheckRefusesAReplacedTagTree
-- R2 [planned] check:engine-reads-raw-history-integration test:TestEngineStartsGitOnlyThroughTheRawReader test:TestReadyTransitionsReadRawHistory test:TestReportStagesIntoTheSelectedIndex
-- R3 [planned] check:engine-reads-raw-history-integration test:TestEngineStartsGitOnlyThroughTheRawReader test:TestTheLaunchScanSeesEveryForm
+- R1 [satisfied] capability:engine-reads-raw-history evidence:integration check:engine-reads-raw-history-integration test:TestAReplacedTagTreeIsRefused test:TestReleaseCheckRefusesAReplacedTagTree report:.pose/results/delivery-validation.json commit:028c8741bed1dcb4fdcfc6815b3eb93856c78c3c
+- R2 [satisfied] check:engine-reads-raw-history-integration test:TestEngineStartsGitOnlyThroughTheRawReader test:TestReadyTransitionsReadRawHistory test:TestReportStagesIntoTheSelectedIndex report:.pose/results/delivery-validation.json commit:028c8741bed1dcb4fdcfc6815b3eb93856c78c3c
+- R3 [satisfied] check:engine-reads-raw-history-integration test:TestEngineStartsGitOnlyThroughTheRawReader test:TestTheLaunchScanSeesEveryForm report:.pose/results/delivery-validation.json commit:028c8741bed1dcb4fdcfc6815b3eb93856c78c3c
 
 ## 7. Final Report
 
 ### Delivered scope
 
+A replace ref can no longer supply the release snapshot of a tag: `pose release check` refuses it in the domain and in the CLI. Every Git reading in the Go sources of the engine goes through the raw reader, and a test that reads the syntax tree of the whole module refuses a new direct start, a starter taken as a value and a program the source does not name, with each exception bound to one start in one function. `pose report --git-stage` keeps writing to the index the operator selected. Independently reviewed by Codex in four rounds: the first found two calls in the ready check that a text pattern had missed and a write sent to the wrong index, the next two tightened the rule.
+
 ### Residual risks
 
+The rule guards against a call written by habit; reflection or a generated program would pass it. Executable Git configuration of the repository still runs under the raw reader. Shell scripts the repository ships and declared external checks are outside the rule.
+
 ### Follow-ups
+
+- [open] F1: Disarm executable Git configuration on observational gate calls, starting with `core.fsmonitor`, which still runs on a raw `git status` (review round 1 F2). (owner:@oseiaspereira88 crit:medium review:2026-11-27)
+- [open] F2: Decide which shipped scripts a raw-history rule should reach, starting with `tests/hygiene/temp-cleanup.sh` (review round 1 F4). (owner:@oseiaspereira88 crit:low review:2026-11-27)
