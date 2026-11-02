@@ -142,6 +142,18 @@ func stateRefreshConsumer(root string, ev HookEvent) error {
 	// entry (spec pose-writer-coordination-and-atomic-publication R6/R7).
 	var partial *stateRefreshPartialError
 	if errors.As(err, &partial) {
+		if !partial.LogLost {
+			return nil
+		}
+		// The log is what would have told: the state has to say it itself, and a
+		// marker of the same kind says what took effect, not that nothing did.
+		marker := ev.Kind + " published, refresh log not appended"
+		if partial.Unsynced != nil {
+			marker += ", durability unconfirmed"
+		}
+		if markErr := markRefreshPending(root, marker); markErr != nil && !errors.Is(markErr, pose.ErrPublishUnsynced) {
+			return fmt.Errorf("%v, and could not mark refresh_pending (%v)", err, markErr)
+		}
 		return nil
 	}
 	if markErr := markRefreshPending(root, ev.Kind); markErr != nil {

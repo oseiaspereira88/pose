@@ -145,9 +145,40 @@ func TestACombinedRefreshFailureSaysBoth(t *testing.T) {
 			if err != nil {
 				t.Fatal(err)
 			}
-			if strings.Contains(string(raw), "refresh_pending: spec_closeout") {
+			marked := strings.Contains(string(raw), "refresh_pending: spec_closeout published, refresh log not appended, durability unconfirmed")
+			if name == "log" && !marked {
+				t.Fatalf("with its log gone a refresh told nobody: %s", raw)
+			}
+			if name == "history" && strings.Contains(string(raw), "refresh_pending: spec_closeout") {
 				t.Fatalf("a current state was marked pending: %s", raw)
 			}
 		})
+	}
+}
+
+func TestASkippedReplayIsNoDurabilityUnderAStrictPolicy(t *testing.T) {
+	event := HookEvent{Kind: "spec_closeout", Target: "x"}
+	root := unsyncedRefreshFixture(t, "")
+	for i := 0; i < 2; i++ {
+		if err := stateRefreshConsumer(root, event); err != nil {
+			t.Fatal(err)
+		}
+	}
+	if last, ok := lastStateRefresh(root); !ok || last.Result != "skipped" {
+		t.Fatalf("the fixture did not replay: %+v", last)
+	}
+	mustWrite(t, filepath.Join(root, ".pose", "policy", "state.json"), `{"strict_refresh":true}`)
+	if err := stateRefreshConsumer(root, event); !errors.Is(err, posemodel.ErrPublishUnsynced) {
+		t.Fatalf("a skipped replay stood for durability: %v", err)
+	}
+	posemodel.PublishSyncHook = nil
+	if err := stateRefreshConsumer(root, event); err != nil {
+		t.Fatal(err)
+	}
+	if err := stateRefreshConsumer(root, event); err != nil {
+		t.Fatal(err)
+	}
+	if last, _ := lastStateRefresh(root); last.Result != "skipped" {
+		t.Fatalf("a durable refresh was not deduplicated: %+v", last)
 	}
 }

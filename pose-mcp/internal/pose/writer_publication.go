@@ -74,7 +74,8 @@ func (e *PublishConflictError) Unwrap() error { return ErrPublishConflict }
 
 // ErrPublishUnsynced marks a publication that took effect but whose
 // durability could not be confirmed: the rename or link happened and the
-// directory sync failed. Errors that carry it are *PublishDurabilityError.
+// directory sync failed, or the fallback wrote the whole record and could not
+// sync or close it. Errors that carry it are *PublishDurabilityError.
 var ErrPublishUnsynced = errors.New("publish-unsynced")
 
 // PublishDurabilityError is a file that is published — readers see the new
@@ -92,7 +93,8 @@ func (e *PublishDurabilityError) Error() string {
 func (e *PublishDurabilityError) Unwrap() error { return ErrPublishUnsynced }
 
 // PublishSyncHook, when set, is called before each sync the publisher makes
-// ("file" for the staged file, "dir" for the directory) and its error is
+// ("file" for the staged file, "dir" for the directory, "exclusive" for the
+// record the fallback writes in place) and its error is
 // used as that sync's error. Only tests set it, to observe and fail syncs.
 var PublishSyncHook func(kind, path string) error
 

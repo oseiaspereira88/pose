@@ -40,7 +40,7 @@ A premise stops being watched the moment its spec is done, which is when a decis
 - R1: A spec that is done shall keep raising `premise-stale` when a pinned contract changes, and a withdrawn premise or decision shall ask for nothing.
 - R2: An empty `.git` directory shall not count as a repository, a `.git` file, a non-empty directory, a bare repository and a repository reached through a link shall stay one however broken, and the ignore walk shall tell a repository by file identity and enter each one once.
 - R3: A close whose transition took effect with durability unconfirmed shall report the close and say so on every path, `close --apply` included.
-- R4: A state refresh that published with durability unconfirmed shall finish its later effects, log `unsynced`, and succeed saying so, except under `strict_refresh`, which asks for durability, fails, and fails a replay until a publication is durable. A later effect that fails shall not hide the publication or its durability.
+- R4: A state refresh that published with durability unconfirmed shall finish its later effects, log `unsynced`, and succeed saying so, except under `strict_refresh`, which asks for durability, fails, and fails a replay until a publication is durable. A later effect that fails shall not hide the publication or its durability, and where the refresh log itself failed, `refresh_pending` shall say what took effect.
 - R5: An immutable publication shall fall back to an exclusive write only where a link is unavailable, and the fallback shall report its durability like any publication, a complete record included.
 - R6: The cleanup plan shall hold a dry run of both corpora, with the content of each unchanged.
 
@@ -131,7 +131,7 @@ Each guard is seen failing under a mutant. The full suite passes with an empty `
 - R1 [planned] capability:roadmap-reviews-findings evidence:integration check:roadmap-reviews-findings-integration test:TestAPremiseOutlivesItsDelivery test:TestAWithdrawnPremiseAsksForNothing
 - R2 [planned] check:roadmap-reviews-findings-integration test:TestAnEmptyGitDirectoryIsNoRepository test:TestEveryRepositoryGitFindsIsARepository test:TestAMarkerThatIsNoRepositoryEndsTheIgnoreWalk test:TestTheIgnoreWalkKnowsARepositoryByIdentity test:TestTheIgnoreWalkEntersARepositoryOnce
 - R3 [planned] check:roadmap-reviews-findings-integration test:TestAnUnsyncedCloseSaysItClosed
-- R4 [planned] check:roadmap-reviews-findings-integration test:TestAnUnsyncedRefreshDoesNotReadAsFailed test:TestAManualUnsyncedRefreshSaysSoAndSucceeds test:TestAStrictPolicyRefusesAnUnsyncedRefresh test:TestAStrictReplayDoesNotReadAsDurable test:TestAPolicyMadeStrictLaterAsksAgain test:TestACombinedRefreshFailureSaysBoth
+- R4 [planned] check:roadmap-reviews-findings-integration test:TestAnUnsyncedRefreshDoesNotReadAsFailed test:TestAManualUnsyncedRefreshSaysSoAndSucceeds test:TestAStrictPolicyRefusesAnUnsyncedRefresh test:TestAStrictReplayDoesNotReadAsDurable test:TestAPolicyMadeStrictLaterAsksAgain test:TestACombinedRefreshFailureSaysBoth test:TestASkippedReplayIsNoDurabilityUnderAStrictPolicy
 - R5 [planned] check:roadmap-reviews-findings-integration test:TestOnlyAMissingLinkFallsBack test:TestTheFallbackAnswersForItsDirectory test:TestACompleteFallbackReportsItsDurability
 - R6 [planned] check:roadmap-reviews-findings-integration test:TestTheCleanupPlanHoldsBothCorpora
 

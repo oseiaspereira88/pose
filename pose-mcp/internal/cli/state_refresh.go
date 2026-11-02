@@ -70,10 +70,22 @@ func recentlyProcessed(root, key string, window int, strict bool) bool {
 	if len(entries) > window {
 		start = len(entries) - window
 	}
-	for _, e := range entries[start:] {
+	for i := len(entries) - 1; i >= start; i-- {
+		e := entries[i]
+		if e.DedupKey != key {
+			continue
+		}
+		// A strict policy asks for durability, which only a publication can give:
+		// a replay that skipped says nothing about it, and the latest publication
+		// that did not confirm it answers for the ones before.
+		if strict && e.Result == "skipped" {
+			continue
+		}
+		if strict && e.Result == "unsynced" {
+			return false
+		}
 		// A failed or partial refresh owes an effect: the same event runs again.
-		// An unsynced one owes durability, which only a strict policy asks for.
-		if e.DedupKey == key && e.Result != "failed" && e.Result != "partial" && (!strict || e.Result != "unsynced") {
+		if e.Result != "failed" && e.Result != "partial" {
 			return true
 		}
 	}
@@ -286,7 +298,7 @@ func runRefresh(root string, opts refreshOptions, mustExist bool) (*refreshLogEn
 	}
 	if err := appendRefreshLog(root, entry); err != nil {
 		// The state and its history are published: this is a partial refresh too.
-		return &entry, &stateRefreshPartialError{State: store.StatePath(), Effect: "its refresh log entry was not appended", Err: err, Unsynced: unsynced}
+		return &entry, &stateRefreshPartialError{State: store.StatePath(), Effect: "its refresh log entry was not appended", Err: err, Unsynced: unsynced, LogLost: true}
 	}
 	return &entry, unsynced
 }
@@ -306,6 +318,7 @@ type stateRefreshPartialError struct {
 	Effect   string
 	Err      error
 	Unsynced error // the publication of the state, when its durability is unconfirmed too
+	LogLost  bool  // the refresh log, where a partial refresh is otherwise found, did not take it
 }
 
 func (e *stateRefreshPartialError) Error() string {
