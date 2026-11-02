@@ -1,6 +1,6 @@
 ---
 slug: pose-community-claims-hold
-status: in-progress
+status: done
 created_at: 2026-11-02
 supersedes:
 depends_on:
@@ -9,7 +9,7 @@ priority: 1
 components: pose-mcp
 task_type: bugfix
 delivers: capability:community-claims-hold
-completed_at:
+completed_at: 2026-11-02
 ---
 
 # Spec: What the project says in public holds
