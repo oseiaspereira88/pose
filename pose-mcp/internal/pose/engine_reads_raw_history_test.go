@@ -234,7 +234,7 @@ func TestTheLaunchScanSeesEveryForm(t *testing.T) {
 
 func TestEngineStartsGitOnlyThroughTheRawReader(t *testing.T) {
 	root := filepath.Join("..", "..")
-	seen := map[string]bool{}
+	seen := map[string]int{}
 	unlisted := []string{}
 	err := filepath.WalkDir(root, func(path string, entry os.DirEntry, err error) error {
 		if err != nil {
@@ -257,7 +257,7 @@ func TestEngineStartsGitOnlyThroughTheRawReader(t *testing.T) {
 		rel = filepath.ToSlash(rel)
 		for _, launch := range launchesOf(t, path, string(raw)) {
 			site := rel + "#" + launch.function
-			seen[site] = true
+			seen[site]++
 			switch {
 			case directGitExceptions[site] != "":
 			case launch.kind == "git":
@@ -277,9 +277,16 @@ func TestEngineStartsGitOnlyThroughTheRawReader(t *testing.T) {
 	}
 	for _, listed := range []map[string]string{directGitExceptions, dynamicLaunches} {
 		for site := range listed {
-			if !seen[site] {
+			if seen[site] == 0 {
 				t.Errorf("the entry for %s no longer applies", site)
 			}
+		}
+	}
+	// An exception covers the one start it names: a second start in the function is
+	// a new one, which the reason does not cover.
+	for site := range directGitExceptions {
+		if seen[site] > 1 {
+			t.Errorf("%s starts git %d times under one exception", site, seen[site])
 		}
 	}
 }
