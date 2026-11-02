@@ -1,6 +1,6 @@
 ---
 slug: pose-engine-reads-raw-history
-status: draft
+status: in-progress
 created_at: 2026-11-02
 supersedes:
 depends_on: pose-history-readers-read-raw
