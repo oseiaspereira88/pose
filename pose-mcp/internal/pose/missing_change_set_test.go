@@ -68,7 +68,9 @@ func TestSpecWithoutAChangeSetStaysUnsealable(t *testing.T) {
 	graph["change_sets"] = []any{}
 	raw, _ = json.Marshal(graph)
 	writeReviewFixture(t, root, ".pose/indexes/delivery-integrity.json", string(raw))
-	if _, err := s.SealReviewBundle("spec:backend", time.Now()); err == nil {
-		t.Fatal("a spec with no change set sealed once its second blocker was gone")
+	commitEvidenceFixture(t, root)
+	_, err = s.SealReviewBundle("spec:backend", time.Now())
+	if err == nil || !strings.Contains(err.Error(), missingChangeSetBlocker) {
+		t.Fatalf("a spec with no change set sealed once its second blocker was gone: %v", err)
 	}
 }

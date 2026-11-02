@@ -338,6 +338,8 @@ func TestDelegatedReviewCapabilityProtectsTheAdoptedFloor(t *testing.T) {
 	designDeltaGit(t, root, "add", ".pose/policy/review.json")
 	designDeltaGit(t, root, "commit", "-qm", "disable delegation")
 	graph.ChangeSets[0].ResolvedHead = strings.TrimSpace(string(mustDesignDeltaGitOutput(t, root, "rev-parse", "HEAD")))
+	graph.ProvenanceDigest = "sha256:aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa"
+	graph.ValidationResults = []DeliveryValidationResult{{ID: "fixture-test", Module: "api", Check: "test", EvidenceClass: "unit", Severity: "required", Outcome: "pass", ProvenanceDigest: "sha256:aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa"}}
 	raw, _ = json.Marshal(graph)
 	writeReviewFixture(t, root, ".pose/indexes/delivery-integrity.json", string(raw))
 	bundle, err := s.SealReviewBundle("spec:governance", time.Now())

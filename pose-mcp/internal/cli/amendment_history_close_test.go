@@ -46,7 +46,7 @@ func TestAmendmentHistoryFirstChangeSeedsRecordedStart(t *testing.T) {
 	}
 }
 
-func TestAmendmentHistoryInProgressWarnsBeforeDone(t *testing.T) {
+func TestAmendmentHistoryInProgressFailsBeforeDone(t *testing.T) {
 	root, path := amendFixture(t)
 	if code, out := runAmend(t, root, "amended", "--baseline", "--author", "@core"); code != 0 {
 		t.Fatal(out)

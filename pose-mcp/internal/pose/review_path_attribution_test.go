@@ -30,7 +30,9 @@ func attributionFixture(t *testing.T) (string, Store) {
 	shared := commit("a batch commit for two specs\n\nPOSE-Spec: backend\nPOSE-Spec: other",
 		".pose/adr/2026-10-08-batch.md", "# ADR\n\nCarried by a batch commit.\n")
 	graph := DeliveryIntegrityGraph{
-		SchemaVersion: DeliveryIntegritySchemaVersion,
+		ProvenanceDigest:  "sha256:aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+		ValidationResults: []DeliveryValidationResult{{ID: "fixture-test", Module: "api", Check: "test", EvidenceClass: "unit", Severity: "required", Outcome: "pass", ProvenanceDigest: "sha256:aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa"}},
+		SchemaVersion:     DeliveryIntegritySchemaVersion,
 		ChangeSets: []ChangeSet{{
 			ID: "cs-backend", Spec: "backend", Selector: "trailers:backend",
 			ResolvedBase: base, ResolvedHead: shared, Commits: []string{own, shared},

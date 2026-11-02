@@ -9,68 +9,137 @@ import (
 	"time"
 )
 
-// sealWithDerivedEvidence writes the bundle an engine before this gate sealed: the
-// same bundle, with nothing but what is derived from the subject.
-func sealWithDerivedEvidence(t *testing.T, s Store, bundle ReviewBundle) ReviewBundle {
+// closedDerivedSeal is a done spec sealed over design evidence alone, with a profile
+// whose criterion takes it, as engines before this gate sealed and approved it.
+func closedDerivedSeal(t *testing.T) (string, Store, ReviewBundle) {
 	t.Helper()
-	bundle.Payload.Evidence = []ReviewBundleEvidence{{ID: "design-0", Check: "assess-design", EvidenceClass: "structure", Outcome: "pass", Report: "derived:design-delta/0"}}
-	digest, err := reviewBundlePayloadDigest(bundle.Payload)
+	root, s := reviewBundleFixture(t)
+	policy := filepath.Join(root, ".pose/policy/review.json")
+	raw, err := os.ReadFile(policy)
 	if err != nil {
 		t.Fatal(err)
 	}
-	old := bundle.BundleID
-	bundle.BundleDigest, bundle.BundleID = digest, "rvb-"+strings.TrimPrefix(digest, "sha256:")[:16]
-	bundle.Path = strings.ReplaceAll(bundle.Path, old, bundle.BundleID)
-	raw, err := json.MarshalIndent(bundle, "", "  ")
+	text := strings.Replace(string(raw), `"overlay_profiles": ["frontend-review@1", "backend-review@1"]`, `"overlay_profiles": []`, 1)
+	text = strings.Replace(text, `"schema_version": 2,`, `"schema_version": 2, "review_bundles":true, "review_bundles_adopted_at":"2026-08-13",`, 1)
+	writeReviewFixture(t, root, ".pose/policy/review.json", text)
+	writeReviewFixture(t, root, ".pose/review-profiles/spec-closeout.json", `{"schema_version":2,"id":"spec-closeout","version":2,"scope":"spec","criteria":[{"id":"correctness","description":"Structural correctness","kind":"judgment","evidence_classes":["structure"]}]}`)
+	spec := filepath.Join(root, ".pose/specs/backend/spec.md")
+	raw, err = os.ReadFile(spec)
 	if err != nil {
 		t.Fatal(err)
 	}
-	if err := os.WriteFile(filepath.Join(s.reviewBundlesDir(), bundle.BundleID+".json"), raw, 0o644); err != nil {
-		t.Fatal(err)
-	}
-	if err := os.Remove(filepath.Join(s.reviewBundlesDir(), old+".json")); err != nil {
-		t.Fatal(err)
-	}
-	return bundle
-}
-
-func TestAutoAttestRefusesDerivedEvidence(t *testing.T) {
-	_, s := reviewBundleFixture(t)
+	writeReviewFixture(t, root, ".pose/specs/backend/spec.md", strings.Replace(string(raw), "status: in-progress", "status: done\ncompleted_at: 2026-09-26", 1))
+	dropValidationResults(t, root)
+	writeReviewFixture(t, root, ".pose/indexes/validation-matrix.json", `{"deliveryProfiles":{"api-contract":{"kind":"contract","requiredEvidenceClasses":["structure"]}},"stacks":{}}`)
+	commitEvidenceFixture(t, root)
 	bundle, err := s.SealReviewBundle("spec:backend", time.Date(2026, 9, 26, 18, 0, 0, 0, time.UTC))
 	if err != nil {
 		t.Fatal(err, bundle.Blockers)
 	}
-	derived := sealWithDerivedEvidence(t, s, bundle)
-	if _, err := s.LoadReviewBundle(derived.BundleID); err != nil {
-		t.Fatalf("the fixture does not read as a sealed bundle: %v", err)
+	if len(bundle.Payload.Evidence) != 1 || holdsValidationResult(bundle.Payload.Evidence) {
+		t.Fatalf("the seal is not derived alone: %+v", bundle.Payload.Evidence)
 	}
-	if _, err := s.PrepareReviewAttestation(derived.BundleID, "agent:auto", time.Date(2026, 9, 26, 19, 0, 0, 0, time.UTC)); err == nil || !strings.Contains(err.Error(), "no passed structured validation evidence") {
-		t.Fatalf("auto-attest took derived evidence for a validation result: %v", err)
-	}
+	return root, s, bundle
 }
 
-func TestClosedScopeKeepsItsDerivedSeal(t *testing.T) {
-	root, s := closedMilestoneFixture(t)
+func dropValidationResults(t *testing.T, root string) {
+	t.Helper()
 	path := filepath.Join(root, ".pose/indexes/delivery-integrity.json")
 	raw, err := os.ReadFile(path)
 	if err != nil {
 		t.Fatal(err)
 	}
-	var graph map[string]any
+	var graph DeliveryIntegrityGraph
 	if err := json.Unmarshal(raw, &graph); err != nil {
 		t.Fatal(err)
 	}
-	before, err := s.VerifyReviewBundle("spec:backend")
-	if err != nil || !before.Approved {
-		t.Fatalf("the fixture is not approved: %+v %v", before, err)
-	}
-	delete(graph, "validation_results")
+	graph.ValidationResults = nil
 	raw, _ = json.Marshal(graph)
-	federatedTestWrite(t, root, ".pose/indexes/delivery-integrity.json", string(raw))
+	writeReviewFixture(t, root, ".pose/indexes/delivery-integrity.json", string(raw))
+}
+
+func commitEvidenceFixture(t *testing.T, root string) {
+	t.Helper()
+	federatedTestGit(t, root, "init", "-q")
+	federatedTestGit(t, root, "config", "user.name", "fixture")
+	federatedTestGit(t, root, "config", "user.email", "fixture@example.invalid")
 	federatedTestGit(t, root, "add", "--all")
-	federatedTestGit(t, root, "commit", "-q", "-m", "no result in the index")
-	after, err := s.VerifyReviewBundle("spec:backend")
-	if err != nil || !after.Approved {
-		t.Fatalf("a closed scope lost its approval when its evidence left the index: %+v %v", after, err)
+	federatedTestGit(t, root, "commit", "-q", "-m", "fixture")
+}
+
+func TestAutoAttestRefusesDerivedEvidence(t *testing.T) {
+	_, s, bundle := closedDerivedSeal(t)
+	if _, err := s.PrepareReviewAttestation(bundle.BundleID, "agent:auto", time.Date(2026, 9, 26, 19, 0, 0, 0, time.UTC)); err == nil || !strings.Contains(err.Error(), "no passed structured validation evidence") {
+		t.Fatalf("auto-attest took derived evidence for a validation result: %v", err)
+	}
+}
+
+func TestClosedScopeKeepsItsDerivedSeal(t *testing.T) {
+	root, s, bundle := closedDerivedSeal(t)
+	at := time.Date(2026, 9, 26, 19, 0, 0, 0, time.UTC)
+	if _, err := s.RecordReviewAttestation(approvedBundleAttestation(bundle, "agent:reviewer"), at); err != nil {
+		t.Fatal(err)
+	}
+	stands := func(when string) {
+		t.Helper()
+		verification, err := s.VerifyReviewBundle("spec:backend")
+		if err != nil || !verification.Approved || !verification.Fresh {
+			t.Fatalf("%s: verify lost the approval: %+v %v", when, verification, err)
+		}
+		eval, err := s.ReviewCheck("spec:backend")
+		if err != nil || !eval.Approved {
+			t.Fatalf("%s: review-check lost the approval: %+v %v", when, eval, err)
+		}
+		plan, err := s.PlanCloseout("spec:backend")
+		if err != nil || !plan.Terminal {
+			t.Fatalf("%s: closeout lost the approval: %+v %v", when, plan, err)
+		}
+		_, _, _, _, _, _, blockers := federatedSourceProof(NativeFiles(), s, ArtifactRef{Kind: "spec", Slug: "backend", Project: "source"}, gitHeadAtRoot(root))
+		if len(blockers) != 0 {
+			t.Fatalf("%s: a consumer lost the proof: %v", when, blockers)
+		}
+	}
+	stands("as sealed")
+	writeReviewFixture(t, root, "unrelated.txt", "later\n")
+	federatedTestGit(t, root, "add", "--all")
+	federatedTestGit(t, root, "commit", "-q", "-m", "later work")
+	stands("after later work")
+}
+
+func TestAResultAtADerivedPathIsValidation(t *testing.T) {
+	root, s := reviewBundleFixture(t)
+	path := filepath.Join(root, ".pose/indexes/delivery-integrity.json")
+	raw, err := os.ReadFile(path)
+	if err != nil {
+		t.Fatal(err)
+	}
+	var graph DeliveryIntegrityGraph
+	if err := json.Unmarshal(raw, &graph); err != nil {
+		t.Fatal(err)
+	}
+	if len(graph.ValidationResults) == 0 {
+		t.Fatal("the fixture has no result")
+	}
+	for i := range graph.ValidationResults {
+		graph.ValidationResults[i].Report = "derived:results.json"
+	}
+	raw, _ = json.Marshal(graph)
+	writeReviewFixture(t, root, ".pose/indexes/delivery-integrity.json", string(raw))
+	commitEvidenceFixture(t, root)
+	bundle, err := s.PrepareReviewBundle("spec:backend")
+	if err != nil {
+		t.Fatal(err)
+	}
+	if strings.Contains(strings.Join(bundle.Blockers, " "), "no passed structured validation evidence") {
+		t.Fatalf("a result was read as derived for the path of its report: %v", bundle.Blockers)
+	}
+	for _, ev := range []ReviewBundleEvidence{
+		{Check: "assess-design", EvidenceClass: "structure", Module: "api", Report: "derived:design-delta/x"},
+		{Check: "assess-design", EvidenceClass: "unit", Report: "derived:design-delta/x"},
+		{Check: "test", EvidenceClass: "structure", Report: "derived:design-delta/x"},
+	} {
+		if !holdsValidationResult([]ReviewBundleEvidence{ev}) {
+			t.Fatalf("a result was read as derived: %+v", ev)
+		}
 	}
 }

@@ -104,7 +104,7 @@ The module has high criticality. Use `pose-test-plan` before code. Required chec
 
 - R1 [satisfied] test:TestAmendmentHistoryFirstChangeSeedsRecordedStart test:TestAmendmentHistoryFlatAddedAndTransitionKeepEarlierNodes
 - R2 [satisfied] test:TestAmendmentHistoryCloseRefusesBeforeTransition test:TestAmendmentHistoryCloseRechecksUnderLockAndValidControl
-- R3 [satisfied] test:TestAmendmentHistoryInProgressWarnsBeforeDone
+- R3 [satisfied] test:TestAmendmentHistoryInProgressFailsBeforeDone
 
 ## 7. Final Report
 

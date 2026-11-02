@@ -524,7 +524,7 @@ func (s Store) prepareReviewBundle(ref string, legacyMilestoneManifest bool) (Re
 		}
 		// Without a change set no evidence can be attributed: that blocker already
 		// names the cause, and a second one would send the operator to re-validate.
-		if !reportsMissingChangeSet(bundle.Blockers) && !holdsValidationResult(bundle.Payload.Evidence) && s.reviewScopeRequiresValidationEvidence(scope, bundle.Payload.Plan, graph) {
+		if !reportsMissingChangeSet(bundle.Blockers) && s.evidenceFallsShort(scope, bundle.Payload.Evidence) && s.reviewScopeRequiresValidationEvidence(scope, bundle.Payload.Plan, graph) {
 			bundle.Blockers = append(bundle.Blockers, "no passed structured validation evidence is attributed to the review scope")
 		}
 		bundle.Warnings = append(bundle.Warnings, staleEvidenceWarnings(bundle.Payload.Subject, bundle.Payload.Evidence)...)
@@ -1629,14 +1629,28 @@ func (s Store) reviewBundleEvidence(scope ScopeRef, graph DeliveryIntegrityGraph
 }
 
 // holdsValidationResult reports evidence of a run. What the engine derives from the
-// subject answers structural criteria and says nothing of whether anything ran.
+// subject answers structural criteria and says nothing of whether anything ran. The
+// report alone does not tell them apart: its path is the operator's to choose.
 func holdsValidationResult(evidence []ReviewBundleEvidence) bool {
 	for _, ev := range evidence {
-		if !strings.HasPrefix(ev.Report, "derived:") {
+		if !(ev.Check == "assess-design" && ev.EvidenceClass == "structure" && ev.Module == "" && strings.HasPrefix(ev.Report, "derived:design-delta/")) {
 			return true
 		}
 	}
 	return false
+}
+
+// evidenceFallsShort is the gate of a scope that requires validation evidence. A spec
+// that is done was sealed under the rule of its day and verification prepares it
+// again, so it answers only for evidence being absent: a bundle approved over derived
+// evidence stays approved.
+func (s Store) evidenceFallsShort(scope ScopeRef, evidence []ReviewBundleEvidence) bool {
+	if scope.Kind == "spec" {
+		if sp, err := s.GetSpec(scope.Slug); err == nil && sp.Status == "done" {
+			return len(evidence) == 0
+		}
+	}
+	return !holdsValidationResult(evidence)
 }
 
 func (s Store) reviewScopeRequiresValidationEvidence(scope ScopeRef, plan ReviewBundlePlan, graph DeliveryIntegrityGraph) bool {

@@ -1,7 +1,7 @@
 ---
 schema_version: 1
-generated_at: 2026-11-01T21:44:03Z
-baseline_commit: edf2ca95fc271042d329343087677862d54897b3
+generated_at: 2026-11-02T00:21:04Z
+baseline_commit: 88c90b3d1ca96e9a520bd8c9026845cd9bdbcfaf
 staleness_policy: max_age_days=7,max_commits=20
 refresh_pending: 
 ---
@@ -27,17 +27,17 @@ próprio deste repositório (produtização v2, DX) segue disponível conforme
 capacidade.
 
 ## Specs & Roadmaps
-<!-- state:derived hash:8dec00f185d5 -->
+<!-- state:derived hash:7253e48ae4c6 -->
 
-- specs: total=475 draft=18 in-progress=20 blocked=0 done=435 superseded=0 abandoned=2
+- specs: total=476 draft=18 in-progress=18 blocked=0 done=438 superseded=0 abandoned=2
 - roadmaps: total=23 active=3 done=13
 - últimos closeouts:
-  - spec:pose-closeout-judges-the-manifest (2026-11-01)
   - spec:pose-roadmap-close-keeps-its-approvals (2026-11-01)
   - spec:pose-process-inventory-tolerates-exit (2026-11-01)
-  - spec:pose-validate-refuses-empty-go-checks (2026-10-31)
-  - spec:pose-delegated-review-expired-session (2026-10-31)
-  - ... e mais 430 (ver `pose_list_specs status:done`)
+  - spec:pose-closeout-names-the-missing-trailer (2026-11-01)
+  - spec:pose-reports-name-the-declared-project (2026-11-01)
+  - spec:pose-milestone-closes-when-reached (2026-11-01)
+  - ... e mais 433 (ver `pose_list_specs status:done`)
 
 ## Follow-ups
 <!-- state:derived hash:ed06c5d43648 -->
