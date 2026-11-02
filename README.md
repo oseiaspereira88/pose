@@ -212,7 +212,7 @@ placeholder — are in
 [Migrating from Spec Kit](https://docs.harne8.com/POSE/migrate/spec-kit/) and
 [Migrating from OpenSpec](https://docs.harne8.com/POSE/migrate/openspec/).
 
-See [`examples/brownfield-kits/`](examples/brownfield-kits/) for three
+See [`examples/brownfield-kits/`](examples/brownfield-kits/) for
 real, executable adoption journeys — direct adoption, Spec Kit import and
 OpenSpec import — each with a staged visibility-to-blocking-gate guide and
 a rollback story, exercised end to end by the test suite.
@@ -253,7 +253,7 @@ POSE makes each of those concerns an explicit, versioned mechanism.
 | `.pose/specs/`      | Living feature contracts with lifecycle and dependencies                                       |
 | `.pose/workflows/`  | Procedures for feature, bugfix, review, refactor, docs, recurrence, release and UI surfaces    |
 | `.pose/rules/`      | Cumulative security, backend, frontend, Kubernetes, evidence and knowledge rules               |
-| `.agents/skills/`   | Eleven portable Agent Skills; Claude-compatible links are installed                            |
+| `.agents/skills/`   | Portable Agent Skills; Claude-compatible links are installed                            |
 | `.pose/roadmaps/`   | Governed roadmaps with milestone DAGs and readiness                                            |
 | `.pose/knowledge/`  | TTL-governed handoffs, notes and decision logs                                                 |
 | `.pose/reports/`    | Versionable evidence and append-only JSONL history                                             |

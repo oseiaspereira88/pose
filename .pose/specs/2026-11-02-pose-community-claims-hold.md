@@ -18,7 +18,7 @@ completed_at:
 
 ### Goal
 
-The public gate catches a false release claim, and the README, the quickstart and the demo say only what is true.
+The public gate catches a false release claim in the forms a reader meets it, the README and the quickstart say only what holds, and the demo closes a delivery through the gate.
 
 ### Business value
 
@@ -26,22 +26,22 @@ The integration review of `community-launch` found the public gate passing a REA
 
 ### Constraints
 
-- The demo keeps fitting under a minute, so it shows the gate and does not perform a review.
+- The demo keeps fitting under a minute, with its reviewer stated as the script.
 
 ### Non-goals
 
 - Publishing the recording, a contributor task or a Discussions space.
 - Which external surfaces the gate owns: a decision of the maintainer.
-- A new clean measurement of the quickstart, which needs a container runtime.
+- A new clean measurement of the quickstart, which needs a container runtime: until then the page claims no budget.
 
 ## 2. Requirements
 
 ### Functional
 
-- R1: `pose public-claims` shall treat a release tag link as a version claim, except in the table rows of a surface declared `history_table`.
-- R2: The README, in both locales, shall hold no per-release text and no hardcoded tool count.
-- R3: The quickstart shall state the version and date of its timing.
-- R4: The demo shall not say a delivery closed unless a close ran.
+- R1: `pose public-claims` shall treat a release tag link, a release badge and a version in prose as version claims, except between the release-history markers of a surface declared `history_block`.
+- R2: The README, in both locales, shall hold no per-release text and no hardcoded count of what ships.
+- R3: The quickstart shall claim no time budget while no measurement of the current path exists.
+- R4: The demo shall block a delivery, have it reviewed, close it through `pose close`, and fail unless the spec reads done and `pose review verify` approves it.
 
 ### Non-functional
 
@@ -53,7 +53,7 @@ The integration review of `community-launch` found the public gate passing a REA
 
 ### Compatibility
 
-- A surface that links an older release tag now fails the gate, unless the link sits in a table of a surface declared `history_table`.
+- A surface that names an older release in prose, in a badge or in a tag link now fails the gate, unless it sits in the release-history block of a surface declared `history_block`.
 
 ## 3. Technical Plan
 
@@ -73,6 +73,7 @@ The integration review of `community-launch` found the public gate passing a REA
 - modified: README.pt-BR.md
 - modified: docs-site/docs/quickstart.md
 - modified: examples/demo/record.sh
+- modified: docs-site/docs/evolution.md
 - modified: .pose/public/claims.json
 
 ### Delivery targets
@@ -87,19 +88,19 @@ The integration review of `community-launch` found the public gate passing a REA
 
 - [ ] Recognize a release tag link
 - [ ] Make the README evergreen
-- [ ] Date the timing of the quickstart
-- [ ] Say what the demo shows
+- [ ] Remove the budget the quickstart cannot support
+- [ ] Close a delivery in the demo
 - [ ] Independent review and closeout
 
 ## 5. Decisions
 
 ### Decision D1
 - Basis: R4
-- Minimal option: change the closing line of the demo
-- Selected option: that, and not a real close
-- Rationale: a real close needs a review and evidence, which no demo of a minute can hold; what it shows is that a gate refuses and then clears
-- Consequences: the demo proves the gate, not a whole delivery
-- Falsifier: a reader who takes the demo for a closed delivery
+- Minimal option: change the closing line of the demo and keep its lint
+- Selected option: a real close, reusing the path of `tests/quickstart/first-governed-loop.sh`, which takes under three seconds of machine time
+- Rationale: the release cut criteria of `community-launch` ask for a delivery that is blocked and then legitimately closed, and a wording cannot redefine that; the first attempt at this spec tried and was refused in review
+- Consequences: the script stands in for the reviewer and says so in the conclusion it records; a check of the matrix runs it
+- Falsifier: a reader who takes the scripted review for an independent one
 
 ## 6. Validation
 
@@ -109,10 +110,10 @@ A negative case in the public gate, seen failing first, and the gate run over th
 
 ### Requirement trace
 
-- R1 [planned] capability:community-claims-hold evidence:integration check:community-claims-hold-integration test:TestPublicClaimsFailsOnAStaleReleaseTagLink test:TestAHistoryTableIsNotAClaimButItsProseIs
+- R1 [planned] capability:community-claims-hold evidence:integration check:community-claims-hold-integration test:TestPublicClaimsFailsOnAStaleReleaseTagLink test:TestPublicClaimsFailsOnEveryShapeOfAStaleRelease test:TestOnlyTheReleaseHistoryBlockHoldsPastReleases test:TestAHistoryBlockCountsOnlyOnADeclaredSurface
 - R2 [planned] check:community-claims-hold-integration test:TestReadmeHoldsNoPerReleaseText
-- R3 [planned] check:community-claims-hold-integration test:TestQuickstartDatesItsTiming
-- R4 [planned] check:community-claims-hold-integration test:TestDemoDoesNotClaimAClose
+- R3 [planned] check:community-claims-hold-integration test:TestQuickstartClaimsNoCurrentBudget
+- R4 [planned] check:demo-closes-a-delivery
 
 ## 7. Final Report
 

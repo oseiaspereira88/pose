@@ -314,17 +314,47 @@ func TestPublicClaimsFailsOnAStaleReleaseTagLink(t *testing.T) {
 	}
 }
 
-func TestAHistoryTableIsNotAClaimButItsProseIs(t *testing.T) {
-	root := t.TempDir()
-	writeClaimsFixture(t, root, `{"path":"evolution.md","version_claims":"current-only","history_table":true}`)
-	row := "| [0.0.1](https://github.com/o/p/releases/tag/v0.0.1) | First. |\n"
-	writeSurface(t, root, "evolution.md", row)
-	if code, out := runClaims(t, root, "--strict"); code != 0 {
-		t.Fatalf("a row of the history failed the gate: %s", out)
+func TestPublicClaimsFailsOnEveryShapeOfAStaleRelease(t *testing.T) {
+	for _, body := range []string{
+		"The latest published release is [v0.0.1](https://github.com/o/p/releases/latest).\n",
+		"The latest published release is v0.0.1.\n",
+		"A versão mais recente é a v0.0.1.\n",
+		"![Release v0.0.1](https://img.shields.io/badge/release-v0.0.1-blue)\n",
+		"Latest: [v0.0.1](https://github.com/o/p/releases/tag/v0.0.1).\n",
+	} {
+		root := t.TempDir()
+		writeClaimsFixture(t, root, `{"path":"README.md","version_claims":"current-only"}`)
+		writeSurface(t, root, "README.md", body)
+		if code, out := runClaims(t, root, "--strict"); code == 0 {
+			t.Errorf("a stale release passed as current: %q\n%s", body, out)
+		}
 	}
-	writeSurface(t, root, "evolution.md", "Latest: [v0.0.1](https://github.com/o/p/releases/tag/v0.0.1).\n\n"+row)
+}
+
+func TestOnlyTheReleaseHistoryBlockHoldsPastReleases(t *testing.T) {
+	const history = "<!-- release-history -->\n| Release | Change |\n|---|---|\n| [0.0.1](https://github.com/o/p/releases/tag/v0.0.1) | First. |\n<!-- /release-history -->\n"
+	for body, passes := range map[string]bool{
+		history: true,
+		history + "| Current release | [POSE v0.0.1](https://github.com/o/p/releases/tag/v0.0.1) |\n": false,
+		history + "Install with `V=0.0.1`.\n":        false,
+		"| Current release | v0.0.1 |\n":             false,
+		"<!-- release-history -->\nLatest: v0.0.1\n": false,
+	} {
+		root := t.TempDir()
+		writeClaimsFixture(t, root, `{"path":"evolution.md","version_claims":"current-only","history_block":true}`)
+		writeSurface(t, root, "evolution.md", body)
+		if code, out := runClaims(t, root, "--strict"); (code == 0) != passes {
+			t.Errorf("exit %d for %q\n%s", code, body, out)
+		}
+	}
+}
+
+func TestAHistoryBlockCountsOnlyOnADeclaredSurface(t *testing.T) {
+	root := t.TempDir()
+	writeClaimsFixture(t, root, `{"path":"README.md","version_claims":"current-only"}`)
+	writeSurface(t, root, "README.md", "<!-- release-history -->\nLatest: v0.0.1\n<!-- /release-history -->\n")
 	if code, out := runClaims(t, root, "--strict"); code == 0 {
-		t.Fatalf("the prose of a history surface passed a stale claim: %s", out)
+		t.Fatalf("markers on an undeclared surface hid a claim: %s", out)
 	}
 }
 
@@ -338,7 +368,8 @@ func repositoryFile(t *testing.T, rel string) string {
 }
 
 func TestReadmeHoldsNoPerReleaseText(t *testing.T) {
-	stale := regexp.MustCompile(`releases/tag/v\d|\bv\d+\.\d+\.\d+, (dated|de) |\b\d+ (POSE governance tools|ferramentas de governança)|outside v\d|Editorial review|Revisão editorial`)
+	// The install block pins a version on purpose; everything else is prose.
+	stale := regexp.MustCompile(`(?m)^[^$\x60\n]*\bv\d+\.\d+\.\d+\b|\b\d+ (POSE governance tools|ferramentas de governança)|\b(Eleven|Twelve|Onze|Doze) |\b(for three|para três)\b|Editorial review|Revisão editorial`)
 	for _, rel := range []string{"README.md", "README.pt-BR.md"} {
 		if hit := stale.FindString(repositoryFile(t, rel)); hit != "" {
 			t.Errorf("%s holds text that a release turns false: %q", rel, hit)
@@ -346,24 +377,17 @@ func TestReadmeHoldsNoPerReleaseText(t *testing.T) {
 	}
 }
 
-func TestQuickstartDatesItsTiming(t *testing.T) {
+func TestQuickstartClaimsNoCurrentBudget(t *testing.T) {
 	body := repositoryFile(t, "docs-site/docs/quickstart.md")
-	var report struct {
-		Version    string `json:"version"`
-		MeasuredAt string `json:"measured_at"`
+	i := strings.Index(body, "**Time budget.**")
+	if i < 0 {
+		t.Fatal("the quickstart has no time budget paragraph")
 	}
-	if err := json.Unmarshal([]byte(repositoryFile(t, ".pose/reports/2026-10-09-clean-quickstart.json")), &report); err != nil {
-		t.Fatal(err)
+	paragraph := body[i:]
+	if end := strings.Index(paragraph, "\n\n"); end > 0 {
+		paragraph = paragraph[:end]
 	}
-	version := strings.TrimPrefix(report.Version, "pose ")
-	if !strings.Contains(body, "release v"+version) || !strings.Contains(body, report.MeasuredAt[:10]) {
-		t.Fatalf("the quickstart does not date its timing with %s at %s", version, report.MeasuredAt)
-	}
-}
-
-func TestDemoDoesNotClaimAClose(t *testing.T) {
-	body := repositoryFile(t, "examples/demo/record.sh")
-	if strings.Contains(body, " closed") && !strings.Contains(body, "pose close") {
-		t.Fatal("the demo says a delivery closed and runs no close")
+	if regexp.MustCompile(`\d+ seconds|\d+ s\b`).MatchString(paragraph) || !strings.Contains(paragraph, "No current budget") {
+		t.Fatalf("the quickstart states a budget no current measure supports: %s", paragraph)
 	}
 }

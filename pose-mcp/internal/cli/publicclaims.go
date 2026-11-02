@@ -39,8 +39,11 @@ var publicVersionPatterns = []*regexp.Regexp{
 	regexp.MustCompile(`\$?V\s*=\s*"?(\d+\.\d+\.\d+)"?`),
 	// Pinned release asset URLs.
 	regexp.MustCompile(`releases/download/v(\d+\.\d+\.\d+)/`),
-	// A link to a release page, which names a release as much as a download does.
+	// A release as a reader meets it: a link to its page, a badge, or a sentence saying
+	// what is current. A bare version in prose can be history, and is not a claim.
 	regexp.MustCompile(`releases/tag/v(\d+\.\d+\.\d+)\b`),
+	regexp.MustCompile(`badge/[^/\s)]*-v(\d+\.\d+\.\d+)\b`),
+	regexp.MustCompile(`(?i)\b(?:latest|current|newest|mais recente|atual)\b[^.\n]{0,80}?\bv(\d+\.\d+\.\d+)\b`),
 	// Action pins: `pose-action@v1.7.10`, including HTML-escaped `&#64;`.
 	regexp.MustCompile(`pose-action(?:@|&#64;)v(\d+\.\d+\.\d+)`),
 	// Structured metadata.
@@ -62,9 +65,9 @@ const (
 type publicSurface struct {
 	Path          string `json:"path"`
 	VersionClaims string `json:"version_claims"`
-	// HistoryTable declares that the rows of its Markdown tables list past releases.
-	// They name versions on purpose; the prose around them stays a claim.
-	HistoryTable bool `json:"history_table,omitempty"`
+	// HistoryBlock declares that what stands between the release-history markers lists
+	// past releases, and names versions on purpose. Everything outside stays a claim.
+	HistoryBlock bool `json:"history_block,omitempty"`
 	Note          string `json:"note,omitempty"`
 }
 
@@ -215,16 +218,7 @@ func versionMatchesRelease(claim, release string) bool {
 	return true
 }
 
-func withoutTableRows(body string) string {
-	lines := strings.SplitAfter(body, "\n")
-	kept := lines[:0]
-	for _, line := range lines {
-		if !strings.HasPrefix(strings.TrimSpace(line), "|") {
-			kept = append(kept, line)
-		}
-	}
-	return strings.Join(kept, "")
-}
+var releaseHistoryBlock = regexp.MustCompile(`(?s)<!-- release-history -->.*?<!-- /release-history -->`)
 
 func checkPublicSurface(root string, s publicSurface, c publicClaimsContract, release string) []publicClaimFinding {
 	var out []publicClaimFinding
@@ -238,8 +232,8 @@ func checkPublicSurface(root string, s publicSurface, c publicClaimsContract, re
 	}
 	body := string(raw)
 	claims := body
-	if s.HistoryTable {
-		claims = withoutTableRows(body)
+	if s.HistoryBlock {
+		claims = releaseHistoryBlock.ReplaceAllString(body, "")
 	}
 
 	switch s.VersionClaims {

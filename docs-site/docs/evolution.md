@@ -13,6 +13,7 @@ your project has adopted.
 
 ## What the recent releases enable
 
+<!-- release-history -->
 | Release | Practical change | Where to begin |
 |---|---|---|
 | [6.0.0](https://github.com/oseiaspereira88/pose/releases/tag/v6.0.0) | Progressive review, R/A/D contract nodes, structural causality, atomic start and qualified project authority; optional contracts require adoption. | [Review and trust](review-and-trust.md), [Multiple projects](multiple-projects.md) |
@@ -24,6 +25,7 @@ your project has adopted.
 | [7.2.0](https://github.com/oseiaspereira88/pose/releases/tag/v7.2.0) | Local Ed25519 issuers let a standalone project sign attestations and prove reviewer authority. | [Native issuers](review-and-trust.md#sign-reviews-without-a-hosted-service) |
 | [7.3.0](https://github.com/oseiaspereira88/pose/releases/tag/v7.3.0) | A signed legacy ledger supports adopting signing without rewriting earlier attestations. | [Adopt signing with existing history](review-and-trust.md#adopt-signing-with-existing-history) |
 | [7.4.0–7.4.1](https://github.com/oseiaspereira88/pose/releases/tag/v7.4.1) | Bundle-derived review briefs and disposable-worktree dispatch; classification fixes allow the engine's own governance records to be sealed. Dispatch records an execution, never an approval. | [Delegate a review](review-and-trust.md#delegate-a-review) |
+<!-- /release-history -->
 
 ## On the development branch, not in v7.4.1
 

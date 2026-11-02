@@ -2231,7 +2231,14 @@
         {
           "name": "community-claims-hold-integration",
           "program": "go",
-          "args": ["test", "./internal/cli", "-run", "TestPublicClaimsFailsOnAStaleReleaseTagLink|TestAHistoryTableIsNotAClaimButItsProseIs|TestReadmeHoldsNoPerReleaseText|TestQuickstartDatesItsTiming|TestDemoDoesNotClaimAClose", "-count=1"],
+          "args": ["test", "./internal/cli", "-run", "TestPublicClaimsFailsOnAStaleReleaseTagLink|TestPublicClaimsFailsOnEveryShapeOfAStaleRelease|TestOnlyTheReleaseHistoryBlockHoldsPastReleases|TestAHistoryBlockCountsOnlyOnADeclaredSurface|TestReadmeHoldsNoPerReleaseText|TestQuickstartClaimsNoCurrentBudget", "-count=1"],
+          "severity": "required",
+          "evidenceClass": "integration"
+        },
+        {
+          "name": "demo-closes-a-delivery",
+          "program": "bash",
+          "args": ["../examples/demo/record.sh", "--verify"],
           "severity": "required",
           "evidenceClass": "integration"
         },

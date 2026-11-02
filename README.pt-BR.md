@@ -99,7 +99,7 @@ derivados do bundle para revisão delegada. Cada versão e suas notas estão na
 - [Evolução e desenvolvimento](docs-site/docs/evolution.md): releases, melhorias pendentes e planos.
 
 Os guias técnicos estão em inglês. Mudanças em `unreleased` não fazem parte da
-v7.4.1; fragmentos de planejamento não comprovam implementação. A atualização
+versão mais recente; fragmentos de planejamento não comprovam implementação. A atualização
 do binário não adota automaticamente todas as capacidades opcionais.
 
 ## Quickstart
@@ -208,7 +208,7 @@ O importador valida o lote completo antes de escrever, rejeita symlinks,
 nunca sobrescreve uma spec existente e reporta tudo que ainda precisa de
 curadoria humana.
 
-Veja [`examples/brownfield-kits/`](examples/brownfield-kits/) para três
+Veja [`examples/brownfield-kits/`](examples/brownfield-kits/) para
 jornadas de adoção reais e executáveis — adoção direta, importação do Spec
 Kit e importação do OpenSpec — cada uma com um guia progressivo de
 visibilidade até gate bloqueante e uma história de rollback, exercitadas de
@@ -251,7 +251,7 @@ versionado.
 | `.pose/specs/`        | Contratos vivos de feature com ciclo de vida e dependências                                      |
 | `.pose/workflows/`    | Procedimentos para feature, bugfix, review, refactor, docs, recorrência, release e UI surfaces   |
 | `.pose/rules/`        | Regras cumulativas de segurança, backend, frontend, Kubernetes, evidência e conhecimento         |
-| `.agents/skills/`     | Onze Agent Skills portáveis; links compatíveis com Claude são instalados                         |
+| `.agents/skills/`     | Agent Skills portáveis; links compatíveis com Claude são instalados                         |
 | `.pose/roadmaps/`     | Roadmaps governados com DAGs de milestones e readiness                                           |
 | `.pose/knowledge/`    | Handoffs, notas e decision logs governados por TTL                                               |
 | `.pose/reports/`      | Evidência versionável e histórico JSONL append-only                                              |
