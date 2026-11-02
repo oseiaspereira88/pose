@@ -200,6 +200,9 @@ func cmdStateValidateWith(root string, flags outputFlags, stdout, stderr io.Writ
 	if last, ok := lastStateRefresh(root); ok && last.Result == "partial" {
 		gate.r.Finding(cliout.Finding{State: cliout.StateWarning, Code: "history-not-appended", Message: "the last refresh published the state but not its history entry: " + last.Error, Remediation: "run `pose state refresh`"})
 	}
+	if last, ok := lastStateRefresh(root); ok && last.Result == "unsynced" {
+		gate.r.Finding(cliout.Finding{State: cliout.StateWarning, Code: "durability-unconfirmed", Message: "the last refresh published the state with its durability unconfirmed: " + last.Error})
+	}
 	if state.RefreshPending != "" {
 		gate.r.Finding(cliout.Finding{State: cliout.StateWarning, Code: "refresh-pending", Message: fmt.Sprintf("a %q-triggered refresh failed and has not been retried yet", state.RefreshPending), Remediation: "run `pose state refresh`"})
 	}

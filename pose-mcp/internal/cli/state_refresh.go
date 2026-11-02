@@ -34,7 +34,7 @@ type refreshLogEntry struct {
 	// for the sister consumer's. Empty on entries written before this field
 	// existed; readers must not assume it is always populated.
 	Consumer        string   `json:"consumer,omitempty"`
-	Result          string   `json:"result"` // ok | failed | skipped | partial
+	Result          string   `json:"result"` // ok | failed | skipped | partial | unsynced
 	DurationMS      int64    `json:"duration_ms"`
 	ChangedSections []string `json:"changed_sections,omitempty"`
 	Error           string   `json:"error,omitempty"`
@@ -58,7 +58,7 @@ func dedupKey(kind, target, commit string) string {
 // matching dedup key. Bounded scan: refresh-log is append-only and could
 // grow large over a project's lifetime; only recent history matters for
 // catching an immediate retry/replay.
-func recentlyProcessed(root, key string, window int) bool {
+func recentlyProcessed(root, key string, window int, strict bool) bool {
 	if key == "" {
 		return false
 	}
@@ -72,7 +72,8 @@ func recentlyProcessed(root, key string, window int) bool {
 	}
 	for _, e := range entries[start:] {
 		// A failed or partial refresh owes an effect: the same event runs again.
-		if e.DedupKey == key && e.Result != "failed" && e.Result != "partial" {
+		// An unsynced one owes durability, which only a strict policy asks for.
+		if e.DedupKey == key && e.Result != "failed" && e.Result != "partial" && (!strict || e.Result != "unsynced") {
 			return true
 		}
 	}
@@ -156,7 +157,7 @@ func runRefresh(root string, opts refreshOptions, mustExist bool) (*refreshLogEn
 	// exists to prevent.
 	dedupable := opts.Trigger != "manual" && opts.Trigger != "ci"
 	key := dedupKey(opts.Trigger, opts.Target, gitHeadCommit(root))
-	if dedupable && exists && recentlyProcessed(root, key, 200) {
+	if dedupable && exists && recentlyProcessed(root, key, 200, store.LoadStatePolicy().StrictRefresh) {
 		entry := refreshLogEntry{At: started.UTC().Format(time.RFC3339), Trigger: opts.Trigger,
 			Target: opts.Target, DedupKey: key, Consumer: "state-refresh", Result: "skipped", DurationMS: 0}
 		_ = appendRefreshLog(root, entry)
@@ -269,7 +270,7 @@ func runRefresh(root string, opts refreshOptions, mustExist bool) (*refreshLogEn
 	if err := appendStateHistory(store.StateHistoryPath(), stateHistoryEntry{
 		GeneratedAt: now.Format(time.RFC3339), BaselineCommit: baseline, Sections: historySections,
 	}); err != nil {
-		partial := &stateRefreshPartialError{State: store.StatePath(), Err: err}
+		partial := &stateRefreshPartialError{State: store.StatePath(), Effect: "its history entry was not appended", Err: err, Unsynced: unsynced}
 		entry := refreshLogEntry{At: started.UTC().Format(time.RFC3339), Trigger: opts.Trigger, Target: opts.Target,
 			DedupKey: key, Consumer: "state-refresh", Result: "partial", DurationMS: time.Since(started).Milliseconds(),
 			ChangedSections: changed, Error: partial.Error(), Directed: opts.Directed != nil}
@@ -284,7 +285,8 @@ func runRefresh(root string, opts refreshOptions, mustExist bool) (*refreshLogEn
 		entry.Result, entry.Error = "unsynced", unsynced.Error()
 	}
 	if err := appendRefreshLog(root, entry); err != nil {
-		return &entry, err // artifact already written successfully; log append failure is secondary
+		// The state and its history are published: this is a partial refresh too.
+		return &entry, &stateRefreshPartialError{State: store.StatePath(), Effect: "its refresh log entry was not appended", Err: err, Unsynced: unsynced}
 	}
 	return &entry, unsynced
 }
@@ -300,12 +302,18 @@ func failedRefresh(root string, opts refreshOptions, key string, started time.Ti
 // could not append its history entry. The state is current; the next refresh
 // appends its own entry, and none is fabricated for this one.
 type stateRefreshPartialError struct {
-	State string
-	Err   error
+	State    string
+	Effect   string
+	Err      error
+	Unsynced error // the publication of the state, when its durability is unconfirmed too
 }
 
 func (e *stateRefreshPartialError) Error() string {
-	return "project state published (" + e.State + ") but its history entry was not appended: " + e.Err.Error() + "; the next `pose state refresh` appends a new entry"
+	text := "project state published (" + e.State + ") but " + e.Effect + ": " + e.Err.Error() + "; the next `pose state refresh` appends a new entry"
+	if e.Unsynced != nil {
+		text += "; its durability is unconfirmed too: " + e.Unsynced.Error()
+	}
+	return text
 }
 
 func (e *stateRefreshPartialError) Unwrap() error { return e.Err }

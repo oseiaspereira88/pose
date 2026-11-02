@@ -90,3 +90,64 @@ func TestAStrictPolicyRefusesAnUnsyncedRefresh(t *testing.T) {
 		t.Fatalf("a strict policy accepted an unconfirmed refresh: %v", err)
 	}
 }
+
+func TestAStrictReplayDoesNotReadAsDurable(t *testing.T) {
+	event := HookEvent{Kind: "spec_closeout", Target: "x"}
+	root := unsyncedRefreshFixture(t, `{"strict_refresh":true}`)
+	for i := 0; i < 2; i++ {
+		if err := stateRefreshConsumer(root, event); !errors.Is(err, posemodel.ErrPublishUnsynced) {
+			t.Fatalf("call %d accepted an unconfirmed refresh: %v", i, err)
+		}
+	}
+	posemodel.PublishSyncHook = nil
+	if err := stateRefreshConsumer(root, event); err != nil {
+		t.Fatalf("a durable refresh was refused: %v", err)
+	}
+	if last, ok := lastStateRefresh(root); !ok || last.Result != "ok" {
+		t.Fatalf("the refresh log says %+v", last)
+	}
+}
+
+func TestAPolicyMadeStrictLaterAsksAgain(t *testing.T) {
+	event := HookEvent{Kind: "spec_closeout", Target: "x"}
+	root := unsyncedRefreshFixture(t, "")
+	if err := stateRefreshConsumer(root, event); err != nil {
+		t.Fatal(err)
+	}
+	mustWrite(t, filepath.Join(root, ".pose", "policy", "state.json"), `{"strict_refresh":true}`)
+	if err := stateRefreshConsumer(root, event); !errors.Is(err, posemodel.ErrPublishUnsynced) {
+		t.Fatalf("a strict policy accepted a replay: %v", err)
+	}
+}
+
+func TestACombinedRefreshFailureSaysBoth(t *testing.T) {
+	for name, path := range map[string]func(root string) string{
+		"history": func(root string) string { return posemodel.Store{Root: root}.StateHistoryPath() },
+		"log":     stateRefreshLogPath,
+	} {
+		t.Run(name, func(t *testing.T) {
+			root := unsyncedRefreshFixture(t, "")
+			if err := os.MkdirAll(path(root), 0o755); err != nil {
+				t.Fatal(err)
+			}
+			var out, errOut strings.Builder
+			if code := cmdStateRefresh(root, nil, &out, &errOut); code != 1 {
+				t.Fatalf("code %d: %s", code, out.String())
+			}
+			said := out.String() + errOut.String()
+			if !strings.Contains(said, "state.published") || !strings.Contains(said, "durability is unconfirmed") {
+				t.Fatalf("a material outcome was lost: %s", said)
+			}
+			if err := stateRefreshConsumer(root, HookEvent{Kind: "spec_closeout", Target: "x"}); err != nil {
+				t.Fatal(err)
+			}
+			raw, err := os.ReadFile(filepath.Join(root, ".pose", "state", "project-state.md"))
+			if err != nil {
+				t.Fatal(err)
+			}
+			if strings.Contains(string(raw), "refresh_pending: spec_closeout") {
+				t.Fatalf("a current state was marked pending: %s", raw)
+			}
+		})
+	}
+}

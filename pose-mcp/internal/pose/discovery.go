@@ -54,6 +54,17 @@ func GitIgnoredPaths(root string) map[string]bool {
 }
 
 func collectGitIgnoredPaths(files Files, dir, prefix string, ignored map[string]bool) {
+	walkGitIgnoredPaths(files, dir, prefix, ignored, map[string]bool{})
+}
+
+func walkGitIgnoredPaths(files Files, dir, prefix string, ignored, visited map[string]bool) {
+	// Each repository once, whatever git answers: nothing below can make this walk
+	// go round a directory it has been in.
+	identity := physicalIdentity(dir)
+	if visited[identity] {
+		return
+	}
+	visited[identity] = true
 	// -z: line output C-quotes a non-ASCII name and trimming a line strips a
 	// leading space that is part of the name; either way the path never
 	// matched the directory a walker visits.
@@ -87,7 +98,7 @@ func collectGitIgnoredPaths(files Files, dir, prefix string, ignored map[string]
 		if resolvesToEnclosingRepository(path) {
 			continue
 		}
-		collectGitIgnoredPaths(files, path, prefix+submodule+"/", ignored)
+		walkGitIgnoredPaths(files, path, prefix+submodule+"/", ignored, visited)
 	}
 }
 
@@ -98,12 +109,23 @@ func resolvesToEnclosingRepository(dir string) bool {
 	if err != nil {
 		return false
 	}
-	physical, err := filepath.EvalSymlinks(dir)
+	asked, err := os.Stat(dir)
 	if err != nil {
 		return false
 	}
-	top, err := filepath.EvalSymlinks(strings.TrimSpace(string(out)))
-	return err == nil && top != physical
+	answered, err := os.Stat(strings.TrimSuffix(string(out), "\n"))
+	return err == nil && !os.SameFile(asked, answered)
+}
+
+func physicalIdentity(dir string) string {
+	abs, err := filepath.Abs(dir)
+	if err != nil {
+		return dir
+	}
+	if physical, err := filepath.EvalSymlinks(abs); err == nil {
+		return physical
+	}
+	return abs
 }
 
 // gitSubmodulePaths lists the gitlinks (mode 160000) recorded in dir's index.

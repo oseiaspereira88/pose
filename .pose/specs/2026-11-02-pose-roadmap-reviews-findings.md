@@ -38,10 +38,10 @@ A premise stops being watched the moment its spec is done, which is when a decis
 ### Functional
 
 - R1: A spec that is done shall keep raising `premise-stale` when a pinned contract changes, and a withdrawn premise or decision shall ask for nothing.
-- R2: An empty `.git` directory shall not count as a repository, a `.git` file, a non-empty directory, a bare repository and a repository reached through a link shall stay one however broken, and a submodule marker that is no repository shall end the ignore walk.
+- R2: An empty `.git` directory shall not count as a repository, a `.git` file, a non-empty directory, a bare repository and a repository reached through a link shall stay one however broken, and the ignore walk shall tell a repository by file identity and enter each one once.
 - R3: A close whose transition took effect with durability unconfirmed shall report the close and say so on every path, `close --apply` included.
-- R4: A state refresh that published with durability unconfirmed shall finish its later effects, log `unsynced`, and succeed saying so, except under `strict_refresh`, which asks for durability and fails.
-- R5: An immutable publication shall fall back to an exclusive write only where a link is unavailable, and the fallback shall report its durability like any publication.
+- R4: A state refresh that published with durability unconfirmed shall finish its later effects, log `unsynced`, and succeed saying so, except under `strict_refresh`, which asks for durability, fails, and fails a replay until a publication is durable. A later effect that fails shall not hide the publication or its durability.
+- R5: An immutable publication shall fall back to an exclusive write only where a link is unavailable, and the fallback shall report its durability like any publication, a complete record included.
 - R6: The cleanup plan shall hold a dry run of both corpora, with the content of each unchanged.
 
 ### Non-functional
@@ -60,7 +60,7 @@ A premise stops being watched the moment its spec is done, which is when a decis
 
 ### Affected areas
 
-`internal/pose/premise_validity.go`, `internal/pose/git_snapshot_integrity.go`, `internal/pose/release_lifecycle.go`, `internal/pose/discovery.go`, `internal/pose/writer_publication.go`, `internal/cli/review_closeout.go`, `internal/cli/closeout_plan.go`, `internal/cli/state_refresh.go`, `internal/cli/state.go`, `internal/cli/state_hooks.go`.
+`internal/pose/premise_validity.go`, `internal/pose/git_snapshot_integrity.go`, `internal/pose/release_lifecycle.go`, `internal/pose/discovery.go`, `internal/pose/operation_result.go`, `internal/pose/writer_publication.go`, `internal/cli/review_closeout.go`, `internal/cli/closeout_plan.go`, `internal/cli/state_refresh.go`, `internal/cli/state.go`, `internal/cli/state_hooks.go`.
 
 ### Artifacts
 
@@ -73,6 +73,7 @@ A premise stops being watched the moment its spec is done, which is when a decis
 - modified: pose-mcp/internal/pose/git_snapshot_integrity.go
 - modified: pose-mcp/internal/pose/release_lifecycle.go
 - modified: pose-mcp/internal/pose/discovery.go
+- modified: pose-mcp/internal/pose/operation_result.go
 - modified: pose-mcp/internal/pose/writer_publication.go
 - modified: pose-mcp/internal/cli/review_closeout.go
 - modified: pose-mcp/internal/cli/state_hooks.go
@@ -128,16 +129,26 @@ Each guard is seen failing under a mutant. The full suite passes with an empty `
 ### Requirement trace
 
 - R1 [planned] capability:roadmap-reviews-findings evidence:integration check:roadmap-reviews-findings-integration test:TestAPremiseOutlivesItsDelivery test:TestAWithdrawnPremiseAsksForNothing
-- R2 [planned] check:roadmap-reviews-findings-integration test:TestAnEmptyGitDirectoryIsNoRepository test:TestEveryRepositoryGitFindsIsARepository test:TestAMarkerThatIsNoRepositoryEndsTheIgnoreWalk
+- R2 [planned] check:roadmap-reviews-findings-integration test:TestAnEmptyGitDirectoryIsNoRepository test:TestEveryRepositoryGitFindsIsARepository test:TestAMarkerThatIsNoRepositoryEndsTheIgnoreWalk test:TestTheIgnoreWalkKnowsARepositoryByIdentity test:TestTheIgnoreWalkEntersARepositoryOnce
 - R3 [planned] check:roadmap-reviews-findings-integration test:TestAnUnsyncedCloseSaysItClosed
-- R4 [planned] check:roadmap-reviews-findings-integration test:TestAnUnsyncedRefreshDoesNotReadAsFailed test:TestAManualUnsyncedRefreshSaysSoAndSucceeds test:TestAStrictPolicyRefusesAnUnsyncedRefresh
-- R5 [planned] check:roadmap-reviews-findings-integration test:TestOnlyAMissingLinkFallsBack test:TestTheFallbackAnswersForItsDirectory
+- R4 [planned] check:roadmap-reviews-findings-integration test:TestAnUnsyncedRefreshDoesNotReadAsFailed test:TestAManualUnsyncedRefreshSaysSoAndSucceeds test:TestAStrictPolicyRefusesAnUnsyncedRefresh test:TestAStrictReplayDoesNotReadAsDurable test:TestAPolicyMadeStrictLaterAsksAgain test:TestACombinedRefreshFailureSaysBoth
+- R5 [planned] check:roadmap-reviews-findings-integration test:TestOnlyAMissingLinkFallsBack test:TestTheFallbackAnswersForItsDirectory test:TestACompleteFallbackReportsItsDurability
 - R6 [planned] check:roadmap-reviews-findings-integration test:TestTheCleanupPlanHoldsBothCorpora
 
 ## 7. Final Report
 
 ### Delivered scope
 
+A premise is watched after delivery, and a withdrawn one asks for nothing. An empty `.git` directory is no repository, while a bare repository and one reached through a link are, and the ignore walk tells a repository by file identity and enters each once. A publication whose durability is unconfirmed is reported for what it did by `close --apply`, by every refresh entry point and by the immutable fallback, a strict policy refuses it on replay too, and the fallback runs only where a link is unavailable. The cleanup plan holds a dry run of both corpora.
+
 ### Residual risks
 
+The in-place fallback stays non-atomic: a write cut short leaves a partial record, which readers of immutable records refuse and a retry of complete bytes cannot replace, so it has to be removed by hand. It also lets an identical retry see bytes the first writer has not synced yet. Removing the record automatically was tried and dropped: the name may no longer be this write's by then, and it deleted another writer's record under review. Under default policy, a deduplicated replay leaves `skipped` as the last entry, which hides the `durability-unconfirmed` warning of the entry before it. `EPERM` from a link is handled as this attempt's answer, not as proof the filesystem has no links. The 59 delegation tests named in round 2 of the review fail in a user namespace without a root mapping, where root reads as uid 65534: the ownership guard refuses correctly, and the rest of the suite passes there. `lifecycle-truth` cannot seal a bundle of its own (decision D2). Windows and macOS paths were cross-built and reviewed, not run.
+
 ### Follow-ups
+
+- [open] F1: Stop `internal/cli/maintenance.go` accepting an empty `.git`, and resolve hook paths through git so a gitfile and a linked worktree work in `maintenance.go`, `doctor.go` and `setup.go` (review R2-F1). (owner:@oseiaspereira88 crit:medium review:2026-11-27)
+- [open] F2: Report installation adoption for what it did when a policy publishes unsynced, including whether a second document is owed (review R2-F2). (owner:@oseiaspereira88 crit:medium review:2026-11-27)
+- [open] F3: Keep an unresolved `unsynced` visible to `pose state validate` through a default deduplicated replay (review R2-F3). (owner:@oseiaspereira88 crit:low review:2026-11-27)
+- [open] F4: Replace the prose test of the cleanup report with a deterministic inventory fixture, and retain the raw inventories (review F6). (owner:@oseiaspereira88 crit:low review:2026-11-27)
+- [open] F5: Fix the flake of `TestTheWaitAcknowledgementNeverTouchesAnExistingEntry` under load, a cleanup race not seen in 60 isolated runs. (owner:@oseiaspereira88 crit:low review:2026-11-27)

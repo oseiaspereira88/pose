@@ -233,14 +233,26 @@ func publishExclusive(path string, data []byte, perm os.FileMode, class string) 
 		}
 		return err
 	}
-	_, err = f.Write(data)
-	if err == nil && class == PublishAuthoritative {
-		err = f.Sync()
+	if _, err = f.Write(data); err != nil {
+		f.Close()
+		return err
+	}
+	// The whole record is at its name: from here a failure is one of durability.
+	if class == PublishAuthoritative {
+		if PublishSyncHook != nil {
+			err = PublishSyncHook("exclusive", path)
+		}
+		if err == nil {
+			err = f.Sync()
+		}
 	}
 	if closeErr := f.Close(); err == nil {
 		err = closeErr
 	}
-	return err
+	if err != nil {
+		return &PublishDurabilityError{Path: path, Err: err}
+	}
+	return nil
 }
 
 // linkUnsupported reports that a link cannot be made here at all, as opposed to one that

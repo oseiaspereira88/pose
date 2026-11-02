@@ -131,6 +131,102 @@ func TestAMarkerThatIsNoRepositoryEndsTheIgnoreWalk(t *testing.T) {
 	}
 }
 
+func TestTheIgnoreWalkKnowsARepositoryByIdentity(t *testing.T) {
+	base, err := filepath.EvalSymlinks(t.TempDir())
+	if err != nil {
+		t.Fatal(err)
+	}
+	gitRoot := func(dir string) {
+		t.Helper()
+		if err := os.MkdirAll(dir, 0o755); err != nil {
+			t.Fatal(err)
+		}
+		designDeltaGit(t, dir, "init", "-q")
+		designDeltaGit(t, dir, "config", "user.name", "Fixture")
+		designDeltaGit(t, dir, "config", "user.email", "fixture@example.invalid")
+		designDeltaGit(t, dir, "commit", "-q", "--allow-empty", "-m", "base")
+	}
+	// A space ends the name of the enclosing repository: it is part of the path.
+	spaced := filepath.Join(base, "repo ")
+	gitRoot(spaced)
+	head := designDeltaGit(t, spaced, "rev-parse", "HEAD")
+	designDeltaGit(t, spaced, "update-index", "--add", "--cacheinfo", "160000,"+head+",sm")
+	if err := os.MkdirAll(filepath.Join(spaced, "sm", ".git"), 0o755); err != nil {
+		t.Fatal(err)
+	}
+	if !resolvesToEnclosingRepository(filepath.Join(spaced, "sm")) {
+		t.Fatal("a marker below a spaced root read as its own repository")
+	}
+	// An initialized submodule keeps its rules, however the root is spelled.
+	parent := filepath.Join(base, "parent")
+	gitRoot(parent)
+	gitRoot(filepath.Join(parent, "sm"))
+	writeReviewFixture(t, parent, "sm/.gitignore", "ignored/\n")
+	writeReviewFixture(t, parent, "sm/ignored/out", "x")
+	subHead := designDeltaGit(t, filepath.Join(parent, "sm"), "rev-parse", "HEAD")
+	designDeltaGit(t, parent, "update-index", "--add", "--cacheinfo", "160000,"+subHead+",sm")
+	wd, err := os.Getwd()
+	if err != nil {
+		t.Fatal(err)
+	}
+	relative, err := filepath.Rel(wd, parent)
+	if err != nil {
+		t.Fatal(err)
+	}
+	link := filepath.Join(base, "link")
+	if err := os.Symlink(parent, link); err != nil {
+		t.Skip(err)
+	}
+	for name, root := range map[string]string{"absolute": parent, "relative": relative, "through a link": link} {
+		ignored := map[string]bool{}
+		collectGitIgnoredPaths(NativeFiles(), root, "", ignored)
+		if !ignored["sm/ignored"] {
+			t.Errorf("%s: the rules of the submodule were lost: %v", name, ignored)
+		}
+	}
+}
+
+func TestTheIgnoreWalkEntersARepositoryOnce(t *testing.T) {
+	root := t.TempDir()
+	designDeltaGit(t, root, "init", "-q")
+	writeReviewFixture(t, root, ".gitignore", "ignored/\n")
+	writeReviewFixture(t, root, "ignored/out", "x")
+	ignored := map[string]bool{}
+	collectGitIgnoredPaths(NativeFiles(), root, "", ignored)
+	if !ignored["ignored"] {
+		t.Fatalf("the fixture ignores nothing: %v", ignored)
+	}
+	again := map[string]bool{}
+	walkGitIgnoredPaths(NativeFiles(), root, "", again, map[string]bool{physicalIdentity(root): true})
+	if len(again) != 0 {
+		t.Fatalf("a visited repository was walked again: %v", again)
+	}
+}
+
+func TestACompleteFallbackReportsItsDurability(t *testing.T) {
+	dir := t.TempDir()
+	path := filepath.Join(dir, "record.json")
+	linkFile = func(string, string) error { return &os.LinkError{Op: "link", Err: nativeNoLinks()} }
+	t.Cleanup(func() { linkFile = os.Link })
+	PublishSyncHook = func(kind, _ string) error {
+		if kind == "exclusive" {
+			return syscall.EIO
+		}
+		return nil
+	}
+	t.Cleanup(func() { PublishSyncHook = nil })
+	err := PublishFile(path, []byte("sealed\n"), 0o644, PublishAuthoritative, PublishExpectation{Mode: ExpectAbsent})
+	if !errors.Is(err, ErrPublishUnsynced) {
+		t.Fatalf("a complete record read as not published: %v", err)
+	}
+	if got, _ := os.ReadFile(path); string(got) != "sealed\n" {
+		t.Fatalf("got %q", got)
+	}
+	if tmp := leftovers(t, dir); len(tmp) != 0 {
+		t.Fatalf("staging left: %v", tmp)
+	}
+}
+
 func nativeNoLinks() error {
 	if runtime.GOOS == "windows" {
 		return syscall.Errno(50)

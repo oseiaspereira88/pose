@@ -75,6 +75,8 @@ type OperationEffect struct {
 
 // OperationUncertain names a step that failed after it may have written. The
 // absence of an effect in Effects never proves a rollback.
+// It can also name a property of a confirmed step, such as the durability of a transition that
+// took effect: its presence does not say the operation failed, and Outcome does.
 type OperationUncertain struct {
 	Step   string `json:"step"`
 	Reason string `json:"reason"`
