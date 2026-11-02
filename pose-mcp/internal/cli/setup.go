@@ -124,7 +124,7 @@ func buildSetupPlan(root string) (setupPlan, error) {
 		plan.You.Registered = plan.You.Keys > 0
 	}
 	plan.You.KeyFile = candidateKeyFile()
-	_, hookErr := os.Lstat(filepath.Join(root, ".git", "hooks", "pre-commit"))
+	_, hookErr := os.Lstat(filepath.Join(posemodel.GitHooksDir(root), "pre-commit"))
 	plan.Hook = hookErr == nil
 
 	states, err := posemodel.CapabilityStates(root)

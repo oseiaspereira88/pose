@@ -345,7 +345,7 @@ func runDoctorDiagnostics(locale cliLocale) (root string, findings []doctorFindi
 	}
 
 	// 7. Git hooks.
-	hook := filepath.Join(root, ".git", "hooks", "pre-commit")
+	hook := filepath.Join(posemodel.GitHooksDir(root), "pre-commit")
 	if _, err := os.Lstat(hook); err != nil {
 		// A recommended step, not a problem: a fresh install reports it as next
 		// (spec pose-fresh-install-doctor-is-clean).
@@ -1324,7 +1324,9 @@ func diagnoseProjectState(root string, add func(string, string, string, string),
 	} else {
 		add("state.integrity", "ok", text("derived project-state sections match their recorded hashes", "seções derivadas do estado correspondem aos hashes registrados"), "")
 	}
-	if state.Staleness.Stale || state.RefreshPending != "" {
+	if _, unfinished, _ := refreshPendingMeaning(state.RefreshPending); unfinished {
+		add("state.freshness", "warn", text("project state is published; its last refresh left an effect to finish", "estado publicado; a última atualização deixou um efeito por concluir"), text("run 'pose state refresh'", "execute 'pose state refresh'"))
+	} else if state.Staleness.Stale || state.RefreshPending != "" {
 		add("state.freshness", "warn", text("project state is stale or has a pending refresh", "estado desatualizado ou com atualização pendente"), text("run `pose state` for details, then `pose state refresh`", "rode `pose state` para detalhes, depois `pose state refresh`"))
 	} else {
 		add("state.freshness", "ok", text("project state is current under its staleness policy", "estado atual conforme sua política de atualização"), "")

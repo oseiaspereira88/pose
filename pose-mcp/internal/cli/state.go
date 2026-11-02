@@ -200,10 +200,12 @@ func cmdStateValidateWith(root string, flags outputFlags, stdout, stderr io.Writ
 	if last, ok := lastStateRefresh(root); ok && last.Result == "partial" {
 		gate.r.Finding(cliout.Finding{State: cliout.StateWarning, Code: "history-not-appended", Message: "the last refresh published the state but not its history entry: " + last.Error, Remediation: "run `pose state refresh`"})
 	}
-	if last, ok := lastStateRefresh(root); ok && last.Result == "unsynced" {
-		gate.r.Finding(cliout.Finding{State: cliout.StateWarning, Code: "durability-unconfirmed", Message: "the last refresh published the state with its durability unconfirmed: " + last.Error})
+	if open, ok := unresolvedDurability(root); ok {
+		gate.r.Finding(cliout.Finding{State: cliout.StateWarning, Code: "durability-unconfirmed", Message: "the last publication of the state left its durability unconfirmed: " + open.Error})
 	}
-	if state.RefreshPending != "" {
+	if kind, unfinished, detail := refreshPendingMeaning(state.RefreshPending); unfinished {
+		gate.r.Finding(cliout.Finding{State: cliout.StateWarning, Code: "refresh-effect-unfinished", Message: fmt.Sprintf("the %s refresh published the state; %s", kind, detail)})
+	} else if state.RefreshPending != "" {
 		gate.r.Finding(cliout.Finding{State: cliout.StateWarning, Code: "refresh-pending", Message: fmt.Sprintf("a %q-triggered refresh failed and has not been retried yet", state.RefreshPending), Remediation: "run `pose state refresh`"})
 	}
 
@@ -373,6 +375,39 @@ func valueOrDash(v string) string {
 
 // lastStateRefresh is the last refresh-log entry of the state-refresh
 // consumer.
+// unresolvedDurability finds the unsynced refresh no publication has answered: a replay that
+// skipped published nothing, so it neither confirms it nor hides it.
+func unresolvedDurability(root string) (refreshLogEntry, bool) {
+	entries, err := readRefreshLog(stateRefreshLogPath(root))
+	if err != nil {
+		return refreshLogEntry{}, false
+	}
+	for i := len(entries) - 1; i >= 0; i-- {
+		e := entries[i]
+		if e.Consumer != "state-refresh" {
+			continue
+		}
+		switch e.Result {
+		case "unsynced":
+			return e, true
+		case "ok":
+			return e, false
+		case "partial":
+			// Older partial records predate the structured durability field.
+			return e, e.DurabilityUnconfirmed || strings.Contains(e.Error, pose.ErrPublishUnsynced.Error())
+		}
+	}
+	return refreshLogEntry{}, false
+}
+
+// refreshPendingMeaning reads a refresh_pending marker. A plain marker is the kind of a refresh
+// that failed; one that says published is the kind of a refresh that took effect and left
+// something to finish (see stateRefreshConsumer).
+func refreshPendingMeaning(marker string) (kind string, unfinished bool, detail string) {
+	kind, detail, unfinished = strings.Cut(marker, " published, ")
+	return kind, unfinished, detail
+}
+
 func lastStateRefresh(root string) (refreshLogEntry, bool) {
 	entries, err := readRefreshLog(stateRefreshLogPath(root))
 	if err != nil {

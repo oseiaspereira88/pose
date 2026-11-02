@@ -134,7 +134,7 @@ func (u instanceUpdate) apply(files posemodel.Files, stdout, stderr io.Writer) (
 		}
 	}()
 	root, force, localeFlag, commandLocale, text := u.root, u.force, u.localeFlag, u.locale, u.text
-	if _, e := files.Stat(filepath.Join(root, ".git")); e != nil {
+	if _, e := files.Stat(filepath.Join(root, ".git")); e != nil || posemodel.GitNotARepository(root) {
 		fmt.Fprintln(stderr, text("pose update: a git repository is required", "pose update: um repositório git é obrigatório"))
 		return 1
 	}
@@ -1005,7 +1005,7 @@ func cmdHooks(root string, args []string, stdout, stderr io.Writer) int {
 			return usageError(stderr, "pose hooks: invalid argument")
 		}
 	}
-	gitHooks := filepath.Join(root, ".git", "hooks")
+	gitHooks := posemodel.GitHooksDir(root)
 	if _, e := os.Stat(gitHooks); e != nil {
 		fmt.Fprintln(stderr, "pose hooks: .git/hooks not found")
 		return 2

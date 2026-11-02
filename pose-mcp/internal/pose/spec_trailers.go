@@ -4,6 +4,7 @@ import (
 	"bytes"
 	"context"
 	"os/exec"
+	"path/filepath"
 	"strings"
 )
 
@@ -48,6 +49,21 @@ func RawHistoryGit(root string, args ...string) *exec.Cmd {
 // RawHistoryGitContext is RawHistoryGit under ctx.
 func RawHistoryGitContext(ctx context.Context, root string, args ...string) *exec.Cmd {
 	return gitCommandContext(ctx, append([]string{"--no-replace-objects", "-C", root}, args...)...)
+}
+
+// GitHooksDir is the directory git runs the hooks of root from: a linked worktree shares the
+// one of its common directory, and core.hooksPath moves it. Where git cannot answer it is
+// `.git/hooks`, which is where a repository would keep them.
+func GitHooksDir(root string) string {
+	out, err := RawHistoryGit(root, "rev-parse", "--git-path", "hooks").Output()
+	if err != nil {
+		return filepath.Join(root, ".git", "hooks")
+	}
+	dir := strings.TrimSuffix(string(out), "\n")
+	if filepath.IsAbs(dir) {
+		return dir
+	}
+	return filepath.Join(root, dir)
 }
 
 // RawGit is RawHistoryGit for a caller whose arguments already say where to read.

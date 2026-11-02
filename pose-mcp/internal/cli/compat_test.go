@@ -79,7 +79,8 @@ func TestCompatibilityMatrixContract(t *testing.T) {
 func compatInstance(t *testing.T, schema string) string {
 	t.Helper()
 	dir := t.TempDir()
-	for _, sub := range []string{".git", ".pose"} {
+	gitIn(t, dir, "init", "-q")
+	for _, sub := range []string{".pose"} {
 		if err := os.MkdirAll(filepath.Join(dir, sub), 0o755); err != nil {
 			t.Fatal(err)
 		}

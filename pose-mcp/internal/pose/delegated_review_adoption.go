@@ -6,6 +6,7 @@ package pose
 import (
 	"bytes"
 	"encoding/json"
+	"errors"
 	"fmt"
 	"os"
 	"path/filepath"
@@ -170,13 +171,20 @@ func (d PolicyDocs) publishDelegationActivationReading(store Store, review []byt
 		return err
 	}
 	target := filepath.Join(store.Root, ".pose/policy/review.json")
+	var unsynced error
 	if err := store.fsys().Publish(target, review, 0o644, PublishAuthoritative, d.reviewRead); err != nil {
-		return fmt.Errorf("activation publication failed; inspect the current decision before retrying: %w", err)
+		if !errors.Is(err, ErrPublishUnsynced) {
+			return fmt.Errorf("activation publication failed; inspect the current decision before retrying: %w", err)
+		}
+		unsynced = err
 	}
 	after, readErr := read(filepath.Join(store.Root, path), 1<<20)
 	_, currentPath, currentFound, policyErr := store.LoadDelegationPolicy()
 	if readErr == nil && bytes.Equal(before, after) && policyErr == nil && currentFound && currentPath == path {
-		return nil
+		if unsynced != nil {
+			return fmt.Errorf("activation published; inspect its unconfirmed durability before relying on persistence: %w", unsynced)
+		}
+		return unsynced
 	}
 	var disabled map[string]any
 	if err := json.Unmarshal(review, &disabled); err != nil {
@@ -189,6 +197,11 @@ func (d PolicyDocs) publishDelegationActivationReading(store Store, review []byt
 	}
 	raw = append(raw, '\n')
 	if err := store.fsys().Publish(target, raw, 0o644, PublishAuthoritative, ExpectBytes(review, true)); err != nil {
+		if errors.Is(err, ErrPublishUnsynced) {
+			// The rollback took effect, but this activation still failed. Do not
+			// expose the durability sentinel as a successful activation outcome.
+			return fmt.Errorf("delegation policy changed during activation; delegation was left disabled with durability unconfirmed: %v", err)
+		}
 		return fmt.Errorf("delegation policy changed during activation; decision status is unknown, inspect policy before retrying: %w", err)
 	}
 	return fmt.Errorf("delegation policy changed during activation; delegation was left disabled; inspect policy before adopting again")

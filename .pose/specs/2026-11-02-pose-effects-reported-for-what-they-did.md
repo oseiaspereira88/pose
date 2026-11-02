@@ -79,6 +79,9 @@ The engine says what took effect wherever `pose-roadmap-reviews-findings` left a
 - modified: pose-mcp/internal/cli/issuer.go
 - modified: pose-mcp/internal/cli/init_delegation.go
 - modified: pose-mcp/internal/cli/state.go
+- modified: pose-mcp/internal/cli/state_refresh.go
+- modified: pose-mcp/internal/cli/compat_test.go
+- modified: pose-mcp/internal/pose/delegated_review_adoption.go
 - created: pose-mcp/internal/cli/effects_reported_test.go
 - created: pose-mcp/internal/pose/effects_reported_test.go
 
@@ -88,15 +91,15 @@ The engine says what took effect wherever `pose-roadmap-reviews-findings` left a
 
 ### API/contract changes
 
-`pose state validate` gains a `refresh-effect-unfinished` finding in place of `refresh-pending` for that marker. `pose hooks install` writes where git reads.
+`pose state validate` gains a `refresh-effect-unfinished` finding in place of `refresh-pending` for that marker. `pose hooks install` writes where git reads. Refresh-log entries may include `durability_unconfirmed` for partial publications; readers preserve the warning across failed attempts and skipped replays. Delegation activation still checks its configuration after an unsynced publication, and a refused activation remains a failure even if its rollback is unsynced.
 
 ## 4. Tasks
 
-- [ ] Find a repository and its hooks as git does
-- [ ] Publish the second policy document after an unsynced first
-- [ ] Report a published policy as published
-- [ ] Keep an unresolved durability warning through a replay
-- [ ] Read a lost log for what it is
+- [x] Find a repository and its hooks as git does
+- [x] Publish the second policy document after an unsynced first
+- [x] Report a published policy as published
+- [x] Keep an unresolved durability warning through a replay
+- [x] Read a lost log for what it is
 - [ ] Independent review and closeout
 
 ## 5. Decisions
@@ -113,21 +116,27 @@ The engine says what took effect wherever `pose-roadmap-reviews-findings` left a
 
 ### Strategy
 
-Tests seen failing first, then a mutant per guard.
+Focused integration tests and an isolated mutation corpus per changed guard. The failed-refresh warning regression was observed failing before its fix. The shared writer handoff was consulted as knowledge:roadmap-v7-independent-outcomes-20261102; its sandbox limitations are not accepted as a passing suite.
 
 ### Requirement trace
 
-- R1 [planned] capability:effects-reported-for-what-they-did evidence:integration check:effects-reported-integration test:TestUpdateRefusesAnEmptyGitDirectory
-- R2 [planned] check:effects-reported-integration test:TestHooksLiveWhereGitReadsThem test:TestHooksInstallWhereGitRunsThem
-- R3 [planned] check:effects-reported-integration test:TestAnUnsyncedPolicyStillWritesItsSecondDocument
-- R4 [planned] check:effects-reported-integration test:TestAnUnsyncedInstallAdoptionSaysItAdopted test:TestAnUnsyncedPolicyIsPublishedForEveryCaller
-- R5 [planned] check:effects-reported-integration test:TestAReplayKeepsAnUnresolvedDurabilityWarning
-- R6 [planned] check:effects-reported-integration test:TestALostLogReadsAsAnUnfinishedEffect
+- R1 [satisfied] capability:effects-reported-for-what-they-did evidence:integration check:effects-reported-integration test:TestUpdateRefusesAnEmptyGitDirectory
+- R2 [satisfied] check:effects-reported-integration test:TestHooksLiveWhereGitReadsThem test:TestHooksInstallWhereGitRunsThem
+- R3 [satisfied] check:effects-reported-integration test:TestAnUnsyncedPolicyStillWritesItsSecondDocument test:TestUnsyncedDelegationActivationStillChecksItsConfiguration
+- R4 [satisfied] check:effects-reported-integration test:TestAnUnsyncedInstallAdoptionSaysItAdopted test:TestAnUnsyncedPolicyIsPublishedForEveryCaller
+- R5 [satisfied] check:effects-reported-integration test:TestAReplayKeepsAnUnresolvedDurabilityWarning test:TestAFailedRefreshKeepsAnUnresolvedDurabilityWarning test:TestAPartialRefreshReportsItsPublicationDurability
+- R6 [satisfied] check:effects-reported-integration test:TestALostLogReadsAsAnUnfinishedEffect test:TestDoctorReadsALostLogAsAnUnfinishedEffect
 
 ## 7. Final Report
 
 ### Delivered scope
 
+Implemented R1–R6 with focused integration tests. Hooks are resolved by git, updates refuse an empty `.git`, and policy publication continues to its second document after an unsynced first one. Callers report published policies with a warning. State validation preserves an unconfirmed publication through skipped and failed attempts and distinguishes partial publication durability. Lost-log markers report an unfinished effect. A separate Codex review found two blockers: failed refreshes hiding warnings and unsynced delegation activation bypassing its final configuration check. Both now have deterministic regression cases. Full validation and formal attestation remain required before closeout.
+
 ### Residual risks
 
+A two-document policy publication is not a transaction: a hard failure of the second document leaves the first published and reports failure. Hook paths on Windows and macOS require platform validation beyond the local Linux tests. Validation of state is the default `pose state` command; this spec's references to `state validate` name that validation path, not a new subcommand.
+
 ### Follow-ups
+
+No new backlog item is claimed resolved before the closeout gates pass. F4 and F5 of `pose-roadmap-reviews-findings` remain outside this spec.

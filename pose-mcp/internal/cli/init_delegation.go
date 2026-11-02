@@ -58,7 +58,7 @@ func initDelegation(root string, stdout, stderr io.Writer) int {
 	if !accept {
 		docs.Review["delegated_review"] = false
 		docs.Review["delegated_review_disabled_at"] = time.Now().UTC().Format(time.DateOnly)
-		if err := docs.Write(root, posemodel.Store{Root: root}); err != nil {
+		if err := policyPublished(docs.Write(root, posemodel.Store{Root: root}), stderr); err != nil {
 			return initDelegationError(stderr, err)
 		}
 		return 0
@@ -118,7 +118,7 @@ func initDelegation(root string, stdout, stderr io.Writer) int {
 	if err := posemodel.PublishFile(filepath.Join(root, ".pose", "policy", "delegation.json"), raw, 0o600, posemodel.PublishAuthoritative, posemodel.PublishExpectation{Mode: posemodel.ExpectAbsent}); err != nil {
 		return initDelegationError(stderr, err)
 	}
-	if err := docs.Write(root, posemodel.Store{Root: root}); err != nil {
+	if err := policyPublished(docs.Write(root, posemodel.Store{Root: root}), stderr); err != nil {
 		return initDelegationError(stderr, fmt.Errorf("delegation policy was saved but activation failed; preserve it, pin issuer %s with pose issuer pin --attestations and use pose adopt delegated-review: %w", name, err))
 	}
 	render(stdout, stderr).Hint(tr("[INFO] delegated review enabled; native executor signatures are declarations, not vendor receipts or human approval.", "[INFO] review delegado ativado; assinaturas do executor nativo são declarações, não recibos do fornecedor nem aprovação humana."))

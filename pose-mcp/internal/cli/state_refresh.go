@@ -33,12 +33,13 @@ type refreshLogEntry struct {
 	// — "state-refresh" for this file's own entries, "assessment-staleness"
 	// for the sister consumer's. Empty on entries written before this field
 	// existed; readers must not assume it is always populated.
-	Consumer        string   `json:"consumer,omitempty"`
-	Result          string   `json:"result"` // ok | failed | skipped | partial | unsynced
-	DurationMS      int64    `json:"duration_ms"`
-	ChangedSections []string `json:"changed_sections,omitempty"`
-	Error           string   `json:"error,omitempty"`
-	Directed        bool     `json:"directed,omitempty"`
+	Consumer              string   `json:"consumer,omitempty"`
+	Result                string   `json:"result"` // ok | failed | skipped | partial | unsynced
+	DurationMS            int64    `json:"duration_ms"`
+	ChangedSections       []string `json:"changed_sections,omitempty"`
+	Error                 string   `json:"error,omitempty"`
+	DurabilityUnconfirmed bool     `json:"durability_unconfirmed,omitempty"`
+	Directed              bool     `json:"directed,omitempty"`
 }
 
 func stateRefreshLogPath(root string) string {
@@ -285,7 +286,7 @@ func runRefresh(root string, opts refreshOptions, mustExist bool) (*refreshLogEn
 		partial := &stateRefreshPartialError{State: store.StatePath(), Effect: "its history entry was not appended", Err: err, Unsynced: unsynced}
 		entry := refreshLogEntry{At: started.UTC().Format(time.RFC3339), Trigger: opts.Trigger, Target: opts.Target,
 			DedupKey: key, Consumer: "state-refresh", Result: "partial", DurationMS: time.Since(started).Milliseconds(),
-			ChangedSections: changed, Error: partial.Error(), Directed: opts.Directed != nil}
+			ChangedSections: changed, Error: partial.Error(), Directed: opts.Directed != nil, DurabilityUnconfirmed: unsynced != nil}
 		_ = appendRefreshLog(root, entry)
 		return &entry, partial
 	}

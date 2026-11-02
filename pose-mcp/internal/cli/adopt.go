@@ -8,7 +8,9 @@ package cli
 // overlays or schema versions go together.
 
 import (
+	"errors"
 	"fmt"
+	"github.com/harne8/pose-mcp/internal/cli/cliout"
 	"io"
 	"strings"
 	"time"
@@ -225,7 +227,7 @@ func cmdAdopt(root string, args []string, stdout, stderr io.Writer) int {
 			return 1
 		}
 	}
-	if err := docs.Write(root, posemodel.Store{Root: root}); err != nil {
+	if err := policyPublished(docs.Write(root, posemodel.Store{Root: root}), stderr); err != nil {
 		out.Failure("pose adopt: " + err.Error())
 		return 1
 	}
@@ -264,7 +266,10 @@ func adoptGovernedCapabilitiesAtInstallIn(files posemodel.Files, target string, 
 	if len(adopted) == 0 {
 		return
 	}
-	if err := docs.Write(target, posemodel.Store{Root: target, FS: files}); err != nil {
+	err = docs.Write(target, posemodel.Store{Root: target, FS: files})
+	if errors.Is(err, posemodel.ErrPublishUnsynced) {
+		log("warning: governed capabilities adopted, with durability unconfirmed: %v", "aviso: capacidades governadas adotadas, sem durabilidade confirmada: %v", err)
+	} else if err != nil {
 		log("warning: governed capabilities not adopted, the policy would be refused: %v", "aviso: capacidades governadas não adotadas, a política seria recusada: %v", err)
 		return
 	}
@@ -277,6 +282,16 @@ func adoptGovernedCapabilitiesAtInstallIn(files posemodel.Files, target string, 
 // operation's files.
 func adoptGovernedCapabilitiesAtInstall(target string, now time.Time, log func(english, portuguese string, a ...any)) {
 	adoptGovernedCapabilitiesAtInstallIn(posemodel.NativeFiles(), target, now, log)
+}
+
+// policyPublished reads a policy write: a publication with its durability unconfirmed took
+// effect, so it is a warning here and the caller goes on to report what it did.
+func policyPublished(err error, stderr io.Writer) error {
+	if errors.Is(err, posemodel.ErrPublishUnsynced) {
+		render(stderr, stderr).Finding(cliout.Finding{State: cliout.StateWarning, Code: "policy-durability", Message: err.Error()})
+		return nil
+	}
+	return err
 }
 
 func boolString(value bool) string {

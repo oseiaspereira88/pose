@@ -117,6 +117,7 @@ func (d PolicyDocs) Write(root string, store Store) error {
 	if err != nil {
 		return err
 	}
+	var unsynced error
 	if reviewChanged {
 		if delegationDecisionChanged(d) {
 			if err := ValidateDelegationPaths(root); err != nil {
@@ -129,16 +130,27 @@ func (d PolicyDocs) Write(root string, store Store) error {
 			}
 			return store.fsys().Publish(filepath.Join(root, ".pose", "policy", "review.json"), review, 0o644, PublishAuthoritative, d.reviewRead)
 		}
+		// A publication with its durability unconfirmed took effect, and the second
+		// document is still owed: it is reported once both have been tried.
 		if err := publish(); err != nil {
-			return err
+			if !errors.Is(err, ErrPublishUnsynced) {
+				return err
+			}
+			unsynced = err
 		}
 	}
 	if dorChanged {
 		if err := store.fsys().Publish(filepath.Join(root, ".pose", "policy", "dor.json"), dor, 0o644, PublishAuthoritative, d.dorRead); err != nil {
-			return err
+			if !errors.Is(err, ErrPublishUnsynced) {
+				if unsynced != nil {
+					return fmt.Errorf("%w; the review policy was published, and %v", err, unsynced)
+				}
+				return err
+			}
+			unsynced = err
 		}
 	}
-	return nil
+	return unsynced
 }
 
 // writePolicyFile publishes an adoption's policy file whole through its own

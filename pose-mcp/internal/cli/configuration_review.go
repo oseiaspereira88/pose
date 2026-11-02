@@ -461,12 +461,15 @@ func applyReviewAnswer(root string, req reviewRequest, date, issuer, givenReason
 				return "", err
 			}
 		}
-		if err := docs.Write(root, posemodel.Store{Root: root}); err != nil {
+		note := ""
+		if err := docs.Write(root, posemodel.Store{Root: root}); errors.Is(err, posemodel.ErrPublishUnsynced) {
+			note = "; " + err.Error()
+		} else if err != nil {
 			return "", err
 		}
 		_ = posemodel.ClearAdoptionDecision(root, req.Capability)
 		advanceReviewedVersion(root)
-		return req.Capability + " adopted from " + date, nil
+		return req.Capability + " adopted from " + date + note, nil
 	case reviewAnswerDecline, reviewAnswerDefer:
 		decision := posemodel.AdoptionDeclined
 		if req.View.Answer == reviewAnswerDefer {

@@ -147,7 +147,7 @@ func pinIssuer(root, target string, attestations, humanAuthority bool, audience 
 		render(stdout, stderr).Field("issuer.apply", "false")
 		return 0
 	}
-	if err := docs.Write(root, posemodel.Store{Root: root}); err != nil {
+	if err := policyPublished(docs.Write(root, posemodel.Store{Root: root}), stderr); err != nil {
 		render(stdout, stderr).Failure(command + ": " + err.Error())
 		return 1
 	}
