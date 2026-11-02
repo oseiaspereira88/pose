@@ -131,9 +131,9 @@ The falsifier of the milestone review as an integration test, domain and CLI, se
 
 ### Requirement trace
 
-- R1 [satisfied] capability:engine-reads-raw-history evidence:integration check:engine-reads-raw-history-integration test:TestAReplacedTagTreeIsRefused test:TestReleaseCheckRefusesAReplacedTagTree report:.pose/results/delivery-validation.json commit:028c8741bed1dcb4fdcfc6815b3eb93856c78c3c
-- R2 [satisfied] check:engine-reads-raw-history-integration test:TestEngineStartsGitOnlyThroughTheRawReader test:TestReadyTransitionsReadRawHistory test:TestReportStagesIntoTheSelectedIndex report:.pose/results/delivery-validation.json commit:028c8741bed1dcb4fdcfc6815b3eb93856c78c3c
-- R3 [satisfied] check:engine-reads-raw-history-integration test:TestEngineStartsGitOnlyThroughTheRawReader test:TestTheLaunchScanSeesEveryForm report:.pose/results/delivery-validation.json commit:028c8741bed1dcb4fdcfc6815b3eb93856c78c3c
+- R1 [satisfied] capability:engine-reads-raw-history evidence:integration check:engine-reads-raw-history-integration test:TestAReplacedTagTreeIsRefused test:TestReleaseCheckRefusesAReplacedTagTree report:.pose/results/delivery-validation.json commit:270b6a82e7e1c8a5084305fc407357d161bfa5f5
+- R2 [satisfied] check:engine-reads-raw-history-integration test:TestEngineStartsGitOnlyThroughTheRawReader test:TestReadyTransitionsReadRawHistory test:TestReportStagesIntoTheSelectedIndex report:.pose/results/delivery-validation.json commit:270b6a82e7e1c8a5084305fc407357d161bfa5f5
+- R3 [satisfied] check:engine-reads-raw-history-integration test:TestEngineStartsGitOnlyThroughTheRawReader test:TestTheLaunchScanSeesEveryForm report:.pose/results/delivery-validation.json commit:270b6a82e7e1c8a5084305fc407357d161bfa5f5
 
 ## 7. Final Report
 
