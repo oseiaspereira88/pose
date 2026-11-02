@@ -1,0 +1,198 @@
+{
+  "schema_version": 1,
+  "attestation_id": "rva-cbd462a1da0338b8",
+  "bundle_id": "rvb-b672bbdacc35c2fd",
+  "bundle_digest": "sha256:b672bbdacc35c2fd20ab6376f259c8d40dc13a59910bbce13fcf5591cdfd3e2b",
+  "reviewer": "agent:independent-milestone-proportional-sol-20261102",
+  "decision": "approved",
+  "criteria": [
+    {
+      "id": "assumption-integrity",
+      "disposition": "passed",
+      "evidence": "integration:pose-mcp/go/milestone-review-proportional-integration",
+      "rationale": "I am the independent Codex reviewer of all rounds 1-3, recorded in review-round1-report.md, review-round2-report.md and review-round3-report.md beside attest-report.md. Read those reports and git diff c1c00160..2552233a. The final mixed-history blocker R3-B1 is fixed by selecting the latest legacy decision separately and ORing its veto with bundle refusal and incomplete history. Focused regressions pass here. Inspected supplied strict validation at exact HEAD: 184 executed, 184 passed, zero failed/optional_failed/errored/skipped; full validation was not rerun by this attestation pass. The 171-row comparison and 16 justified rises are the prior reports' measurement, not a fresh rescan. Attention uses records and may differ on stale approval; no constant-cost claim is made."
+    },
+    {
+      "id": "backend-concurrency",
+      "disposition": "passed",
+      "evidence": "integration:pose-mcp/go/milestone-review-proportional-integration",
+      "rationale": "Native auto-attest resolves this mechanical criterion using sealed passing integration evidence. The three review reports cover semantic negative paths and current focused regressions pass. Supplied strict validation matches HEAD with 184/184 passed; no full rerun is claimed."
+    },
+    {
+      "id": "backend-contracts",
+      "disposition": "passed",
+      "evidence": "integration:pose-mcp/go/milestone-review-proportional-integration",
+      "rationale": "Native auto-attest resolves this mechanical criterion using sealed passing integration evidence. The three review reports cover semantic negative paths and current focused regressions pass. Supplied strict validation matches HEAD with 184/184 passed; no full rerun is claimed."
+    },
+    {
+      "id": "backend-input-errors",
+      "disposition": "passed",
+      "evidence": "integration:pose-mcp/go/milestone-review-proportional-integration",
+      "rationale": "Native auto-attest resolves this mechanical criterion using sealed passing integration evidence. The three review reports cover semantic negative paths and current focused regressions pass. Supplied strict validation matches HEAD with 184/184 passed; no full rerun is claimed."
+    },
+    {
+      "id": "backend-integration-impact",
+      "disposition": "passed",
+      "evidence": "integration:pose-mcp/go/milestone-review-proportional-integration",
+      "rationale": "Native auto-attest resolves this mechanical criterion using sealed passing integration evidence. The three review reports cover semantic negative paths and current focused regressions pass. Supplied strict validation matches HEAD with 184/184 passed; no full rerun is claimed."
+    },
+    {
+      "id": "backend-observability",
+      "disposition": "passed",
+      "evidence": "integration:pose-mcp/go/milestone-review-proportional-integration",
+      "rationale": "Native auto-attest resolves this mechanical criterion using sealed passing integration evidence. The three review reports cover semantic negative paths and current focused regressions pass. Supplied strict validation matches HEAD with 184/184 passed; no full rerun is claimed."
+    },
+    {
+      "id": "compatibility",
+      "disposition": "passed",
+      "evidence": "integration:pose-mcp/go/milestone-review-proportional-integration",
+      "rationale": "Rounds 1-3 checked retained approvals, legacy policy, changed gate plans, child scope identity and external proof. The approved contract deliberately replaces a singleton milestone review with its closed approved spec, exposes approval_origin, preserves edge acceptance and recorded refusals, and leaves multiple/external members and no-bundle policy unchanged. Open affected spec plans require resealing. This delta changes no schema or transport contract; the ReachedMilestones shortcut is now limited to the named just-closed member."
+    },
+    {
+      "id": "correctness",
+      "disposition": "passed",
+      "evidence": "integration:pose-mcp/go/milestone-review-proportional-integration",
+      "rationale": "Native auto-attest resolves this mechanical criterion using sealed passing integration evidence. The three review reports cover semantic negative paths and current focused regressions pass. Supplied strict validation matches HEAD with 184/184 passed; no full rerun is claimed."
+    },
+    {
+      "id": "design-causality",
+      "disposition": "passed",
+      "evidence": "structure:design-aaee215882002066",
+      "rationale": "D1/R1-R3 and the accepted ADR remove duplicate singleton review through canonical verification while retaining acceptance and negative-history vetoes. D2/R4 places each live milestone gate in the open spec plan. D3/R5 seals the roadmap exception and supplies its actual proof to external consumers. R6 keeps child standing and conservative attention. Round 2 and 3 probes resolved acceptance, declaration retention and legacy-history defects; current delta preserves bundle veto independently from latest legacy decision. Mapped skill and ADR changes implement this governance choice.",
+      "mappings": [
+        {
+          "delta": "SD-37b91d61",
+          "basis": "D1",
+          "disposition": "mapped",
+          "rationale": "The ADR and closeout skill encode the selected singleton inheritance rule, preserving refusal and acceptance gates; D1 reaches R1-R3."
+        },
+        {
+          "delta": "SD-405513e2",
+          "basis": "D1",
+          "disposition": "mapped",
+          "rationale": "The ADR and closeout skill encode the selected singleton inheritance rule, preserving refusal and acceptance gates; D1 reaches R1-R3."
+        }
+      ]
+    },
+    {
+      "id": "documentation",
+      "disposition": "passed",
+      "evidence": "integration:pose-mcp/go/milestone-review-proportional-integration",
+      "rationale": "Reviewed the spec delta, ADR and current closeout guidance alongside the three reports. Requirement trace now cites registered integration cases and the final report records delivered behavior and the two low follow-ups. Manual/skill copies were checked in the reports; current skills-check passes 24 skills, zero errors/warnings. Guidance distinguishes multiple-member reviews, singleton inheritance and declared terminal milestones. Stale-record attention and judgment limits are disclosed; lifecycle remains in-progress until an authorized close."
+    },
+    {
+      "id": "operability",
+      "disposition": "passed",
+      "evidence": "integration:pose-mcp/go/milestone-review-proportional-integration",
+      "rationale": "The reports exercise fresh-install CLI gate judgment and explicit not-applicable answers, retained-declaration refusal, external proof, and negative history visibility. Focused tests here pass for mixed-history preservation, legacy replacement ordering, unreadable/negative history and singleton listing. approval_origin identifies the actual proof; remediation retains recorded refusal. Performance and corpus follow-ups remain open, as documented, with no established production latency budget."
+    },
+    {
+      "id": "requirements",
+      "disposition": "passed",
+      "evidence": "integration:pose-mcp/go/milestone-review-proportional-integration",
+      "rationale": "Native auto-attest resolves this mechanical criterion using sealed passing integration evidence. The three review reports cover semantic negative paths and current focused regressions pass. Supplied strict validation matches HEAD with 184/184 passed; no full rerun is claimed."
+    },
+    {
+      "id": "scope",
+      "disposition": "passed",
+      "evidence": "integration:pose-mcp/go/milestone-review-proportional-integration",
+      "rationale": "The diff c1c00160..HEAD contains the requested mixed-history veto fix, the named-member shortcut correction, three regressions, matrix selection and spec trace/final report. These directly address R3-B1/R2-B2 and R2-F1 within R1-R6. Prior reports cover the broader implementation. No unrelated refactor or new dependency is in this delta."
+    },
+    {
+      "id": "security",
+      "disposition": "passed",
+      "evidence": "integration:pose-mcp/go/milestone-review-proportional-integration",
+      "rationale": "Round 1 acceptance/proof defects and round 2 unsealed retained declaration were repaired and rechecked in later reports. Current delta preserves rejected or changes-requested bundle vetoes despite a legacy approval; latest legacy approval can replace only its legacy predecessor. Incomplete history remains a veto. No secrets or authority relaxation were found in the inspected delta; no fresh vulnerability scan is claimed. Cheapest formal gate bypass remains a weak judgment or not-applicable rationale: the reviewer must judge honestly. R2-F3 records missing milestone-specific adversarial corpus coverage as a low follow-up, not automatic gate proof."
+    },
+    {
+      "id": "solution-proportionality",
+      "disposition": "passed",
+      "evidence": "integration:pose-mcp/go/milestone-review-proportional-integration",
+      "rationale": "The accepted alternative of bulk-attesting duplicate singleton milestones retains their cost. Canonical member inheritance is the smaller sufficient rule, with explicit negative/acceptance vetoes, one gate judgment per applicable gate, and a separately reviewed declaration for old terminal milestones. No extra exit-check condition or speculative review framework is introduced. Reconsider D1 if a milestone defect is invisible to its spec review with gate in hand, D2 if the gate cannot be judged there, and D3 if a declaration hides unreached work. R2-F2 performance coverage and R2-F3 corpus coverage remain documented low follow-ups."
+    }
+  ],
+  "tools": [
+    {
+      "id": "artifact-check",
+      "disposition": "passed",
+      "evidence": "check:artifact-check",
+      "rationale": "Native artifact check reads attributed immutable range 30fd6aea..2552233a; exact result and limitations recorded in attest-report.md."
+    },
+    {
+      "id": "assess-design",
+      "disposition": "passed",
+      "evidence": "structure:design-aaee215882002066",
+      "rationale": "Inspected sealed structural observations and manually mapped the ADR and skill to D1/R1-R3."
+    },
+    {
+      "id": "assess-discover",
+      "component": "pose-mcp",
+      "disposition": "not-used",
+      "rationale": "No code or lifecycle mutation in this reviewer pass; discovery/state update remains the closeout owner's step."
+    },
+    {
+      "id": "assess-integrate",
+      "disposition": "not-used",
+      "rationale": "Read the three reports' prior assessment results and selected rules. Not rerun in this source workspace because only native attestation writes are authorized; no new interface or debt marker in this delta."
+    },
+    {
+      "id": "assess-tech-debt",
+      "disposition": "not-used",
+      "rationale": "Read the three reports' prior assessment results and selected rules. Not rerun in this source workspace because only native attestation writes are authorized; no new interface or debt marker in this delta."
+    },
+    {
+      "id": "closeout-check",
+      "disposition": "deferred",
+      "rationale": "Completion gate requires the recorded attestation; verify after apply without closing."
+    },
+    {
+      "id": "review-check",
+      "disposition": "deferred",
+      "rationale": "Completion gate requires the recorded attestation; verify after apply without closing."
+    },
+    {
+      "id": "skills-check",
+      "disposition": "passed",
+      "evidence": "check:skills-check",
+      "rationale": "Ran HEAD CLI: 24 checked, zero errors/warnings."
+    },
+    {
+      "id": "suggest-review",
+      "component": "pose-mcp",
+      "disposition": "not-used",
+      "rationale": "Read the three reports' prior assessment results and selected rules. Not rerun in this source workspace because only native attestation writes are authorized; no new interface or debt marker in this delta."
+    },
+    {
+      "id": "surface-check",
+      "disposition": "passed",
+      "evidence": "integration:pose-mcp/go/milestone-review-proportional-integration",
+      "rationale": "Current structured integration evidence is sealed; native surface check result recorded separately in attest-report.md."
+    },
+    {
+      "id": "validate",
+      "disposition": "passed",
+      "evidence": "integration:pose-mcp/go/milestone-review-proportional-integration",
+      "rationale": "Inspected supplied fresh strict record at 2552233a: 184/184 passed with no failure, error or skip. CLI built here and focused regressions rerun; full strict matrix not rerun."
+    },
+    {
+      "id": "validate",
+      "component": "pose-mcp",
+      "disposition": "passed",
+      "evidence": "integration:pose-mcp/go/milestone-review-proportional-integration",
+      "rationale": "Inspected supplied fresh strict record at 2552233a: 184/184 passed with no failure, error or skip. CLI built here and focused regressions rerun; full strict matrix not rerun."
+    }
+  ],
+  "evidence_refs": [
+    "integration:pose-mcp/go/milestone-review-proportional-integration",
+    "structure:design-aaee215882002066"
+  ],
+  "findings": [],
+  "attribution": {
+    "schema_version": 1,
+    "prepared_by": "agent:independent-milestone-proportional-sol-20261102",
+    "concluded_by": "agent:independent-milestone-proportional-sol-20261102",
+    "applied_by": "agent:codex"
+  },
+  "attested_at": "2026-11-02T14:04:33Z",
+  "path": ".pose/review-attestations/rva-cbd462a1da0338b8.json"
+}

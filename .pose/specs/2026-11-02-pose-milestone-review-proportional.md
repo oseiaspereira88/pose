@@ -1,6 +1,6 @@
 ---
 slug: pose-milestone-review-proportional
-status: in-progress
+status: done
 created_at: 2026-11-02
 supersedes:
 depends_on: pose-milestone-closes-when-reached
@@ -9,7 +9,7 @@ priority: 1
 components: pose-mcp
 task_type: feature
 delivers: capability:milestone-review-proportional
-completed_at:
+completed_at: 2026-11-02
 ---
 
 # Spec: Milestone review is proportional to its members
