@@ -2229,6 +2229,13 @@
           "evidenceClass": "integration"
         },
         {
+          "name": "engine-reads-raw-history-integration",
+          "program": "go",
+          "args": ["test", "./internal/pose", "./internal/cli", "-run", "TestAReplacedTagTreeIsRefused|TestReleaseCheckRefusesAReplacedTagTree|TestEngineStartsGitOnlyThroughTheRawReader", "-count=1"],
+          "severity": "required",
+          "evidenceClass": "integration"
+        },
+        {
           "name": "evidence-gate-validation-integration",
           "program": "go",
           "args": ["test", "./internal/pose", "./internal/cli", "-run", "TestDerivedEvidenceIsNotValidation|TestAResultAtADerivedPathIsValidation|TestNoNewSealOverDerivedEvidence|TestDesignEvidenceIsRecognizedByItsOwnDigest|TestAutoAttestRefusesDerivedEvidence|TestClosedScopeKeepsItsDerivedSeal", "-count=1"],
