@@ -1,6 +1,6 @@
 ---
 slug: pose-roadmap-reviews-findings
-status: draft
+status: in-progress
 created_at: 2026-11-02
 supersedes:
 depends_on: pose-milestone-review-proportional
