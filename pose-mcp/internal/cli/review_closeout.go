@@ -1915,8 +1915,13 @@ func cmdCloseLocalWithEffect(root, ref string, guard func() error, stdout, stder
 			render(io.Discard, stderr).Failure("pose close: " + err.Error() + "; the gates judged other bytes, so run `pose close " + ref + "` again to judge the current ones")
 			return 1
 		}
-		fmt.Fprintf(stderr, "pose close: %v\n", err)
-		return 1
+		// The transition took effect and only its durability is unconfirmed: the
+		// scope is closed, and refusing here would say otherwise.
+		if !errors.Is(err, posemodel.ErrPublishUnsynced) {
+			fmt.Fprintf(stderr, "pose close: %v\n", err)
+			return 1
+		}
+		render(stdout, stderr).Field("close.unsynced", err.Error())
 	}
 	if transitioned != nil {
 		transitioned()

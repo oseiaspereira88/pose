@@ -162,7 +162,9 @@ func (a DesignAssumption) StaleTriggerList() []DesignTrigger {
 func (s Store) premiseObligations(project string, specs []Spec) ([]Obligation, error) {
 	var out []Obligation
 	for _, sp := range specs {
-		if sp.Status != "in-progress" && sp.Status != "draft" {
+		// A delivered decision goes on relying on its premise: done is when the
+		// signal starts to matter, not when it ends.
+		if sp.Status != "in-progress" && sp.Status != "draft" && sp.Status != "done" {
 			continue
 		}
 		raw, err := os.ReadFile(sp.Path)

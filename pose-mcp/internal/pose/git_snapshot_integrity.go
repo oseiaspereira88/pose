@@ -296,8 +296,7 @@ func hasGitMetadata(root string) bool {
 		return true
 	}
 	for {
-		_, err := os.Lstat(filepath.Join(dir, ".git"))
-		if err == nil || !errors.Is(err, os.ErrNotExist) {
+		if gitMetadataAt(dir) {
 			return true
 		}
 		parent := filepath.Dir(dir)
@@ -306,6 +305,22 @@ func hasGitMetadata(root string) bool {
 		}
 		dir = parent
 	}
+}
+
+// gitMetadataAt reports that dir holds something of a repository, however broken. An empty
+// `.git` directory holds nothing: git walks past it, and a sandbox masks the name with one in
+// every root it makes writable.
+func gitMetadataAt(dir string) bool {
+	path := filepath.Join(dir, ".git")
+	info, err := os.Lstat(path)
+	if err != nil {
+		return !errors.Is(err, os.ErrNotExist)
+	}
+	if !info.IsDir() {
+		return true
+	}
+	entries, err := os.ReadDir(path)
+	return err != nil || len(entries) > 0
 }
 
 type GitStatusEntry struct{ XY, Path, OrigPath string }

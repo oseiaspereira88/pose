@@ -7,6 +7,7 @@ import (
 	"path/filepath"
 	"runtime"
 	"strings"
+	"syscall"
 )
 
 // Artifact classes of a publication (spec
@@ -157,6 +158,9 @@ func PublishFile(path string, data []byte, perm os.FileMode, class string, expec
 	case ExpectAbsent:
 		if err := linkFile(name, path); err != nil {
 			if !errors.Is(err, os.ErrExist) {
+				if !linkUnsupported(err) {
+					return err
+				}
 				// A filesystem without hard links: create exclusively and
 				// write. A reader may then see a record whose write was cut
 				// short, which the readers of immutable records refuse.
@@ -225,13 +229,31 @@ func publishExclusive(path string, data []byte, perm os.FileMode, class string) 
 		return err
 	}
 	_, err = f.Write(data)
+	if err == nil && class == PublishAuthoritative && PublishSyncHook != nil {
+		err = PublishSyncHook("exclusive", path)
+	}
 	if err == nil && class == PublishAuthoritative {
 		err = f.Sync()
 	}
 	if closeErr := f.Close(); err == nil {
 		err = closeErr
 	}
+	if err != nil {
+		// This call created the file exclusively, so what is there is its own cut
+		// write: left behind, it would refuse every retry as a conflict.
+		_ = os.Remove(path)
+	}
 	return err
+}
+
+// linkUnsupported reports a filesystem that has no hard links, as opposed to a link
+// that failed for any other reason.
+func linkUnsupported(err error) bool {
+	if runtime.GOOS == "windows" {
+		const errorInvalidFunction, errorNotSupported = syscall.Errno(1), syscall.Errno(50)
+		return errors.Is(err, errorInvalidFunction) || errors.Is(err, errorNotSupported)
+	}
+	return errors.Is(err, syscall.ENOTSUP) || errors.Is(err, syscall.EOPNOTSUPP) || errors.Is(err, syscall.EPERM) || errors.Is(err, syscall.ENOSYS)
 }
 
 // syncDir makes a rename in dir durable where the platform supports syncing

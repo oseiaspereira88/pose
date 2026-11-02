@@ -129,6 +129,11 @@ func stateRefreshConsumer(root string, ev HookEvent) error {
 	if policy.StrictRefresh {
 		return fmt.Errorf("state-refresh (strict): %w", err)
 	}
+	// The refresh took effect and only its durability is unconfirmed: the state
+	// is current, and pending would claim a refresh that is not owed.
+	if errors.Is(err, pose.ErrPublishUnsynced) {
+		return nil
+	}
 	// A refresh that published the state and failed only its history entry
 	// left a current state: marking it pending would claim a refresh that is
 	// not owed. The partial refresh is in the refresh log, `pose state

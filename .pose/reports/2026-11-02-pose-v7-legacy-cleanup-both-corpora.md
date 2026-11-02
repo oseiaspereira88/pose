@@ -22,4 +22,4 @@ Spec: [pose-roadmap-reviews-findings](../specs/2026-11-02-pose-roadmap-reviews-f
 
 Complete: pose-dist True, Harne8 True. Writes: pose-dist [], Harne8 [].
 
-Harne8 was measured at its pinned head by the engine of pose-dist `30fd6aea` or later, without adopting it. Nothing here converts a record: an apply stays future work, with its own recovery and revision guard.
+Harne8 was measured at its pinned head by the engine of pose-dist `59358c28`, without adopting it. Nothing here converts a record: an apply stays future work, with its own recovery and revision guard.

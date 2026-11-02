@@ -683,7 +683,7 @@ func GitNotARepository(root string) bool {
 		return false
 	}
 	for dir := abs; ; dir = filepath.Dir(dir) {
-		if _, statErr := os.Lstat(filepath.Join(dir, ".git")); statErr == nil || !errors.Is(statErr, os.ErrNotExist) {
+		if gitMetadataAt(dir) {
 			return false
 		}
 		if filepath.Dir(dir) == dir {

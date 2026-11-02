@@ -18,16 +18,16 @@ completed_at:
 
 ### Goal
 
-The defects the reviews of `epistemic-lifecycle`, `agency-readiness`, `record-truthfulness` and `pose-state-consistency-and-recovery` left open are closed, and the suite means the same in a reviewer's sandbox as it does here.
+The defects the reviews of `epistemic-lifecycle`, `agency-readiness` and `pose-state-consistency-and-recovery` left open are closed, and the suite means the same in a reviewer's sandbox as it does here.
 
 ### Business value
 
-A premise stops being watched the moment its spec is done, which is when a decision starts to rely on it. A reviewer's sandbox creates an empty `.git` above the temporary directory, which failed 333 test identities in every review of this cycle, so no independent review ever saw the suite green. A milestone is refused over a changelog fragment its own commit created for another spec. A close reports refused over a spec it already moved to done, and a failed exclusive write leaves a partial record that later writes refuse.
+A premise stops being watched the moment its spec is done, which is when a decision starts to rely on it. A reviewer's sandbox creates an empty `.git` above the temporary directory, which failed 333 tests in the full suite of the `pose-v7-onboarding-and-consolidation` review and the registered checks of `agency-readiness`, so an independent review could not see the suite green. A close reports refused over a spec it already moved to done, and a failed exclusive write leaves a partial record that later writes refuse.
 
 ### Constraints
 
 - A premise signal on a done spec stays advisory.
-- The hermetic change touches tests and one environment variable of the raw reader.
+- The environment gets no new way to hide a repository from a gate.
 
 ### Non-goals
 
@@ -38,12 +38,11 @@ A premise stops being watched the moment its spec is done, which is when a decis
 ### Functional
 
 - R1: A spec that is done shall keep raising `premise-stale` when a pinned contract changes.
-- R2: Tests shall not see a repository above the temporary directory, and the raw reader shall honor `GIT_CEILING_DIRECTORIES`.
-- R3: A review subject path shall resolve through its release archival when a commit of the change set created the fragment, whichever spec the release archived it for.
-- R4: A close whose transition took effect with durability unconfirmed shall report the close and say so.
-- R5: A state refresh that published with durability unconfirmed shall not read as failed.
-- R6: An immutable publication shall fall back to an exclusive write only where the filesystem has no hard links, and a write cut short shall leave no record.
-- R7: The cleanup plan shall hold a dry run of both corpora, with the content of each unchanged.
+- R2: An empty `.git` directory shall not count as a repository, and a `.git` file or a non-empty directory shall stay one however broken.
+- R3: A close whose transition took effect with durability unconfirmed shall report the close and say so.
+- R4: A state refresh that published with durability unconfirmed shall not read as failed.
+- R5: An immutable publication shall fall back to an exclusive write only where the filesystem has no hard links, and a write cut short shall leave no record.
+- R6: The cleanup plan shall hold a dry run of both corpora, with the content of each unchanged.
 
 ### Non-functional
 
@@ -51,7 +50,7 @@ A premise stops being watched the moment its spec is done, which is when a decis
 
 ### Security
 
-- `GIT_CEILING_DIRECTORIES` only narrows discovery, and a narrowed discovery reads as no repository, which gates refuse.
+- An empty directory holds no history for a gate to read, and git itself walks past it, so the engine and git now agree.
 
 ### Compatibility
 
@@ -61,7 +60,7 @@ A premise stops being watched the moment its spec is done, which is when a decis
 
 ### Affected areas
 
-`internal/pose/premise_validity.go`, `internal/testgit/testgit.go`, `internal/pose/git_snapshot_integrity.go`, `internal/pose/review_bundle.go`, `internal/pose/writer_publication.go`, `internal/cli/review_closeout.go`, `internal/cli/state_hooks.go`.
+`internal/pose/premise_validity.go`, `internal/pose/git_snapshot_integrity.go`, `internal/pose/release_lifecycle.go`, `internal/pose/writer_publication.go`, `internal/cli/review_closeout.go`, `internal/cli/state_hooks.go`.
 
 ### Artifacts
 
@@ -71,11 +70,12 @@ A premise stops being watched the moment its spec is done, which is when a decis
 - created: .pose/reports/2026-11-02-pose-v7-legacy-cleanup-both-corpora.md
 - modified: .pose/indexes/validation-matrix.json
 - modified: pose-mcp/internal/pose/premise_validity.go
-- modified: pose-mcp/internal/testgit/testgit.go
 - modified: pose-mcp/internal/pose/git_snapshot_integrity.go
-- modified: pose-mcp/internal/pose/review_bundle.go
+- modified: pose-mcp/internal/pose/release_lifecycle.go
 - modified: pose-mcp/internal/pose/writer_publication.go
 - modified: pose-mcp/internal/cli/review_closeout.go
+- modified: pose-mcp/internal/cli/state_hooks.go
+- modified: pose-mcp/internal/pose/writer_publication_test.go
 - created: pose-mcp/internal/pose/roadmap_reviews_findings_test.go
 - created: pose-mcp/internal/cli/roadmap_reviews_findings_test.go
 
@@ -89,39 +89,45 @@ A premise stops being watched the moment its spec is done, which is when a decis
 
 ## 4. Tasks
 
-- [ ] Watch a premise after delivery
-- [ ] Make the tests hermetic to a repository above them
-- [ ] Resolve a fragment archived for another spec
-- [ ] Say what an unsynced publication did
-- [ ] Keep a partial record from being left
-- [ ] Measure both corpora
+- [x] Watch a premise after delivery
+- [x] Stop reading an empty `.git` as a repository
+- [x] Say what an unsynced publication did
+- [x] Keep a partial record from being left
+- [x] Measure both corpora
 - [ ] Independent review and closeout
 
 ## 5. Decisions
 
+### Decision D2
+- Basis: spec pose-review-archive-coattributed-fragments R3
+- Minimal option: accept any archived owner when a commit of the change set changed the pending path
+- Selected option: keep the guard, and let the roadmap name the milestone it blocks
+- Rationale: that spec requires a disjoint commit to stay blocked, and commit `7220bc64` is such a commit: its trailer named `pose-open-backlog-reconciliation` while its three fragments belong to other specs, so the record is wrong and the guard is right
+- Consequences: `lifecycle-truth` of `record-truthfulness` cannot seal a bundle of its own
+- Falsifier: a second commit with a correct trailer refused the same way
+
 ### Decision D1
 - Basis: R2
 - Minimal option: tell reviewers to ignore the failures
-- Selected option: a ceiling at the temporary directory in `testgit.Isolate`, which the raw reader lets through
-- Rationale: the failures are identical in every sandbox run and hid any real one among them
-- Consequences: `GIT_CEILING_DIRECTORIES` leaves the list of redirecting variables
-- Falsifier: a ceiling that makes a gate pass where discovery would have refused
+- Selected option: the walks of `hasGitMetadata` and `GitNotARepository` skip an empty `.git` directory, as git does
+- Rationale: `GIT_CEILING_DIRECTORIES` would have let the environment hide a repository from the gates, which `gitRedirectingEnv` exists to prevent; the defect was the walks disagreeing with git
+- Consequences: a project under an empty `.git` directory reads as having no repository
+- Falsifier: a state where git finds a repository and either walk says there is none
 
 ## 6. Validation
 
 ### Strategy
 
-Tests seen failing first, and the full suite with an empty `.git` above the temporary directory, which failed before.
+Tests seen failing against nine mutants of the fixes, one per guard, and the full suite with an empty `.git` above the temporary directory, which failed 268 tests under the first attempt and passes now.
 
 ### Requirement trace
 
 - R1 [planned] capability:roadmap-reviews-findings evidence:integration check:roadmap-reviews-findings-integration test:TestAPremiseOutlivesItsDelivery
-- R2 [planned] check:roadmap-reviews-findings-integration test:TestAnEmptyRepositoryAboveTheTestsChangesNothing
-- R3 [planned] check:roadmap-reviews-findings-integration test:TestAFragmentArchivedForAnotherSpecResolves
-- R4 [planned] check:roadmap-reviews-findings-integration test:TestAnUnsyncedCloseSaysItClosed
-- R5 [planned] check:roadmap-reviews-findings-integration test:TestAnUnsyncedRefreshDoesNotReadAsFailed
-- R6 [planned] check:roadmap-reviews-findings-integration test:TestOnlyAMissingLinkFallsBack test:TestACutWriteLeavesNoRecord
-- R7 [planned] check:roadmap-reviews-findings-integration test:TestTheCleanupPlanHoldsBothCorpora
+- R2 [planned] check:roadmap-reviews-findings-integration test:TestAnEmptyGitDirectoryIsNoRepository
+- R3 [planned] check:roadmap-reviews-findings-integration test:TestAnUnsyncedCloseSaysItClosed
+- R4 [planned] check:roadmap-reviews-findings-integration test:TestAnUnsyncedRefreshDoesNotReadAsFailed
+- R5 [planned] check:roadmap-reviews-findings-integration test:TestOnlyAMissingLinkFallsBack test:TestACutWriteLeavesNoRecord
+- R6 [planned] check:roadmap-reviews-findings-integration test:TestTheCleanupPlanHoldsBothCorpora
 
 ## 7. Final Report
 
