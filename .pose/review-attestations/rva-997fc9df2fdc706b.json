@@ -1,0 +1,120 @@
+{
+  "schema_version": 1,
+  "attestation_id": "rva-997fc9df2fdc706b",
+  "bundle_id": "rvb-025da46eda641e38",
+  "bundle_digest": "sha256:025da46eda641e388af34db968d1c7204469f611b40dc2bb5c2692ad40b00fc6",
+  "reviewer": "agent:independent-reached-milestones-sol-20261101",
+  "decision": "approved",
+  "criteria": [
+    {
+      "id": "cross-component-integration",
+      "disposition": "passed",
+      "evidence": "integration:pose-mcp/go/migrate-dryrun-integration",
+      "rationale": "Mechanical preparation resolves this criterion from the sealed integration evidence. Independent current checks and composed CLI behavior are described under exit-gate; this does not certify every possible consumer."
+    },
+    {
+      "id": "exit-gate",
+      "disposition": "passed",
+      "evidence": "integration:pose-mcp/go/migrate-dryrun-integration",
+      "rationale": "Read legacy_inventory.go, migrate_dryrun.go and measured cleanup report. Exact integration/reachability checks pass. Independently ran CLI dry-run on pose-dist clone (6736 files hashed, zero changed) and disposable Harne8 governance copy (1757 files hashed, zero changed); inventories complete=true, no declared writes, per-class actions and removal criteria present. Harne8 copy has no Git checkout; recorded source HEAD separately, so no revision-guard/apply proof claimed. Report measures per-field counts and structural removal benefit; legacy records remain read-only. Apply is refused by tested CLI."
+    },
+    {
+      "id": "integration",
+      "disposition": "passed",
+      "evidence": "integration:pose-mcp/go/migrate-dryrun-integration",
+      "rationale": "Mechanical preparation resolves this criterion from the sealed integration evidence. Independent current checks and composed CLI behavior are described under exit-gate; this does not certify every possible consumer."
+    },
+    {
+      "id": "membership",
+      "disposition": "passed",
+      "evidence": "integration:pose-mcp/go/migrate-dryrun-integration",
+      "rationale": "Roadmap membership is exactly pose-v7-legacy-cleanup-plan; its capability/surface directly matches this exit gate. Inspected status done/completed_at, and freshly ran pose review verify spec:pose-v7-legacy-cleanup-plan: closed, fresh=true, approved=true. Child retained approval stands, with declared same-actor assurance; I do not adopt its judgments as milestone proof."
+    },
+    {
+      "id": "regression",
+      "disposition": "passed",
+      "evidence": "integration:pose-mcp/go/migrate-dryrun-integration",
+      "rationale": "Inspected supplied strict validation at c762fa5086fa4af0a0853f625e44ba29bbe5e57c: 180/180 pass, actual matrix SHA-256 matches report and sealed evidence. This is supplied evidence, not my green replay. Fresh build, vet, four exact milestone matrix checks, independent edge probes and CLI Attention journeys pass. Fresh strict pose-mcp replay: 125 pass, 52 fail in sandbox. Four representative Git/release failures reproduce on c762fa50 parent with identical diagnostics; no blanket claim that all 52 were classified. No observed milestone regression; later filesystem-injection and source-coverage changes preserve these behaviors. Logs in /var/tmp/pose-work-go/review-reached/epistemic-lifecycle."
+    },
+    {
+      "id": "residual-risk",
+      "disposition": "passed",
+      "evidence": "integration:pose-mcp/go/migrate-dryrun-integration",
+      "rationale": "Child has no recorded follow-ups and its attestation has no findings. Planning-only delivery: no apply, recovery/checkpoint or conversion is approved. Harne8 copied governance corpus reports 356 legacy folders, 2 blocked specs and 10 incomplete transfers, explicitly a precondition risk to resolve before migration, not an approved removal. Future removals require consumer evidence, references, adoption interval, revision guard and per-class recovery; signed/declared history must retain its meaning. Historical report snapshot is not todays inventory."
+    }
+  ],
+  "tools": [
+    {
+      "id": "assess-discover",
+      "component": "docs-site",
+      "disposition": "not-used",
+      "rationale": "Recommended rescan skipped: no implementation or lifecycle change; directly inspected mapped source and exact milestone checks."
+    },
+    {
+      "id": "assess-discover",
+      "component": "pose-mcp",
+      "disposition": "not-used",
+      "rationale": "Recommended rescan skipped: no implementation or lifecycle change; directly inspected mapped source and exact milestone checks."
+    },
+    {
+      "id": "assess-integrate",
+      "disposition": "passed",
+      "evidence": "integration:pose-mcp/go/migrate-dryrun-integration",
+      "rationale": "Fresh assessment ran: 70 contracts, six active, 64 unobserved-consumer gaps; heuristic inventory is not proof all consumers integrate. Direct migration CLI and docs examined."
+    },
+    {
+      "id": "assess-tech-debt",
+      "disposition": "passed",
+      "evidence": "integration:pose-mcp/go/migrate-dryrun-integration",
+      "rationale": "Fresh assessment ran: one covered marker, but scan incomplete for two invalid historical spec sources; no complete census claimed."
+    },
+    {
+      "id": "closeout-check",
+      "disposition": "deferred",
+      "rationale": "Completion-only tool; review-check follows successful attestation; no close authorized."
+    },
+    {
+      "id": "review-check",
+      "disposition": "deferred",
+      "rationale": "Completion-only tool; review-check follows successful attestation; no close authorized."
+    },
+    {
+      "id": "suggest-review",
+      "component": "docs-site",
+      "disposition": "not-used",
+      "rationale": "Documentation mapping inspected directly; no Python runtime implementation changed by this milestone."
+    },
+    {
+      "id": "suggest-review",
+      "component": "pose-mcp",
+      "disposition": "passed",
+      "evidence": "integration:pose-mcp/go/migrate-dryrun-integration",
+      "rationale": "Fresh pose-mcp suggestion selects backend-go, security and documentation-style; knowledge-governance and delivery-evidence also applied."
+    },
+    {
+      "id": "validate",
+      "component": "docs-site",
+      "disposition": "not-used",
+      "rationale": "Fresh strict module command reports no matching checks; producer_coverage none in sealed plan. This is no test coverage, not a green docs build."
+    },
+    {
+      "id": "validate",
+      "component": "pose-mcp",
+      "disposition": "passed",
+      "evidence": "integration:pose-mcp/go/migrate-dryrun-integration",
+      "rationale": "Inspected supplied strict validation at c762fa5086fa4af0a0853f625e44ba29bbe5e57c: 180/180 pass, actual matrix SHA-256 matches report and sealed evidence. This is supplied evidence, not my green replay. Fresh build, vet, four exact milestone matrix checks, independent edge probes and CLI Attention journeys pass. Fresh strict pose-mcp replay: 125 pass, 52 fail in sandbox. Four representative Git/release failures reproduce on c762fa50 parent with identical diagnostics; no blanket claim that all 52 were classified. No observed milestone regression; later filesystem-injection and source-coverage changes preserve these behaviors. Logs in /var/tmp/pose-work-go/review-reached/epistemic-lifecycle."
+    }
+  ],
+  "evidence_refs": [
+    "integration:pose-mcp/go/migrate-dryrun-integration"
+  ],
+  "findings": [],
+  "attribution": {
+    "schema_version": 1,
+    "prepared_by": "agent:independent-reached-milestones-sol-20261101",
+    "concluded_by": "agent:independent-reached-milestones-sol-20261101",
+    "applied_by": "agent:codex"
+  },
+  "attested_at": "2026-11-02T04:24:08Z",
+  "path": ".pose/review-attestations/rva-997fc9df2fdc706b.json"
+}

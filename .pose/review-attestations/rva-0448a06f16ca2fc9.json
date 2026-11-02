@@ -1,0 +1,90 @@
+{
+  "schema_version": 1,
+  "attestation_id": "rva-0448a06f16ca2fc9",
+  "bundle_id": "rvb-7fcb26427f47ab35",
+  "bundle_digest": "sha256:7fcb26427f47ab35e7814ae9fe1c23fb2070ec6467cacbe9da46dc7acb5d9a4f",
+  "reviewer": "agent:independent-reached-milestones-sol-20261101",
+  "decision": "approved",
+  "criteria": [
+    {
+      "id": "exit-gate",
+      "disposition": "passed",
+      "evidence": "integration:pose-mcp/go/falsifier-integration",
+      "rationale": "Read falsifier_observation.go, parser and ProjectObligations composition. Exact falsifier-integration passes; fresh CLI Attention exposes failed indexed check as advisory judgment on D1 with observation revision, expected effect, original falsifier and not-a-verdict language. Pass/absent observations raise none, rationale bytes remain unchanged. Independent probes verify unrelated checks and withdrawn decisions raise none. No adequacy decision or spec edit is automated."
+    },
+    {
+      "id": "integration",
+      "disposition": "passed",
+      "evidence": "integration:pose-mcp/go/falsifier-integration",
+      "rationale": "Mechanical preparation resolves this criterion from the sealed integration evidence. Independent current checks and composed CLI behavior are described under exit-gate; this does not certify every possible consumer."
+    },
+    {
+      "id": "membership",
+      "disposition": "passed",
+      "evidence": "integration:pose-mcp/go/falsifier-integration",
+      "rationale": "Roadmap membership is exactly pose-falsifier-reconsideration; its capability/surface directly matches this exit gate. Inspected status done/completed_at, and freshly ran pose review verify spec:pose-falsifier-reconsideration: closed, fresh=true, approved=true. Child retained approval stands, with declared same-actor assurance; I do not adopt its judgments as milestone proof."
+    },
+    {
+      "id": "regression",
+      "disposition": "passed",
+      "evidence": "integration:pose-mcp/go/falsifier-integration",
+      "rationale": "Inspected supplied strict validation at c762fa5086fa4af0a0853f625e44ba29bbe5e57c: 180/180 pass, actual matrix SHA-256 matches report and sealed evidence. This is supplied evidence, not my green replay. Fresh build, vet, four exact milestone matrix checks, independent edge probes and CLI Attention journeys pass. Fresh strict pose-mcp replay: 125 pass, 52 fail in sandbox. Four representative Git/release failures reproduce on c762fa50 parent with identical diagnostics; no blanket claim that all 52 were classified. No observed milestone regression; later filesystem-injection and source-coverage changes preserve these behaviors. Logs in /var/tmp/pose-work-go/review-reached/epistemic-lifecycle."
+    },
+    {
+      "id": "residual-risk",
+      "disposition": "passed",
+      "evidence": "integration:pose-mcp/go/falsifier-integration",
+      "rationale": "Child has no recorded follow-ups and its attestation has no findings. Opt-in depends on the author selecting a meaningful falsifier and indexed module/check; it does not establish causality, monitor arbitrary providers, or prove architectural adequacy. A failure is retained as a revision-labelled observation for human judgment, not an automatic design verdict."
+    }
+  ],
+  "tools": [
+    {
+      "id": "assess-discover",
+      "component": "pose-mcp",
+      "disposition": "not-used",
+      "rationale": "Recommended rescan skipped: no implementation or lifecycle change; directly inspected mapped source and exact milestone checks."
+    },
+    {
+      "id": "assess-tech-debt",
+      "disposition": "passed",
+      "evidence": "integration:pose-mcp/go/falsifier-integration",
+      "rationale": "Fresh assessment ran: one covered marker, but scan incomplete for two invalid historical spec sources; no complete census claimed."
+    },
+    {
+      "id": "closeout-check",
+      "disposition": "deferred",
+      "rationale": "Completion-only tool; review-check follows successful attestation; no close authorized."
+    },
+    {
+      "id": "review-check",
+      "disposition": "deferred",
+      "rationale": "Completion-only tool; review-check follows successful attestation; no close authorized."
+    },
+    {
+      "id": "suggest-review",
+      "component": "pose-mcp",
+      "disposition": "passed",
+      "evidence": "integration:pose-mcp/go/falsifier-integration",
+      "rationale": "Fresh pose-mcp suggestion selects backend-go, security and documentation-style; knowledge-governance and delivery-evidence also applied."
+    },
+    {
+      "id": "validate",
+      "component": "pose-mcp",
+      "disposition": "passed",
+      "evidence": "integration:pose-mcp/go/falsifier-integration",
+      "rationale": "Inspected supplied strict validation at c762fa5086fa4af0a0853f625e44ba29bbe5e57c: 180/180 pass, actual matrix SHA-256 matches report and sealed evidence. This is supplied evidence, not my green replay. Fresh build, vet, four exact milestone matrix checks, independent edge probes and CLI Attention journeys pass. Fresh strict pose-mcp replay: 125 pass, 52 fail in sandbox. Four representative Git/release failures reproduce on c762fa50 parent with identical diagnostics; no blanket claim that all 52 were classified. No observed milestone regression; later filesystem-injection and source-coverage changes preserve these behaviors. Logs in /var/tmp/pose-work-go/review-reached/epistemic-lifecycle."
+    }
+  ],
+  "evidence_refs": [
+    "integration:pose-mcp/go/falsifier-integration"
+  ],
+  "findings": [],
+  "attribution": {
+    "schema_version": 1,
+    "prepared_by": "agent:independent-reached-milestones-sol-20261101",
+    "concluded_by": "agent:independent-reached-milestones-sol-20261101",
+    "applied_by": "agent:codex"
+  },
+  "attested_at": "2026-11-02T04:23:58Z",
+  "path": ".pose/review-attestations/rva-0448a06f16ca2fc9.json"
+}
