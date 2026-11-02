@@ -1,11 +1,11 @@
 {
   "schema_version": 1,
-  "evaluated_at": "2026-10-26T03:01:30Z",
-  "baseline_commit": "a2c0237add2a",
+  "evaluated_at": "2026-11-02T15:06:38Z",
+  "baseline_commit": "6e93338771ed",
   "summary": {
-    "total_integrations": 64,
-    "active_contracts": 1,
-    "identified_gaps": 63
+    "total_integrations": 70,
+    "active_contracts": 6,
+    "identified_gaps": 64
   },
   "contracts": [
     {
@@ -24,6 +24,13 @@
     },
     {
       "name": "MCP tool conductor_run_open",
+      "protocol": "mcp",
+      "provider": "pose-mcp",
+      "consumer": "unobserved",
+      "status": "gap"
+    },
+    {
+      "name": "MCP tool pose_action_fulfil",
       "protocol": "mcp",
       "provider": "pose-mcp",
       "consumer": "unobserved",
@@ -91,6 +98,41 @@
       "provider": "pose-mcp",
       "consumer": "unobserved",
       "status": "gap"
+    },
+    {
+      "name": "MCP tool pose_delegate_handoff",
+      "protocol": "mcp",
+      "provider": "pose-mcp",
+      "consumer": "pose-mcp",
+      "status": "active"
+    },
+    {
+      "name": "MCP tool pose_delegate_resume",
+      "protocol": "mcp",
+      "provider": "pose-mcp",
+      "consumer": "pose-mcp",
+      "status": "active"
+    },
+    {
+      "name": "MCP tool pose_delegate_start",
+      "protocol": "mcp",
+      "provider": "pose-mcp",
+      "consumer": "pose-mcp",
+      "status": "active"
+    },
+    {
+      "name": "MCP tool pose_delegate_status",
+      "protocol": "mcp",
+      "provider": "pose-mcp",
+      "consumer": "pose-mcp",
+      "status": "active"
+    },
+    {
+      "name": "MCP tool pose_delegate_wait",
+      "protocol": "mcp",
+      "provider": "pose-mcp",
+      "consumer": "pose-mcp",
+      "status": "active"
     },
     {
       "name": "MCP tool pose_delivery_integrity",
@@ -477,6 +519,14 @@
     {
       "gap_id": "GAP-96ba2db7",
       "title": "No consumer observed for MCP tool conductor_run_open",
+      "severity": "medium",
+      "provider": "pose-mcp",
+      "consumer": "unobserved",
+      "description": "A provider declaration was observed, but no repository consumer reference was found."
+    },
+    {
+      "gap_id": "GAP-706d1093",
+      "title": "No consumer observed for MCP tool pose_action_fulfil",
       "severity": "medium",
       "provider": "pose-mcp",
       "consumer": "unobserved",

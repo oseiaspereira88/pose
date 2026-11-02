@@ -1,0 +1,158 @@
+{
+  "schema_version": 1,
+  "attestation_id": "rva-e28c76d246665cc4",
+  "bundle_id": "rvb-7314ecd34603a508",
+  "bundle_digest": "sha256:7314ecd34603a5082cd051d3dd6a571d1d877671f1cd0d51b8188d9fb884b6e3",
+  "reviewer": "agent:independent-roadmap-outcomes-sol-20261102",
+  "decision": "changes-requested",
+  "criteria": [
+    {
+      "id": "cross-component-integration",
+      "disposition": "passed",
+      "evidence": "integration:pose-mcp/go/premise-validity-integration",
+      "rationale": "Native auto-attest resolves the mechanical criterion from sealed evidence. Focused premise/falsifier/migration tests were rerun successfully; this does not establish the roadmap outcome."
+    },
+    {
+      "id": "cut-criteria",
+      "disposition": "finding",
+      "evidence": "f2",
+      "rationale": "No formal cut criteria are declared; evaluated all three prose exit gates. Both-corpus dry-run gate lacks the second corpus."
+    },
+    {
+      "id": "end-to-end",
+      "disposition": "finding",
+      "evidence": "f1",
+      "rationale": "The shipped CLI emits premise-stale on in-progress and silently drops it for the same done spec. The tests only exercise active premise specs."
+    },
+    {
+      "id": "milestones",
+      "disposition": "finding",
+      "evidence": "f2",
+      "rationale": "Independently inspected the three single-member milestones. Falsifier behavior and active-premise tests pass, but major-cleanup-plan has not demonstrated its own both-corpora gate."
+    },
+    {
+      "id": "outcome",
+      "disposition": "finding",
+      "evidence": "f1",
+      "rationale": "The broad lifecycle outcome includes material premises after delivery; done specs are excluded even though the falsifier producer includes them."
+    },
+    {
+      "id": "release-readiness",
+      "disposition": "finding",
+      "evidence": "f3",
+      "rationale": "The declared agency-readiness prerequisite is not done. No approval, closeout or historical ordering correction inferred from member status."
+    },
+    {
+      "id": "residual-risk",
+      "disposition": "finding",
+      "evidence": "f2",
+      "rationale": "Three open high blockers remain: lifecycle coverage, both-corpus evidence and ordered prerequisite. No blocking risk accepted."
+    }
+  ],
+  "tools": [
+    {
+      "id": "assess-integrate",
+      "disposition": "passed",
+      "evidence": "/var/tmp/pose-work-go/review-reached/rm-epistemic-lifecycle/integrate.log",
+      "rationale": "Ran HEAD CLI: 70 contracts, 64 unobserved-consumer gaps; static assessment is not composed outcome proof."
+    },
+    {
+      "id": "assess-tech-debt",
+      "disposition": "passed",
+      "evidence": "/var/tmp/pose-work-go/review-reached/rm-epistemic-lifecycle/tech-debt.log",
+      "rationale": "Ran; 1 covered marker, scan incomplete for 2 invalid legacy specs. No clean-complete debt claim."
+    },
+    {
+      "id": "roadmap-check",
+      "disposition": "failed",
+      "evidence": "/var/tmp/pose-work-go/review-reached/rm-epistemic-lifecycle/roadmap-check.log",
+      "rationale": "Ran strict: prerequisite roadmap not done; no formal cut criteria."
+    },
+    {
+      "id": "validate",
+      "component": "pose-mcp",
+      "disposition": "passed",
+      "evidence": "integration:pose-mcp/go/migrate-dryrun-integration",
+      "rationale": "Inspected supplied strict HEAD report: 184 executed/passed, 0 failed/errored/skipped. Reused sealed evidence; independently reran focused tests, not the full matrix."
+    },
+    {
+      "id": "validate",
+      "component": "docs-site",
+      "disposition": "not-used",
+      "rationale": "Matrix declares no registered producer for docs-site."
+    },
+    {
+      "id": "suggest-review",
+      "component": "pose-mcp",
+      "disposition": "passed",
+      "evidence": "/var/tmp/pose-work-go/review-reached/rm-epistemic-lifecycle/suggest-go.log",
+      "rationale": "Ran and applied backend-go, security, documentation-style."
+    },
+    {
+      "id": "suggest-review",
+      "component": "docs-site",
+      "disposition": "passed",
+      "evidence": "/var/tmp/pose-work-go/review-reached/rm-epistemic-lifecycle/suggest-docs.log",
+      "rationale": "Ran: security and documentation-style; no Python runtime change in roadmap scope."
+    },
+    {
+      "id": "assess-discover",
+      "component": "pose-mcp",
+      "disposition": "not-used",
+      "rationale": "No implementation edits; inspected source and current sealed validation instead of refreshing structure."
+    },
+    {
+      "id": "assess-discover",
+      "component": "docs-site",
+      "disposition": "not-used",
+      "rationale": "Documentation-only CLI reference; no registered validation producer or structural changes under review."
+    },
+    {
+      "id": "review-check",
+      "disposition": "deferred",
+      "rationale": "Run after negative attestation; approval is not expected."
+    },
+    {
+      "id": "closeout-check",
+      "disposition": "deferred",
+      "rationale": "Run after negative attestation; no close authorized."
+    }
+  ],
+  "evidence_refs": [
+    "/var/tmp/pose-work-go/review-reached/rm-epistemic-lifecycle/premise-done.log",
+    "/var/tmp/pose-work-go/review-reached/rm-epistemic-lifecycle/roadmap-check.log",
+    "/var/tmp/pose-work-go/review-reached/rm-epistemic-lifecycle/targeted-tests.log",
+    "integration:pose-mcp/go/premise-validity-integration"
+  ],
+  "findings": [
+    {
+      "id": "f1",
+      "severity": "high",
+      "evidence": "pose-mcp/internal/pose/premise_validity.go: premiseObligations skips every status except draft and in-progress; /var/tmp/pose-work-go/review-reached/rm-epistemic-lifecycle/premise-in-progress.log emits one premise-stale; /var/tmp/pose-work-go/review-reached/rm-epistemic-lifecycle/premise-done.log emits zero and premises coverage current.",
+      "action": "Include material premises of done specs in reconsideration, or obtain an explicit roadmap scope amendment; add a lifecycle regression from in-progress to done with the same changed pinned contract.",
+      "disposition": "open"
+    },
+    {
+      "id": "f2",
+      "severity": "high",
+      "evidence": ".pose/roadmaps/epistemic-lifecycle.md major-cleanup-plan requires both brownfield corpora; .pose/reports/pose-v7-legacy-cleanup-plan.md measures only pose-dist 9c3a038. The fresh /var/tmp/pose-work-go/review-reached/rm-epistemic-lifecycle/migrate-head.log and /var/tmp/pose-work-go/review-reached/rm-epistemic-lifecycle/migrate-no-writes.json prove only this clone. No second-corpus migration evidence is supplied.",
+      "action": "Run and retain the migration dry-run on both named brownfield corpora with content hashes before and after, effects and refusal classes, measured per-field removal criteria, and exact revisions.",
+      "disposition": "open"
+    },
+    {
+      "id": "f3",
+      "severity": "high",
+      "evidence": "/var/tmp/pose-work-go/review-reached/rm-epistemic-lifecycle/roadmap-check.log exits 1: xref:proj.pose-dist/roadmap:agency-readiness:not-done. All three local milestones being done does not satisfy this ordered roadmap prerequisite.",
+      "action": "Satisfy and independently verify the agency-readiness roadmap prerequisite before this dependent roadmap is approved; preserve the declared dependency or explicitly govern a change.",
+      "disposition": "open"
+    }
+  ],
+  "attribution": {
+    "schema_version": 1,
+    "prepared_by": "agent:independent-roadmap-outcomes-sol-20261102",
+    "concluded_by": "agent:independent-roadmap-outcomes-sol-20261102",
+    "applied_by": "agent:codex"
+  },
+  "attested_at": "2026-11-02T15:08:57Z",
+  "path": ".pose/review-attestations/rva-e28c76d246665cc4.json"
+}

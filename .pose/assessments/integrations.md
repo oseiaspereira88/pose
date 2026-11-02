@@ -1,14 +1,14 @@
 # Integration Assessment: pose-dist
 
 > **Gerado por**: POSE Integration Engine (`pose assess integrate`)
-> **Data de Avaliação**: 2026-10-26T15:50:11Z
-> **Baseline Commit**: 040cae6f4109
+> **Data de Avaliação**: 2026-11-02T15:06:38Z
+> **Baseline Commit**: 6e93338771ed
 
 ## 1. Resumo Executivo
 
-- **Total de Contratos Observados**: 64
-- **Contratos com Provedor e Consumidor**: 1
-- **Gaps de Integração**: 63
+- **Total de Contratos Observados**: 70
+- **Contratos com Provedor e Consumidor**: 6
+- **Gaps de Integração**: 64
 
 ## 2. Matriz de Contratos
 
@@ -17,6 +17,7 @@
 | MCP tool conductor_run_close | `mcp` | `pose-mcp` | `unobserved` | `gap` |
 | MCP tool conductor_run_event | `mcp` | `pose-mcp` | `unobserved` | `gap` |
 | MCP tool conductor_run_open | `mcp` | `pose-mcp` | `unobserved` | `gap` |
+| MCP tool pose_action_fulfil | `mcp` | `pose-mcp` | `unobserved` | `gap` |
 | MCP tool pose_action_open | `mcp` | `pose-mcp` | `unobserved` | `gap` |
 | MCP tool pose_action_requests | `mcp` | `pose-mcp` | `unobserved` | `gap` |
 | MCP tool pose_action_resolve | `mcp` | `pose-mcp` | `unobserved` | `gap` |
@@ -26,6 +27,11 @@
 | MCP tool pose_check | `mcp` | `pose-mcp` | `unobserved` | `gap` |
 | MCP tool pose_closeout_state | `mcp` | `pose-mcp` | `unobserved` | `gap` |
 | MCP tool pose_component_discover | `mcp` | `pose-mcp` | `unobserved` | `gap` |
+| MCP tool pose_delegate_handoff | `mcp` | `pose-mcp` | `pose-mcp` | `active` |
+| MCP tool pose_delegate_resume | `mcp` | `pose-mcp` | `pose-mcp` | `active` |
+| MCP tool pose_delegate_start | `mcp` | `pose-mcp` | `pose-mcp` | `active` |
+| MCP tool pose_delegate_status | `mcp` | `pose-mcp` | `pose-mcp` | `active` |
+| MCP tool pose_delegate_wait | `mcp` | `pose-mcp` | `pose-mcp` | `active` |
 | MCP tool pose_delivery_integrity | `mcp` | `pose-mcp` | `unobserved` | `gap` |
 | MCP tool pose_design_delta | `mcp` | `pose-mcp` | `unobserved` | `gap` |
 | MCP tool pose_docs_state | `mcp` | `pose-mcp` | `unobserved` | `gap` |
@@ -94,6 +100,12 @@
 - **Evidência**: A provider declaration was observed, but no repository consumer reference was found.
 
 ### [GAP-96ba2db7] No consumer observed for MCP tool conductor_run_open
+- **Severidade**: medium
+- **Provedor**: `pose-mcp`
+- **Consumidor**: `unobserved`
+- **Evidência**: A provider declaration was observed, but no repository consumer reference was found.
+
+### [GAP-706d1093] No consumer observed for MCP tool pose_action_fulfil
 - **Severidade**: medium
 - **Provedor**: `pose-mcp`
 - **Consumidor**: `unobserved`
