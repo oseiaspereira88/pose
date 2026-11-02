@@ -113,10 +113,10 @@ A negative case in the public gate, seen failing first, and the gate run over th
 
 ### Requirement trace
 
-- R1 [satisfied] capability:community-claims-hold evidence:integration check:community-claims-hold-integration test:TestPublicClaimsFailsOnAStaleReleaseTagLink test:TestPublicClaimsFailsOnEveryShapeOfAStaleRelease test:TestOnlyTheReleaseHistoryBlockHoldsPastReleases test:TestAHistoryBlockCountsOnlyOnADeclaredSurface report:.pose/results/delivery-validation.json commit:028c8741bed1dcb4fdcfc6815b3eb93856c78c3c
-- R2 [satisfied] check:community-claims-hold-integration test:TestReadmeHoldsNoPerReleaseText report:.pose/results/delivery-validation.json commit:028c8741bed1dcb4fdcfc6815b3eb93856c78c3c
-- R3 [satisfied] check:community-claims-hold-integration test:TestQuickstartClaimsNoCurrentBudget report:.pose/results/delivery-validation.json commit:028c8741bed1dcb4fdcfc6815b3eb93856c78c3c
-- R4 [satisfied] check:demo-closes-a-delivery report:.pose/results/delivery-validation.json commit:028c8741bed1dcb4fdcfc6815b3eb93856c78c3c
+- R1 [satisfied] capability:community-claims-hold evidence:integration check:community-claims-hold-integration test:TestPublicClaimsFailsOnAStaleReleaseTagLink test:TestPublicClaimsFailsOnEveryShapeOfAStaleRelease test:TestOnlyTheReleaseHistoryBlockHoldsPastReleases test:TestAHistoryBlockCountsOnlyOnADeclaredSurface report:.pose/results/delivery-validation.json commit:f5dadca00044c68ddd0275b5e89bfeb1cbd22f5a
+- R2 [satisfied] check:community-claims-hold-integration test:TestReadmeHoldsNoPerReleaseText report:.pose/results/delivery-validation.json commit:f5dadca00044c68ddd0275b5e89bfeb1cbd22f5a
+- R3 [satisfied] check:community-claims-hold-integration test:TestQuickstartClaimsNoCurrentBudget report:.pose/results/delivery-validation.json commit:f5dadca00044c68ddd0275b5e89bfeb1cbd22f5a
+- R4 [satisfied] check:demo-closes-a-delivery report:.pose/results/delivery-validation.json commit:f5dadca00044c68ddd0275b5e89bfeb1cbd22f5a
 
 ## 7. Final Report
 
