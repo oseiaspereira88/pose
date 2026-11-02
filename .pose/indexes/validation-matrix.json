@@ -2229,6 +2229,13 @@
           "evidenceClass": "integration"
         },
         {
+          "name": "milestone-review-proportional-integration",
+          "program": "go",
+          "args": ["test", "./internal/pose", "-run", "TestOneMemberMilestoneInheritsItsSpec|TestANegativeReviewOfAMilestoneStands|TestARecordedMilestoneApprovalStays|TestOtherMilestonesOweTheirReview|TestTheSpecAnswersForTheExitGate|TestARoadmapDeclaresUnreviewedMilestones|TestRoadmapSealsOverInheritedMilestones", "-count=1"],
+          "severity": "required",
+          "evidenceClass": "integration"
+        },
+        {
           "name": "community-claims-hold-integration",
           "program": "go",
           "args": ["test", "./internal/cli", "-run", "TestPublicClaimsFailsOnAStaleReleaseTagLink|TestPublicClaimsFailsOnEveryShapeOfAStaleRelease|TestOnlyTheReleaseHistoryBlockHoldsPastReleases|TestAHistoryBlockCountsOnlyOnADeclaredSurface|TestReadmeHoldsNoPerReleaseText|TestQuickstartClaimsNoCurrentBudget", "-count=1"],
