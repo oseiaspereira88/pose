@@ -1,0 +1,90 @@
+{
+  "schema_version": 1,
+  "attestation_id": "rva-bd3c56726531d6d4",
+  "bundle_id": "rvb-39f2deb38c0cc757",
+  "bundle_digest": "sha256:39f2deb38c0cc7573b43725cf3f6cfa0b5d8704d1a9c78c305e713fbd98511a5",
+  "reviewer": "agent:independent-reached-milestones-sol-20261101",
+  "decision": "approved",
+  "criteria": [
+    {
+      "id": "exit-gate",
+      "disposition": "passed",
+      "evidence": "integration:pose-mcp/go/abm-contract-nodes-integration",
+      "rationale": "Read the adoption spec, shadow JSON and report, three ActionRequest journals and current action show results. Each now says answered/satisfied/adopt. The atomic-start answer explicitly chooses a cutoff; current review policy has atomic_start_adopted_at 2026-10-06 and causality_closeout_adopted_at 2026-10-06 with structural-materiality@1. state --governance reports the three capabilities effective. The adoption spec's declared artifacts are decisions/reports/policy, not a second engine implementation. Current registered contract-node, atomic-start, causality and progressive-review integration commands pass. Historical JSON/report pending language is the pre-decision shadow, not today's decision. Identity assurance is declared, not authenticated."
+    },
+    {
+      "id": "integration",
+      "disposition": "passed",
+      "evidence": "integration:pose-mcp/go/abm-contract-nodes-integration",
+      "rationale": "Mechanical preparation resolves this criterion from sealed integration evidence. Independently inspected the current composing code and ran the milestone-focused checks; documentation/scripts are reviewed for the same gate, with producer limits explicit in tool dispositions."
+    },
+    {
+      "id": "membership",
+      "disposition": "passed",
+      "evidence": "integration:pose-mcp/go/abm-contract-nodes-integration",
+      "rationale": "Roadmap specs and sealed children match exactly: spec:pose-abm-capability-adoption. Each member status is done; independently ran review verify for every child, all closed/fresh=true/approved=true. The membership is cohesive for the stated gate. Standing historical approvals do not by themselves prove this milestone exit gate, which was judged independently."
+    },
+    {
+      "id": "regression",
+      "disposition": "passed",
+      "evidence": "integration:pose-mcp/go/abm-contract-nodes-integration",
+      "rationale": "Independently built this HEAD; go build ./... and go vet ./... pass. Current focused gate tests and source paths were examined. Full go test -json ./... at cccb98b5 and pre-evidence-gate control 6a508376 both fail the same 333 test identities, with zero head-only or control-only failures (3337 versus 3331 test pass events, 10 skips each); these are not green runs and this comparison cannot prove all historical releases regression-free. Many shared failures are synthetic fixtures without Git; sandbox/ownership limitations remain explicit. Supplied strict validation is a separate inspected record: 180/180 at exact HEAD and matrix sha256:634449d8a6a3ba08c78e6f41b4e6820a99898b7df1a689939923dfe18b75651f, not an independently green suite. Independent strict module replay exits1 with177 checks:125 pass,52 fail; all67 displayed failing test names also fail in the full-suite control. Its truncated check tails are not a complete comparison per check. This failing replay is preserved separately from the sealed passing record. Later contracts were checked against this milestone gate; no contradiction was found for this milestone. See the independent report and raw logs for bounded evidence."
+    },
+    {
+      "id": "residual-risk",
+      "disposition": "passed",
+      "evidence": "integration:pose-mcp/go/abm-contract-nodes-integration",
+      "rationale": "The sole member follow-up is done via pose-atomic-start-adoption-cutoff. Shadow measured no contract-node effect in its amendment-sparse corpus, and causality alone initially charged nothing; the later measured structural overlay is necessary. The original adoption review was same-session, not independent. Action answers have declared identities and the three adoption requests have no material subject/content-change detection. This review independently judges the bounded milestone, not human identity or external adoption efficacy."
+    }
+  ],
+  "tools": [
+    {
+      "id": "assess-discover",
+      "component": "pose-mcp",
+      "disposition": "not-used",
+      "rationale": "No implementation or component topology change is made by this review; inspect code, declared metadata and current tests without refreshing lifecycle state."
+    },
+    {
+      "id": "assess-tech-debt",
+      "disposition": "passed",
+      "evidence": "integration:pose-mcp/go/abm-contract-nodes-integration",
+      "rationale": "Ran in scratch clone: one covered marker, zero uncovered; scan explicitly INCOMPLETE because two pre-existing spec sources are invalid. This is not a complete debt census."
+    },
+    {
+      "id": "closeout-check",
+      "disposition": "deferred",
+      "rationale": "Post-attestation verification gate; run verify/review-check fresh. Lifecycle close is not authorized."
+    },
+    {
+      "id": "review-check",
+      "disposition": "deferred",
+      "rationale": "Post-attestation verification gate; run verify/review-check fresh. Lifecycle close is not authorized."
+    },
+    {
+      "id": "suggest-review",
+      "component": "pose-mcp",
+      "disposition": "passed",
+      "evidence": "integration:pose-mcp/go/abm-contract-nodes-integration",
+      "rationale": "Ran component suggestion and applied backend-go/security/documentation-style plus delivery-evidence and knowledge-governance to the relevant code/process; no frontend runtime or infrastructure change."
+    },
+    {
+      "id": "validate",
+      "component": "pose-mcp",
+      "disposition": "passed",
+      "evidence": "unit:pose-mcp/go/test",
+      "rationale": "Mechanical support is the inspected sealed strict180/180 exact-HEAD record with matching matrix, not an independently green suite. Independent full HEAD/control runs have identical333 failing identities; own focused tests, build/vet and strict replay limits are separately disclosed in report."
+    }
+  ],
+  "evidence_refs": [
+    "integration:pose-mcp/go/abm-contract-nodes-integration"
+  ],
+  "findings": [],
+  "attribution": {
+    "schema_version": 1,
+    "prepared_by": "agent:independent-reached-milestones-sol-20261101",
+    "concluded_by": "agent:independent-reached-milestones-sol-20261101",
+    "applied_by": "agent:codex"
+  },
+  "attested_at": "2026-11-02T01:37:49Z",
+  "path": ".pose/review-attestations/rva-bd3c56726531d6d4.json"
+}

@@ -1,0 +1,90 @@
+{
+  "schema_version": 1,
+  "attestation_id": "rva-c41a56a0d71a2665",
+  "bundle_id": "rvb-550cf0e6f98247d9",
+  "bundle_digest": "sha256:550cf0e6f98247d916cf8155ab749fc403d4f1133542c3c24d83a972e4006b17",
+  "reviewer": "agent:independent-reached-milestones-sol-20261101",
+  "decision": "approved",
+  "criteria": [
+    {
+      "id": "exit-gate",
+      "disposition": "passed",
+      "evidence": "integration:pose-mcp/go/spec-facts-evidence-binding-integration",
+      "rationale": "Inspected DeriveSpecFacts, generation pinning, results-file comparison, trailer attribution and scope/module association. Current registered B30 integration passes including missing scope, zero resolved change sets, incomplete resolution, omitted/invalid module, all-result-field identity, rename endpoints, concurrent generation publication, lost/unbound explicit attribution and impossible Git path regressions. Other-head observations keep binding/limits rather than being erased; neither facts nor passing checks generate judgment, rationale or semantic satisfaction. The member depends only on progressive-spec-surface, not B12/B13."
+    },
+    {
+      "id": "integration",
+      "disposition": "passed",
+      "evidence": "integration:pose-mcp/go/spec-facts-evidence-binding-integration",
+      "rationale": "Mechanical preparation resolves this criterion from sealed integration evidence. Independently inspected the current composing code and ran the milestone-focused checks; documentation/scripts are reviewed for the same gate, with producer limits explicit in tool dispositions."
+    },
+    {
+      "id": "membership",
+      "disposition": "passed",
+      "evidence": "integration:pose-mcp/go/spec-facts-evidence-binding-integration",
+      "rationale": "Roadmap specs and sealed children match exactly: spec:pose-spec-facts-evidence-binding. Each member status is done; independently ran review verify for every child, all closed/fresh=true/approved=true. The membership is cohesive for the stated gate. Standing historical approvals do not by themselves prove this milestone exit gate, which was judged independently."
+    },
+    {
+      "id": "regression",
+      "disposition": "passed",
+      "evidence": "integration:pose-mcp/go/spec-facts-evidence-binding-integration",
+      "rationale": "Independently built this HEAD; go build ./... and go vet ./... pass. Current focused gate tests and source paths were examined. Full go test -json ./... at cccb98b5 and pre-evidence-gate control 6a508376 both fail the same 333 test identities, with zero head-only or control-only failures (3337 versus 3331 test pass events, 10 skips each); these are not green runs and this comparison cannot prove all historical releases regression-free. Many shared failures are synthetic fixtures without Git; sandbox/ownership limitations remain explicit. Supplied strict validation is a separate inspected record: 180/180 at exact HEAD and matrix sha256:634449d8a6a3ba08c78e6f41b4e6820a99898b7df1a689939923dfe18b75651f, not an independently green suite. Independent strict module replay exits1 with177 checks:125 pass,52 fail; all67 displayed failing test names also fail in the full-suite control. Its truncated check tails are not a complete comparison per check. This failing replay is preserved separately from the sealed passing record. Later contracts were checked against this milestone gate; no contradiction was found for this milestone. See the independent report and raw logs for bounded evidence."
+    },
+    {
+      "id": "residual-risk",
+      "disposition": "passed",
+      "evidence": "integration:pose-mcp/go/spec-facts-evidence-binding-integration",
+      "rationale": "Six member low follow-ups remain open, all review 2026-12-01: component ID/path normalization and unavailable-index projection (@core); observed unknown-freshness explanation, full structural sorting tie-break, bounded trailer-query output and zero-classified-check run identity (@pose-maintainers). Missing/corrupt index can still return error; explicit attribution not generation-bound remains unknown. Historical changes-requested text is retained history; current child verification stands approved. No automatic semantic conclusion or unconditional freshness is claimed. Index freshness and evidence adequacy remain separate axes; schema changes must preserve/version consumers."
+    }
+  ],
+  "tools": [
+    {
+      "id": "assess-discover",
+      "component": "pose-mcp",
+      "disposition": "not-used",
+      "rationale": "No implementation or component topology change is made by this review; inspect code, declared metadata and current tests without refreshing lifecycle state."
+    },
+    {
+      "id": "assess-tech-debt",
+      "disposition": "passed",
+      "evidence": "integration:pose-mcp/go/spec-facts-evidence-binding-integration",
+      "rationale": "Ran in scratch clone: one covered marker, zero uncovered; scan explicitly INCOMPLETE because two pre-existing spec sources are invalid. This is not a complete debt census."
+    },
+    {
+      "id": "closeout-check",
+      "disposition": "deferred",
+      "rationale": "Post-attestation verification gate; run verify/review-check fresh. Lifecycle close is not authorized."
+    },
+    {
+      "id": "review-check",
+      "disposition": "deferred",
+      "rationale": "Post-attestation verification gate; run verify/review-check fresh. Lifecycle close is not authorized."
+    },
+    {
+      "id": "suggest-review",
+      "component": "pose-mcp",
+      "disposition": "passed",
+      "evidence": "integration:pose-mcp/go/spec-facts-evidence-binding-integration",
+      "rationale": "Ran component suggestion and applied backend-go/security/documentation-style plus delivery-evidence and knowledge-governance to the relevant code/process; no frontend runtime or infrastructure change."
+    },
+    {
+      "id": "validate",
+      "component": "pose-mcp",
+      "disposition": "passed",
+      "evidence": "unit:pose-mcp/go/test",
+      "rationale": "Mechanical support is the inspected sealed strict180/180 exact-HEAD record with matching matrix, not an independently green suite. Independent full HEAD/control runs have identical333 failing identities; own focused tests, build/vet and strict replay limits are separately disclosed in report."
+    }
+  ],
+  "evidence_refs": [
+    "integration:pose-mcp/go/spec-facts-evidence-binding-integration"
+  ],
+  "findings": [],
+  "attribution": {
+    "schema_version": 1,
+    "prepared_by": "agent:independent-reached-milestones-sol-20261101",
+    "concluded_by": "agent:independent-reached-milestones-sol-20261101",
+    "applied_by": "agent:codex"
+  },
+  "attested_at": "2026-11-02T01:38:02Z",
+  "path": ".pose/review-attestations/rva-c41a56a0d71a2665.json"
+}
