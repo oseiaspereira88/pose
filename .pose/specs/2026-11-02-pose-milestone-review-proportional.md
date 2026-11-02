@@ -140,12 +140,12 @@ Integration tests over real bundles for each reader, seen failing first, and eve
 
 ### Requirement trace
 
-- R1 [planned] capability:milestone-review-proportional evidence:integration check:milestone-review-proportional-integration test:TestOneMemberMilestoneInheritsItsSpec test:TestAMilestoneDoesNotInheritAnOpenOrUnapprovedSpec test:TestAnApprovedOpenSpecIsNotInherited test:TestAMilestoneInheritsNoAcceptance test:TestCloseOfAnInheritingMilestonesSpecNamesTheRoadmap
+- R1 [planned] capability:milestone-review-proportional evidence:integration check:milestone-review-proportional-integration test:TestOneMemberMilestoneInheritsItsSpec test:TestAMilestoneDoesNotInheritAnOpenOrUnapprovedSpec test:TestAnApprovedOpenSpecIsNotInherited test:TestAPolicyWithoutBundlesKeepsItsOwnAnswer test:TestAMilestoneInheritsNoAcceptance test:TestCloseOfAnInheritingMilestonesSpecNamesTheRoadmap
 - R2 [planned] check:milestone-review-proportional-integration test:TestANegativeReviewOfAMilestoneStands test:TestARecordedMilestoneApprovalStays test:TestARecordedLegacyRefusalStands
 - R3 [planned] check:milestone-review-proportional-integration test:TestOtherMilestonesOweTheirReview
 - R4 [planned] check:milestone-review-proportional-integration test:TestTheSpecAnswersForTheExitGate test:TestEachExitGateHasItsOwnCriterion
 - R5 [planned] check:milestone-review-proportional-integration test:TestARoadmapDeclaresUnreviewedMilestones test:TestTheReasonIsSealedByTheRoadmap test:TestADeclarationRescuesATerminalSingleton test:TestAnExternalConsumerHoldsTheRoadmapOfADeclaredMilestone
-- R6 [planned] check:milestone-review-proportional-integration test:TestRoadmapSealsOverInheritedMilestones test:TestAttentionKeepsWhatDoesNotStand
+- R6 [planned] check:milestone-review-proportional-integration test:TestRoadmapSealsOverInheritedMilestones test:TestRoadmapSealsOverADeclaredMilestone test:TestAttentionKeepsWhatDoesNotStand
 
 ## 7. Final Report
 

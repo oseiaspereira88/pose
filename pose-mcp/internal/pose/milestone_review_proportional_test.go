@@ -193,6 +193,10 @@ func TestAnApprovedOpenSpecIsNotInherited(t *testing.T) {
 	federatedTestGit(t, root, "add", "--all")
 	federatedTestGit(t, root, "commit", "-q", "-m", "reopened")
 	approveMember(t, s, reviewFixtureNow)
+	member, err := s.VerifyReviewBundle("spec:backend")
+	if err != nil || !member.Approved || !member.Fresh || member.State == "closed" {
+		t.Fatalf("the fixture is not an approved open spec: %+v %v", member, err)
+	}
 	if verification, err := s.VerifyReviewBundle("milestone:program/core"); err != nil || verification.Approved {
 		t.Fatalf("a milestone inherited from a spec not closed: %+v %v", verification, err)
 	}
@@ -287,10 +291,31 @@ func TestAnExternalConsumerHoldsTheRoadmapOfADeclaredMilestone(t *testing.T) {
 	federatedTestWrite(t, root, ".pose/specs/extra.md", "---\nslug: extra\nstatus: done\ncreated_at: 2026-08-13\ncompleted_at: 2026-08-14\n---\n\n# Spec: extra\n")
 	editRoadmapFixture(t, root, "- specs: backend\n", "- specs: backend, extra\n")
 	editRoadmapFixture(t, root, "status: active\n", "status: active\nunreviewed_milestones: closed before reviews\n")
+	editRoadmapFixture(t, root, "\n## Milestone: later\n- after: core\n- specs: pending\n", "")
 	identity := ArtifactRef{Kind: "milestone", Slug: "program", Milestone: "core", Project: "coordinator"}
 	_, _, _, _, _, _, blockers := federatedSourceProof(NativeFiles(), s, identity, gitHeadAtRoot(root))
 	if !strings.Contains(strings.Join(blockers, " "), "source-review-not-approved") {
 		t.Fatalf("a declaration stood as proof with no reviewed roadmap: %v", blockers)
+	}
+	roadmap, err := s.SealReviewBundle("roadmap:program", reviewFixtureNow.Add(2*time.Minute))
+	if err != nil {
+		t.Fatal(err, roadmap.Blockers)
+	}
+	attestChildReview(t, s, roadmap, reviewFixtureNow.Add(3*time.Minute), "approved")
+	id, _, _, _, _, _, blockers := federatedSourceProof(NativeFiles(), s, identity, gitHeadAtRoot(root))
+	if id != roadmap.BundleID || len(blockers) != 0 {
+		t.Fatalf("the review of the roadmap is not the proof: %q %v", id, blockers)
+	}
+}
+
+func TestAPolicyWithoutBundlesKeepsItsOwnAnswer(t *testing.T) {
+	root, s := inheritedFixture(t)
+	path := ".pose/policy/review.json"
+	federatedTestWrite(t, root, path, strings.Replace(mustReadFile(t, root, path), `"review_bundles":true`, `"review_bundles":false`, 1))
+	federatedTestGit(t, root, "add", "--all")
+	federatedTestGit(t, root, "commit", "-q", "-m", "no bundles")
+	if verification, err := s.VerifyReviewBundle("milestone:program/core"); err == nil && verification.ApprovalOrigin != "" {
+		t.Fatalf("inheritance ran under a policy without bundles: %+v", verification)
 	}
 }
 
@@ -316,7 +341,7 @@ func TestEachExitGateHasItsOwnCriterion(t *testing.T) {
 		}
 	}
 	joined := strings.Join(gates, " | ")
-	if len(gates) != 2 || strings.Contains(joined, "two.") || !strings.Contains(joined, "holds: one.") || !strings.Contains(joined, "three.") {
+	if len(gates) != 2 || strings.Contains(joined, "two.") || strings.Contains(joined, "target_due") || !strings.Contains(joined, "holds: one.") || !strings.Contains(joined, "three.") {
 		t.Fatalf("the plan does not hold the gates of the live roadmaps: %v", gates)
 	}
 }
@@ -330,5 +355,20 @@ func TestARecordedLegacyRefusalStands(t *testing.T) {
 	}
 	if verification, err := s.VerifyReviewBundle("milestone:program/core"); err != nil || verification.Approved {
 		t.Fatalf("a legacy refusal was inherited away: %+v %v", verification, err)
+	}
+}
+
+func TestRoadmapSealsOverADeclaredMilestone(t *testing.T) {
+	root, s := inheritedFixture(t)
+	federatedTestWrite(t, root, ".pose/specs/extra.md", "---\nslug: extra\nstatus: done\ncreated_at: 2026-08-13\ncompleted_at: 2026-08-14\n---\n\n# Spec: extra\n")
+	editRoadmapFixture(t, root, "- specs: backend\n", "- specs: backend, extra\n")
+	editRoadmapFixture(t, root, "\n## Milestone: later\n- after: core\n- specs: pending\n", "")
+	editRoadmapFixture(t, root, "status: active\n", "status: active\nunreviewed_milestones: closed before reviews\n")
+	bundle, err := s.SealReviewBundle("roadmap:program", reviewFixtureNow.Add(2*time.Minute))
+	if err != nil {
+		t.Fatal(err, bundle.Blockers)
+	}
+	if len(bundle.Payload.Children) != 0 {
+		t.Fatalf("a declared milestone has no bundle to seal over: %+v", bundle.Payload.Children)
 	}
 }
