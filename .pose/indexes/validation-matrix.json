@@ -2229,6 +2229,13 @@
           "evidenceClass": "integration"
         },
         {
+          "name": "community-claims-hold-integration",
+          "program": "go",
+          "args": ["test", "./internal/cli", "-run", "TestPublicClaimsFailsOnAStaleReleaseTagLink|TestReadmeHoldsNoPerReleaseText|TestQuickstartDatesItsTiming|TestDemoDoesNotClaimAClose", "-count=1"],
+          "severity": "required",
+          "evidenceClass": "integration"
+        },
+        {
           "name": "engine-reads-raw-history-integration",
           "program": "go",
           "args": ["test", "./internal/pose", "./internal/cli", "-run", "TestAReplacedTagTreeIsRefused|TestReleaseCheckRefusesAReplacedTagTree|TestEngineStartsGitOnlyThroughTheRawReader|TestTheLaunchScanSeesEveryForm|TestReadyTransitionsReadRawHistory|TestReportStagesIntoTheSelectedIndex", "-count=1"],
