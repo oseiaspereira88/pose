@@ -41,9 +41,10 @@ var publicVersionPatterns = []*regexp.Regexp{
 	regexp.MustCompile(`releases/download/v(\d+\.\d+\.\d+)/`),
 	// A release as a reader meets it: a link to its page, a badge, or a sentence saying
 	// what is current. A bare version in prose can be history, and is not a claim.
-	regexp.MustCompile(`releases/tag/v(\d+\.\d+\.\d+)\b`),
-	regexp.MustCompile(`badge/[^/\s)]*-v(\d+\.\d+\.\d+)\b`),
-	regexp.MustCompile(`(?i)\b(?:latest|current|newest|mais recente|atual)\b[^.\n]{0,80}?\bv(\d+\.\d+\.\d+)\b`),
+	regexp.MustCompile(`releases/tag/v(\d+\.\d+\.\d+(?:-[0-9A-Za-z.]+)?)`),
+	regexp.MustCompile(`\[v?(\d+\.\d+\.\d+(?:-[0-9A-Za-z.]+)?)\]\([^)\s]*releases/(?:latest|tag/)`),
+	regexp.MustCompile(`badge/[^/\s)]*-v?(\d+\.\d+\.\d+)\b`),
+	regexp.MustCompile(`(?i)\b(?:latest|current|newest|mais recente|atual)\b[^.\n]{0,80}?\bv?(\d+\.\d+\.\d+)\b`),
 	// Action pins: `pose-action@v1.7.10`, including HTML-escaped `&#64;`.
 	regexp.MustCompile(`pose-action(?:@|&#64;)v(\d+\.\d+\.\d+)`),
 	// Structured metadata.

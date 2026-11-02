@@ -38,7 +38,7 @@ The integration review of `community-launch` found the public gate passing a REA
 
 ### Functional
 
-- R1: `pose public-claims` shall treat a release tag link, a release badge and a version in prose as version claims, except between the release-history markers of a surface declared `history_block`.
+- R1: `pose public-claims` shall treat a release tag link, the label of a release link, a release badge and a version in a sentence that says latest or current as version claims, with or without the `v` and keeping a prerelease suffix, except between the release-history markers of a surface declared `history_block`; a bare version in other prose is history, not a claim.
 - R2: The README, in both locales, shall hold no per-release text and no hardcoded count of what ships.
 - R3: The quickstart shall claim no time budget while no measurement of the current path exists.
 - R4: The demo shall block a delivery, have it reviewed, close it through `pose close`, and fail unless the spec reads done and `pose review verify` approves it.
@@ -53,7 +53,7 @@ The integration review of `community-launch` found the public gate passing a REA
 
 ### Compatibility
 
-- A surface that names an older release in prose, in a badge or in a tag link now fails the gate, unless it sits in the release-history block of a surface declared `history_block`.
+- A surface that names an older release as current, in a badge or in a release link now fails the gate, unless it sits in the release-history block of a surface declared `history_block`.
 
 ## 3. Technical Plan
 
@@ -74,6 +74,8 @@ The integration review of `community-launch` found the public gate passing a REA
 - modified: docs-site/docs/quickstart.md
 - modified: examples/demo/record.sh
 - modified: docs-site/docs/evolution.md
+- modified: pose-mcp/internal/scaffold/dist/.pose/templates/public-claims.json
+- modified: .pose/templates/public-claims.json
 - modified: .pose/public/claims.json
 
 ### Delivery targets

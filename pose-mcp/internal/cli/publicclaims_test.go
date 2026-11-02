@@ -321,6 +321,11 @@ func TestPublicClaimsFailsOnEveryShapeOfAStaleRelease(t *testing.T) {
 		"A versão mais recente é a v0.0.1.\n",
 		"![Release v0.0.1](https://img.shields.io/badge/release-v0.0.1-blue)\n",
 		"Latest: [v0.0.1](https://github.com/o/p/releases/tag/v0.0.1).\n",
+		"[v0.0.1](https://github.com/o/p/releases/latest)\n",
+		"[v0.0.1](https://github.com/o/p/releases/tag/v1.0.0)\n",
+		"The latest published release is 0.0.1.\n",
+		"![Release](https://img.shields.io/badge/release-0.0.1-blue)\n",
+		"[notes](https://github.com/o/p/releases/tag/v1.0.0-rc.1)\n",
 	} {
 		root := t.TempDir()
 		writeClaimsFixture(t, root, `{"path":"README.md","version_claims":"current-only"}`)

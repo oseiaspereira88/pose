@@ -1,5 +1,5 @@
 {
-  "_comment": "Template for .pose/public/claims.json — copy it there and edit. Declares what your public surfaces claim about the CURRENT product, so a surface that contradicts a released fact fails `pose public-claims` instead of ageing quietly. Surfaces are declared, never discovered: a scanner that flagged every version-shaped string would fail on changelogs, historical assessments and release notes, which are supposed to name old versions.",
+  "_comment": "Template for .pose/public/claims.json — copy it there and edit. A surface may set history_block to true: what stands between <!-- release-history --> and <!-- /release-history --> lists past releases and is not a claim; an unclosed block hides nothing. Declares what your public surfaces claim about the CURRENT product, so a surface that contradicts a released fact fails `pose public-claims` instead of ageing quietly. Surfaces are declared, never discovered: a scanner that flagged every version-shaped string would fail on changelogs, historical assessments and release notes, which are supposed to name old versions.",
   "schema_version": 1,
   "product": {
     "name": "<product name as the public surfaces call it>",
