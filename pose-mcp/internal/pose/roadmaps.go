@@ -53,8 +53,10 @@ func (s Store) ReachedMilestones(spec string) ([]string, error) {
 	}
 	reached := []string{}
 	for _, ref := range candidates {
+		// Its only member has just closed, uncommitted, so its verification cannot
+		// answer yet: only a refusal recorded on the milestone says it will not stand.
 		if parsed, err := ParseScopeRef(ref); err == nil {
-			if _, inherits := s.soleMemberOf(parsed); inherits {
+			if _, inherits := s.soleMemberOf(parsed); inherits && !s.milestoneReviewRefused(ref) {
 				continue
 			}
 		}
@@ -183,18 +185,22 @@ func (s Store) scopeApproved(ref string) (bool, error) {
 // about every candidate of the repository, where a review each costs minutes: an
 // approval gone stale is for the milestone's own close to refuse. A record that cannot
 // be read is an error, never an absence.
-func (s Store) milestonesWithRecordedApproval(refs []string) (map[string]bool, error) {
-	recorded := map[string]bool{}
+func (s Store) milestonesWithRecordedApproval(refs []string) (recorded, refused map[string]bool, err error) {
+	recorded, refused = map[string]bool{}, map[string]bool{}
 	if len(refs) == 0 {
-		return recorded, nil
+		return recorded, refused, nil
 	}
 	attestations, err := s.ReadReviewAttestations("")
 	if err != nil {
-		return nil, err
+		return nil, nil, err
 	}
 	latest, err := s.latestBundlesOf(refs)
 	if err != nil {
-		return nil, err
+		return nil, nil, err
+	}
+	attempts, err := s.ReadReviewAttempts("")
+	if err != nil {
+		return nil, nil, err
 	}
 	decided := map[string]ReviewAttestation{}
 	for _, att := range attestations.Attestations {
@@ -206,13 +212,22 @@ func (s Store) milestonesWithRecordedApproval(refs []string) (map[string]bool, e
 		approved := true
 		for _, bundle := range bundles {
 			if !attestations.Coverage.CompleteFor(bundle) {
-				return nil, fmt.Errorf("pose: the attestations of %s could not all be read", ref)
+				return nil, nil, fmt.Errorf("pose: the attestations of %s could not all be read", ref)
 			}
-			approved = approved && reviewDecisionApproves(decided[bundle].Decision)
+			decision := decided[bundle].Decision
+			approved = approved && reviewDecisionApproves(decision)
+			refused[ref] = refused[ref] || decision == "rejected" || decision == "changes-requested"
 		}
 		recorded[ref] = approved
 	}
-	return recorded, nil
+	// The same veto as milestoneReviewRefused, from one read of the attempts.
+	for _, attempt := range attempts.Attempts {
+		refused[attempt.Scope] = attempt.Decision == "rejected" || attempt.Decision == "changes-requested"
+	}
+	for _, ref := range refs {
+		refused[ref] = refused[ref] || !attempts.Coverage.CompleteFor(ref)
+	}
+	return recorded, refused, nil
 }
 
 // latestBundlesOf names the bundles sealed last for each of refs, more than one when
@@ -276,7 +291,7 @@ func (s Store) RoadmapsReachedBy(spec string) ([]string, error) {
 	for _, rm := range roadmaps {
 		for _, milestone := range rm.Milestones {
 			if member, ok := s.soleMemberOf(ScopeRef{Kind: "milestone", Roadmap: rm.Slug, Milestone: milestone.ID}); ok && member == spec {
-				if s.roadmapReachedApartFrom(rm.Slug, milestone.ID) {
+				if !s.milestoneReviewRefused("milestone:"+rm.Slug+"/"+milestone.ID) && s.roadmapReachedApartFrom(rm.Slug, milestone.ID) {
 					found = append(found, rm.Slug)
 				}
 				break

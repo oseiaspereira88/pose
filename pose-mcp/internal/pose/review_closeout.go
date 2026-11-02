@@ -1339,7 +1339,7 @@ func (s Store) reviewCheck(ref string) (ReviewEvaluation, error) {
 				eval.Blockers = append(eval.Blockers, "the approval of "+ref+" cannot be retained: the attestation history of its bundle is incomplete, so the latest readable attestation is not known to be the current one: "+(SourceCoverage{Losses: retainLost}).Describe("")+"; restore or remove the unreadable record")
 			}
 			eval.Blockers = append(eval.Blockers, childBlockers...)
-			refused := bundle != nil && s.FederatedResolver != nil && (verifyErr != nil || !s.retainedApprovalStands(bundle, verification.currentManifest))
+			refused := bundle != nil && (!s.sealedDeclarationHolds(bundle) || s.FederatedResolver != nil && (verifyErr != nil || !s.retainedApprovalStands(bundle, verification.currentManifest)))
 			if bundle != nil && !refused {
 				eval.Fresh = true
 				eval.Approved = true

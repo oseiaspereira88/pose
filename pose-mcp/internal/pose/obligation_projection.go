@@ -564,7 +564,7 @@ func (s Store) milestoneReachedObligations(project, scope string, coverage *Cove
 	if err != nil {
 		return lost(err)
 	}
-	recorded, err := s.milestonesWithRecordedApproval(append(candidates, s.soleMemberRefs(candidates)...))
+	recorded, refused, err := s.milestonesWithRecordedApproval(append(candidates, s.soleMemberRefs(candidates)...))
 	if err != nil {
 		return lost(err)
 	}
@@ -584,9 +584,7 @@ func (s Store) milestoneReachedObligations(project, scope string, coverage *Cove
 		}
 		member, sole := s.soleMemberOf(parsed)
 		owed := !recorded[ref] && !(sole && recorded["spec:"+member]) && s.declaredUnreviewed(parsed) == ""
-		if refused, err := s.milestoneHasRecordedRefusal(ref); err != nil {
-			return lost(err)
-		} else if !required || !owed && !refused {
+		if !required || !owed && !refused[ref] {
 			continue
 		}
 		source := QualifyNodeRef(project, ArtifactRef{Kind: "milestone", Slug: parsed.Roadmap, Milestone: parsed.Milestone}, "", "")
@@ -615,25 +613,6 @@ func (s Store) soleMemberRefs(refs []string) []string {
 		}
 	}
 	return out
-}
-
-// milestoneHasRecordedRefusal reads the headers of the milestone's own bundles only,
-// which is what keeps the list free of reviews.
-func (s Store) milestoneHasRecordedRefusal(ref string) (bool, error) {
-	latest, err := s.latestBundlesOf([]string{ref})
-	if err != nil {
-		return false, err
-	}
-	for _, bundle := range latest[ref] {
-		attestations, err := s.ListReviewAttestations(bundle)
-		if err != nil {
-			return false, err
-		}
-		if n := len(attestations); n > 0 && !reviewDecisionApproves(attestations[n-1].Decision) {
-			return true, nil
-		}
-	}
-	return false, nil
 }
 
 // startObligationItems projects start reconciliation needs, which exist only

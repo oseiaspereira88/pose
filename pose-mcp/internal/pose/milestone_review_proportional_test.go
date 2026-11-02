@@ -378,3 +378,65 @@ func TestRoadmapSealsOverADeclaredMilestone(t *testing.T) {
 		t.Fatalf("a declared milestone has no bundle to seal over: %+v", bundle.Payload.Children)
 	}
 }
+
+func TestARetainedRoadmapDoesNotCoverADeclarationItNeverRead(t *testing.T) {
+	for name, edit := range map[string][2]string{
+		"added":   {"status: active\n", "status: active\nunreviewed_milestones: never reviewed\n"},
+		"changed": {"unreviewed_milestones: first\n", "unreviewed_milestones: second\n"},
+		"removed": {"unreviewed_milestones: first\n", ""},
+	} {
+		t.Run(name, func(t *testing.T) {
+			root, s := inheritedFixture(t)
+			s.FederatedResolver = nil
+			editRoadmapFixture(t, root, "\n## Milestone: later\n- after: core\n- specs: pending\n", "")
+			if name != "added" {
+				editRoadmapFixture(t, root, "status: active\n", "status: active\nunreviewed_milestones: first\n")
+			}
+			roadmap, err := s.SealReviewBundle("roadmap:program", reviewFixtureNow.Add(2*time.Minute))
+			if err != nil {
+				t.Fatal(err, roadmap.Blockers)
+			}
+			attestChildReview(t, s, roadmap, reviewFixtureNow.Add(3*time.Minute), "approved")
+			editRoadmapFixture(t, root, "status: active\n", "status: done\n")
+			eval := verifyAndCloseoutAgree(t, s, "roadmap:program")
+			if !eval.Approved {
+				t.Fatalf("the fixture is not a retained roadmap: %+v", eval)
+			}
+			text := edit
+			if name == "added" {
+				text[0], text[1] = "status: done\n", "status: done\nunreviewed_milestones: never reviewed\n"
+			}
+			editRoadmapFixture(t, root, text[0], text[1])
+			if eval := verifyAndCloseoutAgree(t, s, "roadmap:program"); eval.Approved {
+				t.Fatalf("a retained approval covered a declaration it never read: %+v", eval)
+			}
+			if _, _, _, _, _, _, blockers := federatedSourceProof(NativeFiles(), s, ArtifactRef{Kind: "roadmap", Slug: "program", Project: "coordinator"}, gitHeadAtRoot(root)); len(blockers) == 0 {
+				t.Fatal("the approval stood as proof")
+			}
+		})
+	}
+}
+
+func TestAttentionKeepsLegacyRefusals(t *testing.T) {
+	for name, body := range map[string]string{
+		"rejected":          "---\nschema_version: 1\nreview_id: rvw-20260926T180000Z-aaaa1111\nscope: milestone:program/core\ndecision: rejected\nreviewed_at: 2026-09-26T18:00:00Z\n---\n\n## Findings\n\nNone.\n",
+		"changes-requested": "---\nschema_version: 1\nreview_id: rvw-20260926T180000Z-aaaa1111\nscope: milestone:program/core\ndecision: changes-requested\nreviewed_at: 2026-09-26T18:00:00Z\n---\n\n## Findings\n\nNone.\n",
+		"unreadable":        "---\nschema_version: 1\nreview_id: rvw-20260926T180000Z-aaaa1111\nscope: milestone:program/core\ndecision: rejected\nreviewed_at: broken\n---\n\n## Findings\n\n- F1 [op",
+	} {
+		t.Run(name, func(t *testing.T) {
+			_, s := inheritedFixture(t)
+			writeReviewFixture(t, s.Root, ".pose/reviews/rvw-20260926T180000Z-aaaa1111.md", body)
+			cov := &Coverage{Producer: "closeout", State: CoverageStateCurrent}
+			items, err := s.milestoneReachedObligations("coordinator", "", cov)
+			if err != nil || len(items) != 1 {
+				t.Fatalf("a refusal was hidden: %v %v", items, err)
+			}
+			if reached, err := s.ReachedMilestones("backend"); err != nil || len(reached) != 1 {
+				t.Fatalf("the close of the member does not name the refused milestone: %v %v", reached, err)
+			}
+			if roadmaps, err := s.RoadmapsReachedBy("backend"); err != nil || len(roadmaps) != 0 {
+				t.Fatalf("the roadmap was named over a refused milestone: %v %v", roadmaps, err)
+			}
+		})
+	}
+}

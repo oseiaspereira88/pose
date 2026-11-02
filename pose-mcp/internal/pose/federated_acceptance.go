@@ -687,7 +687,7 @@ func federatedSourceProof(files Files, source Store, identity ArtifactRef, pinne
 	if err == nil && identity.Kind == "milestone" && strings.HasPrefix(verification.ApprovalOrigin, "declared:") {
 		verification, err = source.VerifyReviewBundle("roadmap:" + identity.Slug)
 	}
-	if err != nil || !verification.Fresh || !verification.Approved || verification.Bundle == nil || verification.Attestation == nil {
+	if err != nil || !verification.Fresh || !verification.Approved || verification.Bundle == nil || verification.Attestation == nil || !source.sealedDeclarationHolds(verification.Bundle) {
 		return "", "", "", "", nil, nil, []string{scope + ":source-review-not-approved"}
 	}
 	bundle := verification.Bundle

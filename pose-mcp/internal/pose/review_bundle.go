@@ -665,7 +665,7 @@ func (s Store) reviewBundleScopeProjection(scope ScopeRef) (ReviewBundleScope, [
 		// nothing changed. Every other scope kind already avoids this
 		// (spec uses section names, milestone uses the milestone ID).
 		if rm.UnreviewedMilestones != "" {
-			projection.Sections = append(projection.Sections, ReviewBundleInput{Kind: "unreviewed-milestones", Path: rm.UnreviewedMilestones, Digest: digestText(rm.UnreviewedMilestones), Reason: "the reason its roadmap gives for milestones standing without a review"})
+			projection.Sections = append(projection.Sections, ReviewBundleInput{Kind: unreviewedMilestonesSection, Path: rm.UnreviewedMilestones, Digest: digestText(rm.UnreviewedMilestones), Reason: "the reason its roadmap gives for milestones standing without a review"})
 		}
 		projection.Sections = append(projection.Sections, ReviewBundleInput{Kind: "roadmap", Path: filepath.ToSlash(filepath.Join(".pose", "roadmaps", scope.Slug+".md")), Digest: digestText(normalizeBundleText(rm.Body)), Reason: "governed roadmap outcomes and ordered membership"})
 	}
@@ -1692,6 +1692,8 @@ func (s Store) reviewScopeRequiresValidationEvidence(scope ScopeRef, plan Review
 		return true
 	}
 }
+
+const unreviewedMilestonesSection = "unreviewed-milestones"
 
 const noValidationEvidenceBlocker = "no passed structured validation evidence is attributed to the review scope"
 
@@ -4334,7 +4336,30 @@ func sameFederatedManifest(a, b *FederatedRoadmapManifest) bool {
 // pose-closeout-judges-the-manifest R1, R2). Without a resolver no manifest can be
 // judged.
 func (s Store) retainedApprovalStands(bundle *ReviewBundle, current *FederatedRoadmapManifest) bool {
+	if !s.sealedDeclarationHolds(bundle) {
+		return false
+	}
 	return s.FederatedResolver == nil || s.federatedManifestStands(bundle.Payload.FederatedManifest, current)
+}
+
+// sealedDeclarationHolds reports that a bundle of a roadmap sealed the reason the roadmap
+// gives now for unreviewed milestones: an approval is no authority for an exception its
+// reviewer never read.
+func (s Store) sealedDeclarationHolds(bundle *ReviewBundle) bool {
+	if bundle.Payload.Scope.Kind != "roadmap" {
+		return true
+	}
+	rm, err := s.GetRoadmap(bundle.Payload.Scope.Slug)
+	if err != nil {
+		return false
+	}
+	sealed := ""
+	for _, section := range bundle.Payload.Scope.Sections {
+		if section.Kind == unreviewedMilestonesSection {
+			sealed = section.Path
+		}
+	}
+	return sealed == rm.UnreviewedMilestones
 }
 
 func retainedManifestChanged(bundle *ReviewBundle, scope string) string {

@@ -145,8 +145,8 @@ Integration tests over real bundles for each reader, seen failing first, and eve
 - R2 [planned] check:milestone-review-proportional-integration test:TestANegativeReviewOfAMilestoneStands test:TestARecordedMilestoneApprovalStays test:TestARecordedLegacyRefusalStands
 - R3 [planned] check:milestone-review-proportional-integration test:TestOtherMilestonesOweTheirReview
 - R4 [planned] check:milestone-review-proportional-integration test:TestTheSpecAnswersForTheExitGate test:TestEachExitGateHasItsOwnCriterion
-- R5 [planned] check:milestone-review-proportional-integration test:TestARoadmapDeclaresUnreviewedMilestones test:TestTheReasonIsSealedByTheRoadmap test:TestADeclarationRescuesATerminalSingleton test:TestAnExternalConsumerHoldsTheRoadmapOfADeclaredMilestone
-- R6 [planned] check:milestone-review-proportional-integration test:TestRoadmapSealsOverInheritedMilestones test:TestRoadmapSealsOverADeclaredMilestone test:TestAttentionKeepsWhatDoesNotStand
+- R5 [planned] check:milestone-review-proportional-integration test:TestARoadmapDeclaresUnreviewedMilestones test:TestTheReasonIsSealedByTheRoadmap test:TestARetainedRoadmapDoesNotCoverADeclarationItNeverRead test:TestADeclarationRescuesATerminalSingleton test:TestAnExternalConsumerHoldsTheRoadmapOfADeclaredMilestone
+- R6 [planned] check:milestone-review-proportional-integration test:TestRoadmapSealsOverInheritedMilestones test:TestRoadmapSealsOverADeclaredMilestone test:TestAttentionKeepsWhatDoesNotStand test:TestAttentionKeepsLegacyRefusals
 
 ## 7. Final Report
 
