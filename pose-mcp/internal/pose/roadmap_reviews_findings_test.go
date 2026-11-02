@@ -3,6 +3,7 @@ package pose
 import (
 	"errors"
 	"os"
+	"os/exec"
 	"path/filepath"
 	"runtime"
 	"strings"
@@ -224,6 +225,27 @@ func TestACompleteFallbackReportsItsDurability(t *testing.T) {
 	}
 	if tmp := leftovers(t, dir); len(tmp) != 0 {
 		t.Fatalf("staging left: %v", tmp)
+	}
+}
+
+func TestABriefAcceptedWholeIsDelivered(t *testing.T) {
+	cut := errors.New("broken pipe")
+	for name, c := range map[string]struct{ copied, closed, want error }{
+		"closed by us":             {nil, nil, nil},
+		"closed by Wait first":     {nil, os.ErrClosed, nil},
+		"close failed":             {nil, cut, cut},
+		"write failed":             {cut, nil, cut},
+		"write failed, then close": {cut, os.ErrClosed, cut},
+	} {
+		if got := briefDeliveryError(c.copied, c.closed); !errors.Is(got, c.want) || (c.want == nil) != (got == nil) {
+			t.Errorf("%s: %v, want %v", name, got, c.want)
+		}
+	}
+	for i := 0; i < 200; i++ {
+		_, count, complete, _, err := runProvenanceCommand(exec.Command("true"), "brief")
+		if err != nil || !complete || count != 5 {
+			t.Fatalf("run %d: count=%d complete=%v err=%v", i, count, complete, err)
+		}
 	}
 }
 

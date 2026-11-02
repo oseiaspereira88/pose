@@ -716,11 +716,7 @@ func runProvenanceCommand(cmd *exec.Cmd, text string) (digest string, count int6
 		total := int64(0)
 		writer := provenanceStdinWriter{write: stdin, record: func(p []byte) { hash.Write(p); total += int64(len(p)) }}
 		_, copyErr := io.Copy(writer, strings.NewReader(text))
-		closeErr := stdin.Close()
-		if copyErr == nil {
-			copyErr = closeErr
-		}
-		done <- result{"sha256:" + hex.EncodeToString(hash.Sum(nil)), total, copyErr}
+		done <- result{"sha256:" + hex.EncodeToString(hash.Sum(nil)), total, briefDeliveryError(copyErr, stdin.Close())}
 	}()
 	runErr = cmd.Wait()
 	input := <-done
@@ -728,6 +724,18 @@ func runProvenanceCommand(cmd *exec.Cmd, text string) (digest string, count int6
 		runErr = fmt.Errorf("review brief delivery incomplete: %w", input.err)
 	}
 	return input.digest, input.count, input.err == nil && input.count == int64(len(text)), true, runErr
+}
+
+// briefDeliveryError judges a delivery by its bytes. Wait closes the pipe once the child has
+// exited, so a child that finished first leaves Close nothing to do: every byte was accepted.
+func briefDeliveryError(copyErr, closeErr error) error {
+	if copyErr != nil {
+		return copyErr
+	}
+	if errors.Is(closeErr, os.ErrClosed) {
+		return nil
+	}
+	return closeErr
 }
 
 type provenanceStdinWriter struct {
