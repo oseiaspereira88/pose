@@ -1,6 +1,6 @@
 ---
 slug: pose-evidence-gate-means-validation
-status: in-progress
+status: done
 created_at: 2026-11-01
 supersedes:
 depends_on: pose-closeout-names-the-missing-trailer
@@ -9,7 +9,7 @@ priority: 1
 components: pose-mcp
 task_type: bugfix
 delivers: capability:evidence-gate-means-validation
-completed_at:
+completed_at: 2026-11-02
 ---
 
 # Spec: The evidence gate means validation
