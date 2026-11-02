@@ -1,0 +1,190 @@
+{
+  "schema_version": 1,
+  "attestation_id": "rva-14567c3a88ab72d9",
+  "bundle_id": "rvb-0008a5253802cd2d",
+  "bundle_digest": "sha256:0008a5253802cd2d2c04b0f793ae3739f06df583dc3ffebd32784ccee571eb01",
+  "reviewer": "agent:independent-roadmap-findings-sol-20261102",
+  "decision": "approved",
+  "criteria": [
+    {
+      "id": "assumption-integrity",
+      "disposition": "passed",
+      "evidence": "integration:pose-mcp/go/roadmap-reviews-findings-integration",
+      "rationale": "I am the independent reviewer of all rounds 1-4, recorded in review-round1-report.md through review-round4-report.md beside this argv file. Preserve the reports' distinction between accepted pipe bytes and child consumption, publication and durability, actual Git identity and marker presence. R7 preserves digest/count and full-length checks; no vendor-consumption receipt is claimed. The fallback remains non-atomic, identical retries can precede sync, EPERM answers only this attempt, and Windows/macOS runtime qualification is absent. Historical 59 ownership exclusions remain explicit; current supplied strict evidence is a separate pass, not a retroactive repair of that environment."
+    },
+    {
+      "id": "backend-concurrency",
+      "disposition": "passed",
+      "evidence": "integration:pose-mcp/go/roadmap-reviews-findings-integration",
+      "rationale": "Current R7 race-enabled test passes: go test -race ./internal/pose -run ^TestABriefAcceptedWholeIsDelivered$ -count=1. The goroutine communicates digest/count/error through its channel after writing; Wait may close stdin. Existing count and copy-error checks prevent partial delivery being called complete. This is focused race evidence, not a fresh whole-module race run."
+    },
+    {
+      "id": "backend-contracts",
+      "disposition": "passed",
+      "evidence": "integration:pose-mcp/go/roadmap-reviews-findings-integration",
+      "rationale": "Current registered integration command passes for both pose and cli. Prior reports verify close output/JSON, refresh records and consumers, physical Git identity and fallback durability with explicit limitations; current R7 preserves transmitted digest/count semantics."
+    },
+    {
+      "id": "backend-input-errors",
+      "disposition": "passed",
+      "evidence": "integration:pose-mcp/go/roadmap-reviews-findings-integration",
+      "rationale": "Current integration and R7 race tests pass. R7 preserves copy errors and non-os.ErrClosed close errors; strict refresh refuses unresolved durability even after skipped replay, and combined failures retain publication/durability facts as verified in round 4."
+    },
+    {
+      "id": "backend-integration-impact",
+      "disposition": "passed",
+      "evidence": "integration:pose-mcp/go/roadmap-reviews-findings-integration",
+      "rationale": "The exact current 20-name registered integration command passes on this HEAD in internal/pose and internal/cli. Current sealed evidence matches HEAD and provenance. Prior reports inspect production entrypoints and consumers; no inter-module wire schema changes."
+    },
+    {
+      "id": "backend-observability",
+      "disposition": "passed",
+      "evidence": "integration:pose-mcp/go/roadmap-reviews-findings-integration",
+      "rationale": "Round 4 verifies visible publication/lost-log/durability information and repair through a real refresh. R4-F1 remains the explicitly recorded low wording follow-up. R7 avoids a false incomplete-delivery error while retaining real errors."
+    },
+    {
+      "id": "compatibility",
+      "disposition": "passed",
+      "evidence": "integration:pose-mcp/go/roadmap-reviews-findings-integration",
+      "rationale": "Reports 1-4 inspect close apply/JSON, refresh/manual/init/hooks, repository discovery and publication consumers. Round 4 fixes strict replay and preserves lost-log marker facts. Current delta changes only brief close-error classification after successful copy, its test/matrix, and spec closeout content. It preserves process-exit errors and the byte-count/digest contract; no CLI/file/MCP schema migration is introduced."
+    },
+    {
+      "id": "correctness",
+      "disposition": "passed",
+      "evidence": "integration:pose-mcp/go/roadmap-reviews-findings-integration",
+      "rationale": "Built the requested CLI from HEAD. Current registered integration selection and focused R7 race test pass independently. Inspected current strict report: mode strict, outcome pass, 185 executed/passed, zero failed/optional_failed/errored/skipped. This report was supplied, not rerun by this reviewer."
+    },
+    {
+      "id": "design-causality",
+      "disposition": "passed",
+      "evidence": "integration:pose-mcp/go/roadmap-reviews-findings-integration",
+      "rationale": "R1 keeps delivered premises advisory; R2 uses physical repository identity and a visited set; R3-R5 preserve publication effects separately from durability and secondary errors. D1 rejects environment-based repository hiding and D2 retains disjoint-commit attribution refusal. R7 directly removes the false incomplete-delivery result caused by Wait closing an already-written pipe: copy errors win, only os.ErrClosed after successful copy is ignored. Installed Go StdinPipe documentation confirms automatic closure after Wait. Sealed structural observation identifies the subject but is not runtime proof."
+    },
+    {
+      "id": "documentation",
+      "disposition": "passed",
+      "evidence": "integration:pose-mcp/go/roadmap-reviews-findings-integration",
+      "rationale": "Inspected git diff 21e17d61..50e36530, spec tasks, R1-R7 trace, final report, residual risks and all six owned follow-ups dated 2026-11-27. R7 is registered in the integration command and declared in artifacts. Round 4 R4-F1 is preserved as F6, not falsely marked fixed. Prior fallback/ownership/platform limitations remain explicit. Rules applied: security for authority/publication boundaries; backend-go for errors and concurrency; documentation-style and delivery-evidence for claims; knowledge-governance for external handoff. No repository knowledge write is authorized."
+    },
+    {
+      "id": "operability",
+      "disposition": "passed",
+      "evidence": "integration:pose-mcp/go/roadmap-reviews-findings-integration",
+      "rationale": "Round 4 verifies newest-publication strict replay and recovery after a lost refresh log, preserving published, missing-log and durability facts. Its low R4-F1 diagnostic wording defect remains tracked as F6: state validate/doctor still describe the richer marker with older failed/pending wording, while material facts and retry guidance remain. F1-F5 retain their previously scoped maintenance/adoption/default-replay/inventory/flake follow-ups. R7 retains actual copy and close failures and child process errors. No new blocker found in current delta."
+    },
+    {
+      "id": "requirements",
+      "disposition": "passed",
+      "evidence": "integration:pose-mcp/go/roadmap-reviews-findings-integration",
+      "rationale": "R1-R7 each have a satisfied trace to the registered integration check and immutable commits; current command includes R7. Supplied delivery-validation git_head is 50e36530ff4d055e3218dbd32c6b3ed87be52afc and matrix hash matches actual sha256:dcdea3e1c2aafb183fe6e72a9b0570ade8d43657f163945d79c68222d40373cf. Target integration pass/provenance matches sealed evidence. R6 measurement is supported by round 1 report, not a fresh corpus rerun here."
+    },
+    {
+      "id": "scope",
+      "disposition": "passed",
+      "evidence": "integration:pose-mcp/go/roadmap-reviews-findings-integration",
+      "rationale": "I am the independent reviewer of all rounds 1-4, recorded in review-round1-report.md through review-round4-report.md beside this argv file. The approved subject 21e17d61 is extended by the reviewed R7 fix at 796a9b22 and closeout content at HEAD 50e36530. Read the complete 21e17d61..HEAD diff. The sealed subject now contains cs-a9e00233394f, a clean range of 10 attributed commits with actual implementation entries, resolving the earlier empty-subject prerequisite. This attestation covers the declared R1-R7 behavior with the reports' stated limitations; it does not certify deferred adjacent consumers or close the spec."
+    },
+    {
+      "id": "security",
+      "disposition": "passed",
+      "evidence": "integration:pose-mcp/go/roadmap-reviews-findings-integration",
+      "rationale": "The delta introduces no dependency, credential, environment override or authority bypass. R7 records only bytes accepted by stdin, requires successful copy and matching full length for completeness, and retains copy failures, other close failures and process-exit failures. Prior reports preserve conservative Git/ownership gates and removal of destructive fallback cleanup. The fallback risks remain explicitly scoped; no atomic or durable identical-retry guarantee is claimed. No new governance gate is introduced, so no new gate-bypass corpus qualification or fresh standalone security scanner pass is claimed."
+    },
+    {
+      "id": "solution-proportionality",
+      "disposition": "passed",
+      "evidence": "integration:pose-mcp/go/roadmap-reviews-findings-integration",
+      "rationale": "A small error classifier plus the existing byte-count/digest contract is sufficient for R7; serializing Wait behind the writer would complicate lifecycle behavior and can impede exit-driven pipe shutdown. It is limited to the harmless already-closed case after successful copy, with unit cases for both failure kinds and a 200-run real subprocess test. The broader remediation stays focused on observed defects, retaining explicit fallback and adjacent-consumer limitations. Revisit this design if the contract requires proof the child consumed or understood the brief, or atomic/durable fallback idempotency."
+    }
+  ],
+  "tools": [
+    {
+      "id": "artifact-check",
+      "disposition": "passed",
+      "evidence": "integration:pose-mcp/go/roadmap-reviews-findings-integration",
+      "rationale": "Native auto-attest mechanical preparation succeeds, and sealed attribution is a clean ten-commit range with actual subject entries. Independent strict artifact command reports claims=21, observed=25 and 826 findings, with displayed orphan warnings; full finding list is not independently inspected and no clean strict pass is claimed."
+    },
+    {
+      "id": "assess-design",
+      "disposition": "passed",
+      "evidence": "structure:design-f73088ab8823ac96",
+      "rationale": "Inspected sealed observed structural evidence with matching implementation digest; this is derived structural observation, not a freshly executed runtime assessment."
+    },
+    {
+      "id": "assess-discover",
+      "component": "pose-mcp",
+      "disposition": "not-used",
+      "rationale": "Persisted assessment refresh skipped under current write restriction; prior rounds inspect the module and current change is a bounded error-classification fix."
+    },
+    {
+      "id": "assess-integrate",
+      "disposition": "not-used",
+      "rationale": "No REST/Protobuf/Kafka/MCP wire schema changes. Prior round consumer/entrypoint inspection and current exact registered integration command answer the bounded changed paths; no persisted assessment rerun authorized."
+    },
+    {
+      "id": "assess-tech-debt",
+      "disposition": "passed",
+      "evidence": "integration:pose-mcp/go/roadmap-reviews-findings-integration",
+      "rationale": "Saved round 4 report records actual read-only domain analysis: incomplete read set, one covered TODO, zero uncovered markers. No fresh persisted scan or whole-repository debt clearance claimed; current source delta adds no debt marker."
+    },
+    {
+      "id": "closeout-check",
+      "disposition": "deferred",
+      "rationale": "Completion gate remains with lifecycle owner; no close authorized."
+    },
+    {
+      "id": "review-check",
+      "disposition": "deferred",
+      "rationale": "Run after recording attestation; completion result is recorded externally."
+    },
+    {
+      "id": "suggest-review",
+      "component": "pose-mcp",
+      "disposition": "passed",
+      "evidence": "integration:pose-mcp/go/roadmap-reviews-findings-integration",
+      "rationale": "Current rule selection executed; backend-go, security, documentation-style plus delivery-evidence and knowledge-governance applied. Frontend/infrastructure rules do not apply."
+    },
+    {
+      "id": "surface-check",
+      "disposition": "passed",
+      "evidence": "integration:pose-mcp/go/roadmap-reviews-findings-integration",
+      "rationale": "Current strict surface-check exits 0: targets=1, results=185, findings=0, provenance sha256:f7fc82e9f4053c1aaade458333f9d829f2cc4d756b0154f16ef8fb2eb5a3af22 matches sealed evidence."
+    },
+    {
+      "id": "validate",
+      "disposition": "passed",
+      "evidence": "integration:pose-mcp/go/roadmap-reviews-findings-integration",
+      "rationale": "Inspected supplied strict report: HEAD 50e36530, 185 executed/passed, all failure/skip counts zero, matching matrix hash and sealed target integration/provenance. Build and exact registered integration independently pass; focused R7 race test passes. GitHub token use for release listing is user-reported, not independently observed."
+    },
+    {
+      "id": "validate",
+      "component": "pose-mcp",
+      "disposition": "passed",
+      "evidence": "integration:pose-mcp/go/roadmap-reviews-findings-integration",
+      "rationale": "Supplied report includes pose-mcp full test, vet, build and target integration passes at HEAD. Exact registered integration independently rerun and passes. Earlier reports preserve the 59-test ownership exclusion and their filtered-suite evidence; no fresh independent full-suite run claimed."
+    }
+  ],
+  "evidence_refs": [
+    "integration:pose-mcp/go/roadmap-reviews-findings-integration"
+  ],
+  "findings": [
+    {
+      "id": "r4-f1",
+      "severity": "low",
+      "evidence": "integration:pose-mcp/go/roadmap-reviews-findings-integration",
+      "action": "Implement spec F6: render lost-log marker as publication with missing audit effect and preserve retry/durability details in state validate and doctor",
+      "disposition": "accepted-risk",
+      "owner": "@oseiaspereira88",
+      "rationale": "Round 4 verifies material facts remain visible and a real refresh repairs the condition; wording is confusing but advisory, explicitly retained as owned spec F6",
+      "review_by": "2026-11-27"
+    }
+  ],
+  "attribution": {
+    "schema_version": 1,
+    "prepared_by": "agent:independent-roadmap-findings-sol-20261102",
+    "concluded_by": "agent:independent-roadmap-findings-sol-20261102",
+    "applied_by": "agent:codex"
+  },
+  "attested_at": "2026-11-02T18:08:00Z",
+  "path": ".pose/review-attestations/rva-14567c3a88ab72d9.json"
+}

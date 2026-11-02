@@ -1,6 +1,6 @@
 ---
 slug: pose-roadmap-reviews-findings
-status: in-progress
+status: done
 created_at: 2026-11-02
 supersedes:
 depends_on: pose-milestone-review-proportional
@@ -9,7 +9,7 @@ priority: 1
 components: pose-mcp
 task_type: bugfix
 delivers: capability:roadmap-reviews-findings
-completed_at:
+completed_at: 2026-11-02
 ---
 
 # Spec: What the roadmap reviews found
