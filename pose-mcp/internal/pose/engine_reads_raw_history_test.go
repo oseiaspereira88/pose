@@ -34,8 +34,8 @@ func TestAReplacedTagTreeIsRefused(t *testing.T) {
 var directGitExceptions = map[string]string{
 	"internal/pose/git_snapshot_integrity.go#gitCommandContext": "the raw reader itself",
 	"internal/pose/review_attempt_ledger.go#reviewHistoryGit":   "runs the arguments and environment of gitCommand under its own deadline",
-	"internal/usage/usage.go#storageDir":                        "asks for the common directory to place telemetry, and reads no object; the package stays free of this one",
-	"internal/cli/report.go#runReportWith":                      "a git add, which writes to the index the operator selected",
+	"internal/usage/usage.go#storageDir:rev-parse":              "asks for the common directory to place telemetry, and reads no object; the package stays free of this one",
+	"internal/cli/report.go#runReportWith:add":                  "a git add, which writes to the index the operator selected",
 	"internal/cli/doctor.go#runDoctorDiagnostics":               "looks git up to report whether it is installed, and starts nothing",
 }
 
@@ -62,7 +62,9 @@ var dynamicLaunches = map[string]string{
 	"internal/pose/review_run_provenance.go#provenanceExecutableSelection": "looks a declared reviewer adapter up, and starts nothing",
 }
 
-type processLaunch struct{ kind, function string }
+// operation is the git subcommand a literal call names, so that an exception for one
+// operation does not cover another in the same function.
+type processLaunch struct{ kind, function, operation string }
 
 var (
 	gitInShell = regexp.MustCompile(`(^|[\s;&|("'` + "`" + `])git\s`)
@@ -121,6 +123,33 @@ func classifyLaunch(t *testing.T, args []ast.Expr) string {
 	return kind
 }
 
+// gitOperation is the first literal after the program that is not an option or its value.
+func gitOperation(args []ast.Expr) string {
+	skip := false
+	for _, arg := range args[1:] {
+		if skip {
+			skip = false
+			continue
+		}
+		literal, ok := arg.(*ast.BasicLit)
+		if !ok {
+			continue
+		}
+		text, err := strconv.Unquote(literal.Value)
+		if err != nil {
+			continue
+		}
+		if text == "-C" || text == "-c" {
+			skip = true
+			continue
+		}
+		if !strings.HasPrefix(text, "-") {
+			return text
+		}
+	}
+	return ""
+}
+
 // launchesOf lists each process start of a Go source: "git" when it starts git by name,
 // through a shell or by looking it up, "dynamic" when the source does not name the
 // program or takes the starter as a value.
@@ -157,17 +186,17 @@ func launchesOf(t *testing.T, name, source string) []processLaunch {
 						return true
 					}
 					if kind := classifyLaunch(t, args); kind != "" {
-						found = append(found, processLaunch{kind, function})
+						found = append(found, processLaunch{kind, function, gitOperation(args)})
 					}
 				case *ast.Ident:
 					if execDot && (fun.Name == "Command" || fun.Name == "CommandContext" || fun.Name == "LookPath") {
-						found = append(found, processLaunch{"dynamic", function})
+						found = append(found, processLaunch{"dynamic", function, ""})
 					}
 				}
 			case *ast.CompositeLit:
 				if selector, ok := n.Type.(*ast.SelectorExpr); ok && selector.Sel.Name == "Cmd" {
 					if pkg, ok := selector.X.(*ast.Ident); ok && execNames[pkg.Name] {
-						found = append(found, processLaunch{"dynamic", function})
+						found = append(found, processLaunch{"dynamic", function, ""})
 					}
 				}
 			case *ast.SelectorExpr:
@@ -178,9 +207,9 @@ func launchesOf(t *testing.T, name, source string) []processLaunch {
 				name := n.Sel.Name
 				switch {
 				case execNames[pkg.Name] && !called[n] && (name == "Command" || name == "CommandContext" || name == "LookPath"):
-					found = append(found, processLaunch{"dynamic", function})
+					found = append(found, processLaunch{"dynamic", function, ""})
 				case osNames[pkg.Name] && name == "StartProcess", syscallNames[pkg.Name] && (name == "Exec" || name == "ForkExec" || name == "StartProcess"):
-					found = append(found, processLaunch{"dynamic", function})
+					found = append(found, processLaunch{"dynamic", function, ""})
 				}
 			}
 			return true
@@ -222,6 +251,17 @@ func TestTheLaunchScanSeesEveryForm(t *testing.T) {
 			t.Errorf("%s: classified %v, want %q", body, got, want)
 		}
 	}
+	for body, want := range map[string]string{
+		`func f(root string) { exec.Command("git", "-C", root, "add", "--", "x") }`: "add",
+		`func f(root string) { exec.Command("git", "-C", root, "log", "-1") }`:      "log",
+		`func f() { exec.Command("git", "-c", "a=b", "status") }`:                   "status",
+		`func f(args []string) { exec.Command("git", args...) }`:                    "",
+	} {
+		got := launchesOf(t, "probe.go", "package p\n"+plain+body+"\n")
+		if len(got) != 1 || got[0].operation != want {
+			t.Errorf("%s: operation %v, want %q", body, got, want)
+		}
+	}
 	aliased := launchesOf(t, "probe.go", "package p\nimport process \"os/exec\"\nfunc f() { process.Command(\"git\") }\n")
 	if len(aliased) != 1 || aliased[0].kind != "git" {
 		t.Errorf("an alias of os/exec hid a launch: %v", aliased)
@@ -257,6 +297,9 @@ func TestEngineStartsGitOnlyThroughTheRawReader(t *testing.T) {
 		rel = filepath.ToSlash(rel)
 		for _, launch := range launchesOf(t, path, string(raw)) {
 			site := rel + "#" + launch.function
+			if launch.operation != "" && launch.kind == "git" {
+				site += ":" + launch.operation
+			}
 			seen[site]++
 			switch {
 			case directGitExceptions[site] != "":

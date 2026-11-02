@@ -148,4 +148,5 @@ The rule guards against a call written by habit; reflection or a generated progr
 ### Follow-ups
 
 - [open] F1: Disarm executable Git configuration on observational gate calls, starting with `core.fsmonitor`, which still runs on a raw `git status` (review round 1 F2). (owner:@oseiaspereira88 crit:medium review:2026-11-27)
+- [open] F3: Add a raw-history row to the adversarial corpus, with the launch forms and the operation of an exception. (owner:@oseiaspereira88 crit:low review:2026-11-27)
 - [open] F2: Decide which shipped scripts a raw-history rule should reach, starting with `tests/hygiene/temp-cleanup.sh` (review round 1 F4). (owner:@oseiaspereira88 crit:low review:2026-11-27)
