@@ -1,0 +1,76 @@
+{
+  "schema_version": 1,
+  "attestation_id": "rva-826a121a9a8bf5bb",
+  "bundle_id": "rvb-4fa7da387be44971",
+  "bundle_digest": "sha256:4fa7da387be4497134ccb1b12eddf5c2c526f482623779c9bbec2359a01eaf18",
+  "reviewer": "agent:independent-reached-milestones-sol-20261101",
+  "decision": "approved",
+  "criteria": [
+    {
+      "id": "exit-gate",
+      "disposition": "passed",
+      "evidence": "integration:pose-mcp/go/ci-release-obligations-integration",
+      "rationale": "Independently fetched GitHub latest API: v7.4.1 has 36 assets; published-asset-set.py confirms all 35 required assets. Published installer HTTP succeeds. Downloaded Linux amd64 archive SHA256 matches checksums.txt; native install in a fresh scratch Git repository, version 7.4.1 and doctor all exit zero. Independently fetched provider run 41280993772 (2026-11-01): both liveness jobs and clean-container published-command install step succeeded. Local Docker daemon unavailable: no fresh local clean-machine claim. Current release obligation and manifest/tag integration checks pass."
+    },
+    {
+      "id": "integration",
+      "disposition": "passed",
+      "evidence": "integration:pose-mcp/go/ci-release-obligations-integration",
+      "rationale": "Mechanical half resolves sealed passing integration evidence; independently replayed current release-obligations check passes. No producer evidence is claimed as fresh reviewer execution."
+    },
+    {
+      "id": "membership",
+      "disposition": "passed",
+      "evidence": "integration:pose-mcp/go/ci-release-obligations-integration",
+      "rationale": "Read community-launch roadmap: security-gate-integrity and recovery-verification are the appropriate repair and publication-proof members. Both status done; fresh pose review verify spec:\u003cmember\u003e independently returns closed, fresh=true, approved=true. Their retained child reviews stand; done status alone was not used as approval."
+    },
+    {
+      "id": "regression",
+      "disposition": "passed",
+      "evidence": "integration:pose-mcp/go/ci-release-obligations-integration",
+      "rationale": "Inspected current release workflow, liveness workflow, published asset checker and installer. Current release obligation and manifest/tag integration checks pass; actual v7.4.1 archive install/version/doctor and current quickstart harness with that binary pass. Full Go suite is a sandbox-limited run, not a green independent replay; control checkout at parent 38f4d789 has identical engine sources. Supplied sealed delivery-validation is retained producer evidence, not reviewer-authored execution. No distribution regression observed within these verified paths."
+    },
+    {
+      "id": "residual-risk",
+      "disposition": "passed",
+      "evidence": "integration:pose-mcp/go/ci-release-obligations-integration",
+      "rationale": "Recovery member retains low-risk daily checksum/Sigstore verification gap, owner @pose-maintainers review 2026-11-06; fast path still relies on HTTPS. Security member spawned pose-red-signals-reach-a-person for notification gaps (medium/high, review 2026-11-06), covered runtime repair, and completed sync-file untracking. Earlier post-security-step uncertainty is bounded by current complete provider asset inventory, successful provider clean install and native artifact probes; no new signature authentication claimed. No lifecycle close or contribution staging performed."
+    }
+  ],
+  "tools": [
+    {
+      "id": "assess-tech-debt",
+      "disposition": "passed",
+      "evidence": "integration:pose-mcp/go/ci-release-obligations-integration",
+      "rationale": "Fresh assessment: one marker covered; incomplete census due to two pre-existing invalid follow-up sources; no clean census claim."
+    },
+    {
+      "id": "closeout-check",
+      "disposition": "deferred",
+      "rationale": "Completion-only tool; no close authorized. Fresh verify and review-check follow a successful apply."
+    },
+    {
+      "id": "review-check",
+      "disposition": "deferred",
+      "rationale": "Completion-only tool; no close authorized. Fresh verify and review-check follow a successful apply."
+    },
+    {
+      "id": "validate",
+      "disposition": "passed",
+      "evidence": "integration:pose-mcp/go/ci-release-obligations-integration",
+      "rationale": "Sealed mechanical preparation resolves retained passing validation; fresh targeted release checks and provider/native installation probes independently substantiate distribution. Broad sandbox suite is not claimed green."
+    }
+  ],
+  "evidence_refs": [
+    "integration:pose-mcp/go/ci-release-obligations-integration"
+  ],
+  "findings": [],
+  "attribution": {
+    "schema_version": 1,
+    "prepared_by": "agent:independent-reached-milestones-sol-20261101",
+    "concluded_by": "agent:independent-reached-milestones-sol-20261101",
+    "applied_by": "agent:codex"
+  },
+  "attested_at": "2026-11-02T03:53:15Z",
+  "path": ".pose/review-attestations/rva-826a121a9a8bf5bb.json"
+}
