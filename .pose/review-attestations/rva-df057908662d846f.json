@@ -1,0 +1,258 @@
+{
+  "schema_version": 1,
+  "attestation_id": "rva-df057908662d846f",
+  "bundle_id": "rvb-41647fb19c33dc08",
+  "bundle_digest": "sha256:41647fb19c33dc082b8a4356de00fd9a4a7702bfe3932d86f9b465e703984629",
+  "reviewer": "agent:independent-raw-and-claims-sol-20261102",
+  "decision": "changes-requested",
+  "criteria": [
+    {
+      "id": "assumption-integrity",
+      "disposition": "finding",
+      "evidence": "b1",
+      "rationale": "I am the Codex reviewer of all rounds 1-3, recorded in review-round1-report.md, review-round2-report.md and review-round3-report.md beside this file. Those reports were read for continuity; earlier probes were not all rerun. This is declared reviewer continuity, not authenticated vendor identity. Inspected supplied strict delivery-validation.json: git_head beece2ffc47dbe25f80a4bc8fc4605d45e2db314, 183 executed/passed, zero failed/optional_failed/errored/skipped, outcome pass; actual matrix SHA256 216d61eee0f633ff130ed8142898611541b9276faa5ce20b15f63326ee4ea8fe matches. This is supplied evidence, not an independently repeated full matrix. Direct TestPublicClaimsFailsOnEveryShapeOfAStaleRelease passes. Direct TestPublicClaimsWithoutRetainedPublicationEvidenceSaysUnproven fails unknown versus unproven, as all prior reports noted. Token use for install release listing is user-reported. At HEAD beece2ffc47dbe25f80a4bc8fc4605d45e2db314, a synthetic declared current-only README with candidate 7.4.1 and ![Release](https://img.shields.io/badge/release-v7.4.1-dev.1-blue) passes the HEAD-built CLI public-claims --strict --json with exit 0 and findings []. Equivalent rc.1 badge and rc.1/dev.1 prose exit 1. publicclaims.go:46 preserves only rc/alpha/beta/pre-prefixed badge suffixes, so R1 still loses valid prerelease identity. Scratch fixture: /var/tmp/pose-work-go/review-community-claims/close/claims-probe-0iv399p0. Sealed integration evidence passes its existing cases but omits this counterexample."
+    },
+    {
+      "id": "backend-concurrency",
+      "disposition": "passed",
+      "evidence": "integration:pose-mcp/go/community-claims-hold-integration",
+      "rationale": "Native auto-attest preparation resolves this mechanical criterion from the sealed passing integration evidence. Inspected supplied strict delivery-validation.json: git_head beece2ffc47dbe25f80a4bc8fc4605d45e2db314, 183 executed/passed, zero failed/optional_failed/errored/skipped, outcome pass; actual matrix SHA256 216d61eee0f633ff130ed8142898611541b9276faa5ce20b15f63326ee4ea8fe matches. This is supplied evidence, not an independently repeated full matrix. Direct TestPublicClaimsFailsOnEveryShapeOfAStaleRelease passes. Direct TestPublicClaimsWithoutRetainedPublicationEvidenceSaysUnproven fails unknown versus unproven, as all prior reports noted. Token use for install release listing is user-reported."
+    },
+    {
+      "id": "backend-contracts",
+      "disposition": "passed",
+      "evidence": "integration:pose-mcp/go/community-claims-hold-integration",
+      "rationale": "Native auto-attest preparation resolves this mechanical criterion from the sealed passing integration evidence. Inspected supplied strict delivery-validation.json: git_head beece2ffc47dbe25f80a4bc8fc4605d45e2db314, 183 executed/passed, zero failed/optional_failed/errored/skipped, outcome pass; actual matrix SHA256 216d61eee0f633ff130ed8142898611541b9276faa5ce20b15f63326ee4ea8fe matches. This is supplied evidence, not an independently repeated full matrix. Direct TestPublicClaimsFailsOnEveryShapeOfAStaleRelease passes. Direct TestPublicClaimsWithoutRetainedPublicationEvidenceSaysUnproven fails unknown versus unproven, as all prior reports noted. Token use for install release listing is user-reported."
+    },
+    {
+      "id": "backend-input-errors",
+      "disposition": "passed",
+      "evidence": "integration:pose-mcp/go/community-claims-hold-integration",
+      "rationale": "Native auto-attest preparation resolves this mechanical criterion from the sealed passing integration evidence. Inspected supplied strict delivery-validation.json: git_head beece2ffc47dbe25f80a4bc8fc4605d45e2db314, 183 executed/passed, zero failed/optional_failed/errored/skipped, outcome pass; actual matrix SHA256 216d61eee0f633ff130ed8142898611541b9276faa5ce20b15f63326ee4ea8fe matches. This is supplied evidence, not an independently repeated full matrix. Direct TestPublicClaimsFailsOnEveryShapeOfAStaleRelease passes. Direct TestPublicClaimsWithoutRetainedPublicationEvidenceSaysUnproven fails unknown versus unproven, as all prior reports noted. Token use for install release listing is user-reported."
+    },
+    {
+      "id": "backend-integration-impact",
+      "disposition": "passed",
+      "evidence": "integration:pose-mcp/go/community-claims-hold-integration",
+      "rationale": "Native auto-attest preparation resolves this mechanical criterion from the sealed passing integration evidence. Inspected supplied strict delivery-validation.json: git_head beece2ffc47dbe25f80a4bc8fc4605d45e2db314, 183 executed/passed, zero failed/optional_failed/errored/skipped, outcome pass; actual matrix SHA256 216d61eee0f633ff130ed8142898611541b9276faa5ce20b15f63326ee4ea8fe matches. This is supplied evidence, not an independently repeated full matrix. Direct TestPublicClaimsFailsOnEveryShapeOfAStaleRelease passes. Direct TestPublicClaimsWithoutRetainedPublicationEvidenceSaysUnproven fails unknown versus unproven, as all prior reports noted. Token use for install release listing is user-reported."
+    },
+    {
+      "id": "backend-observability",
+      "disposition": "passed",
+      "evidence": "integration:pose-mcp/go/community-claims-hold-integration",
+      "rationale": "Native auto-attest preparation resolves this mechanical criterion from the sealed passing integration evidence. Inspected supplied strict delivery-validation.json: git_head beece2ffc47dbe25f80a4bc8fc4605d45e2db314, 183 executed/passed, zero failed/optional_failed/errored/skipped, outcome pass; actual matrix SHA256 216d61eee0f633ff130ed8142898611541b9276faa5ce20b15f63326ee4ea8fe matches. This is supplied evidence, not an independently repeated full matrix. Direct TestPublicClaimsFailsOnEveryShapeOfAStaleRelease passes. Direct TestPublicClaimsWithoutRetainedPublicationEvidenceSaysUnproven fails unknown versus unproven, as all prior reports noted. Token use for install release listing is user-reported."
+    },
+    {
+      "id": "compatibility",
+      "disposition": "passed",
+      "evidence": "integration:pose-mcp/go/community-claims-hold-integration",
+      "rationale": "The bounded history_block is additive and documented in both templates. The prior reports verify explicit block bounds and reader-visible release labels; no REST/event/MCP signature or dependency changes in this delta. Tightening false public claims is the declared compatibility behavior."
+    },
+    {
+      "id": "correctness",
+      "disposition": "finding",
+      "evidence": "b1",
+      "rationale": "At HEAD beece2ffc47dbe25f80a4bc8fc4605d45e2db314, a synthetic declared current-only README with candidate 7.4.1 and ![Release](https://img.shields.io/badge/release-v7.4.1-dev.1-blue) passes the HEAD-built CLI public-claims --strict --json with exit 0 and findings []. Equivalent rc.1 badge and rc.1/dev.1 prose exit 1. publicclaims.go:46 preserves only rc/alpha/beta/pre-prefixed badge suffixes, so R1 still loses valid prerelease identity. Scratch fixture: /var/tmp/pose-work-go/review-community-claims/close/claims-probe-0iv399p0. Sealed integration evidence passes its existing cases but omits this counterexample."
+    },
+    {
+      "id": "cross-component-integration",
+      "disposition": "passed",
+      "evidence": "integration:pose-mcp/go/community-claims-hold-integration",
+      "rationale": "Native auto-attest preparation resolves this mechanical criterion from the sealed passing integration evidence. Inspected supplied strict delivery-validation.json: git_head beece2ffc47dbe25f80a4bc8fc4605d45e2db314, 183 executed/passed, zero failed/optional_failed/errored/skipped, outcome pass; actual matrix SHA256 216d61eee0f633ff130ed8142898611541b9276faa5ce20b15f63326ee4ea8fe matches. This is supplied evidence, not an independently repeated full matrix. Direct TestPublicClaimsFailsOnEveryShapeOfAStaleRelease passes. Direct TestPublicClaimsWithoutRetainedPublicationEvidenceSaysUnproven fails unknown versus unproven, as all prior reports noted. Token use for install release listing is user-reported."
+    },
+    {
+      "id": "design-causality",
+      "disposition": "finding",
+      "evidence": "b1",
+      "rationale": "Explicit reader-visible claim extraction and bounded history address the original drift without scanning all prose. D1 correctly replaces simulated completion with actual gated demo close. The smallest form-only bypass now substitutes dev.1 for rc.1 in a badge: R1 is still unsatisfied. At HEAD beece2ffc47dbe25f80a4bc8fc4605d45e2db314, a synthetic declared current-only README with candidate 7.4.1 and ![Release](https://img.shields.io/badge/release-v7.4.1-dev.1-blue) passes the HEAD-built CLI public-claims --strict --json with exit 0 and findings []. Equivalent rc.1 badge and rc.1/dev.1 prose exit 1. publicclaims.go:46 preserves only rc/alpha/beta/pre-prefixed badge suffixes, so R1 still loses valid prerelease identity. Scratch fixture: /var/tmp/pose-work-go/review-community-claims/close/claims-probe-0iv399p0. Sealed integration evidence passes its existing cases but omits this counterexample.",
+      "mappings": [
+        {
+          "delta": "SD-3ed9b257",
+          "basis": "R1",
+          "disposition": "mapped",
+          "rationale": "The additive history_block template contract is documented in both copies and bounded by paired release-history markers; the remaining finding concerns release suffix extraction outside those markers."
+        }
+      ]
+    },
+    {
+      "id": "documentation",
+      "disposition": "finding",
+      "evidence": "b1",
+      "rationale": "Reviewed diff f3f85623..HEAD including tasks, requirement trace, final reports, assessments/state refreshes, raw-history operation-test change and cleanup pin. This spec marks R1 satisfied and claims preserved prerelease identity beyond what the badge extractor does. Follow-ups own timing, recording, contribution surfaces and external-surface decisions. Demo is explicitly scripted review."
+    },
+    {
+      "id": "operability",
+      "disposition": "finding",
+      "evidence": "b1",
+      "rationale": "Existing stale shapes produce actionable version findings and original rc.1 failures now work. The dev.1 badge silently passes, so the intended operator gate still admits a false claim. Inspected supplied strict delivery-validation.json: git_head beece2ffc47dbe25f80a4bc8fc4605d45e2db314, 183 executed/passed, zero failed/optional_failed/errored/skipped, outcome pass; actual matrix SHA256 216d61eee0f633ff130ed8142898611541b9276faa5ce20b15f63326ee4ea8fe matches. This is supplied evidence, not an independently repeated full matrix. Direct TestPublicClaimsFailsOnEveryShapeOfAStaleRelease passes. Direct TestPublicClaimsWithoutRetainedPublicationEvidenceSaysUnproven fails unknown versus unproven, as all prior reports noted. Token use for install release listing is user-reported."
+    },
+    {
+      "id": "requirements",
+      "disposition": "finding",
+      "evidence": "b1",
+      "rationale": "At HEAD beece2ffc47dbe25f80a4bc8fc4605d45e2db314, a synthetic declared current-only README with candidate 7.4.1 and ![Release](https://img.shields.io/badge/release-v7.4.1-dev.1-blue) passes the HEAD-built CLI public-claims --strict --json with exit 0 and findings []. Equivalent rc.1 badge and rc.1/dev.1 prose exit 1. publicclaims.go:46 preserves only rc/alpha/beta/pre-prefixed badge suffixes, so R1 still loses valid prerelease identity. Scratch fixture: /var/tmp/pose-work-go/review-community-claims/close/claims-probe-0iv399p0. Sealed integration evidence passes its existing cases but omits this counterexample."
+    },
+    {
+      "id": "scope",
+      "disposition": "finding",
+      "evidence": "b1",
+      "rationale": "I am the Codex reviewer of all rounds 1-3, recorded in review-round1-report.md, review-round2-report.md and review-round3-report.md beside this file. Those reports were read for continuity; earlier probes were not all rerun. This is declared reviewer continuity, not authenticated vendor identity. The saved round-three report requested changes, not approval at f3f85623. The supplied delta fixes its exact rc.1 examples but not the unrestricted prerelease guarantee in R1. Adjacent raw-history closeout is outside this attestation scope."
+    },
+    {
+      "id": "security",
+      "disposition": "finding",
+      "evidence": "b1",
+      "rationale": "Applied security, backend-go, documentation-style, delivery-evidence and knowledge-governance with the review workflow. No new dependency or authentication/concurrency interface is introduced; no new secret exposure observed in reviewed source diff. This supply-chain claim boundary still loses dev.1 identity; no new vulnerability scan is claimed."
+    },
+    {
+      "id": "solution-proportionality",
+      "disposition": "passed",
+      "evidence": "integration:pose-mcp/go/community-claims-hold-integration",
+      "rationale": "A bounded extractor with explicit history markers is smaller than scanning every version or building a Markdown parser. The suffix allowlist is insufficient; preserve valid prerelease identity while distinguishing badge color syntax, and add a regression. No generic framework or broader refactor is needed. A return of unsupported timing claims would require new measurements, not lexical tokens."
+    }
+  ],
+  "tools": [
+    {
+      "id": "artifact-check",
+      "disposition": "passed",
+      "evidence": "integration:pose-mcp/go/community-claims-hold-integration",
+      "rationale": "Native auto-attest preparation resolved this tool from the current sealed bundle; close --plan reports current sealed evidence/index. No separate fresh full artifact-check rerun is claimed."
+    },
+    {
+      "id": "assess-design",
+      "disposition": "not-used",
+      "rationale": "Optional broad assessment skipped for bounded delta review; direct source inspection, prior reports, native structural observation and concrete falsifiers address the material risks."
+    },
+    {
+      "id": "assess-discover",
+      "component": "docs-site",
+      "disposition": "not-used",
+      "rationale": "Optional broad assessment skipped for bounded delta review; direct source inspection, prior reports, native structural observation and concrete falsifiers address the material risks."
+    },
+    {
+      "id": "assess-discover",
+      "component": "examples",
+      "disposition": "not-used",
+      "rationale": "Optional broad assessment skipped for bounded delta review; direct source inspection, prior reports, native structural observation and concrete falsifiers address the material risks."
+    },
+    {
+      "id": "assess-discover",
+      "component": "pose-mcp",
+      "disposition": "not-used",
+      "rationale": "Optional broad assessment skipped for bounded delta review; direct source inspection, prior reports, native structural observation and concrete falsifiers address the material risks."
+    },
+    {
+      "id": "assess-discover",
+      "component": "tests",
+      "disposition": "not-used",
+      "rationale": "Optional broad assessment skipped for bounded delta review; direct source inspection, prior reports, native structural observation and concrete falsifiers address the material risks."
+    },
+    {
+      "id": "assess-integrate",
+      "disposition": "passed",
+      "evidence": "integration:pose-mcp/go/community-claims-hold-integration",
+      "rationale": "Read prior reports: required integration assessment ran in all three rounds; round two records 70 declarations, six active contracts and 64 consumer gaps. Discovery is not behavioral integration proof. No fresh assessment or new REST/event/MCP signature change is claimed."
+    },
+    {
+      "id": "assess-tech-debt",
+      "disposition": "passed",
+      "evidence": "integration:pose-mcp/go/community-claims-hold-integration",
+      "rationale": "Read prior reports: ran each round, zero uncovered markers but incomplete coverage on two legacy specs. Not a complete or newly repeated census."
+    },
+    {
+      "id": "closeout-check",
+      "disposition": "deferred",
+      "rationale": "Completion check follows attestation; close is not authorized and this review requests changes."
+    },
+    {
+      "id": "review-check",
+      "disposition": "deferred",
+      "rationale": "Completion check follows attestation; close is not authorized and this review requests changes."
+    },
+    {
+      "id": "suggest-review",
+      "component": "docs-site",
+      "disposition": "passed",
+      "evidence": "integration:pose-mcp/go/community-claims-hold-integration",
+      "rationale": "Rules selected from prior component suggestions and current review: backend-go for Go, security for claim integrity, documentation-style, delivery-evidence, knowledge-governance. No framework or infrastructure change."
+    },
+    {
+      "id": "suggest-review",
+      "component": "examples",
+      "disposition": "passed",
+      "evidence": "integration:pose-mcp/go/community-claims-hold-integration",
+      "rationale": "Rules selected from prior component suggestions and current review: backend-go for Go, security for claim integrity, documentation-style, delivery-evidence, knowledge-governance. No framework or infrastructure change."
+    },
+    {
+      "id": "suggest-review",
+      "component": "pose-mcp",
+      "disposition": "passed",
+      "evidence": "integration:pose-mcp/go/community-claims-hold-integration",
+      "rationale": "Rules selected from prior component suggestions and current review: backend-go for Go, security for claim integrity, documentation-style, delivery-evidence, knowledge-governance. No framework or infrastructure change."
+    },
+    {
+      "id": "suggest-review",
+      "component": "tests",
+      "disposition": "passed",
+      "evidence": "integration:pose-mcp/go/community-claims-hold-integration",
+      "rationale": "Rules selected from prior component suggestions and current review: backend-go for Go, security for claim integrity, documentation-style, delivery-evidence, knowledge-governance. No framework or infrastructure change."
+    },
+    {
+      "id": "surface-check",
+      "disposition": "passed",
+      "evidence": "integration:pose-mcp/go/community-claims-hold-integration",
+      "rationale": "Fresh HEAD-built CLI strict surface-check exited 0: targets=1, results=183, findings=0, provenance sha256:9b3c54bb50e4cce6d638075f2469ad079a2674a64aefb78ada34192cde5ecf0a. This mechanical result does not invalidate the dev.1 counterexample."
+    },
+    {
+      "id": "validate",
+      "disposition": "passed",
+      "evidence": "integration:pose-mcp/go/community-claims-hold-integration",
+      "rationale": "Inspected supplied strict delivery-validation.json: git_head beece2ffc47dbe25f80a4bc8fc4605d45e2db314, 183 executed/passed, zero failed/optional_failed/errored/skipped, outcome pass; actual matrix SHA256 216d61eee0f633ff130ed8142898611541b9276faa5ce20b15f63326ee4ea8fe matches. This is supplied evidence, not an independently repeated full matrix. Direct TestPublicClaimsFailsOnEveryShapeOfAStaleRelease passes. Direct TestPublicClaimsWithoutRetainedPublicationEvidenceSaysUnproven fails unknown versus unproven, as all prior reports noted. Token use for install release listing is user-reported."
+    },
+    {
+      "id": "validate",
+      "component": "docs-site",
+      "disposition": "not-used",
+      "rationale": "The sealed plan declares no registered producer for this component; no empty module validation is claimed as behavioral evidence. Cross-component behavior is covered by named Go integration checks and prior direct demo verification."
+    },
+    {
+      "id": "validate",
+      "component": "examples",
+      "disposition": "not-used",
+      "rationale": "The sealed plan declares no registered producer for this component; no empty module validation is claimed as behavioral evidence. Cross-component behavior is covered by named Go integration checks and prior direct demo verification."
+    },
+    {
+      "id": "validate",
+      "component": "pose-mcp",
+      "disposition": "passed",
+      "evidence": "integration:pose-mcp/go/community-claims-hold-integration",
+      "rationale": "Inspected supplied strict delivery-validation.json: git_head beece2ffc47dbe25f80a4bc8fc4605d45e2db314, 183 executed/passed, zero failed/optional_failed/errored/skipped, outcome pass; actual matrix SHA256 216d61eee0f633ff130ed8142898611541b9276faa5ce20b15f63326ee4ea8fe matches. This is supplied evidence, not an independently repeated full matrix. Direct TestPublicClaimsFailsOnEveryShapeOfAStaleRelease passes. Direct TestPublicClaimsWithoutRetainedPublicationEvidenceSaysUnproven fails unknown versus unproven, as all prior reports noted. Token use for install release listing is user-reported."
+    },
+    {
+      "id": "validate",
+      "component": "tests",
+      "disposition": "not-used",
+      "rationale": "The sealed plan declares no registered producer for this component; no empty module validation is claimed as behavioral evidence. Cross-component behavior is covered by named Go integration checks and prior direct demo verification."
+    }
+  ],
+  "evidence_refs": [
+    "integration:pose-mcp/go/community-claims-hold-integration"
+  ],
+  "findings": [
+    {
+      "id": "b1",
+      "severity": "medium",
+      "evidence": "integration:pose-mcp/go/community-claims-hold-integration",
+      "action": "Preserve valid prerelease suffixes in badge claims, including dev.1, without swallowing the badge color; add regression coverage and correct the R1 completion claim.",
+      "disposition": "open"
+    }
+  ],
+  "attribution": {
+    "schema_version": 1,
+    "prepared_by": "agent:independent-raw-and-claims-sol-20261102",
+    "concluded_by": "agent:independent-raw-and-claims-sol-20261102",
+    "applied_by": "agent:codex"
+  },
+  "attested_at": "2026-11-02T08:40:43Z",
+  "path": ".pose/review-attestations/rva-df057908662d846f.json"
+}

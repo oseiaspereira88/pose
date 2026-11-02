@@ -325,9 +325,12 @@ func TestPublicClaimsFailsOnEveryShapeOfAStaleRelease(t *testing.T) {
 		"[v0.0.1](https://github.com/o/p/releases/tag/v1.0.0)\n",
 		"The latest published release is 0.0.1.\n",
 		"![Release](https://img.shields.io/badge/release-0.0.1-blue)\n",
-		"[notes](https://github.com/o/p/releases/tag/v1.0.0-rc.1)\n",
-		"The latest published release is v1.0.0-rc.1.\n",
-		"![Release](https://img.shields.io/badge/release-v1.0.0-rc.1-blue)\n",
+		"[notes](https://github.com/o/p/releases/tag/v1.7.10-rc.1)\n",
+		"The latest published release is v1.7.10-rc.1.\n",
+		"![Release](https://img.shields.io/badge/release-v1.7.10-rc.1-blue)\n",
+		"![Release](https://img.shields.io/badge/release-v1.7.10-dev.1-blue)\n",
+		"![Release](https://img.shields.io/badge/release-v1.7.10-build.7-blue.svg?style=flat)\n",
+		"The latest published release is v1.7.10-dev.1.\n",
 	} {
 		root := t.TempDir()
 		writeClaimsFixture(t, root, `{"path":"README.md","version_claims":"current-only"}`)
@@ -335,6 +338,15 @@ func TestPublicClaimsFailsOnEveryShapeOfAStaleRelease(t *testing.T) {
 		if code, out := runClaims(t, root, "--strict"); code == 0 {
 			t.Errorf("a stale release passed as current: %q\n%s", body, out)
 		}
+	}
+}
+
+func TestACurrentBadgeWithItsColorPasses(t *testing.T) {
+	root := t.TempDir()
+	writeClaimsFixture(t, root, `{"path":"README.md","version_claims":"current-only"}`)
+	writeSurface(t, root, "README.md", "![Release](https://img.shields.io/badge/release-v1.7.10-blue)\n")
+	if code, out := runClaims(t, root, "--strict"); code != 0 {
+		t.Fatalf("a current badge failed: %s", out)
 	}
 }
 

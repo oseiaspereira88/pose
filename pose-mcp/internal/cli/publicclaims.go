@@ -43,7 +43,8 @@ var publicVersionPatterns = []*regexp.Regexp{
 	// what is current. A bare version in prose can be history, and is not a claim.
 	regexp.MustCompile(`releases/tag/v(\d+\.\d+\.\d+(?:-[0-9A-Za-z.]+)?)`),
 	regexp.MustCompile(`\[v?(\d+\.\d+\.\d+(?:-[0-9A-Za-z.]+)?)\]\([^)\s]*releases/(?:latest|tag/)`),
-	regexp.MustCompile(`badge/[^/\s)]*-v?(\d+\.\d+\.\d+(?:-(?:rc|alpha|beta|pre)[0-9A-Za-z.]*)?)`),
+	// In a badge the last segment is its color, and whatever stands before it is the version.
+	regexp.MustCompile(`badge/[^/\s)]*-v?(\d+\.\d+\.\d+(?:-[0-9A-Za-z.]+?)?)-[0-9A-Za-z]+(?:\.svg)?(?:[)?"\s]|$)`),
 	regexp.MustCompile(`(?i)\b(?:latest|current|newest|mais recente|atual)\b[^.\n]{0,80}?\bv?(\d+\.\d+\.\d+(?:-[0-9A-Za-z.]*[0-9A-Za-z])?)`),
 	// Action pins: `pose-action@v1.7.10`, including HTML-escaped `&#64;`.
 	regexp.MustCompile(`pose-action(?:@|&#64;)v(\d+\.\d+\.\d+)`),
@@ -68,8 +69,8 @@ type publicSurface struct {
 	VersionClaims string `json:"version_claims"`
 	// HistoryBlock declares that what stands between the release-history markers lists
 	// past releases, and names versions on purpose. Everything outside stays a claim.
-	HistoryBlock bool `json:"history_block,omitempty"`
-	Note          string `json:"note,omitempty"`
+	HistoryBlock bool   `json:"history_block,omitempty"`
+	Note         string `json:"note,omitempty"`
 }
 
 type publicClaimsContract struct {
