@@ -73,6 +73,7 @@ The integration review of `community-launch` found the public gate passing a REA
 - modified: README.pt-BR.md
 - modified: docs-site/docs/quickstart.md
 - modified: examples/demo/record.sh
+- modified: tests/hygiene/temp-cleanup.pins
 - modified: docs-site/docs/evolution.md
 - modified: pose-mcp/internal/scaffold/dist/.pose/templates/public-claims.json
 - modified: .pose/templates/public-claims.json
