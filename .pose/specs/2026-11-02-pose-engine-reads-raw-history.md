@@ -1,6 +1,6 @@
 ---
 slug: pose-engine-reads-raw-history
-status: in-progress
+status: done
 created_at: 2026-11-02
 supersedes:
 depends_on: pose-history-readers-read-raw
@@ -9,7 +9,7 @@ priority: 1
 components: pose-mcp
 task_type: bugfix
 delivers: capability:engine-reads-raw-history
-completed_at:
+completed_at: 2026-11-02
 ---
 
 # Spec: The engine reads raw history everywhere
