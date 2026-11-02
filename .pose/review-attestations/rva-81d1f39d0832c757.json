@@ -1,0 +1,121 @@
+{
+  "schema_version": 1,
+  "attestation_id": "rva-81d1f39d0832c757",
+  "bundle_id": "rvb-59353b639e492c00",
+  "bundle_digest": "sha256:59353b639e492c000f0f8b0da4fe853fa7140e9b5c3be5563cb70921ad32f9b8",
+  "reviewer": "agent:independent-reached-milestones-sol-20261101",
+  "decision": "approved",
+  "criteria": [
+    {
+      "id": "cross-component-integration",
+      "disposition": "passed",
+      "evidence": "integration:pose-mcp/go/governed-effects-integration",
+      "rationale": "Mechanical auto-attest preview found current sealed integration evidence for this criterion; independent code inspection and focused replay support composition. Supplied strict run is distinct from sandbox replay."
+    },
+    {
+      "id": "exit-gate",
+      "disposition": "passed",
+      "evidence": "integration:pose-mcp/go/governed-effects-integration",
+      "rationale": "Inspected governed_effects.go, readiness_phases.go, start, closeout and release domain write points and transfer retirement. Independent CLI/MCP vertical probe passes for material R4, Attention IDs, localized restriction, authority refusal, satisfaction/release and material-change invalidation. Existing targeted tests pass for no-adoption, legacy Ready, stale preview, declined answer and interrupted-transfer idempotence. MCP signed-answer test passes separately; declared CLI assurance is disclosed. No pilot adoption or broad rollout is approved."
+    },
+    {
+      "id": "integration",
+      "disposition": "passed",
+      "evidence": "integration:pose-mcp/go/governed-effects-integration",
+      "rationale": "Mechanical auto-attest preview found current sealed integration evidence for this criterion; independent code inspection and focused replay support composition. Supplied strict run is distinct from sandbox replay."
+    },
+    {
+      "id": "membership",
+      "disposition": "passed",
+      "evidence": "integration:pose-mcp/go/governed-effects-integration",
+      "rationale": "Roadmap membership matches the delivered contract split. Independently ran review verify for every child: all 3 members are closed, fresh and approved at HEAD; none has lost standing. Historical retained review assurance is declared, not authenticated independence. See individual child verify logs in independent-sol."
+    },
+    {
+      "id": "regression",
+      "disposition": "passed",
+      "evidence": "integration:pose-mcp/go/governed-effects-integration",
+      "rationale": "Current targeted run and HEAD parent 2552233a8e58fe5e2af09702d70ec1ba7f0b3435 control each pass 501 tests and have the identical failure set. Supplied strict delivery-validation at 59358c28 reports 184/184 pass with matching actual matrix hash and sealed provenance; independently inspected, not independently reproduced green. Inspected later action proof, scope, lifecycle, recovery and producer-coverage code/tests; no demonstrated functional regression in the milestone contract. Independent vertical and corpus mutation probes supplement historical member approvals. Full uncached suites now completed: HEAD and control each have 3382 passing tests, the identical 333 failed test names and 13 skips; no HEAD-only failure. Fresh strict module matrix also completed with 129/181 passing and 52 failed checks; this sandbox run is not green. Failures are reported separately from supplied sealed evidence; full-suite failure identities match control exactly."
+    },
+    {
+      "id": "residual-risk",
+      "disposition": "passed",
+      "evidence": "integration:pose-mcp/go/governed-effects-integration",
+      "rationale": "All three members record no open follow-ups. Risks remain false precision, over-blocking and transfer remapping. Conservative phase wording, explicit per-instance adoption and transfer preview/retirement mitigate them. Pilot stop/go is a separate release/adoption condition; this review authorizes no adoption. Full broad validation replay remains sandbox limited."
+    }
+  ],
+  "tools": [
+    {
+      "id": "assess-discover",
+      "component": "docs-site",
+      "disposition": "not-used",
+      "rationale": "Recommended inventory skipped: this is a fixed historical milestone; current source, child bundles and targeted integration are inspected directly."
+    },
+    {
+      "id": "assess-discover",
+      "component": "pose-mcp",
+      "disposition": "not-used",
+      "rationale": "Recommended inventory skipped: this is a fixed historical milestone; current source, child bundles and targeted integration are inspected directly."
+    },
+    {
+      "id": "assess-integrate",
+      "disposition": "passed",
+      "evidence": "integration:pose-mcp/go/governed-effects-integration",
+      "rationale": "Fresh scratch assessment exits 0; static unobserved-provider warnings are disclosed, with actual CLI/MCP and domain tests used for integration."
+    },
+    {
+      "id": "assess-tech-debt",
+      "disposition": "passed",
+      "evidence": "integration:pose-mcp/go/governed-effects-integration",
+      "rationale": "Fresh scratch assessment exits 0: one covered marker; scan explicitly incomplete for two unrelated invalid legacy specs. No zero-debt claim."
+    },
+    {
+      "id": "closeout-check",
+      "disposition": "deferred",
+      "rationale": "Completion check follows applied attestation; no close requested."
+    },
+    {
+      "id": "review-check",
+      "disposition": "deferred",
+      "rationale": "Completion check follows applied attestation; no close requested."
+    },
+    {
+      "id": "suggest-review",
+      "component": "docs-site",
+      "disposition": "passed",
+      "evidence": "integration:pose-mcp/go/governed-effects-integration",
+      "rationale": "Fresh component-specific suggestion read; security, backend Go and documentation rules selected; process knowledge consulted."
+    },
+    {
+      "id": "suggest-review",
+      "component": "pose-mcp",
+      "disposition": "passed",
+      "evidence": "integration:pose-mcp/go/governed-effects-integration",
+      "rationale": "Fresh component-specific suggestion read; security, backend Go and documentation rules selected; process knowledge consulted."
+    },
+    {
+      "id": "validate",
+      "component": "docs-site",
+      "disposition": "not-used",
+      "rationale": "Matrix explicitly replaces docs-site defaults with an empty checks list; fresh strict docs-site validation exits 0 with no producer coverage."
+    },
+    {
+      "id": "validate",
+      "component": "pose-mcp",
+      "disposition": "passed",
+      "evidence": "integration:pose-mcp/go/governed-effects-integration",
+      "rationale": "Supplied strict HEAD report inspected: 184 executed and passed, actual matrix hash matches. Fresh targeted/control failures match; no independent full green sandbox run claimed."
+    }
+  ],
+  "evidence_refs": [
+    "integration:pose-mcp/go/governed-effects-integration"
+  ],
+  "findings": [],
+  "attribution": {
+    "schema_version": 1,
+    "prepared_by": "agent:independent-reached-milestones-sol-20261101",
+    "concluded_by": "agent:independent-reached-milestones-sol-20261101",
+    "applied_by": "agent:codex"
+  },
+  "attested_at": "2026-11-02T14:38:57Z",
+  "path": ".pose/review-attestations/rva-81d1f39d0832c757.json"
+}
