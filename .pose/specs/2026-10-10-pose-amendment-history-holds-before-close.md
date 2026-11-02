@@ -116,6 +116,8 @@ Implemented and natively closed on 2026-10-24 the existing R1–R3 as the prereq
 
 Explicit `--baseline` retains its existing current-state semantics; review must judge materiality. Cooperative locking cannot prevent arbitrary filesystem edits. Append/Sync failure is surfaced without truncation; inspect partial journals explicitly. No journal remains opt-out. B11 still owns semantic terminal verification and plan/transport parity; this prerequisite does not claim that delivery.
 
+R3 is historical: D4 of `pose-milestone-closes-when-reached` made the finding a failure of strict lint, and the test cited above now measures that.
+
 ### Follow-ups
 
 - [open] Extend the generic adversarial corpus with first-amendment/start and preclose-history cases; permanent regression producer already covers R1–R3. (owner:@pose-maintainers crit:low review:2026-11-08)

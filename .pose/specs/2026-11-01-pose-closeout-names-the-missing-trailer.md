@@ -116,4 +116,4 @@ The evidence blocker depends on the prefix of another blocker, through one const
 
 ### Follow-ups
 
-- [open] F1: For a spec with a change set, `assess-design` evidence fills the list, so the empty-evidence blocker does not establish that validation ran. Decide whether it should distinguish them (review R2-F9). (owner:@oseiaspereira88 crit:medium review:2026-11-27)
+- [covered: pose-evidence-gate-means-validation] F1: For a spec with a change set, `assess-design` evidence fills the list, so the empty-evidence blocker does not establish that validation ran. Decide whether it should distinguish them (review R2-F9).

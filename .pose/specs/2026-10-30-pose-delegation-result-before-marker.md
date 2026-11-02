@@ -107,5 +107,5 @@ A heartbeat in flight when a run stops can recreate the marker it removed (F1, p
 ### Follow-ups
 
 
-- [open] F1: join a run's heartbeat watcher, or share its lock, before the active marker is removed, so an in-flight heartbeat cannot recreate a removed marker (review round 1, F04; reproduced with a scheduling probe on code before this spec). Next engine spec. (owner:@oseiaspereira88 crit:medium review:2026-11-06)
+- [covered: pose-delegation-marker-stop-joins-heartbeat] F1: join a run's heartbeat watcher, or share its lock, before the active marker is removed, so an in-flight heartbeat cannot recreate a removed marker (review round 1, F04; reproduced with a scheduling probe on code before this spec). Next engine spec.
 - [open] F2: decide whether a run's private live events are kept, bounded, when its record cannot be published, or document them as ephemeral even then (review round 1, F03). (owner:@oseiaspereira88 crit:low review:2026-11-27)

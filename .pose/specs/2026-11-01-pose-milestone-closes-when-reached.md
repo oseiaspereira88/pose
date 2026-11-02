@@ -177,4 +177,4 @@ Attention verifies nothing, so an approval gone stale is reported by the close o
 ### Follow-ups
 
 - [open] F1: `pose state --attention` lists 42 reached milestones on roadmaps not yet done. Close them through their gates, or record why they stay open (review R2-F8). (owner:@oseiaspereira88 crit:medium review:2026-11-27)
-- [open] F2: Annotate the historical R3 of `pose-amendment-history-holds-before-close` and name the test after the present contract (review R2-F7). (owner:@oseiaspereira88 crit:low review:2026-11-27)
+- [done] F2: Annotate the historical R3 of `pose-amendment-history-holds-before-close` and name the test after the present contract (review R2-F7).

@@ -72,8 +72,8 @@ The gate asks whether the evidence of a bundle is empty. Design evidence, which 
 - modified: .pose/specs/2026-11-01-pose-closeout-names-the-missing-trailer.md
 - modified: .pose/specs/2026-11-01-pose-milestone-closes-when-reached.md
 - modified: .pose/specs/2026-10-10-pose-amendment-history-holds-before-close.md
-- modified: .pose/specs/2026-10-31-pose-delegation-result-before-marker.md
-- modified: .pose/specs/2026-10-31-pose-cli-test-wall-time.md
+- modified: .pose/specs/2026-10-30-pose-delegation-result-before-marker.md
+- modified: .pose/specs/2026-10-30-pose-cli-test-wall-time.md
 
 ### Delivery targets
 

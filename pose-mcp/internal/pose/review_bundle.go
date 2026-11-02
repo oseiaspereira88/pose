@@ -524,7 +524,7 @@ func (s Store) prepareReviewBundle(ref string, legacyMilestoneManifest bool) (Re
 		}
 		// Without a change set no evidence can be attributed: that blocker already
 		// names the cause, and a second one would send the operator to re-validate.
-		if !reportsMissingChangeSet(bundle.Blockers) && len(bundle.Payload.Evidence) == 0 && s.reviewScopeRequiresValidationEvidence(scope, bundle.Payload.Plan, graph) {
+		if !reportsMissingChangeSet(bundle.Blockers) && !holdsValidationResult(bundle.Payload.Evidence) && s.reviewScopeRequiresValidationEvidence(scope, bundle.Payload.Plan, graph) {
 			bundle.Blockers = append(bundle.Blockers, "no passed structured validation evidence is attributed to the review scope")
 		}
 		bundle.Warnings = append(bundle.Warnings, staleEvidenceWarnings(bundle.Payload.Subject, bundle.Payload.Evidence)...)
@@ -1628,6 +1628,17 @@ func (s Store) reviewBundleEvidence(scope ScopeRef, graph DeliveryIntegrityGraph
 	return result
 }
 
+// holdsValidationResult reports evidence of a run. What the engine derives from the
+// subject answers structural criteria and says nothing of whether anything ran.
+func holdsValidationResult(evidence []ReviewBundleEvidence) bool {
+	for _, ev := range evidence {
+		if !strings.HasPrefix(ev.Report, "derived:") {
+			return true
+		}
+	}
+	return false
+}
+
 func (s Store) reviewScopeRequiresValidationEvidence(scope ScopeRef, plan ReviewBundlePlan, graph DeliveryIntegrityGraph) bool {
 	switch scope.Kind {
 	case "spec":
@@ -2637,7 +2648,7 @@ func (s Store) prepareReviewAttestation(bundleID, reviewer string, now time.Time
 	scope, _ := ParseScopeRef(bundle.Payload.Scope.Ref)
 	graph, _ := s.GetDeliveryIntegrity("")
 	requiresEvidence := s.reviewScopeRequiresValidationEvidence(scope, bundle.Payload.Plan, graph)
-	if len(bundle.Payload.Evidence) == 0 && requiresEvidence {
+	if !holdsValidationResult(bundle.Payload.Evidence) && requiresEvidence {
 		return ReviewAttestation{}, nil, fmt.Errorf("pose: bundle %s has no passed structured validation evidence", bundleID)
 	}
 	evidenceRefs := make([]string, 0, len(bundle.Payload.Evidence))

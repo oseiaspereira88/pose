@@ -113,5 +113,5 @@ The package remains serial, so most of its time is the sum of many short tests. 
 
 ### Follow-ups
 
-- [open] F1: write the continuation result receipt before removing a run's active marker, keeping the marker when the receipt fails, so a waiter never reads a terminal run without its receipt (review round 1, F01; reproduced on code before this spec). Next engine bugfix spec. (owner:@oseiaspereira88 crit:high review:2026-11-06)
+- [covered: pose-delegation-result-before-marker] F1: write the continuation result receipt before removing a run's active marker, keeping the marker when the receipt fails, so a waiter never reads a terminal run without its receipt (review round 1, F01; reproduced on code before this spec). Next engine bugfix spec.
 - [open] F2: make `Main` take its working directory instead of tests changing the process's, so `internal/cli` tests can run in parallel. (owner:@oseiaspereira88 crit:medium review:2026-11-27)
