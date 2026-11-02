@@ -100,12 +100,12 @@ Reviewing the 42 reached milestones took a night and 145 thousand lines of bundl
 
 ## 4. Tasks
 
-- [ ] Inherit in the one verification every reader uses
-- [ ] Carry the exit gate into the review of the spec
-- [ ] Let a roadmap declare unreviewed milestones
-- [ ] Measure every milestone of this repository, old reader against new
-- [ ] Update the closeout skill
-- [ ] Independent review and closeout
+- [x] Inherit in the one verification every reader uses
+- [x] Carry the exit gate into the review of the spec
+- [x] Let a roadmap declare unreviewed milestones
+- [x] Measure every milestone of this repository, old reader against new
+- [x] Update the closeout skill
+- [x] Independent review and closeout
 
 ## 5. Decisions
 
@@ -141,17 +141,24 @@ Integration tests over real bundles for each reader, seen failing first, and eve
 
 ### Requirement trace
 
-- R1 [planned] capability:milestone-review-proportional evidence:integration check:milestone-review-proportional-integration test:TestOneMemberMilestoneInheritsItsSpec test:TestAMilestoneDoesNotInheritAnOpenOrUnapprovedSpec test:TestAnApprovedOpenSpecIsNotInherited test:TestAPolicyWithoutBundlesKeepsItsOwnAnswer test:TestAMilestoneInheritsNoAcceptance test:TestCloseOfAnInheritingMilestonesSpecNamesTheRoadmap
-- R2 [planned] check:milestone-review-proportional-integration test:TestANegativeReviewOfAMilestoneStands test:TestARecordedMilestoneApprovalStays test:TestARecordedLegacyRefusalStands
-- R3 [planned] check:milestone-review-proportional-integration test:TestOtherMilestonesOweTheirReview
-- R4 [planned] check:milestone-review-proportional-integration test:TestTheSpecAnswersForTheExitGate test:TestEachExitGateHasItsOwnCriterion
-- R5 [planned] check:milestone-review-proportional-integration test:TestARoadmapDeclaresUnreviewedMilestones test:TestTheReasonIsSealedByTheRoadmap test:TestARetainedRoadmapDoesNotCoverADeclarationItNeverRead test:TestADeclarationRescuesATerminalSingleton test:TestAnExternalConsumerHoldsTheRoadmapOfADeclaredMilestone
-- R6 [planned] check:milestone-review-proportional-integration test:TestRoadmapSealsOverInheritedMilestones test:TestRoadmapSealsOverADeclaredMilestone test:TestAttentionKeepsWhatDoesNotStand test:TestAttentionKeepsLegacyRefusals
+- R1 [satisfied] capability:milestone-review-proportional evidence:integration check:milestone-review-proportional-integration test:TestOneMemberMilestoneInheritsItsSpec test:TestAMilestoneDoesNotInheritAnOpenOrUnapprovedSpec test:TestAnApprovedOpenSpecIsNotInherited test:TestAPolicyWithoutBundlesKeepsItsOwnAnswer test:TestAMilestoneInheritsNoAcceptance test:TestCloseOfAnInheritingMilestonesSpecNamesTheRoadmap report:.pose/results/delivery-validation.json commit:117c1c0068b7851841228686f6e0445640c4da08
+- R2 [satisfied] check:milestone-review-proportional-integration test:TestANegativeReviewOfAMilestoneStands test:TestARecordedMilestoneApprovalStays test:TestARecordedLegacyRefusalStands report:.pose/results/delivery-validation.json commit:117c1c0068b7851841228686f6e0445640c4da08
+- R3 [satisfied] check:milestone-review-proportional-integration test:TestOtherMilestonesOweTheirReview report:.pose/results/delivery-validation.json commit:117c1c0068b7851841228686f6e0445640c4da08
+- R4 [satisfied] check:milestone-review-proportional-integration test:TestTheSpecAnswersForTheExitGate test:TestEachExitGateHasItsOwnCriterion report:.pose/results/delivery-validation.json commit:117c1c0068b7851841228686f6e0445640c4da08
+- R5 [satisfied] check:milestone-review-proportional-integration test:TestARoadmapDeclaresUnreviewedMilestones test:TestTheReasonIsSealedByTheRoadmap test:TestARetainedRoadmapDoesNotCoverADeclarationItNeverRead test:TestADeclarationRescuesATerminalSingleton test:TestAnExternalConsumerHoldsTheRoadmapOfADeclaredMilestone report:.pose/results/delivery-validation.json commit:117c1c0068b7851841228686f6e0445640c4da08
+- R6 [satisfied] check:milestone-review-proportional-integration test:TestRoadmapSealsOverInheritedMilestones test:TestRoadmapSealsOverADeclaredMilestone test:TestAttentionKeepsWhatDoesNotStand test:TestAttentionKeepsLegacyRefusals test:TestALegacyApprovalDoesNotEraseABundleRefusal test:TestALaterLegacyApprovalReplacesALegacyRefusal test:TestReachedListsAnUnapprovedSingleton report:.pose/results/delivery-validation.json commit:117c1c0068b7851841228686f6e0445640c4da08
 
 ## 7. Final Report
 
 ### Delivered scope
 
+A milestone of one local member has no review of its own: it stands on the closed, approved review of its spec, through the one verification that `review verify`, closeout, the review of a roadmap and the federated proof read, and `approval_origin` says so. It inherits a review and nothing else: its edges still have to hold, and a refusal recorded on it, in a bundle or a legacy attempt, stands. An open spec answers for the exit gate of its milestone. A roadmap can declare why old milestones stand unreviewed, and its bundle seals that reason, so a retained approval does not cover a declaration it never read. Of 171 milestone and roadmap scopes here, none fell and 16 rose, each judged correct by the reviewer. Independently reviewed by Codex in three rounds, which found ten blockers between them, from a failed acceptance erased by inheritance to a legacy approval hiding a recorded refusal.
+
 ### Residual risks
 
+The review of a one-member milestone that happened to come later is gone, and the review of the roadmap is where a second look now belongs. The exit gate is a judgment, which a reviewer can answer as not applicable with a rationale. `pose state --attention` reads records and does not verify, so its list can differ from a verification on a stale approval. A policy without bundles keeps its own answer.
+
 ### Follow-ups
+
+- [open] F1: Add a representative cost measure of roadmap preparation, with distinct members and gates: reviewed sizes took up to two seconds and no budget exists (review R2-F2). (owner:@oseiaspereira88 crit:low review:2026-11-27)
+- [open] F2: Add a milestone-gate case to the adversarial corpus and a journey test of the gate criterion on a fresh install (review R2-F3). (owner:@oseiaspereira88 crit:low review:2026-11-27)
