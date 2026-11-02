@@ -1,6 +1,7 @@
 ---
 slug: record-truthfulness
 status: active
+unreviewed_milestones: lifecycle-truth cannot seal a bundle of its own, because commit 7220bc64 carried the trailer of pose-open-backlog-reconciliation while creating three fragments of other specs, and the guard of pose-review-archive-coattributed-fragments R3 rightly refuses that disjoint attribution; every other milestone here is reviewed (decision D2 of pose-roadmap-reviews-findings)
 created_at: 2026-10-04
 depends_on:
 ---
