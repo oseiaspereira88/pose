@@ -2231,7 +2231,7 @@
         {
           "name": "milestone-review-proportional-integration",
           "program": "go",
-          "args": ["test", "./internal/pose", "-run", "TestOneMemberMilestoneInheritsItsSpec|TestANegativeReviewOfAMilestoneStands|TestARecordedMilestoneApprovalStays|TestOtherMilestonesOweTheirReview|TestTheSpecAnswersForTheExitGate|TestARoadmapDeclaresUnreviewedMilestones|TestRoadmapSealsOverInheritedMilestones", "-count=1"],
+          "args": ["test", "./internal/pose", "./internal/cli", "-run", "TestAMilestoneInheritsNoAcceptance|TestCloseOfAnInheritingMilestonesSpecNamesTheRoadmap|TestOneMemberMilestoneInheritsItsSpec|TestANegativeReviewOfAMilestoneStands|TestARecordedMilestoneApprovalStays|TestOtherMilestonesOweTheirReview|TestTheSpecAnswersForTheExitGate|TestARoadmapDeclaresUnreviewedMilestones|TestRoadmapSealsOverInheritedMilestones", "-count=1"],
           "severity": "required",
           "evidenceClass": "integration"
         },

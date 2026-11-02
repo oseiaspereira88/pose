@@ -12,6 +12,7 @@ var reviewFixtureNow = time.Date(2026, 9, 26, 18, 0, 0, 0, time.UTC)
 func inheritedFixture(t *testing.T) (string, Store) {
 	t.Helper()
 	root, s, _, _ := federatedTestMilestoneConsumer(t)
+	editRoadmapFixture(t, root, "- specs: backend, xref:source/spec:backend\n", "- specs: backend\n")
 	approveMember(t, s, reviewFixtureNow)
 	return root, s
 }
@@ -41,7 +42,8 @@ func TestOneMemberMilestoneInheritsItsSpec(t *testing.T) {
 }
 
 func TestAMilestoneDoesNotInheritAnOpenOrUnapprovedSpec(t *testing.T) {
-	_, s, _, _ := federatedTestMilestoneConsumer(t)
+	root, s, _, _ := federatedTestMilestoneConsumer(t)
+	editRoadmapFixture(t, root, "- specs: backend, xref:source/spec:backend\n", "- specs: backend\n")
 	if verification, err := s.VerifyReviewBundle("milestone:program/core"); err == nil && verification.Approved {
 		t.Fatalf("a milestone inherited a review that does not exist: %+v", verification)
 	}
@@ -75,6 +77,22 @@ func TestARecordedMilestoneApprovalStays(t *testing.T) {
 	}
 	if !verification.Approved || verification.inherited || verification.Bundle == nil || verification.Bundle.Payload.Scope.Ref != "milestone:program/core" {
 		t.Fatalf("a recorded approval was replaced: %+v", verification)
+	}
+}
+
+func TestAMilestoneInheritsNoAcceptance(t *testing.T) {
+	root, s := inheritedFixture(t)
+	federatedTestTrust(t, root, map[string]FederatedProjectTrust{})
+	federatedTestGit(t, root, "add", "--all")
+	federatedTestGit(t, root, "commit", "-q", "-m", "revoke")
+	if verification, err := s.VerifyReviewBundle("milestone:program/core"); err == nil && verification.Approved {
+		t.Fatalf("a milestone inherited over revoked trust: %+v", verification)
+	}
+	root2, s2 := inheritedFixture(t)
+	federatedTestWrite(t, root2, ".pose/roadmaps/open.md", "---\nslug: open\nstatus: active\n---\n\n# Open\n")
+	editRoadmapFixture(t, root2, "## Milestone: core\n", "## Milestone: core\n- after: roadmap:open\n")
+	if verification, err := s2.VerifyReviewBundle("milestone:program/core"); err == nil && verification.Approved {
+		t.Fatalf("a milestone inherited over an open predecessor: %+v", verification)
 	}
 }
 

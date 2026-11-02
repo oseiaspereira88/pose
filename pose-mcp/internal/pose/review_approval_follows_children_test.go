@@ -31,6 +31,7 @@ func commitReviewFixture(t *testing.T, root, body string) {
 func approvedParentFixture(t *testing.T, current bool) (string, Store, ReviewBundle, ReviewBundle, time.Time) {
 	t.Helper()
 	root, s, _, _ := federatedTestMilestoneConsumer(t)
+	editRoadmapFixture(t, root, "- specs: backend, xref:source/spec:backend\n", "- specs: backend\n")
 	s.FederatedResolver = nil
 	now := time.Date(2026, 9, 26, 18, 0, 0, 0, time.UTC)
 	child, err := s.SealReviewBundle("spec:backend", now)

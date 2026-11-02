@@ -1945,6 +1945,13 @@ func nextCloses(store posemodel.Store, ref string) []string {
 		for _, milestone := range reached {
 			next = append(next, "pose close "+milestone)
 		}
+		roadmaps, err := store.RoadmapsReachedBy(scope.Slug)
+		if err != nil {
+			return []string{"unavailable: " + err.Error()}
+		}
+		for _, roadmap := range roadmaps {
+			next = append(next, "pose close roadmap:"+roadmap)
+		}
 	case "milestone":
 		if store.RoadmapReached(scope.Roadmap) {
 			next = append(next, "pose close roadmap:"+scope.Roadmap)

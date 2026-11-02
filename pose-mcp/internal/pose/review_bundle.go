@@ -3356,6 +3356,14 @@ func (s Store) proportionalReviewVerification(scope string) (ReviewBundleVerific
 	if bundle, _ := s.latestNegativeReview(scope); bundle != nil {
 		return own, nil
 	}
+	// Edges still bind: a milestone inherits a review, not the acceptance of what it
+	// depends on, and revoked trust or an open predecessor leaves it where it was.
+	if s.FederatedResolver != nil {
+		acceptance, err := s.FederatedMilestoneAcceptance(s.FederatedProjectID, ref.Roadmap, ref.Milestone, *s.FederatedResolver)
+		if err != nil || !acceptance.Ready {
+			return own, nil
+		}
+	}
 	if member, ok := s.soleMemberOf(ref); ok {
 		child, err := s.verifyReviewBundle("spec:" + member)
 		if err != nil || child.State != "closed" || !child.Fresh || !child.Approved {

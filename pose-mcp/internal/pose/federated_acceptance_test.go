@@ -795,7 +795,7 @@ func federatedTestMilestoneConsumer(t *testing.T) (string, Store, FederatedProje
 		t.Fatal(err)
 	}
 	federatedTestWrite(t, root, ".pose/specs/pending.md", "---\nslug: pending\nstatus: draft\ncreated_at: 2026-09-26\n---\n\n# Spec: pending\n")
-	federatedTestWrite(t, root, ".pose/roadmaps/program.md", "---\nslug: program\nstatus: active\nconsumes: xref:source/roadmap:component\n---\n\n## Milestone: core\n- specs: backend\n\n## Milestone: later\n- after: core\n- specs: pending\n")
+	federatedTestWrite(t, root, ".pose/roadmaps/program.md", "---\nslug: program\nstatus: active\nconsumes: xref:source/roadmap:component\n---\n\n## Milestone: core\n- specs: backend, xref:source/spec:backend\n\n## Milestone: later\n- after: core\n- specs: pending\n")
 	federatedTestTrust(t, root, map[string]FederatedProjectTrust{"source": trust})
 	if _, err := os.Stat(filepath.Join(root, ".git")); err != nil {
 		federatedTestGit(t, root, "init", "-q")

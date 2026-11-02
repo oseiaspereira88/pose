@@ -81,6 +81,10 @@ Reviewing the 42 reached milestones took a night and 145 thousand lines of bundl
 - modified: pose-mcp/internal/scaffold/dist/.agents/skills/pose-spec-closeout/SKILL.md
 - modified: pose-mcp/internal/scaffold/dist/locales/pt-BR/.agents/skills/pose-spec-closeout/SKILL.md
 - created: pose-mcp/internal/pose/milestone_review_proportional_test.go
+- modified: pose-mcp/internal/pose/federated_acceptance_test.go
+- modified: pose-mcp/internal/pose/review_approval_follows_children_test.go
+- modified: pose-mcp/internal/cli/review_closeout.go
+- modified: pose-mcp/internal/cli/milestone_closes_when_reached_test.go
 
 ### Delivery targets
 
@@ -133,7 +137,7 @@ Integration tests over real bundles for each reader, seen failing first, and eve
 
 ### Requirement trace
 
-- R1 [planned] capability:milestone-review-proportional evidence:integration check:milestone-review-proportional-integration test:TestOneMemberMilestoneInheritsItsSpec
+- R1 [planned] capability:milestone-review-proportional evidence:integration check:milestone-review-proportional-integration test:TestOneMemberMilestoneInheritsItsSpec test:TestAMilestoneInheritsNoAcceptance test:TestCloseOfAnInheritingMilestonesSpecNamesTheRoadmap
 - R2 [planned] check:milestone-review-proportional-integration test:TestANegativeReviewOfAMilestoneStands test:TestARecordedMilestoneApprovalStays
 - R3 [planned] check:milestone-review-proportional-integration test:TestOtherMilestonesOweTheirReview
 - R4 [planned] check:milestone-review-proportional-integration test:TestTheSpecAnswersForTheExitGate

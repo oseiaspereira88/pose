@@ -53,6 +53,11 @@ func (s Store) ReachedMilestones(spec string) ([]string, error) {
 	}
 	reached := []string{}
 	for _, ref := range candidates {
+		if parsed, err := ParseScopeRef(ref); err == nil {
+			if _, inherits := s.soleMemberOf(parsed); inherits {
+				continue
+			}
+		}
 		approved, err := s.scopeApproved(ref)
 		if err != nil {
 			return reached, err
@@ -260,14 +265,44 @@ func (s Store) latestBundlesOf(refs []string) (map[string][]string, error) {
 	return latest, nil
 }
 
-// RoadmapReached reports that every milestone of a roadmap not yet done is
-// approved, so `pose close roadmap:` is the next step.
+// RoadmapsReachedBy lists the roadmaps a spec leaves with every milestone approved, which
+// the close of a member names when its milestone inherits its approval.
+func (s Store) RoadmapsReachedBy(spec string) ([]string, error) {
+	roadmaps, err := s.ListRoadmaps()
+	if err != nil {
+		return nil, err
+	}
+	found := []string{}
+	for _, rm := range roadmaps {
+		for _, milestone := range rm.Milestones {
+			if member, ok := s.soleMemberOf(ScopeRef{Kind: "milestone", Roadmap: rm.Slug, Milestone: milestone.ID}); ok && member == spec {
+				if s.roadmapReachedApartFrom(rm.Slug, milestone.ID) {
+					found = append(found, rm.Slug)
+				}
+				break
+			}
+		}
+	}
+	return found, nil
+}
+
+// RoadmapReached reports that every milestone of a roadmap not yet done is approved, so
+// `pose close roadmap:` is the next step.
 func (s Store) RoadmapReached(slug string) bool {
+	return s.roadmapReachedApartFrom(slug, "")
+}
+
+// roadmapReachedApartFrom leaves out one milestone: the close of its only member has
+// just run and is not committed, so its verification cannot answer yet.
+func (s Store) roadmapReachedApartFrom(slug, closing string) bool {
 	rm, err := s.GetRoadmap(slug)
 	if err != nil || rm.Status == "done" || len(rm.Milestones) == 0 {
 		return false
 	}
 	for _, milestone := range rm.Milestones {
+		if milestone.ID == closing {
+			continue
+		}
 		if approved, err := s.scopeApproved("milestone:" + slug + "/" + milestone.ID); err != nil || !approved {
 			return false
 		}

@@ -23,7 +23,8 @@ func reachedMilestoneFixture(t *testing.T) string {
 	mustWrite(t, policy, strings.Replace(string(raw), `"profiles":{"spec":"spec-closeout@2"},`, `"profiles":{"spec":"spec-closeout@2","milestone":"milestone-integration@1"},`, 1))
 	writeCloseoutCLIFile(t, root, ".pose/review-profiles/milestone-integration.json", `{"schema_version":2,"id":"milestone-integration","version":1,"scope":"milestone","criteria":[{"id":"correctness","description":"reviewed","evidence_classes":["unit"]}]}`)
 	writeCloseoutCLIFile(t, root, ".pose/specs/waiting/spec.md", "---\nslug: waiting\nstatus: draft\ncreated_at: 2026-08-13\n---\n\n# Spec: waiting\n")
-	writeCloseoutCLIFile(t, root, ".pose/roadmaps/program.md", "---\nslug: program\nstatus: active\n---\n\n## Milestone: first\n- specs: bundle\n\n## Milestone: second\n- after: first\n- specs: waiting\n")
+	writeCloseoutCLIFile(t, root, ".pose/specs/extra/spec.md", "---\nslug: extra\nstatus: done\ncreated_at: 2026-08-13\ncompleted_at: 2026-08-14\n---\n\n# Spec: extra\n")
+	writeCloseoutCLIFile(t, root, ".pose/roadmaps/program.md", "---\nslug: program\nstatus: active\n---\n\n## Milestone: first\n- specs: bundle, extra\n\n## Milestone: second\n- after: first\n- specs: waiting\n")
 	artifactGit(t, root, "add", "-A")
 	artifactGit(t, root, "-c", "user.name=fixture", "-c", "user.email=fixture@example.invalid", "-c", "commit.gpgsign=false", "commit", "-qm", "program")
 	return root
@@ -43,6 +44,20 @@ func TestCloseNamesTheNextClose(t *testing.T) {
 	}
 	if code, again := runPose(t, root, "close", "spec:bundle", "--apply", "--reviewer", "agent:closeout-reviewer"); code != 0 || !strings.Contains(again, "close.next=pose close milestone:program/first") {
 		t.Fatalf("a repeated close lost the milestone: %d %s", code, again)
+	}
+}
+
+func TestCloseOfAnInheritingMilestonesSpecNamesTheRoadmap(t *testing.T) {
+	root := reachedMilestoneFixture(t)
+	writeCloseoutCLIFile(t, root, ".pose/roadmaps/program.md", "---\nslug: program\nstatus: active\n---\n\n## Milestone: first\n- specs: bundle\n")
+	artifactGit(t, root, "add", "-A")
+	artifactGit(t, root, "-c", "user.name=fixture", "-c", "user.email=fixture@example.invalid", "-c", "commit.gpgsign=false", "commit", "-qm", "one member")
+	code, out := runPose(t, root, "close", "spec:bundle", "--apply", "--reviewer", "agent:closeout-reviewer")
+	if code != 0 {
+		t.Fatalf("close %d %s", code, out)
+	}
+	if !strings.Contains(out, "close.next=pose close roadmap:program") || strings.Contains(out, "close.next=pose close milestone") {
+		t.Fatalf("closing the only member of the last milestone did not name the roadmap: %s", out)
 	}
 }
 
