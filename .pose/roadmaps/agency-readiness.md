@@ -1,6 +1,6 @@
 ---
 slug: agency-readiness
-status: draft
+status: done
 created_at: 2026-10-04
 depends_on:
 ---
