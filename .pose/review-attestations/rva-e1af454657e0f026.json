@@ -1,0 +1,120 @@
+{
+  "schema_version": 1,
+  "attestation_id": "rva-e1af454657e0f026",
+  "bundle_id": "rvb-757a64374c204715",
+  "bundle_digest": "sha256:757a64374c20471580bd0bab800e81132671ad139b14049e16fc85d91c28b3c4",
+  "reviewer": "agent:independent-reached-milestones-sol-20261101",
+  "decision": "approved",
+  "criteria": [
+    {
+      "id": "cross-component-integration",
+      "disposition": "passed",
+      "evidence": "integration:pose-mcp/go/signed-action-answers-integration",
+      "rationale": "Mechanical auto-attest preview resolves this criterion from sealed passing integration evidence. Independently inspected production composition and ran the relevant milestone checks and end-to-end journey; qualifications are explicit in exit-gate and regression conclusions."
+    },
+    {
+      "id": "exit-gate",
+      "disposition": "passed",
+      "evidence": "integration:pose-mcp/go/signed-action-answers-integration",
+      "rationale": "Inspected canonical AnswerStatement, registered key ownership, native SSHSIG verification and historical re-verification, trusted issuer claim bindings and grants, presence admission, and MCP resolution proof gate. Focused tests pass across domain, CLI and MCP: registered-key offline answer, wrong key/namespace/statement/project/request refusals, OpenSSH interoperability, SK presence flag checks, issuer/SSHSIG presence parity and historical re-verification. MCP refuses absent or bad proof even under declared policy and records re-verifiable signed answers. Issuer and registered key are two proof emitters on shared resolution; no live Harne8 UI or physical authenticator test is claimed."
+    },
+    {
+      "id": "integration",
+      "disposition": "passed",
+      "evidence": "integration:pose-mcp/go/signed-action-answers-integration",
+      "rationale": "Mechanical auto-attest preview resolves this criterion from sealed passing integration evidence. Independently inspected production composition and ran the relevant milestone checks and end-to-end journey; qualifications are explicit in exit-gate and regression conclusions."
+    },
+    {
+      "id": "membership",
+      "disposition": "passed",
+      "evidence": "integration:pose-mcp/go/signed-action-answers-integration",
+      "rationale": "Roadmap declares pose-signed-action-answers and pose-mcp-action-resolve-signed-only: offline key/issuer verification and MCP proof-only boundary cover the stated exit gate. Read both current specs, status done. Fresh individual review verify returns closed, fresh=true, approved=true for both. Approval standing is retained under declared legacy reviewer assurance, not authenticated historical independence."
+    },
+    {
+      "id": "regression",
+      "disposition": "passed",
+      "evidence": "integration:pose-mcp/go/signed-action-answers-integration",
+      "rationale": "Inspected supplied strict delivery-validation.json at exact HEAD 48acd32f: 180 executed/passed, zero failed, skipped or errored; matrix SHA-256 matches actual bytes and sealed report provenance. This is inspected supplied evidence, not a fresh green matrix run. Independently ran milestone-focused integrations and full head/control suites; comparison at parent c762fa5086fa4af0a0853f625e44ba29bbe5e57c yields identical 333 failing test/subtest events, 3337 passing and 10 skipped events in each run (suite-comparison.json); no failure-set delta. Parent has identical engine/tests/scripts, so this control diagnoses sandbox failures rather than proving all later history by itself. No claim that sandbox full suite is green. Later presence/reverification, authority and governance changes preserve the tested entry, onboarding and signature contracts."
+    },
+    {
+      "id": "residual-risk",
+      "disposition": "passed",
+      "evidence": "integration:pose-mcp/go/signed-action-answers-integration",
+      "rationale": "Both member follow-up sections are empty. Native handwritten SSHSIG verifier remains the stated technical risk; exercised real ssh-keygen interoperability and synthetic SK proof/flag negative cases, not physical FIDO hardware. Plain keys prove key possession, not human presence; issuer identity claims alone do not satisfy universal presence. Legacy require_presence policy requires explicit schema-2 scope migration. Historical authorization/presence policy receipts and hardware provenance are not established, as current source and action-answer-proof-and-historical-time knowledge disclose. Live Harne8 issuer UI is outside cut criteria. No new risk accepted."
+    }
+  ],
+  "tools": [
+    {
+      "id": "assess-discover",
+      "component": "docs-site",
+      "disposition": "not-used",
+      "rationale": "Recommended discovery skipped: bounded independent source inspection and executable integration checks answer this historical milestone; no completeness/state update claimed."
+    },
+    {
+      "id": "assess-discover",
+      "component": "pose-mcp",
+      "disposition": "not-used",
+      "rationale": "Recommended discovery skipped: bounded independent source inspection and executable integration checks answer this historical milestone; no completeness/state update claimed."
+    },
+    {
+      "id": "assess-integrate",
+      "disposition": "passed",
+      "evidence": "integration:pose-mcp/go/signed-action-answers-integration",
+      "rationale": "Fresh scratch assessment: 70 contracts, 6 active, 64 no-consumer-observed gaps. Qualified structural scan, not proof of external consumers. Relevant production boundaries verified by source and passing integration/CLI/MCP journeys."
+    },
+    {
+      "id": "assess-tech-debt",
+      "disposition": "passed",
+      "evidence": "integration:pose-mcp/go/signed-action-answers-integration",
+      "rationale": "Fresh scratch scan: one covered TODO, no uncovered markers; incomplete because two pre-existing invalid follow-up sources could not be read. No complete debt census claimed."
+    },
+    {
+      "id": "closeout-check",
+      "disposition": "deferred",
+      "rationale": "Completion gate follows attestation; lifecycle close is not authorized."
+    },
+    {
+      "id": "review-check",
+      "disposition": "deferred",
+      "rationale": "Completion gate follows attestation; lifecycle close is not authorized."
+    },
+    {
+      "id": "suggest-review",
+      "component": "docs-site",
+      "disposition": "not-used",
+      "rationale": "Selected security/documentation/process and delivery rules directly for historical docs/scripts/tests; no component rule installation or mutation."
+    },
+    {
+      "id": "suggest-review",
+      "component": "pose-mcp",
+      "disposition": "passed",
+      "evidence": "integration:pose-mcp/go/signed-action-answers-integration",
+      "rationale": "Fresh suggestion consulted; security, Go backend, documentation/process, delivery-evidence and knowledge-governance applied as recorded in report."
+    },
+    {
+      "id": "validate",
+      "component": "docs-site",
+      "disposition": "not-used",
+      "rationale": "Matrix explicitly declares no checks in this component; no producer exists, so no other component result is asserted as its validation."
+    },
+    {
+      "id": "validate",
+      "component": "pose-mcp",
+      "disposition": "passed",
+      "evidence": "integration:pose-mcp/go/signed-action-answers-integration",
+      "rationale": "Inspected supplied strict delivery-validation.json at exact HEAD 48acd32f: 180 executed/passed, zero failed, skipped or errored; matrix SHA-256 matches actual bytes and sealed report provenance. This is inspected supplied evidence, not a fresh green matrix run. Independently ran milestone-focused integrations and full head/control suites; comparison at parent c762fa5086fa4af0a0853f625e44ba29bbe5e57c yields identical 333 failing test/subtest events, 3337 passing and 10 skipped events in each run (suite-comparison.json); no failure-set delta. Parent has identical engine/tests/scripts, so this control diagnoses sandbox failures rather than proving all later history by itself. No claim that sandbox full suite is green. Later presence/reverification, authority and governance changes preserve the tested entry, onboarding and signature contracts."
+    }
+  ],
+  "evidence_refs": [
+    "integration:pose-mcp/go/signed-action-answers-integration"
+  ],
+  "findings": [],
+  "attribution": {
+    "schema_version": 1,
+    "prepared_by": "agent:independent-reached-milestones-sol-20261101",
+    "concluded_by": "agent:independent-reached-milestones-sol-20261101",
+    "applied_by": "agent:codex"
+  },
+  "attested_at": "2026-11-02T04:51:28Z",
+  "path": ".pose/review-attestations/rva-e1af454657e0f026.json"
+}

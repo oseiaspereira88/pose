@@ -1,0 +1,156 @@
+{
+  "schema_version": 1,
+  "attestation_id": "rva-f3cd69fad11a14da",
+  "bundle_id": "rvb-01368fdac913a3fc",
+  "bundle_digest": "sha256:01368fdac913a3fce76939f31bc4613be876f90419de0ff8309d07f942c76bcb",
+  "reviewer": "agent:independent-reached-milestones-sol-20261101",
+  "decision": "approved",
+  "criteria": [
+    {
+      "id": "cross-component-integration",
+      "disposition": "passed",
+      "evidence": "integration:pose-mcp/go/install-and-upgrade-journeys-integration",
+      "rationale": "Mechanical auto-attest preview resolves this criterion from sealed passing integration evidence. Independently inspected production composition and ran the relevant milestone checks and end-to-end journey; qualifications are explicit in exit-gate and regression conclusions."
+    },
+    {
+      "id": "exit-gate",
+      "disposition": "passed",
+      "evidence": "integration:pose-mcp/go/install-and-upgrade-journeys-integration",
+      "rationale": "Inspected onboarding scaffold, setup next-step sequencing, quickstart chapter script, journey script and CI workflow wiring. Ran onboarding and quickstart registered integrations successfully; QuickstartScriptRunsEveryChapter executes all five chapters. Ran actual install-and-upgrade.sh with the CLI built from HEAD: journey 1 fresh clean install, journey 1b onboarding started, traced, reviewed and closed to done, journey 2a 6.2.0 upgrade and journey 2b signed request adoption all pass. CI explicitly invokes both scripts; no remote CI execution is claimed. Previous selection is newest stable release older than engine and newest governed capability, currently 6.2.0."
+    },
+    {
+      "id": "integration",
+      "disposition": "passed",
+      "evidence": "integration:pose-mcp/go/install-and-upgrade-journeys-integration",
+      "rationale": "Mechanical auto-attest preview resolves this criterion from sealed passing integration evidence. Independently inspected production composition and ran the relevant milestone checks and end-to-end journey; qualifications are explicit in exit-gate and regression conclusions."
+    },
+    {
+      "id": "membership",
+      "disposition": "passed",
+      "evidence": "integration:pose-mcp/go/install-and-upgrade-journeys-integration",
+      "rationale": "Roadmap declares pose-onboarding-spec, pose-quickstart-real-lifecycle, pose-install-and-upgrade-journeys. Their responsibilities cover scaffold/setup, executable real lifecycle and cross-version CI journey respectively. All current specs say done. Fresh review verify for each reports closed, fresh=true, approved=true. No member approval has ceased standing in the native verifier."
+    },
+    {
+      "id": "regression",
+      "disposition": "passed",
+      "evidence": "integration:pose-mcp/go/install-and-upgrade-journeys-integration",
+      "rationale": "Inspected supplied strict delivery-validation.json at exact HEAD 48acd32f: 180 executed/passed, zero failed, skipped or errored; matrix SHA-256 matches actual bytes and sealed report provenance. This is inspected supplied evidence, not a fresh green matrix run. Independently ran milestone-focused integrations and full head/control suites; comparison at parent c762fa5086fa4af0a0853f625e44ba29bbe5e57c yields identical 333 failing test/subtest events, 3337 passing and 10 skipped events in each run (suite-comparison.json); no failure-set delta. Parent has identical engine/tests/scripts, so this control diagnoses sandbox failures rather than proving all later history by itself. No claim that sandbox full suite is green. Later presence/reverification, authority and governance changes preserve the tested entry, onboarding and signature contracts."
+    },
+    {
+      "id": "residual-risk",
+      "disposition": "passed",
+      "evidence": "integration:pose-mcp/go/install-and-upgrade-journeys-integration",
+      "rationale": "All three member follow-up sections are empty. Inherited risks: onboarding template can drift from lint/start/close contracts; quickstart needs ssh-keygen; upgrade journey needs network, published assets and checksums. Actual journey completed through review to done and actual quickstart integration passed here. CI wiring checked, remote CI not independently observed. Harne8 confirmation UI is expressly excluded from roadmap cut criteria. No new accepted risk."
+    }
+  ],
+  "tools": [
+    {
+      "id": "assess-discover",
+      "component": "docs-site",
+      "disposition": "not-used",
+      "rationale": "Recommended discovery skipped: bounded independent source inspection and executable integration checks answer this historical milestone; no completeness/state update claimed."
+    },
+    {
+      "id": "assess-discover",
+      "component": "pose-mcp",
+      "disposition": "not-used",
+      "rationale": "Recommended discovery skipped: bounded independent source inspection and executable integration checks answer this historical milestone; no completeness/state update claimed."
+    },
+    {
+      "id": "assess-discover",
+      "component": "scripts",
+      "disposition": "not-used",
+      "rationale": "Recommended discovery skipped: bounded independent source inspection and executable integration checks answer this historical milestone; no completeness/state update claimed."
+    },
+    {
+      "id": "assess-discover",
+      "component": "tests",
+      "disposition": "not-used",
+      "rationale": "Recommended discovery skipped: bounded independent source inspection and executable integration checks answer this historical milestone; no completeness/state update claimed."
+    },
+    {
+      "id": "assess-integrate",
+      "disposition": "passed",
+      "evidence": "integration:pose-mcp/go/install-and-upgrade-journeys-integration",
+      "rationale": "Fresh scratch assessment: 70 contracts, 6 active, 64 no-consumer-observed gaps. Qualified structural scan, not proof of external consumers. Relevant production boundaries verified by source and passing integration/CLI/MCP journeys."
+    },
+    {
+      "id": "assess-tech-debt",
+      "disposition": "passed",
+      "evidence": "integration:pose-mcp/go/install-and-upgrade-journeys-integration",
+      "rationale": "Fresh scratch scan: one covered TODO, no uncovered markers; incomplete because two pre-existing invalid follow-up sources could not be read. No complete debt census claimed."
+    },
+    {
+      "id": "closeout-check",
+      "disposition": "deferred",
+      "rationale": "Completion gate follows attestation; lifecycle close is not authorized."
+    },
+    {
+      "id": "review-check",
+      "disposition": "deferred",
+      "rationale": "Completion gate follows attestation; lifecycle close is not authorized."
+    },
+    {
+      "id": "suggest-review",
+      "component": "docs-site",
+      "disposition": "not-used",
+      "rationale": "Selected security/documentation/process and delivery rules directly for historical docs/scripts/tests; no component rule installation or mutation."
+    },
+    {
+      "id": "suggest-review",
+      "component": "pose-mcp",
+      "disposition": "passed",
+      "evidence": "integration:pose-mcp/go/install-and-upgrade-journeys-integration",
+      "rationale": "Fresh suggestion consulted; security, Go backend, documentation/process, delivery-evidence and knowledge-governance applied as recorded in report."
+    },
+    {
+      "id": "suggest-review",
+      "component": "scripts",
+      "disposition": "not-used",
+      "rationale": "Selected security/documentation/process and delivery rules directly for historical docs/scripts/tests; no component rule installation or mutation."
+    },
+    {
+      "id": "suggest-review",
+      "component": "tests",
+      "disposition": "not-used",
+      "rationale": "Selected security/documentation/process and delivery rules directly for historical docs/scripts/tests; no component rule installation or mutation."
+    },
+    {
+      "id": "validate",
+      "component": "docs-site",
+      "disposition": "not-used",
+      "rationale": "Matrix explicitly declares no checks in this component; no producer exists, so no other component result is asserted as its validation."
+    },
+    {
+      "id": "validate",
+      "component": "pose-mcp",
+      "disposition": "passed",
+      "evidence": "integration:pose-mcp/go/install-and-upgrade-journeys-integration",
+      "rationale": "Inspected supplied strict delivery-validation.json at exact HEAD 48acd32f: 180 executed/passed, zero failed, skipped or errored; matrix SHA-256 matches actual bytes and sealed report provenance. This is inspected supplied evidence, not a fresh green matrix run. Independently ran milestone-focused integrations and full head/control suites; comparison at parent c762fa5086fa4af0a0853f625e44ba29bbe5e57c yields identical 333 failing test/subtest events, 3337 passing and 10 skipped events in each run (suite-comparison.json); no failure-set delta. Parent has identical engine/tests/scripts, so this control diagnoses sandbox failures rather than proving all later history by itself. No claim that sandbox full suite is green. Later presence/reverification, authority and governance changes preserve the tested entry, onboarding and signature contracts."
+    },
+    {
+      "id": "validate",
+      "component": "scripts",
+      "disposition": "not-used",
+      "rationale": "Matrix explicitly declares no checks in this component; no producer exists, so no other component result is asserted as its validation."
+    },
+    {
+      "id": "validate",
+      "component": "tests",
+      "disposition": "not-used",
+      "rationale": "Matrix explicitly declares no checks in this component; no producer exists, so no other component result is asserted as its validation."
+    }
+  ],
+  "evidence_refs": [
+    "integration:pose-mcp/go/install-and-upgrade-journeys-integration"
+  ],
+  "findings": [],
+  "attribution": {
+    "schema_version": 1,
+    "prepared_by": "agent:independent-reached-milestones-sol-20261101",
+    "concluded_by": "agent:independent-reached-milestones-sol-20261101",
+    "applied_by": "agent:codex"
+  },
+  "attested_at": "2026-11-02T04:51:11Z",
+  "path": ".pose/review-attestations/rva-f3cd69fad11a14da.json"
+}
