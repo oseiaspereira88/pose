@@ -2231,7 +2231,7 @@
         {
           "name": "evidence-gate-validation-integration",
           "program": "go",
-          "args": ["test", "./internal/pose", "./internal/cli", "-run", "TestDerivedEvidenceIsNotValidation|TestAResultAtADerivedPathIsValidation|TestAutoAttestRefusesDerivedEvidence|TestClosedScopeKeepsItsDerivedSeal", "-count=1"],
+          "args": ["test", "./internal/pose", "./internal/cli", "-run", "TestDerivedEvidenceIsNotValidation|TestAResultAtADerivedPathIsValidation|TestNoNewSealOverDerivedEvidence|TestDesignEvidenceIsRecognizedByItsOwnDigest|TestAutoAttestRefusesDerivedEvidence|TestClosedScopeKeepsItsDerivedSeal", "-count=1"],
           "severity": "required",
           "evidenceClass": "integration"
         },

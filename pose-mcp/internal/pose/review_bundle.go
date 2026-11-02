@@ -525,7 +525,7 @@ func (s Store) prepareReviewBundle(ref string, legacyMilestoneManifest bool) (Re
 		// Without a change set no evidence can be attributed: that blocker already
 		// names the cause, and a second one would send the operator to re-validate.
 		if !reportsMissingChangeSet(bundle.Blockers) && s.evidenceFallsShort(scope, bundle.Payload.Evidence) && s.reviewScopeRequiresValidationEvidence(scope, bundle.Payload.Plan, graph) {
-			bundle.Blockers = append(bundle.Blockers, "no passed structured validation evidence is attributed to the review scope")
+			bundle.Blockers = append(bundle.Blockers, noValidationEvidenceBlocker)
 		}
 		bundle.Warnings = append(bundle.Warnings, staleEvidenceWarnings(bundle.Payload.Subject, bundle.Payload.Evidence)...)
 		bundle.RangeObservations = s.reviewBundleRangeObservations(bundle.Payload.Subject.ChangeSets, graph)
@@ -1629,21 +1629,28 @@ func (s Store) reviewBundleEvidence(scope ScopeRef, graph DeliveryIntegrityGraph
 }
 
 // holdsValidationResult reports evidence of a run. What the engine derives from the
-// subject answers structural criteria and says nothing of whether anything ran. The
-// report alone does not tell them apart: its path is the operator's to choose.
+// subject answers structural criteria and says nothing of whether anything ran.
 func holdsValidationResult(evidence []ReviewBundleEvidence) bool {
 	for _, ev := range evidence {
-		if !(ev.Check == "assess-design" && ev.EvidenceClass == "structure" && ev.Module == "" && strings.HasPrefix(ev.Report, "derived:design-delta/")) {
+		if !derivedDesignEvidence(ev) {
 			return true
 		}
 	}
 	return false
 }
 
-// evidenceFallsShort is the gate of a scope that requires validation evidence. A spec
-// that is done was sealed under the rule of its day and verification prepares it
-// again, so it answers only for evidence being absent: a bundle approved over derived
-// evidence stays approved.
+// derivedDesignEvidence recognizes what reviewBundleEvidence appends for the design
+// delta. Check, class, module and the path of a report are all the operator's to give
+// a validation result, so it reads the one thing a run does not have: an id and a
+// report computed from the entry's own provenance digest.
+func derivedDesignEvidence(ev ReviewBundleEvidence) bool {
+	input := strings.TrimPrefix(ev.ProvenanceDigest, "sha256:")
+	return len(input) >= 16 && ev.Check == "assess-design" && ev.ID == "design-"+input[:16] && ev.Report == "derived:design-delta/"+input
+}
+
+// evidenceFallsShort is the gate over a prepared bundle. Verification prepares a done
+// spec again, so that spec answers only for evidence being absent, and an approval
+// over derived evidence stays; a new seal of it is refused by sealReviewBundle.
 func (s Store) evidenceFallsShort(scope ScopeRef, evidence []ReviewBundleEvidence) bool {
 	if scope.Kind == "spec" {
 		if sp, err := s.GetSpec(scope.Slug); err == nil && sp.Status == "done" {
@@ -1676,6 +1683,8 @@ func (s Store) reviewScopeRequiresValidationEvidence(scope ScopeRef, plan Review
 		return true
 	}
 }
+
+const noValidationEvidenceBlocker = "no passed structured validation evidence is attributed to the review scope"
 
 const missingChangeSetBlocker = "no immutable attributed change set exists for "
 
@@ -2033,6 +2042,21 @@ func (s Store) sealReviewBundle(ref string, identity *ReviewBundleImplementation
 		replaced := *identity
 		replaced.Replaces = governing.BundleID
 		identity = &replaced
+	}
+	// A bundle already sealed reads as it was; a new seal holds a validation result,
+	// whatever the lifecycle of the scope says.
+	if !holdsValidationResult(bundle.Payload.Evidence) {
+		scope, err := ParseScopeRef(bundle.Payload.Scope.Ref)
+		if err != nil {
+			return ReviewBundle{}, err
+		}
+		graph, err := s.GetDeliveryIntegrity("")
+		if err != nil {
+			return ReviewBundle{}, err
+		}
+		if s.reviewScopeRequiresValidationEvidence(scope, bundle.Payload.Plan, graph) {
+			return bundle, fmt.Errorf("pose: review bundle is not sealable: %s", noValidationEvidenceBlocker)
+		}
 	}
 	if identity != nil {
 		bundle.Payload.Implementation = identity

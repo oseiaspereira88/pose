@@ -32,14 +32,38 @@ func closedDerivedSeal(t *testing.T) (string, Store, ReviewBundle) {
 	dropValidationResults(t, root)
 	writeReviewFixture(t, root, ".pose/indexes/validation-matrix.json", `{"deliveryProfiles":{"api-contract":{"kind":"contract","requiredEvidenceClasses":["structure"]}},"stacks":{}}`)
 	commitEvidenceFixture(t, root)
-	bundle, err := s.SealReviewBundle("spec:backend", time.Date(2026, 9, 26, 18, 0, 0, 0, time.UTC))
-	if err != nil {
+	bundle, err := s.PrepareReviewBundle("spec:backend")
+	if err != nil || len(bundle.Blockers) != 0 {
 		t.Fatal(err, bundle.Blockers)
 	}
 	if len(bundle.Payload.Evidence) != 1 || holdsValidationResult(bundle.Payload.Evidence) {
-		t.Fatalf("the seal is not derived alone: %+v", bundle.Payload.Evidence)
+		t.Fatalf("the bundle is not derived alone: %+v", bundle.Payload.Evidence)
+	}
+	// Written by hand: this engine refuses to seal it, which is the point.
+	bundle.State, bundle.SealedAt = "sealed", "2026-09-26T18:00:00Z"
+	bundle.Path = filepath.ToSlash(filepath.Join(".pose", "review-bundles", bundle.BundleID+".json"))
+	sealed, err := json.MarshalIndent(bundle, "", "  ")
+	if err != nil {
+		t.Fatal(err)
+	}
+	writeReviewFixture(t, root, bundle.Path, string(sealed))
+	if _, err := s.LoadReviewBundle(bundle.BundleID); err != nil {
+		t.Fatal(err)
 	}
 	return root, s, bundle
+}
+
+func TestNoNewSealOverDerivedEvidence(t *testing.T) {
+	root, s, bundle := closedDerivedSeal(t)
+	if again, err := s.SealReviewBundle("spec:backend", time.Now()); err != nil || again.BundleID != bundle.BundleID {
+		t.Fatalf("sealing the same content did not hand back the governing bundle: %+v %v", again.BundleID, err)
+	}
+	if err := os.Remove(filepath.Join(root, bundle.Path)); err != nil {
+		t.Fatal(err)
+	}
+	if _, err := s.SealReviewBundle("spec:backend", time.Now()); err == nil || !strings.Contains(err.Error(), noValidationEvidenceBlocker) {
+		t.Fatalf("a done spec sealed anew over derived evidence: %v", err)
+	}
 }
 
 func dropValidationResults(t *testing.T, root string) {
@@ -133,13 +157,14 @@ func TestAResultAtADerivedPathIsValidation(t *testing.T) {
 	if strings.Contains(strings.Join(bundle.Blockers, " "), "no passed structured validation evidence") {
 		t.Fatalf("a result was read as derived for the path of its report: %v", bundle.Blockers)
 	}
-	for _, ev := range []ReviewBundleEvidence{
-		{Check: "assess-design", EvidenceClass: "structure", Module: "api", Report: "derived:design-delta/x"},
-		{Check: "assess-design", EvidenceClass: "unit", Report: "derived:design-delta/x"},
-		{Check: "test", EvidenceClass: "structure", Report: "derived:design-delta/x"},
-	} {
-		if !holdsValidationResult([]ReviewBundleEvidence{ev}) {
-			t.Fatalf("a result was read as derived: %+v", ev)
-		}
+	if !holdsValidationResult([]ReviewBundleEvidence{{ID: "real-run", Check: "assess-design", EvidenceClass: "structure", Report: "derived:design-delta/run.json", ProvenanceDigest: "sha256:aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa"}}) {
+		t.Fatal("a result with every field the operator gives it was read as derived")
+	}
+}
+
+func TestDesignEvidenceIsRecognizedByItsOwnDigest(t *testing.T) {
+	_, _, bundle := closedDerivedSeal(t)
+	if !derivedDesignEvidence(bundle.Payload.Evidence[0]) {
+		t.Fatalf("the entry the engine appends was not recognized: %+v", bundle.Payload.Evidence[0])
 	}
 }

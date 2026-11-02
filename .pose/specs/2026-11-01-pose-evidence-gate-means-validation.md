@@ -32,19 +32,19 @@ The gate asks whether the evidence of a bundle is empty. Design evidence, which 
 ### Non-goals
 
 - Deciding what a validation result must cover: that stays with plan, criteria and tools.
-- Reviewing the five approved bundles again.
+- Reviewing the four approved bundles again.
 
 ## 2. Requirements
 
 ### Functional
 
-- R1: A bundle of a scope that requires validation evidence and is not a done spec shall report the evidence blocker when its only evidence is derived from the subject, and a result whose report has any path shall count as validation.
+- R1: A new seal of a scope that requires validation evidence shall be refused when its only evidence is derived from the subject, whatever the lifecycle of the scope, and a result shall count as validation whatever check, class, module and report path it carries.
 - R2: `pose review auto-attest` shall refuse the same bundle with the same reason.
 - R3: A closed scope sealed with derived evidence alone shall keep its approval in `review verify`, `review-check`, closeout and the federated proof of a consumer.
 
 ### Non-functional
 
-- No new read: the decision uses the evidence already gathered.
+- One more read of the spec when a bundle holds derived evidence alone, and of the index when it is about to be sealed.
 
 ### Security
 
@@ -99,10 +99,10 @@ The gate asks whether the evidence of a bundle is empty. Design evidence, which 
 ### Decision D1
 - Basis: R1, R2
 - Minimal option: drop design evidence from the bundle
-- Selected option: keep it, and have the gate count only evidence that is not derived, and exempt a done spec, which verification prepares again
+- Selected option: keep it, have the gate count only evidence that is not derived, refuse every new seal without a result, and let verification of a done spec read the gate as absence alone
 - Rationale: design evidence answers structural criteria, and only the gate misread it
-- Consequences: the gate reads check, class, an empty module and the `derived:design-delta/` report together, because a report path alone is the operator's; a done spec can be sealed again over derived evidence, which only `pose review auto-attest` refuses
-- Falsifier: a result of a run with no module, in class structure, under check `assess-design`
+- Consequences: derived evidence is recognized by an id and a report computed from its own provenance digest, since every other field is the operator's to give a result; the preparation of a done spec reports less than its seal refuses
+- Falsifier: a result of a run read as derived without an id and a report built to match its digest
 
 ## 6. Validation
 
@@ -112,7 +112,7 @@ An integration test over a change set with no attributed result, seen failing fi
 
 ### Requirement trace
 
-- R1 [planned] capability:evidence-gate-means-validation evidence:integration check:evidence-gate-validation-integration test:TestDerivedEvidenceIsNotValidation test:TestAResultAtADerivedPathIsValidation
+- R1 [planned] capability:evidence-gate-means-validation evidence:integration check:evidence-gate-validation-integration test:TestDerivedEvidenceIsNotValidation test:TestAResultAtADerivedPathIsValidation test:TestNoNewSealOverDerivedEvidence test:TestDesignEvidenceIsRecognizedByItsOwnDigest
 - R2 [planned] check:evidence-gate-validation-integration test:TestAutoAttestRefusesDerivedEvidence
 - R3 [planned] check:evidence-gate-validation-integration test:TestClosedScopeKeepsItsDerivedSeal
 
