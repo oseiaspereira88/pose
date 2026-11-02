@@ -79,6 +79,7 @@ Reviewing the 42 reached milestones took a night and 145 thousand lines of bundl
 - modified: pose-mcp/internal/pose/review_closeout.go
 - modified: pose-mcp/internal/pose/federated_acceptance.go
 - modified: POSE.md
+- modified: locales/pt-BR/POSE.md
 - modified: .agents/skills/pose-spec-closeout/SKILL.md
 - modified: locales/pt-BR/.agents/skills/pose-spec-closeout/SKILL.md
 - modified: pose-mcp/internal/scaffold/dist/.agents/skills/pose-spec-closeout/SKILL.md
