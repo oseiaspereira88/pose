@@ -1,0 +1,88 @@
+{
+  "schema_version": 1,
+  "attestation_id": "rva-f96f630dd62995df",
+  "bundle_id": "rvb-df9a7bf0789369df",
+  "bundle_digest": "sha256:df9a7bf0789369dfe29b0d2336f633ae825c730ad37da30f19d43c52c845518e",
+  "reviewer": "agent:independent-reached-milestones-sol-20261101",
+  "decision": "approved",
+  "criteria": [
+    {
+      "id": "exit-gate",
+      "disposition": "passed",
+      "evidence": "integration:pose-mcp/go/cli-mcp-operation-results-integration",
+      "rationale": "Inspected operation_result.go, CLI closeout_plan.go and MCP server.go at HEAD: typed execution outcomes distinguish waiting/conflict/inconclusive and domain verdict; deadline/cancellation are checked before exit status. Fresh selected race tests cover one-document JSON success/failure, strict flags and MCP filters, waiting usage, partial effects, receipt authenticity, start resume/conflict and deadline/cancellation. Historical sealed integration is independently corroborated by these executions; no equivalence of already-satisfied with fresh verification is claimed."
+    },
+    {
+      "id": "integration",
+      "disposition": "passed",
+      "evidence": "integration:pose-mcp/go/cli-mcp-operation-results-integration",
+      "rationale": "Mechanical preparation independently read; sealed integration accepted, current source and selected executions independently assessed."
+    },
+    {
+      "id": "membership",
+      "disposition": "passed",
+      "evidence": "integration:pose-mcp/go/cli-mcp-operation-results-integration",
+      "rationale": "Roadmap declares exactly spec:pose-cli-mcp-operation-results; its intent and delivered capability fit this milestone. Member frontmatter is done with completed_at and fresh native review verify reports state closed, fresh=true, approved=true. Retained historical child approval is not current code validation: current code was separately inspected and tested. No child approval was observed to have lost standing."
+    },
+    {
+      "id": "regression",
+      "disposition": "passed",
+      "evidence": "integration:pose-mcp/go/cli-mcp-operation-results-integration",
+      "rationale": "Inspected current production code and ran fresh focused and race checks, go vet, full suite and strict module validation. Selected race run is green after explicitly excluding the 20 initial top-level Git-fixture failures. Full HEAD has 251 top-level failures versus 250 at parent aff41dc2; the sole extra concurrent-start test passed 20/20 on each revision, whose Go source is identical. These broad runs are NOT green: fresh strict module run is 125 pass/52 fail. Sealed supplied validation separately reports strict 180/180 at HEAD with matching matrix/provenance. No milestone regression was demonstrated; baseline fixture failures and timing flake remain explicit validation limits."
+    },
+    {
+      "id": "residual-risk",
+      "disposition": "passed",
+      "evidence": "integration:pose-mcp/go/cli-mcp-operation-results-integration",
+      "rationale": "No open member residual finding observed. B13/B14/B35 and other programme obligations remain separate. Confirmed effects require observation by this invocation, while unconfirmed effects are not rollback proof. Broad replay failures, selected-test exclusions and supplied-versus-executed validation are disclosed, not presented as a fresh all-green suite."
+    }
+  ],
+  "tools": [
+    {
+      "id": "assess-discover",
+      "component": "pose-mcp",
+      "disposition": "not-used",
+      "rationale": "not used during automated attestation"
+    },
+    {
+      "id": "assess-tech-debt",
+      "disposition": "not-used",
+      "rationale": "not used during automated attestation"
+    },
+    {
+      "id": "closeout-check",
+      "disposition": "deferred",
+      "rationale": "post-review gate"
+    },
+    {
+      "id": "review-check",
+      "disposition": "deferred",
+      "rationale": "post-review gate"
+    },
+    {
+      "id": "suggest-review",
+      "component": "pose-mcp",
+      "disposition": "not-used",
+      "rationale": "not used during automated attestation"
+    },
+    {
+      "id": "validate",
+      "component": "pose-mcp",
+      "disposition": "passed",
+      "evidence": "check:validate",
+      "rationale": "Sealed strict validation at HEAD is 180/180 with matching matrix/provenance. Independent replay failed 125/52 in sandbox; parent full-suite control and exclusions are disclosed in regression judgment."
+    }
+  ],
+  "evidence_refs": [
+    "integration:pose-mcp/go/cli-mcp-operation-results-integration"
+  ],
+  "findings": [],
+  "attribution": {
+    "schema_version": 1,
+    "prepared_by": "agent:independent-reached-milestones-sol-20261101",
+    "concluded_by": "agent:independent-reached-milestones-sol-20261101",
+    "applied_by": "agent:codex"
+  },
+  "attested_at": "2026-11-02T03:23:10Z",
+  "path": ".pose/review-attestations/rva-f96f630dd62995df.json"
+}

@@ -1,0 +1,88 @@
+{
+  "schema_version": 1,
+  "attestation_id": "rva-648fa448461a8aad",
+  "bundle_id": "rvb-1eec27297b9bff69",
+  "bundle_digest": "sha256:1eec27297b9bff69eb1159db343dda1b242de75b0e023c736c3eef91e4a7c732",
+  "reviewer": "agent:independent-reached-milestones-sol-20261101",
+  "decision": "approved",
+  "criteria": [
+    {
+      "id": "exit-gate",
+      "disposition": "passed",
+      "evidence": "integration:pose-mcp/go/index-generation-integrity-integration",
+      "rationale": "Inspected index_generation.go, delivery_integrity.go, review_plan.go and obligation_projection.go at HEAD: descriptor commits after seven files, immutable copies are hash-checked, reader pins copy one generation, retries are bounded, replacement takes the generation lock and retention preserves descriptor-current and recent generations. Fresh race tests cover crash/retry phases, concurrent readers/writers, first-publication interruption, linked retention directories, descriptor movement and CLI/MCP unavailable propagation. Legacy-unversioned remains explicitly unqualified; no global governance snapshot or daemon is claimed."
+    },
+    {
+      "id": "integration",
+      "disposition": "passed",
+      "evidence": "integration:pose-mcp/go/index-generation-integrity-integration",
+      "rationale": "Mechanical preparation independently read; sealed integration accepted, current source and selected executions independently assessed."
+    },
+    {
+      "id": "membership",
+      "disposition": "passed",
+      "evidence": "integration:pose-mcp/go/index-generation-integrity-integration",
+      "rationale": "Roadmap declares exactly spec:pose-index-generation-integrity; its intent and delivered capability fit this milestone. Member frontmatter is done with completed_at and fresh native review verify reports state closed, fresh=true, approved=true. Retained historical child approval is not current code validation: current code was separately inspected and tested. No child approval was observed to have lost standing."
+    },
+    {
+      "id": "regression",
+      "disposition": "passed",
+      "evidence": "integration:pose-mcp/go/index-generation-integrity-integration",
+      "rationale": "Inspected current production code and ran fresh focused and race checks, go vet, full suite and strict module validation. Selected race run is green after explicitly excluding the 20 initial top-level Git-fixture failures. Full HEAD has 251 top-level failures versus 250 at parent aff41dc2; the sole extra concurrent-start test passed 20/20 on each revision, whose Go source is identical. These broad runs are NOT green: fresh strict module run is 125 pass/52 fail. Sealed supplied validation separately reports strict 180/180 at HEAD with matching matrix/provenance. No milestone regression was demonstrated; baseline fixture failures and timing flake remain explicit validation limits."
+    },
+    {
+      "id": "residual-risk",
+      "disposition": "passed",
+      "evidence": "integration:pose-mcp/go/index-generation-integrity-integration",
+      "rationale": "Member declares no newly open finding. B34/B35 global read view and B41 release recovery remain separate obligations, not delivered here. Legacy sets carry no coherent-generation claim; retention keeps three generations with ten-minute grace and no indefinite reader lease. Filesystem sync/platform limits inherited from publisher remain explicit."
+    }
+  ],
+  "tools": [
+    {
+      "id": "assess-discover",
+      "component": "pose-mcp",
+      "disposition": "not-used",
+      "rationale": "not used during automated attestation"
+    },
+    {
+      "id": "assess-tech-debt",
+      "disposition": "not-used",
+      "rationale": "not used during automated attestation"
+    },
+    {
+      "id": "closeout-check",
+      "disposition": "deferred",
+      "rationale": "post-review gate"
+    },
+    {
+      "id": "review-check",
+      "disposition": "deferred",
+      "rationale": "post-review gate"
+    },
+    {
+      "id": "suggest-review",
+      "component": "pose-mcp",
+      "disposition": "not-used",
+      "rationale": "not used during automated attestation"
+    },
+    {
+      "id": "validate",
+      "component": "pose-mcp",
+      "disposition": "passed",
+      "evidence": "check:validate",
+      "rationale": "Sealed strict validation at HEAD is 180/180 with matching matrix/provenance. Independent replay failed 125/52 in sandbox; parent full-suite control and exclusions are disclosed in regression judgment."
+    }
+  ],
+  "evidence_refs": [
+    "integration:pose-mcp/go/index-generation-integrity-integration"
+  ],
+  "findings": [],
+  "attribution": {
+    "schema_version": 1,
+    "prepared_by": "agent:independent-reached-milestones-sol-20261101",
+    "concluded_by": "agent:independent-reached-milestones-sol-20261101",
+    "applied_by": "agent:codex"
+  },
+  "attested_at": "2026-11-02T03:22:34Z",
+  "path": ".pose/review-attestations/rva-648fa448461a8aad.json"
+}

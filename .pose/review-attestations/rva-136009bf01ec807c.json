@@ -1,0 +1,88 @@
+{
+  "schema_version": 1,
+  "attestation_id": "rva-136009bf01ec807c",
+  "bundle_id": "rvb-f3ca12244e3c7317",
+  "bundle_digest": "sha256:f3ca12244e3c7317f5880f8407e41b04760e69a3808f171441d7f69bd6a27404",
+  "reviewer": "agent:independent-reached-milestones-sol-20261101",
+  "decision": "approved",
+  "criteria": [
+    {
+      "id": "exit-gate",
+      "disposition": "passed",
+      "evidence": "integration:pose-mcp/go/journal-checkpoint-and-lock-recovery-integration",
+      "rationale": "Inspected journal_integrity.go, start_lock.go, closeout_plan.go and CLI closeout_plan.go at HEAD. Journal consumes every terminated line with strict keys/schema/sequence/EOF. Checkpoint classifies absent separately from corrupt/unsupported/unavailable and resume recomputes repository progress; checkpoint write/clear errors enter unconfirmed effects. Lock recovery rechecks matching bytes and dead owner under coordination; active/unknown never expires by age. Fresh selected race tests cover journal corruption/torn tail, checkpoint classification/progress/persistence and active/unknown/dead/concurrent lock recovery. No daemon is claimed."
+    },
+    {
+      "id": "integration",
+      "disposition": "passed",
+      "evidence": "integration:pose-mcp/go/journal-checkpoint-and-lock-recovery-integration",
+      "rationale": "Mechanical preparation independently read; sealed integration accepted, current source and selected executions independently assessed."
+    },
+    {
+      "id": "membership",
+      "disposition": "passed",
+      "evidence": "integration:pose-mcp/go/journal-checkpoint-and-lock-recovery-integration",
+      "rationale": "Roadmap declares exactly spec:pose-journal-checkpoint-and-lock-recovery; its intent and delivered capability fit this milestone. Member frontmatter is done with completed_at and fresh native review verify reports state closed, fresh=true, approved=true. Retained historical child approval is not current code validation: current code was separately inspected and tested. No child approval was observed to have lost standing."
+    },
+    {
+      "id": "regression",
+      "disposition": "passed",
+      "evidence": "integration:pose-mcp/go/journal-checkpoint-and-lock-recovery-integration",
+      "rationale": "Inspected current production code and ran fresh focused and race checks, go vet, full suite and strict module validation. Selected race run is green after explicitly excluding the 20 initial top-level Git-fixture failures. Full HEAD has 251 top-level failures versus 250 at parent aff41dc2; the sole extra concurrent-start test passed 20/20 on each revision, whose Go source is identical. These broad runs are NOT green: fresh strict module run is 125 pass/52 fail. Sealed supplied validation separately reports strict 180/180 at HEAD with matching matrix/provenance. No milestone regression was demonstrated; baseline fixture failures and timing flake remain explicit validation limits."
+    },
+    {
+      "id": "residual-risk",
+      "disposition": "passed",
+      "evidence": "integration:pose-mcp/go/journal-checkpoint-and-lock-recovery-integration",
+      "rationale": "No open member follow-up or newly accepted member finding observed. Liveness proof is Linux/same-host identity dependent; unavailable identity refuses recovery. Checkpoints record progress, are not synced authoritative receipts, and resume revalidates repository truth. No power-loss, cross-host recovery, background daemon or Harne8 external-source qualification is claimed."
+    }
+  ],
+  "tools": [
+    {
+      "id": "assess-discover",
+      "component": "pose-mcp",
+      "disposition": "not-used",
+      "rationale": "not used during automated attestation"
+    },
+    {
+      "id": "assess-tech-debt",
+      "disposition": "not-used",
+      "rationale": "not used during automated attestation"
+    },
+    {
+      "id": "closeout-check",
+      "disposition": "deferred",
+      "rationale": "post-review gate"
+    },
+    {
+      "id": "review-check",
+      "disposition": "deferred",
+      "rationale": "post-review gate"
+    },
+    {
+      "id": "suggest-review",
+      "component": "pose-mcp",
+      "disposition": "not-used",
+      "rationale": "not used during automated attestation"
+    },
+    {
+      "id": "validate",
+      "component": "pose-mcp",
+      "disposition": "passed",
+      "evidence": "check:validate",
+      "rationale": "Sealed strict validation at HEAD is 180/180 with matching matrix/provenance. Independent replay failed 125/52 in sandbox; parent full-suite control and exclusions are disclosed in regression judgment."
+    }
+  ],
+  "evidence_refs": [
+    "integration:pose-mcp/go/journal-checkpoint-and-lock-recovery-integration"
+  ],
+  "findings": [],
+  "attribution": {
+    "schema_version": 1,
+    "prepared_by": "agent:independent-reached-milestones-sol-20261101",
+    "concluded_by": "agent:independent-reached-milestones-sol-20261101",
+    "applied_by": "agent:codex"
+  },
+  "attested_at": "2026-11-02T03:22:54Z",
+  "path": ".pose/review-attestations/rva-136009bf01ec807c.json"
+}

@@ -1,0 +1,130 @@
+{
+  "schema_version": 1,
+  "attestation_id": "rva-17c8f555e6f9d246",
+  "bundle_id": "rvb-c55348c05c5378bb",
+  "bundle_digest": "sha256:c55348c05c5378bb36e781a4ea27d709dbe23b3caf2123601c1ca407befa21a8",
+  "reviewer": "agent:independent-reached-milestones-sol-20261101",
+  "decision": "approved",
+  "criteria": [
+    {
+      "id": "cross-component-integration",
+      "disposition": "passed",
+      "evidence": "integration:pose-mcp/go/git-and-dispatch-snapshot-integrity-integration",
+      "rationale": "Mechanical preparation independently read; sealed integration accepted, current source and selected executions independently assessed."
+    },
+    {
+      "id": "exit-gate",
+      "disposition": "passed",
+      "evidence": "integration:pose-mcp/go/git-and-dispatch-snapshot-integrity-integration",
+      "rationale": "Inspected git_snapshot_integrity.go, git_spawn_cache.go and review_dispatch.go at HEAD: unknown status propagates; NUL paths, materialized bytes/types and exact derived outputs are checked; dispatch compares the sealed checkout and disk before/after and revalidates origin, policy and governing bundle. Fresh selected race tests cover unknown Git, hidden edits, modes, symlinks, output ownership and dispatch mutations. Supersession fixture tests could not execute beyond setup in this sandbox; their historical sealed pass is distinguished from the current source inspection. Snapshots do not establish containment or eliminate noncooperating writers."
+    },
+    {
+      "id": "integration",
+      "disposition": "passed",
+      "evidence": "integration:pose-mcp/go/git-and-dispatch-snapshot-integrity-integration",
+      "rationale": "Mechanical preparation independently read; sealed integration accepted, current source and selected executions independently assessed."
+    },
+    {
+      "id": "membership",
+      "disposition": "passed",
+      "evidence": "integration:pose-mcp/go/git-and-dispatch-snapshot-integrity-integration",
+      "rationale": "Roadmap declares exactly spec:pose-git-and-dispatch-snapshot-integrity; its intent and delivered capability fit this milestone. Member frontmatter is done with completed_at and fresh native review verify reports state closed, fresh=true, approved=true. Retained historical child approval is not current code validation: current code was separately inspected and tested. No child approval was observed to have lost standing."
+    },
+    {
+      "id": "regression",
+      "disposition": "passed",
+      "evidence": "integration:pose-mcp/go/git-and-dispatch-snapshot-integrity-integration",
+      "rationale": "Inspected current production code and ran fresh focused and race checks, go vet, full suite and strict module validation. Selected race run is green after explicitly excluding the 20 initial top-level Git-fixture failures. Full HEAD has 251 top-level failures versus 250 at parent aff41dc2; the sole extra concurrent-start test passed 20/20 on each revision, whose Go source is identical. These broad runs are NOT green: fresh strict module run is 125 pass/52 fail. Sealed supplied validation separately reports strict 180/180 at HEAD with matching matrix/provenance. No milestone regression was demonstrated; baseline fixture failures and timing flake remain explicit validation limits."
+    },
+    {
+      "id": "residual-risk",
+      "disposition": "passed",
+      "evidence": "integration:pose-mcp/go/git-and-dispatch-snapshot-integrity-integration",
+      "rationale": "Member Follow-ups are both done; no open member finding observed. The contract remains a before/after integrity observation, not sandboxing; noncooperating writers and final-check/use windows require the separately governed containment/read-view work. Git-dependent fixture exclusions and full-suite limitations are disclosed in the independent report."
+    }
+  ],
+  "tools": [
+    {
+      "id": "assess-discover",
+      "component": "docs-site",
+      "disposition": "not-used",
+      "rationale": "not used during automated attestation"
+    },
+    {
+      "id": "assess-discover",
+      "component": "pose-mcp",
+      "disposition": "not-used",
+      "rationale": "not used during automated attestation"
+    },
+    {
+      "id": "assess-integrate",
+      "disposition": "passed",
+      "evidence": "integration:pose-mcp/go/abm-atomic-start-integration",
+      "rationale": "Native mechanical preparation uses sealed evidence; not a claim of fresh all-green replay."
+    },
+    {
+      "id": "assess-tech-debt",
+      "disposition": "not-used",
+      "rationale": "not used during automated attestation"
+    },
+    {
+      "id": "closeout-check",
+      "disposition": "deferred",
+      "rationale": "post-review gate"
+    },
+    {
+      "id": "history-check",
+      "disposition": "passed",
+      "evidence": "check:history-check",
+      "rationale": "Native mechanical preparation uses sealed evidence; not a claim of fresh all-green replay."
+    },
+    {
+      "id": "knowledge-check",
+      "disposition": "passed",
+      "evidence": "check:knowledge-check",
+      "rationale": "Native mechanical preparation uses sealed evidence; not a claim of fresh all-green replay."
+    },
+    {
+      "id": "review-check",
+      "disposition": "deferred",
+      "rationale": "post-review gate"
+    },
+    {
+      "id": "suggest-review",
+      "component": "docs-site",
+      "disposition": "not-used",
+      "rationale": "not used during automated attestation"
+    },
+    {
+      "id": "suggest-review",
+      "component": "pose-mcp",
+      "disposition": "not-used",
+      "rationale": "not used during automated attestation"
+    },
+    {
+      "id": "validate",
+      "component": "docs-site",
+      "disposition": "not-used",
+      "rationale": "the validation matrix declares this component runs no check, so no producer can emit evidence of class "
+    },
+    {
+      "id": "validate",
+      "component": "pose-mcp",
+      "disposition": "passed",
+      "evidence": "check:validate",
+      "rationale": "Sealed strict validation at HEAD is 180/180 with matching matrix/provenance. Independent replay failed 125/52 in sandbox; parent full-suite control and exclusions are disclosed in regression judgment."
+    }
+  ],
+  "evidence_refs": [
+    "integration:pose-mcp/go/git-and-dispatch-snapshot-integrity-integration"
+  ],
+  "findings": [],
+  "attribution": {
+    "schema_version": 1,
+    "prepared_by": "agent:independent-reached-milestones-sol-20261101",
+    "concluded_by": "agent:independent-reached-milestones-sol-20261101",
+    "applied_by": "agent:codex"
+  },
+  "attested_at": "2026-11-02T03:22:19Z",
+  "path": ".pose/review-attestations/rva-17c8f555e6f9d246.json"
+}
