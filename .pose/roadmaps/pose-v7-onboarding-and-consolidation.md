@@ -1,6 +1,6 @@
 ---
 slug: pose-v7-onboarding-and-consolidation
-status: draft
+status: done
 created_at: 2026-10-05
 depends_on:
 ---

@@ -1,8 +1,8 @@
 # Technical Debt Assessment: pose-dist
 
 > **Gerado por**: POSE Technical Debt Engine (`pose assess tech-debt`)
-> **Data de Avaliação**: 2026-11-02T15:06:38Z
-> **Baseline Commit**: 6e93338771ed
+> **Data de Avaliação**: 2026-11-02T15:28:07Z
+> **Baseline Commit**: cd22fe8d61a3
 
 ## 1. Resumo Executivo
 
