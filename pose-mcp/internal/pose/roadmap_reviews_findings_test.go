@@ -242,8 +242,10 @@ func TestABriefAcceptedWholeIsDelivered(t *testing.T) {
 		}
 	}
 	for i := 0; i < 200; i++ {
+		// A child that does not read races the writer: the pipe took the bytes, or it
+		// was gone first. Either answer can be true, and it has to match the bytes.
 		_, count, complete, _, err := runProvenanceCommand(exec.Command("true"), "brief")
-		if err != nil || !complete || count != 5 {
+		if accepted := count == 5; accepted != complete || accepted != (err == nil) {
 			t.Fatalf("run %d: count=%d complete=%v err=%v", i, count, complete, err)
 		}
 	}
