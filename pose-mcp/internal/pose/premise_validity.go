@@ -174,7 +174,7 @@ func (s Store) premiseObligations(project string, specs []Spec) ([]Obligation, e
 		basis := ValidateDesignBasisIn(s.fsys(), string(raw), s.Root)
 		for _, a := range basis.Assumptions {
 			stale := a.StaleTriggerList()
-			if len(stale) == 0 {
+			if len(stale) == 0 || a.Status == "withdrawn" {
 				continue
 			}
 			artifact := ArtifactRef{Kind: "spec", Slug: sp.Slug}
@@ -184,6 +184,9 @@ func (s Store) premiseObligations(project string, specs []Spec) ([]Obligation, e
 			o.ReasonCode = "premise-stale"
 			scope := []NodeRef{node}
 			for _, d := range basis.Decisions {
+				if d.Status == "withdrawn" {
+					continue
+				}
 				for _, b := range d.Basis {
 					if b == a.ID {
 						scope = append(scope, QualifyNodeRef(project, artifact, "decision", d.ID))

@@ -4,8 +4,11 @@ import (
 	"errors"
 	"os"
 	"path/filepath"
+	"runtime"
 	"strings"
+	"syscall"
 	"testing"
+	"time"
 )
 
 func TestAPremiseOutlivesItsDelivery(t *testing.T) {
@@ -68,40 +71,158 @@ func TestAnEmptyGitDirectoryIsNoRepository(t *testing.T) {
 	}
 }
 
-func TestOnlyAMissingLinkFallsBack(t *testing.T) {
-	dir := t.TempDir()
-	path := filepath.Join(dir, "record.json")
-	linkFile = func(string, string) error {
-		return &os.LinkError{Op: "link", Err: errors.New("no space left on device")}
+func TestEveryRepositoryGitFindsIsARepository(t *testing.T) {
+	base, err := filepath.EvalSymlinks(t.TempDir())
+	if err != nil {
+		t.Fatal(err)
 	}
-	t.Cleanup(func() { linkFile = os.Link })
-	if err := PublishFile(path, []byte("sealed\n"), 0o644, PublishAuthoritative, PublishExpectation{Mode: ExpectAbsent}); err == nil {
-		t.Fatal("a failed link fell back to an in-place write")
+	repo := filepath.Join(base, "repo")
+	sub := filepath.Join(repo, "sub")
+	if err := os.MkdirAll(sub, 0o755); err != nil {
+		t.Fatal(err)
 	}
-	if _, err := os.Stat(path); err == nil {
-		t.Fatal("a record was left by a failed link")
+	designDeltaGit(t, repo, "init", "-q")
+	alias := filepath.Join(base, "alias")
+	if err := os.Symlink(sub, alias); err != nil {
+		t.Skip(err)
+	}
+	bare := filepath.Join(base, "bare.git")
+	if err := os.Mkdir(bare, 0o755); err != nil {
+		t.Fatal(err)
+	}
+	designDeltaGit(t, bare, "init", "-q", "--bare")
+	for name, dir := range map[string]string{"link out of the lexical path": alias, "bare": bare} {
+		if !hasGitMetadata(dir) || GitNotARepository(dir) {
+			t.Errorf("%s: git finds a repository, the engine does not", name)
+		}
 	}
 }
 
-func TestACutWriteLeavesNoRecord(t *testing.T) {
+func TestAMarkerThatIsNoRepositoryEndsTheIgnoreWalk(t *testing.T) {
+	for name, content := range map[string]bool{"empty": false, "broken": true} {
+		t.Run(name, func(t *testing.T) {
+			root, err := filepath.EvalSymlinks(t.TempDir())
+			if err != nil {
+				t.Fatal(err)
+			}
+			designDeltaGit(t, root, "init", "-q")
+			designDeltaGit(t, root, "config", "user.name", "Fixture")
+			designDeltaGit(t, root, "config", "user.email", "fixture@example.invalid")
+			designDeltaGit(t, root, "commit", "-q", "--allow-empty", "-m", "base")
+			head := designDeltaGit(t, root, "rev-parse", "HEAD")
+			designDeltaGit(t, root, "update-index", "--add", "--cacheinfo", "160000,"+head+",sm")
+			if err := os.MkdirAll(filepath.Join(root, "sm", ".git"), 0o755); err != nil {
+				t.Fatal(err)
+			}
+			if content {
+				writeReviewFixture(t, root, "sm/.git/config", "broken")
+			}
+			done := make(chan struct{})
+			go func() {
+				defer close(done)
+				collectGitIgnoredPaths(NativeFiles(), root, "", map[string]bool{})
+			}()
+			select {
+			case <-done:
+			case <-time.After(20 * time.Second):
+				t.Fatal("the walk went back into the same repository")
+			}
+		})
+	}
+}
+
+func nativeNoLinks() error {
+	if runtime.GOOS == "windows" {
+		return syscall.Errno(50)
+	}
+	return syscall.ENOTSUP
+}
+
+func TestOnlyAMissingLinkFallsBack(t *testing.T) {
+	cases := map[string]struct {
+		err      error
+		fallback bool
+	}{
+		"no links here": {nativeNoLinks(), true},
+		"no space":      {syscall.ENOSPC, false},
+		"no permission": {syscall.EACCES, false},
+		"generic":       {errors.New("failed"), false},
+	}
+	if runtime.GOOS != "windows" {
+		cases["a filesystem or policy refusing links"] = struct {
+			err      error
+			fallback bool
+		}{syscall.EPERM, true}
+	}
+	for name, c := range cases {
+		t.Run(name, func(t *testing.T) {
+			dir := t.TempDir()
+			path := filepath.Join(dir, "record.json")
+			linkFile = func(string, string) error { return &os.LinkError{Op: "link", Err: c.err} }
+			t.Cleanup(func() { linkFile = os.Link })
+			err := PublishFile(path, []byte("sealed\n"), 0o644, PublishAuthoritative, PublishExpectation{Mode: ExpectAbsent})
+			if _, statErr := os.Stat(path); c.fallback != (err == nil && statErr == nil) {
+				t.Fatalf("fallback=%v: err=%v stat=%v", c.fallback, err, statErr)
+			}
+		})
+	}
+}
+
+func TestTheFallbackAnswersForItsDirectory(t *testing.T) {
 	dir := t.TempDir()
 	path := filepath.Join(dir, "record.json")
+	linkFile = func(string, string) error { return &os.LinkError{Op: "link", Err: nativeNoLinks()} }
+	t.Cleanup(func() { linkFile = os.Link })
 	PublishSyncHook = func(kind, _ string) error {
-		if kind == "exclusive" {
+		if kind == "dir" {
 			return errors.New("injected")
 		}
 		return nil
 	}
 	t.Cleanup(func() { PublishSyncHook = nil })
-	if err := publishExclusive(path, []byte("whole\n"), 0o644, PublishAuthoritative); err == nil {
-		t.Fatal("the fixture did not fail")
+	err := PublishFile(path, []byte("sealed\n"), 0o644, PublishAuthoritative, PublishExpectation{Mode: ExpectAbsent})
+	if !errors.Is(err, ErrPublishUnsynced) {
+		t.Fatalf("a fallback skipped the sync of its directory: %v", err)
 	}
-	if _, err := os.Stat(path); err == nil {
-		t.Fatal("a cut write left a record that refuses every retry")
+	if tmp := leftovers(t, dir); len(tmp) != 0 {
+		t.Fatalf("staging left: %v", tmp)
 	}
-	PublishSyncHook = nil
-	if err := publishExclusive(path, []byte("whole\n"), 0o644, PublishAuthoritative); err != nil {
-		t.Fatalf("a retry was refused: %v", err)
+}
+
+func TestAWithdrawnPremiseAsksForNothing(t *testing.T) {
+	probe, _ := premiseFixture(t, "doc:api/payments.proto")
+	pin := digestPrefix(t, probe, "api/payments.proto")
+	_, s := premiseFixture(t, "doc:api/payments.proto@"+pin)
+	if err := os.WriteFile(filepath.Join(s.Root, "api/payments.proto"), []byte("syntax = \"proto3\";\nmessage Charge {}\n"), 0o644); err != nil {
+		t.Fatal(err)
+	}
+	specs, err := s.ListSpecs("", "")
+	if err != nil {
+		t.Fatal(err)
+	}
+	edit := func(from, to string) {
+		t.Helper()
+		for _, sp := range specs {
+			raw, err := os.ReadFile(sp.Path)
+			if err != nil {
+				t.Fatal(err)
+			}
+			if !strings.Contains(string(raw), from) {
+				t.Fatalf("the fixture has no %q", from)
+			}
+			if err := os.WriteFile(sp.Path, []byte(strings.Replace(string(raw), from, to, 1)), 0o644); err != nil {
+				t.Fatal(err)
+			}
+		}
+	}
+	edit("### Decision D1\n", "### Decision D1\n- Status: withdrawn\n")
+	got := premiseObligationsFor(t, s)
+	if len(got) != 1 || len(got[0].Targets) != 1 {
+		t.Fatalf("a withdrawn decision is still asked about: %+v", got)
+	}
+	edit("- Status: verified\n", "- Status: withdrawn\n")
+	if got := premiseObligationsFor(t, s); len(got) != 0 {
+		t.Fatalf("a withdrawn premise is still asked about: %+v", got)
 	}
 }
 

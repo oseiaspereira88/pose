@@ -83,8 +83,27 @@ func collectGitIgnoredPaths(files Files, dir, prefix string, ignored map[string]
 		if _, err := files.Stat(filepath.Join(path, ".git")); err != nil {
 			continue
 		}
+		// A marker that is no repository leaves git in the enclosing one too.
+		if resolvesToEnclosingRepository(path) {
+			continue
+		}
 		collectGitIgnoredPaths(files, path, prefix+submodule+"/", ignored)
 	}
+}
+
+// resolvesToEnclosingRepository reports that git, asked about dir, answers for a repository
+// rooted somewhere else. A git that cannot answer is left to the walk, which discloses it.
+func resolvesToEnclosingRepository(dir string) bool {
+	out, err := RawHistoryGit(dir, "rev-parse", "--show-toplevel").Output()
+	if err != nil {
+		return false
+	}
+	physical, err := filepath.EvalSymlinks(dir)
+	if err != nil {
+		return false
+	}
+	top, err := filepath.EvalSymlinks(strings.TrimSpace(string(out)))
+	return err == nil && top != physical
 }
 
 // gitSubmodulePaths lists the gitlinks (mode 160000) recorded in dir's index.

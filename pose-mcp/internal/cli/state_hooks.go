@@ -130,7 +130,8 @@ func stateRefreshConsumer(root string, ev HookEvent) error {
 		return fmt.Errorf("state-refresh (strict): %w", err)
 	}
 	// The refresh took effect and only its durability is unconfirmed: the state
-	// is current, and pending would claim a refresh that is not owed.
+	// is current, and pending would claim a refresh that is not owed. A strict
+	// policy has refused this above, since durability is what it asks for.
 	if errors.Is(err, pose.ErrPublishUnsynced) {
 		return nil
 	}

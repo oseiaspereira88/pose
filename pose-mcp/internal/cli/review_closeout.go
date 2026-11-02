@@ -1735,7 +1735,7 @@ func cmdCloseLocal(root, ref string, guard func() error, stdout, stderr io.Write
 
 // The pipeline confirms a transition only from the write point, never exit 0
 // alone: another execution may have closed the scope since it planned.
-func cmdCloseLocalWithEffect(root, ref string, guard func() error, stdout, stderr io.Writer, transitioned func()) int {
+func cmdCloseLocalWithEffect(root, ref string, guard func() error, stdout, stderr io.Writer, transitioned func(unsynced error)) int {
 	store := cliGovernedStore(root)
 	// The gates below judge the artifact as it is now; the transition is
 	// published only over those same bytes (spec
@@ -1910,6 +1910,7 @@ func cmdCloseLocalWithEffect(root, ref string, guard func() error, stdout, stder
 			return 1
 		}
 	}
+	var unsynced error
 	if err := applyLifecycleDone(path, scope.Kind == "spec", judged); err != nil {
 		if errors.Is(err, posemodel.ErrPublishConflict) {
 			render(io.Discard, stderr).Failure("pose close: " + err.Error() + "; the gates judged other bytes, so run `pose close " + ref + "` again to judge the current ones")
@@ -1921,10 +1922,11 @@ func cmdCloseLocalWithEffect(root, ref string, guard func() error, stdout, stder
 			fmt.Fprintf(stderr, "pose close: %v\n", err)
 			return 1
 		}
+		unsynced = err
 		render(stdout, stderr).Field("close.unsynced", err.Error())
 	}
 	if transitioned != nil {
-		transitioned()
+		transitioned(unsynced)
 	}
 	fmt.Fprintf(stdout, "Closed: %s\n", ref)
 	renderCloseNext(render(stdout, stderr), nextCloses(store, ref))

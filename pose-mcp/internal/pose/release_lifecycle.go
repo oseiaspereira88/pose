@@ -678,18 +678,7 @@ func GitNotARepository(root string) bool {
 	if !errors.As(err, &failure) || !strings.Contains(failure.Stderr, "not a git repository") {
 		return false
 	}
-	abs, absErr := filepath.Abs(root)
-	if absErr != nil {
-		return false
-	}
-	for dir := abs; ; dir = filepath.Dir(dir) {
-		if gitMetadataAt(dir) {
-			return false
-		}
-		if filepath.Dir(dir) == dir {
-			return true
-		}
-	}
+	return !hasGitMetadata(root)
 }
 
 func gitNotARepository(root string) bool { return GitNotARepository(root) }

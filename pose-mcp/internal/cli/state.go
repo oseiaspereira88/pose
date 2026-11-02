@@ -91,7 +91,9 @@ func cmdStateInit(root string, stdout, stderr io.Writer) int {
 		fmt.Fprintf(stderr, "Error: project state already exists: %s\n", store.StatePath())
 		return 1
 	}
-	if _, err := runRefresh(root, refreshOptions{Trigger: "manual"}, false); err != nil {
+	if _, err := runRefresh(root, refreshOptions{Trigger: "manual"}, false); errors.Is(err, pose.ErrPublishUnsynced) {
+		render(stdout, stderr).Field("state.unsynced", err.Error())
+	} else if err != nil {
 		var partial *stateRefreshPartialError
 		if errors.As(err, &partial) {
 			render(stdout, stderr).Field("state.published", store.StatePath())
@@ -129,7 +131,9 @@ func cmdStateRefresh(root string, args []string, stdout, stderr io.Writer) int {
 			return 0
 		}
 	}
-	if _, err := runRefresh(root, refreshOptions{Trigger: "manual"}, true); err != nil {
+	if _, err := runRefresh(root, refreshOptions{Trigger: "manual"}, true); errors.Is(err, pose.ErrPublishUnsynced) {
+		render(stdout, stderr).Field("state.unsynced", err.Error())
+	} else if err != nil {
 		var partial *stateRefreshPartialError
 		if errors.As(err, &partial) {
 			render(stdout, stderr).Field("state.published", store.StatePath())

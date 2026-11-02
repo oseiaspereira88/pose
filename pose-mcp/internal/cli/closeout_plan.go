@@ -437,10 +437,14 @@ func applyClosePlan(root string, store posemodel.Store, ref, mode, digest, revie
 		case posemodel.CloseoutStepTransition:
 			stepRef = ref
 			transitioned := false
-			if code := cmdCloseLocalWithEffect(root, ref, nil, &buffer, &buffer, func() { transitioned = true }); code != 0 {
+			var unsynced error
+			if code := cmdCloseLocalWithEffect(root, ref, nil, &buffer, &buffer, func(err error) { transitioned, unsynced = true, err }); code != 0 {
 				stepErr, cause = fmt.Errorf("guarded transition refused: %s", strings.TrimSpace(buffer.String())), "transition-refused"
 			} else if !transitioned {
 				stepErr, cause, wrote = fmt.Errorf("the lifecycle was already done when the transition ran; re-plan to verify that state"), "transition-not-executed", false
+			}
+			if unsynced != nil {
+				result.Unconfirmed = append(result.Unconfirmed, posemodel.OperationUncertain{Step: "transition-durability", Reason: "the close took effect, and " + unsynced.Error()})
 			}
 		}
 		if stepErr != nil {

@@ -2,7 +2,7 @@
 
 Spec: [pose-roadmap-reviews-findings](../specs/2026-11-02-pose-roadmap-reviews-findings.md). It completes the plan in [pose-v7-legacy-cleanup-plan.md](pose-v7-legacy-cleanup-plan.md), which measured pose-dist only, against the gate of milestone `major-cleanup-plan`.
 
-`pose migrate v7 --dry-run --json` writes nothing. On Harne8 the SHA-256 over every path and byte under `.pose` was `b40fc9d6187907f1` before and after the run.
+`pose migrate v7 --dry-run --json` writes nothing. On Harne8 the SHA-256 over every path and byte under `.pose` was `b40fc9d6187907f1` before and after the run: `find .pose -type f -print0 | sort -z | xargs -0 sha256sum | sha256sum`, first 16 characters.
 
 | Class | pose-dist `fcd11da9` | Harne8 `ba83cbfb` |
 |---|---:|---:|

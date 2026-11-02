@@ -161,20 +161,25 @@ func PublishFile(path string, data []byte, perm os.FileMode, class string, expec
 				if !linkUnsupported(err) {
 					return err
 				}
-				// A filesystem without hard links: create exclusively and
-				// write. A reader may then see a record whose write was cut
-				// short, which the readers of immutable records refuse.
-				return publishExclusive(path, data, perm, class)
+				// A link is unavailable here: create exclusively and write. A
+				// reader may then see a record whose write was cut short, which
+				// the readers of immutable records refuse. It stays in place:
+				// the name may no longer be this write's by the time it fails,
+				// and removing it could take another writer's record with it.
+				if err := publishExclusive(path, data, perm, class); err != nil {
+					return err
+				}
+			} else {
+				current, readErr := os.ReadFile(path)
+				if readErr != nil {
+					return readErr
+				}
+				if digestHex(current) != digestHex(data) {
+					return &PublishConflictError{Path: path, Expected: "absent", Found: digestHex(current)}
+				}
+				// The same immutable bytes are already published: a retry.
+				return nil
 			}
-			current, readErr := os.ReadFile(path)
-			if readErr != nil {
-				return readErr
-			}
-			if digestHex(current) != digestHex(data) {
-				return &PublishConflictError{Path: path, Expected: "absent", Found: digestHex(current)}
-			}
-			// The same immutable bytes are already published: a retry.
-			return nil
 		}
 		os.Remove(name)
 		published = true
@@ -229,25 +234,20 @@ func publishExclusive(path string, data []byte, perm os.FileMode, class string) 
 		return err
 	}
 	_, err = f.Write(data)
-	if err == nil && class == PublishAuthoritative && PublishSyncHook != nil {
-		err = PublishSyncHook("exclusive", path)
-	}
 	if err == nil && class == PublishAuthoritative {
 		err = f.Sync()
 	}
 	if closeErr := f.Close(); err == nil {
 		err = closeErr
 	}
-	if err != nil {
-		// This call created the file exclusively, so what is there is its own cut
-		// write: left behind, it would refuse every retry as a conflict.
-		_ = os.Remove(path)
-	}
 	return err
 }
 
-// linkUnsupported reports a filesystem that has no hard links, as opposed to a link
-// that failed for any other reason.
+// linkUnsupported reports that a link cannot be made here at all, as opposed to one that
+// failed for a reason a retry could survive. The source is a regular file this process has
+// just created, so the EPERM of a directory or of an immutable file does not apply: what is
+// left is a filesystem without links or a policy refusing them, and either way no link is
+// coming. Anything else, such as ENOSPC or EACCES, is the failure of this publication.
 func linkUnsupported(err error) bool {
 	if runtime.GOOS == "windows" {
 		const errorInvalidFunction, errorNotSupported = syscall.Errno(1), syscall.Errno(50)

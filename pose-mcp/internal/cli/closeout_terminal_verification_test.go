@@ -77,7 +77,7 @@ func TestTerminalVerificationNoopDoesNotConfirmTransitionEffect(t *testing.T) {
 	}
 	var out, errOut bytes.Buffer
 	transitioned := false
-	if code := cmdCloseLocalWithEffect(root, "spec:bundle", nil, &out, &errOut, func() { transitioned = true }); code != 0 || transitioned {
+	if code := cmdCloseLocalWithEffect(root, "spec:bundle", nil, &out, &errOut, func(error) { transitioned = true }); code != 0 || transitioned {
 		t.Fatalf("noop confirmed foreign effect %d %t %s%s", code, transitioned, out.String(), errOut.String())
 	}
 	out.Reset()

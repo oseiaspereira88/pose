@@ -8,7 +8,6 @@ import (
 	"path/filepath"
 	"strings"
 	"sync"
-	"syscall"
 	"testing"
 )
 
@@ -266,7 +265,7 @@ func TestAnImmutablePublicationWorksWithoutHardLinks(t *testing.T) {
 	dir := t.TempDir()
 	path := filepath.Join(dir, "baseline.json")
 	linkFile = func(string, string) error {
-		return &os.LinkError{Op: "link", Err: syscall.ENOTSUP}
+		return &os.LinkError{Op: "link", Err: nativeNoLinks()}
 	}
 	t.Cleanup(func() { linkFile = os.Link })
 	if err := PublishFile(path, []byte("sealed\n"), 0o644, PublishAuthoritative, PublishExpectation{Mode: ExpectAbsent}); err != nil {

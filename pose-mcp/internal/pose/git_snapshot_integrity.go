@@ -295,6 +295,15 @@ func hasGitMetadata(root string) bool {
 	if err != nil {
 		return true
 	}
+	if gitMetadataAbove(dir) {
+		return true
+	}
+	// git walks the physical path, and a link can lead out of the lexical one.
+	physical, err := filepath.EvalSymlinks(dir)
+	return err == nil && physical != dir && gitMetadataAbove(physical)
+}
+
+func gitMetadataAbove(dir string) bool {
 	for {
 		if gitMetadataAt(dir) {
 			return true
@@ -309,8 +318,11 @@ func hasGitMetadata(root string) bool {
 
 // gitMetadataAt reports that dir holds something of a repository, however broken. An empty
 // `.git` directory holds nothing: git walks past it, and a sandbox masks the name with one in
-// every root it makes writable.
+// every root it makes writable. A bare repository has no `.git` and is its own directory.
 func gitMetadataAt(dir string) bool {
+	if isBareRepository(dir) {
+		return true
+	}
 	path := filepath.Join(dir, ".git")
 	info, err := os.Lstat(path)
 	if err != nil {
@@ -321,6 +333,20 @@ func gitMetadataAt(dir string) bool {
 	}
 	entries, err := os.ReadDir(path)
 	return err != nil || len(entries) > 0
+}
+
+// isBareRepository applies the test git applies to a directory it is asked to treat as one.
+func isBareRepository(dir string) bool {
+	head, err := os.Lstat(filepath.Join(dir, "HEAD"))
+	if err != nil || head.IsDir() {
+		return false
+	}
+	for _, name := range []string{"objects", "refs"} {
+		if info, err := os.Stat(filepath.Join(dir, name)); err != nil || !info.IsDir() {
+			return false
+		}
+	}
+	return true
 }
 
 type GitStatusEntry struct{ XY, Path, OrigPath string }

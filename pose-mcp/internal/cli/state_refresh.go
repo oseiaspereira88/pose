@@ -10,6 +10,7 @@ import (
 	"crypto/sha256"
 	"encoding/hex"
 	"encoding/json"
+	"errors"
 	"fmt"
 	"os"
 	"path/filepath"
@@ -253,8 +254,14 @@ func runRefresh(root string, opts refreshOptions, mustExist bool) (*refreshLogEn
 		}
 	}
 
+	// A publication with its durability unconfirmed took effect: every later effect of
+	// the refresh is owed, and the unconfirmed durability is what is reported.
+	var unsynced error
 	if err := pose.PublishFile(store.StatePath(), []byte(out.String()), 0o644, pose.PublishAuthoritative, pose.ExpectBytes(preimage, exists)); err != nil {
-		return failedRefresh(root, opts, key, started, err)
+		if !errors.Is(err, pose.ErrPublishUnsynced) {
+			return failedRefresh(root, opts, key, started, err)
+		}
+		unsynced = err
 	}
 	// The state is published; the audit entry is a second effect. Its
 	// failure is reported as such, never as a refresh that did nothing
@@ -273,10 +280,13 @@ func runRefresh(root string, opts refreshOptions, mustExist bool) (*refreshLogEn
 	entry := refreshLogEntry{At: started.UTC().Format(time.RFC3339), Trigger: opts.Trigger, Target: opts.Target,
 		DedupKey: key, Consumer: "state-refresh", Result: "ok", DurationMS: time.Since(started).Milliseconds(),
 		ChangedSections: changed, Directed: opts.Directed != nil}
+	if unsynced != nil {
+		entry.Result, entry.Error = "unsynced", unsynced.Error()
+	}
 	if err := appendRefreshLog(root, entry); err != nil {
 		return &entry, err // artifact already written successfully; log append failure is secondary
 	}
-	return &entry, nil
+	return &entry, unsynced
 }
 
 func failedRefresh(root string, opts refreshOptions, key string, started time.Time, cause error) (*refreshLogEntry, error) {
