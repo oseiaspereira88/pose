@@ -7,7 +7,6 @@ import (
 	"github.com/harne8/pose-mcp/internal/version"
 	"io"
 	"os"
-	"os/exec"
 	"path/filepath"
 	"regexp"
 	"sort"
@@ -1080,15 +1079,22 @@ func stripHTMLComments(value string) string {
 }
 
 func (checker *nativeChecker) checkReadyTransitions() {
+	for _, rel := range checker.readyTransitionCandidates() {
+		checker.checkReadyTransition(rel)
+	}
+}
+
+// readyTransitionCandidates lists the spec files that differ from HEAD or are new.
+func (checker *nativeChecker) readyTransitionCandidates() []string {
 	if _, err := pose.RawHistoryGit(checker.root, "rev-parse", "--verify", "HEAD").Output(); err != nil {
-		return
+		return nil
 	}
 	changed := map[string]bool{}
 	for _, command := range [][]string{
-		{"git", "-C", checker.root, "diff", "--name-only", "HEAD", "--", ".pose/specs"},
-		{"git", "-C", checker.root, "ls-files", "--others", "--exclude-standard", "--", ".pose/specs"},
+		{"diff", "--name-only", "HEAD", "--", ".pose/specs"},
+		{"ls-files", "--others", "--exclude-standard", "--", ".pose/specs"},
 	} {
-		output, err := exec.Command(command[0], command[1:]...).Output()
+		output, err := pose.RawHistoryGit(checker.root, command...).Output()
 		if err != nil {
 			continue
 		}
@@ -1099,23 +1105,29 @@ func (checker *nativeChecker) checkReadyTransitions() {
 			}
 		}
 	}
+	found := make([]string, 0, len(changed))
 	for rel := range changed {
-		path := filepath.Join(checker.root, filepath.FromSlash(rel))
-		if simpleFrontmatterIn(checker.fsys(), path)["status"] != "in-progress" {
-			continue
+		found = append(found, rel)
+	}
+	sort.Strings(found)
+	return found
+}
+
+func (checker *nativeChecker) checkReadyTransition(rel string) {
+	path := filepath.Join(checker.root, filepath.FromSlash(rel))
+	if simpleFrontmatterIn(checker.fsys(), path)["status"] != "in-progress" {
+		return
+	}
+	old, _ := pose.RawHistoryGit(checker.root, "show", "HEAD:"+rel).Output()
+	if frontmatterFromText(string(old))["status"] == "in-progress" {
+		return
+	}
+	if !specReadyIn(checker.fsys(), checker.root, path) {
+		slug := simpleFrontmatterIn(checker.fsys(), path)["slug"]
+		if slug == "" {
+			slug = filepath.Base(filepath.Dir(path))
 		}
-		old, _ := pose.RawHistoryGit(checker.root, "show", "HEAD:"+rel).Output()
-		oldStatus := frontmatterFromText(string(old))["status"]
-		if oldStatus == "in-progress" {
-			continue
-		}
-		if !specReadyIn(checker.fsys(), checker.root, path) {
-			slug := simpleFrontmatterIn(checker.fsys(), path)["slug"]
-			if slug == "" {
-				slug = filepath.Base(filepath.Dir(path))
-			}
-			checker.failOrWarn(checker.message("DoR: transition to in-progress without Definition of Ready: ", "DoR: transição para in-progress sem Definition of Ready: ") + slug + checker.message(" (details: pose lint-spec ", " (detalhes: pose lint-spec ") + slug + " --ready-check)")
-		}
+		checker.failOrWarn(checker.message("DoR: transition to in-progress without Definition of Ready: ", "DoR: transição para in-progress sem Definition of Ready: ") + slug + checker.message(" (details: pose lint-spec ", " (detalhes: pose lint-spec ") + slug + " --ready-check)")
 	}
 }
 

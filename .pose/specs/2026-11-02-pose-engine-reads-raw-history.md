@@ -32,6 +32,8 @@ No reading of a repository by the engine can be redirected by a replace ref or a
 ### Non-goals
 
 - Authenticating a tag: a signature is another concern.
+- Executable Git configuration of the repository, such as `core.fsmonitor`, which the raw reader does not disarm.
+- Shell scripts the repository ships, and declared external checks: the rule covers the Go sources of the engine.
 - `.git/shallow`, handled by `pose-review-reads-raw-history-and-roots-diff`.
 
 ## 2. Requirements
@@ -39,8 +41,8 @@ No reading of a repository by the engine can be redirected by a replace ref or a
 ### Functional
 
 - R1: `pose release check` and `ReadReleaseSnapshot` shall read a tag's own tree when a replace ref redirects its commit.
-- R2: Every Git subprocess of the engine shall go through the raw reader, except those a named exception lists with its reason.
-- R3: A new direct Git subprocess in engine source shall fail a test.
+- R2: Every Git reading the Go sources of the engine start shall go through the raw reader, except those a named exception lists with its reason; a write keeps the index the operator selected.
+- R3: A new process start in engine source that names git, looks it up, runs it through a shell, or starts a program the source does not name without saying what it is, shall fail a test.
 
 ### Non-functional
 
@@ -52,7 +54,7 @@ No reading of a repository by the engine can be redirected by a replace ref or a
 
 ### Compatibility
 
-- An inherited `GIT_DIR` or `GIT_WORK_TREE` no longer redirects these calls. `-C` decides, as it does for the raw reader.
+- An inherited `GIT_DIR` or `GIT_WORK_TREE` no longer redirects a reading. `-C` decides, as it does for the raw reader. `pose report --git-stage` still stages into `GIT_INDEX_FILE`.
 
 ## 3. Technical Plan
 
@@ -92,6 +94,8 @@ Every non-test file that started `git` directly.
 - modified: pose-mcp/internal/pose/spec_trailers.go
 - modified: pose-mcp/internal/pose/git_snapshot_integrity.go
 - created: pose-mcp/internal/pose/engine_reads_raw_history_test.go
+- modified: pose-mcp/internal/pose/b07_r4b_probe_test.go
+- modified: pose-mcp/internal/cli/b07_r4b_probe_test.go
 - created: pose-mcp/internal/cli/engine_reads_raw_history_test.go
 
 ### Delivery targets
@@ -115,7 +119,7 @@ None but the environment noted under Compatibility.
 - Minimal option: route only the release helpers
 - Selected option: route every call and forbid new ones
 - Rationale: `pose-history-readers-read-raw` fixed the readers it listed, and this defect lived in the ones it did not; each exception would need the judgment that was missed here
-- Consequences: a large mechanical diff, with exceptions named in one test
+- Consequences: a large mechanical diff, with exceptions and dynamic launches named in one test, which reads the syntax tree because a pattern over the text missed two calls
 - Falsifier: a read that needs replace refs honored
 
 ## 6. Validation
@@ -127,8 +131,8 @@ The falsifier of the milestone review as an integration test, domain and CLI, se
 ### Requirement trace
 
 - R1 [planned] capability:engine-reads-raw-history evidence:integration check:engine-reads-raw-history-integration test:TestAReplacedTagTreeIsRefused test:TestReleaseCheckRefusesAReplacedTagTree
-- R2 [planned] check:engine-reads-raw-history-integration test:TestEngineStartsGitOnlyThroughTheRawReader
-- R3 [planned] check:engine-reads-raw-history-integration test:TestEngineStartsGitOnlyThroughTheRawReader
+- R2 [planned] check:engine-reads-raw-history-integration test:TestEngineStartsGitOnlyThroughTheRawReader test:TestReadyTransitionsReadRawHistory test:TestReportStagesIntoTheSelectedIndex
+- R3 [planned] check:engine-reads-raw-history-integration test:TestEngineStartsGitOnlyThroughTheRawReader test:TestTheLaunchScanSeesEveryForm
 
 ## 7. Final Report
 

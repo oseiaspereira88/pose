@@ -44,7 +44,7 @@ func TestB07R4BSourceHeadUnknown(t *testing.T) {
 	bin := t.TempDir()
 	marker := filepath.Join(t.TempDir(), "marker")
 	trace := filepath.Join(t.TempDir(), "trace")
-	body := "#!/bin/sh\nif test -f '" + marker + "' && test \"$2\" = '" + root + "' && test \"$3\" = rev-parse && test \"$4\" = --verify && test \"$5\" = HEAD; then echo refused >> '" + trace + "'; exit 97; fi\nexec '" + real + "' \"$@\"\n"
+	body := "#!/bin/sh\ncase \"$*\" in *\"-C " + root + " rev-parse --verify HEAD\"*) if test -f '" + marker + "'; then echo refused >> '" + trace + "'; exit 97; fi;; esac\nexec '" + real + "' \"$@\"\n"
 	if e = os.WriteFile(filepath.Join(bin, "git"), []byte(body), 0755); e != nil {
 		t.Fatal(e)
 	}

@@ -309,7 +309,7 @@ func TestB07R4BUnknownTopLevel(t *testing.T) {
 		t.Fatal(e)
 	}
 	bin := t.TempDir()
-	body := "#!/bin/sh\nif test \"$3\" = rev-parse && test \"$4\" = --show-toplevel; then exit 97; fi\nexec '" + real + "' \"$@\"\n"
+	body := "#!/bin/sh\ncase \"$*\" in *\"rev-parse --show-toplevel\"*) exit 97;; esac\nexec '" + real + "' \"$@\"\n"
 	os.WriteFile(filepath.Join(bin, "git"), []byte(body), 0755)
 	t.Setenv("PATH", bin+string(os.PathListSeparator)+os.Getenv("PATH"))
 	d, e := WorktreeDivergence(sub, head, nil)
