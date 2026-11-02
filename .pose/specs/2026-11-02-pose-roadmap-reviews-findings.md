@@ -150,9 +150,9 @@ The in-place fallback stays non-atomic: a write cut short leaves a partial recor
 
 ### Follow-ups
 
-- [open] F1: Stop `internal/cli/maintenance.go` accepting an empty `.git`, and resolve hook paths through git so a gitfile and a linked worktree work in `maintenance.go`, `doctor.go` and `setup.go` (review R2-F1). (owner:@oseiaspereira88 crit:medium review:2026-11-27)
-- [open] F2: Report installation adoption for what it did when a policy publishes unsynced, including whether a second document is owed (review R2-F2). (owner:@oseiaspereira88 crit:medium review:2026-11-27)
-- [open] F3: Keep an unresolved `unsynced` visible to `pose state validate` through a default deduplicated replay (review R2-F3). (owner:@oseiaspereira88 crit:low review:2026-11-27)
+- [spawned: pose-effects-reported-for-what-they-did] F1: Stop `internal/cli/maintenance.go` accepting an empty `.git`, and resolve hook paths through git so a gitfile and a linked worktree work in `maintenance.go`, `doctor.go` and `setup.go` (review R2-F1). (owner:@oseiaspereira88 crit:medium review:2026-11-27)
+- [spawned: pose-effects-reported-for-what-they-did] F2: Report installation adoption for what it did when a policy publishes unsynced, including whether a second document is owed (review R2-F2). (owner:@oseiaspereira88 crit:medium review:2026-11-27)
+- [spawned: pose-effects-reported-for-what-they-did] F3: Keep an unresolved `unsynced` visible to `pose state validate` through a default deduplicated replay (review R2-F3). (owner:@oseiaspereira88 crit:low review:2026-11-27)
 - [open] F4: Replace the prose test of the cleanup report with a deterministic inventory fixture, and retain the raw inventories (review F6). (owner:@oseiaspereira88 crit:low review:2026-11-27)
 - [open] F5: Fix the flake of `TestTheWaitAcknowledgementNeverTouchesAnExistingEntry` under load, a cleanup race not seen in 60 isolated runs. (owner:@oseiaspereira88 crit:low review:2026-11-27)
-- [open] F6: Render the `refresh_pending` marker of a lost refresh log as what it is in `pose state validate` and `pose doctor`, which read it as a failed refresh (review R4-F1). (owner:@oseiaspereira88 crit:low review:2026-11-27)
+- [spawned: pose-effects-reported-for-what-they-did] F6: Render the `refresh_pending` marker of a lost refresh log as what it is in `pose state validate` and `pose doctor`, which read it as a failed refresh (review R4-F1). (owner:@oseiaspereira88 crit:low review:2026-11-27)
