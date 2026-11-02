@@ -88,11 +88,11 @@ The integration review of `community-launch` found the public gate passing a REA
 
 ## 4. Tasks
 
-- [ ] Recognize a release tag link
-- [ ] Make the README evergreen
-- [ ] Remove the budget the quickstart cannot support
-- [ ] Close a delivery in the demo
-- [ ] Independent review and closeout
+- [x] Recognize a release tag link
+- [x] Make the README evergreen
+- [x] Remove the budget the quickstart cannot support
+- [x] Close a delivery in the demo
+- [x] Independent review and closeout
 
 ## 5. Decisions
 
@@ -112,15 +112,23 @@ A negative case in the public gate, seen failing first, and the gate run over th
 
 ### Requirement trace
 
-- R1 [planned] capability:community-claims-hold evidence:integration check:community-claims-hold-integration test:TestPublicClaimsFailsOnAStaleReleaseTagLink test:TestPublicClaimsFailsOnEveryShapeOfAStaleRelease test:TestOnlyTheReleaseHistoryBlockHoldsPastReleases test:TestAHistoryBlockCountsOnlyOnADeclaredSurface
-- R2 [planned] check:community-claims-hold-integration test:TestReadmeHoldsNoPerReleaseText
-- R3 [planned] check:community-claims-hold-integration test:TestQuickstartClaimsNoCurrentBudget
-- R4 [planned] check:demo-closes-a-delivery
+- R1 [satisfied] capability:community-claims-hold evidence:integration check:community-claims-hold-integration test:TestPublicClaimsFailsOnAStaleReleaseTagLink test:TestPublicClaimsFailsOnEveryShapeOfAStaleRelease test:TestOnlyTheReleaseHistoryBlockHoldsPastReleases test:TestAHistoryBlockCountsOnlyOnADeclaredSurface report:.pose/results/delivery-validation.json commit:028c8741bed1dcb4fdcfc6815b3eb93856c78c3c
+- R2 [satisfied] check:community-claims-hold-integration test:TestReadmeHoldsNoPerReleaseText report:.pose/results/delivery-validation.json commit:028c8741bed1dcb4fdcfc6815b3eb93856c78c3c
+- R3 [satisfied] check:community-claims-hold-integration test:TestQuickstartClaimsNoCurrentBudget report:.pose/results/delivery-validation.json commit:028c8741bed1dcb4fdcfc6815b3eb93856c78c3c
+- R4 [satisfied] check:demo-closes-a-delivery report:.pose/results/delivery-validation.json commit:028c8741bed1dcb4fdcfc6815b3eb93856c78c3c
 
 ## 7. Final Report
 
 ### Delivered scope
 
+`pose public-claims` now reads a release as a reader meets it: tag links, the label of a release link, badges and sentences that say latest or current, with or without the `v` and keeping a prerelease suffix. Past releases stand only in a marked block of a declared surface. The READMEs hold no per-release text and no count of what ships, the quickstart claims no budget until a current measure exists, and the demo blocks a delivery, has it reviewed and closes it through the gate in under three seconds of machine time, checked by the matrix. Independently reviewed by Codex in four rounds: the first refused a wording change in place of a real close.
+
 ### Residual risks
 
+The reviewer of the demo is the script, and it says so. A bare version in prose is treated as history, so a stale version with no word saying it is current passes. The gate covers declared surfaces only.
+
 ### Follow-ups
+
+- [open] F1: Measure the quickstart on a clean container and restore a dated budget; Docker was off during this spec. (owner:@oseiaspereira88 crit:medium review:2026-11-27)
+- [open] F2: Record the demo under 60 seconds and embed it, and publish a scoped contributor task and the Discussions space, which `community-surfaces` still owes. (owner:@oseiaspereira88 crit:medium review:2026-11-27)
+- [open] F3: Decide whether the landing page of Harne8 and the old docs host are surfaces of this gate, which `single-public-truth` still owes. (owner:@oseiaspereira88 crit:medium review:2026-11-27)
