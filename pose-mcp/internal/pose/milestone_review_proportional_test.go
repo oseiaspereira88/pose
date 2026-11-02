@@ -440,3 +440,35 @@ func TestAttentionKeepsLegacyRefusals(t *testing.T) {
 		})
 	}
 }
+
+func TestALegacyApprovalDoesNotEraseABundleRefusal(t *testing.T) {
+	_, s := inheritedFixture(t)
+	bundle, err := s.SealReviewBundle("milestone:program/core", reviewFixtureNow.Add(2*time.Minute))
+	if err != nil {
+		t.Fatal(err, bundle.Blockers)
+	}
+	attestChildReview(t, s, bundle, reviewFixtureNow.Add(3*time.Minute), "changes-requested")
+	writeReviewFixture(t, s.Root, ".pose/reviews/rvw-20260926T190000Z-aaaa1111.md", "---\nschema_version: 1\nreview_id: rvw-20260926T190000Z-aaaa1111\nscope: milestone:program/core\ndecision: approved\nreviewed_at: 2026-09-26T19:00:00Z\n---\n\n## Findings\n\nNone.\n")
+	cov := &Coverage{Producer: "closeout", State: CoverageStateCurrent}
+	if items, err := s.milestoneReachedObligations("coordinator", "", cov); err != nil || len(items) != 1 {
+		t.Fatalf("a legacy approval erased a recorded refusal: %v %v", items, err)
+	}
+}
+
+func TestALaterLegacyApprovalReplacesALegacyRefusal(t *testing.T) {
+	_, s := inheritedFixture(t)
+	writeReviewFixture(t, s.Root, ".pose/reviews/rvw-20260926T180000Z-aaaa1111.md", "---\nschema_version: 1\nreview_id: rvw-20260926T180000Z-aaaa1111\nscope: milestone:program/core\ndecision: rejected\nreviewed_at: 2026-09-26T18:00:00Z\n---\n\n## Findings\n\nNone.\n")
+	writeReviewFixture(t, s.Root, ".pose/reviews/rvw-20260926T190000Z-aaaa2222.md", "---\nschema_version: 1\nreview_id: rvw-20260926T190000Z-aaaa2222\nscope: milestone:program/core\ndecision: approved\nreviewed_at: 2026-09-26T19:00:00Z\n---\n\n## Findings\n\nNone.\n")
+	cov := &Coverage{Producer: "closeout", State: CoverageStateCurrent}
+	if items, err := s.milestoneReachedObligations("coordinator", "", cov); err != nil || len(items) != 0 {
+		t.Fatalf("a replaced refusal still stood: %v %v", items, err)
+	}
+}
+
+func TestReachedListsAnUnapprovedSingleton(t *testing.T) {
+	root, s, _, _ := federatedTestMilestoneConsumer(t)
+	editRoadmapFixture(t, root, "- specs: backend, xref:source/spec:backend\n", "- specs: backend\n")
+	if reached, err := s.ReachedMilestones(""); err != nil || len(reached) != 1 {
+		t.Fatalf("an unapproved milestone of one member was not listed: %v %v", reached, err)
+	}
+}

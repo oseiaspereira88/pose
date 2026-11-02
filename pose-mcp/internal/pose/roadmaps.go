@@ -56,7 +56,7 @@ func (s Store) ReachedMilestones(spec string) ([]string, error) {
 		// Its only member has just closed, uncommitted, so its verification cannot
 		// answer yet: only a refusal recorded on the milestone says it will not stand.
 		if parsed, err := ParseScopeRef(ref); err == nil {
-			if _, inherits := s.soleMemberOf(parsed); inherits && !s.milestoneReviewRefused(ref) {
+			if member, inherits := s.soleMemberOf(parsed); inherits && member == spec && !s.milestoneReviewRefused(ref) {
 				continue
 			}
 		}
@@ -221,11 +221,13 @@ func (s Store) milestonesWithRecordedApproval(refs []string) (recorded, refused 
 		recorded[ref] = approved
 	}
 	// The same veto as milestoneReviewRefused, from one read of the attempts.
+	latestAttempt := map[string]string{}
 	for _, attempt := range attempts.Attempts {
-		refused[attempt.Scope] = attempt.Decision == "rejected" || attempt.Decision == "changes-requested"
+		latestAttempt[attempt.Scope] = attempt.Decision
 	}
 	for _, ref := range refs {
-		refused[ref] = refused[ref] || !attempts.Coverage.CompleteFor(ref)
+		decision := latestAttempt[ref]
+		refused[ref] = refused[ref] || decision == "rejected" || decision == "changes-requested" || !attempts.Coverage.CompleteFor(ref)
 	}
 	return recorded, refused, nil
 }
