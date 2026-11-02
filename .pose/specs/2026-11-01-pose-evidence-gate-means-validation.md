@@ -89,10 +89,10 @@ The gate asks whether the evidence of a bundle is empty. Design evidence, which 
 
 ## 4. Tasks
 
-- [ ] Count validation results, not evidence
-- [ ] Measure closed scopes with the old and the new reader
-- [ ] Give the stale follow-ups their disposition
-- [ ] Independent review and closeout
+- [x] Count validation results, not evidence
+- [x] Measure closed scopes with the old and the new reader
+- [x] Give the stale follow-ups their disposition
+- [x] Independent review and closeout
 
 ## 5. Decisions
 
@@ -112,14 +112,20 @@ An integration test over a change set with no attributed result, seen failing fi
 
 ### Requirement trace
 
-- R1 [planned] capability:evidence-gate-means-validation evidence:integration check:evidence-gate-validation-integration test:TestDerivedEvidenceIsNotValidation test:TestAResultAtADerivedPathIsValidation test:TestNoNewSealOverDerivedEvidence test:TestDesignEvidenceIsRecognizedByItsOwnDigest
-- R2 [planned] check:evidence-gate-validation-integration test:TestAutoAttestRefusesDerivedEvidence
-- R3 [planned] check:evidence-gate-validation-integration test:TestClosedScopeKeepsItsDerivedSeal
+- R1 [satisfied] capability:evidence-gate-means-validation evidence:integration check:evidence-gate-validation-integration test:TestDerivedEvidenceIsNotValidation test:TestAResultAtADerivedPathIsValidation test:TestNoNewSealOverDerivedEvidence test:TestDesignEvidenceIsRecognizedByItsOwnDigest report:.pose/results/delivery-validation.json commit:e2aaf40b192372a0ef5c03cd2b4881e652a82484
+- R2 [satisfied] check:evidence-gate-validation-integration test:TestAutoAttestRefusesDerivedEvidence report:.pose/results/delivery-validation.json commit:e2aaf40b192372a0ef5c03cd2b4881e652a82484
+- R3 [satisfied] check:evidence-gate-validation-integration test:TestClosedScopeKeepsItsDerivedSeal report:.pose/results/delivery-validation.json commit:e2aaf40b192372a0ef5c03cd2b4881e652a82484
 
 ## 7. Final Report
 
 ### Delivered scope
 
+A new seal of a scope that requires validation evidence holds a validation result, whatever the lifecycle of the scope, and `pose review auto-attest` refuses a bundle without one. Derived evidence is recognized by an id and a report computed from its own provenance digest, which all 882 such entries of this repository carry. Closed scopes keep their approvals in verify, review-check, closeout and federated proof. Stale follow-ups received their disposition, and the reversed R3 of `pose-amendment-history-holds-before-close` reads as historical, with its test named for what it measures. Independently reviewed by Codex in three rounds: the first found that verification lost closed derived seals and that a report path could make a real result read as derived, the second that every field but the digest was the operator's and that the lifecycle exception let a seal depend on a status read.
+
 ### Residual risks
 
+The gate establishes that a validation result exists, not what it covers: plan, criteria and tools answer that. The four approved bundles sealed over derived evidence alone stand, the last of `pose-dist-adopt-published-v6`. The preparation of a done spec reports less than its seal refuses.
+
 ### Follow-ups
+
+None.
