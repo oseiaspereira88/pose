@@ -451,7 +451,9 @@ func gitCommand(args ...string) *exec.Cmd {
 // replace ref or a graft changes what a commit is, and every gate has to judge
 // the same commit (spec pose-history-readers-read-raw R1, D1).
 func gitCommandContext(ctx context.Context, args ...string) *exec.Cmd {
-	cmd := exec.CommandContext(ctx, "git", args...)
+	// The graft file below is the null device, and Git hints at any graft file on
+	// stderr, which a caller that reads stderr as uncertainty would take for a failure.
+	cmd := exec.CommandContext(ctx, "git", append([]string{"-c", "advice.graftFileDeprecated=false"}, args...)...)
 	env := make([]string, 0, len(os.Environ())+2)
 	for _, kv := range os.Environ() {
 		name, _, _ := strings.Cut(kv, "=")

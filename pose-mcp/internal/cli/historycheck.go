@@ -9,7 +9,6 @@ import (
 	posemodel "github.com/harne8/pose-mcp/internal/pose"
 	"io"
 	"os"
-	"os/exec"
 	"path/filepath"
 	"sort"
 	"strconv"
@@ -61,7 +60,7 @@ func cmdHistoryCheck(args []string, stdout, stderr io.Writer) int {
 		fmt.Fprintf(stderr, cliText(locale, "Error: history directory not found: %s\n", "Erro: history dir ausente: %s\n"), historyDir)
 		return 2
 	}
-	if err := exec.Command("git", "-C", root, "rev-parse", "--is-inside-work-tree").Run(); err != nil {
+	if err := posemodel.RawHistoryGit(root, "rev-parse", "--is-inside-work-tree").Run(); err != nil {
 		fmt.Fprintf(stderr, cliText(locale, "Error: not a git repository: %s\n", "Erro: não é um repositório git: %s\n"), root)
 		return 2
 	}
@@ -85,7 +84,7 @@ func cmdHistoryCheck(args []string, stdout, stderr io.Writer) int {
 	untracked, modified, clean := 0, 0, 0
 	for _, name := range files {
 		rel := filepath.ToSlash(filepath.Join(".pose", "reports", "history", name))
-		out, _ := exec.Command("git", "-C", root, "status", "--porcelain=v1", "--", rel).Output()
+		out, _ := posemodel.RawHistoryGit(root, "status", "--porcelain=v1", "--", rel).Output()
 		status := strings.TrimRight(string(out), "\n")
 		switch {
 		case status == "":

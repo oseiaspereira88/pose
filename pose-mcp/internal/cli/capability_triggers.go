@@ -14,7 +14,6 @@ import (
 	"fmt"
 	"io"
 	"os"
-	"os/exec"
 	"path/filepath"
 	"sort"
 	"strings"
@@ -202,7 +201,7 @@ func touchedFilesForCommit(root, commit string) []string {
 	if commit == "" || commit == "0000000" {
 		return nil
 	}
-	out, err := exec.Command("git", "-C", root, "show", "--pretty=format:", "--name-only", commit).Output()
+	out, err := pose.RawHistoryGit(root, "show", "--pretty=format:", "--name-only", commit).Output()
 	if err != nil {
 		return nil
 	}

@@ -9,7 +9,6 @@ import (
 	"fmt"
 	"io"
 	"os"
-	"os/exec"
 	"path/filepath"
 	"regexp"
 	"sort"
@@ -225,7 +224,7 @@ func runReportWith(root string, args []string, validationLog []byte, summary *va
 	}
 	if gitStage {
 		rel, _ := filepath.Rel(root, historyPath)
-		if err := exec.Command("git", "-C", root, "add", "--", filepath.ToSlash(rel)).Run(); err != nil {
+		if err := posemodel.RawHistoryGit(root, "add", "--", filepath.ToSlash(rel)).Run(); err != nil {
 			fmt.Fprintf(stderr, cliText(locale, "Error: staging history: %v\n", "Erro: adicionando histórico ao stage: %v\n"), err)
 			return 1
 		}
@@ -297,7 +296,7 @@ func reportChangedFiles(root, since string) []string {
 	} else {
 		args = append(args, "status", "--porcelain=v1")
 	}
-	output, err := exec.Command("git", args...).Output()
+	output, err := posemodel.RawGit(args...).Output()
 	if err != nil {
 		return nil
 	}

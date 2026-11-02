@@ -5,7 +5,6 @@ import (
 	"errors"
 	"fmt"
 	"os"
-	"os/exec"
 	"path/filepath"
 	"sort"
 	"strings"
@@ -58,7 +57,7 @@ func collectGitIgnoredPaths(files Files, dir, prefix string, ignored map[string]
 	// -z: line output C-quotes a non-ASCII name and trimming a line strips a
 	// leading space that is part of the name; either way the path never
 	// matched the directory a walker visits.
-	out, err := exec.Command("git", "-C", dir, "ls-files", "--others", "--ignored", "--exclude-standard", "--directory", "-z").Output()
+	out, err := RawHistoryGit(dir, "ls-files", "--others", "--ignored", "--exclude-standard", "--directory", "-z").Output()
 	if err != nil {
 		if p := FilesOrNative(files).Preview(); p != nil && hasGitMetadata(dir) {
 			p.Incomplete("source ignore discovery " + dir + ": " + err.Error())
@@ -90,7 +89,7 @@ func collectGitIgnoredPaths(files Files, dir, prefix string, ignored map[string]
 
 // gitSubmodulePaths lists the gitlinks (mode 160000) recorded in dir's index.
 func gitSubmodulePaths(files Files, dir string) []string {
-	out, err := exec.Command("git", "-C", dir, "ls-files", "--stage", "-z").Output()
+	out, err := RawHistoryGit(dir, "ls-files", "--stage", "-z").Output()
 	if err != nil {
 		if p := FilesOrNative(files).Preview(); p != nil && hasGitMetadata(dir) {
 			p.Incomplete("source submodule discovery " + dir + ": " + err.Error())
@@ -535,7 +534,7 @@ func (s Store) componentMetadata(componentPath string) map[string]string {
 }
 
 func (s Store) resolveGitCommit() string {
-	cmd := exec.Command("git", "-C", s.Root, "rev-parse", "--short=12", "HEAD")
+	cmd := RawHistoryGit(s.Root, "rev-parse", "--short=12", "HEAD")
 	out, err := cmd.Output()
 	if err != nil {
 		return "0000000"

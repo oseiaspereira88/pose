@@ -321,9 +321,9 @@ func gitOutputUntranslated(root string, args ...string) (string, error) {
 }
 
 func gitOutputIn(root string, env []string, args ...string) (string, error) {
-	cmd := exec.Command("git", append([]string{"-C", root}, args...)...)
+	cmd := RawHistoryGit(root, args...)
 	if env != nil {
-		cmd.Env = append(os.Environ(), env...)
+		cmd.Env = append(cmd.Env, env...)
 	}
 	var stderr bytes.Buffer
 	cmd.Stderr = &stderr

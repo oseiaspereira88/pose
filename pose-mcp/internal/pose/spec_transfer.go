@@ -9,7 +9,6 @@ import (
 	"fmt"
 	"io"
 	"os"
-	"os/exec"
 	"path/filepath"
 	"reflect"
 	"regexp"
@@ -640,11 +639,11 @@ func transferPathClean(files Files, root, relative string) error {
 }
 
 func transferGitRevision(root string) (string, error) {
-	top, err := exec.Command("git", "-C", root, "rev-parse", "--show-toplevel").Output()
+	top, err := RawHistoryGit(root, "rev-parse", "--show-toplevel").Output()
 	if err != nil || !sameProjectRoot(NativeFiles(), root, strings.TrimSpace(string(top))) {
 		return "", errors.New("not-a-project-root")
 	}
-	head, err := exec.Command("git", "-C", root, "rev-parse", "--verify", "HEAD").Output()
+	head, err := RawHistoryGit(root, "rev-parse", "--verify", "HEAD").Output()
 	if err != nil {
 		return "", err
 	}

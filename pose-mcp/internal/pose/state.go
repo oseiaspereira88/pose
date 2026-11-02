@@ -16,7 +16,6 @@ import (
 	"encoding/json"
 	"fmt"
 	"os"
-	"os/exec"
 	"path/filepath"
 	"regexp"
 	"sort"
@@ -330,7 +329,7 @@ func (s Store) commitsSince(ctx context.Context, baseline string) (int, error) {
 	}
 	ctx, cancel := context.WithTimeout(ctx, 5*time.Second)
 	defer cancel()
-	cmd := exec.CommandContext(ctx, "git", "-C", s.Root, "rev-list", "--count", baseline+"..HEAD")
+	cmd := RawHistoryGitContext(ctx, s.Root, "rev-list", "--count", baseline+"..HEAD")
 	out, err := cmd.Output()
 	if err != nil {
 		return 0, err

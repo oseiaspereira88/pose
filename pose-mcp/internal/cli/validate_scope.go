@@ -10,8 +10,8 @@ package cli
 import (
 	"encoding/json"
 	"fmt"
+	posemodel "github.com/harne8/pose-mcp/internal/pose"
 	"os"
-	"os/exec"
 	"path/filepath"
 	"regexp"
 	"sort"
@@ -70,7 +70,7 @@ func computeChangedScope(root, base, head string, modules []validationModule) (s
 		gitArgs = append(gitArgs, head)
 	}
 	gitArgs = append(gitArgs, "--")
-	out, err := exec.Command("git", gitArgs...).Output()
+	out, err := posemodel.RawGit(gitArgs...).Output()
 	if err != nil {
 		return sel, fmt.Errorf("git diff %s failed (revision unknown?)", sel.rangeLabel())
 	}
@@ -82,7 +82,7 @@ func computeChangedScope(root, base, head string, modules []validationModule) (s
 	if head == "" {
 		// Worktree comparisons must also see untracked files — invisible new
 		// code must never silently narrow validation (safe execution wins).
-		if untracked, err := exec.Command("git", "-C", root, "ls-files", "--others", "--exclude-standard").Output(); err == nil {
+		if untracked, err := posemodel.RawHistoryGit(root, "ls-files", "--others", "--exclude-standard").Output(); err == nil {
 			for _, line := range strings.Split(strings.TrimSpace(string(untracked)), "\n") {
 				if line != "" {
 					sel.Changed = append(sel.Changed, filepath.ToSlash(line))

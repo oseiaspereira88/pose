@@ -12,7 +12,6 @@ import (
 	"context"
 	"fmt"
 	"os"
-	"os/exec"
 	"path/filepath"
 	"strings"
 	"time"
@@ -117,7 +116,7 @@ func (s Store) BuildDocsSyncBundle(ctx context.Context, projectID string) (*Docs
 func (s Store) lastCommitInfo(ctx context.Context, relPath string) (hash, at string) {
 	ctx, cancel := context.WithTimeout(ctx, 5*time.Second)
 	defer cancel()
-	cmd := exec.CommandContext(ctx, "git", "-C", s.Root, "log", "-1", "--format=%H%x1f%cI", "--", relPath)
+	cmd := RawHistoryGitContext(ctx, s.Root, "log", "-1", "--format=%H%x1f%cI", "--", relPath)
 	out, err := cmd.Output()
 	if err != nil {
 		return "", ""
@@ -130,7 +129,7 @@ func (s Store) lastCommitInfo(ctx context.Context, relPath string) (hash, at str
 }
 
 func gitHeadCommitForSync(root string) string {
-	out, err := exec.Command("git", "-C", root, "rev-parse", "HEAD").Output()
+	out, err := RawHistoryGit(root, "rev-parse", "HEAD").Output()
 	if err != nil {
 		return ""
 	}

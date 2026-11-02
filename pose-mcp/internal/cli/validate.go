@@ -1374,7 +1374,7 @@ func cmdValidate(root string, args []string, stdout, stderr io.Writer) int {
 	if planOut != "" {
 		digest := sha256.Sum256(raw)
 		head := ""
-		if out, err := exec.Command("git", "-C", root, "rev-parse", "HEAD").Output(); err == nil {
+		if out, err := posemodel.RawHistoryGit(root, "rev-parse", "HEAD").Output(); err == nil {
 			head = strings.TrimSpace(string(out))
 		}
 		plan := executionPlan{

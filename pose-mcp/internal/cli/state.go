@@ -16,7 +16,6 @@ import (
 	"github.com/harne8/pose-mcp/internal/cli/cliout"
 	"io"
 	"os"
-	"os/exec"
 	"path/filepath"
 	"sort"
 	"strconv"
@@ -347,7 +346,7 @@ func readStateHistory(path string) ([]stateHistoryEntry, error) {
 // syntactically valid placeholder so the artifact still parses, never a
 // real ref, so staleness-by-commit degrades to "unknown" at read time.
 func gitHeadCommit(root string) string {
-	out, err := exec.Command("git", "-C", root, "rev-parse", "HEAD").Output()
+	out, err := pose.RawHistoryGit(root, "rev-parse", "HEAD").Output()
 	if err != nil {
 		return "0000000"
 	}

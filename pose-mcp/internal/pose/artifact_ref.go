@@ -7,7 +7,6 @@ import (
 	"errors"
 	"fmt"
 	"os"
-	"os/exec"
 	"path/filepath"
 	"strings"
 	"sync"
@@ -338,8 +337,8 @@ func (r ArtifactResolver) resolve(localProject, raw string, redirectPath map[str
 	out.Digest = hex.EncodeToString(digest[:])
 	// rev-parse can walk to an ancestor repository: require this root to be its
 	// own Git top level before reporting a revision for a registered project.
-	if top, err := exec.Command("git", "-C", s.Root, "rev-parse", "--show-toplevel").Output(); err == nil && sameProjectRoot(r.fsys(), s.Root, strings.TrimSpace(string(top))) {
-		if revision, err := exec.Command("git", "-C", s.Root, "rev-parse", "--verify", "HEAD").Output(); err == nil {
+	if top, err := RawHistoryGit(s.Root, "rev-parse", "--show-toplevel").Output(); err == nil && sameProjectRoot(r.fsys(), s.Root, strings.TrimSpace(string(top))) {
+		if revision, err := RawHistoryGit(s.Root, "rev-parse", "--verify", "HEAD").Output(); err == nil {
 			out.Revision = strings.TrimSpace(string(revision))
 		}
 	}

@@ -2,7 +2,6 @@ package pose
 
 import (
 	"os"
-	"os/exec"
 	"path/filepath"
 	"strings"
 )
@@ -54,12 +53,12 @@ func (s Store) CurrentAssessmentBinding(relPath string) (AssessmentBinding, bool
 	if clean == "." {
 		spec = "HEAD^{tree}"
 	}
-	tree, err := exec.Command("git", "-C", s.Root, "rev-parse", spec).Output()
+	tree, err := RawHistoryGit(s.Root, "rev-parse", spec).Output()
 	if err != nil {
 		return binding, false
 	}
 	binding.ContentTree = strings.TrimSpace(string(tree))
-	status, err := exec.Command("git", "-C", s.Root, "status", "--porcelain", "--untracked-files=normal", "--", clean).Output()
+	status, err := RawHistoryGit(s.Root, "status", "--porcelain", "--untracked-files=normal", "--", clean).Output()
 	if err != nil || len(strings.TrimSpace(string(status))) > 0 {
 		return binding, false
 	}

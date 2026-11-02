@@ -8,7 +8,6 @@ import (
 	"fmt"
 	"io"
 	"os"
-	"os/exec"
 	"regexp"
 	"sort"
 	"strings"
@@ -39,7 +38,7 @@ var principalNameUnsafe = regexp.MustCompile(`[^a-z0-9._-]+`)
 // suggestedPrincipal derives `human:<name>` from the git identity, or "".
 func suggestedPrincipal(root string) (principal, source string) {
 	read := func(key string) string {
-		out, err := exec.Command("git", "-C", root, "config", "--get", key).Output()
+		out, err := posemodel.RawHistoryGit(root, "config", "--get", key).Output()
 		if err != nil {
 			return ""
 		}

@@ -90,6 +90,7 @@ Every non-test file that started `git` directly.
 - modified: pose-mcp/internal/pose/state.go
 - modified: pose-mcp/internal/pose/test_catalog.go
 - modified: pose-mcp/internal/pose/spec_trailers.go
+- modified: pose-mcp/internal/pose/git_snapshot_integrity.go
 - created: pose-mcp/internal/pose/engine_reads_raw_history_test.go
 - created: pose-mcp/internal/cli/engine_reads_raw_history_test.go
 

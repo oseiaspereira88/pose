@@ -17,7 +17,6 @@ import (
 	"encoding/json"
 	"fmt"
 	"os"
-	"os/exec"
 	"path/filepath"
 	"regexp"
 	"sort"
@@ -338,7 +337,7 @@ func (s Store) docStaleness(ctx context.Context, entry DocsEntry, defaultDays in
 func (s Store) lastCommitDate(ctx context.Context, relPath string) (time.Time, bool) {
 	ctx, cancel := context.WithTimeout(ctx, 5*time.Second)
 	defer cancel()
-	cmd := exec.CommandContext(ctx, "git", "-C", s.Root, "log", "-1", "--format=%cI", "--", relPath)
+	cmd := RawHistoryGitContext(ctx, s.Root, "log", "-1", "--format=%cI", "--", relPath)
 	out, err := cmd.Output()
 	if err != nil {
 		return time.Time{}, false

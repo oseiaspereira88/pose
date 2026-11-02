@@ -5,7 +5,6 @@ import (
 	"context"
 	"encoding/json"
 	"os"
-	"os/exec"
 	"path/filepath"
 	"regexp"
 	"sort"
@@ -73,7 +72,7 @@ func LoadTestCatalog(root string) *TestCatalog {
 func gitTrackedFiles(dir string) ([]string, bool) {
 	ctx, cancel := context.WithTimeout(context.Background(), time.Minute)
 	defer cancel()
-	cmd := exec.CommandContext(ctx, "git", "-C", dir, "ls-files", "-z", "--recurse-submodules")
+	cmd := RawHistoryGitContext(ctx, dir, "ls-files", "-z", "--recurse-submodules")
 	var out bytes.Buffer
 	cmd.Stdout = &out
 	if err := cmd.Run(); err != nil {
@@ -107,7 +106,7 @@ func nestedModuleRepositories(root string) []string {
 	nested := []string{}
 	for module := range matrix.ModuleOverrides {
 		dir := filepath.Join(root, filepath.FromSlash(module))
-		out, err := exec.Command("git", "-C", dir, "rev-parse", "--show-toplevel").Output()
+		out, err := RawHistoryGit(dir, "rev-parse", "--show-toplevel").Output()
 		if err != nil {
 			continue
 		}

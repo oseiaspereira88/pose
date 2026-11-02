@@ -10,7 +10,6 @@ import (
 	"bufio"
 	"io"
 	"os"
-	"os/exec"
 	"path/filepath"
 	"sort"
 	"strconv"
@@ -295,10 +294,10 @@ func buildSetupPlan(root string) (setupPlan, error) {
 // setupUncommitted says why the POSE configuration is not committed yet, or
 // "" when it is.
 func setupUncommitted(root string) (string, error) {
-	if err := exec.Command("git", "-C", root, "rev-parse", "--verify", "-q", "HEAD").Run(); err != nil {
+	if err := posemodel.RawHistoryGit(root, "rev-parse", "--verify", "-q", "HEAD").Run(); err != nil {
 		return "the repository has no commit yet: commit the installed instance so every checkout reads the same configuration", nil
 	}
-	out, err := exec.Command("git", "-C", root, "status", "--porcelain", "--", ".pose", "AGENTS.md", "POSE.md").Output()
+	out, err := posemodel.RawHistoryGit(root, "status", "--porcelain", "--", ".pose", "AGENTS.md", "POSE.md").Output()
 	if err != nil {
 		return "", err
 	}

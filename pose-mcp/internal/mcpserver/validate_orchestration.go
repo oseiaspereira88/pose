@@ -25,8 +25,8 @@ import (
 	"encoding/hex"
 	"encoding/json"
 	"fmt"
+	posemodel "github.com/harne8/pose-mcp/internal/pose"
 	"os"
-	"os/exec"
 	"path/filepath"
 	"strings"
 	"sync"
@@ -152,7 +152,7 @@ func (o *orchestrator) request(root, projectID, stackFilter, moduleFilter, chang
 	}
 	digestSum := sha256.Sum256(matrixBytes)
 	head := ""
-	if out, err := exec.Command("git", "-C", root, "rev-parse", "HEAD").Output(); err == nil {
+	if out, err := posemodel.RawHistoryGit(root, "rev-parse", "HEAD").Output(); err == nil {
 		head = strings.TrimSpace(string(out))
 	}
 	plan := ValidationPlan{

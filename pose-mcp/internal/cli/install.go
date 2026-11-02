@@ -11,7 +11,6 @@ import (
 	"io"
 	"io/fs"
 	"os"
-	"os/exec"
 	"path/filepath"
 	"strings"
 	"time"
@@ -97,7 +96,7 @@ func cmdInstallIn(files posemodel.Files, args []string, stdout, stderr io.Writer
 	}
 	target = abs
 	if !allowNonGit {
-		if err := exec.Command("git", "-C", target, "rev-parse", "--git-dir").Run(); err != nil {
+		if err := posemodel.RawHistoryGit(target, "rev-parse", "--git-dir").Run(); err != nil {
 			fmt.Fprintf(stderr, text("pose install: target is not a git repository: %s (use --allow-non-git)\n", "pose install: alvo não é um repositório git: %s (use --allow-non-git)\n"), target)
 			return 1
 		}

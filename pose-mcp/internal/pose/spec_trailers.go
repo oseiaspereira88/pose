@@ -2,6 +2,7 @@ package pose
 
 import (
 	"bytes"
+	"context"
 	"os/exec"
 	"strings"
 )
@@ -42,6 +43,16 @@ func ParseSpecTrailerLog(out []byte) map[string][]string {
 // pose-delivery-later-removal R3, review round 4 LR-R4-01).
 func RawHistoryGit(root string, args ...string) *exec.Cmd {
 	return gitCommand(append([]string{"--no-replace-objects", "-C", root}, args...)...)
+}
+
+// RawHistoryGitContext is RawHistoryGit under ctx.
+func RawHistoryGitContext(ctx context.Context, root string, args ...string) *exec.Cmd {
+	return gitCommandContext(ctx, append([]string{"--no-replace-objects", "-C", root}, args...)...)
+}
+
+// RawGit is RawHistoryGit for a caller whose arguments already say where to read.
+func RawGit(args ...string) *exec.Cmd {
+	return gitCommand(append([]string{"--no-replace-objects"}, args...)...)
 }
 
 // SpecTrailerCommits reads the history of root and returns the commits that carry the trailer of

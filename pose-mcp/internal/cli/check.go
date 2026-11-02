@@ -1080,7 +1080,7 @@ func stripHTMLComments(value string) string {
 }
 
 func (checker *nativeChecker) checkReadyTransitions() {
-	if _, err := exec.Command("git", "-C", checker.root, "rev-parse", "--verify", "HEAD").Output(); err != nil {
+	if _, err := pose.RawHistoryGit(checker.root, "rev-parse", "--verify", "HEAD").Output(); err != nil {
 		return
 	}
 	changed := map[string]bool{}
@@ -1104,7 +1104,7 @@ func (checker *nativeChecker) checkReadyTransitions() {
 		if simpleFrontmatterIn(checker.fsys(), path)["status"] != "in-progress" {
 			continue
 		}
-		old, _ := exec.Command("git", "-C", checker.root, "show", "HEAD:"+rel).Output()
+		old, _ := pose.RawHistoryGit(checker.root, "show", "HEAD:"+rel).Output()
 		oldStatus := frontmatterFromText(string(old))["status"]
 		if oldStatus == "in-progress" {
 			continue

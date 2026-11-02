@@ -533,7 +533,7 @@ func (s Store) PlanReviewDispatch(target, kind, notes, adapter string, reason ..
 		return DispatchPlan{}, fmt.Errorf("pose: no reviewer adapter %q; configured: %s", adapter, strings.Join(names, ", "))
 	}
 	commit := bundle.Payload.Subject.Head
-	if commit == "" || exec.Command("git", "-C", s.Root, "cat-file", "-e", commit+"^{commit}").Run() != nil {
+	if commit == "" || RawHistoryGit(s.Root, "cat-file", "-e", commit+"^{commit}").Run() != nil {
 		return DispatchPlan{}, fmt.Errorf("pose: the bundle's sealed commit %q is not in this repository", commit)
 	}
 	origin, err := dispatchWorktreeIdentity(s.Root)

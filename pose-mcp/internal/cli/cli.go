@@ -5,7 +5,6 @@ import (
 	"fmt"
 	"io"
 	"os"
-	"os/exec"
 	"path/filepath"
 	"strings"
 
@@ -429,7 +428,7 @@ func projectRoot() (string, error) {
 // pose-instance-engine-version-tracking R2) — the same fallback shape
 // projectRoot() already had for ".".
 func projectRootAt(dir string) (string, error) {
-	out, err := exec.Command("git", "-C", dir, "rev-parse", "--show-toplevel").Output()
+	out, err := posemodel.RawHistoryGit(dir, "rev-parse", "--show-toplevel").Output()
 	if err == nil {
 		return strings.TrimSpace(string(out)), nil
 	}

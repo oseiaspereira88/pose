@@ -12,7 +12,6 @@ import (
 	"fmt"
 	"io"
 	"os"
-	"os/exec"
 	"path/filepath"
 	"regexp"
 	"sort"
@@ -117,7 +116,7 @@ func assessInit(root string, stdout, stderr io.Writer, locale cliLocale) int {
 // assessBaselineCommit resolves HEAD for the scaffold; "0000000" when git is
 // unavailable so the artifact still parses and the user edits it in.
 func assessBaselineCommit(root string) string {
-	out, err := exec.Command("git", "-C", root, "rev-parse", "--short=12", "HEAD").Output()
+	out, err := pose.RawHistoryGit(root, "rev-parse", "--short=12", "HEAD").Output()
 	if err != nil {
 		return "0000000"
 	}
@@ -173,7 +172,7 @@ func runAssessValidationIn(files pose.Files, root string) (*assessReport, error)
 		}
 	}
 	report.CommitsLag = "unknown"
-	if out, err := exec.Command("git", "-C", root, "rev-list", "--count", assessment.BaselineCommit+"..HEAD").Output(); err == nil {
+	if out, err := pose.RawHistoryGit(root, "rev-list", "--count", assessment.BaselineCommit+"..HEAD").Output(); err == nil {
 		lag := strings.TrimSpace(string(out))
 		report.CommitsLag = lag
 		if n, err := strconv.Atoi(lag); err == nil && n > policy.StaleAfterCommits {
