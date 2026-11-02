@@ -100,7 +100,7 @@ A premise stops being watched the moment its spec is done, which is when a decis
 - [x] Say what an unsynced publication did
 - [x] Fall back only where a link is unavailable
 - [x] Measure both corpora
-- [ ] Independent review and closeout
+- [x] Independent review and closeout
 
 ## 5. Decisions
 
@@ -128,12 +128,12 @@ Each guard is seen failing under a mutant. The full suite passes with an empty `
 
 ### Requirement trace
 
-- R1 [planned] capability:roadmap-reviews-findings evidence:integration check:roadmap-reviews-findings-integration test:TestAPremiseOutlivesItsDelivery test:TestAWithdrawnPremiseAsksForNothing
-- R2 [planned] check:roadmap-reviews-findings-integration test:TestAnEmptyGitDirectoryIsNoRepository test:TestEveryRepositoryGitFindsIsARepository test:TestAMarkerThatIsNoRepositoryEndsTheIgnoreWalk test:TestTheIgnoreWalkKnowsARepositoryByIdentity test:TestTheIgnoreWalkEntersARepositoryOnce
-- R3 [planned] check:roadmap-reviews-findings-integration test:TestAnUnsyncedCloseSaysItClosed
-- R4 [planned] check:roadmap-reviews-findings-integration test:TestAnUnsyncedRefreshDoesNotReadAsFailed test:TestAManualUnsyncedRefreshSaysSoAndSucceeds test:TestAStrictPolicyRefusesAnUnsyncedRefresh test:TestAStrictReplayDoesNotReadAsDurable test:TestAPolicyMadeStrictLaterAsksAgain test:TestACombinedRefreshFailureSaysBoth test:TestASkippedReplayIsNoDurabilityUnderAStrictPolicy
-- R5 [planned] check:roadmap-reviews-findings-integration test:TestOnlyAMissingLinkFallsBack test:TestTheFallbackAnswersForItsDirectory test:TestACompleteFallbackReportsItsDurability
-- R6 [planned] check:roadmap-reviews-findings-integration test:TestTheCleanupPlanHoldsBothCorpora
+- R1 [satisfied] capability:roadmap-reviews-findings evidence:integration check:roadmap-reviews-findings-integration test:TestAPremiseOutlivesItsDelivery test:TestAWithdrawnPremiseAsksForNothing report:.pose/results/delivery-validation.json commit:21e17d61da9644f3b57b287fc5989eb6b43c3d96
+- R2 [satisfied] check:roadmap-reviews-findings-integration test:TestAnEmptyGitDirectoryIsNoRepository test:TestEveryRepositoryGitFindsIsARepository test:TestAMarkerThatIsNoRepositoryEndsTheIgnoreWalk test:TestTheIgnoreWalkKnowsARepositoryByIdentity test:TestTheIgnoreWalkEntersARepositoryOnce report:.pose/results/delivery-validation.json commit:21e17d61da9644f3b57b287fc5989eb6b43c3d96
+- R3 [satisfied] check:roadmap-reviews-findings-integration test:TestAnUnsyncedCloseSaysItClosed report:.pose/results/delivery-validation.json commit:21e17d61da9644f3b57b287fc5989eb6b43c3d96
+- R4 [satisfied] check:roadmap-reviews-findings-integration test:TestAnUnsyncedRefreshDoesNotReadAsFailed test:TestAManualUnsyncedRefreshSaysSoAndSucceeds test:TestAStrictPolicyRefusesAnUnsyncedRefresh test:TestAStrictReplayDoesNotReadAsDurable test:TestAPolicyMadeStrictLaterAsksAgain test:TestACombinedRefreshFailureSaysBoth test:TestASkippedReplayIsNoDurabilityUnderAStrictPolicy report:.pose/results/delivery-validation.json commit:21e17d61da9644f3b57b287fc5989eb6b43c3d96
+- R5 [satisfied] check:roadmap-reviews-findings-integration test:TestOnlyAMissingLinkFallsBack test:TestTheFallbackAnswersForItsDirectory test:TestACompleteFallbackReportsItsDurability report:.pose/results/delivery-validation.json commit:21e17d61da9644f3b57b287fc5989eb6b43c3d96
+- R6 [satisfied] check:roadmap-reviews-findings-integration test:TestTheCleanupPlanHoldsBothCorpora report:.pose/results/delivery-validation.json commit:21e17d61da9644f3b57b287fc5989eb6b43c3d96
 
 ## 7. Final Report
 
@@ -152,3 +152,4 @@ The in-place fallback stays non-atomic: a write cut short leaves a partial recor
 - [open] F3: Keep an unresolved `unsynced` visible to `pose state validate` through a default deduplicated replay (review R2-F3). (owner:@oseiaspereira88 crit:low review:2026-11-27)
 - [open] F4: Replace the prose test of the cleanup report with a deterministic inventory fixture, and retain the raw inventories (review F6). (owner:@oseiaspereira88 crit:low review:2026-11-27)
 - [open] F5: Fix the flake of `TestTheWaitAcknowledgementNeverTouchesAnExistingEntry` under load, a cleanup race not seen in 60 isolated runs. (owner:@oseiaspereira88 crit:low review:2026-11-27)
+- [open] F6: Render the `refresh_pending` marker of a lost refresh log as what it is in `pose state validate` and `pose doctor`, which read it as a failed refresh (review R4-F1). (owner:@oseiaspereira88 crit:low review:2026-11-27)
