@@ -72,10 +72,10 @@ A captured inventory proves its own revision, not current corpus counts. A raw d
 
 ## 4. Tasks
 
-- [ ] Retain and document the two captures safely
-- [ ] Replace the prose-only report assertion and exercise negative cases
-- [ ] Strengthen the existing synthetic read-only proof
-- [ ] Join the detached fixture before cleanup
+- [x] Retain and document the two captures safely
+- [x] Replace the prose-only report assertion and exercise negative cases
+- [x] Strengthen the existing synthetic read-only proof
+- [x] Join the detached fixture before cleanup
 - [ ] Validate, independently review and close
 
 ## 5. Decisions
@@ -96,13 +96,16 @@ Use the existing migration CLI fixture and its actual before/after tree, replace
 
 ### Requirement trace
 
-Bind each requirement to the corresponding integration check and test after implementation.
+- R1 [satisfied] check:review-evidence-fixture-integration test:TestTheCleanupPlanHoldsBothCorpora test:TestCleanupCorporaRejectInvalidEvidence
+- R2 [satisfied] check:review-evidence-fixture-integration test:TestCleanupCaptureProvenanceNamesTheReproduction report:.pose/reports/2026-11-02-pose-v7-legacy-cleanup-both-corpora.md
+- R3 [satisfied] check:review-evidence-fixture-integration test:TestMigrateDryRunInventoriesLegacyWithoutWriting test:TestMigrationSnapshotDetectsAContentOnlyRewrite
+- R4 [satisfied] check:review-evidence-fixture-integration test:TestTheWaitAcknowledgementNeverTouchesAnExistingEntry
 
 ## 7. Final Report
 
 ### Delivered scope
 
-Implementation and validation are pending. This spec tracks the remaining F4 and F5 rather than claiming the earlier roadmap report proves them.
+Implemented the retained-capture comparison and negative evidence cases, preserved the private raw inventory outside Git, strengthened the synthetic read-only snapshot, and joined the detached test agent with a bounded wait before cleanup. Focused tests pass. The earlier phrase-only assertion accepts an intentionally false count; the new comparison refuses it. The old metadata-only snapshot misses a same-size content rewrite with restored mtime; the new test detects it. Nine guard mutations were detected without counting compilation failures. Four concurrent workers each passed 20 repetitions of the wait-acknowledgement test. These samples do not claim reproduction of the exact historical ENOTEMPTY failure. Strict matrix validation and independent formal review remain the closeout gates.
 
 ### Residual risks
 

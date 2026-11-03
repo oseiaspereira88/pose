@@ -1,7 +1,9 @@
 package cli
 
 import (
+	"crypto/sha256"
 	"encoding/json"
+	"fmt"
 	"os"
 	"path/filepath"
 	"sort"
@@ -15,15 +17,55 @@ import (
 func treeListing(t *testing.T, root string) string {
 	t.Helper()
 	var entries []string
-	_ = filepath.Walk(root, func(path string, info os.FileInfo, err error) error {
-		if err == nil {
-			rel, _ := filepath.Rel(root, path)
-			entries = append(entries, rel+"|"+info.ModTime().String()+"|"+strconv.FormatInt(info.Size(), 10))
+	err := filepath.Walk(root, func(path string, info os.FileInfo, err error) error {
+		if err != nil {
+			return err
 		}
+		rel, err := filepath.Rel(root, path)
+		if err != nil {
+			return err
+		}
+		var content []byte
+		if info.Mode().IsRegular() {
+			content, err = os.ReadFile(path)
+		} else if info.Mode()&os.ModeSymlink != 0 {
+			var target string
+			target, err = os.Readlink(path)
+			content = []byte(target)
+		}
+		if err != nil {
+			return err
+		}
+		entries = append(entries, rel+"|"+info.Mode().String()+"|"+info.ModTime().String()+"|"+strconv.FormatInt(info.Size(), 10)+"|"+fmt.Sprintf("%x", sha256.Sum256(content)))
 		return nil
 	})
+	if err != nil {
+		t.Fatal(err)
+	}
 	sort.Strings(entries)
 	return strings.Join(entries, "\n")
+}
+
+func TestMigrationSnapshotDetectsAContentOnlyRewrite(t *testing.T) {
+	root := t.TempDir()
+	path := filepath.Join(root, "same-size.txt")
+	if err := os.WriteFile(path, []byte("before"), 0o600); err != nil {
+		t.Fatal(err)
+	}
+	info, err := os.Stat(path)
+	if err != nil {
+		t.Fatal(err)
+	}
+	before := treeListing(t, root)
+	if err := os.WriteFile(path, []byte("AFTER!"), 0o600); err != nil {
+		t.Fatal(err)
+	}
+	if err := os.Chtimes(path, info.ModTime(), info.ModTime()); err != nil {
+		t.Fatal(err)
+	}
+	if after := treeListing(t, root); after == before {
+		t.Fatal("a same-size rewrite with preserved mtime escaped the read-only proof")
+	}
 }
 
 func TestMigrateDryRunInventoriesLegacyWithoutWriting(t *testing.T) {
@@ -43,10 +85,14 @@ func TestMigrateDryRunInventoriesLegacyWithoutWriting(t *testing.T) {
 		t.Fatalf("dry-run: %d %s", code, out)
 	}
 	var inv struct {
-		Counts  map[string]int      `json:"counts"`
-		Details map[string][]string `json:"details"`
-		Risks   []string            `json:"risks"`
-		Writes  []string            `json:"writes"`
+		Counts   map[string]int      `json:"counts"`
+		Details  map[string][]string `json:"details"`
+		Risks    []string            `json:"risks"`
+		Writes   []string            `json:"writes"`
+		Complete bool                `json:"complete"`
+		Coverage struct {
+			Losses []json.RawMessage `json:"losses"`
+		} `json:"coverage"`
 	}
 	if err := json.Unmarshal([]byte(out), &inv); err != nil {
 		t.Fatalf("json: %v\n%s", err, out)
@@ -63,6 +109,9 @@ func TestMigrateDryRunInventoriesLegacyWithoutWriting(t *testing.T) {
 	}
 	if len(inv.Writes) != 0 {
 		t.Fatalf("a dry-run declares writes: %v", inv.Writes)
+	}
+	if !inv.Complete || len(inv.Coverage.Losses) != 0 {
+		t.Fatalf("dry-run inventory was not fully read: complete=%v losses=%s", inv.Complete, inv.Coverage.Losses)
 	}
 	if after := treeListing(t, root); after != before {
 		t.Fatal("the dry-run changed the repository")

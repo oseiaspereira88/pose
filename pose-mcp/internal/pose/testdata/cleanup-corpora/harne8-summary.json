@@ -1,0 +1,111 @@
+{
+  "schema_version": 1,
+  "revision": "ba83cbfbc84c95ec574b46d9322cfb5b77abc39e",
+  "classes": [
+    {
+      "id": "spec-layout-flat",
+      "count": 73,
+      "action": "none",
+      "removal_criterion": "current layout; nothing to retire"
+    },
+    {
+      "id": "spec-layout-folder",
+      "count": 0,
+      "action": "keep-read-only",
+      "removal_criterion": "folder specs stay readable; new specs are flat by default"
+    },
+    {
+      "id": "spec-layout-legacy-folder",
+      "count": 356,
+      "action": "convert",
+      "removal_criterion": "undated folders convert to a dated flat file when every reference resolves to the new path; zero remaining in consumers' dry-runs"
+    },
+    {
+      "id": "status-blocked",
+      "count": 2,
+      "action": "convert",
+      "removal_criterion": "blocked converts to in-progress plus an operational wait (action request or external wait); removable when no consumer dry-run reports a blocked spec and the adoption metrics v2 have shipped for one minor"
+    },
+    {
+      "id": "flat-spec-amendment-journals",
+      "count": 2,
+      "action": "none",
+      "removal_criterion": "current representation"
+    },
+    {
+      "id": "policy-legacy-adoption-keys",
+      "count": 5,
+      "action": "convert",
+      "removal_criterion": "each legacy key moves into contract_adoptions with the same date, so the cutoff keeps its meaning; removable after one minor in which doctor reports review.adoption-source for every consumer"
+    },
+    {
+      "id": "policy-unknown-keys",
+      "count": 0,
+      "action": "refuse-until-resolved",
+      "removal_criterion": "an unknown key must not silence an expected enforcement: a major refuses it until it is renamed or removed"
+    },
+    {
+      "id": "sealed-bundles",
+      "count": 201,
+      "action": "keep-read-only",
+      "removal_criterion": "never removed: a sealed bundle is the subject of a signed or recorded judgment"
+    },
+    {
+      "id": "sealed-bundles-without-governing-contracts",
+      "count": 12,
+      "action": "keep-read-only",
+      "removal_criterion": "read under the contracts their seal date implies; never re-sealed"
+    },
+    {
+      "id": "attestations-verified",
+      "count": 10,
+      "action": "keep-read-only",
+      "removal_criterion": "never removed"
+    },
+    {
+      "id": "attestations-declared",
+      "count": 193,
+      "action": "keep-read-only",
+      "removal_criterion": "declared identity stays disclosed as declared; a major may require verified identity for new attestations only"
+    },
+    {
+      "id": "attestations-legacy-undifferentiated",
+      "count": 201,
+      "action": "keep-read-only",
+      "removal_criterion": "rendered as legacy-undifferentiated; supplements may clarify roles without altering the signed record"
+    },
+    {
+      "id": "interrupted-transfers",
+      "count": 10,
+      "action": "refuse-until-resolved",
+      "removal_criterion": "a major's migration refuses to run while a transfer is incomplete; resume or roll it back first"
+    }
+  ],
+  "risks": [
+    "an incomplete transfer would be read differently after a migration; resolve it first"
+  ],
+  "writes": [],
+  "limitations": [
+    "a dry-run: nothing is written, and no apply exists in 6.x",
+    "counts describe this repository only; consumers' corpora must run their own dry-run before a removal is decided"
+  ],
+  "complete": true,
+  "coverage": {
+    "losses": []
+  },
+  "counts": {
+    "attestations-declared": 193,
+    "attestations-legacy-undifferentiated": 201,
+    "attestations-verified": 10,
+    "flat-spec-amendment-journals": 2,
+    "interrupted-transfers": 10,
+    "policy-legacy-adoption-keys": 5,
+    "policy-unknown-keys": 0,
+    "sealed-bundles": 201,
+    "sealed-bundles-without-governing-contracts": 12,
+    "spec-layout-flat": 73,
+    "spec-layout-folder": 0,
+    "spec-layout-legacy-folder": 356,
+    "status-blocked": 2
+  }
+}

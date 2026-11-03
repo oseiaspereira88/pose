@@ -11,6 +11,8 @@ import (
 	"sync"
 	"testing"
 	"time"
+
+	posemodel "github.com/harne8/pose-mcp/internal/pose"
 )
 
 var (
@@ -162,7 +164,21 @@ func TestTheWaitAcknowledgementNeverTouchesAnExistingEntry(t *testing.T) {
 	if code != 0 || json.Unmarshal([]byte(out), &detached) != nil {
 		t.Fatalf("detach: %d %s", code, out)
 	}
-	defer held.open()
+	defer func() {
+		held.open()
+		// A released agent still owes the supervisor's final writes. Join it
+		// before TempDir cleanup starts, including on a failed assertion below.
+		ctx, cancel := context.WithTimeout(context.Background(), 30*time.Second)
+		defer cancel()
+		cmd := exec.CommandContext(ctx, poseBinary(t), "delegate", "wait", detached.Attempt, "--timeout", "20s", "--json")
+		cmd.Dir = root
+		if output, err := cmd.CombinedOutput(); err != nil {
+			t.Errorf("join detached fixture before cleanup: %v %s", err, output)
+		}
+		if (posemodel.Store{Root: root}).DelegationActiveMarkerExists(detached.Attempt) {
+			t.Error("detached fixture still has an active marker at cleanup")
+		}
+	}()
 	for _, kind := range []string{"file", "link", "fifo"} {
 		signals := t.TempDir()
 		kept := filepath.Join(t.TempDir(), "kept")

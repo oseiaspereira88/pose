@@ -23,3 +23,7 @@ Spec: [pose-roadmap-reviews-findings](../specs/2026-11-02-pose-roadmap-reviews-f
 Complete: pose-dist True, Harne8 True. Writes: pose-dist [], Harne8 [].
 
 Harne8 was measured at its pinned head by the engine of pose-dist `59358c28`, without adopting it. Nothing here converts a record: an apply stays future work, with its own recovery and revision guard.
+
+## Retained independent reproduction
+
+The independent review repeated this inventory with engine `f931afe0`; its pose-dist capture is at that revision and its Harne8 capture remains at `ba83cbfb`. The 13 class counts match this table. This is a later reproduction, not the raw output of the original `fcd11da9` measurement. The [retained fixtures and provenance](../../pose-mcp/internal/pose/testdata/cleanup-corpora/README.md) preserve this distinction. Harne8's private detail paths are omitted from the public summary; its complete captured output is retained in the local ignored evidence directory, with its raw digest recorded alongside the public export.

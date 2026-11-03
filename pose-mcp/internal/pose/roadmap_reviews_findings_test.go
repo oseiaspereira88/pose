@@ -345,15 +345,3 @@ func TestAWithdrawnPremiseAsksForNothing(t *testing.T) {
 		t.Fatalf("a withdrawn premise is still asked about: %+v", got)
 	}
 }
-
-func TestTheCleanupPlanHoldsBothCorpora(t *testing.T) {
-	raw, err := os.ReadFile(filepath.Join("..", "..", "..", ".pose", "reports", "2026-11-02-pose-v7-legacy-cleanup-both-corpora.md"))
-	if err != nil {
-		t.Fatal(err)
-	}
-	for _, want := range []string{"| Class | pose-dist", "Harne8", "before and after the run"} {
-		if !strings.Contains(string(raw), want) {
-			t.Errorf("the report does not hold %q", want)
-		}
-	}
-}

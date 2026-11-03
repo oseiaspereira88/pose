@@ -1,0 +1,118 @@
+{
+  "schema_version": 1,
+  "revision": "f931afe09b22451ad72889c7c8555f8549edb42d",
+  "classes": [
+    {
+      "id": "spec-layout-flat",
+      "count": 477,
+      "action": "none",
+      "removal_criterion": "current layout; nothing to retire"
+    },
+    {
+      "id": "spec-layout-folder",
+      "count": 3,
+      "action": "keep-read-only",
+      "removal_criterion": "folder specs stay readable; new specs are flat by default"
+    },
+    {
+      "id": "spec-layout-legacy-folder",
+      "count": 0,
+      "action": "convert",
+      "removal_criterion": "undated folders convert to a dated flat file when every reference resolves to the new path; zero remaining in consumers' dry-runs"
+    },
+    {
+      "id": "status-blocked",
+      "count": 0,
+      "action": "convert",
+      "removal_criterion": "blocked converts to in-progress plus an operational wait (action request or external wait); removable when no consumer dry-run reports a blocked spec and the adoption metrics v2 have shipped for one minor"
+    },
+    {
+      "id": "flat-spec-amendment-journals",
+      "count": 26,
+      "action": "none",
+      "removal_criterion": "current representation"
+    },
+    {
+      "id": "policy-legacy-adoption-keys",
+      "count": 5,
+      "action": "convert",
+      "removal_criterion": "each legacy key moves into contract_adoptions with the same date, so the cutoff keeps its meaning; removable after one minor in which doctor reports review.adoption-source for every consumer"
+    },
+    {
+      "id": "policy-unknown-keys",
+      "count": 0,
+      "action": "refuse-until-resolved",
+      "removal_criterion": "an unknown key must not silence an expected enforcement: a major refuses it until it is renamed or removed"
+    },
+    {
+      "id": "sealed-bundles",
+      "count": 1599,
+      "action": "keep-read-only",
+      "removal_criterion": "never removed: a sealed bundle is the subject of a signed or recorded judgment"
+    },
+    {
+      "id": "sealed-bundles-without-governing-contracts",
+      "count": 483,
+      "action": "keep-read-only",
+      "removal_criterion": "read under the contracts their seal date implies; never re-sealed"
+    },
+    {
+      "id": "attestations-verified",
+      "count": 0,
+      "action": "keep-read-only",
+      "removal_criterion": "never removed"
+    },
+    {
+      "id": "attestations-declared",
+      "count": 1549,
+      "action": "keep-read-only",
+      "removal_criterion": "declared identity stays disclosed as declared; a major may require verified identity for new attestations only"
+    },
+    {
+      "id": "attestations-legacy-undifferentiated",
+      "count": 1354,
+      "action": "keep-read-only",
+      "removal_criterion": "rendered as legacy-undifferentiated; supplements may clarify roles without altering the signed record"
+    },
+    {
+      "id": "interrupted-transfers",
+      "count": 0,
+      "action": "refuse-until-resolved",
+      "removal_criterion": "a major's migration refuses to run while a transfer is incomplete; resume or roll it back first"
+    }
+  ],
+  "risks": [],
+  "writes": [],
+  "limitations": [
+    "a dry-run: nothing is written, and no apply exists in 6.x",
+    "counts describe this repository only; consumers' corpora must run their own dry-run before a removal is decided"
+  ],
+  "complete": true,
+  "coverage": {
+    "losses": []
+  },
+  "counts": {
+    "attestations-declared": 1549,
+    "attestations-legacy-undifferentiated": 1354,
+    "attestations-verified": 0,
+    "flat-spec-amendment-journals": 26,
+    "interrupted-transfers": 0,
+    "policy-legacy-adoption-keys": 5,
+    "policy-unknown-keys": 0,
+    "sealed-bundles": 1599,
+    "sealed-bundles-without-governing-contracts": 483,
+    "spec-layout-flat": 477,
+    "spec-layout-folder": 3,
+    "spec-layout-legacy-folder": 0,
+    "status-blocked": 0
+  },
+  "details": {
+    "policy-legacy-adoption-keys": [
+      "component-aware via component_aware_adopted_at",
+      "evidence-vocabulary via evidence_vocabulary_reconciled_at",
+      "explicit-judgment via explicit_judgment_adopted_at",
+      "review-bundles via review_bundles_adopted_at",
+      "structural-causality via structural_causality_adopted_at"
+    ]
+  }
+}
