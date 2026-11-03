@@ -1,6 +1,6 @@
 ---
 slug: pose-review-evidence-and-fixture-lifetimes
-status: draft
+status: in-progress
 created_at: 2026-11-02
 completed_at:
 depends_on: pose-roadmap-reviews-findings
