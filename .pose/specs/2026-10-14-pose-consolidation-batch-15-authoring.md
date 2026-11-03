@@ -80,7 +80,7 @@ o head documental e regressões existentes; não executam os casos prospectivos 
 - R2 [satisfied] report:.pose/reports/2026-10-14-pose-batch-15-authoring.md commit:d1bd2a3229096cb360c516372bcdc1610b391b9f report:.pose/reports/2026-11-03-pose-consolidation-authoring-closeout.md — Contagens, lotes, reutilização e ausência dos artefatos futuros conferidas no snapshot de escrita.
 - R3 [satisfied] report:.pose/reports/2026-10-14-pose-batch-15-authoring.md commit:d1bd2a3229096cb360c516372bcdc1610b391b9f report:.pose/reports/2026-11-03-pose-consolidation-authoring-closeout.md — Ownership e referências materializadas conferidas; consumo pelo coordenador separado de entrega funcional.
 - R4 [satisfied] report:.pose/reports/2026-10-14-pose-batch-15-authoring.md commit:d1bd2a3229096cb360c516372bcdc1610b391b9f report:.pose/reports/2026-11-03-pose-consolidation-authoring-closeout.md — Dependências e limites da execução prospectiva conferidos no plano e nos artefatos daquele lote.
-- R5 [satisfied] report:.pose/reports/2026-10-14-pose-batch-15-authoring.md commit:d1bd2a3229096cb360c516372bcdc1610b391b9f report:.pose/reports/2026-11-03-pose-consolidation-authoring-closeout.md — Conferência histórica e checks documentais registrados no relatório; gates atuais são exigidos novamente pelo fechamento nativo.
+- R5 [satisfied] report:.pose/reports/2026-10-14-pose-batch-15-authoring.md commit:d1bd2a3229096cb360c516372bcdc1610b391b9f report:.pose/reports/2026-11-03-pose-consolidation-authoring-closeout.md — Reproduzidor histórico passou; esse relatório não retém os resultados dos gates nativos originais. Lint/artifact-check e check estritos locais atuais são condições de fechamento registradas no bundle.
 
 ## 7. Final Report
 
