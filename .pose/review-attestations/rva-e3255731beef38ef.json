@@ -1,0 +1,182 @@
+{
+  "schema_version": 1,
+  "attestation_id": "rva-e3255731beef38ef",
+  "bundle_id": "rvb-6078825f64f98044",
+  "bundle_digest": "sha256:6078825f64f9804497c98215c070102587f4d7658d61dbe3e362a4540424a747",
+  "reviewer": "agent:independent-codex:/root/review_fixture_round1",
+  "decision": "approved",
+  "criteria": [
+    {
+      "id": "assumption-integrity",
+      "disposition": "passed",
+      "evidence": "integration:pose-mcp/go/review-evidence-fixture-integration",
+      "rationale": "Verified facts are the focused tests independently rerun on unchanged test code, the reviewed metadata-only delta16ca2589..471abe1d, and the current local strict187/187 result. The exact historical ENOTEMPTY timing is not claimed reproduced. Captures describe historical revisions, private raw access is local, and SHA-256 references are not authenticated receipts. This is a separate Codex execution with the same inherited model, not verified cognitive or human independence."
+    },
+    {
+      "id": "backend-concurrency",
+      "disposition": "passed",
+      "evidence": "integration:pose-mcp/go/review-evidence-fixture-integration",
+      "rationale": "The detached fixture opens its gate and awaits terminal completion with a bounded subprocess before cleanup, then checks that its active marker is absent. Code inspection confirms result publication and heartbeat join precede marker removal for this fixture, which has no on-terminal hook or auto-conclusion action. No production concurrency code changed."
+    },
+    {
+      "id": "backend-contracts",
+      "disposition": "passed",
+      "evidence": "integration:pose-mcp/go/review-evidence-fixture-integration",
+      "rationale": "The change affects tests, captured evidence, the validation registration and documentation. Migration dry-run, delegation, ownership and public API/CLI contracts are unchanged; historical captures are not asserted to describe current corpora."
+    },
+    {
+      "id": "backend-input-errors",
+      "disposition": "passed",
+      "evidence": "integration:pose-mcp/go/review-evidence-fixture-integration",
+      "rationale": "Capture comparison rejects false or contradictory counts, missing and duplicate classes, incomplete coverage, losses, exclusions, and declared or absent writes. Snapshot walk/read errors fail the proof rather than silently dropping files, and fixture teardown surfaces timeout or join errors."
+    },
+    {
+      "id": "backend-integration-impact",
+      "disposition": "passed",
+      "evidence": "integration:pose-mcp/go/review-evidence-fixture-integration",
+      "rationale": "The registered integration check exercises the actual migration CLI and detached delegation CLI using synthetic fixtures. It also compares all historical report classes against both retained corpus captures. No inter-module runtime interface changed."
+    },
+    {
+      "id": "backend-observability",
+      "disposition": "passed",
+      "evidence": "integration:pose-mcp/go/review-evidence-fixture-integration",
+      "rationale": "Failures identify the corpus, class, provenance mismatch or incomplete evidence. Teardown reports bounded wait failure or a remaining active marker, preserving diagnostics without private corpus detail paths."
+    },
+    {
+      "id": "compatibility",
+      "disposition": "passed",
+      "evidence": "integration:pose-mcp/go/review-evidence-fixture-integration",
+      "rationale": "Production readers, writers, migration semantics and ownership guards are untouched. The historical report keeps its original measurement labels and counts; a later independent reproduction is explicitly identified instead of rewriting that history."
+    },
+    {
+      "id": "correctness",
+      "disposition": "passed",
+      "evidence": "integration:pose-mcp/go/review-evidence-fixture-integration",
+      "rationale": "Independently reran the focused R1-R4 tests successfully. The sealed integration evidence and local strict run support complete table comparison, content-byte preservation and bounded fixture completion. Supplied mutant and stress logs were inspected, not represented as independently reexecuted."
+    },
+    {
+      "id": "design-causality",
+      "disposition": "passed",
+      "evidence": "structure:design-b5c534f72b26aa53",
+      "rationale": "R1/R3 replace a phrase-only and metadata-only proof with class/count reconciliation, malformed-evidence cases and content-byte snapshots. R4 joins the actual detached fixture after release instead of racing its remaining writes. D1, based on R2, separates the complete local raw capture from its public summary to retain integrity without exposing private detail paths. The observed structure adds the integration registration. The governance delivery mapping now names the real validate entrypoint and keeps backend-go integration evidence mandatory; it does not invent a runtime capability to bypass composition."
+    },
+    {
+      "id": "documentation",
+      "disposition": "passed",
+      "evidence": "integration:pose-mcp/go/review-evidence-fixture-integration",
+      "rationale": "The spec, report and fixture README distinguish the f931afe0 reproduction from the original fcd11da9 measurement, explain the private raw versus public summary boundary, and keep the original counts/labels. The revised delivery section explicitly declares a governance validation check reached through pose validate. The final report preserves187/187 at16ca2589 as historical evidence and demands fresh evidence for this new semantic subject instead of presenting the old approval as current."
+    },
+    {
+      "id": "operability",
+      "disposition": "passed",
+      "evidence": "integration:pose-mcp/go/review-evidence-fixture-integration",
+      "rationale": "The old phrase-only proof is replaced by a class/count comparison with concrete failure messages. The synthetic snapshot detects same-size rewrites even if mtime is restored. A released detached fixture is joined before temporary-directory cleanup begins."
+    },
+    {
+      "id": "requirements",
+      "disposition": "passed",
+      "evidence": "integration:pose-mcp/go/review-evidence-fixture-integration",
+      "rationale": "R1-R4 name tests exercised by the current sealed review-evidence-fixture-integration result. The local strict global run has187 passing checks at HEAD471abe1d and includes all pose-mcp checks; no second --module execution is claimed. The governance target now has current scoped evidence, and the inspected local strict surface-check reports one target,187 results and zero findings."
+    },
+    {
+      "id": "scope",
+      "disposition": "passed",
+      "evidence": "integration:pose-mcp/go/review-evidence-fixture-integration",
+      "rationale": "The implementation remains the same test/evidence-only correction reviewed at16ca2589. Delta471abe1d adds the missing governance delivery declaration, corresponding integration trace and an accurate operational report. No requirement, production code or policy was weakened; the old attestation remains historical and this verdict is bound to the new sealed subject."
+    },
+    {
+      "id": "security",
+      "disposition": "passed",
+      "evidence": "integration:pose-mcp/go/review-evidence-fixture-integration",
+      "rationale": "The public Harne8 export omits details and matches the private raw projection; raw and export digests were independently checked locally without printing private contents. The raw private directory is ignored and untracked. Public checks do not claim access to private raw data, and digests are integrity references rather than authenticated receipts. Same Codex vendor and inherited model as implementer per spawn configuration, in separate execution /root/review_fixture_round1; identity is declared, not human or authenticated independence, and no model identifier beyond the available evidence is asserted."
+    },
+    {
+      "id": "solution-proportionality",
+      "disposition": "passed",
+      "evidence": "structure:design-b5c534f72b26aa53",
+      "rationale": "The smallest sufficient alternative was to strengthen the existing tests and retain their captures; no production migration, supervisor lifecycle or ownership implementation needed changing. The solution uses a bounded local table verifier and a bounded terminal wait, without a generic evidence service or speculative extension framework. This choice is invalidated if the capture schema no longer describes the retained table, or this fixture gains post-marker callbacks/writers; those conditions require revisiting the proof and join boundary."
+    }
+  ],
+  "tools": [
+    {
+      "id": "artifact-check",
+      "disposition": "passed",
+      "evidence": "check:artifact-check",
+      "rationale": "Inspected the implementer strict artifact-check result: no errors and no findings for this spec; global historical warnings are not findings for this scope."
+    },
+    {
+      "id": "assess-design",
+      "disposition": "passed",
+      "evidence": "structure:design-b5c534f72b26aa53",
+      "rationale": "The sealed observed design delta records the added review-evidence-fixture-integration check on the actual attributed subject."
+    },
+    {
+      "id": "assess-discover",
+      "component": "pose-mcp",
+      "disposition": "passed",
+      "evidence": "check:assess-discover",
+      "rationale": "Task-start component discovery reused unchanged committed component/engine/matrix evidence, as recorded in /tmp/pose-test-followups-discover.log. This is planning context, not a claim of post-change test-size freshness; closeout discovery/update-state remains required."
+    },
+    {
+      "id": "assess-integrate",
+      "disposition": "not-used",
+      "rationale": "No runtime inter-module API, event, MCP, Kafka or Protobuf contract changed. Same-module CLI behavior is exercised by the sealed integration check."
+    },
+    {
+      "id": "assess-tech-debt",
+      "disposition": "not-used",
+      "rationale": "Executed and inspected the assessment, but two pre-existing invalid legacy specs leave it incomplete. It is not relied on as a complete debt scan; changed test sources were reviewed directly."
+    },
+    {
+      "id": "closeout-check",
+      "disposition": "deferred",
+      "rationale": "Post-review gate; run only after native attestation is recorded."
+    },
+    {
+      "id": "review-check",
+      "disposition": "deferred",
+      "rationale": "Post-review gate; run only after native attestation is recorded."
+    },
+    {
+      "id": "suggest-review",
+      "component": "pose-mcp",
+      "disposition": "passed",
+      "evidence": "check:suggest-review",
+      "rationale": "Inspected the suggested backend-go, security and documentation-style review trail and applied these rules."
+    },
+    {
+      "id": "validate",
+      "disposition": "passed",
+      "evidence": "integration:pose-mcp/go/review-evidence-fixture-integration",
+      "rationale": "Local global pose validate --strict --jobs4 reports187/187 at the current sealed HEAD471abe1d, including all pose-mcp checks. No second --module invocation is claimed."
+    },
+    {
+      "id": "validate",
+      "component": "pose-mcp",
+      "disposition": "passed",
+      "evidence": "integration:pose-mcp/go/review-evidence-fixture-integration",
+      "rationale": "Local global pose validate --strict --jobs4 reports187/187 at the current sealed HEAD471abe1d, including all pose-mcp checks. No second --module invocation is claimed."
+    }
+  ],
+  "evidence_refs": [
+    "integration:pose-mcp/go/review-evidence-fixture-integration",
+    "structure:design-b5c534f72b26aa53"
+  ],
+  "findings": [
+    {
+      "id": "delivery-declaration",
+      "severity": "medium",
+      "evidence": "integration:pose-mcp/go/review-evidence-fixture-integration",
+      "action": "Declare the actual validation governance target and bind fresh scoped evidence before closeout",
+      "disposition": "resolved"
+    }
+  ],
+  "attribution": {
+    "schema_version": 1,
+    "prepared_by": "agent:independent-codex:/root/review_fixture_round1",
+    "concluded_by": "agent:independent-codex:/root/review_fixture_round1",
+    "applied_by": "agent:independent-codex:/root/review_fixture_round1"
+  },
+  "attested_at": "2026-11-03T01:03:26Z",
+  "path": ".pose/review-attestations/rva-e3255731beef38ef.json"
+}

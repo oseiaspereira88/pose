@@ -1,8 +1,8 @@
 ---
 slug: pose-review-evidence-and-fixture-lifetimes
-status: in-progress
+status: done
 created_at: 2026-11-02
-completed_at:
+completed_at: 2026-11-03
 depends_on: pose-roadmap-reviews-findings
 priority: 2
 components: pose-mcp
@@ -83,7 +83,7 @@ A captured inventory proves its own revision, not current corpus counts. A raw d
 - [x] Replace the prose-only report assertion and exercise negative cases
 - [x] Strengthen the existing synthetic read-only proof
 - [x] Join the detached fixture before cleanup
-- [ ] Validate, independently review and close
+- [x] Validate, independently review and close
 
 ## 5. Decisions
 
@@ -112,7 +112,7 @@ Use the existing migration CLI fixture and its actual before/after tree, replace
 
 ### Delivered scope
 
-Implemented the retained-capture comparison and negative evidence cases, preserved the private raw inventory outside Git, strengthened the synthetic read-only snapshot, and joined the detached test agent with a bounded wait before cleanup. Focused tests pass. The earlier phrase-only assertion accepts an intentionally false count; the new comparison refuses it. The old metadata-only snapshot misses a same-size content rewrite with restored mtime; the new test detects it. Nine guard mutations were detected without counting compilation failures. Four concurrent workers each passed 20 repetitions of the wait-acknowledgement test. These samples do not claim reproduction of the exact historical ENOTEMPTY failure. Strict local validation passed all 187 checks at `16ca2589`. The first closeout attempt correctly refused the absent delivery declaration for changed test roots; the spec now names its existing validation entrypoint as a governance check. Fresh scoped evidence and a matching attestation remain required before closing this revised subject.
+Implemented the retained-capture comparison and negative evidence cases, preserved the private raw inventory outside Git, strengthened the synthetic read-only snapshot, and joined the detached test agent with a bounded wait before cleanup. Focused tests pass. The earlier phrase-only assertion accepts an intentionally false count; the new comparison refuses it. The old metadata-only snapshot misses a same-size content rewrite with restored mtime; the new test detects it. Nine guard mutations were detected without counting compilation failures. Four concurrent workers each passed 20 repetitions of the wait-acknowledgement test. These samples do not claim reproduction of the exact historical ENOTEMPTY failure. Strict local validation passed all 187 checks at `16ca2589`. The first closeout attempt correctly refused the absent delivery declaration for changed test roots; the spec now names its existing validation entrypoint as a governance check. Fresh local validation at `471abe1d` passed 187/187 checks, and surface-check reported zero findings. The revised bundle `rvb-6078825f64f98044` is approved by `rva-e3255731beef38ef`, from a separate Codex execution with the same vendor and inherited model. Native verify and review-check passed before the governed transition to done. The earlier bundle and attestation are retained as history, not as approval of the revised subject.
 
 ### Residual risks
 
@@ -120,4 +120,4 @@ The retained captures are historical reproductions, not measurements of today's 
 
 ### Follow-ups
 
-No new follow-up has been triaged in this draft.
+- [open] Surface undeclared delivery roots during closeout/review preflight before validation and judgment: this test-only scope reached the transition before the missing declaration was reported. Preserve the delivery gate while avoiding late rework. (owner:@pose-maintainers crit:medium review:2026-11-27)
