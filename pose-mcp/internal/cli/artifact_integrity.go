@@ -3,6 +3,7 @@ package cli
 import (
 	"bufio"
 	"bytes"
+	"context"
 	"crypto/sha256"
 	"encoding/hex"
 	"errors"
@@ -16,6 +17,7 @@ import (
 	"sort"
 	"strconv"
 	"strings"
+	"time"
 
 	posemodel "github.com/harne8/pose-mcp/internal/pose"
 )
@@ -33,12 +35,22 @@ func validateGitRevision(value string) error {
 // change sets a later removal is judged on are the ones it judges (review
 // round 3 of spec pose-delivery-later-removal, LR-R3-01).
 func gitOutputBounded(root string, limit int, args ...string) ([]byte, error) {
-	cmd := posemodel.RawHistoryGit(root, args...)
+	ctx, cancel := context.WithTimeout(context.Background(), 2*time.Minute)
+	defer cancel()
+	return gitOutputBoundedContext(ctx, root, limit, args...)
+}
+
+func gitOutputBoundedContext(ctx context.Context, root string, limit int, args ...string) ([]byte, error) {
+	cmd := posemodel.RawHistoryGitContext(ctx, root, args...)
+	cmd.WaitDelay = 2 * time.Second
 	var stdout, stderr bytes.Buffer
 	cmd.Stdout = &limitedBuffer{buf: &stdout, limit: limit}
 	cmd.Stderr = &limitedBuffer{buf: &stderr, limit: 64 * 1024}
 	if err := cmd.Run(); err != nil {
-		return nil, fmt.Errorf("git %s failed: %s", args[0], strings.TrimSpace(stderr.String()))
+		if ctx.Err() != nil {
+			return nil, fmt.Errorf("git %s failed: %w", args[0], ctx.Err())
+		}
+		return nil, fmt.Errorf("git %s failed: %w: %s", args[0], err, strings.TrimSpace(stderr.String()))
 	}
 	return stdout.Bytes(), nil
 }
@@ -107,13 +119,28 @@ func resolveGitChangeSet(root, spec, base, head string) (posemodel.ChangeSet, er
 	if spec == "" || posemodel.ValidateSlug(spec) != nil {
 		return posemodel.ChangeSet{}, fmt.Errorf("a valid spec slug is required")
 	}
-	selector := "range:" + base + ".." + head
-	var trailerCommits []string
+	var captured []string
 	if base == "" && head == "" {
-		commits, err := commitsWithSpecTrailer(root, spec)
+		var err error
+		captured, err = commitsWithSpecTrailer(root, spec)
 		if err != nil {
 			return posemodel.ChangeSet{}, err
 		}
+	}
+	return resolveGitChangeSetWithTrailers(root, spec, base, head, captured)
+}
+
+// resolveGitChangeSetWithTrailers uses the operation's complete, bounded trailer
+// capture. Commit objects remain immutable inputs; no capture survives this
+// operation. Copy the slice because the returned change set belongs to its caller.
+func resolveGitChangeSetWithTrailers(root, spec, base, head string, captured []string) (posemodel.ChangeSet, error) {
+	if spec == "" || posemodel.ValidateSlug(spec) != nil {
+		return posemodel.ChangeSet{}, fmt.Errorf("a valid spec slug is required")
+	}
+	selector := "range:" + base + ".." + head
+	var trailerCommits []string
+	if base == "" && head == "" {
+		commits := append([]string(nil), captured...)
 		if len(commits) == 0 {
 			return posemodel.ChangeSet{}, fmt.Errorf("no commits carry POSE-Spec: %s", spec)
 		}
@@ -151,11 +178,10 @@ func resolveGitChangeSet(root, spec, base, head string) (posemodel.ChangeSet, er
 	commits := splitNonEmpty(string(commitsRaw), "\n")
 
 	var paths []posemodel.ObservedPath
-	var diff []byte
+	diffHash := sha256.New()
 	if len(trailerCommits) > 0 {
 		commits = trailerCommits
 		commitPathLists := make([][]posemodel.ObservedPath, 0, len(commits))
-		var diffBuf bytes.Buffer
 		for _, sha := range commits {
 			nameStatus, err := gitOutputBounded(root, 4*1024*1024, "diff-tree", "--root", "--no-commit-id", "--name-status", "-M", "-r", sha, "--")
 			if err != nil {
@@ -170,10 +196,9 @@ func resolveGitChangeSet(root, spec, base, head string) (posemodel.ChangeSet, er
 			if err != nil {
 				return posemodel.ChangeSet{}, err
 			}
-			diffBuf.Write(commitDiff)
+			_, _ = diffHash.Write(commitDiff)
 		}
 		paths = mergeObservedPaths(commitPathLists)
-		diff = diffBuf.Bytes()
 	} else {
 		nameStatus, err := gitOutputBounded(root, 8*1024*1024, "diff", "--name-status", "-M", "--no-ext-diff", resolvedBase, resolvedHead, "--")
 		if err != nil {
@@ -183,12 +208,13 @@ func resolveGitChangeSet(root, spec, base, head string) (posemodel.ChangeSet, er
 		if err != nil {
 			return posemodel.ChangeSet{}, err
 		}
-		diff, err = gitOutputBounded(root, 32*1024*1024, "diff", "--binary", "--no-ext-diff", resolvedBase, resolvedHead, "--")
+		diff, err := gitOutputBounded(root, 32*1024*1024, "diff", "--binary", "--no-ext-diff", resolvedBase, resolvedHead, "--")
 		if err != nil {
 			return posemodel.ChangeSet{}, err
 		}
+		_, _ = diffHash.Write(diff)
 	}
-	digest := sha256.Sum256(diff)
+	digest := diffHash.Sum(nil)
 	idSum := sha256.Sum256([]byte(spec + "\x00" + resolvedBase + "\x00" + resolvedHead + "\x00" + hex.EncodeToString(digest[:])))
 	return posemodel.ChangeSet{ID: "cs-" + hex.EncodeToString(idSum[:6]), Spec: spec, Selector: selector, Base: base, Head: head, ResolvedBase: resolvedBase, ResolvedHead: resolvedHead, Commits: commits, Paths: paths, DiffDigest: "sha256:" + hex.EncodeToString(digest[:])}, nil
 }
@@ -317,26 +343,23 @@ func collectArtifactGraphInputsWithGapsIn(files posemodel.Files, root string) ([
 	if err != nil {
 		return nil, nil, nil, nil, policy, nil, err
 	}
-	specs, err := store.ListSpecs("", "")
+	claims := []posemodel.ArtifactClaim{}
+	specs, err := store.VisitSpecs(func(full posemodel.Spec) error {
+		parsed, _, err := posemodel.ParseArtifactClaims(full, policy)
+		if err != nil {
+			return err
+		}
+		claims = append(claims, parsed...)
+		return nil
+	})
 	if err != nil {
 		if _, statErr := files.Stat(filepath.Join(root, ".pose", "specs")); !os.IsNotExist(statErr) {
 			return nil, nil, nil, nil, policy, nil, err
 		}
 		specs = []posemodel.Spec{}
 	}
-	claims := []posemodel.ArtifactClaim{}
-	for i := range specs {
-		full, err := store.GetSpec(specs[i].Slug)
-		if err != nil {
-			return nil, nil, nil, nil, policy, nil, err
-		}
-		parsed, _, err := posemodel.ParseArtifactClaims(*full, policy)
-		if err != nil {
-			return nil, nil, nil, nil, policy, nil, err
-		}
-		claims = append(claims, parsed...)
-	}
 	gaps := map[string]string{}
+	refsBefore, refsErr := gitOutputBounded(root, 8*1024*1024, "show-ref", "--head", "--dereference")
 	tracked, err := gitTrackedPaths(root)
 	if err != nil {
 		tracked = []string{}
@@ -363,12 +386,19 @@ func collectArtifactGraphInputsWithGapsIn(files posemodel.Files, root string) ([
 	}
 	for _, spec := range specs {
 		if len(specTrailers[spec.Slug]) > 0 {
-			if set, err := resolveGitChangeSet(root, spec.Slug, "", ""); err == nil {
+			if set, err := resolveGitChangeSetWithTrailers(root, spec.Slug, "", "", specTrailers[spec.Slug]); err == nil {
 				changeSetsMap[set.ID] = set
 			} else {
 				gaps[spec.Slug] = "its trailer change set could not be read: " + err.Error()
 			}
 		}
+	}
+	refsAfter, afterErr := gitOutputBounded(root, 8*1024*1024, "show-ref", "--head", "--dereference")
+	if refsErr == nil && afterErr == nil && !bytes.Equal(refsBefore, refsAfter) {
+		return nil, nil, nil, nil, policy, nil, fmt.Errorf("Git inputs changed during artifact collection: refs or HEAD moved; retry the operation")
+	}
+	if (refsErr != nil || afterErr != nil) && gaps[""] == "" {
+		gaps[""] = "the repository refs or HEAD could not be bound to this artifact collection"
 	}
 	changeSets := make([]posemodel.ChangeSet, 0, len(changeSetsMap))
 	for _, set := range changeSetsMap {

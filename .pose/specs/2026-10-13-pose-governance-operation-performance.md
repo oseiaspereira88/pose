@@ -62,7 +62,7 @@ planejados até existirem e passarem. Não criar uma cópia por coincidência de
 - modified: pose-mcp/internal/cli/artifact_integrity.go
 - modified: pose-mcp/internal/cli/index.go
 - modified: pose-mcp/internal/pose/spec.go
-- modified: pose-mcp/internal/pose/followup_candidates.go
+- modified: pose-mcp/internal/cli/followups.go
 - modified: pose-mcp/internal/pose/git_batch.go
 - created: pose-mcp/internal/pose/governance_operation_performance_test.go
 - created: pose-mcp/internal/cli/governance_operation_performance_test.go
@@ -112,7 +112,11 @@ e nos consumidores indicados, sem simular aprovação pela presença de um campo
 Planejar suíte Go do módulo, integração CLI/MCP, checks estruturais e de segurança;
 usar race detector para travessia/memoização ou concorrência quando houver mudança
 nessas áreas. Verificar artifact-check e delivery/surface evidence na implementação.
-Testes de execução ainda não foram criados ou executados para este delta.
+Os testes do primeiro delta existem; a qualificação completa da spec permanece
+pendente. O benchmark novo captura somente o corpus commitado em mirror e
+worktrees descartáveis, com configuração global/system do Git desativada e
+hooks/fsmonitor desativados no setup. Isso é uma configuração explícita da
+medição, não uma prova de equivalência a qualquer ambiente do operador.
 
 ### Execution test plan (required unless marked optional)
 
@@ -122,7 +126,7 @@ Testes de execução ainda não foram criados ou executados para este delta.
 | R3/R4 catalogue identity and changed inputs | `go -C pose-mcp test ./internal/pose -run GovernanceOperationPerformance -count=1` | Flat/split/nested/duplicate/foreign outcomes, errors and copied values preserved; new operation observes edits and binding changes. |
 | R6 trailer capture and change-set equivalence | `go -C pose-mcp test ./internal/cli -run GovernanceOperationPerformance -count=1` | One bounded full trailer capture per collector; unchanged IDs/selectors/order/paths/digests; ref changes and partial Git failures remain explicit. |
 | R7 scope, budgets and parallel isolation | `go -C pose-mcp test -race ./internal/pose ./internal/cli -run GovernanceOperationPerformance -count=1` | No shared mutable authority or traversal budgets, no aliasing/races, no hidden truncation. |
-| R5 exact clustering, text/input scale | `go -C pose-mcp test ./internal/pose -run GovernanceOperationPerformanceClustering -bench GovernanceOperationPerformanceClustering -benchtime=1x -count=3` | Same candidate IDs/order/similarity; reported input sizes, repetitions and allocations; no disposition by similarity. |
+| R5 exact clustering, text/input scale | `go -C pose-mcp test ./internal/cli -run GovernanceOperationPerformanceClustering -bench GovernanceOperationPerformanceClustering -benchtime=1x -count=3` | Same candidate IDs/order/similarity; reported input sizes, repetitions and allocations; no disposition by similarity. |
 | R8 reachable CLI/MCP parity | `go -C pose-mcp test ./internal/cli ./internal/mcpserver -run GovernanceOperationPerformance -count=1` | Same verdict/coverage and identity on the actual consumers, including negative controls. |
 | R1/R2/R8 real corpus comparison | `go -C pose-mcp build -o /tmp/pose-governance-performance-cli ./cmd/pose`; `scripts/bench-governance.sh 3 /tmp/pose-governance-performance-cli` | Isolated corpus/binary/refs/matrix/environment pins, raw outputs and valid/error/timeout per sample, separate measured metrics and dispersion. Instrumented diagnostics are not native latency baselines. |
 | Final local gate | `pose validate --strict --jobs 4 --json-out .pose/results/delivery-validation.json` | Current local structured evidence for every applicable registered check; no remote CI claim. |
@@ -154,8 +158,34 @@ Não declarar requisitos satisfeitos pelo lint.
 
 ### Delivered scope
 
-Spec em draft, escrita no lote 7. Implementação, integração, revisão e closeout
-funcionais pendentes; qualificação da escrita está no relatório do lote.
+Em implementação; nenhum fechamento ou ganho geral de latência declarado.
+O primeiro delta substitui o benchmark destrutivo por cópias descartáveis,
+reutiliza uma captura bounded completa de trailers, visita o catálogo sem
+descobri-lo por slug e prepara normalização dos follow-ups uma vez por operação.
+O catálogo mantém apenas digests entre visitas, confere metadados/corpos ao fim
+e não serve de snapshot para autorizar writes. A preparação de follow-ups tem
+orçamento de um MiB de texto de entrada; acima disso usa o algoritmo exato
+anterior, sem truncar candidatos. Esse orçamento não é uma estimativa de heap.
+
+Regressões executadas: layouts flat/nested/split, duplicados, symlink foreign,
+mudança de corpo/metadados/catálogo, aliasing, mudança de HEAD e ref não-HEAD,
+saída Git parcial, timeout/bytes, benchmark com hook global e com erro/timeout
+na operação, versão ou setup. O teste de uma captura de trailers falhou no
+código anterior (2/4/7 leituras para N=1/3/6) e passa com uma leitura.
+O caminho de catálogo agora tem 4N leituras nas fixtures flat: duas verificações
+de catálogo e duas de corpo, em vez de N(N+2). Para N=1 isso aumenta leituras;
+não se afirma melhoria universal a partir da contagem.
+
+Microbenchmark sintético de três repetições, N=32 e textos curtos: alocações
+passaram de 5.979 para 252 e bytes alocados de 408.840 para 36.744 por operação.
+Nos textos longos o tempo permaneceu próximo e variável; a busca Ratcliff ainda
+domina aquele cenário. Não extrapolar para o corpus real.
+
+Primeira revisão separada Codex pediu mudanças: hooks globais escapavam da
+fixture, refs podiam mudar durante a captura e timeout de versão/setup perdia
+evidência. Correções e regressões foram acrescentadas; a próxima rodada deve
+confirmá-las. A suíte completa, perfil por produtor, paridade CLI/MCP, corpus
+real, matriz e fechamento seguem pendentes conforme cada evidência for obtida.
 
 ### Residual risks
 

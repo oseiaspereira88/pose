@@ -340,11 +340,23 @@ func followupTokens(text string) map[string]bool {
 }
 
 func followupSimilarity(left, right string) float64 {
-	left, right = normalizeFollowup(left), normalizeFollowup(right)
-	leftTokens, rightTokens := followupTokens(left), followupTokens(right)
-	intersection, union := 0, len(leftTokens)
-	for token := range rightTokens {
-		if leftTokens[token] {
+	return preparedFollowupSimilarity(prepareFollowupSimilarity(left), prepareFollowupSimilarity(right))
+}
+
+type preparedFollowupText struct {
+	runes  []rune
+	tokens map[string]bool
+}
+
+func prepareFollowupSimilarity(text string) preparedFollowupText {
+	normalized := normalizeFollowup(text)
+	return preparedFollowupText{runes: []rune(normalized), tokens: followupTokens(normalized)}
+}
+
+func preparedFollowupSimilarity(left, right preparedFollowupText) float64 {
+	intersection, union := 0, len(left.tokens)
+	for token := range right.tokens {
+		if left.tokens[token] {
 			intersection++
 		} else {
 			union++
@@ -354,7 +366,7 @@ func followupSimilarity(left, right string) float64 {
 	if union > 0 {
 		jaccard = float64(intersection) / float64(union)
 	}
-	sequence := ratcliffRatio([]rune(left), []rune(right))
+	sequence := ratcliffRatio(left.runes, right.runes)
 	if sequence > jaccard {
 		return sequence
 	}
@@ -389,8 +401,27 @@ func matchingRunes(left, right []rune) int {
 
 func clusterFollowups(entries []followup, threshold float64) []nearDuplicateCandidate {
 	parents := make([]int, len(entries))
+	// Bound the input retained by normalization to one MiB per operation. Above
+	// that budget use the original exact pairwise path, never drop candidates or
+	// switch to approximate similarity. This is not a heap/RSS byte estimate.
+	const preparationInputBudget = 1024 * 1024
+	remaining := preparationInputBudget
+	for _, entry := range entries {
+		if len(entry.Text) > remaining {
+			remaining = -1
+			break
+		}
+		remaining -= len(entry.Text)
+	}
+	var prepared []preparedFollowupText
+	if remaining >= 0 {
+		prepared = make([]preparedFollowupText, len(entries))
+	}
 	for index := range parents {
 		parents[index] = index
+		if prepared != nil {
+			prepared[index] = prepareFollowupSimilarity(entries[index].Text)
+		}
 	}
 	var find func(int) int
 	find = func(index int) int {
@@ -401,7 +432,16 @@ func clusterFollowups(entries []followup, threshold float64) []nearDuplicateCand
 	}
 	for left := range entries {
 		for right := left + 1; right < len(entries); right++ {
-			if entries[left].Spec != entries[right].Spec && followupSimilarity(entries[left].Text, entries[right].Text) >= threshold {
+			if entries[left].Spec == entries[right].Spec {
+				continue
+			}
+			var similarity float64
+			if prepared != nil {
+				similarity = preparedFollowupSimilarity(prepared[left], prepared[right])
+			} else {
+				similarity = followupSimilarity(entries[left].Text, entries[right].Text)
+			}
+			if similarity >= threshold {
 				parents[find(left)] = find(right)
 			}
 		}

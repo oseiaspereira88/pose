@@ -4,10 +4,12 @@
 package pose
 
 import (
+	"crypto/sha256"
 	"encoding/json"
 	"fmt"
 	"os"
 	"path/filepath"
+	"reflect"
 	"regexp"
 	"sort"
 	"strconv"
@@ -158,10 +160,71 @@ func (s Store) GetSpec(slug string) (*Spec, error) {
 	if match == nil {
 		return nil, fmt.Errorf("pose: spec %q not found", slug)
 	}
+	return s.readListedSpec(*match)
+}
+
+func (s Store) readListedSpec(match Spec) (*Spec, error) {
 	if info, err := s.fsys().Stat(match.Path); err == nil && info.IsDir() {
-		return parseSplitSpec(s.fsys(), match.Path, slug, splitSpecFiles(s.fsys(), match.Path), true)
+		return parseSplitSpec(s.fsys(), match.Path, match.Slug, splitSpecFiles(s.fsys(), match.Path), true)
 	}
-	return parseSpecFile(s.fsys(), match.Path, slug, true)
+	return parseSpecFile(s.fsys(), match.Path, match.Slug, true)
+}
+
+// VisitSpecs reads full bodies without discovering the entire catalogue for
+// each slug. The callback consumes one body at a time; bodies are not cached.
+// The returned listing stays light. Duplicate identities and changed catalogue
+// metadata fail the whole operation, never selecting an arbitrary match.
+// This read is not an authorization snapshot: write gates must still revalidate.
+func (s Store) VisitSpecs(visit func(Spec) error) ([]Spec, error) {
+	// A prior store snapshot is unsuitable for a new capture of current inputs.
+	specs, err := s.listSpecs("", "")
+	if err != nil {
+		return nil, err
+	}
+	seen := make(map[string]bool, len(specs))
+	bodyDigests := make(map[string][32]byte, len(specs))
+	for _, listed := range specs {
+		if seen[listed.Slug] {
+			return nil, SpecIdentityConflictError{Slug: listed.Slug}
+		}
+		seen[listed.Slug] = true
+	}
+	for _, listed := range specs {
+		full, err := s.readListedSpec(listed)
+		if err != nil {
+			return nil, err
+		}
+		metadata := *full
+		metadata.Body = ""
+		if !reflect.DeepEqual(listed, metadata) {
+			return nil, fmt.Errorf("pose: spec catalogue changed during read: %s", listed.Slug)
+		}
+		bodyDigests[listed.Slug] = sha256.Sum256([]byte(full.Body))
+		if err := visit(*full); err != nil {
+			return nil, err
+		}
+	}
+	current, err := s.listSpecs("", "")
+	if err != nil {
+		return nil, err
+	}
+	if !reflect.DeepEqual(specs, current) {
+		return nil, fmt.Errorf("pose: spec catalogue changed during read")
+	}
+	for _, listed := range current {
+		full, err := s.readListedSpec(listed)
+		if err != nil {
+			return nil, err
+		}
+		if bodyDigests[listed.Slug] != sha256.Sum256([]byte(full.Body)) {
+			return nil, fmt.Errorf("pose: spec catalogue changed during read: %s body", listed.Slug)
+		}
+		full.Body = ""
+		if !reflect.DeepEqual(listed, *full) {
+			return nil, fmt.Errorf("pose: spec catalogue changed during read: %s", listed.Slug)
+		}
+	}
+	return specs, nil
 }
 
 // ListSpecs returns the frontmatter of every spec (no body), sorted by slug.
