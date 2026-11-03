@@ -140,10 +140,26 @@ def main():
             command = [str(binary_copy), *operations[operation]]
             exit_code, timed_out, elapsed, metrics = measure(command, work, env, args.timeout, stdout, stderr)
             valid = exit_code == 0 and not timed_out and version_exit == 0
+            artifacts, capture_error = [], None
+            if operation == "index":
+                artifact_dir = output / (name + "-artifacts")
+                artifact_dir.mkdir(mode=0o700)
+                try:
+                    for filename in ("repo-map.json", "services.json", "packages.json", "spec-graph.json", "roadmaps.json", "delivery-integrity.json", "releases.json", "generation.json"):
+                        source = work / ".pose" / "indexes" / filename
+                        if not source.is_file():
+                            continue
+                        target = artifact_dir / filename
+                        shutil.copyfile(source, target)
+                        artifacts.append({"name": filename, "path": str(target), "bytes": target.stat().st_size, "digest": sha(target.read_bytes())})
+                except OSError as exc:
+                    capture_error = str(exc)
+                    valid = False
             report["samples"].append({"operation": operation, "repetition": repetition + 1,
                 "command": command, "exit_code": exit_code, "timeout": timed_out, "valid": valid,
                 "wall_ms": elapsed, "resource_usage": metrics, "stdout_bytes": stdout.stat().st_size,
-                "stderr_bytes": stderr.stat().st_size, "stdout": str(stdout), "stderr": str(stderr)})
+                "stderr_bytes": stderr.stat().st_size, "stdout": str(stdout), "stderr": str(stderr),
+                "artifacts": artifacts, "artifact_capture_error": capture_error})
             if valid:
                 values.append(elapsed)
             else:

@@ -537,6 +537,33 @@ func TestGovernanceOperationPerformanceGitTimeoutAndByteLimit(t *testing.T) {
 	}
 }
 
+func TestGovernanceOperationPerformanceTrackedPathFraming(t *testing.T) {
+	bin := t.TempDir()
+	path := filepath.Join(bin, "git")
+	t.Setenv("PATH", bin+string(os.PathListSeparator)+os.Getenv("PATH"))
+	for _, fixture := range []struct {
+		name, program string
+		want          []string
+		valid         bool
+	}{
+		{"empty", "exit 0", []string{}, true},
+		{"complete", "printf 'one\\000two\\000'", []string{"one", "two"}, true},
+		{"partial", "printf 'complete\\000partial'", nil, false},
+		{"empty-record", "printf 'complete\\000\\000'", nil, false},
+		{"invalid-utf8", "printf '\\377\\000'", nil, false},
+	} {
+		t.Run(fixture.name, func(t *testing.T) {
+			if err := os.WriteFile(path, []byte("#!/bin/sh\n"+fixture.program+"\n"), 0o700); err != nil {
+				t.Fatal(err)
+			}
+			got, err := gitTrackedPaths(t.TempDir())
+			if (err == nil) != fixture.valid || !reflect.DeepEqual(got, fixture.want) {
+				t.Fatalf("framing disposition changed: got=%q err=%v want=%q valid=%v", got, err, fixture.want, fixture.valid)
+			}
+		})
+	}
+}
+
 type governanceDisappearingCatalogueFiles struct {
 	posemodel.Files
 	root  string

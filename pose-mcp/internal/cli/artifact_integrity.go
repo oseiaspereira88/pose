@@ -455,8 +455,17 @@ func gitTrackedPaths(root string) ([]string, error) {
 	if err != nil {
 		return nil, err
 	}
+	if len(trackedRaw) > 0 && trackedRaw[len(trackedRaw)-1] != 0 {
+		return nil, fmt.Errorf("malformed Git tracked-path NUL framing")
+	}
 	tracked := []string{}
-	for _, item := range bytes.Split(trackedRaw, []byte{0}) {
+	if len(trackedRaw) == 0 {
+		return tracked, nil
+	}
+	for _, item := range bytes.Split(trackedRaw[:len(trackedRaw)-1], []byte{0}) {
+		if len(item) == 0 {
+			return nil, fmt.Errorf("malformed Git tracked-path empty record")
+		}
 		if len(item) > 0 {
 			if !utf8.Valid(item) {
 				return nil, fmt.Errorf("Git path cannot be represented as UTF-8: %q", item)
