@@ -235,17 +235,26 @@ func TestGovernanceOperationPerformanceBenchmark(t *testing.T) {
 	}
 	_, source, _, _ := runtime.Caller(0)
 	script := filepath.Join(filepath.Dir(source), "../../..", "scripts", "bench_governance.py")
-	for _, outcome := range []string{"success", "failure", "timeout", "version-timeout", "setup-timeout", "setup-error"} {
+	for _, outcome := range []string{"success", "failure", "timeout", "version-timeout", "setup-timeout", "setup-error", "missing-matrix", "shared"} {
 		t.Run(outcome, func(t *testing.T) {
+			wantValid := outcome == "success" || outcome == "shared"
 			root := t.TempDir()
 			artifactGit(t, root, "init", "-q")
 			artifactGit(t, root, "config", "user.name", "Fixture")
 			artifactGit(t, root, "config", "user.email", "fixture@example.invalid")
 			artifactGit(t, root, "config", "core.hooksPath", "/dev/null")
-			writeArtifactTestFile(t, root, ".pose/indexes/validation-matrix.json", "{}\n")
+			if outcome != "missing-matrix" {
+				writeArtifactTestFile(t, root, ".pose/indexes/validation-matrix.json", "{}\n")
+			}
 			writeArtifactTestFile(t, root, ".pose/state/owned", "committed\n")
 			artifactGit(t, root, "add", ".")
 			artifactGit(t, root, "commit", "-q", "-m", "synthetic corpus")
+			provider := ""
+			if outcome == "shared" {
+				provider = root
+				root = filepath.Join(t.TempDir(), "shared-source")
+				artifactGit(t, provider, "clone", "--shared", "-q", provider, root)
+			}
 			writeArtifactTestFile(t, root, ".pose/state/owned", "operator change\n")
 			// An ambient global post-checkout hook must not escape isolation.
 			xdg, hooks := t.TempDir(), t.TempDir()
@@ -295,7 +304,7 @@ func TestGovernanceOperationPerformanceBenchmark(t *testing.T) {
 			output := filepath.Join(t.TempDir(), "report")
 			cmd := exec.Command("python3", script, "--root", root, "--binary", binary, "--runs", "1", "--operation", "index", "--timeout", "2", "--output-dir", output)
 			log, runErr := cmd.CombinedOutput()
-			if (runErr == nil) != (outcome == "success") {
+			if (runErr == nil) != wantValid {
 				t.Fatalf("unexpected exit %v: %s", runErr, log)
 			}
 			data, err := os.ReadFile(filepath.Join(output, "report.json"))
@@ -327,16 +336,20 @@ func TestGovernanceOperationPerformanceBenchmark(t *testing.T) {
 			if err != nil || string(owned) != "operator change\n" {
 				t.Fatalf("operator files changed: %q %v", owned, err)
 			}
-			if strings.HasPrefix(outcome, "setup-") {
+			if strings.HasPrefix(outcome, "setup-") || outcome == "missing-matrix" {
 				if len(report.Samples) != 0 || len(report.Setup) < 1 {
 					t.Fatalf("invalid setup became measured operation: %s", data)
 				}
 				setup := report.Setup[len(report.Setup)-1]
-				if setup.Phase != "clone" || setup.Timeout != (outcome == "setup-timeout") || (outcome == "setup-error" && setup.ExitCode != 9) {
+				phase := "clone"
+				if outcome == "missing-matrix" {
+					phase = "matrix"
+				}
+				if setup.Phase != phase || setup.Timeout != (outcome == "setup-timeout") || (outcome == "setup-error" && setup.ExitCode != 9) || (outcome == "missing-matrix" && setup.ExitCode != 128) {
 					t.Fatalf("lost setup error: %s", data)
 				}
 				raw, err := os.ReadFile(setup.Stderr)
-				if err != nil || !bytes.Contains(raw, []byte("clone")) {
+				if err != nil || len(raw) == 0 {
 					t.Fatalf("lost raw setup stderr: %q %v", raw, err)
 				}
 				return
@@ -348,14 +361,23 @@ func TestGovernanceOperationPerformanceBenchmark(t *testing.T) {
 			if report.VersionTimeout != (outcome == "version-timeout") {
 				t.Fatalf("lost version timeout: %s", data)
 			}
-			if sample.Valid != (outcome == "success") || sample.Timeout != (outcome == "timeout") {
+			if sample.Valid != wantValid || sample.Timeout != (outcome == "timeout") {
 				t.Fatalf("wrong sample disposition: %s", data)
 			}
 			if outcome == "failure" && sample.ExitCode != 7 {
 				t.Fatalf("lost exit code: %s", data)
 			}
-			if (report.Summary["index"].Median != nil) != (outcome == "success") {
+			if (report.Summary["index"].Median != nil) != wantValid {
 				t.Fatalf("invalid sample included in median: %s", data)
+			}
+			if provider != "" {
+				if _, err := os.Stat(filepath.Join(output, "corpus.git/objects/info/alternates")); !os.IsNotExist(err) {
+					t.Fatalf("mirror still borrows objects: %v", err)
+				}
+				if err := os.Rename(provider, filepath.Join(t.TempDir(), "moved-provider")); err != nil {
+					t.Fatal(err)
+				}
+				artifactGit(t, filepath.Join(output, "corpus.git"), "cat-file", "-e", "HEAD")
 			}
 		})
 	}

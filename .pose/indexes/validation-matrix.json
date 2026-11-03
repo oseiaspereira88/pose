@@ -2229,6 +2229,13 @@
           "evidenceClass": "integration"
         },
         {
+          "name": "governance-operation-performance-integration",
+          "program": "go",
+          "args": ["test", "./internal/pose", "./internal/cli", "./internal/mcpserver", "-run", "GovernanceOperationPerformance", "-count=1"],
+          "severity": "required",
+          "evidenceClass": "integration"
+        },
+        {
           "name": "review-evidence-fixture-integration",
           "program": "go",
           "args": ["test", "./internal/pose", "./internal/cli", "-run", "TestTheCleanupPlanHoldsBothCorpora|TestCleanupCaptureProvenanceNamesTheReproduction|TestCleanupCorporaRejectInvalidEvidence|TestMigrateDryRunInventoriesLegacyWithoutWriting|TestMigrationSnapshotDetectsAContentOnlyRewrite|TestTheWaitAcknowledgementNeverTouchesAnExistingEntry", "-count=1"],
