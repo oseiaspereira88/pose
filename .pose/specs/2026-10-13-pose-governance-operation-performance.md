@@ -101,6 +101,12 @@ O limite de retenção deve causar fallback integral ao leitor anterior, nunca
 truncamento. Vincular a view a root/FS/contexto, descartá-la no fim da callback
 e conferir inventário/digests antes de considerar o check aprovado. Começar
 pelos bundles; ampliar para outro produtor somente após medir e qualificar.
+O diagnóstico instrumentado de 45 s em `ab8e2bea`, corpus `fdefae55`, encontrou
+32,89% de CPU acumulada em `ListSpecs` (chamada por `GetSpec`), sem somar frames
+aninhados. Isso justifica o próximo passe: metadados e mapa de slug por operação,
+com orçamento/fallback, corpos lidos vivos e digests dos corpos consumidos
+revalidados ao final. Nenhum corpo ou verdict é memoizado. A janela parcial
+não é uma amostra válida de latência nem prova a distribuição da execução toda.
 O entrypoint da entrega é o CLI real, que alcança os produtores alterados em
 `check`/`index`; o leitor de blobs `git_batch.go` e o arquivo de indexação não
 precisaram ser modificados. A limpeza desses paths prospectivos não muda R1–R8.
