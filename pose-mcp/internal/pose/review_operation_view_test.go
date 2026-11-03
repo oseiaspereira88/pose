@@ -13,10 +13,12 @@ import (
 
 type reviewViewCountingFiles struct {
 	Files
-	mu        sync.Mutex
-	reads     int
-	specReads int
-	fail      string
+	mu          sync.Mutex
+	reads       int
+	specReads   int
+	specBytes   int
+	headerBytes int
+	fail        string
 }
 
 func (f *reviewViewCountingFiles) ReadFile(path string) ([]byte, error) {
@@ -33,7 +35,16 @@ func (f *reviewViewCountingFiles) ReadFile(path string) ([]byte, error) {
 	if filepath.Base(path) == f.fail {
 		return nil, &os.PathError{Op: "read", Path: path, Err: os.ErrPermission}
 	}
-	return f.Files.ReadFile(path)
+	raw, err := f.Files.ReadFile(path)
+	f.mu.Lock()
+	if strings.Contains(filepath.ToSlash(path), "/.pose/specs/") {
+		f.specBytes += len(raw)
+	}
+	if strings.Contains(filepath.ToSlash(path), "/.pose/review-bundles/") {
+		f.headerBytes += len(raw)
+	}
+	f.mu.Unlock()
+	return raw, err
 }
 
 func TestReviewOperationViewSpecCatalogueReuseAndBodiesStayLive(t *testing.T) {
@@ -77,6 +88,7 @@ func TestReviewOperationViewSpecCatalogueReuseAndBodiesStayLive(t *testing.T) {
 	if err != nil || files.specReads != 36 {
 		t.Fatalf("capture/live/final reads=%d want36 err=%v", files.specReads, err)
 	}
+	t.Logf("producer=spec-catalogue specs=6 successful_body_queries=12 readfile_calls=%d readfile_returned_bytes=%d", files.specReads, files.specBytes)
 }
 
 func TestReviewOperationViewSpecCatalogueChanges(t *testing.T) {
@@ -314,6 +326,7 @@ func TestReviewOperationViewCapturesEachHeaderOnce(t *testing.T) {
 	if err != nil || files.reads != 12 {
 		t.Fatalf("capture/final audit reads=%d err=%v", files.reads, err)
 	}
+	t.Logf("producer=bundle-headers records=6 scope_queries=4 capture_and_audit_readfile_calls=%d readfile_returned_bytes=%d", files.reads, files.headerBytes)
 }
 
 func TestReviewOperationViewBudgetFallback(t *testing.T) {

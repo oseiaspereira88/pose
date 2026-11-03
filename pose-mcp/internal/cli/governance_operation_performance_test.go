@@ -45,7 +45,7 @@ func TestGovernanceOperationPerformanceCapturesTrailersOnce(t *testing.T) {
 			bin, events := t.TempDir(), filepath.Join(t.TempDir(), "git-events")
 			// A tiny real-Git wrapper records only trailer-log launches. These
 			// synthetic paths/arguments contain no newlines; no timing is inferred.
-			wrapper := "#!/bin/sh\nfor arg do\n  if [ \"$arg\" = '--grep=POSE-Spec:' ]; then printf 'log\\n' >> " + shellQuote(events) + "; fi\ndone\nexec " + shellQuote(realGit) + " \"$@\"\n"
+			wrapper := "#!/bin/sh\nprintf 'call\\n' >> " + shellQuote(events) + "\nfor arg do\n  if [ \"$arg\" = '--grep=POSE-Spec:' ]; then printf 'log\\n' >> " + shellQuote(events) + "; fi\ndone\noutput=$(mktemp " + shellQuote(filepath.Join(bin, "git-output-XXXXXX")) + ") || exit 99\n" + shellQuote(realGit) + " \"$@\" > \"$output\"\nstatus=$?\nprintf 'bytes %s\\n' \"$(wc -c < \"$output\")\" >> " + shellQuote(events) + "\ncat \"$output\"\nrm -f \"$output\"\nexit \"$status\"\n"
 			if err := os.WriteFile(filepath.Join(bin, "git"), []byte(wrapper), 0o755); err != nil {
 				t.Fatal(err)
 			}
@@ -61,6 +61,22 @@ func TestGovernanceOperationPerformanceCapturesTrailersOnce(t *testing.T) {
 			if got := bytes.Count(raw, []byte("log\n")); got != 1 {
 				t.Fatalf("full trailer log read %d times for %d specs, want one bounded capture", got, count)
 			}
+			calls := bytes.Count(raw, []byte("call\n"))
+			wantCalls := map[int]int{1: 11, 3: 23, 6: 41}[count]
+			if calls != wantCalls {
+				t.Fatalf("Git subprocesses=%d want%d", calls, wantCalls)
+			}
+			generatedBytes := 0
+			for _, line := range strings.Split(string(raw), "\n") {
+				if strings.HasPrefix(line, "bytes ") {
+					var size int
+					if _, err := fmt.Sscanf(line, "bytes %d", &size); err != nil {
+						t.Fatal(err)
+					}
+					generatedBytes += size
+				}
+			}
+			t.Logf("producer=artifact-collector specs=%d full_trailer_logs=1 git_subprocesses=%d git_generated_stdout_bytes=%d", count, calls, generatedBytes)
 		})
 	}
 }
@@ -194,6 +210,34 @@ func BenchmarkGovernanceOperationPerformanceClustering(b *testing.B) {
 				})
 			}
 		}
+	}
+}
+
+func BenchmarkGovernanceOperationPerformanceGraphOutput(b *testing.B) {
+	for _, count := range []int{16, 128} {
+		b.Run(fmt.Sprint(count), func(b *testing.B) {
+			graph := posemodel.DeliveryIntegrityGraph{SchemaVersion: posemodel.DeliveryIntegritySchemaVersion, InputDigest: "sha256:fixture", Reverse: map[string][]string{}}
+			for i := 0; i < count; i++ {
+				slug := fmt.Sprintf("spec-%d", i)
+				path := fmt.Sprintf("internal/file-%d.go", i)
+				graph.Claims = append(graph.Claims, posemodel.ArtifactClaim{Spec: slug, Action: "modified", Path: path})
+				graph.Reverse[path] = []string{slug}
+			}
+			sample, err := graph.IndexJSON()
+			if err != nil {
+				b.Fatal(err)
+			}
+			b.ReportAllocs()
+			b.ResetTimer()
+			for i := 0; i < b.N; i++ {
+				raw, err := graph.IndexJSON()
+				if err != nil || len(raw) != len(sample) {
+					b.Fatalf("output changed: %d %v", len(raw), err)
+				}
+			}
+			b.StopTimer()
+			b.ReportMetric(float64(len(sample)), "output_bytes/op")
+		})
 	}
 }
 

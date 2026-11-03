@@ -70,6 +70,7 @@ planejados até existirem e passarem. Não criar uma cópia por coincidência de
 - created: pose-mcp/internal/cli/governance_operation_performance_test.go
 - created: pose-mcp/internal/mcpserver/governance_operation_performance_test.go
 - created: .pose/results/pose-governance-operation-performance.json
+- created: .pose/reports/pose-governance-operation-performance-method.md
 - modified: .pose/indexes/validation-matrix.json
 
 ### Delivery targets
