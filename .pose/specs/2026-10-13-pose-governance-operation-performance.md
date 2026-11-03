@@ -61,7 +61,11 @@ planejados até existirem e passarem. Não criar uma cópia por coincidência de
 - created: scripts/bench_governance.py
 - modified: pose-mcp/internal/cli/artifact_integrity.go
 - modified: pose-mcp/internal/cli/index.go
+- modified: pose-mcp/internal/cli/check.go
 - modified: pose-mcp/internal/pose/spec.go
+- modified: pose-mcp/internal/pose/review_bundle.go
+- created: pose-mcp/internal/pose/review_operation_view.go
+- created: pose-mcp/internal/pose/review_operation_view_test.go
 - modified: pose-mcp/internal/cli/followups.go
 - modified: pose-mcp/internal/pose/git_batch.go
 - created: pose-mcp/internal/pose/governance_operation_performance_test.go
@@ -91,6 +95,15 @@ timeout de dois minutos e limite de bytes. Essas recusas diagnosticam uma
 captura inválida, sem adotar nova policy ou aproximação. O harness de benchmark
 passa a produzir um relatório versionado e artefatos brutos externos ao corpus;
 tempos inválidos do script anterior não são um baseline de compatibilidade.
+
+Próximo passe, ainda não implementado nesta declaração: em `checkReviewCloseout`,
+compartilhar somente observações imutáveis dos cabeçalhos de bundles, com a
+mesma classificação de JSON/ambiguidade/perdas do leitor canônico. Manter
+loaders estritos, ordenação, confiança, relógio e traversal separados por worker.
+O limite de retenção deve causar fallback integral ao leitor anterior, nunca
+truncamento. Vincular a view a root/FS/contexto, descartá-la no fim da callback
+e conferir inventário/digests antes de considerar o check aprovado. Começar
+pelos bundles; ampliar para outro produtor somente após medir e qualificar.
 
 ## 5. Decisions
 
@@ -134,6 +147,7 @@ medição, não uma prova de equivalência a qualquer ambiente do operador.
 | R3/R4 catalogue identity and changed inputs | `go -C pose-mcp test ./internal/pose -run GovernanceOperationPerformance -count=1` | Flat/split/nested/duplicate/foreign outcomes, errors and copied values preserved; new operation observes edits and binding changes. |
 | R6 trailer capture and change-set equivalence | `go -C pose-mcp test ./internal/cli -run GovernanceOperationPerformance -count=1` | One bounded full trailer capture per collector; unchanged IDs/selectors/order/paths/digests; ref changes and partial Git failures remain explicit. |
 | R7 scope, budgets and parallel isolation | `go -C pose-mcp test -race ./internal/pose ./internal/cli -run GovernanceOperationPerformance -count=1` | No shared mutable authority or traversal budgets, no aliasing/races, no hidden truncation. |
+| R3/R4/R7 one-operation bundle headers | `go -C pose-mcp test -race ./internal/pose ./internal/cli -run 'ReviewOperationView|GovernanceOperationPerformance' -count=1` | Same header loss/error classification and strict matching loads; root/FS binding; addition/deletion/same-size rewrite detected; tiny-budget fallback preserves full records; parallel workers keep distinct traversal state; escaped handles read fresh after finalization. |
 | R5 exact clustering, text/input scale | `go -C pose-mcp test ./internal/cli -run GovernanceOperationPerformanceClustering -bench GovernanceOperationPerformanceClustering -benchtime=1x -count=3` | Same candidate IDs/order/similarity; reported input sizes, repetitions and allocations; no disposition by similarity. |
 | R8 reachable CLI/MCP parity | `go -C pose-mcp test ./internal/cli ./internal/mcpserver -run GovernanceOperationPerformance -count=1` | Same verdict/coverage and identity on the actual consumers, including negative controls. |
 | R1/R2/R8 real corpus comparison | `go -C pose-mcp build -o /tmp/pose-governance-performance-cli ./cmd/pose`; `scripts/bench-governance.sh 3 /tmp/pose-governance-performance-cli` | Isolated corpus/binary/refs/matrix/environment pins, raw outputs and valid/error/timeout per sample, separate measured metrics and dispersion. Instrumented diagnostics are not native latency baselines. |
