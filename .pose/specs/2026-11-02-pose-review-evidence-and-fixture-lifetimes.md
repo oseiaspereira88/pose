@@ -8,6 +8,7 @@ priority: 2
 components: pose-mcp
 task_type: bugfix
 changelog: none
+delivers: governance:review-evidence-fixture-check
 ---
 
 # Spec: Review evidence and fixture lifetimes
@@ -66,6 +67,12 @@ Test-only inventory evidence and detached fixture cleanup in pose-mcp, plus the 
 - modified: pose-mcp/internal/cli/migrate_dryrun_test.go
 - modified: pose-mcp/internal/cli/delegate_wait_test.go
 
+### Delivery targets
+
+- governance:review-evidence-fixture-check module:pose-mcp profile:backend-go entrypoint:pose-mcp/cmd/pose/main.go
+
+The registered `review-evidence-fixture-integration` check is reached through `pose validate`; this declaration names the strengthened test governance check, not a new runtime capability.
+
 ### Technical risks
 
 A captured inventory proves its own revision, not current corpus counts. A raw digest is an integrity reference rather than an authenticated receipt. Waiting on this fixture's terminal marker covers its writes because it has no terminal callback or auto-conclusion action. Revert this spec's test changes if these fixture assumptions cease to hold.
@@ -96,7 +103,7 @@ Use the existing migration CLI fixture and its actual before/after tree, replace
 
 ### Requirement trace
 
-- R1 [satisfied] check:review-evidence-fixture-integration test:TestTheCleanupPlanHoldsBothCorpora test:TestCleanupCorporaRejectInvalidEvidence
+- R1 [satisfied] governance:review-evidence-fixture-check evidence:integration check:review-evidence-fixture-integration test:TestTheCleanupPlanHoldsBothCorpora test:TestCleanupCorporaRejectInvalidEvidence
 - R2 [satisfied] check:review-evidence-fixture-integration test:TestCleanupCaptureProvenanceNamesTheReproduction report:.pose/reports/2026-11-02-pose-v7-legacy-cleanup-both-corpora.md
 - R3 [satisfied] check:review-evidence-fixture-integration test:TestMigrateDryRunInventoriesLegacyWithoutWriting test:TestMigrationSnapshotDetectsAContentOnlyRewrite
 - R4 [satisfied] check:review-evidence-fixture-integration test:TestTheWaitAcknowledgementNeverTouchesAnExistingEntry
@@ -105,7 +112,7 @@ Use the existing migration CLI fixture and its actual before/after tree, replace
 
 ### Delivered scope
 
-Implemented the retained-capture comparison and negative evidence cases, preserved the private raw inventory outside Git, strengthened the synthetic read-only snapshot, and joined the detached test agent with a bounded wait before cleanup. Focused tests pass. The earlier phrase-only assertion accepts an intentionally false count; the new comparison refuses it. The old metadata-only snapshot misses a same-size content rewrite with restored mtime; the new test detects it. Nine guard mutations were detected without counting compilation failures. Four concurrent workers each passed 20 repetitions of the wait-acknowledgement test. These samples do not claim reproduction of the exact historical ENOTEMPTY failure. Strict matrix validation and independent formal review remain the closeout gates.
+Implemented the retained-capture comparison and negative evidence cases, preserved the private raw inventory outside Git, strengthened the synthetic read-only snapshot, and joined the detached test agent with a bounded wait before cleanup. Focused tests pass. The earlier phrase-only assertion accepts an intentionally false count; the new comparison refuses it. The old metadata-only snapshot misses a same-size content rewrite with restored mtime; the new test detects it. Nine guard mutations were detected without counting compilation failures. Four concurrent workers each passed 20 repetitions of the wait-acknowledgement test. These samples do not claim reproduction of the exact historical ENOTEMPTY failure. Strict local validation passed all 187 checks at `16ca2589`. The first closeout attempt correctly refused the absent delivery declaration for changed test roots; the spec now names its existing validation entrypoint as a governance check. Fresh scoped evidence and a matching attestation remain required before closing this revised subject.
 
 ### Residual risks
 
