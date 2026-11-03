@@ -84,6 +84,14 @@ executar assessment freshness no componente, completar o plano de artefatos,
 registrar produtores de evidência na matriz e criar a baseline por start.
 Não contornar dependência não terminal apenas porque o código parece presente.
 
+Compatibilidade do primeiro delta: comandos, gates, policy e similaridade não
+mudam para entradas estáveis. Refs/catálogos alterados durante a captura geram
+conflito explícito em vez de sucesso com entrada parcial; leituras Git têm
+timeout de dois minutos e limite de bytes. Essas recusas diagnosticam uma
+captura inválida, sem adotar nova policy ou aproximação. O harness de benchmark
+passa a produzir um relatório versionado e artefatos brutos externos ao corpus;
+tempos inválidos do script anterior não são um baseline de compatibilidade.
+
 ## 5. Decisions
 
 ### Decision D1
@@ -184,8 +192,22 @@ domina aquele cenário. Não extrapolar para o corpus real.
 Primeira revisão separada Codex pediu mudanças: hooks globais escapavam da
 fixture, refs podiam mudar durante a captura e timeout de versão/setup perdia
 evidência. Correções e regressões foram acrescentadas; a próxima rodada deve
-confirmá-las. A suíte completa, perfil por produtor, paridade CLI/MCP, corpus
-real, matriz e fechamento seguem pendentes conforme cada evidência for obtida.
+confirmá-las. Segunda rodada confirmou as correções e encontrou a conversão
+indevida de catálogo desaparecido em ausência inicial, além de setup sem fase
+registrada e mirror ainda dependente de alternates. Os três foram corrigidos e
+verificados em fixtures separadas pelo Codex; isso aprova continuar o delta,
+não concluir a spec.
+
+A suíte Go foi executada com `TMPDIR=/var/tmp/pose-work-go` após a primeira
+rodada atingir a cota de `/tmp`. Domínio e demais pacotes passaram; cinco falhas
+de CLI expuseram um `os.IsNotExist` que não reconhecia erro encapsulado. A troca
+por `errors.Is` preserva ausência inicial, com controle positivo, e o pacote
+CLI completo passou na repetição (172,607 s). O detector de corridas dos casos
+focados passou antes dos últimos controles positivos. O teste novo gera o
+índice pelo CLI e consulta o mesmo grafo pelo transporte MCP, incluindo recusa
+de geração adulterada; passou. O teste entrou na matriz como
+`governance-operation-performance-integration`. Perfil por produtor, comparação
+completa no corpus real, nova validação da matriz e closeout seguem pendentes.
 
 ### Residual risks
 

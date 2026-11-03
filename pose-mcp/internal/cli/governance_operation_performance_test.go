@@ -158,11 +158,16 @@ func TestGovernanceOperationPerformanceClustering(t *testing.T) {
 			t.Fatalf("changed clusters/order at %g:\n%+v\n%+v", threshold, got, want)
 		}
 	}
-	// Exceeding the preparation budget is still a valid input, not a truncated
-	// or rejected catalogue. One member needs no pairwise comparison.
-	large := []followup{{Spec: "large", Text: strings.Repeat("x", 1024*1024+1)}}
-	if got := clusterFollowups(large, 0.6); len(got) != 0 {
-		t.Fatal("invented candidate")
+	// Punctuation exceeds the budget while normalizing to an empty sequence,
+	// keeping the real fallback pair comparisons fast. Ordinary members still
+	// produce candidates and must not be truncated or reordered.
+	large := []followup{{Spec: "padding", Text: strings.Repeat("!", 1024*1024+1)},
+		{Spec: "one", Text: "audit release gate"}, {Spec: "two", Text: "audit the release gate"},
+		{Spec: "two", Text: "audit release gate"}}
+	for _, threshold := range []float64{0, 0.2, 0.6, 0.8, 1} {
+		if got, want := clusterFollowups(large, threshold), governanceLegacyClusters(large, threshold); !reflect.DeepEqual(got, want) {
+			t.Fatalf("fallback changed candidates at %g: %+v %+v", threshold, got, want)
+		}
 	}
 }
 
