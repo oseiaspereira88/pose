@@ -475,6 +475,78 @@ func TestGovernanceOperationPerformanceBenchmark(t *testing.T) {
 	}
 }
 
+func TestGovernanceOperationPerformanceCaptureRejectsLinksAndSpecialFiles(t *testing.T) {
+	if _, err := exec.LookPath("python3"); err != nil {
+		t.Skip("python3 unavailable")
+	}
+	_, source, _, _ := runtime.Caller(0)
+	script := filepath.Join(filepath.Dir(source), "../../..", "scripts", "bench_governance.py")
+	for _, kind := range []string{"regular", "file-link", "indexes-link", "pose-link", "directory", "fifo"} {
+		t.Run(kind, func(t *testing.T) {
+			root := t.TempDir()
+			outside := t.TempDir()
+			target := filepath.Join(t.TempDir(), "captured")
+			writeArtifactTestFile(t, outside, "repo-map.json", "external sentinel\n")
+			writeArtifactTestFile(t, root, ".pose/indexes/repo-map.json", "generated index\n")
+			path := filepath.Join(root, ".pose/indexes/repo-map.json")
+			switch kind {
+			case "file-link":
+				if err := os.Remove(path); err != nil {
+					t.Fatal(err)
+				}
+				if err := os.Symlink(filepath.Join(outside, "repo-map.json"), path); err != nil {
+					t.Fatal(err)
+				}
+			case "indexes-link":
+				if err := os.RemoveAll(filepath.Dir(path)); err != nil {
+					t.Fatal(err)
+				}
+				if err := os.Symlink(outside, filepath.Dir(path)); err != nil {
+					t.Fatal(err)
+				}
+			case "pose-link":
+				writeArtifactTestFile(t, outside, "indexes/repo-map.json", "external sentinel\n")
+				if err := os.RemoveAll(filepath.Join(root, ".pose")); err != nil {
+					t.Fatal(err)
+				}
+				if err := os.Symlink(outside, filepath.Join(root, ".pose")); err != nil {
+					t.Fatal(err)
+				}
+			case "directory":
+				if err := os.Remove(path); err != nil {
+					t.Fatal(err)
+				}
+				if err := os.Mkdir(path, 0o700); err != nil {
+					t.Fatal(err)
+				}
+			case "fifo":
+				if err := os.Remove(path); err != nil {
+					t.Fatal(err)
+				}
+			}
+			code := "import importlib.util,sys,os;from pathlib import Path;s=importlib.util.spec_from_file_location('bench',sys.argv[1]);m=importlib.util.module_from_spec(s);s.loader.exec_module(m);"
+			if kind == "fifo" {
+				code += "os.mkfifo(str(Path(sys.argv[2])/'.pose/indexes/repo-map.json'));"
+			}
+			code += "m.capture_indexes(Path(sys.argv[2]),Path(sys.argv[3]))"
+			ctx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
+			defer cancel()
+			out, err := exec.CommandContext(ctx, "python3", "-c", code, script, root, target).CombinedOutput()
+			if (err == nil) != (kind == "regular") || ctx.Err() != nil {
+				t.Fatalf("capture kind=%s err=%v context=%v out=%s", kind, err, ctx.Err(), out)
+			}
+			captured, readErr := os.ReadFile(filepath.Join(target, "repo-map.json"))
+			if kind == "regular" {
+				if readErr != nil || string(captured) != "generated index\n" {
+					t.Fatalf("regular output lost: %q %v", captured, readErr)
+				}
+			} else if !os.IsNotExist(readErr) {
+				t.Fatalf("unsupported source was copied: %q %v", captured, readErr)
+			}
+		})
+	}
+}
+
 func TestGovernanceOperationPerformanceGitFailuresAndRefChanges(t *testing.T) {
 	realGit, err := exec.LookPath("git")
 	if err != nil {

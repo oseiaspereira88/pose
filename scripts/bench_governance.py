@@ -12,6 +12,7 @@ from pathlib import Path
 import platform
 import shutil
 import signal
+import stat
 import statistics
 import subprocess
 import tempfile
@@ -20,6 +21,42 @@ import time
 
 def sha(raw):
     return "sha256:" + hashlib.sha256(raw).hexdigest()
+
+
+def capture_indexes(work, artifact_dir):
+    """Anchor every path component to directory descriptors; never follow links."""
+    artifacts, descriptors = [], []
+    directory_flags = os.O_RDONLY | os.O_DIRECTORY | os.O_NOFOLLOW
+    try:
+        work_fd = os.open(work, directory_flags)
+        descriptors.append(work_fd)
+        pose_fd = os.open(".pose", directory_flags, dir_fd=work_fd)
+        descriptors.append(pose_fd)
+        indexes_fd = os.open("indexes", directory_flags, dir_fd=pose_fd)
+        descriptors.append(indexes_fd)
+        artifact_dir.mkdir(mode=0o700)
+        target_dir_fd = os.open(artifact_dir, directory_flags)
+        descriptors.append(target_dir_fd)
+        for filename in ("repo-map.json", "services.json", "packages.json", "spec-graph.json", "roadmaps.json", "delivery-integrity.json", "releases.json", "generation.json"):
+            try:
+                source_fd = os.open(filename, os.O_RDONLY | os.O_NOFOLLOW | os.O_NONBLOCK, dir_fd=indexes_fd)
+            except FileNotFoundError:
+                continue
+            with os.fdopen(source_fd, "rb") as source:
+                if not stat.S_ISREG(os.fstat(source.fileno()).st_mode):
+                    raise OSError("index artifact is not a regular file: " + filename)
+                target_fd = os.open(filename, os.O_WRONLY | os.O_CREAT | os.O_EXCL | os.O_NOFOLLOW, 0o600, dir_fd=target_dir_fd)
+                digest, size = hashlib.sha256(), 0
+                with os.fdopen(target_fd, "wb") as target:
+                    for block in iter(lambda: source.read(1024*1024), b""):
+                        target.write(block)
+                        digest.update(block)
+                        size += len(block)
+                artifacts.append({"name": filename, "path": str(artifact_dir / filename), "bytes": size, "digest": "sha256:" + digest.hexdigest()})
+        return artifacts
+    finally:
+        for descriptor in reversed(descriptors):
+            os.close(descriptor)
 
 
 def measure(command, cwd, env, timeout, stdout, stderr):
@@ -143,15 +180,8 @@ def main():
             artifacts, capture_error = [], None
             if operation == "index":
                 artifact_dir = output / (name + "-artifacts")
-                artifact_dir.mkdir(mode=0o700)
                 try:
-                    for filename in ("repo-map.json", "services.json", "packages.json", "spec-graph.json", "roadmaps.json", "delivery-integrity.json", "releases.json", "generation.json"):
-                        source = work / ".pose" / "indexes" / filename
-                        if not source.is_file():
-                            continue
-                        target = artifact_dir / filename
-                        shutil.copyfile(source, target)
-                        artifacts.append({"name": filename, "path": str(target), "bytes": target.stat().st_size, "digest": sha(target.read_bytes())})
+                    artifacts = capture_indexes(work, artifact_dir)
                 except OSError as exc:
                     capture_error = str(exc)
                     valid = False
