@@ -177,72 +177,70 @@ before their timings are treated as evidence.
 
 ### Requirement trace
 
-Trace planejado; vincular os casos aos produtores reais na execução.
-Não declarar requisitos satisfeitos pelo lint.
+Os vínculos abaixo apontam a casos executados; a declaração do autor não
+substitui a validação atual nem a revisão separada de fechamento.
 
-| Requisito | Casos planejados |
-|---|---|
-| R1 | V1 |
-| R2 | V2 |
-| R3 | V3 |
-| R4 | V3,V6 |
-| R5 | V4 |
-| R6 | V5 |
-| R7 | V6 |
-| R8 | V1–V6 |
+- R1 [satisfied] check:governance-operation-performance-integration evidence:integration test:TestGovernanceOperationPerformanceBenchmark test:TestGovernanceOperationPerformanceCaptureRejectsLinksAndSpecialFiles
+- R2 [satisfied] check:governance-operation-performance-integration evidence:integration test:TestReviewOperationViewSpecCatalogueReuseAndBodiesStayLive test:TestReviewOperationViewCapturesEachHeaderOnce test:TestGovernanceOperationPerformanceCapturesTrailersOnce
+- R3 [satisfied] check:governance-operation-performance-integration test:TestReviewOperationViewSpecCatalogueReuseAndBodiesStayLive test:TestReviewOperationViewCapturesEachHeaderOnce
+- R4 [satisfied] check:governance-operation-performance-integration test:TestReviewOperationViewSpecCatalogueChanges test:TestReviewOperationViewBindingAndRetirement test:TestGovernanceOperationPerformanceCheckFinalizesReviewView
+- R5 [satisfied] check:governance-operation-performance-integration test:TestGovernanceOperationPerformanceClustering
+- R6 [satisfied] check:governance-operation-performance-integration test:TestGovernanceOperationPerformanceChangeSetIndependentGolden test:TestGovernanceOperationPerformanceGitPathBytes test:TestGovernanceOperationPerformanceGitFailuresAndRefChanges test:TestGovernanceOperationPerformanceTrackedPathFraming
+- R7 [satisfied] check:governance-operation-performance-integration test:TestReviewOperationViewBudgetFallback test:TestReviewOperationViewSpecCatalogueFallbackAndRetirement test:TestReviewOperationViewParallelTraversalIsolation test:TestReviewOperationViewUnkeyedFallbackDropsEarlierAdvisorySnapshot
+- R8 [satisfied] capability:governance-operation-performance check:governance-operation-performance-integration test:TestGovernanceOperationPerformanceCLIToMCP test:TestGovernanceOperationPerformanceChangeSetIndependentGolden
 
 ## 7. Final Report
 
 ### Delivered scope
 
-Em implementação; nenhum fechamento ou ganho geral de latência declarado.
-O primeiro delta substitui o benchmark destrutivo por cópias descartáveis,
-reutiliza uma captura bounded completa de trailers, visita o catálogo sem
-descobri-lo por slug e prepara normalização dos follow-ups uma vez por operação.
-O catálogo mantém apenas digests entre visitas, confere metadados/corpos ao fim
-e não serve de snapshot para autorizar writes. A preparação de follow-ups tem
-orçamento de um MiB de texto de entrada; acima disso usa o algoritmo exato
-anterior, sem truncar candidatos. Esse orçamento não é uma estimativa de heap.
+Implementação qualificada por testes; aguardando validação final e revisão da
+spec inteira. Não há fechamento ou promessa de SLO nesta declaração.
 
-Regressões executadas: layouts flat/nested/split, duplicados, symlink foreign,
-mudança de corpo/metadados/catálogo, aliasing, mudança de HEAD e ref não-HEAD,
-saída Git parcial, timeout/bytes, benchmark com hook global e com erro/timeout
-na operação, versão ou setup. O teste de uma captura de trailers falhou no
-código anterior (2/4/7 leituras para N=1/3/6) e passa com uma leitura.
-O caminho de catálogo agora tem 4N leituras nas fixtures flat: duas verificações
-de catálogo e duas de corpo, em vez de N(N+2). Para N=1 isso aumenta leituras;
-não se afirma melhoria universal a partir da contagem.
+O benchmark usa mirror autocontido e worktrees descartáveis, preserva outputs,
+falhas/timeouts e captura índices sem seguir links. A coleta usa um único log
+completo de trailers, hash incremental dos diffs e framing NUL dos paths.
+Refs/HEAD alterados, saídas parciais, nomes não representáveis em UTF-8 e
+catálogos modificados produzem erro/perda explícita, sem atribuição fabricada.
 
-Microbenchmark sintético de três repetições, N=32 e textos curtos: alocações
-passaram de 5.979 para 252 e bytes alocados de 408.840 para 36.744 por operação.
-Nos textos longos o tempo permaneceu próximo e variável; a busca Ratcliff ainda
-domina aquele cenário. Não extrapolar para o corpus real.
+`checkReviewCloseout` compartilha observações imutáveis de headers e catálogo
+de metadados/slug no limite de uma operação. Corpos, loaders estritos, ordem,
+confiança e traversal continuam vivos; corpos consumidos e inventários são
+auditados ao fim. Orçamentos por produtor (10 mil registros, 128 MiB de entrada
+de headers, 8 MiB de texto retido) causam fallback completo, nunca truncamento.
+Normalização de follow-ups é preparada até um MiB de entrada; acima disso usa
+o mesmo algoritmo exato anterior. Esses budgets não são estimativas de RSS.
 
-Primeira revisão separada Codex pediu mudanças: hooks globais escapavam da
-fixture, refs podiam mudar durante a captura e timeout de versão/setup perdia
-evidência. Correções e regressões foram acrescentadas; a próxima rodada deve
-confirmá-las. Segunda rodada confirmou as correções e encontrou a conversão
-indevida de catálogo desaparecido em ausência inicial, além de setup sem fase
-registrada e mirror ainda dependente de alternates. Os três foram corrigidos e
-verificados em fixtures separadas pelo Codex; isso aprova continuar o delta,
-não concluir a spec.
+O relatório estruturado e o método em `.pose/results/pose-governance-operation-performance.json`
+e `.pose/reports/pose-governance-operation-performance-method.md` separam
+benchmarks nativos, diagnóstico parcial de CPU/heap, contadores instrumentados,
+serialização e microbenchmarks. No corpus fixo `fdefae55`, os oito índices
+gerados foram byte-idênticos entre published e `ab8e2bea`. O published teve
+três timeouts de 600 s em `check --strict`, sem mediana válida. Com headers a
+mediana foi 498,141 s; com catálogo, 433,958 s (três passes por candidata).
+`index` foi de mediana 205,684 s a 192,486 s na primeira comparação. Máquina
+compartilhada: não extrapolar um percentual causal ou eficácia geral.
 
-A suíte Go foi executada com `TMPDIR=/var/tmp/pose-work-go` após a primeira
-rodada atingir a cota de `/tmp`. Domínio e demais pacotes passaram; cinco falhas
-de CLI expuseram um `os.IsNotExist` que não reconhecia erro encapsulado. A troca
-por `errors.Is` preserva ausência inicial, com controle positivo, e o pacote
-CLI completo passou na repetição (172,607 s). O detector de corridas dos casos
-focados passou antes dos últimos controles positivos. O teste novo gera o
-índice pelo CLI e consulta o mesmo grafo pelo transporte MCP, incluindo recusa
-de geração adulterada; passou. O teste entrou na matriz como
-`governance-operation-performance-integration`. Perfil por produtor, comparação
-completa no corpus real, nova validação da matriz e closeout seguem pendentes.
+As regressões cobrem layouts, duplicados, foreign links, mudanças/ABA de corpo,
+aliasing, FS/contexto, fallback e aposentadoria da view, estado independente de
+oito workers, refs não-HEAD, truncagem, bytes/timeout e controles do harness.
+O detector de corridas e a suíte Go completa passaram nos deltas de runtime;
+os últimos controles instrumentados ainda recebem a validação final. O check
+registrado é `governance-operation-performance-integration`.
+
+Revisões separadas Codex encontraram e confirmaram correções para escapes do
+harness, perda de erros, refs mudadas, catálogo desaparecido, comparabilidade
+dinâmica de FS e snapshot herdado no fallback. As aprovações desses deltas não
+substituem a revisão final da spec inteira.
 
 ### Residual risks
 
-Fixtures mínimas não representam milhares de bundles reais; reportar limites sem extrapolar percentuais. Catálogo por operação não é snapshot universal para autorizar writes; a coerência dos inputs e geração continua nos contratos próprios. Não executar o benchmark destrutivo atual como validação deste lote documental.
+Fixtures mínimas não provam que milhares de bundles cabem nos budgets; o
+fallback continua completo. A view não é snapshot atômico nem autorização de
+write: mudanças após a última auditoria/ABA não observada dependem dos gates
+de escrita e dos contratos de geração próprios. O perfil de 45 s é parcial e
+instrumentado; contagens de bytes lógicos não medem I/O físico. O custo restante
+de hashing, arquivos de changelog, cargas estritas e verificação continua real.
 
 ### Follow-ups
 
-Nenhum item residual encerrado nesta escrita. As dependências e unidades restantes
-permanecem na matriz do programa, sem disposition automática.
+- [open] Medir o restante de `check --strict` após esta redução, em especial descoberta de fragments arquivados e subject hashing, antes de ampliar reuso no B33 (`pose-bounded-isolated-graph-caches`). Não introduzir cache de autorização nem prometer SLO a partir desta máquina compartilhada. (owner:@pose-maintainers crit:medium review:2026-11-27)

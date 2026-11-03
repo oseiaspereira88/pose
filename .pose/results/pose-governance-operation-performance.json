@@ -1,0 +1,2978 @@
+{
+  "schema_version": 1,
+  "spec": "pose-governance-operation-performance",
+  "status": "awaiting-final-validation-and-review",
+  "implementation_revision": "e6b6b1c2",
+  "measurement_tests_revision": "065f2758",
+  "method": ".pose/reports/pose-governance-operation-performance-method.md",
+  "native_benchmarks": {
+    "published": {
+      "raw_report": "/tmp/pose-performance-baseline-fdefae55/report.json",
+      "raw_report_digest": "sha256:d24a42c4261a139230366899beb994010ca35a97c1c988aaa1cf76c3d58d0e81",
+      "report": {
+        "schema_version": 1,
+        "setup": [
+          {
+            "phase": "source-head",
+            "exit_code": 0,
+            "timeout": false,
+            "wall_ms": 1.646416,
+            "resource_usage": {
+              "user_seconds": 0.000945,
+              "system_seconds": 0.0,
+              "max_rss": 23896,
+              "max_rss_unit": "KiB"
+            },
+            "stdout": "/tmp/pose-performance-baseline-fdefae55/source-head.stdout",
+            "stderr": "/tmp/pose-performance-baseline-fdefae55/source-head.stderr"
+          },
+          {
+            "phase": "source-refs",
+            "exit_code": 0,
+            "timeout": false,
+            "wall_ms": 1.287348,
+            "resource_usage": {
+              "user_seconds": 0.000895,
+              "system_seconds": 0.0,
+              "max_rss": 23896,
+              "max_rss_unit": "KiB"
+            },
+            "stdout": "/tmp/pose-performance-baseline-fdefae55/source-refs.stdout",
+            "stderr": "/tmp/pose-performance-baseline-fdefae55/source-refs.stderr"
+          },
+          {
+            "phase": "source-status",
+            "exit_code": 0,
+            "timeout": false,
+            "wall_ms": 7.626608,
+            "resource_usage": {
+              "user_seconds": 0.004020999999999999,
+              "system_seconds": 0.013106,
+              "max_rss": 24168,
+              "max_rss_unit": "KiB"
+            },
+            "stdout": "/tmp/pose-performance-baseline-fdefae55/source-status.stdout",
+            "stderr": "/tmp/pose-performance-baseline-fdefae55/source-status.stderr"
+          },
+          {
+            "phase": "clone",
+            "exit_code": 0,
+            "timeout": false,
+            "wall_ms": 146.952897,
+            "resource_usage": {
+              "user_seconds": 0.022,
+              "system_seconds": 0.12262899999999999,
+              "max_rss": 70104,
+              "max_rss_unit": "KiB"
+            },
+            "stdout": "/tmp/pose-performance-baseline-fdefae55/clone.stdout",
+            "stderr": "/tmp/pose-performance-baseline-fdefae55/clone.stderr"
+          },
+          {
+            "phase": "mirror-refs",
+            "exit_code": 0,
+            "timeout": false,
+            "wall_ms": 1.432142,
+            "resource_usage": {
+              "user_seconds": 0.0,
+              "system_seconds": 0.001175,
+              "max_rss": 70104,
+              "max_rss_unit": "KiB"
+            },
+            "stdout": "/tmp/pose-performance-baseline-fdefae55/mirror-refs.stdout",
+            "stderr": "/tmp/pose-performance-baseline-fdefae55/mirror-refs.stderr"
+          },
+          {
+            "phase": "source-head-recheck",
+            "exit_code": 0,
+            "timeout": false,
+            "wall_ms": 1.26696,
+            "resource_usage": {
+              "user_seconds": 0.000661,
+              "system_seconds": 0.0,
+              "max_rss": 70104,
+              "max_rss_unit": "KiB"
+            },
+            "stdout": "/tmp/pose-performance-baseline-fdefae55/source-head-recheck.stdout",
+            "stderr": "/tmp/pose-performance-baseline-fdefae55/source-head-recheck.stderr"
+          },
+          {
+            "phase": "matrix",
+            "exit_code": 0,
+            "timeout": false,
+            "wall_ms": 1.269895,
+            "resource_usage": {
+              "user_seconds": 0.000962,
+              "system_seconds": 0.0,
+              "max_rss": 70104,
+              "max_rss_unit": "KiB"
+            },
+            "stdout": "/tmp/pose-performance-baseline-fdefae55/matrix.stdout",
+            "stderr": "/tmp/pose-performance-baseline-fdefae55/matrix.stderr"
+          },
+          {
+            "phase": "state-attention-1-prepare",
+            "exit_code": 0,
+            "timeout": false,
+            "wall_ms": 253.287233,
+            "resource_usage": {
+              "user_seconds": 0.14077699999999999,
+              "system_seconds": 0.10872599999999999,
+              "max_rss": 127588,
+              "max_rss_unit": "KiB"
+            },
+            "stdout": "/tmp/pose-performance-baseline-fdefae55/state-attention-1-prepare.stdout",
+            "stderr": "/tmp/pose-performance-baseline-fdefae55/state-attention-1-prepare.stderr"
+          },
+          {
+            "phase": "state-attention-1-cleanup",
+            "exit_code": 0,
+            "timeout": false,
+            "wall_ms": 42.672495,
+            "resource_usage": {
+              "user_seconds": 0.006914999999999999,
+              "system_seconds": 0.034029,
+              "max_rss": 70104,
+              "max_rss_unit": "KiB"
+            },
+            "stdout": "/tmp/pose-performance-baseline-fdefae55/state-attention-1-cleanup.stdout",
+            "stderr": "/tmp/pose-performance-baseline-fdefae55/state-attention-1-cleanup.stderr"
+          },
+          {
+            "phase": "state-attention-2-prepare",
+            "exit_code": 0,
+            "timeout": false,
+            "wall_ms": 234.823421,
+            "resource_usage": {
+              "user_seconds": 0.122163,
+              "system_seconds": 0.108774,
+              "max_rss": 127920,
+              "max_rss_unit": "KiB"
+            },
+            "stdout": "/tmp/pose-performance-baseline-fdefae55/state-attention-2-prepare.stdout",
+            "stderr": "/tmp/pose-performance-baseline-fdefae55/state-attention-2-prepare.stderr"
+          },
+          {
+            "phase": "state-attention-2-cleanup",
+            "exit_code": 0,
+            "timeout": false,
+            "wall_ms": 43.633818,
+            "resource_usage": {
+              "user_seconds": 0.0010329999999999998,
+              "system_seconds": 0.039104,
+              "max_rss": 70104,
+              "max_rss_unit": "KiB"
+            },
+            "stdout": "/tmp/pose-performance-baseline-fdefae55/state-attention-2-cleanup.stdout",
+            "stderr": "/tmp/pose-performance-baseline-fdefae55/state-attention-2-cleanup.stderr"
+          },
+          {
+            "phase": "state-attention-3-prepare",
+            "exit_code": 0,
+            "timeout": false,
+            "wall_ms": 229.891227,
+            "resource_usage": {
+              "user_seconds": 0.125997,
+              "system_seconds": 0.10127399999999999,
+              "max_rss": 127924,
+              "max_rss_unit": "KiB"
+            },
+            "stdout": "/tmp/pose-performance-baseline-fdefae55/state-attention-3-prepare.stdout",
+            "stderr": "/tmp/pose-performance-baseline-fdefae55/state-attention-3-prepare.stderr"
+          },
+          {
+            "phase": "state-attention-3-cleanup",
+            "exit_code": 0,
+            "timeout": false,
+            "wall_ms": 42.578147,
+            "resource_usage": {
+              "user_seconds": 0.003907,
+              "system_seconds": 0.034755,
+              "max_rss": 70104,
+              "max_rss_unit": "KiB"
+            },
+            "stdout": "/tmp/pose-performance-baseline-fdefae55/state-attention-3-cleanup.stdout",
+            "stderr": "/tmp/pose-performance-baseline-fdefae55/state-attention-3-cleanup.stderr"
+          },
+          {
+            "phase": "check-strict-1-prepare",
+            "exit_code": 0,
+            "timeout": false,
+            "wall_ms": 239.266695,
+            "resource_usage": {
+              "user_seconds": 0.115114,
+              "system_seconds": 0.118517,
+              "max_rss": 127608,
+              "max_rss_unit": "KiB"
+            },
+            "stdout": "/tmp/pose-performance-baseline-fdefae55/check-strict-1-prepare.stdout",
+            "stderr": "/tmp/pose-performance-baseline-fdefae55/check-strict-1-prepare.stderr"
+          },
+          {
+            "phase": "check-strict-1-cleanup",
+            "exit_code": 0,
+            "timeout": false,
+            "wall_ms": 44.690975,
+            "resource_usage": {
+              "user_seconds": 0.00409,
+              "system_seconds": 0.037011999999999996,
+              "max_rss": 70104,
+              "max_rss_unit": "KiB"
+            },
+            "stdout": "/tmp/pose-performance-baseline-fdefae55/check-strict-1-cleanup.stdout",
+            "stderr": "/tmp/pose-performance-baseline-fdefae55/check-strict-1-cleanup.stderr"
+          },
+          {
+            "phase": "check-strict-2-prepare",
+            "exit_code": 0,
+            "timeout": false,
+            "wall_ms": 238.893225,
+            "resource_usage": {
+              "user_seconds": 0.119722,
+              "system_seconds": 0.11631899999999999,
+              "max_rss": 127556,
+              "max_rss_unit": "KiB"
+            },
+            "stdout": "/tmp/pose-performance-baseline-fdefae55/check-strict-2-prepare.stdout",
+            "stderr": "/tmp/pose-performance-baseline-fdefae55/check-strict-2-prepare.stderr"
+          },
+          {
+            "phase": "check-strict-2-cleanup",
+            "exit_code": 0,
+            "timeout": false,
+            "wall_ms": 44.630114,
+            "resource_usage": {
+              "user_seconds": 0.002999,
+              "system_seconds": 0.037211,
+              "max_rss": 70104,
+              "max_rss_unit": "KiB"
+            },
+            "stdout": "/tmp/pose-performance-baseline-fdefae55/check-strict-2-cleanup.stdout",
+            "stderr": "/tmp/pose-performance-baseline-fdefae55/check-strict-2-cleanup.stderr"
+          },
+          {
+            "phase": "check-strict-3-prepare",
+            "exit_code": 0,
+            "timeout": false,
+            "wall_ms": 236.244837,
+            "resource_usage": {
+              "user_seconds": 0.11803,
+              "system_seconds": 0.11531699999999999,
+              "max_rss": 127976,
+              "max_rss_unit": "KiB"
+            },
+            "stdout": "/tmp/pose-performance-baseline-fdefae55/check-strict-3-prepare.stdout",
+            "stderr": "/tmp/pose-performance-baseline-fdefae55/check-strict-3-prepare.stderr"
+          },
+          {
+            "phase": "check-strict-3-cleanup",
+            "exit_code": 0,
+            "timeout": false,
+            "wall_ms": 42.546163,
+            "resource_usage": {
+              "user_seconds": 0.003173,
+              "system_seconds": 0.037751,
+              "max_rss": 70104,
+              "max_rss_unit": "KiB"
+            },
+            "stdout": "/tmp/pose-performance-baseline-fdefae55/check-strict-3-cleanup.stdout",
+            "stderr": "/tmp/pose-performance-baseline-fdefae55/check-strict-3-cleanup.stderr"
+          },
+          {
+            "phase": "index-1-prepare",
+            "exit_code": 0,
+            "timeout": false,
+            "wall_ms": 238.358431,
+            "resource_usage": {
+              "user_seconds": 0.12095099999999999,
+              "system_seconds": 0.114482,
+              "max_rss": 127648,
+              "max_rss_unit": "KiB"
+            },
+            "stdout": "/tmp/pose-performance-baseline-fdefae55/index-1-prepare.stdout",
+            "stderr": "/tmp/pose-performance-baseline-fdefae55/index-1-prepare.stderr"
+          },
+          {
+            "phase": "index-1-cleanup",
+            "exit_code": 0,
+            "timeout": false,
+            "wall_ms": 45.701045,
+            "resource_usage": {
+              "user_seconds": 0.0018789999999999998,
+              "system_seconds": 0.040192,
+              "max_rss": 70104,
+              "max_rss_unit": "KiB"
+            },
+            "stdout": "/tmp/pose-performance-baseline-fdefae55/index-1-cleanup.stdout",
+            "stderr": "/tmp/pose-performance-baseline-fdefae55/index-1-cleanup.stderr"
+          },
+          {
+            "phase": "index-2-prepare",
+            "exit_code": 0,
+            "timeout": false,
+            "wall_ms": 239.322441,
+            "resource_usage": {
+              "user_seconds": 0.12512099999999998,
+              "system_seconds": 0.111549,
+              "max_rss": 127380,
+              "max_rss_unit": "KiB"
+            },
+            "stdout": "/tmp/pose-performance-baseline-fdefae55/index-2-prepare.stdout",
+            "stderr": "/tmp/pose-performance-baseline-fdefae55/index-2-prepare.stderr"
+          },
+          {
+            "phase": "index-2-cleanup",
+            "exit_code": 0,
+            "timeout": false,
+            "wall_ms": 43.587207,
+            "resource_usage": {
+              "user_seconds": 0.004013,
+              "system_seconds": 0.035399,
+              "max_rss": 70104,
+              "max_rss_unit": "KiB"
+            },
+            "stdout": "/tmp/pose-performance-baseline-fdefae55/index-2-cleanup.stdout",
+            "stderr": "/tmp/pose-performance-baseline-fdefae55/index-2-cleanup.stderr"
+          },
+          {
+            "phase": "index-3-prepare",
+            "exit_code": 0,
+            "timeout": false,
+            "wall_ms": 238.059589,
+            "resource_usage": {
+              "user_seconds": 0.110388,
+              "system_seconds": 0.124705,
+              "max_rss": 127596,
+              "max_rss_unit": "KiB"
+            },
+            "stdout": "/tmp/pose-performance-baseline-fdefae55/index-3-prepare.stdout",
+            "stderr": "/tmp/pose-performance-baseline-fdefae55/index-3-prepare.stderr"
+          },
+          {
+            "phase": "index-3-cleanup",
+            "exit_code": 0,
+            "timeout": false,
+            "wall_ms": 44.522092,
+            "resource_usage": {
+              "user_seconds": 0.0,
+              "system_seconds": 0.040815,
+              "max_rss": 70104,
+              "max_rss_unit": "KiB"
+            },
+            "stdout": "/tmp/pose-performance-baseline-fdefae55/index-3-cleanup.stdout",
+            "stderr": "/tmp/pose-performance-baseline-fdefae55/index-3-cleanup.stderr"
+          }
+        ],
+        "samples": [
+          {
+            "operation": "state-attention",
+            "repetition": 1,
+            "command": [
+              "/tmp/pose-performance-baseline-fdefae55/pose",
+              "state",
+              "--attention"
+            ],
+            "exit_code": 0,
+            "timeout": false,
+            "valid": true,
+            "wall_ms": 7110.238957,
+            "resource_usage": {
+              "user_seconds": 36.462805,
+              "system_seconds": 8.05243,
+              "max_rss": 497580,
+              "max_rss_unit": "KiB"
+            },
+            "stdout_bytes": 37075,
+            "stderr_bytes": 0,
+            "stdout": "/tmp/pose-performance-baseline-fdefae55/state-attention-1.stdout",
+            "stderr": "/tmp/pose-performance-baseline-fdefae55/state-attention-1.stderr"
+          },
+          {
+            "operation": "state-attention",
+            "repetition": 2,
+            "command": [
+              "/tmp/pose-performance-baseline-fdefae55/pose",
+              "state",
+              "--attention"
+            ],
+            "exit_code": 0,
+            "timeout": false,
+            "valid": true,
+            "wall_ms": 3194.671207,
+            "resource_usage": {
+              "user_seconds": 20.927254,
+              "system_seconds": 7.012834,
+              "max_rss": 474528,
+              "max_rss_unit": "KiB"
+            },
+            "stdout_bytes": 37075,
+            "stderr_bytes": 0,
+            "stdout": "/tmp/pose-performance-baseline-fdefae55/state-attention-2.stdout",
+            "stderr": "/tmp/pose-performance-baseline-fdefae55/state-attention-2.stderr"
+          },
+          {
+            "operation": "state-attention",
+            "repetition": 3,
+            "command": [
+              "/tmp/pose-performance-baseline-fdefae55/pose",
+              "state",
+              "--attention"
+            ],
+            "exit_code": 0,
+            "timeout": false,
+            "valid": true,
+            "wall_ms": 6963.444547,
+            "resource_usage": {
+              "user_seconds": 36.232196,
+              "system_seconds": 8.057092,
+              "max_rss": 484764,
+              "max_rss_unit": "KiB"
+            },
+            "stdout_bytes": 37075,
+            "stderr_bytes": 0,
+            "stdout": "/tmp/pose-performance-baseline-fdefae55/state-attention-3.stdout",
+            "stderr": "/tmp/pose-performance-baseline-fdefae55/state-attention-3.stderr"
+          },
+          {
+            "operation": "check-strict",
+            "repetition": 1,
+            "command": [
+              "/tmp/pose-performance-baseline-fdefae55/pose",
+              "check",
+              "--strict"
+            ],
+            "exit_code": -9,
+            "timeout": true,
+            "valid": false,
+            "wall_ms": 600007.811304,
+            "resource_usage": {
+              "user_seconds": 1984.679726,
+              "system_seconds": 683.558184,
+              "max_rss": 1768180,
+              "max_rss_unit": "KiB"
+            },
+            "stdout_bytes": 0,
+            "stderr_bytes": 0,
+            "stdout": "/tmp/pose-performance-baseline-fdefae55/check-strict-1.stdout",
+            "stderr": "/tmp/pose-performance-baseline-fdefae55/check-strict-1.stderr"
+          },
+          {
+            "operation": "check-strict",
+            "repetition": 2,
+            "command": [
+              "/tmp/pose-performance-baseline-fdefae55/pose",
+              "check",
+              "--strict"
+            ],
+            "exit_code": -9,
+            "timeout": true,
+            "valid": false,
+            "wall_ms": 600012.069201,
+            "resource_usage": {
+              "user_seconds": 1750.652526,
+              "system_seconds": 691.381235,
+              "max_rss": 1688508,
+              "max_rss_unit": "KiB"
+            },
+            "stdout_bytes": 0,
+            "stderr_bytes": 0,
+            "stdout": "/tmp/pose-performance-baseline-fdefae55/check-strict-2.stdout",
+            "stderr": "/tmp/pose-performance-baseline-fdefae55/check-strict-2.stderr"
+          },
+          {
+            "operation": "check-strict",
+            "repetition": 3,
+            "command": [
+              "/tmp/pose-performance-baseline-fdefae55/pose",
+              "check",
+              "--strict"
+            ],
+            "exit_code": -9,
+            "timeout": true,
+            "valid": false,
+            "wall_ms": 600009.208383,
+            "resource_usage": {
+              "user_seconds": 1967.929247,
+              "system_seconds": 711.056286,
+              "max_rss": 1705736,
+              "max_rss_unit": "KiB"
+            },
+            "stdout_bytes": 0,
+            "stderr_bytes": 0,
+            "stdout": "/tmp/pose-performance-baseline-fdefae55/check-strict-3.stdout",
+            "stderr": "/tmp/pose-performance-baseline-fdefae55/check-strict-3.stderr"
+          },
+          {
+            "operation": "index",
+            "repetition": 1,
+            "command": [
+              "/tmp/pose-performance-baseline-fdefae55/pose",
+              "index"
+            ],
+            "exit_code": 0,
+            "timeout": false,
+            "valid": true,
+            "wall_ms": 207412.275958,
+            "resource_usage": {
+              "user_seconds": 161.001739,
+              "system_seconds": 73.663265,
+              "max_rss": 326108,
+              "max_rss_unit": "KiB"
+            },
+            "stdout_bytes": 91,
+            "stderr_bytes": 0,
+            "stdout": "/tmp/pose-performance-baseline-fdefae55/index-1.stdout",
+            "stderr": "/tmp/pose-performance-baseline-fdefae55/index-1.stderr"
+          },
+          {
+            "operation": "index",
+            "repetition": 2,
+            "command": [
+              "/tmp/pose-performance-baseline-fdefae55/pose",
+              "index"
+            ],
+            "exit_code": 0,
+            "timeout": false,
+            "valid": true,
+            "wall_ms": 205035.137302,
+            "resource_usage": {
+              "user_seconds": 159.902946,
+              "system_seconds": 72.504442,
+              "max_rss": 311176,
+              "max_rss_unit": "KiB"
+            },
+            "stdout_bytes": 91,
+            "stderr_bytes": 0,
+            "stdout": "/tmp/pose-performance-baseline-fdefae55/index-2.stdout",
+            "stderr": "/tmp/pose-performance-baseline-fdefae55/index-2.stderr"
+          },
+          {
+            "operation": "index",
+            "repetition": 3,
+            "command": [
+              "/tmp/pose-performance-baseline-fdefae55/pose",
+              "index"
+            ],
+            "exit_code": 0,
+            "timeout": false,
+            "valid": true,
+            "wall_ms": 205683.587389,
+            "resource_usage": {
+              "user_seconds": 160.687541,
+              "system_seconds": 72.848686,
+              "max_rss": 326544,
+              "max_rss_unit": "KiB"
+            },
+            "stdout_bytes": 91,
+            "stderr_bytes": 0,
+            "stdout": "/tmp/pose-performance-baseline-fdefae55/index-3.stdout",
+            "stderr": "/tmp/pose-performance-baseline-fdefae55/index-3.stderr"
+          }
+        ],
+        "summary": {
+          "state-attention": {
+            "valid_samples": 3,
+            "invalid_samples": 0,
+            "median_ms": 6963.444547,
+            "min_ms": 3194.671207,
+            "max_ms": 7110.238957,
+            "stdev_ms": 2219.4921300431947
+          },
+          "check-strict": {
+            "valid_samples": 0,
+            "invalid_samples": 3,
+            "median_ms": null,
+            "min_ms": null,
+            "max_ms": null,
+            "stdev_ms": null
+          },
+          "index": {
+            "valid_samples": 3,
+            "invalid_samples": 0,
+            "median_ms": 205683.587389,
+            "min_ms": 205035.137302,
+            "max_ms": 207412.275958,
+            "stdev_ms": 1228.7961502877015
+          }
+        },
+        "corpus_revision": "fdefae55b4fd6a501f4abbc6b4b20dd2beed198a",
+        "refs_digest": "sha256:fb3d706c78413f7fc63dfe368bf9336a80e1f471ea7288d4ec128b68565bab18",
+        "source_dirty_status_hex": "",
+        "binary_digest": "sha256:675c97acfd5871a75318ce2e33a607f2999ce867c63e959c3c181171aaab8da0",
+        "engine_version_exit": 0,
+        "engine_version_timeout": false,
+        "engine_version": "pose 7.4.1-dev",
+        "platform": "Linux-7.2.10-1-cachyos-x86_64-with-glibc2.44",
+        "environment": {
+          "LANG": "C.UTF-8",
+          "LC_ALL": "C",
+          "TZ": null,
+          "GOMAXPROCS": null,
+          "TMPDIR": null
+        },
+        "timeout_seconds": 600.0,
+        "git_configuration": "global/system config disabled; setup hooks/fsmonitor disabled; fresh mirror local config; source local config not copied",
+        "limits": [
+          "committed corpus only; dirty files excluded without restoring them",
+          "heap/reads/parses/copies/Git bytes need separate instrumented producer profiles",
+          "setup excluded; fresh worktree per sample; CPU/RSS from Unix wait4 (RSS units platform dependent)",
+          "wait4 includes reaped descendants; background/unreaped descendants are not a complete process-tree profile"
+        ],
+        "matrix_digest": "sha256:fd40e394fba182db73e9760be5f9037303ae84f114e61307de84b8cb51303e58"
+      }
+    },
+    "headers": {
+      "raw_report": "/tmp/pose-performance-candidate-fdefae55-9407f9e4/report.json",
+      "raw_report_digest": "sha256:b3fafbf843428f5879cc382e2ec97065d311020b206ff14c68a827e06d582cb9",
+      "report": {
+        "schema_version": 1,
+        "setup": [
+          {
+            "phase": "source-head",
+            "exit_code": 0,
+            "timeout": false,
+            "wall_ms": 1.788876,
+            "resource_usage": {
+              "user_seconds": 0.0,
+              "system_seconds": 0.000839,
+              "max_rss": 23540,
+              "max_rss_unit": "KiB"
+            },
+            "stdout": "/tmp/pose-performance-candidate-fdefae55-9407f9e4/source-head.stdout",
+            "stderr": "/tmp/pose-performance-candidate-fdefae55-9407f9e4/source-head.stderr"
+          },
+          {
+            "phase": "source-refs",
+            "exit_code": 0,
+            "timeout": false,
+            "wall_ms": 1.303419,
+            "resource_usage": {
+              "user_seconds": 0.000978,
+              "system_seconds": 0.0,
+              "max_rss": 23540,
+              "max_rss_unit": "KiB"
+            },
+            "stdout": "/tmp/pose-performance-candidate-fdefae55-9407f9e4/source-refs.stdout",
+            "stderr": "/tmp/pose-performance-candidate-fdefae55-9407f9e4/source-refs.stderr"
+          },
+          {
+            "phase": "source-status",
+            "exit_code": 0,
+            "timeout": false,
+            "wall_ms": 9.790124,
+            "resource_usage": {
+              "user_seconds": 0.006058,
+              "system_seconds": 0.013129,
+              "max_rss": 23668,
+              "max_rss_unit": "KiB"
+            },
+            "stdout": "/tmp/pose-performance-candidate-fdefae55-9407f9e4/source-status.stdout",
+            "stderr": "/tmp/pose-performance-candidate-fdefae55-9407f9e4/source-status.stderr"
+          },
+          {
+            "phase": "clone",
+            "exit_code": 0,
+            "timeout": false,
+            "wall_ms": 158.196341,
+            "resource_usage": {
+              "user_seconds": 0.025827,
+              "system_seconds": 0.129389,
+              "max_rss": 69752,
+              "max_rss_unit": "KiB"
+            },
+            "stdout": "/tmp/pose-performance-candidate-fdefae55-9407f9e4/clone.stdout",
+            "stderr": "/tmp/pose-performance-candidate-fdefae55-9407f9e4/clone.stderr"
+          },
+          {
+            "phase": "mirror-refs",
+            "exit_code": 0,
+            "timeout": false,
+            "wall_ms": 2.288268,
+            "resource_usage": {
+              "user_seconds": 0.00115,
+              "system_seconds": 0.0,
+              "max_rss": 69752,
+              "max_rss_unit": "KiB"
+            },
+            "stdout": "/tmp/pose-performance-candidate-fdefae55-9407f9e4/mirror-refs.stdout",
+            "stderr": "/tmp/pose-performance-candidate-fdefae55-9407f9e4/mirror-refs.stderr"
+          },
+          {
+            "phase": "source-head-recheck",
+            "exit_code": 0,
+            "timeout": false,
+            "wall_ms": 1.290906,
+            "resource_usage": {
+              "user_seconds": 0.0007059999999999999,
+              "system_seconds": 0.0,
+              "max_rss": 69752,
+              "max_rss_unit": "KiB"
+            },
+            "stdout": "/tmp/pose-performance-candidate-fdefae55-9407f9e4/source-head-recheck.stdout",
+            "stderr": "/tmp/pose-performance-candidate-fdefae55-9407f9e4/source-head-recheck.stderr"
+          },
+          {
+            "phase": "matrix",
+            "exit_code": 0,
+            "timeout": false,
+            "wall_ms": 1.376347,
+            "resource_usage": {
+              "user_seconds": 0.00108,
+              "system_seconds": 0.0,
+              "max_rss": 69752,
+              "max_rss_unit": "KiB"
+            },
+            "stdout": "/tmp/pose-performance-candidate-fdefae55-9407f9e4/matrix.stdout",
+            "stderr": "/tmp/pose-performance-candidate-fdefae55-9407f9e4/matrix.stderr"
+          },
+          {
+            "phase": "state-attention-1-prepare",
+            "exit_code": 0,
+            "timeout": false,
+            "wall_ms": 247.123814,
+            "resource_usage": {
+              "user_seconds": 0.12671,
+              "system_seconds": 0.115925,
+              "max_rss": 127716,
+              "max_rss_unit": "KiB"
+            },
+            "stdout": "/tmp/pose-performance-candidate-fdefae55-9407f9e4/state-attention-1-prepare.stdout",
+            "stderr": "/tmp/pose-performance-candidate-fdefae55-9407f9e4/state-attention-1-prepare.stderr"
+          },
+          {
+            "phase": "state-attention-1-cleanup",
+            "exit_code": 0,
+            "timeout": false,
+            "wall_ms": 43.5832,
+            "resource_usage": {
+              "user_seconds": 0.00416,
+              "system_seconds": 0.03531,
+              "max_rss": 69752,
+              "max_rss_unit": "KiB"
+            },
+            "stdout": "/tmp/pose-performance-candidate-fdefae55-9407f9e4/state-attention-1-cleanup.stdout",
+            "stderr": "/tmp/pose-performance-candidate-fdefae55-9407f9e4/state-attention-1-cleanup.stderr"
+          },
+          {
+            "phase": "state-attention-2-prepare",
+            "exit_code": 0,
+            "timeout": false,
+            "wall_ms": 242.356458,
+            "resource_usage": {
+              "user_seconds": 0.130624,
+              "system_seconds": 0.108301,
+              "max_rss": 127700,
+              "max_rss_unit": "KiB"
+            },
+            "stdout": "/tmp/pose-performance-candidate-fdefae55-9407f9e4/state-attention-2-prepare.stdout",
+            "stderr": "/tmp/pose-performance-candidate-fdefae55-9407f9e4/state-attention-2-prepare.stderr"
+          },
+          {
+            "phase": "state-attention-2-cleanup",
+            "exit_code": 0,
+            "timeout": false,
+            "wall_ms": 45.772862,
+            "resource_usage": {
+              "user_seconds": 0.001931,
+              "system_seconds": 0.040385,
+              "max_rss": 69752,
+              "max_rss_unit": "KiB"
+            },
+            "stdout": "/tmp/pose-performance-candidate-fdefae55-9407f9e4/state-attention-2-cleanup.stdout",
+            "stderr": "/tmp/pose-performance-candidate-fdefae55-9407f9e4/state-attention-2-cleanup.stderr"
+          },
+          {
+            "phase": "state-attention-3-prepare",
+            "exit_code": 0,
+            "timeout": false,
+            "wall_ms": 387.848155,
+            "resource_usage": {
+              "user_seconds": 0.172084,
+              "system_seconds": 0.198427,
+              "max_rss": 128020,
+              "max_rss_unit": "KiB"
+            },
+            "stdout": "/tmp/pose-performance-candidate-fdefae55-9407f9e4/state-attention-3-prepare.stdout",
+            "stderr": "/tmp/pose-performance-candidate-fdefae55-9407f9e4/state-attention-3-prepare.stderr"
+          },
+          {
+            "phase": "state-attention-3-cleanup",
+            "exit_code": 0,
+            "timeout": false,
+            "wall_ms": 44.741445,
+            "resource_usage": {
+              "user_seconds": 0.003735,
+              "system_seconds": 0.036446,
+              "max_rss": 69752,
+              "max_rss_unit": "KiB"
+            },
+            "stdout": "/tmp/pose-performance-candidate-fdefae55-9407f9e4/state-attention-3-cleanup.stdout",
+            "stderr": "/tmp/pose-performance-candidate-fdefae55-9407f9e4/state-attention-3-cleanup.stderr"
+          },
+          {
+            "phase": "check-strict-1-prepare",
+            "exit_code": 0,
+            "timeout": false,
+            "wall_ms": 243.776748,
+            "resource_usage": {
+              "user_seconds": 0.130224,
+              "system_seconds": 0.11034999999999999,
+              "max_rss": 127580,
+              "max_rss_unit": "KiB"
+            },
+            "stdout": "/tmp/pose-performance-candidate-fdefae55-9407f9e4/check-strict-1-prepare.stdout",
+            "stderr": "/tmp/pose-performance-candidate-fdefae55-9407f9e4/check-strict-1-prepare.stderr"
+          },
+          {
+            "phase": "check-strict-1-cleanup",
+            "exit_code": 0,
+            "timeout": false,
+            "wall_ms": 44.571585,
+            "resource_usage": {
+              "user_seconds": 0.004918,
+              "system_seconds": 0.03572,
+              "max_rss": 69752,
+              "max_rss_unit": "KiB"
+            },
+            "stdout": "/tmp/pose-performance-candidate-fdefae55-9407f9e4/check-strict-1-cleanup.stdout",
+            "stderr": "/tmp/pose-performance-candidate-fdefae55-9407f9e4/check-strict-1-cleanup.stderr"
+          },
+          {
+            "phase": "check-strict-2-prepare",
+            "exit_code": 0,
+            "timeout": false,
+            "wall_ms": 240.012786,
+            "resource_usage": {
+              "user_seconds": 0.126404,
+              "system_seconds": 0.11073999999999999,
+              "max_rss": 127968,
+              "max_rss_unit": "KiB"
+            },
+            "stdout": "/tmp/pose-performance-candidate-fdefae55-9407f9e4/check-strict-2-prepare.stdout",
+            "stderr": "/tmp/pose-performance-candidate-fdefae55-9407f9e4/check-strict-2-prepare.stderr"
+          },
+          {
+            "phase": "check-strict-2-cleanup",
+            "exit_code": 0,
+            "timeout": false,
+            "wall_ms": 45.699193,
+            "resource_usage": {
+              "user_seconds": 0.0009559999999999999,
+              "system_seconds": 0.041711,
+              "max_rss": 69752,
+              "max_rss_unit": "KiB"
+            },
+            "stdout": "/tmp/pose-performance-candidate-fdefae55-9407f9e4/check-strict-2-cleanup.stdout",
+            "stderr": "/tmp/pose-performance-candidate-fdefae55-9407f9e4/check-strict-2-cleanup.stderr"
+          },
+          {
+            "phase": "check-strict-3-prepare",
+            "exit_code": 0,
+            "timeout": false,
+            "wall_ms": 249.286054,
+            "resource_usage": {
+              "user_seconds": 0.141726,
+              "system_seconds": 0.104059,
+              "max_rss": 128008,
+              "max_rss_unit": "KiB"
+            },
+            "stdout": "/tmp/pose-performance-candidate-fdefae55-9407f9e4/check-strict-3-prepare.stdout",
+            "stderr": "/tmp/pose-performance-candidate-fdefae55-9407f9e4/check-strict-3-prepare.stderr"
+          },
+          {
+            "phase": "check-strict-3-cleanup",
+            "exit_code": 0,
+            "timeout": false,
+            "wall_ms": 45.664106,
+            "resource_usage": {
+              "user_seconds": 0.006009,
+              "system_seconds": 0.03515,
+              "max_rss": 69752,
+              "max_rss_unit": "KiB"
+            },
+            "stdout": "/tmp/pose-performance-candidate-fdefae55-9407f9e4/check-strict-3-cleanup.stdout",
+            "stderr": "/tmp/pose-performance-candidate-fdefae55-9407f9e4/check-strict-3-cleanup.stderr"
+          },
+          {
+            "phase": "index-1-prepare",
+            "exit_code": 0,
+            "timeout": false,
+            "wall_ms": 236.831583,
+            "resource_usage": {
+              "user_seconds": 0.117322,
+              "system_seconds": 0.116921,
+              "max_rss": 128024,
+              "max_rss_unit": "KiB"
+            },
+            "stdout": "/tmp/pose-performance-candidate-fdefae55-9407f9e4/index-1-prepare.stdout",
+            "stderr": "/tmp/pose-performance-candidate-fdefae55-9407f9e4/index-1-prepare.stderr"
+          },
+          {
+            "phase": "index-1-cleanup",
+            "exit_code": 0,
+            "timeout": false,
+            "wall_ms": 46.748232,
+            "resource_usage": {
+              "user_seconds": 0.0038689999999999996,
+              "system_seconds": 0.038048,
+              "max_rss": 69752,
+              "max_rss_unit": "KiB"
+            },
+            "stdout": "/tmp/pose-performance-candidate-fdefae55-9407f9e4/index-1-cleanup.stdout",
+            "stderr": "/tmp/pose-performance-candidate-fdefae55-9407f9e4/index-1-cleanup.stderr"
+          },
+          {
+            "phase": "index-2-prepare",
+            "exit_code": 0,
+            "timeout": false,
+            "wall_ms": 242.629564,
+            "resource_usage": {
+              "user_seconds": 0.13014699999999998,
+              "system_seconds": 0.11030899999999999,
+              "max_rss": 127644,
+              "max_rss_unit": "KiB"
+            },
+            "stdout": "/tmp/pose-performance-candidate-fdefae55-9407f9e4/index-2-prepare.stdout",
+            "stderr": "/tmp/pose-performance-candidate-fdefae55-9407f9e4/index-2-prepare.stderr"
+          },
+          {
+            "phase": "index-2-cleanup",
+            "exit_code": 0,
+            "timeout": false,
+            "wall_ms": 44.61644,
+            "resource_usage": {
+              "user_seconds": 0.0016849999999999999,
+              "system_seconds": 0.039279999999999995,
+              "max_rss": 69752,
+              "max_rss_unit": "KiB"
+            },
+            "stdout": "/tmp/pose-performance-candidate-fdefae55-9407f9e4/index-2-cleanup.stdout",
+            "stderr": "/tmp/pose-performance-candidate-fdefae55-9407f9e4/index-2-cleanup.stderr"
+          },
+          {
+            "phase": "index-3-prepare",
+            "exit_code": 0,
+            "timeout": false,
+            "wall_ms": 236.722527,
+            "resource_usage": {
+              "user_seconds": 0.113893,
+              "system_seconds": 0.119902,
+              "max_rss": 127652,
+              "max_rss_unit": "KiB"
+            },
+            "stdout": "/tmp/pose-performance-candidate-fdefae55-9407f9e4/index-3-prepare.stdout",
+            "stderr": "/tmp/pose-performance-candidate-fdefae55-9407f9e4/index-3-prepare.stderr"
+          },
+          {
+            "phase": "index-3-cleanup",
+            "exit_code": 0,
+            "timeout": false,
+            "wall_ms": 44.535256,
+            "resource_usage": {
+              "user_seconds": 0.004652,
+              "system_seconds": 0.03596,
+              "max_rss": 69752,
+              "max_rss_unit": "KiB"
+            },
+            "stdout": "/tmp/pose-performance-candidate-fdefae55-9407f9e4/index-3-cleanup.stdout",
+            "stderr": "/tmp/pose-performance-candidate-fdefae55-9407f9e4/index-3-cleanup.stderr"
+          }
+        ],
+        "samples": [
+          {
+            "operation": "state-attention",
+            "repetition": 1,
+            "command": [
+              "/tmp/pose-performance-candidate-fdefae55-9407f9e4/pose",
+              "state",
+              "--attention"
+            ],
+            "exit_code": 0,
+            "timeout": false,
+            "valid": true,
+            "wall_ms": 8065.781076,
+            "resource_usage": {
+              "user_seconds": 40.546255,
+              "system_seconds": 8.55014,
+              "max_rss": 524292,
+              "max_rss_unit": "KiB"
+            },
+            "stdout_bytes": 37075,
+            "stderr_bytes": 0,
+            "stdout": "/tmp/pose-performance-candidate-fdefae55-9407f9e4/state-attention-1.stdout",
+            "stderr": "/tmp/pose-performance-candidate-fdefae55-9407f9e4/state-attention-1.stderr"
+          },
+          {
+            "operation": "state-attention",
+            "repetition": 2,
+            "command": [
+              "/tmp/pose-performance-candidate-fdefae55-9407f9e4/pose",
+              "state",
+              "--attention"
+            ],
+            "exit_code": 0,
+            "timeout": false,
+            "valid": true,
+            "wall_ms": 4571.649287,
+            "resource_usage": {
+              "user_seconds": 27.702511,
+              "system_seconds": 7.032139,
+              "max_rss": 497736,
+              "max_rss_unit": "KiB"
+            },
+            "stdout_bytes": 37075,
+            "stderr_bytes": 0,
+            "stdout": "/tmp/pose-performance-candidate-fdefae55-9407f9e4/state-attention-2.stdout",
+            "stderr": "/tmp/pose-performance-candidate-fdefae55-9407f9e4/state-attention-2.stderr"
+          },
+          {
+            "operation": "state-attention",
+            "repetition": 3,
+            "command": [
+              "/tmp/pose-performance-candidate-fdefae55-9407f9e4/pose",
+              "state",
+              "--attention"
+            ],
+            "exit_code": 0,
+            "timeout": false,
+            "valid": true,
+            "wall_ms": 3905.319246,
+            "resource_usage": {
+              "user_seconds": 22.706182,
+              "system_seconds": 6.692852,
+              "max_rss": 483988,
+              "max_rss_unit": "KiB"
+            },
+            "stdout_bytes": 37075,
+            "stderr_bytes": 0,
+            "stdout": "/tmp/pose-performance-candidate-fdefae55-9407f9e4/state-attention-3.stdout",
+            "stderr": "/tmp/pose-performance-candidate-fdefae55-9407f9e4/state-attention-3.stderr"
+          },
+          {
+            "operation": "check-strict",
+            "repetition": 1,
+            "command": [
+              "/tmp/pose-performance-candidate-fdefae55-9407f9e4/pose",
+              "check",
+              "--strict"
+            ],
+            "exit_code": 0,
+            "timeout": false,
+            "valid": true,
+            "wall_ms": 517068.031003,
+            "resource_usage": {
+              "user_seconds": 1214.526071,
+              "system_seconds": 661.527678,
+              "max_rss": 1806576,
+              "max_rss_unit": "KiB"
+            },
+            "stdout_bytes": 3509,
+            "stderr_bytes": 0,
+            "stdout": "/tmp/pose-performance-candidate-fdefae55-9407f9e4/check-strict-1.stdout",
+            "stderr": "/tmp/pose-performance-candidate-fdefae55-9407f9e4/check-strict-1.stderr"
+          },
+          {
+            "operation": "check-strict",
+            "repetition": 2,
+            "command": [
+              "/tmp/pose-performance-candidate-fdefae55-9407f9e4/pose",
+              "check",
+              "--strict"
+            ],
+            "exit_code": 0,
+            "timeout": false,
+            "valid": true,
+            "wall_ms": 498140.947705,
+            "resource_usage": {
+              "user_seconds": 1210.447771,
+              "system_seconds": 660.850939,
+              "max_rss": 1749112,
+              "max_rss_unit": "KiB"
+            },
+            "stdout_bytes": 3509,
+            "stderr_bytes": 0,
+            "stdout": "/tmp/pose-performance-candidate-fdefae55-9407f9e4/check-strict-2.stdout",
+            "stderr": "/tmp/pose-performance-candidate-fdefae55-9407f9e4/check-strict-2.stderr"
+          },
+          {
+            "operation": "check-strict",
+            "repetition": 3,
+            "command": [
+              "/tmp/pose-performance-candidate-fdefae55-9407f9e4/pose",
+              "check",
+              "--strict"
+            ],
+            "exit_code": 0,
+            "timeout": false,
+            "valid": true,
+            "wall_ms": 394216.072605,
+            "resource_usage": {
+              "user_seconds": 916.079259,
+              "system_seconds": 620.523147,
+              "max_rss": 1825832,
+              "max_rss_unit": "KiB"
+            },
+            "stdout_bytes": 3509,
+            "stderr_bytes": 0,
+            "stdout": "/tmp/pose-performance-candidate-fdefae55-9407f9e4/check-strict-3.stdout",
+            "stderr": "/tmp/pose-performance-candidate-fdefae55-9407f9e4/check-strict-3.stderr"
+          },
+          {
+            "operation": "index",
+            "repetition": 1,
+            "command": [
+              "/tmp/pose-performance-candidate-fdefae55-9407f9e4/pose",
+              "index"
+            ],
+            "exit_code": 0,
+            "timeout": false,
+            "valid": true,
+            "wall_ms": 192103.563789,
+            "resource_usage": {
+              "user_seconds": 147.061852,
+              "system_seconds": 68.395831,
+              "max_rss": 323292,
+              "max_rss_unit": "KiB"
+            },
+            "stdout_bytes": 101,
+            "stderr_bytes": 0,
+            "stdout": "/tmp/pose-performance-candidate-fdefae55-9407f9e4/index-1.stdout",
+            "stderr": "/tmp/pose-performance-candidate-fdefae55-9407f9e4/index-1.stderr"
+          },
+          {
+            "operation": "index",
+            "repetition": 2,
+            "command": [
+              "/tmp/pose-performance-candidate-fdefae55-9407f9e4/pose",
+              "index"
+            ],
+            "exit_code": 0,
+            "timeout": false,
+            "valid": true,
+            "wall_ms": 192486.049833,
+            "resource_usage": {
+              "user_seconds": 147.507146,
+              "system_seconds": 68.482235,
+              "max_rss": 325124,
+              "max_rss_unit": "KiB"
+            },
+            "stdout_bytes": 101,
+            "stderr_bytes": 0,
+            "stdout": "/tmp/pose-performance-candidate-fdefae55-9407f9e4/index-2.stdout",
+            "stderr": "/tmp/pose-performance-candidate-fdefae55-9407f9e4/index-2.stderr"
+          },
+          {
+            "operation": "index",
+            "repetition": 3,
+            "command": [
+              "/tmp/pose-performance-candidate-fdefae55-9407f9e4/pose",
+              "index"
+            ],
+            "exit_code": 0,
+            "timeout": false,
+            "valid": true,
+            "wall_ms": 192582.26956,
+            "resource_usage": {
+              "user_seconds": 147.453268,
+              "system_seconds": 68.567401,
+              "max_rss": 360396,
+              "max_rss_unit": "KiB"
+            },
+            "stdout_bytes": 101,
+            "stderr_bytes": 0,
+            "stdout": "/tmp/pose-performance-candidate-fdefae55-9407f9e4/index-3.stdout",
+            "stderr": "/tmp/pose-performance-candidate-fdefae55-9407f9e4/index-3.stderr"
+          }
+        ],
+        "summary": {
+          "state-attention": {
+            "valid_samples": 3,
+            "invalid_samples": 0,
+            "median_ms": 4571.649287,
+            "min_ms": 3905.319246,
+            "max_ms": 8065.781076,
+            "stdev_ms": 2234.6660944209075
+          },
+          "check-strict": {
+            "valid_samples": 3,
+            "invalid_samples": 0,
+            "median_ms": 498140.947705,
+            "min_ms": 394216.072605,
+            "max_ms": 517068.031003,
+            "stdev_ms": 66145.31707906962
+          },
+          "index": {
+            "valid_samples": 3,
+            "invalid_samples": 0,
+            "median_ms": 192486.049833,
+            "min_ms": 192103.563789,
+            "max_ms": 192582.26956,
+            "stdev_ms": 253.2169770859895
+          }
+        },
+        "corpus_revision": "fdefae55b4fd6a501f4abbc6b4b20dd2beed198a",
+        "refs_digest": "sha256:fb3d706c78413f7fc63dfe368bf9336a80e1f471ea7288d4ec128b68565bab18",
+        "source_dirty_status_hex": "",
+        "binary_digest": "sha256:36a2497eed7f45f23abae0d7fd40917dba470a04d0fbb7415b123258f0795ddc",
+        "engine_version_exit": 0,
+        "engine_version_timeout": false,
+        "engine_version": "pose 7.4.1-dev",
+        "platform": "Linux-7.2.10-1-cachyos-x86_64-with-glibc2.44",
+        "environment": {
+          "LANG": "C.UTF-8",
+          "LC_ALL": "C",
+          "TZ": null,
+          "GOMAXPROCS": null,
+          "TMPDIR": null
+        },
+        "timeout_seconds": 600.0,
+        "git_configuration": "global/system config disabled; setup hooks/fsmonitor disabled; fresh mirror local config; source local config not copied",
+        "limits": [
+          "committed corpus only; dirty files excluded without restoring them",
+          "heap/reads/parses/copies/Git bytes need separate instrumented producer profiles",
+          "setup excluded; fresh worktree per sample; CPU/RSS from Unix wait4 (RSS units platform dependent)",
+          "wait4 includes reaped descendants; background/unreaped descendants are not a complete process-tree profile"
+        ],
+        "matrix_digest": "sha256:fd40e394fba182db73e9760be5f9037303ae84f114e61307de84b8cb51303e58"
+      }
+    },
+    "catalogue": {
+      "raw_report": "/var/tmp/pose-work-go/performance-catalogue-check-4fc5e5ce/report.json",
+      "raw_report_digest": "sha256:158f240fd0058168a6098ed2e6ac62759b3e8acca017ec3ca7ceed507f1739c9",
+      "report": {
+        "schema_version": 1,
+        "setup": [
+          {
+            "phase": "source-head",
+            "exit_code": 0,
+            "timeout": false,
+            "wall_ms": 1.879868,
+            "resource_usage": {
+              "user_seconds": 0.0,
+              "system_seconds": 0.000988,
+              "max_rss": 23832,
+              "max_rss_unit": "KiB"
+            },
+            "stdout": "/var/tmp/pose-work-go/performance-catalogue-check-4fc5e5ce/source-head.stdout",
+            "stderr": "/var/tmp/pose-work-go/performance-catalogue-check-4fc5e5ce/source-head.stderr"
+          },
+          {
+            "phase": "source-refs",
+            "exit_code": 0,
+            "timeout": false,
+            "wall_ms": 1.310303,
+            "resource_usage": {
+              "user_seconds": 0.0,
+              "system_seconds": 0.0009339999999999999,
+              "max_rss": 23832,
+              "max_rss_unit": "KiB"
+            },
+            "stdout": "/var/tmp/pose-work-go/performance-catalogue-check-4fc5e5ce/source-refs.stdout",
+            "stderr": "/var/tmp/pose-work-go/performance-catalogue-check-4fc5e5ce/source-refs.stderr"
+          },
+          {
+            "phase": "source-status",
+            "exit_code": 0,
+            "timeout": false,
+            "wall_ms": 7.690055,
+            "resource_usage": {
+              "user_seconds": 0.006872,
+              "system_seconds": 0.011798999999999999,
+              "max_rss": 23960,
+              "max_rss_unit": "KiB"
+            },
+            "stdout": "/var/tmp/pose-work-go/performance-catalogue-check-4fc5e5ce/source-status.stdout",
+            "stderr": "/var/tmp/pose-work-go/performance-catalogue-check-4fc5e5ce/source-status.stderr"
+          },
+          {
+            "phase": "clone",
+            "exit_code": 0,
+            "timeout": false,
+            "wall_ms": 182.966677,
+            "resource_usage": {
+              "user_seconds": 0.018859,
+              "system_seconds": 0.163182,
+              "max_rss": 70004,
+              "max_rss_unit": "KiB"
+            },
+            "stdout": "/var/tmp/pose-work-go/performance-catalogue-check-4fc5e5ce/clone.stdout",
+            "stderr": "/var/tmp/pose-work-go/performance-catalogue-check-4fc5e5ce/clone.stderr"
+          },
+          {
+            "phase": "mirror-refs",
+            "exit_code": 0,
+            "timeout": false,
+            "wall_ms": 1.421423,
+            "resource_usage": {
+              "user_seconds": 0.0008579999999999999,
+              "system_seconds": 0.0,
+              "max_rss": 70004,
+              "max_rss_unit": "KiB"
+            },
+            "stdout": "/var/tmp/pose-work-go/performance-catalogue-check-4fc5e5ce/mirror-refs.stdout",
+            "stderr": "/var/tmp/pose-work-go/performance-catalogue-check-4fc5e5ce/mirror-refs.stderr"
+          },
+          {
+            "phase": "source-head-recheck",
+            "exit_code": 0,
+            "timeout": false,
+            "wall_ms": 1.292761,
+            "resource_usage": {
+              "user_seconds": 0.00073,
+              "system_seconds": 0.0,
+              "max_rss": 70004,
+              "max_rss_unit": "KiB"
+            },
+            "stdout": "/var/tmp/pose-work-go/performance-catalogue-check-4fc5e5ce/source-head-recheck.stdout",
+            "stderr": "/var/tmp/pose-work-go/performance-catalogue-check-4fc5e5ce/source-head-recheck.stderr"
+          },
+          {
+            "phase": "matrix",
+            "exit_code": 0,
+            "timeout": false,
+            "wall_ms": 1.3034,
+            "resource_usage": {
+              "user_seconds": 0.000538,
+              "system_seconds": 0.000539,
+              "max_rss": 70004,
+              "max_rss_unit": "KiB"
+            },
+            "stdout": "/var/tmp/pose-work-go/performance-catalogue-check-4fc5e5ce/matrix.stdout",
+            "stderr": "/var/tmp/pose-work-go/performance-catalogue-check-4fc5e5ce/matrix.stderr"
+          },
+          {
+            "phase": "check-strict-1-prepare",
+            "exit_code": 0,
+            "timeout": false,
+            "wall_ms": 326.159171,
+            "resource_usage": {
+              "user_seconds": 0.14313399999999998,
+              "system_seconds": 0.180558,
+              "max_rss": 127632,
+              "max_rss_unit": "KiB"
+            },
+            "stdout": "/var/tmp/pose-work-go/performance-catalogue-check-4fc5e5ce/check-strict-1-prepare.stdout",
+            "stderr": "/var/tmp/pose-work-go/performance-catalogue-check-4fc5e5ce/check-strict-1-prepare.stderr"
+          },
+          {
+            "phase": "check-strict-1-cleanup",
+            "exit_code": 0,
+            "timeout": false,
+            "wall_ms": 91.894275,
+            "resource_usage": {
+              "user_seconds": 0.004759,
+              "system_seconds": 0.08204299999999999,
+              "max_rss": 70004,
+              "max_rss_unit": "KiB"
+            },
+            "stdout": "/var/tmp/pose-work-go/performance-catalogue-check-4fc5e5ce/check-strict-1-cleanup.stdout",
+            "stderr": "/var/tmp/pose-work-go/performance-catalogue-check-4fc5e5ce/check-strict-1-cleanup.stderr"
+          },
+          {
+            "phase": "check-strict-2-prepare",
+            "exit_code": 0,
+            "timeout": false,
+            "wall_ms": 283.797082,
+            "resource_usage": {
+              "user_seconds": 0.11161199999999999,
+              "system_seconds": 0.171045,
+              "max_rss": 127784,
+              "max_rss_unit": "KiB"
+            },
+            "stdout": "/var/tmp/pose-work-go/performance-catalogue-check-4fc5e5ce/check-strict-2-prepare.stdout",
+            "stderr": "/var/tmp/pose-work-go/performance-catalogue-check-4fc5e5ce/check-strict-2-prepare.stderr"
+          },
+          {
+            "phase": "check-strict-2-cleanup",
+            "exit_code": 0,
+            "timeout": false,
+            "wall_ms": 96.348349,
+            "resource_usage": {
+              "user_seconds": 0.005705,
+              "system_seconds": 0.08209799999999999,
+              "max_rss": 70004,
+              "max_rss_unit": "KiB"
+            },
+            "stdout": "/var/tmp/pose-work-go/performance-catalogue-check-4fc5e5ce/check-strict-2-cleanup.stdout",
+            "stderr": "/var/tmp/pose-work-go/performance-catalogue-check-4fc5e5ce/check-strict-2-cleanup.stderr"
+          },
+          {
+            "phase": "check-strict-3-prepare",
+            "exit_code": 0,
+            "timeout": false,
+            "wall_ms": 286.710487,
+            "resource_usage": {
+              "user_seconds": 0.129733,
+              "system_seconds": 0.155134,
+              "max_rss": 127504,
+              "max_rss_unit": "KiB"
+            },
+            "stdout": "/var/tmp/pose-work-go/performance-catalogue-check-4fc5e5ce/check-strict-3-prepare.stdout",
+            "stderr": "/var/tmp/pose-work-go/performance-catalogue-check-4fc5e5ce/check-strict-3-prepare.stderr"
+          },
+          {
+            "phase": "check-strict-3-cleanup",
+            "exit_code": 0,
+            "timeout": false,
+            "wall_ms": 93.083567,
+            "resource_usage": {
+              "user_seconds": 0.003845,
+              "system_seconds": 0.08416499999999999,
+              "max_rss": 70004,
+              "max_rss_unit": "KiB"
+            },
+            "stdout": "/var/tmp/pose-work-go/performance-catalogue-check-4fc5e5ce/check-strict-3-cleanup.stdout",
+            "stderr": "/var/tmp/pose-work-go/performance-catalogue-check-4fc5e5ce/check-strict-3-cleanup.stderr"
+          }
+        ],
+        "samples": [
+          {
+            "operation": "check-strict",
+            "repetition": 1,
+            "command": [
+              "/var/tmp/pose-work-go/performance-catalogue-check-4fc5e5ce/pose",
+              "check",
+              "--strict"
+            ],
+            "exit_code": 0,
+            "timeout": false,
+            "valid": true,
+            "wall_ms": 397328.466155,
+            "resource_usage": {
+              "user_seconds": 847.150464,
+              "system_seconds": 530.627807,
+              "max_rss": 1718244,
+              "max_rss_unit": "KiB"
+            },
+            "stdout_bytes": 3509,
+            "stderr_bytes": 0,
+            "stdout": "/var/tmp/pose-work-go/performance-catalogue-check-4fc5e5ce/check-strict-1.stdout",
+            "stderr": "/var/tmp/pose-work-go/performance-catalogue-check-4fc5e5ce/check-strict-1.stderr",
+            "artifacts": [],
+            "artifact_capture_error": null
+          },
+          {
+            "operation": "check-strict",
+            "repetition": 2,
+            "command": [
+              "/var/tmp/pose-work-go/performance-catalogue-check-4fc5e5ce/pose",
+              "check",
+              "--strict"
+            ],
+            "exit_code": 0,
+            "timeout": false,
+            "valid": true,
+            "wall_ms": 437307.83445,
+            "resource_usage": {
+              "user_seconds": 977.889698,
+              "system_seconds": 545.097878,
+              "max_rss": 1607528,
+              "max_rss_unit": "KiB"
+            },
+            "stdout_bytes": 3509,
+            "stderr_bytes": 0,
+            "stdout": "/var/tmp/pose-work-go/performance-catalogue-check-4fc5e5ce/check-strict-2.stdout",
+            "stderr": "/var/tmp/pose-work-go/performance-catalogue-check-4fc5e5ce/check-strict-2.stderr",
+            "artifacts": [],
+            "artifact_capture_error": null
+          },
+          {
+            "operation": "check-strict",
+            "repetition": 3,
+            "command": [
+              "/var/tmp/pose-work-go/performance-catalogue-check-4fc5e5ce/pose",
+              "check",
+              "--strict"
+            ],
+            "exit_code": 0,
+            "timeout": false,
+            "valid": true,
+            "wall_ms": 433957.842163,
+            "resource_usage": {
+              "user_seconds": 972.904281,
+              "system_seconds": 545.554493,
+              "max_rss": 1722900,
+              "max_rss_unit": "KiB"
+            },
+            "stdout_bytes": 3509,
+            "stderr_bytes": 0,
+            "stdout": "/var/tmp/pose-work-go/performance-catalogue-check-4fc5e5ce/check-strict-3.stdout",
+            "stderr": "/var/tmp/pose-work-go/performance-catalogue-check-4fc5e5ce/check-strict-3.stderr",
+            "artifacts": [],
+            "artifact_capture_error": null
+          }
+        ],
+        "summary": {
+          "check-strict": {
+            "valid_samples": 3,
+            "invalid_samples": 0,
+            "median_ms": 433957.842163,
+            "min_ms": 397328.466155,
+            "max_ms": 437307.83445,
+            "stdev_ms": 22178.381081305524
+          }
+        },
+        "corpus_revision": "fdefae55b4fd6a501f4abbc6b4b20dd2beed198a",
+        "refs_digest": "sha256:fb3d706c78413f7fc63dfe368bf9336a80e1f471ea7288d4ec128b68565bab18",
+        "source_dirty_status_hex": "",
+        "binary_digest": "sha256:08743256539b84d77582ab3752dcbb295f93899eb3f42d116971960b099d4a27",
+        "engine_version_exit": 0,
+        "engine_version_timeout": false,
+        "engine_version": "pose 7.4.1-dev",
+        "platform": "Linux-7.2.10-1-cachyos-x86_64-with-glibc2.44",
+        "environment": {
+          "LANG": "C.UTF-8",
+          "LC_ALL": "C",
+          "TZ": null,
+          "GOMAXPROCS": null,
+          "TMPDIR": "/var/tmp/pose-work-go"
+        },
+        "timeout_seconds": 600.0,
+        "git_configuration": "global/system config disabled; setup hooks/fsmonitor disabled; fresh mirror local config; source local config not copied",
+        "limits": [
+          "committed corpus only; dirty files excluded without restoring them",
+          "heap/reads/parses/copies/Git bytes need separate instrumented producer profiles",
+          "setup excluded; fresh worktree per sample; CPU/RSS from Unix wait4 (RSS units platform dependent)",
+          "wait4 includes reaped descendants; background/unreaped descendants are not a complete process-tree profile"
+        ],
+        "matrix_digest": "sha256:fd40e394fba182db73e9760be5f9037303ae84f114e61307de84b8cb51303e58"
+      }
+    }
+  },
+  "real_index_comparison": {
+    "corpus_revision": "fdefae55b4fd6a501f4abbc6b4b20dd2beed198a",
+    "files": {
+      "delivery-integrity.json": {
+        "byte_equal": true,
+        "json_equal": true,
+        "difference_count": 0,
+        "first_differences": [],
+        "baseline_sha256": "02e2fffb4a6516d601d00034fbba16466c96ec26bedd4530122a6dac903db65d",
+        "candidate_sha256": "02e2fffb4a6516d601d00034fbba16466c96ec26bedd4530122a6dac903db65d"
+      },
+      "generation.json": {
+        "byte_equal": true,
+        "json_equal": true,
+        "difference_count": 0,
+        "first_differences": [],
+        "baseline_sha256": "feb0fb79364b7f4509b3a5f687bfe2509e52ed6e6a5b4bd3244d89121f640e3e",
+        "candidate_sha256": "feb0fb79364b7f4509b3a5f687bfe2509e52ed6e6a5b4bd3244d89121f640e3e"
+      },
+      "packages.json": {
+        "byte_equal": true,
+        "json_equal": true,
+        "difference_count": 0,
+        "first_differences": [],
+        "baseline_sha256": "029e4284639bfc725387cde9771a1650db1493cbcd95931c6641c5d40b4cd6fa",
+        "candidate_sha256": "029e4284639bfc725387cde9771a1650db1493cbcd95931c6641c5d40b4cd6fa"
+      },
+      "releases.json": {
+        "byte_equal": true,
+        "json_equal": true,
+        "difference_count": 0,
+        "first_differences": [],
+        "baseline_sha256": "388a7c7e55be853416faebea956c5143c3768dfea2d9bb9c7637da06cb909caa",
+        "candidate_sha256": "388a7c7e55be853416faebea956c5143c3768dfea2d9bb9c7637da06cb909caa"
+      },
+      "repo-map.json": {
+        "byte_equal": true,
+        "json_equal": true,
+        "difference_count": 0,
+        "first_differences": [],
+        "baseline_sha256": "42127ca104ffcf90a39dfb2822584421454f88759f5f5b65e951d567d4f9924c",
+        "candidate_sha256": "42127ca104ffcf90a39dfb2822584421454f88759f5f5b65e951d567d4f9924c"
+      },
+      "roadmaps.json": {
+        "byte_equal": true,
+        "json_equal": true,
+        "difference_count": 0,
+        "first_differences": [],
+        "baseline_sha256": "daf1ea15c7e9444e73c7058eb2585485f49a857bba4f9704a5b5830a998edefd",
+        "candidate_sha256": "daf1ea15c7e9444e73c7058eb2585485f49a857bba4f9704a5b5830a998edefd"
+      },
+      "services.json": {
+        "byte_equal": true,
+        "json_equal": true,
+        "difference_count": 0,
+        "first_differences": [],
+        "baseline_sha256": "37517e5f3dc66819f61f5a7bb8ace1921282415f10551d2defa5c3eb0985b570",
+        "candidate_sha256": "37517e5f3dc66819f61f5a7bb8ace1921282415f10551d2defa5c3eb0985b570"
+      },
+      "spec-graph.json": {
+        "byte_equal": true,
+        "json_equal": true,
+        "difference_count": 0,
+        "first_differences": [],
+        "baseline_sha256": "372873c971048e1790ce8e832ced221db893983e369d5c5f2a6542910a21515c",
+        "candidate_sha256": "372873c971048e1790ce8e832ced221db893983e369d5c5f2a6542910a21515c"
+      }
+    }
+  },
+  "cpu_diagnostic": {
+    "observation": {
+      "source_revision": "ab8e2bea",
+      "corpus_revision": "fdefae55b4fd6a501f4abbc6b4b20dd2beed198a",
+      "binary_sha256": "c4ca6a840264895abb6622ea0aad2715dd226fc1fd3935472f3c3a36a89c11de",
+      "command": [
+        "/var/tmp/pose-work-go/pose-performance-profiler",
+        "--profile-dir",
+        "/var/tmp/pose-work-go/performance-cpu-probe-y66b_brb",
+        "--profile-window",
+        "45s",
+        "check",
+        "--strict"
+      ],
+      "exit_code": -9,
+      "interrupted": true,
+      "wall_seconds": 65.04892773902975,
+      "kind": "instrumented partial CPU/heap diagnostic, not a valid latency/verdict sample",
+      "cpu_profile_exists": true,
+      "runtime_snapshot_exists": true
+    },
+    "runtime_snapshot": {
+      "gc_forced": false,
+      "memstats": {
+        "Alloc": 533311136,
+        "TotalAlloc": 102572626992,
+        "Sys": 1891945400,
+        "Lookups": 0,
+        "Mallocs": 332473931,
+        "Frees": 331747421,
+        "HeapAlloc": 533311136,
+        "HeapSys": 1830518784,
+        "HeapIdle": 1273159680,
+        "HeapInuse": 557359104,
+        "HeapReleased": 1139359744,
+        "HeapObjects": 726510,
+        "StackInuse": 10780672,
+        "StackSys": 10780672,
+        "MSpanInuse": 3511040,
+        "MSpanSys": 24577920,
+        "MCacheInuse": 36736,
+        "MCacheSys": 48216,
+        "BuckHashSys": 4601005,
+        "GCSys": 16095648,
+        "OtherSys": 5323155,
+        "NextGC": 664591210,
+        "LastGC": 1793718212942187120,
+        "PauseTotalNs": 216199385,
+        "PauseNs": [
+          202533,
+          168990,
+          220706,
+          865724,
+          379596,
+          122361,
+          123213,
+          226207,
+          424721,
+          221908,
+          170421,
+          107353,
+          118283,
+          106090,
+          188375,
+          247757,
+          537875,
+          275670,
+          164350,
+          961604,
+          450660,
+          708076,
+          513629,
+          1072614,
+          182104,
+          349250,
+          516274,
+          155714,
+          766727,
+          152138,
+          200828,
+          717584,
+          682888,
+          1103152,
+          245663,
+          552452,
+          847299,
+          319453,
+          518448,
+          391589,
+          187243,
+          441063,
+          218843,
+          870954,
+          128592,
+          277253,
+          333289,
+          406508,
+          353567,
+          232479,
+          399324,
+          177234,
+          209105,
+          829815,
+          480728,
+          105299,
+          792646,
+          93456,
+          931709,
+          104507,
+          395034,
+          268496,
+          689280,
+          684612,
+          526383,
+          1081031,
+          564064,
+          490726,
+          467832,
+          787908,
+          322819,
+          317869,
+          590845,
+          132310,
+          208273,
+          583721,
+          196690,
+          421917,
+          237319,
+          790762,
+          374748,
+          257195,
+          659926,
+          1656046,
+          289888,
+          792095,
+          204616,
+          152108,
+          1200396,
+          1197369,
+          383554,
+          262545,
+          474005,
+          684432,
+          254821,
+          1240681,
+          525762,
+          904317,
+          826109,
+          190349,
+          653313,
+          751007,
+          695813,
+          579553,
+          713556,
+          384745,
+          851496,
+          444830,
+          547504,
+          189798,
+          392481,
+          764532,
+          1095377,
+          1155241,
+          532364,
+          754774,
+          307189,
+          789500,
+          394194,
+          1727310,
+          891012,
+          628766,
+          642292,
+          1011529,
+          352506,
+          302320,
+          498872,
+          1149879,
+          510724,
+          695282,
+          675113,
+          237829,
+          460780,
+          455760,
+          350842,
+          189357,
+          307100,
+          2975174,
+          778680,
+          448826,
+          837390,
+          670595,
+          657671,
+          324011,
+          806382,
+          1960169,
+          685423,
+          311999,
+          342366,
+          447094,
+          318171,
+          191722,
+          462894,
+          563423,
+          157708,
+          424862,
+          802214,
+          558143,
+          102133,
+          141396,
+          679723,
+          548745,
+          1835133,
+          660747,
+          2379801,
+          1724454,
+          494463,
+          169109,
+          215246,
+          1012070,
+          258807,
+          458585,
+          523388,
+          242047,
+          791103,
+          711694,
+          325905,
+          351083,
+          813025,
+          591617,
+          639718,
+          354238,
+          919335,
+          348408,
+          141276,
+          2806796,
+          2956921,
+          473024,
+          547243,
+          890330,
+          523598,
+          387521,
+          822962,
+          444690,
+          667930,
+          502649,
+          600834,
+          494844,
+          534819,
+          516155,
+          670045,
+          223162,
+          217139,
+          388272,
+          426024,
+          992112,
+          483973,
+          304175,
+          785032,
+          721662,
+          784120,
+          816560,
+          1055090,
+          975582,
+          321928,
+          553304,
+          692758,
+          179238,
+          626031,
+          525132,
+          327779,
+          299215,
+          678000,
+          379788,
+          385047,
+          138211,
+          240414,
+          413311,
+          215656,
+          1113671,
+          2205721,
+          149641,
+          240394,
+          106500,
+          624127,
+          188194,
+          731110,
+          897694,
+          194046,
+          117741,
+          134304,
+          203724,
+          169340,
+          248458,
+          197362,
+          102864,
+          116079,
+          1781643,
+          153540,
+          113613,
+          192312,
+          94458,
+          121880,
+          116400,
+          110460,
+          109546
+        ],
+        "PauseEnd": [
+          1793718196856449672,
+          1793718196896110740,
+          1793718196932396347,
+          1793718196976450566,
+          1793718197032061183,
+          1793718197077659576,
+          1793718197117693618,
+          1793718197173880553,
+          1793718197228823471,
+          1793718197292743780,
+          1793718197346113639,
+          1793718197404219616,
+          1793718197466774750,
+          1793718197507275993,
+          1793718197558381999,
+          1793718197621230546,
+          1793718197690285326,
+          1793718197756376031,
+          1793718197817903786,
+          1793718197875980006,
+          1793718197940496651,
+          1793718198009312400,
+          1793718198100941130,
+          1793718198187264158,
+          1793718198277762125,
+          1793718198351673249,
+          1793718198426593507,
+          1793718198514658322,
+          1793718198598445173,
+          1793718198716487462,
+          1793718198919826360,
+          1793718199419702791,
+          1793718199915048621,
+          1793718200139275580,
+          1793718200736655848,
+          1793718201094929197,
+          1793718201267878325,
+          1793718201430311587,
+          1793718201614286542,
+          1793718201703547254,
+          1793718201771740417,
+          1793718201833786620,
+          1793718201889159278,
+          1793718201942302560,
+          1793718202001825351,
+          1793718202055230336,
+          1793718202110873324,
+          1793718202180031619,
+          1793718202244308772,
+          1793718202308113073,
+          1793718202377642588,
+          1793718202458345179,
+          1793718202521670957,
+          1793718202587778664,
+          1793718202659910541,
+          1793718202725960089,
+          1793718202810654192,
+          1793718202901442507,
+          1793718202991664984,
+          1793718203081103641,
+          1793718203185691669,
+          1793718203292770917,
+          1793718203424830067,
+          1793718203564021067,
+          1793718203772364931,
+          1793718204286383090,
+          1793718204803666821,
+          1793718205022588708,
+          1793718205452487468,
+          1793718205757545921,
+          1793718205930990663,
+          1793718206157783183,
+          1793718206389828116,
+          1793718206523570723,
+          1793718206615215855,
+          1793718206698553138,
+          1793718206767260331,
+          1793718206847536067,
+          1793718206921850843,
+          1793718206995552141,
+          1793718207065546804,
+          1793718207150135078,
+          1793718207244556399,
+          1793718207323261781,
+          1793718207408355058,
+          1793718207491093561,
+          1793718207578780212,
+          1793718207666851920,
+          1793718207776784243,
+          1793718207961184621,
+          1793718208145462027,
+          1793718208456054644,
+          1793718209059861100,
+          1793718209594379718,
+          1793718209849609414,
+          1793718210528774967,
+          1793718210877127334,
+          1793718211319764684,
+          1793718211439261437,
+          1793718211558138751,
+          1793718211714756428,
+          1793718211962751030,
+          1793718212092756605,
+          1793718212236229796,
+          1793718212421566481,
+          1793718212576249117,
+          1793718212718917338,
+          1793718212942187120,
+          1793718182592115327,
+          1793718182693415809,
+          1793718182820656166,
+          1793718183005159608,
+          1793718183149781957,
+          1793718183287765388,
+          1793718183423821071,
+          1793718183578444233,
+          1793718183702817980,
+          1793718183819009515,
+          1793718183948844297,
+          1793718184175543912,
+          1793718184388200164,
+          1793718184611826608,
+          1793718184889110896,
+          1793718185064745451,
+          1793718185162857567,
+          1793718185231243894,
+          1793718185304649184,
+          1793718185367761428,
+          1793718185444545354,
+          1793718185504949789,
+          1793718185571830335,
+          1793718185624789488,
+          1793718185684748753,
+          1793718185743002508,
+          1793718185792364794,
+          1793718185848838641,
+          1793718185902383761,
+          1793718185964358418,
+          1793718186024130750,
+          1793718186077454351,
+          1793718186140989995,
+          1793718186211563991,
+          1793718186288643645,
+          1793718186380390499,
+          1793718186515870244,
+          1793718186780109112,
+          1793718186901932686,
+          1793718186999969330,
+          1793718187072762704,
+          1793718187162464639,
+          1793718187235165298,
+          1793718187321836683,
+          1793718187394819235,
+          1793718187474850960,
+          1793718187542538349,
+          1793718187607601525,
+          1793718187672890708,
+          1793718187729863165,
+          1793718187784121090,
+          1793718187843106176,
+          1793718187910682125,
+          1793718187983845548,
+          1793718188070739333,
+          1793718188169031789,
+          1793718188287466517,
+          1793718188379475185,
+          1793718188520302662,
+          1793718188642733552,
+          1793718188751756790,
+          1793718188840772549,
+          1793718188928584907,
+          1793718189011687848,
+          1793718189093403471,
+          1793718189181425284,
+          1793718189255226321,
+          1793718189359976654,
+          1793718189468712950,
+          1793718189581825685,
+          1793718189676445450,
+          1793718189757871326,
+          1793718189838433882,
+          1793718189918917550,
+          1793718190006102404,
+          1793718190118368902,
+          1793718190248836639,
+          1793718190395562568,
+          1793718190521788691,
+          1793718190627345115,
+          1793718190712468088,
+          1793718190790363912,
+          1793718190876237171,
+          1793718190970217720,
+          1793718191092136965,
+          1793718191184347613,
+          1793718191285520856,
+          1793718191377527600,
+          1793718191471405545,
+          1793718191620908425,
+          1793718191794148401,
+          1793718191895253215,
+          1793718191999875637,
+          1793718192112722100,
+          1793718192264779390,
+          1793718192473021482,
+          1793718192619748633,
+          1793718192767125301,
+          1793718193001059679,
+          1793718193219307143,
+          1793718193320211037,
+          1793718193413952545,
+          1793718193492557467,
+          1793718193589659366,
+          1793718193705602363,
+          1793718193971146755,
+          1793718194109923923,
+          1793718194236770006,
+          1793718194362855302,
+          1793718194529104586,
+          1793718194686969576,
+          1793718194766412320,
+          1793718194847276245,
+          1793718194905285680,
+          1793718194962751749,
+          1793718195014400380,
+          1793718195070339387,
+          1793718195122683951,
+          1793718195177312545,
+          1793718195239959963,
+          1793718195318395535,
+          1793718195387768034,
+          1793718195481432386,
+          1793718195570804027,
+          1793718195657148546,
+          1793718195716598359,
+          1793718195780436503,
+          1793718195839711666,
+          1793718195897280770,
+          1793718195952784536,
+          1793718196003588483,
+          1793718196052374701,
+          1793718196103340644,
+          1793718196166223726,
+          1793718196230936812,
+          1793718196286209832,
+          1793718196343363792,
+          1793718196392291568,
+          1793718196440992697,
+          1793718196482937434,
+          1793718196525335397,
+          1793718196565609972,
+          1793718196609835494,
+          1793718196653345646,
+          1793718196696540804,
+          1793718196731843326,
+          1793718196767707038,
+          1793718196810425836
+        ],
+        "NumGC": 364,
+        "NumForcedGC": 0,
+        "GCCPUFraction": 0.03831318325210925,
+        "EnableGC": true,
+        "DebugGC": false,
+        "BySize": [
+          {
+            "Size": 0,
+            "Mallocs": 0,
+            "Frees": 0
+          },
+          {
+            "Size": 8,
+            "Mallocs": 8363556,
+            "Frees": 8338621
+          },
+          {
+            "Size": 16,
+            "Mallocs": 119275843,
+            "Frees": 119141429
+          },
+          {
+            "Size": 24,
+            "Mallocs": 12871008,
+            "Frees": 12826625
+          },
+          {
+            "Size": 32,
+            "Mallocs": 11404031,
+            "Frees": 11344529
+          },
+          {
+            "Size": 48,
+            "Mallocs": 23112475,
+            "Frees": 23004829
+          },
+          {
+            "Size": 64,
+            "Mallocs": 17512853,
+            "Frees": 17437160
+          },
+          {
+            "Size": 80,
+            "Mallocs": 17024050,
+            "Frees": 16981424
+          },
+          {
+            "Size": 96,
+            "Mallocs": 14474135,
+            "Frees": 14437764
+          },
+          {
+            "Size": 112,
+            "Mallocs": 15846615,
+            "Frees": 15826508
+          },
+          {
+            "Size": 128,
+            "Mallocs": 24271186,
+            "Frees": 24249303
+          },
+          {
+            "Size": 144,
+            "Mallocs": 11946295,
+            "Frees": 11941432
+          },
+          {
+            "Size": 160,
+            "Mallocs": 2481414,
+            "Frees": 2480033
+          },
+          {
+            "Size": 176,
+            "Mallocs": 450627,
+            "Frees": 449423
+          },
+          {
+            "Size": 192,
+            "Mallocs": 472562,
+            "Frees": 470407
+          },
+          {
+            "Size": 208,
+            "Mallocs": 10347963,
+            "Frees": 10309294
+          },
+          {
+            "Size": 224,
+            "Mallocs": 139865,
+            "Frees": 139432
+          },
+          {
+            "Size": 240,
+            "Mallocs": 3283599,
+            "Frees": 3248302
+          },
+          {
+            "Size": 256,
+            "Mallocs": 616798,
+            "Frees": 615774
+          },
+          {
+            "Size": 288,
+            "Mallocs": 3512716,
+            "Frees": 3497904
+          },
+          {
+            "Size": 320,
+            "Mallocs": 506844,
+            "Frees": 505794
+          },
+          {
+            "Size": 352,
+            "Mallocs": 193945,
+            "Frees": 193169
+          },
+          {
+            "Size": 384,
+            "Mallocs": 122030,
+            "Frees": 121525
+          },
+          {
+            "Size": 416,
+            "Mallocs": 538447,
+            "Frees": 536758
+          },
+          {
+            "Size": 448,
+            "Mallocs": 93920,
+            "Frees": 93554
+          },
+          {
+            "Size": 480,
+            "Mallocs": 83866,
+            "Frees": 82821
+          },
+          {
+            "Size": 512,
+            "Mallocs": 1239437,
+            "Frees": 1234504
+          },
+          {
+            "Size": 576,
+            "Mallocs": 2882566,
+            "Frees": 2875947
+          },
+          {
+            "Size": 640,
+            "Mallocs": 353070,
+            "Frees": 351195
+          },
+          {
+            "Size": 704,
+            "Mallocs": 99001,
+            "Frees": 98268
+          },
+          {
+            "Size": 768,
+            "Mallocs": 66392,
+            "Frees": 65694
+          },
+          {
+            "Size": 896,
+            "Mallocs": 122885,
+            "Frees": 121955
+          },
+          {
+            "Size": 1024,
+            "Mallocs": 717135,
+            "Frees": 714772
+          },
+          {
+            "Size": 1152,
+            "Mallocs": 90792,
+            "Frees": 90040
+          },
+          {
+            "Size": 1280,
+            "Mallocs": 1029826,
+            "Frees": 1024427
+          },
+          {
+            "Size": 1408,
+            "Mallocs": 47594,
+            "Frees": 46987
+          },
+          {
+            "Size": 1536,
+            "Mallocs": 35764,
+            "Frees": 35452
+          },
+          {
+            "Size": 1792,
+            "Mallocs": 73845,
+            "Frees": 73154
+          },
+          {
+            "Size": 2048,
+            "Mallocs": 450371,
+            "Frees": 449399
+          },
+          {
+            "Size": 2304,
+            "Mallocs": 65964,
+            "Frees": 65549
+          },
+          {
+            "Size": 2688,
+            "Mallocs": 175530,
+            "Frees": 172511
+          },
+          {
+            "Size": 3072,
+            "Mallocs": 181176,
+            "Frees": 178424
+          },
+          {
+            "Size": 3200,
+            "Mallocs": 28686,
+            "Frees": 28273
+          },
+          {
+            "Size": 3456,
+            "Mallocs": 598057,
+            "Frees": 595082
+          },
+          {
+            "Size": 4096,
+            "Mallocs": 575743,
+            "Frees": 574529
+          },
+          {
+            "Size": 4864,
+            "Mallocs": 668148,
+            "Frees": 665879
+          },
+          {
+            "Size": 5376,
+            "Mallocs": 316601,
+            "Frees": 315822
+          },
+          {
+            "Size": 6144,
+            "Mallocs": 711111,
+            "Frees": 709466
+          },
+          {
+            "Size": 6528,
+            "Mallocs": 414125,
+            "Frees": 413266
+          },
+          {
+            "Size": 6784,
+            "Mallocs": 282064,
+            "Frees": 281416
+          },
+          {
+            "Size": 6912,
+            "Mallocs": 122751,
+            "Frees": 122463
+          },
+          {
+            "Size": 8192,
+            "Mallocs": 880648,
+            "Frees": 878231
+          },
+          {
+            "Size": 9472,
+            "Mallocs": 691674,
+            "Frees": 689990
+          },
+          {
+            "Size": 9728,
+            "Mallocs": 159211,
+            "Frees": 158847
+          },
+          {
+            "Size": 10240,
+            "Mallocs": 159616,
+            "Frees": 159257
+          },
+          {
+            "Size": 10880,
+            "Mallocs": 241457,
+            "Frees": 240899
+          },
+          {
+            "Size": 12288,
+            "Mallocs": 272019,
+            "Frees": 271363
+          },
+          {
+            "Size": 13568,
+            "Mallocs": 227661,
+            "Frees": 227122
+          },
+          {
+            "Size": 14336,
+            "Mallocs": 144312,
+            "Frees": 143974
+          },
+          {
+            "Size": 16384,
+            "Mallocs": 344619,
+            "Frees": 343783
+          },
+          {
+            "Size": 18432,
+            "Mallocs": 164928,
+            "Frees": 164329
+          }
+        ]
+      },
+      "runtime": "go1.27.1-X:nodwarf5",
+      "window": "45s"
+    },
+    "cpu_profile_digest": "sha256:0dd67fd67d1a4d24d99743dd3a270ec12518540cc7b3d5e2281aec37db57cda7",
+    "heap_profile_digest": "sha256:e31addfa91d16055aeda806ff82404c107226e6d69065eb8e5a6f393fad41136",
+    "sampled_cpu_seconds": 207.49,
+    "window_seconds": 45,
+    "selected_cumulative_frames": [
+      {
+        "function": "nativeChecker.checkReviewCloseout",
+        "cpu_seconds": 165.01,
+        "sample_share_percent": 79.53
+      },
+      {
+        "function": "Store.ListSpecs",
+        "cpu_seconds": 68.25,
+        "sample_share_percent": 32.89
+      },
+      {
+        "function": "Store.GetSpec",
+        "cpu_seconds": 66.83,
+        "sample_share_percent": 32.21
+      },
+      {
+        "function": "Store.prepareReviewBundle",
+        "cpu_seconds": 85.66,
+        "sample_share_percent": 41.28
+      }
+    ],
+    "interpretation": "Nested cumulative frames overlap; do not add percentages. Window is from ab8e2bea before metadata reuse; interrupted diagnostic is not a successful latency or verdict sample."
+  },
+  "producer_fixtures": {
+    "spec_catalogue": {
+      "specs": 6,
+      "successful_body_queries": 12,
+      "missing_queries": 1,
+      "readfile_calls": 36,
+      "readfile_returned_bytes": 3204,
+      "function_entries": {
+        "cloneSpec": {
+          "entries": 24,
+          "first_executable_line": 120,
+          "column": 2
+        },
+        "GetSpec": {
+          "entries": 13,
+          "first_executable_line": 144,
+          "column": 2
+        },
+        "listSpecs": {
+          "entries": 3,
+          "first_executable_line": 292,
+          "column": 2
+        },
+        "parseSpecFile": {
+          "entries": 36,
+          "first_executable_line": 501,
+          "column": 2
+        }
+      },
+      "coverage_digest": "sha256:bcf3ad657fbdd1a7c7d7d38d9541bbe24695d1be171ffdd6b92ae243129ab620"
+    },
+    "bundle_headers": {
+      "records": 6,
+      "scope_queries": 4,
+      "capture_and_final_audit_readfile_calls": 12,
+      "readfile_returned_bytes": 504,
+      "function_entries": {
+        "readReviewBundleHeader": {
+          "entries": 6,
+          "first_executable_line": 26,
+          "column": 2
+        }
+      },
+      "coverage_digest": "sha256:8cc39daaf2a3f37f790fd7a2f82a189b67e77c7736737b011e0c4421e6278b26"
+    },
+    "artifact_git": [
+      {
+        "specs": 1,
+        "full_trailer_logs": 1,
+        "git_subprocesses": 11,
+        "git_generated_stdout_bytes": 931
+      },
+      {
+        "specs": 3,
+        "full_trailer_logs": 1,
+        "git_subprocesses": 23,
+        "git_generated_stdout_bytes": 4163
+      },
+      {
+        "specs": 6,
+        "full_trailer_logs": 1,
+        "git_subprocesses": 41,
+        "git_generated_stdout_bytes": 13871
+      }
+    ],
+    "metric_limits": [
+      "ReadFile bytes are logical bytes returned by that API, not physical I/O or complete Open/Read coverage.",
+      "cloneSpec entries count semantic clone calls, not all runtime memory copies.",
+      "Git stdout counts include expected failed parent resolution for a root commit; stderr and physical I/O are not estimated.",
+      "Atomic coverage fixtures measure function entries; their runtimes are not native command baselines."
+    ]
+  },
+  "clustering": {
+    "BenchmarkGovernanceOperationPerformanceClustering/N8-L32/legacy": {
+      "samples": [
+        {
+          "ns/op": 67427.0,
+          "B/op": 25856.0,
+          "allocs/op": 350.0
+        },
+        {
+          "ns/op": 65103.0,
+          "B/op": 25856.0,
+          "allocs/op": 350.0
+        },
+        {
+          "ns/op": 61686.0,
+          "B/op": 25856.0,
+          "allocs/op": 350.0
+        }
+      ],
+      "summary": {
+        "ns/op": {
+          "median": 65103.0,
+          "min": 61686.0,
+          "max": 67427.0
+        },
+        "B/op": {
+          "median": 25856.0,
+          "min": 25856.0,
+          "max": 25856.0
+        },
+        "allocs/op": {
+          "median": 350.0,
+          "min": 350.0,
+          "max": 350.0
+        }
+      }
+    },
+    "BenchmarkGovernanceOperationPerformanceClustering/N8-L32/prepared": {
+      "samples": [
+        {
+          "ns/op": 36429.0,
+          "B/op": 8064.0,
+          "allocs/op": 71.0
+        },
+        {
+          "ns/op": 39204.0,
+          "B/op": 8064.0,
+          "allocs/op": 71.0
+        },
+        {
+          "ns/op": 39294.0,
+          "B/op": 8064.0,
+          "allocs/op": 71.0
+        }
+      ],
+      "summary": {
+        "ns/op": {
+          "median": 39204.0,
+          "min": 36429.0,
+          "max": 39294.0
+        },
+        "B/op": {
+          "median": 8064.0,
+          "min": 8064.0,
+          "max": 8064.0
+        },
+        "allocs/op": {
+          "median": 71.0,
+          "min": 71.0,
+          "max": 71.0
+        }
+      }
+    },
+    "BenchmarkGovernanceOperationPerformanceClustering/N8-L128/legacy": {
+      "samples": [
+        {
+          "ns/op": 1302400.0,
+          "B/op": 82304.0,
+          "allocs/op": 518.0
+        },
+        {
+          "ns/op": 1407028.0,
+          "B/op": 82304.0,
+          "allocs/op": 518.0
+        },
+        {
+          "ns/op": 1275849.0,
+          "B/op": 82304.0,
+          "allocs/op": 518.0
+        }
+      ],
+      "summary": {
+        "ns/op": {
+          "median": 1302400.0,
+          "min": 1275849.0,
+          "max": 1407028.0
+        },
+        "B/op": {
+          "median": 82304.0,
+          "min": 82304.0,
+          "max": 82304.0
+        },
+        "allocs/op": {
+          "median": 518.0,
+          "min": 518.0,
+          "max": 518.0
+        }
+      }
+    },
+    "BenchmarkGovernanceOperationPerformanceClustering/N8-L128/prepared": {
+      "samples": [
+        {
+          "ns/op": 1366591.0,
+          "B/op": 15360.0,
+          "allocs/op": 87.0
+        },
+        {
+          "ns/op": 1342445.0,
+          "B/op": 15360.0,
+          "allocs/op": 87.0
+        },
+        {
+          "ns/op": 1504131.0,
+          "B/op": 15360.0,
+          "allocs/op": 87.0
+        }
+      ],
+      "summary": {
+        "ns/op": {
+          "median": 1366591.0,
+          "min": 1342445.0,
+          "max": 1504131.0
+        },
+        "B/op": {
+          "median": 15360.0,
+          "min": 15360.0,
+          "max": 15360.0
+        },
+        "allocs/op": {
+          "median": 87.0,
+          "min": 87.0,
+          "max": 87.0
+        }
+      }
+    },
+    "BenchmarkGovernanceOperationPerformanceClustering/N32-L32/legacy": {
+      "samples": [
+        {
+          "ns/op": 668573.0,
+          "B/op": 408840.0,
+          "allocs/op": 5979.0
+        },
+        {
+          "ns/op": 827243.0,
+          "B/op": 408840.0,
+          "allocs/op": 5979.0
+        },
+        {
+          "ns/op": 737724.0,
+          "B/op": 408840.0,
+          "allocs/op": 5979.0
+        }
+      ],
+      "summary": {
+        "ns/op": {
+          "median": 737724.0,
+          "min": 668573.0,
+          "max": 827243.0
+        },
+        "B/op": {
+          "median": 408840.0,
+          "min": 408840.0,
+          "max": 408840.0
+        },
+        "allocs/op": {
+          "median": 5979.0,
+          "min": 5979.0,
+          "max": 5979.0
+        }
+      }
+    },
+    "BenchmarkGovernanceOperationPerformanceClustering/N32-L32/prepared": {
+      "samples": [
+        {
+          "ns/op": 472262.0,
+          "B/op": 36744.0,
+          "allocs/op": 252.0
+        },
+        {
+          "ns/op": 468545.0,
+          "B/op": 36744.0,
+          "allocs/op": 252.0
+        },
+        {
+          "ns/op": 370449.0,
+          "B/op": 36744.0,
+          "allocs/op": 252.0
+        }
+      ],
+      "summary": {
+        "ns/op": {
+          "median": 468545.0,
+          "min": 370449.0,
+          "max": 472262.0
+        },
+        "B/op": {
+          "median": 36744.0,
+          "min": 36744.0,
+          "max": 36744.0
+        },
+        "allocs/op": {
+          "median": 252.0,
+          "min": 252.0,
+          "max": 252.0
+        }
+      }
+    },
+    "BenchmarkGovernanceOperationPerformanceClustering/N32-L128/legacy": {
+      "samples": [
+        {
+          "ns/op": 23294839.0,
+          "B/op": 1408776.0,
+          "allocs/op": 8955.0
+        },
+        {
+          "ns/op": 22700195.0,
+          "B/op": 1408776.0,
+          "allocs/op": 8955.0
+        },
+        {
+          "ns/op": 22943424.0,
+          "B/op": 1408776.0,
+          "allocs/op": 8955.0
+        }
+      ],
+      "summary": {
+        "ns/op": {
+          "median": 22943424.0,
+          "min": 22700195.0,
+          "max": 23294839.0
+        },
+        "B/op": {
+          "median": 1408776.0,
+          "min": 1408776.0,
+          "max": 1408776.0
+        },
+        "allocs/op": {
+          "median": 8955.0,
+          "min": 8955.0,
+          "max": 8955.0
+        }
+      }
+    },
+    "BenchmarkGovernanceOperationPerformanceClustering/N32-L128/prepared": {
+      "samples": [
+        {
+          "ns/op": 21312083.0,
+          "B/op": 65928.0,
+          "allocs/op": 316.0
+        },
+        {
+          "ns/op": 21227714.0,
+          "B/op": 65928.0,
+          "allocs/op": 316.0
+        },
+        {
+          "ns/op": 21538832.0,
+          "B/op": 65928.0,
+          "allocs/op": 316.0
+        }
+      ],
+      "summary": {
+        "ns/op": {
+          "median": 21312083.0,
+          "min": 21227714.0,
+          "max": 21538832.0
+        },
+        "B/op": {
+          "median": 65928.0,
+          "min": 65928.0,
+          "max": 65928.0
+        },
+        "allocs/op": {
+          "median": 316.0,
+          "min": 316.0,
+          "max": 316.0
+        }
+      }
+    }
+  },
+  "output_serialization": {
+    "BenchmarkGovernanceOperationPerformanceGraphOutput/16": {
+      "samples": [
+        {
+          "ns/op": 11642.0,
+          "output_bytes/op": 2635.0,
+          "B/op": 5720.0,
+          "allocs/op": 26.0
+        },
+        {
+          "ns/op": 11261.0,
+          "output_bytes/op": 2635.0,
+          "B/op": 5720.0,
+          "allocs/op": 26.0
+        },
+        {
+          "ns/op": 11251.0,
+          "output_bytes/op": 2635.0,
+          "B/op": 5720.0,
+          "allocs/op": 26.0
+        }
+      ],
+      "summary": {
+        "ns/op": {
+          "median": 11261.0,
+          "min": 11251.0,
+          "max": 11642.0
+        },
+        "output_bytes/op": {
+          "median": 2635.0,
+          "min": 2635.0,
+          "max": 2635.0
+        },
+        "B/op": {
+          "median": 5720.0,
+          "min": 5720.0,
+          "max": 5720.0
+        },
+        "allocs/op": {
+          "median": 26.0,
+          "min": 26.0,
+          "max": 26.0
+        }
+      }
+    },
+    "BenchmarkGovernanceOperationPerformanceGraphOutput/128": {
+      "samples": [
+        {
+          "ns/op": 62919.0,
+          "output_bytes/op": 19995.0,
+          "B/op": 37976.0,
+          "allocs/op": 138.0
+        },
+        {
+          "ns/op": 75533.0,
+          "output_bytes/op": 19995.0,
+          "B/op": 37976.0,
+          "allocs/op": 138.0
+        },
+        {
+          "ns/op": 51898.0,
+          "output_bytes/op": 19995.0,
+          "B/op": 37976.0,
+          "allocs/op": 138.0
+        }
+      ],
+      "summary": {
+        "ns/op": {
+          "median": 62919.0,
+          "min": 51898.0,
+          "max": 75533.0
+        },
+        "output_bytes/op": {
+          "median": 19995.0,
+          "min": 19995.0,
+          "max": 19995.0
+        },
+        "B/op": {
+          "median": 37976.0,
+          "min": 37976.0,
+          "max": 37976.0
+        },
+        "allocs/op": {
+          "median": 138.0,
+          "min": 138.0,
+          "max": 138.0
+        }
+      }
+    }
+  },
+  "limits": [
+    "Interactive shared host, not a quiescent lab; concurrent development/validation occurred. Timings are observations, not causal percentages or a latency SLO.",
+    "Published check-strict timed out in all three 600-second samples; no median or exact speedup is fabricated.",
+    "Native benchmarks pin corpus fdefae55 and their exact binary digests; later fallback/framing fixes were separately regression-tested and must receive final local validation.",
+    "Small fixtures do not prove thousands of records fit the retention budget; fallback preserves the complete live path.",
+    "No CI observation or pass is claimed; Harne8 adoption and operator modifications are outside this work."
+  ]
+}
