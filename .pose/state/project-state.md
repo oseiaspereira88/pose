@@ -1,7 +1,7 @@
 ---
 schema_version: 1
-generated_at: 2026-11-03T21:04:03Z
-baseline_commit: 9535259d11a2a4bcbb1499145c80ed17ed3b63b0
+generated_at: 2026-11-03T23:10:24Z
+baseline_commit: eeafc4b65af2af95ad9b6847f332afa8a34e9773
 staleness_policy: max_age_days=7,max_commits=20
 refresh_pending: 
 ---
@@ -27,17 +27,17 @@ próprio deste repositório (produtização v2, DX) segue disponível conforme
 capacidade.
 
 ## Specs & Roadmaps
-<!-- state:derived hash:d2ee17fb84a4 -->
+<!-- state:derived hash:242f4c9c91f8 -->
 
-- specs: total=482 draft=17 in-progress=1 blocked=0 done=462 superseded=0 abandoned=2
+- specs: total=482 draft=17 in-progress=0 blocked=0 done=463 superseded=0 abandoned=2
 - roadmaps: total=23 active=3 done=16
 - últimos closeouts:
   - spec:pose-consolidation-batch-1-authoring (2026-11-03)
-  - spec:pose-review-evidence-and-fixture-lifetimes (2026-11-03)
-  - spec:pose-consolidation-batch-9-authoring (2026-11-03)
   - spec:pose-consolidation-batch-8-authoring (2026-11-03)
-  - spec:pose-consolidation-batch-7-authoring (2026-11-03)
-  - ... e mais 457 (ver `pose_list_specs status:done`)
+  - spec:pose-consolidation-batch-9-authoring (2026-11-03)
+  - spec:pose-governance-operation-performance (2026-11-03)
+  - spec:pose-consolidation-program-bootstrap (2026-11-03)
+  - ... e mais 458 (ver `pose_list_specs status:done`)
 
 ## Follow-ups
 <!-- state:derived hash:d4da3908d4d0 -->
@@ -76,16 +76,16 @@ capacidade.
 - knowledge: total=18 ativo=18 expirado=0
 
 ## Validação & Evidência
-<!-- state:derived hash:41316c24923b -->
+<!-- state:derived hash:b56529eba5b2 -->
 
 - último registro: task=validate-native outcome=pass (2026-10-24T18:00:55Z)
 - últimos 30 dias: total=41 outcome_ok=27 outcome_outro=14
 - reports revisados (.md): total=287
+  - report:2026-10-14-security-validation-release-api-auth.md
   - report:2026-11-03-pose-consolidation-authoring-closeout.md
   - report:pose-governance-operation-performance-method.md
   - report:pose-v6-2-0-autonomous-work.md
   - report:pose-v7-legacy-cleanup-plan.md
-  - report:pose-abm-capability-adoption.md
 
 ## Arquitetura
 <!-- state:derived hash:f2759ee7850e status:active -->

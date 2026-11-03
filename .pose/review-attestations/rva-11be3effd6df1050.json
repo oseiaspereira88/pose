@@ -1,0 +1,114 @@
+{
+  "schema_version": 1,
+  "attestation_id": "rva-11be3effd6df1050",
+  "bundle_id": "rvb-67ea9f1bb30f3100",
+  "bundle_digest": "sha256:67ea9f1bb30f310088dfa59a018001a389c325bdb34b2e027ecac32efb4d099f",
+  "reviewer": "agent:review_security",
+  "decision": "approved",
+  "criteria": [
+    {
+      "id": "assumption-integrity",
+      "disposition": "passed",
+      "evidence": "integration:pose-mcp/go/install-and-upgrade-journeys-integration",
+      "rationale": "The review records the 403 as observed, rate-limit cause as likely, and corrected GitHub runner outcome as explicitly waived and unverified"
+    },
+    {
+      "id": "compatibility",
+      "disposition": "passed",
+      "evidence": "unit:pose-mcp/go/test",
+      "rationale": "The workflow contract test and semantic YAML comparison show the command, permissions, pins, history promise, and other steps are preserved"
+    },
+    {
+      "id": "correctness",
+      "disposition": "passed",
+      "evidence": "integration:pose-mcp/go/install-and-upgrade-journeys-integration",
+      "rationale": "The sealed strict local validation passed all 188 checks including the published-release journey; this does not claim a corrected GitHub runner result"
+    },
+    {
+      "id": "design-causality",
+      "disposition": "passed",
+      "evidence": "structure:design-38f8e12dea4f9c67",
+      "rationale": "The existing journey consumes GITHUB_TOKEN when provided; this adds the current job token at its existing caller without changing journey behavior or permissions, while the exact 403 cause remains qualified"
+    },
+    {
+      "id": "documentation",
+      "disposition": "passed",
+      "evidence": "structure:design-38f8e12dea4f9c67",
+      "rationale": "The closeout spec and report state the scope, the user waiver, and the missing remote runtime result without claiming success"
+    },
+    {
+      "id": "operability",
+      "disposition": "passed",
+      "evidence": "integration:pose-mcp/go/install-and-upgrade-journeys-integration",
+      "rationale": "The journey and validation retain failure-on-curl-error behavior; the local integration passed and the report gives the original failure and remedy"
+    },
+    {
+      "id": "requirements",
+      "disposition": "passed",
+      "evidence": "integration:pose-mcp/go/install-and-upgrade-journeys-integration",
+      "rationale": "R1/R2 have configuration and local contract evidence; only R3 corrected runner confirmation was waived, and no remote pass is claimed"
+    },
+    {
+      "id": "scope",
+      "disposition": "passed",
+      "evidence": "structure:design-38f8e12dea4f9c67",
+      "rationale": "The implementation remains the single requested environment binding; closeout updates document evidence without extra behavior or permission changes"
+    },
+    {
+      "id": "security",
+      "disposition": "passed",
+      "evidence": "structure:design-38f8e12dea4f9c67",
+      "rationale": "The binding uses the existing github.token without a literal secret or added permission; checkout already persisted the same job token by default, so no new authority is introduced"
+    },
+    {
+      "id": "solution-proportionality",
+      "disposition": "passed",
+      "evidence": "structure:design-38f8e12dea4f9c67",
+      "rationale": "One environment binding is the smallest sufficient correction; any runtime claim still requires an actual runner result, which is waived here"
+    }
+  ],
+  "tools": [
+    {
+      "id": "artifact-check",
+      "disposition": "passed",
+      "evidence": "check:artifact-check",
+      "rationale": "4 claims matched 4 observed paths with zero errors; warnings concern unrelated filtered-out paths"
+    },
+    {
+      "id": "assess-design",
+      "disposition": "passed",
+      "evidence": "structure:design-38f8e12dea4f9c67",
+      "rationale": "Assessment observed the bounded structural delta"
+    },
+    {
+      "id": "assess-tech-debt",
+      "disposition": "failed",
+      "evidence": "check:assess-tech-debt",
+      "rationale": "The tool ran and found one covered marker but the scan is incomplete because two invalid historical specs were unreadable"
+    },
+    {
+      "id": "closeout-check",
+      "disposition": "deferred",
+      "rationale": "Post-review lifecycle gate; run after attestation"
+    },
+    {
+      "id": "review-check",
+      "disposition": "deferred",
+      "rationale": "Post-attestation coverage gate; run after recording this judgment"
+    },
+    {
+      "id": "validate",
+      "disposition": "passed",
+      "evidence": "integration:pose-mcp/go/install-and-upgrade-journeys-integration",
+      "rationale": "Strict local validation passed 188 of 188 checks including the journey integration; corrected GitHub runner remains unverified under explicit waiver"
+    }
+  ],
+  "evidence_refs": [
+    "integration:pose-mcp/go/install-and-upgrade-journeys-integration",
+    "structure:design-38f8e12dea4f9c67",
+    "unit:pose-mcp/go/test"
+  ],
+  "findings": [],
+  "attested_at": "2026-11-03T23:09:02Z",
+  "path": ".pose/review-attestations/rva-11be3effd6df1050.json"
+}

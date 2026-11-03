@@ -1,8 +1,8 @@
 ---
 slug: pose-security-validation-release-api-auth
-status: in-progress
+status: done
 created_at: 2026-10-14
-completed_at:
+completed_at: 2026-11-03
 depends_on:
 priority: 1
 components: ci
