@@ -3,6 +3,8 @@ package cli
 import (
 	"bytes"
 	"context"
+	"crypto/sha256"
+	"encoding/hex"
 	"encoding/json"
 	"errors"
 	"fmt"
@@ -232,6 +234,90 @@ func TestGovernanceOperationPerformanceCapturedChangeSetParity(t *testing.T) {
 	later, err := resolveGitChangeSet(root, "sample", "", "")
 	if err != nil || len(later.Commits) != 3 || later.ID == before.ID {
 		t.Fatalf("later operation retained stale attribution: %+v %v", later, err)
+	}
+}
+
+func TestGovernanceOperationPerformanceChangeSetIndependentGolden(t *testing.T) {
+	root := t.TempDir()
+	artifactGit(t, root, "init", "-q")
+	artifactGit(t, root, "config", "user.name", "Fixture")
+	artifactGit(t, root, "config", "user.email", "fixture@example.invalid")
+	artifactGit(t, root, "config", "core.hooksPath", "/dev/null")
+	writeArtifactTestFile(t, root, "base.txt", "before\n")
+	writeArtifactTestFile(t, root, "remove.txt", "remove\n")
+	artifactGit(t, root, "add", ".")
+	artifactGit(t, root, "commit", "-q", "-m", "baseline")
+	base := artifactGit(t, root, "rev-parse", "HEAD")
+	writeArtifactTestFile(t, root, "base.txt", "after\n")
+	writeArtifactTestFile(t, root, "old.txt", "renamed later\n")
+	artifactGit(t, root, "rm", "-q", "remove.txt")
+	artifactGit(t, root, "add", ".")
+	artifactGit(t, root, "commit", "-q", "-m", "owned\n\nPOSE-Spec: sample")
+	first := artifactGit(t, root, "rev-parse", "HEAD")
+	writeArtifactTestFile(t, root, "noise.txt", "unrelated\n")
+	artifactGit(t, root, "add", ".")
+	artifactGit(t, root, "commit", "-q", "-m", "unrelated\n\nPOSE-Spec: other")
+	artifactGit(t, root, "mv", "old.txt", "new.txt")
+	artifactGit(t, root, "commit", "-q", "-m", "rename\n\nPOSE-Spec: sample")
+	last := artifactGit(t, root, "rev-parse", "HEAD")
+	// Use independent raw Git bytes, not either change-set resolver. Preserve
+	// newlines: the fixture helper normally trims command output.
+	hash := sha256.New()
+	for _, commit := range []string{first, last} {
+		raw, err := exec.Command("git", "-C", root, "show", "--binary", "--no-ext-diff", "--format=", commit, "--").Output()
+		if err != nil {
+			t.Fatal(err)
+		}
+		_, _ = hash.Write(raw)
+	}
+	digest := hex.EncodeToString(hash.Sum(nil))
+	id := sha256.Sum256([]byte("sample\x00" + base + "\x00" + last + "\x00" + digest))
+	want := posemodel.ChangeSet{ID: "cs-" + hex.EncodeToString(id[:6]), Spec: "sample", Selector: "trailers:sample", Base: first + "^", Head: last, ResolvedBase: base, ResolvedHead: last,
+		Commits: []string{first, last}, Paths: []posemodel.ObservedPath{{Action: "created", Path: "new.txt"}, {Action: "modified", Path: "base.txt"}, {Action: "removed", Path: "remove.txt"}}, DiffDigest: "sha256:" + digest}
+	got, err := resolveGitChangeSet(root, "sample", "", "")
+	if err != nil || !reflect.DeepEqual(got, want) {
+		t.Fatalf("historical attribution changed:\n got=%+v\nwant=%+v\nerr=%v", got, want, err)
+	}
+}
+
+func TestGovernanceOperationPerformanceGitPathBytes(t *testing.T) {
+	root := t.TempDir()
+	artifactGit(t, root, "init", "-q")
+	artifactGit(t, root, "config", "user.name", "Fixture")
+	artifactGit(t, root, "config", "user.email", "fixture@example.invalid")
+	artifactGit(t, root, "config", "core.hooksPath", "/dev/null")
+	names := []string{"tab\tname.txt", "line\nname.txt", "café space.txt", "back\\slash.txt"}
+	want := []posemodel.ObservedPath{}
+	for _, name := range names {
+		writeArtifactTestFile(t, root, name, "literal path\n")
+		want = append(want, posemodel.ObservedPath{Action: "created", Path: name})
+	}
+	artifactGit(t, root, "add", ".")
+	artifactGit(t, root, "commit", "-q", "-m", "paths\n\nPOSE-Spec: sample")
+	got, err := resolveGitChangeSet(root, "sample", "", "")
+	sort.Slice(want, func(i, j int) bool { return observedSortKey(want[i]) < observedSortKey(want[j]) })
+	if err != nil || !reflect.DeepEqual(got.Paths, want) {
+		t.Fatalf("Git path bytes changed: got=%+v want=%+v err=%v", got.Paths, want, err)
+	}
+	base := artifactGit(t, root, "rev-parse", "HEAD")
+	artifactGit(t, root, "mv", names[0], "renamed\nnew.txt")
+	artifactGit(t, root, "commit", "-q", "-m", "rename")
+	head := artifactGit(t, root, "rev-parse", "HEAD")
+	renamed, err := resolveGitChangeSet(root, "sample", base, head)
+	wantRename := []posemodel.ObservedPath{{Action: "renamed", OldPath: names[0], NewPath: "renamed\nnew.txt"}}
+	if err != nil || !reflect.DeepEqual(renamed.Paths, wantRename) {
+		t.Fatalf("range rename lost literal paths: %+v %v", renamed, err)
+	}
+}
+
+func TestGovernanceOperationPerformanceRejectsMalformedPathFraming(t *testing.T) {
+	for _, raw := range [][]byte{[]byte("A\x00x"), []byte("\x00x\x00"), []byte("A\x00\x00"), []byte("R100\x00old\x00"), []byte("R101\x00old\x00new\x00"), []byte("R+1\x00old\x00new\x00"), []byte("R0000\x00old\x00new\x00"), []byte("C100\x00old\x00new\x00"), []byte("A\x00x\x00junk\x00"), {'A', 0, 0xff, 0}} {
+		if paths, err := parseGitNameStatusNUL(raw); err == nil || paths != nil {
+			t.Fatalf("malformed/unsupported record accepted: %q %+v %v", raw, paths, err)
+		}
+	}
+	if paths, err := parseGitNameStatusNUL(nil); err != nil || len(paths) != 0 {
+		t.Fatalf("empty diff rejected: %+v %v", paths, err)
 	}
 }
 

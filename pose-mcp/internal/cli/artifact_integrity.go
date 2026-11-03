@@ -18,6 +18,7 @@ import (
 	"strconv"
 	"strings"
 	"time"
+	"unicode/utf8"
 
 	posemodel "github.com/harne8/pose-mcp/internal/pose"
 )
@@ -183,11 +184,11 @@ func resolveGitChangeSetWithTrailers(root, spec, base, head string, captured []s
 		commits = trailerCommits
 		commitPathLists := make([][]posemodel.ObservedPath, 0, len(commits))
 		for _, sha := range commits {
-			nameStatus, err := gitOutputBounded(root, 4*1024*1024, "diff-tree", "--root", "--no-commit-id", "--name-status", "-M", "-r", sha, "--")
+			nameStatus, err := gitOutputBounded(root, 4*1024*1024, "diff-tree", "--root", "--no-commit-id", "--name-status", "-z", "-M", "-r", sha, "--")
 			if err != nil {
 				return posemodel.ChangeSet{}, err
 			}
-			parsed, err := parseGitNameStatus(nameStatus)
+			parsed, err := parseGitNameStatusNUL(nameStatus)
 			if err != nil {
 				return posemodel.ChangeSet{}, err
 			}
@@ -200,11 +201,11 @@ func resolveGitChangeSetWithTrailers(root, spec, base, head string, captured []s
 		}
 		paths = mergeObservedPaths(commitPathLists)
 	} else {
-		nameStatus, err := gitOutputBounded(root, 8*1024*1024, "diff", "--name-status", "-M", "--no-ext-diff", resolvedBase, resolvedHead, "--")
+		nameStatus, err := gitOutputBounded(root, 8*1024*1024, "diff", "--name-status", "-z", "-M", "--no-ext-diff", resolvedBase, resolvedHead, "--")
 		if err != nil {
 			return posemodel.ChangeSet{}, err
 		}
-		paths, err = parseGitNameStatus(nameStatus)
+		paths, err = parseGitNameStatusNUL(nameStatus)
 		if err != nil {
 			return posemodel.ChangeSet{}, err
 		}
@@ -297,35 +298,58 @@ func mergeObservedPaths(commitPathLists [][]posemodel.ObservedPath) []posemodel.
 	return result
 }
 
-func parseGitNameStatus(raw []byte) ([]posemodel.ObservedPath, error) {
+// NUL framing preserves Git path bytes, including whitespace and quotePath's
+// escaped Unicode/control characters. An incomplete record is never accepted.
+func parseGitNameStatusNUL(raw []byte) ([]posemodel.ObservedPath, error) {
 	paths := []posemodel.ObservedPath{}
-	scanner := bufio.NewScanner(bytes.NewReader(raw))
-	for scanner.Scan() {
-		parts := strings.Split(scanner.Text(), "\t")
-		if len(parts) < 2 {
-			return nil, fmt.Errorf("malformed git name-status output")
+	if len(raw) == 0 {
+		return paths, nil
+	}
+	if raw[len(raw)-1] != 0 {
+		return nil, fmt.Errorf("malformed Git NUL name-status output")
+	}
+	parts := bytes.Split(raw[:len(raw)-1], []byte{0})
+	for i := 0; i < len(parts); {
+		status := string(parts[i])
+		i++
+		if status == "" || i >= len(parts) || len(parts[i]) == 0 {
+			return nil, fmt.Errorf("malformed Git NUL name-status record")
 		}
-		status := parts[0]
+		if !utf8.Valid(parts[i]) {
+			return nil, fmt.Errorf("Git path cannot be represented as UTF-8: %q", parts[i])
+		}
+		path := filepath.ToSlash(string(parts[i]))
+		i++
 		var observed posemodel.ObservedPath
-		switch status[0] {
-		case 'A':
-			observed = posemodel.ObservedPath{Action: "created", Path: filepath.ToSlash(parts[1])}
-		case 'M', 'T':
-			observed = posemodel.ObservedPath{Action: "modified", Path: filepath.ToSlash(parts[1])}
-		case 'D':
-			observed = posemodel.ObservedPath{Action: "removed", Path: filepath.ToSlash(parts[1])}
-		case 'R':
-			if len(parts) != 3 {
-				return nil, fmt.Errorf("malformed Git rename record")
-			}
-			observed = posemodel.ObservedPath{Action: "renamed", OldPath: filepath.ToSlash(parts[1]), NewPath: filepath.ToSlash(parts[2])}
+		switch status {
+		case "A":
+			observed = posemodel.ObservedPath{Action: "created", Path: path}
+		case "M", "T":
+			observed = posemodel.ObservedPath{Action: "modified", Path: path}
+		case "D":
+			observed = posemodel.ObservedPath{Action: "removed", Path: path}
 		default:
-			return nil, fmt.Errorf("unsupported Git change status %q", status)
+			if !strings.HasPrefix(status, "R") {
+				return nil, fmt.Errorf("unsupported Git change status %q", status)
+			}
+			rawScore := strings.TrimPrefix(status, "R")
+			validScore := len(rawScore) > 0 && len(rawScore) <= 3
+			for _, digit := range rawScore {
+				if digit < '0' || digit > '9' {
+					validScore = false
+				}
+			}
+			score, err := strconv.Atoi(rawScore)
+			if !validScore || err != nil || score < 0 || score > 100 || i >= len(parts) || len(parts[i]) == 0 {
+				return nil, fmt.Errorf("malformed Git NUL rename record")
+			}
+			if !utf8.Valid(parts[i]) {
+				return nil, fmt.Errorf("Git path cannot be represented as UTF-8: %q", parts[i])
+			}
+			observed = posemodel.ObservedPath{Action: "renamed", OldPath: path, NewPath: filepath.ToSlash(string(parts[i]))}
+			i++
 		}
 		paths = append(paths, observed)
-	}
-	if err := scanner.Err(); err != nil {
-		return nil, err
 	}
 	sort.Slice(paths, func(i, j int) bool { return observedSortKey(paths[i]) < observedSortKey(paths[j]) })
 	return paths, nil
@@ -434,6 +458,9 @@ func gitTrackedPaths(root string) ([]string, error) {
 	tracked := []string{}
 	for _, item := range bytes.Split(trackedRaw, []byte{0}) {
 		if len(item) > 0 {
+			if !utf8.Valid(item) {
+				return nil, fmt.Errorf("Git path cannot be represented as UTF-8: %q", item)
+			}
 			tracked = append(tracked, filepath.ToSlash(string(item)))
 		}
 	}

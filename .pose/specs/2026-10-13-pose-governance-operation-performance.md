@@ -60,24 +60,21 @@ planejados até existirem e passarem. Não criar uma cópia por coincidência de
 - modified: scripts/bench-governance.sh
 - created: scripts/bench_governance.py
 - modified: pose-mcp/internal/cli/artifact_integrity.go
-- modified: pose-mcp/internal/cli/index.go
 - modified: pose-mcp/internal/cli/check.go
 - modified: pose-mcp/internal/pose/spec.go
 - modified: pose-mcp/internal/pose/review_bundle.go
 - created: pose-mcp/internal/pose/review_operation_view.go
 - created: pose-mcp/internal/pose/review_operation_view_test.go
 - modified: pose-mcp/internal/cli/followups.go
-- modified: pose-mcp/internal/pose/git_batch.go
 - created: pose-mcp/internal/pose/governance_operation_performance_test.go
 - created: pose-mcp/internal/cli/governance_operation_performance_test.go
 - created: pose-mcp/internal/mcpserver/governance_operation_performance_test.go
 - created: .pose/results/pose-governance-operation-performance.json
 - modified: .pose/indexes/validation-matrix.json
-- modified: POSE.md
 
 ### Delivery targets
 
-- capability:governance-operation-performance module:pose-mcp profile:composed-capability entrypoint:pose-mcp/internal/pose/git_batch.go
+- capability:governance-operation-performance module:pose-mcp profile:composed-capability entrypoint:pose-mcp/cmd/pose/main.go
 
 ### Approach and execution gates
 
@@ -96,7 +93,7 @@ captura inválida, sem adotar nova policy ou aproximação. O harness de benchma
 passa a produzir um relatório versionado e artefatos brutos externos ao corpus;
 tempos inválidos do script anterior não são um baseline de compatibilidade.
 
-Próximo passe, ainda não implementado nesta declaração: em `checkReviewCloseout`,
+Passe implementado, em qualificação: em `checkReviewCloseout`,
 compartilhar somente observações imutáveis dos cabeçalhos de bundles, com a
 mesma classificação de JSON/ambiguidade/perdas do leitor canônico. Manter
 loaders estritos, ordenação, confiança, relógio e traversal separados por worker.
@@ -104,6 +101,17 @@ O limite de retenção deve causar fallback integral ao leitor anterior, nunca
 truncamento. Vincular a view a root/FS/contexto, descartá-la no fim da callback
 e conferir inventário/digests antes de considerar o check aprovado. Começar
 pelos bundles; ampliar para outro produtor somente após medir e qualificar.
+O entrypoint da entrega é o CLI real, que alcança os produtores alterados em
+`check`/`index`; o leitor de blobs `git_batch.go` e o arquivo de indexação não
+precisaram ser modificados. A limpeza desses paths prospectivos não muda R1–R8.
+
+A qualificação de R6 reproduziu outro defeito prévio: paths com controles ou
+Unicode eram tomados pela representação escapada do Git. `diff`/`diff-tree`
+agora usam NUL, preservando bytes UTF-8 em criações e renames. Como os índices
+e contratos representam paths em strings JSON, nomes não representáveis em
+UTF-8 são recusados explicitamente, sem reparo silencioso para U+FFFD. Isso
+corrige a atribuição em inputs antes mal representados; não se declara suporte
+a nomes binários arbitrários nem se inventa uma codificação nova de paths.
 
 ## 5. Decisions
 
