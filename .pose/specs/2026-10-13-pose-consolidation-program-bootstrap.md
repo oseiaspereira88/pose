@@ -46,6 +46,9 @@ Preservar o catálogo histórico e suas dependências. Distinguir lote de escrit
 - created: .pose/roadmaps/pose-consolidation-program.md
 - created: .pose/results/pose-implementation-plan.json
 - created: .pose/reports/2026-10-13-pose-plan-reconciliation.md
+- created: .pose/reports/2026-11-03-pose-consolidation-authoring-closeout.md
+- created: .pose/results/pose-consolidation-authoring-audit.json
+- created: .pose/reports/2026-11-03-pose-consolidation-authoring-audit.py
 - modified: .pose/reports/2026-10-11-pose-analysis-index.md
 
 ### Delivery targets
@@ -67,7 +70,12 @@ Conferir cobertura única de candidatos/unidades, DAG, limites dos lotes, reutil
 
 ### Requirement trace
 
-Mapear R1/R2/R3 ao validador documental reproduzível no relatório; R4 à reconciliação dos PRs e das specs; R5 ao roadmap e à recusa esperada de roadmap-check; R6 a lint-spec, artifact-check e check. Manter a spec in-progress até revisão e closeout.
+- R1 [satisfied] report:.pose/reports/2026-10-13-pose-plan-reconciliation.md commit:e4ca6f572c6bb877c51f2f0a0b6109cc5db35862 report:.pose/reports/2026-11-03-pose-consolidation-authoring-closeout.md — Cobertura dos 96 candidatos nas 44 unidades e DAGs conferidos no snapshot do bootstrap.
+- R2 [satisfied] report:.pose/reports/2026-10-13-pose-plan-reconciliation.md commit:e4ca6f572c6bb877c51f2f0a0b6109cc5db35862 report:.pose/reports/2026-11-03-pose-consolidation-authoring-closeout.md — Distribuição única das unidades entre lotes 0–16 e roadmaps planejados conferida.
+- R3 [satisfied] report:.pose/reports/2026-10-13-pose-plan-reconciliation.md commit:e4ca6f572c6bb877c51f2f0a0b6109cc5db35862 report:.pose/reports/2026-11-03-pose-consolidation-authoring-closeout.md — 36 novas propostas, uma condicionada, oito reutilizadas e ausência das propostas futuras conferidas no snapshot.
+- R4 [satisfied] report:.pose/reports/2026-10-13-pose-plan-reconciliation.md commit:e4ca6f572c6bb877c51f2f0a0b6109cc5db35862 report:.pose/reports/2026-11-03-pose-consolidation-authoring-closeout.md — Registros de merge/head de #157/#158 conferidos também pelos segundos parents dos objetos Git, sem nova consulta ao CI.
+- R5 [satisfied] report:.pose/reports/2026-10-13-pose-plan-reconciliation.md commit:e4ca6f572c6bb877c51f2f0a0b6109cc5db35862 report:.pose/reports/2026-11-03-pose-consolidation-authoring-closeout.md — Coordenador separa autoria de implementação e mantém qualificação e revisão como condições de encerramento.
+- R6 [satisfied] report:.pose/reports/2026-10-13-pose-plan-reconciliation.md commit:e4ca6f572c6bb877c51f2f0a0b6109cc5db35862 report:.pose/reports/2026-11-03-pose-consolidation-authoring-closeout.md — Artefatos documentais reconciliados e reproduzidor histórico executado; gates atuais permanecem exigidos pelo fechamento nativo.
 
 ## 7. Final Report
 
