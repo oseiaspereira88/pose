@@ -1,6 +1,6 @@
 ---
 slug: pose-governance-operation-performance
-status: draft
+status: in-progress
 created_at: 2026-10-13
 completed_at:
 depends_on: pose-check-spawns-fewer-git-processes, pose-attention-within-a-second
