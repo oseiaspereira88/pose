@@ -49,6 +49,7 @@ func ValidateSlug(slug string) error {
 
 // Store reads POSE artifacts from one project root (ADR-013: project-scoped).
 type Store struct {
+	reviewView         *reviewOperationView
 	reviewTime         *time.Time
 	reviewReuse        *reviewReuseTraversal
 	onReviewVerify     func(scope string)

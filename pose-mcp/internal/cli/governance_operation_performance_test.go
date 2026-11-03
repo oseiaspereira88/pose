@@ -13,6 +13,7 @@ import (
 	"runtime"
 	"sort"
 	"strings"
+	"sync"
 	"testing"
 	"time"
 
@@ -491,5 +492,48 @@ func TestGovernanceOperationPerformanceInitiallyAbsentCatalogue(t *testing.T) {
 	specs, claims, sets, _, _, gaps, err := collectArtifactGraphInputsWithGapsIn(posemodel.NativeFiles(), root)
 	if err != nil || len(specs) != 0 || len(claims) != 0 || len(sets) != 0 || len(gaps) != 0 {
 		t.Fatalf("initial absence became conflict: %v %v %v %v %v", specs, claims, sets, gaps, err)
+	}
+}
+
+type governanceMutatingHeaderFiles struct {
+	posemodel.Files
+	path    string
+	once    sync.Once
+	changed bool
+}
+
+func (f *governanceMutatingHeaderFiles) ReadFile(path string) ([]byte, error) {
+	raw, err := f.Files.ReadFile(path)
+	if err == nil && path == f.path {
+		f.once.Do(func() {
+			if writeErr := f.Files.WriteFile(path, bytes.ReplaceAll(raw, []byte("other"), []byte("owned")), 0o644); writeErr == nil {
+				f.changed = true
+			}
+		})
+	}
+	return raw, err
+}
+
+func TestGovernanceOperationPerformanceCheckFinalizesReviewView(t *testing.T) {
+	root := closeoutCLIFixture(t)
+	writeCloseoutCLIFile(t, root, ".pose/policy/review.json", `{"schema_version":2,"enabled":true,"adopted_at":"2026-08-02","review_bundles":true,"review_bundles_adopted_at":"2026-08-02","profiles":{"spec":"spec-closeout@1"}}`)
+	path := filepath.Join(root, ".pose/specs/alpha/spec.md")
+	raw, err := os.ReadFile(path)
+	if err != nil {
+		t.Fatal(err)
+	}
+	raw = bytes.ReplaceAll(raw, []byte("status: in-progress"), []byte("status: done"))
+	raw = bytes.ReplaceAll(raw, []byte("completed_at:\n"), []byte("completed_at: 2026-11-03\n"))
+	if err := os.WriteFile(path, raw, 0o644); err != nil {
+		t.Fatal(err)
+	}
+	header := filepath.Join(root, ".pose/review-bundles/rvb-0000000000000000.json")
+	writeCloseoutCLIFile(t, root, ".pose/review-bundles/rvb-0000000000000000.json", `{"payload":{"scope":{"ref":"spec:other"}}}`)
+	files := &governanceMutatingHeaderFiles{Files: posemodel.NativeFiles(), path: header}
+	var stdout, stderr bytes.Buffer
+	checker := &nativeChecker{root: root, files: files, mode: "strict", stdout: &stdout, out: render(&stdout, &stderr)}
+	checker.checkReviewCloseout()
+	if !files.changed || checker.errors == 0 || !strings.Contains(stdout.String()+stderr.String(), "review inputs changed during operation") {
+		t.Fatalf("native check ignored final view audit: changed=%v errors=%d out=%s err=%s", files.changed, checker.errors, stdout.String(), stderr.String())
 	}
 }

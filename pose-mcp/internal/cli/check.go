@@ -324,32 +324,37 @@ func (checker *nativeChecker) checkReviewCloseout() {
 		}
 		slugs = append(slugs, slug)
 	}
-	checker.failOrWarnPerItem(len(slugs), func(i int) []string {
-		slug := slugs[i]
-		state, err := store.GetCloseoutState("spec:" + slug)
-		if err != nil {
-			return []string{"review closeout: spec:" + slug + ": " + err.Error()}
+	viewErr := store.WithReviewOperationView(func(store pose.Store) {
+		checker.failOrWarnPerItem(len(slugs), func(i int) []string {
+			slug := slugs[i]
+			state, err := store.GetCloseoutState("spec:" + slug)
+			if err != nil {
+				return []string{"review closeout: spec:" + slug + ": " + err.Error()}
+			}
+			if !state.Terminal {
+				return []string{"review closeout: spec:" + slug + ": " + state.NextAction}
+			}
+			return nil
+		})
+		roadmapPaths, _ := pose.GlobIn(checker.fsys(), filepath.Join(checker.root, ".pose", "roadmaps", "*.md"))
+		for _, path := range roadmapPaths {
+			fm := simpleFrontmatterIn(checker.fsys(), path)
+			if fm["status"] != "done" || fm["created_at"] < policy.AdoptedAt {
+				continue
+			}
+			slug := strings.TrimSuffix(filepath.Base(path), ".md")
+			state, err := store.GetCloseoutState("roadmap:" + slug)
+			if err != nil {
+				checker.failOrWarn("review closeout: roadmap:" + slug + ": " + err.Error())
+				continue
+			}
+			if !state.Terminal {
+				checker.failOrWarn("review closeout: roadmap:" + slug + ": " + state.NextAction)
+			}
 		}
-		if !state.Terminal {
-			return []string{"review closeout: spec:" + slug + ": " + state.NextAction}
-		}
-		return nil
 	})
-	roadmapPaths, _ := pose.GlobIn(checker.fsys(), filepath.Join(checker.root, ".pose", "roadmaps", "*.md"))
-	for _, path := range roadmapPaths {
-		fm := simpleFrontmatterIn(checker.fsys(), path)
-		if fm["status"] != "done" || fm["created_at"] < policy.AdoptedAt {
-			continue
-		}
-		slug := strings.TrimSuffix(filepath.Base(path), ".md")
-		state, err := store.GetCloseoutState("roadmap:" + slug)
-		if err != nil {
-			checker.failOrWarn("review closeout: roadmap:" + slug + ": " + err.Error())
-			continue
-		}
-		if !state.Terminal {
-			checker.failOrWarn("review closeout: roadmap:" + slug + ": " + state.NextAction)
-		}
+	if viewErr != nil {
+		checker.failOrWarn("review closeout: " + viewErr.Error())
 	}
 }
 

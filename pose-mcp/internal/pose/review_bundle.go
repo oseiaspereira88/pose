@@ -2480,6 +2480,9 @@ func attributeLoss(loss SourceLoss, raw []byte, path ...string) SourceLoss {
 func (s Store) ReadReviewBundles(scope string) (ReviewBundlesRead, error) {
 	coverage := SourceCoverage{Losses: []SourceLoss{}}
 	dir, err := ensureReviewArtifactDirIn(s.fsys(), s.Root, filepath.ToSlash(filepath.Join(".pose", "review-bundles")), false)
+	if err != nil && scope != "" && s.reviewView != nil {
+		s.reviewView.observeDirectoryError(s, err)
+	}
 	if os.IsNotExist(err) {
 		return ReviewBundlesRead{Bundles: []ReviewBundle{}, Coverage: coverage}, nil
 	}
@@ -2487,6 +2490,9 @@ func (s Store) ReadReviewBundles(scope string) (ReviewBundlesRead, error) {
 		return ReviewBundlesRead{}, err
 	}
 	entries, err := s.fsys().ReadDir(dir)
+	if err != nil && scope != "" && s.reviewView != nil {
+		s.reviewView.observeDirectoryError(s, err)
+	}
 	if os.IsNotExist(err) {
 		return ReviewBundlesRead{Bundles: []ReviewBundle{}, Coverage: coverage}, nil
 	}
@@ -2494,6 +2500,13 @@ func (s Store) ReadReviewBundles(scope string) (ReviewBundlesRead, error) {
 		return ReviewBundlesRead{}, err
 	}
 	bundles := []ReviewBundle{}
+	var headers map[string]reviewHeaderObservation
+	if scope != "" {
+		headers, err = s.reviewBundleHeaders(dir, entries)
+		if err != nil {
+			return ReviewBundlesRead{}, err
+		}
+	}
 	for _, entry := range entries {
 		if entry.IsDir() || !strings.HasSuffix(entry.Name(), ".json") {
 			continue
@@ -2501,33 +2514,17 @@ func (s Store) ReadReviewBundles(scope string) (ReviewBundlesRead, error) {
 		id := strings.TrimSuffix(entry.Name(), ".json")
 		rel := filepath.ToSlash(filepath.Join(".pose", "review-bundles", entry.Name()))
 		if scope != "" {
-			raw, err := s.fsys().ReadFile(filepath.Join(dir, entry.Name()))
-			if err != nil {
-				coverage.Add(SourceLoss{Producer: "review-bundles", Artifact: rel, Kind: LossReadError, Detail: err.Error()})
+			var observation reviewHeaderObservation
+			if headers != nil {
+				observation = headers[entry.Name()]
+			} else {
+				observation = readReviewBundleHeader(s.fsys(), dir, entry.Name())
+			}
+			if observation.loss != nil {
+				coverage.Add(*observation.loss)
 				continue
 			}
-			var header struct {
-				Payload struct {
-					Scope struct {
-						Ref string `json:"ref"`
-					} `json:"scope"`
-				} `json:"payload"`
-			}
-			if err := json.Unmarshal(raw, &header); err != nil {
-				coverage.Add(attributeLoss(SourceLoss{Producer: "review-bundles", Artifact: rel, Kind: LossParseError, Detail: "the record is not valid JSON"}, raw, "payload", "scope", "ref"))
-				continue
-			}
-			if _, _, ambiguous := sniffJSONString(raw, "payload", "scope", "ref"); ambiguous {
-				coverage.Add(SourceLoss{Producer: "review-bundles", Artifact: rel, Kind: LossInvalid, Detail: "the record names its scope more than once"})
-				continue
-			}
-			if header.Payload.Scope.Ref == "" {
-				// Valid JSON that names no scope identifies nothing: it is not another
-				// scope's bundle, it is a record whose owner is unknown.
-				coverage.Add(SourceLoss{Producer: "review-bundles", Artifact: rel, Kind: LossParseError, Detail: "the record names no scope"})
-				continue
-			}
-			if header.Payload.Scope.Ref != scope {
+			if observation.owner != scope {
 				continue
 			}
 		}
