@@ -94,7 +94,7 @@ captura inválida, sem adotar nova policy ou aproximação. O harness de benchma
 passa a produzir um relatório versionado e artefatos brutos externos ao corpus;
 tempos inválidos do script anterior não são um baseline de compatibilidade.
 
-Passe implementado, em qualificação: em `checkReviewCloseout`,
+Passe implementado: em `checkReviewCloseout`,
 compartilhar somente observações imutáveis dos cabeçalhos de bundles, com a
 mesma classificação de JSON/ambiguidade/perdas do leitor canônico. Manter
 loaders estritos, ordenação, confiança, relógio e traversal separados por worker.
@@ -148,8 +148,8 @@ e nos consumidores indicados, sem simular aprovação pela presença de um campo
 Planejar suíte Go do módulo, integração CLI/MCP, checks estruturais e de segurança;
 usar race detector para travessia/memoização ou concorrência quando houver mudança
 nessas áreas. Verificar artifact-check e delivery/surface evidence na implementação.
-Os testes do primeiro delta existem; a qualificação completa da spec permanece
-pendente. O benchmark novo captura somente o corpus commitado em mirror e
+Os casos executados abaixo qualificam os deltas; o fechamento exige os gates
+de validação e revisão. O benchmark captura somente o corpus commitado em mirror e
 worktrees descartáveis, com configuração global/system do Git desativada e
 hooks/fsmonitor desativados no setup. Isso é uma configuração explícita da
 medição, não uma prova de equivalência a qualquer ambiente do operador.
@@ -193,8 +193,8 @@ substitui a validação atual nem a revisão separada de fechamento.
 
 ### Delivered scope
 
-Implementação qualificada por testes; aguardando validação final e revisão da
-spec inteira. Não há fechamento ou promessa de SLO nesta declaração.
+Implementação e medições qualificadas por testes e revisão técnica integral.
+O ciclo de vida é aplicado somente pelo gate nativo; não há promessa de SLO.
 
 O benchmark usa mirror autocontido e worktrees descartáveis, preserva outputs,
 falhas/timeouts e captura índices sem seguir links. A coleta usa um único log
@@ -224,13 +224,15 @@ As regressões cobrem layouts, duplicados, foreign links, mudanças/ABA de corpo
 aliasing, FS/contexto, fallback e aposentadoria da view, estado independente de
 oito workers, refs não-HEAD, truncagem, bytes/timeout e controles do harness.
 O detector de corridas e a suíte Go completa passaram nos deltas de runtime;
-os últimos controles instrumentados ainda recebem a validação final. O check
+os controles instrumentados participam da validação local final. O check
 registrado é `governance-operation-performance-integration`.
 
 Revisões separadas Codex encontraram e confirmaram correções para escapes do
 harness, perda de erros, refs mudadas, catálogo desaparecido, comparabilidade
 dinâmica de FS e snapshot herdado no fallback. As aprovações desses deltas não
-substituem a revisão final da spec inteira.
+substituem a revisão final da spec inteira. A revisão integral separada do
+Codex aprovou R1–R8 em `3001b491`, sem blockers, após repetir a contraprova
+de root proof. A validação local final e o selo/atestação são gates distintos.
 
 A revisão integral encontrou um defeito herdado em R6: a prova de raiz
 ignorava o exit status de `cat-file` após um header parcial. Agora exige

@@ -1,7 +1,7 @@
 # Component Assessment: docs-site (`docs-site`)
 
 > **Mapeamento de Módulo POSE**: `docs-site`
-> **Data de Avaliação**: 2026-11-03T06:27:19Z | **Baseline Commit**: 471abe1db815
+> **Data de Avaliação**: 2026-11-03T16:27:00Z | **Baseline Commit**: 3aae64ddb5e2
 > **Métricas**: 0 LOC Produção | 0 LOC Testes | 0 Arquivos Totais
 > **Linguagens**: n/a
 > **Saúde de Código**: 0 TODOs | 0 FIXMEs | 0 Panics | 0 Stubs
