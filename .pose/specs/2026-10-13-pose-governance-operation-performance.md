@@ -26,8 +26,10 @@ e a [análise fonte](../reports/2026-10-12-pose-front-08-resident-performance.md
 
 ### Constraints
 
-Esta interação escreve a spec; não implementa o comportamento. Preservar as
-fundações done, contratos selados, evidências e autorizações já existentes.
+A escrita original desta spec foi prospectiva. A execução atual segue a autorização
+do usuário para retomar as trilhas do motor, com validação local e revisão separada
+do Codex; o CI remoto não é um gate desta execução. Preservar as fundações done,
+contratos selados, evidências e autorizações já existentes.
 Não adotar policy/capability automaticamente. Classificar compatibilidade antes
 de iniciar: recusa mais estrita ou mudança de semântica pública não é patch por
 definição. Reconciliar decisões estruturais com os ADRs existentes; registrar
@@ -48,15 +50,18 @@ somente decisões adicionais necessárias, antes da implementação corresponden
 
 ### Artifacts
 
-Os paths abaixo são declarações prospectivas para a implementação. Neste lote
-somente esta spec é criada, sob a atribuição documental de
-`pose-consolidation-batch-7-authoring`. Reconciliar os paths exatos antes de start;
-não tratar a declaração de um teste futuro como teste existente ou executado.
+A criação original pertence a `pose-consolidation-batch-7-authoring`. A execução
+atual modifica essa spec canônica e usa os paths abaixo; os testes continuam
+planejados até existirem e passarem. Não criar uma cópia por coincidência de slug.
 
-- created: .pose/specs/2026-10-13-pose-governance-operation-performance.md
+- modified: .pose/specs/2026-10-13-pose-governance-operation-performance.md
 - created: .pose/starts/pose-governance-operation-performance.json
 - created: .pose/changelogs/unreleased/pose-governance-operation-performance.md
 - modified: scripts/bench-governance.sh
+- created: scripts/bench_governance.py
+- modified: pose-mcp/internal/cli/artifact_integrity.go
+- modified: pose-mcp/internal/cli/index.go
+- modified: pose-mcp/internal/pose/spec.go
 - modified: pose-mcp/internal/pose/followup_candidates.go
 - modified: pose-mcp/internal/pose/git_batch.go
 - created: pose-mcp/internal/pose/governance_operation_performance_test.go
@@ -108,6 +113,26 @@ Planejar suíte Go do módulo, integração CLI/MCP, checks estruturais e de seg
 usar race detector para travessia/memoização ou concorrência quando houver mudança
 nessas áreas. Verificar artifact-check e delivery/surface evidence na implementação.
 Testes de execução ainda não foram criados ou executados para este delta.
+
+### Execution test plan (required unless marked optional)
+
+| Scenario | Command | Expected evidence |
+|---|---|---|
+| R1 fake exits 7, timeout, modified operator files | `go -C pose-mcp test ./internal/cli -run GovernanceOperationPerformanceBenchmark -count=1` | Original path/content inventory unchanged; disposable corpus pinned; failure/timeout explicit; invalid samples excluded from medians. |
+| R3/R4 catalogue identity and changed inputs | `go -C pose-mcp test ./internal/pose -run GovernanceOperationPerformance -count=1` | Flat/split/nested/duplicate/foreign outcomes, errors and copied values preserved; new operation observes edits and binding changes. |
+| R6 trailer capture and change-set equivalence | `go -C pose-mcp test ./internal/cli -run GovernanceOperationPerformance -count=1` | One bounded full trailer capture per collector; unchanged IDs/selectors/order/paths/digests; ref changes and partial Git failures remain explicit. |
+| R7 scope, budgets and parallel isolation | `go -C pose-mcp test -race ./internal/pose ./internal/cli -run GovernanceOperationPerformance -count=1` | No shared mutable authority or traversal budgets, no aliasing/races, no hidden truncation. |
+| R5 exact clustering, text/input scale | `go -C pose-mcp test ./internal/pose -run GovernanceOperationPerformanceClustering -bench GovernanceOperationPerformanceClustering -benchtime=1x -count=3` | Same candidate IDs/order/similarity; reported input sizes, repetitions and allocations; no disposition by similarity. |
+| R8 reachable CLI/MCP parity | `go -C pose-mcp test ./internal/cli ./internal/mcpserver -run GovernanceOperationPerformance -count=1` | Same verdict/coverage and identity on the actual consumers, including negative controls. |
+| R1/R2/R8 real corpus comparison | `go -C pose-mcp build -o /tmp/pose-governance-performance-cli ./cmd/pose`; `scripts/bench-governance.sh 3 /tmp/pose-governance-performance-cli` | Isolated corpus/binary/refs/matrix/environment pins, raw outputs and valid/error/timeout per sample, separate measured metrics and dispersion. Instrumented diagnostics are not native latency baselines. |
+| Final local gate | `pose validate --strict --jobs 4 --json-out .pose/results/delivery-validation.json` | Current local structured evidence for every applicable registered check; no remote CI claim. |
+
+The first isolated audit measured N+1 full trailer logs and N(N+2) spec reads
+for N=1,3,6, with all specs/change sets present and empty gaps. One bounded
+real-history read contained 989,023 bytes; this is not an aggregate I/O or
+CPU-share claim. The existing script's invalid-sample and reset behavior was
+confirmed only in a disposable synthetic fixture. Benchmarks must be repaired
+before their timings are treated as evidence.
 
 ### Requirement trace
 
