@@ -54,3 +54,15 @@ These checks validate the configuration delta and its provenance. The existing j
 | R1 | Token binding present in the selected step, inherited by validate/test/script; runtime verification pending. |
 | R2 | Whole-document YAML equivalence after removing that binding; no change to permissions, commands, pins or history promise. |
 | R3 | Failed job and direct CI control linked above; native structural gates passed with disclosed warnings; corrected journey pending GitHub. |
+
+## Closeout update — 2026-11-03
+
+The maintainer expressly waived remote GitHub CI confirmation for this closeout. No GitHub job or PR was queried and no remote validation was rerun for this update. The corrected journey's GitHub runner outcome remains unverified; this waiver is not evidence that the token was issued on a runner or that the network journey passed there. The original failure and same-head direct CI control above remain historical incident evidence, not newly checked provider results.
+
+The configuration and propagation path were reviewed locally without reading token values. The current `Deterministic validation to SARIF` step still sets `GITHUB_TOKEN: ${{ github.token }}` alongside `POSE_RELEASE_HISTORY_AVAILABLE: "true"` and the existing validation command. `pose-mcp/internal/cli/validate.go` starts from `os.Environ()` and adds the check-specific environment; the registered journey check adds `POSE_JOURNEYS=1`. Its Go test launches Bash without a replacement environment, and `tests/journeys/install-and-upgrade.sh` uses `GITHUB_TOKEN` with `GH_TOKEN` fallback, adding an Authorization header only when a value exists. This supports the configuration's intended inheritance path, but does not establish what a particular remote runner received or whether a request succeeded.
+
+The semantic YAML comparison for the original correction at commit `2255621cc82fa348ee2419b892296b96ea7b276e` confirmed that removing only the selected step's `GITHUB_TOKEN` binding makes the complete parsed documents equal. The step's command, history promise, workflow permissions, pins and other steps are preserved. The later Go 1.26.10 bump remains outside this correction. No code, workflow, permissions, commands, or action pins were changed for this closeout.
+
+A prior local global validation recorded 188/188 passes at base `9535259d11a2a4bcbb1499145c80ed17ed3b63b0` in `/var/tmp/pose-work-go/consolidation-validation.log`. Its result file was produced in the source checkout at `.pose/results/delivery-validation.json`; this was not a run in the isolated closeout checkout and is cited only as prior local context. The principal must regenerate applicable final gates for the integrated subject. It is not evidence of GitHub runner execution.
+
+The spec remains `in-progress` with `completed_at` empty pending the principal's review and native closeout gates. The prior follow-up to update PR #171 and rerun remote validation is marked `[wont-do]` under the maintainer's instruction; no remote rerun or green result is implied.

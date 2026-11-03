@@ -59,22 +59,24 @@ No new structural decision. Apply the existing authenticated API listing contrac
 
 ### Strategy
 
-Compare YAML before/after: only the selected step gains GITHUB_TOKEN and permissions, commands, pins and history declaration are preserved. Run the existing WorkflowSecurity/history tests where available, lint-spec, artifact-check and check --strict. Confirm TestJourneysInstallAndUpgradeFromThePublishedRelease via Security validation-findings on the corrected PR. Do not introduce a duplicate test for a reversible environment binding.
+Compare YAML before/after: only the selected step gains `GITHUB_TOKEN`; preserve permissions, commands, pins and the history promise. Reuse the existing WorkflowSecurity/history tests where available and the applicable local POSE gates. The maintainer explicitly waived remote GitHub CI confirmation for this closeout on 2026-11-03; keep that limitation explicit and do not treat it as evidence of runner runtime. Do not introduce a duplicate test for a reversible environment binding.
 
 ### Requirement trace
 
-Record executed evidence and remaining CI verification in the linked report; keep the spec in-progress until review and native closeout.
+- R1 [satisfied] The current Security step binds `github.token`; review of the validation, journey-test and shell inheritance path is recorded in report:.pose/reports/2026-10-14-security-validation-release-api-auth.md; the original binding is commit:2255621cc82fa348ee2419b892296b96ea7b276e.
+- R2 [satisfied] Removing only the selected step's token binding from the original workflow change makes the complete parsed YAML documents equal; the command, permissions, pins, other steps and history promise are preserved in report:.pose/reports/2026-10-14-security-validation-release-api-auth.md; commit:2255621cc82fa348ee2419b892296b96ea7b276e.
+- R3 [waived: only the corrected GitHub runner confirmation was waived by the maintainer's express instruction on 2026-11-03] The incident, same-head direct CI control, local configuration comparison and validation evidence remain recorded in report:.pose/reports/2026-10-14-security-validation-release-api-auth.md. This waiver does not prove successful runtime on a GitHub runner.
 
 ## 7. Final Report
 
 ### Delivered scope
 
-Correction prepared; local structural evidence and GitHub verification are recorded in [the report](../reports/2026-10-14-security-validation-release-api-auth.md). Runtime verification, review and closeout remain pending.
+The configuration correction is present and its local structural evidence is recorded in [the report](../reports/2026-10-14-security-validation-release-api-auth.md). The maintainer waived corrected GitHub runner confirmation on 2026-11-03; runtime verification on that runner is not claimed. Keep this spec `in-progress` until the principal completes the remaining review and native closeout gates.
 
 ### Residual risks
 
-Authenticated requests may still fail on service outage or exhausted token limits. The fix addresses the absent credential, without converting network failures to success. Existing Security job permissions include contents:read and security-events:write; no permission is added.
+Authenticated requests may still fail on service outage or exhausted token limits. The fix addresses the absent credential, without converting network failures to success. Existing Security job permissions include contents:read and security-events:write; no permission is added. No corrected GitHub runner result was checked in this closeout, so the local binding and inheritance evidence does not establish token issuance or successful network runtime there.
 
 ### Follow-ups
 
-After merging this isolated correction, update the documentary PR #171 against main and rerun its failed validation on the corrected workflow.
+- [wont-do: the maintainer's express 2026-11-03 instruction waives remote CI and the associated external PR update for this closeout; no rerun or corrected remote result is claimed] Update documentary PR #171 against main and rerun its failed validation on the corrected workflow. Keep the historical incident and local evidence in the report.
