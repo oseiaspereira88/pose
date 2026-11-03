@@ -84,6 +84,9 @@ type reviewOperationView struct {
 // live. Finalization rereads observed bytes before the read can be green.
 // This is not an atomic filesystem snapshot or a write authorization cache.
 func (s Store) WithReviewOperationView(run func(Store)) error {
+	s.specs = nil
+	s.reviewReuse = nil
+	s.reviewView = nil
 	files := s.fsys()
 	if !reflect.ValueOf(files).Comparable() {
 		// Unknown identity cannot safely key an optimization. Keep live semantics.

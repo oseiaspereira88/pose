@@ -178,6 +178,32 @@ func TestReviewOperationViewSpecCatalogueFallbackAndRetirement(t *testing.T) {
 	}
 }
 
+func TestReviewOperationViewUnkeyedFallbackDropsEarlierAdvisorySnapshot(t *testing.T) {
+	root := t.TempDir()
+	original := "---\nslug: sample\nstatus: draft\n---\n\n# Sample\n"
+	governanceWrite(t, root, "sample.md", original)
+	prior := (Store{Root: root}).withSpecSnapshot()
+	if specs, err := prior.ListSpecs("draft", ""); err != nil || len(specs) != 1 {
+		t.Fatalf("bad prior snapshot: %+v %v", specs, err)
+	}
+	governanceWrite(t, root, "sample.md", strings.ReplaceAll(original, "draft", "done"))
+	prior.FS = nonComparableReviewFiles{Files: NativeFiles(), marker: []string{"unkeyed"}}
+	prior.reviewReuse = newReviewReuseTraversal()
+	prior.reviewView = &reviewOperationView{}
+	err := prior.WithReviewOperationView(func(shared Store) {
+		if shared.specs != nil || shared.reviewReuse != nil || shared.reviewView != nil {
+			t.Fatal("earlier operation state reached live fallback")
+		}
+		specs, err := shared.ListSpecs("done", "")
+		if err != nil || len(specs) != 1 {
+			t.Fatalf("live fallback used earlier metadata: %+v %v", specs, err)
+		}
+	})
+	if err != nil {
+		t.Fatal(err)
+	}
+}
+
 func TestReviewOperationViewSpecCatalogueLayoutsAndDuplicates(t *testing.T) {
 	for _, layout := range []string{"flat", "nested", "split", "duplicate"} {
 		t.Run(layout, func(t *testing.T) {
