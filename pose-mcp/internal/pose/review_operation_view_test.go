@@ -273,6 +273,8 @@ type nonComparableReviewFiles struct {
 	marker []string
 }
 
+type reviewFilesEnvelope struct{ Files }
+
 func TestReviewOperationViewContextBindingAndUnkeyedFiles(t *testing.T) {
 	root := t.TempDir()
 	viewWrite(t, root, "rvb-0000000000000000.json", `{"payload":{"scope":{"ref":"spec:other"}}}`)
@@ -306,6 +308,20 @@ func TestReviewOperationViewContextBindingAndUnkeyedFiles(t *testing.T) {
 	err = store.WithReviewOperationView(func(shared Store) {
 		if shared.reviewView != nil {
 			t.Fatal("noncomparable filesystem was assigned a cache identity")
+		}
+		if _, err := shared.ReadReviewBundles("spec:absent"); err != nil {
+			t.Fatal(err)
+		}
+	})
+	if err != nil {
+		t.Fatal(err)
+	}
+	// The struct type is comparable, but its embedded interface holds a value
+	// with a slice. Comparing interfaces must not panic or borrow a cache key.
+	store.FS = reviewFilesEnvelope{Files: nonComparableReviewFiles{Files: files, marker: []string{"nested"}}}
+	err = store.WithReviewOperationView(func(shared Store) {
+		if shared.reviewView != nil {
+			t.Fatal("nested noncomparable filesystem assigned a cache key")
 		}
 		if _, err := shared.ReadReviewBundles("spec:absent"); err != nil {
 			t.Fatal(err)

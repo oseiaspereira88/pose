@@ -75,7 +75,7 @@ type reviewOperationView struct {
 // This is not an atomic filesystem snapshot or a write authorization cache.
 func (s Store) WithReviewOperationView(run func(Store)) error {
 	files := s.fsys()
-	if !reflect.TypeOf(files).Comparable() {
+	if !reflect.ValueOf(files).Comparable() {
 		// Unknown identity cannot safely key an optimization. Keep live semantics.
 		run(s)
 		return nil
@@ -100,7 +100,7 @@ func (v *reviewOperationView) boundTo(s Store) bool {
 	files := s.fsys()
 	return !v.closed.Load() && filepath.Clean(s.Root) == v.root &&
 		s.FederatedProjectID == v.project && s.FederatedResolver == v.resolver &&
-		reflect.TypeOf(files) == reflect.TypeOf(v.files) && reflect.TypeOf(files).Comparable() && files == v.files
+		reflect.TypeOf(files) == reflect.TypeOf(v.files) && reflect.ValueOf(files).Comparable() && reflect.ValueOf(v.files).Comparable() && files == v.files
 }
 
 func reviewHeaderInventory(entries []os.DirEntry) [32]byte {
