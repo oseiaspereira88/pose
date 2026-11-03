@@ -1,8 +1,8 @@
 ---
 slug: pose-consolidation-batch-14-authoring
-status: in-progress
+status: done
 created_at: 2026-10-14
-completed_at:
+completed_at: 2026-11-03
 depends_on:
 priority: 0
 components: .pose
@@ -82,7 +82,11 @@ Conferir catálogo/digests/status/R-IDs, contagens/coverage, DAG/overlays/fases,
 
 ### Delivered scope
 
-Três drafts, ADR Proposed, nota de revisão, matriz e roadmaps escritos. Conferência reproduzível, quatro lints, knowledge-check, artifact-check e check --strict passaram, com avisos registrados; roadmap-check recusou closeout pendente. CI/Security verificarão o head documental. Implementação, revisão e closeout nativo permanecem pendentes.
+Autoria documental concluída pelo fechamento nativo em 2026-11-03. Os reproduzidores dos snapshots de escrita passaram sem alteração do código histórico; consultar a [auditoria comum](../reports/2026-11-03-pose-consolidation-authoring-closeout.md).
+
+Gates locais e critérios de saída julgados no [bundle rvb-207e485b164b8e6f](../review-bundles/rvb-207e485b164b8e6f.json), com [atestação rva-ef77ae642c08f009](../review-attestations/rva-ef77ae642c08f009.json) de uma execução separada do Codex, mesmo fornecedor/modelo herdado. Sem alegação de identidade autenticada ou revisão entre fornecedores.
+
+O fechamento qualifica a escrita e seus vínculos; não conclui implementação, adoção, ADR proposto, piloto ou programa de consolidação. Nenhum CI remoto foi consultado.
 
 ### Residual risks
 

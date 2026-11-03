@@ -1,8 +1,8 @@
 ---
 slug: pose-consolidation-batch-8-authoring
-status: in-progress
+status: done
 created_at: 2026-10-13
-completed_at:
+completed_at: 2026-11-03
 depends_on:
 priority: 0
 components: .pose
@@ -80,7 +80,11 @@ Conferir digests/status, catálogo, aceites, DAG, ownership, refs e links. Execu
 
 ### Delivered scope
 
-Plano de continuidade, dois deltas draft, matriz e roadmaps escritos; conferência reproduzível, quatro lints, artifact-check e check --strict passaram, com avisos registrados no relatório. Conferir o head de CI no PR; implementação, revisão e closeout permanecem pendentes.
+Autoria documental concluída pelo fechamento nativo em 2026-11-03. Os reproduzidores dos snapshots de escrita passaram sem alteração do código histórico; consultar a [auditoria comum](../reports/2026-11-03-pose-consolidation-authoring-closeout.md).
+
+Gates locais e critérios de saída julgados no [bundle rvb-bfab12c0b96e7afb](../review-bundles/rvb-bfab12c0b96e7afb.json), com [atestação rva-9daafd37f50453db](../review-attestations/rva-9daafd37f50453db.json) de uma execução separada do Codex, mesmo fornecedor/modelo herdado. Sem alegação de identidade autenticada ou revisão entre fornecedores.
+
+O fechamento qualifica a escrita e seus vínculos; não conclui implementação, adoção, ADR proposto, piloto ou programa de consolidação. Nenhum CI remoto foi consultado.
 
 ### Residual risks
 

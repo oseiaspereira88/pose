@@ -1,8 +1,8 @@
 ---
 slug: pose-consolidation-program-bootstrap
-status: in-progress
+status: done
 created_at: 2026-10-13
-completed_at:
+completed_at: 2026-11-03
 depends_on:
 priority: 0
 components: .pose
@@ -81,7 +81,11 @@ Conferir cobertura única de candidatos/unidades, DAG, limites dos lotes, reutil
 
 ### Delivered scope
 
-Artefatos do lote 0 escritos; cobertura, DAG e reutilização passaram na conferência documental reproduzível do relatório. Conferir os demais resultados de validação e o head testado no PR documental deste lote. Revisão independente e closeout permanecem pendentes.
+Autoria documental concluída pelo fechamento nativo em 2026-11-03. Os reproduzidores dos snapshots de escrita passaram sem alteração do código histórico; consultar a [auditoria comum](../reports/2026-11-03-pose-consolidation-authoring-closeout.md).
+
+Gates locais e critérios de saída julgados no [bundle rvb-681201947b36fa95](../review-bundles/rvb-681201947b36fa95.json), com [atestação rva-039030d7174daabd](../review-attestations/rva-039030d7174daabd.json) de uma execução separada do Codex, mesmo fornecedor/modelo herdado. Sem alegação de identidade autenticada ou revisão entre fornecedores.
+
+O fechamento qualifica a escrita e seus vínculos; não conclui implementação, adoção, ADR proposto, piloto ou programa de consolidação. Nenhum CI remoto foi consultado.
 
 ### Residual risks
 

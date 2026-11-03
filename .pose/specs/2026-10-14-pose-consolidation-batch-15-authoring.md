@@ -1,8 +1,8 @@
 ---
 slug: pose-consolidation-batch-15-authoring
-status: in-progress
+status: done
 created_at: 2026-10-14
-completed_at:
+completed_at: 2026-11-03
 depends_on:
 priority: 0
 components: .pose
@@ -86,7 +86,11 @@ o head documental e regressões existentes; não executam os casos prospectivos 
 
 ### Delivered scope
 
-Escrita em curso: spec draft, matriz, roadmaps e relatório. Registrar validações antes de alegar entrega documental.
+Autoria documental concluída pelo fechamento nativo em 2026-11-03. Os reproduzidores dos snapshots de escrita passaram sem alteração do código histórico; consultar a [auditoria comum](../reports/2026-11-03-pose-consolidation-authoring-closeout.md).
+
+Gates locais e critérios de saída julgados no [bundle rvb-743f3091a323e9f2](../review-bundles/rvb-743f3091a323e9f2.json), com [atestação rva-4c610fc33c38d11a](../review-attestations/rva-4c610fc33c38d11a.json) de uma execução separada do Codex, mesmo fornecedor/modelo herdado. Sem alegação de identidade autenticada ou revisão entre fornecedores.
+
+O fechamento qualifica a escrita e seus vínculos; não conclui implementação, adoção, ADR proposto, piloto ou programa de consolidação. Nenhum CI remoto foi consultado.
 
 ### Residual risks
 
