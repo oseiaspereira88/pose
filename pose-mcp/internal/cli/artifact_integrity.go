@@ -344,6 +344,7 @@ func collectArtifactGraphInputsWithGapsIn(files posemodel.Files, root string) ([
 		return nil, nil, nil, nil, policy, nil, err
 	}
 	claims := []posemodel.ArtifactClaim{}
+	_, initialSpecsErr := files.Stat(filepath.Join(root, ".pose", "specs"))
 	specs, err := store.VisitSpecs(func(full posemodel.Spec) error {
 		parsed, _, err := posemodel.ParseArtifactClaims(full, policy)
 		if err != nil {
@@ -353,7 +354,10 @@ func collectArtifactGraphInputsWithGapsIn(files posemodel.Files, root string) ([
 		return nil
 	})
 	if err != nil {
-		if _, statErr := files.Stat(filepath.Join(root, ".pose", "specs")); !os.IsNotExist(statErr) {
+		_, currentSpecsErr := files.Stat(filepath.Join(root, ".pose", "specs"))
+		// Only an initially absent catalogue is an empty input. A disappearing
+		// directory after callbacks is a failed capture, never partial success.
+		if !errors.Is(initialSpecsErr, os.ErrNotExist) || !errors.Is(currentSpecsErr, os.ErrNotExist) || !errors.Is(err, os.ErrNotExist) || len(claims) != 0 {
 			return nil, nil, nil, nil, policy, nil, err
 		}
 		specs = []posemodel.Spec{}

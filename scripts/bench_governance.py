@@ -62,7 +62,7 @@ def main():
         if key.startswith(("POSE_", "HARNE8_", "GIT_")):
             env.pop(key, None)
     env.update(GIT_NO_REPLACE_OBJECTS="1", GIT_CONFIG_GLOBAL=os.devnull,
-               GIT_CONFIG_NOSYSTEM="1", NO_COLOR="1", LC_ALL="C")
+               GIT_CONFIG_NOSYSTEM="1", GIT_OPTIONAL_LOCKS="0", NO_COLOR="1", LC_ALL="C")
     git_command = ["git", "-c", "core.hooksPath=" + os.devnull, "-c", "core.fsmonitor=false"]
 
     def git(root, *argv):
@@ -81,24 +81,7 @@ def main():
     binary_copy = output / "pose"
     shutil.copy2(binary, binary_copy)
     binary_copy.chmod(0o700)
-    revision = git(root, "rev-parse", "HEAD").decode().strip()
-    refs = git(root, "for-each-ref", "--format=%(refname) %(objectname)")
-    version_exit, version_timeout, _, _ = measure([str(binary_copy), "version"], output, env,
-        min(args.timeout, 30), output / "version.stdout", output / "version.stderr")
-    version_stdout = (output / "version.stdout").read_bytes()
-    report = {"schema_version": 1, "corpus_revision": revision, "refs_digest": sha(refs),
-              "source_dirty_status_hex": git(root, "status", "--porcelain=v1", "-z").hex(),
-              "binary_digest": sha(binary_copy.read_bytes()), "engine_version_exit": version_exit,
-              "engine_version_timeout": version_timeout,
-              "engine_version": version_stdout.decode(errors="replace").strip(), "platform": platform.platform(),
-              "environment": {key: env.get(key) for key in ("LANG", "LC_ALL", "TZ", "GOMAXPROCS", "TMPDIR")},
-              "timeout_seconds": args.timeout, "setup": [], "samples": [], "summary": {},
-              "git_configuration": "global/system config disabled; setup hooks/fsmonitor disabled; fresh mirror local config; source local config not copied",
-              "limits": ["committed corpus only; dirty files excluded without restoring them",
-                         "heap/reads/parses/copies/Git bytes need separate instrumented producer profiles",
-                         "setup excluded; fresh worktree per sample; CPU/RSS from Unix wait4 (RSS units platform dependent)",
-                         "wait4 includes reaped descendants; background/unreaped descendants are not a complete process-tree profile"]}
-    (output / "source-refs.txt").write_bytes(refs)
+    report = {"schema_version": 1, "setup": [], "samples": [], "summary": {}}
     (output / "report.json").write_text(json.dumps(report, indent=2) + "\n")
 
     def setup(argv, phase):
@@ -110,12 +93,41 @@ def main():
         if code != 0 or timed_out:
             print(json.dumps({"report": str(output / "report.json"), "setup_failed": phase}))
             raise SystemExit(1)
+        return stdout.read_bytes()
+
+    def capture_git(directory, phase, *argv):
+        return setup([*git_command, "-C", str(directory), *argv], phase)
+
+    revision = capture_git(root, "source-head", "rev-parse", "HEAD").decode().strip()
+    refs = capture_git(root, "source-refs", "for-each-ref", "--format=%(refname) %(objectname)")
+    version_exit, version_timeout, _, _ = measure([str(binary_copy), "version"], output, env,
+        min(args.timeout, 30), output / "version.stdout", output / "version.stderr")
+    version_stdout = (output / "version.stdout").read_bytes()
+    report.update({"corpus_revision": revision, "refs_digest": sha(refs),
+              "source_dirty_status_hex": capture_git(root, "source-status", "status", "--porcelain=v1", "-z").hex(),
+              "binary_digest": sha(binary_copy.read_bytes()), "engine_version_exit": version_exit,
+              "engine_version_timeout": version_timeout,
+              "engine_version": version_stdout.decode(errors="replace").strip(), "platform": platform.platform(),
+              "environment": {key: env.get(key) for key in ("LANG", "LC_ALL", "TZ", "GOMAXPROCS", "TMPDIR")},
+              "timeout_seconds": args.timeout,
+              "git_configuration": "global/system config disabled; setup hooks/fsmonitor disabled; fresh mirror local config; source local config not copied",
+              "limits": ["committed corpus only; dirty files excluded without restoring them",
+                         "heap/reads/parses/copies/Git bytes need separate instrumented producer profiles",
+                         "setup excluded; fresh worktree per sample; CPU/RSS from Unix wait4 (RSS units platform dependent)",
+                         "wait4 includes reaped descendants; background/unreaped descendants are not a complete process-tree profile"]})
+    (output / "source-refs.txt").write_bytes(refs)
+    (output / "report.json").write_text(json.dumps(report, indent=2) + "\n")
 
     mirror = output / "corpus.git"
-    setup([*git_command, "clone", "--mirror", "--no-hardlinks", str(root), str(mirror)], "clone")
-    if git(mirror, "for-each-ref", "--format=%(refname) %(objectname)") != refs or git(root, "rev-parse", "HEAD").decode().strip() != revision:
-        raise RuntimeError("corpus refs changed during capture; no timings are valid")
-    report["matrix_digest"] = sha(git(mirror, "show", revision + ":.pose/indexes/validation-matrix.json"))
+    setup([*git_command, "clone", "--mirror", "--no-hardlinks", "--dissociate", str(root), str(mirror)], "clone")
+    captured_refs = capture_git(mirror, "mirror-refs", "for-each-ref", "--format=%(refname) %(objectname)")
+    current_head = capture_git(root, "source-head-recheck", "rev-parse", "HEAD").decode().strip()
+    if captured_refs != refs or current_head != revision:
+        report["capture_conflict"] = "corpus refs changed during capture; no timings are valid"
+        (output / "report.json").write_text(json.dumps(report, indent=2) + "\n")
+        print(json.dumps({"report": str(output / "report.json"), "capture_conflict": report["capture_conflict"]}))
+        return 1
+    report["matrix_digest"] = sha(capture_git(mirror, "matrix", "show", revision + ":.pose/indexes/validation-matrix.json"))
     operations = {"state-attention": ["state", "--attention"], "check-strict": ["check", "--strict"], "index": ["index"]}
     invalid = version_exit != 0
     for operation in args.operation or operations:

@@ -328,10 +328,10 @@ func TestGovernanceOperationPerformanceBenchmark(t *testing.T) {
 				t.Fatalf("operator files changed: %q %v", owned, err)
 			}
 			if strings.HasPrefix(outcome, "setup-") {
-				if len(report.Samples) != 0 || len(report.Setup) != 1 {
+				if len(report.Samples) != 0 || len(report.Setup) < 1 {
 					t.Fatalf("invalid setup became measured operation: %s", data)
 				}
-				setup := report.Setup[0]
+				setup := report.Setup[len(report.Setup)-1]
 				if setup.Phase != "clone" || setup.Timeout != (outcome == "setup-timeout") || (outcome == "setup-error" && setup.ExitCode != 9) {
 					t.Fatalf("lost setup error: %s", data)
 				}
@@ -420,5 +420,49 @@ func TestGovernanceOperationPerformanceGitTimeoutAndByteLimit(t *testing.T) {
 	out, err = gitOutputBounded(t.TempDir(), 5, "log")
 	if err == nil || out != nil {
 		t.Fatalf("bounded partial output became success: %q %v", out, err)
+	}
+}
+
+type governanceDisappearingCatalogueFiles struct {
+	posemodel.Files
+	root  string
+	reads int
+}
+
+func (f *governanceDisappearingCatalogueFiles) ReadFile(path string) ([]byte, error) {
+	raw, err := f.Files.ReadFile(path)
+	if filepath.ToSlash(path) == filepath.ToSlash(filepath.Join(f.root, ".pose/specs/sample.md")) {
+		f.reads++
+		if f.reads == 2 {
+			if removeErr := os.RemoveAll(filepath.Join(f.root, ".pose/specs")); removeErr != nil {
+				return nil, removeErr
+			}
+		}
+	}
+	return raw, err
+}
+
+func TestGovernanceOperationPerformanceDisappearingCatalogue(t *testing.T) {
+	root := t.TempDir()
+	writeArtifactTestFile(t, root, ".pose/specs/sample.md", "---\nslug: sample\nstatus: draft\n---\n\n# Sample\n\n## 3. Technical Plan\n\n### Artifacts\n- created: sample.txt\n")
+	files := &governanceDisappearingCatalogueFiles{Files: posemodel.NativeFiles(), root: root}
+	specs, claims, sets, _, _, _, err := collectArtifactGraphInputsWithGapsIn(files, root)
+	if err == nil || len(specs) != 0 || len(claims) != 0 || len(sets) != 0 {
+		t.Fatalf("partial catalogue accepted: specs=%v claims=%v sets=%v err=%v", specs, claims, sets, err)
+	}
+}
+
+func TestGovernanceOperationPerformanceInitiallyAbsentCatalogue(t *testing.T) {
+	root := t.TempDir()
+	artifactGit(t, root, "init", "-q")
+	artifactGit(t, root, "config", "user.name", "Fixture")
+	artifactGit(t, root, "config", "user.email", "fixture@example.invalid")
+	artifactGit(t, root, "config", "core.hooksPath", "/dev/null")
+	writeArtifactTestFile(t, root, "readme.txt", "no spec catalogue\n")
+	artifactGit(t, root, "add", ".")
+	artifactGit(t, root, "commit", "-q", "-m", "fixture")
+	specs, claims, sets, _, _, gaps, err := collectArtifactGraphInputsWithGapsIn(posemodel.NativeFiles(), root)
+	if err != nil || len(specs) != 0 || len(claims) != 0 || len(sets) != 0 || len(gaps) != 0 {
+		t.Fatalf("initial absence became conflict: %v %v %v %v %v", specs, claims, sets, gaps, err)
 	}
 }
