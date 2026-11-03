@@ -144,6 +144,9 @@ func (s Store) GetSpec(slug string) (*Spec, error) {
 	if err := ValidateSlug(slug); err != nil {
 		return nil, err
 	}
+	if sp, handled, err := s.reviewViewSpec(slug); handled {
+		return sp, err
+	}
 	specs, err := s.ListSpecs("", "")
 	if err != nil {
 		return nil, err
@@ -165,10 +168,29 @@ func (s Store) GetSpec(slug string) (*Spec, error) {
 }
 
 func (s Store) readListedSpec(match Spec) (*Spec, error) {
-	if info, err := s.fsys().Stat(match.Path); err == nil && info.IsDir() {
-		return parseSplitSpec(s.fsys(), match.Path, match.Slug, splitSpecFiles(s.fsys(), match.Path), true)
+	if !artifactPathWithin(s.fsys(), s.Root, match.Path) {
+		return nil, fmt.Errorf("pose: spec path escapes project: %s", match.Slug)
 	}
-	return parseSpecFile(s.fsys(), match.Path, match.Slug, true)
+	var full *Spec
+	var err error
+	if info, statErr := s.fsys().Stat(match.Path); statErr == nil && info.IsDir() {
+		paths := splitSpecFiles(s.fsys(), match.Path)
+		for _, path := range paths {
+			if !artifactPathWithin(s.fsys(), s.Root, path) {
+				return nil, fmt.Errorf("pose: split spec path escapes project: %s", match.Slug)
+			}
+		}
+		full, err = parseSplitSpec(s.fsys(), match.Path, match.Slug, paths, true)
+	} else {
+		full, err = parseSpecFile(s.fsys(), match.Path, match.Slug, true)
+	}
+	if err != nil {
+		return nil, err
+	}
+	if err = s.observeReviewSpecBody(match, full); err != nil {
+		return nil, err
+	}
+	return full, nil
 }
 
 // VisitSpecs reads full bodies without discovering the entire catalogue for
@@ -241,6 +263,9 @@ func (s Store) VisitSpecs(visit func(Spec) error) ([]Spec, error) {
 // preserving the pre-existing behavior for callers that only care about
 // status.
 func (s Store) ListSpecs(status, components string) ([]Spec, error) {
+	if specs, handled, err := s.reviewViewSpecs(status, components); handled {
+		return specs, err
+	}
 	if s.specs == nil {
 		return s.listSpecs(status, components)
 	}

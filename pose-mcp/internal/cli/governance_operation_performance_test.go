@@ -531,7 +531,7 @@ func TestGovernanceOperationPerformanceCaptureRejectsLinksAndSpecialFiles(t *tes
 			code += "m.capture_indexes(Path(sys.argv[2]),Path(sys.argv[3]))"
 			ctx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
 			defer cancel()
-			out, err := exec.CommandContext(ctx, "python3", "-c", code, script, root, target).CombinedOutput()
+			out, err := exec.CommandContext(ctx, "python3", "-B", "-c", code, script, root, target).CombinedOutput()
 			if (err == nil) != (kind == "regular") || ctx.Err() != nil {
 				t.Fatalf("capture kind=%s err=%v context=%v out=%s", kind, err, ctx.Err(), out)
 			}

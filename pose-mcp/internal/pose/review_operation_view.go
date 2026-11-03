@@ -53,6 +53,16 @@ func readReviewBundleHeader(files Files, dir, name string) reviewHeaderObservati
 }
 
 type reviewOperationView struct {
+	specOnce        sync.Once
+	specUsed        bool
+	specErr         error
+	specFallback    bool
+	specEntries     []Spec
+	specBySlug      map[string]int
+	specBodyMu      sync.Mutex
+	specBodySeen    []bool
+	specBodyDigests [][32]byte
+	specConflict    bool
 	root            string
 	files           Files
 	project         string
@@ -69,7 +79,7 @@ type reviewOperationView struct {
 	maxRetainedText int
 }
 
-// WithReviewOperationView shares only immutable header observations for this
+// WithReviewOperationView shares immutable headers and spec metadata for this
 // callback. Strict loading, ordering, trust and each worker's traversal remain
 // live. Finalization rereads observed bytes before the read can be green.
 // This is not an atomic filesystem snapshot or a write authorization cache.
@@ -88,12 +98,175 @@ func (s Store) WithReviewOperationView(run func(Store)) error {
 
 func (s Store) withReviewOperationView(view *reviewOperationView, run func(Store)) error {
 	s.reviewView = view
+	s.specs = nil       // an earlier advisory listing is not this operation's capture
 	s.reviewReuse = nil // copied worker stores each start their own traversal
 	defer view.closed.Store(true)
 	run(s)
 	// Join lazy initialization, if any; finalization must follow joined workers.
 	view.once.Do(func() {})
+	view.specOnce.Do(func() {})
+	if err := view.validateSpecs(); err != nil {
+		return err
+	}
 	return view.validate()
+}
+
+func (v *reviewOperationView) captureSpecs(s Store) {
+	v.specOnce.Do(func() {
+		v.specUsed = true
+		entries, err := s.listSpecs("", "")
+		v.specErr = err
+		if err != nil {
+			return
+		}
+		if len(entries) > v.maxRecords {
+			v.specFallback = true
+			return
+		}
+		retained := 0
+		for _, sp := range entries {
+			raw, _ := json.Marshal(sp)
+			retained += len(raw)
+			if retained > v.maxRetainedText {
+				v.specFallback = true
+				return
+			}
+		}
+		v.specEntries = entries
+		v.specBySlug = make(map[string]int, len(entries))
+		for i, sp := range entries {
+			if _, exists := v.specBySlug[sp.Slug]; exists {
+				v.specBySlug[sp.Slug] = -1
+			} else {
+				v.specBySlug[sp.Slug] = i
+			}
+		}
+		v.specBodySeen = make([]bool, len(entries))
+		v.specBodyDigests = make([][32]byte, len(entries))
+	})
+}
+
+func (s Store) reviewViewSpec(slug string) (*Spec, bool, error) {
+	v := s.reviewView
+	if v == nil || !v.boundTo(s) {
+		return nil, false, nil
+	}
+	v.captureSpecs(s)
+	if v.specFallback {
+		return nil, false, nil
+	}
+	if v.specErr != nil {
+		return nil, true, v.specErr
+	}
+	index, exists := v.specBySlug[slug]
+	if !exists {
+		return nil, true, fmt.Errorf("pose: spec %q not found", slug)
+	}
+	if index < 0 {
+		return nil, true, SpecIdentityConflictError{Slug: slug}
+	}
+	full, err := s.readListedSpec(cloneSpec(v.specEntries[index]))
+	return full, true, err
+}
+
+func (s Store) reviewViewSpecs(status, components string) ([]Spec, bool, error) {
+	v := s.reviewView
+	if v == nil || !v.boundTo(s) {
+		return nil, false, nil
+	}
+	v.captureSpecs(s)
+	if v.specFallback {
+		return nil, false, nil
+	}
+	if v.specErr != nil {
+		return nil, true, v.specErr
+	}
+	wantedStatus, wantedComponents := splitStatusFilter(status), splitCommaFilter(components)
+	result := []Spec{}
+	for _, sp := range v.specEntries {
+		if len(wantedStatus) > 0 && !statusMatchesAny(sp.Status, wantedStatus) {
+			continue
+		}
+		if len(wantedComponents) > 0 && !componentsMatchAny(sp.Components, wantedComponents) {
+			continue
+		}
+		result = append(result, cloneSpec(sp))
+	}
+	return result, true, nil
+}
+
+func (s Store) observeReviewSpecBody(listed Spec, full *Spec) error {
+	v := s.reviewView
+	if v == nil || !v.boundTo(s) {
+		return nil
+	}
+	v.captureSpecs(s)
+	if v.specFallback {
+		return nil
+	}
+	if v.specErr != nil {
+		return v.specErr
+	}
+	index, exists := v.specBySlug[listed.Slug]
+	metadata := *full
+	metadata.Body = ""
+	digest := sha256.Sum256([]byte(full.Body))
+	v.specBodyMu.Lock()
+	defer v.specBodyMu.Unlock()
+	if !exists || index < 0 || !reflect.DeepEqual(metadata, v.specEntries[index]) || (v.specBodySeen[index] && v.specBodyDigests[index] != digest) {
+		v.specConflict = true
+		return fmt.Errorf("pose: review inputs changed during operation: spec %s", listed.Slug)
+	}
+	v.specBodySeen[index] = true
+	v.specBodyDigests[index] = digest
+	return nil
+}
+
+func (v *reviewOperationView) validateSpecs() error {
+	if !v.specUsed || v.specFallback {
+		return nil
+	}
+	store := Store{Root: v.root, FS: v.files}
+	current, err := store.listSpecs("", "")
+	if v.specErr != nil {
+		if err != nil && err.Error() == v.specErr.Error() {
+			return nil
+		}
+		return fmt.Errorf("pose: review inputs changed during operation: spec catalogue availability")
+	}
+	if err != nil {
+		return fmt.Errorf("pose: review inputs changed during operation: %w", err)
+	}
+	if !reflect.DeepEqual(current, v.specEntries) {
+		return fmt.Errorf("pose: review inputs changed during operation: spec catalogue")
+	}
+	v.specBodyMu.Lock()
+	conflict := v.specConflict
+	seen := append([]bool(nil), v.specBodySeen...)
+	digests := append([][32]byte(nil), v.specBodyDigests...)
+	v.specBodyMu.Unlock()
+	if conflict {
+		return fmt.Errorf("pose: review inputs changed during operation: consumed spec body")
+	}
+	for i, listed := range current {
+		if !seen[i] {
+			continue
+		}
+		full, err := store.readListedSpec(listed)
+		if err != nil {
+			return fmt.Errorf("pose: review inputs changed during operation: %w", err)
+		}
+		digest := sha256.Sum256([]byte(full.Body))
+		full.Body = ""
+		if digest != digests[i] || !reflect.DeepEqual(*full, listed) {
+			return fmt.Errorf("pose: review inputs changed during operation: spec %s", listed.Slug)
+		}
+	}
+	current, err = store.listSpecs("", "")
+	if err != nil || !reflect.DeepEqual(current, v.specEntries) {
+		return fmt.Errorf("pose: review inputs changed during operation: spec catalogue after body audit")
+	}
+	return nil
 }
 
 func (v *reviewOperationView) boundTo(s Store) bool {
