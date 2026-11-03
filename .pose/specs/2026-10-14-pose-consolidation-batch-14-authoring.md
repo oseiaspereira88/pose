@@ -72,7 +72,11 @@ Conferir catálogo/digests/status/R-IDs, contagens/coverage, DAG/overlays/fases,
 
 ### Requirement trace
 
-Vincular R1–R5 ao relatório e checks; manter in-progress até review/closeout nativo.
+- R1 [satisfied] report:.pose/reports/2026-10-14-pose-batch-14-authoring.md commit:068533ae5d469cb25d0c832811bcad44758383b4 report:.pose/reports/2026-11-03-pose-consolidation-authoring-closeout.md — Materialização e cobertura documental conferidas no snapshot do lote, sem afirmar execução funcional.
+- R2 [satisfied] report:.pose/reports/2026-10-14-pose-batch-14-authoring.md commit:068533ae5d469cb25d0c832811bcad44758383b4 report:.pose/reports/2026-11-03-pose-consolidation-authoring-closeout.md — Contagens, lotes, reutilização e ausência dos artefatos futuros conferidas no snapshot de escrita.
+- R3 [satisfied] report:.pose/reports/2026-10-14-pose-batch-14-authoring.md commit:068533ae5d469cb25d0c832811bcad44758383b4 report:.pose/reports/2026-11-03-pose-consolidation-authoring-closeout.md — Ownership e referências materializadas conferidas; consumo pelo coordenador separado de entrega funcional.
+- R4 [satisfied] report:.pose/reports/2026-10-14-pose-batch-14-authoring.md commit:068533ae5d469cb25d0c832811bcad44758383b4 report:.pose/reports/2026-11-03-pose-consolidation-authoring-closeout.md — Dependências e limites da execução prospectiva conferidos no plano e nos artefatos daquele lote.
+- R5 [satisfied] report:.pose/reports/2026-10-14-pose-batch-14-authoring.md commit:068533ae5d469cb25d0c832811bcad44758383b4 report:.pose/reports/2026-11-03-pose-consolidation-authoring-closeout.md — Conferência histórica e checks documentais registrados no relatório; gates atuais são exigidos novamente pelo fechamento nativo.
 
 ## 7. Final Report
 
