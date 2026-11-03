@@ -680,6 +680,41 @@ func TestGovernanceOperationPerformanceTrackedPathFraming(t *testing.T) {
 	}
 }
 
+func TestGovernanceOperationPerformanceRootProofNeedsSuccessfulExit(t *testing.T) {
+	bin := t.TempDir()
+	path := filepath.Join(bin, "git")
+	t.Setenv("PATH", bin+string(os.PathListSeparator)+os.Getenv("PATH"))
+	for _, fixture := range []struct {
+		name, body string
+		root       bool
+		valid      bool
+	}{
+		{"root", "printf 'tree aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa\\n\\nmessage\\n'\nexit 0\n", true, true},
+		{"partial-exit", "printf 'tree aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa\\n\\n'\necho rejected >&2\nexit 7\n", false, false},
+		{"parent", "printf 'tree aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa\\nparent bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb\\n\\nmessage\\n'\nexit 0\n", false, true},
+		{"truncated-header", "printf 'tree aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa\\n'\nexit 0\n", false, false},
+	} {
+		t.Run(fixture.name, func(t *testing.T) {
+			if err := os.WriteFile(path, []byte("#!/bin/sh\n"+fixture.body), 0o700); err != nil {
+				t.Fatal(err)
+			}
+			root, err := commitHasNoParent(t.TempDir(), strings.Repeat("a", 40))
+			if root != fixture.root || (err == nil) != fixture.valid {
+				t.Fatalf("root proof=%v err=%v expected root=%v valid=%v", root, err, fixture.root, fixture.valid)
+			}
+		})
+	}
+	if err := os.WriteFile(path, []byte("#!/bin/sh\nexec sleep 30\n"), 0o700); err != nil {
+		t.Fatal(err)
+	}
+	ctx, cancel := context.WithTimeout(context.Background(), 20*time.Millisecond)
+	defer cancel()
+	root, err := commitHasNoParentContext(ctx, t.TempDir(), strings.Repeat("a", 40))
+	if root || !errors.Is(err, context.DeadlineExceeded) {
+		t.Fatalf("unbounded root proof: %v %v", root, err)
+	}
+}
+
 type governanceDisappearingCatalogueFiles struct {
 	posemodel.Files
 	root  string

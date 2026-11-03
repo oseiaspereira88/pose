@@ -185,7 +185,7 @@ substitui a validação atual nem a revisão separada de fechamento.
 - R3 [satisfied] check:governance-operation-performance-integration test:TestReviewOperationViewSpecCatalogueReuseAndBodiesStayLive test:TestReviewOperationViewCapturesEachHeaderOnce
 - R4 [satisfied] check:governance-operation-performance-integration test:TestReviewOperationViewSpecCatalogueChanges test:TestReviewOperationViewBindingAndRetirement test:TestGovernanceOperationPerformanceCheckFinalizesReviewView
 - R5 [satisfied] check:governance-operation-performance-integration test:TestGovernanceOperationPerformanceClustering
-- R6 [satisfied] check:governance-operation-performance-integration test:TestGovernanceOperationPerformanceChangeSetIndependentGolden test:TestGovernanceOperationPerformanceGitPathBytes test:TestGovernanceOperationPerformanceGitFailuresAndRefChanges test:TestGovernanceOperationPerformanceTrackedPathFraming
+- R6 [satisfied] check:governance-operation-performance-integration test:TestGovernanceOperationPerformanceChangeSetIndependentGolden test:TestGovernanceOperationPerformanceGitPathBytes test:TestGovernanceOperationPerformanceGitFailuresAndRefChanges test:TestGovernanceOperationPerformanceTrackedPathFraming test:TestGovernanceOperationPerformanceRootProofNeedsSuccessfulExit
 - R7 [satisfied] check:governance-operation-performance-integration test:TestReviewOperationViewBudgetFallback test:TestReviewOperationViewSpecCatalogueFallbackAndRetirement test:TestReviewOperationViewParallelTraversalIsolation test:TestReviewOperationViewUnkeyedFallbackDropsEarlierAdvisorySnapshot
 - R8 [satisfied] capability:governance-operation-performance check:governance-operation-performance-integration test:TestGovernanceOperationPerformanceCLIToMCP test:TestGovernanceOperationPerformanceChangeSetIndependentGolden
 
@@ -232,6 +232,13 @@ harness, perda de erros, refs mudadas, catálogo desaparecido, comparabilidade
 dinâmica de FS e snapshot herdado no fallback. As aprovações desses deltas não
 substituem a revisão final da spec inteira.
 
+A revisão integral encontrou um defeito herdado em R6: a prova de raiz
+ignorava o exit status de `cat-file` após um header parcial. Agora exige
+saída completa/sucesso, timeout de dois minutos e o mesmo bound de 32 MiB do
+log completo. A classificação usa só o header; o corpo é consumido para
+confirmar o término, não memoizado. O controle de cinco MiB continua passando
+e a saída parcial com exit 7 é recusada.
+
 ### Residual risks
 
 Fixtures mínimas não provam que milhares de bundles cabem nos budgets; o
@@ -240,6 +247,10 @@ write: mudanças após a última auditoria/ABA não observada dependem dos gates
 de escrita e dos contratos de geração próprios. O perfil de 45 s é parcial e
 instrumentado; contagens de bytes lógicos não medem I/O físico. O custo restante
 de hashing, arquivos de changelog, cargas estritas e verificação continua real.
+O assessment de dívida continua incompleto para duas specs históricas com
+bullets sem descrição (o mesmo estado de `origin/main`); entre os marcadores
+lidos há um coberto e nenhum descoberto sem cobertura. Esse zero não prova
+nada sobre as duas fontes perdidas.
 
 ### Follow-ups
 

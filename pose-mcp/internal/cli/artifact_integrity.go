@@ -85,27 +85,27 @@ func resolveGitRevision(root, revision string) (string, error) {
 
 // commitHasNoParent reads the commit object itself: a shallow boundary also
 // has no parent to walk to, and only the object says it is not the root. It
-// stops at the end of the header, whatever the size of the message.
+// validates successful process exit before using the header. Output shares
+// the 32 MiB bound already imposed on the full matching trailer log.
 func commitHasNoParent(root, commit string) (bool, error) {
-	cmd := posemodel.RawHistoryGit(root, "cat-file", "commit", commit)
-	stdout, err := cmd.StdoutPipe()
+	ctx, cancel := context.WithTimeout(context.Background(), 2*time.Minute)
+	defer cancel()
+	return commitHasNoParentContext(ctx, root, commit)
+}
+
+func commitHasNoParentContext(ctx context.Context, root, commit string) (bool, error) {
+	raw, err := gitOutputBoundedContext(ctx, root, 32*1024*1024, "cat-file", "commit", commit)
 	if err != nil {
 		return false, err
 	}
-	if err := cmd.Start(); err != nil {
-		return false, err
+	end := bytes.Index(raw, []byte("\n\n"))
+	if end < 0 {
+		return false, fmt.Errorf("the object of %s has no complete header", commit)
 	}
-	defer func() {
-		_ = cmd.Process.Kill()
-		_ = cmd.Wait()
-	}()
-	scanner := bufio.NewScanner(stdout)
+	scanner := bufio.NewScanner(bytes.NewReader(raw[:end]))
 	scanner.Buffer(make([]byte, 0, 64*1024), 1024*1024)
 	for scanner.Scan() {
 		line := scanner.Bytes()
-		if len(line) == 0 {
-			return true, nil
-		}
 		if bytes.HasPrefix(line, []byte("parent ")) {
 			return false, nil
 		}
@@ -113,7 +113,7 @@ func commitHasNoParent(root, commit string) (bool, error) {
 	if err := scanner.Err(); err != nil {
 		return false, fmt.Errorf("reading the header of %s: %w", commit, err)
 	}
-	return false, fmt.Errorf("the object of %s has no complete header", commit)
+	return true, nil
 }
 
 func resolveGitChangeSet(root, spec, base, head string) (posemodel.ChangeSet, error) {
