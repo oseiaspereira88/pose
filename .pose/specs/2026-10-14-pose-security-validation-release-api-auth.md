@@ -79,4 +79,4 @@ Authenticated requests may still fail on service outage or exhausted token limit
 
 ### Follow-ups
 
-- [wont-do: the maintainer's express 2026-11-03 instruction waives remote CI and the associated external PR update for this closeout; no rerun or corrected remote result is claimed] Update documentary PR #171 against main and rerun its failed validation on the corrected workflow. Keep the historical incident and local evidence in the report.
+- [wont-do: the maintainer's express 2026-11-03 instruction waives the remote rerun; the PR update is obsolete because PR #171 was merged in commit 655940a47d5622080dd213f1247b638704be6c43; no rerun or corrected remote result is claimed] Update documentary PR #171 against main and rerun its failed validation on the corrected workflow. Keep the historical incident and local evidence in the report.
