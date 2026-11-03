@@ -1,7 +1,7 @@
 ---
 schema_version: 1
-generated_at: 2026-11-03T06:27:20Z
-baseline_commit: 471abe1db8152dad8e4f069bea5853a6633aebcf
+generated_at: 2026-11-03T17:41:59Z
+baseline_commit: d57262d0e38107161b4c2b87bcf09b56b973bd70
 staleness_policy: max_age_days=7,max_commits=20
 refresh_pending: 
 ---
@@ -27,23 +27,23 @@ próprio deste repositório (produtização v2, DX) segue disponível conforme
 capacidade.
 
 ## Specs & Roadmaps
-<!-- state:derived hash:728941cf5a65 -->
+<!-- state:derived hash:794fbe73b796 -->
 
-- specs: total=482 draft=18 in-progress=17 blocked=0 done=445 superseded=0 abandoned=2
+- specs: total=482 draft=17 in-progress=17 blocked=0 done=446 superseded=0 abandoned=2
 - roadmaps: total=23 active=3 done=16
 - últimos closeouts:
   - spec:pose-review-evidence-and-fixture-lifetimes (2026-11-03)
-  - spec:pose-community-claims-hold (2026-11-02)
-  - spec:pose-engine-reads-raw-history (2026-11-02)
-  - spec:pose-effects-reported-for-what-they-did (2026-11-02)
+  - spec:pose-governance-operation-performance (2026-11-03)
   - spec:pose-evidence-gate-means-validation (2026-11-02)
-  - ... e mais 440 (ver `pose_list_specs status:done`)
+  - spec:pose-milestone-review-proportional (2026-11-02)
+  - spec:pose-roadmap-reviews-findings (2026-11-02)
+  - ... e mais 441 (ver `pose_list_specs status:done`)
 
 ## Follow-ups
-<!-- state:derived hash:ddf78cd2ad5f -->
+<!-- state:derived hash:d4da3908d4d0 -->
 
-- abertos: 218
-- por criticidade: high=5 medium=41 low=153 sem-classificação=19
+- abertos: 219
+- por criticidade: high=5 medium=42 low=153 sem-classificação=19
 - vencidos (review < hoje): 34
 - cobertura: INCOMPLETA — 2 source(s) could not be read: invalid .pose/specs/2026-08-15-pose-instance-engine-version-tracking.md; invalid .pose/specs/2026-08-15-pose-knowledge-durable-reference-type.md; os números acima são o que pôde ser lido
   - spec:pose-package-manager-distribution (owner:@pose-maintainers review:2026-09-18)
@@ -76,16 +76,16 @@ capacidade.
 - knowledge: total=18 ativo=18 expirado=0
 
 ## Validação & Evidência
-<!-- state:derived hash:de665bd9ff23 -->
+<!-- state:derived hash:98e44374c121 -->
 
 - último registro: task=validate-native outcome=pass (2026-10-24T18:00:55Z)
 - últimos 30 dias: total=41 outcome_ok=27 outcome_outro=14
-- reports revisados (.md): total=285
-  - report:2026-11-02-pose-v7-legacy-cleanup-both-corpora.md
-  - report:2026-10-29-launcher-parity-failing-first.md
-  - report:delegation-adoption-review-round4.md
-  - report:delegation-adoption-review-round3.md
-  - report:delegation-adoption-review-round2.md
+- reports revisados (.md): total=286
+  - report:pose-governance-operation-performance-method.md
+  - report:pose-v6-2-0-autonomous-work.md
+  - report:pose-v7-legacy-cleanup-plan.md
+  - report:pose-abm-capability-adoption.md
+  - report:pose-agency-readiness-pilot.md
 
 ## Arquitetura
 <!-- state:derived hash:f2759ee7850e status:active -->

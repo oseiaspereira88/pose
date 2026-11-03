@@ -1,8 +1,8 @@
 ---
 slug: pose-governance-operation-performance
-status: in-progress
+status: done
 created_at: 2026-10-13
-completed_at:
+completed_at: 2026-11-03
 depends_on: pose-check-spawns-fewer-git-processes, pose-attention-within-a-second
 priority: 2
 components: pose-mcp

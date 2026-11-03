@@ -1,0 +1,206 @@
+{
+  "schema_version": 1,
+  "attestation_id": "rva-3fd7fc8784042ad7",
+  "bundle_id": "rvb-24ca31a4991c8ebe",
+  "bundle_digest": "sha256:24ca31a4991c8ebe5d918e3d4c44930316189832dfd372df161b63633bbf196e",
+  "reviewer": "agent:independent-codex:/root/review_performance_final",
+  "decision": "approved",
+  "criteria": [
+    {
+      "id": "assumption-integrity",
+      "disposition": "passed",
+      "evidence": "integration:pose-mcp/go/governance-operation-performance-integration",
+      "rationale": "R1-R8 independently reviewed; shared-host observations and interrupted CPU/heap diagnostic are bounded evidence, not causal speedups or SLOs. Timed-out baseline has no valid median. Tech-debt remains incomplete for two historical lost sources. Reviewer is separate Codex execution /root/review_performance_final with same inherited vendor/model and declared, unauthenticated identity."
+    },
+    {
+      "id": "backend-concurrency",
+      "disposition": "passed",
+      "evidence": "integration:pose-mcp/go/governance-operation-performance-integration",
+      "rationale": "Operation view shares immutable metadata only, joins workers before final audits, keeps traversal independent and retires escaped handles. Current integration covers eight workers, identity binding and fallback; earlier runtime race tests were reviewed, not newly rerun by this reviewer."
+    },
+    {
+      "id": "backend-contracts",
+      "disposition": "passed",
+      "evidence": "integration:pose-mcp/go/governance-operation-performance-integration",
+      "rationale": "CLI/MCP graph identity and negative generation controls pass; exact similarity and raw Git attribution preserve stable inputs. NUL path framing corrects escaped names and explicitly refuses invalid UTF-8 rather than inventing JSON paths."
+    },
+    {
+      "id": "backend-input-errors",
+      "disposition": "passed",
+      "evidence": "integration:pose-mcp/go/governance-operation-performance-integration",
+      "rationale": "Harness error/timeout/no-follow captures, changed inputs and partial Git outputs are tested. Independently reproduced root-proof exit-7 acceptance on 3aae64dd and verified its rejection after 3001b491, with deadline and complete-header controls."
+    },
+    {
+      "id": "backend-integration-impact",
+      "disposition": "passed",
+      "evidence": "integration:pose-mcp/go/governance-operation-performance-integration",
+      "rationale": "Actual CLI creates an attributed index consumed over HTTP MCP with exact graph and coverage equality; corrupted generation is refused. Fresh assess-integrate ran with 70 contracts, 6 active and 64 unobserved-consumer gaps; comparison shows no semantic change from baseline, not complete consumer observation."
+    },
+    {
+      "id": "backend-observability",
+      "disposition": "passed",
+      "evidence": "integration:pose-mcp/go/governance-operation-performance-integration",
+      "rationale": "Commands retain raw stdout/stderr, exit and timeout; capture and review-view errors name failed inputs. Logical bytes, function entries, process CPU/RSS and sampled heap remain distinct metrics. Root-proof no longer discards a partial-process error."
+    },
+    {
+      "id": "compatibility",
+      "disposition": "passed",
+      "evidence": "integration:pose-mcp/go/governance-operation-performance-integration",
+      "rationale": "Stable fixtures preserve verdict, IDs, ordering, association and coverage. Ref/catalogue mutations are explicit conflicts. Unsupported UTF-8 paths and bounded invalid capture are declared refusals; no lifecycle policy or approximate similarity was adopted."
+    },
+    {
+      "id": "correctness",
+      "disposition": "passed",
+      "evidence": "integration:pose-mcp/go/governance-operation-performance-integration",
+      "rationale": "Current required governance-operation-performance-integration passes at d57262d0, with full local matrix 188/188. Independent adversarial root-proof reproduction now passes its rejection assertion; independent Git golden and 5 MiB message regression also pass."
+    },
+    {
+      "id": "cross-component-integration",
+      "disposition": "passed",
+      "evidence": "integration:pose-mcp/go/governance-operation-performance-integration",
+      "rationale": "Go integration actually executes the Python harness and real CLI-to-MCP path, including negative controls. The scripts component has producer_coverage none, so no standalone scripts validation pass is claimed. Integration assessment gaps are unchanged historical observations."
+    },
+    {
+      "id": "design-causality",
+      "disposition": "passed",
+      "evidence": "structure:design-62d87406b6cece70",
+      "rationale": "Scoped header and slug-metadata reuse removes repeated catalogue discovery/classification at measured producers, while strict selected bodies and final audits stay live. Prepared normalization removes repeated pair preparation without approximation. The partial pre-metadata CPU profile motivated that bounded pass; it does not prove a causal end-to-end percentage."
+    },
+    {
+      "id": "documentation",
+      "disposition": "passed",
+      "evidence": "integration:pose-mcp/go/governance-operation-performance-integration",
+      "rationale": "Canonical spec, method and structured observations distinguish committed corpus, exact measured revisions, invalid native samples, interrupted diagnostics and historical byte comparison. Metadata-only changes since 3001b491 reconcile review state; no new runtime change or SLO is implied."
+    },
+    {
+      "id": "milestone-exit-gate-pose-shared-runtime-operation-performance",
+      "disposition": "passed",
+      "evidence": "integration:pose-mcp/go/governance-operation-performance-integration",
+      "rationale": "B32 R1-R8 reviewed integrally: isolated benchmark retains environment/verdict and operator edits, producer metrics stay distinct, catalogue/headers/trailers reuse is operation-scoped and exact clustering has full fallback. Current integration reaches CLI/MCP. No stale-data gate, B33 resident cache or B35 runtime adoption is authorized by these timings."
+    },
+    {
+      "id": "operability",
+      "disposition": "passed",
+      "evidence": "integration:pose-mcp/go/governance-operation-performance-integration",
+      "rationale": "Failure, timeout and partial input are explicit and diagnosable; budgets fall back to complete canonical readers. Root-proof correction includes successful-process proof and bounded context. Native surface has zero findings and artifact strict zero errors with 839 historical global warnings; neither is called universally warning-free."
+    },
+    {
+      "id": "requirements",
+      "disposition": "passed",
+      "evidence": "integration:pose-mcp/go/governance-operation-performance-integration",
+      "rationale": "All eight requirements are supported by actual assertions inspected and executed in the focused integration and by reviewed measurement outputs. This is not approval from satisfied fields. Current structured validation seals the integration at d57262d0 with 188 pass and zero failed, errored or skipped steps."
+    },
+    {
+      "id": "scope",
+      "disposition": "passed",
+      "evidence": "integration:pose-mcp/go/governance-operation-performance-integration",
+      "rationale": "Diff from baseline matches governed performance/harness/fixture/evidence scope; metadata-only delta after independently approved 3001b491 adds no production implementation. Required artifact reconciliation has zero errors. Persistent authority caches, new policy and unrelated refactors are absent."
+    },
+    {
+      "id": "security",
+      "disposition": "passed",
+      "evidence": "integration:pose-mcp/go/governance-operation-performance-integration",
+      "rationale": "No-follow descriptor capture rejects file and parent links, directories and FIFO; immutable binary/corpus pins and root/FS/project/resolver keys prevent borrowing authority. Strict selected loaders and final audits remain live; this is not an arbitrary-binary sandbox or atomic filesystem snapshot. No secrets were identified in the reviewed diff."
+    },
+    {
+      "id": "solution-proportionality",
+      "disposition": "passed",
+      "evidence": "structure:design-62d87406b6cece70",
+      "rationale": "Smallest sufficient changes reuse per-operation metadata and exact text preparation with complete fallback, retaining existing loaders and authorization gates. No daemon, global cache, approximation or speculative extension was added. Further reuse requires new measurements; unobserved ABA after final audit remains outside atomic-snapshot guarantees."
+    }
+  ],
+  "tools": [
+    {
+      "id": "artifact-check",
+      "disposition": "passed",
+      "evidence": "check:artifact-check",
+      "rationale": "Executed strict spec reconciliation; inspected /var/tmp/pose-work-go/performance-final-artifact.json: zero errors, 839 historical global warnings."
+    },
+    {
+      "id": "assess-design",
+      "disposition": "passed",
+      "evidence": "structure:design-62d87406b6cece70",
+      "rationale": "Inspected sealed design observation and the exact implementation delta; it supports structural observations, not causal latency percentages."
+    },
+    {
+      "id": "assess-discover",
+      "component": "pose-mcp",
+      "disposition": "passed",
+      "evidence": "check:assess-discover",
+      "rationale": "Consumed refreshed component assessment at runtime revision 3001b491; later committed changes are metadata only. Completeness field does not replace reviewed tests."
+    },
+    {
+      "id": "assess-discover",
+      "component": "scripts",
+      "disposition": "not-used",
+      "rationale": "Dedicated scripts discover was not executed; Python and shell were reviewed directly and exercised by Go integration. No independent scripts producer is registered."
+    },
+    {
+      "id": "assess-integrate",
+      "disposition": "passed",
+      "evidence": "integration:pose-mcp/go/governance-operation-performance-integration",
+      "rationale": "Fresh tool output /var/tmp/pose-work-go/performance-final-integrate.log inspected: 70 contracts, 6 active, 64 unobserved-consumer gaps. Preserved performance-integrations-current files differ from baseline only by timestamps and baseline revision; no clean complete-consumer claim. Sealed integration separately exercises the changed boundary."
+    },
+    {
+      "id": "assess-tech-debt",
+      "disposition": "failed",
+      "evidence": "check:assess-tech-debt",
+      "rationale": "Assessment ran but is INCOMPLETE: two historical malformed empty follow-up bullets, same baseline losses. Observed marker count is one covered and zero uncovered; that zero proves nothing about lost sources. No claim of a clean complete scan."
+    },
+    {
+      "id": "closeout-check",
+      "disposition": "deferred",
+      "rationale": "Post-review gate must run after this attestation; no closeout result fabricated."
+    },
+    {
+      "id": "review-check",
+      "disposition": "deferred",
+      "rationale": "Post-review freshness and coverage gate must run after this attestation."
+    },
+    {
+      "id": "suggest-review",
+      "component": "pose-mcp",
+      "disposition": "not-used",
+      "rationale": "Did not rerun pose suggest for pose-mcp in this review; selected effective sealed plan, workflow, backend-go, security and documentation rules directly."
+    },
+    {
+      "id": "suggest-review",
+      "component": "scripts",
+      "disposition": "passed",
+      "evidence": "check:suggest-review",
+      "rationale": "Inspected /var/tmp/pose-work-go/performance-suggest-scripts.log: security and documentation-style selected; review workflow and pose-review skill consulted."
+    },
+    {
+      "id": "surface-check",
+      "disposition": "passed",
+      "evidence": "integration:pose-mcp/go/governance-operation-performance-integration",
+      "rationale": "Inspected native strict surface result /var/tmp/pose-work-go/performance-final-surface.json: zero findings and composed production entrypoint. Sealed integration supports actual CLI/MCP reachability."
+    },
+    {
+      "id": "validate",
+      "disposition": "passed",
+      "evidence": "integration:pose-mcp/go/governance-operation-performance-integration",
+      "rationale": "Final local strict matrix report at d57262d0 has 188 executed, 188 passed, no failed/errored/skipped; reviewed structured record and native log. Remote CI explicitly excluded."
+    },
+    {
+      "id": "validate",
+      "component": "pose-mcp",
+      "disposition": "passed",
+      "evidence": "integration:pose-mcp/go/governance-operation-performance-integration",
+      "rationale": "Global strict run includes actual pose-mcp module checks and named governance integration at the exact sealed revision; not an invented separate module invocation."
+    },
+    {
+      "id": "validate",
+      "component": "scripts",
+      "disposition": "not-used",
+      "rationale": "Sealed plan declares producer_coverage none for scripts: no standalone module validation producer can emit a result. Go governance integration executes the Python harness; this is integration evidence, not a separate scripts pass."
+    }
+  ],
+  "evidence_refs": [
+    "integration:pose-mcp/go/governance-operation-performance-integration",
+    "structure:design-62d87406b6cece70"
+  ],
+  "findings": [],
+  "attested_at": "2026-11-03T17:24:28Z",
+  "path": ".pose/review-attestations/rva-3fd7fc8784042ad7.json"
+}
