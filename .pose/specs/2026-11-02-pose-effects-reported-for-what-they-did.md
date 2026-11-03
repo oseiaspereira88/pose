@@ -1,6 +1,6 @@
 ---
 slug: pose-effects-reported-for-what-they-did
-status: in-progress
+status: done
 created_at: 2026-11-02
 supersedes:
 depends_on: pose-roadmap-reviews-findings
@@ -9,7 +9,7 @@ priority: 1
 components: pose-mcp
 task_type: bugfix
 delivers: capability:effects-reported-for-what-they-did
-completed_at:
+completed_at: 2026-11-02
 ---
 
 # Spec: Effects reported for what they did
@@ -100,7 +100,7 @@ The engine says what took effect wherever `pose-roadmap-reviews-findings` left a
 - [x] Report a published policy as published
 - [x] Keep an unresolved durability warning through a replay
 - [x] Read a lost log for what it is
-- [ ] Independent review and closeout
+- [x] Independent review and closeout
 
 ## 5. Decisions
 
@@ -131,7 +131,7 @@ Focused integration tests and an isolated mutation corpus per changed guard. The
 
 ### Delivered scope
 
-Implemented R1–R6 with focused integration tests. Hooks are resolved by git, updates refuse an empty `.git`, and policy publication continues to its second document after an unsynced first one. Callers report published policies with a warning. State validation preserves an unconfirmed publication through skipped and failed attempts and distinguishes partial publication durability. Lost-log markers report an unfinished effect. A separate Codex review found two blockers: failed refreshes hiding warnings and unsynced delegation activation bypassing its final configuration check. Both now have deterministic regression cases. Full validation and formal attestation remain required before closeout.
+Implemented R1–R6 with focused integration tests. Hooks are resolved by git, updates refuse an empty `.git`, and policy publication continues to its second document after an unsynced first one. Callers report published policies with a warning. State validation preserves an unconfirmed publication through skipped and failed attempts and distinguishes partial publication durability. Lost-log markers report an unfinished effect. A separate Codex review found two blockers: failed refreshes hiding warnings and unsynced delegation activation bypassing its final configuration check. Both now have deterministic regression cases. Strict validation at `1bf72b3d` passed all 186 checks. Bundle `rvb-f9f0d2a54ece5d09` was approved by `rva-15bc11c3b166a389`, from a separate Codex execution using the same vendor and inherited model. Native verify and review-check passed before the governed transition to done. The isolated mutation corpus detected all 13 guard removals; no compilation failure was counted as a detected mutant.
 
 ### Residual risks
 
@@ -139,4 +139,6 @@ A two-document policy publication is not a transaction: a hard failure of the se
 
 ### Follow-ups
 
-No new backlog item is claimed resolved before the closeout gates pass. F4 and F5 of `pose-roadmap-reviews-findings` remain outside this spec.
+F1, F2, F3 and F6 of `pose-roadmap-reviews-findings` are covered here. F4 (inventory proof) and F5 (fixture teardown race) remain open in that spec.
+
+- [open] Upgrade `golang.org/x/net` from v0.60.0 to at least v0.62.0 for GO-2026-6866 and GO-2026-6860. The closeout govulncheck reports no affected symbols or imported packages; these two advisories are module-only and predate this change. (owner:@pose-maintainers crit:low review:2026-11-27)

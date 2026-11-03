@@ -1,0 +1,195 @@
+{
+  "schema_version": 1,
+  "attestation_id": "rva-15bc11c3b166a389",
+  "bundle_id": "rvb-f9f0d2a54ece5d09",
+  "bundle_digest": "sha256:f9f0d2a54ece5d09b1046b755995f8c5d7a429584b62b973c3a853ec9e1ea7f5",
+  "reviewer": "agent:independent-codex:/root/review_effects",
+  "decision": "approved",
+  "criteria": [
+    {
+      "id": "assumption-integrity",
+      "disposition": "passed",
+      "evidence": "integration:pose-mcp/go/effects-reported-integration",
+      "rationale": "Linux focused tests and the strict global validation support the behavior; other platforms are not claimed tested. Two-document writes are explicitly nontransactional. Separate Codex execution /root/review_effects uses the same vendor and inherited model as /root at user request; model identifier is not asserted."
+    },
+    {
+      "id": "backend-concurrency",
+      "disposition": "passed",
+      "evidence": "integration:pose-mcp/go/effects-reported-integration",
+      "rationale": "Configuration-race tests exercise both unsynced activation and unsynced rollback. Post-publication configuration checks still execute and rejection is not converted into a warning-only success."
+    },
+    {
+      "id": "backend-contracts",
+      "disposition": "passed",
+      "evidence": "integration:pose-mcp/go/effects-reported-integration",
+      "rationale": "Hooks resolve through Git for linked worktrees and hooksPath; durability_unconfirmed is optional and partial records from older versions remain readable."
+    },
+    {
+      "id": "backend-input-errors",
+      "disposition": "passed",
+      "evidence": "integration:pose-mcp/go/effects-reported-integration",
+      "rationale": "Pre-publication failures remain failures; post-publication unsynced errors become warnings only after remaining semantic guards succeed. Empty Git metadata is rejected by update."
+    },
+    {
+      "id": "backend-integration-impact",
+      "disposition": "passed",
+      "evidence": "integration:pose-mcp/go/effects-reported-integration",
+      "rationale": "The same-module CLI callers for adoption, configuration review, issuer pin and delegation init are exercised through PolicyDocs.Write. No REST, MCP, event, Protobuf or Kafka interface changes are made."
+    },
+    {
+      "id": "backend-observability",
+      "disposition": "passed",
+      "evidence": "integration:pose-mcp/go/effects-reported-integration",
+      "rationale": "Tests inspect visible warnings and markers for unsynced publication, failed retries and lost refresh logs; failures and unfinished effects are distinguishable."
+    },
+    {
+      "id": "compatibility",
+      "disposition": "passed",
+      "evidence": "integration:pose-mcp/go/effects-reported-integration",
+      "rationale": "The optional refresh-log field preserves old JSON readers and legacy partial warnings. Hooks fall back to the prior path when Git cannot answer. Changed diagnostics and hook resolution are documented in the spec."
+    },
+    {
+      "id": "correctness",
+      "disposition": "passed",
+      "evidence": "integration:pose-mcp/go/effects-reported-integration",
+      "rationale": "R1-R6 focused integration checks pass in sealed evidence; failed attempts do not erase pending durability and rejected activation remains rejected even if rollback is unsynced."
+    },
+    {
+      "id": "design-causality",
+      "disposition": "passed",
+      "evidence": "structure:design-54be1da7869a7ff6",
+      "rationale": "D1 delegates hook-directory discovery to Git rather than reconstructing gitfile/common-dir/hooksPath logic. Remaining fixes propagate actual publication outcomes while retaining race checks. Observed delta SD-c457745d adds the integration check that validates this causal contract."
+    },
+    {
+      "id": "documentation",
+      "disposition": "passed",
+      "evidence": "integration:pose-mcp/go/effects-reported-integration",
+      "rationale": "The sealed spec states R1-R6, the optional durability field and two-document nontransactional limit. Earlier follow-ups are spawned into this spec rather than prematurely marked covered; state validate wording explicitly refers to the default state validation path."
+    },
+    {
+      "id": "operability",
+      "disposition": "passed",
+      "evidence": "integration:pose-mcp/go/effects-reported-integration",
+      "rationale": "Hook, policy and refresh outcomes now say what happened and retain actionable warnings. The CLI renderer preserves output contracts rather than adding free-form prints."
+    },
+    {
+      "id": "requirements",
+      "disposition": "passed",
+      "evidence": "integration:pose-mcp/go/effects-reported-integration",
+      "rationale": "All six traced requirements name tests exercised by the sealed effects-reported-integration result; full strict validation has 186 passing checks at the sealed head."
+    },
+    {
+      "id": "scope",
+      "disposition": "passed",
+      "evidence": "integration:pose-mcp/go/effects-reported-integration",
+      "rationale": "Changes remain in the declared CLI/domain files, tests, validation registration and governance artifacts. The activation reread and partial durability field are necessary fixes for defects observed during this review."
+    },
+    {
+      "id": "security",
+      "disposition": "passed",
+      "evidence": "integration:pose-mcp/go/effects-reported-integration",
+      "rationale": "Git execution uses the existing raw reader and redirecting-environment sanitation. Delegation activation still validates configuration after publication; a configuration replacement triggers rejection and a conditional rollback, including unsynced cases."
+    },
+    {
+      "id": "solution-proportionality",
+      "disposition": "passed",
+      "evidence": "structure:design-54be1da7869a7ff6",
+      "rationale": "The solution uses one shared Git path reader, local error propagation and a small optional partial-result field. It does not add transactional policy publication or an alternate Git discovery framework. D1 is invalidated if Git executes a different hooks path; the publication approach is invalidated if a semantic rejection can be consumed as a successful durability warning."
+    }
+  ],
+  "tools": [
+    {
+      "id": "artifact-check",
+      "disposition": "passed",
+      "evidence": "check:artifact-check",
+      "rationale": "Implementer ran strict artifact-check after index; current spec has no findings. Global historical warnings are not represented as findings for this spec."
+    },
+    {
+      "id": "assess-design",
+      "disposition": "passed",
+      "evidence": "structure:design-54be1da7869a7ff6",
+      "rationale": "Observed 18-file subject; validation-check delta SD-c457745d is the effects-reported integration registration."
+    },
+    {
+      "id": "assess-discover",
+      "component": "pose-mcp",
+      "disposition": "passed",
+      "evidence": "check:assess-discover",
+      "rationale": "Implementer ran component discovery after implementation; inspected /tmp/pose-effects-discover.log. This does not substitute for deterministic validation."
+    },
+    {
+      "id": "assess-integrate",
+      "disposition": "not-used",
+      "rationale": "No inter-module API, MCP, Protobuf, Kafka or provider/consumer contract changed; same-module caller integration is exercised by sealed integration tests."
+    },
+    {
+      "id": "assess-tech-debt",
+      "disposition": "not-used",
+      "rationale": "Executed and inspected /tmp/pose-effects-technical-debt.md, but scan is incomplete because two legacy specs are invalid; not relied on as complete debt evidence. Changed sources were reviewed directly."
+    },
+    {
+      "id": "closeout-check",
+      "disposition": "deferred",
+      "rationale": "Post-review gate; run after native attestation is recorded."
+    },
+    {
+      "id": "review-check",
+      "disposition": "deferred",
+      "rationale": "Post-review gate; run after native attestation is recorded."
+    },
+    {
+      "id": "suggest-review",
+      "component": "pose-mcp",
+      "disposition": "passed",
+      "evidence": "check:suggest-review",
+      "rationale": "Inspected /tmp/pose-effects-suggest.log and applied backend-go, security and documentation-style rules."
+    },
+    {
+      "id": "surface-check",
+      "disposition": "passed",
+      "evidence": "integration:pose-mcp/go/effects-reported-integration",
+      "rationale": "Strict post-index surface-check reports one target,186 results,zero findings and matching provenance in /tmp/pose-effects-surface.log."
+    },
+    {
+      "id": "validate",
+      "disposition": "passed",
+      "evidence": "integration:pose-mcp/go/effects-reported-integration",
+      "rationale": "Global pose validate --strict --jobs4 executed all 186 checks, including every pose-mcp check. This is module coverage from the global run, not a second --module invocation."
+    },
+    {
+      "id": "validate",
+      "component": "pose-mcp",
+      "disposition": "passed",
+      "evidence": "integration:pose-mcp/go/effects-reported-integration",
+      "rationale": "Global pose validate --strict --jobs4 executed all 186 checks, including every pose-mcp check. This is module coverage from the global run, not a second --module invocation."
+    }
+  ],
+  "evidence_refs": [
+    "integration:pose-mcp/go/effects-reported-integration",
+    "structure:design-54be1da7869a7ff6"
+  ],
+  "findings": [
+    {
+      "id": "r1-b1",
+      "severity": "medium",
+      "evidence": "integration:pose-mcp/go/effects-reported-integration",
+      "action": "Preserve unconfirmed durability through failed and skipped attempts and distinguish partial outcomes",
+      "disposition": "resolved"
+    },
+    {
+      "id": "r1-b2",
+      "severity": "high",
+      "evidence": "integration:pose-mcp/go/effects-reported-integration",
+      "action": "Continue delegation configuration verification after unsynced publication and preserve rollback rejection",
+      "disposition": "resolved"
+    }
+  ],
+  "attribution": {
+    "schema_version": 1,
+    "prepared_by": "agent:independent-codex:/root/review_effects",
+    "concluded_by": "agent:independent-codex:/root/review_effects",
+    "applied_by": "agent:independent-codex:/root/review_effects"
+  },
+  "attested_at": "2026-11-02T23:35:17Z",
+  "path": ".pose/review-attestations/rva-15bc11c3b166a389.json"
+}
