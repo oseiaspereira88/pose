@@ -87,6 +87,44 @@ func indexBuildWriteFixture(t *testing.T, root, relative, contents string) {
 	}
 }
 
+func TestIndexMaterialPreflightLocalDependencyDepth(t *testing.T) {
+	for _, edges := range []int{12, 65} {
+		t.Run(fmt.Sprintf("edges=%d", edges), func(t *testing.T) {
+			root := indexBuildFixtureRoot(t, "proj.index-depth")
+			for i := 0; i <= edges; i++ {
+				dep := ""
+				if i < edges {
+					dep = fmt.Sprintf("depends_on: n%d\n", i+1)
+				}
+				indexBuildWriteFixture(t, root, fmt.Sprintf(".pose/specs/n%d.md", i),
+					fmt.Sprintf("---\nslug: n%d\nstatus: done\n%s---\n", i, dep))
+			}
+			indexBuildWriteFixture(t, root, ".pose/roadmaps/program.md",
+				"---\nslug: program\nstatus: active\nconsumes: spec:n0\n---\n")
+			for _, args := range [][]string{{"init", "-q"}, {"add", "."}, {"-c", "user.name=fixture", "-c", "user.email=fixture@example.invalid", "commit", "-qm", "depth fixture"}} {
+				if out, err := exec.Command("git", append([]string{"-C", root}, args...)...).CombinedOutput(); err != nil {
+					t.Fatalf("git %v: %v: %s", args, err, out)
+				}
+			}
+			resolver := posepkg.ArtifactResolver{Roots: posepkg.NewRoots(posepkg.RootsConfig{
+				DefaultRoot: root, DefaultProjectID: "proj.index-depth",
+			})}
+			store := posepkg.Store{Root: root, FederatedProjectID: "proj.index-depth", FederatedResolver: &resolver}
+			material, err := captureIndexMaterialPreflight(store)
+			if edges <= 64 {
+				if err != nil || len(material.Projects) != 0 || len(material.ReferencedProjects) != 0 {
+					t.Fatalf("local chain preflight = %+v, %v", material, err)
+				}
+			} else if !errors.Is(err, posepkg.ErrGovernanceReadViewUnknown) || !strings.Contains(err.Error(), "artifact dependency graph exceeded") {
+				t.Fatalf("real local overflow must refuse preflight with unknown closure: %v", err)
+			}
+			if _, err := os.Stat(filepath.Join(root, ".pose", "indexes")); !os.IsNotExist(err) {
+				t.Fatalf("preflight published indexes: %v", err)
+			}
+		})
+	}
+}
+
 func TestIndexGenerationRetriesOutputAndBindingsAsOneReadView(t *testing.T) {
 	root := indexBuildFixtureRoot(t, "proj.index-build")
 	first := "---\nslug: sample\nstatus: in-progress\n---\n# Version A\n"

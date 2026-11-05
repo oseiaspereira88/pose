@@ -102,6 +102,25 @@ observed paths even when no watcher is present or its events were lost; a
 watcher is only a hint. Do not add a watcher, daemon/IPC, global cache, B31
 retention policy, B33 graph cache or B35 worktree runtime in this ADR.
 
+Clarification recorded on 2026-11-05: the depth-8 budget bounds project
+crossings along a dependency path, including authority-transfer redirects;
+it does not replace the existing total dependency-path limit of 64 edges.
+Retain the existing limits of 256 distinct graph identities and 256 input
+dependency entries per artifact. A shared DAG suffix is visited once, but its
+maximum remaining path cost must be checked at each incoming prefix. Entries
+already visited do not consume another distinct-node slot. Redirect chains
+also retain their independent limit; they cannot conceal project crossings
+when composed with dependency edges. The operation still authorizes at most
+16 roots and retains the same byte, metadata, observation and retry budgets.
+
+This corrects the scope of the existing bound rather than raising it. The
+native spec catalog at implementation checkpoint `f54e9285` has 482 specs and
+553 local dependency edges, no cycles or foreign spec edges, a longest local
+path of 27 edges and at most 111 reachable spec identities. The index preflight
+refused this legitimate corpus when depth 8 was applied to local edges. The
+measurement and its exclusions are recorded in the B34 budget report; actual
+index publication and composed-bound fixtures still require current validation.
+
 An external writer that changes and restores bytes between audits without
 participating in a fencing protocol leaves no proof for hashes or `lstat` to
 observe. A view may claim content equivalence at final validation, but cannot

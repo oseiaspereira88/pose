@@ -374,10 +374,6 @@ func (s Store) federatedAcceptance(projectID string, coordinator ArtifactRef, ed
 		snapshotRevisions[projectID] = revision
 	}
 	for len(queue) > 0 {
-		if len(visited) >= 256 {
-			report.Blockers = append(report.Blockers, "resolution-limit")
-			break
-		}
 		item := queue[0]
 		queue = queue[1:]
 		resolved := resolver.Resolve(item.project, item.raw)
@@ -400,6 +396,10 @@ func (s Store) federatedAcceptance(projectID string, coordinator ArtifactRef, ed
 				}
 			}
 			continue
+		}
+		if len(visited) >= 256 {
+			report.Blockers = append(report.Blockers, "resolution-limit")
+			break
 		}
 		visited[key] = true
 		entry := FederatedDependency{Ref: key, Relationship: item.relationship, Relationships: []string{item.relationship}, Identity: identity, ResolutionState: resolved.State, Status: resolved.Status, SourceRevision: resolved.Revision, SourceDigest: resolved.Digest}

@@ -485,8 +485,11 @@ func TestGovernanceReadViewDependencyDepthLimitLocalizesCoverage(t *testing.T) {
 		}
 		return prefix + "-00"
 	}
-	deepRoot := writeChain("deepchain", 10)
-	shortRoot := writeChain("shortchain", 3)
+	// Readiness validates from the first dependency (depth zero): 66 edges
+	// from the consumer exceed the legacy 64-depth bound by one. A local
+	// chain longer than B34's federated depth eight must remain current.
+	deepRoot := writeChain("deepchain", 66)
+	shortRoot := writeChain("shortchain", 12)
 
 	short, err := store.ProjectObligations(ObligationQuery{Scope: "spec:" + shortRoot})
 	if err != nil {

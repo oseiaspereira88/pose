@@ -86,6 +86,10 @@ type ArtifactResolution struct {
 	Revision          string        `json:"source_revision,omitempty"`
 	Digest            string        `json:"source_digest,omitempty"`
 	Dependencies      []ArtifactRef `json:"dependencies,omitempty"`
+
+	// Traversal cost only: excluded from JSON and historical identity/digests.
+	// Count every verified redirect, even if the chain returns to its origin.
+	redirectCrossings int
 }
 
 type ArtifactResolver struct {
@@ -99,7 +103,10 @@ type ArtifactResolver struct {
 	snapshots *sync.Map
 	// FS is the filesystem of the operation the resolver serves; every store
 	// it opens carries it (spec pose-update-dry-run-reports-the-whole-update D2).
-	FS                   Files
+	FS Files
+
+	// Governance bounds project crossings in dependency graphs, and separately
+	// bounds authority-transfer redirect chains (legacy redirect depth is 16).
 	governanceDepthLimit int
 }
 
@@ -223,6 +230,7 @@ func (r ArtifactResolver) resolve(localProject, raw string, redirectPath map[str
 			out.CanonicalIdentity = &canonical
 			out.Status, out.Revision, out.Digest = target.Status, target.Revision, target.Digest
 			out.Dependencies = append([]ArtifactRef{}, target.Dependencies...)
+			out.redirectCrossings = 1 + target.redirectCrossings
 			return out
 		}
 		sp, err := s.GetSpec(ref.Slug)
@@ -385,10 +393,15 @@ func markArtifactResolverRevisionUnknown(files Files, root, project, localProjec
 // It is bounded even for adversarial cross-project graphs and produces path-free
 // diagnostics. A done node does not conceal a broken or cyclic dependency.
 func (r ArtifactResolver) ValidateGraph(project, raw string) string {
-	visiting, visited := map[string]bool{}, map[string]bool{}
+	// Local dependency edges retain the legacy 64-depth/256-node bounds.
+	// B34's additional depth bound counts project crossings, not local edges.
+	// Keep suffix heights so a shared DAG node reached by a longer path cannot
+	// bypass either depth bound, without resolving its dependencies again.
+	type height struct{ depth, federated int }
+	visiting, visited := map[string]bool{}, map[string]height{}
 	nodes := 0
-	var visit func(string, string, int) string
-	visit = func(project, raw string, depth int) string {
+	var visit func(string, string, int, int) string
+	visit = func(project, raw string, depth, federatedDepth int) string {
 		ref, err := ParseArtifactRef(raw)
 		if err != nil {
 			return "invalid-artifact-reference"
@@ -396,37 +409,62 @@ func (r ArtifactResolver) ValidateGraph(project, raw string) string {
 		if ref.Project == "" {
 			ref.Project = project
 		}
+		if ref.Project != project {
+			federatedDepth++
+		}
 		key := ref.String()
 		if visiting[key] {
 			return "dependency-cycle"
 		}
-		if visited[key] {
-			return ""
-		}
-		maxDepth := 64
-		if r.governanceDepthLimit > 0 {
-			maxDepth = r.governanceDepthLimit
-		}
-		if depth > maxDepth || nodes >= 256 {
-			r.markResolutionBudgetUnknown(project, "artifact dependency graph exceeded its depth or node budget")
+		suffix, seen := visited[key]
+		if depth+suffix.depth > 64 ||
+			r.governanceDepthLimit > 0 && federatedDepth+suffix.federated > r.governanceDepthLimit ||
+			!seen && nodes >= 256 {
+			r.markResolutionBudgetUnknown(ref.Project, "artifact dependency graph exceeded its depth or node budget")
 			return "resolution-limit"
+		}
+		if seen {
+			return ""
 		}
 		nodes++
 		resolved := r.Resolve(project, raw)
 		if !resolved.Resolved {
 			return resolved.State
 		}
+		// The memo is relative to the requested identity, excluding only the
+		// caller's entry crossing. Its own redirect cost belongs in every hit.
+		suffix.federated = resolved.redirectCrossings
+		federatedDepth += resolved.redirectCrossings
+		if r.governanceDepthLimit > 0 && federatedDepth > r.governanceDepthLimit {
+			r.markResolutionBudgetUnknown(ref.Project, "artifact dependency graph exceeded its federated depth budget")
+			return "resolution-limit"
+		}
+		dependencyProject := ref.Project
+		if resolved.CanonicalIdentity != nil {
+			dependencyProject = resolved.CanonicalIdentity.Project
+		}
 		visiting[key] = true
 		for _, dep := range resolved.Dependencies {
-			if reason := visit(dep.Project, dep.String(), depth+1); reason != "" {
+			if reason := visit(dependencyProject, dep.String(), depth+1, federatedDepth); reason != "" {
 				return reason
+			}
+			child := visited[dep.String()]
+			if child.depth+1 > suffix.depth {
+				suffix.depth = child.depth + 1
+			}
+			crossing := 0
+			if dep.Project != dependencyProject {
+				crossing = 1
+			}
+			if cost := resolved.redirectCrossings + crossing + child.federated; cost > suffix.federated {
+				suffix.federated = cost
 			}
 		}
 		delete(visiting, key)
-		visited[key] = true
+		visited[key] = suffix
 		return ""
 	}
-	return visit(project, raw, 0)
+	return visit(project, raw, 0, 0)
 }
 
 func (r ArtifactResolver) markResolutionBudgetUnknown(project, reason string) {

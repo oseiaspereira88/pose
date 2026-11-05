@@ -139,6 +139,186 @@ func TestQualifiedArtifactGraphAndReadiness(t *testing.T) {
 	}
 }
 
+// Synthetic graphs use the production parser/resolver, not a corpus parser.
+func artifactGraphFixture(t *testing.T, graph map[string][]string) ArtifactResolver {
+	t.Helper()
+	roots := map[string]string{}
+	for raw, deps := range graph {
+		ref, err := ParseArtifactRef(raw)
+		if err != nil || ref.Project == "" || ref.Kind != "spec" {
+			t.Fatalf("invalid fixture node %q: %v", raw, err)
+		}
+		if roots[ref.Project] == "" {
+			roots[ref.Project] = t.TempDir()
+		}
+		qualifiedFile(t, roots[ref.Project], "specs/"+ref.Slug+".md",
+			fmt.Sprintf("---\nslug: %s\nstatus: done\ndepends_on: %s\n---\n", ref.Slug, strings.Join(deps, ", ")))
+	}
+	return (ArtifactResolver{Roots: NewRoots(RootsConfig{Explicit: roots}), governanceDepthLimit: 8}).WithSpecSnapshots()
+}
+
+func artifactGraphChain(edges int, project func(int) string) (map[string][]string, []string) {
+	names := make([]string, edges+1)
+	for i := range names {
+		names[i] = fmt.Sprintf("xref:%s/spec:n%d", project(i), i)
+	}
+	graph := map[string][]string{}
+	for i, name := range names {
+		graph[name] = nil
+		if i < edges {
+			graph[name] = []string{names[i+1]}
+		}
+	}
+	return graph, names
+}
+
+func TestArtifactGraphGovernanceLocalAndFederatedDepth(t *testing.T) {
+	local := func(int) string { return "a" }
+	crossing := func(i int) string { return []string{"a", "b"}[i%2] }
+	for _, tc := range []struct {
+		name    string
+		edges   int
+		project func(int) string
+		caller  string
+		want    string
+	}{
+		{"local-over-eight", 12, local, "a", ""},
+		{"local-boundary", 64, local, "a", ""},
+		{"local-excess", 65, local, "a", "resolution-limit"},
+		{"federated-boundary", 8, crossing, "a", ""},
+		{"federated-excess", 9, crossing, "a", "resolution-limit"},
+		{"initial-crossing-boundary", 7, crossing, "b", ""},
+		{"initial-crossing-excess", 8, crossing, "b", "resolution-limit"},
+		{"local-segments-between-crossings", 32, func(i int) string { return crossing(i / 4) }, "a", ""},
+		{"excess-crossings-with-local-segments", 36, func(i int) string { return crossing(i / 4) }, "a", "resolution-limit"},
+	} {
+		t.Run(tc.name, func(t *testing.T) {
+			graph, names := artifactGraphChain(tc.edges, tc.project)
+			r := artifactGraphFixture(t, graph)
+			if got := r.ValidateGraph(tc.caller, names[0]); got != tc.want {
+				t.Fatalf("ValidateGraph = %q, want %q", got, tc.want)
+			}
+		})
+	}
+}
+
+func TestArtifactGraphSharedDAGChecksLongestPath(t *testing.T) {
+	for _, federated := range []bool{false, true} {
+		for _, excess := range []bool{false, true} {
+			t.Run(fmt.Sprintf("federated=%t/excess=%t", federated, excess), func(t *testing.T) {
+				edges := 64
+				project := func(int) string { return "a" }
+				if federated {
+					edges = 8
+					project = func(i int) string { return []string{"a", "b"}[i%2] }
+				}
+				if excess {
+					edges++
+				}
+				graph, names := artifactGraphChain(edges, project)
+				// Resolve the shared suffix via a shortcut before the longer path.
+				graph[names[0]] = []string{names[4], names[1]}
+				r := artifactGraphFixture(t, graph)
+				want := ""
+				if excess {
+					want = "resolution-limit"
+				}
+				if got := r.ValidateGraph("a", names[0]); got != want {
+					t.Fatalf("shared suffix concealed longest path: got %q, want %q", got, want)
+				}
+			})
+		}
+	}
+}
+
+func TestArtifactGraphDAGUniqueNodeBudgetAndCycles(t *testing.T) {
+	for _, count := range []int{256, 257} {
+		t.Run(fmt.Sprintf("nodes=%d", count), func(t *testing.T) {
+			graph, names := artifactGraphChain(count-1, func(int) string { return "a" })
+			graph[names[0]] = names[1:]
+			for _, name := range names[1:] {
+				graph[name] = nil
+				if name != names[len(names)-1] {
+					graph[name] = []string{names[len(names)-1]}
+				}
+			}
+			r := artifactGraphFixture(t, graph)
+			calls := 0
+			r.Authorize = func(string) bool {
+				calls++
+				return true
+			}
+			want := ""
+			if count > 256 {
+				want = "resolution-limit"
+			}
+			if got := r.ValidateGraph("a", names[0]); got != want {
+				t.Fatalf("ValidateGraph = %q, want %q", got, want)
+			}
+			if calls != 256 {
+				t.Fatalf("resolved %d nodes; shared DAG must resolve exactly 256 unique nodes before success/overflow", calls)
+			}
+		})
+	}
+	for _, federated := range []bool{false, true} {
+		t.Run(fmt.Sprintf("cycle/federated=%t", federated), func(t *testing.T) {
+			project := func(int) string { return "a" }
+			if federated {
+				project = func(i int) string { return []string{"a", "b"}[i%2] }
+			}
+			graph, names := artifactGraphChain(4, project)
+			graph[names[4]] = []string{names[0]}
+			if got := artifactGraphFixture(t, graph).ValidateGraph("a", names[0]); got != "dependency-cycle" {
+				t.Fatalf("cycle = %q", got)
+			}
+		})
+	}
+}
+
+func TestArtifactGraphLayeredDAGResolvesEachNodeOnce(t *testing.T) {
+	graph, names := artifactGraphChain(48, func(int) string { return "a" })
+	graph[names[0]] = names[1:3]
+	for i := 1; i < len(names); i++ {
+		next := ((i-1)/2+1)*2 + 1
+		graph[names[i]] = nil
+		if next < len(names) {
+			graph[names[i]] = names[next : next+2]
+		}
+	}
+	r := artifactGraphFixture(t, graph)
+	calls := 0
+	r.Authorize = func(string) bool {
+		calls++
+		return true
+	}
+	if got := r.ValidateGraph("a", names[0]); got != "" || calls != len(names) {
+		t.Fatalf("layered DAG = %q, resolved %d nodes, want %d", got, calls, len(names))
+	}
+}
+
+func TestArtifactGraphLegacyFederatedDepth(t *testing.T) {
+	graph, names := artifactGraphChain(12, func(i int) string { return []string{"a", "b"}[i%2] })
+	r := artifactGraphFixture(t, graph)
+	r.governanceDepthLimit = 0
+	if got := r.ValidateGraph("a", names[0]); got != "" {
+		t.Fatalf("legacy resolver acquired B34's additional bound: %q", got)
+	}
+}
+
+func TestArtifactGraphDependencyListBudget(t *testing.T) {
+	graph := map[string][]string{
+		"xref:a/spec:root": make([]string, 257),
+		"xref:a/spec:leaf": nil,
+	}
+	for i := range graph["xref:a/spec:root"] {
+		graph["xref:a/spec:root"][i] = "xref:a/spec:leaf"
+	}
+	// Repeated references still consume the per-artifact input edge budget.
+	if got := artifactGraphFixture(t, graph).ValidateGraph("a", "root"); got != "resolution-limit" {
+		t.Fatalf("oversized dependency list = %q", got)
+	}
+}
+
 func TestQualifiedArtifactProjectBindingConflicts(t *testing.T) {
 	if _, err := ParseRootsJSON(`{"p":"/one","p":"/two"}`); err == nil {
 		t.Fatal("duplicate bindings accepted")
@@ -276,5 +456,68 @@ func TestQualifiedArtifactNestedSubmoduleDoesNotAcquireAuthority(t *testing.T) {
 	}
 	if local := r.Resolve("parent", "shared"); local.Status != "draft" || local.Identity.Project == got.Identity.Project {
 		t.Fatalf("merged authorities: %+v %+v", local, got)
+	}
+}
+
+func TestArtifactGraphTransferMetadataPreservesIdentityAndProofs(t *testing.T) {
+	graph, names := artifactGraphChain(2, func(i int) string { return []string{"a", "b"}[i%2] })
+	redirects := map[string]string{names[0]: names[1], names[1]: names[2]}
+	graph[names[0]], graph[names[1]] = nil, nil
+	resolver := artifactGraphTransferFixture(t, graph, redirects)
+	resolved := resolver.Resolve("a", names[0])
+	canonical := resolver.Resolve("a", names[2])
+	original, _ := ParseArtifactRef(names[0])
+	if !resolved.Resolved || resolved.Identity != original || resolved.CanonicalIdentity == nil || *resolved.CanonicalIdentity != canonical.Identity || resolved.redirectCrossings != 2 || resolved.Digest != canonical.Digest {
+		t.Fatalf("returning redirect lost historical identity or cost: %+v", resolved)
+	}
+	withCost, err := json.Marshal(resolved)
+	if err != nil {
+		t.Fatal(err)
+	}
+	resolved.redirectCrossings = 0
+	withoutCost, err := json.Marshal(resolved)
+	if err != nil || string(withCost) != string(withoutCost) {
+		t.Fatalf("private traversal cost changed serialized resolution: %s vs %s (%v)", withCost, withoutCost, err)
+	}
+	resolver.Authorize = func(project string) bool { return project == "a" }
+	if got := resolver.ValidateGraph("a", names[0]); !strings.HasSuffix(got, "unauthorized-project") {
+		t.Fatalf("intermediate redirect authorization bypassed: %q", got)
+	}
+	resolver.Authorize = nil
+	source, err := resolver.Roots.StoreFor("a")
+	if err != nil {
+		t.Fatal(err)
+	}
+	redirect, found, err := readSpecTransferRedirect(NativeFiles(), source, original)
+	if err != nil || !found {
+		t.Fatalf("fixture transfer proof invalid: %v, found=%t", err, found)
+	}
+	if err := os.Remove(transferPlanFile(source.Root, redirect.OperationID)); err != nil {
+		t.Fatal(err)
+	}
+	if got := resolver.ValidateGraph("a", names[0]); got != "transfer-in-progress" {
+		t.Fatalf("missing transfer plan did not retain unknown transfer state: %q", got)
+	}
+}
+
+func TestArtifactGraphTransferRedirectChainBound(t *testing.T) {
+	for _, redirects := range []int{8, 9} {
+		t.Run(fmt.Sprintf("redirects=%d", redirects), func(t *testing.T) {
+			graph, names := artifactGraphChain(redirects, func(i int) string { return []string{"a", "b"}[i%2] })
+			targets := map[string]string{}
+			for i := 0; i < redirects; i++ {
+				targets[names[i]] = names[i+1]
+				graph[names[i]] = nil
+			}
+			resolver := artifactGraphTransferFixture(t, graph, targets)
+			got := resolver.ValidateGraph("a", names[0])
+			if redirects == 8 && got != "" || redirects == 9 && !strings.HasSuffix(got, "resolution-limit") {
+				t.Fatalf("governed redirect chain bound: %q", got)
+			}
+			resolver.governanceDepthLimit = 0
+			if got := resolver.ValidateGraph("a", names[0]); got != "" {
+				t.Fatalf("legacy redirect chain below 16 refused: %q", got)
+			}
+		})
 	}
 }

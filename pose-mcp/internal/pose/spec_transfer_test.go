@@ -655,3 +655,136 @@ func TestSpecTransferNegativeGatesRejectUnsupportedCapabilityAndUnsafePath(t *te
 		t.Fatal("symlink escape was accepted")
 	}
 }
+
+// Build real, validated transfer plans and activated source receipts, as in the
+// redirect-cycle fixture. Keep consumers unchanged to exercise historical aliases
+// rather than ApplySpecTransfer's consumer reference rewrites.
+func artifactGraphTransferFixture(t *testing.T, graph map[string][]string, redirects map[string]string) ArtifactResolver {
+	t.Helper()
+	base := t.TempDir()
+	roots := map[string]string{}
+	specs := map[string]map[string]string{}
+	for raw := range graph {
+		ref, err := ParseArtifactRef(raw)
+		if err != nil || ref.Project == "" {
+			t.Fatalf("invalid fixture identity %q: %v", raw, err)
+		}
+		if specs[ref.Project] == nil {
+			specs[ref.Project] = map[string]string{}
+			roots[ref.Project] = filepath.Join(base, ref.Project)
+		}
+		specs[ref.Project][ref.Slug] = specTransferFixtureBody(ref.Slug, "in-progress", "", "R1")
+	}
+	for project, bodies := range specs {
+		initSpecTransferProject(t, roots[project], project, bodies)
+		// ApplySpecTransfer normally prepares this parent under its root
+		// guard. This fixture installs verified historical records directly.
+		if err := os.MkdirAll(filepath.Join(roots[project], ".pose", "transfers"), 0o755); err != nil {
+			t.Fatal(err)
+		}
+	}
+	resolver := newSpecTransferResolver(roots["a"], "a", roots)
+	plans := []SpecTransferPlan{}
+	for raw, target := range redirects {
+		source, _ := ParseArtifactRef(raw)
+		destination, _ := ParseArtifactRef(target)
+		plan, err := PreviewSpecTransfer(resolver, SpecTransferRequest{
+			Source: source, Destination: destination, Mappings: equivalentTransferMap("R1"),
+		}, "2026-09-24")
+		if err != nil {
+			t.Fatalf("preview %s -> %s: %v", raw, target, err)
+		}
+		plans = append(plans, plan)
+	}
+	for _, plan := range plans {
+		root := roots[plan.Source.Project]
+		if err := validateTransferPlan(plan); err != nil {
+			t.Fatal(err)
+		}
+		if err := ensureTransferOperationDir(root, plan.OperationID); err != nil {
+			t.Fatal(err)
+		}
+		if err := writeTransferJSONExclusive(transferPlanFile(root, plan.OperationID), plan); err != nil {
+			t.Fatal(err)
+		}
+		for _, phase := range []string{"prepared", "activated"} {
+			if err := recordTransferReceipt(root, plan, plan.Source.Project, phase, nil); err != nil {
+				t.Fatal(err)
+			}
+		}
+		if err := writeTransferFile(sourceRedirectPath(root, plan.Source.Slug), redirectBytes(plan.Source, plan.Destination, plan.OperationID), ""); err != nil {
+			t.Fatal(err)
+		}
+	}
+	for raw, deps := range graph {
+		ref, _ := ParseArtifactRef(raw)
+		body := specTransferFixtureBody(ref.Slug, "done", strings.Join(deps, ", "), "R1")
+		if target, ok := redirects[raw]; ok {
+			destination, _ := ParseArtifactRef(target)
+			body = renderTransferRedirectStub(ref, destination)
+		}
+		if err := os.WriteFile(filepath.Join(roots[ref.Project], ".pose/specs/2026-09-24-"+ref.Slug+".md"), []byte(body), 0o644); err != nil {
+			t.Fatal(err)
+		}
+	}
+	resolver.governanceDepthLimit = 8
+	return resolver
+}
+
+func TestArtifactGraphTransferComposedDepth(t *testing.T) {
+	for _, mode := range []string{"alternating", "qualified-entry", "canonical-local-dependencies", "return-to-origin", "shared-shortcut", "shared-shortcut-reversed"} {
+		for _, crossings := range []int{8, 9} {
+			t.Run(fmt.Sprintf("%s/crossings=%d", mode, crossings), func(t *testing.T) {
+				edges := crossings
+				caller := "a"
+				if mode == "qualified-entry" {
+					edges--
+					caller = "b"
+				}
+				project := func(i int) string { return []string{"a", "b"}[i%2] }
+				if mode == "canonical-local-dependencies" {
+					edges *= 2
+					project = func(i int) string { return []string{"a", "b"}[((i+1)/2)%2] }
+				}
+				graph, names := artifactGraphChain(edges, project)
+				redirects := map[string]string{}
+				for i := 0; i < edges; i++ {
+					redirect := i%2 == 0
+					if mode == "return-to-origin" || strings.HasPrefix(mode, "shared-shortcut") {
+						// Each alias returns A -> B -> A before its canonical
+						// dependency continues the path into the other project.
+						redirect = i%3 != 2
+					}
+					if redirect {
+						redirects[names[i]] = names[i+1]
+						graph[names[i]] = nil
+					}
+				}
+				start := names[0]
+				if strings.HasPrefix(mode, "shared-shortcut") {
+					start = "xref:a/spec:root"
+					// Visit the alias with its own redirects first, then reach
+					// the same memo through the longer prefix (or reverse order).
+					graph[start] = []string{names[3], names[0]}
+					if mode == "shared-shortcut-reversed" {
+						graph[start] = []string{names[0], names[3]}
+					}
+				}
+				resolver := artifactGraphTransferFixture(t, graph, redirects)
+				for source := range redirects {
+					resolved := resolver.Resolve("a", source)
+					if !resolved.Resolved || !resolved.Redirected || resolved.redirectCrossings == 0 {
+						t.Fatalf("fixture redirect %s not verified: %+v", source, resolved)
+					}
+				}
+				want := ""
+				if crossings > 8 {
+					want = "resolution-limit"
+				}
+				if got := resolver.ValidateGraph(caller, start); got != want {
+					t.Fatalf("ValidateGraph = %q, want %q", got, want)
+				}
+			})
+		}
+	}
+}

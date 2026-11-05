@@ -1092,3 +1092,68 @@ func TestFederatedRoadmapMilestoneWithExternalMemberClosesThroughFederation(t *t
 		t.Fatalf("revoked trust did not block the milestone of an external member: %+v err=%v", revoked, err)
 	}
 }
+
+func TestFederatedAcceptanceUniqueNodeBudgetAfterDedup(t *testing.T) {
+	for _, scenario := range []string{"256-with-duplicates", "257-unique", "unknown", "cycle"} {
+		t.Run(scenario, func(t *testing.T) {
+			count := 256
+			if scenario == "257-unique" {
+				count++
+			}
+			graph, names := artifactGraphChain(count-1, func(int) string { return "a" })
+			graph[names[0]] = names[1:]
+			for _, name := range names[1:] {
+				graph[name] = nil
+				if name != names[len(names)-1] {
+					graph[name] = []string{names[len(names)-1]}
+				}
+			}
+			if scenario == "cycle" {
+				graph[names[len(names)-1]] = []string{names[1]}
+			}
+			resolver := artifactGraphFixture(t, graph)
+			store, err := resolver.Roots.StoreFor("a")
+			if err != nil {
+				t.Fatal(err)
+			}
+			if scenario == "unknown" {
+				if err := os.Remove(filepath.Join(store.Root, ".pose/specs/n255.md")); err != nil {
+					t.Fatal(err)
+				}
+			}
+			federatedTestWrite(t, store.Root, ".pose/roadmaps/budget.md", "---\nslug: budget\nstatus: active\nconsumes: spec:n0, "+names[len(names)-1]+"\n---\n")
+			federatedTestProject(t, store.Root, "a")
+			report, err := store.FederatedRoadmapAcceptance("a", "budget", resolver)
+			if err != nil {
+				t.Fatal(err)
+			}
+			blockers := strings.Join(report.Blockers, "\n")
+			if len(report.Manifest.Dependencies) != 256 {
+				t.Fatalf("dependencies = %d, want 256", len(report.Manifest.Dependencies))
+			}
+			switch scenario {
+			case "256-with-duplicates":
+				if !report.Ready || !report.Manifest.Ready || len(report.Blockers) != 0 {
+					t.Fatalf("256 unique nodes with duplicate queue tail refused: %v", report.Blockers)
+				}
+				for _, dep := range report.Manifest.Dependencies {
+					if dep.Identity.Slug == "n255" && strings.Join(dep.Relationships, ",") != "outcome-consumption,prerequisite" {
+						t.Fatalf("duplicate dependency relationship = %+v", dep)
+					}
+				}
+			case "257-unique":
+				if report.Ready || !strings.Contains(blockers, "resolution-limit") {
+					t.Fatalf("257 unique nodes did not fail closed: %+v", report)
+				}
+			case "unknown", "cycle":
+				want := "unknown-spec"
+				if scenario == "cycle" {
+					want = "dependency-cycle"
+				}
+				if report.Ready || report.Manifest.Ready || !strings.Contains(blockers, want) || strings.Contains(blockers, "resolution-limit") {
+					t.Fatalf("expected %s without spurious node overflow: %v", want, report.Blockers)
+				}
+			}
+		})
+	}
+}
