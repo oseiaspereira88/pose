@@ -398,6 +398,39 @@ func TestDerivedRegenerationIsAListNotAPrefix(t *testing.T) {
 	}
 }
 
+func TestAuthorityTransferLockIsOnlyRuntimeWhenUntracked(t *testing.T) {
+	root := snapshotRepo(t, map[string]string{"README.md": "fixture\n"})
+	lock := filepath.Join(root, ".pose", "transfers", ".authority-transfer.lock")
+	if err := os.MkdirAll(filepath.Dir(lock), 0o755); err != nil {
+		t.Fatal(err)
+	}
+	if err := os.WriteFile(lock, nil, 0o644); err != nil {
+		t.Fatal(err)
+	}
+	if !IsDerivedRegeneration(".pose/transfers/.authority-transfer.lock", false) {
+		t.Fatal("the exact untracked runtime lock is not classified as generated state")
+	}
+	if IsDerivedRegeneration(".pose/transfers/.authority-transfer.lock", true) {
+		t.Fatal("a tracked lock path was silently excluded")
+	}
+	paths, err := gitChangedPaths(root)
+	if err != nil || len(paths) != 0 {
+		t.Fatalf("untracked runtime lock became a Git material input: paths=%v err=%v", paths, err)
+	}
+	head := snapshotTestGit(t, root, "rev-parse", "HEAD")
+	diverged, err := WorktreeDivergence(root, head, nil)
+	if err != nil || len(diverged) != 0 {
+		t.Fatalf("untracked runtime lock made the fixture dirty: diverged=%v err=%v", diverged, err)
+	}
+	disk, err := dispatchDiskSnapshot(root)
+	if err != nil {
+		t.Fatal(err)
+	}
+	if _, present := disk[".pose/transfers/.authority-transfer.lock"]; present {
+		t.Fatal("runtime lock leaked into the disk content snapshot")
+	}
+}
+
 // V5: a bundle superseded, changed or unreadable while a run was going no longer governs the scope.
 func TestADispatchStopsGoverningWhenItsBundleIsSuperseded(t *testing.T) {
 	store, bundle, now := retentionFixture(t)

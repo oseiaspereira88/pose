@@ -34,6 +34,34 @@ func keysPolicy(assurance string, keys map[string][]string, extra map[string]any
 	return doc
 }
 
+func TestGovernanceWriteGuardIdentityPolicyCannotChangeDuringProtectedEvaluation(t *testing.T) {
+	s := actionFixture(t)
+	doc, err := LoadActionPolicyDocument(s.Root)
+	if err != nil {
+		t.Fatal(err)
+	}
+	before, err := os.ReadFile(actionPolicyPath(s.Root))
+	if err != nil {
+		t.Fatal(err)
+	}
+	doc.GrantRole("reviewer", "agent:reviewer")
+	var writeErr error
+	err = WithGovernanceWriteGuard("test.hold-action-policy-root", []Store{s}, func([]Store) error {
+		writeErr = doc.Write(s.Root)
+		return nil
+	})
+	if err != nil {
+		t.Fatal(err)
+	}
+	if !errors.Is(writeErr, ErrGovernanceWriteGuardBusy) {
+		t.Fatalf("identity policy write under protected evaluation = %v, want guard refusal", writeErr)
+	}
+	after, err := os.ReadFile(actionPolicyPath(s.Root))
+	if err != nil || string(before) != string(after) {
+		t.Fatalf("action authority changed during guarded evaluation: err=%v", err)
+	}
+}
+
 func signedAnswer(view ActionRequestView, key sshTestKey, actor, value, idem string, flags byte) ActionResolution {
 	res := answer(view, actor, value, idem)
 	res.Signature = key.sign(ActionAnswerNamespace, AnswerStatement(view.Request, actor, value, idem, "").Canonical(), flags)

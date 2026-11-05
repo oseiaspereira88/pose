@@ -56,18 +56,32 @@ func (e ProjectAmbiguousError) Error() string {
 // from the projects dir on demand: a project cloned at runtime resolves on the
 // next miss (rescan), so freshly onboarded repos appear without a restart.
 type Roots struct {
-	cfg          RootsConfig
-	mu           sync.RWMutex
-	byProject    map[string]string
-	conflicts    map[string]bool
-	lastScan     time.Time
-	rescanWindow time.Duration
+	cfg       RootsConfig
+	mu        sync.RWMutex
+	byProject map[string]string
+	conflicts map[string]bool
+	// governanceStores is an operation-local overlay used when a multi-root
+	// writer has already authorized and guarded its complete root set.
+	governanceStores map[string]Store
+	lastScan         time.Time
+	rescanWindow     time.Duration
 	// fs is the filesystem of the operation the registry serves; the stores
 	// it hands out carry it.
 	fs Files
 }
 
 func (r *Roots) fsys() Files { return FilesOrNative(r.fs) }
+
+func (r *Roots) storeFor(projectID, root string) Store {
+	files := r.fsys()
+	if view, carrier := governanceReadViewFromFiles(files); view != nil && carrier != nil {
+		if projectID == "" {
+			projectID = r.cfg.DefaultProjectID
+		}
+		files = view.filesForProject(carrier.producer, projectID)
+	}
+	return Store{Root: root, FS: files}
+}
 
 // RootsContext is the path-free runtime view exposed to MCP diagnostics. It
 // deliberately contains only logical identifiers and selection behavior; the
@@ -138,6 +152,12 @@ func (r *Roots) maybeRescan() {
 // project may have just been cloned) before returning ProjectUnknownError;
 // there is no silent fallback.
 func (r *Roots) StoreFor(projectID string) (Store, error) {
+	r.mu.RLock()
+	guarded, hasGuarded := r.governanceStores[projectID]
+	r.mu.RUnlock()
+	if hasGuarded {
+		return guarded, nil
+	}
 	if projectID == "" {
 		if r.cfg.DefaultRoot == "" {
 			return Store{}, ProjectAmbiguousError{Reason: "no-default"}
@@ -145,7 +165,7 @@ func (r *Roots) StoreFor(projectID string) (Store, error) {
 		if r.cfg.StrictSelection && r.registeredProjectCount() > 1 {
 			return Store{}, ProjectAmbiguousError{Reason: "multi-project-implicit"}
 		}
-		return Store{Root: r.cfg.DefaultRoot, FS: r.fs}, nil
+		return r.storeFor(r.cfg.DefaultProjectID, r.cfg.DefaultRoot), nil
 	}
 	r.mu.RLock()
 	root, ok := r.byProject[projectID]
@@ -167,7 +187,7 @@ func (r *Roots) StoreFor(projectID string) (Store, error) {
 	if !ok {
 		return Store{}, ProjectUnknownError{ProjectID: projectID}
 	}
-	return Store{Root: root, FS: r.fs}, nil
+	return r.storeFor(projectID, root), nil
 }
 
 func (r *Roots) registeredProjectCount() int {

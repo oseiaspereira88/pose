@@ -63,6 +63,9 @@ func TestAPhaseWithAnUnreadProducerIsUnknownNotClear(t *testing.T) {
 	// A source this project does not have owes nothing: the phase is not
 	// unknown because of it (spec pose-fresh-install-doctor-is-clean).
 	phases, _ := s.SpecPhaseReadiness("storage")
+	if phases.Snapshot.ReadView == nil || phases.Snapshot.ReadView.Freshness != ReadViewFreshnessUnknown {
+		t.Fatalf("a non-Git fixture must disclose its missing source revision binding: %+v", phases.Snapshot.ReadView)
+	}
 	if release := phaseOf(t, phases, PhaseRelease); len(release.Unread) != 0 {
 		t.Fatalf("release is unread for sources the project does not have: %+v", release)
 	}

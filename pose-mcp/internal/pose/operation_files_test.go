@@ -17,6 +17,85 @@ import (
 	"time"
 )
 
+func TestUpdateOperationOpenDirectoryStreamsTheOverlay(t *testing.T) {
+	for _, recreated := range []bool{false, true} {
+		t.Run(fmt.Sprintf("recreated=%v", recreated), func(t *testing.T) {
+			root := t.TempDir()
+			dir := filepath.Join(root, "directory")
+			writeOp(t, filepath.Join(dir, "removed"), "old", 0o644)
+			writeOp(t, filepath.Join(dir, "replaced"), "old", 0o644)
+			writeOp(t, filepath.Join(dir, "retained"), "old", 0o644)
+			p := NewPreviewFiles(time.Now())
+			if recreated {
+				if err := p.RemoveAll(dir); err != nil {
+					t.Fatal(err)
+				}
+				if err := p.Mkdir(dir, 0o755); err != nil {
+					t.Fatal(err)
+				}
+			} else if err := p.Remove(filepath.Join(dir, "removed")); err != nil {
+				t.Fatal(err)
+			}
+			for _, name := range []string{"added", "replaced"} {
+				if err := p.WriteFile(filepath.Join(dir, name), []byte("projected"), 0o640); err != nil {
+					t.Fatal(err)
+				}
+			}
+			file, err := p.Open(dir)
+			if err != nil {
+				t.Fatal(err)
+			}
+			defer file.Close()
+			reader, ok := file.(fs.ReadDirFile)
+			if !ok {
+				t.Fatal("preview directory does not support bounded reads")
+			}
+			var got []string
+			for {
+				entries, err := reader.ReadDir(1)
+				if len(entries) > 1 {
+					t.Fatal("directory exceeded requested batch size")
+				}
+				for _, entry := range entries {
+					got = append(got, entry.Name())
+					if entry.Name() != "retained" {
+						info, err := entry.Info()
+						if err != nil || info.Size() != int64(len("projected")) {
+							t.Fatalf("staged metadata: %v %v", info, err)
+						}
+					}
+				}
+				if errors.Is(err, io.EOF) {
+					break
+				}
+				if err != nil {
+					t.Fatal(err)
+				}
+			}
+			sort.Strings(got)
+			want := "added,replaced,retained"
+			if recreated {
+				want = "added,replaced"
+			}
+			if strings.Join(got, ",") != want {
+				t.Fatalf("streamed children = %v, want %s", got, want)
+			}
+			if _, err := readDirGovernanceBounded(p, dir, len(got)-1); !errors.Is(err, errGovernanceReadViewBudget) {
+				t.Fatalf("overlay escaped directory budget: %v", err)
+			}
+			if entries, err := readDirGovernanceBounded(p, dir, len(got)); err != nil || len(entries) != len(got) {
+				t.Fatalf("bounded overlay = %v, %v", entries, err)
+			}
+			if raw, err := os.ReadFile(filepath.Join(dir, "replaced")); err != nil || string(raw) != "old" {
+				t.Fatalf("preview changed original: %q %v", raw, err)
+			}
+			if len(p.Gaps()) != 0 {
+				t.Fatalf("directory preview gaps: %v", p.Gaps())
+			}
+		})
+	}
+}
+
 func TestUpdateOperationStickyReplacementIsIncomplete(t *testing.T) {
 	for _, op := range []string{"remove", "remove-all", "publish", "recursive-child"} {
 		t.Run(op, func(t *testing.T) {

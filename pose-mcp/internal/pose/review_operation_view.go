@@ -69,6 +69,7 @@ type reviewOperationView struct {
 	resolver        *ArtifactResolver
 	once            sync.Once
 	closed          atomic.Bool
+	contextConflict atomic.Bool
 	used            bool // published by once; consumers call once before inspecting it
 	directoryError  string
 	inventory       [32]byte
@@ -84,19 +85,97 @@ type reviewOperationView struct {
 // live. Finalization rereads observed bytes before the read can be green.
 // This is not an atomic filesystem snapshot or a write authorization cache.
 func (s Store) WithReviewOperationView(run func(Store)) error {
-	s.specs = nil
-	s.reviewReuse = nil
-	s.reviewView = nil
-	files := s.fsys()
-	if !reflect.ValueOf(files).Comparable() {
-		// Unknown identity cannot safely key an optimization. Keep live semantics.
-		run(s)
-		return nil
-	}
-	view := &reviewOperationView{root: filepath.Clean(s.Root), files: files,
-		project: s.FederatedProjectID, resolver: s.FederatedResolver,
+	baseFiles := s.fsys()
+	keyable := reflect.ValueOf(baseFiles).Comparable()
+	base, readView := s.beginGovernanceReadView()
+	shared := base.withGovernanceReadView(readView, "review-operation")
+	view := &reviewOperationView{root: filepath.Clean(shared.Root), files: shared.fsys(),
+		project: shared.FederatedProjectID, resolver: shared.FederatedResolver,
 		maxRecords: 10000, maxInputBytes: 128 * 1024 * 1024, maxRetainedText: 8 * 1024 * 1024}
-	return s.withReviewOperationView(view, run)
+	var operationErr error
+	if !keyable {
+		// Unknown identity cannot safely key the bounded optimization. The
+		// operation still reads through the governance view and receives its
+		// final closure audit; it simply falls back to live catalogue traversal.
+		shared.reviewView = nil
+		shared.specs = nil
+		shared.reviewReuse = nil
+		run(shared)
+	} else {
+		operationErr = shared.withReviewOperationView(view, run)
+	}
+	audit := readView.audit()
+	if operationErr != nil {
+		return operationErr
+	}
+	return reviewOperationGovernanceAuditError(audit, readView, view)
+}
+
+func reviewOperationGovernanceAuditError(audit governanceReadViewAudit, readView *governanceReadView, operationView *reviewOperationView) error {
+	changed := audit.ChangedProducers["review-operation"] || audit.ChangedProducers["projection"]
+	if changed {
+		paths := append([]string(nil), audit.ChangedPaths...)
+		if len(paths) == 0 {
+			paths = []string{"input closure"}
+		}
+		return fmt.Errorf("pose: review inputs changed during operation: %s", strings.Join(uniqueSorted(paths), ", "))
+	}
+	// The operation view certifies the bytes and metadata its review producers
+	// consumed. Projection-only context such as an unavailable HEAD does not
+	// become a write authorization or a current-generation claim here; any
+	// unprovable read attributed to this operation still fails closed.
+	if reasons := audit.UnknownProducers["review-operation"]; len(reasons) > 0 && !reviewOperationReadLossIsCovered(audit, readView, operationView) {
+		return fmt.Errorf("pose: review input closure is unknown: %s", strings.Join(uniqueSorted(reasons), "; "))
+	}
+	return nil
+}
+
+// reviewOperationReadLossIsCovered keeps a stable, unreadable bundle in the
+// operation result as source-coverage loss. ReadReviewBundles reports that
+// loss to its caller, and validate() proves the same file remains unreadable;
+// this wrapper should not turn a localized record loss into a second API error.
+// Other unknown inputs still make the operation result unavailable.
+func reviewOperationReadLossIsCovered(audit governanceReadViewAudit, readView *governanceReadView, operationView *reviewOperationView) bool {
+	if readView == nil || operationView == nil || !operationView.used || operationView.fallback {
+		return false
+	}
+	for _, reason := range audit.UnknownProducers["review-operation"] {
+		if reason != "input bytes could not be read" {
+			return false
+		}
+	}
+	readView.mu.Lock()
+	defer readView.mu.Unlock()
+	covered := map[string]string{}
+	for name, observation := range operationView.headers {
+		if observation.readError == "" {
+			continue
+		}
+		if observation.loss == nil || observation.loss.Kind != LossReadError {
+			return false
+		}
+		covered[filepath.Base(name)] = observation.readError
+	}
+	if len(covered) == 0 {
+		return false
+	}
+	matched := 0
+	for path, observation := range readView.files {
+		if !observation.producers["review-operation"] || observation.err == nil || os.IsNotExist(observation.err) {
+			continue
+		}
+		rel, err := filepath.Rel(operationView.root, path)
+		if err != nil || !strings.HasPrefix(filepath.ToSlash(rel), ".pose/review-bundles/") {
+			return false
+		}
+		name := filepath.Base(path)
+		if covered[name] == "" || covered[name] != observation.errText {
+			return false
+		}
+		delete(covered, name)
+		matched++
+	}
+	return matched > 0 && len(covered) == 0
 }
 
 func (s Store) withReviewOperationView(view *reviewOperationView, run func(Store)) error {
@@ -112,6 +191,78 @@ func (s Store) withReviewOperationView(view *reviewOperationView, run func(Store
 		return err
 	}
 	return view.validate()
+}
+
+// prepareReviewOperationRead preserves Store's live-read behavior after an
+// operation view retires, while refusing to borrow an active view under a
+// different root, project, resolver, or Files binding.
+func (s Store) prepareReviewOperationRead() (Store, error) {
+	if s.reviewView != nil && s.reviewView.closed.Load() {
+		s = s.withoutGovernanceReadView()
+	}
+	readView, viewFiles := governanceReadViewFromFiles(s.fsys())
+	if readView != nil {
+		readView.mu.Lock()
+		finalized := readView.closed
+		readView.mu.Unlock()
+		if finalized {
+			s = s.withoutGovernanceReadView()
+			readView, viewFiles = governanceReadViewFromFiles(s.fsys())
+		}
+	}
+	if s.reviewView != nil && !s.reviewView.closed.Load() && !s.reviewView.boundTo(s) {
+		return Store{}, s.refuseReviewOperationContext(readView, viewFiles)
+	}
+	if readView != nil && viewFiles != nil {
+		if s.FederatedProjectID != "" && viewFiles.project != "" && s.FederatedProjectID != viewFiles.project {
+			return Store{}, s.refuseReviewOperationContext(readView, viewFiles)
+		}
+		if readView.operation == nil {
+			if filepath.Clean(s.Root) != filepath.Clean(readView.root) {
+				return Store{}, s.refuseReviewOperationContext(readView, viewFiles)
+			}
+			// A same-root advisory view may be attached directly to a local Store
+			// without an operation coordinator. Keep that local read path usable,
+			// but do not infer a federated identity or borrow a resolver binding.
+			if s.FederatedProjectID != viewFiles.project || s.FederatedResolver != nil || viewFiles.project != "" {
+				return Store{}, s.refuseReviewOperationContext(readView, viewFiles)
+			}
+		} else {
+			// StoreFor(project) deliberately returns an unscoped Store whose Files
+			// wrapper still carries the primary read view. Route by the captured
+			// project/root vector first, then verify the selected root itself;
+			// comparing against readView.root here would reject every valid child.
+			routeProject := viewFiles.project
+			if routeProject == "" {
+				routeProject = s.FederatedProjectID
+			}
+			if routeProject == "" {
+				routeProject = readView.operation.mainProject
+			}
+			if !sameLexicalRoot(readView.operation.initialRoots[routeProject], s.Root) {
+				return Store{}, s.refuseReviewOperationContext(readView, viewFiles)
+			}
+			target := readView.operation.route(s.Root, viewFiles.producer, routeProject)
+			if target == nil || !sameLexicalRoot(target.root, s.Root) {
+				return Store{}, s.refuseReviewOperationContext(readView, viewFiles)
+			}
+		}
+	}
+	return s, nil
+}
+
+func (s Store) refuseReviewOperationContext(readView *governanceReadView, viewFiles *governanceReadViewFiles) error {
+	if s.reviewView != nil && !s.reviewView.closed.Load() {
+		s.reviewView.contextConflict.Store(true)
+	}
+	if readView != nil {
+		producer := "review-operation"
+		if viewFiles != nil && viewFiles.producer != "" {
+			producer = viewFiles.producer
+		}
+		readView.markUnknown(producer, "review Store context no longer matches the authorized operation binding")
+	}
+	return fmt.Errorf("pose: review Store context changed: %w", errGovernanceReadViewOutsideRoot)
 }
 
 func (v *reviewOperationView) captureSpecs(s Store) {
@@ -340,6 +491,9 @@ func (s Store) reviewBundleHeaders(dir string, entries []os.DirEntry) (map[strin
 }
 
 func (v *reviewOperationView) validate() error {
+	if v.contextConflict.Load() {
+		return fmt.Errorf("pose: review inputs changed during operation: Store context")
+	}
 	if !v.used {
 		return nil
 	}

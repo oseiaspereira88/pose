@@ -1,7 +1,9 @@
 package pose
 
 import (
+	"errors"
 	"fmt"
+	"io/fs"
 	"os"
 	"path/filepath"
 	"reflect"
@@ -33,7 +35,7 @@ func (f *reviewViewCountingFiles) ReadFile(path string) ([]byte, error) {
 		f.mu.Unlock()
 	}
 	if filepath.Base(path) == f.fail {
-		return nil, &os.PathError{Op: "read", Path: path, Err: os.ErrPermission}
+		return nil, &os.PathError{Op: "open", Path: path, Err: os.ErrPermission}
 	}
 	raw, err := f.Files.ReadFile(path)
 	f.mu.Lock()
@@ -47,7 +49,61 @@ func (f *reviewViewCountingFiles) ReadFile(path string) ([]byte, error) {
 	return raw, err
 }
 
-func TestReviewOperationViewSpecCatalogueReuseAndBodiesStayLive(t *testing.T) {
+func (f *reviewViewCountingFiles) Open(path string) (fs.File, error) {
+	rel := filepath.ToSlash(path)
+	if strings.Contains(rel, "/.pose/specs/") && filepath.Ext(path) == ".md" {
+		f.mu.Lock()
+		f.specReads++
+		f.mu.Unlock()
+	}
+	if strings.Contains(rel, "/.pose/review-bundles/") && strings.HasSuffix(rel, ".json") {
+		f.mu.Lock()
+		f.reads++
+		f.mu.Unlock()
+	}
+	if filepath.Base(path) == f.fail {
+		return nil, &os.PathError{Op: "open", Path: path, Err: os.ErrPermission}
+	}
+	file, err := f.Files.Open(path)
+	if err != nil {
+		return nil, err
+	}
+	return &reviewViewCountingOpenFile{File: file, count: func(n int) {
+		f.mu.Lock()
+		defer f.mu.Unlock()
+		if strings.Contains(filepath.ToSlash(path), "/.pose/specs/") {
+			f.specBytes += n
+		}
+		if strings.Contains(filepath.ToSlash(path), "/.pose/review-bundles/") {
+			f.headerBytes += n
+		}
+	}}, nil
+}
+
+type reviewViewCountingOpenFile struct {
+	fs.File
+	count func(int)
+}
+
+func (f *reviewViewCountingOpenFile) ReadDir(n int) ([]fs.DirEntry, error) {
+	reader, ok := f.File.(interface {
+		ReadDir(int) ([]fs.DirEntry, error)
+	})
+	if !ok {
+		return nil, &os.PathError{Op: "readdir", Path: ".", Err: os.ErrInvalid}
+	}
+	return reader.ReadDir(n)
+}
+
+func (f *reviewViewCountingOpenFile) Read(p []byte) (int, error) {
+	n, err := f.File.Read(p)
+	if n > 0 && f.count != nil {
+		f.count(n)
+	}
+	return n, err
+}
+
+func TestReviewOperationViewSpecCatalogueReuseAndBodiesShareOneCapture(t *testing.T) {
 	root := t.TempDir()
 	for i := 0; i < 6; i++ {
 		governanceWrite(t, root, fmt.Sprintf("sample-%d.md", i), fmt.Sprintf("---\nslug: sample-%d\nstatus: draft\ncomponents: api\ndepends_on: other\n---\n\n# Sample\n\nbody %d\n", i, i))
@@ -63,8 +119,8 @@ func TestReviewOperationViewSpecCatalogueReuseAndBodiesStayLive(t *testing.T) {
 				}
 			}
 		}
-		if files.specReads != 18 {
-			t.Fatalf("spec reads=%d want initial6+12 live bodies", files.specReads)
+		if files.specReads != 6 {
+			t.Fatalf("spec reads=%d want one captured read for each of six specs", files.specReads)
 		}
 		listed, err := shared.ListSpecs("draft", "api")
 		if err != nil || len(listed) != 6 {
@@ -81,14 +137,14 @@ func TestReviewOperationViewSpecCatalogueReuseAndBodiesStayLive(t *testing.T) {
 		if _, err := shared.GetSpec("missing"); err == nil {
 			t.Fatal("missing slug selected")
 		}
-		if files.specReads != 18 {
-			t.Fatalf("metadata lookup reread corpus: %d", files.specReads)
+		if files.specReads != 6 {
+			t.Fatalf("metadata lookup reread captured corpus: %d", files.specReads)
 		}
 	})
-	if err != nil || files.specReads != 36 {
-		t.Fatalf("capture/live/final reads=%d want36 err=%v", files.specReads, err)
+	if err != nil || files.specReads != 12 {
+		t.Fatalf("capture/final audit reads=%d want12 err=%v", files.specReads, err)
 	}
-	t.Logf("producer=spec-catalogue specs=6 successful_body_queries=12 readfile_calls=%d readfile_returned_bytes=%d", files.specReads, files.specBytes)
+	t.Logf("producer=spec-catalogue specs=6 successful_body_queries=12 shared_capture_and_audit_readfile_calls=%d readfile_returned_bytes=%d", files.specReads, files.specBytes)
 }
 
 func TestReviewOperationViewSpecCatalogueChanges(t *testing.T) {
@@ -97,12 +153,20 @@ func TestReviewOperationViewSpecCatalogueChanges(t *testing.T) {
 			root := t.TempDir()
 			original := "---\nslug: sample\nstatus: draft\n---\n\n# Sample\n\nbody\n"
 			governanceWrite(t, root, "sample.md", original)
+			var bodyABAModTime time.Time
 			err := (Store{Root: root}).WithReviewOperationView(func(shared Store) {
 				if _, err := shared.GetSpec("sample"); err != nil {
 					t.Fatal(err)
 				}
 				switch mutation {
-				case "body", "body-ABA":
+				case "body":
+					governanceWrite(t, root, "sample.md", original+"changed\n")
+				case "body-ABA":
+					info, err := os.Stat(filepath.Join(root, ".pose/specs/sample.md"))
+					if err != nil {
+						t.Fatal(err)
+					}
+					bodyABAModTime = info.ModTime()
 					governanceWrite(t, root, "sample.md", original+"changed\n")
 				case "metadata":
 					governanceWrite(t, root, "sample.md", strings.ReplaceAll(original, "draft", "done"))
@@ -124,21 +188,106 @@ func TestReviewOperationViewSpecCatalogueChanges(t *testing.T) {
 					if err := os.Symlink(outside, path); err != nil {
 						t.Fatal(err)
 					}
-					if sp, err := shared.GetSpec("sample"); err == nil || sp != nil {
-						t.Fatalf("foreign spec body returned: %+v %v", sp, err)
+					if sp, err := shared.GetSpec("sample"); err != nil || sp == nil || strings.Contains(sp.Body, "external sentinel") {
+						t.Fatalf("operation did not retain only its captured spec bytes: %+v %v", sp, err)
 					}
 				}
 				if mutation == "body-ABA" {
-					if sp, err := shared.GetSpec("sample"); err == nil || sp != nil {
-						t.Fatalf("changed live body accepted: %+v %v", sp, err)
+					if sp, err := shared.GetSpec("sample"); err != nil || sp == nil || !strings.Contains(sp.Body, "body") {
+						t.Fatalf("second consumer did not receive the operation's captured body: %+v %v", sp, err)
 					}
 					governanceWrite(t, root, "sample.md", original)
+					if err := os.Chtimes(filepath.Join(root, ".pose/specs/sample.md"), bodyABAModTime, bodyABAModTime); err != nil {
+						t.Fatal(err)
+					}
 				}
 			})
-			if err == nil || !strings.Contains(err.Error(), "review inputs changed") {
+			if mutation == "body-ABA" {
+				// The operation serves one captured body and the final bytes match
+				// it. An external A→B→A transition leaves no observable evidence;
+				// this read-only view does not claim transition fencing.
+				if err != nil {
+					t.Fatalf("final content-equivalent view was refused: %v", err)
+				}
+				return
+			}
+			if err == nil || (!strings.Contains(err.Error(), "review inputs changed") && !strings.Contains(err.Error(), "review input closure is unknown")) {
 				t.Fatalf("mutation %s accepted: %v", mutation, err)
 			}
 		})
+	}
+}
+
+func TestReviewOperationViewAuditsConsumedGovernanceReadViewInputs(t *testing.T) {
+	root := t.TempDir()
+	policyPath := filepath.Join(root, ".pose", "policy", "review.json")
+	original := "{\"schema_version\":1}\n"
+	if err := os.MkdirAll(filepath.Dir(policyPath), 0o755); err != nil {
+		t.Fatal(err)
+	}
+	if err := os.WriteFile(policyPath, []byte(original), 0o644); err != nil {
+		t.Fatal(err)
+	}
+
+	err := (Store{Root: root}).WithReviewOperationView(func(shared Store) {
+		if _, err := shared.GetReviewPolicy(); err != nil {
+			t.Fatalf("read review policy: %v", err)
+		}
+		if err := os.WriteFile(policyPath, []byte("{\"schema_version\":1,\"enabled\":true}\n"), 0o644); err != nil {
+			t.Fatal(err)
+		}
+	})
+	if err == nil || !strings.Contains(err.Error(), "review inputs changed") {
+		t.Fatalf("a consumed policy mutation escaped the shared read-view audit: %v", err)
+	}
+
+	stableErr := (Store{Root: root}).WithReviewOperationView(func(shared Store) {
+		if _, err := shared.GetReviewPolicy(); err != nil {
+			t.Fatalf("read stable review policy: %v", err)
+		}
+	})
+	if stableErr != nil {
+		t.Fatalf("stable consumed input failed finalization: %v", stableErr)
+	}
+	if _, err := os.Stat(policyPath); err != nil {
+		t.Fatalf("test policy was not preserved: %v", err)
+	}
+}
+
+func TestPublicReviewCheckStartsFreshViewForEscapedStore(t *testing.T) {
+	root, store := reviewFixture(t)
+	var escaped Store
+	if err := store.WithReviewOperationView(func(shared Store) {
+		escaped = shared
+		if _, _, err := shared.loadReviewPolicy(); err != nil {
+			t.Fatal(err)
+		}
+	}); err != nil {
+		t.Fatal(err)
+	}
+	writeReviewFixture(t, root, ".pose/policy/review.json", `{"schema_version":1,"enabled":false}`)
+	evaluation, err := escaped.ReviewCheck("spec:alpha")
+	if err != nil {
+		t.Fatal(err)
+	}
+	if evaluation.PolicyEnabled || evaluation.Required || evaluation.ReadView == nil || evaluation.ReadView.Freshness != ReadViewFreshnessCurrent {
+		t.Fatalf("escaped finalized bytes served as a new review operation: %+v", evaluation)
+	}
+}
+
+func TestReviewOperationViewAttributesGitStatusToConsumer(t *testing.T) {
+	root := snapshotRepo(t, map[string]string{"source.go": "package source\n"})
+	err := (Store{Root: root}).WithReviewOperationView(func(shared Store) {
+		changed, detail := reviewBundleWorkingTreeChangeIn(shared.fsys(), root, "source.go")
+		if changed || detail != "" {
+			t.Fatalf("clean source reported changed: changed=%v detail=%q", changed, detail)
+		}
+		if err := os.WriteFile(filepath.Join(root, "source.go"), []byte("package source\nfunc Changed() {}\n"), 0o644); err != nil {
+			t.Fatal(err)
+		}
+	})
+	if err == nil || !strings.Contains(err.Error(), "review input") {
+		t.Fatalf("a changed Git input attributed only to the helper escaped the consumer audit: %v", err)
 	}
 }
 
@@ -423,8 +572,8 @@ func TestReviewOperationViewBindingAndRetirement(t *testing.T) {
 		foreign := shared
 		foreign.Root = other
 		got, err := foreign.ReadReviewBundles("spec:owned")
-		if err != nil || len(got.Coverage.Losses) != 1 {
-			t.Fatalf("borrowed another root: %+v %v", got, err)
+		if !errors.Is(err, errGovernanceReadViewOutsideRoot) || len(got.Bundles) != 0 || len(got.Coverage.Losses) != 0 {
+			t.Fatalf("borrowed another root's read view: %+v %v", got, err)
 		}
 		preview := NewPreviewFiles(time.Date(2026, 11, 3, 0, 0, 0, 0, time.UTC))
 		if err := preview.WriteFile(filepath.Join(root, ".pose/review-bundles", name), []byte(`{"payload":{}}`), 0o644); err != nil {
@@ -433,12 +582,12 @@ func TestReviewOperationViewBindingAndRetirement(t *testing.T) {
 		staged := shared
 		staged.FS = preview
 		got, err = staged.ReadReviewBundles("spec:absent")
-		if err != nil || len(got.Coverage.Losses) != 1 {
-			t.Fatalf("borrowed another filesystem: %+v %v", got, err)
+		if !errors.Is(err, errGovernanceReadViewOutsideRoot) || len(got.Bundles) != 0 || len(got.Coverage.Losses) != 0 {
+			t.Fatalf("borrowed another filesystem's read view: %+v %v", got, err)
 		}
 	})
-	if err != nil {
-		t.Fatal(err)
+	if err == nil || !strings.Contains(err.Error(), "Store context") {
+		t.Fatalf("context borrowing did not withhold the operation result: %v", err)
 	}
 	viewWrite(t, root, name, `{"payload":{}}`)
 	got, err := escaped.ReadReviewBundles("spec:absent")
@@ -535,20 +684,20 @@ func TestReviewOperationViewContextBindingAndUnkeyedFiles(t *testing.T) {
 		}
 		project := shared
 		project.FederatedProjectID = "different"
-		if _, err := project.ReadReviewBundles("spec:absent"); err != nil {
-			t.Fatal(err)
+		if _, err := project.ReadReviewBundles("spec:absent"); !errors.Is(err, errGovernanceReadViewOutsideRoot) {
+			t.Fatalf("changed project borrowed the captured view: %v", err)
 		}
 		resolver := shared
 		resolver.FederatedResolver = &ArtifactResolver{}
-		if _, err := resolver.ReadReviewBundles("spec:absent"); err != nil {
-			t.Fatal(err)
+		if _, err := resolver.ReadReviewBundles("spec:absent"); !errors.Is(err, errGovernanceReadViewOutsideRoot) {
+			t.Fatalf("changed resolver borrowed the captured view: %v", err)
 		}
-		if files.reads != 3 {
-			t.Fatalf("changed context reused header: reads=%d", files.reads)
+		if files.reads != 1 {
+			t.Fatalf("changed context read from captured bytes: reads=%d", files.reads)
 		}
 	})
-	if err != nil {
-		t.Fatal(err)
+	if err == nil || !strings.Contains(err.Error(), "Store context") {
+		t.Fatalf("changed context was not reported by operation finalization: %v", err)
 	}
 	store.FS = nonComparableReviewFiles{Files: files, marker: []string{"unkeyed"}}
 	err = store.WithReviewOperationView(func(shared Store) {

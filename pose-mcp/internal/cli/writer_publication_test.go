@@ -4,6 +4,7 @@ import (
 	"bytes"
 	"encoding/json"
 	"errors"
+	"fmt"
 	"os"
 	"path/filepath"
 	"strings"
@@ -40,6 +41,9 @@ func TestACloseNeverPublishesOverAnEditMadeWhileItsGatesRan(t *testing.T) {
 		t.Fatalf("the close published over a concurrent edit: edited=%v code=%d %+v\n%s", edited, code, result.OperationResult, raw)
 	}
 	commitSnapshotFixture(t, root)
+	// The concurrent edit was refused above. Establish the repaired scenario's
+	// current inputs before evaluating a separate close attempt.
+	publishReviewCLIIndexFixture(t, root)
 	current, err := (posemodel.Store{Root: root}).PlanCloseout("spec:bundle")
 	if err != nil {
 		t.Fatal(err)
@@ -66,6 +70,32 @@ func TestACloseWaitsForNoOtherLifecycleWriter(t *testing.T) {
 	}
 	if code, _ := runPoseJSON(t, root, &result, "close", "spec:bundle", "--resume", "--reviewer", "agent:closeout-reviewer", "--json"); code != 0 || result.Outcome != posemodel.OutcomeCompleted {
 		t.Fatalf("the close after the lock was released: %d %+v", code, result.OperationResult)
+	}
+}
+
+func TestGovernanceWriteGuardCloseRefusesBeforeTransitionEffect(t *testing.T) {
+	root := reviewBundleCLIFixture(t)
+	spec := filepath.Join(root, ".pose", "specs", "bundle", "spec.md")
+	before, err := os.ReadFile(spec)
+	if err != nil {
+		t.Fatal(err)
+	}
+	var stdout, stderr bytes.Buffer
+	err = posemodel.WithGovernanceWriteGuard("test.hold-close-root", []posemodel.Store{cliGovernedStore(root)}, func([]posemodel.Store) error {
+		if code := cmdCloseLocalWithEffect(root, "spec:bundle", nil, &stdout, &stderr, nil); code != 1 {
+			return fmt.Errorf("close under root contention returned %d", code)
+		}
+		after, err := os.ReadFile(spec)
+		if err != nil || string(before) != string(after) {
+			return fmt.Errorf("spec changed after root-guard refusal: %v", err)
+		}
+		return nil
+	})
+	if err != nil {
+		t.Fatal(err)
+	}
+	if !strings.Contains(stderr.String(), "governance-write-guard-busy") {
+		t.Fatalf("root contention was not reported: %q", stderr.String())
 	}
 }
 

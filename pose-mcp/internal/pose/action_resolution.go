@@ -166,6 +166,50 @@ func authorizeActionActor(policy ActionPolicy, r ActionRequest, actor, declaredR
 // invalidation, under the request's lock, against the revision the writer
 // read. It returns the derived view after the write.
 func (s Store) ResolveActionRequest(res ActionResolution, now time.Time) (ActionRequestView, error) {
+	var result ActionRequestView
+	events, err := s.readActionRequestEventsForWrite(res.RequestID)
+	if err != nil {
+		return result, err
+	}
+	request := *events[0].Request
+	project, err := s.actionResolutionProjectID()
+	if err != nil {
+		return result, err
+	}
+	if request.Project != project {
+		return result, fmt.Errorf("%w: request %s belongs to %s, this project is %s", ErrActionForeignProject, request.ID, request.Project, project)
+	}
+	initialRequests, err := s.actionRequestsForRecovery(res.RequestID, request)
+	if err != nil {
+		return result, err
+	}
+	lockedProjects, err := s.actionRequestsProjectSet(initialRequests)
+	if err != nil {
+		return result, err
+	}
+	err = s.withExplicitGovernanceWriteGuard("action.request.resolve", governanceProjectIDs(lockedProjects), func(guarded Store) error {
+		freshEvents, err := guarded.readActionRequestEventsForWrite(res.RequestID)
+		if err != nil {
+			return err
+		}
+		freshRequests, err := guarded.actionRequestsForRecovery(res.RequestID, *freshEvents[0].Request)
+		if err != nil {
+			return err
+		}
+		observedProjects, err := guarded.actionRequestsProjectSet(freshRequests)
+		if err != nil {
+			return err
+		}
+		if err := requireSameGovernanceProjectSet("action.request.resolve", lockedProjects, observedProjects); err != nil {
+			return err
+		}
+		result, err = guarded.resolveActionRequest(res, now)
+		return err
+	})
+	return result, err
+}
+
+func (s Store) resolveActionRequest(res ActionResolution, now time.Time) (ActionRequestView, error) {
 	view, err := s.LoadActionRequest(res.RequestID)
 	if err != nil {
 		return ActionRequestView{}, err
@@ -179,7 +223,7 @@ func (s Store) ResolveActionRequest(res ActionResolution, now time.Time) (Action
 
 func (s Store) prepareActionResolutionAgainst(view ActionRequestView, res ActionResolution, now time.Time, allowMissingProof bool) (ActionRequestView, ActionEvent, bool, error) {
 	r := view.Request
-	project, err := s.WriteProjectID()
+	project, err := s.actionResolutionProjectID()
 	if err != nil {
 		return view, ActionEvent{}, false, err
 	}

@@ -46,6 +46,12 @@ func dispatchDiskSnapshot(root string) (map[string]string, error) {
 		if err != nil {
 			return err
 		}
+		// The per-root authority lock is runtime coordination state, not a
+		// project input. Ignore only the exact regular file: a linked or special
+		// replacement remains visible to the snapshot and fails closed.
+		if filepath.ToSlash(rel) == ".pose/transfers/.authority-transfer.lock" && info.Mode().IsRegular() {
+			return nil
+		}
 		if len(entries) >= 100000 {
 			return fmt.Errorf("disk snapshot exceeds 100000 entries")
 		}
@@ -114,7 +120,26 @@ func gitChangedPaths(root string) ([]string, error) {
 	if err != nil {
 		return nil, err
 	}
-	return parseGitChangedPaths(out)
+	entries, err := parseGitStatusEntries(out)
+	if err != nil {
+		return nil, err
+	}
+	paths := make([]string, 0, len(entries)*2)
+	for _, entry := range entries {
+		if untrackedAuthorityTransferLock(entry) {
+			continue
+		}
+		paths = append(paths, entry.Path)
+		if entry.OrigPath != "" {
+			paths = append(paths, entry.OrigPath)
+		}
+	}
+	sort.Strings(paths)
+	return paths, nil
+}
+
+func untrackedAuthorityTransferLock(entry GitStatusEntry) bool {
+	return entry.XY == "??" && entry.Path == ".pose/transfers/.authority-transfer.lock"
 }
 
 func parseGitChangedPaths(out []byte) ([]string, error) {
@@ -139,15 +164,33 @@ func gitMaterializedChanges(root, commit string) ([]string, error) {
 	return gitMaterializedChangesFor(root, commit, nil)
 }
 func gitMaterializedChangesFor(root, commit string, matters func(string) bool) ([]string, error) {
+	return gitMaterializedChangesForIn(NativeFiles(), root, commit, matters, "")
+}
+
+func gitMaterializedChangesForIn(files Files, root, commit string, matters func(string) bool, producer string) ([]string, error) {
+	files = FilesOrNative(files)
+	if producer != "" {
+		producer = governanceProducerFromFiles(files, producer)
+	}
+	runGit := snapshotGit
+	worktreeIdentity := dispatchWorktreeIdentity
+	if producer != "" {
+		runGit = func(root string, args ...string) ([]byte, error) {
+			return captureGovernanceGit(files, root, producer, args...)
+		}
+		worktreeIdentity = func(root string) (string, error) {
+			return dispatchWorktreeIdentityGoverned(files, root, producer)
+		}
+	}
 	var err error
 	root, err = filepath.Abs(root)
 	if err != nil {
 		return nil, &GitSnapshotError{"root", err}
 	}
-	if _, err := dispatchWorktreeIdentity(root); err != nil {
+	if _, err := worktreeIdentity(root); err != nil {
 		return nil, err
 	}
-	out, err := snapshotGit(root, "ls-tree", "-r", "-z", commit)
+	out, err := runGit(root, "ls-tree", "-r", "-z", commit)
 	if err != nil {
 		return nil, err
 	}
@@ -181,7 +224,13 @@ func gitMaterializedChangesFor(root, commit string, matters func(string) bool) (
 			if parent == filepath.Dir(parent) {
 				return nil, &GitSnapshotError{"path", fmt.Errorf("path outside worktree: %q", path)}
 			}
-			info, e := os.Lstat(parent)
+			var info os.FileInfo
+			var e error
+			if producer != "" {
+				info, e = files.Lstat(parent)
+			} else {
+				info, e = os.Lstat(parent)
+			}
 			if e != nil || !info.IsDir() {
 				unsafe = true
 				break
@@ -191,7 +240,13 @@ func gitMaterializedChangesFor(root, commit string, matters func(string) bool) (
 			changed = append(changed, path)
 			continue
 		}
-		info, e := os.Lstat(full)
+		var info os.FileInfo
+		var e error
+		if producer != "" {
+			info, e = files.Lstat(full)
+		} else {
+			info, e = os.Lstat(full)
+		}
 		if os.IsNotExist(e) {
 			changed = append(changed, path)
 			continue
@@ -204,21 +259,31 @@ func gitMaterializedChangesFor(root, commit string, matters func(string) bool) (
 				changed = append(changed, path)
 				continue
 			}
-			if _, err := dispatchWorktreeIdentity(full); err != nil {
+			if _, err := worktreeIdentity(full); err != nil {
 				return nil, err
 			}
-			head, e := snapshotGit(full, "rev-parse", "--verify", "HEAD")
+			head, e := runGit(full, "rev-parse", "--verify", "HEAD")
 			if e != nil {
 				return nil, e
 			}
-			dirty, e := gitChangedPaths(full)
+			var dirty []string
+			if producer != "" {
+				dirty, e = gitChangedPathsGovernedIn(files, full, producer)
+			} else {
+				dirty, e = gitChangedPaths(full)
+			}
 			if e != nil {
 				return nil, e
 			}
 			if strings.TrimSpace(string(head)) != fields[2] || len(dirty) != 0 {
 				changed = append(changed, path)
 			} else {
-				nested, err := gitMaterializedChanges(full, fields[2])
+				var nested []string
+				if producer != "" {
+					nested, err = gitMaterializedChangesForIn(files, full, fields[2], matters, producer)
+				} else {
+					nested, err = gitMaterializedChanges(full, fields[2])
+				}
 				if err != nil {
 					return nil, err
 				}
@@ -419,6 +484,9 @@ func IsDerivedRegeneration(path string, tracked bool) bool {
 	if filepath.ToSlash(filepath.Clean(path)) != path {
 		return false
 	}
+	if !tracked && path == ".pose/transfers/.authority-transfer.lock" {
+		return true
+	}
 	if path == ".pose/state/project-state.md" || path == ".pose/state/project-state.json" || path == ".pose/assessments/technical-debt.md" || path == ".pose/state/technical-debt.json" {
 		return true
 	}
@@ -455,6 +523,12 @@ func WorktreeDivergenceFor(root, commit string, allowed func(string, bool) bool,
 		return nil, err
 	}
 	for _, entry := range status {
+		// Fixture worktrees need not carry the root .gitignore. Keep an
+		// untracked lock out of material status in that case, while still
+		// treating a staged/modified lock as a real repository change.
+		if untrackedAuthorityTransferLock(entry) {
+			continue
+		}
 		changed = append(changed, entry.Path)
 		if entry.OrigPath != "" {
 			changed = append(changed, entry.OrigPath)

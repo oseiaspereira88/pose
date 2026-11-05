@@ -1476,14 +1476,19 @@ func ApplySpecTransfer(resolver ArtifactResolver, plan SpecTransferPlan, expecte
 	if expectedDigest == "" || expectedDigest != plan.Digest {
 		return SpecTransferStatus{}, specTransferError("plan-digest-mismatch")
 	}
-	current, err := PreviewSpecTransfer(resolver, plan.Request, plan.EffectiveDate)
-	if err != nil {
-		return SpecTransferStatus{}, err
-	}
-	if current.Digest != plan.Digest {
-		return SpecTransferStatus{}, specTransferError("stale-plan")
-	}
-	return advanceSpecTransfer(resolver, plan, authorizedProjects, failAfter)
+	var status SpecTransferStatus
+	err := withSpecTransferWriteGuard(resolver, plan, authorizedProjects, "spec.transfer.apply", func(guardedResolver ArtifactResolver) error {
+		current, err := PreviewSpecTransfer(guardedResolver, plan.Request, plan.EffectiveDate)
+		if err != nil {
+			return err
+		}
+		if current.Digest != plan.Digest {
+			return specTransferError("stale-plan")
+		}
+		status, err = advanceSpecTransfer(guardedResolver, plan, authorizedProjects, failAfter)
+		return err
+	})
+	return status, err
 }
 
 func ResumeSpecTransfer(resolver ArtifactResolver, projectID, operationID string, authorizedProjects map[string]bool, failAfter SpecTransferFailureHook) (SpecTransferStatus, error) {
@@ -1508,34 +1513,55 @@ func ResumeSpecTransfer(resolver ArtifactResolver, projectID, operationID string
 	if !transferContains(plan.AffectedProjects, projectID) {
 		return SpecTransferStatus{}, specTransferError("operation-not-found")
 	}
-	for _, id := range plan.AffectedProjects {
-		if resolver.Authorize != nil && !resolver.Authorize(id) {
-			return SpecTransferStatus{}, specTransferError("unauthorized-project")
-		}
-		store, err := resolver.Roots.StoreFor(id)
+	if err := validateTransferPlan(plan); err != nil {
+		return SpecTransferStatus{}, specTransferError("operation-not-found")
+	}
+	var result SpecTransferStatus
+	err = withSpecTransferWriteGuard(resolver, plan, authorizedProjects, "spec.transfer.resume", func(guardedResolver ArtifactResolver) error {
+		selected, err := guardedResolver.Roots.StoreFor(projectID)
 		if err != nil {
-			return SpecTransferStatus{}, specTransferError("unavailable-project")
+			return specTransferError("unavailable-project")
 		}
-		otherRel := filepath.ToSlash(filepath.Join(".pose", "transfers", operationID, "plan.json"))
-		if err := transferPathClean(NativeFiles(), store.Root, otherRel); err != nil {
-			return SpecTransferStatus{}, specTransferError("operation-record-conflict")
+		currentPlan, err := readSpecTransferPlan(selected.fsys(), transferPlanFile(selected.Root, operationID))
+		if err != nil || currentPlan.Digest != plan.Digest {
+			return specTransferError("operation-record-conflict")
 		}
-		otherPath := transferPlanFile(store.Root, operationID)
-		if _, err := os.Lstat(otherPath); os.IsNotExist(err) {
-			continue
+		plan = currentPlan
+		if err := validateTransferPlan(plan); err != nil {
+			return specTransferError("operation-record-conflict")
 		}
-		other, err := readSpecTransferPlan(NativeFiles(), otherPath)
-		if err != nil || other.Digest != plan.Digest {
-			return SpecTransferStatus{}, specTransferError("operation-record-conflict")
+		for _, id := range plan.AffectedProjects {
+			if guardedResolver.Authorize != nil && !guardedResolver.Authorize(id) {
+				return specTransferError("unauthorized-project")
+			}
+			store, err := guardedResolver.Roots.StoreFor(id)
+			if err != nil {
+				return specTransferError("unavailable-project")
+			}
+			otherRel := filepath.ToSlash(filepath.Join(".pose", "transfers", operationID, "plan.json"))
+			if err := transferPathClean(NativeFiles(), store.Root, otherRel); err != nil {
+				return specTransferError("operation-record-conflict")
+			}
+			otherPath := transferPlanFile(store.Root, operationID)
+			if _, err := os.Lstat(otherPath); os.IsNotExist(err) {
+				continue
+			}
+			other, err := readSpecTransferPlan(store.fsys(), otherPath)
+			if err != nil || other.Digest != plan.Digest {
+				return specTransferError("operation-record-conflict")
+			}
 		}
-	}
-	if completed, status := completedSpecTransfer(resolver, plan); completed {
-		// A completed operation is reported, not replayed: later operations
-		// may have rewritten the files it touched, and re-checking them
-		// against this plan would call a finished transfer a conflict.
-		return status, nil
-	}
-	return advanceSpecTransfer(resolver, plan, authorizedProjects, failAfter)
+		if completed, completedStatus := completedSpecTransfer(guardedResolver, plan); completed {
+			// A completed operation is reported, not replayed: later operations
+			// may have rewritten the files it touched, and re-checking them
+			// against this plan would call a finished transfer a conflict.
+			result = completedStatus
+			return nil
+		}
+		result, err = advanceSpecTransfer(guardedResolver, plan, authorizedProjects, failAfter)
+		return err
+	})
+	return result, err
 }
 
 // completedSpecTransfer reports whether every affected project journaled

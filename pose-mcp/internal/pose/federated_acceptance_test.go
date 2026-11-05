@@ -2,6 +2,8 @@ package pose
 
 import (
 	"encoding/json"
+	"errors"
+	"fmt"
 	"os"
 	"os/exec"
 	"path/filepath"
@@ -863,6 +865,118 @@ func TestFederatedRoadmapMilestoneAcceptanceIgnoresLaterMilestones(t *testing.T)
 		t.Fatalf("revoked trust in the roadmap's consumed outcome did not block the milestone: %+v err=%v", revoked, err)
 	}
 	federatedTestTrust(t, root, map[string]FederatedProjectTrust{"source": trust})
+}
+
+func TestGovernanceWriteGuardFederatedReviewSealRequiresSourceLease(t *testing.T) {
+	root, store, _, _ := federatedTestMilestoneConsumer(t)
+	now := time.Date(2026, 11, 4, 13, 0, 0, 0, time.UTC)
+	if _, err := store.PrepareReviewBundle("milestone:program/core"); err != nil {
+		t.Fatalf("fixture review bundle is not readable: %v", err)
+	}
+	sourceRoot, err := store.FederatedResolver.Roots.StoreFor("source")
+	if err != nil {
+		t.Fatal(err)
+	}
+	sourceRoot.FederatedProjectID = "source"
+	err = WithGovernanceWriteGuard("test.hold-federated-review-source", []Store{sourceRoot}, func([]Store) error {
+		if _, err := store.SealReviewBundleLead("milestone:program/core", "", time.Now()); !errors.Is(err, ErrGovernanceWriteGuardBusy) {
+			return fmt.Errorf("federated seal while source root is held = %v, want root busy", err)
+		}
+		entries, err := os.ReadDir(filepath.Join(root, ".pose", "review-bundles"))
+		if os.IsNotExist(err) {
+			return nil
+		}
+		if err != nil {
+			return err
+		}
+		if len(entries) != 0 {
+			return fmt.Errorf("review bundle was published while source root was held: %v", entries)
+		}
+		return nil
+	})
+	if err != nil {
+		t.Fatal(err)
+	}
+	specBundle, err := store.SealReviewBundle("spec:backend", now)
+	if err != nil {
+		t.Fatalf("seal child review bundle: %v; blockers=%v", err, specBundle.Blockers)
+	}
+	if _, err := store.RecordReviewAttestation(approvedBundleAttestation(specBundle, "agent:child-review"), now.Add(time.Minute)); err != nil {
+		t.Fatalf("attest child review bundle: %v", err)
+	}
+	milestone, err := store.SealReviewBundle("milestone:program/core", now.Add(2*time.Minute))
+	if err != nil {
+		t.Fatalf("seal federated milestone after child approval: %v; blockers=%v", err, milestone.Blockers)
+	}
+	att := approvedBundleAttestation(milestone, "agent:milestone-review")
+	completed, err := completeReviewAttestation(milestone, att, now.Add(3*time.Minute))
+	if err != nil {
+		t.Fatal(err)
+	}
+	err = WithGovernanceWriteGuard("test.hold-federated-approval-source", []Store{sourceRoot}, func([]Store) error {
+		if _, err := store.RecordReviewAttestation(att, now.Add(3*time.Minute)); !errors.Is(err, ErrGovernanceWriteGuardBusy) {
+			return fmt.Errorf("federated approval while source root is held = %v, want root busy", err)
+		}
+		attestationPath := filepath.Join(root, ".pose", "review-attestations", completed.AttestationID+".json")
+		if _, err := os.Lstat(attestationPath); !errors.Is(err, os.ErrNotExist) {
+			return fmt.Errorf("federated attestation was published while source root was held: %v", err)
+		}
+		return nil
+	})
+	if err != nil {
+		t.Fatal(err)
+	}
+}
+
+func TestGovernanceWriteGuardFederatedCloseoutUsesOnlyItsMaterialRoots(t *testing.T) {
+	_, store, _, _ := federatedTestMilestoneConsumer(t)
+	projects, err := store.closeoutWriteProjectSet("milestone:program/core")
+	if err != nil {
+		t.Fatalf("discover closeout material roots: %v", err)
+	}
+	if len(projects) != 2 || !projects["coordinator"] || !projects["source"] {
+		t.Fatalf("milestone closeout roots = %v, want only coordinator and source", projects)
+	}
+	localProjects, err := store.closeoutWriteProjectSet("spec:backend")
+	if err != nil {
+		t.Fatalf("discover local spec closeout roots: %v", err)
+	}
+	if len(localProjects) != 1 || !localProjects["coordinator"] {
+		t.Fatalf("local spec closeout over-locked unrelated roots: %v", localProjects)
+	}
+
+	source, err := store.FederatedResolver.Roots.StoreFor("source")
+	if err != nil {
+		t.Fatal(err)
+	}
+	source.FederatedProjectID = "source"
+	callbackRan := false
+	err = WithGovernanceWriteGuard("test.hold-closeout-source", []Store{source}, func([]Store) error {
+		return store.WithCloseoutWriteGuard("test.closeout", "milestone:program/core", func(Store) error {
+			callbackRan = true
+			return nil
+		})
+	})
+	if !errors.Is(err, ErrGovernanceWriteGuardBusy) {
+		t.Fatalf("federated closeout while source root is held = %v, want root busy", err)
+	}
+	if callbackRan {
+		t.Fatal("closeout callback ran without every material root lease")
+	}
+
+	leaseErr := store.WithCloseoutWriteGuard("test.closeout", "milestone:program/core", func(guarded Store) error {
+		lease, ok := guarded.GovernanceWriteLease()
+		if !ok || lease == nil || !lease.Covers(guarded) || !lease.Active() {
+			return fmt.Errorf("closeout did not receive its active lease: lease=%v ok=%v", lease, ok)
+		}
+		if len(lease.roots) != 2 {
+			return fmt.Errorf("closeout lease roots = %d, want exact two-root vector", len(lease.roots))
+		}
+		return nil
+	})
+	if leaseErr != nil {
+		t.Fatalf("scoped federated closeout: %v", leaseErr)
+	}
 }
 
 func TestFederatedRoadmapMilestoneBundleSealsOwnManifestAndKeepsLegacySeals(t *testing.T) {

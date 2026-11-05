@@ -301,6 +301,12 @@ func (d *ActionPolicyDocument) GrantRole(role, principal string) bool {
 
 // Write validates the result through the reader and writes it.
 func (d ActionPolicyDocument) Write(root string) error {
+	return WithGovernanceWriteGuard("identity.action-policy.write", []Store{{Root: root}}, func(stores []Store) error {
+		return d.writeIn(stores[0].FS, stores[0].Root)
+	})
+}
+
+func (d ActionPolicyDocument) writeIn(files Files, root string) error {
 	if err := ValidatePrincipalKeys(d.Keys); err != nil {
 		return err
 	}
@@ -353,10 +359,10 @@ func (d ActionPolicyDocument) Write(root string) error {
 	if _, err := decodeActionPolicy(out); err != nil {
 		return fmt.Errorf("invalid action policy edit: %w", err)
 	}
-	if err := PublishFile(actionPolicyPath(root), append(out, '\n'), 0o644, PublishAuthoritative, d.read); err != nil {
+	if err := files.Publish(actionPolicyPath(root), append(out, '\n'), 0o644, PublishAuthoritative, d.read); err != nil {
 		return err
 	}
-	if _, err := LoadActionPolicy(root); err != nil {
+	if _, err := LoadActionPolicyIn(files, root); err != nil {
 		return fmt.Errorf("the written action policy is refused by its reader: %w", err)
 	}
 	return nil

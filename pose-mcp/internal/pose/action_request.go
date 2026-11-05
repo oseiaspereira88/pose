@@ -541,6 +541,42 @@ func (s Store) OpenActionRequest(r ActionRequest, now time.Time) (ActionRequestV
 // OpenActionRequestAuthorized accepts proof for retirement of the predecessor.
 // Creation of a question alone does not grant authority over its predecessor.
 func (s Store) OpenActionRequestAuthorized(r ActionRequest, authority *ActionResolution, now time.Time) (ActionRequestView, error) {
+	var result ActionRequestView
+	prepared, err := s.PrepareActionRequest(r, now)
+	if err != nil {
+		return result, err
+	}
+	initialRequests, err := s.actionRequestsForRecovery(prepared.ID, prepared)
+	if err != nil {
+		return result, err
+	}
+	lockedProjects, err := s.actionRequestsProjectSet(initialRequests)
+	if err != nil {
+		return result, err
+	}
+	err = s.withExplicitGovernanceWriteGuard("action.request.open", governanceProjectIDs(lockedProjects), func(guarded Store) error {
+		fresh, err := guarded.PrepareActionRequest(r, now)
+		if err != nil {
+			return err
+		}
+		freshRequests, err := guarded.actionRequestsForRecovery(fresh.ID, fresh)
+		if err != nil {
+			return err
+		}
+		observedProjects, err := guarded.actionRequestsProjectSet(freshRequests)
+		if err != nil {
+			return err
+		}
+		if err := requireSameGovernanceProjectSet("action.request.open", lockedProjects, observedProjects); err != nil {
+			return err
+		}
+		result, err = guarded.openActionRequestAuthorized(r, authority, now)
+		return err
+	})
+	return result, err
+}
+
+func (s Store) openActionRequestAuthorized(r ActionRequest, authority *ActionResolution, now time.Time) (ActionRequestView, error) {
 	prepared, err := s.PrepareActionRequest(r, now)
 	if err != nil {
 		return ActionRequestView{}, err
@@ -920,6 +956,16 @@ func (s Store) lockedActionJournal(id string) (*os.File, []ActionEvent, func(), 
 	return file, events, release, nil
 }
 func (s Store) appendActionEvent(id string, event ActionEvent, expected int, now time.Time) (ActionRequestView, error) {
+	var result ActionRequestView
+	err := s.withGovernanceWriteGuard("action.journal.append", func(guarded Store) error {
+		var err error
+		result, err = guarded.appendActionEventGuarded(id, event, expected, now)
+		return err
+	})
+	return result, err
+}
+
+func (s Store) appendActionEventGuarded(id string, event ActionEvent, expected int, now time.Time) (ActionRequestView, error) {
 	file, events, release, err := s.lockedActionJournal(id)
 	if err != nil {
 		return ActionRequestView{}, err

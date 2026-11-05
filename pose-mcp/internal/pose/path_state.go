@@ -24,6 +24,12 @@ func ProvenAbsentIn(files Files, path string) (bool, error) {
 		// cannot be known, nothing is proven.
 		return false, fmt.Errorf("pose: %s could not be made absolute: %w", path, absErr)
 	}
+	if bounded, ok := files.(interface{ GovernanceReadViewRootFor(string) string }); ok {
+		root, rootErr := filepath.Abs(bounded.GovernanceReadViewRootFor(clean))
+		if rootErr == nil && pathWithin(filepath.Clean(root), filepath.Clean(clean)) {
+			return provenAbsentFromRoot(files, filepath.Clean(root), filepath.Clean(clean))
+		}
+	}
 	volume := filepath.VolumeName(clean)
 	rest := strings.TrimPrefix(clean[len(volume):], string(filepath.Separator))
 	current := volume + string(filepath.Separator)
@@ -47,6 +53,51 @@ func ProvenAbsentIn(files Files, path string) (bool, error) {
 		}
 		if i < len(parts)-1 && !info.IsDir() {
 			// A file where a directory belongs: what is below it is not there, and not provably so.
+			if resolved, serr := files.Stat(current); serr == nil && !resolved.IsDir() {
+				return false, fmt.Errorf("pose: %s is not a directory", current)
+			}
+		}
+	}
+	return false, nil
+}
+
+func provenAbsentFromRoot(files Files, root, path string) (bool, error) {
+	rootInfo, err := files.Lstat(root)
+	if errors.Is(err, os.ErrNotExist) {
+		return true, nil
+	}
+	if err != nil {
+		return false, fmt.Errorf("pose: %s could not be inspected: %w", root, err)
+	}
+	if rootInfo.Mode()&os.ModeSymlink != 0 {
+		if _, err := files.Stat(root); err != nil {
+			return false, fmt.Errorf("pose: %s is a link whose target cannot be read: %w", root, err)
+		}
+	}
+	rel, err := filepath.Rel(root, path)
+	if err != nil || rel == ".." || strings.HasPrefix(rel, ".."+string(filepath.Separator)) {
+		return false, fmt.Errorf("pose: %s is outside the bounded root %s", path, root)
+	}
+	if rel == "." {
+		return false, nil
+	}
+	current := root
+	parts := strings.Split(rel, string(filepath.Separator))
+	for i, part := range parts {
+		current = filepath.Join(current, part)
+		info, err := files.Lstat(current)
+		if errors.Is(err, os.ErrNotExist) {
+			return true, nil
+		}
+		if err != nil {
+			return false, fmt.Errorf("pose: %s could not be inspected: %w", current, err)
+		}
+		if info.Mode()&os.ModeSymlink != 0 {
+			if _, serr := files.Stat(current); serr != nil {
+				return false, fmt.Errorf("pose: %s is a link whose target cannot be read: %w", current, serr)
+			}
+		}
+		if i < len(parts)-1 && !info.IsDir() {
 			if resolved, serr := files.Stat(current); serr == nil && !resolved.IsDir() {
 				return false, fmt.Errorf("pose: %s is not a directory", current)
 			}

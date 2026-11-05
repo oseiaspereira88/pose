@@ -247,8 +247,14 @@ func reviewRunCanonicalDigest(run ReviewRun) string {
 	return digestBytes(raw)
 }
 func (s Store) LoadProvenanceReviewRun(id string) (ReviewRun, error) {
-	if s.IsDelegationTaskRun(id) {
-		return ReviewRun{}, ErrDelegationTaskRun(id)
+	if strings.HasPrefix(id, "trn-") {
+		if _, carrier := governanceReadViewFromFiles(s.fsys()); carrier != nil {
+			markGovernanceReadUnknownForProject(s.fsys(), s.Root, carrier.project, carrier.producer, "task-run identity is checked against external task state")
+			return ReviewRun{}, fmt.Errorf("invalid provenance run id")
+		}
+		if s.IsDelegationTaskRun(id) {
+			return ReviewRun{}, ErrDelegationTaskRun(id)
+		}
 	}
 	if !regexp.MustCompile(`^rrn-[0-9a-f]{16}$`).MatchString(id) {
 		return ReviewRun{}, fmt.Errorf("invalid provenance run id")
@@ -346,11 +352,11 @@ func (s Store) VerifyReviewRunProof(id, proofID string) (ReviewRunAssurance, err
 	if e != nil {
 		return ReviewRunAssurance{}, e
 	}
-	if _, e = ensureReviewArtifactDir(s.Root, filepath.ToSlash(filepath.Dir(rel)), false); e != nil {
+	if _, e = ensureReviewArtifactDirIn(s.fsys(), s.Root, filepath.ToSlash(filepath.Dir(rel)), false); e != nil {
 		return ReviewRunAssurance{}, e
 	}
 	var proof ReviewRunProof
-	if e = readLedgerJSON(filepath.Join(s.Root, rel), &proof); e != nil {
+	if e = readLedgerJSONIn(s.fsys(), filepath.Join(s.Root, rel), &proof); e != nil {
 		return ReviewRunAssurance{}, e
 	}
 	if proof.ProofID != proofID {
@@ -376,7 +382,7 @@ func (s Store) VerifyReviewRunProofRecord(id, proofID string) (string, error) {
 		return "", e
 	}
 	var proof ReviewRunProof
-	if e = readLedgerJSON(filepath.Join(s.Root, rel), &proof); e != nil {
+	if e = readLedgerJSONIn(s.fsys(), filepath.Join(s.Root, rel), &proof); e != nil {
 		return "", e
 	}
 	if proof.ProofID != proofID {
@@ -678,7 +684,7 @@ func (s Store) provenanceAttemptLineage(run ReviewRun, runs []ReviewRun) error {
 			return fmt.Errorf("provenance predecessor missing or foreign")
 		}
 		var receipt reviewAttemptReceipt
-		if e := readLedgerJSONBudget(filepath.Join(s.Root, continuationPath(parent.RunID, true)), &receipt, &budget); e != nil {
+		if e := readLedgerJSONBudgetIn(s.fsys(), filepath.Join(s.Root, continuationPath(parent.RunID, true)), &receipt, &budget); e != nil {
 			return e
 		}
 		if receipt.RunID != current.RunID || receipt.AttemptID != run.AttemptID || receipt.RunDigest != reviewRunCanonicalDigest(current) {
@@ -752,7 +758,7 @@ func (w provenanceStdinWriter) Write(p []byte) (int, error) {
 }
 
 func (s Store) runProvenanceProjectBinding(project string) error {
-	if _, err := os.Lstat(filepath.Join(s.Root, ".pose/project.json")); !os.IsNotExist(err) {
+	if _, err := s.fsys().Lstat(filepath.Join(s.Root, ".pose/project.json")); !os.IsNotExist(err) {
 		if _, err := dispatchRegularInputPath(s.Root, ".pose/project.json"); err != nil {
 			return err
 		}

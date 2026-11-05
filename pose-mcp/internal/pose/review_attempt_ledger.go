@@ -9,6 +9,7 @@ import (
 	"errors"
 	"fmt"
 	"io"
+	"io/fs"
 	"os"
 	"os/exec"
 	"path/filepath"
@@ -103,6 +104,38 @@ func readBoundedRegular(path string, limit int64) ([]byte, error) {
 	return raw, nil
 }
 
+// readBoundedRegularIn is the operation-Files form of readBoundedRegular. It
+// keeps the same regular-file and replacement checks while making the bytes
+// part of an active governance read view.
+func readBoundedRegularIn(files Files, path string, limit int64) ([]byte, error) {
+	files = FilesOrNative(files)
+	info, err := files.Lstat(path)
+	if err != nil {
+		return nil, err
+	}
+	if !info.Mode().IsRegular() || limit < 0 || info.Size() < 0 || info.Size() > limit {
+		return nil, fmt.Errorf("ledger record is not a bounded regular file: %s", path)
+	}
+	f, err := files.Open(path)
+	if err != nil {
+		return nil, err
+	}
+	opened, statErr := f.Stat()
+	if statErr != nil || !opened.Mode().IsRegular() || !sameObservedFile(info, opened) {
+		_ = f.Close()
+		return nil, fmt.Errorf("ledger file changed while opening %s", path)
+	}
+	raw, readErr := readLimited(f, limit)
+	closeErr := f.Close()
+	if readErr != nil {
+		return nil, readErr
+	}
+	if closeErr != nil {
+		return nil, closeErr
+	}
+	return raw, nil
+}
+
 var errReviewLedgerBudget = errors.New("review ledger exceeds 32 MiB inventory read budget")
 
 func readLedgerRawBudget(path string, remaining *int64) ([]byte, error) {
@@ -126,8 +159,39 @@ func readLedgerRawBudget(path string, remaining *int64) ([]byte, error) {
 	}
 	return raw, nil
 }
+
+func readLedgerRawBudgetIn(files Files, path string, remaining *int64) ([]byte, error) {
+	files = FilesOrNative(files)
+	info, err := files.Lstat(path)
+	if err != nil {
+		return nil, err
+	}
+	if info.Size() < 0 || info.Size() > *remaining {
+		return nil, errReviewLedgerBudget
+	}
+	*remaining -= info.Size()
+	raw, err := readBoundedRegularIn(files, path, reviewLedgerMaxBytes)
+	if err != nil {
+		return nil, err
+	}
+	if extra := int64(len(raw)) - info.Size(); extra > 0 {
+		*remaining -= extra
+		if *remaining < 0 {
+			return nil, errReviewLedgerBudget
+		}
+	}
+	return raw, nil
+}
 func readLedgerJSONBudget(path string, v any, remaining *int64) error {
 	raw, err := readLedgerRawBudget(path, remaining)
+	if err != nil {
+		return err
+	}
+	return strictJSONBytes(raw, v)
+}
+
+func readLedgerJSONBudgetIn(files Files, path string, v any, remaining *int64) error {
+	raw, err := readLedgerRawBudgetIn(files, path, remaining)
 	if err != nil {
 		return err
 	}
@@ -151,6 +215,18 @@ func readLedgerJSON(path string, v any) error {
 	}
 	return nil
 }
+
+func readLedgerJSONIn(files Files, path string, v any) error {
+	raw, err := readBoundedRegularIn(files, path, reviewLedgerMaxBytes)
+	if err != nil {
+		return err
+	}
+	if err := strictJSONBytes(raw, v); err != nil {
+		return fmt.Errorf("ledger record %s: %w", path, err)
+	}
+	return nil
+}
+
 func ledgerEntries(root, rel string) ([]os.DirEntry, error) {
 	path, err := ensureReviewArtifactDir(root, rel, false)
 	if os.IsNotExist(err) {
@@ -164,6 +240,41 @@ func ledgerEntries(root, rel string) ([]os.DirEntry, error) {
 		return nil, err
 	}
 	entries, err := f.ReadDir(reviewLedgerMaxRecords + 1)
+	closeErr := f.Close()
+	if err != nil && !errors.Is(err, io.EOF) {
+		return nil, err
+	}
+	if closeErr != nil {
+		return nil, closeErr
+	}
+	if len(entries) > reviewLedgerMaxRecords {
+		return nil, fmt.Errorf("ledger inventory exceeds %d records", reviewLedgerMaxRecords)
+	}
+	sort.Slice(entries, func(i, j int) bool { return entries[i].Name() < entries[j].Name() })
+	return entries, nil
+}
+
+func ledgerEntriesIn(files Files, root, rel string) ([]fs.DirEntry, error) {
+	files = FilesOrNative(files)
+	path, err := ensureReviewArtifactDirIn(files, root, rel, false)
+	if os.IsNotExist(err) {
+		return nil, nil
+	}
+	if err != nil {
+		return nil, err
+	}
+	f, err := files.Open(path)
+	if err != nil {
+		return nil, err
+	}
+	reader, ok := f.(interface {
+		ReadDir(int) ([]fs.DirEntry, error)
+	})
+	if !ok {
+		_ = f.Close()
+		return nil, fmt.Errorf("ledger directory does not support bounded reads")
+	}
+	entries, err := reader.ReadDir(reviewLedgerMaxRecords + 1)
 	closeErr := f.Close()
 	if err != nil && !errors.Is(err, io.EOF) {
 		return nil, err
@@ -195,7 +306,7 @@ func publishLedgerJSON(root, rel string, v any) error {
 func (s Store) readDelegatedReviewAttempts(bundle string, budgets ...*int64) ([]DelegatedReviewAttempt, error) {
 	budget := reviewReadBudget(budgets)
 	rel := filepath.ToSlash(filepath.Join(reviewAttemptDir, reviewAttemptKey(bundle)))
-	entries, err := ledgerEntries(s.Root, rel)
+	entries, err := ledgerEntriesIn(s.fsys(), s.Root, rel)
 	if err != nil {
 		return nil, err
 	}
@@ -211,7 +322,7 @@ func (s Store) readDelegatedReviewAttempts(bundle string, budgets ...*int64) ([]
 			return nil, fmt.Errorf("unknown attempt artifact %s", e.Name())
 		}
 		var a DelegatedReviewAttempt
-		if err := readLedgerJSONBudget(filepath.Join(s.Root, rel, e.Name()), &a, budget); err != nil {
+		if err := readLedgerJSONBudgetIn(s.fsys(), filepath.Join(s.Root, rel, e.Name()), &a, budget); err != nil {
 			return nil, err
 		}
 		if a.SchemaVersion != 1 || a.BundleID != bundle || a.Ordinal != len(out)+1 || a.AttemptID != attemptIdentity(a) || e.Name() != fmt.Sprintf("%06d.json", a.Ordinal) {
@@ -242,14 +353,14 @@ func (s Store) readDelegatedReviewAttempts(bundle string, budgets ...*int64) ([]
 func (s Store) readAttemptReceipt(a DelegatedReviewAttempt, budgets ...*int64) (reviewAttemptReceipt, error) {
 	budget := reviewReadBudget(budgets)
 	var r reviewAttemptReceipt
-	if err := readLedgerJSONBudget(attemptReceiptPath(s.Root, a), &r, budget); err != nil {
+	if err := readLedgerJSONBudgetIn(s.fsys(), attemptReceiptPath(s.Root, a), &r, budget); err != nil {
 		return r, fmt.Errorf("attempt %s incomplete or unreadable; inspect explicitly: %w", a.AttemptID, err)
 	}
 	if r.SchemaVersion != 1 || r.AttemptID != a.AttemptID || !strings.HasPrefix(r.RunID, "rrn-") || strings.ContainsAny(r.RunID, "/\\") {
 		return r, fmt.Errorf("invalid attempt receipt %s", a.AttemptID)
 	}
 	var run ReviewRun
-	if err := readLedgerJSONBudget(filepath.Join(s.Root, reviewRunsDir, r.RunID+".json"), &run, budget); err != nil {
+	if err := readLedgerJSONBudgetIn(s.fsys(), filepath.Join(s.Root, reviewRunsDir, r.RunID+".json"), &run, budget); err != nil {
 		return r, err
 	}
 	raw, _ := json.Marshal(run)
@@ -336,7 +447,7 @@ func (s Store) ReviewRunLedgerFindings(bundle string) ([]string, error) {
 	return s.reviewRunLedgerFindings(bundle, &budget)
 }
 func (s Store) reviewRunLedgerFindings(bundle string, budget *int64) ([]string, error) {
-	entries, err := ledgerEntries(s.Root, reviewRunLedgerDir)
+	entries, err := ledgerEntriesIn(s.fsys(), s.Root, reviewRunLedgerDir)
 	if err != nil {
 		return nil, err
 	}
@@ -347,7 +458,7 @@ func (s Store) reviewRunLedgerFindings(bundle string, budget *int64) ([]string, 
 			continue
 		}
 		var w reviewRunWitness
-		if err := readLedgerJSONBudget(filepath.Join(s.Root, reviewRunLedgerDir, e.Name()), &w, budget); err != nil {
+		if err := readLedgerJSONBudgetIn(s.fsys(), filepath.Join(s.Root, reviewRunLedgerDir, e.Name()), &w, budget); err != nil {
 			findings = append(findings, err.Error())
 			if errors.Is(err, errReviewLedgerBudget) {
 				break
@@ -359,7 +470,7 @@ func (s Store) reviewRunLedgerFindings(bundle string, budget *int64) ([]string, 
 			continue
 		}
 		var run ReviewRun
-		raw, readErr := readLedgerRawBudget(filepath.Join(s.Root, reviewRunsDir, w.RunID+".json"), budget)
+		raw, readErr := readLedgerRawBudgetIn(s.fsys(), filepath.Join(s.Root, reviewRunsDir, w.RunID+".json"), budget)
 		if readErr != nil {
 			findings = append(findings, "witnessed run "+w.RunID+": "+readErr.Error())
 			if errors.Is(readErr, errReviewLedgerBudget) {
@@ -378,7 +489,7 @@ func (s Store) reviewRunLedgerFindings(bundle string, budget *int64) ([]string, 
 		if bundle != "" && run.BundleID != bundle {
 			continue
 		}
-		info, statErr := os.Lstat(filepath.Join(s.Root, run.TranscriptPath))
+		info, statErr := s.fsys().Lstat(filepath.Join(s.Root, run.TranscriptPath))
 		if statErr == nil {
 			checkedBytes += info.Size()
 		}

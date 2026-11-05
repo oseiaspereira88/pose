@@ -427,7 +427,7 @@ func TestUpdatePreviewParityAcrossUpdateBranches(t *testing.T) {
 			pc := u.apply(p, &predicted, &predicted)
 			sameEffects(t, "preview must not write", nil, appliedEffects(before, instanceState(t, root)))
 			if gaps := p.Gaps(); len(gaps) > 0 {
-				t.Fatalf("preview gaps: %v", gaps)
+				t.Fatalf("preview gaps: %v\n%s", gaps, &predicted)
 			}
 			changes := []string{}
 			for _, c := range p.Changes(root) {

@@ -66,7 +66,7 @@ func (s Store) ReadFollowupCandidates(today string) (FollowupCandidatesResult, e
 		status[sp.Slug] = sp.Status
 	}
 	tests, testLosses := s.testNamesRead()
-	read := ReadSpecFollowups(s.Root)
+	read := ReadSpecFollowupsIn(s.fsys(), s.Root)
 	coverage := read.Coverage
 	for _, loss := range testLosses {
 		coverage.Add(loss)

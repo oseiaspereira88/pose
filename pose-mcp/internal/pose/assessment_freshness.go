@@ -46,20 +46,27 @@ const (
 func (s Store) CurrentAssessmentBinding(relPath string) (AssessmentBinding, bool) {
 	clean := filepath.ToSlash(filepath.Clean(relPath))
 	binding := AssessmentBinding{EngineVersion: EngineVersion, MatrixDigest: "absent"}
-	if raw, err := os.ReadFile(filepath.Join(s.Root, ".pose", "indexes", "validation-matrix.json")); err == nil {
+	if raw, err := s.fsys().ReadFile(filepath.Join(s.Root, ".pose", "indexes", "validation-matrix.json")); err == nil {
 		binding.MatrixDigest = digestBytes(raw)
+	} else if err != nil && !os.IsNotExist(err) {
+		markGovernanceReadUnknownForProject(s.fsys(), s.Root, s.FederatedProjectID, "assessments", "validation matrix could not be read: "+err.Error())
 	}
 	spec := "HEAD:" + clean
 	if clean == "." {
 		spec = "HEAD^{tree}"
 	}
-	tree, err := RawHistoryGit(s.Root, "rev-parse", spec).Output()
+	producer := governanceProducerFromFiles(s.fsys(), "assessments")
+	tree, err := captureGovernanceGit(s.fsys(), s.Root, producer, "rev-parse", spec)
 	if err != nil {
+		markGovernanceReadUnknownForProject(s.fsys(), s.Root, s.FederatedProjectID, producer, "component content tree could not be read from Git: "+err.Error())
 		return binding, false
 	}
 	binding.ContentTree = strings.TrimSpace(string(tree))
-	status, err := RawHistoryGit(s.Root, "status", "--porcelain", "--untracked-files=normal", "--", clean).Output()
+	status, err := captureGovernanceGit(s.fsys(), s.Root, producer, "status", "--porcelain", "--untracked-files=normal", "--", clean)
 	if err != nil || len(strings.TrimSpace(string(status))) > 0 {
+		if err != nil {
+			markGovernanceReadUnknownForProject(s.fsys(), s.Root, s.FederatedProjectID, producer, "component worktree status could not be read from Git: "+err.Error())
+		}
 		return binding, false
 	}
 	return binding, true
@@ -122,7 +129,7 @@ func (s Store) assessmentObligations(project string, specs []Spec) []Obligation 
 				continue
 			}
 			seen[component] = true
-			if info, err := os.Stat(filepath.Join(s.Root, filepath.FromSlash(component))); err != nil || !info.IsDir() {
+			if info, err := s.fsys().Stat(filepath.Join(s.Root, filepath.FromSlash(component))); err != nil || !info.IsDir() {
 				continue
 			}
 			fresh := s.ComponentAssessmentFreshness(component)

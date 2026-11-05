@@ -5,7 +5,6 @@ import (
 	"os"
 	"strings"
 	"testing"
-	"time"
 
 	posemodel "github.com/harne8/pose-mcp/internal/pose"
 )
@@ -60,6 +59,10 @@ func closableWithAdjudication(t *testing.T) (string, posemodel.Store, string) {
 	if err := os.WriteFile(sp.Path, []byte(strings.ReplaceAll(string(raw), "test:TestFixture", "check:unit")), 0o644); err != nil {
 		t.Fatal(err)
 	}
+	// Close requires a current generation, whereas dispatch alone can read the
+	// legacy synthetic delivery graph. Bind the completed fixture before any
+	// adjudication or concurrent writer runs; never refresh after the race.
+	publishReviewCLIIndexFixture(t, root)
 	draft := posemodel.ReviewDraft{Schema: posemodel.ReviewDraftSchema, Decision: "changes-requested", Findings: []posemodel.ReviewDraftFinding{},
 		Questions: []posemodel.ReviewDraftQuestion{{ID: "R1", Verdict: posemodel.AdjudicationDoesNotHold, Rationale: "a counterexample"}}}
 	raw, _ = json.Marshal(draft)
@@ -86,37 +89,48 @@ func closableWithAdjudication(t *testing.T) (string, posemodel.Store, string) {
 	if code, out := runPose(t, root, "review", "verify", "spec:alpha"); code != 0 {
 		t.Fatal(code, out)
 	}
+	state, err := cliCloseoutStateForStore(cliGovernedStore(root), "spec:alpha")
+	if err != nil || !state.Review.Approved || state.ReadView == nil || state.ReadView.Freshness != posemodel.ReadViewFreshnessCurrent {
+		t.Fatalf("fixture is not currently closable: %+v %v", state, err)
+	}
 	return root, s, adjudication
 }
 
-// Review round 2, R2-B01: an adjudication published while close runs either
-// lands before close's locked re-check, which refuses, or waits for the
-// lifecycle lock close holds and lands after the transition.
+// The root guard covers evaluation as well as the lifecycle write. A competing
+// adjudication is refused while either boundary is held, and can be retried
+// after the transition. An adjudication already present still refuses close
+// (TestAdjudicationVerdictFailsLintSpec).
 func TestCloseAndAdjudicationAreSerialized(t *testing.T) {
 	t.Run("before the locked re-check", func(t *testing.T) {
 		root, s, adjudication := closableWithAdjudication(t)
 		closeGatesJudged = func() {
-			if code, out := runPose(t, root, "review", "conclude", adjudication, "--issuer", "fixture-executor", "--apply"); code != 0 {
-				t.Fatal(code, out)
+			if code, out := runPose(t, root, "review", "conclude", adjudication, "--issuer", "fixture-executor", "--apply"); code == 0 || !strings.Contains(out, "governance-write-guard-busy") {
+				t.Fatalf("adjudication interleaved with guarded evaluation: %d %s", code, out)
 			}
 		}
 		t.Cleanup(func() { closeGatesJudged = nil })
-		if code, out := runPose(t, root, "close", "spec:alpha"); code == 0 {
-			t.Fatalf("close published over a negative adjudication: %s", out)
+		if code, out := runPose(t, root, "close", "spec:alpha"); code != 0 {
+			t.Fatalf("guarded close failed: %d %s", code, out)
 		}
-		if sp, _ := s.GetSpec("alpha"); sp.Status != "in-progress" {
+		if sp, _ := s.GetSpec("alpha"); sp.Status != "done" {
 			t.Fatalf("status %s", sp.Status)
+		}
+		if a, _ := s.SpecAdjudications("alpha"); len(a) != 0 {
+			t.Fatal("refused adjudication published a verdict")
+		}
+		if code, out := runPose(t, root, "review", "conclude", adjudication, "--issuer", "fixture-executor", "--apply"); code != 0 {
+			t.Fatalf("adjudication after release: %d %s", code, out)
+		}
+		if a, _ := s.SpecAdjudications("alpha"); len(a) != 1 {
+			t.Fatalf("adjudication after release was lost: %+v", a)
 		}
 	})
 	t.Run("while close holds the lock", func(t *testing.T) {
 		root, s, adjudication := closableWithAdjudication(t)
-		concluded := make(chan string, 1)
 		guard := func() error {
-			go func() {
-				_, out := runPose(t, root, "review", "conclude", adjudication, "--issuer", "fixture-executor", "--apply")
-				concluded <- out
-			}()
-			time.Sleep(500 * time.Millisecond)
+			if code, out := runPose(t, root, "review", "conclude", adjudication, "--issuer", "fixture-executor", "--apply"); code == 0 || !strings.Contains(out, "governance-write-guard-busy") {
+				t.Fatalf("adjudication interleaved with locked transition: %d %s", code, out)
+			}
 			if a, _ := s.SpecAdjudications("alpha"); len(a) != 0 {
 				t.Error("an adjudication was published while close held the lifecycle lock")
 			}
@@ -126,7 +140,9 @@ func TestCloseAndAdjudicationAreSerialized(t *testing.T) {
 		if code := cmdCloseLocal(root, "spec:alpha", guard, &stdout, &stderr); code != 0 {
 			t.Fatalf("close: %d %s %s", code, stdout.String(), stderr.String())
 		}
-		<-concluded
+		if code, out := runPose(t, root, "review", "conclude", adjudication, "--issuer", "fixture-executor", "--apply"); code != 0 {
+			t.Fatalf("adjudication after release: %d %s", code, out)
+		}
 		if a, _ := s.SpecAdjudications("alpha"); len(a) != 1 {
 			t.Fatalf("the adjudication did not land after the transition: %+v", a)
 		}

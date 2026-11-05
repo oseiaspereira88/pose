@@ -571,6 +571,9 @@ func structuralReviewCLIFixture(t *testing.T, root string) (posemodel.ReviewBund
 	if err := os.WriteFile(policyPath, raw, 0o600); err != nil {
 		t.Fatal(err)
 	}
+	// All structural inputs are now final. Publish the edited graph rather
+	// than letting seal keep reading the earlier immutable fixture generation.
+	publishReviewCLIIndexFixture(t, root)
 	bundle, evidence := sealCLIBundle(t, root)
 	if bundle.Payload.Plan.Structure == nil || len(bundle.Payload.Plan.Structure.Material) == 0 {
 		t.Fatalf("fixture: the plan observes no material structure: %+v", bundle.Payload.Plan.Structure)

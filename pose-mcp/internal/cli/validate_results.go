@@ -11,6 +11,7 @@ import (
 	"encoding/xml"
 	"fmt"
 	"os"
+	"path/filepath"
 	"regexp"
 	"strings"
 
@@ -181,11 +182,66 @@ func writeExecutionPlan(path string, plan executionPlan) error {
 }
 
 func writeValidationJSON(path string, run validationRunResult) error {
-	payload, err := json.MarshalIndent(run, "", "  ")
+	payload, err := marshalValidationJSON(run)
 	if err != nil {
 		return err
 	}
-	return os.WriteFile(path, append(payload, '\n'), 0o644)
+	return os.WriteFile(path, payload, 0o644)
+}
+
+func marshalValidationJSON(run validationRunResult) ([]byte, error) {
+	payload, err := json.MarshalIndent(run, "", "  ")
+	if err != nil {
+		return nil, err
+	}
+	return append(payload, '\n'), nil
+}
+
+// configuredDeliveryResultsPath identifies the project-local JSON artifact
+// that downstream delivery and closeout gates consume. Other --json-out
+// paths remain ordinary exports and keep their existing writer behavior.
+func configuredDeliveryResultsPath(root string) string {
+	policy, err := posemodel.LoadDeliveryPolicy(root)
+	if err != nil || policy.ResultsPath == "" {
+		return ""
+	}
+	return normalizeValidationOutputPath(policy.ResultsPath)
+}
+
+func normalizeValidationOutputPath(path string) string {
+	if path == "" {
+		return ""
+	}
+	return filepath.ToSlash(filepath.Clean(filepath.FromSlash(path)))
+}
+
+// publishCanonicalValidationJSON rechecks the delivery policy after acquiring
+// the root lease, then publishes the exact canonical result through B14. A
+// changed path is refused before creating or replacing the result.
+func publishCanonicalValidationJSON(root, relative, expectedPolicyPath string, run validationRunResult) error {
+	return publishCanonicalValidationJSONIn(cliGovernedStore(root), relative, expectedPolicyPath, run)
+}
+
+func publishCanonicalValidationJSONIn(store posemodel.Store, relative, expectedPolicyPath string, run validationRunResult) error {
+	return store.WithGovernanceWriteGuardForProjects("validate.publish-results", nil, func(store posemodel.Store) error {
+		policy, err := posemodel.LoadDeliveryPolicyIn(store.FS, store.Root)
+		if err != nil {
+			return err
+		}
+		currentPath := normalizeValidationOutputPath(policy.ResultsPath)
+		if currentPath == "" || currentPath != expectedPolicyPath || currentPath != normalizeValidationOutputPath(relative) {
+			return fmt.Errorf("configured delivery results path changed before publication; nothing was written")
+		}
+		payload, err := marshalValidationJSON(run)
+		if err != nil {
+			return err
+		}
+		target := filepath.Join(store.Root, filepath.FromSlash(currentPath))
+		if err := store.FS.MkdirAll(filepath.Dir(target), 0o755); err != nil {
+			return err
+		}
+		return store.FS.Publish(target, payload, 0o644, posemodel.PublishAuthoritative, posemodel.PublishExpectation{Mode: posemodel.ExpectAny})
+	})
 }
 
 // --- JUnit projection -------------------------------------------------------

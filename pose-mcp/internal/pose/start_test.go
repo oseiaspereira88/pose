@@ -3,12 +3,14 @@ package pose
 import (
 	"encoding/json"
 	"errors"
+	"fmt"
 	"os"
 	"os/exec"
 	"path/filepath"
 	"strings"
 	"sync"
 	"testing"
+	"time"
 )
 
 const startSpecBody = "---\nslug: work\nstatus: draft\ncreated_at: 2026-09-27\n---\n\n# Spec: work\n\n## 2. Requirements\n\n- R1: Record the baseline.\n- R2: Move to in-progress once.\n\n## 5. Decisions\n\n### Decision D1\n- Basis: R1\n"
@@ -181,7 +183,7 @@ func TestABMAtomicStartConcurrentAppliesRecordOneBaseline(t *testing.T) {
 	for _, err := range errs {
 		if err == nil {
 			succeeded++
-		} else if !strings.Contains(err.Error(), "start-in-progress") {
+		} else if !strings.Contains(err.Error(), "start-in-progress") && !errors.Is(err, ErrGovernanceWriteGuardBusy) {
 			t.Fatalf("concurrent apply failed for another reason: %v", err)
 		}
 	}
@@ -192,6 +194,113 @@ func TestABMAtomicStartConcurrentAppliesRecordOneBaseline(t *testing.T) {
 	var record StartRecord
 	if json.Unmarshal(raw, &record) != nil || record.Phase != "started" || record.PlanDigest != plan.Digest {
 		t.Fatalf("record after concurrent applies = %s", raw)
+	}
+}
+
+func TestGovernanceWriteGuardStartRefusesBeforeLifecycleEffects(t *testing.T) {
+	store, specPath := startFixture(t, true, startSpecBody)
+	plan, err := store.PreviewStart("work")
+	if err != nil {
+		t.Fatal(err)
+	}
+	err = WithGovernanceWriteGuard("test.hold-root-before-start", []Store{store}, func([]Store) error {
+		_, applyErr := store.ApplyStart(plan, plan.Digest, nil)
+		if !errors.Is(applyErr, ErrGovernanceWriteGuardBusy) {
+			return fmt.Errorf("competing start = %v, want root-guard refusal", applyErr)
+		}
+		if _, err := os.Lstat(startRecordPath(store.Root, "work")); !errors.Is(err, os.ErrNotExist) {
+			return fmt.Errorf("start record exists after refusal: %v", err)
+		}
+		if _, err := os.Lstat(startLockPath(store.Root, "work")); !errors.Is(err, os.ErrNotExist) {
+			return fmt.Errorf("lifecycle lock exists after root-guard refusal: %v", err)
+		}
+		raw, err := os.ReadFile(specPath)
+		if err != nil {
+			return err
+		}
+		if !strings.Contains(string(raw), "status: draft") {
+			return fmt.Errorf("spec status after refusal is not draft")
+		}
+		return nil
+	})
+	if err != nil {
+		t.Fatal(err)
+	}
+}
+
+func TestGovernanceReadViewStartRetryRechecksRestrictionsBeforeTransition(t *testing.T) {
+	store, specPath := startFixture(t, true, startSpecBody)
+	plan, err := store.PreviewStart("work")
+	if err != nil {
+		t.Fatal(err)
+	}
+	stop := errors.New("stop after baseline receipt")
+	partial, err := store.ApplyStart(plan, plan.Digest, func(phase string) error {
+		if phase == "baseline-recorded" {
+			return stop
+		}
+		return nil
+	})
+	if !errors.Is(err, stop) || partial.Phase != "baseline-recorded" {
+		t.Fatalf("interrupted start = %+v, %v", partial, err)
+	}
+
+	reviewPolicy := `{"schema_version":2,"enabled":false,"profiles":{"spec":"spec-closeout@1"},"atomic_start_version":1,"agency_readiness_version":1}`
+	if err := os.WriteFile(filepath.Join(store.Root, ".pose/policy/review.json"), []byte(reviewPolicy), 0o644); err != nil {
+		t.Fatal(err)
+	}
+	request := decisionRequest()
+	request.Origin = "spec:work"
+	request.Recipient = ObligationActor{Principal: "human:maintainer"}
+	request.Targets = []NodeRef{{Artifact: "self"}}
+	request.Effects = []ObligationEffect{{Phase: PhaseStart, Mode: EffectBlock}}
+	if _, err := store.OpenActionRequest(request, time.Date(2026, 11, 3, 12, 0, 0, 0, time.UTC)); err != nil {
+		t.Fatal(err)
+	}
+
+	if _, err := store.ApplyStart(plan, plan.Digest, nil); err == nil || !strings.Contains(err.Error(), "spec-not-ready") {
+		t.Fatalf("retry ignored a new start restriction: %v", err)
+	}
+	record, exists, err := store.GetStartRecord("work")
+	if err != nil || !exists || record.Phase != "baseline-recorded" {
+		t.Fatalf("baseline record after refusal = %+v, exists=%v, err=%v", record, exists, err)
+	}
+	raw, err := os.ReadFile(specPath)
+	if err != nil || !strings.Contains(string(raw), "status: draft") {
+		t.Fatalf("spec transitioned after refusal: %v", err)
+	}
+}
+
+func TestGovernanceWriteGuardStartDropsCapturedReadViewBeforeReevaluation(t *testing.T) {
+	store, specPath := startFixture(t, true, startSpecBody)
+	viewStore := store.withGovernanceReadView(newGovernanceReadView(store.Root, store.fsys()), "test.advisory-start")
+	plan, err := viewStore.PreviewStart("work")
+	if err != nil {
+		t.Fatal(err)
+	}
+
+	reviewPolicy := `{"schema_version":2,"enabled":false,"profiles":{"spec":"spec-closeout@1"},"atomic_start_version":1,"agency_readiness_version":1}`
+	if err := os.WriteFile(filepath.Join(store.Root, ".pose/policy/review.json"), []byte(reviewPolicy), 0o644); err != nil {
+		t.Fatal(err)
+	}
+	request := decisionRequest()
+	request.Origin = "spec:work"
+	request.Recipient = ObligationActor{Principal: "human:maintainer"}
+	request.Targets = []NodeRef{{Artifact: "self"}}
+	request.Effects = []ObligationEffect{{Phase: PhaseStart, Mode: EffectBlock}}
+	if _, err := store.OpenActionRequest(request, time.Date(2026, 11, 3, 12, 0, 0, 0, time.UTC)); err != nil {
+		t.Fatal(err)
+	}
+
+	if _, err := viewStore.ApplyStart(plan, plan.Digest, nil); err == nil || !(strings.Contains(err.Error(), "spec-not-ready") || strings.Contains(err.Error(), "stale-plan")) {
+		t.Fatalf("ApplyStart did not reject the changed restriction or plan: %v", err)
+	}
+	if _, err := os.Stat(startRecordPath(store.Root, "work")); !errors.Is(err, os.ErrNotExist) {
+		t.Fatalf("start record appeared despite fresh restriction: %v", err)
+	}
+	raw, err := os.ReadFile(specPath)
+	if err != nil || !strings.Contains(string(raw), "status: draft") {
+		t.Fatalf("spec transitioned despite fresh restriction: %v", err)
 	}
 }
 

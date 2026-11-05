@@ -154,7 +154,7 @@ func TestR2GitFailuresAreNotAbsence(t *testing.T) {
 		t.Skip("git is not on the path")
 	}
 	shim := t.TempDir()
-	script := "#!/bin/sh\ncase \"$*\" in\n*\"tag --list\"*) echo boom >&2; exit 2;;\nesac\nexec " + real + " \"$@\"\n"
+	script := "#!/bin/sh\ncase \"$*\" in\n*\"for-each-ref\"*\"refs/tags\"*|*\"tag --list\"*) echo boom >&2; exit 2;;\nesac\nexec " + real + " \"$@\"\n"
 	if err := os.WriteFile(filepath.Join(shim, "git"), []byte(script), 0o755); err != nil {
 		t.Fatal(err)
 	}

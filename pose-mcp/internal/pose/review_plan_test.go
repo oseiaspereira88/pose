@@ -523,6 +523,7 @@ components: web
 
 func TestReviewCheckRequiresCurrentEffectivePlanDigestAndCoverage(t *testing.T) {
 	root, store := componentReviewFixture(t)
+	bindCurrentReviewFixture(t, store)
 	plan, err := store.ReviewPlan("spec:backend")
 	if err != nil {
 		t.Fatal(err)

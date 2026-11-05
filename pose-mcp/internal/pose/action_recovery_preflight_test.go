@@ -175,7 +175,7 @@ func TestActionRecoveryConcurrentSuccessorsCannotBothRetire(t *testing.T) {
 	for err := range results {
 		if err == nil {
 			success++
-		} else if !errors.Is(err, ErrActionIntentConflict) && !errors.Is(err, ErrActionRevisionConflict) {
+		} else if !errors.Is(err, ErrActionIntentConflict) && !errors.Is(err, ErrActionRevisionConflict) && !errors.Is(err, ErrGovernanceWriteGuardBusy) {
 			t.Fatalf("untyped contention: %v", err)
 		}
 	}

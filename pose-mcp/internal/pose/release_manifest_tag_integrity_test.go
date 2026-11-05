@@ -98,6 +98,45 @@ func (r *releaseRepo) commit(t *testing.T, msg string) {
 	relGit(t, r.root, "commit", "-q", "-m", msg)
 }
 
+func TestReleaseStatusUsesCapturedTagObjectAfterRefMoves(t *testing.T) {
+	r := newReleaseRepo(t, "v1.0.0")
+	oldCommit := relGit(t, r.root, "rev-parse", "HEAD")
+	relGit(t, r.root, "tag", "v1.0.0")
+
+	tags, err := captureReleaseTagBindings(NativeFiles(), r.root, "release")
+	if err != nil {
+		t.Fatal(err)
+	}
+	captured, ok := tags["v1.0.0"]
+	if !ok || captured.Commit != oldCommit {
+		t.Fatalf("captured tag binding = %+v, want commit %s", captured, oldCommit)
+	}
+
+	r.addVersion(t, "v1.1.0")
+	newCommit := relGit(t, r.root, "rev-parse", "HEAD")
+	if newCommit == oldCommit {
+		t.Fatal("fixture did not create a distinct tag target")
+	}
+	relGit(t, r.root, "tag", "-f", "v1.0.0", "HEAD")
+	if current, _, err := ResolveReleaseTag(r.root, "v1.0.0"); err != nil || current != newCommit {
+		t.Fatalf("fixture tag move = %s, %v; want %s", current, err, newCommit)
+	}
+
+	status, err := (Store{Root: r.root}).getReleaseStatusWithTagBindings("", tags)
+	if err != nil {
+		t.Fatal(err)
+	}
+	for _, release := range status.Releases {
+		if release.Version == "v1.0.0" {
+			if release.Snapshot == nil || release.Snapshot.Commit != oldCommit || !release.Snapshot.Intact() {
+				t.Fatalf("release status followed the moved tag instead of its captured object: %+v", release)
+			}
+			return
+		}
+	}
+	t.Fatalf("captured v1.0.0 was omitted from release status: %+v", status.Releases)
+}
+
 // V1 (P04): a parseable object is not a manifest; each redundant field must follow from the fragments.
 func TestAManifestIsValidOnlyIfItsShapeAndProjectionsAgree(t *testing.T) {
 	r := newReleaseRepo(t, "v1.0.0")

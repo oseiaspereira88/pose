@@ -1,6 +1,7 @@
 package pose
 
 import (
+	"errors"
 	"os"
 	"path/filepath"
 	"regexp"
@@ -113,6 +114,13 @@ func ParseSpecFollowups(root string) []SpecFollowup {
 // legacy split layouts the spec listing reads, in path order, and reports each spec it
 // could not read or interpret, attributed to the spec its path names.
 func ReadSpecFollowups(root string) SpecFollowupRead {
+	return ReadSpecFollowupsIn(NativeFiles(), root)
+}
+
+// ReadSpecFollowupsIn reads through the operation Files binding so each
+// artifact contributing follow-up coverage belongs to the caller's read view.
+func ReadSpecFollowupsIn(fsys Files, root string) SpecFollowupRead {
+	fsys = FilesOrNative(fsys)
 	coverage := SourceCoverage{Losses: []SourceLoss{}}
 	entries := []SpecFollowup{}
 	specsDir := filepath.Join(root, ".pose", "specs")
@@ -126,11 +134,11 @@ func ReadSpecFollowups(root string) SpecFollowupRead {
 	lose := func(path, slug, kind, detail string) {
 		coverage.Add(SourceLoss{Producer: "followups", Artifact: rel(path), Scope: slug, AttributedBy: "path", Kind: kind, Detail: detail})
 	}
-	dirEntries, err := os.ReadDir(specsDir)
+	dirEntries, err := fsys.ReadDir(specsDir)
 	if err != nil {
 		// Absent is only absent when nothing is there: a link to nowhere reads as
 		// "does not exist" and is a lost directory.
-		if _, lerr := os.Lstat(specsDir); !os.IsNotExist(err) || lerr == nil {
+		if _, lerr := fsys.Lstat(specsDir); !errors.Is(err, os.ErrNotExist) || lerr == nil {
 			coverage.Add(SourceLoss{Producer: "followups", Artifact: ".pose/specs", Kind: LossReadError, Detail: err.Error()})
 		}
 		coverage.Normalize()
@@ -144,20 +152,20 @@ func ReadSpecFollowups(root string) SpecFollowupRead {
 	for _, e := range dirEntries {
 		path := filepath.Join(specsDir, e.Name())
 		switch {
-		case e.IsDir() || (e.Type()&os.ModeSymlink != 0 && isDirectory(path)):
+		case e.IsDir() || (e.Type()&os.ModeSymlink != 0 && isDirectoryIn(fsys, path)):
 			slug := specSlugFromPath(path + "/spec.md")
 			specPath := filepath.Join(path, "spec.md")
 			// Presence is decided by Lstat: an entry that is there but cannot be resolved
 			// (a dangling link) is a spec that was lost, not one that does not exist.
-			if _, lerr := os.Lstat(specPath); lerr == nil {
-				raw, readErr := os.ReadFile(specPath)
+			if _, lerr := fsys.Lstat(specPath); lerr == nil {
+				raw, readErr := fsys.ReadFile(specPath)
 				if readErr != nil {
 					lose(specPath, slug, LossReadError, readErr.Error())
 					continue
 				}
 				sources = append(sources, source{path: specPath, slug: slug, text: string(raw), ok: true})
 				continue
-			} else if !os.IsNotExist(lerr) {
+			} else if !errors.Is(lerr, os.ErrNotExist) {
 				lose(specPath, slug, LossReadError, lerr.Error())
 				continue
 			}
@@ -167,14 +175,14 @@ func ReadSpecFollowups(root string) SpecFollowupRead {
 			broken := false
 			for _, name := range splitSpecSectionFiles {
 				section := filepath.Join(path, name)
-				if _, lerr := os.Lstat(section); lerr != nil {
-					if !os.IsNotExist(lerr) {
+				if _, lerr := fsys.Lstat(section); lerr != nil {
+					if !errors.Is(lerr, os.ErrNotExist) {
 						lose(section, slug, LossReadError, lerr.Error())
 						broken = true
 					}
 					continue
 				}
-				if fi, serr := os.Stat(section); serr != nil {
+				if fi, serr := fsys.Stat(section); serr != nil {
 					lose(section, slug, LossReadError, serr.Error())
 					broken = true
 				} else if !fi.IsDir() {
@@ -182,25 +190,25 @@ func ReadSpecFollowups(root string) SpecFollowupRead {
 				}
 			}
 			if len(files) > 0 {
-				body, readErr := readSplitSpecBody(NativeFiles(), files)
+				body, readErr := readSplitSpecBody(fsys, files)
 				if readErr != nil {
 					lose(path, slug, LossReadError, readErr.Error())
 					continue
 				}
-				sources = append(sources, source{path: path, slug: slug, text: body, status: splitSpecStatus(NativeFiles(), files), ok: true})
-			} else if _, listErr := os.ReadDir(path); listErr != nil && !broken {
+				sources = append(sources, source{path: path, slug: slug, text: body, status: splitSpecStatus(fsys, files), ok: true})
+			} else if _, listErr := fsys.ReadDir(path); listErr != nil && !broken {
 				// A folder this process cannot list may hold a spec: absence is not proven.
 				lose(path, slug, LossReadError, listErr.Error())
 			}
 		case e.Type()&os.ModeSymlink != 0 && !strings.HasSuffix(e.Name(), ".md"):
 			// A link that stood for a spec folder and no longer resolves: it is neither
 			// a directory nor a flat spec, and it is not absent.
-			if _, statErr := os.Stat(path); statErr != nil {
+			if _, statErr := fsys.Stat(path); statErr != nil {
 				lose(path, specSlugFromPath(path+"/spec.md"), LossReadError, statErr.Error())
 			}
 		case strings.HasSuffix(e.Name(), ".md") && !strings.EqualFold(e.Name(), "README.md"):
 			slug := specSlugFromPath(path)
-			raw, readErr := os.ReadFile(path)
+			raw, readErr := fsys.ReadFile(path)
 			if readErr != nil {
 				lose(path, slug, LossReadError, readErr.Error())
 				continue
@@ -299,8 +307,8 @@ func ReadSpecFollowups(root string) SpecFollowupRead {
 	return SpecFollowupRead{Items: entries, Coverage: coverage}
 }
 
-func isDirectory(path string) bool {
-	info, err := os.Stat(path)
+func isDirectoryIn(files Files, path string) bool {
+	info, err := files.Stat(path)
 	return err == nil && info.IsDir()
 }
 

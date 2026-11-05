@@ -303,6 +303,14 @@ func (f deniedFiles) ReadFile(name string) ([]byte, error) {
 	return f.Files.ReadFile(name)
 }
 
+// The bounded view captures bytes through Open as well as ReadFile.
+func (f deniedFiles) Open(name string) (fs.File, error) {
+	if strings.HasSuffix(name, f.suffix) {
+		return nil, fs.ErrPermission
+	}
+	return f.Files.Open(name)
+}
+
 func (f deniedFiles) ReadDir(name string) ([]fs.DirEntry, error) {
 	if strings.HasSuffix(name, f.suffix) {
 		return nil, fs.ErrPermission

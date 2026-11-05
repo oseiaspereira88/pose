@@ -10,6 +10,32 @@ import (
 )
 
 func lockSpecTransferRoots(stores map[string]Store) (func(), error) {
+	var sharedLease *GovernanceWriteLease
+	guardedCount := 0
+	for _, store := range stores {
+		lease, present := store.governanceWriteGuardInFiles()
+		if !present {
+			continue
+		}
+		if lease == nil || !lease.Active() {
+			return nil, ErrGovernanceWriteGuardReleased
+		}
+		if !lease.Covers(store) {
+			return nil, ErrGovernanceWriteGuardRootBinding
+		}
+		if sharedLease != nil && sharedLease != lease {
+			return nil, ErrGovernanceWriteGuardRootBinding
+		}
+		sharedLease = lease
+		guardedCount++
+	}
+	if guardedCount != 0 {
+		if guardedCount != len(stores) {
+			return nil, ErrGovernanceWriteGuardRootBinding
+		}
+		return func() {}, nil
+	}
+
 	type target struct{ root string }
 	byRoot := map[string]target{}
 	for _, store := range stores {
@@ -70,6 +96,71 @@ func lockSpecTransferRoots(stores map[string]Store) (func(), error) {
 		unlockers = append(unlockers, unlock)
 	}
 	return cleanup, nil
+}
+
+func (r *Roots) withGovernanceStores(stores map[string]Store) *Roots {
+	if r == nil {
+		return nil
+	}
+	r.mu.RLock()
+	clone := &Roots{
+		cfg:              r.cfg,
+		byProject:        make(map[string]string, len(r.byProject)),
+		conflicts:        make(map[string]bool, len(r.conflicts)),
+		governanceStores: make(map[string]Store, len(stores)),
+		lastScan:         r.lastScan,
+		rescanWindow:     r.rescanWindow,
+		fs:               r.fs,
+	}
+	for id, root := range r.byProject {
+		clone.byProject[id] = root
+	}
+	for id, conflict := range r.conflicts {
+		clone.conflicts[id] = conflict
+	}
+	r.mu.RUnlock()
+	for id, store := range stores {
+		clone.governanceStores[id] = store
+	}
+	return clone
+}
+
+func withSpecTransferWriteGuard(resolver ArtifactResolver, plan SpecTransferPlan, authorizedProjects map[string]bool, operation string, callback func(ArtifactResolver) error) error {
+	if resolver.Roots == nil {
+		return specTransferError("unavailable-project")
+	}
+	if callback == nil {
+		return governanceGuardError(ErrGovernanceWriteGuardInvalid, operation, "", errors.New("callback is required"))
+	}
+	stores := make([]Store, 0, len(plan.AffectedProjects))
+	for _, id := range plan.AffectedProjects {
+		if !authorizedProjects[id] {
+			return specTransferError("write-authorization-required")
+		}
+		if resolver.Authorize != nil && !resolver.Authorize(id) {
+			return specTransferError("unauthorized-project")
+		}
+		store, err := resolver.Roots.StoreFor(id)
+		if err != nil {
+			return specTransferError("unavailable-project")
+		}
+		store.FederatedProjectID = id
+		if store.fsys().Preview() != nil {
+			return governanceGuardError(ErrGovernanceWriteGuardUnsupported, operation, id, errors.New("spec transfer writes require native Files"))
+		}
+		stores = append(stores, store)
+	}
+	return WithGovernanceWriteGuard(operation, stores, func(guarded []Store) error {
+		guardedByProject := make(map[string]Store, len(plan.AffectedProjects))
+		for i, id := range plan.AffectedProjects {
+			guardedByProject[id] = guarded[i]
+		}
+		guardedResolver := resolver
+		guardedResolver.Roots = resolver.Roots.withGovernanceStores(guardedByProject)
+		guardedResolver.FS = nil
+		guardedResolver.snapshots = nil
+		return callback(guardedResolver)
+	})
 }
 
 func cleanTransferRelative(root, path string) bool {

@@ -32,6 +32,11 @@ func checkVerdictFixture(t *testing.T) string {
 		"---\nslug: warned\nstatus: done\ncreated_at: 2026-09-01\ncompleted_at: "+
 			time.Now().UTC().Format(time.DateOnly)+"\n---\n"+
 			"# Spec\n\n## 2. Requirements\n\n- R1: exist.\n")
+	out.Reset()
+	errOut.Reset()
+	if code := cmdIndex(root, nil, &out, &errOut); code != 0 {
+		t.Fatalf("index warning fixture: %s %s", &out, &errOut)
+	}
 	return root
 }
 

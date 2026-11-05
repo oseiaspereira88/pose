@@ -1,6 +1,8 @@
 package pose
 
 import (
+	"errors"
+	"fmt"
 	"os"
 	"path/filepath"
 	"strings"
@@ -38,6 +40,128 @@ func decisionRequest() ActionRequest {
 		Recommend:   "preserve-v1",
 		Targets:     []NodeRef{{Artifact: "self", Kind: "requirement", ID: "R4"}},
 		Effects:     []ObligationEffect{{Phase: PhaseExecution, Mode: EffectBlock, Scope: []NodeRef{{Artifact: "self", Kind: "requirement", ID: "R4"}}}, {Phase: PhaseCloseout, Mode: EffectBlock}},
+	}
+}
+
+func TestGovernanceWriteGuardActionRequestFencesSubjectRootBeforeJournalWrite(t *testing.T) {
+	s := actionFixture(t)
+	now := time.Date(2026, 11, 3, 12, 0, 0, 0, time.UTC)
+	r := decisionRequest()
+	prepared, err := s.PrepareActionRequest(r, now)
+	if err != nil {
+		t.Fatal(err)
+	}
+	if filepath.Dir(actionJournalPath(s.Root, prepared.ID)) == filepath.Join(s.Root, ".pose", "specs") {
+		t.Fatal("fixture must separate the subject input from the journal destination")
+	}
+	err = WithGovernanceWriteGuard("test.hold-subject-root", []Store{s}, func([]Store) error {
+		if _, err := s.OpenActionRequest(r, now); !errors.Is(err, ErrGovernanceWriteGuardBusy) {
+			return fmt.Errorf("action request under root contention = %v, want guard refusal", err)
+		}
+		if _, err := os.Lstat(actionJournalPath(s.Root, prepared.ID)); !errors.Is(err, os.ErrNotExist) {
+			return fmt.Errorf("action journal exists after refused write: %v", err)
+		}
+		return nil
+	})
+	if err != nil {
+		t.Fatal(err)
+	}
+}
+
+func TestGovernanceWriteGuardActionResolutionFencesForeignSubjectRoot(t *testing.T) {
+	s := actionFixture(t)
+	sourceRoot, _ := federatedTestComposedRoadmapSource(t, "source")
+	resolver := federatedTestResolver("coordinator", "source", s.Root, sourceRoot)
+	s.FederatedProjectID, s.FederatedResolver = "coordinator", &resolver
+	now := time.Date(2026, 11, 4, 12, 0, 0, 0, time.UTC)
+	foreign := NodeRef{Artifact: "xref:source/spec:backend"}
+	request := ActionRequest{
+		Project:     "coordinator",
+		Origin:      "spec:storage",
+		RequestedBy: ActionPrincipal{Principal: "agent:impl", Execution: "foreign-subject-run"},
+		Recipient:   ObligationActor{Unassigned: true},
+		Kind:        ActionDecision,
+		Question:    "Should this foreign material be adopted?",
+		Options:     []ActionOption{{ID: "adopt", Consequence: "adopt the current material"}, {ID: "defer", Consequence: "defer the material"}},
+		Targets:     []NodeRef{foreign},
+		Effects:     []ObligationEffect{{Phase: PhaseExecution, Mode: EffectBlock, Scope: []NodeRef{foreign}}},
+		Subject:     &ActionSubject{Node: foreign},
+	}
+	opened, err := s.OpenActionRequest(request, now)
+	if err != nil {
+		t.Fatalf("open federated request: %v", err)
+	}
+	resolve := ActionResolution{Type: ActionEventAnswered, RequestID: opened.Request.ID, RequestDigest: opened.Request.RequestDigest, ExpectedRevision: 1, IdempotencyKey: "foreign-subject-answer-1", Actor: "human:maintainer", Role: "maintainer", Answer: "adopt"}
+
+	foreignStore := Store{Root: sourceRoot, FederatedProjectID: "source"}
+	err = WithGovernanceWriteGuard("test.hold-foreign-subject", []Store{foreignStore}, func([]Store) error {
+		if _, err := s.ResolveActionRequest(resolve, now); !errors.Is(err, ErrGovernanceWriteGuardBusy) {
+			return fmt.Errorf("resolution while subject root is held = %v, want root busy", err)
+		}
+		events, err := s.readActionRequestEventsForWrite(opened.Request.ID)
+		if err != nil {
+			return err
+		}
+		if len(events) != 1 {
+			return fmt.Errorf("local journal grew while foreign subject guard was busy: %d events", len(events))
+		}
+		writeErr := foreignStore.withGovernanceWriteGuard("test.foreign-spec-write", func(guarded Store) error {
+			path := filepath.Join(guarded.Root, ".pose", "specs", "backend", "spec.md")
+			return guarded.fsys().Publish(path, []byte("---\nslug: backend\nstatus: done\n---\n\n# Changed while fenced\n"), 0o644, PublishAuthoritative, PublishExpectation{Mode: ExpectAny})
+		})
+		if !errors.Is(writeErr, ErrGovernanceWriteGuardBusy) {
+			return fmt.Errorf("foreign writer while root is held = %v, want root busy", writeErr)
+		}
+		return nil
+	})
+	if err != nil {
+		t.Fatal(err)
+	}
+	subjectPath := filepath.Join(sourceRoot, ".pose", "specs", "backend", "spec.md")
+	subjectBytes, err := os.ReadFile(subjectPath)
+	if err != nil {
+		t.Fatal(err)
+	}
+	if err := os.WriteFile(subjectPath, append(subjectBytes, []byte("\nUncoordinated material change.\n")...), 0o644); err != nil {
+		t.Fatal(err)
+	}
+
+	if _, err := s.ResolveActionRequest(resolve, now); err == nil {
+		t.Fatal("resolution accepted a foreign subject changed after the request was opened")
+	}
+	events, err := s.readActionRequestEventsForWrite(opened.Request.ID)
+	if err != nil {
+		t.Fatal(err)
+	}
+	if len(events) != 1 {
+		t.Fatalf("stale foreign subject appended a local answer: %d events", len(events))
+	}
+}
+
+func TestGovernanceWriteGuardActionRefusesDiscoveredForeignRootWithoutExplicitBinding(t *testing.T) {
+	s := actionFixture(t)
+	projectsDir := t.TempDir()
+	sourceRoot := filepath.Join(projectsDir, "source")
+	writeReviewFixture(t, sourceRoot, ".pose/specs/backend.md", "---\nslug: backend\nstatus: done\n---\n\n# Backend\n")
+	resolver := ArtifactResolver{Roots: NewRoots(RootsConfig{DefaultRoot: s.Root, DefaultProjectID: "coordinator", ProjectsDir: projectsDir})}
+	resolver.Authorize = func(string) bool { return true }
+	s.FederatedProjectID, s.FederatedResolver = "coordinator", &resolver
+	foreign := NodeRef{Artifact: "xref:source/spec:backend"}
+	request := ActionRequest{
+		Project: "coordinator", Origin: "spec:storage", RequestedBy: ActionPrincipal{Principal: "agent:impl"},
+		Recipient: ObligationActor{Unassigned: true}, Kind: ActionDecision, Question: "Adopt foreign material?",
+		Options: []ActionOption{{ID: "adopt", Consequence: "adopt"}, {ID: "defer", Consequence: "defer"}},
+		Targets: []NodeRef{foreign}, Effects: []ObligationEffect{{Phase: PhaseExecution, Mode: EffectBlock, Scope: []NodeRef{foreign}}}, Subject: &ActionSubject{Node: foreign},
+	}
+	prepared, err := s.PrepareActionRequest(request, time.Now())
+	if err != nil {
+		t.Fatalf("read-discovered request should be readable: %v", err)
+	}
+	if _, err := s.OpenActionRequest(request, time.Now()); !errors.Is(err, ErrGovernanceWriteGuardRootBinding) {
+		t.Fatalf("write through a discovered-only foreign root = %v, want explicit binding refusal", err)
+	}
+	if _, err := os.Lstat(actionJournalPath(s.Root, prepared.ID)); !errors.Is(err, os.ErrNotExist) {
+		t.Fatalf("action journal exists after missing write authority: %v", err)
 	}
 }
 

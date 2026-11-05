@@ -34,6 +34,9 @@ func reviewFixture(t *testing.T) (string, Store) {
 	}
 	writeReviewFixture(t, root, ".pose/specs/alpha/spec.md", "---\nslug: alpha\nstatus: done\ncreated_at: 2026-08-02\ncompleted_at: 2026-08-02\n---\n\n# Spec: alpha\n\n## 2. Requirements\n- R1: works\n")
 	writeReviewFixture(t, root, ".pose/roadmaps/delivery.md", "---\nslug: delivery\nstatus: done\n---\n\n# Roadmap\n\n**Outcome:** shipped\n\n## Milestone: core\n- after:\n- specs: alpha\n\n**Exit gate:** integrated\n\n## Cut criteria\n- C1: verified\n")
+	snapshotTestGit(t, root, "init", "-q")
+	snapshotTestGit(t, root, "add", "-A")
+	snapshotTestGit(t, root, "commit", "-q", "-m", "review closeout fixture")
 	return root, Store{Root: root}
 }
 
@@ -124,10 +127,17 @@ func TestReviewPolicyExemptsLegacyDoneScopesUnlessOptedIn(t *testing.T) {
 			t.Fatalf("legacy scope %s was not exempt: %+v", scope, eval)
 		}
 	}
+	if err := os.RemoveAll(filepath.Join(root, ".git")); err != nil {
+		t.Fatal(err)
+	}
 
 	state, err := store.GetCloseoutState("roadmap:legacy-delivery")
 	if err != nil || !state.Terminal {
 		t.Fatalf("legacy roadmap closeout remained blocked: state=%+v err=%v", state, err)
+	}
+	if state.ReadView == nil || state.ReadView.Freshness != ReadViewFreshnessUnknown || state.Review.Approved || state.NextAction != "none" ||
+		!strings.Contains(strings.Join(state.Limitations, " "), "governance read view is unknown") {
+		t.Fatalf("historical terminal result hid its unknown view or claimed current review approval: %+v", state)
 	}
 
 	current, err := store.ReviewCheck("spec:alpha")

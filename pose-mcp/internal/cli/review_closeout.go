@@ -32,18 +32,54 @@ func cliGovernedStore(root string) posemodel.Store {
 	return store
 }
 
+// cliReviewStore keeps the authority resolver selected from the caller's root.
+// Reconstructing it at a foreign root would apply the caller's default project
+// identity to that root and lose the authorized federation context.
+func cliReviewStore(root, ref string) (posemodel.Store, string, error) {
+	context, resolver, _, err := cliAgentContext(root, ref)
+	qualified := strings.HasPrefix(ref, "xref:")
+	if err != nil {
+		if qualified {
+			return posemodel.Store{}, "", err
+		}
+		return cliGovernedStore(root), ref, nil
+	}
+	if context.TaskResolution != nil && context.TaskResolution.State == "transfer-in-progress" {
+		return posemodel.Store{}, "", fmt.Errorf("transfer-in-progress")
+	}
+	if context.TaskResolution == nil || !context.TaskResolution.Resolved || context.Authority == nil {
+		if qualified {
+			state := "unknown-artifact"
+			if context.TaskResolution != nil {
+				state = context.TaskResolution.State
+			}
+			return posemodel.Store{}, "", fmt.Errorf("task-authority-unavailable: %s", state)
+		}
+		return cliGovernedStore(root), ref, nil
+	}
+	if !qualified && !context.TaskResolution.Redirected {
+		return cliGovernedStore(root), ref, nil
+	}
+	store, err := resolver.Roots.StoreFor(context.Authority.Project)
+	if err != nil {
+		return posemodel.Store{}, "", fmt.Errorf("task-authority-unavailable")
+	}
+	store.FederatedProjectID, store.FederatedResolver = context.Authority.Project, &resolver
+	return store, scopeRefForArtifact(*context.Authority), nil
+}
+
 func cmdReviewCheck(root string, args []string, stdout, stderr io.Writer) int {
 	ref, jsonOutput, ok := parseScopeCheckArgs("review-check", args, stderr)
 	if !ok {
 		return 2
 	}
-	if targetRoot, localRef, routed, err := cliMaybeRouteScope(root, ref); err != nil {
+	store, localRef, err := cliReviewStore(root, ref)
+	if err != nil {
 		render(io.Discard, stderr).Failure("pose review-check: " + err.Error())
 		return 1
-	} else if routed {
-		root, ref = targetRoot, localRef
 	}
-	eval, err := cliGovernedStore(root).ReviewCheck(ref)
+	root, ref = store.Root, localRef
+	eval, err := store.ReviewCheck(ref)
 	if err != nil {
 		fmt.Fprintf(stderr, "pose review-check: %v\n", err)
 		return 1
@@ -58,6 +94,10 @@ func cmdReviewCheck(root string, args []string, stdout, stderr io.Writer) int {
 		return 0
 	}
 	fmt.Fprintf(stdout, "review.scope=%s\nreview.required=%t\nreview.profile=%s\nreview.digest=%s\nreview.fresh=%t\nreview.approved=%t\n", eval.Scope, eval.Required, eval.Profile, eval.ScopeDigest, eval.Fresh, eval.Approved)
+	if eval.ReadView != nil {
+		render(stdout, stderr).Field("review.read_view", fmt.Sprintf("id:%s freshness:%s roots:%d inputs:%d bytes:%d",
+			eval.ReadView.ID, eval.ReadView.Freshness, len(eval.ReadView.Bindings), eval.ReadView.ObservedInputs, eval.ReadView.InputBytes))
+	}
 	if eval.Assurance != nil {
 		render(stdout, stderr).Field("review.assurance", posemodel.RenderReviewAssurance(*eval.Assurance))
 	}
@@ -93,13 +133,13 @@ func cmdReviewPlan(root string, args []string, stdout, stderr io.Writer) int {
 		fmt.Fprintln(stderr, "Usage: pose review-plan <spec:slug|milestone:roadmap/id|roadmap:slug> [--json] [--explain]")
 		return 2
 	}
-	if targetRoot, localRef, routed, err := cliMaybeRouteScope(root, ref); err != nil {
+	store, localRef, err := cliReviewStore(root, ref)
+	if err != nil {
 		render(io.Discard, stderr).Failure("pose review-plan: " + err.Error())
 		return 1
-	} else if routed {
-		root, ref = targetRoot, localRef
 	}
-	plan, err := (posemodel.Store{Root: root}).ReviewPlan(ref)
+	root, ref = store.Root, localRef
+	plan, err := store.ReviewPlan(ref)
 	if err != nil {
 		fmt.Fprintf(stderr, "pose review-plan: %v\n", err)
 		return 1
@@ -260,13 +300,13 @@ func cmdCloseoutCheck(root string, args []string, stdout, stderr io.Writer) int 
 	if !ok {
 		return 2
 	}
-	if targetRoot, localRef, routed, err := cliMaybeRouteScope(root, ref); err != nil {
+	store, localRef, err := cliReviewStore(root, ref)
+	if err != nil {
 		render(io.Discard, stderr).Failure("pose closeout-check: " + err.Error())
 		return 1
-	} else if routed {
-		root, ref = targetRoot, localRef
 	}
-	state, err := cliCloseoutState(root, ref)
+	root, ref = store.Root, localRef
+	state, err := cliCloseoutStateForStore(store, ref)
 	if err != nil {
 		fmt.Fprintf(stderr, "pose closeout-check: %v\n", err)
 		return 1
@@ -294,7 +334,23 @@ func cmdCloseoutCheck(root string, args []string, stdout, stderr io.Writer) int 
 }
 
 func cliCloseoutState(root, ref string) (posemodel.CloseoutState, error) {
-	store := cliGovernedStore(root)
+	return cliCloseoutStateIn(root, ref, posemodel.NativeFiles())
+}
+
+func cliCloseoutStateIn(root, ref string, files posemodel.Files) (posemodel.CloseoutState, error) {
+	files = posemodel.FilesOrNative(files)
+	resolver, project, err := posemodel.EnvironmentArtifactResolverIn(files, root, "")
+	if err != nil {
+		return posemodel.CloseoutState{}, fmt.Errorf("invalid project configuration")
+	}
+	store := posemodel.Store{Root: root, FS: files, FederatedProjectID: project, FederatedResolver: &resolver}
+	return cliCloseoutStateForStore(store, ref)
+}
+
+// cliCloseoutStateForStore evaluates through the selected Store binding. A
+// guarded close must keep its project resolver and guarded root overlay; only
+// the root-only compatibility helper above reconstructs a CLI resolver.
+func cliCloseoutStateForStore(store posemodel.Store, ref string) (posemodel.CloseoutState, error) {
 	scope, err := posemodel.ParseScopeRef(ref)
 	if err != nil {
 		return posemodel.CloseoutState{}, err
@@ -302,11 +358,22 @@ func cliCloseoutState(root, ref string) (posemodel.CloseoutState, error) {
 	if scope.Kind != "roadmap" && scope.Kind != "milestone" {
 		return store.GetCloseoutState(ref)
 	}
-	resolver, project, err := posemodel.EnvironmentArtifactResolver(root, "")
-	if err != nil {
-		return posemodel.CloseoutState{}, fmt.Errorf("invalid project configuration")
+	project := store.FederatedProjectID
+	if project == "" {
+		project, err = store.WriteProjectID()
+		if err != nil {
+			return posemodel.CloseoutState{}, fmt.Errorf("invalid project configuration")
+		}
 	}
-	return store.GetCloseoutStateWithFederatedAcceptance(ref, project, resolver)
+	resolver := store.FederatedResolver
+	if resolver == nil {
+		value, _, resolverErr := posemodel.EnvironmentArtifactResolverIn(store.FS, store.Root, "")
+		if resolverErr != nil {
+			return posemodel.CloseoutState{}, fmt.Errorf("invalid project configuration")
+		}
+		resolver = &value
+	}
+	return store.GetCloseoutStateWithFederatedAcceptance(ref, project, *resolver)
 }
 
 func parseScopeCheckArgs(command string, args []string, stderr io.Writer) (string, bool, bool) {
@@ -741,6 +808,9 @@ func cmdReviewAttest(root string, args []string, stdout, stderr io.Writer) int {
 		if reportApprovalRefusal(stdout, stderr, "pose review attest", err) {
 			return 1
 		}
+		if reportCommittedAttestation(store, stdout, stderr, "pose review attest", attestation, err) {
+			return 0
+		}
 		if err != nil {
 			fmt.Fprintf(stderr, "pose review attest: %v\n", err)
 			return 1
@@ -927,6 +997,9 @@ func cmdReviewAttest(root string, args []string, stdout, stderr io.Writer) int {
 	if reportApprovalRefusal(stdout, stderr, "pose review attest", err) {
 		return 1
 	}
+	if reportCommittedAttestation(store, stdout, stderr, "pose review attest", att, err) {
+		return 0
+	}
 	if err != nil {
 		fmt.Fprintf(stderr, "pose review attest: %v\n", err)
 		return 1
@@ -983,6 +1056,9 @@ func signAndRecordAttestation(store posemodel.Store, att posemodel.ReviewAttesta
 		if reportApprovalRefusal(stdout, stderr, "pose review attest", err) {
 			return 1
 		}
+		if reportCommittedAttestation(store, stdout, stderr, "pose review attest", recorded, err) {
+			return 0
+		}
 		if err != nil {
 			render(stdout, stderr).Failure("pose review attest: " + strings.TrimPrefix(err.Error(), "pose: "))
 			return 1
@@ -1017,6 +1093,22 @@ func reportApprovalRefusal(stdout, stderr io.Writer, command string, err error) 
 		return false
 	}
 	reportAttestPreflight(stdout, stderr, command, refusal.Blockers)
+	return true
+}
+
+func reportCommittedAttestation(store posemodel.Store, stdout, stderr io.Writer, command string, att posemodel.ReviewAttestation, err error) bool {
+	var durability *posemodel.PublishDurabilityError
+	if err == nil || !errors.As(err, &durability) || att.AttestationID == "" {
+		return false
+	}
+	persisted, readErr := store.LoadReviewAttestation(att.AttestationID)
+	if readErr != nil || persisted.BundleDigest != att.BundleDigest {
+		return false
+	}
+	out := render(stdout, stderr)
+	out.Field("review_attestation.recorded", persisted.AttestationID)
+	out.Field("review_attestation.durability", "unconfirmed")
+	out.Field("review_attestation.warning", command+": "+durability.Error())
 	return true
 }
 
@@ -1153,6 +1245,9 @@ func cmdReviewAutoAttest(root string, args []string, stdout, stderr io.Writer) i
 		att, err = store.RecordReviewAttestation(att, time.Now())
 		if reportApprovalRefusal(stdout, stderr, "pose review auto-attest", err) {
 			return 1
+		}
+		if reportCommittedAttestation(store, stdout, stderr, "pose review auto-attest", att, err) {
+			return 0
 		}
 	} else {
 		// Verdict first, then the cause, then the action — and exit 1, because
@@ -1700,6 +1795,8 @@ func cmdClose(root string, args []string, stdout, stderr io.Writer) int {
 		render(io.Discard, stderr).Failure("pose close: " + err.Error())
 		return 1
 	}
+	store.FederatedProjectID = context.Authority.Project
+	store.FederatedResolver = &resolver
 	if crossProject && expectedContext == "" {
 		render(io.Discard, stderr).Failure("pose close: cross-project write requires --expect-context from pose context")
 		return 1
@@ -1719,7 +1816,7 @@ func cmdClose(root string, args []string, stdout, stderr io.Writer) int {
 			return nil
 		}
 	}
-	return cmdCloseLocal(store.Root, localRef, guard, stdout, stderr)
+	return cmdCloseLocalWithStoreEffect(store, localRef, guard, stdout, stderr, nil)
 }
 
 func scopeRefForArtifact(ref posemodel.ArtifactRef) string {
@@ -1736,12 +1833,78 @@ func cmdCloseLocal(root, ref string, guard func() error, stdout, stderr io.Write
 // The pipeline confirms a transition only from the write point, never exit 0
 // alone: another execution may have closed the scope since it planned.
 func cmdCloseLocalWithEffect(root, ref string, guard func() error, stdout, stderr io.Writer, transitioned func(unsynced error)) int {
-	store := cliGovernedStore(root)
+	return cmdCloseLocalWithStoreEffect(cliGovernedStore(root), ref, guard, stdout, stderr, transitioned)
+}
+
+func cmdCloseLocalWithStoreEffect(store posemodel.Store, ref string, guard func() error, stdout, stderr io.Writer, transitioned func(unsynced error)) int {
+	if scope, parseErr := posemodel.ParseScopeRef(ref); parseErr == nil && scope.Kind == "spec" {
+		state, err := cliCloseoutStateForStore(store, ref)
+		if err != nil {
+			if refusal := cliCloseGovernedPreflightRefusal(store, ref); refusal != nil {
+				err = refusal
+			}
+			render(io.Discard, stderr).Failure("pose close: " + err.Error())
+			return 1
+		}
+		if state.LifecycleDone {
+			if !state.Terminal {
+				render(io.Discard, stderr).Failure("pose close: terminal verification blocked: " + strings.Join(state.Blockers, "; ") + "; " + state.NextAction)
+				return 1
+			}
+			render(stdout, stderr).Field("close.already-satisfied", ref+"; applicable terminal verifier passed; no transition executed")
+			return 0
+		}
+	}
+	var result int
+	err := store.WithCloseoutWriteGuard("close.transition", ref, func(guarded posemodel.Store) error {
+		result = cmdCloseLocalWithGuardedStore(guarded.Root, guarded, ref, guard, stdout, stderr, transitioned)
+		return nil
+	})
+	if err != nil {
+		if refusal := cliCloseGovernedPreflightRefusal(store, ref); refusal != nil {
+			err = refusal
+		}
+		render(io.Discard, stderr).Failure("pose close: " + err.Error())
+		return 1
+	}
+	return result
+}
+
+// A disabled review bundle policy must not hide an adopted action restriction
+// when closeout preflight fails. This local lease permits only a
+// refusal: it never substitutes for full root discovery, the guarded closeout
+// evaluation, lifecycle lock or CAS required for a successful transition.
+func cliCloseGovernedPreflightRefusal(store posemodel.Store, ref string) error {
+	scope, err := posemodel.ParseScopeRef(ref)
+	if err != nil || scope.Kind != "spec" {
+		return nil
+	}
+	return store.WithGovernanceWriteGuardForProjects("close.restriction-refusal", nil, func(guarded posemodel.Store) error {
+		policy, err := guarded.GetReviewPolicy()
+		if err != nil || policy.Enabled || policy.AgencyReadinessVersion != posemodel.AgencyReadinessPolicyVersion {
+			return err
+		}
+		restrictions, err := guarded.GovernedEffectRestrictions(posemodel.PhaseCloseout, []string{scope.Slug})
+		if err != nil {
+			return err
+		}
+		messages := make([]string, 0, len(restrictions))
+		for _, restriction := range restrictions {
+			messages = append(messages, fmt.Sprintf("%s restricts closeout: %s", restriction.Source.Detail, restriction.Message))
+		}
+		if len(messages) > 0 {
+			return fmt.Errorf("action-request-pending: %s", strings.Join(messages, "; "))
+		}
+		return nil
+	})
+}
+
+func cmdCloseLocalWithGuardedStore(root string, store posemodel.Store, ref string, guard func() error, stdout, stderr io.Writer, transitioned func(unsynced error)) int {
 	// The gates below judge the artifact as it is now; the transition is
 	// published only over those same bytes (spec
 	// pose-writer-coordination-and-atomic-publication R4).
 	judged := closeTargetDigest(root, store, ref)
-	state, err := cliCloseoutState(root, ref)
+	state, err := cliCloseoutStateForStore(store, ref)
 	if err != nil {
 		fmt.Fprintf(stderr, "pose close: %v\n", err)
 		return 1
@@ -1816,7 +1979,7 @@ func cmdCloseLocalWithEffect(root, ref string, guard func() error, stdout, stder
 			fmt.Fprintf(stderr, "pose close: %v\n", err)
 			return 1
 		}
-		if policy, err := posemodel.LoadArtifactPolicy(root); err != nil {
+		if policy, err := posemodel.LoadArtifactPolicyIn(store.FS, root); err != nil {
 			fmt.Fprintf(stderr, "pose close: %v\n", err)
 			return 1
 		} else if policy.Enabled && sp.CreatedAt >= policy.AdoptedAt {
@@ -1827,11 +1990,15 @@ func cmdCloseLocalWithEffect(root, ref string, guard func() error, stdout, stder
 				return 1
 			}
 		}
-		if policy, err := posemodel.LoadDeliveryPolicy(root); err != nil {
+		if policy, err := posemodel.LoadDeliveryPolicyIn(store.FS, root); err != nil {
 			fmt.Fprintf(stderr, "pose close: %v\n", err)
 			return 1
 		} else if policy.Enabled && sp.CreatedAt >= policy.AdoptedAt {
-			if blockers := deliverySpecBlockers(root, sp.Slug); len(blockers) > 0 {
+			if graph, graphErr := buildCurrentDeliveryGraphIn(store.FS, root); graphErr != nil {
+				render(io.Discard, stderr).Failure(fmt.Sprintf("pose close: delivery assurance gate failed: %s", graphErr))
+				PrintContributorFailureHint(root, stderr, cliLocaleValue())
+				return 1
+			} else if blockers := deliverySpecBlockersFromGraph(graph, sp.Slug); len(blockers) > 0 {
 				fmt.Fprintf(stderr, "pose close: delivery assurance gate failed: %s\n", strings.Join(blockers, "; "))
 				PrintContributorFailureHint(root, stderr, cliLocaleValue())
 				return 1
@@ -1845,7 +2012,7 @@ func cmdCloseLocalWithEffect(root, ref string, guard func() error, stdout, stder
 		// done, and a done spec whose promises point at no evidence fails
 		// lint. Refusing here keeps `pose close` from producing what the
 		// next lint rejects (spec pose-quickstart-real-lifecycle).
-		if raw, err := os.ReadFile(sp.Path); err == nil {
+		if raw, err := store.FS.ReadFile(sp.Path); err == nil {
 			if blockers := posemodel.RequirementTraceCloseoutBlockers(string(raw)); len(blockers) > 0 {
 				render(io.Discard, stderr).Failure("pose close: requirement trace gate failed: " + strings.Join(blockers, "; ") + " — declare each under `### Requirement trace`, e.g. `- R1 [satisfied] test:<TestName>`, or [waived: <reason>] / [withdrawn: <reason>]")
 				return 1
@@ -1886,7 +2053,7 @@ func cmdCloseLocalWithEffect(root, ref string, guard func() error, stdout, stder
 	// review that stopped being approved, or an action request that now
 	// restricts closeout, while the gates ran does not govern this
 	// publication (spec pose-writer-coordination-and-atomic-publication R4).
-	if current, err := cliCloseoutState(root, ref); err != nil {
+	if current, err := cliCloseoutStateForStore(store, ref); err != nil {
 		render(io.Discard, stderr).Failure("pose close: " + err.Error())
 		return 1
 	} else if !current.Review.Approved || hasActionRequestPending(current.Diagnostics) || hasDiagnostic(current.Diagnostics, posemodel.AdjudicationDoesNotHoldCode) {
@@ -1911,7 +2078,7 @@ func cmdCloseLocalWithEffect(root, ref string, guard func() error, stdout, stder
 		}
 	}
 	var unsynced error
-	if err := applyLifecycleDone(path, scope.Kind == "spec", judged); err != nil {
+	if err := applyLifecycleDoneIn(store.FS, path, scope.Kind == "spec", judged); err != nil {
 		if errors.Is(err, posemodel.ErrPublishConflict) {
 			render(io.Discard, stderr).Failure("pose close: " + err.Error() + "; the gates judged other bytes, so run `pose close " + ref + "` again to judge the current ones")
 			return 1
@@ -2136,7 +2303,11 @@ func hasOpenChild(children []posemodel.CloseoutState) bool {
 // gates ran is a conflict, never overwritten (spec
 // pose-writer-coordination-and-atomic-publication R2/R4).
 func applyLifecycleDone(path string, spec bool, judged string) error {
-	raw, err := os.ReadFile(path)
+	return applyLifecycleDoneIn(posemodel.NativeFiles(), path, spec, judged)
+}
+
+func applyLifecycleDoneIn(files posemodel.Files, path string, spec bool, judged string) error {
+	raw, err := files.ReadFile(path)
 	if err != nil {
 		return err
 	}
@@ -2152,7 +2323,7 @@ func applyLifecycleDone(path string, spec bool, judged string) error {
 	if judged != "" {
 		expect.Digest = judged
 	}
-	return posemodel.PublishFile(path, []byte(text), 0o644, posemodel.PublishAuthoritative, expect)
+	return files.Publish(path, []byte(text), 0o644, posemodel.PublishAuthoritative, expect)
 }
 
 // closeTargetDigest is the SHA-256 of the spec or roadmap a close judges, or
@@ -2175,7 +2346,7 @@ func closeTargetDigest(root string, store posemodel.Store, ref string) string {
 	default:
 		return ""
 	}
-	raw, err := os.ReadFile(path)
+	raw, err := posemodel.FilesOrNative(store.FS).ReadFile(path)
 	if err != nil {
 		return ""
 	}

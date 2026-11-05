@@ -56,6 +56,24 @@ func gitOutputBoundedContext(ctx context.Context, root string, limit int, args .
 	return stdout.Bytes(), nil
 }
 
+// gitOutputBoundedIn preserves the raw-history command policy while routing
+// the exact output through an operation read view when Files carries one.
+func gitOutputBoundedIn(files posemodel.Files, root string, limit int, args ...string) ([]byte, error) {
+	ctx, cancel := context.WithTimeout(context.Background(), 2*time.Minute)
+	defer cancel()
+	out, err := posemodel.CaptureGovernanceRawHistoryGitContextIn(files, ctx, root, "index.delivery-integrity", int64(limit), args...)
+	// The capture retains bounded stderr on ExitError. Keep that forensic cause
+	// in collection gaps as well as the typed unknown error; never retry outside
+	// the view or use partial stdout after a failed history read.
+	var exit *exec.ExitError
+	if errors.As(err, &exit) {
+		if detail := strings.TrimSpace(string(exit.Stderr)); detail != "" {
+			return nil, fmt.Errorf("%w: %s", err, detail)
+		}
+	}
+	return out, err
+}
+
 type limitedBuffer struct {
 	buf   *bytes.Buffer
 	limit int
@@ -69,10 +87,20 @@ func (w *limitedBuffer) Write(p []byte) (int, error) {
 }
 
 func resolveGitRevision(root, revision string) (string, error) {
+	return resolveGitRevisionWithFiles(nil, root, revision)
+}
+
+func resolveGitRevisionWithFiles(files posemodel.Files, root, revision string) (string, error) {
 	if err := validateGitRevision(revision); err != nil {
 		return "", err
 	}
-	out, err := gitOutputBounded(root, 1024, "rev-parse", "--verify", revision+"^{commit}")
+	var out []byte
+	var err error
+	if files == nil {
+		out, err = gitOutputBounded(root, 1024, "rev-parse", "--verify", revision+"^{commit}")
+	} else {
+		out, err = gitOutputBoundedIn(files, root, 1024, "rev-parse", "--verify", revision+"^{commit}")
+	}
 	if err != nil {
 		return "", err
 	}
@@ -98,6 +126,18 @@ func commitHasNoParentContext(ctx context.Context, root, commit string) (bool, e
 	if err != nil {
 		return false, err
 	}
+	return commitHasNoParentBytes(commit, raw)
+}
+
+func commitHasNoParentIn(files posemodel.Files, root, commit string) (bool, error) {
+	raw, err := gitOutputBoundedIn(files, root, 32*1024*1024, "cat-file", "commit", commit)
+	if err != nil {
+		return false, err
+	}
+	return commitHasNoParentBytes(commit, raw)
+}
+
+func commitHasNoParentBytes(commit string, raw []byte) (bool, error) {
 	end := bytes.Index(raw, []byte("\n\n"))
 	if end < 0 {
 		return false, fmt.Errorf("the object of %s has no complete header", commit)
@@ -117,24 +157,53 @@ func commitHasNoParentContext(ctx context.Context, root, commit string) (bool, e
 }
 
 func resolveGitChangeSet(root, spec, base, head string) (posemodel.ChangeSet, error) {
+	return resolveGitChangeSetWithFiles(nil, root, spec, base, head)
+}
+
+func resolveGitChangeSetIn(files posemodel.Files, root, spec, base, head string) (posemodel.ChangeSet, error) {
+	return resolveGitChangeSetWithFiles(files, root, spec, base, head)
+}
+
+func resolveGitChangeSetWithFiles(files posemodel.Files, root, spec, base, head string) (posemodel.ChangeSet, error) {
 	if spec == "" || posemodel.ValidateSlug(spec) != nil {
 		return posemodel.ChangeSet{}, fmt.Errorf("a valid spec slug is required")
 	}
 	var captured []string
 	if base == "" && head == "" {
 		var err error
-		captured, err = commitsWithSpecTrailer(root, spec)
+		if files == nil {
+			captured, err = commitsWithSpecTrailer(root, spec)
+		} else {
+			captured, err = commitsWithSpecTrailerIn(files, root, spec)
+		}
 		if err != nil {
 			return posemodel.ChangeSet{}, err
 		}
 	}
-	return resolveGitChangeSetWithTrailers(root, spec, base, head, captured)
+	return resolveGitChangeSetWithTrailersAndFiles(files, root, spec, base, head, captured)
 }
 
 // resolveGitChangeSetWithTrailers uses the operation's complete, bounded trailer
 // capture. Commit objects remain immutable inputs; no capture survives this
 // operation. Copy the slice because the returned change set belongs to its caller.
 func resolveGitChangeSetWithTrailers(root, spec, base, head string, captured []string) (posemodel.ChangeSet, error) {
+	return resolveGitChangeSetWithTrailersAndFiles(nil, root, spec, base, head, captured)
+}
+
+func resolveGitChangeSetWithTrailersIn(files posemodel.Files, root, spec, base, head string, captured []string) (posemodel.ChangeSet, error) {
+	return resolveGitChangeSetWithTrailersAndFiles(files, root, spec, base, head, captured)
+}
+
+func resolveGitChangeSetWithTrailersAndFiles(files posemodel.Files, root, spec, base, head string, captured []string) (posemodel.ChangeSet, error) {
+	gitOutput := func(limit int, args ...string) ([]byte, error) {
+		if files == nil {
+			return gitOutputBounded(root, limit, args...)
+		}
+		return gitOutputBoundedIn(files, root, limit, args...)
+	}
+	resolveRevision := func(revision string) (string, error) {
+		return resolveGitRevisionWithFiles(files, root, revision)
+	}
 	if spec == "" || posemodel.ValidateSlug(spec) != nil {
 		return posemodel.ChangeSet{}, fmt.Errorf("a valid spec slug is required")
 	}
@@ -155,8 +224,14 @@ func resolveGitChangeSetWithTrailers(root, spec, base, head string, captured []s
 	resolvedBase := base
 	if !posemodel.IsGitEmptyTree(base) {
 		var err error
-		if resolvedBase, err = resolveGitRevision(root, base); err != nil && len(trailerCommits) > 0 {
-			isRoot, headerErr := commitHasNoParent(root, trailerCommits[0])
+		if resolvedBase, err = resolveRevision(base); err != nil && len(trailerCommits) > 0 {
+			var isRoot bool
+			var headerErr error
+			if files == nil {
+				isRoot, headerErr = commitHasNoParent(root, trailerCommits[0])
+			} else {
+				isRoot, headerErr = commitHasNoParentIn(files, root, trailerCommits[0])
+			}
 			if headerErr != nil {
 				return posemodel.ChangeSet{}, fmt.Errorf("%w; %v", err, headerErr)
 			}
@@ -168,11 +243,11 @@ func resolveGitChangeSetWithTrailers(root, spec, base, head string, captured []s
 			return posemodel.ChangeSet{}, err
 		}
 	}
-	resolvedHead, err := resolveGitRevision(root, head)
+	resolvedHead, err := resolveRevision(head)
 	if err != nil {
 		return posemodel.ChangeSet{}, err
 	}
-	commitsRaw, err := gitOutputBounded(root, 4*1024*1024, "rev-list", "--reverse", posemodel.ChangeSetRange(resolvedBase, resolvedHead), "--")
+	commitsRaw, err := gitOutput(4*1024*1024, "rev-list", "--reverse", posemodel.ChangeSetRange(resolvedBase, resolvedHead), "--")
 	if err != nil {
 		return posemodel.ChangeSet{}, err
 	}
@@ -184,7 +259,7 @@ func resolveGitChangeSetWithTrailers(root, spec, base, head string, captured []s
 		commits = trailerCommits
 		commitPathLists := make([][]posemodel.ObservedPath, 0, len(commits))
 		for _, sha := range commits {
-			nameStatus, err := gitOutputBounded(root, 4*1024*1024, "diff-tree", "--root", "--no-commit-id", "--name-status", "-z", "-M", "-r", sha, "--")
+			nameStatus, err := gitOutput(4*1024*1024, "diff-tree", "--root", "--no-commit-id", "--name-status", "-z", "-M", "-r", sha, "--")
 			if err != nil {
 				return posemodel.ChangeSet{}, err
 			}
@@ -193,7 +268,7 @@ func resolveGitChangeSetWithTrailers(root, spec, base, head string, captured []s
 				return posemodel.ChangeSet{}, err
 			}
 			commitPathLists = append(commitPathLists, parsed)
-			commitDiff, err := gitOutputBounded(root, 16*1024*1024, "show", "--binary", "--no-ext-diff", "--format=", sha, "--")
+			commitDiff, err := gitOutput(16*1024*1024, "show", "--binary", "--no-ext-diff", "--format=", sha, "--")
 			if err != nil {
 				return posemodel.ChangeSet{}, err
 			}
@@ -201,7 +276,7 @@ func resolveGitChangeSetWithTrailers(root, spec, base, head string, captured []s
 		}
 		paths = mergeObservedPaths(commitPathLists)
 	} else {
-		nameStatus, err := gitOutputBounded(root, 8*1024*1024, "diff", "--name-status", "-z", "-M", "--no-ext-diff", resolvedBase, resolvedHead, "--")
+		nameStatus, err := gitOutput(8*1024*1024, "diff", "--name-status", "-z", "-M", "--no-ext-diff", resolvedBase, resolvedHead, "--")
 		if err != nil {
 			return posemodel.ChangeSet{}, err
 		}
@@ -209,7 +284,7 @@ func resolveGitChangeSetWithTrailers(root, spec, base, head string, captured []s
 		if err != nil {
 			return posemodel.ChangeSet{}, err
 		}
-		diff, err := gitOutputBounded(root, 32*1024*1024, "diff", "--binary", "--no-ext-diff", resolvedBase, resolvedHead, "--")
+		diff, err := gitOutput(32*1024*1024, "diff", "--binary", "--no-ext-diff", resolvedBase, resolvedHead, "--")
 		if err != nil {
 			return posemodel.ChangeSet{}, err
 		}
@@ -232,8 +307,24 @@ func allCommitsWithSpecTrailers(root string) (map[string][]string, error) {
 	return specCommits, nil
 }
 
+func allCommitsWithSpecTrailersIn(files posemodel.Files, root string) (map[string][]string, error) {
+	out, err := gitOutputBoundedIn(files, root, 32*1024*1024, posemodel.SpecTrailerLogArgs...)
+	if err != nil {
+		return nil, err
+	}
+	return posemodel.ParseSpecTrailerLog(out), nil
+}
+
 func commitsWithSpecTrailer(root, spec string) ([]string, error) {
 	specCommits, err := allCommitsWithSpecTrailers(root)
+	if err != nil {
+		return nil, err
+	}
+	return specCommits[spec], nil
+}
+
+func commitsWithSpecTrailerIn(files posemodel.Files, root, spec string) ([]string, error) {
+	specCommits, err := allCommitsWithSpecTrailersIn(files, root)
 	if err != nil {
 		return nil, err
 	}
@@ -387,8 +478,8 @@ func collectArtifactGraphInputsWithGapsIn(files posemodel.Files, root string) ([
 		specs = []posemodel.Spec{}
 	}
 	gaps := map[string]string{}
-	refsBefore, refsErr := gitOutputBounded(root, 8*1024*1024, "show-ref", "--head", "--dereference")
-	tracked, err := gitTrackedPaths(root)
+	refsBefore, refsErr := gitOutputBoundedIn(files, root, 8*1024*1024, "show-ref", "--head", "--dereference")
+	tracked, err := gitTrackedPathsIn(files, root)
 	if err != nil {
 		tracked = []string{}
 		gaps[""] = "the tracked paths could not be read: " + err.Error()
@@ -401,27 +492,27 @@ func collectArtifactGraphInputsWithGapsIn(files posemodel.Files, root string) ([
 	for _, recorded := range recordedSets {
 		changeSetsMap[recorded.ID] = recorded
 	}
-	specTrailers, err := allCommitsWithSpecTrailers(root)
+	specTrailers, err := allCommitsWithSpecTrailersIn(files, root)
 	if err != nil && gaps[""] == "" {
 		gaps[""] = "the commits carrying POSE-Spec trailers could not be read: " + err.Error()
 	}
 	// A shallow repository may hide commits carrying a trailer, and nothing
 	// read from it can show which (LR-R3-02).
-	if out, err := gitOutputBounded(root, 64, "rev-parse", "--is-shallow-repository"); err != nil || strings.TrimSpace(string(out)) != "false" {
+	if out, err := gitOutputBoundedIn(files, root, 4096, "rev-parse", "--is-shallow-repository"); err != nil || strings.TrimSpace(string(out)) != "false" {
 		if gaps[""] == "" {
 			gaps[""] = "the repository's history is shallow or its depth could not be read"
 		}
 	}
 	for _, spec := range specs {
 		if len(specTrailers[spec.Slug]) > 0 {
-			if set, err := resolveGitChangeSetWithTrailers(root, spec.Slug, "", "", specTrailers[spec.Slug]); err == nil {
+			if set, err := resolveGitChangeSetWithTrailersIn(files, root, spec.Slug, "", "", specTrailers[spec.Slug]); err == nil {
 				changeSetsMap[set.ID] = set
 			} else {
 				gaps[spec.Slug] = "its trailer change set could not be read: " + err.Error()
 			}
 		}
 	}
-	refsAfter, afterErr := gitOutputBounded(root, 8*1024*1024, "show-ref", "--head", "--dereference")
+	refsAfter, afterErr := gitOutputBoundedIn(files, root, 8*1024*1024, "show-ref", "--head", "--dereference")
 	if refsErr == nil && afterErr == nil && !bytes.Equal(refsBefore, refsAfter) {
 		return nil, nil, nil, nil, policy, nil, fmt.Errorf("Git inputs changed during artifact collection: refs or HEAD moved; retry the operation")
 	}
@@ -455,6 +546,18 @@ func gitTrackedPaths(root string) ([]string, error) {
 	if err != nil {
 		return nil, err
 	}
+	return parseGitTrackedPaths(trackedRaw)
+}
+
+func gitTrackedPathsIn(files posemodel.Files, root string) ([]string, error) {
+	trackedRaw, err := gitOutputBoundedIn(files, root, 32*1024*1024, "ls-files", "-z", "--")
+	if err != nil {
+		return nil, err
+	}
+	return parseGitTrackedPaths(trackedRaw)
+}
+
+func parseGitTrackedPaths(trackedRaw []byte) ([]string, error) {
 	if len(trackedRaw) > 0 && trackedRaw[len(trackedRaw)-1] != 0 {
 		return nil, fmt.Errorf("malformed Git tracked-path NUL framing")
 	}
@@ -496,7 +599,7 @@ func buildCurrentDeliveryGraphIn(files posemodel.Files, root string) (posemodel.
 	if err != nil {
 		return posemodel.DeliveryIntegrityGraph{}, err
 	}
-	return extendCurrentDeliveryGraphIn(files, root, posemodel.BuildDeliveryIntegrityWithHistoryIn(files, specs, claims, sets, tracked, policy, posemodel.LoadArchivedFragmentsIn(files, root), artifactRemovals(root, claims, sets, tracked, gaps)))
+	return extendCurrentDeliveryGraphIn(files, root, posemodel.BuildDeliveryIntegrityWithHistoryIn(files, specs, claims, sets, tracked, policy, posemodel.LoadArchivedFragmentsIn(files, root), artifactRemovalsIn(files, root, claims, sets, tracked, gaps)))
 }
 
 // buildCurrentDeliveryGraph reads and writes the filesystem directly; buildCurrentDeliveryGraphIn takes the
@@ -807,6 +910,7 @@ var removalCommitRE = regexp.MustCompile(`^[0-9a-f]{40}([0-9a-f]{24})?$`)
 // negative answer (LR-R1-04, LR-R1-09).
 type removalHistory struct {
 	root    string
+	files   posemodel.Files
 	shallow map[string]bool
 	entries map[string]string
 	parents map[string][]string
@@ -821,6 +925,9 @@ func (h *removalHistory) command(args ...string) *exec.Cmd {
 }
 
 func (h *removalHistory) git(limit int, args ...string) ([]byte, error) {
+	if h.files != nil {
+		return gitOutputBoundedIn(h.files, h.root, limit, append([]string{"--literal-pathspecs"}, args...)...)
+	}
 	cmd := h.command(args...)
 	var stdout, stderr bytes.Buffer
 	cmd.Stdout = &limitedBuffer{buf: &stdout, limit: limit}
@@ -1047,6 +1154,10 @@ func (h *removalHistory) deletes(commit, path string) (bool, error) {
 // LR-R2-04); gaps says, by spec (the empty key for every spec), which history
 // the collection could not read, and refuses those specs (LR-R2-03).
 func artifactRemovals(root string, claims []posemodel.ArtifactClaim, sets []posemodel.ChangeSet, tracked []string, gaps map[string]string, overrides ...posemodel.ChangeSet) []posemodel.ArtifactRemoval {
+	return artifactRemovalsIn(nil, root, claims, sets, tracked, gaps, overrides...)
+}
+
+func artifactRemovalsIn(files posemodel.Files, root string, claims []posemodel.ArtifactClaim, sets []posemodel.ChangeSet, tracked []string, gaps map[string]string, overrides ...posemodel.ChangeSet) []posemodel.ArtifactRemoval {
 	present := map[string]bool{}
 	for _, path := range tracked {
 		present[filepath.ToSlash(path)] = true
@@ -1084,7 +1195,7 @@ func artifactRemovals(root string, claims []posemodel.ArtifactClaim, sets []pose
 	for spec := range commitsOf {
 		sort.Strings(commitsOf[spec])
 	}
-	h := &removalHistory{root: root, entries: map[string]string{}, parents: map[string][]string{}, renames: map[string]map[string]bool{}, ancest: map[string]bool{}}
+	h := &removalHistory{root: root, files: files, entries: map[string]string{}, parents: map[string][]string{}, renames: map[string]map[string]bool{}, ancest: map[string]bool{}}
 	var removals []posemodel.ArtifactRemoval
 	for _, removed := range claims {
 		if removed.Action != "removed" || present[removed.Path] {

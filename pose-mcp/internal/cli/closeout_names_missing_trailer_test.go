@@ -26,6 +26,7 @@ func unattributedEvidenceFixture(t *testing.T, sets string) string {
 	mustWrite(t, path, text)
 	artifactGit(t, root, "add", "-A")
 	artifactGit(t, root, "-c", "user.name=fixture", "-c", "user.email=fixture@example.invalid", "-c", "commit.gpgsign=false", "commit", "-qm", "unattributed")
+	publishReviewCLIIndexFixture(t, root)
 	return root
 }
 

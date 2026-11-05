@@ -254,6 +254,7 @@ var ErrPreviewUnsupported = errors.New("preview-unsupported")
 // not predicted.
 type PreviewFiles struct {
 	mu         sync.Mutex
+	nextNodeID uint64
 	nodes      map[string]*previewNode
 	children   map[string]map[string]bool
 	physical   map[string]physicalEntry
@@ -289,6 +290,7 @@ const (
 )
 
 type previewNode struct {
+	id     uint64
 	kind   previewKind
 	data   []byte
 	perm   fs.FileMode
@@ -635,6 +637,35 @@ func (p *PreviewFiles) Open(name string) (fs.File, error) {
 	if !ok {
 		return nil, pathError("open", name, fs.ErrNotExist)
 	}
+	if e.isDir() {
+		if e.staged != nil {
+			if err := p.stagedAccess(location, e.staged, 0o400); err != nil {
+				return nil, pathError("open", name, err)
+			}
+		}
+		dir := &previewDirectoryFile{info: e.info, shadowed: map[string]bool{}}
+		if e.staged == nil {
+			original, err := os.Open(location)
+			if err != nil {
+				return nil, pathError("open", name, err)
+			}
+			dir.original = original
+		} else {
+			dir.info = p.stagedInfo(filepath.Base(location), e.staged)
+		}
+		for child := range p.children[location] {
+			node := p.nodes[filepath.Join(location, child)]
+			if node == nil {
+				continue
+			}
+			dir.shadowed[child] = true
+			if node.kind != previewAbsent {
+				dir.pending = append(dir.pending, fs.FileInfoToDirEntry(p.stagedInfo(child, node)))
+			}
+		}
+		sort.Slice(dir.pending, func(i, j int) bool { return dir.pending[i].Name() < dir.pending[j].Name() })
+		return dir, nil
+	}
 	if e.staged == nil {
 		if !e.isDir() && e.info != nil && !e.info.Mode().IsRegular() {
 			return nil, pathError("open", name, p.unsupportedLocked("special-file read semantics unavailable: "+location))
@@ -648,10 +679,83 @@ func (p *PreviewFiles) Open(name string) (fs.File, error) {
 	if err := p.stagedAccess(location, e.staged, 0o400); err != nil {
 		return nil, pathError("open", name, err)
 	}
-	if e.isDir() {
-		return nil, pathError("open", name, p.unsupportedLocked("opening a staged directory as a file"))
-	}
 	return &stagedFile{Reader: bytes.NewReader(append([]byte{}, e.staged.data...)), info: p.stagedInfo(filepath.Base(location), e.staged)}, nil
+}
+
+// Stream the physical directory in bounded batches and merge the staged
+// children. Returning os.Open directly hid staged children from B34's bounded
+// directory reader; eagerly calling ReadDir would lose that reader's bound.
+type previewDirectoryFile struct {
+	mu       sync.Mutex
+	original *os.File
+	info     fs.FileInfo
+	shadowed map[string]bool
+	pending  []fs.DirEntry
+	ended    bool
+	closed   bool
+}
+
+func (f *previewDirectoryFile) Stat() (fs.FileInfo, error) {
+	f.mu.Lock()
+	defer f.mu.Unlock()
+	if f.closed {
+		return nil, fs.ErrClosed
+	}
+	return f.info, nil
+}
+
+func (f *previewDirectoryFile) Read([]byte) (int, error) { return 0, syscall.EISDIR }
+
+func (f *previewDirectoryFile) Close() error {
+	f.mu.Lock()
+	defer f.mu.Unlock()
+	if f.closed {
+		return fs.ErrClosed
+	}
+	f.closed = true
+	if f.original != nil {
+		return f.original.Close()
+	}
+	return nil
+}
+
+func (f *previewDirectoryFile) ReadDir(n int) ([]fs.DirEntry, error) {
+	f.mu.Lock()
+	defer f.mu.Unlock()
+	if f.closed {
+		return nil, fs.ErrClosed
+	}
+	entries := []fs.DirEntry{}
+	for f.original != nil && !f.ended && (n <= 0 || len(entries) < n) {
+		batch := 256
+		if n > 0 && n-len(entries) < batch {
+			batch = n - len(entries)
+		}
+		part, err := f.original.ReadDir(batch)
+		for _, entry := range part {
+			if !f.shadowed[entry.Name()] {
+				entries = append(entries, entry)
+			}
+		}
+		if err != nil {
+			if !errors.Is(err, io.EOF) {
+				return entries, err
+			}
+			f.ended = true
+		}
+	}
+	if f.original == nil || f.ended {
+		count := len(f.pending)
+		if n > 0 && n-len(entries) < count {
+			count = n - len(entries)
+		}
+		entries = append(entries, f.pending[:count]...)
+		f.pending = f.pending[count:]
+	}
+	if n > 0 && len(entries) == 0 {
+		return entries, io.EOF
+	}
+	return entries, nil
 }
 
 func (p *PreviewFiles) unsupportedLocked(what string) error {
@@ -734,7 +838,10 @@ func (s stagedInfo) Mode() fs.FileMode {
 }
 func (s stagedInfo) ModTime() time.Time { return s.mod }
 func (s stagedInfo) IsDir() bool        { return s.node.kind == previewDir }
-func (s stagedInfo) Sys() any           { return nil }
+
+// FileID identifies one immutable staged node within this operation. Replacing
+// a node changes its identity even if its bytes and preview timestamp match.
+func (s stagedInfo) Sys() any { return struct{ FileID uint64 }{s.node.id} }
 
 func (p *PreviewFiles) ReadDir(name string) ([]fs.DirEntry, error) {
 	p.mu.Lock()
@@ -827,6 +934,8 @@ func (p *PreviewFiles) EvalSymlinks(name string) (string, error) {
 
 // stage records node at location and keeps the parent's child list.
 func (p *PreviewFiles) stage(location string, node *previewNode) {
+	p.nextNodeID++
+	node.id = p.nextNodeID
 	p.nodes[location] = node
 	parent := filepath.Dir(location)
 	if p.children[parent] == nil {

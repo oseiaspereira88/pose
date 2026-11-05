@@ -4,6 +4,7 @@ import (
 	"bytes"
 	"crypto/sha256"
 	"encoding/json"
+	"errors"
 	"fmt"
 	"io"
 	"os"
@@ -258,6 +259,26 @@ func closeStepEffect(stepID string) string {
 }
 
 func applyClosePlan(root string, store posemodel.Store, ref, mode, digest, reviewer string, skipEvidence bool) posemodel.OperationResult {
+	// Completed scopes are verification-only. A valid terminal read can return
+	// before taking a writer lease because this path executes no operation step
+	// and publishes no checkpoint or lifecycle transition.
+	if plan, err := store.PlanCloseout(ref); err == nil && plan.LifecycleDone {
+		return applyClosePlanGuarded(root, store, ref, mode, digest, reviewer, skipEvidence)
+	}
+	var result posemodel.OperationResult
+	err := store.WithCloseoutWriteGuard("closeout.apply", ref, func(guarded posemodel.Store) error {
+		result = applyClosePlanGuarded(guarded.Root, guarded, ref, mode, digest, reviewer, skipEvidence)
+		return nil
+	})
+	if err != nil {
+		result = posemodel.NewOperationResult("close."+mode, ref)
+		result.Fail(posemodel.OutcomeConflict, "guard", "governance-write-guard", err.Error())
+		result.NextAction = "retry after the root's current governance writer has finished"
+	}
+	return result
+}
+
+func applyClosePlanGuarded(root string, store posemodel.Store, ref, mode, digest, reviewer string, skipEvidence bool) posemodel.OperationResult {
 	result := posemodel.NewOperationResult("close."+mode, ref)
 	resume := "`pose close " + ref + " --resume`"
 	data := &closeApplyData{}
@@ -388,12 +409,12 @@ func applyClosePlan(root string, store posemodel.Store, ref, mode, digest, revie
 			}
 			evidenceRan = true
 			if next.ID == posemodel.CloseoutStepEvidence && !skipEvidence {
-				policy, policyErr := posemodel.LoadDeliveryPolicy(root)
+				policy, policyErr := posemodel.LoadDeliveryPolicyIn(store.FS, root)
 				if policyErr != nil {
 					return fail(posemodel.CloseoutStepEvidence, "policy-unavailable", policyErr, false)
 				}
 				before, started := snapshotResults(root, policy.ResultsPath), time.Now().UTC()
-				code := cmdValidate(root, []string{"--tolerant", "--json-out", policy.ResultsPath}, &buffer, &buffer)
+				code := cmdValidateWithStore(store, []string{"--tolerant", "--json-out", policy.ResultsPath}, &buffer, &buffer)
 				if code > 1 {
 					return fail(posemodel.CloseoutStepEvidence, "validate-error", fmt.Errorf("validate exited %d: %s", code, lastLine(buffer.String())), true)
 				}
@@ -407,7 +428,7 @@ func applyClosePlan(root string, store posemodel.Store, ref, mode, digest, revie
 				confirm(posemodel.CloseoutStepEvidence, policy.ResultsPath)
 			}
 			buffer.Reset()
-			if code := cmdIndex(root, nil, &buffer, &buffer); code != 0 {
+			if code := cmdIndexIn(store.FS, root, nil, &buffer, &buffer); code != 0 {
 				stepErr = fmt.Errorf("index exited %d: %s", code, lastLine(buffer.String()))
 			}
 			next.ID, stepRef = posemodel.CloseoutStepIndex, ".pose/indexes"
@@ -415,6 +436,14 @@ func applyClosePlan(root string, store posemodel.Store, ref, mode, digest, revie
 			var bundle posemodel.ReviewBundle
 			bundle, stepErr = store.SealReviewBundle(ref, time.Now())
 			stepRef = bundle.BundleID
+			var durability *posemodel.PublishDurabilityError
+			if errors.As(stepErr, &durability) && bundle.BundleID != "" {
+				persisted, loadErr := store.LoadReviewBundle(bundle.BundleID)
+				if loadErr == nil && persisted.BundleDigest == bundle.BundleDigest {
+					result.Unconfirmed = append(result.Unconfirmed, posemodel.OperationUncertain{Step: "seal-durability", Reason: "the bundle is published and readable; " + stepErr.Error()})
+					stepErr = nil
+				}
+			}
 		case posemodel.CloseoutStepMechanical:
 			if reviewer == "" {
 				stepErr, cause, wrote = fmt.Errorf("--reviewer is required to record the mechanical attestation; it names the reviewing execution and is never invented"), "reviewer-required", false
@@ -423,6 +452,14 @@ func applyClosePlan(root string, store posemodel.Store, ref, mode, digest, revie
 			var attestation posemodel.ReviewAttestation
 			attestation, stepErr = store.AutoAttestReviewBundle(plan.BundleID, reviewer, true, time.Now())
 			stepRef = attestation.AttestationID
+			var durability *posemodel.PublishDurabilityError
+			if errors.As(stepErr, &durability) && attestation.AttestationID != "" {
+				persisted, loadErr := store.LoadReviewAttestation(attestation.AttestationID)
+				if loadErr == nil && persisted.BundleDigest == attestation.BundleDigest {
+					result.Unconfirmed = append(result.Unconfirmed, posemodel.OperationUncertain{Step: "attestation-durability", Reason: "the attestation is published and readable; " + stepErr.Error()})
+					stepErr = nil
+				}
+			}
 		case posemodel.CloseoutStepJudgment:
 			// Pending only before sealing; after re-planning it is waiting or done.
 			wrote = false
@@ -438,7 +475,7 @@ func applyClosePlan(root string, store posemodel.Store, ref, mode, digest, revie
 			stepRef = ref
 			transitioned := false
 			var unsynced error
-			if code := cmdCloseLocalWithEffect(root, ref, nil, &buffer, &buffer, func(err error) { transitioned, unsynced = true, err }); code != 0 {
+			if code := cmdCloseLocalWithGuardedStore(root, store, ref, nil, &buffer, &buffer, func(err error) { transitioned, unsynced = true, err }); code != 0 {
 				stepErr, cause = fmt.Errorf("guarded transition refused: %s", strings.TrimSpace(buffer.String())), "transition-refused"
 			} else if !transitioned {
 				stepErr, cause, wrote = fmt.Errorf("the lifecycle was already done when the transition ran; re-plan to verify that state"), "transition-not-executed", false

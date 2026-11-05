@@ -8,11 +8,14 @@ import (
 	"bytes"
 	"encoding/json"
 	"encoding/xml"
+	"errors"
 	"fmt"
 	"os"
 	"path/filepath"
 	"strings"
 	"testing"
+
+	posemodel "github.com/harne8/pose-mcp/internal/pose"
 )
 
 // resultFixture builds a project whose matrix exercises pass, fail, infra
@@ -231,5 +234,74 @@ func TestValidateCreatesConfinedNestedResultDirectory(t *testing.T) {
 	}
 	if _, err := os.Stat(filepath.Join(root, ".pose/results/current.json")); err != nil {
 		t.Fatalf("nested result missing: %v", err)
+	}
+}
+
+func configureCanonicalValidationResults(t *testing.T, root, relative string) {
+	t.Helper()
+	policyPath := filepath.Join(root, ".pose", "policy", "delivery.json")
+	if err := os.MkdirAll(filepath.Dir(policyPath), 0o755); err != nil {
+		t.Fatal(err)
+	}
+	policy := fmt.Sprintf(`{"schema_version":1,"enabled":true,"adopted_at":"2026-11-04","results_path":%q,"roots":[]}`, relative)
+	if err := os.WriteFile(policyPath, []byte(policy), 0o644); err != nil {
+		t.Fatal(err)
+	}
+}
+
+func TestGovernanceWriteGuardValidateCanonicalResultRefusesBeforePublish(t *testing.T) {
+	root := resultFixture(t)
+	relative := ".pose/results/delivery-validation.json"
+	configureCanonicalValidationResults(t, root, relative)
+	target := filepath.Join(root, filepath.FromSlash(relative))
+	if err := os.MkdirAll(filepath.Dir(target), 0o755); err != nil {
+		t.Fatal(err)
+	}
+	before := []byte("previous canonical result\n")
+	if err := os.WriteFile(target, before, 0o644); err != nil {
+		t.Fatal(err)
+	}
+	var stdout, stderr bytes.Buffer
+	err := posemodel.WithGovernanceWriteGuard("test.hold-validation-root", []posemodel.Store{cliGovernedStore(root)}, func([]posemodel.Store) error {
+		if code := cmdValidate(root, []string{"--json-out", relative}, &stdout, &stderr); code == 0 {
+			return fmt.Errorf("validation published the canonical result while the root was held")
+		}
+		after, readErr := os.ReadFile(target)
+		if readErr != nil || !bytes.Equal(before, after) {
+			return fmt.Errorf("canonical result changed after root-guard refusal: %v", readErr)
+		}
+		return nil
+	})
+	if err != nil {
+		t.Fatal(err)
+	}
+	if !strings.Contains(stderr.String(), posemodel.ErrGovernanceWriteGuardBusy.Error()) {
+		t.Fatalf("root contention was not reported: %q", stderr.String())
+	}
+}
+
+func TestValidateCanonicalResultReportsPublishedWhenDurabilityIsUnconfirmed(t *testing.T) {
+	root := resultFixture(t)
+	relative := ".pose/results/delivery-validation.json"
+	configureCanonicalValidationResults(t, root, relative)
+	target := filepath.Join(root, filepath.FromSlash(relative))
+	posemodel.PublishSyncHook = func(kind, path string) error {
+		if kind == "dir" && path == target {
+			return errors.New("injected directory sync failure")
+		}
+		return nil
+	}
+	t.Cleanup(func() { posemodel.PublishSyncHook = nil })
+	code, output := runValidate(t, root, "--json-out", relative)
+	raw, err := os.ReadFile(target)
+	if err != nil {
+		t.Fatalf("published result is not readable: %v", err)
+	}
+	var run validationRunResult
+	if err := json.Unmarshal(raw, &run); err != nil {
+		t.Fatalf("published result is invalid JSON: %v", err)
+	}
+	if code != 1 || !strings.Contains(output, "published but durability is unconfirmed") || run.SchemaVersion != validationResultSchema {
+		t.Fatalf("committed result was reported as no effect: code=%d output=%s run=%+v", code, output, run)
 	}
 }

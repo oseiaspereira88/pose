@@ -379,7 +379,7 @@ func lockSpecLifecycleWaiting(root, slug, operation string) (func(), error) {
 func (s Store) verifiedVerdictProof(kind, runID string) (string, string) {
 	switch kind {
 	case ReviewBriefKindAdjudication:
-		raw, err := readBoundedRegular(filepath.Join(s.Root, filepath.FromSlash(AdjudicationsDir), runID+".json"), 1<<20)
+		raw, err := readBoundedRegularIn(s.fsys(), filepath.Join(s.Root, filepath.FromSlash(AdjudicationsDir), runID+".json"), 1<<20)
 		var rec AdjudicationRecord
 		if err != nil || json.Unmarshal(raw, &rec) != nil {
 			return "", "the record cannot be read"
@@ -407,7 +407,7 @@ func (s Store) verifiedVerdictProof(kind, runID string) (string, string) {
 				if !r.Verified {
 					return "", r.Why
 				}
-				raw, _ := readBoundedRegular(filepath.Join(s.Root, filepath.FromSlash(r.Path)), 1<<20)
+				raw, _ := readBoundedRegularIn(s.fsys(), filepath.Join(s.Root, filepath.FromSlash(r.Path)), 1<<20)
 				var doc smokeResultDocument
 				_ = json.Unmarshal(raw, &doc)
 				return doc.Smoke.ProofID, ""
@@ -537,8 +537,27 @@ func (s Store) SmokeResults() ([]SmokeResult, error) {
 
 // LoadSmokeResultsIn reads the smoke result documents of root.
 func LoadSmokeResultsIn(s Store, root string) ([]SmokeResult, error) {
-	dir := filepath.Join(root, filepath.FromSlash(SmokeResultsDir))
-	entries, err := os.ReadDir(dir)
+	return loadSmokeResultsIn(s, root, true)
+}
+
+// loadSmokeResultsInputIn computes the source projection used to pin the
+// smoke-result inputs of a derived index. ScopeProvenance is supplied from
+// the current delivery index and must not feed back into that index's own
+// input binding.
+func loadSmokeResultsInputIn(s Store, root string) ([]SmokeResult, error) {
+	return loadSmokeResultsIn(s, root, false)
+}
+
+func loadSmokeResultsIn(s Store, root string, includeCurrentScopeProvenance bool) ([]SmokeResult, error) {
+	files := s.fsys()
+	dir, err := ensureReviewArtifactDirIn(files, root, SmokeResultsDir, false)
+	if errors.Is(err, os.ErrNotExist) {
+		return nil, nil
+	}
+	if err != nil {
+		return nil, err
+	}
+	entries, err := files.ReadDir(dir)
 	if errors.Is(err, os.ErrNotExist) {
 		return nil, nil
 	}
@@ -552,7 +571,7 @@ func LoadSmokeResultsIn(s Store, root string) ([]SmokeResult, error) {
 		}
 		rel := SmokeResultsDir + "/" + e.Name()
 		r := SmokeResult{Path: rel}
-		raw, err := readBoundedRegular(filepath.Join(dir, e.Name()), 1<<20)
+		raw, err := readBoundedRegularIn(files, filepath.Join(dir, e.Name()), 1<<20)
 		var doc smokeResultDocument
 		if err != nil || json.Unmarshal(raw, &doc) != nil || doc.SchemaVersion != DeliveryValidationResultSchema {
 			// A version this engine does not write yields nothing (review
@@ -579,7 +598,12 @@ func LoadSmokeResultsIn(s Store, root string) ([]SmokeResult, error) {
 			out = append(out, r)
 			continue
 		}
-		r.Results, r.Verified = s.smokeResultsOf(want, run, bundle, rel), true
+		if includeCurrentScopeProvenance {
+			r.Results = s.smokeResultsOf(want, run, bundle, rel)
+		} else {
+			r.Results = smokeResultsInputOf(want, run, bundle, rel)
+		}
+		r.Verified = true
 		out = append(out, r)
 	}
 	return out, nil
@@ -599,6 +623,14 @@ func (s Store) smokeResultsOf(doc smokeResultDocument, run ReviewRun, bundle Rev
 			}
 		}
 	}
+	return smokeResultsWithProvenance(doc, run, bundle, rel, scoped)
+}
+
+func smokeResultsInputOf(doc smokeResultDocument, run ReviewRun, bundle ReviewBundle, rel string) []DeliveryValidationResult {
+	return smokeResultsWithProvenance(doc, run, bundle, rel, nil)
+}
+
+func smokeResultsWithProvenance(doc smokeResultDocument, run ReviewRun, bundle ReviewBundle, rel string, scoped map[string]string) []DeliveryValidationResult {
 	var out []DeliveryValidationResult
 	for _, c := range doc.Checks {
 		out = append(out, DeliveryValidationResult{ID: c.ID, Module: c.Module, Check: c.Name, EvidenceClass: c.EvidenceClass, Severity: c.Severity, Outcome: c.Outcome,

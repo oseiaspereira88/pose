@@ -289,42 +289,42 @@ func (checker *nativeChecker) checkArtifactContracts() {
 
 func (checker *nativeChecker) checkReviewCloseout() {
 	policyPath := filepath.Join(checker.root, ".pose", "policy", "review.json")
-	raw, err := checker.fsys().ReadFile(policyPath)
-	if os.IsNotExist(err) {
-		return
-	}
-	if err != nil {
-		checker.failOrWarn("review closeout: cannot read policy: " + err.Error())
-		return
-	}
-	var policy struct {
-		Enabled   bool   `json:"enabled"`
-		AdoptedAt string `json:"adopted_at"`
-	}
-	if err := json.Unmarshal(raw, &policy); err != nil || policy.AdoptedAt == "" {
-		checker.failOrWarn("review closeout: invalid review policy")
-		return
-	}
-	if !policy.Enabled {
-		return
-	}
 	store := pose.Store{Root: checker.root, FS: checker.fsys()}
-	// The candidate list is resolved first and cheaply — one frontmatter read per
-	// spec — so the expensive part, one closeout state per candidate, is what runs
-	// in parallel, in the order this list already has.
-	slugs := []string{}
-	for _, path := range findSpecFilesIn(checker.fsys(), checker.root) {
-		fm := simpleFrontmatterIn(checker.fsys(), path)
-		if fm["status"] != "done" || fm["completed_at"] < policy.AdoptedAt {
-			continue
-		}
-		slug := fm["slug"]
-		if slug == "" {
-			slug = filepath.Base(filepath.Dir(path))
-		}
-		slugs = append(slugs, slug)
-	}
 	viewErr := store.WithReviewOperationView(func(store pose.Store) {
+		files := pose.FilesOrNative(store.FS)
+		raw, err := files.ReadFile(policyPath)
+		if os.IsNotExist(err) {
+			return
+		}
+		if err != nil {
+			checker.failOrWarn("review closeout: cannot read policy: " + err.Error())
+			return
+		}
+		var policy struct {
+			Enabled   bool   `json:"enabled"`
+			AdoptedAt string `json:"adopted_at"`
+		}
+		if err := json.Unmarshal(raw, &policy); err != nil || policy.AdoptedAt == "" {
+			checker.failOrWarn("review closeout: invalid review policy")
+			return
+		}
+		if !policy.Enabled {
+			return
+		}
+		// Resolve candidates in the same read view as the closeout evaluations,
+		// so policy or spec changes before view creation cannot escape its audit.
+		slugs := []string{}
+		for _, path := range findSpecFilesIn(files, checker.root) {
+			fm := simpleFrontmatterIn(files, path)
+			if fm["status"] != "done" || fm["completed_at"] < policy.AdoptedAt {
+				continue
+			}
+			slug := fm["slug"]
+			if slug == "" {
+				slug = filepath.Base(filepath.Dir(path))
+			}
+			slugs = append(slugs, slug)
+		}
 		checker.failOrWarnPerItem(len(slugs), func(i int) []string {
 			slug := slugs[i]
 			state, err := store.GetCloseoutState("spec:" + slug)
@@ -336,9 +336,9 @@ func (checker *nativeChecker) checkReviewCloseout() {
 			}
 			return nil
 		})
-		roadmapPaths, _ := pose.GlobIn(checker.fsys(), filepath.Join(checker.root, ".pose", "roadmaps", "*.md"))
+		roadmapPaths, _ := pose.GlobIn(files, filepath.Join(checker.root, ".pose", "roadmaps", "*.md"))
 		for _, path := range roadmapPaths {
-			fm := simpleFrontmatterIn(checker.fsys(), path)
+			fm := simpleFrontmatterIn(files, path)
 			if fm["status"] != "done" || fm["created_at"] < policy.AdoptedAt {
 				continue
 			}

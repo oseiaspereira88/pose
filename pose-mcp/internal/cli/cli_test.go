@@ -16,6 +16,9 @@ import (
 )
 
 func TestMain(m *testing.M) {
+	if posemodel.EngineVersion == "unknown" {
+		posemodel.EngineVersion = "pose-test-engine"
+	}
 	_ = os.Setenv("POSE_USAGE_DISABLED", "1")
 	// A bundle sealed here must not record the agent running the suite as its
 	// implementation (spec pose-delegation-routing R2).

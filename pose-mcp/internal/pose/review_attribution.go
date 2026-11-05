@@ -203,6 +203,16 @@ const reviewAttributionSupplementDir = ".pose/review-attribution-supplements"
 // carries a confirmation: confirming after the fact is a new review, not a
 // clarification of an old one.
 func (s Store) RecordReviewAttributionSupplement(sup ReviewAttributionSupplement, now time.Time) (ReviewAttributionSupplement, error) {
+	var result ReviewAttributionSupplement
+	err := s.withGovernanceWriteGuard("review.attribution.supplement", func(guarded Store) error {
+		var err error
+		result, err = guarded.recordReviewAttributionSupplement(sup, now)
+		return err
+	})
+	return result, err
+}
+
+func (s Store) recordReviewAttributionSupplement(sup ReviewAttributionSupplement, now time.Time) (ReviewAttributionSupplement, error) {
 	if _, err := s.LoadReviewAttestation(sup.AttestationID); err != nil {
 		return ReviewAttributionSupplement{}, fmt.Errorf("pose: attribution supplement names an unknown attestation %s", sup.AttestationID)
 	}
@@ -238,7 +248,7 @@ func (s Store) RecordReviewAttributionSupplement(sup ReviewAttributionSupplement
 	if err != nil {
 		return ReviewAttributionSupplement{}, err
 	}
-	if err := writeImmutableJSON(filepath.Join(dir, sup.SupplementID+".json"), append(raw, '\n')); err != nil {
+	if err := writeImmutableJSONIn(s.fsys(), filepath.Join(dir, sup.SupplementID+".json"), append(raw, '\n')); err != nil {
 		return ReviewAttributionSupplement{}, err
 	}
 	return sup, nil

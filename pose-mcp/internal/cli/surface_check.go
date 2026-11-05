@@ -95,6 +95,20 @@ func withSmokeResults(root string, results []posemodel.DeliveryValidationResult)
 	if err != nil {
 		return results
 	}
+	return appendVerifiedSmokeResults(results, smoke)
+}
+
+// withSmokeResultsIn keeps delegated smoke evidence on the same operation
+// filesystem as the rest of the delivery projection.
+func withSmokeResultsIn(files posemodel.Files, root string, results []posemodel.DeliveryValidationResult) []posemodel.DeliveryValidationResult {
+	smoke, err := posemodel.LoadSmokeResultsIn(posemodel.Store{Root: root, FS: files}, root)
+	if err != nil {
+		return results
+	}
+	return appendVerifiedSmokeResults(results, smoke)
+}
+
+func appendVerifiedSmokeResults(results []posemodel.DeliveryValidationResult, smoke []posemodel.SmokeResult) []posemodel.DeliveryValidationResult {
 	for _, doc := range smoke {
 		if doc.Verified {
 			results = append(results, doc.Results...)
@@ -147,7 +161,7 @@ func extendCurrentDeliveryGraphIn(files posemodel.Files, root string, base posem
 		return base, err
 	}
 	results, err := loadDeliveryValidationResultsIn(files, root, policy.ResultsPath)
-	results = withSmokeResults(root, results)
+	results = withSmokeResultsIn(files, root, results)
 	if err != nil {
 		return base, err
 	}

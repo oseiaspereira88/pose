@@ -22,6 +22,7 @@ import (
 type CloseoutPlan struct {
 	LifecycleDone bool                        `json:"lifecycle_done"`
 	Verification  *CloseoutState              `json:"verification,omitempty"`
+	ReadView      *ReadViewMetadata           `json:"read_view,omitempty"`
 	NextAction    string                      `json:"next_action,omitempty"`
 	SchemaVersion int                         `json:"schema_version"`
 	Scope         string                      `json:"scope"`
@@ -75,6 +76,45 @@ const (
 
 // PlanCloseout computes the plan for a spec scope.
 func (s Store) PlanCloseout(ref string) (CloseoutPlan, error) {
+	return withGovernanceReviewReadView(s, "closeout-plan", func(store Store) (CloseoutPlan, error) {
+		return store.planCloseout(ref)
+	}, func(plan *CloseoutPlan, metadata *ReadViewMetadata, audit governanceReadViewAudit) {
+		applyCloseoutPlanReadView(plan, metadata, ref, audit)
+	})
+}
+
+func applyCloseoutPlanReadView(plan *CloseoutPlan, metadata *ReadViewMetadata, scope string, audit governanceReadViewAudit) {
+	if metadata == nil {
+		return
+	}
+	copy := *metadata
+	copy.Scope = scope
+	plan.ReadView = &copy
+	if plan.Verification != nil {
+		applyCloseoutReadView(plan.Verification, metadata, scope, audit)
+	}
+	if copy.Freshness == ReadViewFreshnessCurrent {
+		return
+	}
+	if plan.LifecycleDone && plan.Terminal && !governanceReviewAuditChanged(audit) &&
+		(plan.Verification == nil || plan.Verification.Terminal) {
+		// The plan is verification-only for a completed scope. Retain its
+		// historical terminal result with the unknown view attached; no step can
+		// use it to perform a new transition.
+		return
+	}
+	plan.Terminal = false
+	plan.Blockers = appendUnique(plan.Blockers, "governance read view is unknown; closeout plan inputs were not proven stable")
+	plan.NextAction = "verify current governance inputs before closeout for " + scope
+	for i := range plan.Steps {
+		if plan.Steps[i].ID == CloseoutStepVerify && plan.Steps[i].State != CloseoutStateNotRun {
+			plan.Steps[i].State = CloseoutStateBlocked
+			plan.Steps[i].Reason = "governance read view is unknown; closeout inputs were not proven stable"
+		}
+	}
+}
+
+func (s Store) planCloseout(ref string) (CloseoutPlan, error) {
 	scope, err := ParseScopeRef(ref)
 	if err != nil {
 		return CloseoutPlan{}, err
@@ -86,12 +126,14 @@ func (s Store) PlanCloseout(ref string) (CloseoutPlan, error) {
 	if err != nil {
 		return CloseoutPlan{}, err
 	}
-	raw, err := os.ReadFile(spec.Path)
+	raw, err := s.fsys().ReadFile(spec.Path)
 	if err != nil {
 		return CloseoutPlan{}, err
 	}
 	plan := CloseoutPlan{SchemaVersion: CloseoutPlanSchemaVersion, Scope: ref}
-	head, gitErr := snapshotGit(s.Root, "rev-parse", "--verify", "HEAD")
+	files := s.fsys()
+	producer := governanceProducerFromFiles(files, "closeout-plan")
+	head, gitErr := captureGovernanceGit(files, s.Root, producer, "rev-parse", "--verify", "HEAD")
 	if gitErr != nil {
 		return CloseoutPlan{}, gitErr
 	}
@@ -249,11 +291,13 @@ func (p CloseoutPlan) NextCloseoutStep() (CloseoutPlanStep, bool) {
 // ungeneratedChanges lists working-tree changes outside the paths the plan
 // itself writes.
 func (s Store) ungeneratedChanges(slug, head string) ([]string, error) {
-	paths, err := gitChangedPaths(s.Root)
+	files := s.fsys()
+	producer := governanceProducerFromFiles(files, "closeout-plan")
+	paths, err := gitChangedPathsGovernedIn(files, s.Root, producer)
 	if err != nil {
 		return nil, err
 	}
-	hidden, err := gitMaterializedChanges(s.Root, head)
+	hidden, err := gitMaterializedChangesForIn(files, s.Root, head, nil, producer)
 	if err != nil {
 		return nil, err
 	}
@@ -287,7 +331,7 @@ func (s Store) ungeneratedChanges(slug, head string) ([]string, error) {
 			if view.Status == IndexGenerationCurrent && strings.HasPrefix(path, ".pose/indexes/generations/"+view.Descriptor.GenerationID+"/") {
 				name := filepath.Base(path)
 				if file, found := view.Descriptor.file(name); found {
-					raw, readErr := os.ReadFile(filepath.Join(s.Root, filepath.FromSlash(path)))
+					raw, readErr := s.fsys().ReadFile(filepath.Join(s.Root, filepath.FromSlash(path)))
 					generated = readErr == nil && sha256Prefixed(raw) == file.SHA256
 				}
 			}
@@ -297,7 +341,7 @@ func (s Store) ungeneratedChanges(slug, head string) ([]string, error) {
 			seen[path] = true
 		}
 	}
-	observedHead, err := snapshotGit(s.Root, "rev-parse", "--verify", "HEAD")
+	observedHead, err := captureGovernanceGit(files, s.Root, producer, "rev-parse", "--verify", "HEAD")
 	if err != nil {
 		return nil, err
 	}
@@ -481,44 +525,38 @@ var closeoutStepIDs = map[string]bool{
 // artifact, so a crash may lose the last update but never presents a torn
 // one (R4).
 func (s Store) WriteCloseoutCheckpoint(cp CloseoutCheckpoint) error {
-	dir, err := ensureReviewArtifactDirIn(s.fsys(), s.Root, closeoutCheckpointDir, true)
-	if err != nil {
+	return s.withGovernanceWriteGuard("closeout.checkpoint.write", func(guarded Store) error {
+		return guarded.writeCloseoutCheckpoint(cp)
+	})
+}
+
+func (s Store) writeCloseoutCheckpoint(cp CloseoutCheckpoint) error {
+	if _, err := ensureReviewArtifactDirIn(s.fsys(), s.Root, closeoutCheckpointDir, true); err != nil {
 		return err
 	}
 	raw, err := json.MarshalIndent(cp, "", "  ")
 	if err != nil {
 		return err
 	}
-	tmp, err := os.CreateTemp(dir, ".checkpoint-*.tmp")
-	if err != nil {
-		return err
-	}
-	if _, err := tmp.Write(append(raw, '\n')); err != nil {
-		tmp.Close()
-		os.Remove(tmp.Name())
-		return err
-	}
-	if err := tmp.Close(); err != nil {
-		os.Remove(tmp.Name())
-		return err
-	}
-	if err := os.Rename(tmp.Name(), closeoutCheckpointPath(s.Root, cp.Scope)); err != nil {
-		os.Remove(tmp.Name())
-		return err
-	}
-	return nil
+	return s.fsys().Publish(closeoutCheckpointPath(s.Root, cp.Scope), append(raw, '\n'), 0o644, PublishDerived, PublishExpectation{Mode: ExpectAny})
 }
 
 // ClearCloseoutCheckpoint removes the checkpoint when the closeout completes
 // and reports a removal that failed, so a stale checkpoint is never left
 // behind silently. The directory is removed only when it is empty.
 func (s Store) ClearCloseoutCheckpoint(ref string) error {
-	if err := os.Remove(closeoutCheckpointPath(s.Root, ref)); err != nil && !os.IsNotExist(err) {
+	return s.withGovernanceWriteGuard("closeout.checkpoint.clear", func(guarded Store) error {
+		return guarded.clearCloseoutCheckpoint(ref)
+	})
+}
+
+func (s Store) clearCloseoutCheckpoint(ref string) error {
+	if err := s.fsys().Remove(closeoutCheckpointPath(s.Root, ref)); err != nil && !os.IsNotExist(err) {
 		return err
 	}
 	dir := filepath.Join(s.Root, filepath.FromSlash(closeoutCheckpointDir))
-	if entries, err := os.ReadDir(dir); err == nil && len(entries) == 0 {
-		_ = os.Remove(dir)
+	if entries, err := s.fsys().ReadDir(dir); err == nil && len(entries) == 0 {
+		_ = s.fsys().Remove(dir)
 	}
 	return nil
 }

@@ -253,6 +253,73 @@ var (
 	ErrReleaseSnapshotMissing = errors.New("pose: the tag's tree does not hold the release snapshot")
 )
 
+type releaseTagBinding struct {
+	ObjectID  string
+	Commit    string
+	Annotated bool
+	Err       error
+}
+
+// captureReleaseTagBindings fixes release tag names and object identities from
+// one bounded Git listing. Annotated tags are peeled from their captured object
+// ID, so a later move of refs/tags cannot redirect tree reads in this operation.
+func captureReleaseTagBindings(files Files, root, producer string) (map[string]releaseTagBinding, error) {
+	files = FilesOrNative(files)
+	producer = governanceProducerFromFiles(files, producer)
+	raw, err := captureGovernanceGit(files, root, producer, "for-each-ref", "--format=%(refname:strip=2)%00%(objectname)%00%(objecttype)", "refs/tags")
+	if err != nil {
+		if gitNotARepository(root) {
+			return map[string]releaseTagBinding{}, nil
+		}
+		markGovernanceReadUnknown(files, root, producer, "release tag references could not be read whole")
+		return nil, fmt.Errorf("pose: the release tags could not be listed: %w", err)
+	}
+	if int64(len(raw)) > governanceReadViewMaxMetadata {
+		markGovernanceReadUnknown(files, root, producer, "release tag reference metadata exceeded its bounded budget")
+		return nil, errGovernanceReadViewBudget
+	}
+	tags := map[string]releaseTagBinding{}
+	for _, line := range strings.Split(strings.TrimSuffix(string(raw), "\n"), "\n") {
+		if line == "" {
+			continue
+		}
+		fields := strings.Split(line, "\x00")
+		if len(fields) != 3 || fields[0] == "" || fields[1] == "" || fields[2] == "" {
+			markGovernanceReadUnknown(files, root, producer, "release tag reference inventory could not be parsed whole")
+			return nil, fmt.Errorf("pose: release tag reference inventory is malformed")
+		}
+		tag := fields[0]
+		if ValidateReleaseVersion(tag) != nil {
+			continue
+		}
+		binding := releaseTagBinding{ObjectID: fields[1]}
+		switch fields[2] {
+		case "commit":
+			binding.Commit = fields[1]
+		case "tag":
+			binding.Annotated = true
+			commit, peelErr := captureGovernanceGit(files, root, producer, "rev-parse", "--verify", "--quiet", fields[1]+"^{commit}")
+			if peelErr != nil {
+				binding.Err = fmt.Errorf("%w: %s", ErrReleaseTagNotCommit, tag)
+			} else {
+				binding.Commit = strings.TrimSpace(string(commit))
+				if binding.Commit == "" {
+					markGovernanceReadUnknown(files, root, producer, "captured annotated tag did not yield a commit identity")
+					return nil, fmt.Errorf("pose: captured tag %s has no commit identity", tag)
+				}
+			}
+		default:
+			binding.Err = fmt.Errorf("%w: %s", ErrReleaseTagNotCommit, tag)
+		}
+		if _, duplicate := tags[tag]; duplicate {
+			markGovernanceReadUnknown(files, root, producer, "release tag reference inventory contains a duplicate name")
+			return nil, fmt.Errorf("pose: duplicate release tag reference %s", tag)
+		}
+		tags[tag] = binding
+	}
+	return tags, nil
+}
+
 // ReleaseSnapshot is what the tree a tag points at says about its release.
 type ReleaseSnapshot struct {
 	Tag string `json:"tag"`
@@ -460,6 +527,10 @@ func TagHoldsAdoptedReleasePolicy(root, tag string) (bool, error) {
 	if err != nil {
 		return false, err
 	}
+	return tagCommitHoldsAdoptedReleasePolicy(root, commit)
+}
+
+func tagCommitHoldsAdoptedReleasePolicy(root, commit string) (bool, error) {
 	policy, _, err := releasePolicyAt(root, commit)
 	if errors.Is(err, os.ErrNotExist) {
 		return false, nil
@@ -481,6 +552,13 @@ func ReadReleaseSnapshot(root, tag string) (ReleaseSnapshot, error) {
 	commit, annotated, err := ResolveReleaseTag(root, tag)
 	if err != nil {
 		return ReleaseSnapshot{Tag: tag}, err
+	}
+	return readReleaseSnapshotAtCommit(root, tag, commit, annotated)
+}
+
+func readReleaseSnapshotAtCommit(root, tag, commit string, annotated bool) (ReleaseSnapshot, error) {
+	if commit == "" {
+		return ReleaseSnapshot{Tag: tag}, fmt.Errorf("pose: release tag %s has no captured commit", tag)
 	}
 	snap := ReleaseSnapshot{Tag: tag, Commit: commit, Annotated: annotated}
 	manifestPath := ".pose/releases/" + tag + "/manifest.json"

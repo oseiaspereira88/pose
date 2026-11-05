@@ -99,7 +99,8 @@ type ArtifactResolver struct {
 	snapshots *sync.Map
 	// FS is the filesystem of the operation the resolver serves; every store
 	// it opens carries it (spec pose-update-dry-run-reports-the-whole-update D2).
-	FS Files
+	FS                   Files
+	governanceDepthLimit int
 }
 
 func (r ArtifactResolver) fsys() Files { return FilesOrNative(r.FS) }
@@ -194,8 +195,17 @@ func (r ArtifactResolver) resolve(localProject, raw string, redirectPath map[str
 		}
 		if found {
 			key := ref.String()
-			if redirectDepth >= 16 || redirectPath[key] {
+			maxDepth := 16
+			if r.governanceDepthLimit > 0 {
+				maxDepth = r.governanceDepthLimit
+			}
+			if redirectPath[key] {
 				out.State = "redirect-cycle"
+				return out
+			}
+			if redirectDepth >= maxDepth {
+				r.markResolutionBudgetUnknown(ref.Project, "artifact redirect chain exceeded its depth budget")
+				out.State = "resolution-limit"
 				return out
 			}
 			redirectPath[key] = true
@@ -318,6 +328,7 @@ func (r ArtifactResolver) resolve(localProject, raw string, redirectPath map[str
 		}
 	}
 	if len(deps) > 256 {
+		r.markResolutionBudgetUnknown(ref.Project, "artifact dependency list exceeded its 256-edge budget")
 		out.State = "resolution-limit"
 		return out
 	}
@@ -337,12 +348,37 @@ func (r ArtifactResolver) resolve(localProject, raw string, redirectPath map[str
 	out.Digest = hex.EncodeToString(digest[:])
 	// rev-parse can walk to an ancestor repository: require this root to be its
 	// own Git top level before reporting a revision for a registered project.
-	if top, err := RawHistoryGit(s.Root, "rev-parse", "--show-toplevel").Output(); err == nil && sameProjectRoot(r.fsys(), s.Root, strings.TrimSpace(string(top))) {
-		if revision, err := RawHistoryGit(s.Root, "rev-parse", "--verify", "HEAD").Output(); err == nil {
+	producer := governanceProducerFromFiles(r.fsys(), "artifact-resolver")
+	top, gitErr := CaptureGovernanceRawHistoryGitIn(r.fsys(), s.Root, producer, 1024, "rev-parse", "--show-toplevel")
+	if gitErr != nil {
+		markArtifactResolverRevisionUnknown(r.fsys(), s.Root, ref.Project, localProject, "artifact source Git root could not be identified")
+	} else if sameProjectRoot(r.fsys(), s.Root, strings.TrimSpace(string(top))) {
+		revision, revisionErr := CaptureGovernanceRawHistoryGitIn(r.fsys(), s.Root, producer, 1024, "rev-parse", "--verify", "HEAD")
+		if revisionErr == nil && strings.TrimSpace(string(revision)) != "" {
 			out.Revision = strings.TrimSpace(string(revision))
+		} else {
+			markArtifactResolverRevisionUnknown(r.fsys(), s.Root, ref.Project, localProject, "artifact source Git revision could not be read")
 		}
+	} else {
+		markArtifactResolverRevisionUnknown(r.fsys(), s.Root, ref.Project, localProject, "artifact source root is not its own Git worktree")
 	}
 	return out
+}
+
+func markArtifactResolverRevisionUnknown(files Files, root, project, localProject, reason string) {
+	files = FilesOrNative(files)
+	if project == localProject && !hasGitMetadataIn(files, root) {
+		return
+	}
+	view, _ := governanceReadViewFromFiles(files)
+	if view == nil {
+		return
+	}
+	if view.operation != nil && view.operation.mayOmitPrimaryRevision(root) {
+		return
+	}
+	producer := governanceProducerFromFiles(files, "artifact-resolver")
+	markGovernanceReadUnknownForProject(files, root, project, producer, reason)
 }
 
 // ValidateGraph checks existence/authorization/cycles, not lifecycle acceptance.
@@ -353,9 +389,6 @@ func (r ArtifactResolver) ValidateGraph(project, raw string) string {
 	nodes := 0
 	var visit func(string, string, int) string
 	visit = func(project, raw string, depth int) string {
-		if depth > 64 || nodes >= 256 {
-			return "resolution-limit"
-		}
 		ref, err := ParseArtifactRef(raw)
 		if err != nil {
 			return "invalid-artifact-reference"
@@ -369,6 +402,14 @@ func (r ArtifactResolver) ValidateGraph(project, raw string) string {
 		}
 		if visited[key] {
 			return ""
+		}
+		maxDepth := 64
+		if r.governanceDepthLimit > 0 {
+			maxDepth = r.governanceDepthLimit
+		}
+		if depth > maxDepth || nodes >= 256 {
+			r.markResolutionBudgetUnknown(project, "artifact dependency graph exceeded its depth or node budget")
+			return "resolution-limit"
 		}
 		nodes++
 		resolved := r.Resolve(project, raw)
@@ -386,6 +427,17 @@ func (r ArtifactResolver) ValidateGraph(project, raw string) string {
 		return ""
 	}
 	return visit(project, raw, 0)
+}
+
+func (r ArtifactResolver) markResolutionBudgetUnknown(project, reason string) {
+	if r.Roots == nil {
+		return
+	}
+	store, err := r.Roots.StoreFor(project)
+	if err != nil {
+		return
+	}
+	markGovernanceReadUnknownForProject(store.fsys(), store.Root, project, "readiness", reason)
 }
 
 func sameProjectRoot(files Files, a, b string) bool {

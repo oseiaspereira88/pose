@@ -46,11 +46,14 @@ type ObligationReport struct {
 // ObligationSnapshot says which state an answer describes. It reuses the
 // digests the engine already computes; it is not a second policy.
 type ObligationSnapshot struct {
-	Project        string `json:"project_id"`
-	SourceRevision string `json:"source_revision"`
-	WorktreeDirty  bool   `json:"worktree_dirty"`
-	PolicyDigest   string `json:"policy_digest"`
-	ContractDigest string `json:"contract_digest"`
+	ReadView       *ReadViewMetadata        `json:"read_view,omitempty"`
+	readViewProof  *governanceReadViewProof `json:"-"`
+	readViewFiles  Files                    `json:"-"`
+	Project        string                   `json:"project_id"`
+	SourceRevision string                   `json:"source_revision"`
+	WorktreeDirty  bool                     `json:"worktree_dirty"`
+	PolicyDigest   string                   `json:"policy_digest"`
+	ContractDigest string                   `json:"contract_digest"`
 	// AuthorityContextRevision is the context_revision `pose context` returns
 	// for this project: the authority binding the answer was computed under.
 	AuthorityContextRevision string   `json:"authority_context_revision,omitempty"`
@@ -98,18 +101,19 @@ var (
 // pendingSourceUsed reports whether this project has the source a pending
 // producer would read. It only checks that the source exists: a project that
 // has it keeps incomplete coverage until the producer is projected.
-func pendingSourceUsed(root, producer string) bool {
+func pendingSourceUsed(files Files, root, producer string) bool {
+	files = FilesOrNative(files)
 	exists := func(rel string) bool {
-		_, err := os.Stat(filepath.Join(root, filepath.FromSlash(rel)))
+		_, err := files.Stat(filepath.Join(root, filepath.FromSlash(rel)))
 		return err == nil
 	}
 	any := func(pattern string) bool {
-		matches, _ := filepath.Glob(filepath.Join(root, filepath.FromSlash(pattern)))
+		matches, _ := GlobIn(files, filepath.Join(root, filepath.FromSlash(pattern)))
 		return len(matches) > 0
 	}
 	switch producer {
 	case "release":
-		policy, err := LoadReleasePolicy(root)
+		policy, err := LoadReleasePolicyIn(files, root)
 		return err == nil && policy.AdoptedAt != "" || any(".pose/releases/*")
 	case "docs-review":
 		return exists(".pose/docs.json")
@@ -130,19 +134,38 @@ const ObligationReportSchemaVersion = 1
 
 // ProjectObligations aggregates obligations read-only. It changes no file.
 func (s Store) ProjectObligations(q ObligationQuery) (ObligationReport, error) {
-	// Every producer asks for specs; one read of the directory serves them all.
-	if s.specs == nil {
-		s = s.withSpecSnapshot()
-	}
+	return s.projectObligationsAttempt(q, 0)
+}
+
+func (s Store) projectObligationsAttempt(q ObligationQuery, attempt int) (ObligationReport, error) {
+	baseStore, view := s.beginGovernanceReadView()
+	s = baseStore.withGovernanceReadView(view, "projection").PinIndexes()
 	report := ObligationReport{SchemaVersion: ObligationReportSchemaVersion, Query: q, Counts: map[string]int{}, Durations: map[string]float64{}, producerState: map[string]*Coverage{}}
 	for _, producer := range obligationProducers {
 		report.producerState[producer] = &Coverage{Producer: producer, State: CoverageStateCurrent}
 	}
 	report.Snapshot = s.CurrentObligationSnapshot()
 	project := report.Snapshot.Project
+	indexGeneration := "legacy"
+	if s.indexPin != nil {
+		switch s.indexPin.Status {
+		case IndexGenerationCurrent:
+			indexGeneration = s.indexPin.Descriptor.GenerationID
+		case IndexGenerationUnavailable:
+			indexGeneration = "unknown"
+			view.markUnknown("projection", "index generation could not be pinned: "+s.indexPin.Reason)
+		}
+	}
 
 	specs, err := s.obligationScopeSpecs(q.Scope)
 	if err != nil {
+		audit := view.audit()
+		readView, proof := view.metadata(project, report.Snapshot.SourceRevision, indexGeneration, audit)
+		readView.Scope = q.Scope
+		report.Snapshot.ReadView = &readView
+		report.Snapshot.readViewProof = proof
+		report.Snapshot.readViewFiles = view.base
+		report.Snapshot.Digest = snapshotDigest(report.Snapshot)
 		return report, err
 	}
 	report.scopeSpecs = specs
@@ -157,56 +180,121 @@ func (s Store) ProjectObligations(q ObligationQuery) (ObligationReport, error) {
 	assurance := map[string]ReviewAssurance{}
 	producers := []struct {
 		name string
-		fn   func() ([]Obligation, error)
+		fn   func(Store) ([]Obligation, error)
 	}{
-		{"readiness", func() ([]Obligation, error) { return s.readinessObligations(project, specs) }},
-		{"closeout", func() ([]Obligation, error) {
-			items, err := s.closeoutObligations(project, specs, report.producerState, assurance)
+		{"readiness", func(store Store) ([]Obligation, error) { return store.readinessObligations(project, specs) }},
+		{"closeout", func(store Store) ([]Obligation, error) {
+			items, err := store.closeoutObligations(project, specs, report.producerState, assurance)
 			if err != nil {
 				return nil, err
 			}
-			reached, err := s.milestoneReachedObligations(project, q.Scope, report.producerState["closeout"])
+			reached, err := store.milestoneReachedObligations(project, q.Scope, report.producerState["closeout"])
 			return append(items, reached...), err
 		}},
-		{"start", func() ([]Obligation, error) {
-			return s.startObligationItems(project, specs, report.producerState["start"])
+		{"start", func(store Store) ([]Obligation, error) {
+			return store.startObligationItems(project, specs, report.producerState["start"])
 		}},
-		{"followups", func() ([]Obligation, error) {
-			return s.followupObligations(project, specs, q.Scope, report.producerState["followups"])
+		{"followups", func(store Store) ([]Obligation, error) {
+			return store.followupObligations(project, specs, q.Scope, report.producerState["followups"])
 		}},
-		{"assessments", func() ([]Obligation, error) { return s.assessmentObligations(project, specs), nil }},
-		{"premises", func() ([]Obligation, error) { return s.premiseObligations(project, specs) }},
-		{"falsifiers", func() ([]Obligation, error) { return s.falsifierObligations(project, specs) }},
-		{"docs-review", func() ([]Obligation, error) { return s.docsReviewObligations(project) }},
-		{"capability-trigger", func() ([]Obligation, error) { return s.capabilityTriggerObligations(project) }},
-		{"release", func() ([]Obligation, error) { return s.releaseQueueObligations(project) }},
-		{"findings", func() ([]Obligation, error) {
-			return s.findingObligations(project, time.Now(), report.producerState["findings"], q.Scope, specs)
+		{"assessments", func(store Store) ([]Obligation, error) { return store.assessmentObligations(project, specs), nil }},
+		{"premises", func(store Store) ([]Obligation, error) { return store.premiseObligations(project, specs) }},
+		{"falsifiers", func(store Store) ([]Obligation, error) { return store.falsifierObligations(project, specs) }},
+		{"docs-review", func(store Store) ([]Obligation, error) { return store.docsReviewObligations(project) }},
+		{"capability-trigger", func(store Store) ([]Obligation, error) { return store.capabilityTriggerObligations(project) }},
+		{"release", func(store Store) ([]Obligation, error) { return store.releaseQueueObligations(project) }},
+		{"findings", func(store Store) ([]Obligation, error) {
+			return store.findingObligations(project, time.Now(), report.producerState["findings"], q.Scope, specs)
 		}},
-		{"action-requests", func() ([]Obligation, error) {
+		{"action-requests", func(store Store) ([]Obligation, error) {
 			if actionRequestObligationSource == nil {
 				cov := report.producerState["action-requests"]
 				cov.State, cov.Detail = CoverageStateUnsupported, "action requests are not available in this engine"
 				return nil, nil
 			}
-			return actionRequestObligationSource(s, project, specs, q.Scope == "", report.producerState["action-requests"])
+			return actionRequestObligationSource(store, project, specs, q.Scope == "", report.producerState["action-requests"])
 		}},
+	}
+	producerStores := make([]Store, len(producers))
+	for i, producer := range producers {
+		producerStores[i] = s.withGovernanceReadView(view, producer.name).withSpecSnapshot()
 	}
 	results := make([]produced, len(producers))
 	var wg sync.WaitGroup
 	for i := range producers {
 		wg.Add(1)
-		go func(i int) {
+		go func(i int, store Store) {
 			defer wg.Done()
 			started := time.Now()
-			items, err := producers[i].fn()
+			items, err := producers[i].fn(store)
 			results[i] = produced{items: items, err: err, duration: time.Since(started).Seconds()}
-		}(i)
+		}(i, producerStores[i])
 	}
 	wg.Wait()
 	if len(assurance) > 0 {
 		report.ReviewAssurance = assurance
 	}
+	pendingUsed := make(map[string]bool, len(obligationProducersPending))
+	for producer := range obligationProducersPending {
+		pendingUsed[producer] = pendingSourceUsed(s.fsys(), s.Root, producer)
+	}
+	finalSnapshot := s.CurrentObligationSnapshot()
+	snapshotChanged := snapshotDigest(finalSnapshot) != snapshotDigest(report.Snapshot)
+	if snapshotChanged {
+		view.markUnknown("projection", "source snapshot binding changed during the read")
+	}
+	audit := view.audit()
+	if (len(audit.ChangedPaths) > 0 || snapshotChanged) && attempt == 0 {
+		return baseStore.projectObligationsAttempt(q, 1)
+	}
+	changed := snapshotChanged || len(audit.ChangedPaths) > 0 || len(audit.ChangedProducers) > 0
+	if changed {
+		report.Snapshot.Coherent = false
+		if snapshotChanged {
+			report.Snapshot.Limitations = append(report.Snapshot.Limitations, "source snapshot bindings changed while obligations were projected")
+		} else {
+			report.Snapshot.Limitations = append(report.Snapshot.Limitations, "observed inputs changed while obligations were projected")
+		}
+	}
+	for producer, reasons := range audit.UnknownProducers {
+		detail := "read view could not prove this producer's input closure: " + strings.Join(reasons, "; ")
+		if producer == "projection" {
+			for _, reason := range reasons {
+				if !governanceReadViewProjectionReasonAffectsCoverage(reason) {
+					continue
+				}
+				for _, cov := range report.producerState {
+					markCoverageIncomplete(cov, detail)
+				}
+				break
+			}
+			continue
+		}
+		if cov := report.producerState[producer]; cov != nil {
+			markCoverageIncomplete(cov, detail)
+		}
+	}
+	for producer := range audit.ChangedProducers {
+		if cov := report.producerState[producer]; cov != nil {
+			markCoverageIncomplete(cov, "input closure changed during the operation and the single retry did not stabilize")
+		} else {
+			for _, cov := range report.producerState {
+				markCoverageIncomplete(cov, "shared projection inputs changed during the operation and the single retry did not stabilize")
+			}
+		}
+	}
+	if changed && len(audit.ChangedProducers) == 0 {
+		for _, cov := range report.producerState {
+			markCoverageIncomplete(cov, "input closure changed but could not be localized to a producer")
+		}
+	}
+	readView, proof := view.metadata(project, report.Snapshot.SourceRevision, indexGeneration, audit)
+	readView.Scope = q.Scope
+	report.Snapshot.ReadView = &readView
+	report.Snapshot.readViewProof = proof
+	report.Snapshot.readViewFiles = view.base
+	report.Snapshot.Digest = snapshotDigest(report.Snapshot)
+	report.Limitations = append(report.Limitations, readView.Limitations...)
 	var all []Obligation
 	for i, producer := range producers {
 		report.Durations[producer.name] = results[i].duration
@@ -264,7 +352,7 @@ func (s Store) ProjectObligations(q ObligationQuery) (ObligationReport, error) {
 	}
 	sort.Strings(pending)
 	for _, producer := range pending {
-		report.Coverage = append(report.Coverage, ProducerCoverage{Producer: producer, State: CoverageStateUnsupported, Detail: obligationProducersPending[producer], NotUsed: !pendingSourceUsed(s.Root, producer)})
+		report.Coverage = append(report.Coverage, ProducerCoverage{Producer: producer, State: CoverageStateUnsupported, Detail: obligationProducersPending[producer], NotUsed: !pendingUsed[producer]})
 	}
 	report.Limitations = append(report.Limitations, report.Snapshot.Limitations...)
 	return report, nil
@@ -375,9 +463,15 @@ func newObligation(project, producer string, source NodeRef, rule, discriminator
 // readinessObligations projects unmet prerequisites. They restrict start and
 // execution of the whole spec: depends_on is a spec-level precondition.
 func (s Store) readinessObligations(project string, specs []Spec) ([]Obligation, error) {
-	resolver, _, err := EnvironmentArtifactResolverIn(s.fsys(), s.Root, "")
-	if err != nil {
-		return nil, err
+	var resolver ArtifactResolver
+	if s.FederatedResolver != nil {
+		resolver = *s.FederatedResolver
+	} else {
+		var err error
+		resolver, _, err = EnvironmentArtifactResolverIn(s.fsys(), s.Root, "")
+		if err != nil {
+			return nil, err
+		}
 	}
 	resolver = resolver.WithSpecSnapshots()
 	return forEachSpec(specs, func(sp Spec) ([]Obligation, error) {
@@ -662,7 +756,7 @@ func (s Store) followupObligations(project string, specs []Spec, scope string, c
 			candidates[fmt.Sprintf("%s#%d", c.Spec, c.Ordinal)] = c
 		}
 	}
-	read := ReadSpecFollowups(s.Root)
+	read := ReadSpecFollowupsIn(s.fsys(), s.Root)
 	// A spec this read could not open may hold follow-ups: an answer about its scope,
 	// or about the whole project, does not claim there are none. A loss attributed to
 	// another spec does not touch an answer about this one.
@@ -736,6 +830,23 @@ func markCoverageIncomplete(cov *Coverage, detail string) {
 	}
 }
 
+// Some operation-wide read-view limitations do not mean that a producer's
+// filesystem inputs were unread. In particular, an engine build without a
+// Git checkout cannot bind HEAD, but its bounded file observations can still
+// be complete. Keep that distinction in coverage while ReadView freshness
+// continues to disclose the missing binding.
+func governanceReadViewProjectionReasonAffectsCoverage(reason string) bool {
+	switch reason {
+	case "engine version is unavailable",
+		"source revision could not be read from Git",
+		"source revision for the primary root is unavailable",
+		"source revision binding is unavailable":
+		return false
+	default:
+		return true
+	}
+}
+
 // normalizeObligationText makes a follow-up's identity survive rewrapping.
 func normalizeObligationText(text string) string {
 	return strings.Join(strings.Fields(strings.ToLower(text)), " ")
@@ -772,7 +883,17 @@ func correlateObligations(items []Obligation) []Obligation {
 // CurrentObligationSnapshot binds an answer to the repository state it read.
 func (s Store) CurrentObligationSnapshot() ObligationSnapshot {
 	snap := ObligationSnapshot{GeneratedAt: time.Now().UTC().Format(time.RFC3339), Coherent: true}
-	resolver, project, err := EnvironmentArtifactResolverIn(s.fsys(), s.Root, "")
+	resolver := ArtifactResolver{}
+	project := strings.TrimSpace(s.FederatedProjectID)
+	var err error
+	if s.FederatedResolver != nil {
+		resolver = *s.FederatedResolver
+		if project == "" {
+			project = DefaultProjectIDIn(s.fsys(), s.Root)
+		}
+	} else {
+		resolver, project, err = EnvironmentArtifactResolverIn(s.fsys(), s.Root, "")
+	}
 	if err == nil && project != "" {
 		if ctx, ctxErr := ResolveAgentProjectContextIn(s.fsys(), resolver, project, ""); ctxErr == nil {
 			snap.AuthorityContextRevision = ctx.ContextRevision
@@ -794,14 +915,14 @@ func (s Store) CurrentObligationSnapshot() ObligationSnapshot {
 		snap.Limitations = append(snap.Limitations, "project identity fell back to the directory name; declare it in .pose/project.json")
 	}
 	snap.Project = project
-	if head, err := gitCommand("-C", s.Root, "rev-parse", "--verify", "HEAD").Output(); err == nil {
+	if head, err := captureGovernanceGit(s.fsys(), s.Root, "projection", "rev-parse", "--verify", "HEAD"); err == nil {
 		snap.SourceRevision = strings.TrimSpace(string(head))
 	} else {
 		snap.SourceRevision = "unknown"
 		snap.Coherent = false
 		snap.Limitations = append(snap.Limitations, "no Git revision: the answer describes the working tree only")
 	}
-	status, statusErr := gitCommand("-C", s.Root, "status", "--porcelain", "--untracked-files=no", "--", ".pose").Output()
+	status, statusErr := captureGovernanceGit(s.fsys(), s.Root, "projection", "status", "--porcelain", "--untracked-files=no", "--", ".pose")
 	if statusErr != nil && snap.SourceRevision != "unknown" {
 		// HEAD is readable and the status is not: the working tree is unknown, not clean.
 		snap.Coherent = false
@@ -830,17 +951,21 @@ func (s Store) CurrentObligationSnapshot() ObligationSnapshot {
 }
 
 func snapshotDigest(snap ObligationSnapshot) string {
-	digest, _ := digestJSON([]string{snap.Project, snap.SourceRevision, fmt.Sprint(snap.WorktreeDirty), fmt.Sprint(snap.Coherent), snap.PolicyDigest, snap.ContractDigest, snap.AuthorityContextRevision, snap.IndexDigest})
+	parts := []string{snap.Project, snap.SourceRevision, fmt.Sprint(snap.WorktreeDirty), fmt.Sprint(snap.Coherent), snap.PolicyDigest, snap.ContractDigest, snap.AuthorityContextRevision, snap.IndexDigest}
+	if snap.ReadView != nil {
+		parts = append(parts, snap.ReadView.ID)
+	}
+	digest, _ := digestJSON(parts)
 	return digest
 }
 
-// ObligationSnapshotChanges reports which bound inputs changed since snap was
-// taken. A write gate revalidates with this instead of trusting an earlier
-// read; an empty result means the answer still describes the repository
-// (the working tree may still differ inside a dirty snapshot, which snap
-// already said).
+// ObligationSnapshotChanges compares an advisory snapshot with the current
+// repository state. A missing private read-view proof cannot certify current
+// inputs, and an empty result is not authorization to write. Effectful callers
+// must recompute under their governance write guard.
 func (s Store) ObligationSnapshotChanges(snap ObligationSnapshot) []string {
 	now := s.CurrentObligationSnapshot()
+	currentFiles := s.withoutGovernanceReadView().fsys()
 	var changed []string
 	// A state that could not be read is not a state that did not change.
 	// A baseline that was not read whole is not one to compare with: a later, coherent read is
@@ -873,6 +998,13 @@ func (s Store) ObligationSnapshotChanges(snap ObligationSnapshot) []string {
 	// A clean tree that became dirty (or the reverse) is a change of what the answer describes.
 	if now.WorktreeDirty != snap.WorktreeDirty {
 		changed = append(changed, "worktree")
+	}
+	if snap.ReadView != nil && (snap.ReadView.Freshness != ReadViewFreshnessCurrent || snap.readViewProof == nil || snap.readViewFiles == nil) {
+		changed = append(changed, "read-view-unverified")
+	} else if snap.ReadView != nil {
+		for _, path := range snap.readViewProof.changes(currentFiles) {
+			changed = append(changed, "read-view:"+path)
+		}
 	}
 	return changed
 }

@@ -4,6 +4,9 @@ import (
 	"crypto/ed25519"
 	"encoding/base64"
 	"encoding/json"
+	"errors"
+	"io"
+	"io/fs"
 	"os"
 	"os/exec"
 	"path/filepath"
@@ -295,6 +298,9 @@ func TestReviewBundleSealIsAtomicIdempotentAndDetectsSubjectChange(t *testing.T)
 
 func TestReviewAttestationDoesNotMutateBundleAndConverges(t *testing.T) {
 	root, store := reviewBundleFixture(t)
+	federatedTestGit(t, root, "init", "-q")
+	federatedTestGit(t, root, "add", "-A")
+	federatedTestGit(t, root, "-c", "user.name=fixture", "-c", "user.email=fixture@example.invalid", "-c", "commit.gpgsign=false", "commit", "-qm", "review subject")
 	policyPath := filepath.Join(root, ".pose/policy/review.json")
 	policyRaw, _ := os.ReadFile(policyPath)
 	policy := strings.Replace(string(policyRaw), `"component_aware": true,`, `"component_aware": true,
@@ -328,9 +334,114 @@ func TestReviewAttestationDoesNotMutateBundleAndConverges(t *testing.T) {
 	if !verification.Fresh || !verification.Approved || verification.State != "ready-to-close" || len(verification.Blockers) != 0 {
 		t.Fatalf("bundle did not converge: %+v", verification)
 	}
+	bindCurrentReviewFixture(t, store)
 	evaluation, err := store.ReviewCheck("spec:backend")
 	if err != nil || !evaluation.Fresh || !evaluation.Approved || evaluation.BundleID != bundle.BundleID || evaluation.AttestationID != att.AttestationID {
-		t.Fatalf("review check did not consume bundle attestation: eval=%+v err=%v", evaluation, err)
+		var readView any
+		if evaluation.ReadView != nil {
+			readView = *evaluation.ReadView
+		}
+		t.Fatalf("review check did not consume bundle attestation: eval=%+v read_view=%+v err=%v", evaluation, readView, err)
+	}
+}
+
+type mutateReviewPolicyAfterReadFiles struct {
+	Files
+	path        string
+	replacement []byte
+	mutated     bool
+}
+
+func (f *mutateReviewPolicyAfterReadFiles) Open(path string) (fs.File, error) {
+	file, err := f.Files.Open(path)
+	if err != nil || filepath.Clean(path) != f.path || f.mutated {
+		return file, err
+	}
+	return mutateReviewPolicyOnEOF{File: file, owner: f, path: path}, nil
+}
+
+type mutateReviewPolicyOnEOF struct {
+	fs.File
+	owner *mutateReviewPolicyAfterReadFiles
+	path  string
+}
+
+func (f mutateReviewPolicyOnEOF) Read(data []byte) (int, error) {
+	n, err := f.File.Read(data)
+	if errors.Is(err, io.EOF) && !f.owner.mutated {
+		f.owner.mutated = true
+		if writeErr := os.WriteFile(f.path, f.owner.replacement, 0o644); writeErr != nil {
+			return n, writeErr
+		}
+	}
+	return n, err
+}
+
+func TestReviewCheckWithholdsFreshApprovalWhenReadViewChanges(t *testing.T) {
+	root, _ := reviewBundleFixture(t)
+	policyPath := filepath.Join(root, ".pose", "policy", "review.json")
+	policyRaw, err := os.ReadFile(policyPath)
+	if err != nil {
+		t.Fatal(err)
+	}
+	changedPolicy := strings.Replace(string(policyRaw), `"enabled": true`, `"enabled": false`, 1)
+	files := &mutateReviewPolicyAfterReadFiles{Files: NativeFiles(), path: filepath.Clean(policyPath), replacement: []byte(changedPolicy)}
+	eval, err := (Store{Root: root, FS: files}).ReviewCheck("spec:backend")
+	if err != nil {
+		t.Fatal(err)
+	}
+	if !files.mutated || eval.PolicyEnabled || eval.Required || eval.ReadView == nil || eval.ReadView.Freshness != ReadViewFreshnessUnknown || eval.Fresh || eval.Approved {
+		t.Fatalf("a policy change during review evaluation kept a fresh approval: mutated=%t eval=%+v", files.mutated, eval)
+	}
+	if !strings.Contains(strings.Join(append(eval.Blockers, eval.Warnings...), " "), "governance read view is unknown") {
+		t.Fatalf("review did not disclose the unknown input closure: blockers=%+v warnings=%+v", eval.Blockers, eval.Warnings)
+	}
+}
+
+func TestGovernanceWriteGuardReviewAttestationReturnsCommittedUnsyncedRecord(t *testing.T) {
+	root, store := reviewBundleFixture(t)
+	policyPath := filepath.Join(root, ".pose", "policy", "review.json")
+	policyRaw, err := os.ReadFile(policyPath)
+	if err != nil {
+		t.Fatal(err)
+	}
+	policy := strings.Replace(string(policyRaw), `"component_aware": true,`, `"component_aware": true,
+  "review_bundles": true,
+  "review_bundles_adopted_at": "2026-08-13",`, 1)
+	if err := os.WriteFile(policyPath, []byte(policy), 0o644); err != nil {
+		t.Fatal(err)
+	}
+	now := time.Date(2026, 8, 13, 12, 0, 0, 0, time.UTC)
+	bundle, err := store.SealReviewBundle("spec:backend", now)
+	if err != nil {
+		t.Fatal(err)
+	}
+	att := approvedBundleAttestation(bundle, "agent:unsynced-review")
+	att.Decision = "changes-requested"
+	candidate, err := completeReviewAttestation(bundle, att, now.Add(time.Minute))
+	if err != nil {
+		t.Fatal(err)
+	}
+	path := filepath.Join(root, ".pose", "review-attestations", candidate.AttestationID+".json")
+	poseSyncFailure := errors.New("injected directory sync failure")
+	PublishSyncHook = func(kind, publishedPath string) error {
+		if kind == "dir" && publishedPath == path {
+			return poseSyncFailure
+		}
+		return nil
+	}
+	t.Cleanup(func() { PublishSyncHook = nil })
+	recorded, err := store.RecordReviewAttestation(att, now.Add(time.Minute))
+	var durability *PublishDurabilityError
+	if !errors.As(err, &durability) || !errors.Is(err, ErrPublishUnsynced) || durability.Path != path {
+		t.Fatalf("attestation publication error = %v, want committed unsynced record", err)
+	}
+	if recorded.AttestationID != candidate.AttestationID {
+		t.Fatalf("committed attestation identity was discarded: got %+v want %s", recorded, candidate.AttestationID)
+	}
+	loaded, err := store.LoadReviewAttestation(recorded.AttestationID)
+	if err != nil || loaded.BundleDigest != bundle.BundleDigest {
+		t.Fatalf("published attestation is not readable after durability error: %+v %v", loaded, err)
 	}
 }
 

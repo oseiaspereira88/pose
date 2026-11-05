@@ -247,15 +247,22 @@ func (s Store) ListReviewRuns(bundleID string) ([]ReviewRun, error) {
 }
 
 func (s Store) ReadReviewRuns(bundleID string) ([]ReviewRun, []string, error) {
+	files := s.fsys()
 	dir := filepath.Join(s.Root, filepath.FromSlash(reviewRunsDir))
 	// The storage is read where the writer writes it: a link in its place is another place.
-	if info, lerr := os.Lstat(dir); lerr == nil && info.Mode()&os.ModeSymlink != 0 {
-		return nil, nil, fmt.Errorf("pose: the review runs directory is a link, not the directory the runs are written to")
+	if info, lerr := files.Lstat(dir); lerr == nil {
+		if info.Mode()&os.ModeSymlink != 0 {
+			return nil, nil, fmt.Errorf("pose: the review runs directory is a link, not the directory the runs are written to")
+		}
+	} else if !errors.Is(lerr, os.ErrNotExist) {
+		return nil, nil, lerr
 	}
-	entries, err := ledgerEntries(s.Root, reviewRunsDir)
+	entries, err := ledgerEntriesIn(files, s.Root, reviewRunsDir)
 	if errors.Is(err, os.ErrNotExist) {
-		if _, lerr := os.Lstat(dir); lerr == nil {
+		if _, lerr := files.Lstat(dir); lerr == nil {
 			return nil, nil, fmt.Errorf("pose: the review runs directory is a link whose target cannot be read")
+		} else if !errors.Is(lerr, os.ErrNotExist) {
+			return nil, nil, lerr
 		}
 		return []ReviewRun{}, nil, nil
 	}
@@ -269,16 +276,17 @@ func (s Store) ReadReviewRuns(bundleID string) ([]ReviewRun, []string, error) {
 		if !strings.HasSuffix(e.Name(), ".json") {
 			continue
 		}
-		if !e.Type().IsRegular() {
+		full := filepath.Join(dir, e.Name())
+		info, infoErr := files.Lstat(full)
+		if infoErr != nil || !info.Mode().IsRegular() {
 			lost = append(lost, e.Name()+" (not a regular file)")
 			continue
 		}
-		info, infoErr := e.Info()
-		if infoErr != nil || info.Size() > reviewLedgerMaxBytes {
+		if info.Size() < 0 || info.Size() > reviewLedgerMaxBytes {
 			lost = append(lost, e.Name()+" (record exceeds bound or is unreadable)")
 			continue
 		}
-		raw, err := readLedgerRawBudget(filepath.Join(dir, e.Name()), &readBudget)
+		raw, err := readLedgerRawBudgetIn(files, full, &readBudget)
 		if err != nil {
 			lost = append(lost, e.Name()+" ("+err.Error()+")")
 			if errors.Is(err, errReviewLedgerBudget) {
@@ -318,7 +326,7 @@ func (s Store) ReadReviewRuns(bundleID string) ([]ReviewRun, []string, error) {
 	checked := map[string][]DelegatedReviewAttempt{}
 	for _, run := range out {
 		if run.LedgerVersion == 1 {
-			if _, err := os.Lstat(filepath.Join(s.Root, reviewRunLedgerDir, run.RunID+".json")); err != nil {
+			if _, err := files.Lstat(filepath.Join(s.Root, reviewRunLedgerDir, run.RunID+".json")); err != nil {
 				lost = append(lost, "missing run witness "+run.RunID)
 			}
 		}
@@ -1575,7 +1583,8 @@ const reviewTranscriptMaxBytes = 256 << 20
 
 func (s Store) reviewRunTranscriptIntact(run ReviewRun) string {
 	full := filepath.Join(s.Root, filepath.FromSlash(run.TranscriptPath))
-	info, err := os.Lstat(full)
+	files := s.fsys()
+	info, err := files.Lstat(full)
 	if err != nil {
 		return "the transcript of the run cannot be inspected: " + err.Error()
 	}
@@ -1585,12 +1594,12 @@ func (s Store) reviewRunTranscriptIntact(run ReviewRun) string {
 	if info.Size() > reviewTranscriptMaxBytes {
 		return "the transcript exceeds the 256 MiB verification bound"
 	}
-	file, err := os.Open(full)
+	file, err := files.Open(full)
 	if err != nil {
 		return "the transcript of the run cannot be read: " + err.Error()
 	}
 	opened, statErr := file.Stat()
-	if statErr != nil || !opened.Mode().IsRegular() || !os.SameFile(info, opened) {
+	if statErr != nil || !opened.Mode().IsRegular() || !sameObservedFile(info, opened) {
 		file.Close()
 		return "the transcript changed while opening"
 	}

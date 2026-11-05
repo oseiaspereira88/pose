@@ -397,6 +397,7 @@ func TestARecentResultThatThisRunCouldNotRewriteIsNotConfirmed(t *testing.T) {
 		t.Fatal(err)
 	}
 	t.Cleanup(func() { _ = os.Chmod(target, 0o644) })
+	refuseResultPublication(t, target)
 	var result closeApplyJSON
 	code, _ := runPoseJSON(t, root, &result, "close", "spec:alpha", "--apply", "--reviewer", "agent:reviewer", "--json")
 	if code != 1 || result.Error == nil || result.Error.Cause != "results-not-published" || result.Step != posemodel.CloseoutStepEvidence {
@@ -459,6 +460,7 @@ func TestACheckThatPrintsTheWriteReceiptDoesNotConfirmIt(t *testing.T) {
 		t.Fatal(err)
 	}
 	t.Cleanup(func() { _ = os.Chmod(target, 0o644) })
+	refuseResultPublication(t, target)
 	// A failing check whose output is exactly the line validate prints after
 	// its own write (third-round F1): text is not a receipt.
 	writeCloseoutCLIFile(t, root, ".pose/indexes/validation-matrix.json", `{"defaults":{"mode":"strict"},"stacks":{"go":{"checks":[{"name":"test","program":"sh","args":["-c","printf 'json: %s\\n' \"$1\"; exit 1","probe","`+target+`"],"severity":"required","evidenceClass":"unit"}]}}}`)
@@ -477,6 +479,29 @@ func TestACheckThatPrintsTheWriteReceiptDoesNotConfirmIt(t *testing.T) {
 	if code != 1 || result.Error == nil || result.Error.Cause != "results-not-published" || strings.Contains(strings.Join(effectNames(result.OperationResult), ","), "results-written") {
 		t.Fatalf("a printed receipt confirmed an unpublished result: code=%d %+v", code, result.OperationResult)
 	}
+}
+
+// A read-only file can still be replaced atomically through its writable
+// directory. Refuse the authoritative publication itself so these negatives
+// exercise an actual failed write, including when a check prints a fake receipt.
+func refuseResultPublication(t *testing.T, target string) {
+	t.Helper()
+	directory, err := filepath.EvalSymlinks(filepath.Dir(target))
+	if err != nil {
+		t.Fatal(err)
+	}
+	target = filepath.Join(directory, filepath.Base(target))
+	previous := posemodel.PublishFault
+	posemodel.PublishFault = func(path string) error {
+		if filepath.Clean(path) == target {
+			return os.ErrPermission
+		}
+		if previous != nil {
+			return previous(path)
+		}
+		return nil
+	}
+	t.Cleanup(func() { posemodel.PublishFault = previous })
 }
 
 func TestAStartThatFailsAfterMovingTheSpecResumesWithTheAdvertisedCommand(t *testing.T) {

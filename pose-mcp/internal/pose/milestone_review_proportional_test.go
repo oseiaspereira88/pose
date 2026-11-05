@@ -286,9 +286,16 @@ func TestADeclarationRescuesATerminalSingleton(t *testing.T) {
 	if err != nil || !verification.Approved || verification.ApprovalOrigin != "declared:roadmap:program" {
 		t.Fatalf("the declaration did not rescue it: %+v %v", verification, err)
 	}
+	source, err := s.FederatedResolver.Roots.StoreFor("source")
+	if err != nil {
+		t.Fatal(err)
+	}
+	source.FederatedProjectID, source.FederatedResolver = "source", s.FederatedResolver
+	bindCurrentReviewFixture(t, source)
+	bindCurrentReviewFixture(t, s)
 	state, err := s.GetCloseoutState("milestone:program/core")
 	if err != nil || !state.Terminal {
-		t.Fatalf("closeout disagrees: %+v %v", state.Blockers, err)
+		t.Fatalf("closeout disagrees: blockers=%+v limitations=%+v read_view=%+v %v", state.Blockers, state.Limitations, state.ReadView, err)
 	}
 }
 
@@ -298,10 +305,18 @@ func TestAnExternalConsumerHoldsTheRoadmapOfADeclaredMilestone(t *testing.T) {
 	editRoadmapFixture(t, root, "- specs: backend\n", "- specs: backend, extra\n")
 	editRoadmapFixture(t, root, "status: active\n", "status: active\nunreviewed_milestones: closed before reviews\n")
 	editRoadmapFixture(t, root, "\n## Milestone: later\n- after: core\n- specs: pending\n", "")
+	source, sourceErr := s.FederatedResolver.Roots.StoreFor("source")
+	if sourceErr != nil {
+		t.Fatal(sourceErr)
+	}
+	source.FederatedProjectID, source.FederatedResolver = "source", s.FederatedResolver
+	bindCurrentReviewFixture(t, source)
+	bindCurrentReviewFixture(t, s)
 	identity := ArtifactRef{Kind: "milestone", Slug: "program", Milestone: "core", Project: "coordinator"}
 	_, _, _, _, _, _, blockers := federatedSourceProof(NativeFiles(), s, identity, gitHeadAtRoot(root))
 	if !strings.Contains(strings.Join(blockers, " "), "source-review-not-approved") {
-		t.Fatalf("a declaration stood as proof with no reviewed roadmap: %v", blockers)
+		state, stateErr := s.GetCloseoutState("milestone:program/core")
+		t.Fatalf("a declaration stood as proof with no reviewed roadmap: %v; limitations=%v read_view=%+v state_error=%v", blockers, state.Limitations, state.ReadView, stateErr)
 	}
 	roadmap, err := s.SealReviewBundle("roadmap:program", reviewFixtureNow.Add(2*time.Minute))
 	if err != nil {

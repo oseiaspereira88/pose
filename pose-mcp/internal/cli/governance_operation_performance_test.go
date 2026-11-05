@@ -8,6 +8,7 @@ import (
 	"encoding/json"
 	"errors"
 	"fmt"
+	"io/fs"
 	"os"
 	"os/exec"
 	"path/filepath"
@@ -766,16 +767,33 @@ type governanceMutatingHeaderFiles struct {
 	changed bool
 }
 
-func (f *governanceMutatingHeaderFiles) ReadFile(path string) ([]byte, error) {
-	raw, err := f.Files.ReadFile(path)
-	if err == nil && path == f.path {
-		f.once.Do(func() {
+func (f *governanceMutatingHeaderFiles) Open(path string) (fs.File, error) {
+	file, err := f.Files.Open(path)
+	if err != nil || path != f.path {
+		return file, err
+	}
+	return &governanceMutatingHeaderOpenFile{File: file, afterRead: func() {
+		raw, readErr := f.Files.ReadFile(path)
+		if readErr == nil {
 			if writeErr := f.Files.WriteFile(path, bytes.ReplaceAll(raw, []byte("other"), []byte("owned")), 0o644); writeErr == nil {
 				f.changed = true
 			}
-		})
+		}
+	}}, nil
+}
+
+type governanceMutatingHeaderOpenFile struct {
+	fs.File
+	afterRead func()
+	once      sync.Once
+}
+
+func (f *governanceMutatingHeaderOpenFile) Read(p []byte) (int, error) {
+	n, err := f.File.Read(p)
+	if n > 0 && f.afterRead != nil {
+		f.once.Do(f.afterRead)
 	}
-	return raw, err
+	return n, err
 }
 
 func TestGovernanceOperationPerformanceCheckFinalizesReviewView(t *testing.T) {

@@ -113,6 +113,24 @@ func (d PolicyDocs) Rendered(store Store) (review, dor []byte, reviewChanged, do
 
 // Write persists the changed documents after the readers accept them.
 func (d PolicyDocs) Write(root string, store Store) error {
+	requestedRoot, err := canonicalGovernanceRoot(root)
+	if err != nil {
+		return err
+	}
+	storeRoot, err := canonicalGovernanceRoot(store.Root)
+	if err != nil {
+		return err
+	}
+	if governanceRootKey(requestedRoot) != governanceRootKey(storeRoot) {
+		return governanceGuardError(ErrGovernanceWriteGuardRootBinding, "policy.docs.write", requestedRoot, fmt.Errorf("policy path root %s does not match Store root %s", requestedRoot, storeRoot))
+	}
+	store.Root = requestedRoot
+	return store.withGovernanceWriteGuard("policy.docs.write", func(guarded Store) error {
+		return d.write(guarded.Root, guarded)
+	})
+}
+
+func (d PolicyDocs) write(root string, store Store) error {
 	review, dor, reviewChanged, dorChanged, err := d.Rendered(store)
 	if err != nil {
 		return err
@@ -563,6 +581,12 @@ func RecordAdoptionDecision(root, id, decision, reason, date string) error {
 // RecordAdoptionDecisionFor records a full decision, including the request
 // that carried it.
 func RecordAdoptionDecisionFor(root, id string, decision AdoptionDecision) error {
+	return (Store{Root: root}).withGovernanceWriteGuard("policy.adoption-decision.write", func(guarded Store) error {
+		return recordAdoptionDecision(guarded.fsys(), guarded.Root, id, decision)
+	})
+}
+
+func recordAdoptionDecision(files Files, root, id string, decision AdoptionDecision) error {
 	if _, ok := LookupCatalogEntry(id); !ok {
 		return fmt.Errorf("pose: unknown capability %s; governed capabilities: %s", id, strings.Join(CatalogIDs(), ", "))
 	}
@@ -575,17 +599,23 @@ func RecordAdoptionDecisionFor(root, id string, decision AdoptionDecision) error
 	if _, err := time.Parse("2006-01-02", decision.Date); err != nil {
 		return fmt.Errorf("pose: decision date must be YYYY-MM-DD, got %q", decision.Date)
 	}
-	doc, err := ReadAdoptionDecisions(root)
+	doc, err := ReadAdoptionDecisionsIn(files, root)
 	if err != nil {
 		return err
 	}
 	doc.Decisions[id] = decision
-	return writeAdoptionDecisions(NativeFiles(), root, doc)
+	return writeAdoptionDecisions(files, root, doc)
 }
 
 // SetReviewedVersion records the engine release whose capabilities the
 // project has reviewed.
 func SetReviewedVersionIn(files Files, root, version string) error {
+	return (Store{Root: root, FS: files}).withGovernanceWriteGuard("policy.adoption-decision.write", func(guarded Store) error {
+		return setReviewedVersionIn(guarded.fsys(), guarded.Root, version)
+	})
+}
+
+func setReviewedVersionIn(files Files, root, version string) error {
 	doc, err := ReadAdoptionDecisionsIn(files, root)
 	if err != nil {
 		return err

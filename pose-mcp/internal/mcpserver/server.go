@@ -1401,8 +1401,21 @@ func (s *Server) dispatch(ctx context.Context, name string, args json.RawMessage
 			if a.Envelope == nil {
 				return nil, fmt.Errorf("pose_review_attest: a review attestation over MCP is recorded only inside a trusted issuer's envelope (the proof `pose review attest --envelope` verifies); a reviewer or confirming principal written by an agent is a declaration, not a proof")
 			}
+			// Refuse an untrusted envelope before the write guard discovers and
+			// leases the affected bundle roots. The guarded writer verifies it
+			// again against the bytes held through publication.
+			if _, err := store.VerifyReviewAttestationEnvelope(*a.Envelope); err != nil {
+				return nil, err
+			}
 			recorded, err := store.RecordReviewAttestationEnvelope(*a.Envelope, true)
 			if err != nil {
+				var durability *pose.PublishDurabilityError
+				if errors.As(err, &durability) && recorded.AttestationID != "" {
+					persisted, readErr := store.LoadReviewAttestation(recorded.AttestationID)
+					if readErr == nil && persisted.BundleDigest == recorded.BundleDigest {
+						return map[string]any{"recorded": true, "attestation": persisted, "durability_confirmed": false, "warning": durability.Error()}, nil
+					}
+				}
 				return nil, err
 			}
 			return map[string]any{"recorded": true, "attestation": recorded}, nil
@@ -2711,7 +2724,9 @@ func baseToolDefinitions() []map[string]any {
 				"(readiness, closeout, review judgment, start reconciliation, open follow-ups): one record per " +
 				"obligation with a stable id, qualified source and targets, reason code, satisfaction condition, " +
 				"recipient, per-phase effect (block or advisory), satisfaction, knowledge and waiting. Every answer " +
-				"carries a snapshot (revision, dirty tree, policy and contract digests) and per-producer coverage; " +
+				"carries a snapshot (revision, dirty tree, policy and contract digests), snapshot.read_view " +
+				"(schema version 1, observed-input identity, root bindings, versions and final-audit freshness) " +
+				"and per-producer coverage. Read-view freshness is not write authorization; " +
 				"a producer that failed or is not integrated is listed, so an empty list with incomplete coverage " +
 				"never means nothing is owed. `attention` groups the same ids for the actor. Read-only: resolve an " +
 				"obligation at its source, never here.",
@@ -2808,7 +2823,9 @@ func baseToolDefinitions() []map[string]any {
 			"name": "pose_closeout_state",
 			"description": "Read the evidence-backed hierarchical closeout projection for a typed " +
 				"spec, milestone or roadmap scope. Returns current or stale review state, child " +
-				"blockers, the smallest next governed action and terminal status. For spec scopes, include_plan adds the CLI execution plan; unknown Git returns an error.",
+				"blockers, the smallest next governed action and terminal status, with the operation's " +
+				"read_view bindings, freshness and limitations. An unknown input closure cannot certify " +
+				"terminal status. For spec scopes, include_plan adds the CLI execution plan; unknown Git returns an error.",
 			"inputSchema": map[string]any{
 				"type": "object",
 				"properties": map[string]any{

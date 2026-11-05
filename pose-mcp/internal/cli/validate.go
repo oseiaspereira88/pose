@@ -890,6 +890,13 @@ func matrixHasLegacyChecks(matrix validationMatrix) bool {
 }
 
 func cmdValidate(root string, args []string, stdout, stderr io.Writer) int {
+	return cmdValidateWithStore(cliGovernedStore(root), args, stdout, stderr)
+}
+
+// Closeout already holds its root lease. Keep that Store through canonical
+// result publication instead of trying to acquire a second, competing lease.
+func cmdValidateWithStore(store posemodel.Store, args []string, stdout, stderr io.Writer) int {
+	root := store.Root
 	locale := cliLocaleValue()
 	mode, stackFilter, moduleFilter, reportTask := "", "", "", ""
 	jsonOut, junitOut, sarifOut, planOut := "", "", "", ""
@@ -986,6 +993,10 @@ func cmdValidate(root string, args []string, stdout, stderr io.Writer) int {
 			fmt.Fprintln(stderr, cliText(locale, "Error: result output paths must remain inside the project.", "Erro: paths de saída de resultado devem permanecer dentro do projeto."))
 			return 2
 		}
+	}
+	canonicalResultsPath := ""
+	if jsonOut != "" {
+		canonicalResultsPath = configuredDeliveryResultsPath(root)
 	}
 	// The report --report writes records this run, so it reads this run's own
 	// output. It used to look for a pose-validate.latest.log that native
@@ -1361,6 +1372,22 @@ func cmdValidate(root string, args []string, stdout, stderr io.Writer) int {
 			continue
 		}
 		target := filepath.Join(root, filepath.FromSlash(writer.path))
+		if name == "json" && canonicalResultsPath != "" && normalizeValidationOutputPath(writer.path) == canonicalResultsPath {
+			err := publishCanonicalValidationJSONIn(store, writer.path, canonicalResultsPath, run)
+			if err != nil {
+				if errors.Is(err, posemodel.ErrPublishUnsynced) {
+					out := render(stdout, stderr)
+					out.ContractLine(fmt.Sprintf("%s: %s", name, target))
+					out.Finding(cliout.Finding{State: cliout.StateWarning, Code: "validation-result-durability",
+						Message: fmt.Sprintf("%s result was published but durability is unconfirmed: %v", name, err)})
+					return 1
+				}
+				render(io.Discard, stderr).Failure(fmt.Sprintf(cliText(locale, "writing %s result: %v", "escrevendo resultado %s: %v"), name, err))
+				return 1
+			}
+			render(stdout, stderr).ContractLine(fmt.Sprintf("%s: %s", name, target))
+			continue
+		}
 		if err := os.MkdirAll(filepath.Dir(target), 0o755); err != nil {
 			fmt.Fprintf(stderr, cliText(locale, "Error: creating %s result directory: %v\n", "Erro: criando diretório do resultado %s: %v\n"), name, err)
 			return 1

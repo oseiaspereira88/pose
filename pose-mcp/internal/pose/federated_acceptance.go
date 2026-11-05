@@ -9,6 +9,7 @@ import (
 	"fmt"
 	"io"
 	"os"
+	"os/exec"
 	"path/filepath"
 	"sort"
 	"strings"
@@ -98,7 +99,7 @@ func FederatedProjectTrustForIn(files Files, root, projectID string) (FederatedP
 	if ValidateSlug(projectID) != nil {
 		return FederatedProjectTrust{}, fmt.Errorf("pose: invalid federated project id")
 	}
-	revision := gitHeadAtRoot(root)
+	revision := gitHeadAtRootIn(files, root, federatedAcceptanceProducer)
 	if !isGitRevision(revision) {
 		return FederatedProjectTrust{}, fmt.Errorf("pose: federated-project-revision-unavailable")
 	}
@@ -230,16 +231,16 @@ func committedFederatedInputs(files Files, root string, paths []string) (map[str
 		if readErr != nil || closeErr != nil || len(working) > maxFederatedGovernanceInputBytes {
 			return nil, fmt.Errorf("pose: invalid-federated-governance-input")
 		}
-		top, err := gitCommand("-C", root, "rev-parse", "--show-toplevel").Output()
+		top, err := captureFederatedGit(files, root, "rev-parse", "--show-toplevel")
 		if err != nil || !sameProjectRoot(files, root, strings.TrimSpace(string(top))) {
 			return nil, fmt.Errorf("pose: federated-project-revision-unavailable")
 		}
-		revision, err := gitCommand("-C", root, "rev-parse", "--verify", "HEAD").Output()
+		revision, err := captureFederatedGit(files, root, "rev-parse", "--verify", "HEAD")
 		if err != nil {
 			return nil, fmt.Errorf("pose: federated-project-revision-unavailable")
 		}
 		object := strings.TrimSpace(string(revision)) + ":" + filepath.ToSlash(rel)
-		blobSize, err := gitCommand("-C", root, "cat-file", "-s", object).Output()
+		blobSize, err := captureFederatedGit(files, root, "cat-file", "-s", object)
 		if err != nil {
 			return nil, fmt.Errorf("pose: federated-project-revision-unavailable")
 		}
@@ -247,7 +248,7 @@ func committedFederatedInputs(files Files, root string, paths []string) (map[str
 		if _, err := fmt.Sscan(strings.TrimSpace(string(blobSize)), &committedSize); err != nil || committedSize < 0 || committedSize > maxFederatedGovernanceInputBytes {
 			return nil, fmt.Errorf("pose: invalid-federated-governance-input")
 		}
-		head, err := gitCommand("-C", root, "show", object).Output()
+		head, err := captureFederatedGit(files, root, "show", object)
 		if err != nil || !bytes.Equal(working, head) {
 			return nil, fmt.Errorf("pose: federated-governance-input-not-committed")
 		}
@@ -352,7 +353,7 @@ func (s Store) federatedAcceptance(projectID string, coordinator ArtifactRef, ed
 	if err != nil {
 		return FederatedRoadmapAcceptanceReport{}, err
 	}
-	revision := gitHeadAtRoot(s.Root)
+	revision := gitHeadAtRootIn(s.fsys(), s.Root, federatedAcceptanceProducer)
 	coordinatorRevision := revision
 	if stable := federatedArtifactLastChange(s.fsys(), s, coordinator); stable != "" {
 		coordinatorRevision = stable
@@ -516,7 +517,7 @@ func (s Store) federatedAcceptance(projectID string, coordinator ArtifactRef, ed
 			continue
 		}
 		root, ok := projectRoots[project]
-		if ok && gitHeadAtRoot(root.Root) != selected {
+		if ok && gitHeadAtRootIn(s.fsys(), root.Root, federatedAcceptanceProducer) != selected {
 			report.Blockers = append(report.Blockers, "source-snapshot-changed-during-resolution:"+project)
 		}
 	}
@@ -560,8 +561,9 @@ func federatedArtifactLastChange(files Files, source Store, identity ArtifactRef
 	if err := ValidateArtifactPathIn(files, source.Root, rel, false); err != nil {
 		return ""
 	}
-	out, err := gitCommand("-C", source.Root, "log", "-1", "--format=%H", "--", rel).Output()
+	out, err := captureFederatedGit(files, source.Root, "log", "-1", "--format=%H", "--", rel)
 	if err != nil {
+		markFederatedGitReadUnknown(files, source.Root, "federated artifact history could not be read")
 		return ""
 	}
 	return strings.TrimSpace(string(out))
@@ -630,7 +632,7 @@ func verifyFederatedArtifactAtRevision(files Files, source Store, identity Artif
 	if err := ValidateArtifactPathIn(files, source.Root, rel, false); err != nil {
 		return fmt.Errorf("unavailable-artifact")
 	}
-	committed, err := gitCommand("-C", source.Root, "show", resolved.Revision+":"+rel).Output()
+	committed, err := captureFederatedGit(files, source.Root, "show", resolved.Revision+":"+rel)
 	if err != nil {
 		return fmt.Errorf("source-revision-unavailable")
 	}
@@ -642,12 +644,20 @@ func verifyFederatedArtifactAtRevision(files Files, source Store, identity Artif
 }
 
 func federatedGitlinkMatchesIn(files Files, parent, child Store, revision string) bool {
-	top, err := gitCommand("-C", child.Root, "rev-parse", "--show-toplevel").Output()
-	if err != nil || !sameProjectRoot(files, child.Root, strings.TrimSpace(string(top))) {
+	top, err := captureFederatedGit(files, child.Root, "rev-parse", "--show-toplevel")
+	if err != nil {
+		markFederatedGitReadUnknown(files, child.Root, "federated child Git root could not be identified")
 		return true // sibling checkouts have no consumer gitlink to compare.
 	}
-	parentTop, err := gitCommand("-C", parent.Root, "rev-parse", "--show-toplevel").Output()
-	if err != nil || !sameProjectRoot(files, parent.Root, strings.TrimSpace(string(parentTop))) {
+	if !sameProjectRoot(files, child.Root, strings.TrimSpace(string(top))) {
+		return true // sibling checkouts have no consumer gitlink to compare.
+	}
+	parentTop, err := captureFederatedGit(files, parent.Root, "rev-parse", "--show-toplevel")
+	if err != nil {
+		markFederatedGitReadUnknown(files, parent.Root, "federated parent Git root could not be identified")
+		return true
+	}
+	if !sameProjectRoot(files, parent.Root, strings.TrimSpace(string(parentTop))) {
 		return true
 	}
 	parentReal, err1 := files.EvalSymlinks(parent.Root)
@@ -659,7 +669,7 @@ func federatedGitlinkMatchesIn(files Files, parent, child Store, revision string
 	if err != nil || rel == ".." || strings.HasPrefix(rel, ".."+string(filepath.Separator)) {
 		return true // sibling project, explicitly selected in Roots.
 	}
-	listing, err := gitCommand("-C", parent.Root, "ls-tree", "HEAD", "--", filepath.ToSlash(rel)).Output()
+	listing, err := captureFederatedGit(files, parent.Root, "ls-tree", "HEAD", "--", filepath.ToSlash(rel))
 	if err != nil {
 		return false
 	}
@@ -691,7 +701,7 @@ func federatedSourceProof(files Files, source Store, identity ArtifactRef, pinne
 		return "", "", "", "", nil, nil, []string{scope + ":source-review-not-approved"}
 	}
 	bundle := verification.Bundle
-	eligible := federatedSourceEvidenceEligibility(source.Root, pinnedRevision, bundle.Payload.Subject.Head)
+	eligible := federatedSourceEvidenceEligibilityIn(files, source.Root, pinnedRevision, bundle.Payload.Subject.Head)
 	if identity.Kind == "spec" {
 		spec, err := source.GetSpec(identity.Slug)
 		if err != nil {
@@ -744,6 +754,10 @@ func federatedSourceProof(files Files, source Store, identity ArtifactRef, pinne
 // and belongs to the pinned source history. An earlier or unknown result never
 // observed the implementation being federated.
 func federatedSourceEvidenceEligibility(root, pinnedHead, subjectHead string) func(ReviewBundleEvidence) bool {
+	return federatedSourceEvidenceEligibilityIn(NativeFiles(), root, pinnedHead, subjectHead)
+}
+
+func federatedSourceEvidenceEligibilityIn(files Files, root, pinnedHead, subjectHead string) func(ReviewBundleEvidence) bool {
 	ancestry := map[string]bool{}
 	return func(evidence ReviewBundleEvidence) bool {
 		if evidence.Outcome != "pass" {
@@ -759,8 +773,8 @@ func federatedSourceEvidenceEligibility(root, pinnedHead, subjectHead string) fu
 		if allowed, ok := ancestry[evidence.GitHead]; ok {
 			return allowed
 		}
-		allowed := gitCommand("-C", root, "merge-base", "--is-ancestor", subjectHead, evidence.GitHead).Run() == nil &&
-			gitCommand("-C", root, "merge-base", "--is-ancestor", evidence.GitHead, pinnedHead).Run() == nil
+		allowed := federatedGitAncestorIn(files, root, subjectHead, evidence.GitHead) &&
+			federatedGitAncestorIn(files, root, evidence.GitHead, pinnedHead)
 		ancestry[evidence.GitHead] = allowed
 		return allowed
 	}
@@ -840,13 +854,58 @@ func federatedOwnershipConflicts(files Files, projectRoots map[string]Store, res
 }
 
 func gitHeadAtRoot(root string) string {
-	if top, err := gitCommand("-C", root, "rev-parse", "--show-toplevel").Output(); err != nil || !sameProjectRoot(NativeFiles(), root, strings.TrimSpace(string(top))) {
+	return gitHeadAtRootIn(NativeFiles(), root, federatedAcceptanceProducer)
+}
+
+func gitHeadAtRootIn(files Files, root, producer string) string {
+	top, err := captureFederatedGitAs(files, root, producer, "rev-parse", "--show-toplevel")
+	if err != nil || !sameProjectRoot(files, root, strings.TrimSpace(string(top))) {
+		markFederatedGitReadUnknown(files, root, "federated Git root could not be identified")
 		return ""
 	}
-	if head, err := gitCommand("-C", root, "rev-parse", "--verify", "HEAD").Output(); err == nil {
+	if head, err := captureFederatedGitAs(files, root, producer, "rev-parse", "--verify", "HEAD"); err == nil {
 		return strings.TrimSpace(string(head))
+	} else {
+		markFederatedGitReadUnknown(files, root, "federated source revision could not be read")
 	}
 	return ""
+}
+
+const federatedAcceptanceProducer = "federated-acceptance"
+
+func captureFederatedGit(files Files, root string, args ...string) ([]byte, error) {
+	return captureFederatedGitAs(files, root, federatedAcceptanceProducer, args...)
+}
+
+func captureFederatedGitAs(files Files, root, fallbackProducer string, args ...string) ([]byte, error) {
+	producer := governanceProducerFromFiles(files, fallbackProducer)
+	return CaptureGovernanceRawHistoryGitIn(files, root, producer, maxFederatedGovernanceInputBytes, args...)
+}
+
+func markFederatedGitReadUnknown(files Files, root, reason string) {
+	view, _ := governanceReadViewFromFiles(files)
+	if view == nil || !hasGitMetadataIn(FilesOrNative(files), root) {
+		return
+	}
+	if view.operation != nil && view.operation.mayOmitPrimaryRevision(root) {
+		return
+	}
+	producer := governanceProducerFromFiles(files, federatedAcceptanceProducer)
+	markGovernanceReadUnknownForProject(files, root, "", producer, reason)
+}
+
+func federatedGitAncestorIn(files Files, root, older, newer string) bool {
+	producer := governanceProducerFromFiles(files, federatedAcceptanceProducer)
+	_, err := CaptureGovernanceRawHistoryGitIn(files, root, producer, maxFederatedGovernanceInputBytes, "merge-base", "--is-ancestor", older, newer)
+	if err == nil {
+		return true
+	}
+	var exit *exec.ExitError
+	if errors.As(err, &exit) && exit.ExitCode() == 1 {
+		return false
+	}
+	markFederatedGitReadUnknown(files, root, "federated evidence ancestry could not be verified")
+	return false
 }
 
 func projectResolutionState(err error) string {

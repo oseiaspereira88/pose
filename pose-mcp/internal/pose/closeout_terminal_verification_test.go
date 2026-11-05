@@ -81,6 +81,20 @@ func TestTerminalVerificationDoneUsesApplicableVerifier(t *testing.T) {
 	}
 }
 
+func TestPlanCloseoutExposesTheGovernanceReadView(t *testing.T) {
+	_, store := terminalVerificationFixture(t, "2026-10-13", terminalVerificationPolicy)
+	plan, err := store.PlanCloseout("spec:alpha")
+	if err != nil {
+		t.Fatal(err)
+	}
+	if plan.ReadView == nil || plan.ReadView.Freshness != ReadViewFreshnessCurrent || len(plan.ReadView.Bindings) == 0 {
+		t.Fatalf("closeout plan omitted its current input binding: %+v", plan.ReadView)
+	}
+	if plan.Verification == nil || plan.Verification.ReadView == nil || plan.Verification.ReadView.ID != plan.ReadView.ID {
+		t.Fatalf("verification did not share the plan's read view: plan=%+v verification=%+v", plan.ReadView, plan.Verification)
+	}
+}
+
 func TestTerminalVerificationAmendmentGateBeforeSealingAndAfterDone(t *testing.T) {
 	root, store := terminalVerificationFixture(t, "2026-10-13", `{"schema_version":1,"enabled":false}`)
 	path := filepath.Join(root, ".pose/specs/alpha.md")

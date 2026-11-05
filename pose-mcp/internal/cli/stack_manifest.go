@@ -8,7 +8,7 @@ package cli
 // one silently did not apply to the other — this function is the single
 // place that mapping lives now.
 
-import "path/filepath"
+import posepkg "github.com/harne8/pose-mcp/internal/pose"
 
 // stackForManifestFile returns the stack a manifest/marker file name
 // signals, or "" when the name is not recognized. The Java/Python
@@ -17,23 +17,5 @@ import "path/filepath"
 // is a validation-matrix.json `when` concern, not a discovery concern (spec
 // pose-stack-catalog-expansion).
 func stackForManifestFile(name string) string {
-	switch name {
-	case "package.json":
-		return "node"
-	case "go.mod":
-		return "go"
-	case "Cargo.toml":
-		return "rust"
-	case "pom.xml", "build.gradle", "build.gradle.kts":
-		return "java"
-	case "pyproject.toml", "requirements.txt", "Pipfile", "poetry.lock", "setup.py":
-		return "python"
-	case "wrangler.toml", "wrangler.json", "wrangler.jsonc":
-		return "cloudflare-workers"
-	}
-	switch filepath.Ext(name) {
-	case ".sln", ".csproj", ".fsproj", ".vbproj":
-		return "dotnet"
-	}
-	return ""
+	return posepkg.StackForManifestFile(name)
 }

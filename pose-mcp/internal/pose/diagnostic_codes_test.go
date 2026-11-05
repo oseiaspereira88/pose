@@ -76,6 +76,7 @@ func TestJudgmentPendencyNamesItsSourceAndCondition(t *testing.T) {
 
 func TestCloseoutDiagnosticsTypeTheBlockersAndTheNextStep(t *testing.T) {
 	_, store := reviewBundleFixture(t)
+	bindCurrentReviewFixture(t, store)
 	state, err := store.GetCloseoutState("spec:backend")
 	if err != nil {
 		t.Fatal(err)

@@ -475,7 +475,8 @@ func ReviewResumeDelay(r ReviewRun, now time.Time, max time.Duration, jitter tim
 // Continuation inventories use the same bounds as the attempt ledger. Pending
 // claims are observable operations, not proof of a completed review.
 func (s Store) reviewContinuationFindings(runs []ReviewRun) []string {
-	entries, e := ledgerEntries(s.Root, reviewContinuationsDir)
+	files := s.fsys()
+	entries, e := ledgerEntriesIn(files, s.Root, reviewContinuationsDir)
 	if e != nil {
 		return []string{e.Error()}
 	}
@@ -494,14 +495,14 @@ func (s Store) reviewContinuationFindings(runs []ReviewRun) []string {
 		full := filepath.Join(s.Root, reviewContinuationsDir, entry.Name())
 		if strings.HasSuffix(entry.Name(), ".result.json") {
 			var receipt reviewAttemptReceipt
-			if e := readLedgerJSONBudget(full, &receipt, &budget); e != nil {
+			if e := readLedgerJSONBudgetIn(files, full, &receipt, &budget); e != nil {
 				losses = append(losses, e.Error())
 				continue
 			}
 			receipts[strings.TrimSuffix(entry.Name(), ".result.json")] = receipt
 		} else if strings.HasSuffix(entry.Name(), ".json") {
 			var claim reviewContinuation
-			if e := readLedgerJSONBudget(full, &claim, &budget); e != nil {
+			if e := readLedgerJSONBudgetIn(files, full, &claim, &budget); e != nil {
 				losses = append(losses, e.Error())
 				continue
 			}

@@ -4,6 +4,7 @@ import (
 	"bytes"
 	"encoding/json"
 	"errors"
+	"fmt"
 	"io"
 	"os"
 	"os/exec"
@@ -142,6 +143,32 @@ func TestDelegationInitDoesNotBootstrapOverExistingGovernance(t *testing.T) {
 	}
 	if _, err := os.Stat(filepath.Join(root, ".pose/policy/delegation.json")); !os.IsNotExist(err) {
 		t.Fatal("existing governance acquired agent policy", err)
+	}
+}
+
+func TestDelegationInitRefusesBeforePolicyOrKeyEffectsWhenRootIsBusy(t *testing.T) {
+	home := delegationInitInput(t, "", false, false)
+	root := newGitRepo(t)
+	var out, errOut bytes.Buffer
+	err := posemodel.WithGovernanceWriteGuard("test.hold-delegation-root", []posemodel.Store{cliGovernedStore(root)}, func([]posemodel.Store) error {
+		if code := initDelegation(root, &out, &errOut); code == 0 {
+			return errors.New("delegation init succeeded while the root lease was held")
+		}
+		for _, rel := range []string{".pose/policy/review.json", ".pose/policy/delegation.json"} {
+			if _, err := os.Lstat(filepath.Join(root, filepath.FromSlash(rel))); !os.IsNotExist(err) {
+				return fmt.Errorf("busy init published %s: %v", rel, err)
+			}
+		}
+		if _, err := os.Stat(home); !os.IsNotExist(err) {
+			return fmt.Errorf("busy init created issuer keys: %v", err)
+		}
+		return nil
+	})
+	if err != nil {
+		t.Fatal(err)
+	}
+	if !strings.Contains(errOut.String(), "governance-write-guard") {
+		t.Fatalf("busy init did not report the root refusal: %s", errOut.String())
 	}
 }
 
@@ -519,6 +546,7 @@ func TestDelegatedReviewCapabilityOffClosesWithDisclosure(t *testing.T) {
 		writeCloseoutCLIFile(t, root, "pose-mcp/lib_test.go", "package posemcp\nimport \"testing\"\nfunc TestFixture(t *testing.T) { if Twice(3) != 6 { t.Fatal(\"Twice must double its input\") } }\n")
 		git("add", "-A")
 	})
+	publishReviewCLIIndexFixture(t, root)
 	s := posemodel.Store{Root: root}
 	b, err := s.CurrentReviewBundle("spec:alpha")
 	if err != nil || b == nil {
@@ -644,6 +672,8 @@ func TestFixture(t *testing.T) {
 	}
 	graphRaw, _ = json.Marshal(graph)
 	write(graphPath, graphRaw)
+	// The remediation is complete; establish its generation before resealing.
+	publishReviewCLIIndexFixture(t, root)
 	if code, out := runPose(t, root, "review", "bundle", "spec:alpha", "--seal", "--lead", "openai/implementation-model"); code != 0 {
 		t.Fatal(code, out)
 	}

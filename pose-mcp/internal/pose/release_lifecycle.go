@@ -414,6 +414,14 @@ func (s Store) GetReleaseStatus(version string) (*ReleaseStatus, error) {
 			return nil, err
 		}
 	}
+	tags, err := captureReleaseTagBindings(s.fsys(), s.Root, "release")
+	if err != nil {
+		return nil, err
+	}
+	return s.getReleaseStatusWithTagBindings(version, tags)
+}
+
+func (s Store) getReleaseStatusWithTagBindings(version string, tags map[string]releaseTagBinding) (*ReleaseStatus, error) {
 	pending, err := LoadReleaseFragmentsIn(s.fsys(), filepath.Join(s.Root, ".pose", "changelogs", "unreleased"), LoadChangelogPolicyIn(s.fsys(), s.Root))
 	if err != nil {
 		return nil, err
@@ -451,7 +459,11 @@ func (s Store) GetReleaseStatus(version string) (*ReleaseStatus, error) {
 			return nil, err
 		}
 		projection := ProjectRelease(manifest, events)
-		_, _, tagErr := ResolveReleaseTag(s.Root, entry.Name())
+		binding, captured := tags[entry.Name()]
+		tagErr := error(ErrReleaseTagMissing)
+		if captured {
+			tagErr = binding.Err
+		}
 		if tagErr != nil && errors.Is(tagErr, ErrReleaseTagMissing) {
 			// No tag yet: the cut is a candidate, and the files it froze must still be there.
 			gaps, _ := ReleaseCandidateGapsIn(s.fsys(), s.Root, entry.Name(), manifest)
@@ -462,7 +474,7 @@ func (s Store) GetReleaseStatus(version string) (*ReleaseStatus, error) {
 			}
 		}
 		if tagErr == nil {
-			snap, snapErr := ReadReleaseSnapshot(s.Root, entry.Name())
+			snap, snapErr := readReleaseSnapshotAtCommit(s.Root, entry.Name(), binding.Commit, binding.Annotated)
 			projection.Snapshot = &snap
 			switch {
 			case snapErr != nil:
@@ -488,10 +500,6 @@ func (s Store) GetReleaseStatus(version string) (*ReleaseStatus, error) {
 	// A release whose directory is gone from the working tree is still a release if its tag holds
 	// the snapshot: removing the files does not remove the release from the record. A tag that
 	// holds none is reported, not dropped, and a listing that fails is not an empty one.
-	tags, tagsErr := ListReleaseTags(s.Root)
-	if tagsErr != nil && !gitNotARepository(s.Root) {
-		return nil, fmt.Errorf("pose: the release tags could not be listed: %w", tagsErr)
-	}
 	cutoff := ""
 	adopted := false
 	if policy, perr := LoadReleasePolicyIn(s.fsys(), s.Root); perr == nil {
@@ -508,19 +516,25 @@ func (s Store) GetReleaseStatus(version string) (*ReleaseStatus, error) {
 		// A policy that is there and cannot be read is not "never adopted".
 		adopted = true
 	}
-	for _, tag := range strings.Fields(tags) {
+	tagNames := make([]string, 0, len(tags))
+	for tag := range tags {
+		tagNames = append(tagNames, tag)
+	}
+	sort.Strings(tagNames)
+	for _, tag := range tagNames {
 		if ValidateReleaseVersion(tag) != nil || inWorktree[tag] || version != "" && tag != version {
 			continue
 		}
 		if cutoff != "" && CompareReleasePrecedence(cutoff, tag) >= 0 {
 			continue // before the governed releases: not a release this record claims
 		}
-		snap, snapErr := ReadReleaseSnapshot(s.Root, tag)
+		binding := tags[tag]
+		snap, snapErr := readReleaseSnapshotAtCommit(s.Root, tag, binding.Commit, binding.Annotated)
 		if errors.Is(snapErr, ErrReleaseSnapshotMissing) && !adopted {
 			// A tag with no manifest is a release this record claims only for a project that adopted
 			// governed releases: the policy of today, or the one in the tag's own tree, says so. A
 			// policy that cannot be read is not "never adopted".
-			if held, heldErr := TagHoldsAdoptedReleasePolicy(s.Root, tag); heldErr == nil && !held {
+			if held, heldErr := tagCommitHoldsAdoptedReleasePolicy(s.Root, binding.Commit); heldErr == nil && !held {
 				continue
 			}
 		}

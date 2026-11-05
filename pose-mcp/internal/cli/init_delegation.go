@@ -19,10 +19,24 @@ var delegationLookupCLI = exec.LookPath
 // A fresh init offers this separately from the validation-matrix wizard.
 // Discovery looks up executables; it never launches a vendor or probes quota.
 func initDelegation(root string, stdout, stderr io.Writer) int {
+	result := 1
+	err := posemodel.WithGovernanceWriteGuard("init.delegation", []posemodel.Store{cliGovernedStore(root)}, func(stores []posemodel.Store) error {
+		result = initDelegationGuarded(stores[0], stdout, stderr)
+		return nil
+	})
+	if err != nil {
+		return initDelegationError(stderr, err)
+	}
+	return result
+}
+
+func initDelegationGuarded(store posemodel.Store, stdout, stderr io.Writer) int {
+	root := store.Root
+	files := posemodel.FilesOrNative(store.FS)
 	if err := posemodel.ValidateDelegationPaths(root); err != nil {
 		return initDelegationError(stderr, err)
 	}
-	docs, err := posemodel.LoadPolicyDocs(root)
+	docs, err := posemodel.LoadPolicyDocsIn(files, root)
 	if err != nil {
 		return initDelegationError(stderr, err)
 	}
@@ -58,7 +72,7 @@ func initDelegation(root string, stdout, stderr io.Writer) int {
 	if !accept {
 		docs.Review["delegated_review"] = false
 		docs.Review["delegated_review_disabled_at"] = time.Now().UTC().Format(time.DateOnly)
-		if err := policyPublished(docs.Write(root, posemodel.Store{Root: root}), stderr); err != nil {
+		if err := policyPublished(docs.Write(root, store), stderr); err != nil {
 			return initDelegationError(stderr, err)
 		}
 		return 0
@@ -66,11 +80,11 @@ func initDelegation(root string, stdout, stderr io.Writer) int {
 	// Never replace a pre-existing policy, including a dangling link or a
 	// legacy policy awaiting migration. A fresh init must not erase user data.
 	for _, name := range []string{"delegation.json", "reviewers.json"} {
-		if _, err := os.Lstat(filepath.Join(root, ".pose", "policy", name)); err == nil || !os.IsNotExist(err) {
+		if _, err := files.Lstat(filepath.Join(root, ".pose", "policy", name)); err == nil || !os.IsNotExist(err) {
 			return initDelegationError(stderr, fmt.Errorf("existing %s is preserved; configure it and use pose adopt delegated-review", name))
 		}
 	}
-	project, found, err := posemodel.ReadProjectFileIn(posemodel.NativeFiles(), root)
+	project, found, err := posemodel.ReadProjectFileIn(files, root)
 	if err != nil || !found {
 		return initDelegationError(stderr, fmt.Errorf("a declared project identity is required: %v", err))
 	}
@@ -109,16 +123,16 @@ func initDelegation(root string, stdout, stderr io.Writer) int {
 	}
 	docs.Review["delegated_review"] = true
 	docs.Review["delegated_review_adopted_at"] = time.Now().UTC().Format(time.DateOnly)
-	if _, _, _, _, err := docs.Rendered(posemodel.Store{Root: root}); err != nil {
+	if _, _, _, _, err := docs.Rendered(store); err != nil {
 		return initDelegationError(stderr, err)
 	}
 	// The decision is published last. A conflict never leaves an enabled flag
 	// without a policy. On a later failure preserve the policy/key for recovery,
 	// rather than deleting a file another writer might already have changed.
-	if err := posemodel.PublishFile(filepath.Join(root, ".pose", "policy", "delegation.json"), raw, 0o600, posemodel.PublishAuthoritative, posemodel.PublishExpectation{Mode: posemodel.ExpectAbsent}); err != nil {
+	if err := files.Publish(filepath.Join(root, ".pose", "policy", "delegation.json"), raw, 0o600, posemodel.PublishAuthoritative, posemodel.PublishExpectation{Mode: posemodel.ExpectAbsent}); err != nil {
 		return initDelegationError(stderr, err)
 	}
-	if err := policyPublished(docs.Write(root, posemodel.Store{Root: root}), stderr); err != nil {
+	if err := policyPublished(docs.Write(root, store), stderr); err != nil {
 		return initDelegationError(stderr, fmt.Errorf("delegation policy was saved but activation failed; preserve it, pin issuer %s with pose issuer pin --attestations and use pose adopt delegated-review: %w", name, err))
 	}
 	render(stdout, stderr).Hint(tr("[INFO] delegated review enabled; native executor signatures are declarations, not vendor receipts or human approval.", "[INFO] review delegado ativado; assinaturas do executor nativo são declarações, não recibos do fornecedor nem aprovação humana."))

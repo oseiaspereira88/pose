@@ -94,12 +94,28 @@ type IndexGenerationBusyError struct {
 	State  string
 	Reason string
 	Owner  *StartLockOwner
+	Cause  error
 }
 
 func (e *IndexGenerationBusyError) Error() string {
 	return fmt.Sprintf("pose: %s: another index publication holds %s (%s: %s)", ErrIndexGenerationBusy, e.Path, e.State, e.Reason)
 }
-func (e *IndexGenerationBusyError) Unwrap() error { return ErrIndexGenerationBusy }
+func (e *IndexGenerationBusyError) Unwrap() []error {
+	if e.Cause != nil {
+		return []error{ErrIndexGenerationBusy, e.Cause}
+	}
+	return []error{ErrIndexGenerationBusy}
+}
+
+func indexGenerationGuardError(root string, err error) error {
+	if !errors.Is(err, ErrGovernanceWriteGuardBusy) {
+		return err
+	}
+	return &IndexGenerationBusyError{
+		Path:  filepath.ToSlash(filepath.Join(root, ".pose", "transfers", ".authority-transfer.lock")),
+		State: "in-progress", Reason: "another governance writer holds the project root lease", Cause: err,
+	}
+}
 
 // ErrIndexGenerationLegacy is returned by ReplaceIndex when there is no
 // generation to replace a file in; the caller may keep writing the legacy file.
@@ -398,7 +414,9 @@ func (s Store) ReadIndex(name string) ([]byte, IndexGenerationStatus, error) {
 	if pin := s.indexPin; pin != nil {
 		switch pin.Status {
 		case IndexGenerationCurrent:
-			return pin.Files[name], IndexGenerationCurrent, nil
+			raw := pin.Files[name]
+			s.governanceIndexConsumed(IndexGenerationCurrent, nil, pin)
+			return raw, IndexGenerationCurrent, nil
 		case IndexGenerationUnavailable:
 			return nil, IndexGenerationUnavailable, fmt.Errorf("pose: %w: %s", ErrIndexGenerationUnavailable, pin.Reason)
 		}
@@ -412,6 +430,7 @@ func (s Store) ReadIndex(name string) ([]byte, IndexGenerationStatus, error) {
 		if indexPendingIn(s.fsys(), s.Root) || indexDescriptorExists(s.fsys(), s.Root) {
 			return nil, IndexGenerationUnavailable, fmt.Errorf("pose: %w: the indexes were published as a set while %s was read; run the operation again", ErrIndexGenerationUnavailable, name)
 		}
+		s.governanceIndexConsumed(IndexGenerationLegacy, readErr, pin)
 		return raw, IndexGenerationLegacy, readErr
 	}
 	for attempt := 0; attempt < indexReadAttempts; attempt++ {
@@ -430,6 +449,7 @@ func (s Store) ReadIndex(name string) ([]byte, IndexGenerationStatus, error) {
 			if indexPendingIn(s.fsys(), s.Root) || indexDescriptorExists(s.fsys(), s.Root) {
 				continue
 			}
+			s.governanceIndexConsumed(IndexGenerationLegacy, readErr, nil)
 			return raw, IndexGenerationLegacy, readErr
 		}
 		f, _ := desc.file(name)
@@ -450,16 +470,24 @@ func (s Store) ReadIndex(name string) ([]byte, IndexGenerationStatus, error) {
 		if !matched {
 			return nil, IndexGenerationUnavailable, fmt.Errorf("pose: %w: %s does not match generation %s; run `pose index`", ErrIndexGenerationUnavailable, name, desc.GenerationID)
 		}
+		current := IndexGenerationView{Status: IndexGenerationCurrent, Descriptor: desc}
+		s.governanceIndexConsumed(IndexGenerationCurrent, nil, &current)
 		return data, IndexGenerationCurrent, nil
 	}
 	return nil, IndexGenerationUnavailable, fmt.Errorf("pose: %w: the generation descriptor kept changing while %s was read", ErrIndexGenerationUnavailable, name)
 }
 
-// PublishIndexGeneration writes the seven outputs as one generation. It holds the
+// PublishIndexGeneration publishes the seven supplied outputs and input
+// bindings as one generation. It holds the
 // generation lock from the read of the current descriptor to the end of retention,
 // so two publishers never accept the same predecessor and retention never runs
 // against a generation another publisher has since made live; a lock another call
 // holds is a refusal (ErrIndexGenerationBusy), never a wait. Phases:
+//
+// This lower-level publisher does not certify that outputs were derived from
+// inputs or that either is current. Callers must build outputs through a
+// captured read view while holding the exact project-root leases for their
+// material, audit that view, and pass bindings computed from that same view.
 //  0. in a repository that has no descriptor yet, a pending marker is written
 //     before any legacy name changes, so an interrupted first publication reads
 //     as unavailable instead of as a mixture of two runs;
@@ -473,6 +501,16 @@ func (s Store) ReadIndex(name string) ([]byte, IndexGenerationStatus, error) {
 // reader that falls back to them reports as unavailable instead of mixing.
 // Retention runs after the commit and cannot fail it.
 func (s Store) PublishIndexGeneration(outputs map[string][]byte, inputs map[string]string) (IndexGenerationReceipt, error) {
+	var receipt IndexGenerationReceipt
+	err := s.withGovernanceWriteGuard("index.publish", func(guarded Store) error {
+		var err error
+		receipt, err = guarded.publishIndexGeneration(outputs, inputs)
+		return err
+	})
+	return receipt, indexGenerationGuardError(s.Root, err)
+}
+
+func (s Store) publishIndexGeneration(outputs map[string][]byte, inputs map[string]string) (IndexGenerationReceipt, error) {
 	desc, err := NewIndexGenerationDescriptor(outputs, inputs)
 	if err != nil {
 		return IndexGenerationReceipt{}, err
@@ -581,6 +619,16 @@ func (s Store) publishGenerationLocked(desc IndexGenerationDescriptor, outputs m
 // When there is no generation yet it returns ErrIndexGenerationLegacy and writes
 // nothing, so the caller may keep writing the file as it did before sets existed.
 func (s Store) ReplaceIndex(name string, data []byte) (IndexGenerationReceipt, error) {
+	var receipt IndexGenerationReceipt
+	err := s.withGovernanceWriteGuard("index.replace", func(guarded Store) error {
+		var err error
+		receipt, err = guarded.replaceIndex(name, data)
+		return err
+	})
+	return receipt, indexGenerationGuardError(s.Root, err)
+}
+
+func (s Store) replaceIndex(name string, data []byte) (IndexGenerationReceipt, error) {
 	unlock, err := s.lockIndexes("index.replace")
 	if err != nil {
 		return IndexGenerationReceipt{}, err
@@ -620,6 +668,14 @@ func (s Store) replaceUnderLock(view IndexGenerationView, name string, data []by
 // lock, so a generation published meanwhile is never overwritten by the old way.
 // legacy reports that the file was written without a generation.
 func (s Store) ReplaceIndexOrLegacy(name string, data []byte) (receipt IndexGenerationReceipt, legacy bool, err error) {
+	err = s.withGovernanceWriteGuard("index.replace", func(guarded Store) error {
+		receipt, legacy, err = guarded.replaceIndexOrLegacy(name, data)
+		return err
+	})
+	return receipt, legacy, indexGenerationGuardError(s.Root, err)
+}
+
+func (s Store) replaceIndexOrLegacy(name string, data []byte) (receipt IndexGenerationReceipt, legacy bool, err error) {
 	unlock, err := s.lockIndexes("index.replace")
 	if err != nil {
 		return IndexGenerationReceipt{}, false, err
@@ -646,6 +702,11 @@ func (s Store) ReplaceIndexOrLegacy(name string, data []byte) (receipt IndexGene
 func (s Store) PinIndexes() Store {
 	view := s.ReadIndexGeneration()
 	s.indexPin = &view
+	if readView, ok := s.fsys().(interface{ GovernanceReadView() *governanceReadView }); ok {
+		if operation := readView.GovernanceReadView().operation; operation != nil {
+			operation.recordIndexPin(s.Root, &view)
+		}
+	}
 	return s
 }
 
@@ -843,11 +904,14 @@ func (s Store) pruneIndexGenerations(current string) error {
 	return firstErr
 }
 
-// IndexInputNames are the bindings of a generation: the governed inputs `pose
-// index` computes the seven files from, besides the Git history that the
-// delivery graph reads and that a descriptor cannot pin without changing on every
-// commit: what depends on that history asks Git when it is used.
-var IndexInputNames = []string{"specs", "roadmaps", "policy", "module-metadata", "validation-matrix", "recorded-change-sets"}
+// IndexInputNames are the bounded input bindings of a generation. Git history
+// remains a runtime input for consumers that need it, since binding HEAD here
+// would stale every generation on every commit.
+var IndexInputNames = []string{
+	"specs", "roadmaps", "policy", "module-metadata", "validation-matrix",
+	"recorded-change-sets", "module-discovery", "validation-results",
+	"smoke-results", "release-status", "federated-material",
+}
 
 // IndexInputBinding returns the current digest of one binding. A directory is
 // digested by the paths and bytes of the regular files under it, in path order;
@@ -855,19 +919,94 @@ var IndexInputNames = []string{"specs", "roadmaps", "policy", "module-metadata",
 func IndexInputBindingIn(files Files, root, name string) (string, bool) {
 	switch name {
 	case "specs":
-		return treeDigest(files, root, ".pose/specs"), true
+		return treeDigest(files, root, ".pose/specs")
 	case "roadmaps":
-		return treeDigest(files, root, ".pose/roadmaps"), true
+		return treeDigest(files, root, ".pose/roadmaps")
 	case "policy":
-		return treeDigest(files, root, ".pose/policy"), true
+		return treeDigest(files, root, ".pose/policy")
 	case "module-metadata":
-		return fileDigest(files, root, ".pose/indexes/module-metadata.json"), true
+		return fileDigest(files, root, ".pose/indexes/module-metadata.json")
 	case "validation-matrix":
-		return fileDigest(files, root, ".pose/indexes/validation-matrix.json"), true
+		return fileDigest(files, root, ".pose/indexes/validation-matrix.json")
 	case "recorded-change-sets":
 		return recordedChangeSetsDigest(files, root), true
+	case "module-discovery":
+		return ModuleDiscoveryBindingIn(files, root)
+	case "validation-results":
+		return validationResultsBindingIn(files, root)
+	case "smoke-results":
+		return smokeResultsBindingIn(files, root)
+	case "release-status":
+		return releaseStatusBindingIn(files, root)
+	case "federated-material":
+		resolver, project, err := EnvironmentArtifactResolverIn(files, root, "")
+		if err != nil {
+			return "", false
+		}
+		material, err := BuildIndexFederatedMaterialIn(Store{
+			Root: root, FS: FilesOrNative(files), FederatedProjectID: project, FederatedResolver: &resolver,
+		})
+		if err != nil {
+			return "", false
+		}
+		return IndexFederatedMaterialDigest(material.Projection)
 	}
 	return "", false
+}
+
+// IndexInputBindingForStoreIn uses the operation's existing authorization and
+// filesystem bindings for semantic federation inputs. Other bindings are
+// rooted in the same Files carried by the Store.
+func IndexInputBindingForStoreIn(store Store, name string) (string, bool) {
+	if name == "federated-material" {
+		material, err := BuildIndexFederatedMaterialIn(store)
+		if err != nil {
+			return "", false
+		}
+		return IndexFederatedMaterialDigest(material.Projection)
+	}
+	return IndexInputBindingIn(store.fsys(), store.Root, name)
+}
+
+// IndexInputBindingsForStoreIn computes all required bindings from a Store's
+// existing resolver and Files. It returns input names that could not be
+// proven and whether the operation depends on a primary Git revision.
+func IndexInputBindingsForStoreIn(store Store) (map[string]string, []string, bool) {
+	material, err := BuildIndexFederatedMaterialIn(store)
+	if err != nil {
+		bindings, unknown := indexInputBindingsWithoutFederatedMaterial(store.fsys(), store.Root)
+		unknown = append(unknown, "federated-material")
+		sort.Strings(unknown)
+		return bindings, uniqueSorted(unknown), false
+	}
+	bindings, unknown := IndexInputBindingsForFederatedMaterialIn(store.fsys(), store.Root, material.Projection)
+	return bindings, unknown, material.RequiresPrimaryRevision
+}
+
+// IndexInputBindingsForFederatedMaterialIn returns every descriptor binding
+// together with names whose input could not be proven. The caller supplies the
+// exact semantic projection consumed to build outputs, so a generation cannot
+// label outputs from one read with a later federated-material digest.
+func IndexInputBindingsForFederatedMaterialIn(files Files, root string, material IndexFederatedMaterialProjection) (map[string]string, []string) {
+	files = FilesOrNative(files)
+	bindings := make(map[string]string, len(IndexInputNames))
+	unknown := []string{}
+	for _, name := range IndexInputNames {
+		var value string
+		var known bool
+		if name == "federated-material" {
+			value, known = IndexFederatedMaterialDigest(material)
+		} else {
+			value, known = IndexInputBindingIn(files, root, name)
+		}
+		if !known || strings.TrimSpace(value) == "" {
+			unknown = append(unknown, name)
+			continue
+		}
+		bindings[name] = value
+	}
+	sort.Strings(unknown)
+	return bindings, unknown
 }
 
 // IndexInputBinding reads and writes the filesystem directly; IndexInputBindingIn takes the
@@ -878,11 +1017,35 @@ func IndexInputBinding(root, name string) (string, bool) {
 
 // IndexInputBindings returns every binding a generation carries.
 func IndexInputBindingsIn(files Files, root string) map[string]string {
-	out := map[string]string{}
-	for _, name := range IndexInputNames {
-		out[name], _ = IndexInputBindingIn(files, root, name)
+	resolver, project, err := EnvironmentArtifactResolverIn(files, root, "")
+	if err != nil {
+		bindings, _ := indexInputBindingsWithoutFederatedMaterial(files, root)
+		bindings["federated-material"] = ""
+		return bindings
 	}
-	return out
+	bindings, _, _ := IndexInputBindingsForStoreIn(Store{
+		Root: root, FS: FilesOrNative(files), FederatedProjectID: project, FederatedResolver: &resolver,
+	})
+	return bindings
+}
+
+func indexInputBindingsWithoutFederatedMaterial(files Files, root string) (map[string]string, []string) {
+	files = FilesOrNative(files)
+	bindings := make(map[string]string, len(IndexInputNames)-1)
+	unknown := []string{}
+	for _, name := range IndexInputNames {
+		if name == "federated-material" {
+			continue
+		}
+		value, known := IndexInputBindingIn(files, root, name)
+		if !known || strings.TrimSpace(value) == "" {
+			unknown = append(unknown, name)
+			continue
+		}
+		bindings[name] = value
+	}
+	sort.Strings(unknown)
+	return bindings, unknown
 }
 
 // IndexInputBindings reads and writes the filesystem directly; IndexInputBindingsIn takes the
@@ -891,32 +1054,73 @@ func IndexInputBindings(root string) map[string]string {
 	return IndexInputBindingsIn(NativeFiles(), root)
 }
 
-func fileDigest(files Files, root, rel string) string {
-	raw, err := files.ReadFile(filepath.Join(root, filepath.FromSlash(rel)))
-	if err != nil {
-		return "absent"
+func fileDigest(files Files, root, rel string) (string, bool) {
+	files = FilesOrNative(files)
+	path := filepath.Join(root, filepath.FromSlash(rel))
+	raw, err := files.ReadFile(path)
+	if err == nil {
+		return sha256Prefixed(raw), true
 	}
-	return sha256Prefixed(raw)
+	if errors.Is(err, os.ErrNotExist) {
+		absent, proofErr := ProvenAbsentIn(files, path)
+		if proofErr == nil && absent {
+			return "absent", true
+		}
+	}
+	return "", false
 }
 
-func treeDigest(files Files, root, rel string) string {
+func treeDigest(files Files, root, rel string) (string, bool) {
+	files = FilesOrNative(files)
 	base := filepath.Join(root, filepath.FromSlash(rel))
 	paths := []string{}
-	_ = WalkDirIn(files, base, func(path string, d os.DirEntry, err error) error {
-		if err == nil && d.Type().IsRegular() && !IsPublisherStaging(path) {
+	visited, traversalBytes, inputBytes := 0, 0, int64(0)
+	walkErr := WalkDirIn(files, base, func(path string, d os.DirEntry, err error) error {
+		if err != nil {
+			return err
+		}
+		visited++
+		traversalBytes += len(filepath.ToSlash(path)) + len(d.Name())*2 + 128
+		if visited > governanceReadViewMaxRecords || traversalBytes > governanceReadViewMaxMetadata {
+			return errGovernanceReadViewBudget
+		}
+		if d.IsDir() {
+			return nil
+		}
+		if d.Type()&os.ModeSymlink != 0 {
+			// Bind the bytes of an in-root regular target. A dangling, escaping
+			// or directory link is unknown, never a silently omitted input.
+			if !artifactPathWithin(files, root, path) { return fmt.Errorf("pose: %s contains an unbound link", rel) }
+			info, err := files.Stat(path)
+			if err != nil { return err }
+			if !info.Mode().IsRegular() { return fmt.Errorf("pose: %s contains a non-regular link target", rel) }
+		} else if !d.Type().IsRegular() {
+			return fmt.Errorf("pose: %s contains a non-regular input", rel)
+		}
+		if !IsPublisherStaging(path) {
 			paths = append(paths, path)
 		}
 		return nil
 	})
-	if len(paths) == 0 {
-		return "absent"
+	if walkErr != nil {
+		if errors.Is(walkErr, os.ErrNotExist) {
+			absent, proofErr := ProvenAbsentIn(files, base)
+			if proofErr == nil && absent {
+				return "absent", true
+			}
+		}
+		return "", false
 	}
 	sort.Strings(paths)
 	h := sha256.New()
 	for _, path := range paths {
 		raw, err := files.ReadFile(path)
 		if err != nil {
-			continue
+			return "", false
+		}
+		inputBytes += int64(len(raw))
+		if inputBytes > governanceReadViewMaxInputBytes {
+			return "", false
 		}
 		relPath, _ := filepath.Rel(base, path)
 		h.Write([]byte(filepath.ToSlash(relPath)))
@@ -924,5 +1128,5 @@ func treeDigest(files Files, root, rel string) string {
 		h.Write(raw)
 		h.Write([]byte{0})
 	}
-	return "sha256:" + hex.EncodeToString(h.Sum(nil))
+	return "sha256:" + hex.EncodeToString(h.Sum(nil)), true
 }

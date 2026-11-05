@@ -1,6 +1,8 @@
 package pose
 
 import (
+	"errors"
+	"fmt"
 	"os"
 	"os/exec"
 	"path/filepath"
@@ -551,7 +553,7 @@ func TestSpecTransferConcurrentApplySerializesWriters(t *testing.T) {
 	for err := range errs {
 		if err == nil {
 			successes++
-		} else if !strings.Contains(err.Error(), "transfer-in-progress") && !strings.Contains(err.Error(), "concurrent-transfer") {
+		} else if !strings.Contains(err.Error(), "transfer-in-progress") && !strings.Contains(err.Error(), "concurrent-transfer") && !errors.Is(err, ErrGovernanceWriteGuardBusy) {
 			t.Errorf("concurrent apply error = %v", err)
 		}
 	}
@@ -565,6 +567,38 @@ func TestSpecTransferConcurrentApplySerializesWriters(t *testing.T) {
 	destination, err := (Store{Root: destinationRoot}).GetSpec("executor-task")
 	if err != nil || destination.Status != "in-progress" {
 		t.Fatalf("destination = %+v, err=%v", destination, err)
+	}
+}
+
+func TestGovernanceWriteGuardSpecTransferRefusesBeforeOperationArtifacts(t *testing.T) {
+	t.Setenv("POSE_DEFAULT_PROJECT_ID", "")
+	t.Setenv("POSE_PROJECT_ROOTS", "")
+	resolver, sourceRoot, destinationRoot, consumerRoot, _ := setupSiblingTransferFixture(t)
+	plan, err := PreviewSpecTransfer(resolver, transferRequest(true), "2026-09-24")
+	if err != nil {
+		t.Fatal(err)
+	}
+	permissions := map[string]bool{"proj.source": true, "proj.destination": true, "proj.consumer": true}
+	guardRoots := []Store{
+		{Root: sourceRoot, FederatedProjectID: "proj.source"},
+		{Root: destinationRoot, FederatedProjectID: "proj.destination"},
+		{Root: consumerRoot, FederatedProjectID: "proj.consumer"},
+	}
+	err = WithGovernanceWriteGuard("test.hold-transfer-roots", guardRoots, func([]Store) error {
+		_, applyErr := ApplySpecTransfer(resolver, plan, plan.Digest, permissions, nil)
+		if !errors.Is(applyErr, ErrGovernanceWriteGuardBusy) {
+			return fmt.Errorf("transfer under root contention = %v, want governance guard busy", applyErr)
+		}
+		for _, root := range []string{sourceRoot, destinationRoot, consumerRoot} {
+			operationDir := transferOperationDir(root, plan.OperationID)
+			if _, statErr := os.Lstat(operationDir); !errors.Is(statErr, os.ErrNotExist) {
+				return fmt.Errorf("transfer created operation directory before root guard refusal: %s (%v)", operationDir, statErr)
+			}
+		}
+		return nil
+	})
+	if err != nil {
+		t.Fatal(err)
 	}
 }
 

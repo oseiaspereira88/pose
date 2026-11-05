@@ -17,6 +17,7 @@ package cli
 // instead of hand-rolling a new one.
 
 import (
+	"bytes"
 	"encoding/json"
 	"fmt"
 	"io"
@@ -57,6 +58,26 @@ var computedIndexFiles = map[string]bool{
 // very next `pose check --strict` with broken references that `pose doctor`
 // did not catch (spec pose-upgrade-path-audit-fixes).
 func seedAbsentInstanceConfigIn(files posemodel.Files, dist fs.FS, target string, log func(english, portuguese string, a ...any)) {
+	seededComputedIndex := false
+	err := posemodel.WithGovernanceWriteGuard("stack.seed", []posemodel.Store{{Root: target, FS: files}}, func(stores []posemodel.Store) error {
+		guarded := stores[0]
+		seededComputedIndex = seedAbsentInstanceConfigGuardedIn(guarded.FS, dist, guarded.Root, log)
+		return nil
+	})
+	if err != nil {
+		updatePhaseFailure(files, log, "stack configuration seeding", err)
+		return
+	}
+	if seededComputedIndex {
+		// Seeding can establish a previously undeclared project identity.
+		// Index generation must select that current identity and acquire its
+		// own exact material-root vector, after releasing the seeding lease.
+		// Its normal capture, revalidation and publication protocol still runs.
+		seedComputedIndexesIn(files, target, log)
+	}
+}
+
+func seedAbsentInstanceConfigGuardedIn(files posemodel.Files, dist fs.FS, target string, log func(english, portuguese string, a ...any)) bool {
 	idxEntries, _ := fs.ReadDir(dist, ".pose/indexes")
 	_ = files.MkdirAll(filepath.Join(target, ".pose", "indexes"), 0o755)
 	seededComputedIndex := false
@@ -117,7 +138,10 @@ func seedAbsentInstanceConfigIn(files posemodel.Files, dist fs.FS, target string
 	migrateDelegationPolicyIn(files, target, log)
 	stampContractAdoptionIn(files, target, files.Now().UTC(), log)
 	stampChangelogAdoptionIn(files, target, files.Now().UTC(), log)
+	return seededComputedIndex
+}
 
+func seedComputedIndexesIn(files posemodel.Files, target string, log func(english, portuguese string, a ...any)) {
 	// The neutral placeholders just seeded above for repo-map.json,
 	// spec-graph.json, delivery-integrity.json etc. are honestly empty, not
 	// this target's real state — cmdIndex is the one thing that computes
@@ -126,15 +150,18 @@ func seedAbsentInstanceConfigIn(files posemodel.Files, dist fs.FS, target string
 	// steps after this either way; this closes the same gap for a plain
 	// `pose update`, which never did (spec
 	// pose-derived-index-self-referential-leak).
-	if seededComputedIndex {
-		if code := cmdIndexIn(files, target, nil, io.Discard, io.Discard); code != 0 {
-			issue := fmt.Sprintf("computed index seed failed (exit %d); run pose index for diagnostics", code)
-			if log != nil {
-				log("warning: %s", "aviso: %s", issue)
-			}
-			if p := files.Preview(); p != nil {
-				p.Incomplete(issue)
-			}
+	var diagnostics bytes.Buffer
+	boundedDiagnostics := &limitedBuffer{buf: &diagnostics, limit: 8192}
+	if code := cmdIndexIn(files, target, nil, io.Discard, boundedDiagnostics); code != 0 {
+		issue := fmt.Sprintf("computed index seed failed (exit %d); run pose index for diagnostics", code)
+		if reason := strings.TrimSpace(diagnostics.String()); reason != "" {
+			issue += ": " + reason
+		}
+		if log != nil {
+			log("warning: %s", "aviso: %s", issue)
+		}
+		if p := files.Preview(); p != nil {
+			p.Incomplete(issue)
 		}
 	}
 }
@@ -388,6 +415,21 @@ func shippedProfileIsCurrentSchema(raw []byte) bool {
 // migrateInstanceReviewPolicy upgrades existing schema-v1 review policies and
 // review profiles to schema-v2 in an idempotent manner.
 func migrateInstanceReviewPolicyIn(files posemodel.Files, dist fs.FS, target string, log func(english, portuguese string, a ...any)) {
+	store := posemodel.Store{Root: target, FS: files}
+	if _, active := store.GovernanceWriteLease(); active {
+		migrateInstanceReviewPolicyGuardedIn(store.FS, dist, store.Root, log)
+		return
+	}
+	err := posemodel.WithGovernanceWriteGuard("stack.review-policy.migrate", []posemodel.Store{{Root: target, FS: files}}, func(stores []posemodel.Store) error {
+		migrateInstanceReviewPolicyGuardedIn(stores[0].FS, dist, stores[0].Root, log)
+		return nil
+	})
+	if err != nil {
+		updatePhaseFailure(files, log, "review policy migration", err)
+	}
+}
+
+func migrateInstanceReviewPolicyGuardedIn(files posemodel.Files, dist fs.FS, target string, log func(english, portuguese string, a ...any)) {
 	policyPath := filepath.Join(target, ".pose", "policy", "review.json")
 	if raw, err := files.ReadFile(policyPath); err == nil {
 		var p map[string]any
@@ -544,6 +586,21 @@ func declaredProjectIdentity(target string) (string, string) {
 // delegation.json (schema 2) deterministically and removes the old file (spec
 // pose-delegation-surface R7). The preview of pose update shows both paths.
 func migrateDelegationPolicyIn(files posemodel.Files, target string, log func(english, portuguese string, a ...any)) {
+	store := posemodel.Store{Root: target, FS: files}
+	if _, active := store.GovernanceWriteLease(); active {
+		migrateDelegationPolicyGuardedIn(store.FS, store.Root, log)
+		return
+	}
+	err := posemodel.WithGovernanceWriteGuard("stack.delegation-policy.migrate", []posemodel.Store{{Root: target, FS: files}}, func(stores []posemodel.Store) error {
+		migrateDelegationPolicyGuardedIn(stores[0].FS, stores[0].Root, log)
+		return nil
+	})
+	if err != nil {
+		updatePhaseFailure(files, log, "delegation policy migration", err)
+	}
+}
+
+func migrateDelegationPolicyGuardedIn(files posemodel.Files, target string, log func(english, portuguese string, a ...any)) {
 	out, ok, err := posemodel.MigrateReviewersPolicyFile(files, target)
 	if err != nil {
 		updatePhaseFailure(files, log, "delegation policy migration", err)

@@ -137,6 +137,11 @@ func (s Store) SpecReadiness(slug string) (*Readiness, error) {
 
 // SpecReadinessWithResolver lets transports enforce their caller's project policy.
 func (s Store) SpecReadinessWithResolver(slug, project string, resolver ArtifactResolver) (*Readiness, error) {
+	if view, _ := governanceReadViewFromFiles(s.fsys()); view != nil && view.operation != nil {
+		// Producer-created resolvers retain their caller's roots and authority,
+		// while sharing the captured operation's dependency traversal budget.
+		resolver.governanceDepthLimit = view.operation.resolver.governanceDepthLimit
+	}
 	sp, err := s.GetSpec(slug)
 	if err != nil {
 		return nil, err

@@ -2,6 +2,7 @@ package cli
 
 import (
 	"encoding/json"
+	"errors"
 	"os"
 	"path/filepath"
 	"strings"
@@ -65,6 +66,47 @@ func TestAnInterruptedCloseoutResumesWithoutDuplication(t *testing.T) {
 	code, out = runPose(t, root, "close", "spec:bundle", "--resume", "--reviewer", "agent:closeout-reviewer")
 	if code != 0 || countFiles(t, filepath.Join(root, ".pose/review-attestations")) != 1 {
 		t.Fatalf("a second resume was not a no-op: %d %s", code, out)
+	}
+	err := posemodel.WithGovernanceWriteGuard("test.hold-terminal-plan-read", []posemodel.Store{cliGovernedStore(root)}, func([]posemodel.Store) error {
+		result := applyClosePlan(root, cliGovernedStore(root), "spec:bundle", "resume", "", "agent:closeout-reviewer", false)
+		if result.Outcome != posemodel.OutcomeAlreadySatisfied || len(result.Effects) != 0 || len(result.StepsRun) != 0 {
+			return errors.New("completed closeout plan tried to acquire a writer lease or run an effect")
+		}
+		return nil
+	})
+	if err != nil {
+		t.Fatalf("terminal closeout plan was not read-only: %v", err)
+	}
+}
+
+func TestGovernanceReadViewCloseoutReportsPublishedBundleWithUnconfirmedDurability(t *testing.T) {
+	root := reviewBundleCLIFixture(t)
+	posemodel.PublishSyncHook = func(kind, path string) error {
+		if kind == "dir" && strings.Contains(path, filepath.Join(".pose", "review-bundles")) {
+			return errors.New("injected directory sync failure")
+		}
+		return nil
+	}
+	t.Cleanup(func() { posemodel.PublishSyncHook = nil })
+	var result closeApplyJSON
+	code, _ := runPoseJSON(t, root, &result, "close", "spec:bundle", "--apply", "--json")
+	if code != 1 || result.Outcome != posemodel.OutcomeFailed || result.Step != posemodel.CloseoutStepMechanical {
+		t.Fatalf("closeout did not stop at the reviewer requirement after sealing: code=%d result=%+v", code, result.OperationResult)
+	}
+	sealed := false
+	uncertain := false
+	for _, effect := range result.Effects {
+		if effect.Step == posemodel.CloseoutStepSeal && effect.Effect == "bundle-sealed" && effect.Ref != "" {
+			sealed = true
+		}
+	}
+	for _, item := range result.Unconfirmed {
+		if item.Step == "seal-durability" && strings.Contains(item.Reason, "published and readable") {
+			uncertain = true
+		}
+	}
+	if !sealed || !uncertain || countFiles(t, filepath.Join(root, ".pose", "review-bundles")) != 1 {
+		t.Fatalf("committed seal was hidden or misreported: effects=%+v unconfirmed=%+v", result.Effects, result.Unconfirmed)
 	}
 }
 

@@ -14,6 +14,9 @@ import (
 // test would otherwise record whichever agent ran the suite as its
 // implementation (spec pose-delegation-routing R2).
 func TestMain(m *testing.M) {
+	if EngineVersion == "unknown" {
+		EngineVersion = "pose-test-engine"
+	}
 	for _, name := range DelegationSessionVariables() {
 		_ = os.Unsetenv(name)
 	}

@@ -732,7 +732,7 @@
       "name": "pose_action_requests"
     },
     {
-      "description": "Read everything still owed, projected read-only from the subsystems that own it (readiness, closeout, review judgment, start reconciliation, open follow-ups): one record per obligation with a stable id, qualified source and targets, reason code, satisfaction condition, recipient, per-phase effect (block or advisory), satisfaction, knowledge and waiting. Every answer carries a snapshot (revision, dirty tree, policy and contract digests) and per-producer coverage; a producer that failed or is not integrated is listed, so an empty list with incomplete coverage never means nothing is owed. `attention` groups the same ids for the actor. Read-only: resolve an obligation at its source, never here.",
+      "description": "Read everything still owed, projected read-only from the subsystems that own it (readiness, closeout, review judgment, start reconciliation, open follow-ups): one record per obligation with a stable id, qualified source and targets, reason code, satisfaction condition, recipient, per-phase effect (block or advisory), satisfaction, knowledge and waiting. Every answer carries a snapshot (revision, dirty tree, policy and contract digests), snapshot.read_view (schema version 1, observed-input identity, root bindings, versions and final-audit freshness) and per-producer coverage. Read-view freshness is not write authorization; a producer that failed or is not integrated is listed, so an empty list with incomplete coverage never means nothing is owed. `attention` groups the same ids for the actor. Read-only: resolve an obligation at its source, never here.",
       "inputSchema": {
         "properties": {
           "actor": {
@@ -823,7 +823,7 @@
       "name": "pose_start_status"
     },
     {
-      "description": "Read the evidence-backed hierarchical closeout projection for a typed spec, milestone or roadmap scope. Returns current or stale review state, child blockers, the smallest next governed action and terminal status. For spec scopes, include_plan adds the CLI execution plan; unknown Git returns an error.",
+      "description": "Read the evidence-backed hierarchical closeout projection for a typed spec, milestone or roadmap scope. Returns current or stale review state, child blockers, the smallest next governed action and terminal status, with the operation's read_view bindings, freshness and limitations. An unknown input closure cannot certify terminal status. For spec scopes, include_plan adds the CLI execution plan; unknown Git returns an error.",
       "inputSchema": {
         "properties": {
           "include_plan": {

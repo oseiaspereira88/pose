@@ -290,7 +290,7 @@ func TestSpecTransferJournalClassifiesAsGovernance(t *testing.T) {
 			t.Errorf("%s classified as %q include=%v, want governance and included", path, class, include)
 		}
 	}
-	if class, include := reviewBundlePathClass(".pose/transfers/.authority-transfer.lock", scope, nil); class == "governance" || include {
+	if class, include := reviewBundlePathClass(".pose/transfers/.authority-transfer.lock", scope, nil); class != "derived-evidence" || include {
 		t.Errorf("the transfer lock was treated as an authority record: %q include=%v", class, include)
 	}
 }

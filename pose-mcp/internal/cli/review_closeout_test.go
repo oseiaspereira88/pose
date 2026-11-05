@@ -29,7 +29,56 @@ func closeoutCLIFixture(t *testing.T) string {
 	writeCloseoutCLIFile(t, root, ".pose/policy/review.json", `{"schema_version":1,"enabled":true,"adopted_at":"2026-08-02","profiles":{"spec":"spec-closeout@1"},"continuous_closeout":true}`)
 	writeCloseoutCLIFile(t, root, ".pose/review-profiles/spec-closeout.json", `{"schema_version":1,"id":"spec-closeout","version":1,"scope":"spec","criteria":[{"id":"correctness","description":"reviewed"}]}`)
 	writeCloseoutCLIFile(t, root, ".pose/specs/alpha/spec.md", "---\nslug: alpha\nstatus: in-progress\ncreated_at: 2026-08-02\ncompleted_at:\n---\n\n# Spec: alpha\n\n## 2. Requirements\n- R1: works\n\n## 6. Validation\n\n### Requirement trace\n- R1 [satisfied] test:TestFixture\n")
+	writeCloseoutCLIFile(t, root, "z_fixture_test.go", "package fixture\nimport \"testing\"\nfunc TestFixture(t *testing.T) {}\n")
+	artifactGit(t, root, "init", "-q")
+	artifactGit(t, root, "add", "-A")
+	artifactGit(t, root, "-c", "user.name=fixture", "-c", "user.email=fixture@example.invalid", "-c", "commit.gpgsign=false", "commit", "-qm", "fixture")
 	return root
+}
+
+// Publish the controlled indexes used by these review fixtures with the actual
+// source bindings. Preserve their deliberately synthetic evidence; legacy
+// indexes alone cannot authorize a current closeout under the read-view contract.
+func publishReviewCLIIndexFixture(t *testing.T, root string) {
+	t.Helper()
+	// These fixtures control their evidence rather than exercising pose index's
+	// delivery graph builder. Supply schema-valid empty outputs only where absent.
+	empty := map[string]string{
+		"repo-map.json":           `{"root":".","apps":[],"services":[],"packages":[]}`,
+		"services.json":           `[]`,
+		"packages.json":           `[]`,
+		"spec-graph.json":         `{"schemaVersion":1,"specs":{},"edges":[]}`,
+		"roadmaps.json":           `{"schemaVersion":1,"roadmaps":{}}`,
+		"delivery-integrity.json": `{"schema_version":1,"input_digest":"","nodes":[],"edges":[],"claims":[],"change_sets":[],"reverse":{},"findings":[]}`,
+		"releases.json":           `{"pending":[],"releases":[]}`,
+	}
+	outputs := make(map[string][]byte, len(posemodel.IndexGenerationFiles))
+	for _, name := range posemodel.IndexGenerationFiles {
+		raw, readErr := os.ReadFile(filepath.Join(root, ".pose", "indexes", name))
+		if os.IsNotExist(readErr) {
+			body, ok := empty[name]
+			if !ok {
+				t.Fatalf("no empty fixture output for index %s", name)
+			}
+			raw = []byte(body + "\n")
+		} else if readErr != nil {
+			t.Fatal(readErr)
+		}
+		outputs[name] = raw
+	}
+	store := cliGovernedStore(root)
+	inputs, unknown, _ := posemodel.IndexInputBindingsForStoreIn(store)
+	if len(unknown) != 0 {
+		t.Fatalf("review fixture has unknown index inputs: %v", unknown)
+	}
+	for _, name := range posemodel.IndexInputNames {
+		if strings.TrimSpace(inputs[name]) == "" {
+			t.Fatalf("review fixture has no binding for index input %s", name)
+		}
+	}
+	if _, err := store.PublishIndexGeneration(outputs, inputs); err != nil {
+		t.Fatal(err)
+	}
 }
 
 func TestReviewRecordIsDryRunByDefaultAndCloseIsReviewGated(t *testing.T) {
@@ -126,6 +175,10 @@ func TestReviewRecordRequiresRequiredToolDispositions(t *testing.T) {
 	writeCloseoutCLIFile(t, root, ".pose/indexes/repo-map.json", `{"apps":[],"services":[],"packages":[{"name":"module","path":"module space","language":"go","owner":"@team","domain":"backend","criticality":"high","validationProfile":"baseline","metadataStatus":{"source":"declared","isComplete":true,"missingFields":[]}}]}`)
 	writeCloseoutCLIFile(t, root, ".pose/indexes/delivery-integrity.json", `{"reverse":{}}`)
 	writeCloseoutCLIFile(t, root, ".pose/specs/alpha/spec.md", "---\nslug: alpha\nstatus: in-progress\ncreated_at: 2026-08-13\ncomponents: module\n---\n\n# Spec: alpha\n\n### Artifacts\n- modified: module space/main.go\n")
+	writeCloseoutCLIFile(t, root, "module space/main.go", "package module\n")
+	artifactGit(t, root, "init", "-q")
+	commitSnapshotFixture(t, root)
+	publishReviewCLIIndexFixture(t, root)
 
 	baseArgs := []string{"spec:alpha", "--reviewer", "agent:review-pass", "--decision", "approved", "--evidence", "unit:unit"}
 	var out, errOut bytes.Buffer
@@ -245,6 +298,7 @@ Pending.
 	artifactGit(t, root, "init", "-q")
 	artifactGit(t, root, "add", "-A")
 	artifactGit(t, root, "-c", "user.name=fixture", "-c", "user.email=fixture@example.invalid", "-c", "commit.gpgsign=false", "commit", "-qm", "fixture")
+	publishReviewCLIIndexFixture(t, root)
 	return root
 }
 
@@ -549,7 +603,7 @@ func TestUpdateMigratesReviewPolicySchemaV1ToV2(t *testing.T) {
 	var out, errOut bytes.Buffer
 	// Dry run should announce migration
 	if code := cmdUpdate(root, []string{"--dry-run", "--no-self"}, &out, &errOut); code != 0 {
-		t.Fatalf("update dry-run failed: code=%d err=%s", code, errOut.String())
+		t.Fatalf("update dry-run failed: code=%d out=%s err=%s", code, out.String(), errOut.String())
 	}
 	if !strings.Contains(out.String(), "[DRY-RUN] [INFO] policy (migrated): .pose/policy/review.json (v1 -> v2)") {
 		t.Fatalf("expected dry-run to announce review policy migration, got: %s", out.String())
@@ -658,6 +712,8 @@ Nenhum
 	if code := cmdArtifactCheck(root, []string{"--spec", "adr-doc", "--strict"}, &out, &errOut); code != 0 {
 		t.Fatalf("artifact-check failed: code=%d out=%s err=%s", code, out.String(), errOut.String())
 	}
+	// Establish the current generation before the review baseline is sealed.
+	publishReviewCLIIndexFixture(t, root)
 
 	// Step 2: review bundle seal
 	out.Reset()
@@ -782,6 +838,8 @@ Nenhum
 	if code := cmdArtifactCheck(root, []string{"--spec", "my-feature", "--strict"}, &out, &errOut); code != 0 {
 		t.Fatalf("artifact-check failed: code=%d out=%s err=%s", code, out.String(), errOut.String())
 	}
+	// Establish the current generation before the review baseline is sealed.
+	publishReviewCLIIndexFixture(t, root)
 
 	// Step 2: review bundle seal
 	out.Reset()
@@ -927,6 +985,8 @@ delivers: contract:my-contract
 	if code := cmdArtifactCheck(root, []string{"--spec", "my-contract-spec", "--strict"}, &out, &errOut); code != 0 {
 		t.Fatalf("artifact-check failed: code=%d out=%s err=%s", code, out.String(), errOut.String())
 	}
+	// Establish the current generation before the review baseline is sealed.
+	publishReviewCLIIndexFixture(t, root)
 
 	// Step 2: review bundle seal
 	out.Reset()
@@ -1060,6 +1120,7 @@ Nenhum
 	var out, errOut bytes.Buffer
 	// Seal bundle for spec-a
 	_ = cmdArtifactCheck(root, []string{"--spec", "spec-a", "--strict"}, &out, &errOut)
+	publishReviewCLIIndexFixture(t, root)
 	out.Reset()
 	errOut.Reset()
 	if code := cmdReviewBundle(root, []string{"spec:spec-a", "--seal"}, &out, &errOut); code != 0 {

@@ -81,6 +81,16 @@ func ReadProjectFile(root string) (string, bool, error) {
 // whether it wrote. A declared identity is never rewritten: other
 // repositories may already reference the project by it.
 func WriteProjectFileIn(files Files, root, id, name string) (bool, error) {
+	written := false
+	err := (Store{Root: root, FS: files}).withGovernanceWriteGuard("project.identity.write", func(guarded Store) error {
+		var err error
+		written, err = writeProjectFileIn(guarded.fsys(), guarded.Root, id, name)
+		return err
+	})
+	return written, err
+}
+
+func writeProjectFileIn(files Files, root, id, name string) (bool, error) {
 	if ValidateSlug(id) != nil {
 		return false, fmt.Errorf("pose: %q is not a valid project id", id)
 	}

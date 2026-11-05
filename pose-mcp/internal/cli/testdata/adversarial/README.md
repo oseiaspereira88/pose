@@ -35,7 +35,7 @@ adopting project's features.
 | `stale-assessment-reused` | enforced | The assessed component changes and the old assessment still reads as fresh | pose-adaptive-assessment-freshness |
 | `unpinned-premise-trigger-reads-current` | enforced | A premise trigger without a pin can never go stale and nothing says so | pose-assumption-validity-scope |
 | `calendar-ttl-as-premise-trigger` | enforced | An arbitrary expiry date is accepted as the material trigger of a premise | pose-assumption-validity-scope |
-| `unobserved-falsifier-reads-uncontradicted` | known-gap | A falsifier check that no run produces raises nothing, and nothing says the falsifier was never observed | pose-falsifier-reconsideration |
+| `unobserved-falsifier-reads-uncontradicted` | enforced | An unbound legacy index cannot prove that a falsifier check was never observed | pose-falsifier-reconsideration |
 | `parity-row-cites-an-unrelated-test` | known-gap | A launcher parity row names a real but unrelated `pose delegate` command and an existing test that does not exercise the capability, and the parity check passes; the check proves existence, review of the cited tests proves coverage | pose-delegation-parity-gate |
 | `imported-fragment-completes-a-replaced-command` | known-gap | A usage or error string assembles a removed command from a constant of another package of the module, which the active-document check reads as a gap; review of assembled messages is the defence | pose-delegation-parity-gate |
 | `cgo-preamble-text-reaches-usage` | known-gap | Operator text written as a C string in a cgo preamble reaches a usage surface; the Go reader sees a comment, not a string | pose-delegation-parity-gate |

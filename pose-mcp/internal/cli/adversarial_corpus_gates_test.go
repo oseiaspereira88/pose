@@ -122,10 +122,10 @@ func init() {
 			}
 			return true, "a calendar expiry was accepted silently"
 		}},
-		adversarialCase{"unobserved-falsifier-reads-uncontradicted", "known-gap", "pose-falsifier-reconsideration", func(t *testing.T) (bool, string) {
+		adversarialCase{"unobserved-falsifier-reads-uncontradicted", "enforced", "pose-falsifier-reconsideration", func(t *testing.T) (bool, string) {
 			// A decision names a falsifier check that no validation run ever
-			// produces; the projection raises nothing and nothing says the
-			// falsifier was never observed.
+			// produces. An unbound legacy index must be disclosed as incomplete,
+			// rather than treated as proof that no contrary result exists.
 			root := t.TempDir()
 			mustWrite(t, filepath.Join(root, ".pose/specs/2026-10-04-d.md"), "---\nslug: d\nstatus: done\n---\n\n# Spec: d\n\n## 2. Requirements\n\n- R1: x.\n\n## 5. Decisions\n\n### Decision D1\n- Basis: R1\n- Selected option: y.\n- Falsifier: z.\n- Falsifier check: check:mod/never-run\n")
 			mustWrite(t, filepath.Join(root, ".pose/indexes/delivery-integrity.json"), `{"schema_version":1,"input_digest":"sha256:x","nodes":[],"edges":[],"claims":[],"change_sets":[],"reverse":{},"findings":[]}`)
@@ -143,7 +143,7 @@ func init() {
 					return false, l
 				}
 			}
-			return true, "an unobserved falsifier check is silent"
+			return true, "an unbound index leaves an unobserved falsifier check silent"
 		}},
 	)
 }

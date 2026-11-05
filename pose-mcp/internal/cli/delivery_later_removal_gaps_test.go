@@ -1,6 +1,7 @@
 package cli
 
 import (
+	"errors"
 	"os"
 	"os/exec"
 	"path/filepath"
@@ -104,17 +105,30 @@ func TestLaterRemovalReviewRoundTwo(t *testing.T) {
 		root := laterRemovalFixture(t)
 		gamma := artifactGit(t, root, "log", "--format=%H", "-n", "1", "--grep", "^POSE-Spec: gamma$")
 		failingGit(t, "diff-tree", gamma)
+		if _, err := gitOutputBoundedIn(posemodel.NativeFiles(), root, 4096, "diff-tree", "--root", "--no-commit-id", "--name-status", "-z", "-M", "-r", gamma, "--"); !errors.Is(err, posemodel.ErrGitUnknown) || !strings.Contains(err.Error(), "synthetic-history-failure") {
+			t.Fatalf("failed history must retain typed unknown and its forensic cause: %v", err)
+		}
 		_, claims, sets, tracked, _, collected, err := collectArtifactGraphInputsWithGapsIn(posemodel.NativeFiles(), root)
 		if err != nil || !strings.Contains(collected["gamma"], "synthetic-history-failure") {
 			t.Fatalf("the collection hid a failed change set: %v %v", collected, err)
 		}
+		for _, set := range sets {
+			if set.Spec == "gamma" {
+				t.Fatalf("failed history produced a change set: %+v", set)
+			}
+		}
+		found := false
 		for _, removal := range artifactRemovals(root, claims, sets, tracked, collected) {
 			if removal.Path != removalPath {
 				continue
 			}
+			found = true
 			if removal.Supersedes["gamma"] != "" || !strings.Contains(removal.Refusals["gamma"], "synthetic-history-failure") {
 				t.Fatalf("a removal judged gamma on what was read: %+v", removal)
 			}
+		}
+		if !found {
+			t.Fatal("the collection gap made the removal disappear")
 		}
 	})
 	// LR-R2-04: an explicit range replaces every set of its spec, whatever

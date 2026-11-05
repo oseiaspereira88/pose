@@ -415,6 +415,9 @@ type ReviewEvaluation struct {
 	// Assurance discloses what the current review record proves about its
 	// reviewer (spec pose-review-assurance-disclosure).
 	Assurance *ReviewAssurance `json:"assurance,omitempty"`
+	// ReadView describes the observed closure used for this review decision.
+	// It is an observation, never a reusable write authorization.
+	ReadView *ReadViewMetadata `json:"read_view,omitempty"`
 	// The records the evaluation settled on, kept so the assurance is
 	// described without reading every attestation again.
 	settledBundle      *ReviewBundle
@@ -424,6 +427,7 @@ type ReviewEvaluation struct {
 type CloseoutState struct {
 	VerificationBasis   string                            `json:"verification_basis,omitempty"`
 	Limitations         []string                          `json:"limitations,omitempty"`
+	ReadView            *ReadViewMetadata                 `json:"read_view,omitempty"`
 	SchemaVersion       int                               `json:"schema_version"`
 	Scope               string                            `json:"scope"`
 	ScopeDigest         string                            `json:"scope_digest"`
@@ -441,6 +445,183 @@ type CloseoutState struct {
 	// NextStep is NextAction as a code and refs, for a consumer that must not
 	// parse the sentence.
 	NextStep *Diagnostic `json:"next_step,omitempty"`
+}
+
+func withGovernanceReviewReadView[T any](s Store, producer string, run func(Store) (T, error), attach func(*T, *ReadViewMetadata, governanceReadViewAudit)) (T, error) {
+	if governanceReviewReadViewFromFiles(s.fsys()) != nil {
+		// A closeout call may invoke ReviewCheck and child closeouts. They all
+		// participate in the caller's active view; only its owner finalizes it.
+		return run(s)
+	}
+	return withGovernanceReviewReadViewAttempt(s, producer, 0, run, attach)
+}
+
+func withGovernanceReviewReadViewAttempt[T any](s Store, producer string, attempt int, run func(Store) (T, error), attach func(*T, *ReadViewMetadata, governanceReadViewAudit)) (T, error) {
+	base, view := s.beginGovernanceReadView()
+	store := base.withGovernanceReadView(view, producer).PinIndexes()
+	_, _ = captureGovernanceSourceRevision(store.fsys(), store.Root, producer)
+	result, operationErr := run(store)
+	audit := view.audit()
+	if attempt == 0 && governanceReviewAuditChanged(audit) {
+		// Discard the complete mixed attempt. Re-run once from a new view;
+		// the second attempt's changed or unknown closure remains visible.
+		return withGovernanceReviewReadViewAttempt(base.withoutGovernanceReadView(), producer, 1, run, attach)
+	}
+	metadata := governanceReviewReadViewMetadata(store, view, audit)
+	attach(&result, &metadata, audit)
+	return result, operationErr
+}
+
+func governanceReviewAuditChanged(audit governanceReadViewAudit) bool {
+	if len(audit.ChangedPaths) > 0 {
+		return true
+	}
+	for _, changed := range audit.ChangedProducers {
+		if changed {
+			return true
+		}
+	}
+	return false
+}
+
+func governanceReviewReadViewFromFiles(files Files) *governanceReadView {
+	for depth := 0; depth < maxGovernanceFilesWrappers; depth++ {
+		files = FilesOrNative(files)
+		if provider, ok := files.(interface{ GovernanceReadView() *governanceReadView }); ok {
+			if view := provider.GovernanceReadView(); view != nil {
+				view.mu.Lock()
+				active := !view.closed
+				view.mu.Unlock()
+				if active {
+					return view
+				}
+				// A Store escaped its read-only callback. Its finalized bytes cannot
+				// serve as this operation's current input; let the caller unwrap it
+				// and start a fresh operation over the original Files binding.
+				return nil
+			}
+		}
+		underlying, ok := files.(interface{ UnderlyingFiles() Files })
+		if !ok {
+			return nil
+		}
+		files = underlying.UnderlyingFiles()
+	}
+	return nil
+}
+
+func governanceReviewReadViewMetadata(store Store, view *governanceReadView, audit governanceReadViewAudit) ReadViewMetadata {
+	project := store.FederatedProjectID
+	if project == "" {
+		project = DefaultProjectIDIn(store.fsys(), store.Root)
+	}
+	revision, indexGeneration := "unknown", "legacy"
+	if view.operation != nil {
+		for _, root := range view.operation.roots {
+			if root.view == view {
+				if root.revision != "" {
+					revision = root.revision
+				}
+				indexGeneration = root.indexGeneration
+				break
+			}
+		}
+	}
+	if store.indexPin != nil {
+		switch store.indexPin.Status {
+		case IndexGenerationCurrent:
+			indexGeneration = store.indexPin.Descriptor.GenerationID
+		case IndexGenerationUnavailable:
+			indexGeneration = "unknown"
+		}
+	}
+	metadata, _ := view.metadata(project, revision, indexGeneration, audit)
+	return metadata
+}
+
+func applyReviewReadView(eval *ReviewEvaluation, metadata *ReadViewMetadata, audit governanceReadViewAudit) {
+	if metadata == nil {
+		return
+	}
+	copy := *metadata
+	copy.Scope = eval.Scope
+	eval.ReadView = &copy
+	if copy.Freshness == ReadViewFreshnessCurrent {
+		return
+	}
+	if retainedHistoricalReviewApproval(eval) && !governanceReviewAuditChanged(audit) {
+		// A completed scope keeps the approval it closed with. The attached
+		// operation view still says unknown, so this historical retention is
+		// not a claim that current inputs were captured or a new write is allowed.
+		// A final audit that observes a change means this retained result was
+		// computed from inputs that did not remain stable through validation.
+		return
+	}
+	eval.Fresh = false
+	if eval.Required {
+		eval.Approved = false
+		eval.Blockers = appendUnique(eval.Blockers, "governance read view is unknown; review inputs were not proven stable")
+	} else {
+		eval.Warnings = appendUnique(eval.Warnings, "governance read view is unknown; this observation does not establish current review state")
+	}
+}
+
+func retainedHistoricalReviewApproval(eval *ReviewEvaluation) bool {
+	if eval == nil || !eval.Approved || !eval.Fresh {
+		return false
+	}
+	if eval.BundleID != "" && eval.BundleState == "closed" {
+		return true
+	}
+	for _, warning := range eval.Warnings {
+		if warning == retainedCompletedReviewWarning || strings.HasPrefix(warning, "completed scope retains its approved ") {
+			return true
+		}
+	}
+	return false
+}
+
+func applyCloseoutReadView(state *CloseoutState, metadata *ReadViewMetadata, scope string, audit governanceReadViewAudit) {
+	if metadata == nil {
+		return
+	}
+	for i := range state.Children {
+		applyCloseoutReadView(&state.Children[i], metadata, state.Children[i].Scope, audit)
+	}
+	copy := *metadata
+	copy.Scope = scope
+	state.ReadView = &copy
+	applyReviewReadView(&state.Review, metadata, audit)
+	if copy.Freshness == ReadViewFreshnessCurrent {
+		return
+	}
+	message := "governance read view is unknown; closeout inputs were not proven stable"
+	state.Limitations = appendUnique(state.Limitations, message)
+	for _, limitation := range copy.Limitations {
+		state.Limitations = appendUnique(state.Limitations, limitation)
+	}
+	state.Diagnostics = dedupeDiagnostics(append(state.Diagnostics, NewDiagnostic("governance-read-view-unknown", message, scope)))
+	if state.LifecycleDone && state.Terminal && !governanceReviewAuditChanged(audit) &&
+		(!state.Review.Required || retainedHistoricalReviewApproval(&state.Review)) {
+		// Keep a previously terminal historical result readable when this
+		// operation cannot prove a current generation. Its explicit unknown
+		// view and limitations are not authority for another transition; the
+		// CLI's done branch is read-only. A final audit that observed an input
+		// change makes the evaluation incoherent and must block this result.
+		return
+	}
+	state.Blockers = appendUnique(state.Blockers, message)
+	state.Review.Fresh = false
+	state.Review.Approved = false
+	if state.Review.Required {
+		state.Review.Blockers = appendUnique(state.Review.Blockers, "governance read view is unknown; review inputs were not proven stable")
+	}
+	state.Terminal = false
+	state.NextAction = "verify current governance inputs before closeout for " + scope
+	state.Blockers = uniqueSorted(state.Blockers)
+	state.Review.Blockers = uniqueSorted(state.Review.Blockers)
+	nextStep := NewDiagnostic("verify-governance-read-view", state.NextAction, scope)
+	state.NextStep = &nextStep
 }
 
 var reviewLineRE = regexp.MustCompile(`^-\s+([A-Za-z0-9._-]+)\s+\[([^]]+)\](?:\s+(.*))?$`)
@@ -1223,6 +1404,14 @@ func roadmapMilestoneSection(body, id string) string {
 }
 
 func (s Store) ReviewCheck(ref string) (ReviewEvaluation, error) {
+	return withGovernanceReviewReadView(s, "review", func(store Store) (ReviewEvaluation, error) {
+		return store.reviewCheckWithAssurance(ref)
+	}, func(eval *ReviewEvaluation, metadata *ReadViewMetadata, audit governanceReadViewAudit) {
+		applyReviewReadView(eval, metadata, audit)
+	})
+}
+
+func (s Store) reviewCheckWithAssurance(ref string) (ReviewEvaluation, error) {
 	eval, err := s.reviewCheck(ref)
 	if err == nil {
 		s.attachEvaluationAssurance(&eval)
@@ -2394,7 +2583,11 @@ func validateReviewEvidenceRef(files Files, root, ref string) error {
 }
 
 func (s Store) GetCloseoutState(ref string) (CloseoutState, error) {
-	return s.getCloseoutState(ref, true)
+	return withGovernanceReviewReadView(s, "closeout", func(store Store) (CloseoutState, error) {
+		return store.getCloseoutState(ref, true)
+	}, func(state *CloseoutState, metadata *ReadViewMetadata, audit governanceReadViewAudit) {
+		applyCloseoutReadView(state, metadata, ref, audit)
+	})
 }
 
 func (s Store) getCloseoutState(ref string, includeFederated bool) (CloseoutState, error) {

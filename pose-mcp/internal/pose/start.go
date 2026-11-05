@@ -130,7 +130,7 @@ func (s Store) PreviewStart(slug string) (StartPlan, error) {
 	if err != nil {
 		return plan, err
 	}
-	raw, err := os.ReadFile(spec.Path)
+	raw, err := s.fsys().ReadFile(spec.Path)
 	if err != nil {
 		return plan, err
 	}
@@ -140,7 +140,7 @@ func (s Store) PreviewStart(slug string) (StartPlan, error) {
 	}
 	plan.SpecPath = filepath.ToSlash(rel)
 	plan.SpecDigest = digestHex(raw)
-	plan.Revision = gitHeadAtRoot(s.Root)
+	plan.Revision = gitHeadAtRootIn(s.fsys(), s.Root, "start")
 	plan.FromStatus = spec.Status
 	if readiness, err := s.SpecReadiness(slug); err == nil {
 		plan.Ready, plan.WaitingOn, plan.Reason = readiness.Ready, readiness.WaitingOn, readiness.Reason
@@ -210,6 +210,16 @@ func startPlanDigest(plan StartPlan) string {
 // plan must still describe the repository; the same plan again is a no-op or
 // resumes an interrupted run, and any other plan for a started spec fails.
 func (s Store) ApplyStart(plan StartPlan, expectedDigest string, failAfter StartFailureHook) (StartRecord, error) {
+	var result StartRecord
+	err := s.withGovernanceWriteGuard("start.apply", func(guarded Store) error {
+		var err error
+		result, err = guarded.applyStart(plan, expectedDigest, failAfter)
+		return err
+	})
+	return result, err
+}
+
+func (s Store) applyStart(plan StartPlan, expectedDigest string, failAfter StartFailureHook) (StartRecord, error) {
 	adopted, err := s.AtomicStartAdopted()
 	if err != nil {
 		return StartRecord{}, err
@@ -231,12 +241,34 @@ func (s Store) ApplyStart(plan StartPlan, expectedDigest string, failAfter Start
 
 	recordPath := startRecordPath(s.Root, plan.Spec)
 	specPath := filepath.Join(s.Root, filepath.FromSlash(plan.SpecPath))
-	record, exists, err := readStartRecord(recordPath)
+	record, exists, err := readStartRecordIn(s.fsys(), recordPath)
 	if err != nil {
 		return StartRecord{}, err
 	}
 	if exists && record.PlanDigest != plan.Digest {
 		return record, startError("spec-already-started-with-another-plan")
+	}
+	if exists && record.Phase == "baseline-recorded" {
+		currentSpec, readErr := s.fsys().ReadFile(specPath)
+		if readErr != nil {
+			return record, readErr
+		}
+		if digestHex(currentSpec) == record.SpecDigestBefore {
+			// A baseline record is not authority to perform a later transition.
+			// Recompute readiness while both the root guard and lifecycle lock
+			// are held; only a transition already published may be recovered
+			// without evaluating today's restrictions again.
+			current, planErr := s.PreviewStart(plan.Spec)
+			if planErr != nil {
+				return record, planErr
+			}
+			if !current.Ready {
+				return record, startError("spec-not-ready")
+			}
+			if current.Digest != record.PlanDigest || current.Digest != plan.Digest {
+				return record, startError("stale-plan")
+			}
+		}
 	}
 	if !exists {
 		current, err := s.PreviewStart(plan.Spec)
@@ -249,7 +281,7 @@ func (s Store) ApplyStart(plan StartPlan, expectedDigest string, failAfter Start
 		if !plan.Ready {
 			return StartRecord{}, startError("spec-not-ready")
 		}
-		raw, err := os.ReadFile(specPath)
+		raw, err := s.fsys().ReadFile(specPath)
 		if err != nil {
 			return StartRecord{}, err
 		}
@@ -257,11 +289,11 @@ func (s Store) ApplyStart(plan StartPlan, expectedDigest string, failAfter Start
 		record = StartRecord{SchemaVersion: StartSchemaVersion, Spec: plan.Spec, PlanDigest: plan.Digest, Revision: plan.Revision,
 			SpecDigestBefore: plan.SpecDigest, SpecDigestAfter: digestHex([]byte(after)), Baseline: plan.Baseline,
 			Phase: "baseline-recorded", RecordedAt: time.Now().UTC().Format(time.RFC3339)}
-		if err := writeStartRecord(recordPath, record, true); err != nil {
+		if err := writeStartRecordIn(s.fsys(), recordPath, record, true); err != nil {
 			return StartRecord{}, &StartBaselineWriteError{Err: err}
 		}
 	}
-	return finishStart(recordPath, specPath, plan.Spec, record, failAfter)
+	return finishStart(s.fsys(), recordPath, specPath, plan.Spec, record, failAfter)
 }
 
 // ResumeStart finishes an apply that recorded its baseline for digest and
@@ -272,6 +304,16 @@ func (s Store) ApplyStart(plan StartPlan, expectedDigest string, failAfter Start
 // transition-not-published when the spec has not moved. failAfter observes
 // the phases it reaches, as in ApplyStart.
 func (s Store) ResumeStart(slug, digest string, failAfter StartFailureHook) (StartRecord, error) {
+	var result StartRecord
+	err := s.withGovernanceWriteGuard("start.resume", func(guarded Store) error {
+		var err error
+		result, err = guarded.resumeStart(slug, digest, failAfter)
+		return err
+	})
+	return result, err
+}
+
+func (s Store) resumeStart(slug, digest string, failAfter StartFailureHook) (StartRecord, error) {
 	adopted, err := s.AtomicStartAdopted()
 	if err != nil {
 		return StartRecord{}, err
@@ -282,17 +324,17 @@ func (s Store) ResumeStart(slug, digest string, failAfter StartFailureHook) (Sta
 	if ValidateSlug(slug) != nil {
 		return StartRecord{}, startError("invalid-spec")
 	}
-	current, err := s.PreviewStart(slug)
-	if err != nil {
-		return StartRecord{}, err
-	}
 	unlock, err := lockStart(s.Root, slug, "start.resume")
 	if err != nil {
 		return StartRecord{}, err
 	}
 	defer unlock()
+	current, err := s.PreviewStart(slug)
+	if err != nil {
+		return StartRecord{}, err
+	}
 	recordPath := startRecordPath(s.Root, slug)
-	record, exists, err := readStartRecord(recordPath)
+	record, exists, err := readStartRecordIn(s.fsys(), recordPath)
 	if err != nil {
 		return StartRecord{}, err
 	}
@@ -307,13 +349,13 @@ func (s Store) ResumeStart(slug, digest string, failAfter StartFailureHook) (Sta
 	// start is judged again by the current plan, with today's readiness and
 	// governed restrictions, never authorized by the persisted baseline.
 	specPath := filepath.Join(s.Root, filepath.FromSlash(current.SpecPath))
-	raw, err := os.ReadFile(specPath)
+	raw, err := s.fsys().ReadFile(specPath)
 	if err != nil {
 		return record, err
 	}
 	switch digestHex(raw) {
 	case record.SpecDigestAfter:
-		return finishStart(recordPath, specPath, slug, record, failAfter)
+		return finishStart(s.fsys(), recordPath, specPath, slug, record, failAfter)
 	case record.SpecDigestBefore:
 		return record, startError("transition-not-published")
 	default:
@@ -346,7 +388,7 @@ func (s Store) StartRecovery(slug, digest string) (string, error) {
 	if err != nil {
 		return StartRecoveryNone, err
 	}
-	raw, err := os.ReadFile(filepath.Join(s.Root, filepath.FromSlash(current.SpecPath)))
+	raw, err := s.fsys().ReadFile(filepath.Join(s.Root, filepath.FromSlash(current.SpecPath)))
 	if err != nil {
 		return StartRecoveryNone, err
 	}
@@ -365,7 +407,7 @@ func (s Store) StartRecovery(slug, digest string) (string, error) {
 
 // finishStart moves the spec to in-progress, reconciling a transition an
 // earlier run already wrote, and records the start as started.
-func finishStart(recordPath, specPath, slug string, record StartRecord, failAfter StartFailureHook) (StartRecord, error) {
+func finishStart(files Files, recordPath, specPath, slug string, record StartRecord, failAfter StartFailureHook) (StartRecord, error) {
 	if record.Phase == "started" {
 		return record, nil
 	}
@@ -374,7 +416,7 @@ func finishStart(recordPath, specPath, slug string, record StartRecord, failAfte
 			return record, err
 		}
 	}
-	raw, err := os.ReadFile(specPath)
+	raw, err := files.ReadFile(specPath)
 	if err != nil {
 		return record, err
 	}
@@ -384,7 +426,7 @@ func finishStart(recordPath, specPath, slug string, record StartRecord, failAfte
 		if digestHex(after) != record.SpecDigestAfter {
 			return record, startError("plan-digest-mismatch")
 		}
-		if err := writeTransferFile(specPath, after, record.SpecDigestBefore); err != nil {
+		if err := writeStartTransition(files, specPath, after, record.SpecDigestBefore); err != nil {
 			return record, err
 		}
 	case record.SpecDigestAfter:
@@ -398,7 +440,7 @@ func finishStart(recordPath, specPath, slug string, record StartRecord, failAfte
 		}
 	}
 	record.Phase = "started"
-	if err := writeStartRecord(recordPath, record, false); err != nil {
+	if err := writeStartRecordIn(files, recordPath, record, false); err != nil {
 		return record, err
 	}
 	return record, nil
@@ -407,6 +449,12 @@ func finishStart(recordPath, specPath, slug string, record StartRecord, failAfte
 // CancelStart undoes a start that recorded its baseline but never moved the
 // spec, so no half transition is left behind.
 func (s Store) CancelStart(slug string) error {
+	return s.withGovernanceWriteGuard("start.cancel", func(guarded Store) error {
+		return guarded.cancelStart(slug)
+	})
+}
+
+func (s Store) cancelStart(slug string) error {
 	if ValidateSlug(slug) != nil {
 		return startError("invalid-spec")
 	}
@@ -416,7 +464,7 @@ func (s Store) CancelStart(slug string) error {
 	}
 	defer unlock()
 	recordPath := startRecordPath(s.Root, slug)
-	record, exists, err := readStartRecord(recordPath)
+	record, exists, err := readStartRecordIn(s.fsys(), recordPath)
 	if err != nil {
 		return err
 	}
@@ -427,14 +475,14 @@ func (s Store) CancelStart(slug string) error {
 	if err != nil {
 		return err
 	}
-	raw, err := os.ReadFile(spec.Path)
+	raw, err := s.fsys().ReadFile(spec.Path)
 	if err != nil {
 		return err
 	}
 	if record.Phase != "baseline-recorded" || digestHex(raw) != record.SpecDigestBefore {
 		return startError("start-already-transitioned")
 	}
-	return os.Remove(recordPath)
+	return s.fsys().Remove(recordPath)
 }
 
 // GetStartStatus classifies the current nodes against the recorded baseline
@@ -458,7 +506,7 @@ func (s Store) GetStartStatus(slug string) (StartStatus, error) {
 		status.Lock = lock
 	}
 	current := ProjectContractNodesIn(s.fsys(), slug, spec.Body)
-	record, exists, err := readStartRecord(startRecordPath(s.Root, slug))
+	record, exists, err := readStartRecordIn(s.fsys(), startRecordPath(s.Root, slug))
 	if err != nil {
 		status.Reconciliation = append(status.Reconciliation, "start record is unreadable: "+err.Error())
 		exists = false
@@ -515,18 +563,22 @@ func (s Store) GetStartRecord(slug string) (StartRecord, bool, error) {
 	if ValidateSlug(slug) != nil {
 		return StartRecord{}, false, startError("invalid-spec")
 	}
-	return readStartRecord(startRecordPath(s.Root, slug))
+	return readStartRecordIn(s.fsys(), startRecordPath(s.Root, slug))
 }
 
 func readStartRecord(path string) (StartRecord, bool, error) {
-	info, err := os.Lstat(path)
+	return readStartRecordIn(NativeFiles(), path)
+}
+
+func readStartRecordIn(files Files, path string) (StartRecord, bool, error) {
+	info, err := files.Lstat(path)
 	if os.IsNotExist(err) {
 		return StartRecord{}, false, nil
 	}
 	if err != nil || info.Mode()&os.ModeSymlink != 0 || info.Size() > 4<<20 {
 		return StartRecord{}, false, startError("invalid-start-record")
 	}
-	raw, err := os.ReadFile(path)
+	raw, err := files.ReadFile(path)
 	if err != nil {
 		return StartRecord{}, false, err
 	}
@@ -538,7 +590,11 @@ func readStartRecord(path string) (StartRecord, bool, error) {
 }
 
 func writeStartRecord(path string, record StartRecord, exclusive bool) error {
-	if err := os.MkdirAll(filepath.Dir(path), 0o755); err != nil {
+	return writeStartRecordIn(NativeFiles(), path, record, exclusive)
+}
+
+func writeStartRecordIn(files Files, path string, record StartRecord, exclusive bool) error {
+	if err := files.MkdirAll(filepath.Dir(path), 0o755); err != nil {
 		return err
 	}
 	raw, err := json.MarshalIndent(record, "", "  ")
@@ -550,7 +606,7 @@ func writeStartRecord(path string, record StartRecord, exclusive bool) error {
 		// The baseline is immutable: it is published whole or not at all, and
 		// never over another record (spec
 		// pose-writer-coordination-and-atomic-publication R1/R2).
-		err := PublishFile(path, raw, 0o644, PublishAuthoritative, PublishExpectation{Mode: ExpectAbsent})
+		err := files.Publish(path, raw, 0o644, PublishAuthoritative, PublishExpectation{Mode: ExpectAbsent})
 		if errors.Is(err, ErrPublishConflict) {
 			return startError("start-record-exists")
 		}
@@ -558,5 +614,41 @@ func writeStartRecord(path string, record StartRecord, exclusive bool) error {
 	}
 	// The update runs under the spec's lifecycle lock; the record is an
 	// authoritative artifact, published whole and synced.
-	return PublishFile(path, raw, 0o644, PublishAuthoritative, PublishExpectation{Mode: ExpectAny})
+	return files.Publish(path, raw, 0o644, PublishAuthoritative, PublishExpectation{Mode: ExpectAny})
+}
+
+// writeStartTransition retains the transition's read-before-write CAS while
+// keeping publication inside the operation's guarded Files chain.
+func writeStartTransition(files Files, path string, raw []byte, expectedCurrentDigest string) error {
+	expectedAfterDigest := digestHex(raw)
+	if info, err := files.Lstat(path); err == nil {
+		if info.Mode()&os.ModeSymlink != 0 || info.IsDir() {
+			return specTransferError("path-escape")
+		}
+		current, readErr := files.ReadFile(path)
+		if readErr != nil {
+			return readErr
+		}
+		currentDigest := digestHex(current)
+		if currentDigest == expectedAfterDigest {
+			return nil
+		}
+		if expectedCurrentDigest == "" || currentDigest != expectedCurrentDigest {
+			return specTransferError("compare-and-swap-conflict")
+		}
+	} else if errors.Is(err, os.ErrNotExist) {
+		if expectedCurrentDigest != "" {
+			return specTransferError("compare-and-swap-conflict")
+		}
+	} else {
+		return err
+	}
+	if err := files.MkdirAll(filepath.Dir(path), 0o755); err != nil {
+		return err
+	}
+	expect := PublishExpectation{Mode: ExpectAbsent}
+	if expectedCurrentDigest != "" {
+		expect = PublishExpectation{Mode: ExpectDigest, Digest: expectedCurrentDigest}
+	}
+	return files.Publish(path, raw, 0o644, PublishAuthoritative, expect)
 }

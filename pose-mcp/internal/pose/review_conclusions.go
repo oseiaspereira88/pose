@@ -404,6 +404,19 @@ func (s Store) ConcludeReviewRun(id, issuer string, apply bool, now time.Time) (
 	if !validAttemptFileName(id) {
 		return ReviewConclusion{}, fmt.Errorf("pose: %q is not a run id", id)
 	}
+	if !apply {
+		return s.concludeReviewRunOperation(id, issuer, false, now)
+	}
+	var result ReviewConclusion
+	err := s.withReviewRunWriteGuardRetry("review.conclude", id, func(guarded Store) error {
+		var err error
+		result, err = guarded.concludeReviewRunOperation(id, issuer, true, now)
+		return err
+	})
+	return result, err
+}
+
+func (s Store) concludeReviewRunOperation(id, issuer string, apply bool, now time.Time) (ReviewConclusion, error) {
 	if apply {
 		unlock, err := s.lockReviewConclusion(id)
 		if err != nil {
@@ -615,7 +628,7 @@ func (s Store) concludeReviewRun(id, issuer string, apply bool, now time.Time, t
 // writeReviewConclusion writes result where nothing is, or in place of the
 // bytes over when over is set, and returns what it wrote.
 func (s Store) writeReviewConclusion(result ReviewConclusion, over []byte) ([]byte, error) {
-	if _, err := ensureReviewArtifactDir(s.Root, ReviewConclusionsDir, true); err != nil {
+	if _, err := ensureReviewArtifactDirIn(s.fsys(), s.Root, ReviewConclusionsDir, true); err != nil {
 		return nil, err
 	}
 	raw, _ := json.MarshalIndent(result, "", "  ")
@@ -624,7 +637,7 @@ func (s Store) writeReviewConclusion(result ReviewConclusion, over []byte) ([]by
 	if over != nil {
 		expect = ExpectBytes(over, true)
 	}
-	return raw, PublishFile(reviewConclusionPath(s.Root, result.RunID), raw, 0o644, PublishAuthoritative, expect)
+	return raw, s.fsys().Publish(reviewConclusionPath(s.Root, result.RunID), raw, 0o644, PublishAuthoritative, expect)
 }
 
 // publishReviewConclusion writes result once, or in place of the
@@ -650,6 +663,22 @@ func (s Store) publishReviewConclusion(result ReviewConclusion, apply bool, over
 // nothing and returns nil (spec compatibility: until the capability is
 // adopted, attestations stay as today).
 func (s Store) AutoConcludeReviewRun(run ReviewRun, now time.Time) (*ReviewConclusion, error) {
+	if run.Kind != ReviewBriefKindReview && run.Kind != ReviewBriefKindAdjudication && run.Kind != ReviewBriefKindSmoke || run.Status != ReviewRunCompleted || run.RunID == "" {
+		return nil, nil
+	}
+	var conclusion *ReviewConclusion
+	err := s.withReviewRunWriteGuardRetry("review.auto-conclude", run.RunID, func(guarded Store) error {
+		fresh, err := guarded.LoadProvenanceReviewRun(run.RunID)
+		if err != nil {
+			return err
+		}
+		conclusion, err = guarded.autoConcludeReviewRun(fresh, now)
+		return err
+	})
+	return conclusion, err
+}
+
+func (s Store) autoConcludeReviewRun(run ReviewRun, now time.Time) (*ReviewConclusion, error) {
 	if run.Kind != ReviewBriefKindReview && run.Kind != ReviewBriefKindAdjudication && run.Kind != ReviewBriefKindSmoke || run.Status != ReviewRunCompleted || run.RunID == "" {
 		return nil, nil
 	}

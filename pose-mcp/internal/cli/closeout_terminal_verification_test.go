@@ -3,6 +3,7 @@ package cli
 import (
 	"bytes"
 	"encoding/json"
+	"fmt"
 	pose "github.com/harne8/pose-mcp/internal/pose"
 	"os"
 	"path/filepath"
@@ -59,6 +60,16 @@ func TestTerminalVerificationValidNoopPreservesCheckpointAndHistory(t *testing.T
 	}
 	if code, out := runPose(t, root, "close", "spec:bundle"); code != 0 || !strings.Contains(out, "no transition executed") {
 		t.Fatalf("plain close %d %s", code, out)
+	}
+	var lockedOut, lockedErr bytes.Buffer
+	err := pose.WithGovernanceWriteGuard("test.hold-terminal-read", []pose.Store{cliGovernedStore(root)}, func([]pose.Store) error {
+		if code := cmdCloseLocalWithEffect(root, "spec:bundle", nil, &lockedOut, &lockedErr, nil); code != 0 {
+			return fmt.Errorf("terminal readonly close under another root writer returned %d: %s", code, lockedErr.String())
+		}
+		return nil
+	})
+	if err != nil {
+		t.Fatalf("terminal readonly close tried to acquire a writer lease: %v", err)
 	}
 	after, _ := os.ReadFile(path)
 	if string(before) != string(after) {

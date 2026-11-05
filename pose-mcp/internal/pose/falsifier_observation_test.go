@@ -40,7 +40,8 @@ status: done
 
 func falsifierFixture(t *testing.T, outcome string) Store {
 	t.Helper()
-	root := t.TempDir()
+	store := obligationFixture(t)
+	root := store.Root
 	write := func(rel, body string) {
 		p := filepath.Join(root, rel)
 		if err := os.MkdirAll(filepath.Dir(p), 0o755); err != nil {
@@ -51,11 +52,22 @@ func falsifierFixture(t *testing.T, outcome string) Store {
 		}
 	}
 	write(".pose/specs/2026-10-04-retry.md", falsifierSpec)
+	outputs := outputsFor("falsifier-fixture")
+	validationResults := "[]"
 	if outcome != "" {
-		write(".pose/indexes/delivery-integrity.json", `{"schema_version":1,"input_digest":"sha256:x","nodes":[],"edges":[],"claims":[],"change_sets":[],"reverse":{},"findings":[],
-"validation_results":[{"id":"payments/retry-effect","module":"payments","check":"retry-effect","evidence_class":"integration","outcome":"`+outcome+`","git_head":"abc123"}]}`)
+		validationResults = `[{"id":"payments/retry-effect","module":"payments","check":"retry-effect","evidence_class":"integration","outcome":"` + outcome + `","git_head":"abc123"}]`
 	}
-	return Store{Root: root}
+	outputs["delivery-integrity.json"] = []byte(`{"schema_version":1,"input_digest":"sha256:x","nodes":[],"edges":[],"claims":[],"change_sets":[],"reverse":{},"findings":[],"validation_results":` + validationResults + `}`)
+	inputs := IndexInputBindingsIn(NativeFiles(), root)
+	for _, name := range IndexInputNames {
+		if strings.TrimSpace(inputs[name]) == "" {
+			t.Fatalf("falsifier fixture did not bind current index input %q", name)
+		}
+	}
+	if _, err := store.PublishIndexGeneration(outputs, inputs); err != nil {
+		t.Fatalf("publish bound falsifier fixture generation: %v", err)
+	}
+	return store
 }
 
 func reconsiderations(t *testing.T, s Store) []Obligation {
@@ -95,13 +107,6 @@ func TestAFailedFalsifierCheckRaisesAReconsiderationCandidate(t *testing.T) {
 func TestAPassingOrAbsentObservationRaisesNothingAndTheDecisionIsKept(t *testing.T) {
 	for _, outcome := range []string{"pass", ""} {
 		s := falsifierFixture(t, outcome)
-		if outcome == "" {
-			// No index yet: the producer must not fail when no result exists.
-			if err := os.MkdirAll(filepath.Join(s.Root, ".pose/indexes"), 0o755); err != nil {
-				t.Fatal(err)
-			}
-			_ = os.WriteFile(filepath.Join(s.Root, ".pose/indexes/delivery-integrity.json"), []byte(`{"schema_version":1,"input_digest":"sha256:x","nodes":[],"edges":[],"claims":[],"change_sets":[],"reverse":{},"findings":[]}`), 0o644)
-		}
 		if got := reconsiderations(t, s); len(got) != 0 {
 			t.Fatalf("outcome %q raised a candidate: %+v", outcome, got)
 		}

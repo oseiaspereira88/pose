@@ -1,7 +1,6 @@
 package pose
 
 import (
-	"os"
 	"strings"
 )
 
@@ -64,7 +63,7 @@ func (s Store) falsifierObligations(project string, specs []Spec) ([]Obligation,
 		if sp.Status == "superseded" || sp.Status == "abandoned" {
 			continue
 		}
-		raw, err := os.ReadFile(sp.Path)
+		raw, err := s.fsys().ReadFile(sp.Path)
 		if err != nil {
 			return nil, err
 		}

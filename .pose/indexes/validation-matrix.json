@@ -311,6 +311,22 @@
       "stack": "go",
       "checks": [
         {
+          "name": "governance-read-view-integration",
+          "program": "go",
+          "args": [
+            "test",
+            "-race",
+            "./internal/pose",
+            "./internal/cli",
+            "./internal/mcpserver",
+            "-run",
+            "ReadView|GovernanceWriteGuard|ReviewOperationView|IndexGeneration|IndexFederatedMaterial|ModuleDiscoveryBinding|ValidationResultsBinding|SmokeResultsBinding|ReleaseStatusBinding|ValidateCanonicalResult|ReleaseStatusUsesCapturedTagObjectAfterRefMoves|LegacyDoneCloseout|TerminalVerification",
+            "-count=1"
+          ],
+          "severity": "required",
+          "evidenceClass": "integration"
+        },
+        {
           "name": "release-review-archive-integration",
           "program": "go",
           "args": [

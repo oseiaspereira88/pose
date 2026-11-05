@@ -27,6 +27,7 @@ func reachedMilestoneFixture(t *testing.T) string {
 	writeCloseoutCLIFile(t, root, ".pose/roadmaps/program.md", "---\nslug: program\nstatus: active\n---\n\n## Milestone: first\n- specs: bundle, extra\n\n## Milestone: second\n- after: first\n- specs: waiting\n")
 	artifactGit(t, root, "add", "-A")
 	artifactGit(t, root, "-c", "user.name=fixture", "-c", "user.email=fixture@example.invalid", "-c", "commit.gpgsign=false", "commit", "-qm", "program")
+	publishReviewCLIIndexFixture(t, root)
 	return root
 }
 
@@ -52,6 +53,7 @@ func TestCloseOfAnInheritingMilestonesSpecNamesTheRoadmap(t *testing.T) {
 	writeCloseoutCLIFile(t, root, ".pose/roadmaps/program.md", "---\nslug: program\nstatus: active\n---\n\n## Milestone: first\n- specs: bundle\n")
 	artifactGit(t, root, "add", "-A")
 	artifactGit(t, root, "-c", "user.name=fixture", "-c", "user.email=fixture@example.invalid", "-c", "commit.gpgsign=false", "commit", "-qm", "one member")
+	publishReviewCLIIndexFixture(t, root)
 	code, out := runPose(t, root, "close", "spec:bundle", "--apply", "--reviewer", "agent:closeout-reviewer")
 	if code != 0 {
 		t.Fatalf("close %d %s", code, out)
@@ -70,10 +72,12 @@ func TestCloseOfTheLastMilestoneNamesTheRoadmap(t *testing.T) {
 	writeCloseoutCLIFile(t, root, ".pose/roadmaps/program.md", "---\nslug: program\nstatus: active\n---\n\n## Milestone: first\n- specs: bundle\n")
 	writeCloseoutCLIFile(t, root, ".pose/indexes/validation-matrix.json", `{"defaults":{"mode":"strict"},"deliveryProfiles":{"api-contract":{"kind":"contract","requiredEvidenceClasses":["integration","unit"]}}}`)
 	commit("one milestone")
+	publishReviewCLIIndexFixture(t, root)
 	if code, out := runPose(t, root, "close", "spec:bundle", "--apply", "--reviewer", "agent:closeout-reviewer"); code != 0 {
 		t.Fatalf("close spec %d %s", code, out)
 	}
 	commit("closeout")
+	publishReviewCLIIndexFixture(t, root)
 	var sealed posemodel.ReviewBundle
 	if code, out := runPoseJSON(t, root, &sealed, "review", "bundle", "milestone:program/first", "--seal", "--json"); code != 0 {
 		t.Fatalf("seal %d %s", code, out)

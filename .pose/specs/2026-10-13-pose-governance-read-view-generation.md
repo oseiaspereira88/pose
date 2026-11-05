@@ -49,7 +49,6 @@ O ADR B34 deve ser aceito antes de alterar o contrato. A leitura continua útil 
 Paths abaixo declaram o escopo da implementação em andamento. A atribuição Git e os resultados executados devem ser reconciliados antes do fechamento; a declaração de um path não prova sua entrega. O start nativo está registrado em `3565be8a`.
 
 - modified: .pose/specs/2026-10-13-pose-governance-read-view-generation.md
-- created: .pose/specs/2026-10-13-pose-governance-read-view-generation.amendments.jsonl
 - created: .pose/adr/2026-11-03-governance-reads-use-bounded-operation-scoped-views.md
 - created: .pose/starts/pose-governance-read-view-generation.json
 - created: .pose/changelogs/unreleased/pose-governance-read-view-generation.md
@@ -59,14 +58,12 @@ Paths abaixo declaram o escopo da implementação em andamento. A atribuição G
 - created: pose-mcp/internal/pose/governance_read_view_probe_test.go
 - created: pose-mcp/internal/pose/governance_write_guard.go
 - created: pose-mcp/internal/pose/governance_write_guard_test.go
-- modified: pose-mcp/internal/pose/writer_publication.go
 - modified: pose-mcp/internal/pose/operation_files.go
 - modified: pose-mcp/internal/pose/index_generation.go
 - modified: pose-mcp/internal/pose/spec_transfer_locks.go
 - modified: pose-mcp/internal/pose/spec.go
 - modified: pose-mcp/internal/pose/obligation_projection.go
 - modified: pose-mcp/internal/pose/obligation_projection_test.go
-- modified: pose-mcp/internal/pose/obligation_sources.go
 - modified: pose-mcp/internal/pose/review_operation_view.go
 - modified: pose-mcp/internal/pose/review_operation_view_test.go
 - modified: pose-mcp/internal/pose/review_bundle.go
@@ -75,11 +72,8 @@ Paths abaixo declaram o escopo da implementação em andamento. A atribuição G
 - modified: pose-mcp/internal/pose/start_test.go
 - modified: pose-mcp/internal/pose/action_request.go
 - modified: pose-mcp/internal/pose/action_resolution.go
-- modified: pose-mcp/internal/pose/operation_result.go
 - modified: pose-mcp/internal/cli/check.go
-- modified: pose-mcp/internal/cli/state_attention.go
 - created: pose-mcp/internal/cli/governance_read_view_test.go
-- modified: pose-mcp/internal/mcpserver/obligations_test.go
 - created: pose-mcp/internal/mcpserver/governance_read_view_parity_test.go
 - modified: pose-mcp/internal/mcpserver/testdata/tool-catalog.golden.json
 - modified: pose-mcp/internal/mcpserver/server.go
@@ -157,6 +151,40 @@ Paths abaixo declaram o escopo da implementação em andamento. A atribuição G
 - modified: pose-mcp/internal/pose/review_run_continuity.go
 - modified: pose-mcp/internal/pose/review_run_provenance.go
 - created: pose-mcp/internal/pose/review_write_scope.go
+- modified: pose-mcp/internal/cli/adversarial_corpus_gates_test.go
+- modified: pose-mcp/internal/cli/artifact_integrity.go
+- modified: pose-mcp/internal/cli/artifact_ref_test.go
+- modified: pose-mcp/internal/cli/check_verdict_mode_test.go
+- modified: pose-mcp/internal/cli/closeout_names_missing_trailer_test.go
+- modified: pose-mcp/internal/cli/closeout_terminal_verification_test.go
+- modified: pose-mcp/internal/cli/delegated_verdicts_test.go
+- modified: pose-mcp/internal/cli/delivery_later_removal_gaps_test.go
+- modified: pose-mcp/internal/cli/governance_operation_performance_test.go
+- modified: pose-mcp/internal/cli/governed_effects_test.go
+- created: pose-mcp/internal/cli/index_generation_build.go
+- created: pose-mcp/internal/cli/index_generation_build_test.go
+- modified: pose-mcp/internal/cli/milestone_closes_when_reached_test.go
+- modified: pose-mcp/internal/cli/operation_results_test.go
+- modified: pose-mcp/internal/cli/review_closeout_test.go
+- modified: pose-mcp/internal/cli/review_domain_preflight_test.go
+- modified: pose-mcp/internal/cli/testdata/adversarial/README.md
+- modified: pose-mcp/internal/cli/update_preview_test.go
+- created: pose-mcp/internal/mcpserver/default_root_read_view_test.go
+- modified: pose-mcp/internal/pose/diagnostic_codes.go
+- modified: pose-mcp/internal/pose/diagnostic_codes_test.go
+- modified: pose-mcp/internal/pose/falsifier_observation_test.go
+- modified: pose-mcp/internal/pose/federated_acceptance.go
+- created: pose-mcp/internal/pose/governance_read_view_capture.go
+- created: pose-mcp/internal/pose/governance_read_view_capture_test.go
+- created: pose-mcp/internal/pose/index_federated_material.go
+- created: pose-mcp/internal/pose/index_federated_material_test.go
+- modified: pose-mcp/internal/pose/milestone_closes_when_reached_test.go
+- modified: pose-mcp/internal/pose/milestone_review_proportional_test.go
+- modified: pose-mcp/internal/pose/operation_files_test.go
+- modified: pose-mcp/internal/pose/readiness.go
+- created: pose-mcp/internal/pose/review_current_fixture_test.go
+- modified: pose-mcp/internal/pose/review_plan_test.go
+- created: pose-mcp/internal/pose/review_read_view_retention_test.go
 
 ### Delivery targets
 
@@ -277,6 +305,14 @@ clone atual, cujo lifecycle veio da base draft. Um novo start nativo será
 prospectivo, posterior à recuperação, sem declarar precedência sobre o código
 recuperado. Nenhum resultado histórico foi promovido a evidência atual.
 
+Atualização de 2026-11-05: o novo start prospectivo foi aplicado e registrado em
+`b2eb2d34`. A seleção focada de 140 testes/subtestes, `go vet` e o conjunto B34
+com race detector passaram. A segunda suíte completa aprovou domínio e MCP;
+duas negativas CLI ainda supunham que modo 0444 impedia substituição atômica.
+As fixtures passaram a recusar a publicação na fronteira B14; seus quatro
+controles positivos/negativos passaram depois do ajuste. A validação completa
+atual será registrada pela matriz nativa no commit de implementação.
+
 ### Requirement trace
 
 | Requisito | Casos planejados |
@@ -296,7 +332,7 @@ recuperado. Nenhum resultado histórico foi promovido a evidência atual.
 
 ### Delivered scope
 
-O código e o ADR aceito foram recuperados em clone persistente. Núcleo de captura, projeção, divulgação CLI/MCP, geração de índices e coordenação dos escritores estão em validação. A compilação atual passou; a primeira seleção atual ainda apresentou seis falhas CLI. Nenhum requisito R1–R10 está qualificado nesta edição. Correções, suíte completa, testes de concorrência, revisão final e gates de closeout permanecem pendentes. Os relatos de start anteriores são históricos; consulte o checkpoint de recuperação para o estado dos registros nativos.
+O código e o ADR aceito foram recuperados em clone persistente. Compilação, regressões focadas, vet e race passaram. A matriz nativa completa, a revisão final e os gates de closeout ainda precisam qualificar o commit atual; nenhum requisito R1–R10 é declarado satisfeito nesta edição. Os relatos de start anteriores são históricos, e o novo start registra somente a continuidade prospectiva; consulte o checkpoint de recuperação.
 
 ### Residual risks
 

@@ -51,6 +51,8 @@ var DiagnosticCatalog = map[string]struct {
 	"milestone-reached":               {DiagnosticCloseout, "the milestone is approved and closed"},
 	"external-member-unaccepted":      {DiagnosticCloseout, "federated acceptance of the external member"},
 	"federated-acceptance-blocker":    {DiagnosticCloseout, "the federated acceptance blocker is resolved at its source"},
+	"governance-read-view-unknown":    {DiagnosticCloseout, "the current governance inputs are proven stable before a new transition, or a historical terminal result is disclosed with its unknown-view limitation"},
+	"verify-governance-read-view":     {DiagnosticCloseout, "the operation's governance input closure can be verified as current"},
 	"review-criterion-owed":           {DiagnosticStart, "the criterion is answered at closeout review"},
 	"action-request-pending":          {DiagnosticCloseout, "the action request receives a satisfying answer from its authority, or is waived"},
 }

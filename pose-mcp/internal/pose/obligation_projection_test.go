@@ -177,7 +177,11 @@ func TestSnapshotChangesInvalidateAnEarlierAnswer(t *testing.T) {
 	}
 	_ = os.WriteFile(filepath.Join(s.Root, ".pose/policy/review.json"), []byte(`{"schema_version":2,"enabled":true,"profiles":{"spec":"spec-closeout@1"}}`), 0o644)
 	changed := s.ObligationSnapshotChanges(snap)
-	if len(changed) == 0 || changed[0] != "policy" {
+	policyChanged := false
+	for _, item := range changed {
+		policyChanged = policyChanged || item == "policy"
+	}
+	if !policyChanged {
 		t.Fatalf("a policy change was not detected: %v", changed)
 	}
 	// R5/R7: the authority context the answer was computed under is bound

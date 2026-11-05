@@ -2,6 +2,8 @@ package pose
 
 import (
 	"encoding/json"
+	"errors"
+	"fmt"
 	"os"
 	"path/filepath"
 	"strings"
@@ -35,6 +37,61 @@ func catalogFixture(t *testing.T) string {
 		write(".pose/review-profiles/"+profile+".json", `{"schema_version":2,"id":"`+profile+`","version":1,"scope":"spec","selectors":{"languages":["go"]},"criteria":[{"id":"c","kind":"judgment","description":"d"}]}`)
 	}
 	return root
+}
+
+func TestGovernanceWriteGuardPolicyDocsFencesReviewAndStartPolicy(t *testing.T) {
+	root := catalogFixture(t)
+	store := Store{Root: root}
+	docs, err := LoadPolicyDocs(root)
+	if err != nil {
+		t.Fatal(err)
+	}
+	docs.DoR["adopted_at"] = "2026-11-03"
+	path := filepath.Join(root, ".pose", "policy", "dor.json")
+	before, err := os.ReadFile(path)
+	if err != nil {
+		t.Fatal(err)
+	}
+	err = WithGovernanceWriteGuard("test.hold-policy-root", []Store{store}, func([]Store) error {
+		writeErr := docs.Write(root, store)
+		if !errors.Is(writeErr, ErrGovernanceWriteGuardBusy) {
+			return fmt.Errorf("policy write under root contention = %v, want busy", writeErr)
+		}
+		after, readErr := os.ReadFile(path)
+		if readErr != nil {
+			return readErr
+		}
+		if string(after) != string(before) {
+			return errors.New("policy changed after root-guard refusal")
+		}
+		return nil
+	})
+	if err != nil {
+		t.Fatal(err)
+	}
+}
+
+func TestGovernanceWriteGuardPolicyDocsRejectsMismatchedRootBeforePublish(t *testing.T) {
+	root := catalogFixture(t)
+	other := catalogFixture(t)
+	docs, err := LoadPolicyDocs(root)
+	if err != nil {
+		t.Fatal(err)
+	}
+	docs.DoR["adopted_at"] = "2026-11-03"
+	path := filepath.Join(root, ".pose", "policy", "dor.json")
+	before, err := os.ReadFile(path)
+	if err != nil {
+		t.Fatal(err)
+	}
+	err = docs.Write(root, Store{Root: other})
+	if !errors.Is(err, ErrGovernanceWriteGuardRootBinding) {
+		t.Fatalf("mismatched root = %v, want root-binding refusal", err)
+	}
+	after, err := os.ReadFile(path)
+	if err != nil || string(after) != string(before) {
+		t.Fatalf("policy changed after mismatched-root refusal: %v", err)
+	}
 }
 
 func TestCapabilityCatalogDescribesEveryEntry(t *testing.T) {

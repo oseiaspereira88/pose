@@ -3,7 +3,6 @@ package pose
 import (
 	"crypto/sha256"
 	"encoding/hex"
-	"os"
 	"path/filepath"
 	"regexp"
 	"strings"
@@ -167,7 +166,7 @@ func (s Store) premiseObligations(project string, specs []Spec) ([]Obligation, e
 		if sp.Status != "in-progress" && sp.Status != "draft" && sp.Status != "done" {
 			continue
 		}
-		raw, err := os.ReadFile(sp.Path)
+		raw, err := s.fsys().ReadFile(sp.Path)
 		if err != nil {
 			return nil, err
 		}

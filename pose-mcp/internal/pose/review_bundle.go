@@ -925,7 +925,7 @@ func (s Store) reviewBundleRangeObservations(ids []string, graph DeliveryIntegri
 			observation.State = "unknown"
 			observation.Reason = "the change set resolves no immutable range to count against"
 		default:
-			count, err := gitRevListCount(s.Root, set.ResolvedBase, set.ResolvedHead)
+			count, err := gitRevListCountIn(s.fsys(), s.Root, "review", set.ResolvedBase, set.ResolvedHead)
 			switch {
 			case err != nil:
 				observation.State = "unknown"
@@ -959,11 +959,12 @@ func rangeUnattributedOwners(files Files, root string, set ChangeSet) ([]string,
 		attributed[commit] = true
 	}
 	var out bytes.Buffer
-	cmd := gitCommand("-C", root, "log", "--no-color", "--format=%x01%H%n%B%x02", ChangeSetRange(set.ResolvedBase, set.ResolvedHead), "--")
-	cmd.Stdout = &limitedWriter{buf: &out, limit: reviewAttributionMaxBytes}
-	if cmd.Run() != nil {
+	producer := governanceProducerFromFiles(files, "review")
+	raw, err := captureGovernanceGit(files, root, producer, "log", "--no-color", "--format=%x01%H%n%B%x02", ChangeSetRange(set.ResolvedBase, set.ResolvedHead), "--")
+	if err != nil || len(raw) > reviewAttributionMaxBytes {
 		return nil, 0
 	}
+	out.Write(raw)
 	specs := []string{}
 	untrailed := 0
 	for _, chunk := range strings.Split(out.String(), "\x01") {
@@ -994,6 +995,15 @@ func rangeUnattributedOwners(files Files, root string, set ChangeSet) ([]string,
 
 func gitRevListCount(root, base, head string) (int, error) {
 	out, err := gitCommand("-C", root, "rev-list", "--count", ChangeSetRange(base, head), "--").Output()
+	if err != nil {
+		return 0, err
+	}
+	return strconv.Atoi(strings.TrimSpace(string(out)))
+}
+
+func gitRevListCountIn(files Files, root, producer, base, head string) (int, error) {
+	producer = governanceProducerFromFiles(files, producer)
+	out, err := captureGovernanceGit(files, root, producer, "rev-list", "--count", ChangeSetRange(base, head), "--")
 	if err != nil {
 		return 0, err
 	}
@@ -1084,9 +1094,13 @@ func reviewBundleGitlinksIn(files Files, root string, paths []string) map[string
 	if len(paths) == 0 {
 		return links
 	}
-	args := append([]string{"-C", root, "ls-files", "--stage", "--"}, paths...)
-	out, err := gitCommand(args...).Output()
+	args := append([]string{"ls-files", "--stage", "--"}, paths...)
+	producer := governanceProducerFromFiles(files, "review")
+	out, err := captureGovernanceGit(files, root, producer, args...)
 	if err != nil {
+		if hasGitMetadataIn(FilesOrNative(files), root) {
+			markGovernanceReadUnknownForProject(files, root, "", producer, "Git index entries could not be read while classifying review inputs")
+		}
 		// Unit fixtures and exported source trees may not have Git metadata. A
 		// path that cannot be resolved keeps its shape-based class and fails
 		// closed downstream if it has no readable content.
@@ -1112,7 +1126,7 @@ func reviewBundleGitlinks(root string, paths []string) map[string]string {
 }
 
 func reviewBundleWorkingTreeChangeIn(files Files, root, path string) (bool, string) {
-	entries, err := ReadGitStatusIn(files, root, path)
+	entries, err := readGitStatusGovernedIn(files, root, "review", path)
 	if errors.Is(err, ErrGitUnavailable) {
 		// Unit fixtures and exported source trees may not have Git metadata. The
 		// immutable change-set gate remains authoritative there.
@@ -1406,7 +1420,9 @@ func (s Store) removalWitnessStale(path string, graph DeliveryIntegrityGraph, ow
 }
 
 func (s Store) removalCommitStale(path, commit string) string {
-	err := RawHistoryGit(s.Root, "merge-base", "--is-ancestor", commit, "HEAD").Run()
+	files := s.fsys()
+	producer := governanceProducerFromFiles(files, "review")
+	_, err := captureGovernanceGit(files, s.Root, producer, "merge-base", "--is-ancestor", commit, "HEAD")
 	var exit *exec.ExitError
 	if errors.As(err, &exit) && exit.ExitCode() == 1 {
 		return "its deleting commit " + commit + " is not on HEAD"
@@ -1414,7 +1430,7 @@ func (s Store) removalCommitStale(path, commit string) string {
 	if err != nil {
 		return "its deleting commit " + commit + " cannot be read: " + err.Error()
 	}
-	out, err := RawHistoryGit(s.Root, "--literal-pathspecs", "rev-list", "-1", "--full-history", commit+"..HEAD", "--", path).Output()
+	out, err := captureGovernanceGit(files, s.Root, producer, "--literal-pathspecs", "rev-list", "-1", "--full-history", commit+"..HEAD", "--", path)
 	if err != nil {
 		return "the history after its deleting commit " + commit + " cannot be read: " + err.Error()
 	}
@@ -1422,7 +1438,7 @@ func (s Store) removalCommitStale(path, commit string) string {
 		return "commit " + later + " touches it after its deleting commit " + commit
 	}
 	// An empty answer proves nothing about history a shallow clone lacks.
-	shallow, err := RawHistoryGit(s.Root, "rev-parse", "--is-shallow-repository").Output()
+	shallow, err := captureGovernanceGit(files, s.Root, producer, "rev-parse", "--is-shallow-repository")
 	if err != nil {
 		return "the history after its deleting commit " + commit + " cannot be read: " + err.Error()
 	}
@@ -1475,13 +1491,15 @@ func (s Store) reviewBundleCommitChangedPath(commit, path string) bool {
 			return false
 		}
 	}
-	paths, ok := commitChangedPaths(s.Root, commit)
+	paths, ok := commitChangedPathsGovernedIn(s.fsys(), s.Root, "review", commit)
 	return ok && paths[path]
 }
 
 func (s Store) reviewBundleCommittedArchive(rel string) bool {
+	files := s.fsys()
+	producer := governanceProducerFromFiles(files, "review")
 	path := filepath.Join(s.Root, filepath.FromSlash(rel))
-	resolved, err := s.fsys().EvalSymlinks(path)
+	resolved, err := files.EvalSymlinks(path)
 	if err != nil {
 		return false
 	}
@@ -1489,14 +1507,17 @@ func (s Store) reviewBundleCommittedArchive(rel string) bool {
 	if err != nil || inside == ".." || strings.HasPrefix(inside, ".."+string(os.PathSeparator)) {
 		return false
 	}
-	if dirty, _ := reviewBundleWorkingTreeChangeIn(s.fsys(), s.Root, rel); dirty {
+	if dirty, _ := reviewBundleWorkingTreeChangeIn(files, s.Root, rel); dirty {
 		return false
 	}
-	committed, err := gitCommand("-C", s.Root, "show", "HEAD:"+rel).Output()
+	committed, err := captureGovernanceGit(files, s.Root, producer, "show", "HEAD:"+rel)
 	if err != nil {
+		if hasGitMetadataIn(files, s.Root) {
+			markGovernanceReadUnknownForProject(files, s.Root, "", producer, "archived review input could not be checked against HEAD")
+		}
 		return false
 	}
-	raw, err := s.fsys().ReadFile(path)
+	raw, err := files.ReadFile(path)
 	return err == nil && bytes.Equal(raw, committed)
 }
 
@@ -2021,6 +2042,16 @@ func (s Store) SealReviewBundle(ref string, now time.Time) (ReviewBundle, error)
 // sealed with: a reviewer resealing to close out never becomes the
 // implementation. Only a declared lead that names another identity seals anew.
 func (s Store) SealReviewBundleLead(ref, lead string, now time.Time) (ReviewBundle, error) {
+	var result ReviewBundle
+	err := s.withReviewBundleWriteGuard("review.bundle.seal", ref, func(guarded Store, _ ReviewBundle) error {
+		var err error
+		result, err = guarded.sealReviewBundleLead(ref, lead, now)
+		return err
+	})
+	return result, err
+}
+
+func (s Store) sealReviewBundleLead(ref, lead string, now time.Time) (ReviewBundle, error) {
 	identity, warning, err := s.SealingIdentity(lead)
 	if err != nil {
 		return ReviewBundle{}, err
@@ -2108,7 +2139,14 @@ func (s Store) sealReviewBundle(ref string, identity *ReviewBundleImplementation
 		return ReviewBundle{}, err
 	}
 	raw = append(raw, '\n')
-	if err := writeImmutableJSON(path, raw); err != nil {
+	if err := writeImmutableJSONIn(s.fsys(), path, raw); err != nil {
+		var durability *PublishDurabilityError
+		if errors.As(err, &durability) {
+			// The publisher reports this error only after the immutable name is
+			// visible. Return the committed identity with the error so operation
+			// receipts can distinguish it from a failed publication.
+			return bundle, err
+		}
 		return ReviewBundle{}, err
 	}
 	return bundle, nil
@@ -2256,37 +2294,23 @@ func (s Store) SealingIdentity(lead string) (ReviewBundleImplementation, string,
 }
 
 func writeImmutableJSON(path string, raw []byte) error {
+	return writeImmutableJSONIn(NativeFiles(), path, raw)
+}
+
+func writeImmutableJSONIn(files Files, path string, raw []byte) error {
 	if len(raw) > maxReviewBundleBytes {
 		return fmt.Errorf("pose: review artifact exceeds %d bytes", maxReviewBundleBytes)
 	}
-	tmp, err := os.CreateTemp(filepath.Dir(path), ".pose-review-*.tmp")
-	if err != nil {
+	if err := files.MkdirAll(filepath.Dir(path), 0o755); err != nil {
 		return err
 	}
-	tmpPath := tmp.Name()
-	defer os.Remove(tmpPath)
-	if err := tmp.Chmod(0o644); err != nil {
-		_ = tmp.Close()
-		return err
-	}
-	if _, err := tmp.Write(raw); err != nil {
-		_ = tmp.Close()
-		return err
-	}
-	if err := tmp.Sync(); err != nil {
-		_ = tmp.Close()
-		return err
-	}
-	if err := tmp.Close(); err != nil {
-		return err
-	}
-	if err := os.Link(tmpPath, path); err != nil {
-		if os.IsExist(err) {
+	if err := files.Publish(path, raw, 0o644, PublishAuthoritative, PublishExpectation{Mode: ExpectAbsent}); err != nil {
+		if errors.Is(err, ErrPublishConflict) {
 			return fmt.Errorf("pose: immutable review artifact already exists: %s", filepath.Base(path))
 		}
 		return err
 	}
-	return os.Remove(tmpPath)
+	return nil
 }
 
 func strictJSONFileIn(files Files, path string, target any) error {
@@ -2478,6 +2502,11 @@ func attributeLoss(loss SourceLoss, raw []byte, path ...string) SourceLoss {
 // record that does not parse is attributed to the scope its readable prefix names; one
 // that names none is unattributed, and may be a bundle of any scope.
 func (s Store) ReadReviewBundles(scope string) (ReviewBundlesRead, error) {
+	var err error
+	s, err = s.prepareReviewOperationRead()
+	if err != nil {
+		return ReviewBundlesRead{}, err
+	}
 	coverage := SourceCoverage{Losses: []SourceLoss{}}
 	dir, err := ensureReviewArtifactDirIn(s.fsys(), s.Root, filepath.ToSlash(filepath.Join(".pose", "review-bundles")), false)
 	if err != nil && scope != "" && s.reviewView != nil {
@@ -2654,6 +2683,10 @@ func (s Store) matchSealedReviewBundle(scope string, prepared ReviewBundle, bund
 // collection half of that was always useful and is kept; the approval half is
 // what this stops doing (spec pose-abm-review-soundness).
 func (s Store) AutoAttestReviewBundle(bundleID, reviewer string, apply bool, now time.Time) (ReviewAttestation, error) {
+	return s.autoAttestReviewBundle(bundleID, reviewer, apply, now)
+}
+
+func (s Store) autoAttestReviewBundle(bundleID, reviewer string, apply bool, now time.Time) (ReviewAttestation, error) {
 	prepared, err := s.PrepareReviewAttestation(bundleID, reviewer, now)
 	if err != nil {
 		return ReviewAttestation{}, err
@@ -2892,7 +2925,13 @@ func (s Store) prepareReviewAttestation(bundleID, reviewer string, now time.Time
 
 // RecordReviewAttestation appends an immutable decision for one sealed bundle.
 func (s Store) RecordReviewAttestation(att ReviewAttestation, now time.Time) (ReviewAttestation, error) {
-	return s.recordReviewAttestation(att, now, false)
+	var result ReviewAttestation
+	err := s.withReviewAttestationWriteGuard("review.attestation.record", att, func(guarded Store) error {
+		var err error
+		result, err = guarded.recordReviewAttestation(att, now, false)
+		return err
+	})
+	return result, err
 }
 
 func (s Store) recordReviewAttestation(att ReviewAttestation, now time.Time, signed bool) (ReviewAttestation, error) {
@@ -2936,7 +2975,11 @@ func (s Store) recordReviewAttestation(att ReviewAttestation, now time.Time, sig
 	if err != nil {
 		return ReviewAttestation{}, err
 	}
-	if err := writeImmutableJSON(path, append(raw, '\n')); err != nil {
+	if err := writeImmutableJSONIn(s.fsys(), path, append(raw, '\n')); err != nil {
+		var durability *PublishDurabilityError
+		if errors.As(err, &durability) {
+			return att, err
+		}
 		return ReviewAttestation{}, err
 	}
 	return att, nil
@@ -3021,11 +3064,19 @@ func (s Store) SignableReviewAttestation(att ReviewAttestation, now time.Time) (
 // with apply, records the attestation it carries: the path both
 // `pose review attest --envelope` and the MCP tool take.
 func (s Store) RecordReviewAttestationEnvelope(envelope ReviewAttestationEnvelope, apply bool) (ReviewAttestation, error) {
-	attestation, err := s.VerifyReviewAttestationEnvelope(envelope)
-	if err != nil || !apply {
-		return attestation, err
+	if !apply {
+		return s.VerifyReviewAttestationEnvelope(envelope)
 	}
-	return s.recordReviewAttestation(attestation, s.reviewClock(), true)
+	var result ReviewAttestation
+	err := s.withReviewAttestationWriteGuard("review.attestation.envelope", envelope.Attestation, func(guarded Store) error {
+		attestation, err := guarded.VerifyReviewAttestationEnvelope(envelope)
+		if err != nil {
+			return err
+		}
+		result, err = guarded.recordReviewAttestation(attestation, guarded.reviewClock(), true)
+		return err
+	})
+	return result, err
 }
 
 // ErrReviewApprovalRefused classifies a ReviewApprovalRefusal for errors.Is.
@@ -3151,15 +3202,53 @@ func (s Store) VerifyReviewAttestationEnvelope(envelope ReviewAttestationEnvelop
 }
 
 func (s Store) ImportReviewAttestationEnvelope(rel string, apply bool) (ReviewAttestation, error) {
-	if err := ValidateArtifactPathIn(s.fsys(), s.Root, rel, false); err != nil {
-		return ReviewAttestation{}, fmt.Errorf("pose: invalid attestation envelope path: %w", err)
+	readEnvelope := func(store Store) (ReviewAttestationEnvelope, error) {
+		if err := ValidateArtifactPathIn(store.fsys(), store.Root, rel, false); err != nil {
+			return ReviewAttestationEnvelope{}, fmt.Errorf("pose: invalid attestation envelope path: %w", err)
+		}
+		clean, _ := validateArtifactPathSyntax(rel)
+		var envelope ReviewAttestationEnvelope
+		if err := strictJSONFileIn(store.fsys(), filepath.Join(store.Root, clean), &envelope); err != nil {
+			return ReviewAttestationEnvelope{}, fmt.Errorf("pose: reading review attestation envelope: %w", err)
+		}
+		return envelope, nil
 	}
-	clean, _ := validateArtifactPathSyntax(rel)
-	var envelope ReviewAttestationEnvelope
-	if err := strictJSONFileIn(s.fsys(), filepath.Join(s.Root, clean), &envelope); err != nil {
-		return ReviewAttestation{}, fmt.Errorf("pose: reading review attestation envelope: %w", err)
+	if !apply {
+		envelope, err := readEnvelope(s)
+		if err != nil {
+			return ReviewAttestation{}, err
+		}
+		return s.RecordReviewAttestationEnvelope(envelope, false)
 	}
-	return s.RecordReviewAttestationEnvelope(envelope, apply)
+	preflight, err := readEnvelope(s)
+	if err != nil {
+		return ReviewAttestation{}, err
+	}
+	lockedProjects, err := s.reviewAttestationProjectSet(preflight.Attestation)
+	if err != nil {
+		return ReviewAttestation{}, err
+	}
+	var result ReviewAttestation
+	err = s.withExplicitGovernanceWriteGuard("review.attestation.import", governanceProjectIDs(lockedProjects), func(guarded Store) error {
+		freshEnvelope, err := readEnvelope(guarded)
+		if err != nil {
+			return err
+		}
+		observedProjects, err := guarded.reviewAttestationProjectSet(freshEnvelope.Attestation)
+		if err != nil {
+			return err
+		}
+		if err := requireSameGovernanceProjectSet("review.attestation.import", lockedProjects, observedProjects); err != nil {
+			return err
+		}
+		attestation, err := guarded.VerifyReviewAttestationEnvelope(freshEnvelope)
+		if err != nil {
+			return err
+		}
+		result, err = guarded.recordReviewAttestation(attestation, guarded.reviewClock(), true)
+		return err
+	})
+	return result, err
 }
 
 func (s Store) LoadReviewAttestation(id string) (ReviewAttestation, error) {
@@ -4452,12 +4541,20 @@ func (s Store) sameRoadmapApartFromLifecycle(identity ArtifactRef, from, to stri
 		return false
 	}
 	rel = filepath.ToSlash(rel)
-	then, err := gitCommand("-C", s.Root, "show", from+":"+rel).Output()
+	files := s.fsys()
+	producer := governanceProducerFromFiles(files, "review")
+	then, err := captureGovernanceGit(files, s.Root, producer, "show", from+":"+rel)
 	if err != nil {
+		if hasGitMetadataIn(files, s.Root) {
+			markGovernanceReadUnknownForProject(files, s.Root, "", producer, "the earlier roadmap revision could not be read from Git")
+		}
 		return false
 	}
-	now, err := gitCommand("-C", s.Root, "show", to+":"+rel).Output()
+	now, err := captureGovernanceGit(files, s.Root, producer, "show", to+":"+rel)
 	if err != nil {
+		if hasGitMetadataIn(files, s.Root) {
+			markGovernanceReadUnknownForProject(files, s.Root, "", producer, "the later roadmap revision could not be read from Git")
+		}
 		return false
 	}
 	return bytes.Equal(then, now) || roadmapClosedBetween(string(then), string(now))

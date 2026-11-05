@@ -144,6 +144,11 @@ func (s Store) GetSpec(slug string) (*Spec, error) {
 	if err := ValidateSlug(slug); err != nil {
 		return nil, err
 	}
+	var err error
+	s, err = s.prepareReviewOperationRead()
+	if err != nil {
+		return nil, err
+	}
 	if sp, handled, err := s.reviewViewSpec(slug); handled {
 		return sp, err
 	}
@@ -199,6 +204,11 @@ func (s Store) readListedSpec(match Spec) (*Spec, error) {
 // metadata fail the whole operation, never selecting an arbitrary match.
 // This read is not an authorization snapshot: write gates must still revalidate.
 func (s Store) VisitSpecs(visit func(Spec) error) ([]Spec, error) {
+	var err error
+	s, err = s.prepareReviewOperationRead()
+	if err != nil {
+		return nil, err
+	}
 	// A prior store snapshot is unsuitable for a new capture of current inputs.
 	specs, err := s.listSpecs("", "")
 	if err != nil {
@@ -263,6 +273,11 @@ func (s Store) VisitSpecs(visit func(Spec) error) ([]Spec, error) {
 // preserving the pre-existing behavior for callers that only care about
 // status.
 func (s Store) ListSpecs(status, components string) ([]Spec, error) {
+	var err error
+	s, err = s.prepareReviewOperationRead()
+	if err != nil {
+		return nil, err
+	}
 	if specs, handled, err := s.reviewViewSpecs(status, components); handled {
 		return specs, err
 	}
