@@ -1,6 +1,6 @@
 ---
 slug: pose-governance-read-view-generation
-status: draft
+status: in-progress
 created_at: 2026-10-13
 completed_at:
 depends_on: pose-source-coverage-integrity, pose-git-and-dispatch-snapshot-integrity, pose-writer-coordination-and-atomic-publication, pose-index-generation-integrity, pose-obligation-projection, pose-spec-authority-transfer
