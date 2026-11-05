@@ -103,8 +103,8 @@ ATTEST="${ATTEST/#pose /\"$BIN\" }"
 eval "$ATTEST" >/dev/null 2>&1 || fail "the printed attest command for the onboarding spec was refused: $ATTEST"
 out="$("$BIN" close spec:pose-onboarding --resume 2>&1)" || fail "closing the onboarding spec failed: $out"
 grep -q "^status: done" "$ONBOARDING" || fail "the onboarding spec is not done"
-git add -A && git commit -qm "Close onboarding" -m "POSE-Spec: pose-onboarding" --no-verify
 "$BIN" index >/dev/null 2>&1 || fail "index refresh after onboarding failed"
+git add -A && git commit -qm "Close onboarding" -m "POSE-Spec: pose-onboarding" --no-verify
 out="$("$BIN" check --strict 2>&1)" || fail "the instance fails the strict check after onboarding: $out"
 grep -q "warning" <<<"$out" && fail "closing the onboarding spec leaves a warning: $(grep -i warning <<<"$out")"
 "$BIN" lint-spec pose-onboarding --strict >/dev/null 2>&1 || fail "the closed onboarding spec fails lint"
