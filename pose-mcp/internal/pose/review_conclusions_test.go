@@ -2,6 +2,7 @@ package pose
 
 import (
 	"encoding/json"
+	"errors"
 	"os"
 	"path/filepath"
 	"strings"
@@ -162,14 +163,29 @@ func TestConcludeReviewRunConcurrently(t *testing.T) {
 		t.Fatal(err)
 	}
 	run := dispatchConclusion(t, f, "two at once")
-	results := make(chan ReviewConclusion, 2)
+	type outcome struct {
+		conclusion ReviewConclusion
+		err        error
+	}
+	results := make(chan outcome, 2)
 	for i := 0; i < 2; i++ {
 		go func(i int) {
-			c, _ := f.store.ConcludeReviewRun(run.RunID, f.key.Name, true, time.Now().Add(time.Duration(i)*time.Millisecond))
-			results <- c
+			c, err := f.store.ConcludeReviewRun(run.RunID, f.key.Name, true, time.Now().Add(time.Duration(i)*time.Millisecond))
+			results <- outcome{c, err}
 		}(i)
 	}
-	first, second := <-results, <-results
+	a, b := <-results, <-results
+	// The outer root guard is non-waiting. Once both competitors have
+	// returned, retry a refused contender against the completed conclusion.
+	for _, result := range []*outcome{&a, &b} {
+		if errors.Is(result.err, ErrGovernanceWriteGuardBusy) {
+			result.conclusion, result.err = f.store.ConcludeReviewRun(run.RunID, f.key.Name, true, time.Now())
+		}
+		if result.err != nil {
+			t.Fatal(result.err)
+		}
+	}
+	first, second := a.conclusion, b.conclusion
 	proofs, _ := os.ReadDir(filepath.Join(f.store.Root, filepath.FromSlash(reviewRunProofDir), run.RunID))
 	attestations, _ := f.store.ListReviewAttestations(f.bundle.BundleID)
 	if len(proofs) != 1 || len(attestations) != 1 || first.Replayed == second.Replayed {
@@ -205,14 +221,27 @@ func TestConcludeReviewRunRecoversAReservation(t *testing.T) {
 	if c, err := f.store.recoveredReviewConclusion(negative); err != nil || c != nil {
 		t.Fatalf("recovered from an unverified attestation: %+v %v", c, err)
 	}
-	results := make(chan ReviewConclusion, 2)
+	type outcome struct {
+		conclusion ReviewConclusion
+		err        error
+	}
+	results := make(chan outcome, 2)
 	for i := 0; i < 2; i++ {
 		go func() {
-			c, _ := f.store.ConcludeReviewRun(run.RunID, f.key.Name, true, time.Now())
-			results <- c
+			c, err := f.store.ConcludeReviewRun(run.RunID, f.key.Name, true, time.Now())
+			results <- outcome{c, err}
 		}()
 	}
-	first, second := <-results, <-results
+	a, b := <-results, <-results
+	for _, result := range []*outcome{&a, &b} {
+		if errors.Is(result.err, ErrGovernanceWriteGuardBusy) {
+			result.conclusion, result.err = f.store.ConcludeReviewRun(run.RunID, f.key.Name, true, time.Now())
+		}
+		if result.err != nil {
+			t.Fatal(result.err)
+		}
+	}
+	first, second := a.conclusion, b.conclusion
 	proofs, _ := os.ReadDir(filepath.Join(f.store.Root, filepath.FromSlash(reviewRunProofDir), run.RunID))
 	attestations, _ := f.store.ListReviewAttestations(f.bundle.BundleID)
 	if len(proofs) != 1 || len(attestations) != 2 || first.Attestation == "" || first.Attestation != second.Attestation {

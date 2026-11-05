@@ -46,6 +46,9 @@ O ADR B34 deve ser aceito antes de alterar o contrato. A leitura continua útil 
 
 ### Artifacts
 
+- modified: pose-mcp/internal/pose/review_conclusions_test.go
+- modified: tests/journeys/install-and-upgrade.sh
+
 Paths abaixo declaram o escopo da implementação em andamento. A atribuição Git e os resultados executados devem ser reconciliados antes do fechamento; a declaração de um path não prova sua entrega. O start nativo está registrado em `3565be8a`.
 
 - modified: .pose/specs/2026-10-13-pose-governance-read-view-generation.md
