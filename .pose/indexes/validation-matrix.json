@@ -311,6 +311,13 @@
       "stack": "go",
       "checks": [
         {
+          "name": "test",
+          "program": "go",
+          "args": ["test", "./...", "-count=1"],
+          "severity": "required",
+          "evidenceClass": "unit"
+        },
+        {
           "name": "governance-read-view-integration",
           "program": "go",
           "args": [
