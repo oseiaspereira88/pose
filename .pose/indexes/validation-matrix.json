@@ -309,13 +309,28 @@
   "moduleOverrides": {
     "pose-mcp": {
       "stack": "go",
+      "replaceDefaultChecks": true,
       "checks": [
+        {
+          "name": "build",
+          "program": "go",
+          "args": ["build", "./..."],
+          "severity": "required",
+          "evidenceClass": "build"
+        },
         {
           "name": "test",
           "program": "go",
           "args": ["test", "./...", "-count=1"],
           "severity": "required",
           "evidenceClass": "unit"
+        },
+        {
+          "name": "vet",
+          "program": "go",
+          "args": ["vet", "./..."],
+          "severity": "optional",
+          "evidenceClass": "lint"
         },
         {
           "name": "governance-read-view-integration",
