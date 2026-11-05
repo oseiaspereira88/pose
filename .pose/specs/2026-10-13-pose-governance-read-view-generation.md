@@ -46,10 +46,15 @@ O ADR B34 deve ser aceito antes de alterar o contrato. A leitura continua útil 
 
 ### Artifacts
 
+- created: pose-mcp/internal/cli/delegate_fixture_test.go
+- modified: pose-mcp/internal/cli/delegate_test.go
+- modified: pose-mcp/internal/cli/delegate_mcp_test.go
+- modified: pose-mcp/internal/cli/delegate_wait_test.go
+- modified: pose-mcp/internal/cli/review_dispatch_test.go
 - modified: pose-mcp/internal/pose/review_conclusions_test.go
 - modified: tests/journeys/install-and-upgrade.sh
 
-Paths abaixo declaram o escopo da implementação em andamento. A atribuição Git e os resultados executados devem ser reconciliados antes do fechamento; a declaração de um path não prova sua entrega. O start nativo está registrado em `3565be8a`.
+Paths abaixo declaram o escopo da implementação em andamento. A atribuição Git e os resultados executados devem ser reconciliados antes do fechamento; a declaração de um path não prova sua entrega. O start nativo prospectivo do clone recuperado está registrado em `b2eb2d34`; `3565be8a` identifica somente o relato histórico da execução perdida.
 
 - modified: .pose/specs/2026-10-13-pose-governance-read-view-generation.md
 - created: .pose/adr/2026-11-03-governance-reads-use-bounded-operation-scoped-views.md
@@ -278,6 +283,9 @@ Executar os cenários obrigatórios acima, a suíte Go do módulo e os checks da
 
 ### Execution log
 
+- Após a correção do ownership das fixtures detached, os quatro testes de cleanup/barreira passaram em cinco repetições (`-count=5`, 27,777 s), e a seleção adjacente de delegação CLI/MCP, espera, observação e hooks passou com `-race`. O novo controle de dois supervisores inicialmente tentou abrir reviews concorrentes sem resultado terminal do predecessor e foi recusado em cinco repetições; a fixture foi corrigida para reter os supervisores nos hooks após seus runs terminais, preservando a ordem legítima de tentativas. Esses resultados focados não substituem a nova matriz completa. Não houve alteração de código de produção ou da semântica de `delegate wait` nessa correção.
+- Em 2026-11-05, a matriz nativa estrita no HEAD `ba458666948ab8c911eedac0ae5064dfc4048263` executou 189 checks: 188 aprovados e um reprovado, em 996 s. Todos os checks especializados passaram, incluindo a integração B34 com race; a suíte completa terminou em 342 s, sem timeout, mas `TestTheWaitAcknowledgementNeverTouchesAnExistingEntry` falhou no cleanup da fixture com `directory not empty`. O pacote domínio passou em 340,992 s e MCP em 5,691 s. A execução não qualifica a entrega completa. A investigação identificou que o terminal do run precede a saída do supervisor detached, que ainda pode escrever durante auto-conclude/hook; a correção deve aguardar seu término real antes de remover a fixture, preservando a semântica de `delegate wait`. O resultado canônico registra a reprovação; nenhuma falha de cleanup será ignorada.
+- A matriz conserva todos os checks do módulo e usa `replaceDefaultChecks` com os comandos build/test/vet explícitos para executar a suíte com `-count=1`. O primeiro ajuste acrescentou um check duplicado, pois overrides são aditivos; `ba458666` corrigiu esse erro. O timeout anterior não foi atribuído conclusivamente ao cache. Na jornada de instalação, os índices agora são gerados antes do commit de onboarding; o controle com `POSE_JOURNEYS=1` passou em 6,519 s. Uma execução anterior sem essa variável foi skipped e não conta como aprovação da jornada.
 - Em 2026-11-04, a sexta rodada focada congelada compilou os três pacotes e executou 247 testes/subtestes aprovados e 88 falhas. A seleção passou a executar também os testes CLI anteriormente bloqueados pela compilação, portanto não é comparável por contagem à rodada anterior. Persistiram falhas de contexto do default root sem ID explícito, cold start de índices, closeout/review e um novo print direto; logs: `/tmp/b34-focused-frozen-6.jsonl` e `/tmp/b34-focused-6-failures.txt`. Nenhum requisito é qualificado por essa rodada incompleta.
 - Em 2026-11-04, a quinta rodada focada congelada selecionou os parents que falharam na suíte completa e os casos novos: 159 testes/subtestes aprovados e 46 falhas. Os testes de abertura/resolução MCP e de paridade passaram; CLI não compilou por helpers de teste colidentes, import `io/fs` ausente e campos de uma fixture inconsistentes. O domínio terminou em 45 s, ainda com falhas de identidade federada, retenção histórica e controles novos. Logs: `/tmp/b34-focused-frozen-5.jsonl` e `/tmp/b34-focused-5-failures.txt`. Esses números pertencem a uma seleção diferente da suíte completa e não qualificam o target.
 - Em 2026-11-04, o handoff `knowledge:pose-b34-implementation` foi registrado; `pose knowledge-housekeeping list-expired` não listou vencidos e `pose knowledge-check --strict` passou com 21 artefatos, zero erros e zero referências inválidas. Essa validação cobre o registro operacional, não o target funcional.

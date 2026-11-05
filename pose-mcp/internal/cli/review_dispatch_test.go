@@ -20,7 +20,7 @@ func dispatchInstance(t *testing.T) string { return dispatchInstanceWith(t, nil)
 // before the commit that is sealed.
 func dispatchInstanceWith(t *testing.T, beforeCommit func(root string, git func(args ...string) string)) string {
 	t.Helper()
-	root := t.TempDir()
+	root := newDetachedFixtureRoot(t)
 	writeCloseoutCLIFile(t, root, ".gitignore", "scratch/\n")
 	writeCloseoutCLIFile(t, root, ".pose/policy/review.json", `{"schema_version":2,"enabled":true,"adopted_at":"2026-08-02","profiles":{"spec":"spec-closeout@1"},"review_bundles":true,"review_bundles_adopted_at":"2026-08-14"}`)
 	writeCloseoutCLIFile(t, root, ".pose/review-profiles/spec-closeout.json", `{"schema_version":1,"id":"spec-closeout","version":1,"scope":"spec","criteria":[{"id":"correctness","description":"reviewed"}]}`)

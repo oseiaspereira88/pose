@@ -30,6 +30,9 @@ func delegateMCP(t *testing.T, root string) func(tool string, args map[string]an
 		cmd := exec.CommandContext(ctx, binary, append([]string{"delegate"}, args...)...)
 		cmd.Dir, cmd.Env = dir, mcpserver.DelegateEnv(dir)
 		out, err := cmd.Output()
+		if ownErr := ownDetachedFixtureOutput(dir, out); ownErr != nil {
+			return out, 0, ownErr
+		}
 		var exit *exec.ExitError
 		if errors.As(err, &exit) {
 			return out, exit.ExitCode(), nil
@@ -156,7 +159,9 @@ func newGate(t *testing.T) *gate {
 	// The loop also ends when the test's directory is gone, so a fixture
 	// held by a failed or finished test does not outlive it (review rounds
 	// 1–2, F02).
-	return &gate{t: t, path: path, wait: "while [ ! -e " + shellQuote(path) + " ] && [ -d " + shellQuote(dir) + " ]; do sleep 0.02; done"}
+	g := &gate{t: t, path: path, wait: "while [ ! -e " + shellQuote(path) + " ] && [ -d " + shellQuote(dir) + " ]; do sleep 0.02; done"}
+	t.Cleanup(g.open)
+	return g
 }
 
 func (g *gate) open() {

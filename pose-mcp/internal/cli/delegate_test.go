@@ -34,6 +34,9 @@ func runPoseSplit(t *testing.T, root string, args ...string) (int, string, strin
 	var out, errB bytes.Buffer
 	code := 0
 	inDir(t, root, func() { code = Main(args, &out, &errB) })
+	if err := ownDetachedFixtureOutput(root, out.Bytes()); err != nil {
+		t.Fatal(err)
+	}
 	return code, out.String(), errB.String()
 }
 
