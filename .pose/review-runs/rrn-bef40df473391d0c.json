@@ -1,0 +1,126 @@
+{
+  "safety": {
+    "schema_version": 1,
+    "profile": "legacy-trusted",
+    "platform": "linux/amd64",
+    "capabilities": {
+      "automatic-expiry": "unavailable",
+      "bounded-capture": "available",
+      "cpu-limit": "unavailable",
+      "credential-filesystem-isolation": "unavailable",
+      "environment-allowlist": "available",
+      "escaped-descendant-termination": "unavailable",
+      "filesystem-isolation": "unavailable",
+      "memory-limit": "unavailable",
+      "network-isolation": "unavailable",
+      "origin-isolation": "unavailable",
+      "parent-termination": "available",
+      "process-group-termination": "available",
+      "shared-git-isolation": "unavailable"
+    },
+    "limitations": [
+      "trusted local executable required; worktree is not a sandbox",
+      "outside writes, transient writes, shared Git and credential files are not isolated",
+      "no memory/CPU quota or control of descendants escaping the process group",
+      "cleanup filesystem calls remain subject to operating-system I/O latency",
+      "legacy compatibility: HOME retained; other ambient credentials excluded"
+    ],
+    "stream_bytes": 8388608,
+    "output_bytes": 65536,
+    "retained_bytes": 16777216,
+    "timeout_ms": 3600000,
+    "max_runs_per_bundle": 3,
+    "retention": "retain-evidence; ttl=0; no automatic deletion",
+    "capture_complete": false,
+    "runtime_id": "pose-review-run-4012511624",
+    "operation": {
+      "schema_version": 1,
+      "operation": "review.dispatch.cleanup",
+      "scope": "spec:pose-governance-read-view-generation",
+      "outcome": "completed",
+      "steps_run": [
+        {
+          "id": "cleanup",
+          "result": "done"
+        }
+      ],
+      "effects": [],
+      "resumable": false
+    }
+  },
+  "provenance": {
+    "execution_state": "not-started",
+    "planned_wire_digest": "sha256:350049b3e0df366ff2866fa89795f4b5906fe4b2fb3b86544b3a25ea034f9816",
+    "wire_bytes": 0,
+    "wire_complete": false,
+    "schema_version": 1,
+    "project": "proj.pose-dist",
+    "audience": "proj.pose-dist",
+    "worktree_digest": "sha256:7f34cebd177e54c42d16db00efd11edab08257125e70a9fd1fe6ae79fb94e150",
+    "trust": "executor-attested",
+    "implementation": {
+      "principal": "agent:openai/unknown",
+      "execution": "sha256:e153fd0098107a9b94004770167630f49576f2af7f39b7b1a7b2492cb4339a62",
+      "vendor": "openai",
+      "model": "unknown"
+    },
+    "reviewer": {
+      "principal": "agent:anthropic/claude-opus-5-5",
+      "vendor": "anthropic",
+      "model": "claude-opus-5-5"
+    },
+    "config_digest": "sha256:5d92479842f236e1ef280209ef6f4988bf6d72dfbcec64988d4b6824b79b42b1",
+    "command_template_digest": "sha256:436a512941a44a5c9da15b07f2e7101efc2f13995bf51e09b261f07268dd1d4e",
+    "argv_digest": "",
+    "executable_digest": "",
+    "template_version": "review-brief/3",
+    "wire_digest": "",
+    "notes_digest": "sha256:9edad9a8220942626eaffad792e326e333f1ae0eedebb28b410a4790f666c2dd",
+    "raw_transcript_digest": "",
+    "raw_output_digest": "",
+    "output_source": "",
+    "output_complete": false
+  },
+  "tree_digest": "sha256:b591ea081c690ef7ea9b063de0344804ede740cb814fb0ca3d438edbf9cbbd54",
+  "brief_notes": "Implementer notes — factual context, not a review decision\n\nThe generated sealed brief is authoritative. Review independently and report every blocking finding; do not infer approval from passing checks.\n\nUser selected Claude Code Opus 5.5 for independent review and retains Sol medium for implementation tasks. The implementing session is OpenAI; its exact model is unknown and must not be invented. The local executor signer is an executor declaration, not an Anthropic receipt or human authority.\n\nB34 was recovered after loss of a temporary clone. The spec preserves failed historical rounds and the prospective start b2eb2d34; unrecovered historical receipts were not reconstructed. The normal binary built from b7b5680f passed the current canonical 189/189 strict checks (four workers, native wall 430.0s), including the uncached full Go suite and the expanded B34 race integration. The normal final index, artifact-check and surface-check passed. The final real global structural gate passed with 35 historical warnings and no errors. All native stages completed successfully before sealing. Historical checkpoint prose in the source reports describes the evidence available when committed; use the sealed current evidence rather than those earlier pending checkpoints.\n\nD7 separates the global audited selection/catalogue coordinator from bounded per-scope evaluation with at most 16 live workers and exact root/Files/authority bindings. The first real run after D7 took about three hours and failed with 19 errors. b7b5680f corrects two independently reproduced defects: final DirEntry.Info audit re-listed a directory once per entry (a 200-entry probe observed 199 listings), and roadmap child evaluation cleared the active authorized Store context despite already disabling recursive federated acceptance through its existing argument. The new probes fail under an overlay of the previous source and pass after correction; budgets were not increased. Index material builds now use a fresh existing spec snapshot per build. D8 excludes only instance-owned delegation.json from the scaffold using its established policy exclusion path.\n\nThe complete go test -race ./... attempt passed every other package, including CLI (508.703s) and MCP (13.919s); the domain package hit the default ten-minute timeout while starting TestR2PoliciesOfTheCutAreValidated. The domain-only -timeout=30m attempt also timed out without a race diagnostic. Neither timeout is a pass. All 1,425 domain tests subsequently passed with race in four disjoint complete groups (357/356/356/356): 214.656/136.488/168.012/191.100s. There are no Fuzz or Example functions in this package. The validation matrix's independent commands were not coalesced; this was an additional full-domain race run.\n\nThe first native review of bundle rvb-b93ae9162907b66a never invoked the vendor. Its immutable record rrn-accfce117640c7af has execution_state=not-started, empty transcript, and a sealed-checkout setup failure: the committed delivery index at b7 did not yet hold B34 attribution. Checkpoint 42c8891f commits the actual generated index/evidence and derived report updates; it contains no Go change. The canonical matrix was regenerated on 42c8891f and passed 189/189 checks (352.1s). The new bundle includes the current native provenance and a sealed checkout with the required indexed attribution. Preserve the failed setup run; it is not an approval and consumed no vendor tokens.\n\n\nReview bounded Files/Git capture and audit, directory and handle replay/errors, byte/metadata/record budgets, root-vector authority, retries, closure localization, stale review retention, production writer guard/CAS/receipt paths, and outputs/bindings from a single audited index build. External uncooperative ABA is explicitly outside the guarantee; no universal filesystem transaction or persistent authorization is claimed. No watcher/daemon/runtime/cache adoption was included.\n\nD5 preserves 64 local edges / 256 unique nodes / 256 entries while applying eight to composed cross-project paths, including redirects; tests cover shared DAG suffixes and deduplication. D6 is measured 25,000 aggregate records and 512 MiB input with 8 MiB metadata retained; versioned reports explain why the full corpus exceeded initial limits. Index generation must use the normal build, never calibration overlays.\n\nAssessment integrate is static inventory, not functional proof. Tech-debt scan remains INCOMPLETE because two historical specs are invalid (pose-instance-engine-version-tracking and pose-knowledge-durable-reference-type); no uncovered marker was found in the scanned content. Knowledge check passed with 21 artifacts. Recurrence check has no flagged unresolved keys, and discloses an existing validate-native flapping cluster. Remote CI was waived by the user; Harne8 engine adoption/gitlink is outside this change.\n\nPlease evaluate all generated criteria and tool dispositions, including structural mappings. A component validation tool with producer_coverage none must not be described as executed; use a supported not-used disposition with rationale if appropriate. Final approval is your independent judgment. Do not invoke contributors/issue submission or edit project files.\n",
+  "ledger_version": 1,
+  "attempt_id": "rat-f34071f1316f22bcb1aa58469a18aeaf9c13beb361dc0324c7e00c740964b0e2",
+  "schema_version": 1,
+  "run_id": "rrn-bef40df473391d0c",
+  "scope": "spec:pose-governance-read-view-generation",
+  "bundle_id": "rvb-d07004d841551691",
+  "bundle_digest": "sha256:d07004d841551691b7ea1735e7d7125a01647e572d981fcbcdafee594a8ed77f",
+  "sealed_commit": "42c8891f730cd8fa5cca2c7a55c80229e5d58d12",
+  "kind": "review",
+  "brief_digest": "sha256:882e0abe0d7fcc2b77a3c6a42138939bdb16933193a6fa3325628eaddfdd9985",
+  "adapter": "claude-opus-5-5",
+  "vendor": "anthropic",
+  "model": "claude-opus-5-5",
+  "started_at": "2026-11-06T17:48:04.762402067Z",
+  "ended_at": "2026-11-06T17:48:12.64588038Z",
+  "exit_code": -1,
+  "status": "failed",
+  "failure": "provenance executable is not a bounded regular file",
+  "transcript_digest": "sha256:e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+  "transcript_path": ".pose/review-runs/rrn-bef40df473391d0c.transcript",
+  "output": "",
+  "policy_digest": "sha256:407c9b95465627b5940f663d08ec3a1970aaf296b2b5e9a5d24f7b627f11d3be",
+  "label": "b34-final-claude-r2",
+  "purpose": "review",
+  "events": "claude-stream-json",
+  "events_digest": "sha256:e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+  "routing": {
+    "requested": "claude-opus-5-5",
+    "implementation": {
+      "principal": "agent:openai/unknown",
+      "vendor": "openai",
+      "model": "unknown",
+      "execution_digest": "sha256:e153fd0098107a9b94004770167630f49576f2af7f39b7b1a7b2492cb4339a62",
+      "source": "declared"
+    },
+    "implementation_from": "bundle",
+    "step": "explicit"
+  },
+  "independence_achieved": "different-vendor",
+  "round": 1
+}
