@@ -206,3 +206,15 @@ The target instance uses its native delegation setup and its own configuration;
 no engine-local agent profile or issuer becomes a target default. This preserves
 the same authority boundary as neutral review policy and changes no capability
 adoption, historical record or review verdict.
+
+
+## Bounded executable identity for the selected review agent (D9) — 2026-11-06
+
+The installed native Claude Code 2.1.318 executable is 337,814,032 bytes. Its
+provenance setup failed before the vendor ran because executable hashing reused
+the 256 MiB transcript-retention bound. Hash executables as a stream bounded to
+512 MiB, separately from evidence retention. Keep regular-file and identity
+checks, bounded reads and rejection above that limit. Keep transcript and B34
+read-view budgets unchanged. Do not substitute a launcher to evade the selected
+executable's identity proof. This accepts the measured distribution with bounded
+headroom; larger future distributions still require an explicit reassessment.

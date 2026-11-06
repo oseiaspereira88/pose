@@ -128,3 +128,14 @@ and empty transcript. Persisting the actual generated inputs before another
 sealed review fixes that prerequisite; it does not fabricate an approval or
 rewrite the failed attempt. The independent review and lifecycle transition
 remain pending at this checkpoint.
+
+## Selected executable preflight
+
+The second run rrn-bef40df473391d0c also stopped before vendor execution. The
+source and indexed checkout passed setup, but the 337,814,032-byte Claude Code
+2.1.318 executable exceeded the 256 MiB transcript limit reused by executable
+hashing. Accepted D9 separates a 512 MiB streaming executable bound, preserving
+the actual target and identity checks and every transcript/read-view limit.
+The focused provenance tests cover exact/over bounds, symlink target, replacement
+bytes and invalid executables. The new code requires current canonical evidence;
+prior source checkpoints remain historical. No vendor review has been claimed.

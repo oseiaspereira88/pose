@@ -20,6 +20,11 @@ import (
 const reviewRunProofDir = ".pose/review-run-proofs"
 const ReviewRunMachineAttested = "machine-attested"
 
+// Native agent executables include their runtime (Claude Code 2.1.318 is
+// 337,814,032 bytes). Hash them as a bounded stream; their size is independent
+// of the transcript bytes retained as evidence.
+const reviewExecutableMaxBytes int64 = 512 * 1024 * 1024
+
 // ModelIdentity is explicitly declared by the executor's protected policy.
 // Signing authenticates that declaration, never an independent vendor receipt.
 type ModelIdentity struct {
@@ -214,6 +219,13 @@ func (s Store) prepareRunProvenance(plan DispatchPlan, policy ReviewersPolicy) (
 	return &ReviewRunProvenance{ExecutionState: "not-started", SchemaVersion: 1, Project: review.AuthorityProject, Audience: review.AuthorityAudience, WorktreeDigest: digestBytes([]byte(plan.OriginWorktree)), Trust: policy.Provenance.Trust, Implementation: implementation, Reviewer: reviewer, ConfigDigest: digestBytes(raw), CommandTemplateDigest: digestBytes(argv), TemplateVersion: plan.Brief.TemplateVersion, PlannedWireDigest: digestBytes([]byte(plan.Brief.Text)), NotesDigest: digestBytes([]byte(plan.notes))}, nil
 }
 func reviewExecutableDigest(path string) (string, error) {
+	return reviewExecutableDigestWithin(path, reviewExecutableMaxBytes)
+}
+
+func reviewExecutableDigestWithin(path string, maxBytes int64) (string, error) {
+	if maxBytes <= 0 || maxBytes > reviewExecutableMaxBytes {
+		return "", fmt.Errorf("invalid provenance executable byte bound")
+	}
 	// Resolve the observed target for hashing; execution retains the selected
 	// path spelling so relative and shebang argv0 semantics stay unchanged.
 	resolved, e := filepath.EvalSymlinks(path)
@@ -221,7 +233,7 @@ func reviewExecutableDigest(path string) (string, error) {
 		return "", e
 	}
 	info, e := os.Lstat(resolved)
-	if e != nil || !info.Mode().IsRegular() || info.Size() > reviewTranscriptMaxBytes {
+	if e != nil || !info.Mode().IsRegular() || info.Size() < 0 || info.Size() > maxBytes {
 		return "", fmt.Errorf("provenance executable is not a bounded regular file")
 	}
 	f, e := os.Open(resolved)
@@ -234,9 +246,9 @@ func reviewExecutableDigest(path string) (string, error) {
 		return "", fmt.Errorf("executable changed while opening")
 	}
 	hash := sha256.New()
-	n, e := io.Copy(hash, io.LimitReader(f, reviewTranscriptMaxBytes+1))
+	n, e := io.Copy(hash, io.LimitReader(f, maxBytes+1))
 	closeErr := f.Close()
-	if e != nil || closeErr != nil || n > reviewTranscriptMaxBytes {
+	if e != nil || closeErr != nil || n > maxBytes {
 		return "", fmt.Errorf("executable digest could not be read within bound")
 	}
 	return "sha256:" + hex.EncodeToString(hash.Sum(nil)), nil

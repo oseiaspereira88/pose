@@ -168,6 +168,7 @@ Paths abaixo declaram o escopo da implementação em andamento. A atribuição G
 - modified: pose-mcp/internal/pose/review_dispatch.go
 - modified: pose-mcp/internal/pose/review_run_continuity.go
 - modified: pose-mcp/internal/pose/review_run_provenance.go
+- created: pose-mcp/internal/pose/review_executable_budget_test.go
 - created: pose-mcp/internal/pose/review_write_scope.go
 - modified: pose-mcp/internal/cli/adversarial_corpus_gates_test.go
 - modified: pose-mcp/internal/cli/artifact_integrity.go
@@ -289,7 +290,12 @@ Executar incrementalmente depois das fundações aceitas B06/B07/B14/B15. A prim
 - Decision: Excluir a policy viva `delegation.json` da cópia embarcada pelo mesmo mecanismo de exclusão dos demais contratos específicos da instância. Preservar a configuração solicitada no motor e seu clone de implementação; deixar a configuração nativa de cada destino descobrir e cadastrar seus agentes, sem distribuir vendors, acesso ou issuer local como default.
 - Rationale: A configuração necessária à revisão independente passou a existir na raiz do motor. O gerador com allowlist de policy copiaria os perfis e o issuer para outras instâncias, contrariando a separação de autoridade e a instrução de cadastro por instância. A exclusão é limitada ao arquivo vivo e não muda capabilities, contratos ou records históricos.
 
-As decisões D2–D8 seguem o [ADR B34 aceito](../adr/2026-11-03-governance-reads-use-bounded-operation-scoped-views.md). O aceite fixa o contrato de implementação; não qualifica os requisitos sem execução dos testes e revisão.
+### Decision D9 — budget próprio para a identidade do executável
+- Basis: R2, R9, R10
+- Decision: Limitar a 512 MiB o hash por streaming do executável real selecionado para a prova da revisão, independentemente dos 256 MiB de retenção de transcript. Preservar resolução do target, arquivo regular, identidade ao abrir, leitura limitada e erro para excesso; não trocar o binário por wrapper nem aumentar retenção de evidência ou budgets da read view.
+- Rationale: O Claude Code 2.1.318 instalado tem 337.814.032 bytes. A execução nativa `rrn-bef40df473391d0c` foi recusada antes de chamar o fornecedor porque o hash reutilizava o teto de transcript. O limite próprio dá margem limitada à distribuição real, com testes de boundary, target por symlink e troca de bytes. A prova continua sendo uma declaração do executor, sem alegar receipt do fornecedor.
+
+As decisões D2–D9 seguem o [ADR B34 aceito](../adr/2026-11-03-governance-reads-use-bounded-operation-scoped-views.md). O aceite fixa o contrato de implementação; não qualifica os requisitos sem execução dos testes e revisão.
 
 ## 6. Validation
 
