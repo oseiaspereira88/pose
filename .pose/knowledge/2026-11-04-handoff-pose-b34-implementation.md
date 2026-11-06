@@ -26,6 +26,16 @@ operação está aceito e o start nativo foi aplicado.
 
 ## Current state
 
+Atualização de fechamento em 2026-11-06: o código `5c9f1a96` passou 189/189
+checks; índice real, artifact-check e surface-check passaram. O check estrito
+global seguinte falhou por agregação das closures de closeout e diagnósticos
+em cascata. D7 e a emenda aceita no ADR definem coordenador auditado e views
+limitadas por escopo; a investigação nativa `trn-78de82fe660bb649` está concluída
+e a task de implementação `b34-strict-scope-fix` está em execução com Sol medium.
+Consultar `report:2026-11-06-pose-b34-global-review-view-budget.md`. Ainda não há
+bundle final, revisão Claude, atestação ou closeout. Os registros abaixo conservam
+os checkpoints anteriores e não qualificam a correção D7.
+
 Última revisão: 2026-11-06. Spec `in-progress`, clone persistente
 `/home/go/IdeaProjects/harne8/.worktrees/pose-b34-recovery`, branch
 `work/governance-read-view-recovery`, base publicada `7079eb86`.

@@ -46,6 +46,9 @@ O ADR B34 deve ser aceito antes de alterar o contrato. A leitura continua útil 
 
 ### Artifacts
 
+- created: .pose/reports/2026-11-06-pose-b34-global-review-view-budget.md
+- created: pose-mcp/internal/pose/review_scope_operation_view_test.go
+- created: pose-mcp/internal/cli/review_scope_operation_view_test.go
 - modified: pose-mcp/internal/pose/artifact_ref_test.go
 - created: .pose/reports/2026-11-05-pose-b34-dependency-budget-measurement.md
 - created: .pose/reports/2026-11-05-pose-b34-read-view-capacity-calibration.md
@@ -233,11 +236,11 @@ Executar incrementalmente depois das fundações aceitas B06/B07/B14/B15. A prim
 
 - [x] Reproduzir dirty→dirty na base publicada e registrar o controle estável.
 - [x] Aceitar o ADR, definir os testes por risco e aplicar o start nativo.
-- [ ] Qualificar captura/replay, auditoria, retry e budgets nas leituras reais.
-- [ ] Qualificar paridade de domínio, CLI e MCP preservando os controles positivos.
-- [ ] Qualificar os writers reais com vetor exato de roots e sem perder autoridade.
-- [ ] Construir outputs e bindings de índices na mesma view e auditar antes de publicar.
-- [ ] Passar a suíte completa, race e os checks nativos registrados na matriz.
+- [x] Qualificar captura/replay, auditoria, retry e budgets nas leituras reais.
+- [x] Qualificar paridade de domínio, CLI e MCP preservando os controles positivos.
+- [x] Qualificar os writers reais com vetor exato de roots e sem perder autoridade.
+- [x] Construir outputs e bindings de índices na mesma view e auditar antes de publicar.
+- [x] Passar a suíte completa, race e os checks nativos registrados na matriz.
 - [ ] Reconciliar artifacts/trace e obter revisão independente do bundle selado.
 - [ ] Aplicar closeout, repetir os gates finais e publicar sem adoção no hospedeiro.
 
@@ -273,7 +276,12 @@ Executar incrementalmente depois das fundações aceitas B06/B07/B14/B15. A prim
 - Decision: Recalibrar uniformemente captura e auditoria para 25.000 registros agregados e 512 MiB de inputs, preservando 8 MiB de metadados e os demais limites. Conservar a causa de callback junto com a prova de closure desconhecida ou budget esgotado, sem mascará-la como caminho de policy inválido. Usar testes de fronteira com pequenos payloads, sem multiplicar alocações pelo teto maior.
 - Rationale: A calibração somente leitura do builder real e sua auditoria consumiu 18.905 registros, 370.690.278 bytes de inputs e 4.479.003 bytes de metadados para sete outputs. Os valores iniciais impediam concluir esse corpus; os novos tetos dão margem limitada sem remover fontes ou truncar histórico. A medição em report:.pose/reports/2026-11-05-pose-b34-read-view-capacity-calibration.md não é resultado de produção e exige validação da build normal.
 
-As decisões D2–D6 seguem o [ADR B34 aceito](../adr/2026-11-03-governance-reads-use-bounded-operation-scoped-views.md). O aceite fixa o contrato de implementação; não qualifica os requisitos sem execução dos testes e revisão.
+### Decision D7 — coordenação de lotes com views por escopo
+- Basis: R1, R3, R4, R7, R8, R9, R10
+- Decision: Separar a seleção coerente e o catálogo compartilhado auditado do check global das avaliações de closeout por escopo. Cada escopo e seus filhos/roots autorizados compartilham uma operação limitada própria, finalizada antes de reter somente o resultado; limitar a concorrência. Compartilhar apenas catálogo imutável por interface com binding explícito, sem remover root/project/resolver/Files checks. Auditar policy, inventários e seleção após o join dos workers, inclusive caminhos sem candidatos e policy desabilitada. Agregar findings somente após auditoria; uma perda localizada não consome o orçamento de um irmão. Preservar causas de operação e de auditoria e distinguir indisponibilidade/budget de escape demonstrado e de alteração observada.
+- Rationale: O check real de 2026-11-06 agregou todas as closures históricas numa view, esgotou records/metadata e propagou erros genéricos. O lote não requer um snapshot simultâneo de todas as avaliações, mas exige seleção íntegra e prova de cada escopo. Separar os limites preserva o catálogo otimizado, evita ampliar tetos sem medição e conserva verificações de história, trust e negativos posteriores.
+
+As decisões D2–D7 seguem o [ADR B34 aceito](../adr/2026-11-03-governance-reads-use-bounded-operation-scoped-views.md). O aceite fixa o contrato de implementação; não qualifica os requisitos sem execução dos testes e revisão.
 
 ## 6. Validation
 
@@ -294,9 +302,15 @@ As decisões D2–D6 seguem o [ADR B34 aceito](../adr/2026-11-03-governance-read
 
 ### Deterministic checks
 
+D7 exige regressão com budgets pequenos injetados: lote real serial/paralelo cuja soma excede o teto mas cada escopo cabe; excesso localizado mantendo irmão válido e gate global falho; mutação de policy/inventário/estado durante seleção, inclusive zero candidatos e roadmap; retenção histórica com negativo posterior e fonte ilegível; budget de containment diferente de escape real; causas de callback/auditoria preservadas e budget de auditoria unknown sem alegar mudança. Executar a seleção nova com `-race`, controles de catálogo/performance e a matriz nativa completa antes dos gates reais. Manter os tetos de produção.
+
 Executar os cenários obrigatórios acima, a suíte Go do módulo e os checks da matriz atualizados; incluir controles positivos e negativos. `pose artifact-check --spec pose-governance-read-view-generation --strict`, `pose surface-check --spec pose-governance-read-view-generation --strict` e os gates de segurança pertinentes continuam obrigatórios no closeout. Se a matriz ganhar um check B34 permanente, validar seu schema com `pose check --strict`. Atualizar evidence/trace somente com comandos realmente executados; nenhum lint de documentação qualifica o target funcional.
 
 ### Execution log
+
+- Em 2026-11-06, após o índice final `gen-3acfce7ed391ed59`, artifact-check e surface-check passaram sem errors. O check estrito global falhou com 381 erros: 245 ações genéricas de fresh-review, 135 mensagens de path escape e uma closure desconhecida por record/metadata budget. A investigação nativa Sol medium `trn-78de82fe660bb649` identificou agregação dos closeouts independentes numa única view e perda de causa em `artifactPathWithin`; os erros não provam 381 reviews quebrados. A entrega permanece in-progress; os 189 checks do commit de código anterior não qualificam a correção desse caminho global.
+
+- Em 2026-11-06, a matriz canônica do código `5c9f1a96` passou com 189/189 checks em 1.052,2 s. O índice real da build normal passou e publicou `gen-dbc32ae488133b00` antes da atualização final dos resultados. Os perfis Sol medium e Claude Code Opus 5.5 foram cadastrados e reconhecidos nas instâncias; preview não é execução de review. O fechamento continua condicionado aos gates atuais e à revisão independente.
 
 - D6 passou nos testes normais focados de capacidade e erros de callback após corrigir um import ausente e restringir o spy da nova fixture ao subject e a um diretório próprio. A integração ampliada passou com race: domínio 65,591 s, CLI 16,165 s e MCP 1,576 s; os testes completos de scaffold/distpolicy passaram em 1,272 s e 0,214 s. O gerador oficial sincronizou somente os dois manuais esperados. Os probes temporários de calibração foram removidos. O índice real e a matriz completa ainda precisam qualificar a configuração normal de 25.000 registros/512 MiB; os resultados de overlay e do commit `f54e9285` não são substitutos desses gates.
 - A correção de escopo e composição dos limites passou nas regressões de domínio (15,681 s) e CLI (0,973 s), incluindo redirects válidos, caminho federado composto 8/9, DAG compartilhado, fila de aceitação com 256/257 identidades e preflight local. A primeira execução falhou somente porque as novas fixtures de transferência não preparavam `.pose/transfers`; esse pré-requisito sintético foi corrigido sem alterar os checks de produção. A integração B34 ampliada passou com race detector: domínio 55,154 s, CLI 15,652 s e MCP 1,313 s. A matriz mantém 186 checks distintos no módulo; o próximo índice real e a nova matriz ainda precisam qualificar o novo commit.
@@ -344,28 +358,32 @@ atual será registrada pela matriz nativa no commit de implementação.
 
 ### Requirement trace
 
-| Requisito | Casos planejados |
-|---|---|
-| R1 | V1, V2, V5 |
-| R2 | V1–V4 |
-| R3 | V2, V3, V8 |
-| R4 | V2, V5 |
-| R5 | V1, V2, V8 |
-| R6 | V4 |
-| R7 | V3, V4, V8 |
-| R8 | V2, V3, V5 |
-| R9 | V4, V5, V7 |
-| R10 | V1–V8 |
+Os casos abaixo passaram na matriz do código `5c9f1a96`. A qualificação final permanece suspensa pelo esgotamento da view no check global; a correção e a composição do lote devem ser testadas e revalidadas antes do fechamento.
+
+- R1 [satisfied] check:governance-read-view-integration test:TestGovernanceReadViewDirtyToDirtySnapshot test:TestGovernanceReadViewProbeIdentityTracksObservedBytes test:TestGovernanceReadViewProbeReadFileAbsenceReplayPreservesMeaning. Identity binds observed bytes/absence/errors and versioned root bindings rather than dirty/mtime alone.
+- R2 [satisfied] check:governance-read-view-integration test:TestGovernanceReadViewGitCapturesAndAuditsExactCommand test:TestGovernanceReadViewIndexConsumptionChecksBoundInputsOnlyWhenUsed test:TestGovernanceReadViewOperationSharesInputByteBudgetAcrossRoots. Sources and semantic federated index inputs use the captured closure; unrelated unused roots remain outside its coverage.
+- R3 [satisfied] check:governance-read-view-integration test:TestGovernanceReadViewProjectionRetriesOnceAndReturnsOnlyStableAttempt test:TestGovernanceReadViewProjectionStopsAfterOneUnstableRetryAndLocalizesCoverage. Repeated interleaving yields unknown/incomplete; cooperative fencing covers required transitions. The ADR explicitly excludes undetectable external ABA from its guarantee.
+- R4 [satisfied] check:governance-read-view-integration test:TestGovernanceReadViewProbeStablePermissionFailureIsIncompleteForItsProducer test:TestGovernanceReadViewDependencyDepthLimitLocalizesCoverage. Read/parse/proof failure degrades the affected producer rather than manufacturing Complete or an unrelated global block.
+- R5 [satisfied] check:governance-read-view-integration test:TestGovernanceReadViewDirtyToDirtySnapshot test:TestGovernanceReadViewProbeSymlinkIdentityIsPartOfObservedClosure test:TestGovernanceReadViewGitCapturesAndAuditsExactCommand. Audit reconciles observed content and identities without depending on watcher events.
+- R6 [satisfied] check:governance-read-view-integration check:writer-coordination-and-atomic-publication-integration check:index-generation-integrity-integration test:TestGovernanceWriteGuardReviewAttestationReturnsCommittedUnsyncedRecord. Actual publishers retain cooperative root leases, CAS and descriptor publication; committed durability uncertainty is preserved in the receipt.
+- R7 [satisfied] check:governance-read-view-integration test:TestGovernanceWriteGuardStartDropsCapturedReadViewBeforeReevaluation test:TestGovernanceReadViewStartRetryRechecksRestrictionsBeforeTransition test:TestGovernanceWriteGuardActionRequestFencesSubjectRootBeforeJournalWrite test:TestGovernanceWriteGuardActionResolutionFencesForeignSubjectRoot. Evaluation and authority are recomputed under the exact participating root vector before effects.
+- R8 [satisfied] check:governance-read-view-integration test:TestReviewCheckWithholdsFreshApprovalWhenReadViewChanges test:TestRetainedCompletedReviewBlocksWhenBothReadViewAttemptsChangePolicy test:TestRetainedReviewCheckBlocksWhenBothReadViewAttemptsChangePolicy. Prior results remain historical; changed inputs do not acquire current authorization through retention or metadata reuse.
+- R9 [satisfied] capability:governance-read-view-generation evidence:integration check:governance-read-view-integration test:TestGovernanceReadViewParityAcrossCLIAndMCPEntryPoints. Shared domain projection and review views disclose additive schema-v1 bindings, freshness and coverage; legacy inputs remain readable with explicit uncertainty and budgets.
+- R10 [satisfied] capability:governance-read-view-generation evidence:integration check:governance-read-view-integration test:TestArtifactGraphTransferComposedDepth test:TestFederatedAcceptanceUniqueNodeBudgetAfterDedup test:TestIndexMaterialPreflightLocalDependencyDepth. Barrier/fault and bound cases exercise production consumers; no daemon, IPC, watcher, persistent cache or history truncation is introduced. report:.pose/reports/2026-11-05-pose-b34-dependency-budget-measurement.md records the measured scope correction and limits.
 
 ## 7. Final Report
 
 ### Delivered scope
 
-O código e o ADR aceito foram recuperados em clone persistente. Compilação, regressões focadas, vet e race passaram. A matriz nativa completa, a revisão final e os gates de closeout ainda precisam qualificar o commit atual; nenhum requisito R1–R10 é declarado satisfeito nesta edição. Os relatos de start anteriores são históricos, e o novo start registra somente a continuidade prospectiva; consulte o checkpoint de recuperação.
+Implementada leitura por operação com captura/replay imutável, auditoria da closure, retry limitado e coverage localizada; projeção comum entre domínio, CLI e MCP; reavaliação sob guard dos roots autorizados antes dos efeitos e publicação de índices com outputs e bindings da mesma tentativa. Preservados schemas legados, CAS/receipts, história e incerteza explícita. Não foram adicionados daemon, watcher ou cache entre operações.
+
+A matriz nativa estrita aprovou 189/189 checks em 1.052,2 s no commit de código `5c9f1a96`, incluindo a suíte Go sem cache (358,8 s), integração B34 com race (56,5 s) e jornada de instalação habilitada. O builder normal publicou sete índices e onze bindings na geração `gen-dbc32ae488133b00`. Os commits operacionais posteriores cadastram os vendors e a assinatura local da revisão; não alteram o código validado. Os gates nativos ainda devem confirmar o frescor por escopo, e a revisão independente e a transição de lifecycle permanecem pendentes nesta edição. A geração final será atualizada após os assessments e o resultado canônico.
+
+Os starts e as rodadas anteriores permanecem históricos; o start prospectivo `b2eb2d34` não inventa precedência sobre o código recuperado. O scan de segredos dos dez commits de implementação não encontrou leaks; a verificação final deve incluir os commits posteriores.
 
 ### Residual risks
 
-A closure é um contrato por operação, não um hash genérico do diretório. Um writer externo pode alterar e restaurar bytes entre leituras sem deixar evidência; só locks/fencing participados pelos writers qualificam transições requeridas. A view não é um snapshot transacional nem autorização persistente. O ADR aceita a divulgação aditiva com versão própria, e os gates devem tratar ausência de proof como `unknown`; a validação dessa composição ainda está em andamento.
+A closure é um contrato por operação, não um hash genérico do diretório. Um writer externo pode alterar e restaurar bytes entre leituras sem deixar evidência; só locks/fencing participados pelos writers qualificam transições requeridas. A view não é um snapshot transacional nem autorização persistente. O ADR aceita a divulgação aditiva com versão própria, e os gates devem tratar ausência de proof como `unknown`; os resultados atuais qualificam a composição testada, e a revisão independente ainda está pendente. O assessment de dívida conserva a limitação de duas specs históricas inválidas e não equivale a scan completo. A confirmação em CI remoto foi dispensada pelo usuário; não houve adoção do motor no Harne8.
 
 ### Follow-ups
 

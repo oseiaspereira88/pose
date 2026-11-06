@@ -167,3 +167,31 @@ ABA that leaves identical final bytes, or defend against writers that bypass
 POSE fencing. Such inputs cannot authorize an effect whose contract requires
 transition evidence. More producers become current only when their read paths,
 coverage and writer boundaries are explicitly brought under the view.
+
+
+## Accepted amendment — 2026-11-06: bounded multi-scope coordination (D7)
+
+The real global strict check exhausted the shared governance record/metadata
+budget across independent historical closeout evaluations. Separate the global
+coordinator from scope operations: capture policy, candidate enumeration and the
+bounded immutable catalogue under an explicitly bound coordinator; audit those
+selection inputs after all workers join, including disabled-policy and empty
+candidate paths. Each scope, recursive children and exactly authorized federated
+roots use their own bounded capture and final audit. Bound worker concurrency
+and retain evaluated results, not every scope's captured closure.
+
+Catalogue reuse must expose an explicit binding-aware interface; do not bypass
+root, project, resolver or Files identity checks by unwrapping a live view. Buffer
+findings until the relevant scope and coordinator audits complete. A localized
+loss must remain unknown and make the global gate fail without exhausting an
+unrelated sibling. Preserve complete historical review and attestation reads,
+later negative decisions, replacements, child validity and current trust checks.
+
+This composes coherent global selection and individually audited scope results.
+It does not certify one simultaneous filesystem snapshot across every scope.
+The existing per-operation caps remain unchanged. Keep real domain errors with
+closure audit errors; unavailable metadata and exhausted budgets are not proof
+of an escaping path or observed content mutation. Regression tests must exercise
+the real global orchestration under injected small budgets and serial/parallel
+workers, selection interleavings, localized exhaustion, retention negatives and
+exact binding checks. Native whole-corpus verification is still required.
