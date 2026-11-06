@@ -927,6 +927,47 @@ Reservas ficam em `.pose/review-attempts/`, recibos finais ligam o run, e `.pose
 
 **Runs delegados pelo MCP.** `pose_delegate_start` (review, adjudicate ou smoke), `pose_delegate_status`, `pose_delegate_wait`, `pose_delegate_resume` e `pose_delegate_handoff` rodam `pose delegate … --json` no projeto que o servidor resolveu para a chamada, então todo plano, recusa e run é o da CLI: um start, resume ou handoff é sempre destacado e volta quando o run reservou sua tentativa (sem `apply` ele faz a prévia), um status nunca bloqueia, e um wait bloqueia no máximo seu `timeout_seconds` (300 no máximo), devolvendo `still-running` quando o limite passa. Recusas trazem o mesmo `reason_code` do documento de erro da CLI (`rerun-without-reason`, `budget-exhausted`, `containment-incompatible`, `agent-unavailable`, `no-agent`), e os resultados trazem só o resumo normalizado: nenhum transcript, prompt, referência de sessão ou valor de ambiente. `pose delegate resume` e `handoff` aceitam `--detach` como os propósitos. Uma task não é iniciada pelo MCP.
 
+### Manter a delegação proporcional
+
+Delegue uma pergunta ou alteração delimitada, com paths, critérios de aceite,
+acesso permitido e condição de parada. Forneça referências e trechos pertinentes;
+guarde transcrições e saídas completas em arquivos. Use o propósito nativo `task`
+para implementação ou investigação e o brief selado gerado pelo motor para
+conclusões governadas de revisão, adjudicação ou smoke.
+
+- Mantenha a coordenação e os passos mecânicos de CLI na execução principal.
+  Não crie um coordenador secundário apenas para vigiar outro agente ou
+  preencher argumentos de comandos.
+- Consulte `agents` e confira o preview da rota antes de iniciar. Registre modelo,
+  fornecedor, esforço, acesso e tentativa; preserve a independência exigida
+  pelo plano selado.
+- Acompanhe a execução com `watch` ou `wait` nativos. Informe mudanças de etapa
+  e findings; evite gastar turnos relendo logs que não mudaram.
+- Retome ou transfira a tentativa existente quando seu estado permitir. Preserve
+  registros de falha e limite de uso e respeite seus orçamentos. Não abra uma
+  nova execução para contornar limites nem invente horários de reset ausentes
+  na resposta do fornecedor.
+- Antes de revisar um escopo novo em worktree descartável, confira se o checkout
+  selado contém índice e validação estruturada correspondentes ao código. Persista
+  inputs derivados ausentes antes da validação final; dados não commitados não
+  vão ao checkout.
+- Confira autenticação e formato de saída/captura ao configurar um agente ou após
+  falha de setup. Disponibilidade e preview de rota não comprovam uma chamada ao
+  modelo nem uma conclusão verificável.
+- Execute regressões focadas enquanto altera código. Reuse evidência canônica
+  atual quando coverage e proveniência nativas comprovarem sua aplicação;
+  repita checks invalidados por mudança material. Preserve checks obrigatórios,
+  controles e julgamentos independentes; sucesso de task não aprova uma revisão.
+- Reaproveite corpus e fixtures pertinentes. Acrescente ensaio apenas para risco,
+  contrato ou finding identificado, com escopo limitado. Um piloto de qualificação
+  do motor tem escopo próprio e não vira checklist automático de cada spec.
+- Separe tempo de máquina e CPU/RAM dos tokens de entrada, saída e cache. Não
+  deduza custo faturado ou contexto único de contagens cumulativas de tokens.
+
+Aplique estas práticas no review-plan e no workflow existentes. Elas não criam
+outra camada obrigatória de ensaio, relatório ou aprovação. Consulte nas seções
+seguintes os detalhes técnicos de roteamento e execução.
+
 ### Limitar a execução do adapter delegado
 
 Declare `containment` opcional em cada agente de `.pose/policy/delegation.json`, contenção schema 1 e `trusted-process`. O backend exige executável local confiável. Worktree compartilha Git; não isola filesystem, raiz original, rede, credenciais em disco, CPU ou memória. Exigência indisponível é recusada antes da reserva/spawn. Linux qualifica término do grupo somente com inventário observável e verificação após kill. Filho que escapa do grupo fica fora dessa cobertura; cross-build não qualifica runtime Windows/outras plataformas.

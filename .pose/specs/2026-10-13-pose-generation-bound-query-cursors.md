@@ -91,7 +91,11 @@ Usar fixtures sintéticas e snapshot fixo. Os casos abaixo são planejamento de 
 
 ### Deterministic checks
 
-Executar suíte Go do módulo e integração CLI/MCP/Attention dos produtores alterados, incluindo controles positivos; artifact-check, surface-check, lint/check e segurança pertinentes. Registrar evidência atual na matriz e no trace. Usar race detector se houver writers concorrentes ou estruturas compartilhadas. Lint da escrita não qualifica o target funcional.
+Aplicar os gates do `review-plan` e as rules vigentes. Durante a correção, executar regressões focadas no delta e nos controles afetados; no fechamento, registrar evidência canônica atual que cubra o módulo. Uma validação global que já contenha seus resultados pode responder também ao componente quando coverage/proveniência nativas comprovarem isso, sem repetir a suíte apenas por haver dois IDs de ferramenta. Preservar todos os checks obrigatórios e repetir o que uma mudança material invalidar.
+
+Qualificar as consultas alteradas, cursor stale e mudança de geração com fixtures de paginação e custo de leitura. Reusar B34 sem repetir sua campanha completa de falhas de writer/publicação.
+
+Os casos da tabela são objetivos de cobertura e podem compartilhar fixtures e execuções. Reusar corpus e controles das fundações sem recriar sua qualificação inteira. Qualquer ensaio adicional deve responder a risco, contrato ou finding identificado, com escopo e limite definidos.
 
 ### Requirement trace
 

@@ -905,6 +905,45 @@ Reservations live in `.pose/review-attempts/`, final receipts link the run, and 
 
 **Delegated runs over MCP.** `pose_delegate_start` (review, adjudicate or smoke), `pose_delegate_status`, `pose_delegate_wait`, `pose_delegate_resume` and `pose_delegate_handoff` run `pose delegate … --json` in the project the server resolved for the call, so every plan, refusal and run is the CLI's: a start, resume or handoff is always detached and returns once the run has reserved its attempt (without `apply` it previews), a status never blocks, and a wait blocks at most its `timeout_seconds` (300 at most), returning `still-running` when the bound passes. Refusals carry the same `reason_code` as the CLI's error document (`rerun-without-reason`, `budget-exhausted`, `containment-incompatible`, `agent-unavailable`, `no-agent`), and results carry the normalized summary only: no transcript, prompt, session reference or environment value. `pose delegate resume` and `handoff` take `--detach` as the purposes do. A task is not started over MCP.
 
+### Keep delegated work proportional
+
+Delegate a bounded question or change with named paths, acceptance criteria,
+allowed access and a stopping condition. Give the worker relevant references
+and excerpts; keep full transcripts and command output in files. Use the native
+`task` purpose for implementation or investigation and the generated sealed brief
+for governed review, adjudication or smoke conclusions.
+
+- Keep coordination and mechanical CLI steps with the primary execution. Do not
+  add a secondary coordinator merely to watch another worker or fill CLI forms.
+- Inspect `agents` and preview the route once before starting. Record the chosen
+  model, vendor, effort, access and attempt; preserve the independence required
+  by the sealed plan.
+- Use native `watch` or `wait` to follow a run. Report stage changes and findings;
+  do not spend agent turns repeatedly reading unchanged logs.
+- Resume or hand off the existing attempt when its state permits. Preserve failed
+  and quota-limited records and respect their budgets. Do not start a fresh run
+  to bypass a limit or invent a reset time the provider did not report.
+- Before a detached review of a new scope, ensure the sealed checkout contains
+  matching indexed attribution and structured validation for its source. Persist
+  missing derived inputs before final validation; uncommitted results and indexes
+  are unavailable in that checkout.
+- Check provider authentication and output/capture framing when configuring an
+  agent or after a setup failure. Availability and a routing preview do not prove
+  a successful model request or a verifiable conclusion.
+- Run focused regressions while changing code. Reuse current canonical evidence
+  when native coverage and provenance support it, and repeat checks invalidated
+  by a material change. Preserve required checks, controls and independent
+  judgments; a task's success is not review approval.
+- Reuse applicable corpus and fixtures. Add an extra experiment only for an
+  identified risk, contract or finding, with a bounded scope. Qualification of a
+  separate engine-wide pilot is not an automatic checklist for every spec.
+- Track machine time and CPU/RAM separately from model input/output and cached
+  tokens. Do not infer billed cost or unique context from cumulative token counts.
+
+Use these practices within the existing review plan and task workflow. They do
+not create another mandatory rehearsal, report or approval layer. Keep the
+technical details of execution routing in the sections below.
+
 ### Bound delegated adapter execution
 
 Declare an optional `containment` object on each agent in `.pose/policy/delegation.json`. Use containment schema 1 and `trusted-process`. This backend runs a trusted local executable; a disposable worktree shares Git metadata and does not isolate filesystem, original repository, network, credential files, CPU or memory. Required guarantees that the host cannot enforce are refused before reserving an attempt or spawning a process. Linux process-group termination requires an observable process inventory and is checked after kill; descendants that escape the group remain outside its coverage. Windows/other ports do not qualify group containment from a cross-build.
