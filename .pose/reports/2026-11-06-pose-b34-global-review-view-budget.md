@@ -139,3 +139,14 @@ the actual target and identity checks and every transcript/read-view limit.
 The focused provenance tests cover exact/over bounds, symlink target, replacement
 bytes and invalid executables. The new code requires current canonical evidence;
 prior source checkpoints remain historical. No vendor review has been claimed.
+
+The D9 correction was committed as 448a7504 and its indexed checkpoint as
+bff2b6e7. Focused RunProvenance tests with race passed in 11.093 s; the new
+canonical matrix passed 189/189 checks on bff2b6e7 (367.8 s). This includes
+current integration/race coverage; no later full monolithic race pass is claimed.
+The selected Claude CLI accepts the configured flags, but auth status on both
+the sandbox and host returned loggedIn=false, authMethod=none. User login is
+required before another provider attempt. No independent approval or lifecycle
+transition has been recorded. The final current structural check remains for
+the final administrative/documentation boundary; the earlier b7 real-corpus
+pass is preserved with its source identity.

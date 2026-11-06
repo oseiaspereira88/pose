@@ -1,7 +1,7 @@
 ---
 schema_version: 1
-generated_at: 2026-11-06T10:01:09Z
-baseline_commit: 37be0bad5d39307debc4805eb247093b6b9a7180
+generated_at: 2026-11-06T17:53:11Z
+baseline_commit: 42c8891f730cd8fa5cca2c7a55c80229e5d58d12
 staleness_policy: max_age_days=7,max_commits=20
 refresh_pending: 
 ---
@@ -88,10 +88,10 @@ capacidade.
   - report:pose-v7-legacy-cleanup-plan.md
 
 ## Arquitetura
-<!-- state:derived hash:5ef465fcad00 status:active -->
+<!-- state:derived hash:384131c8f020 status:active -->
 
 - componentes: total=3 verificados=3 completude=99.8%
-- linhas_de_codigo: producao=110722 testes=103527 total=214249
+- linhas_de_codigo: producao=110732 testes=103580 total=214312
 - linguagens: go
 - saude_de_codigo: TODOs=1 FIXMEs=0 panics=0 stubs=0
 - integracoes: contratos=70 ativos=6 gaps=64
