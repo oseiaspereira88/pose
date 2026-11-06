@@ -1,0 +1,269 @@
+{
+  "run": {
+    "run_id": "rrn-7759994b4172a7a7",
+    "proof_id": "rrp-173df18f3b997d79edc1c9addb9f449a82c9d4dc36c9761de636b364277d59bd"
+  },
+  "schema_version": 1,
+  "attestation_id": "rva-7fba31ed67c77cca",
+  "bundle_id": "rvb-84f1b7779fb959da",
+  "bundle_digest": "sha256:84f1b7779fb959da0a6d195c0c901a83689c04c6819ec034bac2f01542061e19",
+  "reviewer": "agent:anthropic/claude-opus-5-5",
+  "decision": "approved",
+  "criteria": [
+    {
+      "id": "assumption-integrity",
+      "disposition": "passed",
+      "evidence": "structure:design-a47effa4f8e59c51",
+      "rationale": "Examined the spec constraints, the A-\u003eB-\u003eA paragraph, the ADR budgets and the follow-up list. Verified facts: captured-byte identity, final audit, single retry and guarded writes exist in source (governance_read_view.go, governance_write_guard.go). Accepted risks are explicit: uncooperative external writers/ABA are outside the guarantee, no universal filesystem transaction is claimed, and F3 is owned until 2026-12-06. Unresolved limits are kept rather than hidden: tech-debt INCOMPLETE (two historical specs unreadable), the prior global structural check on b7b5680f is not relabelled current, and my own session could not execute commands. Conclusion: assumptions are separated correctly from verified facts."
+    },
+    {
+      "id": "backend-concurrency",
+      "disposition": "passed",
+      "evidence": "integration:pose-mcp/go/governance-read-view-integration",
+      "rationale": "The sealed check runs with -race over the pose, cli and mcpserver read-view, guard and index selections. In source, view reads serialize on v.mu, the audit waits for active readers (governance_read_view.go:2049-2053), operation budgets use budgetMu, and the write lease uses atomic plus once-release with canonical root ordering (governance_write_guard.go:78-187, 472-528)."
+    },
+    {
+      "id": "backend-contracts",
+      "disposition": "passed",
+      "evidence": "integration:pose-mcp/go/cli-mcp-operation-results-integration",
+      "rationale": "ObligationReport stays schema v1 with an additive read_view object (schema v1); review and closeout add an optional read_view field (review_closeout.go:420-430); the MCP catalog golden documents read_view. CLI/MCP result parity is covered by the sealed check."
+    },
+    {
+      "id": "backend-input-errors",
+      "disposition": "passed",
+      "evidence": "integration:pose-mcp/go/typed-diagnostics-integration",
+      "rationale": "Guard refusals are typed sentinels wrapped in GovernanceWriteGuardError without host paths (governance_write_guard.go:23-65). Read-view failures use ErrGovernanceReadViewChanged/Unknown with clipped, bounded summaries (governance_read_view_capture.go:88-137), and index build failures map to stable codes. F3 is the remaining low-severity untyped classification."
+    },
+    {
+      "id": "backend-integration-impact",
+      "disposition": "passed",
+      "evidence": "integration:pose-mcp/go/governance-read-view-integration",
+      "rationale": "Projection, review, closeout, index build and writers all consume the same view/guard primitives across the pose, cli and mcpserver packages; the sealed integration selection covers these boundaries."
+    },
+    {
+      "id": "backend-observability",
+      "disposition": "passed",
+      "evidence": "unit:pose-mcp/go/test",
+      "rationale": "Limitations name the producer and reason, changed paths are root-relative display paths, roots are exposed as digests, and error summaries are capped at 8 producers, 4 reasons and 2048 bytes (governance_read_view_capture.go:88-137)."
+    },
+    {
+      "id": "compatibility",
+      "disposition": "passed",
+      "evidence": "integration:pose-mcp/go/cli-mcp-operation-results-integration",
+      "rationale": "Examined the report and Obligation schema versions (both remain 1), the additive read_view, the documented treatment of legacy reports without a binding as readable but non-authorizing (POSE.md:372), and the MCP catalog descriptions. Historical records are not rehashed. Conclusion: compatible, with the additions explicitly documented."
+    },
+    {
+      "id": "correctness",
+      "disposition": "passed",
+      "evidence": "integration:pose-mcp/go/governance-read-view-integration",
+      "rationale": "R1-F1 is fixed: the registry final audit reaches metadata, so review, closeout and projection report unknown and do not keep approval or terminal status on a change (governance_read_view.go:388-408; regressions in governance_read_view_d7_probe_test.go:225-375). Positive controls (stable, recovered once) remain current."
+    },
+    {
+      "id": "cross-component-integration",
+      "disposition": "passed",
+      "evidence": "integration:pose-mcp/go/cli-profile-parity-integration",
+      "rationale": "CLI and MCP surfaces consume the same domain projection and review evaluation; sealed parity checks pass."
+    },
+    {
+      "id": "design-causality",
+      "disposition": "passed",
+      "evidence": "structure:design-a47effa4f8e59c51",
+      "rationale": "Root cause per the spec: CurrentObligationSnapshot did not bind journal/subject bytes and the closure was not audited after the producers ran. D2 extends Files with per-operation capture that serves the same bytes to every producer; the final audit plus one retry addresses R3; D3 makes the disclosure additive; D4 guards writers per root with B14 CAS for R6/R7; D5-D7 bound budgets and per-scope views from measured corpora; D8 and D9 address instance policy and the executable-hash bound. The structure check passed.",
+      "mappings": [
+        {
+          "delta": "SD-0cf58a00",
+          "basis": "R10",
+          "disposition": "mapped",
+          "rationale": "The validation matrix adds the required race check governance-read-view-integration over the B34 test selection and explicit -count=1 build/test/vet checks, qualifying R10's fixtures and fault injection as Validation V7 requires."
+        },
+        {
+          "delta": "SD-5c5ba300",
+          "basis": "D2",
+          "disposition": "mapped",
+          "rationale": "The spec constraint requires the B34 ADR to be accepted before the contract changes; the ADR records the bounded operation-scoped view and its budgets on which decisions D2-D9 rest."
+        },
+        {
+          "delta": "SD-98ca1442",
+          "basis": "D8",
+          "disposition": "mapped",
+          "rationale": "delegation.json is instance-only configuration of the independent-review agents and is excluded from the embedded scaffold (distpolicy.go:115-118), as D8 decides. Its narrowed session regex responds to the retained capture failure rrn-db41024e48aa50af. It contains no secrets."
+        }
+      ]
+    },
+    {
+      "id": "documentation",
+      "disposition": "passed",
+      "evidence": "structure:design-a47effa4f8e59c51",
+      "rationale": "POSE.md:372-373 (and its pt-BR and scaffold copies) describe snapshot.read_view, the ID binding, separate coherence/coverage/freshness, 'current' meaning only the final audit instant, legacy non-authorization and the budgets; the ADR documents 25,000 records, 512 MiB, 8 MiB and 16 roots; the MCP catalog descriptions mention read_view freshness and limitations. They match the runtime behaviour I read."
+    },
+    {
+      "id": "milestone-exit-gate-pose-state-consistency-and-recovery-governance-read-view",
+      "disposition": "passed",
+      "evidence": "integration:pose-mcp/go/governance-read-view-integration",
+      "rationale": "Captured bytes, entries, links and errors define the ID (metadataSingle); mtime and identity are included, so even same-size edits change it. Interleaving triggers one retry, then coherent=false/unknown with incomplete coverage, and the registry path no longer relabels a changed view as current (R1-F1 fixed). Coverage loss blocks Complete (obligation_projection.go:341-348). Effects revalidate under the per-root guard with B14/B15 CAS (start.go, action_request.go, index_generation.go). External-writer and A-\u003eB-\u003eA limits are explicit. There is no inter-operation cache."
+    },
+    {
+      "id": "operability",
+      "disposition": "passed",
+      "evidence": "structure:design-a47effa4f8e59c51",
+      "rationale": "Index failures say whether anything was written and tell the user to rerun `pose index` or `pose index --verify` (cli/index_generation_build.go:39-117); guard busy/unavailable errors name the operation and root label; read-view limitations name producer and reason. F3 does not hurt the user-visible message, only how it is classified."
+    },
+    {
+      "id": "requirements",
+      "disposition": "passed",
+      "evidence": "integration:pose-mcp/go/governance-read-view-integration",
+      "rationale": "R1-R10 are exercised by the sealed B34 race selection plus the obligation-projection, writer-publication, index-generation and state-attention checks; the R3/R5 registry interleaving gap from round 1 now has dedicated regressions."
+    },
+    {
+      "id": "scope",
+      "disposition": "passed",
+      "evidence": "structure:design-a47effa4f8e59c51",
+      "rationale": "Compared the change list with the spec's artifact plan: every changed source and governance file is declared, and the instance delegation policy is covered by D8. No watcher, daemon, global cache, B31/B33/B35 work or host adoption was added, matching the plan's exclusions."
+    },
+    {
+      "id": "security",
+      "disposition": "passed",
+      "evidence": "structure:design-a47effa4f8e59c51",
+      "rationale": "Lock directories and the lock file are checked against symlink, non-regular and escape substitution, with SameFile confirmed after open (governance_write_guard.go:437-548). Foreign writes require explicit root bindings and the exact project set (governance_scoped_write.go:68-98). Outputs use root digests, not absolute paths. The executable digest checks the regular file, opened identity and bounded size (review_run_provenance.go:225-255). The live delegation policy is not shipped (distpolicy.go:118). No secrets were found."
+    },
+    {
+      "id": "solution-proportionality",
+      "disposition": "passed",
+      "evidence": "structure:design-a47effa4f8e59c51",
+      "rationale": "The smallest sufficient alternative, re-hashing a few named files, would not bind directory listings, errors or federated roots, and would not prevent mixed producer results; the chosen design extends the existing Files seam with no daemon or cache. Cost: per-read mutex serialization and retained bytes up to the measured 512 MiB budget (no longer doubled after R1-F2). The choice would be invalidated if real corpora outgrew the D6 budgets without a new measurement, or if B35 runtime caching were adopted."
+    }
+  ],
+  "tools": [
+    {
+      "id": "artifact-check",
+      "disposition": "passed",
+      "evidence": "check:artifact-check",
+      "rationale": "Required tool with no evidence class, so the engine's reference is the command execution. The primary execution ran it successfully on the current source before sealing; I did not run it myself (Bash denied) and could not inspect its output, so I am relying on the recorded execution and not on my own run."
+    },
+    {
+      "id": "assess-design",
+      "disposition": "passed",
+      "evidence": "structure:design-a47effa4f8e59c51",
+      "rationale": "Sealed structural design result passes for this bundle."
+    },
+    {
+      "id": "assess-discover",
+      "component": "pose-mcp",
+      "disposition": "not-used",
+      "rationale": "Recommended tool; not executed in my restricted session and no sealed result exists for it."
+    },
+    {
+      "id": "assess-discover",
+      "component": "tests",
+      "disposition": "not-used",
+      "rationale": "Recommended tool; not executed in my restricted session and no sealed result exists for it."
+    },
+    {
+      "id": "assess-integrate",
+      "disposition": "passed",
+      "evidence": "integration:pose-mcp/go/governance-read-view-integration",
+      "rationale": "The primary execution ran assess integrate on the current source; its inventory is static, not functional proof. The cited sealed integration record is the passing evidence of the class the tool requires. I did not run the command myself."
+    },
+    {
+      "id": "assess-tech-debt",
+      "disposition": "not-used",
+      "rationale": "Recommended tool; not executed by me. The known limitation stands: the scan is INCOMPLETE because two historical specs cannot be read, and it is not claimed as complete."
+    },
+    {
+      "id": "closeout-check",
+      "disposition": "deferred",
+      "rationale": "Post-review gate: this tool has the review-complete precondition and can only run meaningfully after this review's conclusion is recorded."
+    },
+    {
+      "id": "knowledge-check",
+      "disposition": "passed",
+      "evidence": "check:knowledge-check",
+      "rationale": "Required tool with no evidence class. The primary execution ran it successfully before sealing; I did not run it myself (Bash denied) and am relying on that recorded execution."
+    },
+    {
+      "id": "review-check",
+      "disposition": "deferred",
+      "rationale": "Post-review gate: this tool has the review-complete precondition and evaluates the review state this conclusion produces, so it runs after attestation."
+    },
+    {
+      "id": "suggest-review",
+      "component": "pose-mcp",
+      "disposition": "not-used",
+      "rationale": "Recommended tool; not executed in my restricted session."
+    },
+    {
+      "id": "suggest-review",
+      "component": "tests",
+      "disposition": "not-used",
+      "rationale": "Recommended tool; not executed in my restricted session."
+    },
+    {
+      "id": "surface-check",
+      "disposition": "passed",
+      "evidence": "integration:pose-mcp/go/spec-surface-integration",
+      "rationale": "The primary execution ran surface-check on the current source with zero findings; the cited sealed integration record is the passing evidence of the required class. I did not run the command myself."
+    },
+    {
+      "id": "validate",
+      "disposition": "passed",
+      "evidence": "unit:pose-mcp/go/test",
+      "rationale": "The canonical global matrix result in .pose/results/delivery-validation.json records 189 passed and 0 failed with git_head 4054d6be (the source-correction commit); df7da2f0 is described as an administrative checkpoint, which I could not diff-verify. The sealed records cite that validation. This is not the prior b7b5680f structural check."
+    },
+    {
+      "id": "validate",
+      "component": "pose-mcp",
+      "disposition": "passed",
+      "evidence": "unit:pose-mcp/go/test",
+      "rationale": "Sealed pose-mcp module checks pass: build, the full uncached test suite and the B34 race integration (integration:pose-mcp/go/governance-read-view-integration)."
+    },
+    {
+      "id": "validate",
+      "component": "tests",
+      "disposition": "not-used",
+      "rationale": "The validation matrix declares this component runs no check (replaceDefaultChecks with an empty list, producer coverage none), so no producer can emit evidence for it."
+    }
+  ],
+  "evidence_refs": [
+    "delegated-run:rrn-7759994b4172a7a7",
+    "integration:pose-mcp/go/cli-mcp-operation-results-integration",
+    "integration:pose-mcp/go/cli-profile-parity-integration",
+    "integration:pose-mcp/go/governance-read-view-integration",
+    "integration:pose-mcp/go/typed-diagnostics-integration",
+    "structure:design-a47effa4f8e59c51",
+    "unit:pose-mcp/go/test"
+  ],
+  "findings": [
+    {
+      "id": "F3",
+      "severity": "low",
+      "evidence": "file:pose-mcp/internal/cli/index_generation_build.go:205",
+      "action": "Replace the substring classification with a typed error while preserving the code, receipts and negative controls.",
+      "disposition": "accepted-risk",
+      "owner": "@pose-maintainers",
+      "rationale": "Index build failure code 'federated-roadmap' is still selected by substring match on error text instead of a typed/sentinel error; recorded as an owned open follow-up in the spec.",
+      "review_by": "2026-12-06"
+    }
+  ],
+  "authority": {
+    "schema_version": 1,
+    "project": "proj.pose-dist",
+    "bundle_digest": "sha256:84f1b7779fb959da0a6d195c0c901a83689c04c6819ec034bac2f01542061e19",
+    "principal": "agent:anthropic/claude-opus-5-5",
+    "role": "agent",
+    "review_execution": "rrn-7759994b4172a7a7",
+    "implementation_principal": "agent:openai/unknown",
+    "implementation_execution": "sha256:e153fd0098107a9b94004770167630f49576f2af7f39b7b1a7b2492cb4339a62",
+    "issuer": "b34-local-executor",
+    "issued_at": "2026-11-06T20:08:47Z",
+    "audience": "proj.pose-dist"
+  },
+  "envelope": {
+    "issuer": "b34-local-executor",
+    "subject": "rvb-84f1b7779fb959da",
+    "algorithm": "ed25519",
+    "public_key": "ck4sApdfePV2GT+hJyAYfJd2qLzeG55P8pevGR0bvZE=",
+    "signature": "CtswspiwXsM9+CdZKAQ0F4lEpr3gjDf3jsOTg3mcaRxdQwFvCNHOOgu8RGTS+QitpH6rq14cxUXey2GY/4tmDg=="
+  },
+  "attested_at": "2026-11-06T20:08:47Z",
+  "path": ".pose/review-attestations/rva-7fba31ed67c77cca.json"
+}

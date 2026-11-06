@@ -1,8 +1,8 @@
 ---
 slug: pose-governance-read-view-generation
-status: in-progress
+status: done
 created_at: 2026-10-13
-completed_at:
+completed_at: 2026-11-06
 depends_on: pose-source-coverage-integrity, pose-git-and-dispatch-snapshot-integrity, pose-writer-coordination-and-atomic-publication, pose-index-generation-integrity, pose-obligation-projection, pose-spec-authority-transfer
 priority: 1
 components: pose-mcp
@@ -246,7 +246,7 @@ Executar incrementalmente depois das fundações aceitas B06/B07/B14/B15. A prim
 - [x] Qualificar os writers reais com vetor exato de roots e sem perder autoridade.
 - [x] Construir outputs e bindings de índices na mesma view e auditar antes de publicar.
 - [x] Passar a suíte completa, race e os checks nativos registrados na matriz.
-- [ ] Reconciliar artifacts/trace e obter revisão independente do bundle selado.
+- [x] Reconciliar artifacts/trace e obter revisão independente do bundle selado.
 - [ ] Aplicar closeout, repetir os gates finais e publicar sem adoção no hospedeiro.
 
 ## 5. Decisions
@@ -323,6 +323,8 @@ Executar os cenários obrigatórios acima, a suíte Go do módulo e os checks da
 
 ### Execution log
 
+- Em 2026-11-06, as correções F1/F2 da revisão independente foram commitadas em `4054d6be`: a auditoria final do registro de roots passou a atingir os metadados consumidos pelos gates, e a auditoria reutiliza os bytes imutáveis já capturados. As contraprovas falharam na versão anterior e passaram com race (3,225 s). A matriz canônica passou 189/189 no checkpoint `df7da2f0` (354,5 s de wall), incluindo integração B34 com race. A revisão Claude Opus 5.5 `rrn-7759994b4172a7a7` aprovou o bundle `rvb-84f1b7779fb959da`; a conclusão nativa registrou a atestação `rva-7fba31ed67c77cca`. Os drafts e registros recusados por formato/evidência foram preservados. Review verify e review-check confirmaram aprovação atual; `pose close` aplicou `done` em 2026-11-06. O revisor examinou código e evidência selada, sem executar comandos Bash negados pela contenção. A verificação estrutural final e a publicação ficam registradas somente após seus resultados.
+
 - Em 2026-11-06, o check real de D7 terminou após 10.916 s com 19 erros, sem aprovação: dez perdas de budget na auditoria e nove recusas de contexto em roadmaps. As regressões `TestGovernanceReadViewDirectoryInfoAuditIsLinearAndDetectsChange` e `TestGovernanceReadViewRoadmapChildrenKeepAuthorizedBinding` falharam no código anterior e passaram após corrigir a releitura quadrática de diretórios e preservar a autoridade nos filhos. O builder passa a usar um snapshot de specs novo por build. A nova evidência canônica e os gates reais permanecem pendentes.
 
 - Em 2026-11-06, o checkpoint D7 passou nos probes de domínio; a seleção inicial CLI executou zero casos e não contou como cobertura. As regressões completas de escopo/seleção passaram após vincular os índices da fixture histórica; duas contraprovas adicionais reproduziram a perda de causas simultâneas e o descarte de falhas de domínio, corrigidos no wrapper e no checker. A integração B34 ampliada passou com race: domínio 54,533 s, CLI 16,136 s, MCP 1,331 s. Scaffold/distpolicy passaram (0,304 s/0,004 s), com a policy viva de delegação excluída do embed. A matriz completa e o check real ainda devem qualificar este novo código. A task secundária D7 ficou interrompida por limite de uso após produzir o checkpoint e reportar bloqueio do temp Go pelo sandbox; a execução principal concluiu os testes e ajustes, preservando o run original sem promover seu estado a sucesso.
@@ -396,13 +398,13 @@ Os casos abaixo foram requalificados pela matriz de 189/189 checks no checkpoint
 
 Implementada leitura por operação com captura/replay imutável, auditoria da closure, retry limitado e coverage localizada; projeção comum entre domínio, CLI e MCP; reavaliação sob guard dos roots autorizados antes dos efeitos e publicação de índices com outputs e bindings da mesma tentativa. Preservados schemas legados, CAS/receipts, história e incerteza explícita. Não foram adicionados daemon, watcher ou cache entre operações.
 
-A matriz estrita aprovou 189/189 checks no código `b7b5680f` (430,0 s de wall nativo, quatro workers), com suíte Go sem cache e integração B34 com race. Os assessments atuais, knowledge-check, índice normal, artifact-check e surface-check passaram. O check estrito real passou com 35 avisos históricos e nenhum erro. A suíte completa com race aprovou os demais pacotes; o domínio passou em quatro grupos que cobrem todos os 1.425 testes, após timeouts de dez e trinta minutos nas tentativas monolíticas. O relatório de D7 preserva esses limites e resultados. A primeira revisão delegada parou antes de executar o fornecedor porque o worktree selado continha índices antigos; o próximo checkpoint persiste os inputs reais e atualiza sua proveniência. Nenhum código Go ou requisito muda nesta atualização. A revisão independente e o fechamento continuam pendentes.
+A matriz estrita aprovou 189/189 checks no checkpoint final `df7da2f0` (354,5 s de wall nativo, quatro workers), com suíte Go sem cache e integração B34 com race. Os assessments, knowledge-check, índice normal, artifact-check e surface-check passaram. O check estrito real anterior passou no código `b7b5680f` com 35 avisos históricos e nenhum erro; a passagem estrutural final após as correções e a documentação será registrada separadamente. A suíte completa com race aprovou os demais pacotes; o domínio passou em quatro grupos que cobrem todos os 1.425 testes de `b7b5680f`, após timeouts de dez e trinta minutos nas tentativas monolíticas. As alterações posteriores receberam regressões com race e nova matriz completa. O relatório de D7 preserva esses limites e resultados. A revisão independente Claude Opus 5.5 aprovou os 17 critérios, com F3 mantido como follow-up de baixa criticidade; a atestação assinada `rva-7fba31ed67c77cca` passou na verificação nativa de frescor e cobertura. O fechamento foi aplicado pelo motor em 2026-11-06; falhas de setup, captura e preflight anteriores permanecem históricas.
 
 Os starts e as rodadas anteriores permanecem históricos; o start prospectivo `b2eb2d34` não inventa precedência sobre o código recuperado. O scan de segredos dos dez commits de implementação não encontrou leaks; a verificação final deve incluir os commits posteriores.
 
 ### Residual risks
 
-A closure é um contrato por operação, não um hash genérico do diretório. Um writer externo pode alterar e restaurar bytes entre leituras sem deixar evidência; só locks/fencing participados pelos writers qualificam transições requeridas. A view não é um snapshot transacional nem autorização persistente. O ADR aceita a divulgação aditiva com versão própria, e os gates devem tratar ausência de proof como `unknown`; os resultados atuais qualificam a composição testada, e a revisão independente ainda está pendente. O assessment de dívida conserva a limitação de duas specs históricas inválidas e não equivale a scan completo. A confirmação em CI remoto foi dispensada pelo usuário; não houve adoção do motor no Harne8.
+A closure é um contrato por operação, não um hash genérico do diretório. Um writer externo pode alterar e restaurar bytes entre leituras sem deixar evidência; só locks/fencing participados pelos writers qualificam transições requeridas. A view não é um snapshot transacional nem autorização persistente. O ADR aceita a divulgação aditiva com versão própria, e os gates devem tratar ausência de proof como `unknown`; os resultados atuais e a revisão independente qualificam a composição testada. A assinatura declara a identidade do executor local, sem receipt do fornecedor ou autoridade humana. O assessment de dívida conserva a limitação de duas specs históricas inválidas e não equivale a scan completo. A confirmação em CI remoto foi dispensada pelo usuário; não houve adoção do motor no Harne8.
 
 ### Follow-ups
 

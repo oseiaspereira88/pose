@@ -1,7 +1,7 @@
 ---
 schema_version: 1
-generated_at: 2026-11-06T19:35:38Z
-baseline_commit: 90e6bd098810b7a073f874e5e124f8f7a728c0eb
+generated_at: 2026-11-06T20:21:13Z
+baseline_commit: df7da2f0abfdc04b351c21013c2ead8398e1d189
 staleness_policy: max_age_days=7,max_commits=20
 refresh_pending: 
 ---
@@ -27,24 +27,24 @@ próprio deste repositório (produtização v2, DX) segue disponível conforme
 capacidade.
 
 ## Specs & Roadmaps
-<!-- state:derived hash:b73594c52c1a -->
+<!-- state:derived hash:4447b87a344c -->
 
-- specs: total=482 draft=16 in-progress=1 blocked=0 done=463 superseded=0 abandoned=2
+- specs: total=482 draft=16 in-progress=0 blocked=0 done=464 superseded=0 abandoned=2
 - roadmaps: total=23 active=3 done=16
 - últimos closeouts:
-  - spec:pose-consolidation-batch-1-authoring (2026-11-03)
-  - spec:pose-consolidation-batch-8-authoring (2026-11-03)
-  - spec:pose-consolidation-batch-9-authoring (2026-11-03)
+  - spec:pose-governance-read-view-generation (2026-11-06)
+  - spec:pose-consolidation-batch-14-authoring (2026-11-03)
+  - spec:pose-consolidation-batch-4-authoring (2026-11-03)
   - spec:pose-governance-operation-performance (2026-11-03)
-  - spec:pose-consolidation-program-bootstrap (2026-11-03)
-  - ... e mais 458 (ver `pose_list_specs status:done`)
+  - spec:pose-consolidation-batch-7-authoring (2026-11-03)
+  - ... e mais 459 (ver `pose_list_specs status:done`)
 
 ## Follow-ups
-<!-- state:derived hash:d4da3908d4d0 -->
+<!-- state:derived hash:43edcabf84d2 -->
 
-- abertos: 219
-- por criticidade: high=5 medium=42 low=153 sem-classificação=19
-- vencidos (review < hoje): 34
+- abertos: 221
+- por criticidade: high=5 medium=43 low=154 sem-classificação=19
+- vencidos (review < hoje): 35
 - cobertura: INCOMPLETA — 2 source(s) could not be read: invalid .pose/specs/2026-08-15-pose-instance-engine-version-tracking.md; invalid .pose/specs/2026-08-15-pose-knowledge-durable-reference-type.md; os números acima são o que pôde ser lido
   - spec:pose-package-manager-distribution (owner:@pose-maintainers review:2026-09-18)
   - spec:pose-federated-carried-forward-proof (owner:@harne8-platform review:2026-09-27)
@@ -56,7 +56,7 @@ capacidade.
   - spec:pose-federated-spec-dependency-acceptance (owner:@harne8-platform review:2026-10-03)
   - spec:pose-package-channel-install-repair (owner:@pose-maintainers review:2026-10-08)
   - spec:pose-governance-gate-activation (owner:@pose-maintainers review:2026-10-08)
-  - ... e mais 24 vencidos (ver `pose followups --open`)
+  - ... e mais 25 vencidos (ver `pose followups --open`)
 
 ## Capabilities
 <!-- state:derived hash:e20a9224b717 -->
@@ -76,16 +76,16 @@ capacidade.
 - knowledge: total=21 ativo=21 expirado=0
 
 ## Validação & Evidência
-<!-- state:derived hash:b56529eba5b2 -->
+<!-- state:derived hash:21ed16dff8a2 -->
 
 - último registro: task=validate-native outcome=pass (2026-10-24T18:00:55Z)
 - últimos 30 dias: total=41 outcome_ok=27 outcome_outro=14
-- reports revisados (.md): total=287
-  - report:2026-10-14-security-validation-release-api-auth.md
-  - report:2026-11-03-pose-consolidation-authoring-closeout.md
-  - report:pose-governance-operation-performance-method.md
-  - report:pose-v6-2-0-autonomous-work.md
-  - report:pose-v7-legacy-cleanup-plan.md
+- reports revisados (.md): total=290
+  - report:2026-11-06-pose-b34-global-review-view-budget.md
+  - report:2026-11-05-pose-b34-read-view-capacity-calibration.md
+  - report:2026-11-05-pose-b34-dependency-budget-measurement.md
+  - report:pose-abm-capability-adoption.md
+  - report:pose-agency-readiness-pilot.md
 
 ## Arquitetura
 <!-- state:derived hash:00ac0f3186cc status:active -->
