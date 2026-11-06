@@ -3,11 +3,65 @@ package pose
 import (
 	"errors"
 	"fmt"
+	"io/fs"
 	"os"
 	"path/filepath"
 	"strings"
 	"testing"
 )
+
+type d7DirectoryAuditFiles struct {
+	Files
+	path  string
+	opens int
+}
+
+func (f *d7DirectoryAuditFiles) Open(path string) (fs.File, error) {
+	if path == f.path {
+		f.opens++
+	}
+	return f.Files.Open(path)
+}
+
+func TestGovernanceReadViewDirectoryInfoAuditIsLinearAndDetectsChange(t *testing.T) {
+	for _, mutate := range []bool{false, true} {
+		t.Run(fmt.Sprint(mutate), func(t *testing.T) {
+			root := t.TempDir()
+			for i := 0; i < 200; i++ {
+				if err := os.WriteFile(filepath.Join(root, fmt.Sprintf("entry-%03d", i)), []byte("before"), 0600); err != nil {
+					t.Fatal(err)
+				}
+			}
+			files := &d7DirectoryAuditFiles{Files: NativeFiles(), path: root}
+			view := newGovernanceReadView(root, files)
+			entries, err := view.filesFor("probe").ReadDir(root)
+			if err != nil {
+				t.Fatal(err)
+			}
+			for _, entry := range entries {
+				if _, err := entry.Info(); err != nil {
+					t.Fatal(err)
+				}
+			}
+			if mutate {
+				if err := os.WriteFile(filepath.Join(root, "entry-050"), []byte("changed size"), 0600); err != nil {
+					t.Fatal(err)
+				}
+			}
+			files.opens = 0
+			audit := view.auditSingle()
+			if files.opens != 1 {
+				t.Fatalf("audit listed one directory %d times", files.opens)
+			}
+			if len(audit.UnknownProducers) != 0 {
+				t.Fatalf("fitting audit lost coverage: %+v", audit)
+			}
+			if audit.ChangedProducers["probe"] != mutate {
+				t.Fatalf("change=%t audit=%+v", mutate, audit)
+			}
+		})
+	}
+}
 
 type d7ProbeContainmentFiles struct {
 	Files

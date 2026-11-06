@@ -72,3 +72,27 @@ instance-policy exclusion mechanism to keep the user-authorized local delegation
 profiles and executor issuer out of the scaffold; the generator carries only the
 intended manual updates. Full canonical validation and normal corpus gates are
 still required for the corrected commit. These focused passes are not a review.
+
+## Real-corpus D7 result and final-audit correction
+
+The native global check on `e253b052` completed in 10,916 seconds with 19
+errors: ten scope audit budget losses and nine roadmap Store-context refusals.
+It did not approve closeout. Two bounded CPU samples were diagnostics only,
+terminated at their sample boundary; they are not validation passes. They
+identified repeated index-material resolution, while the completed global run
+exposed a separate quadratic final-directory audit.
+
+The final audit listed a whole directory again for every consumed DirEntry.Info.
+A 200-entry regression reproduced 199 audit listings and lost coverage under
+the old implementation. The correction shares one bounded final listing within
+one root audit, still calls Info for every consumed entry, and preserves the
+changed-entry negative control and all production limits. Independent audit
+operations do not share listings. A roadmap regression reproduced the context
+refusal: child traversal cleared the active Store authority even though its
+existing includeFederated=false argument already suppresses recursive acceptance.
+Preserving that authority allows real child evaluation without widening roots.
+Both regressions fail through a compiler overlay of the old source and pass
+on the corrected source. The index builder now uses a fresh existing spec
+snapshot per build rather than repeatedly listing all specs during resolution;
+no result or authorization cache survives the build. Final canonical evidence
+and corpus gates are still pending for these changes.

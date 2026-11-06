@@ -2070,6 +2070,27 @@ func (v *governanceReadView) auditSingleWithBudget(budget *governanceReadViewAud
 	v.mu.Unlock()
 
 	result := governanceReadViewAudit{ChangedProducers: map[string]bool{}, UnknownProducers: unknown}
+	// One final listing serves the directory inventory and its Info observations.
+	// Re-listing N entries for each of N Info calls charges an unchanged directory
+	// quadratically and can exhaust an audit whose capture fits the same limits.
+	type directoryAudit struct {
+		entries []fs.DirEntry
+		err     error
+	}
+	directories := map[string]directoryAudit{}
+	auditDirectory := func(path string) ([]fs.DirEntry, error) {
+		if prior, ok := directories[path]; ok {
+			return prior.entries, prior.err
+		}
+		remainingRecords := governanceReadViewMaxRecords - budget.records
+		remainingMetadata := governanceReadViewMaxMetadata - budget.metadata
+		entries, err := readDirGovernanceBoundedWithBudget(v.base, path, remainingRecords, remainingMetadata)
+		if err == nil && !budget.reserveDirectory(entries, remainingRecords, remainingMetadata) {
+			entries, err = nil, errGovernanceReadViewBudget
+		}
+		directories[path] = directoryAudit{entries, err}
+		return entries, err
+	}
 	markBudgetFailure := func(path string, producers map[string]bool, reason string) {
 		for producer := range producers {
 			result.UnknownProducers[producer] = appendUnique(result.UnknownProducers[producer], reason)
@@ -2131,27 +2152,15 @@ func (v *governanceReadView) auditSingleWithBudget(budget *governanceReadViewAud
 			info, err := v.base.Lstat(item.baseName)
 			changed = errorText(err) != item.errText || err == nil && !sameObservedFile(item.witness, info)
 		case "directory":
-			remainingRecords := governanceReadViewMaxRecords - budget.records
-			remainingMetadata := governanceReadViewMaxMetadata - budget.metadata
-			entries, err := readDirGovernanceBoundedWithBudget(v.base, item.baseName, remainingRecords, remainingMetadata)
+			entries, err := auditDirectory(item.baseName)
 			if errors.Is(err, errGovernanceReadViewBudget) {
-				markBudgetFailure(item.path, item.producers, "final directory audit exceeded its bounded record or metadata budget")
-				continue
-			}
-			if err == nil && !budget.reserveDirectory(entries, remainingRecords, remainingMetadata) {
 				markBudgetFailure(item.path, item.producers, "final directory audit exceeded its bounded record or metadata budget")
 				continue
 			}
 			changed = errorText(err) != item.errText || err == nil && strings.Join(item.entries, "\x00") != strings.Join(dirEntryIdentities(entries), "\x00")
 		case "direntry-info":
-			remainingRecords := governanceReadViewMaxRecords - budget.records
-			remainingMetadata := governanceReadViewMaxMetadata - budget.metadata
-			entries, err := readDirGovernanceBoundedWithBudget(v.base, item.baseName, remainingRecords, remainingMetadata)
+			entries, err := auditDirectory(item.baseName)
 			if errors.Is(err, errGovernanceReadViewBudget) {
-				markBudgetFailure(item.path, item.producers, "final directory audit exceeded its bounded record or metadata budget")
-				continue
-			}
-			if err == nil && !budget.reserveDirectory(entries, remainingRecords, remainingMetadata) {
 				markBudgetFailure(item.path, item.producers, "final directory audit exceeded its bounded record or metadata budget")
 				continue
 			}

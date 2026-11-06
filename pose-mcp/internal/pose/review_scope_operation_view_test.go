@@ -10,6 +10,24 @@ import (
 	"time"
 )
 
+func TestGovernanceReadViewRoadmapChildrenKeepAuthorizedBinding(t *testing.T) {
+	store, _, _ := retentionFixture(t)
+	writeReviewFixture(t, store.Root, ".pose/roadmaps/program.md", "---\nslug: program\nstatus: active\n---\n# Program\n\n## Milestone: core\n- specs: backend\n")
+	bindCurrentReviewFixture(t, store)
+	err := store.WithReviewCoordinator(func(shared Store) error {
+		return shared.WithReviewScopeOperationView(func(scope Store) error {
+			state, err := scope.GetCloseoutState("roadmap:program")
+			if err == nil && (len(state.Children) != 1 || len(state.Children[0].Children) != 1) {
+				t.Fatalf("children were not evaluated: %+v", state)
+			}
+			return err
+		})
+	})
+	if err != nil {
+		t.Fatal(err)
+	}
+}
+
 func TestGovernanceReadViewScopeCoordinatorRetainsCallbackAndAuditFailure(t *testing.T) {
 	root, _ := d7ProbeCoordinatorRoot(t)
 	path := filepath.Join(root, "policy.json")

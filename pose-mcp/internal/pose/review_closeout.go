@@ -2618,8 +2618,9 @@ func (s Store) getCloseoutState(ref string, includeFederated bool) (CloseoutStat
 		state.Blockers = append(state.Blockers, d.Message)
 	}
 	childStore := s
-	childStore.FederatedProjectID = ""
-	childStore.FederatedResolver = nil
+	// includeFederated=false already suppresses recursive acceptance. Keep the
+	// authorized binding: clearing it makes a child borrow its parent's active
+	// read view under a different Store context.
 	switch scope.Kind {
 	case "spec":
 		sp, err := s.GetSpec(scope.Slug)

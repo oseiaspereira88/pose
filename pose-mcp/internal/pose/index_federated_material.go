@@ -94,6 +94,8 @@ func BuildIndexFederatedMaterialIn(store Store) (IndexFederatedMaterial, error) 
 		return IndexFederatedMaterial{}, errors.New("pose: index material project identity is unavailable")
 	}
 
+	// Fresh for this build, never inherited from an earlier advisory operation.
+	resolver = resolver.WithSpecSnapshots()
 	specs, err := store.ListSpecs("", "")
 	if err != nil && !errors.Is(err, fs.ErrNotExist) {
 		return IndexFederatedMaterial{}, fmt.Errorf("pose: listing specs for index material: %w", err)
