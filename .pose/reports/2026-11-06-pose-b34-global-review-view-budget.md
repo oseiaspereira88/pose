@@ -50,3 +50,25 @@ disabled and roadmap branches; retained approvals versus rejection or unreadable
 history; precise containment errors and binding refusals; unknown versus observed
 change and preserved callback/audit causes. Focused race, the complete canonical
 matrix and real corpus gates remain mandatory before closeout.
+
+## Corrective checkpoint
+
+The implementation task produced the initial patch, then stopped on its recorded
+usage limit (`trn-a70230110341c95a`, resumable attempt
+`tat-332b91eaaeb86ea1dfe46814ea0043c5`). Its sandboxed Go attempt did not compile
+because the configured host temp directory was read-only there. Root finished
+the regression work and ran it in the authorized host environment. No model was
+silently substituted and the interrupted record remains intact.
+
+The first domain retention fixture failed because its synthetic legacy indexes
+lacked a generation binding. Publishing the fixture's existing evidence with
+real controlled bindings fixed that setup. Two independent probes then reproduced
+loss of the unknown cause beside an observed change, and loss of domain findings
+beside a failed selection audit. Both were corrected and the focused suite passed.
+
+Expanded B34 race integration passed: domain 54.533 s, CLI 16.136 s and MCP
+1.331 s. Scaffold/distpolicy passed in 0.304/0.004 s. D8 uses the existing
+instance-policy exclusion mechanism to keep the user-authorized local delegation
+profiles and executor issuer out of the scaffold; the generator carries only the
+intended manual updates. Full canonical validation and normal corpus gates are
+still required for the corrected commit. These focused passes are not a review.

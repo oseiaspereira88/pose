@@ -2071,9 +2071,7 @@ func (v *governanceReadView) auditSingleWithBudget(budget *governanceReadViewAud
 
 	result := governanceReadViewAudit{ChangedProducers: map[string]bool{}, UnknownProducers: unknown}
 	markBudgetFailure := func(path string, producers map[string]bool, reason string) {
-		result.ChangedPaths = append(result.ChangedPaths, v.displayPath(path))
 		for producer := range producers {
-			result.ChangedProducers[producer] = true
 			result.UnknownProducers[producer] = appendUnique(result.UnknownProducers[producer], reason)
 		}
 	}

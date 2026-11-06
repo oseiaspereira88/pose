@@ -310,7 +310,7 @@ func (state *governanceReadViewGitState) capture(files Files, ctx context.Contex
 	metadataCost := int64(len(root) + len(key) + len(producer) + 128)
 	if !state.op.reserveRecord(metadataCost) {
 		state.mu.Unlock()
-		state.markUnknownForRoot(root, producer, "read view exceeded its Git command budget")
+		state.markUnknownForRoot(root, producer, "read view exceeded its shared record or metadata budget while capturing Git")
 		return nil, errGovernanceReadViewBudget
 	}
 	limit := maxOutputBytes

@@ -290,30 +290,27 @@ func (checker *nativeChecker) checkArtifactContracts() {
 func (checker *nativeChecker) checkReviewCloseout() {
 	policyPath := filepath.Join(checker.root, ".pose", "policy", "review.json")
 	store := pose.Store{Root: checker.root, FS: checker.fsys()}
-	viewErr := store.WithReviewOperationView(func(store pose.Store) {
+	var findings []string
+	viewErr := store.WithReviewCoordinator(func(store pose.Store) error {
 		files := pose.FilesOrNative(store.FS)
 		raw, err := files.ReadFile(policyPath)
 		if os.IsNotExist(err) {
-			return
+			return nil
 		}
 		if err != nil {
-			checker.failOrWarn("review closeout: cannot read policy: " + err.Error())
-			return
+			return fmt.Errorf("cannot read policy: %w", err)
 		}
 		var policy struct {
 			Enabled   bool   `json:"enabled"`
 			AdoptedAt string `json:"adopted_at"`
 		}
 		if err := json.Unmarshal(raw, &policy); err != nil || policy.AdoptedAt == "" {
-			checker.failOrWarn("review closeout: invalid review policy")
-			return
+			return fmt.Errorf("invalid review policy")
 		}
 		if !policy.Enabled {
-			return
+			return nil
 		}
-		// Resolve candidates in the same read view as the closeout evaluations,
-		// so policy or spec changes before view creation cannot escape its audit.
-		slugs := []string{}
+		refs := []string{}
 		for _, path := range findSpecFilesIn(files, checker.root) {
 			fm := simpleFrontmatterIn(files, path)
 			if fm["status"] != "done" || fm["completed_at"] < policy.AdoptedAt {
@@ -323,36 +320,49 @@ func (checker *nativeChecker) checkReviewCloseout() {
 			if slug == "" {
 				slug = filepath.Base(filepath.Dir(path))
 			}
-			slugs = append(slugs, slug)
+			refs = append(refs, "spec:"+slug)
 		}
-		checker.failOrWarnPerItem(len(slugs), func(i int) []string {
-			slug := slugs[i]
-			state, err := store.GetCloseoutState("spec:" + slug)
-			if err != nil {
-				return []string{"review closeout: spec:" + slug + ": " + err.Error()}
+		roadmapPaths, err := pose.GlobIn(files, filepath.Join(checker.root, ".pose", "roadmaps", "*.md"))
+		if err != nil {
+			return fmt.Errorf("cannot enumerate roadmaps: %w", err)
+		}
+		for _, path := range roadmapPaths {
+			fm := simpleFrontmatterIn(files, path)
+			if fm["status"] == "done" && fm["created_at"] >= policy.AdoptedAt {
+				refs = append(refs, "roadmap:"+strings.TrimSuffix(filepath.Base(path), ".md"))
 			}
-			if !state.Terminal {
-				return []string{"review closeout: spec:" + slug + ": " + state.NextAction}
+		}
+		results := make([][]string, len(refs))
+		// Bound live scope closures even when the worker override or host CPU count
+		// is large. Retain only evaluated findings after each scope's final audit.
+		slots := min(16, len(refs))
+		checker.failOrWarnPerItem(slots, func(slot int) []string {
+			for i := slot; i < len(refs); i += slots {
+				ref := refs[i]
+				var state pose.CloseoutState
+				err := store.WithReviewScopeOperationView(func(scoped pose.Store) error {
+					var err error
+					state, err = scoped.GetCloseoutState(ref)
+					return err
+				})
+				if err != nil {
+					results[i] = []string{"review closeout: " + ref + ": " + err.Error()}
+				} else if !state.Terminal {
+					results[i] = []string{"review closeout: " + ref + ": " + state.NextAction}
+				}
 			}
 			return nil
 		})
-		roadmapPaths, _ := pose.GlobIn(files, filepath.Join(checker.root, ".pose", "roadmaps", "*.md"))
-		for _, path := range roadmapPaths {
-			fm := simpleFrontmatterIn(files, path)
-			if fm["status"] != "done" || fm["created_at"] < policy.AdoptedAt {
-				continue
-			}
-			slug := strings.TrimSuffix(filepath.Base(path), ".md")
-			state, err := store.GetCloseoutState("roadmap:" + slug)
-			if err != nil {
-				checker.failOrWarn("review closeout: roadmap:" + slug + ": " + err.Error())
-				continue
-			}
-			if !state.Terminal {
-				checker.failOrWarn("review closeout: roadmap:" + slug + ": " + state.NextAction)
-			}
+		for _, messages := range results {
+			findings = append(findings, messages...)
 		}
+		return nil
 	})
+	// A failed coordinator audit prevents a green gate, but does not erase
+	// independently audited scope failures already buffered above.
+	for _, finding := range findings {
+		checker.failOrWarn(finding)
+	}
 	if viewErr != nil {
 		checker.failOrWarn("review closeout: " + viewErr.Error())
 	}

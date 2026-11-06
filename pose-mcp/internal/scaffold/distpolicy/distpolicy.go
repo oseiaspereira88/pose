@@ -112,6 +112,10 @@ var SelfReferentialPolicyFiles = []string{
 	// shipped at all: a new instance starts with no decision recorded (spec
 	// pose-capability-catalog).
 	"adoption-decisions.json",
+	// Agent executables, vendors, access and the local executor issuer belong
+	// to this instance. Native delegation setup discovers/configures the target
+	// instance; a build must never ship the engine project's live profiles.
+	"delegation.json",
 }
 
 // SelfReferentialIndexFiles are `.pose/indexes/` files whose live content in

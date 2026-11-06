@@ -490,16 +490,26 @@ func sameProjectRoot(files Files, a, b string) bool {
 }
 
 func artifactPathWithin(files Files, root, path string) bool {
+	within, err := artifactPathWithinObserved(files, root, path)
+	return err == nil && within
+}
+
+// artifactPathWithinObserved distinguishes unavailable containment evidence from
+// a resolved path outside the root. Callers must not label a lost read an escape.
+func artifactPathWithinObserved(files Files, root, path string) (bool, error) {
 	base, err := files.EvalSymlinks(root)
 	if err != nil {
-		return false
+		return false, err
 	}
 	real, err := files.EvalSymlinks(path)
 	if err != nil {
-		return false
+		return false, err
 	}
 	rel, err := filepath.Rel(base, real)
-	return err == nil && rel != ".." && !strings.HasPrefix(rel, ".."+string(filepath.Separator))
+	if err != nil {
+		return false, err
+	}
+	return rel != ".." && !strings.HasPrefix(rel, ".."+string(filepath.Separator)), nil
 }
 
 // ProjectIDFor derives the project id POSE assigns when none is declared. A

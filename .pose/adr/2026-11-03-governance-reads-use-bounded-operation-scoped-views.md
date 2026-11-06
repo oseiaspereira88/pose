@@ -195,3 +195,14 @@ of an escaping path or observed content mutation. Regression tests must exercise
 the real global orchestration under injected small budgets and serial/parallel
 workers, selection interleavings, localized exhaustion, retention negatives and
 exact binding checks. Native whole-corpus verification is still required.
+
+
+## Instance execution configuration boundary (D8) — 2026-11-06
+
+The user-authorized native review uses a local delegation policy with concrete
+vendors, executables, access and executor issuer. Keep that live policy out of the
+embedded scaffold through the existing instance-policy exclusion mechanism.
+The target instance uses its native delegation setup and its own configuration;
+no engine-local agent profile or issuer becomes a target default. This preserves
+the same authority boundary as neutral review policy and changes no capability
+adoption, historical record or review verdict.

@@ -16,7 +16,7 @@ import (
 // wholesale `.pose/policy` sync, and the placeholder shipped instead must be
 // schema-valid and inert (empty roots, disabled).
 func TestSelfReferentialPolicyFilesExcluded(t *testing.T) {
-	for _, rel := range []string{".pose/policy/delivery.json", ".pose/policy/artifacts.json", ".pose/policy/review.json", ".pose/policy/dor.json"} {
+	for _, rel := range []string{".pose/policy/delivery.json", ".pose/policy/artifacts.json", ".pose/policy/review.json", ".pose/policy/dor.json", ".pose/policy/delegation.json"} {
 		if IsIncluded(rel) {
 			t.Errorf("IsIncluded(%q) = true, want false — self-referential policy must not be synced verbatim", rel)
 		}

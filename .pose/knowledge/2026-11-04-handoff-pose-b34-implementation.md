@@ -31,7 +31,7 @@ checks; índice real, artifact-check e surface-check passaram. O check estrito
 global seguinte falhou por agregação das closures de closeout e diagnósticos
 em cascata. D7 e a emenda aceita no ADR definem coordenador auditado e views
 limitadas por escopo; a investigação nativa `trn-78de82fe660bb649` está concluída
-e a task de implementação `b34-strict-scope-fix` está em execução com Sol medium.
+e o checkpoint da task `b34-d7-implementation` foi produzido com Sol medium. A task ficou interrompida por quota; a execução principal terminou os testes e ajustes. A seleção B34 ampliada passou com race (domínio 54,533 s, CLI 16,136 s, MCP 1,331 s), e scaffold/distpolicy passaram. A nova matriz completa e o check real ainda estão pendentes.
 Consultar `report:2026-11-06-pose-b34-global-review-view-budget.md`. Ainda não há
 bundle final, revisão Claude, atestação ou closeout. Os registros abaixo conservam
 os checkpoints anteriores e não qualificam a correção D7.

@@ -173,7 +173,9 @@ func (s Store) GetSpec(slug string) (*Spec, error) {
 }
 
 func (s Store) readListedSpec(match Spec) (*Spec, error) {
-	if !artifactPathWithin(s.fsys(), s.Root, match.Path) {
+	if within, err := artifactPathWithinObserved(s.fsys(), s.Root, match.Path); err != nil {
+		return nil, fmt.Errorf("pose: spec containment unavailable: %s: %w", match.Slug, err)
+	} else if !within {
 		return nil, fmt.Errorf("pose: spec path escapes project: %s", match.Slug)
 	}
 	var full *Spec
@@ -181,7 +183,9 @@ func (s Store) readListedSpec(match Spec) (*Spec, error) {
 	if info, statErr := s.fsys().Stat(match.Path); statErr == nil && info.IsDir() {
 		paths := splitSpecFiles(s.fsys(), match.Path)
 		for _, path := range paths {
-			if !artifactPathWithin(s.fsys(), s.Root, path) {
+			if within, err := artifactPathWithinObserved(s.fsys(), s.Root, path); err != nil {
+				return nil, fmt.Errorf("pose: split spec containment unavailable: %s: %w", match.Slug, err)
+			} else if !within {
 				return nil, fmt.Errorf("pose: split spec path escapes project: %s", match.Slug)
 			}
 		}
@@ -311,7 +315,9 @@ func (s Store) listSpecs(status, components string) ([]Spec, error) {
 		return nil, fmt.Errorf("pose: reading specs dir: %w", err)
 	}
 	specs := []Spec{}
-	if !artifactPathWithin(s.fsys(), s.Root, s.specsDir()) {
+	if within, err := artifactPathWithinObserved(s.fsys(), s.Root, s.specsDir()); err != nil {
+		return nil, fmt.Errorf("pose: specs directory containment unavailable: %w", err)
+	} else if !within {
 		return nil, fmt.Errorf("pose: specs directory escapes project")
 	}
 	for _, e := range entries {

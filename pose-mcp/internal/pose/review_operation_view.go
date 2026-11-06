@@ -3,6 +3,7 @@ package pose
 import (
 	"crypto/sha256"
 	"encoding/json"
+	"errors"
 	"fmt"
 	"os"
 	"path/filepath"
@@ -53,6 +54,14 @@ func readReviewBundleHeader(files Files, dir, name string) reviewHeaderObservati
 }
 
 type reviewOperationView struct {
+	coordinator      *reviewOperationView
+	coordinatorStore Store
+	scopeBase        Store
+	scopeRoots       map[string]string
+	scopeConflicts   map[string]bool
+	scopeInit        sync.Once
+	scopeInitErr     error
+
 	specOnce        sync.Once
 	specUsed        bool
 	specErr         error
@@ -105,29 +114,27 @@ func (s Store) WithReviewOperationView(run func(Store)) error {
 		operationErr = shared.withReviewOperationView(view, run)
 	}
 	audit := readView.audit()
-	if operationErr != nil {
-		return operationErr
-	}
-	return reviewOperationGovernanceAuditError(audit, readView, view)
+	return errors.Join(operationErr, reviewOperationGovernanceAuditError(audit, readView, view))
 }
 
 func reviewOperationGovernanceAuditError(audit governanceReadViewAudit, readView *governanceReadView, operationView *reviewOperationView) error {
+	var result error
 	changed := audit.ChangedProducers["review-operation"] || audit.ChangedProducers["projection"]
 	if changed {
 		paths := append([]string(nil), audit.ChangedPaths...)
 		if len(paths) == 0 {
 			paths = []string{"input closure"}
 		}
-		return fmt.Errorf("pose: review inputs changed during operation: %s", strings.Join(uniqueSorted(paths), ", "))
+		result = fmt.Errorf("pose: review inputs changed during operation: %s: %w", strings.Join(uniqueSorted(paths), ", "), ErrGovernanceReadViewChanged)
 	}
 	// The operation view certifies the bytes and metadata its review producers
 	// consumed. Projection-only context such as an unavailable HEAD does not
 	// become a write authorization or a current-generation claim here; any
 	// unprovable read attributed to this operation still fails closed.
 	if reasons := audit.UnknownProducers["review-operation"]; len(reasons) > 0 && !reviewOperationReadLossIsCovered(audit, readView, operationView) {
-		return fmt.Errorf("pose: review input closure is unknown: %s", strings.Join(uniqueSorted(reasons), "; "))
+		result = errors.Join(result, fmt.Errorf("pose: review input closure is unknown: %s: %w", strings.Join(uniqueSorted(reasons), "; "), ErrGovernanceReadViewUnknown))
 	}
-	return nil
+	return result
 }
 
 // reviewOperationReadLossIsCovered keeps a stable, unreadable bundle in the
@@ -187,10 +194,7 @@ func (s Store) withReviewOperationView(view *reviewOperationView, run func(Store
 	// Join lazy initialization, if any; finalization must follow joined workers.
 	view.once.Do(func() {})
 	view.specOnce.Do(func() {})
-	if err := view.validateSpecs(); err != nil {
-		return err
-	}
-	return view.validate()
+	return errors.Join(view.validateSpecs(), view.validate())
 }
 
 // prepareReviewOperationRead preserves Store's live-read behavior after an
@@ -377,6 +381,12 @@ func (s Store) observeReviewSpecBody(listed Spec, full *Spec) error {
 }
 
 func (v *reviewOperationView) validateSpecs() error {
+	if v.coordinator != nil {
+		if v.specConflict {
+			return fmt.Errorf("pose: review inputs changed during operation: consumed spec body: %w", ErrGovernanceReadViewChanged)
+		}
+		return nil
+	}
 	if !v.specUsed || v.specFallback {
 		return nil
 	}
@@ -494,7 +504,7 @@ func (v *reviewOperationView) validate() error {
 	if v.contextConflict.Load() {
 		return fmt.Errorf("pose: review inputs changed during operation: Store context")
 	}
-	if !v.used {
+	if v.coordinator != nil || !v.used {
 		return nil
 	}
 	dir, err := ensureReviewArtifactDirIn(v.files, v.root, ".pose/review-bundles", false)
@@ -537,4 +547,90 @@ func (v *reviewOperationView) validate() error {
 		}
 	}
 	return nil
+}
+
+// WithReviewCoordinator audits shared selection and catalogue inputs after all
+// scope callbacks join. Findings must be buffered until this method returns.
+// Scope operations certify their own closures, not a simultaneous batch snapshot.
+func (s Store) WithReviewCoordinator(run func(Store) error) error {
+	var callbackErr error
+	auditErr := s.WithReviewOperationView(func(shared Store) {
+		v := shared.reviewView
+		if v == nil {
+			callbackErr = fmt.Errorf("pose: review coordinator requires comparable Files binding")
+			return
+		}
+		readView, _ := governanceReadViewFromFiles(shared.fsys())
+		v.scopeBase = readView.operation.baseStore
+		v.scopeRoots = readView.operation.initialRoots
+		v.scopeConflicts = readView.operation.initialConflicts
+		v.coordinatorStore = shared
+		callbackErr = run(shared)
+	})
+	return errors.Join(callbackErr, auditErr)
+}
+
+// reviewScopeCatalogue authorizes reuse against the exact coordinator Store,
+// and creates a separately bound catalogue consumer. It never unwraps Files.
+type reviewScopeCatalogue interface {
+	scopeCatalogue(Store) (Store, *reviewOperationView, error)
+}
+
+func (v *reviewOperationView) scopeCatalogue(s Store) (Store, *reviewOperationView, error) {
+	if !v.boundTo(s) || v.coordinator != nil || v.coordinatorStore.reviewView != v {
+		return Store{}, nil, s.refuseReviewOperationContext(nil, nil)
+	}
+	v.scopeInit.Do(func() {
+		shared := v.coordinatorStore
+		v.captureSpecs(shared)
+		if v.specErr != nil {
+			v.scopeInitErr = v.specErr
+			return
+		}
+		dir, err := ensureReviewArtifactDirIn(v.files, v.root, ".pose/review-bundles", false)
+		if err != nil {
+			v.observeDirectoryError(shared, err)
+			return
+		}
+		entries, err := v.files.ReadDir(dir)
+		if err != nil {
+			v.observeDirectoryError(shared, err)
+			return
+		}
+		_, v.scopeInitErr = shared.reviewBundleHeaders(dir, entries)
+	})
+	if v.scopeInitErr != nil {
+		return Store{}, nil, v.scopeInitErr
+	}
+	return v.scopeBase, v, nil
+}
+
+// WithReviewScopeOperationView evaluates one scope, including recursive children
+// and authorized roots, with an independent bounded capture and final audit.
+func (s Store) WithReviewScopeOperationView(run func(Store) error) error {
+	var catalog reviewScopeCatalogue = s.reviewView
+	if s.reviewView == nil {
+		return fmt.Errorf("pose: review scope requires an active coordinator")
+	}
+	base, parent, err := catalog.scopeCatalogue(s)
+	if err != nil {
+		return err
+	}
+	base, readView := base.beginGovernanceReadView()
+	shared := base.withGovernanceReadView(readView, "review-operation")
+	if !sameStringMap(parent.scopeRoots, readView.operation.initialRoots) || !sameBoolMap(parent.scopeConflicts, readView.operation.initialConflicts) {
+		readView.markUnknown("review-operation", "scope authorized root vector differs from coordinator")
+		return errors.Join(errGovernanceReadViewOutsideRoot, reviewOperationGovernanceAuditError(readView.audit(), readView, nil))
+	}
+	view := &reviewOperationView{root: filepath.Clean(shared.Root), files: shared.fsys(), project: shared.FederatedProjectID, resolver: shared.FederatedResolver,
+		coordinator: parent, specUsed: parent.specUsed, specErr: parent.specErr, specFallback: parent.specFallback, specEntries: parent.specEntries, specBySlug: parent.specBySlug,
+		specBodySeen: make([]bool, len(parent.specEntries)), specBodyDigests: make([][32]byte, len(parent.specEntries)),
+		used: parent.used, directoryError: parent.directoryError, inventory: parent.inventory, headers: parent.headers, fallback: parent.fallback,
+		maxRecords: parent.maxRecords, maxInputBytes: parent.maxInputBytes, maxRetainedText: parent.maxRetainedText}
+	view.specOnce.Do(func() {})
+	view.once.Do(func() {})
+	var callbackErr error
+	operationErr := shared.withReviewOperationView(view, func(scoped Store) { callbackErr = run(scoped) })
+	audit := readView.audit()
+	return errors.Join(callbackErr, operationErr, reviewOperationGovernanceAuditError(audit, readView, view))
 }
