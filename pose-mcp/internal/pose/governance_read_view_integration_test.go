@@ -1,8 +1,10 @@
 package pose
 
 import (
+	"bytes"
 	"errors"
 	"fmt"
+	"io/fs"
 	"os"
 	"os/exec"
 	"path/filepath"
@@ -397,19 +399,12 @@ func TestGovernanceReadViewOperationSharesInputByteBudgetAcrossRoots(t *testing.
 	rootB := governanceReadViewIntegrationCommittedRoot(t, projectB)
 	pathA := filepath.Join(rootA, "large-a.bin")
 	pathB := filepath.Join(rootB, "large-b.bin")
-	// Each file fits a standalone read view, while their combined size exceeds
-	// the single operation budget by two bytes.
-	perRootBytes := int64(governanceReadViewMaxInputBytes/2 + 1)
+	// Small real payloads exercise the shared limit without allocating buffers
+	// proportional to the production cap. Model prior operation consumption so
+	// the two remaining reads exceed the aggregate allowance by two bytes.
+	const perRootBytes = int64(33)
 	for _, path := range []string{pathA, pathB} {
-		file, err := os.OpenFile(path, os.O_CREATE|os.O_RDWR, 0o600)
-		if err != nil {
-			t.Fatal(err)
-		}
-		if err := file.Truncate(perRootBytes); err != nil {
-			_ = file.Close()
-			t.Fatal(err)
-		}
-		if err := file.Close(); err != nil {
+		if err := os.WriteFile(path, bytes.Repeat([]byte("x"), int(perRootBytes)), 0o600); err != nil {
 			t.Fatal(err)
 		}
 	}
@@ -422,6 +417,12 @@ func TestGovernanceReadViewOperationSharesInputByteBudgetAcrossRoots(t *testing.
 	resolver := ArtifactResolver{Roots: roots, FS: NativeFiles()}
 	store := Store{Root: rootA, FederatedProjectID: projectA, FederatedResolver: &resolver}
 	_, viewA := store.beginGovernanceReadView()
+	if viewA.operation == nil {
+		t.Fatal("production read-view initializer omitted its operation")
+	}
+	viewA.operation.budgetMu.Lock()
+	viewA.operation.inputBytes = governanceReadViewMaxInputBytes - (2*perRootBytes - 2)
+	viewA.operation.budgetMu.Unlock()
 	shared := viewA.filesForProject("action-requests", projectA)
 	first, err := shared.ReadFile(pathA)
 	if err != nil {
@@ -431,8 +432,11 @@ func TestGovernanceReadViewOperationSharesInputByteBudgetAcrossRoots(t *testing.
 		t.Fatalf("first root returned %d bytes, want %d", len(first), perRootBytes)
 	}
 	second, err := shared.ReadFile(pathB)
-	if !errors.Is(err, errGovernanceReadViewBudget) {
+	if !errors.Is(err, errGovernanceReadViewBudget) || len(second) != 0 {
 		t.Fatalf("second root exceeded the shared operation budget without rejection: bytes=%d err=%v", len(second), err)
+	}
+	if len(viewA.unknown["action-requests"]) != 0 {
+		t.Fatalf("second-root overflow contaminated the first root: %+v", viewA.unknown)
 	}
 
 	op := viewA.operation
@@ -640,4 +644,81 @@ func governanceReadViewIntegrationObligationsFrom(report ObligationReport, produ
 		}
 	}
 	return items
+}
+
+func TestGovernanceReadViewOperationSharesRecordCapacityAndAuditsAcrossRoots(t *testing.T) {
+	governanceReadViewProbeUseKnownEngineVersion(t)
+	const projectA, projectB = "proj.capacity-a", "proj.capacity-b"
+	rootA := governanceReadViewIntegrationCommittedRoot(t, projectA)
+	rootB := governanceReadViewIntegrationCommittedRoot(t, projectB)
+	seed := filepath.Join(rootA, "seed")
+	if err := os.WriteFile(seed, []byte("tiny input"), 0o600); err != nil {
+		t.Fatal(err)
+	}
+	info, err := os.Stat(seed)
+	if err != nil {
+		t.Fatal(err)
+	}
+	dirA, dirB := filepath.Join(rootA, "listing"), filepath.Join(rootB, "listing")
+	for _, dir := range []string{dirA, dirB} {
+		if err := os.Mkdir(dir, 0o700); err != nil {
+			t.Fatal(err)
+		}
+	}
+	files := &governanceReadViewCapacityDirectoryFiles{Files: NativeFiles(), directories: map[string][]fs.DirEntry{
+		dirA: governanceReadViewCapacityEntries(info, 10050),
+		dirB: governanceReadViewCapacityEntries(info, 10050),
+	}}
+	resolver := ArtifactResolver{Roots: NewRootsIn(files, RootsConfig{
+		DefaultRoot: rootA, DefaultProjectID: projectA, Explicit: map[string]string{projectB: rootB},
+	}), FS: files}
+	store := Store{Root: rootA, FS: files, FederatedProjectID: projectA, FederatedResolver: &resolver}
+	_, view := store.beginGovernanceReadView()
+	captured := view.filesForProject("capacity", projectA)
+	for _, dir := range []string{dirA, dirB} {
+		entries, err := captured.ReadDir(dir)
+		if err != nil || len(entries) != 10050 {
+			t.Fatalf("new capacity rejected a complete root listing: entries=%d err=%v", len(entries), err)
+		}
+	}
+	beforeReplay := files.opens
+	if entries, err := view.filesForProject("consumer", projectA).ReadDir(dirB); err != nil || len(entries) != 10050 || files.opens != beforeReplay {
+		t.Fatalf("listing was not replayed from capture: entries=%d opens=%d/%d err=%v", len(entries), files.opens, beforeReplay, err)
+	}
+	audit := view.audit()
+	if governanceReviewAuditChanged(audit) || len(audit.UnknownProducers) != 0 || files.opens <= beforeReplay {
+		t.Fatalf("shared final audit did not reobserve complete listings: %+v opens=%d", audit, files.opens)
+	}
+	metadata, proof := view.metadata(projectA, "revision", "legacy", audit)
+	if metadata.Freshness != ReadViewFreshnessCurrent {
+		t.Fatalf("new capacity was not certified current: %+v", metadata)
+	}
+	if changed := proof.changes(files); len(changed) != 0 {
+		t.Fatalf("shared proof replay rejected complete listings: %v", changed)
+	}
+	// Both roots fit separately even below the new cap. Their combined grown
+	// listings exceed 25,000, so shared audit/replay must refuse the closure.
+	files.directories[dirA] = governanceReadViewCapacityEntries(info, 13000)
+	files.directories[dirB] = governanceReadViewCapacityEntries(info, 13000)
+	changed := proof.changes(files)
+	unverified := false
+	for _, reason := range changed {
+		unverified = unverified || strings.HasPrefix(reason, "read-view-unverified:")
+	}
+	if !unverified {
+		t.Fatalf("shared proof replay did not refuse aggregate record overflow: %v", changed)
+	}
+	_, overflow := store.beginGovernanceReadView()
+	for i, dir := range []string{dirA, dirB} {
+		entries, err := overflow.filesForProject("overflow", projectA).ReadDir(dir)
+		if i == 0 && (err != nil || len(entries) != 13000) {
+			t.Fatalf("first root no longer fits independently: entries=%d err=%v", len(entries), err)
+		}
+		if i == 1 && (!errors.Is(err, errGovernanceReadViewBudget) || len(entries) != 0) {
+			t.Fatalf("aggregate record overflow was accepted or truncated: entries=%d err=%v", len(entries), err)
+		}
+	}
+	if audit := overflow.audit(); len(audit.UnknownProducers["overflow"]) == 0 {
+		t.Fatalf("aggregate record overflow lost its audit cause: %+v", audit)
+	}
 }

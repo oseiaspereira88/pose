@@ -1123,3 +1123,136 @@ func TestGovernanceReadViewProbeStaleSmallPreflightCannotOverrunReservation(t *t
 		t.Fatalf("stale size reached Open before the actual size was bounded: calls=%d", base.openCalls)
 	}
 }
+
+func TestGovernanceReadViewProbeRecordCapacityAndOverflow(t *testing.T) {
+	governanceReadViewProbeUseKnownEngineVersion(t)
+	// Keep absence error strings short: this test isolates the record cap
+	// while retaining the unchanged, independently enforced metadata cap.
+	root, err := os.MkdirTemp("", "b34-")
+	if err != nil {
+		t.Fatal(err)
+	}
+	t.Cleanup(func() { _ = os.RemoveAll(root) })
+	view := newGovernanceReadView(root, NativeFiles())
+	files := view.filesFor("capacity")
+	// Lstat retains real absence observations and stable parent witnesses. Fill
+	// the new boundary without creating 25,000 files or retaining file bodies.
+	for i := 0; len(view.observed) < 25000; i++ {
+		_, err := files.Lstat(filepath.Join(root, fmt.Sprintf("absent-%05d", i)))
+		if !errors.Is(err, os.ErrNotExist) {
+			t.Fatalf("observation %d refused before the new boundary: %v", i, err)
+		}
+	}
+	if len(view.observed) != 25000 {
+		t.Fatalf("capture retained %d records, want 25000", len(view.observed))
+	}
+	// Auditors and replay must accept the same boundary as capture.
+	audit := view.audit()
+	if governanceReviewAuditChanged(audit) || len(audit.UnknownProducers) != 0 {
+		t.Fatalf("stable boundary failed final audit: %+v", audit)
+	}
+	metadata, proof := view.metadata("project", "revision", "index", audit)
+	if metadata.Freshness != ReadViewFreshnessCurrent {
+		t.Fatalf("stable capacity was not current: %+v", metadata)
+	}
+	if changed := proof.changes(NativeFiles()); len(changed) != 0 {
+		t.Fatalf("proof replay rejected the new capacity: %v", changed)
+	}
+
+	// A separate capture reaches the same boundary and rejects one more real
+	// observation. Finalized views above cannot be reused to exercise overflow.
+	overflow := newGovernanceReadView(root, NativeFiles())
+	for i := 0; len(overflow.observed) < 25000; i++ {
+		if _, err := overflow.filesFor("capacity").Lstat(filepath.Join(root, fmt.Sprintf("absent-%05d", i))); !errors.Is(err, os.ErrNotExist) {
+			t.Fatal(err)
+		}
+	}
+	if _, err := overflow.filesFor("overflow").Lstat(filepath.Join(root, "one-too-many")); !errors.Is(err, errGovernanceReadViewBudget) {
+		t.Fatalf("overflow did not reject the next observation: %v", err)
+	}
+	if audit := overflow.audit(); len(audit.UnknownProducers["overflow"]) == 0 || len(audit.UnknownProducers["capacity"]) != 0 {
+		t.Fatalf("overflow was not localized: %+v", audit.UnknownProducers)
+	}
+}
+
+// Versioned synthetic directory snapshots keep corpus-shaped capacity tests
+// small. Listings stream through fs.ReadDirFile; file content is never read.
+type governanceReadViewCapacityDirectoryFiles struct {
+	Files
+	directories map[string][]fs.DirEntry
+	opens       int
+}
+
+func (f *governanceReadViewCapacityDirectoryFiles) Open(name string) (fs.File, error) {
+	if entries, ok := f.directories[filepath.Clean(name)]; ok {
+		info, err := f.Files.Stat(name)
+		if err != nil {
+			return nil, err
+		}
+		f.opens++
+		return &governanceReadViewProbeDirectoryFile{info: info, entries: entries}, nil
+	}
+	return f.Files.Open(name)
+}
+
+type governanceReadViewCapacityDirEntry struct {
+	name string
+	info fs.FileInfo
+}
+
+func (e governanceReadViewCapacityDirEntry) Name() string               { return e.name }
+func (e governanceReadViewCapacityDirEntry) IsDir() bool                { return false }
+func (e governanceReadViewCapacityDirEntry) Type() fs.FileMode          { return 0 }
+func (e governanceReadViewCapacityDirEntry) Info() (fs.FileInfo, error) { return e.info, nil }
+
+func governanceReadViewCapacityEntries(info fs.FileInfo, count int) []fs.DirEntry {
+	entries := make([]fs.DirEntry, count)
+	for i := range entries {
+		entries[i] = governanceReadViewCapacityDirEntry{name: fmt.Sprintf("input-%05d", i), info: info}
+	}
+	return entries
+}
+
+func TestGovernanceReadViewProbeAuditAndReplayShareInputByteCapacity(t *testing.T) {
+	root := t.TempDir()
+	path := filepath.Join(root, "input.bin")
+	payload := []byte("small bounded payload")
+	if err := os.WriteFile(path, payload, 0o600); err != nil {
+		t.Fatal(err)
+	}
+	for _, overflow := range []bool{false, true} {
+		t.Run(fmt.Sprintf("overflow=%t", overflow), func(t *testing.T) {
+			base := &governanceReadViewProbeBudgetFiles{Files: NativeFiles()}
+			view := newGovernanceReadView(root, base)
+			if got, err := view.filesFor("capacity").ReadFile(path); err != nil || !bytes.Equal(got, payload) {
+				t.Fatalf("capture failed: %q %v", got, err)
+			}
+			prior := int64(512*1024*1024 - len(payload))
+			if overflow {
+				prior++
+			}
+			// Represent earlier roots' consumption, preserving real bounded I/O
+			// for this root at the exact aggregate boundary and one byte beyond.
+			before := base.readCalls
+			audit := view.auditSingleWithBudget(&governanceReadViewAuditBudget{inputBytes: prior})
+			if (len(audit.UnknownProducers["capacity"]) > 0) != overflow {
+				t.Fatalf("audit disagreed with aggregate byte boundary: %+v", audit)
+			}
+			if overflow && base.readCalls != before || !overflow && base.readCalls == before {
+				t.Fatalf("audit did not enforce budget before I/O: reads=%d/%d", base.readCalls, before)
+			}
+			_, proof := view.metadata("project", "revision", "index", audit)
+			before = base.readCalls
+			changed := proof.changesWithBudget(base, &governanceReadProofBudget{inputBytes: prior})
+			if (len(changed) > 0) != overflow {
+				t.Fatalf("proof replay disagreed with aggregate byte boundary: %v", changed)
+			}
+			if overflow && base.readCalls != before || !overflow && base.readCalls == before {
+				t.Fatalf("proof replay did not enforce budget before I/O: reads=%d/%d", base.readCalls, before)
+			}
+			if base.readFileCalls != 0 {
+				t.Fatal("audit or replay fell back to unbounded ReadFile")
+			}
+		})
+	}
+}

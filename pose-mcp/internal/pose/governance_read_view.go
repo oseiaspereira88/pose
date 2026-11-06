@@ -21,8 +21,8 @@ import (
 const (
 	GovernanceReadViewSchemaVersion = 1
 	governanceReadViewParserVersion = "pose-governance-inputs-v1"
-	governanceReadViewMaxRecords    = 10000
-	governanceReadViewMaxInputBytes = 128 * 1024 * 1024
+	governanceReadViewMaxRecords    = 25000
+	governanceReadViewMaxInputBytes = 512 * 1024 * 1024
 	governanceReadViewMaxMetadata   = 8 * 1024 * 1024
 	ReadViewFreshnessCurrent        = "current"
 	ReadViewFreshnessUnknown        = "unknown"
@@ -658,18 +658,22 @@ func (op *governanceReadViewOperation) checkIndexInputs(files Files, root, produ
 // Revalidation must use the same captured project/resolver context as the
 // generation consumer, including when that consumer is a foreign Store.
 func (op *governanceReadViewOperation) indexInputBinding(files Files, root, producer, name string) (string, bool) {
- if name != "federated-material" { return IndexInputBindingIn(files, root, name) }
- op.mu.Lock()
- project, selectedRoot := op.rootForPathLocked(governanceAbsoluteRoot(root), "")
- conflict := op.initialConflicts[project]
- op.mu.Unlock()
- if project == "" || conflict || !sameLexicalRoot(root, selectedRoot) { return "", false }
- resolver := op.resolver
- resolver.FS = files
- resolver.Roots = op.rootsForProducer(resolver.Roots, files, producer)
- resolver.snapshots = nil
- resolver.governanceDepthLimit = 8
- return IndexInputBindingForStoreIn(Store{Root: root, FS: files, FederatedProjectID: project, FederatedResolver: &resolver}, name)
+	if name != "federated-material" {
+		return IndexInputBindingIn(files, root, name)
+	}
+	op.mu.Lock()
+	project, selectedRoot := op.rootForPathLocked(governanceAbsoluteRoot(root), "")
+	conflict := op.initialConflicts[project]
+	op.mu.Unlock()
+	if project == "" || conflict || !sameLexicalRoot(root, selectedRoot) {
+		return "", false
+	}
+	resolver := op.resolver
+	resolver.FS = files
+	resolver.Roots = op.rootsForProducer(resolver.Roots, files, producer)
+	resolver.snapshots = nil
+	resolver.governanceDepthLimit = 8
+	return IndexInputBindingForStoreIn(Store{Root: root, FS: files, FederatedProjectID: project, FederatedResolver: &resolver}, name)
 }
 
 func (s Store) governanceIndexConsumed(status IndexGenerationStatus, err error, pin *IndexGenerationView) {

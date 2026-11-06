@@ -94,8 +94,9 @@ descriptor commit. Because B34 adds no cross-operation cache or persistent
 global generation, a write retires the prior operation view rather than
 publishing a new global generation.
 
-Use these initial hard budgets: 10,000 observed records, 128 MiB captured input
-bytes, 8 MiB retained metadata, one retry of a complete read-only operation,
+Use these recalibrated hard budgets: 25,000 observed records including retained
+directory entries, 512 MiB captured input bytes, 8 MiB retained metadata,
+one retry of a complete read-only operation,
 at most 16 authorized federated roots and depth 8 with cycle detection. A
 budget overflow produces `unknown`/`incomplete`, never truncation. Reconcile
 observed paths even when no watcher is present or its events were lost; a
@@ -120,6 +121,17 @@ path of 27 edges and at most 111 reachable spec identities. The index preflight
 refused this legitimate corpus when depth 8 was applied to local edges. The
 measurement and its exclusions are recorded in the B34 budget report; actual
 index publication and composed-bound fixtures still require current validation.
+
+Capacity recalibration D6, recorded on 2026-11-05, supersedes the initial
+10,000-record / 128-MiB values prospectively. A complete read-only compiler
+calibration of the real builder and its final audit retained 18,905 combined
+records, 370,690,278 input bytes and 4,479,003 metadata bytes for seven outputs.
+The capacity report records the production refusals, diagnostic overlays,
+counter measurements and limits of that evidence. The chosen caps provide
+bounded headroom without changing input coverage, truncating history or
+altering other limits. Keep budget/unknown causes when a callback fails;
+a missing closure must not be classified solely as an invalid policy path.
+Calibration does not qualify the normal build or authorize index publication.
 
 An external writer that changes and restores bytes between audits without
 participating in a fencing protocol leaves no proof for hashes or `lstat` to

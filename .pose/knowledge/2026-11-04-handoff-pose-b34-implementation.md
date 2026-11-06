@@ -4,8 +4,8 @@ slug: pose-b34-implementation
 owner: @pose-maintainers
 sensitivity: public-internal
 created_at: 2026-11-04
-last_reviewed_at: 2026-11-05
-expires_at: 2026-12-05
+last_reviewed_at: 2026-11-06
+expires_at: 2026-12-06
 source_refs:
   spec: "spec:pose-governance-read-view-generation"
   workflow: .pose/workflows/bugfix.md
@@ -26,7 +26,7 @@ operação está aceito e o start nativo foi aplicado.
 
 ## Current state
 
-Última revisão: 2026-11-05. Spec `in-progress`, clone persistente
+Última revisão: 2026-11-06. Spec `in-progress`, clone persistente
 `/home/go/IdeaProjects/harne8/.worktrees/pose-b34-recovery`, branch
 `work/governance-read-view-recovery`, base publicada `7079eb86`.
 
@@ -42,7 +42,14 @@ completa da recuperação aprovou domínio e MCP; a CLI teve duas negativas cuja
 fixture usava modo 0444 como barreira contra substituição atômica. A recusa foi
 movida para a fronteira real do publisher, preservando bytes e asserções de efeito;
 os quatro controles positivos/negativos relacionados passaram depois da correção.
-A matriz nativa completa e a revisão final ainda devem qualificar o checkpoint.
+A matriz completa passou 189/189 em `f54e9285`. Esse resultado é histórico para
+os patches posteriores, não aprovação atual. O índice real encontrou dois
+limites que os testes anteriores não reproduziam: profundidade federada oito
+aplicada a toda cadeia local e capacidade insuficiente para a operação completa.
+D5, commit `74f5762f`, separou as arestas locais dos cruzamentos federados e
+incluiu redirects e deduplicação na fronteira. D6 recalibrou os limites com
+medição versionada; seus testes normais focados e a integração ampliada com race
+passaram. O novo índice real, a matriz atual e a revisão final continuam pendentes.
 
 As correções integradas cobrem seleção do Store/resolver qualificado, lease
 canônica dos resultados, diretórios staged por Open, separação de leases de
@@ -55,7 +62,7 @@ publicável; não promova os relatos históricos deste handoff a testes atuais.
 
 ## Next checks
 
-1. Registrar o checkpoint de implementação e compilar seu CLI exato.
+1. Registrar D6 e compilar seu CLI exato; repetir o índice real antes da matriz.
 2. Executar a matriz nativa completa, incluindo Go, integração com `-race`,
    build, vet e checks de segurança aplicáveis.
 3. Reconciliar artifacts e trace, commitar a implementação com o trailer
@@ -80,8 +87,11 @@ descartável `/tmp/pose-b34-go-cache` esgotou a quota e foi limpo; não recriá-
 - Um diretório comprovadamente sem Git pode sustentar um build de índices
   exclusivamente de filesystem; inputs materiais de refs/histórico continuam
   exigindo a prova Git correspondente.
-- Limites aceitos: 10.000 registros, 128 MiB de inputs, 8 MiB de metadados,
-  16 roots, profundidade 8 e uma repetição. Nenhum truncamento certifica completude.
+- Limites recalibrados em D6: 25.000 registros agregados, 512 MiB de inputs,
+  8 MiB de metadados, 16 roots, profundidade federada oito e uma repetição.
+  D5 conserva 64 arestas de dependência e 256 identidades/entradas por grafo/lista.
+  A calibração reteve 18.905 registros e cerca de 353,5 MiB em memória; não publicou
+  índices e não equivale aos gates normais. Nenhum truncamento certifica completude.
 - Writers externos e uma edição A→B→A que desaparece antes da auditoria não
   recebem garantia transacional. O fencing só cobre participantes do protocolo.
 - O assessment de dívida lido nesta tarefa foi incompleto: duas specs históricas

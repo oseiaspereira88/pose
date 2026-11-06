@@ -239,3 +239,74 @@ func TestIndexGenerationLocksExactFederatedMaterialRoots(t *testing.T) {
 		}
 	})
 }
+
+func TestIndexBuildFailurePrioritizesAuditedClosureOverCallbackClassification(t *testing.T) {
+	callback := &indexGenerationBuildFailure{Code: "federated-roadmap", Message: "federated roadmap fixture: invalid-federation-policy-path"}
+	for _, tc := range []struct {
+		name string
+		err  error
+		code string
+	}{
+		{"unknown", errors.Join(callback, fmt.Errorf("%w: index.generate: input byte budget exceeded", posepkg.ErrGovernanceReadViewUnknown)), "index-generation-read-view-unknown"},
+		{"changed", errors.Join(callback, posepkg.ErrGovernanceReadViewChanged), "index-generation-read-view-changed"},
+		{"unknown-and-changed", errors.Join(callback, posepkg.ErrGovernanceReadViewChanged, posepkg.ErrGovernanceReadViewUnknown), "index-generation-read-view-unknown"},
+		{"genuine-policy-path", callback, "federated-roadmap"},
+	} {
+		t.Run(tc.name, func(t *testing.T) {
+			code, message := indexBuildFailure(tc.err)
+			if code != tc.code {
+				t.Fatalf("code=%q want %q: %s", code, tc.code, message)
+			}
+			var recovered *indexGenerationBuildFailure
+			if !errors.As(tc.err, &recovered) || recovered != callback {
+				t.Fatalf("callback classification is no longer recoverable: %v", tc.err)
+			}
+			if tc.name == "unknown" && !strings.Contains(message, "input byte budget exceeded") {
+				t.Fatalf("CLI lost the audited budget cause: %s", message)
+			}
+			if tc.name == "genuine-policy-path" && message != callback.Message {
+				t.Fatalf("genuine policy failure changed: %s", message)
+			}
+		})
+	}
+}
+
+func TestIndexBuildFailureUsesRealCaptureAuditForCallbackPathFailure(t *testing.T) {
+	for _, oversized := range []bool{false, true} {
+		t.Run(fmt.Sprintf("oversized=%t", oversized), func(t *testing.T) {
+			root := indexBuildFixtureRoot(t, "proj.callback-audit")
+			path := filepath.Join(root, "input.bin")
+			if err := os.WriteFile(path, []byte("small real input"), 0o600); err != nil {
+				t.Fatal(err)
+			}
+			if oversized {
+				// Sparse file: metadata proves overflow before any content read.
+				if err := os.Truncate(path, 512*1024*1024+1); err != nil {
+					t.Fatal(err)
+				}
+			}
+			callback := &indexGenerationBuildFailure{Code: "federated-roadmap", Message: "federated roadmap fixture: invalid-federation-policy-path"}
+			calls := 0
+			err := (posepkg.Store{Root: root}).WithGovernanceReadViewForIndexBuild("index.generate", func(captured posepkg.Store) (bool, error) {
+				calls++
+				_, readErr := captured.FS.ReadFile(path)
+				if oversized == (readErr == nil) {
+					t.Fatalf("unexpected real input result: oversized=%t err=%v", oversized, readErr)
+				}
+				return false, callback
+			})
+			code, message := indexBuildFailure(err)
+			want := "federated-roadmap"
+			if oversized {
+				want = "index-generation-read-view-unknown"
+			}
+			var recovered *indexGenerationBuildFailure
+			if calls != 1 || code != want || !errors.As(err, &recovered) || recovered != callback {
+				t.Fatalf("capture masked audited closure or retried callback: calls=%d code=%s message=%s err=%v", calls, code, message, err)
+			}
+			if !oversized && (errors.Is(err, posepkg.ErrGovernanceReadViewUnknown) || message != callback.Message) {
+				t.Fatalf("genuine callback path error was relabeled unknown: %v", err)
+			}
+		})
+	}
+}

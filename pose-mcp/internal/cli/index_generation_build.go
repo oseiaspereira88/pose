@@ -37,18 +37,17 @@ type indexGenerationBuildFailure struct {
 func (e *indexGenerationBuildFailure) Error() string { return e.Message }
 
 func indexBuildFailure(err error) (string, string) {
+	switch {
+	case errors.Is(err, posepkg.ErrGovernanceReadViewUnknown):
+		return "index-generation-read-view-unknown", "index input closure could not be proved: " + err.Error() + "; nothing was written"
+	case errors.Is(err, posepkg.ErrGovernanceReadViewChanged):
+		return "index-generation-read-view-changed", "index inputs changed during generation; nothing was written, run `pose index` again"
+	}
 	var buildErr *indexGenerationBuildFailure
 	if errors.As(err, &buildErr) {
 		return buildErr.Code, buildErr.Message
 	}
-	switch {
-	case errors.Is(err, posepkg.ErrGovernanceReadViewChanged):
-		return "index-generation-read-view-changed", "index inputs changed during generation; nothing was written, run `pose index` again"
-	case errors.Is(err, posepkg.ErrGovernanceReadViewUnknown):
-		return "index-generation-read-view-unknown", "index input closure could not be proved: " + err.Error() + "; nothing was written"
-	default:
-		return "index-generation-read-view-unknown", "index generation could not be built safely: " + err.Error() + "; nothing was written"
-	}
+	return "index-generation-read-view-unknown", "index generation could not be built safely: " + err.Error() + "; nothing was written"
 }
 
 func generateIndexGeneration(files posepkg.Files, root string, gate *gateOutput, out *cliout.Renderer, fail func(code, message string) int) int {

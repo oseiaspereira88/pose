@@ -9,7 +9,7 @@ import (
 
 var (
 	// ErrGovernanceReadViewChanged means the captured input closure changed
-	// during both the original read and its one permitted retry.
+	// and could not be certified after a failed callback or the permitted retry.
 	ErrGovernanceReadViewChanged = errors.New("pose: governance read view changed during capture")
 	// ErrGovernanceReadViewUnknown means the operation could not prove the
 	// completeness of its captured input closure.
@@ -56,8 +56,18 @@ func withGovernanceReadViewCaptureAttempt(s Store, producer string, attempt int,
 	}
 	requiresPrimaryRevision, err := run(store)
 	if err != nil {
-		_ = view.audit()
-		return err
+		// A callback can translate a failed read into a domain error. Preserve
+		// that error and the independently audited closure failure, without
+		// retrying a callback that has already failed.
+		audit := view.audit()
+		auditErr := governanceReadViewUnknownError(audit)
+		if governanceReviewAuditChanged(audit) {
+			auditErr = errors.Join(auditErr, ErrGovernanceReadViewChanged)
+		}
+		if auditErr == nil {
+			return err
+		}
+		return errors.Join(err, auditErr)
 	}
 	if requiresPrimaryRevision {
 		view.operation.requirePrimaryRevision(producer)
@@ -70,6 +80,12 @@ func withGovernanceReadViewCaptureAttempt(s Store, producer string, attempt int,
 	if changed {
 		return ErrGovernanceReadViewChanged
 	}
+	return governanceReadViewUnknownError(audit)
+}
+
+// Summaries contain producer labels and audit reasons, excluding observed paths
+// and the underlying path-bearing details of root/index resolution failures.
+func governanceReadViewUnknownError(audit governanceReadViewAudit) error {
 	if len(audit.UnknownProducers) > 0 {
 		producers := make([]string, 0, len(audit.UnknownProducers))
 		for producer := range audit.UnknownProducers {
@@ -102,6 +118,12 @@ func withGovernanceReadViewCaptureAttempt(s Store, producer string, attempt int,
 				}
 				if j > 0 {
 					summary.WriteString(" | ")
+				}
+				for _, prefix := range []string{"index generation could not be pinned:", "authorized roots could not be resolved:"} {
+					if strings.HasPrefix(reason, prefix) {
+						reason = strings.TrimSuffix(prefix, ":")
+						break
+					}
 				}
 				summary.WriteString(clip(reason, 256))
 			}
