@@ -115,7 +115,7 @@
       },
       "limit": {
         "output_patterns": [
-          "(?i)you(?:'|’|\\\\u2019)ve hit your usage limit"
+          "(?i)you(?:'|\u2019|\\\\u2019)ve hit your usage limit"
         ]
       },
       "executor": "agent:openai/gpt-6.1-sol"
@@ -221,5 +221,11 @@
     "smoke": {
       "max_runs_per_bundle": 3
     }
+  },
+  "provenance": {
+    "trust": "executor-attested"
+  },
+  "conclusions": {
+    "issuer": "b34-local-executor"
   }
 }
