@@ -1,0 +1,225 @@
+{
+  "schema_version": 2,
+  "agents": {
+    "sol-medium": {
+      "vendor": "openai",
+      "model": "gpt-6.1-sol",
+      "cli": "codex",
+      "events": "codex-jsonl",
+      "timeout": "60m",
+      "commands": {
+        "read": [
+          "codex",
+          "-a",
+          "never",
+          "-s",
+          "read-only",
+          "exec",
+          "-m",
+          "gpt-6.1-sol",
+          "{effort}",
+          "--skip-git-repo-check",
+          "--json",
+          "-o",
+          "{output}",
+          "-"
+        ],
+        "sandboxed": [
+          "codex",
+          "-a",
+          "never",
+          "-s",
+          "workspace-write",
+          "exec",
+          "-m",
+          "gpt-6.1-sol",
+          "{effort}",
+          "--skip-git-repo-check",
+          "--json",
+          "-o",
+          "{output}",
+          "-"
+        ]
+      },
+      "effort": {
+        "default": "medium",
+        "levels": {
+          "medium": [
+            "-c",
+            "model_reasoning_effort=\"medium\""
+          ]
+        }
+      },
+      "session": {
+        "pattern": "\"thread_id\"\\s*:\\s*\"([^\"]+)\""
+      },
+      "resume": {
+        "command": [
+          "codex",
+          "-a",
+          "never",
+          "-s",
+          "read-only",
+          "exec",
+          "resume",
+          "-m",
+          "gpt-6.1-sol",
+          "{effort}",
+          "--skip-git-repo-check",
+          "--json",
+          "-o",
+          "{output}",
+          "{session}",
+          "-"
+        ],
+        "commands": {
+          "read": [
+            "codex",
+            "-a",
+            "never",
+            "-s",
+            "read-only",
+            "exec",
+            "resume",
+            "-m",
+            "gpt-6.1-sol",
+            "{effort}",
+            "--skip-git-repo-check",
+            "--json",
+            "-o",
+            "{output}",
+            "{session}",
+            "-"
+          ],
+          "sandboxed": [
+            "codex",
+            "-a",
+            "never",
+            "-s",
+            "workspace-write",
+            "exec",
+            "resume",
+            "-m",
+            "gpt-6.1-sol",
+            "{effort}",
+            "--skip-git-repo-check",
+            "--json",
+            "-o",
+            "{output}",
+            "{session}",
+            "-"
+          ]
+        },
+        "max_resumes": 3,
+        "max_wall_time": "60m"
+      },
+      "limit": {
+        "output_patterns": [
+          "(?i)you(?:'|’|\\\\u2019)ve hit your usage limit"
+        ]
+      },
+      "executor": "agent:openai/gpt-6.1-sol"
+    },
+    "claude-opus-5-5": {
+      "vendor": "anthropic",
+      "model": "claude-opus-5-5",
+      "cli": "claude",
+      "events": "claude-stream-json",
+      "timeout": "60m",
+      "executor": "agent:anthropic/claude-opus-5-5",
+      "commands": {
+        "read": [
+          "claude",
+          "--safe-mode",
+          "-p",
+          "--model",
+          "claude-opus-5-5",
+          "{effort}",
+          "--permission-mode",
+          "plan",
+          "--output-format",
+          "stream-json",
+          "--verbose"
+        ]
+      },
+      "effort": {
+        "default": "medium",
+        "levels": {
+          "medium": [
+            "--effort",
+            "medium"
+          ]
+        }
+      },
+      "session": {
+        "pattern": "\"session_id\"\\s*:\\s*\"([^\"]+)\""
+      },
+      "resume": {
+        "command": [
+          "claude",
+          "--safe-mode",
+          "-p",
+          "--model",
+          "claude-opus-5-5",
+          "{effort}",
+          "--permission-mode",
+          "plan",
+          "--output-format",
+          "stream-json",
+          "--verbose",
+          "--resume",
+          "{session}"
+        ],
+        "commands": {
+          "read": [
+            "claude",
+            "--safe-mode",
+            "-p",
+            "--model",
+            "claude-opus-5-5",
+            "{effort}",
+            "--permission-mode",
+            "plan",
+            "--output-format",
+            "stream-json",
+            "--verbose",
+            "--resume",
+            "{session}"
+          ]
+        },
+        "max_resumes": 3,
+        "max_wall_time": "60m"
+      },
+      "probe": {
+        "command": [
+          "claude",
+          "--version"
+        ],
+        "timeout": "10s"
+      }
+    }
+  },
+  "routing": {
+    "prefer": "opposite-vendor-of-implementation",
+    "on_unavailable": [
+      "same-vendor-other-model",
+      "same-model"
+    ],
+    "rounds": "continue-thread"
+  },
+  "purposes": {
+    "task": {
+      "default_access": "read",
+      "timeout": "60m"
+    },
+    "review": {
+      "max_runs_per_bundle": 3
+    },
+    "adjudicate": {
+      "max_runs_per_bundle": 1
+    },
+    "smoke": {
+      "max_runs_per_bundle": 3
+    }
+  }
+}
