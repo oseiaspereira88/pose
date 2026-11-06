@@ -1,8 +1,8 @@
 # Technical Debt Assessment: pose-dist
 
 > **Gerado por**: POSE Technical Debt Engine (`pose assess tech-debt`)
-> **Data de Avaliação**: 2026-11-03T21:55:40Z
-> **Baseline Commit**: 99afd35c4243
+> **Data de Avaliação**: 2026-11-06T13:51:59Z
+> **Baseline Commit**: b7b5680f953c
 
 ## 1. Resumo Executivo
 
@@ -11,15 +11,16 @@
 - **Cobertos por Backlog Ativo**: 1
 - **Não Cobertos**: 0
 - **Recomendações**: 0 Follow-ups | 0 Specs | 0 Roadmaps
-- **Escopo do scan**: 322 arquivo(s) de código lidos; **INCOMPLETO** — 2 source(s) could not be read: invalid .pose/specs/2026-08-15-pose-instance-engine-version-tracking.md (scope unknown); invalid .pose/specs/2026-08-15-pose-knowledge-durable-reference-type.md (scope unknown). Zero marcadores não prova ausência de dívida nos arquivos não lidos.
+- **Escopo do scan**: 351 arquivo(s) de código lidos; **INCOMPLETO** — 2 source(s) could not be read: invalid .pose/specs/2026-08-15-pose-instance-engine-version-tracking.md (scope unknown); invalid .pose/specs/2026-08-15-pose-knowledge-durable-reference-type.md (scope unknown). Zero marcadores não prova ausência de dívida nos arquivos não lidos.
 - **Excluídos (generated-header)**: 1 arquivo(s) — files that declare themselves generated are not scanned
+- **Excluídos (over-size-limit)**: 1 arquivo(s) — files larger than 4194304 bytes are not scanned
 - **Excluídos (skipped-directory)**: 37 arquivo(s) — directories that hold dependencies, build output or tool state are not scanned
 
 ## 2. Ocorrências
 
 | ID | Marcador | Componente | Arquivo e Linha | Cobertura | Evidência | Recomendação |
 |---|---|---|---|---|---|---|
-| DEBT-8dcc4523 | `TODO` | `pose-mcp` | [techdebt.go:329](file:///tmp/pose-governance-operation-performance/pose-mcp/internal/pose/techdebt.go#L329) | `covered_by_spec` | `spec:pose-residual-material-coverage-and-identity` | `none` |
+| DEBT-8dcc4523 | `TODO` | `pose-mcp` | [techdebt.go:329](file:///home/go/IdeaProjects/harne8/.worktrees/pose-b34-recovery/pose-mcp/internal/pose/techdebt.go#L329) | `covered_by_spec` | `spec:pose-residual-material-coverage-and-identity` | `none` |
 
 ## 3. Política de Ação
 

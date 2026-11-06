@@ -96,3 +96,35 @@ on the corrected source. The index builder now uses a fresh existing spec
 snapshot per build rather than repeatedly listing all specs during resolution;
 no result or authorization cache survives the build. Final canonical evidence
 and corpus gates are still pending for these changes.
+
+## Qualified source checkpoint b7b5680f
+
+The normal canonical matrix passed all 189 checks with four workers (native
+wall 430.0 s), including the uncached complete Go suite and B34 race integration.
+Discover/update-state, static integrate, tech-debt, knowledge-check, final index,
+artifact-check and surface-check exited 0. The actual global strict check
+completed on 2026-11-06 with zero errors and 35 historical warnings. Its elapsed
+clock interval was 13:56:52–14:45:51 UTC; no shorter latency is claimed.
+
+The complete `go test -race ./... -count=1` attempt passed CLI (508.703 s), MCP
+(13.919 s), scaffold and every other package, but the domain package hit the
+default ten-minute timeout. The domain-only thirty-minute attempt also timed
+out while running TestMilestoneSubjectRemovalHoldsForEveryMember, without a
+race diagnostic. Neither timed-out command is a pass. The domain suite was then
+listed with `go test -race ./internal/pose -list '^Test'`, selecting 1,425 names,
+and partitioned in listing order by index modulo four. Four concurrent commands
+`go test -race ./internal/pose -run '^(<group names joined by |>)$' -count=1
+-timeout=30m` passed in 214.656/136.488/168.012/191.100 s. Groups contained
+357/356/356/356 names, with no overlap or omitted top-level test. This package
+contains no Fuzz or Example functions. This is complete partitioned domain race
+coverage plus the other packages' earlier passes, not a successful monolithic
+race invocation. The validation matrix and its independent checks were not
+combined or changed.
+
+The first detached native review never started the vendor: its sealed checkout
+held the old committed delivery index with no attributed B34 change set. Run
+rrn-accfce117640c7af preserves that setup failure with execution_state=not-started
+and empty transcript. Persisting the actual generated inputs before another
+sealed review fixes that prerequisite; it does not fabricate an approval or
+rewrite the failed attempt. The independent review and lifecycle transition
+remain pending at this checkpoint.

@@ -1,7 +1,7 @@
 ---
 schema_version: 1
-generated_at: 2026-11-03T23:10:24Z
-baseline_commit: eeafc4b65af2af95ad9b6847f332afa8a34e9773
+generated_at: 2026-11-06T10:01:09Z
+baseline_commit: 37be0bad5d39307debc4805eb247093b6b9a7180
 staleness_policy: max_age_days=7,max_commits=20
 refresh_pending: 
 ---
@@ -27,9 +27,9 @@ próprio deste repositório (produtização v2, DX) segue disponível conforme
 capacidade.
 
 ## Specs & Roadmaps
-<!-- state:derived hash:242f4c9c91f8 -->
+<!-- state:derived hash:b73594c52c1a -->
 
-- specs: total=482 draft=17 in-progress=0 blocked=0 done=463 superseded=0 abandoned=2
+- specs: total=482 draft=16 in-progress=1 blocked=0 done=463 superseded=0 abandoned=2
 - roadmaps: total=23 active=3 done=16
 - últimos closeouts:
   - spec:pose-consolidation-batch-1-authoring (2026-11-03)
@@ -65,15 +65,15 @@ capacidade.
 - mecanismos: 16, score médio=4, target médio=5, retirados=0
 
 ## Decisões & Conhecimento
-<!-- state:derived hash:ada13748516c -->
+<!-- state:derived hash:6d92b4c709dd -->
 
-- ADRs: total=93
+- ADRs: total=94
+  - adr:2026-11-03-governance-reads-use-bounded-operation-scoped-views.md
   - adr:2026-11-02-a-milestone-of-one-member-is-that-member.md
   - adr:2026-11-01-a-milestone-answers-to-its-own-edges.md
   - adr:2026-10-31-review-reads-raw-history-and-roots-diff-from-the-empty-tree.md
   - adr:2026-10-29-make-delegated-review-adoption-explicit-and-recoverable.md
-  - adr:2026-10-26-delegation-is-a-first-class-execution-surface.md
-- knowledge: total=18 ativo=18 expirado=0
+- knowledge: total=21 ativo=21 expirado=0
 
 ## Validação & Evidência
 <!-- state:derived hash:b56529eba5b2 -->
@@ -88,10 +88,10 @@ capacidade.
   - report:pose-v7-legacy-cleanup-plan.md
 
 ## Arquitetura
-<!-- state:derived hash:f2759ee7850e status:active -->
+<!-- state:derived hash:5ef465fcad00 status:active -->
 
 - componentes: total=3 verificados=3 completude=99.8%
-- linhas_de_codigo: producao=102531 testes=96590 total=199121
+- linhas_de_codigo: producao=110722 testes=103527 total=214249
 - linguagens: go
 - saude_de_codigo: TODOs=1 FIXMEs=0 panics=0 stubs=0
 - integracoes: contratos=70 ativos=6 gaps=64
