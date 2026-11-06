@@ -218,3 +218,14 @@ checks, bounded reads and rejection above that limit. Keep transcript and B34
 read-view budgets unchanged. Do not substitute a launcher to evade the selected
 executable's identity proof. This accepts the measured distribution with bounded
 headroom; larger future distributions still require an explicit reassessment.
+
+
+### Provider framing for the instance-owned review profile
+
+Claude's stream repeats session_id in init and result events. The instance
+profile selects the unique system/init event so the existing ambiguity guard
+and private-session redaction remain intact. A restricted, noninteractive review
+uses Read/Grep/Glob/Bash without Edit/Write/Agent tools or plan approval mode.
+This changes neither independence nor stream/output/run limits; the actual
+working tree remains checked for mutation. No vendor profile becomes a scaffold
+default.

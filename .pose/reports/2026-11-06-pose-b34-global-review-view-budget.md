@@ -150,3 +150,39 @@ required before another provider attempt. No independent approval or lifecycle
 transition has been recorded. The final current structural check remains for
 the final administrative/documentation boundary; the earlier b7 real-corpus
 pass is preserved with its source identity.
+
+## Independent review and correction of F1/F2
+
+After user reauthentication, rrn-581c7da6558f85b3 failed before vendor execution
+because the committed validation and index described different source states.
+90e6bd09 persists a matching pair; its current canonical run passed189/189
+(351.4s). rrn-db41024e48aa50af executed the Claude process but native capture
+failed: the broad session regex was ambiguous on the repeated session_id fields.
+Its withheld output was not used as a judgment. The instance profile now selects
+only system/init and restricts review tools without plan-approval mode; the
+existing Claude fixture reproduces two broad matches versus one init match,
+while two init events remain ambiguous. Existing continuity/event tests passed.
+
+rrn-9e9e2b9b71aa4d57 completed with full redacted capture and changes-requested.
+F1 correctly identified operation-wide final root-registry changes lost when
+metadata read only per-root audits. New production-wrapper tests reproduced
+current freshness after two registry changes in both review and closeout;
+final budget loss also incorrectly triggered a retry as an observed mutation.
+The correction merges the registry audit into the primary root's final audit,
+so metadata, limitations and identity retain it. Budget loss stays unknown
+without inventing mutation. Positive stable/recovered cases, persistent changes,
+conflicts, budget, actual projection, review, closeout and identity passed with
+race in3.225s.
+
+F2's redundant deep byte copy during final audit was removed: capture is closed,
+active readers have joined and caller buffers remain independent. Existing
+isolation/replay tests passed with race. This reduces retained duplication,
+not a claim that512MiB bounds process RSS; bounded rereads and runtime overhead
+remain. F3 is an owned low-severity follow-up. The new code still needs current
+canonical evidence and a new independent review.
+
+The attempted native conclusion of the negative review was refused because
+regression edits had already changed sealed bytes. Its refusal is immutable
+and replays even after restoring the reviewed files; both the completed
+changes-requested run and the refusal remain preserved. No rejection or
+judgment was converted into approval. The next review must account for F1–F3.

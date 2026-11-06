@@ -131,15 +131,20 @@
         "read": [
           "claude",
           "--safe-mode",
+          "--restricted",
           "-p",
           "--model",
           "claude-opus-5-5",
           "{effort}",
           "--permission-mode",
-          "plan",
+          "dontAsk",
           "--output-format",
           "stream-json",
-          "--verbose"
+          "--verbose",
+          "--permission-prompts",
+          "none",
+          "--tools",
+          "Read,Grep,Glob,Bash"
         ]
       },
       "effort": {
@@ -152,39 +157,49 @@
         }
       },
       "session": {
-        "pattern": "\"session_id\"\\s*:\\s*\"([^\"]+)\""
+        "pattern": "(?m)^\\{\"type\"\\s*:\\s*\"system\"\\s*,\\s*\"subtype\"\\s*:\\s*\"init\"[^\\n]*\"session_id\"\\s*:\\s*\"([^\"\\r\\n]+)\""
       },
       "resume": {
         "command": [
           "claude",
           "--safe-mode",
+          "--restricted",
           "-p",
           "--model",
           "claude-opus-5-5",
           "{effort}",
           "--permission-mode",
-          "plan",
+          "dontAsk",
           "--output-format",
           "stream-json",
           "--verbose",
           "--resume",
-          "{session}"
+          "{session}",
+          "--permission-prompts",
+          "none",
+          "--tools",
+          "Read,Grep,Glob,Bash"
         ],
         "commands": {
           "read": [
             "claude",
             "--safe-mode",
+            "--restricted",
             "-p",
             "--model",
             "claude-opus-5-5",
             "{effort}",
             "--permission-mode",
-            "plan",
+            "dontAsk",
             "--output-format",
             "stream-json",
             "--verbose",
             "--resume",
-            "{session}"
+            "{session}",
+            "--permission-prompts",
+            "none",
+            "--tools",
+            "Read,Grep,Glob,Bash"
           ]
         },
         "max_resumes": 3,

@@ -167,6 +167,7 @@ Paths abaixo declaram o escopo da implementação em andamento. A atribuição G
 - modified: pose-mcp/internal/pose/review_conclusions.go
 - modified: pose-mcp/internal/pose/review_dispatch.go
 - modified: pose-mcp/internal/pose/review_run_continuity.go
+- modified: .pose/policy/delegation.json
 - modified: pose-mcp/internal/pose/review_run_provenance.go
 - created: pose-mcp/internal/pose/review_executable_budget_test.go
 - created: pose-mcp/internal/pose/review_write_scope.go
@@ -288,7 +289,7 @@ Executar incrementalmente depois das fundações aceitas B06/B07/B14/B15. A prim
 ### Decision D8 — configuração de execução restrita à instância
 - Basis: R2, R7, R9
 - Decision: Excluir a policy viva `delegation.json` da cópia embarcada pelo mesmo mecanismo de exclusão dos demais contratos específicos da instância. Preservar a configuração solicitada no motor e seu clone de implementação; deixar a configuração nativa de cada destino descobrir e cadastrar seus agentes, sem distribuir vendors, acesso ou issuer local como default.
-- Rationale: A configuração necessária à revisão independente passou a existir na raiz do motor. O gerador com allowlist de policy copiaria os perfis e o issuer para outras instâncias, contrariando a separação de autoridade e a instrução de cadastro por instância. A exclusão é limitada ao arquivo vivo e não muda capabilities, contratos ou records históricos.
+- Rationale: A configuração necessária à revisão independente passou a existir na raiz do motor. O gerador com allowlist de policy copiaria os perfis e o issuer para outras instâncias, contrariando a separação de autoridade e a instrução de cadastro por instância. A exclusão é limitada ao arquivo vivo e não muda capabilities, contratos ou records históricos. O perfil Claude captura sessão somente no evento `system/init`, pois o stream repete o identificador; usa modo de revisão restrito e não interativo, sem ferramentas de edição ou subagentes e sem o fluxo de aprovação de plano. Os limites de captura, identidade e independência permanecem os mesmos.
 
 ### Decision D9 — budget próprio para a identidade do executável
 - Basis: R2, R9, R10
@@ -380,7 +381,7 @@ Os casos abaixo foram requalificados pela matriz de 189/189 checks no checkpoint
 
 - R1 [satisfied] check:governance-read-view-integration test:TestGovernanceReadViewDirtyToDirtySnapshot test:TestGovernanceReadViewProbeIdentityTracksObservedBytes test:TestGovernanceReadViewProbeReadFileAbsenceReplayPreservesMeaning. Identity binds observed bytes/absence/errors and versioned root bindings rather than dirty/mtime alone.
 - R2 [satisfied] check:governance-read-view-integration test:TestGovernanceReadViewGitCapturesAndAuditsExactCommand test:TestGovernanceReadViewIndexConsumptionChecksBoundInputsOnlyWhenUsed test:TestGovernanceReadViewOperationSharesInputByteBudgetAcrossRoots check:delegated-run-provenance-integration test:TestRunProvenanceExecutableHasIndependentMeasuredBudget test:TestRunProvenanceExecutableBudgetBoundaryAndLinks. Sources and semantic federated index inputs use the captured closure; unrelated unused roots remain outside its coverage.
-- R3 [satisfied] check:governance-read-view-integration test:TestGovernanceReadViewProjectionRetriesOnceAndReturnsOnlyStableAttempt test:TestGovernanceReadViewProjectionStopsAfterOneUnstableRetryAndLocalizesCoverage. Repeated interleaving yields unknown/incomplete; cooperative fencing covers required transitions. The ADR explicitly excludes undetectable external ABA from its guarantee.
+- R3 [satisfied] check:governance-read-view-integration test:TestGovernanceReadViewProjectionRetriesOnceAndReturnsOnlyStableAttempt test:TestGovernanceReadViewProjectionStopsAfterOneUnstableRetryAndLocalizesCoverage test:TestGovernanceReadViewRegistryFinalAuditReachesReviewAndCloseout test:TestGovernanceReadViewRegistryFinalAuditReachesProjection test:TestGovernanceReadViewRegistryFinalAuditBindsIdentity. Repeated interleaving yields unknown/incomplete; cooperative fencing covers required transitions. The ADR explicitly excludes undetectable external ABA from its guarantee.
 - R4 [satisfied] check:governance-read-view-integration test:TestGovernanceReadViewProbeStablePermissionFailureIsIncompleteForItsProducer test:TestGovernanceReadViewDependencyDepthLimitLocalizesCoverage test:TestGovernanceReadViewD7ProbeScopeLossDoesNotPoisonHealthySibling. Read/parse/proof failure degrades the affected producer rather than manufacturing Complete or an unrelated global block.
 - R5 [satisfied] check:governance-read-view-integration test:TestGovernanceReadViewDirtyToDirtySnapshot test:TestGovernanceReadViewProbeSymlinkIdentityIsPartOfObservedClosure test:TestGovernanceReadViewGitCapturesAndAuditsExactCommand. Audit reconciles observed content and identities without depending on watcher events.
 - R6 [satisfied] check:governance-read-view-integration check:writer-coordination-and-atomic-publication-integration check:index-generation-integrity-integration test:TestGovernanceWriteGuardReviewAttestationReturnsCommittedUnsyncedRecord. Actual publishers retain cooperative root leases, CAS and descriptor publication; committed durability uncertainty is preserved in the receipt.
@@ -405,4 +406,5 @@ A closure é um contrato por operação, não um hash genérico do diretório. U
 
 ### Follow-ups
 
-Manter unidades e dependências restantes na matriz. Nenhuma disposition ou migração aplicada nesta escrita.
+- [open] Substituir a classificação `federated-roadmap` por substring de erro por erro tipado, preservando código/receipts e controles negativos (revisão Claude F3). (owner:@pose-maintainers crit:low review:2026-12-06)
+- [open] Evitar reexecução integral da matriz por checkpoints administrativos de índice/resultados, vinculando equivalência ao material validado e preservando rejeição de evidência stale e checkout incompleto. (owner:@pose-maintainers crit:medium review:2026-12-06)

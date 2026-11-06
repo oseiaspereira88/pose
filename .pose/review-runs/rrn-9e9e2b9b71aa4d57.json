@@ -1,0 +1,133 @@
+{
+  "safety": {
+    "schema_version": 1,
+    "profile": "legacy-trusted",
+    "platform": "linux/amd64",
+    "capabilities": {
+      "automatic-expiry": "unavailable",
+      "bounded-capture": "available",
+      "cpu-limit": "unavailable",
+      "credential-filesystem-isolation": "unavailable",
+      "environment-allowlist": "available",
+      "escaped-descendant-termination": "unavailable",
+      "filesystem-isolation": "unavailable",
+      "memory-limit": "unavailable",
+      "network-isolation": "unavailable",
+      "origin-isolation": "unavailable",
+      "parent-termination": "available",
+      "process-group-termination": "available",
+      "shared-git-isolation": "unavailable"
+    },
+    "limitations": [
+      "trusted local executable required; worktree is not a sandbox",
+      "outside writes, transient writes, shared Git and credential files are not isolated",
+      "no memory/CPU quota or control of descendants escaping the process group",
+      "cleanup filesystem calls remain subject to operating-system I/O latency",
+      "legacy compatibility: HOME retained; other ambient credentials excluded"
+    ],
+    "stream_bytes": 8388608,
+    "output_bytes": 65536,
+    "retained_bytes": 16777216,
+    "timeout_ms": 3600000,
+    "max_runs_per_bundle": 3,
+    "retention": "retain-evidence; ttl=0; no automatic deletion",
+    "capture_complete": true,
+    "runtime_id": "pose-review-run-3263644701",
+    "operation": {
+      "schema_version": 1,
+      "operation": "review.dispatch.cleanup",
+      "scope": "spec:pose-governance-read-view-generation",
+      "outcome": "completed",
+      "steps_run": [
+        {
+          "id": "cleanup",
+          "result": "done"
+        }
+      ],
+      "effects": [],
+      "resumable": false
+    }
+  },
+  "provenance": {
+    "execution_state": "started",
+    "planned_wire_digest": "sha256:85638557337cc201048b7b5d1760684522ea0736a8d37473bb37b3c5fd71102c",
+    "wire_bytes": 36140,
+    "wire_complete": true,
+    "schema_version": 1,
+    "project": "proj.pose-dist",
+    "audience": "proj.pose-dist",
+    "worktree_digest": "sha256:7f34cebd177e54c42d16db00efd11edab08257125e70a9fd1fe6ae79fb94e150",
+    "trust": "executor-attested",
+    "implementation": {
+      "principal": "agent:openai/unknown",
+      "execution": "sha256:e153fd0098107a9b94004770167630f49576f2af7f39b7b1a7b2492cb4339a62",
+      "vendor": "openai",
+      "model": "unknown"
+    },
+    "reviewer": {
+      "principal": "agent:anthropic/claude-opus-5-5",
+      "vendor": "anthropic",
+      "model": "claude-opus-5-5"
+    },
+    "config_digest": "sha256:2c625a52c486e3f15dddd95ed9b0085f560385ded4b827085ee322eae236323a",
+    "command_template_digest": "sha256:f58e411616c2ba64d327d9040f1bc5bd43e2f1196d077291e674e076fbf4e5b4",
+    "argv_digest": "sha256:df972dc75574e0e4c78d7abe2fb9e8029250df1f8b8c1f6ea76447af9fc36116",
+    "executable_digest": "sha256:708c77b204db30086ff6f1ed34577bda03e1be74ced80557cbf7b54249ebf0bd",
+    "template_version": "review-brief/3",
+    "wire_digest": "sha256:85638557337cc201048b7b5d1760684522ea0736a8d37473bb37b3c5fd71102c",
+    "notes_digest": "sha256:f2b3d94a9d95b12613585d0998e3eb9c7bfa3b15cd4d801c7c01a4a166e511b3",
+    "raw_transcript_digest": "sha256:0b1a5269dd2f012804378f9e5ed7695c713682c079ebc846e9fca55e6a48a1b8",
+    "raw_output_digest": "sha256:13a32f47724b4f28d3c9790c0d202306d18a9b4a623366c601a3a0962402e86b",
+    "output_source": "stream-final",
+    "output_complete": true
+  },
+  "session_digest": "sha256:d0fcfb7d0a266e6732bd764fcba65c7f191034bff682aee0316a3fffa6d9bf02",
+  "tree_digest": "sha256:6f229d7ed400a39ac605c5661f149a90c11564a32ea20c4a61f92d9e6d164c86",
+  "brief_notes": "Implementer notes — factual context, not a review judgment\n\nThe generated sealed brief and its exact IDs are authoritative. Perform one bounded read-only review yourself: do not delegate subagents, watchers or ultrareview, edit project files, record attestations or invoke contributor submission. Return the typed judgment the generated brief requests. Report all blocking findings and use only sealed evidence IDs; do not infer approval from a successful command.\n\nThe implementing execution is OpenAI, exact model unknown. The selected reviewer is the user-requested Claude Code Opus 5.5. The local signer declares the executor's protected identity; it does not certify an Anthropic receipt or human authority.\n\nThe current source checkpoint is 90e6bd09, with the executable-provenance correction in 448a7504. Its canonical strict matrix passed 189/189 checks (351.4s), including the uncached full Go suite, B34 production integration with race, CLI/MCP parity, writer publication and enabled installation journey. Focused RunProvenance tests with race passed in 11.093s. Current discover/update-state, integrate, tech-debt, knowledge, lint, index, design, artifact and surface checks exited 0; surface findings 0. Integration inventory is static, not functional proof. Tech-debt remains INCOMPLETE because two historical specs cannot be read; no uncovered marker was found in scanned content. Keep that limitation.\n\nThe real global strict check on the prior read-view source b7b5680f passed with 35 historical warnings and no errors. Preserve that source identity; do not relabel it a current structural run after D9. A final global structural check is reserved for the final administrative/documentation boundary. The full monolithic race command passed every other package but domain timed out at 10m; a 30m domain-only attempt also timed out while the global corpus gate ran. Neither is a pass. All 1,425 domain tests on b7 then passed in four disjoint complete groups of 357/356/356/356 (214.656/136.488/168.012/191.100s), with no Fuzz/Example functions. Since then the Go delta is only the streaming executable hash limit and its two tests, covered by current focused race and the canonical suite; no new concurrency was added.\n\nPrior native review runs never invoked a vendor: rrn-accfce117640c7af failed because its sealed commit held an old index without B34 attribution;42c8891f persisted the real indexes and results. rrn-bef40df473391d0c then passed checkout setup but rejected the 337,814,032-byte native Claude Code 2.1.318 executable against the 256 MiB transcript bound reused for executable hashing. Accepted D9 separates a 512 MiB streaming executable bound while preserving real target/regular-file/identity/overflow checks. Transcript retention stays 256 MiB and all read-view limits stay unchanged. No wrapper was substituted and no approval or old receipt was reconstructed.\n\nB34 recovery preserves historical failures and the prospective native start b2eb2d34. D5 retains 64 local edges and 256 unique graph nodes/entries, with eight composed project crossings including redirects; D6 bounds an aggregate operation to 25,000 records, 512 MiB input and 8 MiB retained metadata across at most 16 authorized roots. D7 separates audited global selection/catalogue from independently bounded scope closures with bounded concurrency and exact Files/root/authority bindings. The final audit lists a directory once per root audit while still checking consumed Info metadata; roadmap children retain their authorized context. D8 excludes only instance delegation policy from the scaffold through its established exclusion path. External uncooperative ABA remains outside the guarantee: no universal filesystem transaction, persistent authorization, daemon, watcher or cross-operation cache is claimed.\n\nInspect actual production writer guard/CAS/receipt paths, final audits and retries, changed/unknown distinctions, retained-review negatives, index outputs and bindings from one captured build. Give explicit structural mappings for the deltas in the current sealed brief. The component tests validation matrix declares producer_coverage none: use a supported not-used disposition and rationale for that tool rather than pretending it ran; the current global validation can support pose-mcp only as sealed native coverage permits. Remote CI was waived by the user; Harne8 engine/gitlink adoption is outside this change.\n\nThe subsequent not-started setup record rrn-581c7da6558f85b3 identified stale structured results in the committed checkout. Checkpoint 90e6bd09 persists the matching bff index and bff validation results; no Go or semantic contract changed. Current primary validation was regenerated on 90e6bd09 and passed189/189. Claude authentication is now confirmed. All three setup failures preceded vendor execution and are retained; none was a review judgment.\n\nThe last actual reviewer process exited0 but native capture was refused because the configured broad session_id regex matched repeated session fields in the Claude stream. That failed record rrn-db41024e48aa50af is retained; its withheld output is not evidence and no previous judgment is being reused. The profile now captures only the single system/init event, retains all redaction and byte limits, and uses restricted/dontAsk with Read,Grep,Glob,Bash only so this is a review, not an implementation plan requiring approval. Do not write a plan file or request plan approval. Use sealed current evidence for the mechanical tools; execute only additional targeted checks justified by an actual risk or finding. Return the exact typed final review JSON required by the generated brief.\n",
+  "ledger_version": 1,
+  "attempt_id": "rat-e24c040ae2e860fc2fe1923972b58e9949675e46812726885219c134a53e53cc",
+  "reason": "Corrected ambiguous Claude session capture and review-mode configuration after failed capture; unchanged subject, same agent, failed run retained and no prior judgment reused.",
+  "schema_version": 1,
+  "run_id": "rrn-9e9e2b9b71aa4d57",
+  "scope": "spec:pose-governance-read-view-generation",
+  "bundle_id": "rvb-55a05f7f1280cfe7",
+  "bundle_digest": "sha256:55a05f7f1280cfe7a85c65ea10b9769ae5e6bb77d73ffae09434e47f7a7162f2",
+  "sealed_commit": "90e6bd098810b7a073f874e5e124f8f7a728c0eb",
+  "kind": "review",
+  "brief_digest": "sha256:2c91bef287c1ad4c2def541ea4bb4896bfa2ca71463dde4e6505f97c2a4121b5",
+  "adapter": "claude-opus-5-5",
+  "vendor": "anthropic",
+  "model": "claude-opus-5-5",
+  "started_at": "2026-11-06T19:07:27.233184456Z",
+  "ended_at": "2026-11-06T19:10:59.268919819Z",
+  "exit_code": 0,
+  "status": "completed",
+  "transcript_digest": "sha256:c7b1ce3dedb2815c684ab6de27eedddd68b1735c3faa0b5c76be4933e9ff9e9b",
+  "transcript_path": ".pose/review-runs/rrn-9e9e2b9b71aa4d57.transcript",
+  "output": "**Decision: changes-requested.** I found one blocking defect and two low-severity follow-ups.\n\nI couldn't execute anything except a few early read-only git commands; the session denied every `go test` and `pose` command. So the mechanical criteria below rest on the sealed evidence plus my own reading of the code. I did not re-run any of it. Any tool with no sealed evidence is marked `not-used`, not passed.\n\n## Blocking defect\n\n**F1 (medium, blocker): a change to the authorized-root registry during the final audit never reaches `read_view.freshness`.**\n- **Where it's detected:** the final audit in `pose-mcp/internal/pose/governance_read_view.go:388-398` finds the change (or a final-audit budget overrun). It records it only in the returned audit (`ChangedPaths: \"authorized-roots\"`, `ChangedProducers[\"projection\"]`).\n- **Where it's lost:** the operation's `metadata()` at `governance_read_view.go:428-529` builds freshness, limitations and the ID only from the per-root audits, `rootOverflow` and the registry overflow seen at the start (`registryOverflow`). It ignores this result.\n- **Effect on review/closeout:** after the single retry, `withGovernanceReviewReadViewAttempt` (`review_closeout.go:464-471`) attaches metadata that still says `current`. `applyReviewReadView` (`:549`) and `applyCloseoutReadView` (`:595`) then return early, so approval and terminal status stand even though the audit saw a change. That breaks R3 (\"interleaving → incoherent/unknown, never relabel\") and the milestone exit gate.\n- **Effect on the projection:** `projectObligations` reports `snapshot.coherent=false` alongside `read_view.freshness: \"current\"`, which is inconsistent.\n- **Not affected:** `ObligationSnapshotChanges` (it checks `Coherent`) and the index capture path (it reads the audit directly).\n- **No test covers it:** \"authorized root registry changed\" and \"authorized-roots\" appear nowhere in any test.\n\n## Follow-ups (low)\n- **F2:** `governance_read_view.go:2065`. The final audit deep-copies every captured byte, so peak memory is roughly twice the 512 MiB input budget plus the file being re-read. The calibrated corpus of ~370 MB would hold about 740 MB+ at peak.\n- **F3:** `pose-mcp/internal/cli/index_generation_build.go:205`. The `federated-roadmap` error code is picked by matching a substring of the error text instead of a typed error.\n\n## Criteria\n| Criterion | Result | Evidence |\n|---|---|---|\n| assumption-integrity | passed | The spec (§3, the A→B→A paragraph) and the ADR separate verified facts from the external-writer/ABA limit; tech-debt INCOMPLETE is kept |\n| backend-concurrency | passed | integration:pose-mcp/go/governance-read-view-integration (run with `-race`); lease and lock order in `governance_write_guard.go:132-187,472-528` |\n| backend-contracts | passed | integration:pose-mcp/go/cli-mcp-operation-results-integration; report stays at schema v1, `read_view` is additive |\n| backend-input-errors | passed | integration:pose-mcp/go/typed-diagnostics-integration; typed guard errors at `governance_write_guard.go:23-65` |\n| backend-integration-impact | passed | integration:pose-mcp/go/governance-read-view-integration |\n| backend-observability | passed | unit:pose-mcp/go/test; bounded summaries without paths at `governance_read_view_capture.go:88-137` |\n| compatibility | passed | `POSE.md:372`; golden tool catalog; v1 schemas kept |\n| correctness | **finding (F1)** | integration:pose-mcp/go/governance-read-view-integration (doesn't cover the registry path) |\n| cross-component-integration | passed | integration:pose-mcp/go/cli-profile-parity-integration |\n| design-causality | passed | D2/D4/D7 extend `Files` with per-operation capture, final audit and a guarded write; the digest now binds observed bytes |\n| documentation | passed | `POSE.md:372-373`, the ADR, the MCP catalog |\n| milestone exit gate | **finding (F1)** | an interleaving can be labelled `current` at the review/closeout gate |\n| operability | passed | `index_generation_build.go:39-51`; guard errors are actionable |\n| requirements | **finding (F1)** | R3/R5 lack evidence for the root-registry interleaving |\n| scope | passed | changed files match the spec's artifact list |\n| security | passed | lock-path symlink checks at `governance_write_guard.go:437-548`; root digests instead of paths; D8 excludes the live policy |\n| solution-proportionality | passed | extends `Files` rather than adding a daemon, cache or snapshot; F2 is the noted cost |\n\n## Structural facts\n- **SD-0cf58a00** (`validation-matrix.json`): caused by R10 and Validation V7 / the deterministic checks. It adds the required race check `governance-read-view-integration` and the explicit `-count=1` build/test/vet (`replaceDefaultChecks`), as recorded in the execution log for ba458666.\n- **SD-5e72492d** (the ADR): caused by the spec constraint \"O ADR B34 deve ser aceito antes de alterar o contrato\" (\"the B34 ADR must be accepted before the contract changes\"). It is the basis for decisions D2–D9.\n\n```pose-draft\n{\n  \"schema\": \"pose.review.draft/v1\",\n  \"decision\": \"changes-requested\",\n  \"findings\": [\n    {\"id\": \"F1\", \"severity\": \"medium\", \"disposition\": \"blocker\", \"file\": \"pose-mcp/internal/pose/governance_read_view.go\", \"line\": 388, \"summary\": \"Operation final audit records an authorized-root registry change/overflow only in the returned audit; governanceReadViewOperation.metadata (lines 428-529) derives freshness/limitations/ID from per-root audits and initial overflow flags only, so after the single retry review/closeout (review_closeout.go:464-471, 549, 595) keep approval/terminal with read_view.freshness=current and projection reports coherent=false with freshness current. No test covers this path.\"},\n    {\"id\": \"F2\", \"severity\": \"low\", \"disposition\": \"follow-up\", \"file\": \"pose-mcp/internal/pose/governance_read_view.go\", \"line\": 2065, \"summary\": \"Final audit deep-copies all retained captured bytes, doubling resident memory (up to ~2x the 512 MiB input budget) during audit.\"},\n    {\"id\": \"F3\", \"severity\": \"low\", \"disposition\": \"follow-up\", \"file\": \"pose-mcp/internal/cli/index_generation_build.go\", \"line\": 205, \"summary\": \"Index build failure code 'federated-roadmap' is selected by substring match on error text instead of a typed/sentinel error.\"}\n  ],\n  \"criteria\": [\n    {\"id\": \"assumption-integrity\", \"disposition\": \"passed\", \"evidence\": \"file:.pose/specs/2026-10-13-pose-governance-read-view-generation.md:34\"},\n    {\"id\": \"backend-concurrency\", \"disposition\": \"passed\", \"evidence\": \"integration:pose-mcp/go/governance-read-view-integration\"},\n    {\"id\": \"backend-contracts\", \"disposition\": \"passed\", \"evidence\": \"integration:pose-mcp/go/cli-mcp-operation-results-integration\"},\n    {\"id\": \"backend-input-errors\", \"disposition\": \"passed\", \"evidence\": \"integration:pose-mcp/go/typed-diagnostics-integration\"},\n    {\"id\": \"backend-integration-impact\", \"disposition\": \"passed\", \"evidence\": \"integration:pose-mcp/go/governance-read-view-integration\"},\n    {\"id\": \"backend-observability\", \"disposition\": \"passed\", \"evidence\": \"unit:pose-mcp/go/test\"},\n    {\"id\": \"compatibility\", \"disposition\": \"passed\", \"evidence\": \"file:POSE.md:372\"},\n    {\"id\": \"correctness\", \"disposition\": \"finding\", \"evidence\": \"integration:pose-mcp/go/governance-read-view-integration\"},\n    {\"id\": \"cross-component-integration\", \"disposition\": \"passed\", \"evidence\": \"integration:pose-mcp/go/cli-profile-parity-integration\"},\n    {\"id\": \"design-causality\", \"disposition\": \"passed\", \"evidence\": \"file:.pose/adr/2026-11-03-governance-reads-use-bounded-operation-scoped-views.md:97\"},\n    {\"id\": \"documentation\", \"disposition\": \"passed\", \"evidence\": \"file:POSE.md:372\"},\n    {\"id\": \"milestone-exit-gate-pose-state-consistency-and-recovery-governance-read-view\", \"disposition\": \"finding\", \"evidence\": \"file:pose-mcp/internal/pose/review_closeout.go:549\"},\n    {\"id\": \"operability\", \"disposition\": \"passed\", \"evidence\": \"file:pose-mcp/internal/cli/index_generation_build.go:39\"},\n    {\"id\": \"requirements\", \"disposition\": \"finding\", \"evidence\": \"integration:pose-mcp/go/governance-read-view-integration\"},\n    {\"id\": \"scope\", \"disposition\": \"passed\", \"evidence\": \"file:.pose/specs/2026-10-13-pose-governance-read-view-generation.md\"},\n    {\"id\": \"security\", \"disposition\": \"passed\", \"evidence\": \"file:pose-mcp/internal/pose/governance_write_guard.go:437\"},\n    {\"id\": \"solution-proportionality\", \"disposition\": \"passed\", \"evidence\": \"file:.pose/specs/2026-10-13-pose-governance-read-view-generation.md:36\"}\n  ],\n  \"tools\": [\n    {\"id\": \"artifact-check\", \"disposition\": \"not-used\", \"evidence\": \"\", \"rationale\": \"Command execution was denied in this review session and no sealed evidence ID covers this tool.\"},\n    {\"id\": \"assess-design\", \"disposition\": \"passed\", \"evidence\": \"structure:design-32b95cbf2ff92ef6\", \"rationale\": \"\"},\n    {\"id\": \"assess-discover\", \"component\": \"pose-mcp\", \"disposition\": \"not-used\", \"evidence\": \"\", \"rationale\": \"Recommended tool; command execution denied; no sealed evidence for it.\"},\n    {\"id\": \"assess-discover\", \"component\": \"tests\", \"disposition\": \"not-used\", \"evidence\": \"\", \"rationale\": \"Recommended tool; command execution denied; no sealed evidence for it.\"},\n    {\"id\": \"assess-integrate\", \"disposition\": \"not-used\", \"evidence\": \"\", \"rationale\": \"Command execution denied; integration inventory is static and has no sealed evidence ID.\"},\n    {\"id\": \"assess-tech-debt\", \"disposition\": \"not-used\", \"evidence\": \"\", \"rationale\": \"Recommended tool; command execution denied; implementer reports INCOMPLETE (two unreadable historical specs).\"},\n    {\"id\": \"closeout-check\", \"disposition\": \"not-used\", \"evidence\": \"\", \"rationale\": \"Command execution denied; no sealed evidence for this tool.\"},\n    {\"id\": \"knowledge-check\", \"disposition\": \"not-used\", \"evidence\": \"\", \"rationale\": \"Command execution denied; no sealed evidence for this tool.\"},\n    {\"id\": \"review-check\", \"disposition\": \"not-used\", \"evidence\": \"\", \"rationale\": \"Command execution denied (attempted); no sealed evidence for this tool.\"},\n    {\"id\": \"suggest-review\", \"component\": \"pose-mcp\", \"disposition\": \"not-used\", \"evidence\": \"\", \"rationale\": \"Recommended tool; command execution denied.\"},\n    {\"id\": \"suggest-review\", \"component\": \"tests\", \"disposition\": \"not-used\", \"evidence\": \"\", \"rationale\": \"Recommended tool; command execution denied.\"},\n    {\"id\": \"surface-check\", \"disposition\": \"not-used\", \"evidence\": \"\", \"rationale\": \"Command execution denied; no sealed evidence for this tool.\"},\n    {\"id\": \"validate\", \"disposition\": \"not-used\", \"evidence\": \"\", \"rationale\": \"Sealed evidence covers only the pose-mcp module checks; no sealed global validation result for this checkpoint.\"},\n    {\"id\": \"validate\", \"component\": \"pose-mcp\", \"disposition\": \"passed\", \"evidence\": \"unit:pose-mcp/go/test\", \"rationale\": \"\"},\n    {\"id\": \"validate\", \"component\": \"tests\", \"disposition\": \"not-used\", \"evidence\": \"\", \"rationale\": \"The tests module declares replaceDefaultChecks with an empty check list (producer coverage none); no sealed evidence exists for it.\"}\n  ]\n}\n```",
+  "policy_digest": "sha256:fff43ca5b338f626f9bc9be2bfc998d7fa780708e54e427024daf7788d0fc98e",
+  "label": "b34-final-claude-r5",
+  "purpose": "review",
+  "env_removed": [
+    "CODEX_CI",
+    "CODEX_SANDBOX_NETWORK_DISABLED",
+    "CODEX_SESSION_ID",
+    "CODEX_THREAD_ID"
+  ],
+  "events": "claude-stream-json",
+  "events_digest": "sha256:368302829d3a404590799b4ce4eab8debb9133e1107ee895079de1578fc59346",
+  "routing": {
+    "requested": "claude-opus-5-5",
+    "implementation": {
+      "principal": "agent:openai/unknown",
+      "vendor": "openai",
+      "model": "unknown",
+      "execution_digest": "sha256:e153fd0098107a9b94004770167630f49576f2af7f39b7b1a7b2492cb4339a62",
+      "source": "declared"
+    },
+    "implementation_from": "bundle",
+    "step": "explicit"
+  },
+  "independence_achieved": "different-vendor",
+  "round": 1
+}

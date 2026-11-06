@@ -388,13 +388,23 @@ func (op *governanceReadViewOperation) audit() governanceReadViewAudit {
 	if currentRoots != nil {
 		current, conflicts, overBudget := currentRoots()
 		if overBudget || !sameStringMap(initialRoots, current) || !sameBoolMap(initialConflicts, conflicts) {
-			changed = append(changed, "authorized-roots")
-			result.ChangedProducers["projection"] = true
+			registryAudit := governanceReadViewAudit{UnknownProducers: map[string][]string{}}
 			reason := "authorized root registry changed during the operation"
 			if overBudget {
 				reason = "authorized root registry exceeded its bounded final-audit budget"
+			} else {
+				registryAudit.ChangedPaths = []string{"authorized-roots"}
+				registryAudit.ChangedProducers = map[string]bool{"projection": true}
 			}
-			result.UnknownProducers["projection"] = append(result.UnknownProducers["projection"], reason)
+			registryAudit.UnknownProducers["projection"] = []string{reason}
+			mergeGovernanceReadViewAudit(&result, registryAudit)
+			changed = append(changed, registryAudit.ChangedPaths...)
+			// Metadata and the captured proof are assembled from these root
+			// audits. Keep the operation-wide registry observation on the
+			// primary root too, so it cannot disappear after the bounded retry.
+			primaryAudit := perRoot[op.primary]
+			mergeGovernanceReadViewAudit(&primaryAudit, registryAudit)
+			perRoot[op.primary] = primaryAudit
 		}
 	}
 	result.ChangedPaths = uniqueSorted(changed)
@@ -2062,7 +2072,10 @@ func (v *governanceReadView) auditSingleWithBudget(budget *governanceReadViewAud
 	files := make(map[string]governanceReadFileObservation, len(v.files))
 	for path, item := range v.files {
 		copy := *item
-		copy.bytes = append([]byte(nil), item.bytes...)
+		// Capture is closed and all active readers have joined. These bytes
+		// are immutable and caller reads already receive independent buffers.
+		// Keep the snapshot alive without duplicating the entire input budget.
+		copy.bytes = item.bytes
 		copy.producers = cloneBoolMap(item.producers)
 		files[path] = copy
 	}

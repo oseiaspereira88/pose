@@ -198,3 +198,178 @@ func TestGovernanceReadViewD7ProbeScopeLossDoesNotPoisonHealthySibling(t *testin
 		t.Fatalf("loss was suppressed or poisoned sibling: scope=%v healthy=%t coordinator=%v", scopeLoss, healthy, err)
 	}
 }
+
+// The registry is an operation input, not a file in any one root. Inject its
+// final observation at the same boundary used by the production wrappers.
+func injectGovernanceRegistryAudit(store Store, mode string) {
+	view, _ := governanceReadViewFromFiles(store.fsys())
+	op := view.operation
+	op.mu.Lock()
+	roots := map[string]string{}
+	for project, root := range op.initialRoots {
+		roots[project] = root
+	}
+	conflicts := cloneBoolMap(op.initialConflicts)
+	op.currentRoots = func() (map[string]string, map[string]bool, bool) {
+		if mode == "changed" {
+			roots["proj.added"] = filepath.Join(store.Root, "added-root")
+		}
+		if mode == "conflict" {
+			conflicts[op.mainProject] = true
+		}
+		return roots, conflicts, mode == "budget"
+	}
+	op.mu.Unlock()
+}
+
+func TestGovernanceReadViewRegistryFinalAuditReachesReviewAndCloseout(t *testing.T) {
+	for _, gate := range []string{"review", "closeout"} {
+		for _, mode := range []string{"stable", "once", "changed", "conflict", "budget"} {
+			t.Run(gate+"/"+mode, func(t *testing.T) {
+				store, _, _ := retentionFixture(t)
+				closeBackendSpec(t, store)
+				bindCurrentReviewFixture(t, store)
+				calls := 0
+				inject := func(s Store) {
+					calls++
+					if mode == "stable" || mode == "once" && calls > 1 {
+						return
+					}
+					selected := mode
+					if selected == "once" {
+						selected = "changed"
+					}
+					injectGovernanceRegistryAudit(s, selected)
+				}
+				var metadata *ReadViewMetadata
+				var approved, fresh, terminal bool
+				if gate == "review" {
+					value, err := withGovernanceReviewReadView(store, "review", func(s Store) (ReviewEvaluation, error) {
+						result, err := s.ReviewCheck("spec:backend")
+						inject(s)
+						return result, err
+					}, applyReviewReadView)
+					if err != nil {
+						t.Fatal(err)
+					}
+					metadata, approved, fresh = value.ReadView, value.Approved, value.Fresh
+				} else {
+					value, err := withGovernanceReviewReadView(store, "closeout", func(s Store) (CloseoutState, error) {
+						result, err := s.getCloseoutState("spec:backend", true)
+						inject(s)
+						return result, err
+					}, func(v *CloseoutState, m *ReadViewMetadata, a governanceReadViewAudit) {
+						applyCloseoutReadView(v, m, "spec:backend", a)
+					})
+					if err != nil {
+						t.Fatal(err)
+					}
+					metadata, approved, fresh, terminal = value.ReadView, value.Review.Approved, value.Review.Fresh, value.Terminal
+				}
+				expectedCalls := 1
+				if mode == "once" || mode == "changed" || mode == "conflict" {
+					expectedCalls = 2
+				}
+				if calls != expectedCalls {
+					t.Fatalf("attempts=%d want=%d", calls, expectedCalls)
+				}
+				if metadata == nil {
+					t.Fatal("missing read-view metadata")
+				}
+				stable := mode == "stable" || mode == "once"
+				if stable {
+					if !approved || !fresh || gate == "closeout" && !terminal || metadata.Freshness != ReadViewFreshnessCurrent {
+						t.Fatalf("stable result lost: approved=%t fresh=%t terminal=%t metadata=%+v", approved, fresh, terminal, metadata)
+					}
+				} else {
+					if metadata.Freshness != ReadViewFreshnessUnknown {
+						t.Fatalf("registry audit was lost: %+v", metadata)
+					}
+					if mode != "budget" && (approved || fresh || gate == "closeout" && terminal) {
+						t.Fatalf("changed registry retained approval: approved=%t fresh=%t terminal=%t", approved, fresh, terminal)
+					}
+					if !strings.Contains(strings.Join(metadata.Limitations, " "), "authorized root registry") {
+						t.Fatalf("registry limitation omitted: %+v", metadata)
+					}
+					if mode == "budget" && strings.Contains(strings.Join(metadata.Limitations, " "), "observed input changed") {
+						t.Fatalf("unknown budget mislabelled as mutation: %+v", metadata)
+					}
+				}
+			})
+		}
+	}
+}
+
+func TestGovernanceReadViewRegistryFinalAuditBindsIdentity(t *testing.T) {
+	root, path := d7ProbeCoordinatorRoot(t)
+	store := Store{Root: root}
+	base, view := store.beginGovernanceReadView(true)
+	shared := base.withGovernanceReadView(view, "projection")
+	if _, err := shared.fsys().ReadFile(path); err != nil {
+		t.Fatal(err)
+	}
+	audit := view.audit()
+	before, _ := view.metadata(base.FederatedProjectID, "fixture-revision", "legacy", audit)
+	if before.Freshness != ReadViewFreshnessCurrent {
+		t.Fatalf("stable registry fixture was not current: %+v", before)
+	}
+	injectGovernanceRegistryAudit(shared, "changed")
+	audit = view.audit()
+	after, _ := view.metadata(base.FederatedProjectID, "fixture-revision", "legacy", audit)
+	if !audit.ChangedProducers["projection"] || after.Freshness != ReadViewFreshnessUnknown || after.ID == before.ID {
+		t.Fatalf("registry audit not bound into metadata identity: before=%+v after=%+v audit=%+v", before, after, audit)
+	}
+}
+
+func TestGovernanceReadViewRegistryFinalAuditReachesProjection(t *testing.T) {
+	for _, mode := range []string{"stable", "once", "changed", "conflict", "budget"} {
+		t.Run(mode, func(t *testing.T) {
+			governanceReadViewProbeUseKnownEngineVersion(t)
+			store := obligationFixture(t)
+			previous := actionRequestObligationSource
+			t.Cleanup(func() { actionRequestObligationSource = previous })
+			calls := 0
+			actionRequestObligationSource = func(s Store, _ string, _ []Spec, _ bool, _ *Coverage) ([]Obligation, error) {
+				calls++
+				if mode != "stable" && !(mode == "once" && calls > 1) {
+					selected := mode
+					if selected == "once" {
+						selected = "changed"
+					}
+					injectGovernanceRegistryAudit(s, selected)
+				}
+				return nil, nil
+			}
+			report, err := store.ProjectObligations(ObligationQuery{})
+			if err != nil {
+				t.Fatal(err)
+			}
+			wantCalls := 1
+			if mode == "once" || mode == "changed" || mode == "conflict" {
+				wantCalls = 2
+			}
+			if calls != wantCalls {
+				t.Fatalf("producer attempts=%d want=%d", calls, wantCalls)
+			}
+			metadata := report.Snapshot.ReadView
+			if metadata == nil {
+				t.Fatal("projection omitted read-view metadata")
+			}
+			if mode == "stable" || mode == "once" {
+				if !report.Snapshot.Coherent || metadata.Freshness != ReadViewFreshnessCurrent {
+					t.Fatalf("stable projection not current: snapshot=%+v metadata=%+v", report.Snapshot, metadata)
+				}
+			} else {
+				if metadata.Freshness != ReadViewFreshnessUnknown {
+					t.Fatalf("registry audit disappeared from projection: %+v", metadata)
+				}
+				if mode != "budget" && report.Snapshot.Coherent {
+					t.Fatalf("changed registry certified coherent: %+v", report.Snapshot)
+				}
+				if governanceReadViewIntegrationCoverage(report, "action-requests") == CoverageStateCurrent {
+					t.Fatal("registry loss retained current producer coverage")
+				}
+			}
+		})
+	}
+}

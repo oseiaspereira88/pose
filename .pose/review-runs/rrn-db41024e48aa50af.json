@@ -1,0 +1,133 @@
+{
+  "safety": {
+    "schema_version": 1,
+    "profile": "legacy-trusted",
+    "platform": "linux/amd64",
+    "capabilities": {
+      "automatic-expiry": "unavailable",
+      "bounded-capture": "available",
+      "cpu-limit": "unavailable",
+      "credential-filesystem-isolation": "unavailable",
+      "environment-allowlist": "available",
+      "escaped-descendant-termination": "unavailable",
+      "filesystem-isolation": "unavailable",
+      "memory-limit": "unavailable",
+      "network-isolation": "unavailable",
+      "origin-isolation": "unavailable",
+      "parent-termination": "available",
+      "process-group-termination": "available",
+      "shared-git-isolation": "unavailable"
+    },
+    "limitations": [
+      "trusted local executable required; worktree is not a sandbox",
+      "outside writes, transient writes, shared Git and credential files are not isolated",
+      "no memory/CPU quota or control of descendants escaping the process group",
+      "cleanup filesystem calls remain subject to operating-system I/O latency",
+      "legacy compatibility: HOME retained; other ambient credentials excluded"
+    ],
+    "stream_bytes": 8388608,
+    "output_bytes": 65536,
+    "retained_bytes": 16777216,
+    "timeout_ms": 3600000,
+    "max_runs_per_bundle": 3,
+    "retention": "retain-evidence; ttl=0; no automatic deletion",
+    "capture_complete": false,
+    "runtime_id": "pose-review-run-1427351639",
+    "execution_cause": "capture-incomplete",
+    "operation": {
+      "schema_version": 1,
+      "operation": "review.dispatch.cleanup",
+      "scope": "spec:pose-governance-read-view-generation",
+      "outcome": "completed",
+      "steps_run": [
+        {
+          "id": "cleanup",
+          "result": "done"
+        }
+      ],
+      "effects": [],
+      "resumable": false
+    }
+  },
+  "provenance": {
+    "execution_state": "started",
+    "planned_wire_digest": "sha256:73da7ab5cdd534c54db2f0d8abe27e7edcfa4433985f3eae633a7bd229cc153a",
+    "wire_bytes": 35352,
+    "wire_complete": true,
+    "schema_version": 1,
+    "project": "proj.pose-dist",
+    "audience": "proj.pose-dist",
+    "worktree_digest": "sha256:7f34cebd177e54c42d16db00efd11edab08257125e70a9fd1fe6ae79fb94e150",
+    "trust": "executor-attested",
+    "implementation": {
+      "principal": "agent:openai/unknown",
+      "execution": "sha256:e153fd0098107a9b94004770167630f49576f2af7f39b7b1a7b2492cb4339a62",
+      "vendor": "openai",
+      "model": "unknown"
+    },
+    "reviewer": {
+      "principal": "agent:anthropic/claude-opus-5-5",
+      "vendor": "anthropic",
+      "model": "claude-opus-5-5"
+    },
+    "config_digest": "sha256:5d92479842f236e1ef280209ef6f4988bf6d72dfbcec64988d4b6824b79b42b1",
+    "command_template_digest": "sha256:436a512941a44a5c9da15b07f2e7101efc2f13995bf51e09b261f07268dd1d4e",
+    "argv_digest": "sha256:14bee16eb666204fe6ba02c7b5f968d7c17a8d2d11b44e61204b03da6fd0a719",
+    "executable_digest": "sha256:708c77b204db30086ff6f1ed34577bda03e1be74ced80557cbf7b54249ebf0bd",
+    "template_version": "review-brief/3",
+    "wire_digest": "sha256:73da7ab5cdd534c54db2f0d8abe27e7edcfa4433985f3eae633a7bd229cc153a",
+    "notes_digest": "sha256:868c15d55c853547d7dc2345ba922a404c2691fb0c67fc46fd5a245590825944",
+    "raw_transcript_digest": "sha256:ba350203095d5411518f120fb6e164333342aed477ea56a8ae21ce44b0f053f4",
+    "raw_output_digest": "sha256:9f1d11653789f52eaf1312660374adf250e638adb78e2e14c49d89dfec45bf6d",
+    "output_source": "stream-final",
+    "output_complete": false
+  },
+  "tree_digest": "sha256:6f229d7ed400a39ac605c5661f149a90c11564a32ea20c4a61f92d9e6d164c86",
+  "brief_notes": "Implementer notes — factual context, not a review judgment\n\nThe generated sealed brief and its exact IDs are authoritative. Perform one bounded read-only review yourself: do not delegate subagents, watchers or ultrareview, edit project files, record attestations or invoke contributor submission. Return the typed judgment the generated brief requests. Report all blocking findings and use only sealed evidence IDs; do not infer approval from a successful command.\n\nThe implementing execution is OpenAI, exact model unknown. The selected reviewer is the user-requested Claude Code Opus 5.5. The local signer declares the executor's protected identity; it does not certify an Anthropic receipt or human authority.\n\nThe current source checkpoint is 90e6bd09, with the executable-provenance correction in 448a7504. Its canonical strict matrix passed 189/189 checks (351.4s), including the uncached full Go suite, B34 production integration with race, CLI/MCP parity, writer publication and enabled installation journey. Focused RunProvenance tests with race passed in 11.093s. Current discover/update-state, integrate, tech-debt, knowledge, lint, index, design, artifact and surface checks exited 0; surface findings 0. Integration inventory is static, not functional proof. Tech-debt remains INCOMPLETE because two historical specs cannot be read; no uncovered marker was found in scanned content. Keep that limitation.\n\nThe real global strict check on the prior read-view source b7b5680f passed with 35 historical warnings and no errors. Preserve that source identity; do not relabel it a current structural run after D9. A final global structural check is reserved for the final administrative/documentation boundary. The full monolithic race command passed every other package but domain timed out at 10m; a 30m domain-only attempt also timed out while the global corpus gate ran. Neither is a pass. All 1,425 domain tests on b7 then passed in four disjoint complete groups of 357/356/356/356 (214.656/136.488/168.012/191.100s), with no Fuzz/Example functions. Since then the Go delta is only the streaming executable hash limit and its two tests, covered by current focused race and the canonical suite; no new concurrency was added.\n\nPrior native review runs never invoked a vendor: rrn-accfce117640c7af failed because its sealed commit held an old index without B34 attribution;42c8891f persisted the real indexes and results. rrn-bef40df473391d0c then passed checkout setup but rejected the 337,814,032-byte native Claude Code 2.1.318 executable against the 256 MiB transcript bound reused for executable hashing. Accepted D9 separates a 512 MiB streaming executable bound while preserving real target/regular-file/identity/overflow checks. Transcript retention stays 256 MiB and all read-view limits stay unchanged. No wrapper was substituted and no approval or old receipt was reconstructed.\n\nB34 recovery preserves historical failures and the prospective native start b2eb2d34. D5 retains 64 local edges and 256 unique graph nodes/entries, with eight composed project crossings including redirects; D6 bounds an aggregate operation to 25,000 records, 512 MiB input and 8 MiB retained metadata across at most 16 authorized roots. D7 separates audited global selection/catalogue from independently bounded scope closures with bounded concurrency and exact Files/root/authority bindings. The final audit lists a directory once per root audit while still checking consumed Info metadata; roadmap children retain their authorized context. D8 excludes only instance delegation policy from the scaffold through its established exclusion path. External uncooperative ABA remains outside the guarantee: no universal filesystem transaction, persistent authorization, daemon, watcher or cross-operation cache is claimed.\n\nInspect actual production writer guard/CAS/receipt paths, final audits and retries, changed/unknown distinctions, retained-review negatives, index outputs and bindings from one captured build. Give explicit structural mappings for the deltas in the current sealed brief. The component tests validation matrix declares producer_coverage none: use a supported not-used disposition and rationale for that tool rather than pretending it ran; the current global validation can support pose-mcp only as sealed native coverage permits. Remote CI was waived by the user; Harne8 engine/gitlink adoption is outside this change.\n\nThe subsequent not-started setup record rrn-581c7da6558f85b3 identified stale structured results in the committed checkout. Checkpoint 90e6bd09 persists the matching bff index and bff validation results; no Go or semantic contract changed. Current primary validation was regenerated on 90e6bd09 and passed189/189. Claude authentication is now confirmed. All three setup failures preceded vendor execution and are retained; none was a review judgment.\n",
+  "ledger_version": 1,
+  "attempt_id": "rat-7cb381de3479f266a5facba1efc7bc79df49c8697d6850e70cb55d0ae162884e",
+  "schema_version": 1,
+  "run_id": "rrn-db41024e48aa50af",
+  "scope": "spec:pose-governance-read-view-generation",
+  "bundle_id": "rvb-55a05f7f1280cfe7",
+  "bundle_digest": "sha256:55a05f7f1280cfe7a85c65ea10b9769ae5e6bb77d73ffae09434e47f7a7162f2",
+  "sealed_commit": "90e6bd098810b7a073f874e5e124f8f7a728c0eb",
+  "kind": "review",
+  "brief_digest": "sha256:8a5f3f63a129fe24e0e7ed11cfaf5c128f44fde1de972518a02aa135c451f68c",
+  "adapter": "claude-opus-5-5",
+  "vendor": "anthropic",
+  "model": "claude-opus-5-5",
+  "started_at": "2026-11-06T18:39:59.6744992Z",
+  "ended_at": "2026-11-06T18:56:04.27675832Z",
+  "exit_code": 0,
+  "status": "failed",
+  "failure": "adapter capture failed; unredacted output withheld",
+  "transcript_digest": "sha256:e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+  "transcript_path": ".pose/review-runs/rrn-db41024e48aa50af.transcript",
+  "output": "",
+  "policy_digest": "sha256:407c9b95465627b5940f663d08ec3a1970aaf296b2b5e9a5d24f7b627f11d3be",
+  "label": "b34-final-claude-r4",
+  "purpose": "review",
+  "env_removed": [
+    "CODEX_CI",
+    "CODEX_SANDBOX_NETWORK_DISABLED",
+    "CODEX_SESSION_ID",
+    "CODEX_THREAD_ID"
+  ],
+  "events": "claude-stream-json",
+  "events_digest": "sha256:e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+  "routing": {
+    "requested": "claude-opus-5-5",
+    "implementation": {
+      "principal": "agent:openai/unknown",
+      "vendor": "openai",
+      "model": "unknown",
+      "execution_digest": "sha256:e153fd0098107a9b94004770167630f49576f2af7f39b7b1a7b2492cb4339a62",
+      "source": "declared"
+    },
+    "implementation_from": "bundle",
+    "step": "explicit"
+  },
+  "independence_achieved": "different-vendor",
+  "round": 1
+}
