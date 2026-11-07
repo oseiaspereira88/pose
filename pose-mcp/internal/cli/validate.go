@@ -1668,6 +1668,11 @@ func administrativeRecordsAreRegular(root string, paths []string) bool {
 		if strings.ContainsAny(p, "\n\x00") {
 			return false
 		}
+		// The working copy as well as HEAD: a regular record replaced by a link, or
+		// a new link, is not a record.
+		if info, err := os.Lstat(filepath.Join(root, filepath.FromSlash(p))); err == nil && !info.Mode().IsRegular() {
+			return false
+		}
 		args = append(args, ":(literal)"+p)
 	}
 	out, err := gitOutputBounded(root, 8*1024*1024, args...)

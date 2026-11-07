@@ -73,3 +73,27 @@ func TestMaterialTrackedUnchangedIgnoresUntrackedBuildProducts(t *testing.T) {
 		t.Fatal("a tracked file changed during the run went unseen")
 	}
 }
+
+func TestMaterialWorktreeCleanSeesALinkReplacingAnAdministrativeRecord(t *testing.T) {
+	repo := newRemovalRepo(t)
+	repo.write("a.go", "package a\n")
+	repo.write(".pose/results/x.json", "{}\n")
+	repo.commit("a record")
+	record := filepath.Join(repo.root, ".pose", "results", "x.json")
+	if err := os.Remove(record); err != nil {
+		t.Fatal(err)
+	}
+	if err := os.Symlink("../../a.go", record); err != nil {
+		t.Fatal(err)
+	}
+	if materialWorktreeClean(repo.root) || materialTrackedUnchanged(repo.root) {
+		t.Fatal("a record replaced by a link was ignored")
+	}
+	artifactGit(t, repo.root, "checkout", "--", ".pose/results/x.json")
+	if err := os.Symlink("../../a.go", filepath.Join(repo.root, ".pose", "results", "new.json")); err != nil {
+		t.Fatal(err)
+	}
+	if materialWorktreeClean(repo.root) {
+		t.Fatal("a new administrative link was ignored")
+	}
+}

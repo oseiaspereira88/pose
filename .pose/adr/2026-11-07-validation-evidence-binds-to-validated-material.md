@@ -61,7 +61,9 @@ A run therefore records it only when the tracked and untracked files outside
 the administrative records equal HEAD at the start, and it records it as
 unavailable when a tracked file differs from HEAD after the checks. Editing a
 committed symlink or submodule inside a class counts as a material change. The
-contract does not defend against a concurrent writer that changes and restores
+contract does not defend against ignored files the project's own ignore rules
+leave out of the tree, against uncommitted edits to a data file that an earlier
+commit moved into a class, against a concurrent writer that changes and restores
 material during the run, against sparse or skip-worktree checkouts, or against
 a run whose delivery graph could not be collected (that run carries no scope
 provenance either, so the commit-bound rules that always applied to it still do).
