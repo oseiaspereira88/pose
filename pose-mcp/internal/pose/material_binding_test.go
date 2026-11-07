@@ -140,3 +140,20 @@ func TestUnreadableMaterialNeverBindsAndIsRecordedAsUnavailable(t *testing.T) {
 		t.Fatal("a set that never computed a digest must record nothing")
 	}
 }
+
+func TestRenameIntoAnAdministrativeClassStaysMaterial(t *testing.T) {
+	paths := []ObservedPath{{Action: "R", OldPath: "a.go", NewPath: ".pose/results/a.go"}}
+	first := MaterialSetDigest(paths, map[string]TreeEntry{".pose/results/a.go": regularEntry("b1")})
+	edited := MaterialSetDigest(paths, map[string]TreeEntry{".pose/results/a.go": regularEntry("b2")})
+	if first == edited {
+		t.Fatal("editing the moved file inside the class kept the digest")
+	}
+}
+
+func TestFactResultKeySeparatesMaterialBindings(t *testing.T) {
+	a := DeliveryValidationResult{ID: "x", MaterialProvenance: map[string]string{"s": "sha256:1"}}
+	b := DeliveryValidationResult{ID: "x", MaterialProvenance: map[string]string{"s": "sha256:2"}}
+	if factResultKey(a) == factResultKey(b) {
+		t.Fatal("two material bindings share one identity")
+	}
+}

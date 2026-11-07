@@ -31,7 +31,8 @@ owned by the engine and are not configurable by an instance. Everything else,
 including every spec file (frontmatter status lines too), `.pose/policy/` and
 `.pose/rules/`, is material. The validation matrix file is inside
 `.pose/indexes/` but deliberately material. A symlink, submodule or directory
-in a class, or a path that left a class, is material. A change set read from a
+in a class, a path that left a class, and the destination of a rename or copy
+are material. A change set read from a
 trailer is judged against the checkout's own tree (HEAD), so a later commit
 without the trailer that touches an observed path or the matrix moves the
 digest; an explicit range reads its end. An unreadable tree or a shallow

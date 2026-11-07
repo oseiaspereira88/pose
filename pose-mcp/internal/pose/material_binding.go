@@ -66,11 +66,17 @@ func regularMode(mode string) bool { return mode == "100644" || mode == "100755"
 // absent from the head tree is "absent".
 func MaterialSetDigest(paths []ObservedPath, tree map[string]TreeEntry) string {
 	names := map[string]bool{}
+	// A rename or copy destination is material whatever directory it lands in:
+	// otherwise moving a source file into a class would hide its later edits.
+	moved := map[string]bool{}
 	for _, p := range paths {
 		for _, name := range []string{p.Path, p.OldPath, p.NewPath} {
 			if name != "" {
 				names[name] = true
 			}
+		}
+		if p.OldPath != "" && p.NewPath != "" {
+			moved[p.NewPath] = true
 		}
 	}
 	names[".pose/indexes/validation-matrix.json"] = true
@@ -82,7 +88,7 @@ func MaterialSetDigest(paths []ObservedPath, tree map[string]TreeEntry) string {
 	h := sha256.New()
 	for _, name := range sorted {
 		entry, present := tree[name]
-		if IsAdministrativePath(name) && (!present || regularMode(entry.Mode)) {
+		if IsAdministrativePath(name) && !moved[name] && (!present || regularMode(entry.Mode)) {
 			continue
 		}
 		if !present {

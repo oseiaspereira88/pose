@@ -260,3 +260,27 @@ func TestChangeSetMaterialDigestIsUnreadableInAShallowCheckout(t *testing.T) {
 		t.Fatalf("complete checkout: %q", got)
 	}
 }
+
+// The shallow answer follows the checkout: unshallowing it drops the cache.
+func TestShallowAnswerFollowsTheCheckout(t *testing.T) {
+	origin := t.TempDir()
+	artifactGit(t, origin, "init", "-q", "-b", "main")
+	artifactGit(t, origin, "config", "user.email", "pose@example.invalid")
+	artifactGit(t, origin, "config", "user.name", "POSE Tests")
+	writeArtifactTestFile(t, origin, "a.txt", "first\n")
+	artifactGit(t, origin, "add", "-A")
+	artifactGit(t, origin, "commit", "-qm", "first")
+	writeArtifactTestFile(t, origin, "a.txt", "second\n")
+	artifactGit(t, origin, "add", "-A")
+	artifactGit(t, origin, "commit", "-qm", "second")
+	clone := filepath.Join(t.TempDir(), "clone")
+	artifactGit(t, origin, "clone", "-q", "--depth=1", "file://"+origin, clone)
+	git := func(limit int, args ...string) ([]byte, error) { return gitOutputBounded(clone, limit, args...) }
+	if shallow, err := repositoryIsShallow(git, clone); err != nil || !shallow {
+		t.Fatalf("shallow clone: %v %v", shallow, err)
+	}
+	artifactGit(t, clone, "fetch", "-q", "--unshallow")
+	if shallow, err := repositoryIsShallow(git, clone); err != nil || shallow {
+		t.Fatalf("after unshallow: %v %v", shallow, err)
+	}
+}

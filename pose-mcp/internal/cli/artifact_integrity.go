@@ -1356,23 +1356,48 @@ func materialSetDigestAt(gitOutput func(int, ...string) ([]byte, error), root, h
 
 var (
 	shallowMu    sync.Mutex
-	shallowCache = map[string]bool{}
+	shallowCache = map[string]shallowEntry{}
 )
+
+type shallowEntry struct {
+	shallow bool
+	marker  string
+}
+
+// shallowMarker identifies the state of the shallow file of a plain checkout, so
+// a cached answer is dropped when the checkout is unshallowed or becomes shallow.
+// It is empty for a checkout whose .git is not a directory (a linked worktree):
+// that one is asked every time.
+func shallowMarker(root string) string {
+	dir := filepath.Join(root, ".git")
+	if info, err := os.Stat(dir); err != nil || !info.IsDir() {
+		return ""
+	}
+	info, err := os.Stat(filepath.Join(dir, "shallow"))
+	if err != nil {
+		return "none"
+	}
+	return fmt.Sprintf("%d:%d", info.Size(), info.ModTime().UnixNano())
+}
 
 // repositoryIsShallow reports whether the checkout lacks history. A shallow
 // checkout cannot establish that the head tree and the attributed commits
-// describe the same material, so it never binds evidence. Read once per root.
+// describe the same material, so it never binds evidence. The answer is reused
+// per root only while the checkout's shallow file is unchanged.
 func repositoryIsShallow(gitOutput func(int, ...string) ([]byte, error), root string) (bool, error) {
+	marker := shallowMarker(root)
 	shallowMu.Lock()
 	defer shallowMu.Unlock()
-	if value, ok := shallowCache[root]; ok {
-		return value, nil
+	if entry, ok := shallowCache[root]; ok && marker != "" && entry.marker == marker {
+		return entry.shallow, nil
 	}
 	out, err := gitOutput(64, "rev-parse", "--is-shallow-repository")
 	if err != nil {
 		return false, err
 	}
 	value := strings.TrimSpace(string(out)) != "false"
-	shallowCache[root] = value
+	if marker != "" {
+		shallowCache[root] = shallowEntry{shallow: value, marker: marker}
+	}
 	return value, nil
 }

@@ -228,7 +228,17 @@ func factResultKey(r DeliveryValidationResult) string {
 		return scopes[i][1] < scopes[j][1]
 	})
 	// JSON is injective over the fields: no separator a field may hold can make two results one.
-	raw, _ := json.Marshal([]any{r.ID, r.Module, r.Check, r.EvidenceClass, r.Severity, r.Outcome, r.GitHead, r.GeneratedAt, r.ProvenanceDigest, r.Report, scopes})
+	materials := make([][2]string, 0, len(r.MaterialProvenance))
+	for slug, digest := range r.MaterialProvenance {
+		materials = append(materials, [2]string{slug, digest})
+	}
+	sort.Slice(materials, func(i, j int) bool {
+		if materials[i][0] != materials[j][0] {
+			return materials[i][0] < materials[j][0]
+		}
+		return materials[i][1] < materials[j][1]
+	})
+	raw, _ := json.Marshal([]any{r.ID, r.Module, r.Check, r.EvidenceClass, r.Severity, r.Outcome, r.GitHead, r.GeneratedAt, r.ProvenanceDigest, r.Report, scopes, materials})
 	return string(raw)
 }
 
@@ -368,7 +378,9 @@ func (s Store) DeriveSpecFacts(slug string) (SpecFacts, error) {
 	seenResult := map[string]bool{}
 	for _, r := range graph.ValidationResults {
 		scopedValue, scoped := r.ScopeProvenance[slug]
+		materialBound := false
 		if bound := r.MaterialProvenance[slug]; bound != "" {
+			materialBound = true
 			// A material binding governs, as in deliveryEvidenceCurrent: bound to the
 			// material of the spec's change sets it is current even when
 			// administrative commits moved the head; otherwise it is not, whatever
@@ -399,6 +411,9 @@ func (s Store) DeriveSpecFacts(slug string) (SpecFacts, error) {
 		switch {
 		case scoped && scopedValue != "" && scopedValue == expected && covered && resolvedSets > 0 && unresolvedSets == 0:
 			fact.Classification, fact.Basis = SpecFactAssociated, "scope-provenance"
+			if materialBound {
+				fact.Limits = append(fact.Limits, "the material binding is judged from the tree entries the index recorded: a change to an observed path made after the index was built, without the spec trailer, shows only after `pose index`")
+			}
 			if inferred {
 				fact.Limits = append(fact.Limits, "the result's module contains the spec's components or paths without being one of them: coverage is inferred from the module's ancestry, not shown")
 			}
