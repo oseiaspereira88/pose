@@ -298,11 +298,7 @@ func resolveGitChangeSetWithTrailersAndFiles(files posemodel.Files, root, spec, 
 	idSum := sha256.Sum256([]byte(spec + "\x00" + resolvedBase + "\x00" + resolvedHead + "\x00" + hex.EncodeToString(digest[:])))
 	materialDigest := ""
 	if len(commitDiffs) > 0 {
-		matrix := "absent"
-		if blob, err := gitOutput(1024, "rev-parse", "--verify", resolvedHead+":.pose/indexes/validation-matrix.json"); err == nil {
-			matrix = strings.TrimSpace(string(blob))
-		}
-		materialDigest = posemodel.MaterialDiffDigest(commitDiffs, commitMaterial, matrix)
+		materialDigest = posemodel.MaterialDiffDigest(commitDiffs, commitMaterial)
 	}
 	return posemodel.ChangeSet{ID: "cs-" + hex.EncodeToString(idSum[:6]), Spec: spec, Selector: selector, Base: base, Head: head, ResolvedBase: resolvedBase, ResolvedHead: resolvedHead, Commits: commits, Paths: paths, DiffDigest: "sha256:" + hex.EncodeToString(digest[:]), MaterialDigest: materialDigest}, nil
 }

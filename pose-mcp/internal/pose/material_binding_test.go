@@ -62,7 +62,7 @@ func materialGraph(head, digest string) DeliveryIntegrityGraph {
 }
 
 func TestMaterialEvidenceSurvivesAdministrativeHeadMoveButNotMaterialChange(t *testing.T) {
-	validated := materialGraph("h1", MaterialDiffDigest([][]byte{[]byte("code")}, []bool{true}, "m"))
+	validated := materialGraph("h1", MaterialDiffDigest([][]byte{[]byte("code")}, []bool{true}))
 	bound := ScopedMaterialDigest(validated, "s")
 	if bound == "" {
 		t.Fatal("no material digest")
@@ -70,17 +70,17 @@ func TestMaterialEvidenceSurvivesAdministrativeHeadMoveButNotMaterialChange(t *t
 	result := DeliveryValidationResult{GitHead: "h1", MaterialProvenance: map[string]string{"s": bound}}
 
 	// Same material, head moved by an administrative commit.
-	moved := materialGraph("h2", MaterialDiffDigest([][]byte{[]byte("code"), []byte("index")}, []bool{true, false}, "m"))
+	moved := materialGraph("h2", MaterialDiffDigest([][]byte{[]byte("code"), []byte("index")}, []bool{true, false}))
 	if !deliveryEvidenceCurrent(result, "s", "in-progress", moved, moved.ChangeSets) {
 		t.Fatal("administrative-only head move invalidated evidence")
 	}
 	// A material commit changes the digest.
-	changed := materialGraph("h3", MaterialDiffDigest([][]byte{[]byte("code"), []byte("more")}, []bool{true, true}, "m"))
+	changed := materialGraph("h3", MaterialDiffDigest([][]byte{[]byte("code"), []byte("more")}, []bool{true, true}))
 	if deliveryEvidenceCurrent(result, "s", "in-progress", changed, changed.ChangeSets) {
 		t.Fatal("material change kept stale evidence current")
 	}
 	// A changed matrix is stale.
-	matrix := materialGraph("h4", MaterialDiffDigest([][]byte{[]byte("code")}, []bool{true}, "m2"))
+	matrix := materialGraph("h4", MaterialDiffDigest([][]byte{[]byte("code"), []byte("matrix")}, []bool{true, true}))
 	if deliveryEvidenceCurrent(result, "s", "in-progress", matrix, matrix.ChangeSets) {
 		t.Fatal("matrix change kept evidence current")
 	}

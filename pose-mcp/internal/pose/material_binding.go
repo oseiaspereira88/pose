@@ -107,13 +107,13 @@ func CommitIsAdministrative(paths []ObservedPath, diff []byte) bool {
 }
 
 // MaterialDiffDigest digests the diffs of the material commits (those that are
-// not administrative) with the matrix identity. Empty when any input is unknown.
-func MaterialDiffDigest(diffs [][]byte, material []bool, matrix string) string {
+// not administrative). The validation matrix is not administrative, so a commit
+// that changes it is material. Empty when the inputs disagree.
+func MaterialDiffDigest(diffs [][]byte, material []bool) string {
 	if len(diffs) != len(material) {
 		return ""
 	}
 	h := sha256.New()
-	h.Write([]byte("matrix\x00" + matrix + "\x00"))
 	for i, d := range diffs {
 		if !material[i] {
 			continue
