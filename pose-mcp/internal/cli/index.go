@@ -258,6 +258,9 @@ func verifyIndexGeneration(files posepkg.Files, root string, gate *gateOutput, o
 // generation and the file is written as it always was. A set that cannot be
 // verified is not written over: the failure is said, not hidden.
 func refreshDeliveryIndex(root string, data []byte, stderr io.Writer) {
+	if os.Getenv(posepkg.SealedCheckoutEnv) != "" {
+		return
+	}
 	_ = os.MkdirAll(filepath.Join(root, ".pose", "indexes"), 0o755)
 	receipt, _, err := posepkg.Store{Root: root}.ReplaceIndexOrLegacy("delivery-integrity.json", data)
 	switch {

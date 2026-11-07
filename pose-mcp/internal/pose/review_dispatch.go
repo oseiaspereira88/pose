@@ -916,6 +916,9 @@ func (s Store) RunReviewDispatchContext(parent context.Context, plan DispatchPla
 		unset = policy.EnvUnset
 	}
 	env, run.EnvRemoved = withoutParentSession(env, unset)
+	// The reviewer works in a sealed checkout: diagnostics it runs must not
+	// publish derived records into it (SealedCheckoutEnv).
+	env = append(env, SealedCheckoutEnv+"=1")
 	cmd.Env = env
 	combined := &reviewBoundedCapture{limit: safety.StreamBytes, cancel: cancel}
 	cmd.Stdout, cmd.Stderr = combined, combined

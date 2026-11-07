@@ -58,6 +58,7 @@ Caching individual check outputs, skipping checks by heuristic, weakening review
 - R4: A symlink, submodule or directory in an administrative class, and a path that left a class, shall be material.
 - R5: Results without `material_provenance` shall be judged exactly as before, and the commit-bound digests shall not change representation.
 - R6: Review bundle sealing, `review verify`, `closeout-check` and `close` shall consume the same domain verdict, with no per-channel copy of the rule.
+- R7: A delegated review shall run its diagnostics in the sealed checkout without republishing derived records into it: the review process carries `POSE_SEALED_CHECKOUT`, and `refreshDeliveryIndex` leaves the checkout alone when it is set.
 
 ### Non-functional
 - A closeout whose administrative commits follow a passing run shall not rerun checks; the decision is computed from git objects, in time proportional to the changed paths.
@@ -88,6 +89,10 @@ Caching individual check outputs, skipping checks by heuristic, weakening review
 - modified: pose-mcp/internal/pose/delivery_surface.go
 - modified: pose-mcp/internal/pose/delivery_validation_run.go
 - modified: pose-mcp/internal/pose/spec_facts.go
+- created: pose-mcp/internal/cli/sealed_checkout_refresh_test.go
+- modified: pose-mcp/internal/cli/index.go
+- modified: pose-mcp/internal/pose/review_dispatch.go
+- modified: pose-mcp/internal/pose/delegation_refusal.go
 - modified: pose-mcp/internal/cli/artifact_integrity.go
 - modified: pose-mcp/internal/cli/validate.go
 - modified: pose-mcp/internal/cli/validate_results.go

@@ -21,6 +21,12 @@ const (
 // directory it starts in (spec pose-delegation-mcp R6, review round 1, B01).
 const DelegateRootEnv = "POSE_DELEGATE_ROOT"
 
+// SealedCheckoutEnv marks a process a delegated review launched in its sealed
+// checkout. Diagnostic commands that would republish a derived record there
+// (the delivery index) read it and leave the checkout as sealed: a review that
+// changes its subject is invalid (spec pose-validation-evidence-material-binding R7).
+const SealedCheckoutEnv = "POSE_SEALED_CHECKOUT"
+
 // DelegationRefusal is a refusal with its reason code.
 type DelegationRefusal struct {
 	Code string
