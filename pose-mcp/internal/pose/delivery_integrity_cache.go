@@ -98,6 +98,17 @@ func bytesEqual(a, b []byte) bool {
 	return true
 }
 
+func copyStringMap(in map[string]string) map[string]string {
+	if in == nil {
+		return nil
+	}
+	out := make(map[string]string, len(in))
+	for k, v := range in {
+		out[k] = v
+	}
+	return out
+}
+
 // copyDeliveryIntegrityGraph copies every field that a caller could write through.
 // TestDeliveryGraphCopyCoversEveryField fails when a field is added to the struct
 // without being handled here, so an omission cannot become a silently shared slice.
@@ -108,7 +119,12 @@ func copyDeliveryIntegrityGraph(in DeliveryIntegrityGraph) DeliveryIntegrityGrap
 	out.Claims = append([]ArtifactClaim{}, in.Claims...)
 	out.Findings = append([]DeliveryIntegrityFinding{}, in.Findings...)
 	out.Deliveries = append([]DeliveryTarget{}, in.Deliveries...)
-	out.ValidationResults = append([]DeliveryValidationResult{}, in.ValidationResults...)
+	out.ValidationResults = make([]DeliveryValidationResult, len(in.ValidationResults))
+	for i, result := range in.ValidationResults {
+		result.ScopeProvenance = copyStringMap(result.ScopeProvenance)
+		result.MaterialProvenance = copyStringMap(result.MaterialProvenance)
+		out.ValidationResults[i] = result
+	}
 	out.RoadmapCriteria = append([]RoadmapCriterion{}, in.RoadmapCriteria...)
 	out.Archivals = append([]ArchivedFragment{}, in.Archivals...)
 	out.Removals = make([]ArtifactRemoval, len(in.Removals))

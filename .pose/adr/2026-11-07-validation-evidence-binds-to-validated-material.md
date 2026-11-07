@@ -31,11 +31,15 @@ owned by the engine and are not configurable by an instance. Everything else,
 including every spec file (frontmatter status lines too), `.pose/policy/` and
 `.pose/rules/`, is material. The validation matrix file is inside
 `.pose/indexes/` but deliberately material. A symlink, submodule or directory
-in a class, a path that left a class, and the destination of a rename or copy
-are material. A copy is told from a creation only by content: an administrative
-file whose blob equals that of any tracked path outside the classes (read
-once from the head tree, and only when needed) is material while they are equal. A
-change set read back from the report history has no material digest, so its
+in a class, a path that left a class, and the destination of a rename are
+material. Inside a class only data formats count as records (`.json`, `.jsonl`,
+`.ndjson`, `.md`, `.txt`, `.log`, `.transcript`): code or a script stored there is
+material, which keeps a source file copied or moved into a class from hiding its
+later edits without tracking copy provenance. The readers follow renames, not
+copies, so a copied data file stays indistinguishable from a record. That is an
+accepted residual risk: a check that reads data out of a derived-record
+directory is outside this contract. A change set read back from the report
+history has no material digest, so its
 scope records the binding as unavailable. A change set read from a
 trailer is judged against the checkout's own tree (HEAD), so a later commit
 without the trailer that touches an observed path or the matrix moves the

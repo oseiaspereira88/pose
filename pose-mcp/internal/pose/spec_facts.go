@@ -414,6 +414,7 @@ func (s Store) DeriveSpecFacts(slug string) (SpecFacts, error) {
 			fact.Classification, fact.Basis = SpecFactAssociated, "scope-provenance"
 			if materialBound {
 				fact.Limits = append(fact.Limits, "the material binding is judged from the tree entries the index recorded: a change to an observed path made after the index was built, without the spec trailer, shows only after `pose index`")
+				degradeFreshness(&facts.Freshness, SpecFactsUnknown, "", "a material binding is judged from the indexed tree entries, not from the current checkout")
 			}
 			if inferred {
 				fact.Limits = append(fact.Limits, "the result's module contains the spec's components or paths without being one of them: coverage is inferred from the module's ancestry, not shown")

@@ -224,3 +224,16 @@ func TestPublishedRootManifestsClassifyAsGovernance(t *testing.T) {
 		t.Errorf("an undeclared root file classified as %q; the refusal is the guard", class)
 	}
 }
+
+// A caller that writes a result's provenance maps must not write the cache.
+func TestDeliveryGraphCopyIsolatesProvenanceMaps(t *testing.T) {
+	in := DeliveryIntegrityGraph{ValidationResults: []DeliveryValidationResult{{
+		ID: "r", ScopeProvenance: map[string]string{"s": "a"}, MaterialProvenance: map[string]string{"s": "m"},
+	}}}
+	out := copyDeliveryIntegrityGraph(in)
+	out.ValidationResults[0].ScopeProvenance["s"] = "changed"
+	out.ValidationResults[0].MaterialProvenance["s"] = "changed"
+	if in.ValidationResults[0].ScopeProvenance["s"] != "a" || in.ValidationResults[0].MaterialProvenance["s"] != "m" {
+		t.Fatal("the copy shares a provenance map with the cached graph")
+	}
+}
