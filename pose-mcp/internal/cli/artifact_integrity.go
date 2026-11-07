@@ -255,6 +255,10 @@ func resolveGitChangeSetWithTrailersAndFiles(files posemodel.Files, root, spec, 
 	commits := splitNonEmpty(string(commitsRaw), "\n")
 
 	var paths []posemodel.ObservedPath
+	// observed keeps every commit's own path records, unmerged: folding a create
+	// and a later rename into one creation would hide that the file moved into an
+	// administrative class.
+	var observed []posemodel.ObservedPath
 	diffHash := sha256.New()
 	if len(trailerCommits) > 0 {
 		commits = trailerCommits
@@ -269,6 +273,7 @@ func resolveGitChangeSetWithTrailersAndFiles(files posemodel.Files, root, spec, 
 				return posemodel.ChangeSet{}, err
 			}
 			commitPathLists = append(commitPathLists, parsed)
+			observed = append(observed, parsed...)
 			commitDiff, err := gitOutput(16*1024*1024, "show", "--binary", "--no-ext-diff", "--format=", sha, "--")
 			if err != nil {
 				return posemodel.ChangeSet{}, err
@@ -300,7 +305,10 @@ func resolveGitChangeSetWithTrailersAndFiles(files posemodel.Files, root, spec, 
 	if len(trailerCommits) > 0 {
 		materialHead = "HEAD"
 	}
-	materialDigest := materialSetDigestAt(gitOutput, root, materialHead, paths)
+	if len(observed) == 0 {
+		observed = paths
+	}
+	materialDigest := materialSetDigestAt(gitOutput, root, materialHead, observed)
 	return posemodel.ChangeSet{ID: "cs-" + hex.EncodeToString(idSum[:6]), Spec: spec, Selector: selector, Base: base, Head: head, ResolvedBase: resolvedBase, ResolvedHead: resolvedHead, Commits: commits, Paths: paths, DiffDigest: "sha256:" + hex.EncodeToString(digest[:]), MaterialDigest: materialDigest}, nil
 }
 

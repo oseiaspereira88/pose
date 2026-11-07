@@ -284,3 +284,30 @@ func TestShallowAnswerFollowsTheCheckout(t *testing.T) {
 		t.Fatalf("after unshallow: %v %v", shallow, err)
 	}
 }
+
+// Create, then move into an administrative class: the destination stays
+// material through the merge of the commits' observations, so a later edit of it
+// moves the digest.
+func TestChangeSetMaterialDigestKeepsAMovedFileMaterial(t *testing.T) {
+	repo := newRemovalRepo(t)
+	repo.write("a.go", "package a\n")
+	repo.commit("create\n\nPOSE-Spec: alpha")
+	if err := os.MkdirAll(filepath.Join(repo.root, ".pose", "results"), 0o755); err != nil {
+		t.Fatal(err)
+	}
+	artifactGit(t, repo.root, "mv", "a.go", ".pose/results/a.go")
+	repo.commit("move into a class\n\nPOSE-Spec: alpha")
+	moved, err := resolveGitChangeSet(repo.root, "alpha", "", "")
+	if err != nil {
+		t.Fatal(err)
+	}
+	repo.write(".pose/results/a.go", "package a\n\nvar edited = 1\n")
+	repo.commit("edit the destination\n\nPOSE-Spec: alpha")
+	edited, err := resolveGitChangeSet(repo.root, "alpha", "", "")
+	if err != nil {
+		t.Fatal(err)
+	}
+	if moved.MaterialDigest == "" || moved.MaterialDigest == edited.MaterialDigest {
+		t.Fatalf("editing a file moved into an administrative class kept the digest: %q %q", moved.MaterialDigest, edited.MaterialDigest)
+	}
+}
