@@ -1133,9 +1133,18 @@ func cmdValidateWithStore(store posemodel.Store, args []string, stdout, stderr i
 				seenSpecs[set.Spec] = true
 			}
 		}
+		// The binding names the committed tree. Checks run on the working copy, so a
+		// working copy that differs from it in any material path validated something
+		// else: the run then records the binding as unavailable.
+		clean := materialWorktreeClean(root)
 		for spec := range seenSpecs {
 			run.ScopeProvenance[spec] = posemodel.ScopedDeliveryProvenanceDigest(graph, spec)
-			if material, ok := posemodel.MaterialBinding(graph, spec); ok {
+			if !clean {
+				if run.MaterialProvenance == nil {
+					run.MaterialProvenance = map[string]string{}
+				}
+				run.MaterialProvenance[spec] = posemodel.MaterialBindingUnavailable
+			} else if material, ok := posemodel.MaterialBinding(graph, spec); ok {
 				if run.MaterialProvenance == nil {
 					run.MaterialProvenance = map[string]string{}
 				}
@@ -1573,4 +1582,35 @@ func sanitizeGoCheckArgs(ctx context.Context, dir, program string, args []string
 		}
 	}
 	return newArgs
+}
+
+// materialWorktreeClean reports whether the working copy equals HEAD in every
+// path outside the administrative classes, untracked files included. A status
+// that cannot be read is not clean.
+func materialWorktreeClean(root string) bool {
+	out, err := gitOutputBounded(root, 16*1024*1024, "status", "--porcelain=v1", "-z", "--untracked-files=all")
+	if err != nil {
+		return false
+	}
+	records := strings.Split(string(out), "\x00")
+	for i := 0; i < len(records); i++ {
+		record := records[i]
+		if len(record) < 4 {
+			continue
+		}
+		paths := []string{record[3:]}
+		if record[0] == 'R' || record[0] == 'C' || record[1] == 'R' || record[1] == 'C' {
+			// A rename or copy carries its source as the next record.
+			if i+1 < len(records) {
+				i++
+				paths = append(paths, records[i])
+			}
+		}
+		for _, p := range paths {
+			if !posemodel.IsAdministrativePath(p) {
+				return false
+			}
+		}
+	}
+	return true
 }

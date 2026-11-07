@@ -58,6 +58,7 @@ Caching individual check outputs, skipping checks by heuristic, weakening review
 - R4: A symlink, submodule or directory in an administrative class, a path that left a class, the destination of a rename, and any file in a class that is not a data format, shall be material.
 - R5: Results without `material_provenance` shall be judged exactly as before, and the commit-bound digests shall not change representation.
 - R6: Review bundle sealing, `review verify`, `closeout-check` and `close` shall consume the same domain verdict, with no per-channel copy of the rule.
+- R8: A validation run shall record a material binding only when the working copy equals the committed material in every path outside the administrative classes, untracked files included; otherwise it records the binding as unavailable for every scope.
 - R7: A delegated review shall run its diagnostics in the sealed checkout without republishing derived records into it: the review process carries `POSE_SEALED_CHECKOUT`, and `refreshDeliveryIndex` leaves the checkout alone when it is set.
 
 ### Non-functional
@@ -93,6 +94,9 @@ Caching individual check outputs, skipping checks by heuristic, weakening review
 - modified: pose-mcp/internal/cli/index.go
 - modified: pose-mcp/internal/pose/review_dispatch.go
 - modified: pose-mcp/internal/pose/delegation_refusal.go
+- created: pose-mcp/internal/cli/validate_material_worktree_test.go
+- modified: pose-mcp/internal/pose/delivery_integrity_cache.go
+- modified: pose-mcp/internal/pose/delivery_integrity_cache_test.go
 - modified: pose-mcp/internal/cli/artifact_integrity.go
 - modified: pose-mcp/internal/cli/validate.go
 - modified: pose-mcp/internal/cli/validate_results.go
