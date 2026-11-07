@@ -247,7 +247,7 @@ Executar incrementalmente depois das fundações aceitas B06/B07/B14/B15. A prim
 - [x] Construir outputs e bindings de índices na mesma view e auditar antes de publicar.
 - [x] Passar a suíte completa, race e os checks nativos registrados na matriz.
 - [x] Reconciliar artifacts/trace e obter revisão independente do bundle selado.
-- [ ] Aplicar closeout, repetir os gates finais e publicar sem adoção no hospedeiro.
+- [x] Aplicar closeout, repetir os gates finais e publicar sem adoção no hospedeiro.
 
 ## 5. Decisions
 
@@ -322,6 +322,8 @@ D7 exige regressão com budgets pequenos injetados: lote real serial/paralelo cu
 Executar os cenários obrigatórios acima, a suíte Go do módulo e os checks da matriz atualizados; incluir controles positivos e negativos. `pose artifact-check --spec pose-governance-read-view-generation --strict`, `pose surface-check --spec pose-governance-read-view-generation --strict` e os gates de segurança pertinentes continuam obrigatórios no closeout. Se a matriz ganhar um check B34 permanente, validar seu schema com `pose check --strict`. Atualizar evidence/trace somente com comandos realmente executados; nenhum lint de documentação qualifica o target funcional.
 
 ### Execution log
+
+- Em 2026-11-07, a prova independente continuou válida após o commit final `80e6db38`; o gitleaks examinou os 25 commits do intervalo e não encontrou segredos. `git fetch upstream main` e a verificação de ancestralidade confirmaram publicação por fast-forward; `git push upstream HEAD:main` publicou `7079eb86..80e6db38`. B34 e os patches editoriais estão em main. O checkout original e o gitlink do Harne8 não foram atualizados; as alterações locais do operador foram preservadas. A confirmação remota de CI continua dispensada.
 
 - Em 2026-11-07, após registrar a revisão editorial e atualizar o índice sem gravações concorrentes, `review run-proof` confirmou a prova completa e a diferença de fornecedor. `closeout-check` passou com `lifecycle_done=true`, `review_approved=true`, `terminal=true` e `next_action=none`. O check estrutural global `pose check --strict` passou com 35 avisos históricos e nenhum erro, no conteúdo funcional e editorial atual. Restam somente o commit dos registros, o scan final do intervalo e a publicação; nenhum resultado remoto é alegado.
 
