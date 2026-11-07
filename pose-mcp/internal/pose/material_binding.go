@@ -39,6 +39,9 @@ func IsAdministrativePath(p string) bool {
 	if materialIndexes[p] {
 		return false
 	}
+	if !recordExtensions[strings.ToLower(path.Ext(p))] {
+		return false
+	}
 	for _, dir := range administrativeDirs {
 		if strings.HasPrefix(p, dir) {
 			return true
@@ -52,6 +55,13 @@ func IsAdministrativePath(p string) bool {
 	return false
 }
 
+// recordExtensions are the data formats a derived record is written in. Code or
+// a script stored in a class is material: that keeps a source file moved or
+// copied into a class from hiding its later edits. A copied data file stays
+// indistinguishable from a record; a check that reads data out of a derived-record
+// directory is outside this contract (ADR validation-evidence-binds-to-validated-material).
+var recordExtensions = map[string]bool{".json": true, ".jsonl": true, ".ndjson": true, ".md": true, ".txt": true, ".log": true, ".transcript": true}
+
 // TreeEntry is one entry of the validated head's tree.
 type TreeEntry struct{ Mode, Blob string }
 
@@ -64,7 +74,7 @@ func regularMode(mode string) bool { return mode == "100644" || mode == "100755"
 // or directory in an administrative class is material; so is a path that left
 // a class. tree maps each named path (and the matrix) to its entry; a path
 // absent from the head tree is "absent".
-func MaterialSetDigest(paths []ObservedPath, tree map[string]TreeEntry, trackedBlobs func() map[string]bool) string {
+func MaterialSetDigest(paths []ObservedPath, tree map[string]TreeEntry) string {
 	names := map[string]bool{}
 	// A rename or copy destination is material whatever directory it lands in:
 	// otherwise moving a source file into a class would hide its later edits.
@@ -85,36 +95,10 @@ func MaterialSetDigest(paths []ObservedPath, tree map[string]TreeEntry, trackedB
 		sorted = append(sorted, name)
 	}
 	sort.Strings(sorted)
-	// A file copied into an administrative class is not told from a creation by
-	// the readers (they follow renames only): an administrative file whose blob is
-	// the blob of a tracked material path is treated as material while they are equal, and
-	// stops being excluded the moment either is edited, which moves the digest.
-	materialBlobs := map[string]bool{}
-	for _, name := range sorted {
-		if entry, present := tree[name]; present && !IsAdministrativePath(name) {
-			materialBlobs[entry.Blob] = true
-		}
-	}
-	// The source of a copy need not be in the change set: trackedBlobs lists the
-	// blobs of every path outside the classes at the head, read once and only when
-	// an administrative record is not already known to be a copy.
-	var tracked map[string]bool
-	isCopy := func(blob string) bool {
-		if materialBlobs[blob] {
-			return true
-		}
-		if trackedBlobs == nil {
-			return false
-		}
-		if tracked == nil {
-			tracked = trackedBlobs()
-		}
-		return tracked[blob] || tracked[EveryBlobTracked]
-	}
 	h := sha256.New()
 	for _, name := range sorted {
 		entry, present := tree[name]
-		if IsAdministrativePath(name) && !moved[name] && (!present || (regularMode(entry.Mode) && !isCopy(entry.Blob))) {
+		if IsAdministrativePath(name) && !moved[name] && (!present || regularMode(entry.Mode)) {
 			continue
 		}
 		if !present {
@@ -125,10 +109,6 @@ func MaterialSetDigest(paths []ObservedPath, tree map[string]TreeEntry, trackedB
 	}
 	return "sha256:" + hex.EncodeToString(h.Sum(nil))
 }
-
-// EveryBlobTracked is the key a tracked-blob listing carries when it could not
-// be read: every administrative record then counts as a possible copy.
-const EveryBlobTracked = "*"
 
 // MaterialDigestUnreadable marks a change set whose head tree could not be read
 // or whose checkout is not complete. It never binds evidence and never lets

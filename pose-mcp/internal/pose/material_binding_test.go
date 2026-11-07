@@ -33,10 +33,10 @@ func regularEntry(blob string) TreeEntry { return TreeEntry{Mode: "100644", Blob
 func TestMaterialSetDigestIgnoresAdministrativeRecordsOnly(t *testing.T) {
 	paths := []ObservedPath{obs("M", "a.go"), obs("M", ".pose/indexes/spec-graph.json")}
 	base := map[string]TreeEntry{"a.go": regularEntry("b1"), ".pose/indexes/spec-graph.json": regularEntry("i1"), ".pose/indexes/validation-matrix.json": regularEntry("m1")}
-	want := MaterialSetDigest(paths, base, nil)
+	want := MaterialSetDigest(paths, base)
 
 	admin := map[string]TreeEntry{"a.go": regularEntry("b1"), ".pose/indexes/spec-graph.json": regularEntry("i2"), ".pose/indexes/validation-matrix.json": regularEntry("m1")}
-	if MaterialSetDigest(paths, admin, nil) != want {
+	if MaterialSetDigest(paths, admin) != want {
 		t.Fatal("an administrative record changed the digest")
 	}
 	for name, mutate := range map[string]func(m map[string]TreeEntry){
@@ -56,7 +56,7 @@ func TestMaterialSetDigestIgnoresAdministrativeRecordsOnly(t *testing.T) {
 			m[k] = v
 		}
 		mutate(m)
-		if MaterialSetDigest(paths, m, nil) == want {
+		if MaterialSetDigest(paths, m) == want {
 			t.Errorf("%s: digest unchanged", name)
 		}
 	}
@@ -66,7 +66,7 @@ func TestMaterialSetDigestTreatsRenamesOutOfAClassAsMaterial(t *testing.T) {
 	paths := []ObservedPath{{Action: "R", OldPath: "a.go", NewPath: ".pose/results/a.go"}}
 	moved := map[string]TreeEntry{".pose/results/a.go": regularEntry("b1")}
 	kept := map[string]TreeEntry{".pose/results/a.go": regularEntry("b1"), "a.go": regularEntry("b1")}
-	if MaterialSetDigest(paths, moved, nil) == MaterialSetDigest(paths, kept, nil) {
+	if MaterialSetDigest(paths, moved) == MaterialSetDigest(paths, kept) {
 		t.Fatal("the vanished source path must count")
 	}
 }
@@ -143,8 +143,8 @@ func TestUnreadableMaterialNeverBindsAndIsRecordedAsUnavailable(t *testing.T) {
 
 func TestRenameIntoAnAdministrativeClassStaysMaterial(t *testing.T) {
 	paths := []ObservedPath{{Action: "R", OldPath: "a.go", NewPath: ".pose/results/a.go"}}
-	first := MaterialSetDigest(paths, map[string]TreeEntry{".pose/results/a.go": regularEntry("b1")}, nil)
-	edited := MaterialSetDigest(paths, map[string]TreeEntry{".pose/results/a.go": regularEntry("b2")}, nil)
+	first := MaterialSetDigest(paths, map[string]TreeEntry{".pose/results/a.go": regularEntry("b1")})
+	edited := MaterialSetDigest(paths, map[string]TreeEntry{".pose/results/a.go": regularEntry("b2")})
 	if first == edited {
 		t.Fatal("editing the moved file inside the class kept the digest")
 	}
@@ -155,21 +155,6 @@ func TestFactResultKeySeparatesMaterialBindings(t *testing.T) {
 	b := DeliveryValidationResult{ID: "x", MaterialProvenance: map[string]string{"s": "sha256:2"}}
 	if factResultKey(a) == factResultKey(b) {
 		t.Fatal("two material bindings share one identity")
-	}
-}
-
-func TestACopyIntoAnAdministrativeClassStaysMaterial(t *testing.T) {
-	paths := []ObservedPath{obs("A", ".pose/results/copy.go"), obs("M", "a.go")}
-	tree := func(copy string) map[string]TreeEntry {
-		return map[string]TreeEntry{"a.go": regularEntry("b1"), ".pose/results/copy.go": regularEntry(copy)}
-	}
-	validated := MaterialSetDigest(paths, tree("b1"), nil)
-	if validated == MaterialSetDigest(paths, tree("b9"), nil) {
-		t.Fatal("editing the copy kept the digest")
-	}
-	plain := MaterialSetDigest(paths, map[string]TreeEntry{"a.go": regularEntry("b1"), ".pose/results/copy.go": regularEntry("b7")}, nil)
-	if plain != MaterialSetDigest(paths, map[string]TreeEntry{"a.go": regularEntry("b1"), ".pose/results/copy.go": regularEntry("b8")}, nil) {
-		t.Fatal("an unrelated administrative file entered the digest")
 	}
 }
 
@@ -186,19 +171,26 @@ func TestARecordedSetWithoutAMaterialDigestMakesTheBindingUnavailable(t *testing
 	}
 }
 
-func TestACopyOfAnUnchangedSourceStaysMaterial(t *testing.T) {
+func TestCodeInsideAnAdministrativeClassIsMaterial(t *testing.T) {
+	for p, want := range map[string]bool{
+		".pose/results/report.json":      true,
+		".pose/state/history.jsonl":      true,
+		".pose/assessments/pose-mcp.md":  true,
+		".pose/review-runs/x.transcript": true,
+		".pose/results/helper.go":        false,
+		".pose/results/build-backlog.py": false,
+		".pose/indexes/refresh.sh":       false,
+		".pose/results/noextension":      false,
+	} {
+		if got := IsAdministrativePath(p); got != want {
+			t.Errorf("%q: got %v want %v", p, got, want)
+		}
+	}
+	// Editing a source file placed in a class moves the digest.
 	paths := []ObservedPath{obs("A", ".pose/results/helper.go")}
-	tracked := func() map[string]bool { return map[string]bool{"h1": true} }
-	digest := func(blob string) string {
-		return MaterialSetDigest(paths, map[string]TreeEntry{".pose/results/helper.go": regularEntry(blob)}, tracked)
-	}
-	if digest("h1") == digest("h2") {
-		t.Fatal("editing a copy of an unchanged tracked source kept the digest")
-	}
-	unreadable := func(blob string) string {
-		return MaterialSetDigest(paths, map[string]TreeEntry{".pose/results/helper.go": regularEntry(blob)}, func() map[string]bool { return map[string]bool{EveryBlobTracked: true} })
-	}
-	if unreadable("x1") == unreadable("x2") {
-		t.Fatal("an unreadable listing excluded an administrative record")
+	one := MaterialSetDigest(paths, map[string]TreeEntry{".pose/results/helper.go": regularEntry("b1")})
+	two := MaterialSetDigest(paths, map[string]TreeEntry{".pose/results/helper.go": regularEntry("b2")})
+	if one == two {
+		t.Fatal("editing code inside a class kept the digest")
 	}
 }
