@@ -1,7 +1,7 @@
 ---
 schema_version: 1
-generated_at: 2026-11-06T20:21:13Z
-baseline_commit: df7da2f0abfdc04b351c21013c2ead8398e1d189
+generated_at: 2026-11-07T07:38:50Z
+baseline_commit: b6ef1e54f36e5b7cd5c4946ed42933d28949782b
 staleness_policy: max_age_days=7,max_commits=20
 refresh_pending: 
 ---
@@ -40,23 +40,23 @@ capacidade.
   - ... e mais 459 (ver `pose_list_specs status:done`)
 
 ## Follow-ups
-<!-- state:derived hash:43edcabf84d2 -->
+<!-- state:derived hash:b1d19f90cd74 -->
 
 - abertos: 221
 - por criticidade: high=5 medium=43 low=154 sem-classificação=19
-- vencidos (review < hoje): 35
+- vencidos (review < hoje): 42
 - cobertura: INCOMPLETA — 2 source(s) could not be read: invalid .pose/specs/2026-08-15-pose-instance-engine-version-tracking.md; invalid .pose/specs/2026-08-15-pose-knowledge-durable-reference-type.md; os números acima são o que pôde ser lido
   - spec:pose-package-manager-distribution (owner:@pose-maintainers review:2026-09-18)
   - spec:pose-federated-carried-forward-proof (owner:@harne8-platform review:2026-09-27)
-  - spec:pose-verifier-assets-variable-fix (owner:@pose-maintainers review:2026-10-02)
-  - spec:pose-review-root-binding-parity (owner:@pose-maintainers review:2026-10-02)
   - spec:pose-release-signing-rejection (owner:@pose-maintainers review:2026-10-02)
+  - spec:pose-review-root-binding-parity (owner:@pose-maintainers review:2026-10-02)
+  - spec:pose-verifier-assets-variable-fix (owner:@pose-maintainers review:2026-10-02)
   - spec:pose-shellcheck-ci-gate (owner:@pose-maintainers review:2026-10-02)
   - spec:pose-spec-transfer-reconcile-terminal (owner:@harne8-platform review:2026-10-03)
   - spec:pose-federated-spec-dependency-acceptance (owner:@harne8-platform review:2026-10-03)
-  - spec:pose-package-channel-install-repair (owner:@pose-maintainers review:2026-10-08)
   - spec:pose-governance-gate-activation (owner:@pose-maintainers review:2026-10-08)
-  - ... e mais 25 vencidos (ver `pose followups --open`)
+  - spec:pose-package-channel-install-repair (owner:@pose-maintainers review:2026-10-08)
+  - ... e mais 32 vencidos (ver `pose followups --open`)
 
 ## Capabilities
 <!-- state:derived hash:e20a9224b717 -->
