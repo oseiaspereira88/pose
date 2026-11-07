@@ -211,6 +211,7 @@ func withoutMaterialDigest(sets []ChangeSet) []ChangeSet {
 	out := make([]ChangeSet, len(sets))
 	for i, set := range sets {
 		set.MaterialDigest = ""
+		set.MaterialInputs = nil
 		out[i] = set
 	}
 	return out

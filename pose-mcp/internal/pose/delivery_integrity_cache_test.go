@@ -237,3 +237,13 @@ func TestDeliveryGraphCopyIsolatesProvenanceMaps(t *testing.T) {
 		t.Fatal("the copy shares a provenance map with the cached graph")
 	}
 }
+
+func TestDeliveryGraphCopyIsolatesMaterialInputs(t *testing.T) {
+	in := DeliveryIntegrityGraph{ChangeSets: []ChangeSet{{ID: "cs", MaterialInputs: &MaterialInputs{Names: []string{"a"}, Moved: []string{"b"}}}}}
+	out := copyDeliveryIntegrityGraph(in)
+	out.ChangeSets[0].MaterialInputs.Names[0] = "changed"
+	out.ChangeSets[0].MaterialInputs.Moved[0] = "changed"
+	if in.ChangeSets[0].MaterialInputs.Names[0] != "a" || in.ChangeSets[0].MaterialInputs.Moved[0] != "b" {
+		t.Fatal("the copy shares material inputs with the cached graph")
+	}
+}

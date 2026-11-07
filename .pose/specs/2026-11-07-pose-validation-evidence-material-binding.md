@@ -100,6 +100,7 @@ Caching individual check outputs, skipping checks by heuristic, weakening review
 - modified: pose-mcp/internal/pose/delivery_integrity_cache_test.go
 - modified: pose-mcp/internal/cli/artifact_integrity.go
 - modified: pose-mcp/internal/cli/validate.go
+- modified: pose-mcp/internal/pose/review_bundle.go
 - modified: pose-mcp/internal/cli/validate_results.go
 - modified: pose-mcp/internal/cli/change_set_root_test.go
 - modified: pose-mcp/internal/cli/governance_operation_performance_test.go

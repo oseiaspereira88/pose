@@ -1,6 +1,9 @@
 package pose
 
-import "testing"
+import (
+	"encoding/json"
+	"testing"
+)
 
 func TestIsAdministrativePathIsClosedAndPathExact(t *testing.T) {
 	for p, want := range map[string]bool{
@@ -215,4 +218,25 @@ func TestEvidenceIsJudgedAgainstTheCurrentMaterial(t *testing.T) {
 	if deliveryEvidenceCurrent(result, "s", "in-progress", moved, moved.ChangeSets) {
 		t.Fatal("the persisted index vouched for a tree that changed after it was built")
 	}
+}
+
+func TestLegacyDigestsIgnoreTheMaterialFields(t *testing.T) {
+	plain := materialGraph("h1", "")
+	rich := materialGraph("h1", "sha256:m")
+	rich.ChangeSets[0].MaterialInputs = &MaterialInputs{Names: []string{"a.go"}, Moved: []string{"b.go"}}
+	if ScopedDeliveryProvenanceDigest(plain, "s") != ScopedDeliveryProvenanceDigest(rich, "s") {
+		t.Fatal("the scoped provenance digest moved with the material inputs")
+	}
+	if string(mustJSON(t, withoutMaterialDigest(rich.ChangeSets))) != string(mustJSON(t, withoutMaterialDigest(plain.ChangeSets))) {
+		t.Fatal("the commit-bound representation of a change set kept a material field")
+	}
+}
+
+func mustJSON(t *testing.T, v any) []byte {
+	t.Helper()
+	raw, err := json.Marshal(v)
+	if err != nil {
+		t.Fatal(err)
+	}
+	return raw
 }

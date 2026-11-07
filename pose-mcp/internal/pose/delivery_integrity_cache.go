@@ -154,6 +154,10 @@ func copyDeliveryIntegrityGraph(in DeliveryIntegrityGraph) DeliveryIntegrityGrap
 	for i, set := range in.ChangeSets {
 		set.Commits = append([]string{}, set.Commits...)
 		set.Paths = append([]ObservedPath{}, set.Paths...)
+		if set.MaterialInputs != nil {
+			inputs := MaterialInputs{Names: append([]string(nil), set.MaterialInputs.Names...), Moved: append([]string(nil), set.MaterialInputs.Moved...)}
+			set.MaterialInputs = &inputs
+		}
 		out.ChangeSets[i] = set
 	}
 	out.Reverse = copyStringSliceMap(in.Reverse)
