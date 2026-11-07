@@ -101,6 +101,7 @@ Caching individual check outputs, skipping checks by heuristic, weakening review
 - modified: pose-mcp/internal/pose/delivery_integrity_cache_test.go
 - modified: pose-mcp/internal/pose/governance_read_view.go
 - modified: pose-mcp/internal/pose/governance_read_view_probe_test.go
+- modified: pose-mcp/internal/pose/governance_read_view_integration_test.go
 - modified: POSE.md
 - modified: locales/pt-BR/POSE.md
 - modified: pose-mcp/internal/scaffold/dist/POSE.md
