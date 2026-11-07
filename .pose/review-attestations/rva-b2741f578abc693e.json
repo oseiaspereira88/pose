@@ -1,0 +1,263 @@
+{
+  "run": {
+    "run_id": "rrn-6ade4e2ad5456f68",
+    "proof_id": "rrp-9badda1686e374f12fc6b3b9456ca26cfcc56a20c6d5b4927b4d1a42002c55a6"
+  },
+  "schema_version": 1,
+  "attestation_id": "rva-b2741f578abc693e",
+  "bundle_id": "rvb-6a260cce8272a795",
+  "bundle_digest": "sha256:6a260cce8272a7951da7fd5aa6c9523568b60971faf7c1b6c7ea8c926bd19553",
+  "reviewer": "agent:anthropic/claude-opus-5-5",
+  "decision": "approved",
+  "criteria": [
+    {
+      "id": "assumption-integrity",
+      "disposition": "passed",
+      "evidence": "structure:design-27c4d1637d54580e",
+      "rationale": "Separated verified facts from assumptions. Verified: the editorial text in all four manual copies, the existing watch command, F3 still open and tracked, and canonical validation bound to fc001153 (189/0). Assumed from the notes, not verified: no Go change since 4054d6be (I could not diff). Accepted risks remain explicit: external writers/ABA are outside the guarantee, tech-debt is INCOMPLETE (two unreadable historical specs), the prior b7b5680f structural check is not current, remote CI is waived, and F3 is owned until 2026-12-06."
+    },
+    {
+      "id": "backend-concurrency",
+      "disposition": "passed",
+      "evidence": "integration:pose-mcp/go/governance-read-view-integration",
+      "rationale": "The sealed race selection over the pose, cli and mcpserver read-view, guard and index paths passes on the current validation; the editorial delta changes no concurrent code."
+    },
+    {
+      "id": "backend-contracts",
+      "disposition": "passed",
+      "evidence": "integration:pose-mcp/go/cli-mcp-operation-results-integration",
+      "rationale": "Additive read_view with schema v1 and an unchanged ObligationReport schema, as reviewed in round 2; the editorial delta changes no contract."
+    },
+    {
+      "id": "backend-input-errors",
+      "disposition": "passed",
+      "evidence": "integration:pose-mcp/go/typed-diagnostics-integration",
+      "rationale": "Typed guard and read-view errors are unchanged; F3 remains the only low-severity untyped classification."
+    },
+    {
+      "id": "backend-integration-impact",
+      "disposition": "passed",
+      "evidence": "integration:pose-mcp/go/governance-read-view-integration",
+      "rationale": "Consumers share the same view/guard primitives; the sealed integration passes on current validation."
+    },
+    {
+      "id": "backend-observability",
+      "disposition": "passed",
+      "evidence": "unit:pose-mcp/go/test",
+      "rationale": "Bounded, path-free limitations and error summaries are unchanged (governance_read_view_capture.go:88-137)."
+    },
+    {
+      "id": "compatibility",
+      "disposition": "passed",
+      "evidence": "integration:pose-mcp/go/cli-mcp-operation-results-integration",
+      "rationale": "Examined the editorial delta: it is manual prose only, with no CLI flag, file schema or MCP tool change. Earlier conclusions stand: the read_view disclosure is additive and legacy reports remain readable but non-authorizing. Compatible."
+    },
+    {
+      "id": "correctness",
+      "disposition": "passed",
+      "evidence": "integration:pose-mcp/go/governance-read-view-integration",
+      "rationale": "The F1/F2 fixes reviewed in round 2 are in production code that the notes say is unchanged, and the sealed B34 integration, unit and build checks pass on the current canonical validation."
+    },
+    {
+      "id": "cross-component-integration",
+      "disposition": "passed",
+      "evidence": "integration:pose-mcp/go/distributed-instructions-parity-integration",
+      "rationale": "The generated scaffold copies of POSE.md and its pt-BR translation carry the same editorial section as the sources, and the sealed distribution-parity check passes."
+    },
+    {
+      "id": "design-causality",
+      "disposition": "passed",
+      "evidence": "structure:design-27c4d1637d54580e",
+      "rationale": "Root cause per the spec: the snapshot digest did not bind observed bytes and the closure was not audited after the producers ran. D2 per-operation capture over Files plus a final audit and one retry addresses R1-R5; D3 makes the disclosure additive (R9); D4 adds per-root guarded writes with B14/B15 CAS (R6/R7); D5-D7 set measured budgets and per-scope views; D8 and D9 cover instance policy and the executable-hash bound. The post-close editorial delta is documentation guidance only and introduces no new structural delta beyond the three below. The structure check passed.",
+      "mappings": [
+        {
+          "delta": "SD-0cf58a00",
+          "basis": "R10",
+          "disposition": "mapped",
+          "rationale": "The validation matrix adds the required race check governance-read-view-integration over the B34 selection and explicit -count=1 checks, qualifying R10's fixtures and fault injection as V7 requires."
+        },
+        {
+          "delta": "SD-5c5ba300",
+          "basis": "D2",
+          "disposition": "mapped",
+          "rationale": "The spec requires the B34 ADR to be accepted before the contract changes; the ADR records the bounded operation-scoped view and budgets on which D2-D9 rest."
+        },
+        {
+          "delta": "SD-98ca1442",
+          "basis": "D8",
+          "disposition": "mapped",
+          "rationale": "delegation.json is instance-only review-agent configuration, excluded from the embedded scaffold (distpolicy.go:115-118) per D8; its narrowed session capture responds to the retained capture failure. It contains no secrets."
+        }
+      ]
+    },
+    {
+      "id": "documentation",
+      "disposition": "passed",
+      "evidence": "structure:design-27c4d1637d54580e",
+      "rationale": "Examined the new section in POSE.md:921-958, its pt-BR translation at locales/pt-BR/POSE.md:930-969 and both scaffold copies (dist/POSE.md:908-945, dist/locales/pt-BR/POSE.md:930-969). The texts are equivalent across languages and the generated copies match their sources. The referenced commands exist (pose delegate watch at cli/delegate.go:223 and cli/help_catalog.go:360; wait, resume, handoff and agents are documented elsewhere in the manual). The guidance is consistent with the existing delegation contracts and declares no new mandatory layer. The read-view documentation (POSE.md:372-373) remains accurate."
+    },
+    {
+      "id": "operability",
+      "disposition": "passed",
+      "evidence": "structure:design-27c4d1637d54580e",
+      "rationale": "The new guidance is actionable: follow runs with watch/wait, preserve failed and quota-limited attempts, persist derived inputs before a detached review, and check authentication and capture after setup failures. Runtime error remediation (index rerun/verify, guard refusals) is unchanged and actionable."
+    },
+    {
+      "id": "requirements",
+      "disposition": "passed",
+      "evidence": "integration:pose-mcp/go/governance-read-view-integration",
+      "rationale": "R1-R10 remain covered by the sealed B34 integration and the projection, writer and index checks on the current canonical validation (fc001153, 189/0); the editorial delta adds no requirement."
+    },
+    {
+      "id": "scope",
+      "disposition": "passed",
+      "evidence": "structure:design-27c4d1637d54580e",
+      "rationale": "The post-close delta touches only the manuals and their generated copies (plus spec prose outside this change set). No requirement, artifact plan, runtime code or exit gate was expanded, and the plan's exclusions (no watcher, daemon or cache) still hold."
+    },
+    {
+      "id": "security",
+      "disposition": "passed",
+      "evidence": "structure:design-27c4d1637d54580e",
+      "rationale": "The editorial text discloses no secrets, paths or credentials, and its advice reinforces preserving independence and not bypassing provider limits. The security conclusions from round 2 still hold: lock-path link checks, explicit foreign-root bindings, digest-only roots, the bounded executable digest, and the delegation policy excluded from the scaffold."
+    },
+    {
+      "id": "solution-proportionality",
+      "disposition": "passed",
+      "evidence": "structure:design-27c4d1637d54580e",
+      "rationale": "The editorial addition is the smallest sufficient change: advisory prose within the existing workflow, explicitly not a new gate. The runtime design remains the bounded Files extension with no daemon or cache. That choice would be invalidated if real corpora exceeded the D6 budgets without a new measurement."
+    }
+  ],
+  "tools": [
+    {
+      "id": "artifact-check",
+      "disposition": "passed",
+      "evidence": "check:artifact-check",
+      "rationale": "Required tool with no evidence class; the reference is the primary execution's run of the command, per the native convention (review_bundle.go:2867-2875). I did not run it myself and did not inspect its output."
+    },
+    {
+      "id": "assess-design",
+      "disposition": "passed",
+      "evidence": "structure:design-27c4d1637d54580e",
+      "rationale": "Sealed structural design result passes for this bundle."
+    },
+    {
+      "id": "assess-discover",
+      "component": "pose-mcp",
+      "disposition": "not-used",
+      "rationale": "Recommended tool; not executed in my restricted read-only session."
+    },
+    {
+      "id": "assess-discover",
+      "component": "tests",
+      "disposition": "not-used",
+      "rationale": "Recommended tool; not executed in my restricted read-only session."
+    },
+    {
+      "id": "assess-integrate",
+      "disposition": "passed",
+      "evidence": "integration:pose-mcp/go/governance-read-view-integration",
+      "rationale": "Cites a passing sealed integration record of the class the tool requires. The integration inventory itself is static, not functional proof, and the command was run by the primary execution, not by me."
+    },
+    {
+      "id": "assess-tech-debt",
+      "disposition": "not-used",
+      "rationale": "Recommended tool; not executed by me. Its known limitation stands: INCOMPLETE because two historical specs cannot be read."
+    },
+    {
+      "id": "closeout-check",
+      "disposition": "deferred",
+      "rationale": "Post-review gate: has the review-complete precondition and runs after this conclusion is attested."
+    },
+    {
+      "id": "knowledge-check",
+      "disposition": "passed",
+      "evidence": "check:knowledge-check",
+      "rationale": "Required tool with no evidence class; the reference is the primary execution's run of the command. I did not run it myself."
+    },
+    {
+      "id": "review-check",
+      "disposition": "deferred",
+      "rationale": "Post-review gate: has the review-complete precondition and evaluates the review state this attestation produces."
+    },
+    {
+      "id": "suggest-review",
+      "component": "pose-mcp",
+      "disposition": "not-used",
+      "rationale": "Recommended tool; not executed in my restricted read-only session."
+    },
+    {
+      "id": "suggest-review",
+      "component": "tests",
+      "disposition": "not-used",
+      "rationale": "Recommended tool; not executed in my restricted read-only session."
+    },
+    {
+      "id": "surface-check",
+      "disposition": "passed",
+      "evidence": "integration:pose-mcp/go/spec-surface-integration",
+      "rationale": "Cites a passing sealed integration record of the required class; the surface-check command was run by the primary execution, not by me."
+    },
+    {
+      "id": "validate",
+      "disposition": "passed",
+      "evidence": "unit:pose-mcp/go/test",
+      "rationale": "The current canonical global matrix result in .pose/results/delivery-validation.json is bound to git_head fc001153 (the post-close editorial commit), with 189 passed and 0 failed; the sealed records cite that validation. This is not the prior b7b5680f structural check."
+    },
+    {
+      "id": "validate",
+      "component": "pose-mcp",
+      "disposition": "passed",
+      "evidence": "unit:pose-mcp/go/test",
+      "rationale": "Sealed pose-mcp module checks pass in the same canonical validation: build, the full test suite and the B34 race integration."
+    },
+    {
+      "id": "validate",
+      "component": "tests",
+      "disposition": "not-used",
+      "rationale": "The validation matrix declares this component runs no check (replaceDefaultChecks with an empty list, producer coverage none), so no producer can emit evidence for it."
+    }
+  ],
+  "evidence_refs": [
+    "delegated-run:rrn-6ade4e2ad5456f68",
+    "integration:pose-mcp/go/cli-mcp-operation-results-integration",
+    "integration:pose-mcp/go/distributed-instructions-parity-integration",
+    "integration:pose-mcp/go/governance-read-view-integration",
+    "integration:pose-mcp/go/typed-diagnostics-integration",
+    "structure:design-27c4d1637d54580e",
+    "unit:pose-mcp/go/test"
+  ],
+  "findings": [
+    {
+      "id": "F3",
+      "severity": "low",
+      "evidence": "file:pose-mcp/internal/cli/index_generation_build.go:205",
+      "action": "Replace the substring classification with a typed error while preserving the code, receipts and negative controls.",
+      "disposition": "accepted-risk",
+      "owner": "@pose-maintainers",
+      "rationale": "Index build failure code 'federated-roadmap' is still selected by substring match on error text instead of a typed/sentinel error; recorded as an owned open follow-up in the spec.",
+      "review_by": "2026-12-06"
+    }
+  ],
+  "authority": {
+    "schema_version": 1,
+    "project": "proj.pose-dist",
+    "bundle_digest": "sha256:6a260cce8272a7951da7fd5aa6c9523568b60971faf7c1b6c7ea8c926bd19553",
+    "principal": "agent:anthropic/claude-opus-5-5",
+    "role": "agent",
+    "review_execution": "rrn-6ade4e2ad5456f68",
+    "implementation_principal": "agent:openai/unknown",
+    "implementation_execution": "sha256:e153fd0098107a9b94004770167630f49576f2af7f39b7b1a7b2492cb4339a62",
+    "issuer": "b34-local-executor",
+    "issued_at": "2026-11-07T06:00:04Z",
+    "audience": "proj.pose-dist"
+  },
+  "envelope": {
+    "issuer": "b34-local-executor",
+    "subject": "rvb-6a260cce8272a795",
+    "algorithm": "ed25519",
+    "public_key": "ck4sApdfePV2GT+hJyAYfJd2qLzeG55P8pevGR0bvZE=",
+    "signature": "iXUg2CA1qWRfAXESPydOObq3qckIHGQlRO71UdEmU9Y7CFQUbSAdzcxlqj56mOEyFrZeeaCKdr95CV6h6WpcDQ=="
+  },
+  "attested_at": "2026-11-07T06:00:04Z",
+  "path": ".pose/review-attestations/rva-b2741f578abc693e.json"
+}
