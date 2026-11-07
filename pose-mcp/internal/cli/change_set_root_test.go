@@ -176,3 +176,35 @@ func TestChangeSetMaterialDigestIgnoresAdministrativeCommits(t *testing.T) {
 		t.Fatal("material commit kept the digest")
 	}
 }
+
+// A symlink replacing an administrative record is material, and an explicit
+// range carries a digest too.
+func TestChangeSetMaterialDigestSeesSymlinksAndRanges(t *testing.T) {
+	repo := newRemovalRepo(t)
+	repo.write("a.go", "package a\n")
+	base := repo.commit("code\n\nPOSE-Spec: alpha")
+	repo.write(".pose/indexes/x.json", "{}\n")
+	repo.commit("index\n\nPOSE-Spec: alpha")
+	before, err := resolveGitChangeSet(repo.root, "alpha", "", "")
+	if err != nil {
+		t.Fatal(err)
+	}
+	if err := os.Remove(filepath.Join(repo.root, ".pose/indexes/x.json")); err != nil {
+		t.Fatal(err)
+	}
+	if err := os.Symlink("../../a.go", filepath.Join(repo.root, ".pose/indexes/x.json")); err != nil {
+		t.Fatal(err)
+	}
+	repo.commit("link\n\nPOSE-Spec: alpha")
+	after, err := resolveGitChangeSet(repo.root, "alpha", "", "")
+	if err != nil {
+		t.Fatal(err)
+	}
+	if before.MaterialDigest == "" || after.MaterialDigest == before.MaterialDigest {
+		t.Fatalf("symlink in an administrative class kept the digest: %q %q", before.MaterialDigest, after.MaterialDigest)
+	}
+	ranged, err := resolveGitChangeSet(repo.root, "alpha", base, "HEAD")
+	if err != nil || ranged.MaterialDigest == "" {
+		t.Fatalf("range set has no material digest: %v %+v", err, ranged)
+	}
+}

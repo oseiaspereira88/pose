@@ -616,14 +616,19 @@ func ScopedDeliveryProvenanceDigest(graph DeliveryIntegrityGraph, spec string) s
 	raw, _ := json.Marshal(struct {
 		Claims []ArtifactClaim `json:"claims"`
 		Sets   []ChangeSet     `json:"change_sets"`
-	}{claims, sets})
+	}{claims, withoutMaterialDigest(sets)})
 	sum := sha256.Sum256(raw)
 	return "sha256:" + hex.EncodeToString(sum[:])
 }
 
 func deliveryEvidenceCurrent(result DeliveryValidationResult, spec, status string, graph DeliveryIntegrityGraph, sets []ChangeSet) bool {
-	if bound := result.MaterialProvenance[spec]; bound != "" && bound == ScopedMaterialDigest(graph, spec) {
-		return true
+	if bound := result.MaterialProvenance[spec]; bound != "" {
+		// A material binding governs: a mismatch is stale, never a fall-through
+		// to the commit-bound rules below. Only a closed spec keeps its exemption.
+		if bound == ScopedMaterialDigest(graph, spec) {
+			return true
+		}
+		return status == "done" && result.GeneratedAt != ""
 	}
 	if scoped := result.ScopeProvenance[spec]; scoped != "" {
 		if scoped == ScopedDeliveryProvenanceDigest(graph, spec) {

@@ -255,8 +255,6 @@ func resolveGitChangeSetWithTrailersAndFiles(files posemodel.Files, root, spec, 
 
 	var paths []posemodel.ObservedPath
 	diffHash := sha256.New()
-	var commitDiffs [][]byte
-	var commitMaterial []bool
 	if len(trailerCommits) > 0 {
 		commits = trailerCommits
 		commitPathLists := make([][]posemodel.ObservedPath, 0, len(commits))
@@ -275,8 +273,6 @@ func resolveGitChangeSetWithTrailersAndFiles(files posemodel.Files, root, spec, 
 				return posemodel.ChangeSet{}, err
 			}
 			_, _ = diffHash.Write(commitDiff)
-			commitDiffs = append(commitDiffs, commitDiff)
-			commitMaterial = append(commitMaterial, !posemodel.CommitIsAdministrative(parsed, commitDiff))
 		}
 		paths = mergeObservedPaths(commitPathLists)
 	} else {
@@ -296,10 +292,7 @@ func resolveGitChangeSetWithTrailersAndFiles(files posemodel.Files, root, spec, 
 	}
 	digest := diffHash.Sum(nil)
 	idSum := sha256.Sum256([]byte(spec + "\x00" + resolvedBase + "\x00" + resolvedHead + "\x00" + hex.EncodeToString(digest[:])))
-	materialDigest := ""
-	if len(commitDiffs) > 0 {
-		materialDigest = posemodel.MaterialDiffDigest(commitDiffs, commitMaterial)
-	}
+	materialDigest := materialSetDigestAt(gitOutput, resolvedHead, paths)
 	return posemodel.ChangeSet{ID: "cs-" + hex.EncodeToString(idSum[:6]), Spec: spec, Selector: selector, Base: base, Head: head, ResolvedBase: resolvedBase, ResolvedHead: resolvedHead, Commits: commits, Paths: paths, DiffDigest: "sha256:" + hex.EncodeToString(digest[:]), MaterialDigest: materialDigest}, nil
 }
 
@@ -1301,4 +1294,49 @@ func precedingDeletion(h *removalHistory, commits []string, path string, deletio
 		}
 	}
 	return "", "this spec's change to it does not precede the removal"
+}
+
+// materialSetDigestAt reads the head tree entries of every path a change set
+// names, and the validation matrix, and digests them (ADR
+// validation-evidence-binds-to-validated-material). Empty when the tree cannot
+// be read, so no binding is recorded for the set.
+func materialSetDigestAt(gitOutput func(int, ...string) ([]byte, error), head string, paths []posemodel.ObservedPath) string {
+	seen := map[string]bool{".pose/indexes/validation-matrix.json": true}
+	names := []string{".pose/indexes/validation-matrix.json"}
+	for _, p := range paths {
+		for _, name := range []string{p.Path, p.OldPath, p.NewPath} {
+			if name == "" || seen[name] {
+				continue
+			}
+			seen[name] = true
+			names = append(names, name)
+		}
+	}
+	tree := map[string]posemodel.TreeEntry{}
+	for start := 0; start < len(names); start += 256 {
+		end := min(start+256, len(names))
+		args := []string{"ls-tree", "-z", head, "--"}
+		for _, name := range names[start:end] {
+			if strings.ContainsAny(name, "\n\x00") {
+				return ""
+			}
+			args = append(args, ":(literal)"+name)
+		}
+		out, err := gitOutput(8*1024*1024, args...)
+		if err != nil {
+			return ""
+		}
+		for _, record := range strings.Split(string(out), "\x00") {
+			if record == "" {
+				continue
+			}
+			meta, name, ok := strings.Cut(record, "\t")
+			fields := strings.Fields(meta)
+			if !ok || len(fields) != 3 {
+				return ""
+			}
+			tree[name] = posemodel.TreeEntry{Mode: fields[0], Blob: fields[2]}
+		}
+	}
+	return posemodel.MaterialSetDigest(paths, tree)
 }

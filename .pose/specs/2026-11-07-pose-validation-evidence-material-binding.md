@@ -52,11 +52,11 @@ Caching individual check outputs, skipping checks by heuristic, weakening review
 > Verify an opted-in spec with `pose lint-spec <slug> --ears`.
 
 ### Functional
-- R1: A validation run shall record a `material_digest` per scope, computed over the change set's paths outside the closed administrative classes (path and blob digest at the validated head), the engine version and the validation matrix digest.
+- R1: A validation run shall record a `material_digest` per scope, computed over the head state (path, mode and blob) of every path the change set names, minus administrative records that are still regular files there, plus the validation matrix and, in the scoped digest, the claims and the engine version.
 - R2: Evidence shall remain current for an open spec while its recomputed `material_digest` equals the recorded one, even when the change set head moved through commits whose changed paths all fall in administrative classes.
-- R3: Evidence shall be rejected as stale when any non-administrative path, the matrix or the engine changed, when a path of a commit cannot be read, or when the checkout is incomplete; the refusal shall name the first differing path.
-- R4: A commit that mixes administrative and material paths shall be treated as material.
-- R5: Results without `material_digest` shall be judged exactly as before.
+- R3: Evidence shall be rejected as stale when any material path, the matrix or the engine changed, when the head tree cannot be read, or when the checkout is incomplete. A present material binding governs and never falls through to the commit-bound rules. The refusal names the scope; listing the first differing path needs a stored manifest and is a follow-up.
+- R4: A symlink, submodule or directory in an administrative class, and a path that left a class, shall be material.
+- R5: Results without `material_provenance` shall be judged exactly as before, and the commit-bound digests shall not change representation.
 - R6: Review bundle sealing, `review verify`, `closeout-check` and `close` shall consume the same domain verdict, with no per-channel copy of the rule.
 
 ### Non-functional

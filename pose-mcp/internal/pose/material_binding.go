@@ -5,7 +5,6 @@ import (
 	"encoding/hex"
 	"encoding/json"
 	"path"
-	"regexp"
 	"sort"
 	"strings"
 )
@@ -16,8 +15,6 @@ import (
 // changed path is a derived administrative record does not change what the
 // checks exercised, so it does not move the material digest.
 
-// administrativeDirs is the closed list of derived-record directories. It is
-// owned by the engine; adding a class is a contract change that needs an ADR.
 // engineVersion is the running engine, registered by the binaries (internal/pose
 // stays importable on its own). It is part of every material digest, so a new
 // engine never inherits evidence the previous one produced.
@@ -26,6 +23,8 @@ var engineVersion = "unregistered"
 // SetEngineVersion registers the running engine for material digests.
 func SetEngineVersion(v string) { engineVersion = v }
 
+// administrativeDirs is the closed list of derived-record directories. It is
+// owned by the engine; adding a class is a contract change that needs an ADR.
 var administrativeDirs = []string{".pose/indexes/", ".pose/results/", ".pose/state/", ".pose/assessments/"}
 
 // materialIndexes are files inside an administrative directory that still
@@ -53,80 +52,51 @@ func IsAdministrativePath(p string) bool {
 	return false
 }
 
-func isSpecFile(p string) bool {
-	rest, ok := strings.CutPrefix(p, ".pose/specs/")
-	return ok && !strings.Contains(rest, "/") && strings.HasSuffix(rest, ".md")
-}
+// TreeEntry is one entry of the validated head's tree.
+type TreeEntry struct{ Mode, Blob string }
 
-var specLifecycleLine = regexp.MustCompile(`^[+-](status|completed_at):`)
+func regularMode(mode string) bool { return mode == "100644" || mode == "100755" }
 
-// CommitIsAdministrative reports whether a commit changed only administrative
-// records: every path is in a class (a rename needs both sides in one), or is a
-// spec file whose only changed lines are the status and completed_at frontmatter
-// lines. A symlink or mode change is material. Anything unreadable is material.
-func CommitIsAdministrative(paths []ObservedPath, diff []byte) bool {
-	if len(paths) == 0 {
-		return false
-	}
-	specs := map[string]bool{}
+// MaterialSetDigest digests the head state of the material a change set
+// touched: every path it names (both sides of a rename) with its mode and blob
+// at the validated head, minus the paths that are administrative records and
+// still regular files there, plus the validation matrix. A symlink, submodule
+// or directory in an administrative class is material; so is a path that left
+// a class. tree maps each named path (and the matrix) to its entry; a path
+// absent from the head tree is "absent".
+func MaterialSetDigest(paths []ObservedPath, tree map[string]TreeEntry) string {
+	names := map[string]bool{}
 	for _, p := range paths {
-		names := []string{p.Path, p.OldPath, p.NewPath}
-		for _, name := range names {
-			if name == "" {
-				continue
-			}
-			switch {
-			case IsAdministrativePath(name):
-			case isSpecFile(name) && p.OldPath == "" && p.NewPath == "" && p.Action == "M":
-				specs[name] = true
-			default:
-				return false
+		for _, name := range []string{p.Path, p.OldPath, p.NewPath} {
+			if name != "" {
+				names[name] = true
 			}
 		}
 	}
-	file := ""
-	for _, line := range strings.Split(string(diff), "\n") {
-		switch {
-		case strings.HasPrefix(line, "diff --git "):
-			file = ""
-			if i := strings.LastIndex(line, " b/"); i >= 0 {
-				file = line[i+3:]
-			}
-		case strings.HasPrefix(line, "new mode "), strings.HasPrefix(line, "old mode "),
-			strings.HasPrefix(line, "new file mode 120000"), strings.HasPrefix(line, "deleted file mode 120000"),
-			strings.HasPrefix(line, "rename from "), strings.HasPrefix(line, "rename to "):
-			return false
-		case specs[file] && (strings.HasPrefix(line, "+") || strings.HasPrefix(line, "-")) &&
-			!strings.HasPrefix(line, "+++") && !strings.HasPrefix(line, "---"):
-			if !specLifecycleLine.MatchString(line) {
-				return false
-			}
-		}
+	names[".pose/indexes/validation-matrix.json"] = true
+	sorted := make([]string, 0, len(names))
+	for name := range names {
+		sorted = append(sorted, name)
 	}
-	return true
-}
-
-// MaterialDiffDigest digests the diffs of the material commits (those that are
-// not administrative). The validation matrix is not administrative, so a commit
-// that changes it is material. Empty when the inputs disagree.
-func MaterialDiffDigest(diffs [][]byte, material []bool) string {
-	if len(diffs) != len(material) {
-		return ""
-	}
+	sort.Strings(sorted)
 	h := sha256.New()
-	for i, d := range diffs {
-		if !material[i] {
+	for _, name := range sorted {
+		entry, present := tree[name]
+		if IsAdministrativePath(name) && (!present || regularMode(entry.Mode)) {
 			continue
 		}
-		sum := sha256.Sum256(d)
-		h.Write(sum[:])
+		if !present {
+			h.Write([]byte(name + "\x00absent\n"))
+			continue
+		}
+		h.Write([]byte(name + "\x00" + entry.Mode + "\x00" + entry.Blob + "\n"))
 	}
 	return "sha256:" + hex.EncodeToString(h.Sum(nil))
 }
 
 // ScopedMaterialDigest binds evidence to the claims and material of one spec's
 // change sets and to the engine. It is empty when any change set has no
-// material digest, which keeps such evidence on the commit-bound rule.
+// material digest, so no binding can be recorded for it.
 func ScopedMaterialDigest(graph DeliveryIntegrityGraph, spec string) string {
 	claims := []ArtifactClaim{}
 	digests := []string{}
@@ -156,4 +126,15 @@ func ScopedMaterialDigest(graph DeliveryIntegrityGraph, spec string) string {
 	}{engineVersion, claims, digests})
 	sum := sha256.Sum256(raw)
 	return "sha256:" + hex.EncodeToString(sum[:])
+}
+
+// withoutMaterialDigest copies change sets without the material digest, so the
+// commit-bound digests keep the representation results were recorded against.
+func withoutMaterialDigest(sets []ChangeSet) []ChangeSet {
+	out := make([]ChangeSet, len(sets))
+	for i, set := range sets {
+		set.MaterialDigest = ""
+		out[i] = set
+	}
+	return out
 }

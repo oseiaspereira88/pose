@@ -529,7 +529,7 @@ func BuildDeliveryIntegrityWithHistoryIn(files Files, specs []Spec, claims []Art
 	provenanceRaw, _ := json.Marshal(struct {
 		Claims     []ArtifactClaim `json:"claims"`
 		ChangeSets []ChangeSet     `json:"change_sets"`
-	}{graph.Claims, graph.ChangeSets})
+	}{graph.Claims, withoutMaterialDigest(graph.ChangeSets)})
 	provenanceSum := sha256.Sum256(provenanceRaw)
 	graph.ProvenanceDigest = "sha256:" + hex.EncodeToString(provenanceSum[:])
 	return graph

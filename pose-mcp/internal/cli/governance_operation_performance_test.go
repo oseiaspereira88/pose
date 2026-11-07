@@ -63,7 +63,9 @@ func TestGovernanceOperationPerformanceCapturesTrailersOnce(t *testing.T) {
 				t.Fatalf("full trailer log read %d times for %d specs, want one bounded capture", got, count)
 			}
 			calls := bytes.Count(raw, []byte("call\n"))
-			wantCalls := map[int]int{1: 11, 3: 23, 6: 41}[count]
+			// Each change set reads its head tree once for the material digest (one more
+			// launch per spec); the full trailer log is still captured exactly once.
+			wantCalls := map[int]int{1: 12, 3: 26, 6: 47}[count]
 			if calls != wantCalls {
 				t.Fatalf("Git subprocesses=%d want%d", calls, wantCalls)
 			}

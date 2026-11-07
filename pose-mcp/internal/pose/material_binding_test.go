@@ -28,29 +28,46 @@ func TestIsAdministrativePathIsClosedAndPathExact(t *testing.T) {
 
 func obs(action, p string) ObservedPath { return ObservedPath{Action: action, Path: p} }
 
-func TestCommitIsAdministrative(t *testing.T) {
-	specStatus := []byte("diff --git a/.pose/specs/a.md b/.pose/specs/a.md\n--- a/.pose/specs/a.md\n+++ b/.pose/specs/a.md\n@@ -1 +1 @@\n-status: draft\n+status: done\n")
-	specBody := []byte("diff --git a/.pose/specs/a.md b/.pose/specs/a.md\n--- a/.pose/specs/a.md\n+++ b/.pose/specs/a.md\n@@ -1 +1,2 @@\n-status: draft\n+status: done\n+new requirement\n")
-	symlink := []byte("diff --git a/.pose/results/x b/.pose/results/x\nnew file mode 120000\n")
-	cases := []struct {
-		name  string
-		paths []ObservedPath
-		diff  []byte
-		want  bool
-	}{
-		{"indexes and results", []ObservedPath{obs("M", ".pose/indexes/a.json"), obs("M", ".pose/results/b.json")}, nil, true},
-		{"mixed with source", []ObservedPath{obs("M", ".pose/indexes/a.json"), obs("M", "a.go")}, nil, false},
-		{"spec status only", []ObservedPath{obs("M", ".pose/specs/a.md")}, specStatus, true},
-		{"spec body", []ObservedPath{obs("M", ".pose/specs/a.md")}, specBody, false},
-		{"symlink", []ObservedPath{obs("A", ".pose/results/x")}, symlink, false},
-		{"rename into class", []ObservedPath{{Action: "R", OldPath: "a.go", NewPath: ".pose/results/a.go"}}, nil, false},
-		{"matrix", []ObservedPath{obs("M", ".pose/indexes/validation-matrix.json")}, nil, false},
-		{"no paths", nil, nil, false},
+func regularEntry(blob string) TreeEntry { return TreeEntry{Mode: "100644", Blob: blob} }
+
+func TestMaterialSetDigestIgnoresAdministrativeRecordsOnly(t *testing.T) {
+	paths := []ObservedPath{obs("M", "a.go"), obs("M", ".pose/indexes/spec-graph.json")}
+	base := map[string]TreeEntry{"a.go": regularEntry("b1"), ".pose/indexes/spec-graph.json": regularEntry("i1"), ".pose/indexes/validation-matrix.json": regularEntry("m1")}
+	want := MaterialSetDigest(paths, base)
+
+	admin := map[string]TreeEntry{"a.go": regularEntry("b1"), ".pose/indexes/spec-graph.json": regularEntry("i2"), ".pose/indexes/validation-matrix.json": regularEntry("m1")}
+	if MaterialSetDigest(paths, admin) != want {
+		t.Fatal("an administrative record changed the digest")
 	}
-	for _, c := range cases {
-		if got := CommitIsAdministrative(c.paths, c.diff); got != c.want {
-			t.Errorf("%s: got %v want %v", c.name, got, c.want)
+	for name, mutate := range map[string]func(m map[string]TreeEntry){
+		"code":    func(m map[string]TreeEntry) { m["a.go"] = regularEntry("b2") },
+		"matrix":  func(m map[string]TreeEntry) { m[".pose/indexes/validation-matrix.json"] = regularEntry("m2") },
+		"deleted": func(m map[string]TreeEntry) { delete(m, "a.go") },
+		"symlink": func(m map[string]TreeEntry) {
+			m[".pose/indexes/spec-graph.json"] = TreeEntry{Mode: "120000", Blob: "i1"}
+		},
+		"symlink target": func(m map[string]TreeEntry) {
+			m[".pose/indexes/spec-graph.json"] = TreeEntry{Mode: "120000", Blob: "i9"}
+		},
+		"mode": func(m map[string]TreeEntry) { m["a.go"] = TreeEntry{Mode: "100755", Blob: "b1"} },
+	} {
+		m := map[string]TreeEntry{}
+		for k, v := range base {
+			m[k] = v
 		}
+		mutate(m)
+		if MaterialSetDigest(paths, m) == want {
+			t.Errorf("%s: digest unchanged", name)
+		}
+	}
+}
+
+func TestMaterialSetDigestTreatsRenamesOutOfAClassAsMaterial(t *testing.T) {
+	paths := []ObservedPath{{Action: "R", OldPath: "a.go", NewPath: ".pose/results/a.go"}}
+	moved := map[string]TreeEntry{".pose/results/a.go": regularEntry("b1")}
+	kept := map[string]TreeEntry{".pose/results/a.go": regularEntry("b1"), "a.go": regularEntry("b1")}
+	if MaterialSetDigest(paths, moved) == MaterialSetDigest(paths, kept) {
+		t.Fatal("the vanished source path must count")
 	}
 }
 
@@ -61,41 +78,45 @@ func materialGraph(head, digest string) DeliveryIntegrityGraph {
 	}
 }
 
-func TestMaterialEvidenceSurvivesAdministrativeHeadMoveButNotMaterialChange(t *testing.T) {
-	validated := materialGraph("h1", MaterialDiffDigest([][]byte{[]byte("code")}, []bool{true}))
-	bound := ScopedMaterialDigest(validated, "s")
-	if bound == "" {
-		t.Fatal("no material digest")
-	}
-	result := DeliveryValidationResult{GitHead: "h1", MaterialProvenance: map[string]string{"s": bound}}
+func TestMaterialEvidenceSurvivesHeadMoveButNotMaterialChange(t *testing.T) {
+	validated := materialGraph("h1", "sha256:material-1")
+	result := DeliveryValidationResult{GitHead: "h1", MaterialProvenance: map[string]string{"s": ScopedMaterialDigest(validated, "s")}}
 
-	// Same material, head moved by an administrative commit.
-	moved := materialGraph("h2", MaterialDiffDigest([][]byte{[]byte("code"), []byte("index")}, []bool{true, false}))
+	moved := materialGraph("h2", "sha256:material-1")
 	if !deliveryEvidenceCurrent(result, "s", "in-progress", moved, moved.ChangeSets) {
-		t.Fatal("administrative-only head move invalidated evidence")
+		t.Fatal("a head move with the same material invalidated evidence")
 	}
-	// A material commit changes the digest.
-	changed := materialGraph("h3", MaterialDiffDigest([][]byte{[]byte("code"), []byte("more")}, []bool{true, true}))
+	changed := materialGraph("h3", "sha256:material-2")
 	if deliveryEvidenceCurrent(result, "s", "in-progress", changed, changed.ChangeSets) {
 		t.Fatal("material change kept stale evidence current")
 	}
-	// A changed matrix is stale.
-	matrix := materialGraph("h4", MaterialDiffDigest([][]byte{[]byte("code"), []byte("matrix")}, []bool{true, true}))
-	if deliveryEvidenceCurrent(result, "s", "in-progress", matrix, matrix.ChangeSets) {
-		t.Fatal("matrix change kept evidence current")
+}
+
+func TestMaterialBindingGovernsAndNeverFallsThrough(t *testing.T) {
+	g := materialGraph("h1", "sha256:material-1")
+	// The legacy rules would accept this result (same git head, same scoped digest);
+	// its material binding is from another engine, so it is stale.
+	result := DeliveryValidationResult{GitHead: "h1", ScopeProvenance: map[string]string{"s": ScopedDeliveryProvenanceDigest(g, "s")},
+		MaterialProvenance: map[string]string{"s": "sha256:other-engine"}}
+	if deliveryEvidenceCurrent(result, "s", "in-progress", g, g.ChangeSets) {
+		t.Fatal("a mismatched material binding fell through to the commit-bound rules")
+	}
+	if !deliveryEvidenceCurrent(DeliveryValidationResult{GitHead: "h1"}, "s", "in-progress", g, g.ChangeSets) {
+		t.Fatal("a result without a material binding keeps the existing rule")
+	}
+	result.GeneratedAt = "2026-11-07T00:00:00Z"
+	if !deliveryEvidenceCurrent(result, "s", "done", g, g.ChangeSets) {
+		t.Fatal("a closed spec keeps its exemption")
 	}
 }
 
-func TestMaterialBindingNeedsEveryChangeSetDigest(t *testing.T) {
-	g := materialGraph("h1", "")
-	if ScopedMaterialDigest(g, "s") != "" {
+func TestMaterialDigestDoesNotChangeTheCommitBoundDigests(t *testing.T) {
+	with := materialGraph("h1", "sha256:material-1")
+	without := materialGraph("h1", "")
+	if ScopedDeliveryProvenanceDigest(with, "s") != ScopedDeliveryProvenanceDigest(without, "s") {
+		t.Fatal("the scoped provenance digest moved with the material digest")
+	}
+	if ScopedMaterialDigest(without, "s") != "" {
 		t.Fatal("a set without a material digest must not bind")
-	}
-	legacy := DeliveryValidationResult{GitHead: "h1", MaterialProvenance: map[string]string{"s": "sha256:x"}}
-	if deliveryEvidenceCurrent(legacy, "s", "in-progress", g, g.ChangeSets) != true {
-		t.Fatal("falls back to the git head rule")
-	}
-	if deliveryEvidenceCurrent(DeliveryValidationResult{GitHead: "zz"}, "s", "in-progress", g, g.ChangeSets) {
-		t.Fatal("unrelated head accepted")
 	}
 }
