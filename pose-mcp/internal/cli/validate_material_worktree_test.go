@@ -1,6 +1,8 @@
 package cli
 
 import (
+	"os"
+	"path/filepath"
 	"testing"
 )
 
@@ -32,5 +34,42 @@ func TestMaterialWorktreeCleanSeesUncommittedMaterial(t *testing.T) {
 	repo.write("extra.go", "package a\n")
 	if materialWorktreeClean(repo.root) {
 		t.Fatal("an untracked source file was ignored")
+	}
+}
+
+func TestMaterialWorktreeCleanSeesAnEditedAdministrativeSymlink(t *testing.T) {
+	repo := newRemovalRepo(t)
+	repo.write("a.go", "package a\n")
+	if err := os.MkdirAll(filepath.Join(repo.root, ".pose", "results"), 0o755); err != nil {
+		t.Fatal(err)
+	}
+	if err := os.Symlink("../../a.go", filepath.Join(repo.root, ".pose", "results", "x.json")); err != nil {
+		t.Fatal(err)
+	}
+	repo.commit("a symlink inside a class")
+	if !materialWorktreeClean(repo.root) {
+		t.Fatal("a clean checkout is not clean")
+	}
+	link := filepath.Join(repo.root, ".pose", "results", "x.json")
+	_ = os.Remove(link)
+	if err := os.Symlink("../../b.go", link); err != nil {
+		t.Fatal(err)
+	}
+	if materialWorktreeClean(repo.root) || materialTrackedUnchanged(repo.root) {
+		t.Fatal("retargeting a committed symlink inside a class was ignored")
+	}
+}
+
+func TestMaterialTrackedUnchangedIgnoresUntrackedBuildProducts(t *testing.T) {
+	repo := newRemovalRepo(t)
+	repo.write("a.go", "package a\n")
+	repo.commit("base")
+	repo.write("build/output.bin", "x")
+	if !materialTrackedUnchanged(repo.root) {
+		t.Fatal("an untracked build product counted as a material change")
+	}
+	repo.write("a.go", "package a\n\nvar changedByACheck = 1\n")
+	if materialTrackedUnchanged(repo.root) {
+		t.Fatal("a tracked file changed during the run went unseen")
 	}
 }

@@ -1333,6 +1333,13 @@ func cmdValidateWithStore(store posemodel.Store, args []string, stdout, stderr i
 		run.Checks = append(run.Checks, *result)
 	}
 	run.WallSeconds = time.Since(wallStart).Seconds()
+	// A check that changed a tracked file changed the material it ran over: the
+	// committed tree no longer describes what was validated.
+	if len(run.MaterialProvenance) > 0 && !materialTrackedUnchanged(root) {
+		for spec := range run.MaterialProvenance {
+			run.MaterialProvenance[spec] = posemodel.MaterialBindingUnavailable
+		}
+	}
 	// A cancelled run never reads as a success, whatever the severity of the
 	// checks it stopped (review round 1, B5).
 	cancelled := false
@@ -1593,6 +1600,7 @@ func materialWorktreeClean(root string) bool {
 		return false
 	}
 	records := strings.Split(string(out), "\x00")
+	var administrative []string
 	for i := 0; i < len(records); i++ {
 		record := records[i]
 		if len(record) < 4 {
@@ -1610,6 +1618,69 @@ func materialWorktreeClean(root string) bool {
 			if !posemodel.IsAdministrativePath(p) {
 				return false
 			}
+			administrative = append(administrative, p)
+		}
+	}
+	return administrativeRecordsAreRegular(root, administrative)
+}
+
+// materialTrackedUnchanged reports whether no tracked file differs from HEAD
+// outside the administrative records. Untracked files are not counted: checks
+// leave build products behind, and those are not the material they ran over.
+func materialTrackedUnchanged(root string) bool {
+	out, err := gitOutputBounded(root, 16*1024*1024, "status", "--porcelain=v1", "-z", "--untracked-files=no")
+	if err != nil {
+		return false
+	}
+	records := strings.Split(string(out), "\x00")
+	var administrative []string
+	for i := 0; i < len(records); i++ {
+		record := records[i]
+		if len(record) < 4 {
+			continue
+		}
+		paths := []string{record[3:]}
+		if record[0] == 'R' || record[0] == 'C' || record[1] == 'R' || record[1] == 'C' {
+			if i+1 < len(records) {
+				i++
+				paths = append(paths, records[i])
+			}
+		}
+		for _, p := range paths {
+			if !posemodel.IsAdministrativePath(p) {
+				return false
+			}
+			administrative = append(administrative, p)
+		}
+	}
+	return administrativeRecordsAreRegular(root, administrative)
+}
+
+// administrativeRecordsAreRegular reports whether every changed administrative
+// path is a regular file at HEAD (or new): editing a committed symlink or
+// submodule inside a class is a material change, as in MaterialSetDigest.
+func administrativeRecordsAreRegular(root string, paths []string) bool {
+	if len(paths) == 0 {
+		return true
+	}
+	args := []string{"ls-tree", "-z", "HEAD", "--"}
+	for _, p := range paths {
+		if strings.ContainsAny(p, "\n\x00") {
+			return false
+		}
+		args = append(args, ":(literal)"+p)
+	}
+	out, err := gitOutputBounded(root, 8*1024*1024, args...)
+	if err != nil {
+		return false
+	}
+	for _, record := range strings.Split(string(out), "\x00") {
+		meta, _, ok := strings.Cut(record, "\t")
+		if !ok {
+			continue
+		}
+		if fields := strings.Fields(meta); len(fields) == 3 && fields[0] != "100644" && fields[0] != "100755" {
+			return false
 		}
 	}
 	return true

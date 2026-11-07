@@ -54,6 +54,20 @@ is already `done` keeps its current exemption. Naming the first differing path
 would need a stored manifest and is left as a follow-up. The domain returns one verdict
 that seal, verify, review-check, closeout-check, close, CLI and MCP all consume.
 
+## Limits
+
+The binding names the committed tree, and validation runs on the working copy.
+A run therefore records it only when the tracked and untracked files outside
+the administrative records equal HEAD at the start, and it records it as
+unavailable when a tracked file differs from HEAD after the checks. Editing a
+committed symlink or submodule inside a class counts as a material change. The
+contract does not defend against a concurrent writer that changes and restores
+material during the run, against sparse or skip-worktree checkouts, or against
+a run whose delivery graph could not be collected (that run carries no scope
+provenance either, so the commit-bound rules that always applied to it still do).
+These are accepted residual risks of a checkout that its operator controls;
+an immutable execution snapshot would close them and is a follow-up.
+
 ## Consequences
 
 - A closeout whose later commits are administrative reuses the passing run
