@@ -85,10 +85,20 @@ func MaterialSetDigest(paths []ObservedPath, tree map[string]TreeEntry) string {
 		sorted = append(sorted, name)
 	}
 	sort.Strings(sorted)
+	// A file copied into an administrative class is not told from a creation by
+	// the readers (they follow renames only): an administrative file whose blob is
+	// the blob of a material path is treated as material while they are equal, and
+	// stops being excluded the moment either is edited, which moves the digest.
+	materialBlobs := map[string]bool{}
+	for _, name := range sorted {
+		if entry, present := tree[name]; present && !IsAdministrativePath(name) {
+			materialBlobs[entry.Blob] = true
+		}
+	}
 	h := sha256.New()
 	for _, name := range sorted {
 		entry, present := tree[name]
-		if IsAdministrativePath(name) && !moved[name] && (!present || regularMode(entry.Mode)) {
+		if IsAdministrativePath(name) && !moved[name] && (!present || (regularMode(entry.Mode) && !materialBlobs[entry.Blob])) {
 			continue
 		}
 		if !present {
@@ -114,10 +124,22 @@ const MaterialBindingUnavailable = "unavailable"
 // scoped digest, the unavailable marker when a change set's material could not
 // be read, or nothing when the spec has no material-bound change set.
 func MaterialBinding(graph DeliveryIntegrityGraph, spec string) (string, bool) {
+	sets := 0
 	for _, set := range graph.ChangeSets {
-		if set.Spec == spec && set.MaterialDigest == MaterialDigestUnreadable {
+		if set.Spec != spec {
+			continue
+		}
+		sets++
+		// A set read back from the report history carries no material digest, and
+		// one that could not be read has the unreadable marker: either way the
+		// scope's material cannot be established, so the run records the binding as
+		// unavailable instead of silently falling back to the commit-bound rules.
+		if set.MaterialDigest == "" || set.MaterialDigest == MaterialDigestUnreadable {
 			return MaterialBindingUnavailable, true
 		}
+	}
+	if sets == 0 {
+		return "", false
 	}
 	if digest := ScopedMaterialDigest(graph, spec); digest != "" {
 		return digest, true

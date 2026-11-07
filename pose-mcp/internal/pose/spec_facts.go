@@ -386,7 +386,8 @@ func (s Store) DeriveSpecFacts(slug string) (SpecFacts, error) {
 			// administrative commits moved the head; otherwise it is not, whatever
 			// the commit-bound digest says (ADR validation-evidence-binds-to-validated-material).
 			scoped = true
-			if bound == expectedMaterial {
+			if bound == expectedMaterial || (spec.Status == "done" && r.GeneratedAt != "") {
+				// The completed-spec exemption of deliveryEvidenceCurrent applies here too.
 				scopedValue = expected
 			} else {
 				scopedValue = "material-binding-mismatch"

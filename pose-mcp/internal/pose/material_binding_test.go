@@ -136,8 +136,8 @@ func TestUnreadableMaterialNeverBindsAndIsRecordedAsUnavailable(t *testing.T) {
 	if deliveryEvidenceCurrent(result, "s", "in-progress", g, g.ChangeSets) {
 		t.Fatal("unreadable material let the legacy rule accept the result")
 	}
-	if _, ok := MaterialBinding(materialGraph("h1", ""), "s"); ok {
-		t.Fatal("a set that never computed a digest must record nothing")
+	if got, ok := MaterialBinding(materialGraph("h1", ""), "s"); !ok || got != MaterialBindingUnavailable {
+		t.Fatalf("a set that never computed a digest must be unavailable: %q %v", got, ok)
 	}
 }
 
@@ -155,5 +155,33 @@ func TestFactResultKeySeparatesMaterialBindings(t *testing.T) {
 	b := DeliveryValidationResult{ID: "x", MaterialProvenance: map[string]string{"s": "sha256:2"}}
 	if factResultKey(a) == factResultKey(b) {
 		t.Fatal("two material bindings share one identity")
+	}
+}
+
+func TestACopyIntoAnAdministrativeClassStaysMaterial(t *testing.T) {
+	paths := []ObservedPath{obs("A", ".pose/results/copy.go"), obs("M", "a.go")}
+	tree := func(copy string) map[string]TreeEntry {
+		return map[string]TreeEntry{"a.go": regularEntry("b1"), ".pose/results/copy.go": regularEntry(copy)}
+	}
+	validated := MaterialSetDigest(paths, tree("b1"))
+	if validated == MaterialSetDigest(paths, tree("b9")) {
+		t.Fatal("editing the copy kept the digest")
+	}
+	plain := MaterialSetDigest(paths, map[string]TreeEntry{"a.go": regularEntry("b1"), ".pose/results/copy.go": regularEntry("b7")})
+	if plain != MaterialSetDigest(paths, map[string]TreeEntry{"a.go": regularEntry("b1"), ".pose/results/copy.go": regularEntry("b8")}) {
+		t.Fatal("an unrelated administrative file entered the digest")
+	}
+}
+
+func TestARecordedSetWithoutAMaterialDigestMakesTheBindingUnavailable(t *testing.T) {
+	g := DeliveryIntegrityGraph{ChangeSets: []ChangeSet{
+		{ID: "cs-1", Spec: "s", MaterialDigest: "sha256:m"},
+		{ID: "cs-recorded", Spec: "s"},
+	}}
+	if got, ok := MaterialBinding(g, "s"); !ok || got != MaterialBindingUnavailable {
+		t.Fatalf("got %q %v", got, ok)
+	}
+	if _, ok := MaterialBinding(g, "other"); ok {
+		t.Fatal("a spec without change sets records no binding")
 	}
 }
