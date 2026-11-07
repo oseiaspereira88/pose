@@ -60,6 +60,7 @@ Caching individual check outputs, skipping checks by heuristic, weakening review
 - R6: Review bundle sealing, `review verify`, `closeout-check` and `close` shall consume the same domain verdict, with no per-channel copy of the rule.
 - R8: A validation run shall record a material binding only when the working copy equals the committed material in every path outside the administrative classes, untracked files included; otherwise it records the binding as unavailable for every scope.
 - R9: Review bundle sealing shall judge material-bound evidence against the current tree, recomputing each change set's digest from its stored inputs (names and rename destinations) instead of trusting the digest the persisted index recorded.
+- R10: The governance read view shall retain at most 40,000 observations (it was 25,000), so that the closeout plan of a corpus of this size, which observes 26,051 entries, is judged `current` instead of `unknown`; the metadata cap rises with it, from 8 MiB to 16 MiB, because 40,000 retained observations no longer fit in 8 MiB; the input-byte cap is unchanged.
 - R7: A delegated review shall run its diagnostics in the sealed checkout without republishing derived records into it: the review process carries `POSE_SEALED_CHECKOUT`, and `refreshDeliveryIndex` leaves the checkout alone when it is set.
 
 ### Non-functional
@@ -98,6 +99,12 @@ Caching individual check outputs, skipping checks by heuristic, weakening review
 - created: pose-mcp/internal/cli/validate_material_worktree_test.go
 - modified: pose-mcp/internal/pose/delivery_integrity_cache.go
 - modified: pose-mcp/internal/pose/delivery_integrity_cache_test.go
+- modified: pose-mcp/internal/pose/governance_read_view.go
+- modified: pose-mcp/internal/pose/governance_read_view_probe_test.go
+- modified: POSE.md
+- modified: locales/pt-BR/POSE.md
+- modified: pose-mcp/internal/scaffold/dist/POSE.md
+- modified: pose-mcp/internal/scaffold/dist/locales/pt-BR/POSE.md
 - modified: pose-mcp/internal/cli/artifact_integrity.go
 - modified: pose-mcp/internal/cli/validate.go
 - modified: pose-mcp/internal/pose/review_bundle.go
@@ -183,97 +190,86 @@ Caching individual check outputs, skipping checks by heuristic, weakening review
 ## 6. Validation
 
 ### Strategy
-<!-- How the feature will be validated end to end. -->
+Unit tests on the digest, the administrative classification and the verdict; git-backed tests on change-set resolution (administrative commits, symlinks, renames, shallow checkouts, untrailered commits); working-copy guard tests; capacity tests for the read view; the full strict matrix on a clean clone; and an independent delegated review by a different vendor.
 
 ### Deterministic checks
 
 #### Test
-- Command:
-- Scope:
-- Expected:
+- Command: `go test ./internal/pose ./internal/cli ./internal/mcpserver -count=1`
+- Scope: pose-mcp
+- Expected: all packages pass
 
 #### Lint
-- Command:
-- Scope:
-- Expected:
+- Command: `gofmt -l` on the touched files, `go vet ./internal/pose ./internal/cli`
+- Scope: pose-mcp
+- Expected: no output
 
 #### Typecheck
-- Command:
-- Scope:
-- Expected:
+- Command: `go build ./...`
+- Scope: pose-mcp
+- Expected: builds
 
 #### Build
-- Command:
-- Scope:
-- Expected:
+- Command: `go build ./cmd/pose`
+- Scope: pose-mcp
+- Expected: builds
 
 #### Security / Contract
-- Command:
-- Scope:
-- Expected:
+- Command: `pose validate --strict --jobs 4` on a clean clone
+- Scope: whole matrix
+- Expected: 189/189 pass
 
 ### Execution log
-- Date:
-- Environment:
-- Notes:
+- Date: 2026-11-07
+- Environment: clean clone, `LC_ALL=C LANGUAGE=C` (a pt_BR locale makes seven integration checks fail with git exit 128 on non-git fixtures)
+- Notes: the implementation went through many independent delegated review passes by Codex gpt-6.1-sol (a different vendor); each pass's defects were corrected in the commits above and their run records were discarded with the scratch clones they ran in. The retained record is the approving review attached to the sealed bundle.
 
 ### Results summary
-- Successes:
-- Failures:
-- Warnings:
+- Successes: strict matrix 189/189; unit, git-backed and integration tests of the three packages.
+- Failures: none at closeout.
+- Warnings: artifact-check reports orphan warnings for pose-mcp test files that no spec claims; they predate this spec.
 
 ### Requirement trace
-<!-- At closeout, one bullet per declared R-ID (spec pose-requirement-evidence-traceability):
-- R<N> [satisfied] <verification case; structured refs: check:<name> test:<id> report:<file> commit:<sha>>
-- R<N> [satisfied] surface:<id> evidence:integration check:<reachability-check>
-- R<N> [deferred-integration: spec:<non-terminal-slug>] surface:<id>
-- R<N> [waived: <reason>]
-- R<N> [withdrawn: <reason>]
-Missing or orphaned IDs fail `pose lint-spec --strict` on done specs. -->
+- R1 [satisfied] test:TestMaterialSetDigestIgnoresAdministrativeRecordsOnly test:TestChangeSetMaterialDigestIgnoresAdministrativeCommits check:pose-mcp/test
+- R2 [satisfied] test:TestMaterialEvidenceSurvivesHeadMoveButNotMaterialChange test:TestChangeSetMaterialDigestIgnoresAdministrativeCommits
+- R3 [satisfied] test:TestMaterialBindingGovernsAndNeverFallsThrough test:TestUnreadableMaterialNeverBindsAndIsRecordedAsUnavailable test:TestChangeSetMaterialDigestIsUnreadableInAShallowCheckout test:TestChangeSetMaterialDigestReadsTheCheckoutTree
+- R4 [satisfied] test:TestChangeSetMaterialDigestSeesSymlinksAndRanges test:TestChangeSetMaterialDigestKeepsAMovedFileMaterial test:TestCodeInsideAnAdministrativeClassIsMaterial
+- R5 [satisfied] test:TestMaterialDigestDoesNotChangeTheCommitBoundDigests test:TestLegacyDigestsIgnoreTheMaterialFields
+- R6 [satisfied] test:TestEvidenceIsJudgedAgainstTheCurrentMaterial test:TestFactResultKeySeparatesMaterialBindings check:delivery-integrity-index-compaction-integration
+- R7 [satisfied] test:TestRefreshDeliveryIndexLeavesASealedCheckoutAlone
+- R8 [satisfied] test:TestMaterialWorktreeCleanSeesUncommittedMaterial test:TestMaterialTrackedUnchangedIgnoresUntrackedBuildProducts
+- R9 [satisfied] test:TestEvidenceIsJudgedAgainstTheCurrentMaterial
+- R10 [satisfied] test:TestGovernanceReadViewProbeRecordCapacityAndOverflow test:TestGovernanceReadViewOperationSharesRecordCapacityAndAuditsAcrossRoots
 
 ### Known gaps
-<!-- Temporary limitations, blocked checks, deferred validations. -->
+- The first differing path of a stale binding is not named (R3 narrowed).
+- The limits listed in the ADR (ignored files, a data file copied or moved into a class and edited uncommitted, concurrent writers, sparse checkouts, a run whose graph could not be collected) are accepted.
 
 ---
 
 ## 7. Final Report
 
 ### Delivered scope
-<!-- What was implemented and what was intentionally left out. -->
+Validation evidence binds to the material it validated: each trailer change set carries a `material_digest` over the head state (path, mode, blob) of the paths it names, minus administrative records; a validation run records `material_provenance` per scope; evidence stays current while the digest holds, so commits that only touch indexes, results, state, assessments or review records no longer force the matrix to rerun. Unreadable or shallow material, an uncommitted material change, a legacy recorded set and a mismatched binding all make evidence stale instead of falling back to the commit-bound rules. Review bundle sealing recomputes the digest from the current tree, and a delegated review no longer lets `artifact-check` republish the delivery index inside its sealed checkout. The governance read view cap is recalibrated from 25,000 to 40,000 observations (metadata cap 8 to 16 MiB) because the closeout plan of this corpus observes 26,051 entries. Left out: naming the first differing path, an immutable execution snapshot, copy-provenance tracking.
 
 ### Files and modules changed
-- 
+- pose-mcp/internal/pose (material_binding.go, delivery_surface.go, delivery_integrity*.go, delivery_validation_run.go, spec_facts.go, review_bundle.go, review_dispatch.go, delegation_refusal.go, governance_read_view.go)
+- pose-mcp/internal/cli (artifact_integrity.go, validate.go, validate_results.go, index.go, material_engine.go)
+- pose-mcp/internal/mcpserver (material_engine.go)
+- ADR validation-evidence-binds-to-validated-material; POSE.md and its scaffold and pt-BR copies (read view capacity)
 
 ### Validation executed
-- Command:
-- Result:
+- Command: `pose validate --strict --jobs 4` on a clean clone of the reviewed head
+- Result: 189/189 pass; independent delegated review by Codex gpt-6.1-sol, its conclusion recorded by the engine with `pose review conclude`.
 
 ### Residual risks
-- 
+- Accepted in the ADR: ignored files, a data file copied or moved into a class and edited uncommitted, a concurrent writer that changes and restores material during a run, sparse or skip-worktree checkouts, a run whose delivery graph could not be collected.
+- Spec facts judge a material binding from the indexed tree entries and report freshness as unknown for it.
+- The closeout plan of this corpus is within about 35% of the new read view cap; the corpus keeps growing.
 
 ### Follow-ups
 
-<!--
-One format, one bullet per follow-up:
-
-  - [<disposition>] <what remains and why> (owner:@alias crit:low|medium|high review:YYYY-MM-DD)
-
-The ownership group is required on [open] items and must be the LAST thing on
-the bullet, in parentheses. The bullet may wrap onto indented lines. Ownership
-written any other way — after a dash, mid-sentence, without parentheses — is
-ignored: the item reads as unowned, with no criticality and no review date, and
-never becomes overdue. `pose lint-spec` warns when it sees that.
-
-Valid dispositions:
-  [open]                  live backlog without a dedicated spec (needs the ownership group)
-  [spawned: <slug>]       became/seeded a new spec
-  [covered: <slug>]       already covered by another existing spec
-  [duplicate: <slug>]     same follow-up already triaged in another spec
-  [done]                  resolved directly, without a separate spec
-  [wont-do: <reason>]     consciously discarded
-
-When the spec is marked `status: done`, every follow-up MUST have a
-disposition — `pose followups --open` aggregates the open ones.
--->
-
-- [open] 
+- [open] Name the first differing material path when a binding is stale; that needs a stored manifest per scope. (owner:@pose-maintainers crit:low review:2027-01-07)
+- [open] Validate an immutable execution snapshot, which would close the concurrent-writer, sparse-checkout and ignored-file limits of the material binding. (owner:@pose-maintainers crit:low review:2027-01-07)
+- [open] Module discovery fails on non-git fixtures under a non-English locale: `git ls-files` exits 128 and the localized "not a repository" message is not recognized, so seven integration checks fail with `LANG=pt_BR` and pass with `LC_ALL=C`. (owner:@pose-maintainers crit:medium review:2026-12-07)
+- [open] Make the governance read view cap scale with the corpus (or archive settled review records) instead of a constant that closeout outgrows every few weeks. (owner:@pose-maintainers crit:medium review:2026-12-07)

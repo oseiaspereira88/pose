@@ -666,8 +666,8 @@ func TestGovernanceReadViewOperationSharesRecordCapacityAndAuditsAcrossRoots(t *
 		}
 	}
 	files := &governanceReadViewCapacityDirectoryFiles{Files: NativeFiles(), directories: map[string][]fs.DirEntry{
-		dirA: governanceReadViewCapacityEntries(info, 10050),
-		dirB: governanceReadViewCapacityEntries(info, 10050),
+		dirA: governanceReadViewCapacityEntries(info, 16000),
+		dirB: governanceReadViewCapacityEntries(info, 16000),
 	}}
 	resolver := ArtifactResolver{Roots: NewRootsIn(files, RootsConfig{
 		DefaultRoot: rootA, DefaultProjectID: projectA, Explicit: map[string]string{projectB: rootB},
@@ -677,12 +677,12 @@ func TestGovernanceReadViewOperationSharesRecordCapacityAndAuditsAcrossRoots(t *
 	captured := view.filesForProject("capacity", projectA)
 	for _, dir := range []string{dirA, dirB} {
 		entries, err := captured.ReadDir(dir)
-		if err != nil || len(entries) != 10050 {
+		if err != nil || len(entries) != 16000 {
 			t.Fatalf("new capacity rejected a complete root listing: entries=%d err=%v", len(entries), err)
 		}
 	}
 	beforeReplay := files.opens
-	if entries, err := view.filesForProject("consumer", projectA).ReadDir(dirB); err != nil || len(entries) != 10050 || files.opens != beforeReplay {
+	if entries, err := view.filesForProject("consumer", projectA).ReadDir(dirB); err != nil || len(entries) != 16000 || files.opens != beforeReplay {
 		t.Fatalf("listing was not replayed from capture: entries=%d opens=%d/%d err=%v", len(entries), files.opens, beforeReplay, err)
 	}
 	audit := view.audit()
@@ -697,9 +697,9 @@ func TestGovernanceReadViewOperationSharesRecordCapacityAndAuditsAcrossRoots(t *
 		t.Fatalf("shared proof replay rejected complete listings: %v", changed)
 	}
 	// Both roots fit separately even below the new cap. Their combined grown
-	// listings exceed 25,000, so shared audit/replay must refuse the closure.
-	files.directories[dirA] = governanceReadViewCapacityEntries(info, 13000)
-	files.directories[dirB] = governanceReadViewCapacityEntries(info, 13000)
+	// listings exceed the 40,000 cap, so shared audit/replay must refuse the closure.
+	files.directories[dirA] = governanceReadViewCapacityEntries(info, 20800)
+	files.directories[dirB] = governanceReadViewCapacityEntries(info, 20800)
 	changed := proof.changes(files)
 	unverified := false
 	for _, reason := range changed {
@@ -711,7 +711,7 @@ func TestGovernanceReadViewOperationSharesRecordCapacityAndAuditsAcrossRoots(t *
 	_, overflow := store.beginGovernanceReadView()
 	for i, dir := range []string{dirA, dirB} {
 		entries, err := overflow.filesForProject("overflow", projectA).ReadDir(dir)
-		if i == 0 && (err != nil || len(entries) != 13000) {
+		if i == 0 && (err != nil || len(entries) != 20800) {
 			t.Fatalf("first root no longer fits independently: entries=%d err=%v", len(entries), err)
 		}
 		if i == 1 && (!errors.Is(err, errGovernanceReadViewBudget) || len(entries) != 0) {

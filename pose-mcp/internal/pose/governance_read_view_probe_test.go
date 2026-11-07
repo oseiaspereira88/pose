@@ -1136,15 +1136,15 @@ func TestGovernanceReadViewProbeRecordCapacityAndOverflow(t *testing.T) {
 	view := newGovernanceReadView(root, NativeFiles())
 	files := view.filesFor("capacity")
 	// Lstat retains real absence observations and stable parent witnesses. Fill
-	// the new boundary without creating 25,000 files or retaining file bodies.
-	for i := 0; len(view.observed) < 25000; i++ {
+	// the new boundary without creating 40,000 files or retaining file bodies.
+	for i := 0; len(view.observed) < governanceReadViewMaxRecords; i++ {
 		_, err := files.Lstat(filepath.Join(root, fmt.Sprintf("absent-%05d", i)))
 		if !errors.Is(err, os.ErrNotExist) {
 			t.Fatalf("observation %d refused before the new boundary: %v", i, err)
 		}
 	}
-	if len(view.observed) != 25000 {
-		t.Fatalf("capture retained %d records, want 25000", len(view.observed))
+	if len(view.observed) != governanceReadViewMaxRecords {
+		t.Fatalf("capture retained %d records, want %d", len(view.observed), governanceReadViewMaxRecords)
 	}
 	// Auditors and replay must accept the same boundary as capture.
 	audit := view.audit()
@@ -1162,7 +1162,7 @@ func TestGovernanceReadViewProbeRecordCapacityAndOverflow(t *testing.T) {
 	// A separate capture reaches the same boundary and rejects one more real
 	// observation. Finalized views above cannot be reused to exercise overflow.
 	overflow := newGovernanceReadView(root, NativeFiles())
-	for i := 0; len(overflow.observed) < 25000; i++ {
+	for i := 0; len(overflow.observed) < governanceReadViewMaxRecords; i++ {
 		if _, err := overflow.filesFor("capacity").Lstat(filepath.Join(root, fmt.Sprintf("absent-%05d", i))); !errors.Is(err, os.ErrNotExist) {
 			t.Fatal(err)
 		}
