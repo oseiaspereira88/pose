@@ -368,10 +368,17 @@ func (s Store) DeriveSpecFacts(slug string) (SpecFacts, error) {
 	seenResult := map[string]bool{}
 	for _, r := range graph.ValidationResults {
 		scopedValue, scoped := r.ScopeProvenance[slug]
-		if bound := r.MaterialProvenance[slug]; bound != "" && bound == expectedMaterial {
-			// Bound to the material of the spec's change sets: current even when
-			// administrative commits moved the head (ADR validation-evidence-binds-to-validated-material).
-			scopedValue, scoped = expected, true
+		if bound := r.MaterialProvenance[slug]; bound != "" {
+			// A material binding governs, as in deliveryEvidenceCurrent: bound to the
+			// material of the spec's change sets it is current even when
+			// administrative commits moved the head; otherwise it is not, whatever
+			// the commit-bound digest says (ADR validation-evidence-binds-to-validated-material).
+			scoped = true
+			if bound == expectedMaterial {
+				scopedValue = expected
+			} else {
+				scopedValue = "material-binding-mismatch"
+			}
 		}
 		if len(r.ScopeProvenance) > 0 && !scoped {
 			// The index says this result was produced for other specs.

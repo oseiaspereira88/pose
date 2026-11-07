@@ -31,8 +31,14 @@ owned by the engine and are not configurable by an instance. Everything else,
 including every spec file (frontmatter status lines too), `.pose/policy/` and
 `.pose/rules/`, is material. The validation matrix file is inside
 `.pose/indexes/` but deliberately material. A symlink, submodule or directory
-in a class, or a path that left a class, is material. An unreadable tree, an
-incomplete checkout or a changed engine makes the evidence stale.
+in a class, or a path that left a class, is material. A change set read from a
+trailer is judged against the checkout's own tree (HEAD), so a later commit
+without the trailer that touches an observed path or the matrix moves the
+digest; an explicit range reads its end. An unreadable tree or a shallow
+checkout marks the set unreadable: the run records the binding as unavailable
+for that scope, which is stale and never falls through to the commit-bound
+rules. A changed engine makes the evidence stale too. Spec facts, review
+bundles, closeout and validation consume the same verdict.
 
 Results without `material_digest` are judged by the existing rule. A scope that
 is already `done` keeps its current exemption. Naming the first differing path

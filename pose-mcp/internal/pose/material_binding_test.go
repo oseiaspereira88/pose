@@ -120,3 +120,23 @@ func TestMaterialDigestDoesNotChangeTheCommitBoundDigests(t *testing.T) {
 		t.Fatal("a set without a material digest must not bind")
 	}
 }
+
+func TestUnreadableMaterialNeverBindsAndIsRecordedAsUnavailable(t *testing.T) {
+	g := materialGraph("h1", MaterialDigestUnreadable)
+	if ScopedMaterialDigest(g, "s") != "" {
+		t.Fatal("an unreadable set produced a digest")
+	}
+	bound, ok := MaterialBinding(g, "s")
+	if !ok || bound != MaterialBindingUnavailable {
+		t.Fatalf("got %q %v", bound, ok)
+	}
+	// Recorded as unavailable, the result is stale although the legacy rules would accept it.
+	result := DeliveryValidationResult{GitHead: "h1", ScopeProvenance: map[string]string{"s": ScopedDeliveryProvenanceDigest(g, "s")},
+		MaterialProvenance: map[string]string{"s": bound}}
+	if deliveryEvidenceCurrent(result, "s", "in-progress", g, g.ChangeSets) {
+		t.Fatal("unreadable material let the legacy rule accept the result")
+	}
+	if _, ok := MaterialBinding(materialGraph("h1", ""), "s"); ok {
+		t.Fatal("a set that never computed a digest must record nothing")
+	}
+}

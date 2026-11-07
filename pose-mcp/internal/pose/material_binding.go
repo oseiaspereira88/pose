@@ -94,6 +94,31 @@ func MaterialSetDigest(paths []ObservedPath, tree map[string]TreeEntry) string {
 	return "sha256:" + hex.EncodeToString(h.Sum(nil))
 }
 
+// MaterialDigestUnreadable marks a change set whose head tree could not be read
+// or whose checkout is not complete. It never binds evidence and never lets
+// evidence recorded without it pass as current.
+const MaterialDigestUnreadable = "unreadable"
+
+// MaterialBindingUnavailable is recorded for a scope whose material cannot be
+// established, so the result is stale for it instead of falling back to the
+// commit-bound rules.
+const MaterialBindingUnavailable = "unavailable"
+
+// MaterialBinding returns what a validation run should record for a spec: the
+// scoped digest, the unavailable marker when a change set's material could not
+// be read, or nothing when the spec has no material-bound change set.
+func MaterialBinding(graph DeliveryIntegrityGraph, spec string) (string, bool) {
+	for _, set := range graph.ChangeSets {
+		if set.Spec == spec && set.MaterialDigest == MaterialDigestUnreadable {
+			return MaterialBindingUnavailable, true
+		}
+	}
+	if digest := ScopedMaterialDigest(graph, spec); digest != "" {
+		return digest, true
+	}
+	return "", false
+}
+
 // ScopedMaterialDigest binds evidence to the claims and material of one spec's
 // change sets and to the engine. It is empty when any change set has no
 // material digest, so no binding can be recorded for it.
@@ -109,7 +134,7 @@ func ScopedMaterialDigest(graph DeliveryIntegrityGraph, spec string) string {
 		if set.Spec != spec {
 			continue
 		}
-		if set.MaterialDigest == "" {
+		if set.MaterialDigest == "" || set.MaterialDigest == MaterialDigestUnreadable {
 			return ""
 		}
 		digests = append(digests, set.MaterialDigest)

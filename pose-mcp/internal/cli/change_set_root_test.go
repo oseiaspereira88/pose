@@ -208,3 +208,55 @@ func TestChangeSetMaterialDigestSeesSymlinksAndRanges(t *testing.T) {
 		t.Fatalf("range set has no material digest: %v %+v", err, ranged)
 	}
 }
+
+// A later commit without the trailer that changes an observed path moves the
+// digest: the tree read is the checkout's, not the set's last commit.
+func TestChangeSetMaterialDigestReadsTheCheckoutTree(t *testing.T) {
+	repo := newRemovalRepo(t)
+	repo.write("a.go", "package a\n")
+	repo.commit("code\n\nPOSE-Spec: alpha")
+	before, err := resolveGitChangeSet(repo.root, "alpha", "", "")
+	if err != nil {
+		t.Fatal(err)
+	}
+	repo.write("a.go", "package a\n\nvar sneaky = 1\n")
+	repo.commit("someone else touches an observed path")
+	after, err := resolveGitChangeSet(repo.root, "alpha", "", "")
+	if err != nil {
+		t.Fatal(err)
+	}
+	if after.MaterialDigest == before.MaterialDigest {
+		t.Fatal("an untrailered commit on an observed path kept the digest")
+	}
+	repo.write(".pose/indexes/validation-matrix.json", "{}\n")
+	repo.commit("matrix changes without the trailer")
+	matrix, err := resolveGitChangeSet(repo.root, "alpha", "", "")
+	if err != nil || matrix.MaterialDigest == after.MaterialDigest {
+		t.Fatalf("a matrix change kept the digest: %v", err)
+	}
+}
+
+// A shallow checkout never binds evidence.
+func TestChangeSetMaterialDigestIsUnreadableInAShallowCheckout(t *testing.T) {
+	origin := t.TempDir()
+	artifactGit(t, origin, "init", "-q", "-b", "main")
+	artifactGit(t, origin, "config", "user.email", "pose@example.invalid")
+	artifactGit(t, origin, "config", "user.name", "POSE Tests")
+	writeArtifactTestFile(t, origin, "a.txt", "first\n")
+	artifactGit(t, origin, "add", "-A")
+	artifactGit(t, origin, "commit", "-qm", "first")
+	writeArtifactTestFile(t, origin, "a.txt", "second\n")
+	artifactGit(t, origin, "add", "-A")
+	artifactGit(t, origin, "commit", "-qm", "second\n\nPOSE-Spec: alpha")
+	shallow := filepath.Join(t.TempDir(), "shallow")
+	artifactGit(t, origin, "clone", "-q", "--depth=1", "file://"+origin, shallow)
+	git := func(limit int, args ...string) ([]byte, error) { return gitOutputBounded(shallow, limit, args...) }
+	paths := []posemodel.ObservedPath{{Action: "modified", Path: "a.txt"}}
+	if got := materialSetDigestAt(git, shallow, "HEAD", paths); got != posemodel.MaterialDigestUnreadable {
+		t.Fatalf("shallow checkout: %q", got)
+	}
+	whole := func(limit int, args ...string) ([]byte, error) { return gitOutputBounded(origin, limit, args...) }
+	if got := materialSetDigestAt(whole, origin, "HEAD", paths); got == "" || got == posemodel.MaterialDigestUnreadable {
+		t.Fatalf("complete checkout: %q", got)
+	}
+}

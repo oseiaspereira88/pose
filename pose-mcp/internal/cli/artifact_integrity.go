@@ -17,6 +17,7 @@ import (
 	"sort"
 	"strconv"
 	"strings"
+	"sync"
 	"time"
 	"unicode/utf8"
 
@@ -292,7 +293,14 @@ func resolveGitChangeSetWithTrailersAndFiles(files posemodel.Files, root, spec, 
 	}
 	digest := diffHash.Sum(nil)
 	idSum := sha256.Sum256([]byte(spec + "\x00" + resolvedBase + "\x00" + resolvedHead + "\x00" + hex.EncodeToString(digest[:])))
-	materialDigest := materialSetDigestAt(gitOutput, resolvedHead, paths)
+	// A trailer set is judged against the checkout's own tree: a later commit
+	// without the trailer that changes an observed path or the matrix must move
+	// the digest. An explicit range is a historical query and reads its end.
+	materialHead := resolvedHead
+	if len(trailerCommits) > 0 {
+		materialHead = "HEAD"
+	}
+	materialDigest := materialSetDigestAt(gitOutput, root, materialHead, paths)
 	return posemodel.ChangeSet{ID: "cs-" + hex.EncodeToString(idSum[:6]), Spec: spec, Selector: selector, Base: base, Head: head, ResolvedBase: resolvedBase, ResolvedHead: resolvedHead, Commits: commits, Paths: paths, DiffDigest: "sha256:" + hex.EncodeToString(digest[:]), MaterialDigest: materialDigest}, nil
 }
 
@@ -1299,8 +1307,13 @@ func precedingDeletion(h *removalHistory, commits []string, path string, deletio
 // materialSetDigestAt reads the head tree entries of every path a change set
 // names, and the validation matrix, and digests them (ADR
 // validation-evidence-binds-to-validated-material). Empty when the tree cannot
-// be read, so no binding is recorded for the set.
-func materialSetDigestAt(gitOutput func(int, ...string) ([]byte, error), head string, paths []posemodel.ObservedPath) string {
+// be read or the checkout is shallow: the set then carries the unreadable
+// marker and evidence is refused for it.
+func materialSetDigestAt(gitOutput func(int, ...string) ([]byte, error), root, head string, paths []posemodel.ObservedPath) string {
+	unreadable := posemodel.MaterialDigestUnreadable
+	if shallow, err := repositoryIsShallow(gitOutput, root); err != nil || shallow {
+		return unreadable
+	}
 	seen := map[string]bool{".pose/indexes/validation-matrix.json": true}
 	names := []string{".pose/indexes/validation-matrix.json"}
 	for _, p := range paths {
@@ -1318,13 +1331,13 @@ func materialSetDigestAt(gitOutput func(int, ...string) ([]byte, error), head st
 		args := []string{"ls-tree", "-z", head, "--"}
 		for _, name := range names[start:end] {
 			if strings.ContainsAny(name, "\n\x00") {
-				return ""
+				return unreadable
 			}
 			args = append(args, ":(literal)"+name)
 		}
 		out, err := gitOutput(8*1024*1024, args...)
 		if err != nil {
-			return ""
+			return unreadable
 		}
 		for _, record := range strings.Split(string(out), "\x00") {
 			if record == "" {
@@ -1333,10 +1346,33 @@ func materialSetDigestAt(gitOutput func(int, ...string) ([]byte, error), head st
 			meta, name, ok := strings.Cut(record, "\t")
 			fields := strings.Fields(meta)
 			if !ok || len(fields) != 3 {
-				return ""
+				return unreadable
 			}
 			tree[name] = posemodel.TreeEntry{Mode: fields[0], Blob: fields[2]}
 		}
 	}
 	return posemodel.MaterialSetDigest(paths, tree)
+}
+
+var (
+	shallowMu    sync.Mutex
+	shallowCache = map[string]bool{}
+)
+
+// repositoryIsShallow reports whether the checkout lacks history. A shallow
+// checkout cannot establish that the head tree and the attributed commits
+// describe the same material, so it never binds evidence. Read once per root.
+func repositoryIsShallow(gitOutput func(int, ...string) ([]byte, error), root string) (bool, error) {
+	shallowMu.Lock()
+	defer shallowMu.Unlock()
+	if value, ok := shallowCache[root]; ok {
+		return value, nil
+	}
+	out, err := gitOutput(64, "rev-parse", "--is-shallow-repository")
+	if err != nil {
+		return false, err
+	}
+	value := strings.TrimSpace(string(out)) != "false"
+	shallowCache[root] = value
+	return value, nil
 }
