@@ -255,6 +255,8 @@ func resolveGitChangeSetWithTrailersAndFiles(files posemodel.Files, root, spec, 
 
 	var paths []posemodel.ObservedPath
 	diffHash := sha256.New()
+	var commitDiffs [][]byte
+	var commitMaterial []bool
 	if len(trailerCommits) > 0 {
 		commits = trailerCommits
 		commitPathLists := make([][]posemodel.ObservedPath, 0, len(commits))
@@ -273,6 +275,8 @@ func resolveGitChangeSetWithTrailersAndFiles(files posemodel.Files, root, spec, 
 				return posemodel.ChangeSet{}, err
 			}
 			_, _ = diffHash.Write(commitDiff)
+			commitDiffs = append(commitDiffs, commitDiff)
+			commitMaterial = append(commitMaterial, !posemodel.CommitIsAdministrative(parsed, commitDiff))
 		}
 		paths = mergeObservedPaths(commitPathLists)
 	} else {
@@ -292,7 +296,15 @@ func resolveGitChangeSetWithTrailersAndFiles(files posemodel.Files, root, spec, 
 	}
 	digest := diffHash.Sum(nil)
 	idSum := sha256.Sum256([]byte(spec + "\x00" + resolvedBase + "\x00" + resolvedHead + "\x00" + hex.EncodeToString(digest[:])))
-	return posemodel.ChangeSet{ID: "cs-" + hex.EncodeToString(idSum[:6]), Spec: spec, Selector: selector, Base: base, Head: head, ResolvedBase: resolvedBase, ResolvedHead: resolvedHead, Commits: commits, Paths: paths, DiffDigest: "sha256:" + hex.EncodeToString(digest[:])}, nil
+	materialDigest := ""
+	if len(commitDiffs) > 0 {
+		matrix := "absent"
+		if blob, err := gitOutput(1024, "rev-parse", "--verify", resolvedHead+":.pose/indexes/validation-matrix.json"); err == nil {
+			matrix = strings.TrimSpace(string(blob))
+		}
+		materialDigest = posemodel.MaterialDiffDigest(commitDiffs, commitMaterial, matrix)
+	}
+	return posemodel.ChangeSet{ID: "cs-" + hex.EncodeToString(idSum[:6]), Spec: spec, Selector: selector, Base: base, Head: head, ResolvedBase: resolvedBase, ResolvedHead: resolvedHead, Commits: commits, Paths: paths, DiffDigest: "sha256:" + hex.EncodeToString(digest[:]), MaterialDigest: materialDigest}, nil
 }
 
 func allCommitsWithSpecTrailers(root string) (map[string][]string, error) {

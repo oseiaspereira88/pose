@@ -15,12 +15,13 @@ const DeliveryValidationResultSchema = 1
 // the one reading of that file: the index is built with it and checked against it.
 func ParseDeliveryValidationRun(raw []byte, relative string) ([]DeliveryValidationResult, error) {
 	var run struct {
-		SchemaVersion    int               `json:"schema_version"`
-		GeneratedAt      string            `json:"generated_at"`
-		GitHead          string            `json:"git_head,omitempty"`
-		ProvenanceDigest string            `json:"provenance_digest,omitempty"`
-		ScopeProvenance  map[string]string `json:"scope_provenance,omitempty"`
-		Checks           []struct {
+		SchemaVersion      int               `json:"schema_version"`
+		GeneratedAt        string            `json:"generated_at"`
+		GitHead            string            `json:"git_head,omitempty"`
+		ProvenanceDigest   string            `json:"provenance_digest,omitempty"`
+		ScopeProvenance    map[string]string `json:"scope_provenance,omitempty"`
+		MaterialProvenance map[string]string `json:"material_provenance,omitempty"`
+		Checks             []struct {
 			ID            string `json:"id"`
 			Module        string `json:"module"`
 			Name          string `json:"name"`
@@ -37,7 +38,7 @@ func ParseDeliveryValidationRun(raw []byte, relative string) ([]DeliveryValidati
 		if check.EvidenceClass == "" {
 			continue
 		}
-		results = append(results, DeliveryValidationResult{ID: check.ID, Module: check.Module, Check: check.Name, EvidenceClass: check.EvidenceClass, Severity: check.Severity, Outcome: check.Outcome, GitHead: run.GitHead, GeneratedAt: run.GeneratedAt, ProvenanceDigest: run.ProvenanceDigest, ScopeProvenance: run.ScopeProvenance, Report: relative})
+		results = append(results, DeliveryValidationResult{ID: check.ID, Module: check.Module, Check: check.Name, EvidenceClass: check.EvidenceClass, Severity: check.Severity, Outcome: check.Outcome, GitHead: run.GitHead, GeneratedAt: run.GeneratedAt, ProvenanceDigest: run.ProvenanceDigest, ScopeProvenance: run.ScopeProvenance, MaterialProvenance: run.MaterialProvenance, Report: relative})
 	}
 	sort.Slice(results, func(i, j int) bool { return results[i].ID < results[j].ID })
 	return results, nil

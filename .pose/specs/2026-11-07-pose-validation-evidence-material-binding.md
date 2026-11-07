@@ -1,6 +1,6 @@
 ---
 slug: pose-validation-evidence-material-binding
-status: draft        # draft | in-progress | done | superseded | abandoned; blocked = operational wait, not terminal
+status: in-progress        # draft | in-progress | done | superseded | abandoned; blocked = operational wait, not terminal
 created_at: 2026-11-07
 completed_at:        # stamped on the transition to status: done
 supersedes:          # slug of the superseded spec (when applicable)
@@ -78,7 +78,21 @@ Caching individual check outputs, skipping checks by heuristic, weakening review
 ### Artifacts
 <!-- Declare exact project-relative source-tree paths: created, modified,
      renamed (old -> new), removed, or one `none: <reason>` entry. -->
-- modified: path/to/file
+- created: pose-mcp/internal/pose/material_binding.go
+- created: pose-mcp/internal/pose/material_binding_test.go
+- created: pose-mcp/internal/cli/material_engine.go
+- created: pose-mcp/internal/mcpserver/material_engine.go
+- created: .pose/adr/2026-11-07-validation-evidence-binds-to-validated-material.md
+- modified: pose-mcp/internal/pose/delivery_integrity.go
+- modified: pose-mcp/internal/pose/delivery_integrity_compact.go
+- modified: pose-mcp/internal/pose/delivery_surface.go
+- modified: pose-mcp/internal/pose/delivery_validation_run.go
+- modified: pose-mcp/internal/pose/spec_facts.go
+- modified: pose-mcp/internal/cli/artifact_integrity.go
+- modified: pose-mcp/internal/cli/validate.go
+- modified: pose-mcp/internal/cli/validate_results.go
+- modified: pose-mcp/internal/cli/change_set_root_test.go
+- modified: pose-mcp/internal/cli/governance_operation_performance_test.go
 
 ### Delivery targets
 <!-- When `delivers` is populated, declare the exact same refs here. Profiles
@@ -114,6 +128,8 @@ Caching individual check outputs, skipping checks by heuristic, weakening review
 
 ## 5. Decisions
 
+> ADR: `.pose/adr/2026-11-07-validation-evidence-binds-to-validated-material.md`.
+>
 > Optional section. Use it when the implementation involves trade-offs or
 > alternatives. For a material basis, keep structured `Assumption A<N>` and
 > `Decision D<N>` nodes in this section and run

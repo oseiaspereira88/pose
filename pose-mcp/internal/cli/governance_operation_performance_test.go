@@ -320,6 +320,12 @@ func TestGovernanceOperationPerformanceChangeSetIndependentGolden(t *testing.T) 
 	want := posemodel.ChangeSet{ID: "cs-" + hex.EncodeToString(id[:6]), Spec: "sample", Selector: "trailers:sample", Base: first + "^", Head: last, ResolvedBase: base, ResolvedHead: last,
 		Commits: []string{first, last}, Paths: []posemodel.ObservedPath{{Action: "created", Path: "new.txt"}, {Action: "modified", Path: "base.txt"}, {Action: "removed", Path: "remove.txt"}}, DiffDigest: "sha256:" + digest}
 	got, err := resolveGitChangeSet(root, "sample", "", "")
+	// The material digest is an additive field of a later contract; the
+	// attribution under test is everything else.
+	if err == nil && got.MaterialDigest == "" {
+		t.Fatal("trailer change set carries no material digest")
+	}
+	got.MaterialDigest = ""
 	if err != nil || !reflect.DeepEqual(got, want) {
 		t.Fatalf("historical attribution changed:\n got=%+v\nwant=%+v\nerr=%v", got, want, err)
 	}

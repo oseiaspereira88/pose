@@ -52,6 +52,9 @@ type ChangeSet struct {
 	Commits      []string       `json:"commits,omitempty"`
 	Paths        []ObservedPath `json:"paths"`
 	DiffDigest   string         `json:"diff_digest"`
+	// MaterialDigest digests the diffs of the commits that are not purely
+	// administrative records (material_binding.go); empty when not computed.
+	MaterialDigest string `json:"material_digest,omitempty"`
 }
 
 type DeliveryIntegrityFinding struct {

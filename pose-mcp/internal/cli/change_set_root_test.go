@@ -142,3 +142,37 @@ func TestUnreadableHeaderRefuses(t *testing.T) {
 		t.Fatalf("%v %v", isRoot, err)
 	}
 }
+
+// An administrative-only commit moves the head but not the material digest; a
+// source commit moves both (spec pose-validation-evidence-material-binding).
+func TestChangeSetMaterialDigestIgnoresAdministrativeCommits(t *testing.T) {
+	repo := newRemovalRepo(t)
+	repo.write("a.go", "package a\n")
+	repo.commit("code\n\nPOSE-Spec: alpha")
+	before, err := resolveGitChangeSet(repo.root, "alpha", "", "")
+	if err != nil || before.MaterialDigest == "" {
+		t.Fatalf("%v %+v", err, before)
+	}
+	repo.write(".pose/indexes/spec-graph.json", "{}\n")
+	repo.write(".pose/results/delivery-validation.json", "{}\n")
+	repo.commit("index\n\nPOSE-Spec: alpha")
+	admin, err := resolveGitChangeSet(repo.root, "alpha", "", "")
+	if err != nil {
+		t.Fatal(err)
+	}
+	if admin.ResolvedHead == before.ResolvedHead || admin.DiffDigest == before.DiffDigest {
+		t.Fatalf("head did not move: %+v", admin)
+	}
+	if admin.MaterialDigest != before.MaterialDigest {
+		t.Fatalf("administrative commit changed the material digest")
+	}
+	repo.write("a.go", "package a\n\nvar x = 1\n")
+	repo.commit("more code\n\nPOSE-Spec: alpha")
+	material, err := resolveGitChangeSet(repo.root, "alpha", "", "")
+	if err != nil {
+		t.Fatal(err)
+	}
+	if material.MaterialDigest == before.MaterialDigest {
+		t.Fatal("material commit kept the digest")
+	}
+}

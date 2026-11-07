@@ -363,10 +363,16 @@ func (s Store) DeriveSpecFacts(slug string) (SpecFacts, error) {
 		}
 	}
 	expected := ScopedDeliveryProvenanceDigest(graph, slug)
+	expectedMaterial := ScopedMaterialDigest(graph, slug)
 	otherSpecs := 0
 	seenResult := map[string]bool{}
 	for _, r := range graph.ValidationResults {
 		scopedValue, scoped := r.ScopeProvenance[slug]
+		if bound := r.MaterialProvenance[slug]; bound != "" && bound == expectedMaterial {
+			// Bound to the material of the spec's change sets: current even when
+			// administrative commits moved the head (ADR validation-evidence-binds-to-validated-material).
+			scopedValue, scoped = expected, true
+		}
 		if len(r.ScopeProvenance) > 0 && !scoped {
 			// The index says this result was produced for other specs.
 			otherSpecs++

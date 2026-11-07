@@ -37,12 +37,13 @@ const (
 )
 
 type compactValidationRun struct {
-	ID               string            `json:"id"`
-	GitHead          string            `json:"git_head,omitempty"`
-	GeneratedAt      string            `json:"generated_at,omitempty"`
-	ProvenanceDigest string            `json:"provenance_digest,omitempty"`
-	Report           string            `json:"report,omitempty"`
-	ScopeProvenance  map[string]string `json:"scope_provenance,omitempty"`
+	ID                 string            `json:"id"`
+	GitHead            string            `json:"git_head,omitempty"`
+	GeneratedAt        string            `json:"generated_at,omitempty"`
+	ProvenanceDigest   string            `json:"provenance_digest,omitempty"`
+	Report             string            `json:"report,omitempty"`
+	ScopeProvenance    map[string]string `json:"scope_provenance,omitempty"`
+	MaterialProvenance map[string]string `json:"material_provenance,omitempty"`
 }
 
 type compactValidationResult struct {
@@ -161,8 +162,8 @@ func compactDeliveryIndex(g DeliveryIntegrityGraph) compactDeliveryGraph {
 	runs := map[string]compactValidationRun{}
 	for _, result := range g.ValidationResults {
 		compact := compactValidationResult{ID: result.ID, Module: result.Module, Check: result.Check, EvidenceClass: result.EvidenceClass, Severity: result.Severity, Outcome: result.Outcome}
-		run := compactValidationRun{GitHead: result.GitHead, GeneratedAt: result.GeneratedAt, ProvenanceDigest: result.ProvenanceDigest, Report: result.Report, ScopeProvenance: result.ScopeProvenance}
-		if run.GitHead != "" || run.GeneratedAt != "" || run.ProvenanceDigest != "" || run.Report != "" || len(run.ScopeProvenance) > 0 {
+		run := compactValidationRun{GitHead: result.GitHead, GeneratedAt: result.GeneratedAt, ProvenanceDigest: result.ProvenanceDigest, Report: result.Report, ScopeProvenance: result.ScopeProvenance, MaterialProvenance: result.MaterialProvenance}
+		if run.GitHead != "" || run.GeneratedAt != "" || run.ProvenanceDigest != "" || run.Report != "" || len(run.ScopeProvenance) > 0 || len(run.MaterialProvenance) > 0 {
 			run.ID = compactValidationRunID(run)
 			compact.Run = run.ID
 			runs[run.ID] = run
@@ -262,6 +263,12 @@ func expandDeliveryIndex(c compactDeliveryGraph) (DeliveryIntegrityGraph, error)
 				expanded.ScopeProvenance = make(map[string]string, len(run.ScopeProvenance))
 				for spec, digest := range run.ScopeProvenance {
 					expanded.ScopeProvenance[spec] = digest
+				}
+			}
+			if len(run.MaterialProvenance) > 0 {
+				expanded.MaterialProvenance = make(map[string]string, len(run.MaterialProvenance))
+				for spec, digest := range run.MaterialProvenance {
+					expanded.MaterialProvenance[spec] = digest
 				}
 			}
 		}

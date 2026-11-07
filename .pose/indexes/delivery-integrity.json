@@ -1,7 +1,7 @@
 {
   "schema_version": 2,
-  "input_digest": "sha256:9ceeae02bed40c0ce0611229c7cb8e0903570160f447bc077f9591a991d1ba03",
-  "provenance_digest": "sha256:3e24f074466d5c8f494923e6932be5c8526de36a33406e5a3b557c98c8232e6e",
+  "input_digest": "sha256:ffe8ea6361f5834a8af44c609afa4699adfe1e29d59e65ce7307d37ba3c2d126",
+  "provenance_digest": "sha256:c9cdb8914ac9a84ec583ec9be55805e20ad51b182117337ffd02e5db5966d87e",
   "implied_edges": [
     "changes"
   ],
@@ -739,6 +739,13 @@
       "type": "artifact",
       "attributes": {
         "path": ".pose/adr/2026-11-03-governance-reads-use-bounded-operation-scoped-views.md"
+      }
+    },
+    {
+      "id": "artifact:.pose/adr/2026-11-07-validation-evidence-binds-to-validated-material.md",
+      "type": "artifact",
+      "attributes": {
+        "path": ".pose/adr/2026-11-07-validation-evidence-binds-to-validated-material.md"
       }
     },
     {
@@ -23716,6 +23723,13 @@
       }
     },
     {
+      "id": "artifact:.pose/specs/2026-11-07-pose-validation-evidence-material-binding.md",
+      "type": "artifact",
+      "attributes": {
+        "path": ".pose/specs/2026-11-07-pose-validation-evidence-material-binding.md"
+      }
+    },
+    {
       "id": "artifact:.pose/specs/pose-action-runtime-currency-gate/spec.md",
       "type": "artifact",
       "attributes": {
@@ -26390,13 +26404,6 @@
       }
     },
     {
-      "id": "artifact:path/to/file",
-      "type": "artifact",
-      "attributes": {
-        "path": "path/to/file"
-      }
-    },
-    {
       "id": "artifact:pose-mcp/Dockerfile",
       "type": "artifact",
       "attributes": {
@@ -27650,6 +27657,13 @@
       }
     },
     {
+      "id": "artifact:pose-mcp/internal/cli/material_engine.go",
+      "type": "artifact",
+      "attributes": {
+        "path": "pose-mcp/internal/cli/material_engine.go"
+      }
+    },
+    {
       "id": "artifact:pose-mcp/internal/cli/mcp_self_update_test.go",
       "type": "artifact",
       "attributes": {
@@ -28865,6 +28879,13 @@
       "type": "artifact",
       "attributes": {
         "path": "pose-mcp/internal/mcpserver/index_generation_test.go"
+      }
+    },
+    {
+      "id": "artifact:pose-mcp/internal/mcpserver/material_engine.go",
+      "type": "artifact",
+      "attributes": {
+        "path": "pose-mcp/internal/mcpserver/material_engine.go"
       }
     },
     {
@@ -30440,6 +30461,20 @@
       "type": "artifact",
       "attributes": {
         "path": "pose-mcp/internal/pose/main_test.go"
+      }
+    },
+    {
+      "id": "artifact:pose-mcp/internal/pose/material_binding.go",
+      "type": "artifact",
+      "attributes": {
+        "path": "pose-mcp/internal/pose/material_binding.go"
+      }
+    },
+    {
+      "id": "artifact:pose-mcp/internal/pose/material_binding_test.go",
+      "type": "artifact",
+      "attributes": {
+        "path": "pose-mcp/internal/pose/material_binding_test.go"
       }
     },
     {
@@ -40218,6 +40253,14 @@
       }
     },
     {
+      "id": "change-set:cs-f5db8b02a01a",
+      "type": "change-set",
+      "attributes": {
+        "diff_digest": "sha256:a70a49afdab76840d49db74ac6260185553e9137b7c896f712002b82d8bd5cb9",
+        "selector": "trailers:pose-validation-evidence-material-binding"
+      }
+    },
+    {
       "id": "change-set:cs-f6688c6de061",
       "type": "change-set",
       "attributes": {
@@ -47802,7 +47845,7 @@
       "id": "spec:pose-validation-evidence-material-binding",
       "type": "spec",
       "attributes": {
-        "status": "draft"
+        "status": "in-progress"
       }
     },
     {
@@ -123535,8 +123578,83 @@
     },
     {
       "from": "spec:pose-validation-evidence-material-binding",
-      "to": "artifact:path/to/file",
+      "to": "artifact:.pose/adr/2026-11-07-validation-evidence-binds-to-validated-material.md",
       "type": "declares"
+    },
+    {
+      "from": "spec:pose-validation-evidence-material-binding",
+      "to": "artifact:pose-mcp/internal/cli/artifact_integrity.go",
+      "type": "declares"
+    },
+    {
+      "from": "spec:pose-validation-evidence-material-binding",
+      "to": "artifact:pose-mcp/internal/cli/change_set_root_test.go",
+      "type": "declares"
+    },
+    {
+      "from": "spec:pose-validation-evidence-material-binding",
+      "to": "artifact:pose-mcp/internal/cli/governance_operation_performance_test.go",
+      "type": "declares"
+    },
+    {
+      "from": "spec:pose-validation-evidence-material-binding",
+      "to": "artifact:pose-mcp/internal/cli/material_engine.go",
+      "type": "declares"
+    },
+    {
+      "from": "spec:pose-validation-evidence-material-binding",
+      "to": "artifact:pose-mcp/internal/cli/validate.go",
+      "type": "declares"
+    },
+    {
+      "from": "spec:pose-validation-evidence-material-binding",
+      "to": "artifact:pose-mcp/internal/cli/validate_results.go",
+      "type": "declares"
+    },
+    {
+      "from": "spec:pose-validation-evidence-material-binding",
+      "to": "artifact:pose-mcp/internal/mcpserver/material_engine.go",
+      "type": "declares"
+    },
+    {
+      "from": "spec:pose-validation-evidence-material-binding",
+      "to": "artifact:pose-mcp/internal/pose/delivery_integrity.go",
+      "type": "declares"
+    },
+    {
+      "from": "spec:pose-validation-evidence-material-binding",
+      "to": "artifact:pose-mcp/internal/pose/delivery_integrity_compact.go",
+      "type": "declares"
+    },
+    {
+      "from": "spec:pose-validation-evidence-material-binding",
+      "to": "artifact:pose-mcp/internal/pose/delivery_surface.go",
+      "type": "declares"
+    },
+    {
+      "from": "spec:pose-validation-evidence-material-binding",
+      "to": "artifact:pose-mcp/internal/pose/delivery_validation_run.go",
+      "type": "declares"
+    },
+    {
+      "from": "spec:pose-validation-evidence-material-binding",
+      "to": "artifact:pose-mcp/internal/pose/material_binding.go",
+      "type": "declares"
+    },
+    {
+      "from": "spec:pose-validation-evidence-material-binding",
+      "to": "artifact:pose-mcp/internal/pose/material_binding_test.go",
+      "type": "declares"
+    },
+    {
+      "from": "spec:pose-validation-evidence-material-binding",
+      "to": "artifact:pose-mcp/internal/pose/spec_facts.go",
+      "type": "declares"
+    },
+    {
+      "from": "spec:pose-validation-evidence-material-binding",
+      "to": "change-set:cs-f5db8b02a01a",
+      "type": "observed-by"
     },
     {
       "from": "spec:pose-validation-matrix-dead-test-patterns",
@@ -156068,8 +156186,78 @@
     },
     {
       "spec": "pose-validation-evidence-material-binding",
+      "action": "created",
+      "path": ".pose/adr/2026-11-07-validation-evidence-binds-to-validated-material.md"
+    },
+    {
+      "spec": "pose-validation-evidence-material-binding",
+      "action": "created",
+      "path": "pose-mcp/internal/cli/material_engine.go"
+    },
+    {
+      "spec": "pose-validation-evidence-material-binding",
+      "action": "created",
+      "path": "pose-mcp/internal/mcpserver/material_engine.go"
+    },
+    {
+      "spec": "pose-validation-evidence-material-binding",
+      "action": "created",
+      "path": "pose-mcp/internal/pose/material_binding.go"
+    },
+    {
+      "spec": "pose-validation-evidence-material-binding",
+      "action": "created",
+      "path": "pose-mcp/internal/pose/material_binding_test.go"
+    },
+    {
+      "spec": "pose-validation-evidence-material-binding",
       "action": "modified",
-      "path": "path/to/file"
+      "path": "pose-mcp/internal/cli/artifact_integrity.go"
+    },
+    {
+      "spec": "pose-validation-evidence-material-binding",
+      "action": "modified",
+      "path": "pose-mcp/internal/cli/change_set_root_test.go"
+    },
+    {
+      "spec": "pose-validation-evidence-material-binding",
+      "action": "modified",
+      "path": "pose-mcp/internal/cli/governance_operation_performance_test.go"
+    },
+    {
+      "spec": "pose-validation-evidence-material-binding",
+      "action": "modified",
+      "path": "pose-mcp/internal/cli/validate.go"
+    },
+    {
+      "spec": "pose-validation-evidence-material-binding",
+      "action": "modified",
+      "path": "pose-mcp/internal/cli/validate_results.go"
+    },
+    {
+      "spec": "pose-validation-evidence-material-binding",
+      "action": "modified",
+      "path": "pose-mcp/internal/pose/delivery_integrity.go"
+    },
+    {
+      "spec": "pose-validation-evidence-material-binding",
+      "action": "modified",
+      "path": "pose-mcp/internal/pose/delivery_integrity_compact.go"
+    },
+    {
+      "spec": "pose-validation-evidence-material-binding",
+      "action": "modified",
+      "path": "pose-mcp/internal/pose/delivery_surface.go"
+    },
+    {
+      "spec": "pose-validation-evidence-material-binding",
+      "action": "modified",
+      "path": "pose-mcp/internal/pose/delivery_validation_run.go"
+    },
+    {
+      "spec": "pose-validation-evidence-material-binding",
+      "action": "modified",
+      "path": "pose-mcp/internal/pose/spec_facts.go"
     },
     {
       "spec": "pose-validation-matrix-dead-test-patterns",
@@ -241611,6 +241799,41 @@
       "diff_digest": "sha256:4b2919682a2a7634226ffedf48785a3fbc2bcc215c1d41ab1f2eecd12376b2c8"
     },
     {
+      "id": "cs-f5db8b02a01a",
+      "spec": "pose-validation-evidence-material-binding",
+      "selector": "trailers:pose-validation-evidence-material-binding",
+      "base": "ba2b6c4837a2042e7da19213e2d1299e61815602^",
+      "head": "ba2b6c4837a2042e7da19213e2d1299e61815602",
+      "resolved_base": "cf4454047e387bf2bc6db2b6cc058c7fca6d63e6",
+      "resolved_head": "ba2b6c4837a2042e7da19213e2d1299e61815602",
+      "commits": [
+        "ba2b6c4837a2042e7da19213e2d1299e61815602"
+      ],
+      "paths": [
+        {
+          "action": "created",
+          "path": ".pose/specs/2026-11-07-pose-validation-evidence-material-binding.md"
+        },
+        {
+          "action": "modified",
+          "path": ".pose/indexes/delivery-integrity.json"
+        },
+        {
+          "action": "modified",
+          "path": ".pose/indexes/generation.json"
+        },
+        {
+          "action": "modified",
+          "path": ".pose/indexes/roadmaps.json"
+        },
+        {
+          "action": "modified",
+          "path": ".pose/indexes/spec-graph.json"
+        }
+      ],
+      "diff_digest": "sha256:a70a49afdab76840d49db74ac6260185553e9137b7c896f712002b82d8bd5cb9"
+    },
+    {
       "id": "cs-f6688c6de061",
       "spec": "pose-signed-action-answers",
       "selector": "trailers:pose-signed-action-answers",
@@ -244468,6 +244691,9 @@
     ],
     ".pose/adr/2026-11-03-governance-reads-use-bounded-operation-scoped-views.md": [
       "pose-governance-read-view-generation"
+    ],
+    ".pose/adr/2026-11-07-validation-evidence-binds-to-validated-material.md": [
+      "pose-validation-evidence-material-binding"
     ],
     ".pose/assessments/README.md": [
       "pose-abm-design-basis",
@@ -250031,9 +250257,6 @@
     "mcp-enforce/extract.go": [
       "pose-composition-contract"
     ],
-    "path/to/file": [
-      "pose-validation-evidence-material-binding"
-    ],
     "pose-mcp/Dockerfile": [
       "pose-dependency-digest-pinning"
     ],
@@ -250159,6 +250382,7 @@
       "pose-review-bundle-doc-only-specs",
       "pose-spec-facts-evidence-binding",
       "pose-update-dry-run-reports-the-whole-update",
+      "pose-validation-evidence-material-binding",
       "pose-writer-coordination-and-atomic-publication"
     ],
     "pose-mcp/internal/cli/artifact_integrity_test.go": [
@@ -250218,7 +250442,8 @@
       "pose-engine-reads-raw-history"
     ],
     "pose-mcp/internal/cli/change_set_root_test.go": [
-      "pose-history-readers-read-raw"
+      "pose-history-readers-read-raw",
+      "pose-validation-evidence-material-binding"
     ],
     "pose-mcp/internal/cli/check.go": [
       "check-builds-the-delivery-graph-once",
@@ -250766,7 +250991,8 @@
     ],
     "pose-mcp/internal/cli/governance_operation_performance_test.go": [
       "pose-governance-operation-performance",
-      "pose-governance-read-view-generation"
+      "pose-governance-read-view-generation",
+      "pose-validation-evidence-material-binding"
     ],
     "pose-mcp/internal/cli/governance_read_view_test.go": [
       "pose-governance-read-view-generation"
@@ -251105,6 +251331,9 @@
       "pose-update-reports-what-it-delivered",
       "pose-upgrade-path-audit-fixes",
       "pose-usage-findings-adjudication"
+    ],
+    "pose-mcp/internal/cli/material_engine.go": [
+      "pose-validation-evidence-material-binding"
     ],
     "pose-mcp/internal/cli/mcp_self_update_test.go": [
       "pose-mcp-server-survives-self-update"
@@ -251866,6 +252095,7 @@
       "pose-validate-concurrent-steps",
       "pose-validate-refuses-empty-go-checks",
       "pose-validate-report-carries-its-run",
+      "pose-validation-evidence-material-binding",
       "pose-validation-scanner-consolidation"
     ],
     "pose-mcp/internal/cli/validate_concurrent_test.go": [
@@ -251886,7 +252116,8 @@
       "pose-review-bundle-convergence",
       "pose-spec-facts-evidence-binding",
       "pose-validate-concurrent-steps",
-      "pose-validate-refuses-empty-go-checks"
+      "pose-validate-refuses-empty-go-checks",
+      "pose-validation-evidence-material-binding"
     ],
     "pose-mcp/internal/cli/validate_results_test.go": [
       "pose-delivery-surface-assurance",
@@ -252026,6 +252257,9 @@
     ],
     "pose-mcp/internal/mcpserver/index_generation_test.go": [
       "pose-index-generation-integrity"
+    ],
+    "pose-mcp/internal/mcpserver/material_engine.go": [
+      "pose-validation-evidence-material-binding"
     ],
     "pose-mcp/internal/mcpserver/mcp_context_test.go": [
       "pose-agent-project-context",
@@ -252663,7 +252897,8 @@
       "pose-delivery-target-root-module-evidence-matching",
       "pose-index-generation-integrity",
       "pose-release-archival-attested-by-the-ledger",
-      "pose-update-dry-run-reports-the-whole-update"
+      "pose-update-dry-run-reports-the-whole-update",
+      "pose-validation-evidence-material-binding"
     ],
     "pose-mcp/internal/pose/delivery_integrity_cache.go": [
       "parse-the-delivery-index-once-per-content",
@@ -252679,7 +252914,8 @@
     "pose-mcp/internal/pose/delivery_integrity_compact.go": [
       "pose-bounded-isolated-graph-caches",
       "pose-delivery-integrity-index-compaction",
-      "pose-delivery-later-removal"
+      "pose-delivery-later-removal",
+      "pose-validation-evidence-material-binding"
     ],
     "pose-mcp/internal/pose/delivery_integrity_compact_test.go": [
       "pose-delivery-integrity-index-compaction",
@@ -252701,7 +252937,8 @@
       "pose-release-shared-sufficiency-contract",
       "pose-report-coverage-that-rests-on-inference",
       "pose-review-bundle-convergence",
-      "pose-update-dry-run-reports-the-whole-update"
+      "pose-update-dry-run-reports-the-whole-update",
+      "pose-validation-evidence-material-binding"
     ],
     "pose-mcp/internal/pose/delivery_surface_test.go": [
       "pose-delivery-surface-assurance",
@@ -252710,7 +252947,8 @@
       "pose-review-bundle-convergence"
     ],
     "pose-mcp/internal/pose/delivery_validation_run.go": [
-      "pose-spec-facts-evidence-binding"
+      "pose-spec-facts-evidence-binding",
+      "pose-validation-evidence-material-binding"
     ],
     "pose-mcp/internal/pose/design_basis.go": [
       "pose-abm-contract-nodes",
@@ -253109,6 +253347,12 @@
       "pose-delegation-routing",
       "pose-governance-read-view-generation",
       "test-git-repos-run-no-background-maintenance"
+    ],
+    "pose-mcp/internal/pose/material_binding.go": [
+      "pose-validation-evidence-material-binding"
+    ],
+    "pose-mcp/internal/pose/material_binding_test.go": [
+      "pose-validation-evidence-material-binding"
     ],
     "pose-mcp/internal/pose/milestone_closes_when_reached_test.go": [
       "pose-governance-read-view-generation",
@@ -254008,7 +254252,8 @@
     "pose-mcp/internal/pose/spec_facts.go": [
       "pose-progressive-spec-surface",
       "pose-spec-facts-evidence-binding",
-      "pose-update-dry-run-reports-the-whole-update"
+      "pose-update-dry-run-reports-the-whole-update",
+      "pose-validation-evidence-material-binding"
     ],
     "pose-mcp/internal/pose/spec_facts_binding_test.go": [
       "pose-spec-facts-evidence-binding"
@@ -255275,6 +255520,15 @@
       "remediation": "no Git change sets are attributed to spec pose-release-shared-sufficiency-contract (ensure commits carry 'POSE-Spec: pose-release-shared-sufficiency-contract' trailer or generate report with pose report)"
     },
     {
+      "id": "dif-05fc1c651591",
+      "code": "action-mismatch",
+      "severity": "error",
+      "spec": "pose-validation-evidence-material-binding",
+      "path": "pose-mcp/internal/pose/delivery_integrity_compact.go",
+      "message": "declared artifact action is absent from the attributed Git change sets",
+      "remediation": "correct the action or record the exact attributed revisions"
+    },
+    {
       "id": "dif-06d74425e6ef",
       "code": "action-mismatch",
       "severity": "error",
@@ -255300,6 +255554,24 @@
       "path": ".pose/starts/pose-release-scope-selection-and-exclusivity.json",
       "message": "declared artifact action is absent from the attributed Git change sets",
       "remediation": "no Git change sets are attributed to spec pose-release-scope-selection-and-exclusivity (ensure commits carry 'POSE-Spec: pose-release-scope-selection-and-exclusivity' trailer or generate report with pose report)"
+    },
+    {
+      "id": "dif-08a2decdde9d",
+      "code": "action-mismatch",
+      "severity": "error",
+      "spec": "pose-validation-evidence-material-binding",
+      "path": "pose-mcp/internal/pose/material_binding_test.go",
+      "message": "declared artifact action is absent from the attributed Git change sets",
+      "remediation": "correct the action or record the exact attributed revisions"
+    },
+    {
+      "id": "dif-08ce72f0839f",
+      "code": "action-mismatch",
+      "severity": "error",
+      "spec": "pose-validation-evidence-material-binding",
+      "path": "pose-mcp/internal/mcpserver/material_engine.go",
+      "message": "declared artifact action is absent from the attributed Git change sets",
+      "remediation": "correct the action or record the exact attributed revisions"
     },
     {
       "id": "dif-094c2614ae32",
@@ -255654,6 +255926,24 @@
       "remediation": "backfill an explicit claim or add an exact reviewed exclusion"
     },
     {
+      "id": "dif-1d1b8b2670cd",
+      "code": "action-mismatch",
+      "severity": "error",
+      "spec": "pose-validation-evidence-material-binding",
+      "path": ".pose/adr/2026-11-07-validation-evidence-binds-to-validated-material.md",
+      "message": "declared artifact action is absent from the attributed Git change sets",
+      "remediation": "correct the action or record the exact attributed revisions"
+    },
+    {
+      "id": "dif-1e4115d51201",
+      "code": "action-mismatch",
+      "severity": "error",
+      "spec": "pose-validation-evidence-material-binding",
+      "path": "pose-mcp/internal/cli/governance_operation_performance_test.go",
+      "message": "declared artifact action is absent from the attributed Git change sets",
+      "remediation": "correct the action or record the exact attributed revisions"
+    },
+    {
       "id": "dif-1e4364b3e950",
       "code": "undeclared-delivery",
       "severity": "warning",
@@ -255698,6 +255988,15 @@
       "path": ".pose/changelogs/unreleased/pose-residual-nature-commitment-and-effect.md",
       "message": "declared current artifact is not tracked at the selected head; no release manifest archives .pose/changelogs/unreleased/pose-residual-nature-commitment-and-effect.md",
       "remediation": "correct the exact path or commit the artifact before closeout"
+    },
+    {
+      "id": "dif-1f9900f81b51",
+      "code": "action-mismatch",
+      "severity": "error",
+      "spec": "pose-validation-evidence-material-binding",
+      "path": "pose-mcp/internal/cli/artifact_integrity.go",
+      "message": "declared artifact action is absent from the attributed Git change sets",
+      "remediation": "correct the action or record the exact attributed revisions"
     },
     {
       "id": "dif-2137b27ad8dc",
@@ -256040,6 +256339,15 @@
       "remediation": "backfill an explicit claim or add an exact reviewed exclusion"
     },
     {
+      "id": "dif-3a6383f0658c",
+      "code": "action-mismatch",
+      "severity": "error",
+      "spec": "pose-validation-evidence-material-binding",
+      "path": "pose-mcp/internal/cli/validate.go",
+      "message": "declared artifact action is absent from the attributed Git change sets",
+      "remediation": "correct the action or record the exact attributed revisions"
+    },
+    {
       "id": "dif-3bcddee25d8e",
       "code": "unconnected-artifact",
       "severity": "error",
@@ -256296,6 +256604,15 @@
       "remediation": "backfill an explicit claim or add an exact reviewed exclusion"
     },
     {
+      "id": "dif-49d8cc3459be",
+      "code": "action-mismatch",
+      "severity": "error",
+      "spec": "pose-validation-evidence-material-binding",
+      "path": "pose-mcp/internal/pose/material_binding.go",
+      "message": "declared artifact action is absent from the attributed Git change sets",
+      "remediation": "correct the action or record the exact attributed revisions"
+    },
+    {
       "id": "dif-4a57b666c61b",
       "code": "orphan",
       "severity": "warning",
@@ -256376,6 +256693,15 @@
       "remediation": "no Git change sets are attributed to spec pose-release-shared-sufficiency-contract (ensure commits carry 'POSE-Spec: pose-release-shared-sufficiency-contract' trailer or generate report with pose report)"
     },
     {
+      "id": "dif-4eafb3fac1ca",
+      "code": "existence",
+      "severity": "error",
+      "spec": "pose-validation-evidence-material-binding",
+      "path": "pose-mcp/internal/pose/material_binding.go",
+      "message": "declared current artifact is not tracked at the selected head",
+      "remediation": "correct the exact path or commit the artifact before closeout"
+    },
+    {
       "id": "dif-4f7aad0b3dd0",
       "code": "action-mismatch",
       "severity": "error",
@@ -256426,15 +256752,6 @@
       "path": "pose-mcp/internal/cli/docs_review.go",
       "message": "governed tracked path has no spec provenance claim",
       "remediation": "backfill an explicit claim or add an exact reviewed exclusion"
-    },
-    {
-      "id": "dif-52be82307787",
-      "code": "action-mismatch",
-      "severity": "error",
-      "spec": "pose-validation-evidence-material-binding",
-      "path": "path/to/file",
-      "message": "declared artifact action is absent from the attributed Git change sets",
-      "remediation": "no Git change sets are attributed to spec pose-validation-evidence-material-binding (ensure commits carry 'POSE-Spec: pose-validation-evidence-material-binding' trailer or generate report with pose report)"
     },
     {
       "id": "dif-53a32012eeb8",
@@ -256535,6 +256852,15 @@
       "remediation": "correct the exact path or commit the artifact before closeout"
     },
     {
+      "id": "dif-57e5993f82b6",
+      "code": "action-mismatch",
+      "severity": "error",
+      "spec": "pose-validation-evidence-material-binding",
+      "path": "pose-mcp/internal/pose/delivery_validation_run.go",
+      "message": "declared artifact action is absent from the attributed Git change sets",
+      "remediation": "correct the action or record the exact attributed revisions"
+    },
+    {
       "id": "dif-58f2edcfde3e",
       "code": "existence",
       "severity": "error",
@@ -256615,6 +256941,15 @@
       "change_set": "cs-3cdf716fb989",
       "message": "changed delivery root pose-mcp/internal/cli has no delivery declaration",
       "remediation": "declare a typed delivery target or narrow the attributed change set"
+    },
+    {
+      "id": "dif-5cec84c7d5b2",
+      "code": "action-mismatch",
+      "severity": "error",
+      "spec": "pose-validation-evidence-material-binding",
+      "path": "pose-mcp/internal/pose/spec_facts.go",
+      "message": "declared artifact action is absent from the attributed Git change sets",
+      "remediation": "correct the action or record the exact attributed revisions"
     },
     {
       "id": "dif-5cf6ded4141a",
@@ -257198,6 +257533,15 @@
       "remediation": "backfill an explicit claim or add an exact reviewed exclusion"
     },
     {
+      "id": "dif-7a558c6dc77c",
+      "code": "existence",
+      "severity": "error",
+      "spec": "pose-validation-evidence-material-binding",
+      "path": "pose-mcp/internal/cli/material_engine.go",
+      "message": "declared current artifact is not tracked at the selected head",
+      "remediation": "correct the exact path or commit the artifact before closeout"
+    },
+    {
       "id": "dif-7a5c01e533f1",
       "code": "legacy-narrative",
       "severity": "info",
@@ -257282,6 +257626,15 @@
       "path": "pose-mcp/internal/cli/state_attention.go",
       "message": "declared artifact action is absent from the attributed Git change sets",
       "remediation": "no Git change sets are attributed to spec pose-residual-nature-commitment-and-effect (ensure commits carry 'POSE-Spec: pose-residual-nature-commitment-and-effect' trailer or generate report with pose report)"
+    },
+    {
+      "id": "dif-7dc9a17580ed",
+      "code": "action-mismatch",
+      "severity": "error",
+      "spec": "pose-validation-evidence-material-binding",
+      "path": "pose-mcp/internal/pose/delivery_surface.go",
+      "message": "declared artifact action is absent from the attributed Git change sets",
+      "remediation": "correct the action or record the exact attributed revisions"
     },
     {
       "id": "dif-7f15c514a049",
@@ -257470,6 +257823,15 @@
       "remediation": "backfill an explicit claim or add an exact reviewed exclusion"
     },
     {
+      "id": "dif-8b6c38921b40",
+      "code": "existence",
+      "severity": "error",
+      "spec": "pose-validation-evidence-material-binding",
+      "path": ".pose/adr/2026-11-07-validation-evidence-binds-to-validated-material.md",
+      "message": "declared current artifact is not tracked at the selected head",
+      "remediation": "correct the exact path or commit the artifact before closeout"
+    },
+    {
       "id": "dif-8cf96253f0f8",
       "code": "action-mismatch",
       "severity": "error",
@@ -257517,15 +257879,6 @@
       "remediation": "declare a typed delivery target or narrow the attributed change set"
     },
     {
-      "id": "dif-8e88005cac8b",
-      "code": "existence",
-      "severity": "error",
-      "spec": "pose-validation-evidence-material-binding",
-      "path": "path/to/file",
-      "message": "declared current artifact is not tracked at the selected head",
-      "remediation": "correct the exact path or commit the artifact before closeout"
-    },
-    {
       "id": "dif-8ea086cd74e1",
       "code": "existence",
       "severity": "error",
@@ -257558,6 +257911,15 @@
       "spec": "pose-capability-mechanism",
       "message": "spec has no structured Artifacts section",
       "remediation": "add a machine-parseable ### Artifacts section"
+    },
+    {
+      "id": "dif-91e699079349",
+      "code": "existence",
+      "severity": "error",
+      "spec": "pose-validation-evidence-material-binding",
+      "path": "pose-mcp/internal/pose/material_binding_test.go",
+      "message": "declared current artifact is not tracked at the selected head",
+      "remediation": "correct the exact path or commit the artifact before closeout"
     },
     {
       "id": "dif-925c304bd04e",
@@ -257815,6 +258177,15 @@
       "path": "pose-mcp/internal/pose/release_lifecycle.go",
       "message": "declared artifact action is absent from the attributed Git change sets",
       "remediation": "no Git change sets are attributed to spec pose-release-publication-evidence-replay (ensure commits carry 'POSE-Spec: pose-release-publication-evidence-replay' trailer or generate report with pose report)"
+    },
+    {
+      "id": "dif-9f6d2624c8ca",
+      "code": "action-mismatch",
+      "severity": "error",
+      "spec": "pose-validation-evidence-material-binding",
+      "path": "pose-mcp/internal/cli/material_engine.go",
+      "message": "declared artifact action is absent from the attributed Git change sets",
+      "remediation": "correct the action or record the exact attributed revisions"
     },
     {
       "id": "dif-9f78e7cc851f",
@@ -258788,6 +259159,15 @@
       "remediation": "backfill an explicit claim or add an exact reviewed exclusion"
     },
     {
+      "id": "dif-cdc3f2659757",
+      "code": "action-mismatch",
+      "severity": "error",
+      "spec": "pose-validation-evidence-material-binding",
+      "path": "pose-mcp/internal/pose/delivery_integrity.go",
+      "message": "declared artifact action is absent from the attributed Git change sets",
+      "remediation": "correct the action or record the exact attributed revisions"
+    },
+    {
       "id": "dif-cdf3f338ea59",
       "code": "action-mismatch",
       "severity": "error",
@@ -259212,6 +259592,15 @@
       "remediation": "rerun the registered validation check for this delivery scope"
     },
     {
+      "id": "dif-e6e24afbda8d",
+      "code": "action-mismatch",
+      "severity": "error",
+      "spec": "pose-validation-evidence-material-binding",
+      "path": "pose-mcp/internal/cli/validate_results.go",
+      "message": "declared artifact action is absent from the attributed Git change sets",
+      "remediation": "correct the action or record the exact attributed revisions"
+    },
+    {
       "id": "dif-e6f0fcdaa2e8",
       "code": "action-mismatch",
       "severity": "error",
@@ -259355,6 +259744,15 @@
       "severity": "error",
       "spec": "pose-residual-triage-and-risk-acceptance",
       "path": "pose-mcp/internal/mcpserver/residual_triage_test.go",
+      "message": "declared current artifact is not tracked at the selected head",
+      "remediation": "correct the exact path or commit the artifact before closeout"
+    },
+    {
+      "id": "dif-efd6e2dae225",
+      "code": "existence",
+      "severity": "error",
+      "spec": "pose-validation-evidence-material-binding",
+      "path": "pose-mcp/internal/mcpserver/material_engine.go",
       "message": "declared current artifact is not tracked at the selected head",
       "remediation": "correct the exact path or commit the artifact before closeout"
     },
@@ -259723,6 +260121,15 @@
       "spec": "pose-validate-shared-go-test-run",
       "message": "spec has no structured Artifacts section",
       "remediation": "add a machine-parseable ### Artifacts section"
+    },
+    {
+      "id": "dif-fd88b0195664",
+      "code": "action-mismatch",
+      "severity": "error",
+      "spec": "pose-validation-evidence-material-binding",
+      "path": "pose-mcp/internal/cli/change_set_root_test.go",
+      "message": "declared artifact action is absent from the attributed Git change sets",
+      "remediation": "correct the action or record the exact attributed revisions"
     },
     {
       "id": "dif-fe2f88fcd3e6",

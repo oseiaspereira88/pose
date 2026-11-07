@@ -1135,6 +1135,12 @@ func cmdValidateWithStore(store posemodel.Store, args []string, stdout, stderr i
 		}
 		for spec := range seenSpecs {
 			run.ScopeProvenance[spec] = posemodel.ScopedDeliveryProvenanceDigest(graph, spec)
+			if material := posemodel.ScopedMaterialDigest(graph, spec); material != "" {
+				if run.MaterialProvenance == nil {
+					run.MaterialProvenance = map[string]string{}
+				}
+				run.MaterialProvenance[spec] = material
+			}
 		}
 	}
 	failures := 0

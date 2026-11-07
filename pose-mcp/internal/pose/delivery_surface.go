@@ -84,6 +84,9 @@ type DeliveryValidationResult struct {
 	ProvenanceDigest string            `json:"provenance_digest,omitempty"`
 	Report           string            `json:"report,omitempty"`
 	ScopeProvenance  map[string]string `json:"scope_provenance,omitempty"`
+	// MaterialProvenance binds the result to the material of each scope (ADR
+	// validation-evidence-binds-to-validated-material).
+	MaterialProvenance map[string]string `json:"material_provenance,omitempty"`
 	// Target and TargetSpec name the one delivery target a result observed —
 	// a delegated smoke run's — which it is evidence of and of no other
 	// (spec pose-delegated-verdict-destinations R2; review round 1, B03).
@@ -619,6 +622,9 @@ func ScopedDeliveryProvenanceDigest(graph DeliveryIntegrityGraph, spec string) s
 }
 
 func deliveryEvidenceCurrent(result DeliveryValidationResult, spec, status string, graph DeliveryIntegrityGraph, sets []ChangeSet) bool {
+	if bound := result.MaterialProvenance[spec]; bound != "" && bound == ScopedMaterialDigest(graph, spec) {
+		return true
+	}
 	if scoped := result.ScopeProvenance[spec]; scoped != "" {
 		if scoped == ScopedDeliveryProvenanceDigest(graph, spec) {
 			return true
