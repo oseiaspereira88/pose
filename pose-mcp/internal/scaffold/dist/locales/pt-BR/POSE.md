@@ -253,8 +253,12 @@ pose artifact-backfill --from-git [--apply --confirm-spec-edits]
 
 # Execuções delegadas
 pose delegate review|adjudicate|smoke <escopo|bundle-id> [--agent auto|<nome>] [--label <nome>] [--lead <vendor>] [--reason <texto>] [--note-file <caminho>] [--dry-run] [--json]
+pose delegate task <prompt-file|-> --agent <name> [--cd <dir>] [--access read|sandboxed|write|full] [--effort <level>] [--detach] [--dry-run] [--json]
 pose delegate ls [<run>|<bundle-id>] [--active] [--json]
+pose delegate watch [<run>] [-v] [--no-follow]
+pose delegate wait <run> [--timeout <d>] [--json]
 pose delegate resume <run> [--wait-until-reset[=<max>]] [--dry-run] [--json]
+pose delegate handoff <run> --to <agent|auto> [--dry-run] [--json]
 pose delegate cancel <run> [--json]
 pose delegate agents [--json]
 
