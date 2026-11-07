@@ -1622,6 +1622,12 @@ func (s Store) reviewBundleEvidence(scope ScopeRef, graph DeliveryIntegrityGraph
 			sets = append(sets, set)
 		}
 	}
+	// Evidence is judged against the material as it is now, not as the persisted
+	// index last saw it.
+	if scope.Kind == "spec" {
+		graph.ChangeSets = withCurrentMaterial(s.Root, graph.ChangeSets)
+		sets = withCurrentMaterial(s.Root, sets)
+	}
 	result := []ReviewBundleEvidence{}
 	for _, evidence := range graph.ValidationResults {
 		if evidence.Outcome != "pass" || evidence.Severity != "required" {

@@ -67,17 +67,20 @@ type TreeEntry struct{ Mode, Blob string }
 
 func regularMode(mode string) bool { return mode == "100644" || mode == "100755" }
 
-// MaterialSetDigest digests the head state of the material a change set
-// touched: every path it names (both sides of a rename) with its mode and blob
-// at the validated head, minus the paths that are administrative records and
-// still regular files there, plus the validation matrix. A symlink, submodule
-// or directory in an administrative class is material; so is a path that left
-// a class. tree maps each named path (and the matrix) to its entry; a path
-// absent from the head tree is "absent".
-func MaterialSetDigest(paths []ObservedPath, tree map[string]TreeEntry) string {
-	names := map[string]bool{}
-	// A rename or copy destination is material whatever directory it lands in:
-	// otherwise moving a source file into a class would hide its later edits.
+// MaterialInputs are what a material digest is computed from: the paths a change
+// set names (both sides of a rename, and the validation matrix) and the
+// destinations of renames. They are stored with the set so the digest can be
+// recomputed against the current tree without the commits' own records.
+type MaterialInputs struct {
+	Names []string `json:"names"`
+	Moved []string `json:"moved,omitempty"`
+}
+
+// MaterialInputsOf derives the inputs from per-commit path records. They must
+// be unmerged: folding a create and a later rename into one creation would hide
+// that the file moved into a class.
+func MaterialInputsOf(paths []ObservedPath) MaterialInputs {
+	names := map[string]bool{".pose/indexes/validation-matrix.json": true}
 	moved := map[string]bool{}
 	for _, p := range paths {
 		for _, name := range []string{p.Path, p.OldPath, p.NewPath} {
@@ -85,16 +88,37 @@ func MaterialSetDigest(paths []ObservedPath, tree map[string]TreeEntry) string {
 				names[name] = true
 			}
 		}
+		// A rename destination is material whatever directory it lands in:
+		// otherwise moving a source file into a class would hide its later edits.
 		if p.OldPath != "" && p.NewPath != "" {
 			moved[p.NewPath] = true
 		}
 	}
-	names[".pose/indexes/validation-matrix.json"] = true
-	sorted := make([]string, 0, len(names))
+	in := MaterialInputs{}
 	for name := range names {
-		sorted = append(sorted, name)
+		in.Names = append(in.Names, name)
 	}
-	sort.Strings(sorted)
+	for name := range moved {
+		in.Moved = append(in.Moved, name)
+	}
+	sort.Strings(in.Names)
+	sort.Strings(in.Moved)
+	return in
+}
+
+// MaterialSetDigest digests the head state of the material a change set
+// touched: every path it names (both sides of a rename) with its mode and blob
+// at the validated head, minus the paths that are administrative records and
+// still regular files there, plus the validation matrix. A symlink, submodule
+// or directory in an administrative class is material; so is a path that left
+// a class. tree maps each named path (and the matrix) to its entry; a path
+// absent from the head tree is "absent".
+func MaterialSetDigest(in MaterialInputs, tree map[string]TreeEntry) string {
+	moved := map[string]bool{}
+	for _, name := range in.Moved {
+		moved[name] = true
+	}
+	sorted := in.Names
 	h := sha256.New()
 	for _, name := range sorted {
 		entry, present := tree[name]
@@ -187,6 +211,34 @@ func withoutMaterialDigest(sets []ChangeSet) []ChangeSet {
 	out := make([]ChangeSet, len(sets))
 	for i, set := range sets {
 		set.MaterialDigest = ""
+		out[i] = set
+	}
+	return out
+}
+
+// CurrentMaterialDigests recomputes the material digest of each set from its
+// stored inputs against the current tree, through the hook the binary
+// registered. Evidence is judged against these, not against the digests the
+// persisted index recorded when it was built: an untrailered commit after the
+// index changes what the evidence describes (spec
+// pose-validation-evidence-material-binding R6). A set without inputs, or a
+// binary without a hook, keeps the recorded digest.
+var CurrentMaterialDigests func(root string, inputs MaterialInputs) string
+
+// SetCurrentMaterialDigests registers the recomputation.
+func SetCurrentMaterialDigests(f func(root string, inputs MaterialInputs) string) {
+	CurrentMaterialDigests = f
+}
+
+func withCurrentMaterial(root string, sets []ChangeSet) []ChangeSet {
+	if CurrentMaterialDigests == nil {
+		return sets
+	}
+	out := make([]ChangeSet, len(sets))
+	for i, set := range sets {
+		if set.MaterialInputs != nil && set.MaterialDigest != "" && set.MaterialDigest != MaterialDigestUnreadable {
+			set.MaterialDigest = CurrentMaterialDigests(root, *set.MaterialInputs)
+		}
 		out[i] = set
 	}
 	return out

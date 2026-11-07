@@ -308,8 +308,9 @@ func resolveGitChangeSetWithTrailersAndFiles(files posemodel.Files, root, spec, 
 	if len(observed) == 0 {
 		observed = paths
 	}
-	materialDigest := materialSetDigestAt(gitOutput, root, materialHead, observed)
-	return posemodel.ChangeSet{ID: "cs-" + hex.EncodeToString(idSum[:6]), Spec: spec, Selector: selector, Base: base, Head: head, ResolvedBase: resolvedBase, ResolvedHead: resolvedHead, Commits: commits, Paths: paths, DiffDigest: "sha256:" + hex.EncodeToString(digest[:]), MaterialDigest: materialDigest}, nil
+	materialInputs := posemodel.MaterialInputsOf(observed)
+	materialDigest := materialSetDigestAt(gitOutput, root, materialHead, materialInputs)
+	return posemodel.ChangeSet{ID: "cs-" + hex.EncodeToString(idSum[:6]), Spec: spec, Selector: selector, Base: base, Head: head, ResolvedBase: resolvedBase, ResolvedHead: resolvedHead, Commits: commits, Paths: paths, DiffDigest: "sha256:" + hex.EncodeToString(digest[:]), MaterialDigest: materialDigest, MaterialInputs: &materialInputs}, nil
 }
 
 func allCommitsWithSpecTrailers(root string) (map[string][]string, error) {
@@ -1317,22 +1318,12 @@ func precedingDeletion(h *removalHistory, commits []string, path string, deletio
 // validation-evidence-binds-to-validated-material). Empty when the tree cannot
 // be read or the checkout is shallow: the set then carries the unreadable
 // marker and evidence is refused for it.
-func materialSetDigestAt(gitOutput func(int, ...string) ([]byte, error), root, head string, paths []posemodel.ObservedPath) string {
+func materialSetDigestAt(gitOutput func(int, ...string) ([]byte, error), root, head string, in posemodel.MaterialInputs) string {
 	unreadable := posemodel.MaterialDigestUnreadable
 	if shallow, err := repositoryIsShallow(gitOutput, root); err != nil || shallow {
 		return unreadable
 	}
-	seen := map[string]bool{".pose/indexes/validation-matrix.json": true}
-	names := []string{".pose/indexes/validation-matrix.json"}
-	for _, p := range paths {
-		for _, name := range []string{p.Path, p.OldPath, p.NewPath} {
-			if name == "" || seen[name] {
-				continue
-			}
-			seen[name] = true
-			names = append(names, name)
-		}
-	}
+	names := in.Names
 	tree := map[string]posemodel.TreeEntry{}
 	for start := 0; start < len(names); start += 256 {
 		end := min(start+256, len(names))
@@ -1359,7 +1350,7 @@ func materialSetDigestAt(gitOutput func(int, ...string) ([]byte, error), root, h
 			tree[name] = posemodel.TreeEntry{Mode: fields[0], Blob: fields[2]}
 		}
 	}
-	return posemodel.MaterialSetDigest(paths, tree)
+	return posemodel.MaterialSetDigest(in, tree)
 }
 
 var (

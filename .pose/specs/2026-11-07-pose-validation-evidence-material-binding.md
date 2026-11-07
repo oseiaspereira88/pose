@@ -59,6 +59,7 @@ Caching individual check outputs, skipping checks by heuristic, weakening review
 - R5: Results without `material_provenance` shall be judged exactly as before, and the commit-bound digests shall not change representation.
 - R6: Review bundle sealing, `review verify`, `closeout-check` and `close` shall consume the same domain verdict, with no per-channel copy of the rule.
 - R8: A validation run shall record a material binding only when the working copy equals the committed material in every path outside the administrative classes, untracked files included; otherwise it records the binding as unavailable for every scope.
+- R9: Review bundle sealing shall judge material-bound evidence against the current tree, recomputing each change set's digest from its stored inputs (names and rename destinations) instead of trusting the digest the persisted index recorded.
 - R7: A delegated review shall run its diagnostics in the sealed checkout without republishing derived records into it: the review process carries `POSE_SEALED_CHECKOUT`, and `refreshDeliveryIndex` leaves the checkout alone when it is set.
 
 ### Non-functional

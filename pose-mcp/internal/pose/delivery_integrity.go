@@ -55,6 +55,8 @@ type ChangeSet struct {
 	// MaterialDigest digests the diffs of the commits that are not purely
 	// administrative records (material_binding.go); empty when not computed.
 	MaterialDigest string `json:"material_digest,omitempty"`
+	// MaterialInputs are the names and rename destinations the digest was computed from.
+	MaterialInputs *MaterialInputs `json:"material_inputs,omitempty"`
 }
 
 type DeliveryIntegrityFinding struct {

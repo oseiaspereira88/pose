@@ -329,6 +329,7 @@ func TestGovernanceOperationPerformanceChangeSetIndependentGolden(t *testing.T) 
 		t.Fatal("trailer change set carries no material digest")
 	}
 	got.MaterialDigest = ""
+	got.MaterialInputs = nil
 	if err != nil || !reflect.DeepEqual(got, want) {
 		t.Fatalf("historical attribution changed:\n got=%+v\nwant=%+v\nerr=%v", got, want, err)
 	}

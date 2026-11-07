@@ -1595,7 +1595,7 @@ func sanitizeGoCheckArgs(ctx context.Context, dir, program string, args []string
 // path outside the administrative classes, untracked files included. A status
 // that cannot be read is not clean.
 func materialWorktreeClean(root string) bool {
-	out, err := gitOutputBounded(root, 16*1024*1024, "status", "--porcelain=v1", "-z", "--untracked-files=all")
+	out, err := gitOutputBounded(root, 16*1024*1024, "status", "--porcelain=v1", "-z", "--ignore-submodules=none", "--untracked-files=all")
 	if err != nil {
 		return false
 	}
@@ -1628,7 +1628,7 @@ func materialWorktreeClean(root string) bool {
 // outside the administrative records. Untracked files are not counted: checks
 // leave build products behind, and those are not the material they ran over.
 func materialTrackedUnchanged(root string) bool {
-	out, err := gitOutputBounded(root, 16*1024*1024, "status", "--porcelain=v1", "-z", "--untracked-files=no")
+	out, err := gitOutputBounded(root, 16*1024*1024, "status", "--porcelain=v1", "-z", "--ignore-submodules=none", "--untracked-files=no")
 	if err != nil {
 		return false
 	}

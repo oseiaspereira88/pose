@@ -252,11 +252,11 @@ func TestChangeSetMaterialDigestIsUnreadableInAShallowCheckout(t *testing.T) {
 	artifactGit(t, origin, "clone", "-q", "--depth=1", "file://"+origin, shallow)
 	git := func(limit int, args ...string) ([]byte, error) { return gitOutputBounded(shallow, limit, args...) }
 	paths := []posemodel.ObservedPath{{Action: "modified", Path: "a.txt"}}
-	if got := materialSetDigestAt(git, shallow, "HEAD", paths); got != posemodel.MaterialDigestUnreadable {
+	if got := materialSetDigestAt(git, shallow, "HEAD", posemodel.MaterialInputsOf(paths)); got != posemodel.MaterialDigestUnreadable {
 		t.Fatalf("shallow checkout: %q", got)
 	}
 	whole := func(limit int, args ...string) ([]byte, error) { return gitOutputBounded(origin, limit, args...) }
-	if got := materialSetDigestAt(whole, origin, "HEAD", paths); got == "" || got == posemodel.MaterialDigestUnreadable {
+	if got := materialSetDigestAt(whole, origin, "HEAD", posemodel.MaterialInputsOf(paths)); got == "" || got == posemodel.MaterialDigestUnreadable {
 		t.Fatalf("complete checkout: %q", got)
 	}
 }

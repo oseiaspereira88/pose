@@ -33,10 +33,10 @@ func regularEntry(blob string) TreeEntry { return TreeEntry{Mode: "100644", Blob
 func TestMaterialSetDigestIgnoresAdministrativeRecordsOnly(t *testing.T) {
 	paths := []ObservedPath{obs("M", "a.go"), obs("M", ".pose/indexes/spec-graph.json")}
 	base := map[string]TreeEntry{"a.go": regularEntry("b1"), ".pose/indexes/spec-graph.json": regularEntry("i1"), ".pose/indexes/validation-matrix.json": regularEntry("m1")}
-	want := MaterialSetDigest(paths, base)
+	want := MaterialSetDigest(MaterialInputsOf(paths), base)
 
 	admin := map[string]TreeEntry{"a.go": regularEntry("b1"), ".pose/indexes/spec-graph.json": regularEntry("i2"), ".pose/indexes/validation-matrix.json": regularEntry("m1")}
-	if MaterialSetDigest(paths, admin) != want {
+	if MaterialSetDigest(MaterialInputsOf(paths), admin) != want {
 		t.Fatal("an administrative record changed the digest")
 	}
 	for name, mutate := range map[string]func(m map[string]TreeEntry){
@@ -56,7 +56,7 @@ func TestMaterialSetDigestIgnoresAdministrativeRecordsOnly(t *testing.T) {
 			m[k] = v
 		}
 		mutate(m)
-		if MaterialSetDigest(paths, m) == want {
+		if MaterialSetDigest(MaterialInputsOf(paths), m) == want {
 			t.Errorf("%s: digest unchanged", name)
 		}
 	}
@@ -66,7 +66,7 @@ func TestMaterialSetDigestTreatsRenamesOutOfAClassAsMaterial(t *testing.T) {
 	paths := []ObservedPath{{Action: "R", OldPath: "a.go", NewPath: ".pose/results/a.go"}}
 	moved := map[string]TreeEntry{".pose/results/a.go": regularEntry("b1")}
 	kept := map[string]TreeEntry{".pose/results/a.go": regularEntry("b1"), "a.go": regularEntry("b1")}
-	if MaterialSetDigest(paths, moved) == MaterialSetDigest(paths, kept) {
+	if MaterialSetDigest(MaterialInputsOf(paths), moved) == MaterialSetDigest(MaterialInputsOf(paths), kept) {
 		t.Fatal("the vanished source path must count")
 	}
 }
@@ -143,8 +143,8 @@ func TestUnreadableMaterialNeverBindsAndIsRecordedAsUnavailable(t *testing.T) {
 
 func TestRenameIntoAnAdministrativeClassStaysMaterial(t *testing.T) {
 	paths := []ObservedPath{{Action: "R", OldPath: "a.go", NewPath: ".pose/results/a.go"}}
-	first := MaterialSetDigest(paths, map[string]TreeEntry{".pose/results/a.go": regularEntry("b1")})
-	edited := MaterialSetDigest(paths, map[string]TreeEntry{".pose/results/a.go": regularEntry("b2")})
+	first := MaterialSetDigest(MaterialInputsOf(paths), map[string]TreeEntry{".pose/results/a.go": regularEntry("b1")})
+	edited := MaterialSetDigest(MaterialInputsOf(paths), map[string]TreeEntry{".pose/results/a.go": regularEntry("b2")})
 	if first == edited {
 		t.Fatal("editing the moved file inside the class kept the digest")
 	}
@@ -188,9 +188,31 @@ func TestCodeInsideAnAdministrativeClassIsMaterial(t *testing.T) {
 	}
 	// Editing a source file placed in a class moves the digest.
 	paths := []ObservedPath{obs("A", ".pose/results/helper.go")}
-	one := MaterialSetDigest(paths, map[string]TreeEntry{".pose/results/helper.go": regularEntry("b1")})
-	two := MaterialSetDigest(paths, map[string]TreeEntry{".pose/results/helper.go": regularEntry("b2")})
+	one := MaterialSetDigest(MaterialInputsOf(paths), map[string]TreeEntry{".pose/results/helper.go": regularEntry("b1")})
+	two := MaterialSetDigest(MaterialInputsOf(paths), map[string]TreeEntry{".pose/results/helper.go": regularEntry("b2")})
 	if one == two {
 		t.Fatal("editing code inside a class kept the digest")
+	}
+}
+
+func TestEvidenceIsJudgedAgainstTheCurrentMaterial(t *testing.T) {
+	in := MaterialInputsOf([]ObservedPath{obs("M", "a.go")})
+	g := materialGraph("h1", "sha256:indexed")
+	g.ChangeSets[0].MaterialInputs = &in
+	result := DeliveryValidationResult{GitHead: "h1", MaterialProvenance: map[string]string{"s": ScopedMaterialDigest(g, "s")}}
+
+	defer SetCurrentMaterialDigests(nil)
+	SetCurrentMaterialDigests(func(string, MaterialInputs) string { return "sha256:indexed" })
+	same := materialGraph("h1", "sha256:indexed")
+	same.ChangeSets = withCurrentMaterial("/x", g.ChangeSets)
+	if !deliveryEvidenceCurrent(result, "s", "in-progress", same, same.ChangeSets) {
+		t.Fatal("an unchanged tree made current evidence stale")
+	}
+	// An untrailered commit changed an observed path after the index was built.
+	SetCurrentMaterialDigests(func(string, MaterialInputs) string { return "sha256:after-the-index" })
+	moved := materialGraph("h1", "sha256:indexed")
+	moved.ChangeSets = withCurrentMaterial("/x", g.ChangeSets)
+	if deliveryEvidenceCurrent(result, "s", "in-progress", moved, moved.ChangeSets) {
+		t.Fatal("the persisted index vouched for a tree that changed after it was built")
 	}
 }
