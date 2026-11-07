@@ -33,7 +33,8 @@ including every spec file (frontmatter status lines too), `.pose/policy/` and
 `.pose/indexes/` but deliberately material. A symlink, submodule or directory
 in a class, a path that left a class, and the destination of a rename or copy
 are material. A copy is told from a creation only by content: an administrative
-file whose blob equals a material path's is material while they are equal. A
+file whose blob equals that of any tracked path outside the classes (read
+once from the head tree, and only when needed) is material while they are equal. A
 change set read back from the report history has no material digest, so its
 scope records the binding as unavailable. A change set read from a
 trailer is judged against the checkout's own tree (HEAD), so a later commit

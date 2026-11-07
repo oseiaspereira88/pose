@@ -311,3 +311,29 @@ func TestChangeSetMaterialDigestKeepsAMovedFileMaterial(t *testing.T) {
 		t.Fatalf("editing a file moved into an administrative class kept the digest: %q %q", moved.MaterialDigest, edited.MaterialDigest)
 	}
 }
+
+// A copy of a tracked file the change set never touched stays material, so a
+// later edit of the copy moves the digest.
+func TestChangeSetMaterialDigestSeesACopyOfAnUntouchedSource(t *testing.T) {
+	repo := newRemovalRepo(t)
+	repo.write("src/helper.go", "package src\n")
+	repo.commit("untouched source")
+	if err := os.MkdirAll(filepath.Join(repo.root, ".pose", "results"), 0o755); err != nil {
+		t.Fatal(err)
+	}
+	repo.write(".pose/results/helper.go", "package src\n")
+	repo.commit("copy into a class\n\nPOSE-Spec: alpha")
+	copied, err := resolveGitChangeSet(repo.root, "alpha", "", "")
+	if err != nil {
+		t.Fatal(err)
+	}
+	repo.write(".pose/results/helper.go", "package src\n\nvar edited = 1\n")
+	repo.commit("edit the copy\n\nPOSE-Spec: alpha")
+	edited, err := resolveGitChangeSet(repo.root, "alpha", "", "")
+	if err != nil {
+		t.Fatal(err)
+	}
+	if copied.MaterialDigest == "" || copied.MaterialDigest == edited.MaterialDigest {
+		t.Fatalf("editing a copy of an untouched source kept the digest: %q %q", copied.MaterialDigest, edited.MaterialDigest)
+	}
+}

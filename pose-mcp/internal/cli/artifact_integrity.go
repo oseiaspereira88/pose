@@ -1359,7 +1359,27 @@ func materialSetDigestAt(gitOutput func(int, ...string) ([]byte, error), root, h
 			tree[name] = posemodel.TreeEntry{Mode: fields[0], Blob: fields[2]}
 		}
 	}
-	return posemodel.MaterialSetDigest(paths, tree)
+	return posemodel.MaterialSetDigest(paths, tree, func() map[string]bool { return trackedBlobsAt(gitOutput, head) })
+}
+
+// trackedBlobsAt lists the blob ids of every path outside the administrative
+// classes at head. A failure yields every blob as tracked, which is the
+// conservative answer: nothing is excluded as a plain administrative record.
+func trackedBlobsAt(gitOutput func(int, ...string) ([]byte, error), head string) map[string]bool {
+	out, err := gitOutput(64*1024*1024, "ls-tree", "-r", "-z", head)
+	if err != nil {
+		return map[string]bool{posemodel.EveryBlobTracked: true}
+	}
+	blobs := map[string]bool{}
+	for _, record := range strings.Split(string(out), "\x00") {
+		meta, name, ok := strings.Cut(record, "\t")
+		fields := strings.Fields(meta)
+		if !ok || len(fields) != 3 || posemodel.IsAdministrativePath(name) {
+			continue
+		}
+		blobs[fields[2]] = true
+	}
+	return blobs
 }
 
 var (
