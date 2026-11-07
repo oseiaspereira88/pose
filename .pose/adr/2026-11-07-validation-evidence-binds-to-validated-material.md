@@ -16,11 +16,11 @@ reason alone.
 
 ## Decision
 
-A validation run records, per scope, a `material_digest`. It hashes the sorted
-(path, blob digest) pairs of the change set's paths at the validated head that
-fall outside a closed list of administrative classes, plus the engine version
-and the validation matrix digest. Evidence stays current while the recomputed
-digest equals the recorded one.
+A validation run records, per scope, a `material_digest`. It hashes, in order,
+the diffs of the change set's commits that touch at least one path outside a
+closed list of administrative classes, plus the claims and the engine version.
+Commits whose every path is administrative do not contribute. Evidence stays
+current while the recomputed digest equals the recorded one.
 
 The administrative classes are exactly: `.pose/indexes/`, `.pose/results/`,
 `.pose/state/`, `.pose/assessments/`, `.pose/review-*` directories, and the
@@ -29,8 +29,9 @@ engine and are not configurable by an instance. Everything else, including the
 body of a spec, `.pose/policy/` and `.pose/rules/`, is material. A commit that
 touches any material path is material; a path that is a symlink or arrives by
 rename into a class is material. An unreadable path, an incomplete checkout or
-a changed matrix or engine makes the evidence stale, and the refusal names the
-first differing path.
+a changed engine makes the evidence stale. The validation matrix file is
+deliberately outside the administrative classes, so a commit that changes it is
+material.
 
 Results without `material_digest` are judged by the existing rule. A scope that
 is already `done` keeps its current exemption. The domain returns one verdict
