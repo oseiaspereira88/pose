@@ -341,7 +341,7 @@
             "type": "string"
           },
           "cursor": {
-            "description": "Opaque pagination cursor from a previous call's next_cursor; omit for the first page. Treat as opaque — do not parse or construct it.",
+            "description": "Opaque pagination cursor from a previous call's next_cursor; omit for the first page. Treat as opaque — do not parse or construct it. A cursor belongs to one query, project and collection and is signed: a changed collection, another query, an expired token or a server restart is refused with a cursor-* code and you restart from the first page; it is never continued over a changed collection.",
             "type": "string"
           },
           "limit": {
@@ -1003,7 +1003,7 @@
       "inputSchema": {
         "properties": {
           "cursor": {
-            "description": "Opaque pagination cursor from a previous call's next_cursor; omit for the first page. Treat as opaque — do not parse or construct it.",
+            "description": "Opaque pagination cursor from a previous call's next_cursor; omit for the first page. Treat as opaque — do not parse or construct it. A cursor belongs to one query, project and collection and is signed: a changed collection, another query, an expired token or a server restart is refused with a cursor-* code and you restart from the first page; it is never continued over a changed collection.",
             "type": "string"
           },
           "limit": {
@@ -1337,7 +1337,7 @@
       "inputSchema": {
         "properties": {
           "cursor": {
-            "description": "Opaque pagination cursor from a previous call's next_cursor; omit for the first page. Treat as opaque — do not parse or construct it.",
+            "description": "Opaque pagination cursor from a previous call's next_cursor; omit for the first page. Treat as opaque — do not parse or construct it. A cursor belongs to one query, project and collection and is signed: a changed collection, another query, an expired token or a server restart is refused with a cursor-* code and you restart from the first page; it is never continued over a changed collection.",
             "type": "string"
           },
           "limit": {
@@ -1378,7 +1378,7 @@
       "inputSchema": {
         "properties": {
           "cursor": {
-            "description": "Opaque pagination cursor from a previous call's next_cursor; omit for the first page. Treat as opaque — do not parse or construct it.",
+            "description": "Opaque pagination cursor from a previous call's next_cursor; omit for the first page. Treat as opaque — do not parse or construct it. A cursor belongs to one query, project and collection and is signed: a changed collection, another query, an expired token or a server restart is refused with a cursor-* code and you restart from the first page; it is never continued over a changed collection.",
             "type": "string"
           },
           "limit": {

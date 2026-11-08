@@ -140,6 +140,8 @@ type Server struct {
 	delegateRunner DelegateRunner     // nil = the running pose binary (spec pose-delegation-mcp)
 	orch           *orchestrator      // safe validation orchestration state (spec pose-safe-validate-orchestration)
 	obs            *observability.Provider
+	pageKeyOnce    sync.Once // signs generation-bound query cursors (pose-generation-bound-query-cursors)
+	pageKeyValue   []byte
 	cursor         CursorStore // resumable SSE event log (pose-mcp-enterprise-hardening); defaults to in-process memory
 	runtimeOnce    sync.Once
 	startedAt      time.Time
@@ -966,12 +968,11 @@ func (s *Server) dispatch(ctx context.Context, name string, args json.RawMessage
 		if effective == nil {
 			effective = []pose.CapabilitySnapshot{}
 		}
-		after, err := decodePageCursor(a.Cursor)
+		page, next, meta, err := pageList(s, store, "pose_capability_history", "", effective, contentKeys(effective), a.Cursor, a.Limit)
 		if err != nil {
-			return nil, fmt.Errorf("pose_capability_history: %w", err)
+			return nil, err
 		}
-		page, next := paginatePage(effective, after, a.Limit)
-		return map[string]any{"snapshots": page, "count": len(page), "next_cursor": next}, nil
+		return map[string]any{"snapshots": page, "count": len(page), "next_cursor": next, "page": meta}, nil
 	case "pose_spec_amendments":
 		var a struct {
 			Slug string `json:"slug"`
@@ -1086,12 +1087,16 @@ func (s *Server) dispatch(ctx context.Context, name string, args json.RawMessage
 		if recent > 0 && recent < len(specs) {
 			specs = specs[:recent]
 		}
-		after, err := decodePageCursor(a.Cursor)
-		if err != nil {
-			return nil, fmt.Errorf("pose_list_specs: %w", err)
+		sinceFilter := ""
+		if a.Since != nil {
+			sinceFilter = *a.Since
 		}
-		page, next := paginatePage(specs, after, limit)
-		result := map[string]any{"specs": page, "count": len(page), "total": len(specs), "next_cursor": next}
+		filters := fmt.Sprintf("status=%s;components=%s;sort=%s;recent=%d;since=%s", a.Status, a.Components, a.Sort, recent, sinceFilter)
+		page, next, meta, err := pageList(s, store, "pose_list_specs", filters, specs, specKeys(specs), a.Cursor, limit)
+		if err != nil {
+			return nil, err
+		}
+		result := map[string]any{"specs": page, "count": len(page), "total": len(specs), "next_cursor": next, "page": meta}
 		if notice := listNotice(len(specs), `narrow with "status" (comma-separated, e.g. "draft,in-progress"), "components" (comma-separated, matches any tag), or page with "limit"/"cursor"`); notice != "" {
 			result["notice"] = notice
 		}
@@ -1645,12 +1650,11 @@ func (s *Server) dispatch(ctx context.Context, name string, args json.RawMessage
 		if err != nil {
 			return nil, err
 		}
-		after, err := decodePageCursor(a.Cursor)
+		page, next, meta, err := pageList(s, store, "pose_list_roadmaps", "", roadmaps, contentKeys(roadmaps), a.Cursor, a.Limit)
 		if err != nil {
-			return nil, fmt.Errorf("pose_list_roadmaps: %w", err)
+			return nil, err
 		}
-		page, next := paginatePage(roadmaps, after, a.Limit)
-		result := map[string]any{"roadmaps": page, "count": len(page), "total": len(roadmaps), "next_cursor": next}
+		result := map[string]any{"roadmaps": page, "count": len(page), "total": len(roadmaps), "next_cursor": next, "page": meta}
 		if notice := listNotice(len(roadmaps), `page with "limit"/"cursor" (no status filter exists for this tool)`); notice != "" {
 			result["notice"] = notice
 		}
@@ -1827,12 +1831,11 @@ func (s *Server) dispatch(ctx context.Context, name string, args json.RawMessage
 		if err != nil {
 			return nil, err
 		}
-		after, err := decodePageCursor(a.Cursor)
+		page, next, meta, err := pageList(s, store, "pose_list_knowledge", "", items, contentKeys(items), a.Cursor, a.Limit)
 		if err != nil {
-			return nil, fmt.Errorf("pose_list_knowledge: %w", err)
+			return nil, err
 		}
-		page, next := paginatePage(items, after, a.Limit)
-		result := map[string]any{"entries": page, "count": len(page), "total": len(items), "next_cursor": next}
+		result := map[string]any{"entries": page, "count": len(page), "total": len(items), "next_cursor": next, "page": meta}
 		if notice := listNotice(len(items), `page with "limit"/"cursor" (no filter exists for this tool)`); notice != "" {
 			result["notice"] = notice
 		}
@@ -1857,12 +1860,11 @@ func (s *Server) dispatch(ctx context.Context, name string, args json.RawMessage
 		if err != nil {
 			return nil, err
 		}
-		after, err := decodePageCursor(a.Cursor)
+		page, next, meta, err := pageList(s, store, "pose_list_reports", "", reports, contentKeys(reports), a.Cursor, a.Limit)
 		if err != nil {
-			return nil, fmt.Errorf("pose_list_reports: %w", err)
+			return nil, err
 		}
-		page, next := paginatePage(reports, after, a.Limit)
-		result := map[string]any{"reports": page, "count": len(page), "total": len(reports), "next_cursor": next}
+		result := map[string]any{"reports": page, "count": len(page), "total": len(reports), "next_cursor": next, "page": meta}
 		if notice := listNotice(len(reports), `page with "limit"/"cursor" (no filter exists for this tool)`); notice != "" {
 			result["notice"] = notice
 		}

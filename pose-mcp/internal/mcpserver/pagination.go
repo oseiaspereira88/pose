@@ -9,19 +9,21 @@ package mcpserver
 // what the tool returned before pagination existed (compatibility).
 
 import (
-	"encoding/base64"
+	"crypto/sha256"
+	"encoding/hex"
 	"encoding/json"
 	"fmt"
-)
+	"time"
 
-const pageCursorVersion = 1
+	"github.com/harne8/pose-mcp/internal/pose"
+)
 
 // Shared schema text for every paginated list tool (spec
 // pose-mcp-protocol-completeness R1) — pinned by
 // TestListToolsShareThePaginationSchema so the contract cannot drift tool by
 // tool the way project_id once did.
 const (
-	sharedCursorDescription = "Opaque pagination cursor from a previous call's next_cursor; omit for the first page. Treat as opaque — do not parse or construct it."
+	sharedCursorDescription = "Opaque pagination cursor from a previous call's next_cursor; omit for the first page. Treat as opaque — do not parse or construct it. A cursor belongs to one query, project and collection and is signed: a changed collection, another query, an expired token or a server restart is refused with a cursor-* code and you restart from the first page; it is never continued over a changed collection."
 	sharedLimitDescription  = "Optional page size; omit to return every item in one page (default, unpaginated — preserves the pre-pagination response shape). Large unfiltered result sets return a `notice` field nudging you toward a narrower filter or a smaller limit — check for it before assuming the response is complete."
 )
 
@@ -42,46 +44,56 @@ func listNotice(total int, hint string) string {
 	return fmt.Sprintf("%d items matched. Response may be large — %s.", total, hint)
 }
 
-type pageCursor struct {
-	V     int `json:"v"`
-	After int `json:"after"`
+// pageKey returns the key that signs this server's cursors, created on first
+// use. It lives only in the process: a cursor from another process, or from
+// before a restart, is refused as stale and the caller restarts from the first
+// page (spec pose-generation-bound-query-cursors R6).
+func (s *Server) pageKey() []byte {
+	s.pageKeyOnce.Do(func() {
+		key, err := pose.NewCursorKey()
+		if err != nil {
+			// Without randomness no cursor can be trusted: an empty key still signs
+			// consistently but a caller can no longer forge across processes.
+			key = []byte("pose-cursor-key-unavailable")
+		}
+		s.pageKeyValue = key
+	})
+	return s.pageKeyValue
 }
 
-func encodePageCursor(after int) string {
-	b, _ := json.Marshal(pageCursor{V: pageCursorVersion, After: after})
-	return base64.RawURLEncoding.EncodeToString(b)
-}
-
-// decodePageCursor returns the starting offset for an opaque cursor. An
-// empty token is offset 0 (first page); a malformed or wrong-version token
-// is a client error, never silently coerced to 0 (that would skip items
-// unpredictably in a way a client can't detect).
-func decodePageCursor(token string) (int, error) {
-	if token == "" {
-		return 0, nil
-	}
-	raw, err := base64.RawURLEncoding.DecodeString(token)
+// pageList pages one ordered collection of a list tool: filters is the canonical
+// string of the normalized filters and ordering, keys the total-order keys of
+// items. The response carries the page's generation metadata (R4).
+func pageList[T any](s *Server, store pose.Store, tool, filters string, items []T, keys []string, cursor string, limit int) ([]T, string, pose.GenerationPage, error) {
+	generation := store.ReadIndexGeneration().Descriptor.GenerationID
+	sum := sha256.Sum256([]byte(store.Root))
+	project := store.FederatedProjectID + "|" + hex.EncodeToString(sum[:8])
+	page, next, meta, err := pose.PageByGeneration(s.pageKey(), pose.GenerationQuery{Tool: tool, Project: project, Filters: filters}, generation, items, keys, cursor, limit, time.Now())
 	if err != nil {
-		return 0, fmt.Errorf("invalid cursor")
+		return nil, "", meta, fmt.Errorf("%s: %w", tool, err)
 	}
-	var c pageCursor
-	if err := json.Unmarshal(raw, &c); err != nil || c.V != pageCursorVersion || c.After < 0 {
-		return 0, fmt.Errorf("invalid cursor")
-	}
-	return c.After, nil
+	return page, next, meta, nil
 }
 
-// paginatePage slices a deterministically ordered slice starting at the
-// cursor's offset. limit<=0 means "no explicit page size" — the historical,
-// still-supported unpaginated call — and returns everything from the
-// cursor with no next_cursor. next is "" once the slice is exhausted.
-func paginatePage[T any](items []T, after, limit int) (page []T, next string) {
-	if after > len(items) {
-		after = len(items)
+// contentKeys keys every item of an ordered collection by the digest of its JSON
+// form. The domain layer orders each collection deterministically; a changed,
+// inserted, removed or reordered item changes the collection digest.
+func contentKeys[T any](items []T) []string {
+	keys := make([]string, len(items))
+	for i, item := range items {
+		raw, _ := json.Marshal(item)
+		sum := sha256.Sum256(raw)
+		keys[i] = hex.EncodeToString(sum[:8])
 	}
-	rest := items[after:]
-	if limit <= 0 || limit >= len(rest) {
-		return rest, ""
+	return keys
+}
+
+// specKeys keys specs by slug, the unique total-order key of the listing.
+func specKeys(specs []pose.Spec) []string {
+	keys := make([]string, len(specs))
+	for i, spec := range specs {
+		sum := sha256.Sum256([]byte(spec.Slug + "\x00" + spec.Status + "\x00" + spec.CreatedAt))
+		keys[i] = spec.Slug + ":" + hex.EncodeToString(sum[:4])
 	}
-	return rest[:limit], encodePageCursor(after + limit)
+	return keys
 }

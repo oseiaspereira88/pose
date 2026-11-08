@@ -1,6 +1,6 @@
 ---
 slug: pose-generation-bound-query-cursors
-status: draft
+status: in-progress
 created_at: 2026-10-13
 completed_at:
 depends_on: pose-governance-read-view-generation, pose-obligation-projection
@@ -42,21 +42,21 @@ Esta escrita não implementa o comportamento. Preservar fontes canônicas, layou
 
 ### Artifacts
 
-Os paths são prospectivos. Somente esta spec é criada neste lote, atribuída a `pose-consolidation-batch-9-authoring`. Inventariar callers/testes e fixar ações exatas antes do start; testes abaixo ainda não existem nem foram executados.
-
 - created: .pose/specs/2026-10-13-pose-generation-bound-query-cursors.md
 - created: .pose/starts/pose-generation-bound-query-cursors.json
 - created: .pose/changelogs/unreleased/pose-generation-bound-query-cursors.md
+- created: .pose/adr/2026-11-08-generation-bound-query-cursors.md
 - modified: pose-mcp/internal/mcpserver/pagination.go
-- modified: pose-mcp/internal/mcpserver/pagination_test.go
-- modified: pose-mcp/internal/pose/spec.go
+- modified: pose-mcp/internal/mcpserver/server.go
+- modified: pose-mcp/internal/mcpserver/testdata/tool-catalog.golden.json
 - created: pose-mcp/internal/pose/generation_query.go
 - created: pose-mcp/internal/pose/generation_query_test.go
 - created: pose-mcp/internal/mcpserver/generation_cursor_test.go
-- created: pose-mcp/internal/cli/generation_query_test.go
-
 - modified: .pose/indexes/validation-matrix.json
 - modified: POSE.md
+- modified: locales/pt-BR/POSE.md
+- modified: pose-mcp/internal/scaffold/dist/POSE.md
+- modified: pose-mcp/internal/scaffold/dist/locales/pt-BR/POSE.md
 
 ### Delivery targets
 
@@ -68,6 +68,8 @@ Executar depois de B34. Inventariar ferramentas paginadas e queries de domínio 
 
 ## 5. Decisions
 
+ADR: `.pose/adr/2026-11-08-generation-bound-query-cursors.md`.
+
 ### Decision D1
 - Basis: R1, R2, R3, R4, R5, R6, R7, R8
 - Decision: Continuar somente na geração e query vinculadas ao cursor, com obsolescência e custo explícitos.
@@ -77,7 +79,7 @@ Executar depois de B34. Inventariar ferramentas paginadas e queries de domínio 
 
 ### Strategy
 
-Usar fixtures sintéticas e snapshot fixo. Os casos abaixo são planejamento de execução, não evidência de satisfação.
+Fixtures sintéticas e coleção fixa por teste. Os casos abaixo foram executados; a evidência de cada requisito está no rastreio de requisitos e na check `generation-bound-query-cursors-integration`.
 
 | Caso planejado | Resultado esperado |
 |---|---|
@@ -98,28 +100,40 @@ Qualificar as consultas alteradas, cursor stale e mudança de geração com fixt
 Os casos da tabela são objetivos de cobertura e podem compartilhar fixtures e execuções. Reusar corpus e controles das fundações sem recriar sua qualificação inteira. Qualquer ensaio adicional deve responder a risco, contrato ou finding identificado, com escopo e limite definidos.
 
 ### Requirement trace
+- R1 [satisfied] test:TestPageByGenerationWalksTheCollectionExactlyOnce test:TestACursorStaysWithItsQuery check:generation-bound-query-cursors-integration
+- R2 [satisfied] test:TestACursorIsRefusedWhenTheCollectionChanged test:TestACursorIsRefusedAfterTheCollectionChangesBetweenPages
+- R3 [satisfied] test:TestHostileCursorsAreRefusedNotCoerced test:TestAnExpiredCursorIsRefused test:TestAPositionOutsideTheCollectionIsRefused test:TestAHostileCursorIsRefusedOverMCP
+- R4 [satisfied] test:TestEveryPageDisclosesItsGenerationAndCollection test:TestPageByGenerationWalksTheCollectionExactlyOnce
+- R5 [satisfied] test:TestPageByGenerationClampsAndDisclosesTheLimit test:TestPageLimitIsBoundedAndDisclosed
+- R6 [satisfied] test:TestACursorDoesNotSurviveAnotherServerProcess test:TestAnExpiredCursorIsRefused
+- R7 [satisfied] test:TestPageByGenerationWithoutCursorOrLimitIsTheLegacyCall test:TestPaginationOmittedIsUnpaginatedAndBackwardCompatible test:TestHostileCursorsAreRefusedNotCoerced
+- R8 [satisfied] test:TestACursorIsRefusedWhenTheCollectionChanged test:TestACursorStaysWithItsToolAndFilters test:TestACursorDoesNotSurviveAnotherServerProcess
 
-| Requisito | Casos planejados |
-|---|---|
-| R1 | V1–V3 |
-| R2 | V1, V4 |
-| R3 | V2, V3 |
-| R4 | V4, V7 |
-| R5 | V5 |
-| R6 | V4, V5 |
-| R7 | V6 |
-| R8 | V1–V7 |
+### Known gaps
+- The list tools load their whole collection, so a page costs one recomputation and the total is a full scan; this is disclosed, and no index-backed limit was introduced because none of the five collections is indexed.
+- The CLI has no cursor-paginated surface; only the MCP list tools paginate.
+
+---
 
 ## 7. Final Report
 
 ### Delivered scope
+Paginated MCP list tools continue a query over the collection the cursor was issued for. A cursor is signed (HMAC with a process-held key), expires after 15 minutes, and is bound to its tool, project, filters and the ordered collection with its index generation. A changed collection, another query, an expired token, a version 1 token, an altered token or a server restart is refused with a `cursor-*` code and the caller restarts from the first page; nothing is continued over a changed collection or restarted silently. Pages are bounded to 500 items, and each discloses its generation, collection digest, position and total, with the statement that a missing `next_cursor` certifies nothing beyond that collection. Calls without cursor and limit are unchanged. The five tools `pose_list_specs`, `pose_list_roadmaps`, `pose_list_knowledge`, `pose_list_reports` and `pose_capability_history` share one helper. Left out: index-backed limits, a durable key and retained snapshots (ADR rejects them).
 
-Spec draft escrita no lote 9. Implementação, testes funcionais, revisão e closeout pendentes; consultar [relatório da escrita](../reports/2026-10-13-pose-batch-9-authoring.md).
+### Files and modules changed
+- pose-mcp/internal/pose (generation_query.go and its tests)
+- pose-mcp/internal/mcpserver (pagination.go, server.go, generation_cursor_test.go, tool catalog golden)
+- ADR generation-bound-query-cursors; POSE.md and its scaffold and pt-BR copies; the validation matrix gains `generation-bound-query-cursors-integration`
+
+### Validation executed
+- Command: `pose validate --strict --jobs 4` on a clean clone of the reviewed head
+- Result: recorded by the sealed validation evidence; independent delegated review by a different vendor, concluded with `pose review conclude`.
 
 ### Residual risks
-
-Compatibilidade dos tokens e garantia de snapshot precisam de decisão por tool/query; retenção pode consumir memória ou storage, por isso TTL e bytes são obrigatórios. Total exato pode exigir leitura integral. Não prometer menor custo em consultas não indexáveis nem depender de processo residente não entregue.
+- A cursor never outlives the server process; clients must restart a walk after a restart.
+- The total is a full scan of the recomputed collection for these tools.
+- A page is a navigation view: gates and effects read current inputs and must not consume a page.
 
 ### Follow-ups
 
-Manter unidades e dependências restantes na matriz. Nenhuma disposition ou migração aplicada nesta escrita.
+- [open] Give the list collections an index so that `limit` bounds the read, parse and copy work instead of only the page size, then measure it against the corpus. (owner:@pose-maintainers crit:low review:2027-01-08)

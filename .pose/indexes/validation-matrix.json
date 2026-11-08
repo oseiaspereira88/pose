@@ -2581,6 +2581,20 @@
           ],
           "severity": "required",
           "evidenceClass": "integration"
+        },
+        {
+          "name": "generation-bound-query-cursors-integration",
+          "program": "go",
+          "args": [
+            "test",
+            "./internal/pose",
+            "./internal/mcpserver",
+            "-run",
+            "PageByGeneration|ACursor|HostileCursor|ExpiredCursor|APositionOutside|EveryPageDiscloses|PageLimitIsBounded|Pagination|ListToolsShareThePaginationSchema",
+            "-count=1"
+          ],
+          "severity": "required",
+          "evidenceClass": "integration"
         }
       ]
     },
