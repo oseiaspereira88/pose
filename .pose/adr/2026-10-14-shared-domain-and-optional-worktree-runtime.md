@@ -101,6 +101,48 @@ platform/identity, budgets and benchmark thresholds. Revisit if a scoped reader
 lifetime changes or a new external execution capability is proposed. Track the
 expiring operational review in knowledge:adr-shared-worktree-runtime-review.
 
+## Amendment: bounded, isolated graph caches (B33)
+
+Spec `pose-bounded-isolated-graph-caches` fixes the cache accounting and view
+ownership this ADR left to acceptance work. Rebuildable derived data (the parsed
+delivery graph, the design-delta report, the test catalog, the paths a commit
+changed) goes through one cache in the domain package:
+
+- **Bytes, not entries.** Each value reports its retained size; the cache evicts
+  the least recently used entries under a global budget and a budget per owner (a
+  worktree root). The parsed-graph budget is 192 MiB global and 96 MiB per
+  worktree, measured in estimated heap bytes, an estimate calibrated against the
+  measured heap of the real index (it errs high, about 2.6 times). A value larger
+  than its budget is served and not retained.
+- **Key.** Parsed graphs are keyed by engine version, schema and the digest of the
+  bytes: identical bytes cannot yield a different graph, so two worktrees holding
+  the same index share one entry and none is served another's graph; the same size
+  or modification time proves nothing. The test catalog is keyed by root and the
+  digest of the validation matrix and expires after 30 seconds, because it reads
+  the working tree; a long-lived server never serves a catalog built before the
+  tests changed. The commit-paths cache is keyed by root and commit (immutable).
+- **Misses.** A miss is produced once per key however many callers ask together;
+  the production runs outside the lock, so one key never delays another. A waiter
+  whose context ends leaves without disturbing the producer or the other waiters.
+  A failure is never remembered (no negative caching): the next call produces
+  again. Producers and waiters are bounded by the callers themselves; no pool or
+  queue is created.
+- **Isolation.** Every value handed out is a deep copy: the retained one is never
+  shared. Read-only consumers that only look up a few fields use a view
+  (`ViewDeliveryIntegrity`), which hands out the retained graph without a copy and
+  forbids modifying or keeping it; the cache never writes a retained value. The
+  aliasing the audit could not reproduce is reproduced and fixed: the attribute
+  maps of the graph's nodes and the refs of the roadmap criteria were shared with
+  the cache.
+- **Not caches of authority.** Nothing here remembers a verdict, a satisfaction or
+  an authority; gates and writes read current inputs. The Git batch reader of the
+  earlier ADR stays scoped: no global pool or shared stream is introduced.
+
+Cost, measured on the real 10.9 MB index: a deep copy per hit costs about 7 ms
+and 18 MB of allocation where the shallow copy cost 1 ms and 5.7 MB; the view costs
+about 39 KB. That is the price of isolation, paid only by consumers that need a
+mutable graph.
+
 ## Related specs
 
 - [B31](../specs/2026-10-14-pose-common-domain-and-cli-mcp-handoff.md)

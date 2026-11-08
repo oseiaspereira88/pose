@@ -2583,6 +2583,20 @@
           "evidenceClass": "integration"
         },
         {
+          "name": "bounded-isolated-graph-caches-integration",
+          "program": "go",
+          "args": [
+            "test",
+            "-race",
+            "./internal/pose",
+            "-run",
+            "BoundedCache|ACachedGraph|MutatingARead|AViewOf|AViewSees|GraphByteEstimate|RepeatedReadsAreHits|ConcurrentMissesOnTheSame|ACancelledWaiterOnAGraph|TheCostOfDeepIsolation|TheGraphCacheKey|TheTestCatalogIsKeyed|CommitPathsAreRead|ADesignDeltaReportIsIsolated|DeliveryGraphCopy",
+            "-count=1"
+          ],
+          "severity": "required",
+          "evidenceClass": "integration"
+        },
+        {
           "name": "generation-bound-query-cursors-integration",
           "program": "go",
           "args": [

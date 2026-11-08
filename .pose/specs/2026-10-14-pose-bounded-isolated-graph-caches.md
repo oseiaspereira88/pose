@@ -1,6 +1,6 @@
 ---
 slug: pose-bounded-isolated-graph-caches
-status: draft
+status: in-progress
 created_at: 2026-10-14
 completed_at:
 depends_on: pose-index-generation-integrity, pose-governance-read-view-generation, pose-delivery-integrity-index-compaction
@@ -42,25 +42,22 @@ Esta escrita não implementa o comportamento. Preservar fontes canônicas, layou
 
 ### Artifacts
 
-Os paths são prospectivos. Somente esta spec é criada neste lote, atribuída a `pose-consolidation-batch-14-authoring`. Inventariar callers/testes e fixar ações exatas antes do start; testes abaixo ainda não existem nem foram executados.
-
-- created: .pose/specs/2026-10-14-pose-bounded-isolated-graph-caches.md
+- modified: .pose/specs/2026-10-14-pose-bounded-isolated-graph-caches.md
 - created: .pose/starts/pose-bounded-isolated-graph-caches.json
 - created: .pose/changelogs/unreleased/pose-bounded-isolated-graph-caches.md
+- created: pose-mcp/internal/pose/bounded_cache.go
+- created: pose-mcp/internal/pose/bounded_cache_test.go
+- created: pose-mcp/internal/pose/graph_view_isolation_test.go
+- created: pose-mcp/internal/pose/graph_cache_measure_test.go
+- created: pose-mcp/internal/pose/cache_invalidation_test.go
 - modified: pose-mcp/internal/pose/delivery_integrity_cache.go
-- modified: pose-mcp/internal/pose/delivery_integrity_cache_test.go
-- modified: pose-mcp/internal/pose/delivery_integrity_compact.go
 - modified: pose-mcp/internal/pose/delivery_integrity.go
+- modified: pose-mcp/internal/pose/delegated_verdicts.go
 - modified: pose-mcp/internal/pose/design_delta.go
 - modified: pose-mcp/internal/pose/test_catalog.go
 - modified: pose-mcp/internal/pose/git_spawn_cache.go
-- created: pose-mcp/internal/pose/graph_view_isolation_test.go
-- created: pose-mcp/internal/pose/cache_budget_concurrency_test.go
-- created: pose-mcp/internal/pose/graph_view_benchmark_test.go
 - modified: .pose/adr/2026-10-14-shared-domain-and-optional-worktree-runtime.md
-
 - modified: .pose/indexes/validation-matrix.json
-- modified: POSE.md
 
 ### Delivery targets
 
@@ -82,50 +79,48 @@ Executar após B15/B34. O cache atual lê conteúdo exato, guarda última entrad
 
 ### Strategy
 
-Usar fixtures sintéticas e snapshot fixo. Os casos abaixo são planejamento de execução, não evidência de satisfação.
-
-| Caso planejado | Resultado esperado |
-|---|---|
-| V1 — Grafo legado/compacto e filtros pequenos/grandes | Mesma semântica/coverage, sem expansão total desnecessária para query pequena. |
-| V2 — Mutation de Attributes/maps/slices e dois consumidores | Isolamento profundo e próxima leitura íntegra; controles positivos. |
-| V3 — Worktrees/projetos/raízes federadas e mesmo mtime/tamanho | Keys/generation diferentes, sem contaminação ou equivalência inferida. |
-| V4 — Muitas gerações, raw+expanded+pins+vistas e eviction | Bytes globais/por worktree limitados, métricas explicam retenção. |
-| V5 — Misses mesma chave/diferentes, waiter cancel e erro de producer | Uma produção por chave; orçamento/coverage e concorrência independentes. |
-| V6 — Testes/matriz/policy/refs mudados e Git reader scoped | Invalidação pertinente; nenhum pool global ou cache de autorização stale. |
-| V7 — Benchmark fixo, alocações/RSS/heap e corpus histórico | Ganho/trade-offs medidos com limites estatísticos; disco não prova heap. |
-| V8 — Race, filtros/cursor stale e read legacy | Determinismo/compatibility, sem write ou runtime iniciado. |
+Fixtures sintéticas e o índice real do repositório como corpus de medição. Os casos V1-V8 foram executados; a evidência de cada requisito está no rastreio e na check `bounded-isolated-graph-caches-integration`.
 
 ### Deterministic checks
 
-Aplicar os gates do `review-plan` e as rules vigentes. Durante a correção, executar regressões focadas no delta e nos controles afetados; no fechamento, registrar evidência canônica atual que cubra o módulo. Uma validação global que já contenha seus resultados pode responder também ao componente quando coverage/proveniência nativas comprovarem isso, sem repetir a suíte apenas por haver dois IDs de ferramenta. Preservar todos os checks obrigatórios e repetir o que uma mudança material invalidar.
-
-Qualificar mutação dos dados compartilhados (aliasing), concorrência, invalidação e benchmark pareado da estrutura alterada. Mutation de maps/slices não impõe uma campanha universal de mutantes de código por asserção.
-
-Os casos da tabela são objetivos de cobertura e podem compartilhar fixtures e execuções. Reusar corpus e controles das fundações sem recriar sua qualificação inteira. Qualquer ensaio adicional deve responder a risco, contrato ou finding identificado, com escopo e limite definidos.
+`go test -race ./internal/pose` nos testes da check acima; a bateria completa de `internal/pose`, `internal/cli` e `internal/mcpserver`; a matriz estrita em clone limpo.
 
 ### Requirement trace
+- R1 [satisfied] test:TestAViewOfTheGraphDoesNotCopyIt test:TestAViewSeesTheSameGraphEveryTimeAndTheCacheNeverWritesIt check:delivery-integrity-index-compaction-integration
+- R2 [satisfied] test:TestACachedGraphSharesNoReferenceWithItsCopies test:TestMutatingAReadNeverReachesTheNextRead test:TestDeliveryGraphCopyIsolatesProvenanceMaps test:TestDeliveryGraphCopyIsolatesMaterialInputs test:TestADesignDeltaReportIsIsolatedAndBounded
+- R3 [satisfied] test:TestTheGraphCacheKeyIsTheContentNotTheSizeOrTheOwner test:TestTheTestCatalogIsKeyedByTheMatrixAndMeteredPerRoot
+- R4 [satisfied] test:TestBoundedCacheEvictsByBytesNotEntries test:TestBoundedCacheHoldsAnOwnerToItsBudget test:TestBoundedCacheDoesNotRetainWhatExceedsTheBudget test:TestRepeatedReadsAreHitsAndAlternationStaysUnderTheBudget test:TestADesignDeltaReportIsIsolatedAndBounded
+- R5 [satisfied] test:TestBoundedCacheProducesOncePerKeyUnderConcurrentMisses test:TestBoundedCacheDoesNotSerializeIndependentKeys test:TestBoundedCacheWaiterCancellationLeavesTheProducerAndOthers test:TestBoundedCacheDoesNotRememberAFailure test:TestConcurrentMissesOnTheSameIndexParseItOnce
+- R6 [satisfied] test:TestCommitPathsAreReadOnceAndAFailureIsNotRemembered test:TestTheTestCatalogIsKeyedByTheMatrixAndMeteredPerRoot test:TestBoundedCacheExpiresByTTL
+- R7 [satisfied] test:TestGraphByteEstimateTracksTheMeasuredHeap test:TestTheCostOfDeepIsolationIsMeasured test:TestAViewOfTheGraphDoesNotCopyIt test:TestRepeatedReadsAreHitsAndAlternationStaysUnderTheBudget
+- R8 [satisfied] test:TestBoundedCacheSurvivesAlternatingOwnersUnderRace test:TestACancelledWaiterOnAGraphParseDoesNotAbandonTheOthers check:bounded-isolated-graph-caches-integration
 
-| Requisito | Casos planejados |
-|---|---|
-| R1 | V1, V8 |
-| R2 | V2, V8 |
-| R3 | V3, V6 |
-| R4 | V4, V5 |
-| R5 | V5 |
-| R6 | V3, V6 |
-| R7 | V7 |
-| R8 | V1–V8 |
+### Known gaps
+- Measured on the real index (10.9 MB, 6,937 nodes), heap and allocation only, one machine, one corpus, `go test` timings of single runs (no percentile is claimed): the first parse takes 190 ms and a hit through the deep copy 11.5 ms; the deep copy allocates 18.5 MB where the shallow copy it replaces allocated 5.7 MB (7.2 ms against 1.0 ms), which is the price of isolation; a read of one scope's digest through the view allocates 30 KB against 18.5 MB through the copy (4.2 ms against 11.2 ms, most of it hashing the index bytes for the key). Twelve concurrent first reads produce one parse (274 ms wall, eleven waiters coalesced). The retained size is estimated at 61 MB against 23 MB measured heap, an estimate that errs high on purpose. RSS was not measured and no speedup of a whole command is claimed.
+- Only two read-only consumers were moved to the view; the other callers of `GetDeliveryIntegrity` keep the deep copy.
+- The view's contract (do not modify or keep the graph) is documented and tested on the cache side, not enforced by the compiler.
+
+---
 
 ## 7. Final Report
 
 ### Delivered scope
+One bounded cache (bytes, global and per worktree, least recently used, optional expiry) carries the parsed delivery graph, the design-delta report, the test catalog and the paths of a commit. A missed key is produced once however many callers ask; a waiter that leaves does not disturb the producer or the others; a failure is never remembered; a value over its budget is served and not retained. Parsed graphs are keyed by engine, schema and the digest of the bytes, so identical bytes share an entry and nothing is served another worktree's graph. The test catalog is keyed by root and the digest of the validation matrix and expires after 30 seconds. The deep isolation is structural: a reflection test fills every slice, map and pointer of the graph and finds the references a copy shares with the original, which reproduced the aliasing the audit had not reproduced (the node attribute maps and the roadmap criteria refs) and fixed it. Read-only consumers can view the graph without a copy (`ViewDeliveryIntegrity`). Left out: moving every consumer to the view, RSS measurement, any persistent or cross-process cache, any global Git pool.
 
-Spec draft escrita no lote 14. Implementação, testes funcionais, revisão e closeout pendentes; consultar [relatório da escrita](../reports/2026-10-14-pose-batch-14-authoring.md).
+### Files and modules changed
+- pose-mcp/internal/pose (bounded_cache.go, delivery_integrity_cache.go, delivery_integrity.go, delegated_verdicts.go, design_delta.go, test_catalog.go, git_spawn_cache.go and their tests)
+- ADR shared-domain-and-optional-worktree-runtime (amendment); the validation matrix gains `bounded-isolated-graph-caches-integration`
+
+### Validation executed
+- Command: `pose validate --strict --jobs 4` on a clean clone of the reviewed head, and the suites of `internal/pose`, `internal/cli` and `internal/mcpserver`
+- Result: recorded by the sealed validation evidence; independent delegated review by a different vendor, concluded with `pose review conclude`.
 
 ### Residual risks
-
-A amostra de auditoria não reproduziu corrupção por consumidor nem data race nativa; a implementação precisa mostrar fixture falhando/controle e race detector. Orçamento inclui objetos ainda vivos, não apenas o map de cache. Dados cacheados não dispensam revalidação de authority ou geração de gate.
+- A consumer that needs a mutable graph pays about 7 ms and 18 MB per read; moving more consumers to the view lowers it.
+- The estimate of retained bytes errs high, so the cache holds less than its budget in practice.
+- The 30-second expiry of the test catalog is a policy, not a proof of freshness; gates read the matrix digest in the key.
 
 ### Follow-ups
 
-Manter unidades e dependências restantes na matriz. Nenhuma disposition ou migração aplicada nesta escrita.
+- [open] Move the remaining read-only consumers of the delivery graph to `ViewDeliveryIntegrity` and measure the allocation saved per command. (owner:@pose-maintainers crit:low review:2027-01-08)
+- [open] Measure RSS and the retained heap of a long-lived MCP server that alternates between projects, to settle the budgets from more than one corpus. (owner:@pose-maintainers crit:low review:2027-01-08)

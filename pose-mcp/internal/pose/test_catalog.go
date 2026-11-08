@@ -3,13 +3,15 @@ package pose
 import (
 	"bytes"
 	"context"
+	"crypto/sha256"
 	"encoding/json"
+	"errors"
+	"fmt"
 	"os"
 	"path/filepath"
 	"regexp"
 	"sort"
 	"strings"
-	"sync"
 	"time"
 )
 
@@ -39,11 +41,15 @@ var (
 	rustTestFnRE  = regexp.MustCompile(`#\[(?:tokio::)?test\]\s*(?:#\[[^\]]*\]\s*)*(?:pub\s+)?(?:async\s+)?fn (\w+)`)
 	slugSepRE     = regexp.MustCompile(`[^a-z0-9]+`)
 
-	testCatalogCache = struct {
-		sync.Mutex
-		byRoot map[string]*TestCatalog
-	}{byRoot: map[string]*TestCatalog{}}
+	// testCatalogCache is bounded in bytes and metered per root, and an entry is
+	// keyed by the root and the digest of the validation matrix and lives for
+	// testCatalogTTL: the catalog reads the working tree, so a long-lived server must
+	// not serve one built before the tests changed (spec
+	// pose-bounded-isolated-graph-caches R3/R6). A short-lived CLI builds it once.
+	testCatalogCache = newBoundedCache(32<<20, 16<<20, testCatalogTTL, func(c *TestCatalog) *TestCatalog { return c })
 )
+
+const testCatalogTTL = 30 * time.Second
 
 const testCatalogMaxFileBytes = 2 << 20
 
@@ -59,14 +65,38 @@ func LoadTestCatalog(root string) *TestCatalog {
 	if err != nil {
 		return nil
 	}
-	testCatalogCache.Lock()
-	defer testCatalogCache.Unlock()
-	if catalog, ok := testCatalogCache.byRoot[abs]; ok {
-		return catalog
+	matrix, _ := os.ReadFile(filepath.Join(abs, ".pose", "indexes", "validation-matrix.json"))
+	sum := sha256.Sum256(matrix)
+	key := fmt.Sprintf("%s|%s|%x", engineVersion, abs, sum[:8])
+	catalog, err := testCatalogCache.Get(context.Background(), abs, key, func() (*TestCatalog, int64, error) {
+		built := buildTestCatalog(abs)
+		if built == nil {
+			// Git could not list the tree: that is not an empty catalog, and it is not remembered.
+			return nil, 0, errNoTestCatalog
+		}
+		return built, built.retainedBytes(), nil
+	})
+	if err != nil {
+		return nil
 	}
-	catalog := buildTestCatalog(abs)
-	testCatalogCache.byRoot[abs] = catalog
 	return catalog
+}
+
+var errNoTestCatalog = errors.New("pose: the test catalog could not be built")
+
+// retainedBytes estimates the heap the catalog holds. The catalog is immutable once
+// built, so the cache hands the same value to every caller.
+func (c *TestCatalog) retainedBytes() int64 {
+	n := int64(64)
+	for _, t := range c.goTests {
+		n += int64(len(t)) + 16
+	}
+	for _, m := range []map[string]bool{c.names, c.slugs, c.files} {
+		for k := range m {
+			n += int64(len(k)) + 64
+		}
+	}
+	return n
 }
 
 func gitTrackedFiles(dir string) ([]string, bool) {

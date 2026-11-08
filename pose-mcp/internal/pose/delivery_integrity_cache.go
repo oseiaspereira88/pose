@@ -1,8 +1,11 @@
 package pose
 
 import (
+	"context"
+	"crypto/sha256"
 	"encoding/json"
-	"sync"
+	"errors"
+	"fmt"
 )
 
 // The delivery-integrity index is parsed once per distinct content, not once per
@@ -24,35 +27,138 @@ import (
 // handing out the cached value would let the first caller truncate the graph for
 // every caller after it. That is the same aliasing defect `focusSurfaceGraph` had,
 // and a cache is exactly what turns it from a local surprise into a shared one.
-var deliveryGraphCache = struct {
-	sync.Mutex
-	raw   []byte
-	graph DeliveryIntegrityGraph
-	valid bool
-}{}
+const (
+	// deliveryGraphCacheBytes and deliveryGraphOwnerBytes bound what the parsed graphs
+	// retain, in estimated heap bytes (see estimateGraphBytes), globally and per
+	// worktree. Alternating between projects or generations evicts the least recently
+	// used graph instead of growing, and a graph larger than a budget is served
+	// without being retained.
+	deliveryGraphCacheBytes = 192 << 20
+	deliveryGraphOwnerBytes = 96 << 20
+)
+
+// deliveryGraphCache holds parsed graphs keyed by the engine, the schema and the
+// digest of the bytes: identical bytes cannot produce a different graph, so two
+// worktrees that hold the same index share one entry and no worktree can be served
+// another's graph. The owner is the worktree root and only meters the budget.
+var deliveryGraphCache = newBoundedCache(deliveryGraphCacheBytes, deliveryGraphOwnerBytes, 0, copyDeliveryIntegrityGraph)
+
+// DeliveryGraphCacheStats reports hits, coalesced waits, misses, evictions and the
+// bytes retained by the parsed-graph cache (spec pose-bounded-isolated-graph-caches R7).
+func DeliveryGraphCacheStats() CacheStats { return deliveryGraphCache.Stats() }
 
 // parseDeliveryIntegrityGraph returns the graph for these bytes, parsing only when
-// the bytes differ from the cached ones.
-func parseDeliveryIntegrityGraph(raw []byte) (DeliveryIntegrityGraph, bool) {
-	deliveryGraphCache.Lock()
-	if deliveryGraphCache.valid && bytesEqual(deliveryGraphCache.raw, raw) {
-		graph := copyDeliveryIntegrityGraph(deliveryGraphCache.graph)
-		deliveryGraphCache.Unlock()
-		return graph, true
-	}
-	deliveryGraphCache.Unlock()
-
-	graph, ok := decodeDeliveryIntegrityIndex(raw)
-	if !ok {
+// no graph for them is retained and, when several callers miss together, once.
+// owner is the worktree root the bytes were read from.
+func parseDeliveryIntegrityGraph(owner string, raw []byte) (DeliveryIntegrityGraph, bool) {
+	sum := sha256.Sum256(raw)
+	key := fmt.Sprintf("%s|%d|%x", engineVersion, len(raw), sum)
+	graph, err := deliveryGraphCache.Get(context.Background(), owner, key, func() (DeliveryIntegrityGraph, int64, error) {
+		parsed, ok := decodeDeliveryIntegrityIndex(raw)
+		if !ok {
+			return DeliveryIntegrityGraph{}, 0, errInvalidDeliveryIndex
+		}
+		return parsed, estimateGraphBytes(parsed), nil
+	})
+	if err != nil {
 		return DeliveryIntegrityGraph{}, false
 	}
-	stored := copyDeliveryIntegrityGraph(graph)
-	deliveryGraphCache.Lock()
-	deliveryGraphCache.raw = append([]byte{}, raw...)
-	deliveryGraphCache.graph = stored
-	deliveryGraphCache.valid = true
-	deliveryGraphCache.Unlock()
 	return graph, true
+}
+
+// viewDeliveryIntegrityGraph hands fn the retained graph without copying it. fn
+// must neither modify nor keep the graph or anything it reaches; the callers that
+// only read a few fields of a large graph (a digest, a lookup) use it, the others
+// get a deep copy from parseDeliveryIntegrityGraph.
+func viewDeliveryIntegrityGraph(owner string, raw []byte, fn func(DeliveryIntegrityGraph)) bool {
+	sum := sha256.Sum256(raw)
+	key := fmt.Sprintf("%s|%d|%x", engineVersion, len(raw), sum)
+	err := deliveryGraphCache.View(context.Background(), owner, key, func() (DeliveryIntegrityGraph, int64, error) {
+		parsed, ok := decodeDeliveryIntegrityIndex(raw)
+		if !ok {
+			return DeliveryIntegrityGraph{}, 0, errInvalidDeliveryIndex
+		}
+		return parsed, estimateGraphBytes(parsed), nil
+	}, fn)
+	return err == nil
+}
+
+// ViewDeliveryIntegrity gives fn the delivery graph of the current index without a
+// copy (spec pose-bounded-isolated-graph-caches R1). fn is read-only: it must not
+// modify or retain the graph. The error is that of GetDeliveryIntegrity.
+func (s Store) ViewDeliveryIntegrity(fn func(DeliveryIntegrityGraph)) error {
+	raw, _, err := s.ReadIndex("delivery-integrity.json")
+	if errors.Is(err, ErrIndexGenerationUnavailable) {
+		return err
+	}
+	if err != nil {
+		return fmt.Errorf("pose: delivery-integrity index not found; run `pose index`")
+	}
+	if !viewDeliveryIntegrityGraph(s.Root, raw, fn) {
+		return errInvalidDeliveryIndex
+	}
+	return nil
+}
+
+var errInvalidDeliveryIndex = errors.New("pose: invalid delivery-integrity index")
+
+// estimateGraphBytes estimates the heap a parsed graph retains: string bytes plus a
+// fixed cost per string header, slice element and map entry. It is calibrated against
+// the measured heap of the real index (TestGraphByteEstimateTracksTheMeasuredHeap),
+// not claimed exact.
+func estimateGraphBytes(g DeliveryIntegrityGraph) int64 {
+	const header, entry = 16, 48
+	str := func(s string) int64 { return int64(len(s)) + header }
+	var n int64
+	for _, node := range g.Nodes {
+		n += str(node.ID) + str(node.Type) + 64
+		for k, v := range node.Attributes {
+			n += str(k) + str(v) + entry
+		}
+	}
+	for _, e := range g.Edges {
+		n += str(e.From) + str(e.To) + str(e.Type) + 24
+	}
+	for _, c := range g.Claims {
+		n += str(c.Spec) + str(c.Path) + str(c.Action) + str(c.OldPath) + str(c.NewPath) + 48
+	}
+	for _, set := range g.ChangeSets {
+		n += str(set.ID) + str(set.Spec) + str(set.Selector) + str(set.Base) + str(set.Head) + str(set.ResolvedBase) + str(set.ResolvedHead) + str(set.DiffDigest) + str(set.MaterialDigest) + 96
+		for _, c := range set.Commits {
+			n += str(c)
+		}
+		for _, p := range set.Paths {
+			n += str(p.Action) + str(p.Path) + str(p.OldPath) + str(p.NewPath) + 24
+		}
+	}
+	for k, v := range g.Reverse {
+		n += str(k) + entry
+		for _, s := range v {
+			n += str(s)
+		}
+	}
+	for k, v := range g.Paths {
+		n += str(k) + entry
+		for _, s := range v {
+			n += str(s)
+		}
+	}
+	for _, f := range g.Findings {
+		n += str(f.ID) + str(f.Code) + str(f.Severity) + str(f.Spec) + str(f.Path) + str(f.ChangeSet) + str(f.Message) + str(f.Remediation) + 32
+	}
+	for _, d := range g.Deliveries {
+		n += int64(len(d.Ref)) + 96
+	}
+	for _, r := range g.ValidationResults {
+		n += str(r.ID) + str(r.Module) + str(r.Check) + str(r.EvidenceClass) + str(r.Outcome) + str(r.GitHead) + str(r.Report) + 96
+		for k, v := range r.ScopeProvenance {
+			n += str(k) + str(v) + entry
+		}
+		for k, v := range r.MaterialProvenance {
+			n += str(k) + str(v) + entry
+		}
+	}
+	return n + int64(len(g.RoadmapCriteria)+len(g.Archivals)+len(g.Removals))*128
 }
 
 // decodeDeliveryIntegrityIndex reads schema 1, written as the expanded graph, and
@@ -86,18 +192,6 @@ func decodeDeliveryIntegrityIndex(raw []byte) (DeliveryIntegrityGraph, bool) {
 	return DeliveryIntegrityGraph{}, false
 }
 
-func bytesEqual(a, b []byte) bool {
-	if len(a) != len(b) {
-		return false
-	}
-	for i := range a {
-		if a[i] != b[i] {
-			return false
-		}
-	}
-	return true
-}
-
 func copyStringMap(in map[string]string) map[string]string {
 	if in == nil {
 		return nil
@@ -114,7 +208,11 @@ func copyStringMap(in map[string]string) map[string]string {
 // without being handled here, so an omission cannot become a silently shared slice.
 func copyDeliveryIntegrityGraph(in DeliveryIntegrityGraph) DeliveryIntegrityGraph {
 	out := in
-	out.Nodes = append([]DeliveryIntegrityNode{}, in.Nodes...)
+	out.Nodes = make([]DeliveryIntegrityNode, len(in.Nodes))
+	for i, node := range in.Nodes {
+		node.Attributes = copyStringMap(node.Attributes)
+		out.Nodes[i] = node
+	}
 	out.Edges = append([]DeliveryIntegrityEdge{}, in.Edges...)
 	out.Claims = append([]ArtifactClaim{}, in.Claims...)
 	out.Findings = append([]DeliveryIntegrityFinding{}, in.Findings...)
@@ -125,7 +223,12 @@ func copyDeliveryIntegrityGraph(in DeliveryIntegrityGraph) DeliveryIntegrityGrap
 		result.MaterialProvenance = copyStringMap(result.MaterialProvenance)
 		out.ValidationResults[i] = result
 	}
-	out.RoadmapCriteria = append([]RoadmapCriterion{}, in.RoadmapCriteria...)
+	out.RoadmapCriteria = make([]RoadmapCriterion, len(in.RoadmapCriteria))
+	for i, criterion := range in.RoadmapCriteria {
+		criterion.Refs = append([]string(nil), criterion.Refs...)
+		criterion.Reasons = append([]string(nil), criterion.Reasons...)
+		out.RoadmapCriteria[i] = criterion
+	}
 	out.Archivals = append([]ArchivedFragment{}, in.Archivals...)
 	out.Removals = make([]ArtifactRemoval, len(in.Removals))
 	for i, r := range in.Removals {

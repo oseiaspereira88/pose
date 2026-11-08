@@ -20,7 +20,6 @@ import (
 	"regexp"
 	"sort"
 	"strings"
-	"sync"
 )
 
 const (
@@ -300,25 +299,22 @@ func AssessDesignDelta(root string, subject ReviewBundleSubject, scope string, o
 // out would let one caller's edit reach the next — the aliasing class this
 // repository has now found three times, in focusSurfaceGraph, in the delivery
 // index filter and here.
-var designDeltaCache = struct {
-	sync.Mutex
-	reports map[string]DesignDeltaReport
-}{reports: map[string]DesignDeltaReport{}}
+//
+// It is bounded in bytes (spec pose-bounded-isolated-graph-caches R4): a report is
+// small, but a long-lived server sees every distinct subject.
+var designDeltaCache = newBoundedCache(32<<20, 16<<20, 0, copyDesignDeltaReport)
 
-func cachedDesignDelta(key string) (DesignDeltaReport, bool) {
-	designDeltaCache.Lock()
-	defer designDeltaCache.Unlock()
-	report, ok := designDeltaCache.reports[key]
-	if !ok {
-		return DesignDeltaReport{}, false
-	}
-	return copyDesignDeltaReport(report), true
-}
+func cachedDesignDelta(key string) (DesignDeltaReport, bool) { return designDeltaCache.Lookup(key) }
 
 func storeDesignDelta(key string, report DesignDeltaReport) {
-	designDeltaCache.Lock()
-	defer designDeltaCache.Unlock()
-	designDeltaCache.reports[key] = copyDesignDeltaReport(report)
+	size := int64(len(key)) + 256
+	for _, d := range report.Deltas {
+		size += int64(len(d.ID)+len(d.Kind)+len(d.Subject)+len(d.Path)+len(d.OldPath)+len(d.NewPath)) + 160
+	}
+	for _, w := range report.Warnings {
+		size += int64(len(w)) + 16
+	}
+	designDeltaCache.Store("design-delta", key, report, size)
 }
 
 // copyDesignDeltaReport copies every slice the report owns.

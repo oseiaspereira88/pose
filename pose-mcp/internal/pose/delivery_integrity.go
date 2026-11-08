@@ -551,7 +551,7 @@ func (s Store) GetDeliveryIntegrity(path string) (DeliveryIntegrityGraph, error)
 	if err != nil {
 		return DeliveryIntegrityGraph{}, fmt.Errorf("pose: delivery-integrity index not found; run `pose index`")
 	}
-	graph, ok := parseDeliveryIntegrityGraph(raw)
+	graph, ok := parseDeliveryIntegrityGraph(s.Root, raw)
 	if !ok {
 		return DeliveryIntegrityGraph{}, fmt.Errorf("pose: invalid delivery-integrity index")
 	}

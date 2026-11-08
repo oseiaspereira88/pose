@@ -1,9 +1,9 @@
 package pose
 
 import (
+	"context"
 	"errors"
 	"strings"
-	"sync"
 )
 
 // Two Git reads dominated `pose check --strict` by process count (spec
@@ -13,40 +13,40 @@ import (
 // pose-dist at 2026-10-09: 12,339 and 9,211 of 29,500 Git processes.
 
 // commitPaths caches the paths each commit changed. A commit's content is
-// immutable, so the answer never goes stale, even in a long-lived server.
-var commitPaths = struct {
-	sync.Mutex
-	byKey map[string]map[string]bool
-}{byKey: map[string]map[string]bool{}}
-
-const commitPathsCacheLimit = 20000
-
-// commitChangedPaths returns the paths commit changed, read once per process.
-// ok is false when Git cannot answer.
-func commitChangedPaths(root, commit string) (map[string]bool, bool) {
-	key := root + "\x00" + commit
-	commitPaths.Lock()
-	paths, cached := commitPaths.byKey[key]
-	commitPaths.Unlock()
-	if cached {
-		return paths, true
+// immutable, so the answer never goes stale, even in a long-lived server. It is
+// bounded in bytes and metered per repository root (spec
+// pose-bounded-isolated-graph-caches R4/R6): the previous cap counted entries and
+// dropped everything at once, and the paths of one commit can be many or few.
+var commitPaths = newBoundedCache(64<<20, 32<<20, 0, func(m map[string]bool) map[string]bool {
+	out := make(map[string]bool, len(m))
+	for k, v := range m {
+		out[k] = v
 	}
-	raw, err := gitCommand("-C", root, "diff-tree", "--root", "--no-commit-id", "--name-only", "--no-renames", "-r", "-z", commit).Output()
+	return out
+})
+
+// commitChangedPaths returns the paths commit changed, read once per process (and
+// once when several callers ask together). ok is false when Git cannot answer; a
+// failure is not remembered.
+func commitChangedPaths(root, commit string) (map[string]bool, bool) {
+	paths, err := commitPaths.Get(context.Background(), root, root+"\x00"+commit, func() (map[string]bool, int64, error) {
+		raw, err := gitCommand("-C", root, "diff-tree", "--root", "--no-commit-id", "--name-only", "--no-renames", "-r", "-z", commit).Output()
+		if err != nil {
+			return nil, 0, err
+		}
+		paths := map[string]bool{}
+		var size int64 = 64
+		for _, path := range strings.Split(string(raw), "\x00") {
+			if path != "" {
+				paths[path] = true
+				size += int64(len(path)) + 64
+			}
+		}
+		return paths, size, nil
+	})
 	if err != nil {
 		return nil, false
 	}
-	paths = map[string]bool{}
-	for _, path := range strings.Split(string(raw), "\x00") {
-		if path != "" {
-			paths[path] = true
-		}
-	}
-	commitPaths.Lock()
-	if len(commitPaths.byKey) >= commitPathsCacheLimit {
-		commitPaths.byKey = map[string]map[string]bool{}
-	}
-	commitPaths.byKey[key] = paths
-	commitPaths.Unlock()
 	return paths, true
 }
 

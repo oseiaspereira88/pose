@@ -297,9 +297,10 @@ func (s Store) recordDelegatedVerdict(run ReviewRun, bundle ReviewBundle, draft 
 			return "", "", err
 		}
 		scoped := ""
-		if graph, err := s.GetDeliveryIntegrity(""); err == nil {
+		// Read-only: only the scoped digest is taken, so the graph is viewed, not copied.
+		_ = s.ViewDeliveryIntegrity(func(graph DeliveryIntegrityGraph) {
 			scoped = ScopedDeliveryProvenanceDigest(graph, bundle.Payload.Scope.Slug)
-		}
+		})
 		rel = SmokeResultsDir + "/" + run.RunID + ".json"
 		raw, _ = json.MarshalIndent(smokeDocumentFor(run, bundle, draft, targets, proofID, issuer, scoped, now), "", "  ")
 	default:
@@ -617,11 +618,11 @@ func loadSmokeResultsIn(s Store, root string, includeCurrentScopeProvenance bool
 func (s Store) smokeResultsOf(doc smokeResultDocument, run ReviewRun, bundle ReviewBundle, rel string) []DeliveryValidationResult {
 	var scoped map[string]string
 	if current, err := s.CurrentReviewBundle(bundle.Payload.Scope.Ref); err == nil && current != nil && current.BundleID == bundle.BundleID {
-		if graph, err := s.GetDeliveryIntegrity(""); err == nil {
+		_ = s.ViewDeliveryIntegrity(func(graph DeliveryIntegrityGraph) {
 			if digest := ScopedDeliveryProvenanceDigest(graph, bundle.Payload.Scope.Slug); digest != "" {
 				scoped = map[string]string{bundle.Payload.Scope.Slug: digest}
 			}
-		}
+		})
 	}
 	return smokeResultsWithProvenance(doc, run, bundle, rel, scoped)
 }
