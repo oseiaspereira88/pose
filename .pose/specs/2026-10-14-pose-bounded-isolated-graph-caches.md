@@ -1,8 +1,8 @@
 ---
 slug: pose-bounded-isolated-graph-caches
-status: in-progress
+status: done
 created_at: 2026-10-14
-completed_at:
+completed_at: 2026-11-08
 depends_on: pose-index-generation-integrity, pose-governance-read-view-generation, pose-delivery-integrity-index-compaction
 priority: 2
 components: pose-mcp
