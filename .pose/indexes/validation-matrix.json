@@ -2597,6 +2597,22 @@
           "evidenceClass": "integration"
         },
         {
+          "name": "common-domain-and-cli-mcp-handoff-integration",
+          "program": "go",
+          "args": [
+            "test",
+            "-race",
+            "./internal/pose",
+            "./internal/cli",
+            "./internal/mcpserver",
+            "-run",
+            "InProcessRun|CloseoutHandoff|AHandoff|NoHandoff|PendingJudgment|InProcessWrapper|EveryMCPRoute|OnlyAdmitted|ReadOnlyWrappers|KeepTheProcessBoundary|TypedHandoff|StableAndADone|TheMCPPlanIsTheDomainPlan|AdmittedWritesAreExactly|Golden",
+            "-count=1"
+          ],
+          "severity": "required",
+          "evidenceClass": "integration"
+        },
+        {
           "name": "generation-bound-query-cursors-integration",
           "program": "go",
           "args": [

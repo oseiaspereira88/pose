@@ -175,6 +175,43 @@ and 18 MB of allocation where the shallow copy cost 1 ms and 5.7 MB; the view co
 about 39 KB. That is the price of isolation, paid only by consumers that need a
 mutable graph.
 
+## Amendment: common operations and the typed handoff (B31)
+
+Spec `pose-common-domain-and-cli-mcp-handoff` fixes how an MCP route shares code
+with the CLI, without a resident service:
+
+- **Five route classes.** Every MCP tool is declared one of: domain-direct,
+  cli-wrapper, read-only-planning, admitted-write, external-handoff. A test keeps
+  the declaration equal to the advertised catalog, so a tool cannot ship without a
+  class, and checks that the tools that may write are exactly the four governance
+  write points (`pose_action_open`, `pose_action_resolve`, `pose_action_fulfil`,
+  `pose_review_attest`), which revalidate authority, assurance, policy and subjects
+  themselves. The MCP-Conductor-Harness boundary (`pose_validate_*`,
+  `conductor_run_*`) is external-handoff: `tools/call` never becomes the execution
+  of a project's checks.
+- **No second binary for read-only operations the CLI package owns.** The domain
+  wrappers run a registered command function in process when it is read-only and
+  bounded (`suggest`, `followups`). The function is the single source: results,
+  errors and coverage are the CLI's. The contract of the spawned run is kept: a
+  non-zero exit is an error carrying the command's message, and a deadline or a
+  cancellation is an execution failure with no verdict (the run cannot be killed, so
+  it finishes in the background and writes nothing). The gates keep the process
+  boundary: they are long, can be killed on a deadline, and must not leave a half
+  verdict. Spawn attempts and in-process runs are counted so the extraction is
+  evidenced by count, not by promise.
+- **A typed handoff, not an execution.** A closeout plan with steps left carries an
+  `OperationHandoff`: the operation and scope, the CLI invocation as structured
+  arguments (no shell line), the plan, spec, revision, policy and generation digests
+  it was computed from, the authority it needs, how the outcome comes back and when
+  it stops being valid, and `executes: false`. The request id is derived from the
+  operation, scope and plan digest, so a stale handoff is not mistaken for the
+  current one. It carries no secret, grants no authority and infers no context: the
+  performer supplies `--expect-context` from a fresh `pose context`. A plan that
+  is blocked or terminal has none.
+- **Not shared by sharing code.** stdio is not an IPC channel shared between
+  clients; an MCP transport gains no Execution Identity, signature or human presence
+  of the CLI by calling the same function.
+
 ## Related specs
 
 - [B31](../specs/2026-10-14-pose-common-domain-and-cli-mcp-handoff.md)

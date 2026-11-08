@@ -141,6 +141,13 @@ func (s Store) runGate(ctx context.Context, args []string) (*GateResult, error) 
 // runCLI executes a JSON-emitting, side-effect-free pose command; any
 // non-zero exit is an error (these commands always succeed structurally).
 func (s Store) runCLI(ctx context.Context, args []string) ([]byte, error) {
+	// A read-only command whose semantics the CLI package owns runs in process: one
+	// source of results, errors and coverage, and no second binary to start (spec
+	// pose-common-domain-and-cli-mcp-handoff R1).
+	if run, ok := inProcessCommand(args[0]); ok {
+		return s.runInProcess(ctx, run, args)
+	}
+	cliSpawnAttempts.Add(1)
 	executable, err := s.nativeExecutablePath()
 	if err != nil {
 		return nil, err
@@ -178,6 +185,7 @@ func (s Store) runCLI(ctx context.Context, args []string) ([]byte, error) {
 // is an inconclusive execution, never a failed gate (spec
 // pose-cli-mcp-operation-results R5).
 func (s Store) runCLIExit(ctx context.Context, args []string) ([]byte, int, error) {
+	cliSpawnAttempts.Add(1)
 	executable, err := s.nativeExecutablePath()
 	if err != nil {
 		return nil, -1, err

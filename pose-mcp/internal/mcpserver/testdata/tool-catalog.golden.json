@@ -823,7 +823,7 @@
       "name": "pose_start_status"
     },
     {
-      "description": "Read the evidence-backed hierarchical closeout projection for a typed spec, milestone or roadmap scope. Returns current or stale review state, child blockers, the smallest next governed action and terminal status, with the operation's read_view bindings, freshness and limitations. An unknown input closure cannot certify terminal status. For spec scopes, include_plan adds the CLI execution plan; unknown Git returns an error.",
+      "description": "Read the evidence-backed hierarchical closeout projection for a typed spec, milestone or roadmap scope. Returns current or stale review state, child blockers, the smallest next governed action and terminal status, with the operation's read_view bindings, freshness and limitations. An unknown input closure cannot certify terminal status. For spec scopes, include_plan adds the CLI execution plan; unknown Git returns an error. When the plan has steps left to apply, the result also carries a typed handoff: the CLI invocation as structured arguments, the digests it was computed from, the authority it needs and when it stops being valid. The handoff executes nothing and is not an approval.",
       "inputSchema": {
         "properties": {
           "include_plan": {

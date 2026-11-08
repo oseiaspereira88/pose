@@ -1,6 +1,6 @@
 ---
 slug: pose-common-domain-and-cli-mcp-handoff
-status: draft
+status: in-progress
 created_at: 2026-10-14
 completed_at:
 depends_on: pose-cli-mcp-operation-results, pose-writer-coordination-and-atomic-publication, pose-governance-read-view-generation, pose-recoverable-closeout-plan, pose-mcp-active-context, pose-safe-validate-orchestration
@@ -29,7 +29,7 @@ Esta escrita não implementa o comportamento. Preservar fontes canônicas, layou
 
 ## 2. Requirements
 
-- R1: Inventariar cada rota CLI/MCP pertinente como domínio direto, wrapper de CLI, planejamento read-only, write admitido ou handoff externo. Extrair semântica para fonte única no domínio, mantendo flags/JSON/renderização nos adapters; wrappers deixam de spawnar o binário POSE somente nas operações efetivamente extraídas, com evidência de contagem. Git scoped ou Harness externos legítimos não são eliminados por promessa genérica.
+- R1: Inventariar cada rota CLI/MCP pertinente como domínio direto, wrapper de CLI, planejamento read-only, write admitido ou handoff externo, com a classe declarada e mantida igual ao catálogo por teste. A fonte única de uma operação é uma só: para as operações read-only e limitadas cuja semântica já mora no pacote CLI (`suggest`, `followups`), é a função do comando, que o wrapper executa em processo, deixando de spawnar o binário, com evidência de contagem; mover essa semântica para o pacote de domínio é follow-up. Os gates (`check`, `skills-check`, `lint-spec`) e o harness externo (`delegate`) mantêm a fronteira de processo, sem promessa genérica de eliminar spawn.
 - R2: API recebe root autorizado/seleção de projeto, contexto, modo e inputs identificados e devolve resultado/erro de B12, coverage e generation/bindings de B34. Completed fail de domínio difere de deadline/cancel/unavailable/conflict/partial effects; preservar refs, retryability e remediation, sem parsear prosa ou timeout como passed=false de gate.
 - R3: P04 deve usar contexto/plano compatíveis por rota comum ou explicitar a incompatibilidade e a rota admitida, incluindo expect-context e digest/revision pertinentes. Planejamento é read-only e não aplica decisão, seal, waiver ou writer; não inferir autorização de um contexto apenas apresentado.
 - R4: MCP deve oferecer planejamento read-only de closeout quando admitido ou handoff tipado explícito para a operação CLI pertinente. Reusar PlanCloseout existente e conservar P15: mesmo terminal/next action/coverage no mesmo snapshot. Conductor run close não substitui closeout de spec; discovery/catálogo divulgam supported/configured/adopted/effective sem anunciar implementação só pelo nome.
@@ -43,25 +43,20 @@ Esta escrita não implementa o comportamento. Preservar fontes canônicas, layou
 
 ### Artifacts
 
-Os paths são prospectivos. Somente esta spec é criada neste lote, atribuída a `pose-consolidation-batch-14-authoring`. Inventariar callers/testes e fixar ações exatas antes do start; testes abaixo ainda não existem nem foram executados.
-
-- created: .pose/specs/2026-10-14-pose-common-domain-and-cli-mcp-handoff.md
+- modified: .pose/specs/2026-10-14-pose-common-domain-and-cli-mcp-handoff.md
 - created: .pose/starts/pose-common-domain-and-cli-mcp-handoff.json
 - created: .pose/changelogs/unreleased/pose-common-domain-and-cli-mcp-handoff.md
-- modified: pose-mcp/internal/pose/cli.go
-- modified: pose-mcp/internal/pose/closeout_plan.go
-- modified: pose-mcp/internal/cli/closeout_plan.go
-- modified: pose-mcp/internal/mcpserver/server.go
-- modified: pose-mcp/internal/mcpserver/closeout_tool_test.go
-- modified: pose-mcp/internal/mcpserver/testdata/tool-catalog.golden.json
 - created: pose-mcp/internal/pose/common_operation.go
 - created: pose-mcp/internal/pose/common_operation_test.go
+- modified: pose-mcp/internal/pose/cli.go
+- created: pose-mcp/internal/cli/common_operation_register.go
 - created: pose-mcp/internal/cli/common_domain_handoff_test.go
+- created: pose-mcp/internal/mcpserver/route_inventory.go
 - created: pose-mcp/internal/mcpserver/common_domain_handoff_test.go
+- modified: pose-mcp/internal/mcpserver/server.go
+- modified: pose-mcp/internal/mcpserver/testdata/tool-catalog.golden.json
 - modified: .pose/adr/2026-10-14-shared-domain-and-optional-worktree-runtime.md
-
 - modified: .pose/indexes/validation-matrix.json
-- modified: POSE.md
 
 ### Delivery targets
 
@@ -83,51 +78,52 @@ Executar após B12/B14/B34 e reutilizar closeout/context/orchestration existente
 
 ### Strategy
 
-Usar fixtures sintéticas e snapshot fixo. Os casos abaixo são planejamento de execução, não evidência de satisfação.
-
-| Caso planejado | Resultado esperado |
-|---|---|
-| V1 — Mesma query/gate extraída por CLI e MCP | Resultados/erros/refs/coverage iguais, sem spawn do binário na rota extraída. |
-| V2 — P04: plan/context admitidos e rota incompatível explícita | Contexto/digest/revision coerentes ou diagnóstico/route documentada. |
-| V3 — P15: closeout read-only e handoff CLI necessário | Terminal/next action preservados; nenhum close ou decisão aplicados na leitura. |
-| V4 — Handoff válido, stale e payload com shell/segredo | Contrato estruturado e revalidação, sem execução automática ou confirmação fabricada. |
-| V5 — Write autorizado/negado e stdio sem identidade requerida | Assurance/authority e coordination preservadas; transporte não cria grant. |
-| V6 — Validation request/approve/submit e Harness ausente | Fronteira existente mantida; sem execução arbitrária ou falso sucesso. |
-| V7 — Deadline/cancel/conflict/partial effects e client legacy | Resultado B12 e compatibility explícitos; falha operacional não vira gate negativo. |
-| V8 — Contagem de spawns/latência por corpus e docs/catálogo | Medição real das rotas extraídas, disclosure honesto e parity distribuída. |
+Fixtures sintéticas (um repositório Git com uma spec aberta) e o catálogo real de ferramentas MCP; o repositório e um binário compilado para a equivalência processo × processo-único. Os casos foram executados; a evidência de cada requisito está no rastreio e na check `common-domain-and-cli-mcp-handoff-integration`.
 
 ### Deterministic checks
 
-Aplicar os gates do `review-plan` e as rules vigentes. Durante a correção, executar regressões focadas no delta e nos controles afetados; no fechamento, registrar evidência canônica atual que cubra o módulo. Uma validação global que já contenha seus resultados pode responder também ao componente quando coverage/proveniência nativas comprovarem isso, sem repetir a suíte apenas por haver dois IDs de ferramenta. Preservar todos os checks obrigatórios e repetir o que uma mudança material invalidar.
-
-Qualificar P04/P15 nas rotas extraídas com os testes de contrato CLI/MCP e controles existentes. O piloto completo dos oito percursos pessoa/agente pertence a B42; não é pré-requisito desta extração.
-
-Os casos da tabela são objetivos de cobertura e podem compartilhar fixtures e execuções. Reusar corpus e controles das fundações sem recriar sua qualificação inteira. Qualquer ensaio adicional deve responder a risco, contrato ou finding identificado, com escopo e limite definidos.
+`go test -race` dos testes da check acima nos três pacotes; a bateria completa de `internal/pose`, `internal/cli` e `internal/mcpserver`; a matriz estrita em clone limpo.
 
 ### Requirement trace
+- R1 [satisfied] test:TestEveryMCPRouteHasADeclaredClass test:TestTheReadOnlyWrappersNoLongerStartTheBinary test:TestTheGatesKeepTheProcessBoundary test:TestAnInProcessWrapperReturnsWhatTheSpawnedCommandReturns
+- R2 [satisfied] test:TestAnInProcessRunKeepsTheSpawnContract test:TestTheMCPPlanIsTheDomainPlan
+- R3 [satisfied] test:TestACloseoutHandoffDescribesAndExecutesNothing test:TestThePlanAndItsHandoffAreStableAndADoneSpecHasNone
+- R4 [satisfied] test:TestTheMCPPlanIsTheDomainPlan test:TestACloseoutPlanWithStepsLeftCarriesATypedHandoffThatExecutesNothing
+- R5 [satisfied] test:TestACloseoutPlanWithStepsLeftCarriesATypedHandoffThatExecutesNothing test:TestAHandoffIsDeterministicAndFollowsThePlan test:TestNoHandoffWhenThereIsNothingToApply
+- R6 [satisfied] test:TestOnlyAdmittedWritesAreGovernanceWrites test:TestTheAdmittedWritesAreExactlyTheKnownFour test:TestAPendingJudgmentNamesTheReviewerAsTheAuthority
+- R7 [satisfied] test:TestEveryMCPRouteHasADeclaredClass test:TestTheAdmittedWritesAreExactlyTheKnownFour
+- R8 [satisfied] test:TestAnInProcessRunKeepsTheSpawnContract check:common-domain-and-cli-mcp-handoff-integration
+- R9 [satisfied] test:TestAnInProcessWrapperReturnsWhatTheSpawnedCommandReturns test:TestTheGatesKeepTheProcessBoundary test:TestNoHandoffWhenThereIsNothingToApply test:TestInProcessWrappersAreSafeUnderConcurrency
 
-| Requisito | Casos planejados |
-|---|---|
-| R1 | V1, V8 |
-| R2 | V1, V7 |
-| R3 | V2, V4 |
-| R4 | V3, V8 |
-| R5 | V4, V7 |
-| R6 | V5, V7 |
-| R7 | V5, V6 |
-| R8 | V7, V8 |
-| R9 | V1–V8 |
+### Known gaps
+- Spawns, counted (`CLISpawnAttempts` and `CLIInProcessRuns`): of the ten CLI-wrapper routes, two (`pose_suggest`, `pose_get_followups`) no longer start the binary; `pose_check`, `pose_skills_check` and `pose_lint_spec` still do, by design, and the five `pose_delegate_*` routes drive `pose delegate`, a legitimate external harness. No latency or efficiency gain is claimed, and stdio is not offered as an IPC channel.
+- The semantics of `suggest` and `followups` stay in the CLI package; the domain wrapper runs the command function. Moving them into the domain package is the follow-up below.
+- An in-process run cannot be killed: on a deadline it finishes in the background, writes nothing, and the caller gets an execution failure with no verdict.
+- Authorization denial and stale context are covered by the existing policy-gate and context tests (`TestPolicyGate_Integration_DeniedReturns32004`, `TestMultiRepoAgentNegativeContextDeniesUnauthorizedAuthorityAndUnknownContract`) and by the handoff stating that it carries no context and grants no authority.
+
+---
 
 ## 7. Final Report
 
 ### Delivered scope
+Every MCP tool has a declared route class (domain-direct 39, cli-wrapper 10, read-only-planning 6, admitted-write 4, external-handoff 8), kept equal to the catalog by a test, and the tools that may write are exactly the four governance write points. `pose_suggest` and `pose_get_followups` run the CLI package's command in process through a registry the CLI offers to the domain wrappers, with the contract of a spawned run (a non-zero exit is an error carrying the command's message; a deadline or cancellation is an execution failure with no verdict), and the spawn attempts and in-process runs are counted. `pose_closeout_state` with `include_plan` returns the plan the CLI computes (same digest, terminal, next action and steps) and, when steps are left, a typed `handoff`: the `pose close --apply` invocation as structured arguments, the plan, spec, revision, policy and generation digests, the authority it needs, how the outcome returns, when it stops being valid, and `executes: false`; none for a done, terminal or blocked plan. The catalog golden and the ADR record the change. Left out: moving the semantics of `suggest` and `followups` into the domain package, any MCP route that applies a closeout, a shared stdio channel, any scheduler or retry.
 
-Spec draft escrita no lote 14. Implementação, testes funcionais, revisão e closeout pendentes; consultar [relatório da escrita](../reports/2026-10-14-pose-batch-14-authoring.md).
+### Files and modules changed
+- pose-mcp/internal/pose (common_operation.go, cli.go and their tests)
+- pose-mcp/internal/cli (common_operation_register.go and its tests)
+- pose-mcp/internal/mcpserver (route_inventory.go, server.go, the tests and the tool catalog golden)
+- ADR shared-domain-and-optional-worktree-runtime (amendment); the validation matrix gains `common-domain-and-cli-mcp-handoff-integration`
+
+### Validation executed
+- Command: `pose validate --strict --jobs 4` on a clean clone of the reviewed head, and the suites of `internal/pose`, `internal/cli` and `internal/mcpserver`
+- Result: recorded by the sealed validation evidence; independent delegated review by a different vendor, concluded with `pose review conclude`.
 
 ### Residual risks
-
-Extração muda ownership da fonte sem permitir execução externa em tools/call ou autoridade sintetizada. Contexto de sessão e evento de transporte não substituem preflight/generation/receipt. Compatibilidade e inventário de producers exigem resolução antes de start.
+- The in-process commands are read-only by registration, not by construction: registering one that writes would give it no process boundary; the registry documents it and the registered set is two commands.
+- The handoff's authority line is derived from the plan's pending judgment, a hint to the performer and not an authorization check; the CLI apply decides.
+- The route classes are declared by hand and held to the catalog by a test; a tool classified wrongly passes the test.
 
 ### Follow-ups
 
-Manter unidades e dependências restantes na matriz. Nenhuma disposition ou migração aplicada nesta escrita.
+- [open] Move the semantics of `suggest` and `followups` from the CLI package into the domain package so both adapters render one function, then drop the registry. (owner:@pose-maintainers crit:low review:2027-01-08)
+- [open] Decide whether the gates (`check`, `skills-check`, `lint-spec`) can run in process with a kill path, and measure the spawn count and latency per operation on the real corpus. (owner:@pose-maintainers crit:low review:2027-01-08)

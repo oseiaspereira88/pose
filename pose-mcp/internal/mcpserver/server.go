@@ -1595,10 +1595,13 @@ func (s *Server) dispatch(ctx context.Context, name string, args json.RawMessage
 		if plan == nil {
 			return state, nil
 		}
+		// The operation the plan leaves to another actor is described, never run: the
+		// handoff carries structured arguments and the digests it was computed from.
 		return struct {
 			pose.CloseoutState
-			ExecutionPlan *pose.CloseoutPlan `json:"execution_plan"`
-		}{state, plan}, nil
+			ExecutionPlan *pose.CloseoutPlan     `json:"execution_plan"`
+			Handoff       *pose.OperationHandoff `json:"handoff,omitempty"`
+		}{state, plan, pose.CloseoutHandoff(*plan)}, nil
 	case "pose_review_plan":
 		var a struct {
 			Scope string `json:"scope"`
@@ -2861,7 +2864,10 @@ func baseToolDefinitions() []map[string]any {
 				"spec, milestone or roadmap scope. Returns current or stale review state, child " +
 				"blockers, the smallest next governed action and terminal status, with the operation's " +
 				"read_view bindings, freshness and limitations. An unknown input closure cannot certify " +
-				"terminal status. For spec scopes, include_plan adds the CLI execution plan; unknown Git returns an error.",
+				"terminal status. For spec scopes, include_plan adds the CLI execution plan; unknown Git returns an error. " +
+				"When the plan has steps left to apply, the result also carries a typed handoff: the CLI invocation as " +
+				"structured arguments, the digests it was computed from, the authority it needs and when it stops being " +
+				"valid. The handoff executes nothing and is not an approval.",
 			"inputSchema": map[string]any{
 				"type": "object",
 				"properties": map[string]any{
