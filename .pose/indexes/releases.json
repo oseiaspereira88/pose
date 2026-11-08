@@ -41,6 +41,14 @@
       "digest": "sha256:d5df25958acb84a2ee7dd499572de9d1c67b8e4308e79b52a72d9de5b6c83810"
     },
     {
+      "spec": "pose-bounded-isolated-graph-caches",
+      "category": "changed",
+      "breaking": false,
+      "body": "The caches of rebuildable data are bounded in bytes and isolated. The parsed\ndelivery graph, the design-delta report and the test catalog share one cache that evicts by retained bytes under a global budget and a\nbudget per worktree, produces a missed key once however many callers ask, lets a\nwaiter leave without disturbing the others, and never remembers a failure. A\nreturned graph shares no map or slice with the cache: the attribute maps of the\nnodes and the refs of the roadmap criteria were shared before. Read-only\nconsumers can view the graph without a copy. The test catalog is keyed by the\nvalidation matrix and expires after 30 seconds.",
+      "path": "pose-bounded-isolated-graph-caches.md",
+      "digest": "sha256:f82745f7617af27b174546d75a5e5f405d91420f470b0f560528136d8de216e7"
+    },
+    {
       "spec": "pose-cli-mcp-operation-results",
       "category": "changed",
       "breaking": false,
