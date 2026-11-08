@@ -170,17 +170,51 @@ func TestAPositionOutsideTheCollectionIsRefused(t *testing.T) {
 	items, keys := cursorFixture(12)
 	digest := CollectionDigest("gen-1", keys)
 	for name, p := range map[string]cursorPayload{
-		"beyond the end": {V: GenerationCursorVersion, Tool: cursorQuery.Tool, Project: cursorQuery.Project, Filters: cursorQuery.Filters, Collection: digest, After: 99, AfterKey: "item-98", Expires: now.Add(time.Minute).Unix()},
-		"wrong key":      {V: GenerationCursorVersion, Tool: cursorQuery.Tool, Project: cursorQuery.Project, Filters: cursorQuery.Filters, Collection: digest, After: 5, AfterKey: "item-77", Expires: now.Add(time.Minute).Unix()},
-		"zero":           {V: GenerationCursorVersion, Tool: cursorQuery.Tool, Project: cursorQuery.Project, Filters: cursorQuery.Filters, Collection: digest, After: 0, AfterKey: "", Expires: now.Add(time.Minute).Unix()},
+		"beyond the end": {V: GenerationCursorVersion, Tool: cursorQuery.Tool, Bind: queryBinding(cursorQuery), Collection: digest, After: 99, AfterKey: "item-98", Expires: now.Add(time.Minute).Unix()},
+		"wrong key":      {V: GenerationCursorVersion, Tool: cursorQuery.Tool, Bind: queryBinding(cursorQuery), Collection: digest, After: 5, AfterKey: "item-77", Expires: now.Add(time.Minute).Unix()},
+		"zero":           {V: GenerationCursorVersion, Tool: cursorQuery.Tool, Bind: queryBinding(cursorQuery), Collection: digest, After: 0, AfterKey: "", Expires: now.Add(time.Minute).Unix()},
 	} {
 		_, _, _, err := PageByGeneration(key, cursorQuery, "gen-1", items, keys, sealCursor(key, p), 5, now)
 		if CursorErrorCode(err) != CursorPosition {
 			t.Errorf("%s: want %s, got %v", name, CursorPosition, err)
 		}
 	}
-	bad := cursorPayload{V: 9, Tool: cursorQuery.Tool, Project: cursorQuery.Project, Filters: cursorQuery.Filters, Collection: digest, After: 5, AfterKey: "item-04", Expires: now.Add(time.Minute).Unix()}
+	bad := cursorPayload{V: 9, Tool: cursorQuery.Tool, Bind: queryBinding(cursorQuery), Collection: digest, After: 5, AfterKey: "item-04", Expires: now.Add(time.Minute).Unix()}
 	if _, _, _, err := PageByGeneration(key, cursorQuery, "gen-1", items, keys, sealCursor(key, bad), 5, now); CursorErrorCode(err) != CursorUnsupportedVersion {
 		t.Fatalf("an unsupported version was accepted: %v", err)
+	}
+}
+
+func TestAContinuationWithoutALimitIsStillABoundedPage(t *testing.T) {
+	key, now := mustKey(t), time.Now()
+	items, keys := cursorFixture(GenerationPageMax*2 + 200)
+	_, next, _, err := PageByGeneration(key, cursorQuery, "gen-1", items, keys, "", 1, now)
+	if err != nil || next == "" {
+		t.Fatal(err)
+	}
+	page, _, _, err := PageByGeneration(key, cursorQuery, "gen-1", items, keys, next, 0, now)
+	if err != nil || len(page) != GenerationPageMax {
+		t.Fatalf("a continuation without limit returned %d items, want %d: %v", len(page), GenerationPageMax, err)
+	}
+}
+
+func TestAnIssuedCursorStaysWithinTheSizeBoundForHugeFilters(t *testing.T) {
+	key, now := mustKey(t), time.Now()
+	items, keys := cursorFixture(12)
+	q := GenerationQuery{Tool: "pose_list_specs", Project: "proj|abc", Filters: strings.Repeat("status=draft;", 400)}
+	_, next, _, err := PageByGeneration(key, q, "gen-1", items, keys, "", 5, now)
+	if err != nil || len(next) == 0 || len(next) > GenerationCursorMaxBytes {
+		t.Fatalf("a cursor for a huge filter set is %d bytes: %v", len(next), err)
+	}
+	if _, _, _, err := PageByGeneration(key, q, "gen-1", items, keys, next, 5, now); err != nil {
+		t.Fatalf("the issued cursor is refused on receipt: %v", err)
+	}
+}
+
+func TestEveryPageStatesItsCost(t *testing.T) {
+	items, keys := cursorFixture(3)
+	_, _, meta, err := PageByGeneration(mustKey(t), cursorQuery, "gen-1", items, keys, "", 2, time.Now())
+	if err != nil || !strings.Contains(meta.Cost, "full-scan") {
+		t.Fatalf("a page must state its cost: %+v %v", meta, err)
 	}
 }

@@ -345,7 +345,7 @@
             "type": "string"
           },
           "limit": {
-            "description": "Optional page size; omit to return every item in one page (default, unpaginated — preserves the pre-pagination response shape). Large unfiltered result sets return a `notice` field nudging you toward a narrower filter or a smaller limit — check for it before assuming the response is complete.",
+            "description": "Optional page size (at most 500; a continuation with a cursor is always a bounded page); omit it together with the cursor to return every item in one page (default, unpaginated — preserves the pre-pagination response shape). Every page recomputes the whole collection and its exact total, so limit bounds the page returned, not the work done. Large unfiltered result sets return a `notice` field nudging you toward a narrower filter or a smaller limit — check for it before assuming the response is complete.",
             "type": "integer"
           },
           "project_id": {
@@ -1007,7 +1007,7 @@
             "type": "string"
           },
           "limit": {
-            "description": "Optional page size; omit to return every item in one page (default, unpaginated — preserves the pre-pagination response shape). Large unfiltered result sets return a `notice` field nudging you toward a narrower filter or a smaller limit — check for it before assuming the response is complete.",
+            "description": "Optional page size (at most 500; a continuation with a cursor is always a bounded page); omit it together with the cursor to return every item in one page (default, unpaginated — preserves the pre-pagination response shape). Every page recomputes the whole collection and its exact total, so limit bounds the page returned, not the work done. Large unfiltered result sets return a `notice` field nudging you toward a narrower filter or a smaller limit — check for it before assuming the response is complete.",
             "type": "integer"
           },
           "project_id": {
@@ -1341,7 +1341,7 @@
             "type": "string"
           },
           "limit": {
-            "description": "Optional page size; omit to return every item in one page (default, unpaginated — preserves the pre-pagination response shape). Large unfiltered result sets return a `notice` field nudging you toward a narrower filter or a smaller limit — check for it before assuming the response is complete.",
+            "description": "Optional page size (at most 500; a continuation with a cursor is always a bounded page); omit it together with the cursor to return every item in one page (default, unpaginated — preserves the pre-pagination response shape). Every page recomputes the whole collection and its exact total, so limit bounds the page returned, not the work done. Large unfiltered result sets return a `notice` field nudging you toward a narrower filter or a smaller limit — check for it before assuming the response is complete.",
             "type": "integer"
           },
           "project_id": {
@@ -1382,7 +1382,7 @@
             "type": "string"
           },
           "limit": {
-            "description": "Optional page size; omit to return every item in one page (default, unpaginated — preserves the pre-pagination response shape). Large unfiltered result sets return a `notice` field nudging you toward a narrower filter or a smaller limit — check for it before assuming the response is complete.",
+            "description": "Optional page size (at most 500; a continuation with a cursor is always a bounded page); omit it together with the cursor to return every item in one page (default, unpaginated — preserves the pre-pagination response shape). Every page recomputes the whole collection and its exact total, so limit bounds the page returned, not the work done. Large unfiltered result sets return a `notice` field nudging you toward a narrower filter or a smaller limit — check for it before assuming the response is complete.",
             "type": "integer"
           },
           "project_id": {

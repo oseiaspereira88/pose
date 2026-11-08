@@ -960,6 +960,7 @@ func (s *Server) dispatch(ctx context.Context, name string, args json.RawMessage
 		if err := json.Unmarshal(args, &a); err != nil {
 			return nil, fmt.Errorf("pose_capability_history: invalid arguments")
 		}
+		genBefore := pageGeneration(store)
 		events, err := pose.LoadCapabilityHistory(store.CapabilityHistoryPath())
 		if err != nil {
 			return nil, fmt.Errorf("pose_capability_history: %v", err)
@@ -968,7 +969,7 @@ func (s *Server) dispatch(ctx context.Context, name string, args json.RawMessage
 		if effective == nil {
 			effective = []pose.CapabilitySnapshot{}
 		}
-		page, next, meta, err := pageList(s, store, "pose_capability_history", "", effective, contentKeys(effective), a.Cursor, a.Limit)
+		page, next, meta, err := pageList(s, store, "pose_capability_history", "", genBefore, effective, contentKeys(effective), a.Cursor, a.Limit)
 		if err != nil {
 			return nil, err
 		}
@@ -1054,6 +1055,7 @@ func (s *Server) dispatch(ctx context.Context, name string, args json.RawMessage
 			}
 			limit = *a.Limit
 		}
+		genBefore := pageGeneration(store)
 		specs, err := store.ListSpecs(a.Status, a.Components)
 		if err != nil {
 			return nil, err
@@ -1091,8 +1093,12 @@ func (s *Server) dispatch(ctx context.Context, name string, args json.RawMessage
 		if a.Since != nil {
 			sinceFilter = *a.Since
 		}
-		filters := fmt.Sprintf("status=%s;components=%s;sort=%s;recent=%d;since=%s", a.Status, a.Components, a.Sort, recent, sinceFilter)
-		page, next, meta, err := pageList(s, store, "pose_list_specs", filters, specs, specKeys(specs), a.Cursor, limit)
+		effectiveSort := a.Sort
+		if recent > 0 {
+			effectiveSort = "date"
+		}
+		filters := fmt.Sprintf("status=%s;components=%s;sort=%s;recent=%d;since=%s", canonicalList(a.Status), canonicalList(a.Components), effectiveSort, recent, sinceFilter)
+		page, next, meta, err := pageList(s, store, "pose_list_specs", filters, genBefore, specs, contentKeys(specs), a.Cursor, limit)
 		if err != nil {
 			return nil, err
 		}
@@ -1646,11 +1652,12 @@ func (s *Server) dispatch(ctx context.Context, name string, args json.RawMessage
 		if err := json.Unmarshal(args, &a); err != nil {
 			return nil, fmt.Errorf("pose_list_roadmaps: invalid arguments")
 		}
+		genBefore := pageGeneration(store)
 		roadmaps, err := store.ListRoadmaps()
 		if err != nil {
 			return nil, err
 		}
-		page, next, meta, err := pageList(s, store, "pose_list_roadmaps", "", roadmaps, contentKeys(roadmaps), a.Cursor, a.Limit)
+		page, next, meta, err := pageList(s, store, "pose_list_roadmaps", "", genBefore, roadmaps, contentKeys(roadmaps), a.Cursor, a.Limit)
 		if err != nil {
 			return nil, err
 		}
@@ -1827,11 +1834,12 @@ func (s *Server) dispatch(ctx context.Context, name string, args json.RawMessage
 		if err := json.Unmarshal(args, &a); err != nil {
 			return nil, fmt.Errorf("pose_list_knowledge: invalid arguments")
 		}
+		genBefore := pageGeneration(store)
 		items, err := store.ListKnowledge()
 		if err != nil {
 			return nil, err
 		}
-		page, next, meta, err := pageList(s, store, "pose_list_knowledge", "", items, contentKeys(items), a.Cursor, a.Limit)
+		page, next, meta, err := pageList(s, store, "pose_list_knowledge", "", genBefore, items, contentKeys(items), a.Cursor, a.Limit)
 		if err != nil {
 			return nil, err
 		}
@@ -1856,11 +1864,12 @@ func (s *Server) dispatch(ctx context.Context, name string, args json.RawMessage
 		if err := json.Unmarshal(args, &a); err != nil {
 			return nil, fmt.Errorf("pose_list_reports: invalid arguments")
 		}
+		genBefore := pageGeneration(store)
 		reports, err := store.ListReports()
 		if err != nil {
 			return nil, err
 		}
-		page, next, meta, err := pageList(s, store, "pose_list_reports", "", reports, contentKeys(reports), a.Cursor, a.Limit)
+		page, next, meta, err := pageList(s, store, "pose_list_reports", "", genBefore, reports, contentKeys(reports), a.Cursor, a.Limit)
 		if err != nil {
 			return nil, err
 		}

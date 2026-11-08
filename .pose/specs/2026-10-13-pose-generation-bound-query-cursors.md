@@ -42,7 +42,7 @@ Esta escrita não implementa o comportamento. Preservar fontes canônicas, layou
 
 ### Artifacts
 
-- created: .pose/specs/2026-10-13-pose-generation-bound-query-cursors.md
+- modified: .pose/specs/2026-10-13-pose-generation-bound-query-cursors.md
 - created: .pose/starts/pose-generation-bound-query-cursors.json
 - created: .pose/changelogs/unreleased/pose-generation-bound-query-cursors.md
 - created: .pose/adr/2026-11-08-generation-bound-query-cursors.md
@@ -100,12 +100,12 @@ Qualificar as consultas alteradas, cursor stale e mudança de geração com fixt
 Os casos da tabela são objetivos de cobertura e podem compartilhar fixtures e execuções. Reusar corpus e controles das fundações sem recriar sua qualificação inteira. Qualquer ensaio adicional deve responder a risco, contrato ou finding identificado, com escopo e limite definidos.
 
 ### Requirement trace
-- R1 [satisfied] test:TestPageByGenerationWalksTheCollectionExactlyOnce test:TestACursorStaysWithItsQuery check:generation-bound-query-cursors-integration
-- R2 [satisfied] test:TestACursorIsRefusedWhenTheCollectionChanged test:TestACursorIsRefusedAfterTheCollectionChangesBetweenPages
-- R3 [satisfied] test:TestHostileCursorsAreRefusedNotCoerced test:TestAnExpiredCursorIsRefused test:TestAPositionOutsideTheCollectionIsRefused test:TestAHostileCursorIsRefusedOverMCP
-- R4 [satisfied] test:TestEveryPageDisclosesItsGenerationAndCollection test:TestPageByGenerationWalksTheCollectionExactlyOnce
-- R5 [satisfied] test:TestPageByGenerationClampsAndDisclosesTheLimit test:TestPageLimitIsBoundedAndDisclosed
-- R6 [satisfied] test:TestACursorDoesNotSurviveAnotherServerProcess test:TestAnExpiredCursorIsRefused
+- R1 [satisfied] test:TestPageByGenerationWalksTheCollectionExactlyOnce test:TestACursorStaysWithItsQuery test:TestEquivalentFiltersShareACursor check:generation-bound-query-cursors-integration
+- R2 [satisfied] test:TestACursorIsRefusedWhenTheCollectionChanged test:TestACursorIsRefusedAfterTheCollectionChangesBetweenPages test:TestACursorIsRefusedWhenAReturnedFieldChanges
+- R3 [satisfied] test:TestAnIssuedCursorStaysWithinTheSizeBoundForHugeFilters test:TestHostileCursorsAreRefusedNotCoerced test:TestAnExpiredCursorIsRefused test:TestAPositionOutsideTheCollectionIsRefused test:TestAHostileCursorIsRefusedOverMCP
+- R4 [satisfied] test:TestAPageStatesItsCostAndGenerationStatus test:TestEveryPageDisclosesItsGenerationAndCollection test:TestPageByGenerationWalksTheCollectionExactlyOnce
+- R5 [satisfied] test:TestEveryPageStatesItsCost test:TestPageByGenerationClampsAndDisclosesTheLimit test:TestPageLimitIsBoundedAndDisclosed
+- R6 [satisfied] test:TestAContinuationWithoutALimitIsStillABoundedPage test:TestAContinuationWithoutALimitIsBoundedOverMCP test:TestACursorDoesNotSurviveAnotherServerProcess test:TestAnExpiredCursorIsRefused
 - R7 [satisfied] test:TestPageByGenerationWithoutCursorOrLimitIsTheLegacyCall test:TestPaginationOmittedIsUnpaginatedAndBackwardCompatible test:TestHostileCursorsAreRefusedNotCoerced
 - R8 [satisfied] test:TestACursorIsRefusedWhenTheCollectionChanged test:TestACursorStaysWithItsToolAndFilters test:TestACursorDoesNotSurviveAnotherServerProcess
 
@@ -131,6 +131,7 @@ Paginated MCP list tools continue a query over the collection the cursor was iss
 
 ### Residual risks
 - A cursor never outlives the server process; clients must restart a walk after a restart.
+- A publication of the index generation between reading the collection and labelling the page is refused (retry), not mislabelled; an unavailable or diverged generation is disclosed in `generation_status`.
 - The total is a full scan of the recomputed collection for these tools.
 - A page is a navigation view: gates and effects read current inputs and must not consume a page.
 

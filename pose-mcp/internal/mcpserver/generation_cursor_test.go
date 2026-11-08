@@ -131,3 +131,53 @@ func TestPageLimitIsBoundedAndDisclosed(t *testing.T) {
 		t.Fatalf("an oversized limit was not bounded and disclosed: %v %+v", isErr, page)
 	}
 }
+
+func TestACursorIsRefusedWhenAReturnedFieldChanges(t *testing.T) {
+	ts, root := cursorServer(t, 7)
+	first, _, _ := cursorCall(t, ts, "pose_list_specs", map[string]any{"limit": 3})
+	cursor, _ := first["next_cursor"].(string)
+	// A field the listing returns changes while the slug, status and date do not.
+	path := filepath.Join(root, ".pose", "specs", "spec-05", "spec.md")
+	body := "---\nslug: spec-05\nstatus: draft\ncreated_at: 2026-06-01\npriority: 3\n---\n\n# Spec: spec-05\n"
+	if err := os.WriteFile(path, []byte(body), 0o644); err != nil {
+		t.Fatal(err)
+	}
+	_, isErr, text := cursorCall(t, ts, "pose_list_specs", map[string]any{"limit": 3, "cursor": cursor})
+	if !isErr || !strings.Contains(text, pose.CursorStale) {
+		t.Fatalf("a cursor continued over changed results: %v %q", isErr, text)
+	}
+}
+
+func TestEquivalentFiltersShareACursor(t *testing.T) {
+	ts, _ := cursorServer(t, 7)
+	first, isErr, text := cursorCall(t, ts, "pose_list_specs", map[string]any{"limit": 3, "status": "Draft, draft"})
+	if isErr {
+		t.Fatal(text)
+	}
+	cursor, _ := first["next_cursor"].(string)
+	if _, isErr, text := cursorCall(t, ts, "pose_list_specs", map[string]any{"limit": 3, "cursor": cursor, "status": "draft"}); isErr {
+		t.Fatalf("equivalent filters were treated as another query: %s", text)
+	}
+}
+
+func TestAPageStatesItsCostAndGenerationStatus(t *testing.T) {
+	ts, _ := cursorServer(t, 3)
+	result, isErr, _ := cursorCall(t, ts, "pose_list_specs", map[string]any{"limit": 2})
+	page, _ := result["page"].(map[string]any)
+	if isErr || page["cost"] == nil || !strings.Contains(page["cost"].(string), "full-scan") || page["generation_status"] == nil {
+		t.Fatalf("a page must state its cost and the status of its generation: %v %+v", isErr, page)
+	}
+}
+
+func TestAContinuationWithoutALimitIsBoundedOverMCP(t *testing.T) {
+	ts, _ := cursorServer(t, pose.GenerationPageMax+25)
+	first, _, _ := cursorCall(t, ts, "pose_list_specs", map[string]any{"limit": 1})
+	cursor, _ := first["next_cursor"].(string)
+	second, isErr, text := cursorCall(t, ts, "pose_list_specs", map[string]any{"cursor": cursor})
+	if isErr {
+		t.Fatal(text)
+	}
+	if got := second["count"]; got != float64(pose.GenerationPageMax) {
+		t.Fatalf("a continuation without limit returned %v items, want %d", got, pose.GenerationPageMax)
+	}
+}

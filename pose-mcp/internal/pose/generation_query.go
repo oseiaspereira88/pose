@@ -70,21 +70,29 @@ type GenerationQuery struct {
 // view of a collection read now: it neither certifies the whole history nor
 // authorizes a gate or an effect, which re-read current inputs.
 type GenerationPage struct {
-	Generation   string `json:"generation"`
-	Collection   string `json:"collection"`
-	Position     int    `json:"position"`
-	Total        int    `json:"total"`
-	LimitApplied int    `json:"limit_applied,omitempty"`
-	Disclosure   string `json:"disclosure"`
+	Generation       string `json:"generation"`
+	GenerationStatus string `json:"generation_status,omitempty"`
+	Collection       string `json:"collection"`
+	Position         int    `json:"position"`
+	Total            int    `json:"total"`
+	LimitApplied     int    `json:"limit_applied,omitempty"`
+	Cost             string `json:"cost"`
+	Disclosure       string `json:"disclosure"`
 }
+
+// GenerationPageCost states what a page costs: these list tools load their whole
+// collection, so every page recomputes it and its exact total; the page bound
+// limits what is returned, not what is read.
+const GenerationPageCost = "full-scan: every page recomputes the whole collection and its exact total; limit bounds the page returned, not the work done"
 
 const generationPageDisclosure = "page of a collection read for this call: an absent next_cursor means this collection was exhausted, not that nothing is pending elsewhere, and the page authorizes no gate or effect (those read current inputs)"
 
 type cursorPayload struct {
-	V          int    `json:"v"`
-	Tool       string `json:"tool"`
-	Project    string `json:"project"`
-	Filters    string `json:"filters"`
+	V    int    `json:"v"`
+	Tool string `json:"tool"`
+	// Bind is the digest of the project binding and the canonical filters, so the
+	// token stays small whatever the filters are.
+	Bind       string `json:"bind"`
 	Collection string `json:"collection"`
 	After      int    `json:"after"`
 	AfterKey   string `json:"after_key"`
@@ -100,6 +108,11 @@ func NewCursorKey() ([]byte, error) {
 		return nil, err
 	}
 	return key, nil
+}
+
+func queryBinding(q GenerationQuery) string {
+	sum := sha256.Sum256([]byte(q.Project + "\x00" + q.Filters))
+	return hex.EncodeToString(sum[:16])
 }
 
 func sign(key, payload []byte) []byte {
@@ -169,7 +182,7 @@ func CollectionDigest(generation string, keys []string) string {
 // pagination). A continuation is refused unless it was issued by this key for
 // this query over this very collection.
 func PageByGeneration[T any](key []byte, q GenerationQuery, generation string, items []T, keys []string, cursor string, limit int, now time.Time) ([]T, string, GenerationPage, error) {
-	meta := GenerationPage{Generation: generation, Collection: CollectionDigest(generation, keys), Total: len(items), Disclosure: generationPageDisclosure}
+	meta := GenerationPage{Generation: generation, Collection: CollectionDigest(generation, keys), Total: len(items), Cost: GenerationPageCost, Disclosure: generationPageDisclosure}
 	if limit > GenerationPageMax {
 		limit, meta.LimitApplied = GenerationPageMax, GenerationPageMax
 	}
@@ -179,7 +192,7 @@ func PageByGeneration[T any](key []byte, q GenerationQuery, generation string, i
 		if err != nil {
 			return nil, "", meta, err
 		}
-		if p.Tool != q.Tool || p.Project != q.Project || p.Filters != q.Filters {
+		if p.Tool != q.Tool || p.Bind != queryBinding(q) {
 			return nil, "", meta, &CursorError{CursorBinding, "the cursor belongs to another query, project or filter set"}
 		}
 		if p.Collection != meta.Collection {
@@ -191,11 +204,19 @@ func PageByGeneration[T any](key []byte, q GenerationQuery, generation string, i
 		after = p.After
 	}
 	meta.Position = after
+	// Only a call that names neither a cursor nor a limit is the call that predates
+	// pagination and returns everything; a continuation is always a bounded page.
+	if cursor != "" && limit <= 0 {
+		limit = GenerationPageMax
+	}
 	rest := items[after:]
 	if limit <= 0 || limit >= len(rest) {
 		return rest, "", meta, nil
 	}
 	end := after + limit
-	next := sealCursor(key, cursorPayload{V: GenerationCursorVersion, Tool: q.Tool, Project: q.Project, Filters: q.Filters, Collection: meta.Collection, After: end, AfterKey: keys[end-1], Expires: now.Add(GenerationCursorTTL).Unix()})
+	next := sealCursor(key, cursorPayload{V: GenerationCursorVersion, Tool: q.Tool, Bind: queryBinding(q), Collection: meta.Collection, After: end, AfterKey: keys[end-1], Expires: now.Add(GenerationCursorTTL).Unix()})
+	if len(next) > GenerationCursorMaxBytes {
+		return nil, "", meta, &CursorError{CursorMalformed, "the cursor would exceed the size bound; narrow the query"}
+	}
 	return rest[:limit], next, meta, nil
 }
