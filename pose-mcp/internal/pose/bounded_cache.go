@@ -44,6 +44,7 @@ type boundedCache[V any] struct {
 	maxProducers          int
 	maxWaiters            int
 	maxInflightKeys       int
+	entryOverhead         int64
 	maxOwnerInflightKeys  int
 	copySlots             chan struct{}
 
@@ -123,7 +124,7 @@ func newBoundedCache[V any](maxBytes, maxOwnerBytes int64, ttl time.Duration, cl
 	}
 	return &boundedCache[V]{
 		maxBytes: maxBytes, maxOwnerBytes: maxOwnerBytes, ttl: ttl, now: time.Now, clone: clone,
-		maxInflightBytes: maxBytes, maxOwnerInflightBytes: maxOwnerBytes, maxProducers: 8, maxWaiters: 128, maxInflightKeys: 64, maxOwnerInflightKeys: 16,
+		maxInflightBytes: maxBytes, maxOwnerInflightBytes: maxOwnerBytes, maxProducers: 8, maxWaiters: 128, entryOverhead: defaultEntryOverhead, maxInflightKeys: 64, maxOwnerInflightKeys: 16,
 		copySlots: make(chan struct{}, slots),
 		entries:   map[string]*cacheEntry[V]{}, lru: list.New(), owners: map[string]int64{},
 		inflight: map[string]*cacheFlight[V]{}, ownerFlights: map[string]int{}, ownerInflight: map[string]int64{}, admissionWake: make(chan struct{}),
@@ -479,10 +480,16 @@ func (c *boundedCache[V]) Store(owner, key string, value V, size int64) {
 	c.storeLocked(owner, key, cl, size)
 }
 
+// entryOverhead is what an entry costs beyond its payload: the entry, its list node,
+// the lookup slots and the owner accounting, measured on 64-bit platforms at about
+// 136 bytes for the first two and rounded up for the rest; the key is charged by length.
+const defaultEntryOverhead = 256
+
 func (c *boundedCache[V]) storeLocked(owner, key string, value V, size int64) {
 	if size < 0 {
 		size = 0
 	}
+	size += c.entryOverhead + int64(len(key))
 	if size > c.maxBytes || (c.maxOwnerBytes > 0 && size > c.maxOwnerBytes) {
 		c.stats.Oversize++
 		return

@@ -335,3 +335,17 @@ func TestADenseCommitIsRefusedAtThePathCeilingAndWithinTheReservation(t *testing
 		t.Fatalf("the reservation %d does not cover %d paths plus the output", commitPathsReserve, commitPathsMaxPaths)
 	}
 }
+
+func TestManySmallEntriesAreChargedTheirMetadataToo(t *testing.T) {
+	c := newBoundedCache(100_000, 0, 0, func(v []int) []int { return append([]int(nil), v...) })
+	for i := 0; i < 5000; i++ {
+		c.Store("o", "key-"+strings.Repeat("k", 40)+string(rune(i+0x100)), []int{i}, 1)
+	}
+	s := c.Stats()
+	if s.Retained > 100_000 {
+		t.Fatalf("retained %d against a budget of 100000", s.Retained)
+	}
+	if s.Entries > 100_000/defaultEntryOverhead {
+		t.Fatalf("%d entries of 1 payload byte fit in 100000: their metadata was not charged", s.Entries)
+	}
+}

@@ -10,7 +10,9 @@ import (
 )
 
 func intCache(max, ownerMax int64, ttl time.Duration) *boundedCache[[]int] {
-	return newBoundedCache(max, ownerMax, ttl, func(v []int) []int { return append([]int(nil), v...) })
+	c := newBoundedCache(max, ownerMax, ttl, func(v []int) []int { return append([]int(nil), v...) })
+	c.entryOverhead = 0 // these tests count payload bytes; the metadata charge has its own test
+	return c
 }
 
 func produceInts(size int64, values ...int) func() ([]int, int64, error) {
