@@ -35,6 +35,7 @@ var commitPaths = newBoundedCache(64<<20, 32<<20, 0, func(m map[string]bool) map
 // the map built from it can hold at that bound.
 const (
 	commitPathsMaxOutput = 4 << 20
+	commitPathsMaxPaths  = 100_000
 	commitPathsReserve   = 4 * commitPathsMaxOutput
 )
 
@@ -70,13 +71,29 @@ func commitChangedPaths(root, commit string) (map[string]bool, bool) {
 			}
 			return nil, 0, err
 		}
+		// Parsed in place, with a ceiling on the number of paths: the map is what the
+		// reservation covers (4 MiB of path bytes, at most commitPathsMaxPaths entries
+		// of about 100 bytes of overhead each), and no intermediate slice is built.
 		paths := map[string]bool{}
 		var size int64 = 64
-		for _, path := range strings.Split(out.buf.String(), "\x00") {
-			if path != "" {
+		rest := out.buf.Bytes()
+		for len(rest) > 0 {
+			end := bytes.IndexByte(rest, 0)
+			if end < 0 {
+				end = len(rest)
+			}
+			if end > 0 {
+				if len(paths) >= commitPathsMaxPaths {
+					return nil, 0, errCommitPathsTooLarge
+				}
+				path := string(rest[:end])
 				paths[path] = true
 				size += int64(len(path)) + 64
 			}
+			if end == len(rest) {
+				break
+			}
+			rest = rest[end+1:]
 		}
 		return paths, size, nil
 	})

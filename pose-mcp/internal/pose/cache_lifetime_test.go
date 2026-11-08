@@ -329,3 +329,9 @@ func TestACommitLargerThanTheCacheReadsIsUnknownNotCleanAndNotHeld(t *testing.T)
 		t.Fatal("an unknown commit must read as unknown")
 	}
 }
+
+func TestADenseCommitIsRefusedAtThePathCeilingAndWithinTheReservation(t *testing.T) {
+	if commitPathsMaxPaths*(len("abcdef")+64)+commitPathsMaxOutput > commitPathsReserve {
+		t.Fatalf("the reservation %d does not cover %d paths plus the output", commitPathsReserve, commitPathsMaxPaths)
+	}
+}

@@ -142,8 +142,9 @@ changed) goes through one cache in the domain package:
   the same index share one entry and none is served another's graph; the same size
   or modification time proves nothing. The test catalog is keyed by root and the
   digest of the validation matrix and expires after 30 seconds, because it reads
-  the working tree; a long-lived server never serves a catalog built before the
-  tests changed. The commit-paths cache is keyed by root and commit (immutable).
+  the working tree; a long-lived server can serve a catalog built before a test
+  changed for up to those 30 seconds when the matrix did not change (the accepted
+  freshness window), never longer. The commit-paths cache is keyed by root and commit (immutable).
   The design-delta report is keyed by root and the digest of its subject and
   options, metered per worktree, assessed once per key, and retained only when
   complete: a partial or unknown report comes from a bound or a failed read that a
