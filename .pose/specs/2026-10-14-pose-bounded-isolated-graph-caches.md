@@ -57,6 +57,8 @@ Esta escrita não implementa o comportamento. Preservar fontes canônicas, layou
 - modified: pose-mcp/internal/pose/delivery_integrity_cache_test.go
 - modified: pose-mcp/internal/pose/delivery_integrity.go
 - modified: pose-mcp/internal/pose/test_catalog.go
+- modified: pose-mcp/internal/cli/lintspec.go
+- modified: pose-mcp/internal/cli/review_closeout.go
 - modified: pose-mcp/internal/pose/delegated_verdicts.go
 - modified: pose-mcp/internal/pose/design_delta.go
 - modified: pose-mcp/internal/pose/git_spawn_cache.go
