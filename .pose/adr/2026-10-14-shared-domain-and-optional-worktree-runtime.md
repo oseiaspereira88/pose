@@ -133,6 +133,10 @@ changed) goes through one cache in the domain package:
   shared result stays charged until its last waiter has copied it. A gate that needs
   the test catalog treats an overloaded cache as incomplete validation, not as an
   empty catalog.
+  Publication (the waiters a result has, the removal of the flight, the release of the
+  reservation) is one critical section. The one production whose output is unbounded
+  by nature, the paths of a commit, is read through a limit and answers "unknown"
+  above it.
 - **Key.** Parsed graphs are keyed by engine version, schema and the digest of the
   bytes: identical bytes cannot yield a different graph, so two worktrees holding
   the same index share one entry and none is served another's graph; the same size
