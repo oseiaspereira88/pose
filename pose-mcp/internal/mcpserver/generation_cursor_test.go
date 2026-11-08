@@ -235,3 +235,13 @@ func TestAPageCarriesTheIndexReadersStatusReasonAndDivergedFiles(t *testing.T) {
 		t.Fatalf("an unavailable generation lost its status or reason: %+v", page)
 	}
 }
+
+func TestAnAliasOfLimitOrCursorIsRefused(t *testing.T) {
+	ts, _ := cursorServer(t, 3)
+	for _, tool := range []string{"pose_list_specs", "pose_list_roadmaps", "pose_list_knowledge", "pose_list_reports", "pose_capability_history"} {
+		_, out := post(t, ts, fmt.Sprintf(`{"jsonrpc":"2.0","id":1,"method":"tools/call","params":{"name":%q,"arguments":{"limit":1,"Limit":0}}}`, tool))
+		if isErr, _ := out.Result["isError"].(bool); !isErr {
+			t.Errorf("%s accepted a case-variant duplicate of limit", tool)
+		}
+	}
+}

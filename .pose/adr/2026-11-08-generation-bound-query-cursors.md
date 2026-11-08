@@ -39,8 +39,12 @@ A cursor is a signed token that continues one query over one collection.
   ordering) bind the same cursor.
 - **Generation and race:** the index generation is read before the collection
   and again before the page is labelled; a publication in between refuses the
-  call (retry) instead of mislabelling items, and the generation status is
-  disclosed.
+  call (retry) instead of mislabelling items, and the generation status, reason
+  and the legacy files that diverge from it are disclosed. Verifying a
+  generation reads and hashes every index file (tens of megabytes on this
+  corpus), so the verification is reused per project while the descriptor and
+  the files it names, with their legacy counterparts, keep the same size, mode
+  and modification time; a page after the first reads only the collection.
 - **Bounds:** a token is at most 2048 bytes (checked on issue as well as on
   receipt) and lives 15 minutes; a page is at most 500 items (a larger `limit`
   is clamped and the clamp is disclosed), and a continuation without `limit` is
@@ -52,6 +56,10 @@ A cursor is a signed token that continues one query over one collection.
   gate or effect (those read current inputs).
 - **Compatibility:** only a call that names neither cursor nor limit returns
   everything, as before. `limit` without a cursor starts a paginated walk.
+- **Arguments:** `limit` and `cursor` are read from the exact names only; a
+  differently-cased alias, a null, zero or negative `limit` is refused on every
+  paginated tool, so the call that returns everything is only the call that names
+  neither.
 - **Cost:** every page states its cost: these tools load their whole
   collection, so each page recomputes it and its exact total (`cost:
   full-scan`); `limit` bounds the page returned, not the work done.

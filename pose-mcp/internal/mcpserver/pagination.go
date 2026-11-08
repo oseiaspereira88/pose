@@ -13,6 +13,8 @@ import (
 	"encoding/hex"
 	"encoding/json"
 	"fmt"
+	"os"
+	"path/filepath"
 	"sort"
 	"strings"
 	"time"
@@ -70,7 +72,7 @@ func pageList[T any](s *Server, store pose.Store, tool, filters string, before p
 	// The generation is read before the collection (by the caller) and again now:
 	// a publication that landed in between would label items read under one
 	// generation with another, so the page is refused instead of mislabelled.
-	after := pageGeneration(store)
+	after := s.pageGeneration(store)
 	if after != before {
 		return nil, "", pose.GenerationPage{}, fmt.Errorf("%s: the index generation moved while the collection was read; retry the call", tool)
 	}
@@ -92,11 +94,67 @@ func pageList[T any](s *Server, store pose.Store, tool, filters string, before p
 // not hidden behind a successful page).
 type pageGen struct{ id, status, reason, diverged string }
 
-func pageGeneration(store pose.Store) pageGen {
+func (s *Server) pageGeneration(store pose.Store) pageGen {
+	sig := generationSignature(store.Root)
+	s.pageGenMu.Lock()
+	defer s.pageGenMu.Unlock()
+	if entry, ok := s.pageGenMemo[store.Root]; ok && sig != "" && entry.sig == sig {
+		return entry.gen
+	}
 	view := store.ReadIndexGeneration()
 	diverged := append([]string(nil), view.Diverged...)
 	sort.Strings(diverged)
-	return pageGen{id: view.Descriptor.GenerationID, status: string(view.Status), reason: view.Reason, diverged: strings.Join(diverged, ",")}
+	gen := pageGen{id: view.Descriptor.GenerationID, status: string(view.Status), reason: view.Reason, diverged: strings.Join(diverged, ",")}
+	if s.pageGenMemo == nil {
+		s.pageGenMemo = map[string]pageGenEntry{}
+	}
+	// A generation is verified once and reused while its descriptor and the files it
+	// names (and their legacy counterparts) are unchanged: verifying it reads and
+	// hashes every index file, which a page must not repeat.
+	s.pageGenMemo[store.Root] = pageGenEntry{sig: sig, gen: gen}
+	return gen
+}
+
+type pageGenEntry struct {
+	sig string
+	gen pageGen
+}
+
+// generationSignature identifies the state of the index set by what is cheap to
+// read: the descriptor's bytes and the size, mode and modification time of the
+// files it names and of their legacy counterparts. Empty when it cannot be built,
+// which means the generation is verified in full.
+func generationSignature(root string) string {
+	dir := filepath.Join(root, ".pose", "indexes")
+	raw, err := os.ReadFile(filepath.Join(dir, "generation.json"))
+	if err != nil {
+		return ""
+	}
+	var desc struct {
+		GenerationID string `json:"generation_id"`
+		Files        []struct {
+			Name string `json:"name"`
+		} `json:"files"`
+	}
+	if json.Unmarshal(raw, &desc) != nil || desc.GenerationID == "" {
+		return ""
+	}
+	sum := sha256.Sum256(raw)
+	var b strings.Builder
+	b.WriteString(hex.EncodeToString(sum[:8]))
+	stat := func(path string) {
+		info, err := os.Lstat(path)
+		if err != nil {
+			b.WriteString("|absent")
+			return
+		}
+		fmt.Fprintf(&b, "|%d:%o:%d", info.Size(), info.Mode(), info.ModTime().UnixNano())
+	}
+	for _, f := range desc.Files {
+		stat(filepath.Join(dir, "generations", desc.GenerationID, f.Name))
+		stat(filepath.Join(dir, f.Name))
+	}
+	return b.String()
 }
 
 // requirePositiveLimit rejects an explicit null, zero or negative limit: the call
@@ -105,6 +163,15 @@ func pageGeneration(store pose.Store) pageGen {
 func requirePositiveLimit(tool string, args json.RawMessage) error {
 	var present map[string]json.RawMessage
 	_ = json.Unmarshal(args, &present)
+	// The decoder matches argument names case-insensitively: a differently-cased
+	// alias would be the value the tool reads while the check looked at another.
+	for key := range present {
+		for _, name := range []string{"limit", "cursor"} {
+			if key != name && strings.EqualFold(key, name) {
+				return fmt.Errorf("%s: argument %q is ambiguous; write it as %q", tool, key, name)
+			}
+		}
+	}
 	raw, given := present["limit"]
 	if !given {
 		return nil
@@ -114,6 +181,19 @@ func requirePositiveLimit(tool string, args json.RawMessage) error {
 		return fmt.Errorf("%s: limit must be a positive number; omit it to return everything", tool)
 	}
 	return nil
+}
+
+// contentKeys keys every item of an ordered collection by the digest of its JSON
+// form. The domain layer orders each collection deterministically; a changed,
+// inserted, removed or reordered item changes the collection digest.
+func contentKeys[T any](items []T) []string {
+	keys := make([]string, len(items))
+	for i, item := range items {
+		raw, _ := json.Marshal(item)
+		sum := sha256.Sum256(raw)
+		keys[i] = hex.EncodeToString(sum[:8])
+	}
+	return keys
 }
 
 // canonicalList normalizes a comma-separated filter: trimmed, lower-cased,
@@ -130,17 +210,4 @@ func canonicalList(value string) string {
 	}
 	sort.Strings(out)
 	return strings.Join(out, ",")
-}
-
-// contentKeys keys every item of an ordered collection by the digest of its JSON
-// form. The domain layer orders each collection deterministically; a changed,
-// inserted, removed or reordered item changes the collection digest.
-func contentKeys[T any](items []T) []string {
-	keys := make([]string, len(items))
-	for i, item := range items {
-		raw, _ := json.Marshal(item)
-		sum := sha256.Sum256(raw)
-		keys[i] = hex.EncodeToString(sum[:8])
-	}
-	return keys
 }

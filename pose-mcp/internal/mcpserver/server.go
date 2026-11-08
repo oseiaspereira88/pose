@@ -140,6 +140,8 @@ type Server struct {
 	delegateRunner DelegateRunner     // nil = the running pose binary (spec pose-delegation-mcp)
 	orch           *orchestrator      // safe validation orchestration state (spec pose-safe-validate-orchestration)
 	obs            *observability.Provider
+	pageGenMu      sync.Mutex
+	pageGenMemo    map[string]pageGenEntry
 	pageKeyOnce    sync.Once // signs generation-bound query cursors (pose-generation-bound-query-cursors)
 	pageKeyValue   []byte
 	cursor         CursorStore // resumable SSE event log (pose-mcp-enterprise-hardening); defaults to in-process memory
@@ -963,7 +965,7 @@ func (s *Server) dispatch(ctx context.Context, name string, args json.RawMessage
 		if err := requirePositiveLimit("pose_capability_history", args); err != nil {
 			return nil, err
 		}
-		genBefore := pageGeneration(store)
+		genBefore := s.pageGeneration(store)
 		events, err := pose.LoadCapabilityHistory(store.CapabilityHistoryPath())
 		if err != nil {
 			return nil, fmt.Errorf("pose_capability_history: %v", err)
@@ -1058,7 +1060,7 @@ func (s *Server) dispatch(ctx context.Context, name string, args json.RawMessage
 			}
 			limit = *a.Limit
 		}
-		genBefore := pageGeneration(store)
+		genBefore := s.pageGeneration(store)
 		specs, err := store.ListSpecs(a.Status, a.Components)
 		if err != nil {
 			return nil, err
@@ -1658,7 +1660,7 @@ func (s *Server) dispatch(ctx context.Context, name string, args json.RawMessage
 		if err := requirePositiveLimit("pose_list_roadmaps", args); err != nil {
 			return nil, err
 		}
-		genBefore := pageGeneration(store)
+		genBefore := s.pageGeneration(store)
 		roadmaps, err := store.ListRoadmaps()
 		if err != nil {
 			return nil, err
@@ -1843,7 +1845,7 @@ func (s *Server) dispatch(ctx context.Context, name string, args json.RawMessage
 		if err := requirePositiveLimit("pose_list_knowledge", args); err != nil {
 			return nil, err
 		}
-		genBefore := pageGeneration(store)
+		genBefore := s.pageGeneration(store)
 		items, err := store.ListKnowledge()
 		if err != nil {
 			return nil, err
@@ -1876,7 +1878,7 @@ func (s *Server) dispatch(ctx context.Context, name string, args json.RawMessage
 		if err := requirePositiveLimit("pose_list_reports", args); err != nil {
 			return nil, err
 		}
-		genBefore := pageGeneration(store)
+		genBefore := s.pageGeneration(store)
 		reports, err := store.ListReports()
 		if err != nil {
 			return nil, err

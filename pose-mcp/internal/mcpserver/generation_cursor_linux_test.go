@@ -103,3 +103,46 @@ func TestPageCostIsMeasuredAndBounded(t *testing.T) {
 		t.Fatalf("the response did not follow the page: %d/%d against %d", smallPage.response, largePage.response, largeFull.response)
 	}
 }
+
+// With a published generation, verifying it reads and hashes every index file.
+// A page must not repeat that: the verification is reused while the descriptor and
+// the files it names are unchanged, so the second page reads far less than the
+// first call did (spec pose-generation-bound-query-cursors R5, R8; review finding).
+func TestAPageDoesNotReverifyAnUnchangedGeneration(t *testing.T) {
+	root := t.TempDir()
+	for i := 0; i < 6; i++ {
+		writePaddedSpec(t, root, fmt.Sprintf("spec-%03d", i))
+	}
+	outputs := map[string][]byte{}
+	for _, name := range pose.IndexGenerationFiles {
+		outputs[name] = []byte("[" + strings.Repeat(" ", 1<<20) + "]\n")
+	}
+	if _, err := (pose.Store{Root: root}).PublishIndexGeneration(outputs, map[string]string{"specs": "sha256:a"}); err != nil {
+		t.Fatal(err)
+	}
+	ts := httptest.NewServer(New(pose.Store{Root: root}).Handler("", ""))
+	defer ts.Close()
+	call := func() int {
+		before := processReadBytes(t)
+		post(t, ts, `{"jsonrpc":"2.0","id":1,"method":"tools/call","params":{"name":"pose_list_specs","arguments":{"limit":2}}}`)
+		return processReadBytes(t) - before
+	}
+	first, second := call(), call()
+	t.Logf("first call read %d B (verifies the %d-file generation); the next read %d B", first, len(pose.IndexGenerationFiles), second)
+	if first < len(pose.IndexGenerationFiles)<<20 {
+		t.Fatalf("the first call did not verify the generation: %d B", first)
+	}
+	if second > first/4 {
+		t.Fatalf("a page re-verified an unchanged generation: %d B after %d B", second, first)
+	}
+	// A change to a legacy file beside the generation is seen again (status disclosed).
+	if err := os.WriteFile(filepath.Join(root, ".pose", "indexes", "packages.json"), []byte("{}\n"), 0o644); err != nil {
+		t.Fatal(err)
+	}
+	_, out := post(t, ts, `{"jsonrpc":"2.0","id":1,"method":"tools/call","params":{"name":"pose_list_specs","arguments":{"limit":2}}}`)
+	sc, _ := out.Result["structuredContent"].(map[string]any)
+	page, _ := sc["page"].(map[string]any)
+	if diverged, _ := page["generation_diverged"].([]any); len(diverged) != 1 || diverged[0] != "packages.json" {
+		t.Fatalf("a changed legacy file was not seen after the reuse: %+v", page)
+	}
+}
