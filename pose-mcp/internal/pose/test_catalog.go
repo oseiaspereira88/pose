@@ -182,11 +182,15 @@ func buildTestCatalog(root string) *TestCatalog {
 		if err != nil {
 			continue
 		}
+		text := string(raw)
 		for _, re := range pattern {
-			for _, match := range re.FindAllStringSubmatch(string(raw), -1) {
-				catalog.add(match[1])
+			for _, match := range re.FindAllStringSubmatch(text, -1) {
+				// A name is a substring of the file text: cloned, it does not keep
+				// the whole file alive in the cache.
+				name := strings.Clone(match[1])
+				catalog.add(name)
 				if re == goTestFuncRE {
-					catalog.goTests = append(catalog.goTests, match[1])
+					catalog.goTests = append(catalog.goTests, name)
 				}
 			}
 		}

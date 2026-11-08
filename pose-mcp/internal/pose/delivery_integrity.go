@@ -551,9 +551,9 @@ func (s Store) GetDeliveryIntegrity(path string) (DeliveryIntegrityGraph, error)
 	if err != nil {
 		return DeliveryIntegrityGraph{}, fmt.Errorf("pose: delivery-integrity index not found; run `pose index`")
 	}
-	graph, ok := parseDeliveryIntegrityGraph(s.Root, raw)
-	if !ok {
-		return DeliveryIntegrityGraph{}, fmt.Errorf("pose: invalid delivery-integrity index")
+	graph, perr := parseDeliveryIntegrityGraphErr(s.Root, raw)
+	if perr != nil {
+		return DeliveryIntegrityGraph{}, deliveryIndexError(perr)
 	}
 	if path != "" {
 		if err := ValidateArtifactPathIn(s.fsys(), s.Root, path, false); err != nil {

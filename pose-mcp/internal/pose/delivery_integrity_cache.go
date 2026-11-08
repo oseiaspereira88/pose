@@ -47,29 +47,28 @@ var deliveryGraphCache = newBoundedCache(deliveryGraphCacheBytes, deliveryGraphO
 // bytes retained by the parsed-graph cache (spec pose-bounded-isolated-graph-caches R7).
 func DeliveryGraphCacheStats() CacheStats { return deliveryGraphCache.Stats() }
 
-// parseDeliveryIntegrityGraph returns the graph for these bytes, parsing only when
-// no graph for them is retained and, when several callers miss together, once.
-// owner is the worktree root the bytes were read from.
+// parseDeliveryIntegrityGraph is parseDeliveryIntegrityGraphErr for callers that
+// treat any failure as "no graph".
 func parseDeliveryIntegrityGraph(owner string, raw []byte) (DeliveryIntegrityGraph, bool) {
+	graph, err := parseDeliveryIntegrityGraphErr(owner, raw)
+	return graph, err == nil
+}
+
+// parseDeliveryIntegrityGraphErr returns the graph for these bytes, parsing only
+// when no graph for them is retained and, when several callers miss together, once.
+// owner is the worktree root the bytes were read from. When the cache has no room
+// for another production or waiter the error wraps ErrCacheBusy: overload is an
+// error the caller sees, never an unaccounted production outside the cache.
+func parseDeliveryIntegrityGraphErr(owner string, raw []byte) (DeliveryIntegrityGraph, error) {
 	sum := sha256.Sum256(raw)
 	key := fmt.Sprintf("%s|%d|%x", engineVersion, len(raw), sum)
-	produce := func() (DeliveryIntegrityGraph, int64, error) {
+	return deliveryGraphCache.Get(context.Background(), owner, key, graphParseReserve(raw), func() (DeliveryIntegrityGraph, int64, error) {
 		parsed, ok := decodeDeliveryIntegrityIndex(raw)
 		if !ok {
 			return DeliveryIntegrityGraph{}, 0, errInvalidDeliveryIndex
 		}
 		return parsed, estimateGraphBytes(parsed), nil
-	}
-	graph, err := deliveryGraphCache.Get(context.Background(), owner, key, graphParseReserve(raw), produce)
-	if errors.Is(err, ErrCacheBusy) {
-		// Too many callers already wait on this key: parse for this one, uncached.
-		parsed, _, perr := produce()
-		return parsed, perr == nil
-	}
-	if err != nil {
-		return DeliveryIntegrityGraph{}, false
-	}
-	return graph, true
+	})
 }
 
 // viewDeliveryIntegrityGraph hands fn the retained graph without copying it. fn
@@ -77,24 +76,19 @@ func parseDeliveryIntegrityGraph(owner string, raw []byte) (DeliveryIntegrityGra
 // only read a few fields of a large graph (a digest, a lookup) use it, the others
 // get a deep copy from parseDeliveryIntegrityGraph.
 func viewDeliveryIntegrityGraph(owner string, raw []byte, fn func(DeliveryIntegrityGraph)) bool {
+	return viewDeliveryIntegrityGraphErr(owner, raw, fn) == nil
+}
+
+func viewDeliveryIntegrityGraphErr(owner string, raw []byte, fn func(DeliveryIntegrityGraph)) error {
 	sum := sha256.Sum256(raw)
 	key := fmt.Sprintf("%s|%d|%x", engineVersion, len(raw), sum)
-	produce := func() (DeliveryIntegrityGraph, int64, error) {
+	return deliveryGraphCache.View(context.Background(), owner, key, graphParseReserve(raw), func() (DeliveryIntegrityGraph, int64, error) {
 		parsed, ok := decodeDeliveryIntegrityIndex(raw)
 		if !ok {
 			return DeliveryIntegrityGraph{}, 0, errInvalidDeliveryIndex
 		}
 		return parsed, estimateGraphBytes(parsed), nil
-	}
-	err := deliveryGraphCache.View(context.Background(), owner, key, graphParseReserve(raw), produce, fn)
-	if errors.Is(err, ErrCacheBusy) {
-		parsed, _, perr := produce()
-		if perr == nil {
-			fn(parsed)
-		}
-		return perr == nil
-	}
-	return err == nil
+	}, fn)
 }
 
 // ViewDeliveryIntegrity gives fn the delivery graph of the current index without a
@@ -108,13 +102,21 @@ func (s Store) ViewDeliveryIntegrity(fn func(DeliveryIntegrityGraph)) error {
 	if err != nil {
 		return fmt.Errorf("pose: delivery-integrity index not found; run `pose index`")
 	}
-	if !viewDeliveryIntegrityGraph(s.Root, raw, fn) {
-		return errInvalidDeliveryIndex
+	if err := viewDeliveryIntegrityGraphErr(s.Root, raw, fn); err != nil {
+		return deliveryIndexError(err)
 	}
 	return nil
 }
 
 var errInvalidDeliveryIndex = errors.New("pose: invalid delivery-integrity index")
+
+// deliveryIndexError names an overload as such and anything else as an invalid index.
+func deliveryIndexError(err error) error {
+	if errors.Is(err, ErrCacheBusy) {
+		return fmt.Errorf("pose: the delivery-integrity graph cache is busy: %w", err)
+	}
+	return errInvalidDeliveryIndex
+}
 
 // estimateGraphBytes estimates the heap a parsed graph retains by walking every
 // field of it (see estimateRetainedBytes), so no variable-sized field is charged a

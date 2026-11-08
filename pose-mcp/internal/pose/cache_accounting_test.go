@@ -35,7 +35,7 @@ func TestTheEstimateChargesEveryVariableSizedField(t *testing.T) {
 
 func TestProductionsAreAdmittedWithinTheInflightBudget(t *testing.T) {
 	c := intCache(1<<30, 0, 0)
-	c.maxInflightBytes, c.maxOwnerInflightBytes, c.maxProducers = 100, 100, 8
+	c.maxInflightBytes, c.maxOwnerInflightBytes, c.maxProducers, c.maxInflightKeys, c.maxOwnerInflightKeys = 100, 100, 8, 1000, 1000
 	var running, peak atomic.Int64
 	var wg sync.WaitGroup
 	for i := 0; i < 20; i++ {
@@ -80,7 +80,7 @@ func TestAReservationLargerThanTheBudgetRunsAloneInsteadOfStarving(t *testing.T)
 
 func TestTheNumberOfProductionsIsCapped(t *testing.T) {
 	c := intCache(1<<30, 0, 0)
-	c.maxProducers = 3
+	c.maxProducers, c.maxInflightKeys, c.maxOwnerInflightKeys = 3, 1000, 1000
 	var running, peak atomic.Int64
 	var wg sync.WaitGroup
 	for i := 0; i < 12; i++ {

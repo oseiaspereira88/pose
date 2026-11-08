@@ -43,6 +43,8 @@ type boundedCache[V any] struct {
 	maxOwnerInflightBytes int64
 	maxProducers          int
 	maxWaiters            int
+	maxInflightKeys       int
+	maxOwnerInflightKeys  int
 	copySlots             chan struct{}
 
 	entries  map[string]*cacheEntry[V]
@@ -53,6 +55,7 @@ type boundedCache[V any] struct {
 
 	producers     int
 	inflightBytes int64
+	ownerFlights  map[string]int
 	ownerInflight map[string]int64
 	admissionWake chan struct{}
 	peakProducers int
@@ -66,6 +69,11 @@ type cacheEntry[V any] struct {
 	size       int64
 	at         time.Time
 	el         *list.Element
+	// pins counts readers (views, clones in progress) holding the value; an evicted
+	// entry stays charged until the last pin goes, so what the cache keeps alive is
+	// what it accounts for.
+	pins    int
+	evicted bool
 }
 
 type cacheFlight[V any] struct {
@@ -74,6 +82,7 @@ type cacheFlight[V any] struct {
 	ok      bool // value is set; false with err == nil means "ask again"
 	err     error
 	waiters int
+	owner   string
 }
 
 // CacheStats counts what a cache did, for measurement (spec R7).
@@ -109,10 +118,10 @@ func newBoundedCache[V any](maxBytes, maxOwnerBytes int64, ttl time.Duration, cl
 	}
 	return &boundedCache[V]{
 		maxBytes: maxBytes, maxOwnerBytes: maxOwnerBytes, ttl: ttl, now: time.Now, clone: clone,
-		maxInflightBytes: maxBytes, maxOwnerInflightBytes: maxOwnerBytes, maxProducers: 8, maxWaiters: 128,
+		maxInflightBytes: maxBytes, maxOwnerInflightBytes: maxOwnerBytes, maxProducers: 8, maxWaiters: 128, maxInflightKeys: 64, maxOwnerInflightKeys: 16,
 		copySlots: make(chan struct{}, slots),
 		entries:   map[string]*cacheEntry[V]{}, lru: list.New(), owners: map[string]int64{},
-		inflight: map[string]*cacheFlight[V]{}, ownerInflight: map[string]int64{}, admissionWake: make(chan struct{}),
+		inflight: map[string]*cacheFlight[V]{}, ownerFlights: map[string]int{}, ownerInflight: map[string]int64{}, admissionWake: make(chan struct{}),
 	}
 }
 
@@ -127,24 +136,23 @@ func (c *boundedCache[V]) doClone(v V) V {
 // runs. produce returns the value and its retained size (Unretainable to serve it
 // without keeping it). Every value handed out is a clone.
 func (c *boundedCache[V]) Get(ctx context.Context, owner, key string, reserve int64, produce func() (V, int64, error)) (V, error) {
-	return c.get(ctx, owner, key, reserve, produce, true)
+	return c.get(ctx, owner, key, reserve, produce, nil)
 }
 
 // View is Get for a reader that promises neither to modify nor to keep the value:
-// it receives the retained value itself, without the clone, which is what makes a
-// small read of a large graph cheap (spec pose-bounded-isolated-graph-caches R1).
-// The cache never modifies a retained value, so a view stays valid after its entry
-// is evicted or replaced.
+// for a retained entry it receives the value itself, without the clone, pinned for
+// as long as fn runs (an entry evicted meanwhile stays charged until the pin goes).
+// A value produced or shared during the call is cloned like Get's: the in-flight
+// result is not an entry to pin. This is what makes a small read of a large graph
+// cheap (spec pose-bounded-isolated-graph-caches R1).
 func (c *boundedCache[V]) View(ctx context.Context, owner, key string, reserve int64, produce func() (V, int64, error), fn func(V)) error {
-	v, err := c.get(ctx, owner, key, reserve, produce, false)
-	if err != nil {
-		return err
-	}
-	fn(v)
-	return nil
+	_, err := c.get(ctx, owner, key, reserve, produce, fn)
+	return err
 }
 
-func (c *boundedCache[V]) get(ctx context.Context, owner, key string, reserve int64, produce func() (V, int64, error), clone bool) (V, error) {
+// get serves a retained entry (passing it to view, pinned, when view is set, else as
+// a clone), shares an in-flight production, or becomes the producer.
+func (c *boundedCache[V]) get(ctx context.Context, owner, key string, reserve int64, produce func() (V, int64, error), view func(V)) (V, error) {
 	var zero V
 	for {
 		c.mu.Lock()
@@ -155,12 +163,17 @@ func (c *boundedCache[V]) get(ctx context.Context, owner, key string, reserve in
 			} else {
 				c.lru.MoveToFront(entry.el)
 				c.stats.Hits++
+				entry.pins++
 				v := entry.value
 				c.mu.Unlock()
-				if clone {
-					return c.doClone(v), nil
+				if view != nil {
+					view(v)
+					c.unpin(entry)
+					return v, nil
 				}
-				return v, nil
+				out := c.doClone(v)
+				c.unpin(entry)
+				return out, nil
 			}
 		}
 		if flight, ok := c.inflight[key]; ok {
@@ -174,6 +187,10 @@ func (c *boundedCache[V]) get(ctx context.Context, owner, key string, reserve in
 			select {
 			case <-flight.done:
 			case <-ctx.Done():
+				// The waiter leaves: its place goes back to the key.
+				c.mu.Lock()
+				flight.waiters--
+				c.mu.Unlock()
 				return zero, ctx.Err()
 			}
 			if flight.err != nil {
@@ -186,26 +203,50 @@ func (c *boundedCache[V]) get(ctx context.Context, owner, key string, reserve in
 			c.stats.Coalesced++
 			v := flight.value
 			c.mu.Unlock()
-			if clone {
-				return c.doClone(v), nil
+			out := c.doClone(v)
+			if view != nil {
+				view(out)
 			}
-			return v, nil
+			return out, nil
 		}
-		flight := &cacheFlight[V]{done: make(chan struct{})}
+		// A new production: bounded in keys, globally and per owner, before it exists.
+		if len(c.inflight) >= c.maxInflightKeys || (c.maxOwnerInflightKeys > 0 && c.ownerFlights[owner] >= c.maxOwnerInflightKeys) {
+			c.stats.Busy++
+			c.mu.Unlock()
+			return zero, ErrCacheBusy
+		}
+		flight := &cacheFlight[V]{done: make(chan struct{}), owner: owner}
 		c.inflight[key] = flight
+		c.ownerFlights[owner]++
 		c.mu.Unlock()
 
 		// Admission: the production waits until its reservation fits.
 		if err := c.admit(ctx, owner, reserve); err != nil {
-			c.mu.Lock()
-			delete(c.inflight, key)
-			flight.err = err
-			c.mu.Unlock()
-			close(flight.done)
+			c.finishFlight(key, flight, err)
 			return zero, err
 		}
-		return c.produce(ctx, owner, key, reserve, produce, flight, clone)
+		out, err := c.produce(owner, key, reserve, produce, flight)
+		if err == nil && view != nil {
+			view(out)
+		}
+		return out, err
 	}
+}
+
+// finishFlight ends a flight that produced nothing: it frees the key and its slot
+// and releases the waiters with err.
+func (c *boundedCache[V]) finishFlight(key string, flight *cacheFlight[V], err error) {
+	c.mu.Lock()
+	if c.inflight[key] == flight {
+		delete(c.inflight, key)
+		c.ownerFlights[flight.owner]--
+		if c.ownerFlights[flight.owner] <= 0 {
+			delete(c.ownerFlights, flight.owner)
+		}
+	}
+	flight.err = err
+	c.mu.Unlock()
+	close(flight.done)
 }
 
 // admit reserves reserve bytes for a production, waiting until they fit under the
@@ -259,7 +300,10 @@ func (c *boundedCache[V]) release(owner string, reserve int64) {
 	c.mu.Unlock()
 }
 
-func (c *boundedCache[V]) produce(ctx context.Context, owner, key string, reserve int64, produce func() (V, int64, error), flight *cacheFlight[V], clone bool) (V, error) {
+// produce runs the production the caller was admitted for. The reservation is held
+// until the result is published (cloned, stored and handed to the waiters): the
+// values being copied are charged to the cache for as long as they are alive in it.
+func (c *boundedCache[V]) produce(owner, key string, reserve int64, produce func() (V, int64, error), flight *cacheFlight[V]) (V, error) {
 	var zero V
 	c.mu.Lock()
 	c.stats.Misses++
@@ -275,25 +319,20 @@ func (c *boundedCache[V]) produce(ctx context.Context, owner, key string, reserv
 			if r := recover(); r != nil {
 				c.release(owner, reserve)
 				c.mu.Lock()
-				delete(c.inflight, key)
 				c.stats.Failures++
-				flight.err = errCacheProducerPanicked
 				c.mu.Unlock()
-				close(flight.done)
+				c.finishFlight(key, flight, errCacheProducerPanicked)
 				panic(r)
 			}
 		}()
 		value, size, err = produce()
 	}()
-	c.release(owner, reserve)
-
 	if err != nil {
+		c.release(owner, reserve)
 		c.mu.Lock()
-		delete(c.inflight, key)
 		c.stats.Failures++
-		flight.err = err
 		c.mu.Unlock()
-		close(flight.done)
+		c.finishFlight(key, flight, err)
 		return zero, err
 	}
 	// Decide before cloning: a value that will not be retained is cloned only if
@@ -316,10 +355,24 @@ func (c *boundedCache[V]) produce(ctx context.Context, owner, key string, reserv
 	if retain || waiters > 0 {
 		flight.value, flight.ok = shared, true
 	}
-	delete(c.inflight, key)
 	c.mu.Unlock()
-	close(flight.done)
+	c.release(owner, reserve)
+	c.finishFlight(key, flight, nil)
 	return value, nil
+}
+
+// unpin drops one pin; the last pin of an evicted entry frees what it was charged.
+func (c *boundedCache[V]) unpin(entry *cacheEntry[V]) {
+	c.mu.Lock()
+	entry.pins--
+	if entry.pins == 0 && entry.evicted {
+		c.used -= entry.size
+		c.owners[entry.owner] -= entry.size
+		if c.owners[entry.owner] <= 0 {
+			delete(c.owners, entry.owner)
+		}
+	}
+	c.mu.Unlock()
 }
 
 // Lookup returns a clone of the retained value for key, if any.
@@ -341,9 +394,12 @@ func (c *boundedCache[V]) Lookup(key string) (V, bool) {
 	}
 	c.lru.MoveToFront(entry.el)
 	c.stats.Hits++
+	entry.pins++
 	v := entry.value
 	c.mu.Unlock()
-	return c.doClone(v), true
+	out := c.doClone(v)
+	c.unpin(entry)
+	return out, true
 }
 
 // Store retains a clone of value for key under the same budgets as Get.
@@ -381,6 +437,12 @@ func (c *boundedCache[V]) storeLocked(owner, key string, value V, size int64) {
 			break
 		}
 	}
+	// What readers still pin counts against the budgets: when evicting everything
+	// else is not enough, the value is not retained instead of exceeding them.
+	if c.used+size > c.maxBytes || (c.maxOwnerBytes > 0 && c.owners[owner]+size > c.maxOwnerBytes) {
+		c.stats.Oversize++
+		return
+	}
 	entry := &cacheEntry[V]{key: key, owner: owner, value: value, size: size, at: c.now()}
 	entry.el = c.lru.PushFront(entry)
 	c.entries[key] = entry
@@ -402,9 +464,15 @@ func (c *boundedCache[V]) evictLocked(owner string) bool {
 	return false
 }
 
+// removeLocked takes an entry out of the cache. A pinned entry stays charged until
+// its last reader lets go.
 func (c *boundedCache[V]) removeLocked(entry *cacheEntry[V]) {
 	c.lru.Remove(entry.el)
 	delete(c.entries, entry.key)
+	if entry.pins > 0 {
+		entry.evicted = true
+		return
+	}
 	c.used -= entry.size
 	c.owners[entry.owner] -= entry.size
 	if c.owners[entry.owner] <= 0 {

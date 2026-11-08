@@ -116,10 +116,15 @@ changed) goes through one cache in the domain package:
   estimate is calibrated against the measured heap of the real index (it errs
   high, about 2.3 times). A value larger than its budget, and a value its producer
   declares unretainable, is served and neither retained nor copied for retention.
+  An entry a reader pins (a view in progress) stays charged after eviction until the
+  reader lets go, and the production reservation is held until the result is
+  published, so what the cache keeps alive is what it accounts for.
 - **Work in flight.** A production reserves bytes before it runs, globally and per
   owner, and waits (or leaves with its context) until they fit; the number of
-  concurrent productions and of waiters per key is capped, and a caller refused for
-  lack of waiter capacity produces for itself. Copies run outside the lock, one of a
+  concurrent productions, of queued keys (globally and per owner) and of waiters per
+  key is capped, a waiter that leaves gives its place back, and a caller refused for
+  lack of capacity gets `ErrCacheBusy` on every consumer: overload is an error the
+  caller sees, never a production outside the cache. Copies run outside the lock, one of a
   few copy slots each, so a large copy never delays another key. The clone a caller
   keeps after it returns is the caller's memory and is outside the budget; a reader
   that only looks up fields uses a view and keeps nothing.
