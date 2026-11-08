@@ -10,7 +10,7 @@ priority:            # integer >= 0 (lower = higher priority); ordering preferen
 components:          # optional, inline comma-separated list: modules/components touched (e.g. mcp-server, cli) — used by pose_list_specs' `components` filter
 task_type:           # optional: feature | bugfix | refactor — a key of taskTypes in .pose/policy/dor.json; selects the sections the Definition of Ready requires (default: defaultTaskType)
 surface: standard
-delivers:            # optional typed refs: surface:id, contract:id, capability:id, infrastructure:id, governance:id
+delivers: capability:validation-evidence-material-binding
 ---
 
 # Spec: pose-validation-evidence-material-binding
@@ -114,11 +114,8 @@ Caching individual check outputs, skipping checks by heuristic, weakening review
 - modified: pose-mcp/internal/cli/governance_operation_performance_test.go
 
 ### Delivery targets
-<!-- When `delivers` is populated, declare the exact same refs here. Profiles
-     and evidenceClass requirements come from validation-matrix.json. Leave the
-     section empty when the spec delivers nothing typed. One line per target,
-     for example: surface:example module:path/to/module profile:web-ui
-     entrypoint:path/to/production-entrypoint (as a "- " list item). -->
+
+- capability:validation-evidence-material-binding module:pose-mcp profile:composed-capability entrypoint:pose-mcp/internal/pose/delivery_surface.go
 
 ### API/contract changes
 - 
