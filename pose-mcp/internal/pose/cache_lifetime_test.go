@@ -344,3 +344,44 @@ func TestACommitWithMorePathsThanTheReaderAcceptsIsUnknownNotClean(t *testing.T)
 		t.Fatalf("the governed reader lost the commit's paths: %v %v", got, ok)
 	}
 }
+
+func TestManySmallEntriesAreChargedTheirMetadataToo(t *testing.T) {
+	c := newBoundedCache(100_000, 0, 0, func(v []int) []int { return append([]int(nil), v...) })
+	for i := 0; i < 5000; i++ {
+		c.Store("o", "key-"+strings.Repeat("k", 40)+string(rune(i+0x100)), []int{i}, 1)
+	}
+	s := c.Stats()
+	if s.Retained > 100_000 {
+		t.Fatalf("retained %d against a budget of 100000", s.Retained)
+	}
+	if s.Entries > 100_000/defaultEntryOverhead {
+		t.Fatalf("%d entries of 1 payload byte fit in 100000: their metadata was not charged", s.Entries)
+	}
+}
+
+func TestAPaddedTitleDoesNotKeepItsPaddingAlive(t *testing.T) {
+	catalog := &TestCatalog{names: map[string]bool{}, slugs: map[string]bool{}, files: map[string]bool{}}
+	runtime.GC()
+	before := heapInUse()
+	for i := 0; i < 8; i++ {
+		padded := strings.Repeat(" ", 1<<20) + "title-" + strings.Repeat("x", i+1) + strings.Repeat(" ", 1<<20)
+		catalog.add(padded)
+	}
+	runtime.GC()
+	after := heapInUse()
+	if held := int64(after) - int64(before); held > 1<<20 {
+		t.Fatalf("8 padded titles hold %d B: the trimmed name keeps its padding", held)
+	}
+	runtime.KeepAlive(catalog)
+}
+
+func TestTheOwnersBytesAreChargedToEachEntry(t *testing.T) {
+	c := newBoundedCache(100_000, 0, 0, func(v []int) []int { return append([]int(nil), v...) })
+	owner := strings.Repeat("r", 4000)
+	for i := 0; i < 100; i++ {
+		c.Store(owner, "k"+strings.Repeat("k", 10)+string(rune(i+0x100)), []int{i}, 1)
+	}
+	if s := c.Stats(); s.Retained > 100_000 || s.Entries > 100_000/4000 {
+		t.Fatalf("entries under a 4000-byte owner were not charged for it: %+v", s)
+	}
+}
