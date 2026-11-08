@@ -93,35 +93,6 @@ func TestTheTestCatalogIsKeyedByTheMatrixAndMeteredPerRoot(t *testing.T) {
 	}
 }
 
-func TestCommitPathsAreReadOnceAndAFailureIsNotRemembered(t *testing.T) {
-	root := gitFixture(t, map[string]string{"a.txt": "a"})
-	head, err := exec.Command("git", "-C", root, "rev-parse", "HEAD").Output()
-	if err != nil {
-		t.Fatal(err)
-	}
-	commit := strings.TrimSpace(string(head))
-	commitPaths.Reset()
-	base := commitPaths.Stats()
-	for i := 0; i < 3; i++ {
-		paths, ok := commitChangedPaths(root, commit)
-		if !ok || !paths["a.txt"] {
-			t.Fatalf("paths = %v ok=%v", paths, ok)
-		}
-	}
-	s := commitPaths.Stats()
-	if s.Misses-base.Misses != 1 || s.Hits-base.Hits != 2 {
-		t.Fatalf("a commit's paths must be read once: %+v", s)
-	}
-	for i := 0; i < 2; i++ {
-		if _, ok := commitChangedPaths(root, strings.Repeat("0", 40)); ok {
-			t.Fatal("an unknown commit answered")
-		}
-	}
-	if s2 := commitPaths.Stats(); s2.Failures-s.Failures != 2 || s2.Entries != 1 {
-		t.Fatalf("a failure was remembered or not counted: %+v", s2)
-	}
-}
-
 func TestADesignDeltaReportIsIsolatedAndBounded(t *testing.T) {
 	designDeltaCache.Reset()
 	report := DesignDeltaReport{Deltas: []StructuralDelta{{ID: "d1", SharedWith: []string{"other"}}}, Warnings: []string{"w"}}

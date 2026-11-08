@@ -44,7 +44,7 @@ func TestGitCommandReadsRawHistory(t *testing.T) {
 		if strings.TrimSpace(string(count)) != "2" {
 			t.Fatalf("a graft reached gitCommand: %s commits", count)
 		}
-		if paths, ok := commitChangedPaths(root, second); !ok || !paths["b.txt"] {
+		if paths, ok := commitChangedPathsGovernedIn(NativeFiles(), root, "test", second); !ok || !paths["b.txt"] {
 			t.Fatalf("the commit's own paths: %v %v", paths, ok)
 		}
 	}

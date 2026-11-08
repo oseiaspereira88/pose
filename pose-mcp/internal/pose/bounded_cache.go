@@ -20,7 +20,7 @@ import (
 //   - In-flight work: a production reserves bytes before it runs, globally and per
 //     owner, and waits (or leaves with its context) until they fit; the number of
 //     productions and of waiters per key is capped too. A caller that is refused for
-//     lack of waiter capacity receives ErrCacheBusy and produces for itself.
+//     lack of capacity receives ErrCacheBusy, which it retries or reports.
 //   - Copies in flight: cloning runs outside the lock and takes one of a few copy
 //     slots, so independent keys are never delayed by a copy and the copies being
 //     made at one moment are few.
@@ -109,8 +109,9 @@ type CacheStats struct {
 	PeakInflightBytes int64
 }
 
-// ErrCacheBusy is returned to a caller refused because too many are already waiting
-// on the same key. The caller produces for itself, uncached.
+// ErrCacheBusy is returned to a caller refused because the cache has no room for
+// another production, queued key or waiter. It is an overload the caller sees: it
+// retries or reports it, and never produces outside the cache's budgets.
 var ErrCacheBusy = errors.New("pose: the cache has no waiter capacity for this key")
 
 // Unretainable is the size a producer returns for a value that must be served and

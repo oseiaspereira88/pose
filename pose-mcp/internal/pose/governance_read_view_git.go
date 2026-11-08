@@ -174,18 +174,19 @@ func gitChangedPathsGovernedIn(files Files, root, producer string) ([]string, er
 
 func commitChangedPathsGovernedIn(files Files, root, producer, commit string) (map[string]bool, bool) {
 	producer = governanceProducerFromFiles(files, producer)
-	raw, err := captureGovernanceGit(files, root, producer, "diff-tree", "--root", "--no-commit-id", "--name-only", "--no-renames", "-r", "-z", commit)
+	// Each governed read is captured and audited, so it is not served from a cache:
+	// the read is bounded instead, in output bytes and in paths (spec
+	// pose-bounded-isolated-graph-caches R4).
+	raw, err := captureGovernanceGitBounded(files, root, producer, commitPathsMaxOutput, "diff-tree", "--root", "--no-commit-id", "--name-only", "--no-renames", "-r", "-z", commit)
+	var paths map[string]bool
+	if err == nil {
+		paths, err = parseCommitPaths(raw)
+	}
 	if err != nil {
 		if hasGitMetadataIn(FilesOrNative(files), root) {
 			markGovernanceReadUnknownForProject(files, root, "", producer, "commit path inventory could not be read from Git")
 		}
 		return nil, false
-	}
-	paths := map[string]bool{}
-	for _, path := range strings.Split(string(raw), "\x00") {
-		if path != "" {
-			paths[path] = true
-		}
 	}
 	return paths, true
 }

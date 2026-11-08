@@ -136,9 +136,8 @@ changed) goes through one cache in the domain package:
   Every retained entry is also charged its metadata (the entry, its list node, the
   lookup slots, 256 bytes), its key and its owner, so many small entries cannot exceed the
   budget while the payload counters stay within it. Publication (the waiters a result has, the removal of the flight, the release of the
-  reservation) is one critical section. The one production whose output is unbounded
-  by nature, the paths of a commit, is read through a limit and answers "unknown"
-  above it.
+  reservation) is one critical section. The one read whose output is unbounded by
+  nature, the paths of a commit, is bounded as above.
 - **Key.** Parsed graphs are keyed by engine version, schema and the digest of the
   bytes: identical bytes cannot yield a different graph, so two worktrees holding
   the same index share one entry and none is served another's graph; the same size
@@ -146,7 +145,7 @@ changed) goes through one cache in the domain package:
   digest of the validation matrix and expires after 30 seconds, because it reads
   the working tree; a long-lived server can serve a catalog built before a test
   changed for up to those 30 seconds when the matrix did not change (the accepted
-  freshness window), never longer. The commit-paths cache is keyed by root and commit (immutable).
+  freshness window), never longer. The paths a commit changed are read by the governed capture, which audits every read and so is not served from a cache: the read is bounded instead, in output (4 MiB) and in paths (100,000), and a larger commit answers unknown and marks the governed read unknown.
   The design-delta report is keyed by root and the digest of its subject and
   options, metered per worktree, assessed once per key, and retained only when
   complete: a partial or unknown report comes from a bound or a failed read that a
