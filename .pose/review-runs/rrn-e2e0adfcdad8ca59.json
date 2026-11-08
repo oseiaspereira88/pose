@@ -1,0 +1,147 @@
+{
+  "safety": {
+    "schema_version": 1,
+    "profile": "legacy-trusted",
+    "platform": "linux/amd64",
+    "capabilities": {
+      "automatic-expiry": "unavailable",
+      "bounded-capture": "available",
+      "cpu-limit": "unavailable",
+      "credential-filesystem-isolation": "unavailable",
+      "environment-allowlist": "available",
+      "escaped-descendant-termination": "unavailable",
+      "filesystem-isolation": "unavailable",
+      "memory-limit": "unavailable",
+      "network-isolation": "unavailable",
+      "origin-isolation": "unavailable",
+      "parent-termination": "available",
+      "process-group-termination": "available",
+      "shared-git-isolation": "unavailable"
+    },
+    "limitations": [
+      "trusted local executable required; worktree is not a sandbox",
+      "outside writes, transient writes, shared Git and credential files are not isolated",
+      "no memory/CPU quota or control of descendants escaping the process group",
+      "cleanup filesystem calls remain subject to operating-system I/O latency",
+      "legacy compatibility: HOME retained; other ambient credentials excluded"
+    ],
+    "stream_bytes": 8388608,
+    "output_bytes": 65536,
+    "retained_bytes": 16777216,
+    "timeout_ms": 3600000,
+    "max_runs_per_bundle": 3,
+    "retention": "retain-evidence; ttl=0; no automatic deletion",
+    "capture_complete": true,
+    "runtime_id": "pose-review-run-4066022561",
+    "operation": {
+      "schema_version": 1,
+      "operation": "review.dispatch.cleanup",
+      "scope": "spec:pose-bounded-isolated-graph-caches",
+      "outcome": "completed",
+      "steps_run": [
+        {
+          "id": "cleanup",
+          "result": "done"
+        }
+      ],
+      "effects": [],
+      "resumable": false
+    }
+  },
+  "provenance": {
+    "execution_state": "started",
+    "planned_wire_digest": "sha256:7c210fc051451fb62327a516b5f249ccc05efc8cfe0ca038cfa43410af3ca695",
+    "wire_bytes": 29137,
+    "wire_complete": true,
+    "schema_version": 1,
+    "project": "proj.pose-dist",
+    "audience": "proj.pose-dist",
+    "worktree_digest": "sha256:9c161dc895f6496d9f800581bef8673cc9123cda65951fa2d23b0cbdbc2bac41",
+    "trust": "executor-attested",
+    "implementation": {
+      "principal": "agent:anthropic/claude-sonnet-5-5",
+      "execution": "sha256:219d2a3cc11e7462e553bda46a173d12b2cdff984fdf957d487089b095af4786",
+      "vendor": "anthropic",
+      "model": "claude-sonnet-5-5"
+    },
+    "reviewer": {
+      "principal": "agent:openai/gpt-6.1-sol",
+      "vendor": "openai",
+      "model": "gpt-6.1-sol"
+    },
+    "config_digest": "sha256:637a9d88c40dbf75da8525db65c216ace591f828ef25c233358db1a99e70ee31",
+    "command_template_digest": "sha256:e3a23ff8a55e559e954d107a039277628bfc51faa58d523ad6101de7c375ad28",
+    "argv_digest": "sha256:aa6191b3ab6bfb8e71f31bfba3d602d90b2519c07bed8aeca27064fd3cd10004",
+    "executable_digest": "sha256:e14fc83739c13c1074b12bd1acce4010c893c7f6fbfc1593b4a31d74cabb57af",
+    "template_version": "review-brief/3",
+    "wire_digest": "sha256:7c210fc051451fb62327a516b5f249ccc05efc8cfe0ca038cfa43410af3ca695",
+    "notes_digest": "sha256:96fc14b8dd29ff5529e8420f791142480e239c86c116e68b348f96b32342c51e",
+    "raw_transcript_digest": "sha256:66ba472b352833550ff0c377ec86a80b319d2b42707d3d7c5b205c5dfb8c12a8",
+    "raw_output_digest": "sha256:0e0bee24f9ef9f23c9e6d4fd92a619a146242d10eb019c82631d35a84f2c5dd7",
+    "output_source": "file",
+    "output_complete": true
+  },
+  "session_digest": "sha256:2e53723b7e9097b8206b86e3ad64f6179f3eeafc4c85d0129ee0362016ab5a7f",
+  "tree_digest": "sha256:4a25a6352826cb7e0b263f5a3c85512a12620935f19f7cdd061a91092279aa4b",
+  "brief_notes": "Implementer note (not evidence). Review of spec `pose-bounded-isolated-graph-caches` (B33): the caches of rebuildable data (parsed delivery graph, design-delta report, test catalog, commit paths) now go through one cache bounded in bytes (global and per worktree), with one production per key under concurrent misses, no remembered failure, deep isolation (the aliasing of node attribute maps and roadmap criteria refs is reproduced by a reflection test and fixed) and a read-only view for consumers that only look fields up. The ADR amendment records the design; the spec's Known gaps holds the measurements (heap and allocation on the real index; RSS not measured; no speedup of a whole command claimed) and the Final Report the residual risks. The spec already carries its Validation, requirement trace and Final Report. Do NOT run `pose validate`, `pose index`, `pose assess ...` or any command that writes to the repository. Targeted `go test` may fail on a read-only sandbox; then rely on the sealed evidence.\n\nEvidence references: the engine refuses a conclusion whose criterion cites a structural fact (an `SD-...` id), a requirement id (`R\u003cN\u003e`) or a file path as its evidence. Cite the bundle's `structure:design-\u003cid\u003e` evidence for design-causality and assumption-integrity, and sealed `unit:`, `integration:`, `build:` or `e2e:` ids for the others. Check each plan tool's `evidence_classes` and cite every class it lists; for `surface-check` that means one sealed `integration:` and one sealed `reachability:` evidence id (for example `reachability:pose-mcp/go/delivery-reachability` and `integration:pose-mcp/go/delivery-integration`) besides the result of running the tool.\n\nClassify a finding as a blocker only if a stated requirement is violated; an accepted limit written in the spec's Known gaps or Residual risks is not a finding. Report every defect at once. Sweep the same class of defect across all four caches before reporting (budget accounting, key, isolation, failure handling).\n\nRound 2 of this review: the previous pass raised seven blockers (B1-B7); each was corrected and covered by a test named in the spec's requirement trace: reservation and caps for productions and waiters, copy slots and no copy of a value that is not retained (`TestProductionsAreAdmittedWithinTheInflightBudget`, `TestTheNumberOfProductionsIsCapped`, `TestWaitersPerKeyAreCappedAndTheRefusedCallerIsToldToProduceForItself`, `TestAValueNotRetainedIsNotCopiedForRetention`); copies outside the lock (`TestACopyDoesNotDelayAnotherKey`); an estimate that walks every field (`TestTheEstimateChargesEveryVariableSizedField`); a reflection deep copy of the design-delta report (`TestADesignDeltaReportSharesNoReferenceWithItsCopies`); the design delta coordinated per key, keyed by root, metered per worktree and retained only when complete (`TestADesignDeltaIsAssessedOncePerKeyAndOnlyACompleteOneIsRetained`, `TestTheDesignDeltaBudgetIsPerWorktree`). The clone a caller keeps is outside the budget by design and stated so. Verify and look for new defects, sweeping the same class across all four caches; a blocker is a violated stated requirement.\n\nRound 3: the second pass raised five blockers (B1-B5), all corrected with tests in the requirement trace: queue of distinct keys bounded globally and per owner (`TestAQueueOfDistinctKeysIsBounded`); reservation held until the result is published and evicted pinned entries kept charged until the reader leaves (`TestTheReservationIsHeldUntilTheResultIsPublished`, `TestAViewPinsTheEntryAndAnEvictedEntryStaysChargedUntilItLetsGo`); overload refused with `ErrCacheBusy` on every consumer, including the graph parse and view (`TestOverloadIsTheSameRefusalOnEveryConsumer`); a cancelled waiter returns its place (`TestACancelledWaiterGivesItsPlaceBack`); test names are cloned so they do not keep their file alive (`TestTheTestCatalogDoesNotKeepTheFilesItReadItsNamesFrom`). Verify, classify each remaining finding as blocker or follow-up, and give every finding in this round.\n\nRound 4: the third pass raised four blockers. B1 (shared results uncharged while waiters copy) is fixed: the reservation is held by the flight until its last waiter has copied the result (`TestASharedResultStaysChargedUntilItsLastWaiterHasCopiedIt`). B4 (overloaded catalog taken as no catalog) is fixed: `LoadTestCatalogChecked` reports it and lint-spec and the closeout gate fail with \"could not be verified\" (`TestAnOverloadedCatalogCacheIsReportedNotTakenForNoCatalog`). B2 (raw input bytes a caller read before calling) and B3 (the clone being made for a caller) are the caller's memory by the same stated design as the caller-held clone; the spec and the ADR now say so, and a follow-up is open to bound them. Treat B2 and B3 as accepted limits unless the spec's requirements are violated as written; classify each finding as blocker or follow-up and report all of them in this round.\n\nRound 5: the fourth pass raised three blockers, all corrected. B1/B2 (races in releasing a shared result's reservation and in counting waiters at publication) are fixed by making waiter membership, result publication, flight removal and reservation release one critical section, with a late waiter seen on re-check (`TestAPublicationRacingWithCancelledAndLateWaitersKeepsTheCountersExact`, run with -race over 200 rounds). B3 (commit-paths output unbounded inside the producer) is fixed: the Git output is read through a 4 MiB limit, reserved at four times that, and a larger commit answers \"unknown\" (`TestACommitLargerThanTheCacheReadsIsUnknownNotCleanAndNotHeld`). The remaining fixed reservations of the catalog, the design delta and the graph are estimates for productions already bounded by their inputs; replacing them by enforced ceilings is a recorded follow-up. Classify each finding as blocker or follow-up, and report all of them.\n\nRound 6: the fifth pass raised one blocker (B1: the split slice and the map of a dense commit exceeded the reservation) and one follow-up (F1: the ADR freshness claim). B1 is fixed: the output is parsed in place without an intermediate slice, with a ceiling of 100,000 paths, inside a reservation that covers the ceiling (`TestADenseCommitIsRefusedAtThePathCeilingAndWithinTheReservation`). F1 is fixed in the ADR (a 30-second freshness window when the matrix is unchanged). Classify each finding as blocker or follow-up, and report all of them.\n\nRound 7: the sixth pass raised one blocker, that retained-byte accounting omitted the entry, list node, lookup slots and key. Fixed: every retained entry is charged 256 bytes of metadata plus its key length (`TestManySmallEntriesAreChargedTheirMetadataToo`), recorded in the ADR. Classify each finding as blocker or follow-up, and report all of them.\n\nRound 8: the seventh pass raised two blockers. B1 (a trimmed JavaScript title kept its padding alive) is fixed by cloning after normalization (`TestAPaddedTitleDoesNotKeepItsPaddingAlive`). B2 (the owner string omitted from the entry charge) is fixed by charging its length per entry (`TestTheOwnersBytesAreChargedToEachEntry`). Findings of this kind are accounting precision on caches whose requirements are already met as written: classify each as blocker only if it violates a stated requirement, otherwise as follow-up, and report all of them.\n\nRound 9: the eighth pass raised one blocker (B1: the commit-paths cache was unreachable from production, which reads commit paths through the governed capture) and one follow-up (F1: comments suggested an unbudgeted fallback on overload). B1 is fixed at the root: the governed reader, the production consumer, now reads through a 4 MiB output limit and parses in place under a 100,000-path ceiling, answering unknown (and marking the governed read unknown) above it (`TestACommitWithMorePathsThanTheReaderAcceptsIsUnknownNotClean`); it is not cached on purpose, because every governed read is captured and audited, and the cache no production code reached was removed, with spec and ADR saying so. F1: comments corrected. The padded-title, owner-bytes and metadata-accounting tests are restored in the trace. Classify each finding as blocker or follow-up and report all of them.\n\nRound 10: the ninth pass approved with one low follow-up (F1): the changelog, the ADR introduction and the spec's Final Report still described commit paths as cached. All three now say that a commit's paths are read by the governed capture, bounded and uncached. No blocker was open; record the approval with no open findings.\n",
+  "ledger_version": 1,
+  "attempt_id": "rat-e2a88a504586d358c7240365e1088cdcf370ed880e714e7f86815d5456888472",
+  "schema_version": 1,
+  "run_id": "rrn-e2e0adfcdad8ca59",
+  "scope": "spec:pose-bounded-isolated-graph-caches",
+  "bundle_id": "rvb-f4aedf9f53c7b470",
+  "bundle_digest": "sha256:f4aedf9f53c7b47036bb297fb1de27b828794b78ff121f89e17cc5b282fb59f2",
+  "sealed_commit": "eacc0075ab48d6eb92b7995d6d52d025e31100bf",
+  "kind": "review",
+  "brief_digest": "sha256:e2b71f4525b92512839bc7c77d52d2b05f23bd4217eaecf2b6f36ccd044818a4",
+  "adapter": "sol-medium",
+  "vendor": "openai",
+  "model": "gpt-6.1-sol",
+  "started_at": "2026-11-08T18:30:11.615836621Z",
+  "ended_at": "2026-11-08T18:37:45.506120591Z",
+  "exit_code": 0,
+  "status": "completed",
+  "transcript_digest": "sha256:4a39ac35dd4b98a2e51eb9ce662d9d435ea49e1e87a48d26c45e272c8b218bf3",
+  "transcript_path": ".pose/review-runs/rrn-e2e0adfcdad8ca59.transcript",
+  "output": "**Approved. No open findings.**\n\nThe registered cache integration tests passed under `-race`; `go vet ./internal/pose`, strict artifact-check, and strict surface-check also passed. Artifact-check reported provenance warnings; surface-check reported zero findings. The repository remains unchanged, and no attestation was recorded.\n\nApplied the POSE review workflow and backend-go, security, documentation-style, delivery-evidence, and knowledge-governance rules. Reviewed bundle `rvb-f4aedf9f53c7b470`; resolved plan digest `sha256:871b39b6d2500b369d6c17cb7c26e1f28c00e68ca3c5741038b2a3ae61a11fb9`.\n\nThe documented limits remain accepted: caller-owned inputs/copies are outside cache accounting, production reservations are estimates, catalog freshness permits 30 seconds, and RSS remains unmeasured. No whole-command speedup is inferred.\n\n`SD-64016923` maps to decision D1 and R1–R8: the ADR amendment defines cache budgets, coordination, isolation, freshness, ownership, and scoped Git reads. The shared cache implementation is proportionate; a global runtime or persistent cache would require separate justification.\n\n```pose-draft\n{\n  \"schema\": \"pose.review.draft/v1\",\n  \"decision\": \"approved\",\n  \"findings\": [],\n  \"sweep\": \"Reviewed accounting, keys, isolation, failure handling and lifetimes across graph, design-delta and test-catalog caches, plus bounded uncached governed commit-path reads. Verified the prior documentation correction.\",\n  \"criteria\": [\n    {\n      \"id\": \"assumption-integrity\",\n      \"disposition\": \"passed\",\n      \"evidence\": \"structure:design-b86d2cec5368a46f\",\n      \"rationale\": \"Verified isolation and cache coordination through code and race tests. Distinguished measured heap/allocation results from unmeasured RSS and command performance. Caller memory, estimated reservations, view ownership and catalog freshness are explicit accepted limits.\"\n    },\n    {\n      \"id\": \"backend-concurrency\",\n      \"disposition\": \"passed\",\n      \"evidence\": \"integration:pose-mcp/go/bounded-isolated-graph-caches-integration\",\n      \"rationale\": \"Independently reran the registered integration selection under -race. Publication, cancellation, waiter limits, admission, pinned entries and shared-result reservation tests passed.\"\n    },\n    {\n      \"id\": \"backend-contracts\",\n      \"disposition\": \"passed\",\n      \"evidence\": \"integration:pose-mcp/go/cli-mcp-operation-results-integration\",\n      \"rationale\": \"Mutable graph reads retain defensive-copy behavior. View access is additive. Catalog overload reaches CLI gates as incomplete verification; oversized commit inventories remain unknown.\"\n    },\n    {\n      \"id\": \"backend-input-errors\",\n      \"disposition\": \"passed\",\n      \"evidence\": \"integration:pose-mcp/go/bounded-isolated-graph-caches-integration\",\n      \"rationale\": \"Negative tests cover overload, failed production, cancellation, invalid graph data and excessive commit paths. Failures are not retained as successful absence.\"\n    },\n    {\n      \"id\": \"backend-integration-impact\",\n      \"disposition\": \"passed\",\n      \"evidence\": \"integration:pose-mcp/go/delivery-integration\",\n      \"rationale\": \"Inspected Store, delegated-verdict, lint-spec and closeout consumers. Strict surface-check passed with one target, 191 results and zero findings.\"\n    },\n    {\n      \"id\": \"backend-observability\",\n      \"disposition\": \"passed\",\n      \"evidence\": \"integration:pose-mcp/go/bounded-isolated-graph-caches-integration\",\n      \"rationale\": \"Cache counters expose hits, misses, coalescing, eviction, failures and retained/reserved bytes. Returned overload context and incomplete-verification errors are bounded and actionable.\"\n    },\n    {\n      \"id\": \"compatibility\",\n      \"disposition\": \"passed\",\n      \"evidence\": \"integration:pose-mcp/go/delivery-integrity-index-compaction-integration\",\n      \"rationale\": \"Legacy and compact index decoding remains supported. Existing mutable reads remain isolated, with no new persistent format, daemon or Git pool.\"\n    },\n    {\n      \"id\": \"correctness\",\n      \"disposition\": \"passed\",\n      \"evidence\": \"integration:pose-mcp/go/bounded-isolated-graph-caches-integration\",\n      \"rationale\": \"Independent race-enabled integration tests and go vet passed. Sealed build:pose-mcp/go/build and unit:pose-mcp/go/test provide broader validation.\"\n    },\n    {\n      \"id\": \"design-causality\",\n      \"disposition\": \"passed\",\n      \"evidence\": \"structure:design-b86d2cec5368a46f\",\n      \"rationale\": \"Deep copies remove nested aliasing; read-only views avoid repeated whole-graph copies; byte accounting and per-key coordination address retention growth and duplicate production.\",\n      \"mappings\": [\n        {\n          \"delta\": \"SD-64016923\",\n          \"basis\": \"D1\",\n          \"disposition\": \"mapped\",\n          \"rationale\": \"The ADR amendment resolves R1-R8 through explicit ownership, budgets, keys, isolation, coordination, freshness and measurement boundaries.\"\n        }\n      ]\n    },\n    {\n      \"id\": \"documentation\",\n      \"disposition\": \"passed\",\n      \"evidence\": \"integration:pose-mcp/go/distributed-instructions-parity-integration\",\n      \"rationale\": \"Reviewed operational docs, scaffold, ADR, changelog and spec. Commit paths are no longer described as cached; documented limits match runtime behavior.\"\n    },\n    {\n      \"id\": \"milestone-exit-gate-pose-shared-runtime-bounded-graph-caches\",\n      \"disposition\": \"passed\",\n      \"evidence\": \"integration:pose-mcp/go/bounded-isolated-graph-caches-integration\",\n      \"rationale\": \"Graph semantics, deep isolation, coordinated misses, owner/global accounting, pins and waiters have relevant tests. View allocation reduction is measured. Git remains scoped and governed; no authority cache is introduced. Applies within the spec's explicit memory and measurement limits.\"\n    },\n    {\n      \"id\": \"operability\",\n      \"disposition\": \"passed\",\n      \"evidence\": \"integration:pose-mcp/go/bounded-isolated-graph-caches-integration\",\n      \"rationale\": \"Overload is reported rather than bypassing admission. Catalog-dependent gates report incomplete verification, and excessive commit inventories produce unknown coverage.\"\n    },\n    {\n      \"id\": \"requirements\",\n      \"disposition\": \"passed\",\n      \"evidence\": \"integration:pose-mcp/go/bounded-isolated-graph-caches-integration\",\n      \"rationale\": \"Reviewed R1-R8 against implementation and requirement-trace tests. Independently executed the registered race-enabled selection; broader unit and integration evidence is sealed.\"\n    },\n    {\n      \"id\": \"scope\",\n      \"disposition\": \"passed\",\n      \"evidence\": \"structure:design-b86d2cec5368a46f\",\n      \"rationale\": \"Changes address bounded rebuildable caches, graph isolation, consumer error propagation and governed Git bounds. No resident runtime, persistent cache or global Git pool was added.\"\n    },\n    {\n      \"id\": \"security\",\n      \"disposition\": \"passed\",\n      \"evidence\": \"integration:pose-mcp/go/git-and-dispatch-snapshot-integrity-integration\",\n      \"rationale\": \"Cache hits do not establish current authority. Content/root keys preserve data boundaries, governed Git capture remains audited, and excessive inventories remain unknown.\"\n    },\n    {\n      \"id\": \"solution-proportionality\",\n      \"disposition\": \"passed\",\n      \"evidence\": \"structure:design-b86d2cec5368a46f\",\n      \"rationale\": \"One reusable cache implementation with defensive copies and limited view migration addresses the observed causes. Simpler entry-count or shallow-copy alternatives fail the requirements. New mutable dependencies, ownership changes or broader residency would require revisiting the design.\"\n    }\n  ],\n  \"tools\": [\n    {\n      \"id\": \"artifact-check\",\n      \"disposition\": \"passed\",\n      \"evidence\": \"check:pose artifact-check --spec pose-bounded-isolated-graph-caches --strict\",\n      \"rationale\": \"Executed successfully, exit 0. Reported provenance warnings; no failing gate result.\"\n    },\n    {\n      \"id\": \"assess-design\",\n      \"disposition\": \"passed\",\n      \"evidence\": \"structure:design-b86d2cec5368a46f\",\n      \"rationale\": \"Executed read-only assessment successfully. Its input digest matches the sealed structural evidence.\"\n    },\n    {\n      \"id\": \"assess-discover\",\n      \"component\": \"pose-mcp\",\n      \"disposition\": \"not-used\",\n      \"rationale\": \"Avoided repository-writing assessment refresh under the explicit unchanged-repository boundary; inspected component code and tests directly.\"\n    },\n    {\n      \"id\": \"assess-integrate\",\n      \"disposition\": \"not-used\",\n      \"evidence\": \"integration:pose-mcp/go/delivery-integration\",\n      \"rationale\": \"Avoided repository-writing assessment refresh. Inspected provider-consumer boundaries directly and used sealed integration evidence plus the successful strict surface check.\"\n    },\n    {\n      \"id\": \"assess-tech-debt\",\n      \"disposition\": \"not-used\",\n      \"rationale\": \"Avoided repository-writing assessment refresh. Direct marker inspection found the intentional producer panic cleanup/rethrow; reservation, caller-memory and measurement debt already has owned spec follow-ups.\"\n    },\n    {\n      \"id\": \"closeout-check\",\n      \"disposition\": \"deferred\",\n      \"rationale\": \"Diagnostic invocation exceeded 20 seconds. This completion-only gate must be rerun after POSE records and verifies the review; no attestation or closeout was written.\"\n    },\n    {\n      \"id\": \"review-check\",\n      \"disposition\": \"deferred\",\n      \"rationale\": \"Diagnostic invocation exceeded 20 seconds. Final approval freshness verification belongs after POSE records this conclusion.\"\n    },\n    {\n      \"id\": \"suggest-review\",\n      \"component\": \"pose-mcp\",\n      \"disposition\": \"passed\",\n      \"evidence\": \"check:pose suggest review --path pose-mcp\",\n      \"rationale\": \"Executed successfully and applied the selected workflow and backend-go, security and documentation-style rules.\"\n    },\n    {\n      \"id\": \"surface-check\",\n      \"disposition\": \"passed\",\n      \"evidence\": \"integration:pose-mcp/go/delivery-integration\",\n      \"rationale\": \"Executed pose surface-check --spec pose-bounded-isolated-graph-caches --strict: exit 0, one target, 191 results, zero findings. Supporting sealed reachability class: reachability:pose-mcp/go/delivery-reachability.\"\n    },\n    {\n      \"id\": \"validate\",\n      \"disposition\": \"passed\",\n      \"evidence\": \"build:pose-mcp/go/build\",\n      \"rationale\": \"Reused supplied sealed validation to preserve the repository. Additional required classes: unit:pose-mcp/go/test; integration:pose-mcp/go/bounded-isolated-graph-caches-integration; e2e:pose-mcp/go/multi-repo-agent-installed-journey. Independently reran the cache integration selection under -race and go vet.\"\n    },\n    {\n      \"id\": \"validate\",\n      \"component\": \"pose-mcp\",\n      \"disposition\": \"passed\",\n      \"evidence\": \"integration:pose-mcp/go/bounded-isolated-graph-caches-integration\",\n      \"rationale\": \"Reused sealed module validation: build:pose-mcp/go/build; unit:pose-mcp/go/test; e2e:pose-mcp/go/multi-repo-agent-installed-journey. Independent registered cache integration selection under -race passed, as did go vet ./internal/pose.\"\n    }\n  ]\n}\n```",
+  "policy_digest": "sha256:fff43ca5b338f626f9bc9be2bfc998d7fa780708e54e427024daf7788d0fc98e",
+  "purpose": "review",
+  "env_removed": [
+    "CLAUDE_CODE_BRIDGE_SESSION_ID",
+    "CLAUDE_CODE_CHILD_SESSION",
+    "CLAUDE_CODE_ENTRYPOINT",
+    "CLAUDE_CODE_EXECPATH",
+    "CLAUDE_CODE_MESSAGING_SOCKET",
+    "CLAUDE_CODE_MESSAGING_TOKEN",
+    "CLAUDE_CODE_SESSION_ATTENDED",
+    "CLAUDE_CODE_SESSION_ID",
+    "CLAUDE_EFFORT",
+    "CLAUDE_PID"
+  ],
+  "events": "codex-jsonl",
+  "events_digest": "sha256:7a3f335685cbbbd0a06dc55f6b56b8b36e224d95750e1974b62ba69388279fce",
+  "routing": {
+    "requested": "auto",
+    "prefer": "opposite-vendor-of-implementation",
+    "implementation": {
+      "principal": "agent:anthropic/claude-sonnet-5-5",
+      "vendor": "anthropic",
+      "model": "claude-sonnet-5-5",
+      "execution_digest": "sha256:219d2a3cc11e7462e553bda46a173d12b2cdff984fdf957d487089b095af4786",
+      "source": "declared"
+    },
+    "implementation_from": "bundle",
+    "candidates": [
+      {
+        "agent": "sol-medium",
+        "vendor": "openai",
+        "model": "gpt-6.1-sol",
+        "group": "preferred",
+        "state": "available"
+      }
+    ],
+    "step": "preferred"
+  },
+  "independence_achieved": "different-vendor",
+  "round": 1
+}

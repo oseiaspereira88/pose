@@ -1,0 +1,218 @@
+{
+  "run": {
+    "run_id": "rrn-e2e0adfcdad8ca59",
+    "proof_id": "rrp-a53c5f756d7d16d22514d1ef12a1279aaaf8f36d86847aa866ba6ffa62ce39b7"
+  },
+  "schema_version": 1,
+  "attestation_id": "rva-7cb4583b19634cd9",
+  "bundle_id": "rvb-f4aedf9f53c7b470",
+  "bundle_digest": "sha256:f4aedf9f53c7b47036bb297fb1de27b828794b78ff121f89e17cc5b282fb59f2",
+  "reviewer": "agent:openai/gpt-6.1-sol",
+  "decision": "approved",
+  "criteria": [
+    {
+      "id": "assumption-integrity",
+      "disposition": "passed",
+      "evidence": "structure:design-b86d2cec5368a46f",
+      "rationale": "Verified isolation and cache coordination through code and race tests. Distinguished measured heap/allocation results from unmeasured RSS and command performance. Caller memory, estimated reservations, view ownership and catalog freshness are explicit accepted limits."
+    },
+    {
+      "id": "backend-concurrency",
+      "disposition": "passed",
+      "evidence": "integration:pose-mcp/go/bounded-isolated-graph-caches-integration",
+      "rationale": "Independently reran the registered integration selection under -race. Publication, cancellation, waiter limits, admission, pinned entries and shared-result reservation tests passed."
+    },
+    {
+      "id": "backend-contracts",
+      "disposition": "passed",
+      "evidence": "integration:pose-mcp/go/cli-mcp-operation-results-integration",
+      "rationale": "Mutable graph reads retain defensive-copy behavior. View access is additive. Catalog overload reaches CLI gates as incomplete verification; oversized commit inventories remain unknown."
+    },
+    {
+      "id": "backend-input-errors",
+      "disposition": "passed",
+      "evidence": "integration:pose-mcp/go/bounded-isolated-graph-caches-integration",
+      "rationale": "Negative tests cover overload, failed production, cancellation, invalid graph data and excessive commit paths. Failures are not retained as successful absence."
+    },
+    {
+      "id": "backend-integration-impact",
+      "disposition": "passed",
+      "evidence": "integration:pose-mcp/go/delivery-integration",
+      "rationale": "Inspected Store, delegated-verdict, lint-spec and closeout consumers. Strict surface-check passed with one target, 191 results and zero findings."
+    },
+    {
+      "id": "backend-observability",
+      "disposition": "passed",
+      "evidence": "integration:pose-mcp/go/bounded-isolated-graph-caches-integration",
+      "rationale": "Cache counters expose hits, misses, coalescing, eviction, failures and retained/reserved bytes. Returned overload context and incomplete-verification errors are bounded and actionable."
+    },
+    {
+      "id": "compatibility",
+      "disposition": "passed",
+      "evidence": "integration:pose-mcp/go/delivery-integrity-index-compaction-integration",
+      "rationale": "Legacy and compact index decoding remains supported. Existing mutable reads remain isolated, with no new persistent format, daemon or Git pool."
+    },
+    {
+      "id": "correctness",
+      "disposition": "passed",
+      "evidence": "integration:pose-mcp/go/bounded-isolated-graph-caches-integration",
+      "rationale": "Independent race-enabled integration tests and go vet passed. Sealed build:pose-mcp/go/build and unit:pose-mcp/go/test provide broader validation."
+    },
+    {
+      "id": "design-causality",
+      "disposition": "passed",
+      "evidence": "structure:design-b86d2cec5368a46f",
+      "rationale": "Deep copies remove nested aliasing; read-only views avoid repeated whole-graph copies; byte accounting and per-key coordination address retention growth and duplicate production.",
+      "mappings": [
+        {
+          "delta": "SD-64016923",
+          "basis": "D1",
+          "disposition": "mapped",
+          "rationale": "The ADR amendment resolves R1-R8 through explicit ownership, budgets, keys, isolation, coordination, freshness and measurement boundaries."
+        }
+      ]
+    },
+    {
+      "id": "documentation",
+      "disposition": "passed",
+      "evidence": "integration:pose-mcp/go/distributed-instructions-parity-integration",
+      "rationale": "Reviewed operational docs, scaffold, ADR, changelog and spec. Commit paths are no longer described as cached; documented limits match runtime behavior."
+    },
+    {
+      "id": "milestone-exit-gate-pose-shared-runtime-bounded-graph-caches",
+      "disposition": "passed",
+      "evidence": "integration:pose-mcp/go/bounded-isolated-graph-caches-integration",
+      "rationale": "Graph semantics, deep isolation, coordinated misses, owner/global accounting, pins and waiters have relevant tests. View allocation reduction is measured. Git remains scoped and governed; no authority cache is introduced. Applies within the spec's explicit memory and measurement limits."
+    },
+    {
+      "id": "operability",
+      "disposition": "passed",
+      "evidence": "integration:pose-mcp/go/bounded-isolated-graph-caches-integration",
+      "rationale": "Overload is reported rather than bypassing admission. Catalog-dependent gates report incomplete verification, and excessive commit inventories produce unknown coverage."
+    },
+    {
+      "id": "requirements",
+      "disposition": "passed",
+      "evidence": "integration:pose-mcp/go/bounded-isolated-graph-caches-integration",
+      "rationale": "Reviewed R1-R8 against implementation and requirement-trace tests. Independently executed the registered race-enabled selection; broader unit and integration evidence is sealed."
+    },
+    {
+      "id": "scope",
+      "disposition": "passed",
+      "evidence": "structure:design-b86d2cec5368a46f",
+      "rationale": "Changes address bounded rebuildable caches, graph isolation, consumer error propagation and governed Git bounds. No resident runtime, persistent cache or global Git pool was added."
+    },
+    {
+      "id": "security",
+      "disposition": "passed",
+      "evidence": "integration:pose-mcp/go/git-and-dispatch-snapshot-integrity-integration",
+      "rationale": "Cache hits do not establish current authority. Content/root keys preserve data boundaries, governed Git capture remains audited, and excessive inventories remain unknown."
+    },
+    {
+      "id": "solution-proportionality",
+      "disposition": "passed",
+      "evidence": "structure:design-b86d2cec5368a46f",
+      "rationale": "One reusable cache implementation with defensive copies and limited view migration addresses the observed causes. Simpler entry-count or shallow-copy alternatives fail the requirements. New mutable dependencies, ownership changes or broader residency would require revisiting the design."
+    }
+  ],
+  "tools": [
+    {
+      "id": "artifact-check",
+      "disposition": "passed",
+      "evidence": "check:pose artifact-check --spec pose-bounded-isolated-graph-caches --strict",
+      "rationale": "Executed successfully, exit 0. Reported provenance warnings; no failing gate result."
+    },
+    {
+      "id": "assess-design",
+      "disposition": "passed",
+      "evidence": "structure:design-b86d2cec5368a46f",
+      "rationale": "Executed read-only assessment successfully. Its input digest matches the sealed structural evidence."
+    },
+    {
+      "id": "assess-discover",
+      "component": "pose-mcp",
+      "disposition": "not-used",
+      "rationale": "Avoided repository-writing assessment refresh under the explicit unchanged-repository boundary; inspected component code and tests directly."
+    },
+    {
+      "id": "assess-integrate",
+      "disposition": "not-used",
+      "evidence": "integration:pose-mcp/go/delivery-integration",
+      "rationale": "Avoided repository-writing assessment refresh. Inspected provider-consumer boundaries directly and used sealed integration evidence plus the successful strict surface check."
+    },
+    {
+      "id": "assess-tech-debt",
+      "disposition": "not-used",
+      "rationale": "Avoided repository-writing assessment refresh. Direct marker inspection found the intentional producer panic cleanup/rethrow; reservation, caller-memory and measurement debt already has owned spec follow-ups."
+    },
+    {
+      "id": "closeout-check",
+      "disposition": "deferred",
+      "rationale": "Diagnostic invocation exceeded 20 seconds. This completion-only gate must be rerun after POSE records and verifies the review; no attestation or closeout was written."
+    },
+    {
+      "id": "review-check",
+      "disposition": "deferred",
+      "rationale": "Diagnostic invocation exceeded 20 seconds. Final approval freshness verification belongs after POSE records this conclusion."
+    },
+    {
+      "id": "suggest-review",
+      "component": "pose-mcp",
+      "disposition": "passed",
+      "evidence": "check:pose suggest review --path pose-mcp",
+      "rationale": "Executed successfully and applied the selected workflow and backend-go, security and documentation-style rules."
+    },
+    {
+      "id": "surface-check",
+      "disposition": "passed",
+      "evidence": "integration:pose-mcp/go/delivery-integration",
+      "rationale": "Executed pose surface-check --spec pose-bounded-isolated-graph-caches --strict: exit 0, one target, 191 results, zero findings. Supporting sealed reachability class: reachability:pose-mcp/go/delivery-reachability."
+    },
+    {
+      "id": "validate",
+      "disposition": "passed",
+      "evidence": "build:pose-mcp/go/build",
+      "rationale": "Reused supplied sealed validation to preserve the repository. Additional required classes: unit:pose-mcp/go/test; integration:pose-mcp/go/bounded-isolated-graph-caches-integration; e2e:pose-mcp/go/multi-repo-agent-installed-journey. Independently reran the cache integration selection under -race and go vet."
+    },
+    {
+      "id": "validate",
+      "component": "pose-mcp",
+      "disposition": "passed",
+      "evidence": "integration:pose-mcp/go/bounded-isolated-graph-caches-integration",
+      "rationale": "Reused sealed module validation: build:pose-mcp/go/build; unit:pose-mcp/go/test; e2e:pose-mcp/go/multi-repo-agent-installed-journey. Independent registered cache integration selection under -race passed, as did go vet ./internal/pose."
+    }
+  ],
+  "evidence_refs": [
+    "delegated-run:rrn-e2e0adfcdad8ca59",
+    "integration:pose-mcp/go/bounded-isolated-graph-caches-integration",
+    "integration:pose-mcp/go/cli-mcp-operation-results-integration",
+    "integration:pose-mcp/go/delivery-integration",
+    "integration:pose-mcp/go/delivery-integrity-index-compaction-integration",
+    "integration:pose-mcp/go/distributed-instructions-parity-integration",
+    "integration:pose-mcp/go/git-and-dispatch-snapshot-integrity-integration",
+    "structure:design-b86d2cec5368a46f"
+  ],
+  "findings": null,
+  "authority": {
+    "schema_version": 1,
+    "project": "proj.pose-dist",
+    "bundle_digest": "sha256:f4aedf9f53c7b47036bb297fb1de27b828794b78ff121f89e17cc5b282fb59f2",
+    "principal": "agent:openai/gpt-6.1-sol",
+    "role": "agent",
+    "review_execution": "rrn-e2e0adfcdad8ca59",
+    "implementation_principal": "agent:anthropic/claude-sonnet-5-5",
+    "implementation_execution": "sha256:219d2a3cc11e7462e553bda46a173d12b2cdff984fdf957d487089b095af4786",
+    "issuer": "b34-local-executor",
+    "issued_at": "2026-11-08T18:37:49Z",
+    "audience": "proj.pose-dist"
+  },
+  "envelope": {
+    "issuer": "b34-local-executor",
+    "subject": "rvb-f4aedf9f53c7b470",
+    "algorithm": "ed25519",
+    "public_key": "ck4sApdfePV2GT+hJyAYfJd2qLzeG55P8pevGR0bvZE=",
+    "signature": "m3oVOaRsiX/IhEnvJeNi1YZ0oli9KaFszACtv73u7FRzN4zEnREznvdWFlqnyKM9Pipt9XPgcfT35TD1NpmNDA=="
+  },
+  "attested_at": "2026-11-08T18:37:49Z",
+  "path": ".pose/review-attestations/rva-7cb4583b19634cd9.json"
+}
