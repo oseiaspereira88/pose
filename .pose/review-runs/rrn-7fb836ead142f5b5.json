@@ -1,0 +1,152 @@
+{
+  "safety": {
+    "schema_version": 1,
+    "profile": "legacy-trusted",
+    "platform": "linux/amd64",
+    "capabilities": {
+      "automatic-expiry": "unavailable",
+      "bounded-capture": "available",
+      "cpu-limit": "unavailable",
+      "credential-filesystem-isolation": "unavailable",
+      "environment-allowlist": "available",
+      "escaped-descendant-termination": "unavailable",
+      "filesystem-isolation": "unavailable",
+      "memory-limit": "unavailable",
+      "network-isolation": "unavailable",
+      "origin-isolation": "unavailable",
+      "parent-termination": "available",
+      "process-group-termination": "available",
+      "shared-git-isolation": "unavailable"
+    },
+    "limitations": [
+      "trusted local executable required; worktree is not a sandbox",
+      "outside writes, transient writes, shared Git and credential files are not isolated",
+      "no memory/CPU quota or control of descendants escaping the process group",
+      "cleanup filesystem calls remain subject to operating-system I/O latency",
+      "legacy compatibility: HOME retained; other ambient credentials excluded"
+    ],
+    "stream_bytes": 8388608,
+    "output_bytes": 65536,
+    "retained_bytes": 16777216,
+    "timeout_ms": 3600000,
+    "max_runs_per_bundle": 3,
+    "retention": "retain-evidence; ttl=0; no automatic deletion",
+    "capture_complete": true,
+    "runtime_id": "pose-review-run-680481198",
+    "operation": {
+      "schema_version": 1,
+      "operation": "review.dispatch.cleanup",
+      "scope": "spec:pose-bounded-isolated-graph-caches",
+      "outcome": "completed",
+      "steps_run": [
+        {
+          "id": "cleanup",
+          "result": "done"
+        }
+      ],
+      "effects": [],
+      "resumable": false
+    }
+  },
+  "provenance": {
+    "execution_state": "started",
+    "planned_wire_digest": "sha256:865a1a34b7fe9fcca4b61bf7310b3a4bb6296bb1f2f6d737ee8e598dcc2d2cbd",
+    "wire_bytes": 22211,
+    "wire_complete": true,
+    "schema_version": 1,
+    "project": "proj.pose-dist",
+    "audience": "proj.pose-dist",
+    "worktree_digest": "sha256:9c161dc895f6496d9f800581bef8673cc9123cda65951fa2d23b0cbdbc2bac41",
+    "trust": "executor-attested",
+    "implementation": {
+      "principal": "agent:anthropic/claude-sonnet-5-5",
+      "execution": "sha256:219d2a3cc11e7462e553bda46a173d12b2cdff984fdf957d487089b095af4786",
+      "vendor": "anthropic",
+      "model": "claude-sonnet-5-5"
+    },
+    "reviewer": {
+      "principal": "agent:openai/gpt-6.1-sol",
+      "vendor": "openai",
+      "model": "gpt-6.1-sol"
+    },
+    "config_digest": "sha256:637a9d88c40dbf75da8525db65c216ace591f828ef25c233358db1a99e70ee31",
+    "command_template_digest": "sha256:e49fc2491333bb1973855674a04dfcc3edf577094dabb278bf9ef23c413c48f5",
+    "argv_digest": "sha256:0d8e8ffe06c498ed49bab73858d5c8c2a7fe92f527fa6dcea67da710f1c10a3d",
+    "executable_digest": "sha256:e14fc83739c13c1074b12bd1acce4010c893c7f6fbfc1593b4a31d74cabb57af",
+    "template_version": "review-brief/3",
+    "wire_digest": "sha256:865a1a34b7fe9fcca4b61bf7310b3a4bb6296bb1f2f6d737ee8e598dcc2d2cbd",
+    "notes_digest": "sha256:3eba9a70890869b75a2196e6f4ebebe2d1f45f7cdb5aa0d162f37cc436e93be5",
+    "raw_transcript_digest": "sha256:4d8f531294b20013e45e0c70fa4524e0fc5fdac9cc4e82f15ffd60b1af1bdf42",
+    "raw_output_digest": "sha256:654647b23abeae5d50e82b78bc7cdb0578908ea4e33c61911bb79ef9bca1e03b",
+    "output_source": "file",
+    "output_complete": true
+  },
+  "session_digest": "sha256:2e53723b7e9097b8206b86e3ad64f6179f3eeafc4c85d0129ee0362016ab5a7f",
+  "tree_digest": "sha256:9528454bf185485a1806c886f2ebe75429cd5da754ed9926c64fd3e9c061590a",
+  "brief_notes": "Post-done review of the sole-member milestone for spec pose-bounded-isolated-graph-caches. The implementation is the one approved in rva-7cb4583b19634cd9 (head eacc0075). Two earlier post-done attempts were refused because a closeout checkpoint written by a `pose close --apply` that stopped while the read view was unknown had been committed and recorded a failed verification. This checkout was rebuilt from the approved head: it contains no checkpoint, and the only changes since that head are the spec status (done, completed_at), derived indexes and review artifacts. Verify that against git history (`git diff --stat eacc0075..HEAD`), confirm the milestone exit gate for a done spec, and cite `structure:design-\u003cid\u003e` or sealed `unit:`/`integration:` evidence ids for criteria, not SD-/R- ids. The terminal checkpoint is written by the `pose close --resume` that follows an approval, so its absence here is expected and is not a defect. Classify each finding as blocker or follow-up.\n",
+  "ledger_version": 1,
+  "attempt_id": "rat-cbdbe054a0254127ac700cc29e182bbc11d21607074a51792e1f50a82f88cf2d",
+  "schema_version": 1,
+  "run_id": "rrn-7fb836ead142f5b5",
+  "scope": "spec:pose-bounded-isolated-graph-caches",
+  "bundle_id": "rvb-f5dc6a8c6a60bb4b",
+  "bundle_digest": "sha256:f5dc6a8c6a60bb4b2e8f9e12a21b9d193e1e7e77419e783fbfde2809a6222ab1",
+  "sealed_commit": "5a6714a353549648ec4d5ae076e48c8087c3f16f",
+  "kind": "review",
+  "brief_digest": "sha256:5c001bf9ee7377b0ba630c4b4b3148e23b95cbdfcc83a9d30a72b21c29e4cdf4",
+  "adapter": "sol-medium",
+  "vendor": "openai",
+  "model": "gpt-6.1-sol",
+  "started_at": "2026-11-08T21:44:24.682567033Z",
+  "ended_at": "2026-11-08T21:48:47.848696418Z",
+  "exit_code": 0,
+  "status": "completed",
+  "transcript_digest": "sha256:01c3da99e2937309e6a319e69f95d402b1b5de4834a3a4c9c510c52df8f548ec",
+  "transcript_path": ".pose/review-runs/rrn-7fb836ead142f5b5.transcript",
+  "output": "**Approved for the reviewed change. No open findings.**\n\nThe rebuilt checkout omits the failed checkpoint and matches the approved implementation. Artifact-check, design assessment, and surface-check passed. The test rerun was blocked by the read-only filesystem; functional conclusions use the sealed evidence.\n\n**Terminal closeout remains unverified:** current review/closeout checks report unknown governance freshness and no current approval. Those completion gates must be rerun after POSE records this review.\n\nApplied the POSE review workflow and backend-go, security, documentation-style, and delivery-evidence rules. `SD-64016923` maps to D1 and R1–R8 through the ADR’s ownership, accounting, isolation, coordination, freshness, and measurement decisions. No repository changes or attestation were made.\n\n```pose-draft\n{\n  \"schema\": \"pose.review.draft/v1\",\n  \"decision\": \"approved\",\n  \"findings\": [],\n  \"prior_findings\": [],\n  \"sweep\": \"The formal previous-round ledger contains no carried findings. Rechecked the failed-checkpoint issue described in the implementer note: HEAD is 5a6714a3, the checkpoint is neither tracked nor present, and comparison with 33648a12 confirms its removal. Verified no implementation, runtime-documentation, ADR or validation-matrix changes since approved head eacc0075. Reviewed cache accounting, isolation, keys, admission, publication, cancellation, error propagation and governed Git bounds against the unchanged requirements and tests. Checked lifecycle and derived/review changes. Artifact, design and surface checks passed. The race-test rerun was blocked before execution by the read-only filesystem. Current terminal verification remains deferred and is not claimed successful.\",\n  \"criteria\": [\n    {\n      \"id\": \"assumption-integrity\",\n      \"disposition\": \"passed\",\n      \"evidence\": \"structure:design-b86d2cec5368a46f\",\n      \"rationale\": \"Verified implementation identity and checkpoint absence independently. Distinguished sealed functional evidence from the blocked test rerun and unsuccessful current terminal diagnostics. Caller-memory exclusions, estimated reservations, catalog freshness and unmeasured RSS remain explicit limits.\"\n    },\n    {\n      \"id\": \"backend-concurrency\",\n      \"disposition\": \"passed\",\n      \"evidence\": \"integration:pose-mcp/go/bounded-isolated-graph-caches-integration\",\n      \"rationale\": \"The unchanged implementation retains sealed race coverage for admission, publication, cancellation, pinned entries and shared-result reservation lifetime. No fresh test pass is claimed.\"\n    },\n    {\n      \"id\": \"backend-contracts\",\n      \"disposition\": \"passed\",\n      \"evidence\": \"integration:pose-mcp/go/cli-mcp-operation-results-integration\",\n      \"rationale\": \"Defensive-copy contracts, additive views, catalog overload propagation and unknown oversized commit inventories remain unchanged.\"\n    },\n    {\n      \"id\": \"backend-input-errors\",\n      \"disposition\": \"passed\",\n      \"evidence\": \"integration:pose-mcp/go/bounded-isolated-graph-caches-integration\",\n      \"rationale\": \"Bounded admission, cancellation and production failure paths retain relevant negative coverage. Failures are not cached as successful absence.\"\n    },\n    {\n      \"id\": \"backend-integration-impact\",\n      \"disposition\": \"passed\",\n      \"evidence\": \"integration:pose-mcp/go/delivery-integration\",\n      \"rationale\": \"Production consumers are unchanged. Current strict surface-check passed with one target, 191 results and zero findings.\"\n    },\n    {\n      \"id\": \"backend-observability\",\n      \"disposition\": \"passed\",\n      \"evidence\": \"integration:pose-mcp/go/bounded-isolated-graph-caches-integration\",\n      \"rationale\": \"Cache counters and bounded overload/incomplete-verification errors remain available. Current governance uncertainty is explicitly reported.\"\n    },\n    {\n      \"id\": \"compatibility\",\n      \"disposition\": \"passed\",\n      \"evidence\": \"integration:pose-mcp/go/delivery-integrity-index-compaction-integration\",\n      \"rationale\": \"No source or format changes since approval. Legacy and compact decoding and mutable consumer contracts remain supported.\"\n    },\n    {\n      \"id\": \"correctness\",\n      \"disposition\": \"passed\",\n      \"evidence\": \"integration:pose-mcp/go/bounded-isolated-graph-caches-integration\",\n      \"rationale\": \"Implementation and validation matrix match the approved head. Relevant build, unit and integration evidence remains sealed; the failed checkpoint is absent from this rebuilt checkout.\"\n    },\n    {\n      \"id\": \"design-causality\",\n      \"disposition\": \"passed\",\n      \"evidence\": \"structure:design-b86d2cec5368a46f\",\n      \"rationale\": \"Deep copies remove nested aliasing, views reduce whole-graph copying for small reads, byte accounting limits retention and per-key coordination removes duplicate production.\",\n      \"mappings\": [\n        {\n          \"delta\": \"SD-64016923\",\n          \"basis\": \"D1\",\n          \"disposition\": \"mapped\",\n          \"rationale\": \"The ADR amendment addresses R1-R8 through explicit ownership, budgets, content keys, isolation, coordination, freshness and measurement boundaries.\"\n        }\n      ]\n    },\n    {\n      \"id\": \"documentation\",\n      \"disposition\": \"passed\",\n      \"evidence\": \"integration:pose-mcp/go/distributed-instructions-parity-integration\",\n      \"rationale\": \"Runtime documentation remains consistent with the unchanged implementation. The contradictory failed checkpoint is absent. Lifecycle done is not treated as proof of terminal closeout; final completion verification remains pending.\"\n    },\n    {\n      \"id\": \"operability\",\n      \"disposition\": \"passed\",\n      \"evidence\": \"integration:pose-mcp/go/bounded-isolated-graph-caches-integration\",\n      \"rationale\": \"Overload and unknown coverage remain actionable. Current completion diagnostics require verification of governance inputs before closeout.\"\n    },\n    {\n      \"id\": \"requirements\",\n      \"disposition\": \"passed\",\n      \"evidence\": \"integration:pose-mcp/go/bounded-isolated-graph-caches-integration\",\n      \"rationale\": \"R1-R8 and the milestone's functional exit conditions retain relevant evidence for the unchanged implementation within the spec's accepted limits. This judgment does not certify administrative terminal closeout.\"\n    },\n    {\n      \"id\": \"scope\",\n      \"disposition\": \"passed\",\n      \"evidence\": \"structure:design-b86d2cec5368a46f\",\n      \"rationale\": \"Git confirms only lifecycle and derived/review changes since approval. No additional functional scope was introduced.\"\n    },\n    {\n      \"id\": \"security\",\n      \"disposition\": \"passed\",\n      \"evidence\": \"integration:pose-mcp/go/git-and-dispatch-snapshot-integrity-integration\",\n      \"rationale\": \"No authority cache or shared Git pool was introduced. Unproven governance inputs continue to prevent successful terminal verification.\"\n    },\n    {\n      \"id\": \"solution-proportionality\",\n      \"disposition\": \"passed\",\n      \"evidence\": \"structure:design-b86d2cec5368a46f\",\n      \"rationale\": \"The reusable cache implementation and limited view migration address the observed causes. Entry-count limits or shallow copies would be insufficient. Broader residency, new mutable dependencies or changed ownership would require reconsideration.\"\n    }\n  ],\n  \"tools\": [\n    {\n      \"id\": \"artifact-check\",\n      \"disposition\": \"passed\",\n      \"evidence\": \"check:pose artifact-check --spec pose-bounded-isolated-graph-caches --strict\",\n      \"rationale\": \"Executed successfully, exit 0, with provenance warnings.\"\n    },\n    {\n      \"id\": \"assess-design\",\n      \"disposition\": \"passed\",\n      \"evidence\": \"structure:design-b86d2cec5368a46f\",\n      \"rationale\": \"Executed successfully. Structural input and implementation digests match the sealed evidence and approved implementation.\"\n    },\n    {\n      \"id\": \"assess-discover\",\n      \"component\": \"pose-mcp\",\n      \"disposition\": \"not-used\",\n      \"rationale\": \"Avoided repository-writing assessment refresh under the no-change boundary. Inspected the component and verified unchanged sources directly.\"\n    },\n    {\n      \"id\": \"assess-integrate\",\n      \"disposition\": \"not-used\",\n      \"evidence\": \"integration:pose-mcp/go/delivery-integration\",\n      \"rationale\": \"Avoided repository-writing assessment refresh. Used unchanged consumer inspection, sealed integration evidence and the current successful surface check.\"\n    },\n    {\n      \"id\": \"assess-tech-debt\",\n      \"disposition\": \"not-used\",\n      \"rationale\": \"Avoided repository-writing assessment refresh. Direct marker inspection found the intentional producer panic cleanup/rethrow. Reservation, caller-memory and measurement debt remains documented with owned follow-ups.\"\n    },\n    {\n      \"id\": \"closeout-check\",\n      \"disposition\": \"deferred\",\n      \"rationale\": \"Completion-only gate. Diagnostic invocation exited 1 with lifecycle_done=true, review_approved=false, terminal=false and unknown governance freshness. It must be rerun after POSE records the review and verifies current inputs. No successful terminal closeout is claimed.\"\n    },\n    {\n      \"id\": \"review-check\",\n      \"disposition\": \"deferred\",\n      \"rationale\": \"Completion-only gate. Diagnostic invocation exited 1 with no current review attempt and unknown governance freshness. Final freshness and approval verification belongs after POSE records this conclusion.\"\n    },\n    {\n      \"id\": \"suggest-review\",\n      \"component\": \"pose-mcp\",\n      \"disposition\": \"passed\",\n      \"evidence\": \"check:pose suggest review --path pose-mcp\",\n      \"rationale\": \"Executed successfully and applied the selected review workflow and rules.\"\n    },\n    {\n      \"id\": \"surface-check\",\n      \"disposition\": \"passed\",\n      \"evidence\": \"integration:pose-mcp/go/delivery-integration\",\n      \"rationale\": \"Executed strict surface-check: exit 0, one target, 191 results, zero findings. Supporting sealed reachability evidence: reachability:pose-mcp/go/delivery-reachability.\"\n    },\n    {\n      \"id\": \"validate\",\n      \"disposition\": \"passed\",\n      \"evidence\": \"build:pose-mcp/go/build\",\n      \"rationale\": \"Reused sealed validation for the verified unchanged implementation. Supporting classes: unit:pose-mcp/go/test; integration:pose-mcp/go/bounded-isolated-graph-caches-integration; e2e:pose-mcp/go/multi-repo-agent-installed-journey. The registered race-test rerun was blocked before execution because Go could not create its work directory on the read-only filesystem.\"\n    },\n    {\n      \"id\": \"validate\",\n      \"component\": \"pose-mcp\",\n      \"disposition\": \"passed\",\n      \"evidence\": \"integration:pose-mcp/go/bounded-isolated-graph-caches-integration\",\n      \"rationale\": \"Reused sealed module validation after verifying no source or validation-matrix changes since approval. Supporting classes: build:pose-mcp/go/build; unit:pose-mcp/go/test; e2e:pose-mcp/go/multi-repo-agent-installed-journey. No fresh test pass is claimed.\"\n    }\n  ]\n}\n```",
+  "policy_digest": "sha256:fff43ca5b338f626f9bc9be2bfc998d7fa780708e54e427024daf7788d0fc98e",
+  "purpose": "review",
+  "env_removed": [
+    "CLAUDE_CODE_BRIDGE_SESSION_ID",
+    "CLAUDE_CODE_CHILD_SESSION",
+    "CLAUDE_CODE_ENTRYPOINT",
+    "CLAUDE_CODE_EXECPATH",
+    "CLAUDE_CODE_MESSAGING_SOCKET",
+    "CLAUDE_CODE_MESSAGING_TOKEN",
+    "CLAUDE_CODE_SESSION_ATTENDED",
+    "CLAUDE_CODE_SESSION_ID",
+    "CLAUDE_EFFORT",
+    "CLAUDE_PID"
+  ],
+  "events": "codex-jsonl",
+  "events_digest": "sha256:5b25a1b5c80048107db5a9ac1e8ba84c904bc43d60dcf2ce5498494bcffa4db1",
+  "routing": {
+    "requested": "auto",
+    "prefer": "opposite-vendor-of-implementation",
+    "implementation": {
+      "principal": "agent:anthropic/claude-sonnet-5-5",
+      "vendor": "anthropic",
+      "model": "claude-sonnet-5-5",
+      "execution_digest": "sha256:219d2a3cc11e7462e553bda46a173d12b2cdff984fdf957d487089b095af4786",
+      "source": "declared"
+    },
+    "implementation_from": "bundle",
+    "candidates": [
+      {
+        "agent": "sol-medium",
+        "vendor": "openai",
+        "model": "gpt-6.1-sol",
+        "group": "preferred",
+        "state": "available"
+      }
+    ],
+    "step": "preferred"
+  },
+  "independence_achieved": "different-vendor",
+  "round": 2,
+  "thread": {
+    "round": 2,
+    "mode": "continued",
+    "from": "rrn-e2e0adfcdad8ca59"
+  }
+}
