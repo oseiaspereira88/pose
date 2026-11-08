@@ -489,7 +489,7 @@ func (c *boundedCache[V]) storeLocked(owner, key string, value V, size int64) {
 	if size < 0 {
 		size = 0
 	}
-	size += c.entryOverhead + int64(len(key))
+	size += c.entryOverhead + int64(len(key)) + int64(len(owner))
 	if size > c.maxBytes || (c.maxOwnerBytes > 0 && size > c.maxOwnerBytes) {
 		c.stats.Oversize++
 		return

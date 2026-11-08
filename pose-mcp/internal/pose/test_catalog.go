@@ -248,7 +248,8 @@ func testFilePattern(rel string) []*regexp.Regexp {
 }
 
 func (c *TestCatalog) add(name string) {
-	name = strings.TrimSpace(name)
+	// Cloned after trimming: a trimmed title is a substring of its padded original.
+	name = strings.Clone(strings.TrimSpace(name))
 	if name == "" {
 		return
 	}

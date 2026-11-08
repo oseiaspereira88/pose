@@ -134,7 +134,7 @@ changed) goes through one cache in the domain package:
   the test catalog treats an overloaded cache as incomplete validation, not as an
   empty catalog.
   Every retained entry is also charged its metadata (the entry, its list node, the
-  lookup slots, 256 bytes) and its key, so many small entries cannot exceed the
+  lookup slots, 256 bytes), its key and its owner, so many small entries cannot exceed the
   budget while the payload counters stay within it. Publication (the waiters a result has, the removal of the flight, the release of the
   reservation) is one critical section. The one production whose output is unbounded
   by nature, the paths of a commit, is read through a limit and answers "unknown"
