@@ -753,7 +753,12 @@ func lintOneSpecWith(r *cliout.Renderer, fields bool, specPath string, requiredO
 	// rewritten and the --all gate must not turn red on it. The root is the
 	// spec's own repository, whatever the working directory.
 	if root, err := projectRootAt(filepath.Dir(specPath)); err == nil {
-		for _, ref := range posepkg.UnresolvedTestRefs(trace, posepkg.LoadTestCatalog(root)) {
+		catalog, catalogErr := posepkg.LoadTestCatalogChecked(root)
+		if catalogErr != nil {
+			lint.finding(cliout.StateError, "requirement-trace", fmt.Sprintf(cliText(locale, "requirement trace: test references could not be verified (%v)", "requirement trace: as referências a testes não puderam ser verificadas (%v)"), catalogErr))
+			traceFailures++
+		}
+		for _, ref := range posepkg.UnresolvedTestRefs(trace, catalog) {
 			switch specStatus {
 			case "done", "superseded", "abandoned":
 				lint.finding(cliout.StateWarning, "requirement-trace", fmt.Sprintf(cliText(locale, "requirement trace: %s names no test in this repository or its submodules", "requirement trace: %s não nomeia nenhum teste deste repositório ou de seus submódulos"), ref))

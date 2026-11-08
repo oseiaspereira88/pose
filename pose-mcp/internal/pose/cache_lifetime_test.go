@@ -208,3 +208,72 @@ func TestTheTestCatalogDoesNotKeepTheFilesItReadItsNamesFrom(t *testing.T) {
 		t.Fatal("the name was lost")
 	}
 }
+
+func TestASharedResultStaysChargedUntilItsLastWaiterHasCopiedIt(t *testing.T) {
+	gate := make(chan struct{})
+	var blockCopies atomic.Bool
+	c := newBoundedCache(1<<30, 0, 0, func(v []int) []int {
+		if blockCopies.Load() {
+			<-gate
+		}
+		return append([]int(nil), v...)
+	})
+	release := make(chan struct{})
+	started := make(chan struct{})
+	var wg sync.WaitGroup
+	wg.Add(1)
+	go func() {
+		defer wg.Done()
+		_, _ = c.Get(context.Background(), "o", "k", 50, func() ([]int, int64, error) {
+			close(started)
+			<-release
+			return []int{1}, Unretainable, nil // shared with the waiters, not retained
+		})
+	}()
+	<-started
+	for i := 0; i < 3; i++ {
+		wg.Add(1)
+		go func() {
+			defer wg.Done()
+			_, _ = c.Get(context.Background(), "o", "k", 50, produceInts(1, 9))
+		}()
+	}
+	time.Sleep(50 * time.Millisecond)
+	blockCopies.Store(true) // the waiters' copies of the shared result will block
+	close(release)
+	time.Sleep(80 * time.Millisecond)
+	c.mu.Lock()
+	charged := c.inflightBytes
+	c.mu.Unlock()
+	if charged != 50 {
+		t.Fatalf("the shared result is charged %d while its waiters still copy it, want 50", charged)
+	}
+	close(gate)
+	wg.Wait()
+	c.mu.Lock()
+	charged, producers := c.inflightBytes, c.producers
+	c.mu.Unlock()
+	if charged != 0 || producers != 0 {
+		t.Fatalf("after the last waiter: charged %d, producers %d", charged, producers)
+	}
+}
+
+func TestAnOverloadedCatalogCacheIsReportedNotTakenForNoCatalog(t *testing.T) {
+	testCatalogCache.Reset()
+	testCatalogCache.mu.Lock()
+	old := testCatalogCache.maxInflightKeys
+	testCatalogCache.maxInflightKeys = 0
+	testCatalogCache.mu.Unlock()
+	oldWait := testCatalogBusyWait
+	testCatalogBusyWait = 120 * time.Millisecond
+	defer func() {
+		testCatalogCache.mu.Lock()
+		testCatalogCache.maxInflightKeys = old
+		testCatalogCache.mu.Unlock()
+		testCatalogBusyWait = oldWait
+	}()
+	catalog, err := LoadTestCatalogChecked(t.TempDir())
+	if catalog != nil || !errors.Is(err, ErrCacheBusy) {
+		t.Fatalf("an overloaded cache must be an error the gate can report: %v %v", catalog, err)
+	}
+}

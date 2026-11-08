@@ -57,30 +57,55 @@ func testRefSlug(value string) string {
 	return strings.Trim(slugSepRE.ReplaceAllString(strings.ToLower(value), "-"), "-")
 }
 
-// LoadTestCatalog builds the catalog for root once per process. It returns nil
-// when Git cannot list the tree, so callers skip resolution rather than report
-// every ref as unresolved.
-func LoadTestCatalog(root string) *TestCatalog {
+// LoadTestCatalogChecked builds the catalog for root once per process. It returns
+// (nil, nil) when Git cannot list the tree, so callers skip resolution rather than
+// report every ref as unresolved, and a non-nil error when the cache is overloaded
+// or the build was interrupted: the validation is then incomplete, and a gate must
+// say so instead of passing every ref. An overloaded cache is retried for a while.
+func LoadTestCatalogChecked(root string) (*TestCatalog, error) {
 	abs, err := filepath.Abs(root)
 	if err != nil {
-		return nil
+		return nil, nil
 	}
 	matrix, _ := os.ReadFile(filepath.Join(abs, ".pose", "indexes", "validation-matrix.json"))
 	sum := sha256.Sum256(matrix)
 	key := fmt.Sprintf("%s|%s|%x", engineVersion, abs, sum[:8])
-	catalog, err := testCatalogCache.Get(context.Background(), abs, key, 4<<20, func() (*TestCatalog, int64, error) {
-		built := buildTestCatalog(abs)
-		if built == nil {
-			// Git could not list the tree: that is not an empty catalog, and it is not remembered.
-			return nil, 0, errNoTestCatalog
+	deadline := time.Now().Add(testCatalogBusyWait)
+	var catalog *TestCatalog
+	for {
+		catalog, err = testCatalogCache.Get(context.Background(), abs, key, 4<<20, func() (*TestCatalog, int64, error) {
+			built := buildTestCatalog(abs)
+			if built == nil {
+				// Git could not list the tree: that is not an empty catalog, and it is not remembered.
+				return nil, 0, errNoTestCatalog
+			}
+			return built, built.retainedBytes(), nil
+		})
+		if errors.Is(err, ErrCacheBusy) && time.Now().Before(deadline) {
+			time.Sleep(50 * time.Millisecond)
+			continue
 		}
-		return built, built.retainedBytes(), nil
-	})
-	if err != nil {
-		return nil
+		break
 	}
+	if errors.Is(err, errNoTestCatalog) {
+		return nil, nil
+	}
+	if err != nil {
+		return nil, fmt.Errorf("pose: the test catalog is unavailable, so test references were not verified: %w", err)
+	}
+	return catalog, nil
+}
+
+// LoadTestCatalog is LoadTestCatalogChecked for callers that skip resolution when no
+// catalog exists. An overloaded cache is not "no catalog": use the checked form
+// wherever a missing catalog would let a ref pass unverified.
+func LoadTestCatalog(root string) *TestCatalog {
+	catalog, _ := LoadTestCatalogChecked(root)
 	return catalog
 }
+
+// testCatalogBusyWait is how long a caller waits for room in an overloaded catalog cache.
+var testCatalogBusyWait = 30 * time.Second
 
 var errNoTestCatalog = errors.New("pose: the test catalog could not be built")
 

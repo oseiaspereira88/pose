@@ -2019,7 +2019,12 @@ func cmdCloseLocalWithGuardedStore(root string, store posemodel.Store, ref strin
 			}
 			// A test: ref must name a test that exists, or the trace points a
 			// promise at nothing (spec pose-trace-test-refs-resolve).
-			if unresolved := posemodel.UnresolvedTestRefs(posemodel.ParseRequirementTrace(string(raw)), posemodel.LoadTestCatalog(root)); len(unresolved) > 0 {
+			catalog, catalogErr := posemodel.LoadTestCatalogChecked(root)
+			if catalogErr != nil {
+				render(io.Discard, stderr).Failure("pose close: requirement trace gate incomplete: " + catalogErr.Error())
+				return 1
+			}
+			if unresolved := posemodel.UnresolvedTestRefs(posemodel.ParseRequirementTrace(string(raw)), catalog); len(unresolved) > 0 {
 				render(io.Discard, stderr).Failure("pose close: requirement trace gate failed: " + strings.Join(unresolved, "; ") + " names no test in this repository or its submodules — cite the test function, subtest, test title or test file")
 				return 1
 			}

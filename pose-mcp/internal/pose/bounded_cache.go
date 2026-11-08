@@ -83,6 +83,11 @@ type cacheFlight[V any] struct {
 	err     error
 	waiters int
 	owner   string
+	// finished, holders and held keep a shared result charged while waiters still
+	// copy it: the reservation is released by the last waiter, not by the producer.
+	finished bool
+	holders  int
+	held     int64
 }
 
 // CacheStats counts what a cache did, for measurement (spec R7).
@@ -187,9 +192,14 @@ func (c *boundedCache[V]) get(ctx context.Context, owner, key string, reserve in
 			select {
 			case <-flight.done:
 			case <-ctx.Done():
-				// The waiter leaves: its place goes back to the key.
+				// The waiter leaves: its place goes back to the key, or its hold on
+				// the shared result goes back to the flight if it had finished.
 				c.mu.Lock()
-				flight.waiters--
+				if flight.finished {
+					c.dropHolderLocked(flight)
+				} else {
+					flight.waiters--
+				}
 				c.mu.Unlock()
 				return zero, ctx.Err()
 			}
@@ -204,6 +214,9 @@ func (c *boundedCache[V]) get(ctx context.Context, owner, key string, reserve in
 			v := flight.value
 			c.mu.Unlock()
 			out := c.doClone(v)
+			c.mu.Lock()
+			c.dropHolderLocked(flight)
+			c.mu.Unlock()
 			if view != nil {
 				view(out)
 			}
@@ -355,10 +368,41 @@ func (c *boundedCache[V]) produce(owner, key string, reserve int64, produce func
 	if retain || waiters > 0 {
 		flight.value, flight.ok = shared, true
 	}
+	// The shared result stays charged until its last waiter has copied it; with no
+	// waiter the reservation is released now.
+	flight.finished = true
+	flight.holders = flight.waiters
+	if flight.holders > 0 {
+		flight.held = reserve
+	}
 	c.mu.Unlock()
-	c.release(owner, reserve)
+	if flight.holders == 0 {
+		c.release(owner, reserve)
+	}
 	c.finishFlight(key, flight, nil)
 	return value, nil
+}
+
+// dropHolderLocked is a waiter letting go of a finished flight's shared result; the
+// last one releases the reservation the producer left charged. The caller holds mu.
+func (c *boundedCache[V]) dropHolderLocked(flight *cacheFlight[V]) {
+	if flight.holders <= 0 {
+		return
+	}
+	flight.holders--
+	if flight.holders > 0 || flight.held < 0 {
+		return
+	}
+	reserve := flight.held
+	flight.held = -1
+	c.producers--
+	c.inflightBytes -= reserve
+	c.ownerInflight[flight.owner] -= reserve
+	if c.ownerInflight[flight.owner] <= 0 {
+		delete(c.ownerInflight, flight.owner)
+	}
+	close(c.admissionWake)
+	c.admissionWake = make(chan struct{})
 }
 
 // unpin drops one pin; the last pin of an evicted entry frees what it was charged.

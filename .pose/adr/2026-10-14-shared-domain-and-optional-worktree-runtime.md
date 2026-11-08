@@ -128,6 +128,11 @@ changed) goes through one cache in the domain package:
   few copy slots each, so a large copy never delays another key. The clone a caller
   keeps after it returns is the caller's memory and is outside the budget; a reader
   that only looks up fields uses a view and keeps nothing.
+  The same holds for the input a caller read before asking and the clone being made
+  for it: they are the caller's memory, and bounding them is a recorded follow-up. A
+  shared result stays charged until its last waiter has copied it. A gate that needs
+  the test catalog treats an overloaded cache as incomplete validation, not as an
+  empty catalog.
 - **Key.** Parsed graphs are keyed by engine version, schema and the digest of the
   bytes: identical bytes cannot yield a different graph, so two worktrees holding
   the same index share one entry and none is served another's graph; the same size
