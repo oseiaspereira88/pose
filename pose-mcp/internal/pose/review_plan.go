@@ -1043,15 +1043,36 @@ func composeReviewCriteria(profiles []ReviewProfile, blockers []string) ([]Revie
 }
 
 // addMilestoneGateCriterion carries the exit gate of a milestone into the review of the
-// open spec it is made of: that milestone has no review of its own, so this is where the
-// gate is judged. A done spec keeps the plan it was sealed with.
+// spec it is made of: that milestone has no review of its own, so this is where the
+// gate is judged. A done spec keeps the plan it was sealed with (spec
+// pose-done-spec-keeps-its-sealed-plan): the criterion stays in its plan when a sealed
+// bundle of the spec carries it, because the plan is an input of the bundle and a plan
+// that loses the criterion at the transition to done makes the bundle the approval was
+// attested over read superseded. A done spec sealed without it gains none.
 func (s Store) addMilestoneGateCriterion(scope ScopeRef, criteria []ReviewPlanCriterion, blockers []string) ([]ReviewPlanCriterion, []string) {
 	if scope.Kind != "spec" {
 		return criteria, blockers
 	}
 	sp, err := s.GetSpec(scope.Slug)
-	if err != nil || terminalStatuses[sp.Status] {
+	if err != nil {
 		return criteria, blockers
+	}
+	done := terminalStatuses[sp.Status]
+	var sealedWith map[string]bool // criterion ids of the sealed bundles of a done spec, read once
+	sealedCarries := func(id string) bool {
+		if sealedWith == nil {
+			sealedWith = map[string]bool{}
+			// The governing bundle is the newest: a gate that only an older round of
+			// the review carried was dropped by a later seal and is not kept.
+			if read, readErr := s.ReadReviewBundles("spec:" + scope.Slug); readErr == nil {
+				if lineage := reviewBundleLineage(read.Bundles); len(lineage) > 0 {
+					for _, criterion := range lineage[0].Payload.Plan.Criteria {
+						sealedWith[criterion.ID] = true
+					}
+				}
+			}
+		}
+		return sealedWith[id]
 	}
 	roadmaps, err := s.ListRoadmaps()
 	if err != nil {
@@ -1067,6 +1088,9 @@ func (s Store) addMilestoneGateCriterion(scope ScopeRef, criteria []ReviewPlanCr
 			}
 			ref := ScopeRef{Kind: "milestone", Roadmap: rm.Slug, Milestone: milestone.ID}
 			if member, ok := s.soleMemberOf(ref); !ok || member != scope.Slug {
+				continue
+			}
+			if done && !sealedCarries("milestone-exit-gate-"+rm.Slug+"-"+milestone.ID) {
 				continue
 			}
 			criteria, blockers = addReviewCriterion(criteria, ReviewPlanCriterion{

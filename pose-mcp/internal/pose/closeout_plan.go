@@ -114,6 +114,14 @@ func applyCloseoutPlanReadView(plan *CloseoutPlan, metadata *ReadViewMetadata, s
 	}
 }
 
+// StoppedOnUnstableInputs reports a completed scope whose terminal verification cannot
+// proceed because the governance read view is not current: the lifecycle has been
+// transitioned, the repository carries the state, and what is unknown is whether the
+// inputs read are stable (spec pose-done-spec-keeps-its-sealed-plan R4).
+func (p CloseoutPlan) StoppedOnUnstableInputs() bool {
+	return p.LifecycleDone && p.ReadView != nil && p.ReadView.Freshness != ReadViewFreshnessCurrent
+}
+
 func (s Store) planCloseout(ref string) (CloseoutPlan, error) {
 	scope, err := ParseScopeRef(ref)
 	if err != nil {

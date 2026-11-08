@@ -278,6 +278,12 @@ func applyClosePlan(root string, store posemodel.Store, ref, mode, digest, revie
 	return result
 }
 
+// closeoutStopLeavesNoCheckpoint reports a stop that is not progress: the verification of
+// a scope already done, blocked because the governance read view is not current.
+func closeoutStopLeavesNoCheckpoint(plan posemodel.CloseoutPlan, step posemodel.CloseoutPlanStep) bool {
+	return step.ID == posemodel.CloseoutStepVerify && step.State == posemodel.CloseoutStateBlocked && plan.StoppedOnUnstableInputs()
+}
+
 func applyClosePlanGuarded(root string, store posemodel.Store, ref, mode, digest, reviewer string, skipEvidence bool) posemodel.OperationResult {
 	result := posemodel.NewOperationResult("close."+mode, ref)
 	resume := "`pose close " + ref + " --resume`"
@@ -373,6 +379,19 @@ func applyClosePlanGuarded(root string, store posemodel.Store, ref, mode, digest
 			break
 		}
 		if next.State == posemodel.CloseoutStateBlocked {
+			if closeoutStopLeavesNoCheckpoint(plan, next) {
+				// The transition is made and the repository carries the state; what is
+				// unknown is whether the inputs are stable. A checkpoint recording that
+				// would be read as an open defect and is not progress, so none is kept:
+				// --resume re-plans from the repository (R4).
+				if err := store.ClearCloseoutCheckpoint(ref); err != nil {
+					result.Unconfirmed = append(result.Unconfirmed, posemodel.OperationUncertain{Step: "checkpoint", Reason: "the checkpoint of the finished steps was not removed: " + err.Error()})
+				}
+				result.Fail(posemodel.OutcomeBlocked, next.ID, "terminal-verification-unstable-inputs", next.Reason)
+				result.Resumable = true
+				result.NextAction = "the lifecycle is done and the repository carries the state; no checkpoint was written for this stop. Verify again with `pose closeout-check " + ref + "` or " + resume
+				return result
+			}
 			record(next.ID, fmt.Errorf("%s", next.Reason))
 			result.Fail(posemodel.OutcomeBlocked, next.ID, "step-blocked", next.Reason)
 			result.Resumable = true

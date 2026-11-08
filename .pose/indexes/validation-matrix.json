@@ -2597,6 +2597,21 @@
           "evidenceClass": "integration"
         },
         {
+          "name": "done-spec-keeps-its-sealed-plan-integration",
+          "program": "go",
+          "args": [
+            "test",
+            "-race",
+            "./internal/pose",
+            "./internal/cli",
+            "-run",
+            "ADoneSpecSealed|AnOpenSpecStillOwes|TheSpecAnswersForTheExitGate|EachExitGateHasItsOwnCriterion|AStopOnAnUnknownView|EveryOtherStopStillRecords",
+            "-count=1"
+          ],
+          "severity": "required",
+          "evidenceClass": "integration"
+        },
+        {
           "name": "common-domain-and-cli-mcp-handoff-integration",
           "program": "go",
           "args": [
