@@ -5,6 +5,7 @@ import (
 	"errors"
 	"io"
 	"strings"
+	"sync/atomic"
 	"testing"
 	"time"
 )
@@ -135,5 +136,75 @@ func TestTheHandoffKeepsTheSelectedTarget(t *testing.T) {
 	h := CloseoutHandoff(handoffPlan(), HandoffTarget{ProjectID: "harne8", Root: "/work/harne8"})
 	if h == nil || h.Target.ProjectID != "harne8" || h.Target.Root != "/work/harne8" {
 		t.Fatalf("the handoff lost the project the caller selected: %+v", h)
+	}
+}
+
+func TestACancelledCallerNeverStartsTheCommandAndNeverGetsAVerdict(t *testing.T) {
+	var started atomic.Int64
+	RegisterInProcessCommand("t-count", func(root string, args []string, stdout, stderr io.Writer) int {
+		started.Add(1)
+		_, _ = io.WriteString(stdout, "ok")
+		return 0
+	})
+	ctx, cancel := context.WithCancel(context.Background())
+	cancel()
+	for i := 0; i < 50; i++ {
+		out, err := (Store{Root: "/r"}).runCLI(ctx, []string{"t-count"})
+		var exec *GateExecutionError
+		if out != nil || !errors.As(err, &exec) || exec.Cause != ExecutionCauseCanceled {
+			t.Fatalf("a cancelled caller got a result (%q, %v) instead of an execution failure", out, err)
+		}
+	}
+	if started.Load() != 0 {
+		t.Fatalf("the command started %d times for a caller that had already cancelled", started.Load())
+	}
+}
+
+func TestACompletionThatRacesACancellationIsDiscarded(t *testing.T) {
+	ctx, cancel := context.WithCancel(context.Background())
+	RegisterInProcessCommand("t-race", func(root string, args []string, stdout, stderr io.Writer) int {
+		cancel() // the caller cancels while the command finishes
+		_, _ = io.WriteString(stdout, "late")
+		return 0
+	})
+	for i := 0; i < 20; i++ {
+		c, cc := context.WithCancel(ctx)
+		out, err := (Store{Root: "/r"}).runCLI(c, []string{"t-race"})
+		cc()
+		var exec *GateExecutionError
+		if out != nil || !errors.As(err, &exec) {
+			t.Fatalf("a result was returned after the cancellation: %q %v", out, err)
+		}
+	}
+}
+
+func TestAbandonedRunsDoNotAccumulateBeyondTheSlots(t *testing.T) {
+	block := make(chan struct{})
+	var alive atomic.Int64
+	RegisterInProcessCommand("t-hold", func(root string, args []string, stdout, stderr io.Writer) int {
+		alive.Add(1)
+		<-block
+		alive.Add(-1)
+		return 0
+	})
+	for i := 0; i < 3*inProcessMaxRuns; i++ {
+		ctx, cancel := context.WithTimeout(context.Background(), 20*time.Millisecond)
+		_, err := (Store{Root: "/r"}).runCLI(ctx, []string{"t-hold"})
+		cancel()
+		var exec *GateExecutionError
+		if !errors.As(err, &exec) {
+			t.Fatalf("call %d: %v", i, err)
+		}
+	}
+	if n := alive.Load(); n > inProcessMaxRuns {
+		t.Fatalf("%d abandoned runs are alive against %d slots", n, inProcessMaxRuns)
+	}
+	close(block)
+	deadline := time.Now().Add(2 * time.Second)
+	for len(inProcessSlots) != 0 && time.Now().Before(deadline) {
+		time.Sleep(10 * time.Millisecond)
+	}
+	if len(inProcessSlots) != 0 {
+		t.Fatalf("slots were not given back: %d held", len(inProcessSlots))
 	}
 }

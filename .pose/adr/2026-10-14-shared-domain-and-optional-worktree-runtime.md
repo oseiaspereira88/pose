@@ -195,7 +195,10 @@ with the CLI, without a resident service:
   errors and coverage are the CLI's. The contract of the spawned run is kept: a
   non-zero exit is an error carrying the command's message, and a deadline or a
   cancellation is an execution failure with no verdict (the run cannot be killed, so
-  it finishes in the background and writes nothing). The gates keep the process
+  it finishes in the background and writes nothing; a caller that has already
+  cancelled never starts it, a completion that races a cancellation is discarded, and
+  the runs alive at once, abandoned ones included, are capped so that repeated
+  timeouts cannot accumulate work). The gates keep the process
   boundary: they are long, can be killed on a deadline, and must not leave a half
   verdict. Spawn attempts and in-process runs are counted so the extraction is
   evidenced by count, not by promise.

@@ -55,7 +55,14 @@ var (
 	cliSpawnAttempts atomic.Int64
 	// cliInProcessRuns counts the runs served in process.
 	cliInProcessRuns atomic.Int64
+	// inProcessSlots bounds the in-process runs alive at once, abandoned ones
+	// included: a run that outlives its deadline keeps its slot until it finishes,
+	// so repeated timeouts cannot accumulate work beyond the slots (R1).
+	inProcessSlots = make(chan struct{}, inProcessMaxRuns)
 )
+
+// inProcessMaxRuns is the number of in-process runs a server keeps alive at once.
+const inProcessMaxRuns = 4
 
 // RegisterInProcessCommand lets the CLI package offer a read-only command to the
 // wrappers of this package. Registering a command that writes is a defect: the
@@ -85,33 +92,53 @@ func CLIInProcessRuns() int64 { return cliInProcessRuns.Load() }
 func (s Store) runInProcess(ctx context.Context, run InProcessCommand, args []string) ([]byte, error) {
 	ctx, cancel := context.WithTimeout(ctx, cliTimeout)
 	defer cancel()
+	failure := func(cleanup string) error {
+		return &GateExecutionError{Command: "pose " + strings.Join(args, " "), Cause: executionCause(ctx), Cleanup: cleanup}
+	}
+	// Cancelled before starting: nothing runs.
+	if ctx.Err() != nil {
+		return nil, failure("the command did not start; nothing ran and nothing was written")
+	}
+	// Admission: a bounded number of runs, abandoned ones counted. A caller that cannot
+	// get a slot before its context ends has an execution failure, not a verdict.
+	select {
+	case inProcessSlots <- struct{}{}:
+	case <-ctx.Done():
+		return nil, failure("the command did not start: every in-process slot is held by a run still finishing")
+	}
 	type outcome struct {
 		stdout, stderr []byte
 		code           int
 	}
 	done := make(chan outcome, 1)
 	go func() {
+		defer func() { <-inProcessSlots }()
 		var stdout, stderr bytes.Buffer
 		code := run(s.Root, args[1:], &stdout, &stderr)
 		done <- outcome{stdout.Bytes(), stderr.Bytes(), code}
 	}()
+	var res outcome
 	select {
 	case <-ctx.Done():
-		return nil, &GateExecutionError{Command: "pose " + strings.Join(args, " "), Cause: executionCause(ctx), Cleanup: "the read-only command was running in this process and finishes in the background; it wrote nothing"}
-	case res := <-done:
-		cliInProcessRuns.Add(1)
-		if res.code != 0 {
-			msg := strings.TrimSpace(string(res.stderr))
-			if msg == "" {
-				msg = strings.TrimSpace(string(res.stdout))
-			}
-			if msg == "" {
-				msg = fmt.Sprintf("exit status %d", res.code)
-			}
-			return nil, fmt.Errorf("pose %s failed: %s", args[0], msg)
-		}
-		return res.stdout, nil
+		return nil, failure("the read-only command was running in this process and finishes in the background; it wrote nothing")
+	case res = <-done:
 	}
+	// A completion that races a cancellation is not a verdict: the caller asked to stop.
+	if ctx.Err() != nil {
+		return nil, failure("the read-only command finished after the cancellation; its result was discarded and it wrote nothing")
+	}
+	cliInProcessRuns.Add(1)
+	if res.code != 0 {
+		msg := strings.TrimSpace(string(res.stderr))
+		if msg == "" {
+			msg = strings.TrimSpace(string(res.stdout))
+		}
+		if msg == "" {
+			msg = fmt.Sprintf("exit status %d", res.code)
+		}
+		return nil, fmt.Errorf("pose %s failed: %s", args[0], msg)
+	}
+	return res.stdout, nil
 }
 
 // OperationHandoff is the typed description of an operation another actor or

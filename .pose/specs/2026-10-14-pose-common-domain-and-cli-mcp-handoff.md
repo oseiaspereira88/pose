@@ -85,20 +85,20 @@ Fixtures sintéticas (um repositório Git com uma spec aberta) e o catálogo rea
 `go test -race` dos testes da check acima nos três pacotes; a bateria completa de `internal/pose`, `internal/cli` e `internal/mcpserver`; a matriz estrita em clone limpo.
 
 ### Requirement trace
-- R1 [satisfied] test:TestEveryMCPRouteHasADeclaredClass test:TestTheReadOnlyWrappersNoLongerStartTheBinary test:TestTheGatesKeepTheProcessBoundary test:TestAnInProcessWrapperReturnsWhatTheSpawnedCommandReturns
+- R1 [satisfied] test:TestAbandonedRunsDoNotAccumulateBeyondTheSlots test:TestEveryMCPRouteHasADeclaredClass test:TestTheReadOnlyWrappersNoLongerStartTheBinary test:TestTheGatesKeepTheProcessBoundary test:TestAnInProcessWrapperReturnsWhatTheSpawnedCommandReturns
 - R2 [satisfied] test:TestAnInProcessRunKeepsTheSpawnContract test:TestTheMCPPlanIsTheDomainPlan
 - R3 [satisfied] test:TestTheHandoffKeepsTheSelectedTarget test:TestACloseoutHandoffDescribesAndExecutesNothing test:TestThePlanAndItsHandoffAreStableAndADoneSpecHasNone
 - R4 [satisfied] test:TestTheDigestOfAHandoffIsTheDigestTheApplyChecks test:TestTheMCPPlanIsTheDomainPlan test:TestACloseoutPlanWithStepsLeftCarriesATypedHandoffThatExecutesNothing
 - R5 [satisfied] test:TestABlockedOrUnstablePlanGetsNoHandoff test:TestACloseoutPlanWithStepsLeftCarriesATypedHandoffThatExecutesNothing test:TestAHandoffIsDeterministicAndFollowsThePlan test:TestNoHandoffWhenThereIsNothingToApply
 - R6 [satisfied] test:TestOnlyAdmittedWritesAreGovernanceWrites test:TestTheAdmittedWritesAreExactlyTheKnownFour test:TestAPendingJudgmentNamesTheReviewerAsTheAuthority
 - R7 [satisfied] test:TestEveryMCPRouteHasADeclaredClass test:TestTheAdmittedWritesAreExactlyTheKnownFour
-- R8 [satisfied] test:TestAnInProcessRunKeepsTheSpawnContract check:common-domain-and-cli-mcp-handoff-integration
+- R8 [satisfied] test:TestACancelledCallerNeverStartsTheCommandAndNeverGetsAVerdict test:TestACompletionThatRacesACancellationIsDiscarded test:TestAnInProcessRunKeepsTheSpawnContract check:common-domain-and-cli-mcp-handoff-integration
 - R9 [satisfied] test:TestAnInProcessWrapperReturnsWhatTheSpawnedCommandReturns test:TestTheGatesKeepTheProcessBoundary test:TestNoHandoffWhenThereIsNothingToApply test:TestInProcessWrappersAreSafeUnderConcurrency
 
 ### Known gaps
 - Spawns, counted (`CLISpawnAttempts` and `CLIInProcessRuns`): of the ten CLI-wrapper routes, two (`pose_suggest`, `pose_get_followups`) no longer start the binary; `pose_check`, `pose_skills_check` and `pose_lint_spec` still do, by design, and the five `pose_delegate_*` routes drive `pose delegate`, a legitimate external harness. No latency or efficiency gain is claimed, and stdio is not offered as an IPC channel.
 - The semantics of `suggest` and `followups` stay in the CLI package; the domain wrapper runs the command function. Moving them into the domain package is the follow-up below.
-- An in-process run cannot be killed: on a deadline it finishes in the background, writes nothing, and the caller gets an execution failure with no verdict.
+- An in-process run cannot be killed: on a deadline it finishes in the background, writes nothing, and the caller gets an execution failure with no verdict. A caller that has already cancelled never starts the command, a completion that races a cancellation is discarded, and the runs alive at once, abandoned ones included, are capped at four, so repeated timeouts cannot accumulate work; the work of one run (`followups` reads the follow-ups of the corpus) is bounded by the corpus, not by a ceiling, and a ceiling is the follow-up below.
 - Authorization denial and stale context are covered by the existing policy-gate and context tests (`TestPolicyGate_Integration_DeniedReturns32004`, `TestMultiRepoAgentNegativeContextDeniesUnauthorizedAuthorityAndUnknownContract`) and by the handoff stating that it carries no context and grants no authority.
 
 ---
@@ -126,4 +126,5 @@ Every MCP tool has a declared route class (domain-direct 39, cli-wrapper 10, rea
 ### Follow-ups
 
 - [open] Move the semantics of `suggest` and `followups` from the CLI package into the domain package so both adapters render one function, then drop the registry. (owner:@pose-maintainers crit:low review:2027-01-08)
+- [open] Give `followups` an enforced ceiling on the corpus it compares, or a kill path, so the in-process admission rests on bounded work and not only on a cap of concurrent runs. (owner:@pose-maintainers crit:low review:2027-01-08)
 - [open] Decide whether the gates (`check`, `skills-check`, `lint-spec`) can run in process with a kill path, and measure the spawn count and latency per operation on the real corpus. (owner:@pose-maintainers crit:low review:2027-01-08)
