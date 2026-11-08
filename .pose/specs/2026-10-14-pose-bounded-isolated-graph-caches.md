@@ -53,6 +53,7 @@ Esta escrita não implementa o comportamento. Preservar fontes canônicas, layou
 - created: pose-mcp/internal/pose/graph_cache_measure_test.go
 - created: pose-mcp/internal/pose/cache_invalidation_test.go
 - modified: pose-mcp/internal/pose/delivery_integrity_cache.go
+- modified: pose-mcp/internal/pose/delivery_integrity_cache_test.go
 - modified: pose-mcp/internal/pose/delivery_integrity.go
 - modified: pose-mcp/internal/pose/delegated_verdicts.go
 - modified: pose-mcp/internal/pose/design_delta.go
