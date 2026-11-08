@@ -250,13 +250,7 @@ func (c *boundedCache[V]) get(ctx context.Context, owner, key string, reserve in
 // and releases the waiters with err.
 func (c *boundedCache[V]) finishFlight(key string, flight *cacheFlight[V], err error) {
 	c.mu.Lock()
-	if c.inflight[key] == flight {
-		delete(c.inflight, key)
-		c.ownerFlights[flight.owner]--
-		if c.ownerFlights[flight.owner] <= 0 {
-			delete(c.ownerFlights, flight.owner)
-		}
-	}
+	c.removeFlightLocked(key, flight)
 	flight.err = err
 	c.mu.Unlock()
 	close(flight.done)
@@ -348,39 +342,74 @@ func (c *boundedCache[V]) produce(owner, key string, reserve int64, produce func
 		c.finishFlight(key, flight, err)
 		return zero, err
 	}
-	// Decide before cloning: a value that will not be retained is cloned only if
-	// someone is waiting for it.
 	c.mu.Lock()
 	retain := size >= 0 && size <= c.maxBytes && (c.maxOwnerBytes <= 0 || size <= c.maxOwnerBytes)
-	waiters := flight.waiters
 	if !retain {
 		c.stats.Oversize++
 	}
 	c.mu.Unlock()
+	// Publication is one critical section: the shared result, the waiters it has,
+	// the removal of the flight (so none joins later) and the release of the
+	// reservation are decided together. A value that is not retained is cloned only
+	// when someone waits for it; a waiter that joins while the copy is being made
+	// (outside the lock, so that independent keys are never delayed by it) is seen
+	// when the lock is taken again, and the copy is made for it too.
 	var shared V
-	if retain || waiters > 0 {
-		shared = c.doClone(value) // outside the lock: independent keys are never delayed by a copy
+	have := false
+	for {
+		if !have && retain {
+			shared, have = c.doClone(value), true
+		}
+		c.mu.Lock()
+		if !have && flight.waiters > 0 {
+			c.mu.Unlock()
+			shared, have = c.doClone(value), true
+			continue
+		}
+		break
 	}
-	c.mu.Lock()
 	if retain {
 		c.storeLocked(owner, key, shared, size)
 	}
-	if retain || waiters > 0 {
+	if flight.waiters > 0 {
 		flight.value, flight.ok = shared, true
+		flight.held = reserve // charged until the last waiter has copied the result
 	}
-	// The shared result stays charged until its last waiter has copied it; with no
-	// waiter the reservation is released now.
 	flight.finished = true
 	flight.holders = flight.waiters
-	if flight.holders > 0 {
-		flight.held = reserve
+	c.removeFlightLocked(key, flight)
+	if flight.holders == 0 {
+		c.releaseLocked(owner, reserve)
 	}
 	c.mu.Unlock()
-	if flight.holders == 0 {
-		c.release(owner, reserve)
-	}
-	c.finishFlight(key, flight, nil)
+	close(flight.done)
 	return value, nil
+}
+
+// releaseLocked gives a production's slot and reservation back. The caller holds mu.
+func (c *boundedCache[V]) releaseLocked(owner string, reserve int64) {
+	if reserve < 0 {
+		reserve = 0
+	}
+	c.producers--
+	c.inflightBytes -= reserve
+	c.ownerInflight[owner] -= reserve
+	if c.ownerInflight[owner] <= 0 {
+		delete(c.ownerInflight, owner)
+	}
+	close(c.admissionWake)
+	c.admissionWake = make(chan struct{})
+}
+
+// removeFlightLocked takes a flight out of the key table. The caller holds mu.
+func (c *boundedCache[V]) removeFlightLocked(key string, flight *cacheFlight[V]) {
+	if c.inflight[key] == flight {
+		delete(c.inflight, key)
+		c.ownerFlights[flight.owner]--
+		if c.ownerFlights[flight.owner] <= 0 {
+			delete(c.ownerFlights, flight.owner)
+		}
+	}
 }
 
 // dropHolderLocked is a waiter letting go of a finished flight's shared result; the
@@ -390,19 +419,9 @@ func (c *boundedCache[V]) dropHolderLocked(flight *cacheFlight[V]) {
 		return
 	}
 	flight.holders--
-	if flight.holders > 0 || flight.held < 0 {
-		return
+	if flight.holders == 0 {
+		c.releaseLocked(flight.owner, flight.held)
 	}
-	reserve := flight.held
-	flight.held = -1
-	c.producers--
-	c.inflightBytes -= reserve
-	c.ownerInflight[flight.owner] -= reserve
-	if c.ownerInflight[flight.owner] <= 0 {
-		delete(c.ownerInflight, flight.owner)
-	}
-	close(c.admissionWake)
-	c.admissionWake = make(chan struct{})
 }
 
 // unpin drops one pin; the last pin of an evicted entry frees what it was charged.

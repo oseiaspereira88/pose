@@ -277,3 +277,55 @@ func TestAnOverloadedCatalogCacheIsReportedNotTakenForNoCatalog(t *testing.T) {
 		t.Fatalf("an overloaded cache must be an error the gate can report: %v %v", catalog, err)
 	}
 }
+
+func TestAPublicationRacingWithCancelledAndLateWaitersKeepsTheCountersExact(t *testing.T) {
+	for round := 0; round < 200; round++ {
+		c := intCache(1<<30, 0, 0)
+		c.maxWaiters = 64
+		release := make(chan struct{})
+		started := make(chan struct{})
+		var wg sync.WaitGroup
+		wg.Add(1)
+		go func() {
+			defer wg.Done()
+			_, _ = c.Get(context.Background(), "o", "k", 10, func() ([]int, int64, error) {
+				close(started)
+				<-release
+				return []int{1}, Unretainable, nil
+			})
+		}()
+		<-started
+		for i := 0; i < 8; i++ {
+			wg.Add(1)
+			go func(i int) {
+				defer wg.Done()
+				ctx, cancel := context.WithCancel(context.Background())
+				if i%2 == 0 {
+					go func() { time.Sleep(time.Duration(i) * 100 * time.Microsecond); cancel() }()
+				}
+				_, _ = c.Get(ctx, "o", "k", 10, produceInts(1, 2))
+				cancel()
+			}(i)
+		}
+		time.Sleep(time.Millisecond)
+		close(release)
+		wg.Wait()
+		c.mu.Lock()
+		p, b := c.producers, c.inflightBytes
+		c.mu.Unlock()
+		if p != 0 || b != 0 {
+			t.Fatalf("round %d: producers=%d inflightBytes=%d after everything finished", round, p, b)
+		}
+	}
+}
+
+func TestACommitLargerThanTheCacheReadsIsUnknownNotCleanAndNotHeld(t *testing.T) {
+	root := gitFixture(t, map[string]string{"a.txt": "a"})
+	out := &limitedBuffer{max: 8}
+	if _, err := out.Write(make([]byte, 9)); err == nil || !out.over {
+		t.Fatal("the buffer must refuse what exceeds its bound")
+	}
+	if _, ok := commitChangedPaths(root, "0000000000000000000000000000000000000000"); ok {
+		t.Fatal("an unknown commit must read as unknown")
+	}
+}

@@ -1,6 +1,7 @@
 package pose
 
 import (
+	"bytes"
 	"context"
 	"errors"
 	"strings"
@@ -28,15 +29,50 @@ var commitPaths = newBoundedCache(64<<20, 32<<20, 0, func(m map[string]bool) map
 // commitChangedPaths returns the paths commit changed, read once per process (and
 // once when several callers ask together). ok is false when Git cannot answer; a
 // failure is not remembered.
+// commitPathsMaxOutput bounds what one `git diff-tree` may return to the cache; a
+// commit that changed more is "Git cannot answer", which every caller already treats
+// as unknown rather than as a clean commit. The reservation is what the output and
+// the map built from it can hold at that bound.
+const (
+	commitPathsMaxOutput = 4 << 20
+	commitPathsReserve   = 4 * commitPathsMaxOutput
+)
+
+var errCommitPathsTooLarge = errors.New("pose: a commit changed more paths than the cache reads")
+
+// limitedBuffer keeps at most max bytes and refuses the rest, so the read of a huge
+// commit is stopped instead of held.
+type limitedBuffer struct {
+	buf  bytes.Buffer
+	max  int
+	over bool
+}
+
+func (b *limitedBuffer) Write(p []byte) (int, error) {
+	if b.buf.Len()+len(p) > b.max {
+		b.over = true
+		return 0, errCommitPathsTooLarge
+	}
+	return b.buf.Write(p)
+}
+
+// commitChangedPaths returns the paths commit changed, read once per process (and
+// once when several callers ask together). ok is false when Git cannot answer; a
+// failure is not remembered.
 func commitChangedPaths(root, commit string) (map[string]bool, bool) {
-	paths, err := commitPaths.Get(context.Background(), root, root+"\x00"+commit, 1<<16, func() (map[string]bool, int64, error) {
-		raw, err := gitCommand("-C", root, "diff-tree", "--root", "--no-commit-id", "--name-only", "--no-renames", "-r", "-z", commit).Output()
-		if err != nil {
+	paths, err := commitPaths.Get(context.Background(), root, root+"\x00"+commit, commitPathsReserve, func() (map[string]bool, int64, error) {
+		out := &limitedBuffer{max: commitPathsMaxOutput}
+		cmd := gitCommand("-C", root, "diff-tree", "--root", "--no-commit-id", "--name-only", "--no-renames", "-r", "-z", commit)
+		cmd.Stdout = out
+		if err := cmd.Run(); err != nil {
+			if out.over {
+				return nil, 0, errCommitPathsTooLarge
+			}
 			return nil, 0, err
 		}
 		paths := map[string]bool{}
 		var size int64 = 64
-		for _, path := range strings.Split(string(raw), "\x00") {
+		for _, path := range strings.Split(out.buf.String(), "\x00") {
 			if path != "" {
 				paths[path] = true
 				size += int64(len(path)) + 64
