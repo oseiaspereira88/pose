@@ -209,7 +209,7 @@ func TestTheMCPPlanIsTheDomainPlan(t *testing.T) {
 	if len(steps) != len(direct.Steps) {
 		t.Fatalf("steps differ: %d vs %d", len(steps), len(direct.Steps))
 	}
-	if h := pose.CloseoutHandoff(direct); h == nil || h.Inputs.PlanDigest != direct.Digest {
+	if h := pose.CloseoutHandoff(direct, pose.HandoffTarget{}); h == nil || h.Inputs.PlanDigest != direct.Digest {
 		t.Fatalf("the handoff is not bound to the domain plan: %+v", h)
 	}
 }

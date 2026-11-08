@@ -135,14 +135,24 @@ type OperationHandoff struct {
 	RequiredAuthority string `json:"required_authority"`
 	// Executes is always false: the adapter that returned the handoff did not run it.
 	Executes bool `json:"executes"`
-	// ContextRequirement says what the performer supplies at apply time: the adapter
-	// never infers a context revision from a context it merely presented (R3).
+	// Target is the project and root the plan was computed in. The handoff does not
+	// retarget itself: the performer applies it there, after verifying that context.
+	Target HandoffTarget `json:"target"`
+	// ContextRequirement says what the performer verifies before applying: the
+	// adapter never infers a context revision from a context it merely presented
+	// (R3), and `pose close --apply` takes no context flag, only the plan digest.
 	ContextRequirement string `json:"context_requirement"`
 	// Receipt says how the outcome comes back: the CLI result and `pose close
 	// --resume` read the state again.
 	Receipt string `json:"receipt"`
 	// Invalidation says when this handoff stops being valid.
 	Invalidation string `json:"invalidation"`
+}
+
+// HandoffTarget names the project an MCP caller selected and its root.
+type HandoffTarget struct {
+	ProjectID string `json:"project_id,omitempty"`
+	Root      string `json:"root,omitempty"`
 }
 
 // HandoffInputs are the digests a handoff was computed from.
@@ -157,13 +167,18 @@ type HandoffInputs struct {
 // CloseoutHandoff describes `pose close <scope> --apply` for a plan that has steps
 // left, or nil when nothing is left to apply. The plan is the one the read-only
 // planner computed; this function reads it and writes nothing.
-func CloseoutHandoff(plan CloseoutPlan) *OperationHandoff {
-	if plan.Terminal || plan.Scope == "" {
+func CloseoutHandoff(plan CloseoutPlan, target HandoffTarget) *OperationHandoff {
+	if plan.Terminal || plan.Scope == "" || len(plan.Blockers) > 0 {
 		return nil
+	}
+	if plan.ReadView != nil && plan.ReadView.Freshness == ReadViewFreshnessUnknown {
+		return nil // inputs not proven stable: the plan must be recomputed, not applied
 	}
 	pending, authority := false, "maintainer"
 	for _, step := range plan.Steps {
 		switch step.State {
+		case CloseoutStateBlocked:
+			return nil // a blocked step stops the apply: there is nothing to hand off
 		case CloseoutStatePending, CloseoutStateWaiting:
 			pending = true
 		}
@@ -180,12 +195,13 @@ func CloseoutHandoff(plan CloseoutPlan) *OperationHandoff {
 		RequestID: "hnd-" + hex.EncodeToString(sum[:8]),
 		Scope:     plan.Scope,
 		Phase:     "closeout",
-		Argv:      []string{"pose", "close", plan.Scope, "--apply", "--digest", strings.TrimPrefix(plan.Digest, "sha256:")},
+		Argv:      []string{"pose", "close", plan.Scope, "--apply", "--digest", plan.Digest},
 		Inputs: HandoffInputs{
 			PlanDigest: plan.Digest, SpecDigest: plan.Inputs.SpecDigest, Revision: plan.Inputs.Revision, PolicyDigest: plan.Inputs.PolicyDigest,
 		},
+		Target:             target,
 		RequiredAuthority:  authority,
-		ContextRequirement: "pass --expect-context <digest> from a fresh `pose context --task " + plan.Scope + " --json` when applying; this handoff does not carry one",
+		ContextRequirement: "run it in the target root, after `pose context --task " + plan.Scope + " --json` there shows the authority and revision this plan was computed under; `pose close --apply` takes no context flag, its binding is the plan digest, and this handoff carries no context",
 		Receipt:            "the CLI result of the apply, then `pose close " + plan.Scope + " --resume` or `pose_closeout_state` with include_plan to read the state again",
 		Invalidation:       "any change to the spec, the policy, the revision or the index generation makes the plan digest stale; plan again instead of applying this handoff",
 	}

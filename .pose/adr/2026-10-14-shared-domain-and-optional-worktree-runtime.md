@@ -205,9 +205,13 @@ with the CLI, without a resident service:
   it was computed from, the authority it needs, how the outcome comes back and when
   it stops being valid, and `executes: false`. The request id is derived from the
   operation, scope and plan digest, so a stale handoff is not mistaken for the
-  current one. It carries no secret, grants no authority and infers no context: the
-  performer supplies `--expect-context` from a fresh `pose context`. A plan that
-  is blocked or terminal has none.
+  current one. It names the project and root the caller selected and does not
+  retarget itself. It carries no secret, grants no authority and infers no context:
+  `pose close --apply` takes no context flag, its binding is the full plan digest it
+  names (the digest the apply compares, with its `sha256:` prefix), and the performer
+  verifies the authority and revision with a fresh `pose context` in the target root
+  before applying. A plan that is terminal, has any blocked step or blocker, or whose
+  read view is unknown has none.
 - **Not shared by sharing code.** stdio is not an IPC channel shared between
   clients; an MCP transport gains no Execution Identity, signature or human presence
   of the CLI by calling the same function.

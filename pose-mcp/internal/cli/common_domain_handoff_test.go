@@ -109,3 +109,28 @@ func TestInProcessWrappersAreSafeUnderConcurrency(t *testing.T) {
 func errAllowed(err error) bool {
 	return err != nil && strings.Contains(err.Error(), "task-map missing")
 }
+
+// The handoff's argv is consumed by the CLI that produced the plan: an unchanged
+// repository must accept the digest it names (spec pose-common-domain-and-cli-mcp-handoff
+// R4/R5), and a handoff is not offered for a plan the apply would refuse.
+func TestTheDigestOfAHandoffIsTheDigestTheApplyChecks(t *testing.T) {
+	root := reviewBundleCLIFixture(t)
+	_, raw := runPose(t, root, "close", "spec:bundle", "--plan", "--json")
+	var plan posemodel.CloseoutPlan
+	if err := json.Unmarshal([]byte(raw), &plan); err != nil {
+		t.Fatalf("plan: %v\n%s", err, raw)
+	}
+	// The consumer check is about the digest, so the plan is cleared of what would only
+	// withhold the handoff; the real plan of this fixture is covered by the blocked case below.
+	probe := plan
+	probe.Terminal, probe.Blockers = false, nil
+	probe.Steps = []posemodel.CloseoutPlanStep{{ID: posemodel.CloseoutStepEvidence, State: posemodel.CloseoutStatePending}}
+	h := posemodel.CloseoutHandoff(probe, posemodel.HandoffTarget{})
+	if h == nil {
+		t.Fatal("no handoff for a plan with a pending step")
+	}
+	code, out := runPose(t, root, h.Argv[1:]...)
+	if strings.Contains(out, "plan-digest-mismatch") || strings.Contains(out, "the repository changed since the plan was computed") {
+		t.Fatalf("the digest of a handoff for an unchanged repository was refused (%d): %s", code, out)
+	}
+}

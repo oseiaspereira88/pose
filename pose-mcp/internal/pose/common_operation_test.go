@@ -67,30 +67,30 @@ func handoffPlan() CloseoutPlan {
 }
 
 func TestACloseoutHandoffDescribesAndExecutesNothing(t *testing.T) {
-	h := CloseoutHandoff(handoffPlan())
+	h := CloseoutHandoff(handoffPlan(), HandoffTarget{})
 	if h == nil || h.Executes || h.Operation != "close" || h.Scope != "spec:x" || h.Phase != "closeout" {
 		t.Fatalf("handoff = %+v", h)
 	}
-	want := []string{"pose", "close", "spec:x", "--apply", "--digest", "aaaa"}
+	want := []string{"pose", "close", "spec:x", "--apply", "--digest", "sha256:aaaa"}
 	if strings.Join(h.Argv, "\x00") != strings.Join(want, "\x00") {
 		t.Fatalf("argv = %q", h.Argv)
 	}
 	if h.Inputs.PlanDigest != "sha256:aaaa" || h.Inputs.Revision != "rev" || h.Inputs.SpecDigest != "sd" || h.Inputs.PolicyDigest != "pd" {
 		t.Fatalf("inputs = %+v", h.Inputs)
 	}
-	if h.RequiredAuthority == "" || h.Receipt == "" || h.Invalidation == "" || !strings.Contains(h.ContextRequirement, "--expect-context") {
+	if h.RequiredAuthority == "" || h.Receipt == "" || h.Invalidation == "" || !strings.Contains(h.ContextRequirement, "takes no context flag") {
 		t.Fatalf("a handoff must say who may run it, how the outcome returns and when it stops being valid: %+v", h)
 	}
 }
 
 func TestAHandoffIsDeterministicAndFollowsThePlan(t *testing.T) {
-	a, b := CloseoutHandoff(handoffPlan()), CloseoutHandoff(handoffPlan())
+	a, b := CloseoutHandoff(handoffPlan(), HandoffTarget{}), CloseoutHandoff(handoffPlan(), HandoffTarget{})
 	if a.RequestID != b.RequestID {
 		t.Fatalf("the same plan gave two ids: %s %s", a.RequestID, b.RequestID)
 	}
 	moved := handoffPlan()
 	moved.Digest = "sha256:bbbb"
-	if CloseoutHandoff(moved).RequestID == a.RequestID {
+	if CloseoutHandoff(moved, HandoffTarget{}).RequestID == a.RequestID {
 		t.Fatal("a different plan kept the handoff id: a stale handoff would be taken for the new one")
 	}
 }
@@ -103,7 +103,7 @@ func TestNoHandoffWhenThereIsNothingToApply(t *testing.T) {
 	done := handoffPlan()
 	done.Steps = []CloseoutPlanStep{{ID: CloseoutStepContext, State: CloseoutStateDone}}
 	for name, plan := range map[string]CloseoutPlan{"terminal": terminal, "blocked": blocked, "all done": done, "no scope": {}} {
-		if CloseoutHandoff(plan) != nil {
+		if CloseoutHandoff(plan, HandoffTarget{}) != nil {
 			t.Errorf("%s: a handoff was offered for nothing to apply", name)
 		}
 	}
@@ -112,7 +112,28 @@ func TestNoHandoffWhenThereIsNothingToApply(t *testing.T) {
 func TestAPendingJudgmentNamesTheReviewerAsTheAuthority(t *testing.T) {
 	plan := handoffPlan()
 	plan.Steps = append(plan.Steps, CloseoutPlanStep{ID: CloseoutStepJudgment, State: CloseoutStateWaiting})
-	if h := CloseoutHandoff(plan); h == nil || !strings.Contains(h.RequiredAuthority, "reviewer") {
+	if h := CloseoutHandoff(plan, HandoffTarget{}); h == nil || !strings.Contains(h.RequiredAuthority, "reviewer") {
 		t.Fatalf("a pending judgment is a reviewer's: %+v", h)
+	}
+}
+
+func TestABlockedOrUnstablePlanGetsNoHandoff(t *testing.T) {
+	mixed := handoffPlan() // a changes-requested review: a blocked step and a pending transition
+	mixed.Steps = []CloseoutPlanStep{{ID: CloseoutStepTrace, State: CloseoutStateBlocked}, {ID: CloseoutStepEvidence, State: CloseoutStatePending}}
+	blockers := handoffPlan()
+	blockers.Blockers = []string{"finding B1 is open"}
+	unknown := handoffPlan()
+	unknown.ReadView = &ReadViewMetadata{Freshness: ReadViewFreshnessUnknown}
+	for name, plan := range map[string]CloseoutPlan{"blocked and pending": mixed, "blockers": blockers, "read view unknown": unknown} {
+		if CloseoutHandoff(plan, HandoffTarget{}) != nil {
+			t.Errorf("%s: a handoff was offered for a plan that cannot be applied", name)
+		}
+	}
+}
+
+func TestTheHandoffKeepsTheSelectedTarget(t *testing.T) {
+	h := CloseoutHandoff(handoffPlan(), HandoffTarget{ProjectID: "harne8", Root: "/work/harne8"})
+	if h == nil || h.Target.ProjectID != "harne8" || h.Target.Root != "/work/harne8" {
+		t.Fatalf("the handoff lost the project the caller selected: %+v", h)
 	}
 }
