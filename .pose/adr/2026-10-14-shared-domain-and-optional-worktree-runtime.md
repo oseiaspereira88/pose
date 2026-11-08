@@ -105,8 +105,9 @@ expiring operational review in knowledge:adr-shared-worktree-runtime-review.
 
 Spec `pose-bounded-isolated-graph-caches` fixes the cache accounting and view
 ownership this ADR left to acceptance work. Rebuildable derived data (the parsed
-delivery graph, the design-delta report, the test catalog, the paths a commit
-changed) goes through one cache in the domain package:
+delivery graph, the design-delta report, the test catalog) goes through one cache
+in the domain package; the paths a commit changed are read by the governed capture,
+bounded and not cached:
 
 - **Bytes, not entries.** Each value reports its retained size; the cache evicts
   the least recently used entries under a global budget and a budget per owner (a

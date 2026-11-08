@@ -5,8 +5,7 @@ breaking: false
 ---
 
 The caches of rebuildable data are bounded in bytes and isolated. The parsed
-delivery graph, the design-delta report, the test catalog and the paths a commit
-changed share one cache that evicts by retained bytes under a global budget and a
+delivery graph, the design-delta report and the test catalog share one cache that evicts by retained bytes under a global budget and a
 budget per worktree, produces a missed key once however many callers ask, lets a
 waiter leave without disturbing the others, and never remembers a failure. A
 returned graph shares no map or slice with the cache: the attribute maps of the
