@@ -1,0 +1,220 @@
+{
+  "run": {
+    "run_id": "rrn-3b0445682359b7ef",
+    "proof_id": "rrp-b8d45c9018b0093ceabbc68e72470008fd2d032d3011890cb2956e2e735c809d"
+  },
+  "schema_version": 1,
+  "attestation_id": "rva-dd40f1882bda7735",
+  "bundle_id": "rvb-398d6b9e448cab3d",
+  "bundle_digest": "sha256:398d6b9e448cab3d1381373084dc744363156ba5fc119a582928ef03d02155bf",
+  "reviewer": "agent:openai/gpt-6.1-sol",
+  "decision": "approved",
+  "criteria": [
+    {
+      "id": "assumption-integrity",
+      "disposition": "passed",
+      "evidence": "structure:design-1ac47735cb490977",
+      "rationale": "The ADR states the material-boundary assumptions and accepted limits: ignored files, copied or uncommitted moved data records, concurrent restoration, sparse checkouts, and unavailable graph collection. Tests support the ordinary checkout contract; immutable-snapshot guarantees remain unresolved and explicitly deferred.",
+      "mappings": [
+        {
+          "delta": "SD-2e801d1d",
+          "basis": "R1",
+          "disposition": "mapped",
+          "rationale": "The ADR defines the new material-binding contract and its assumptions."
+        }
+      ]
+    },
+    {
+      "id": "backend-concurrency",
+      "disposition": "passed",
+      "evidence": "integration:pose-mcp/go/validate-concurrent-steps-integration",
+      "rationale": "Existing cancellation and check scheduling remain intact. The shallow-cache state is mutex protected, and cached graph copies isolate material inputs and provenance maps."
+    },
+    {
+      "id": "backend-contracts",
+      "disposition": "passed",
+      "evidence": "integration:pose-mcp/go/delivery-integrity-index-compaction-integration",
+      "rationale": "Material fields propagate through result parsing and compact indexes. Legacy commit-bound digests explicitly exclude the new fields."
+    },
+    {
+      "id": "backend-input-errors",
+      "disposition": "passed",
+      "evidence": "unit:pose-mcp/go/test",
+      "rationale": "Unreadable and shallow material becomes unavailable rather than falling through. Git output is bounded, paths use literal pathspecs, and working-copy read failures refuse binding."
+    },
+    {
+      "id": "backend-integration-impact",
+      "disposition": "passed",
+      "evidence": "integration:pose-mcp/go/cli-mcp-operation-results-integration",
+      "rationale": "CLI and MCP use the domain evidence model; the shipped CLI entrypoint registers current-tree recomputation before serving MCP."
+    },
+    {
+      "id": "backend-observability",
+      "disposition": "passed",
+      "evidence": "integration:pose-mcp/go/typed-diagnostics-integration",
+      "rationale": "Stale evidence identifies the scope and provides rerun remediation. Naming the first differing path is explicitly deferred because no manifest is stored."
+    },
+    {
+      "id": "compatibility",
+      "disposition": "passed",
+      "evidence": "unit:pose-mcp/go/test",
+      "rationale": "The result fields are additive. Results lacking material provenance retain the legacy verdict, and completed-spec exemptions remain unchanged."
+    },
+    {
+      "id": "correctness",
+      "disposition": "passed",
+      "evidence": "unit:pose-mcp/go/test",
+      "rationale": "Reviewed tests cover administrative head movement, changed material and matrix, symlinks, rename destinations, explicit ranges, shallow checkouts, working-copy guards, legacy digests, and cache isolation."
+    },
+    {
+      "id": "design-causality",
+      "disposition": "passed",
+      "evidence": "structure:design-1ac47735cb490977",
+      "rationale": "Hashing head-tree entries removes commit-identity churn from validation currency. Claims, matrix, and engine remain bound; current-tree recomputation prevents a persisted index from vouching for changed observed material.",
+      "mappings": [
+        {
+          "delta": "SD-2e801d1d",
+          "basis": "R1",
+          "disposition": "mapped",
+          "rationale": "The added ADR records the material digest design, compatibility behavior, alternatives, and accepted limitations."
+        }
+      ]
+    },
+    {
+      "id": "documentation",
+      "disposition": "passed",
+      "evidence": "integration:pose-mcp/go/distributed-instructions-parity-integration",
+      "rationale": "Runtime read-view limits match the English, Portuguese, and scaffold documentation. The spec and ADR describe the administrative classes and residual limits."
+    },
+    {
+      "id": "operability",
+      "disposition": "passed",
+      "evidence": "integration:pose-mcp/go/delivery-integration",
+      "rationale": "Unavailable material refuses reuse and existing stale-evidence diagnostics provide actionable scope-level remediation. Sealed checkout diagnostics suppress index publication only for the marked root."
+    },
+    {
+      "id": "requirements",
+      "disposition": "passed",
+      "evidence": "unit:pose-mcp/go/test",
+      "rationale": "R1-R10 have relevant implementation and test coverage in the sealed unit run; delivery composition is additionally supported by the successful surface check and sealed delivery integration evidence."
+    },
+    {
+      "id": "scope",
+      "disposition": "passed",
+      "evidence": "structure:design-1ac47735cb490977",
+      "rationale": "Changes implement the declared material binding, sealed-checkout refresh guard, and R10 capacity adjustment without introducing per-check caching or configurable exemptions."
+    },
+    {
+      "id": "security",
+      "disposition": "passed",
+      "evidence": "unit:pose-mcp/go/test",
+      "rationale": "Administrative classification is engine owned and restricted by path, extension, and file mode. Matrix changes, code in administrative directories, and recorded rename destinations remain material. The cheapest stale-index bypass is addressed by current-tree recomputation tests; these cases are not separately catalogued in the adversarial README."
+    },
+    {
+      "id": "solution-proportionality",
+      "disposition": "passed",
+      "evidence": "structure:design-1ac47735cb490977",
+      "rationale": "A scoped material digest is sufficient for administrative commit reuse and smaller than per-check caching or immutable execution snapshots. Stored recomputation inputs are necessary to reject stale indexes. The design must be revisited if guarantees extend to ignored files, sparse checkouts, or concurrent writers."
+    }
+  ],
+  "tools": [
+    {
+      "id": "artifact-check",
+      "disposition": "passed",
+      "evidence": "integration:pose-mcp/go/artifact-claim-boundary-integration",
+      "rationale": "Ran pose artifact-check --spec pose-validation-evidence-material-binding --strict. Reconciliation reported 30 claims, 37 observations, and orphan warnings; no changed-scope attribution defect was identified."
+    },
+    {
+      "id": "assess-design",
+      "disposition": "not-used",
+      "evidence": "structure:design-1ac47735cb490977",
+      "rationale": "Reviewed the sealed structural evidence and independently inspected the ADR and implementation instead of regenerating the assessment."
+    },
+    {
+      "id": "assess-discover",
+      "component": "pose-mcp",
+      "disposition": "not-used",
+      "rationale": "Discovery publishes repository assessment records and was excluded by the no-change boundary."
+    },
+    {
+      "id": "assess-integrate",
+      "disposition": "not-used",
+      "rationale": "The command writes integration assessment records. Reviewed producer, parser, compaction, cache, CLI, and MCP boundaries directly and used sealed integration evidence."
+    },
+    {
+      "id": "assess-tech-debt",
+      "disposition": "not-used",
+      "rationale": "The command writes assessment records. Inspected the changed implementation for debt markers and reviewed the spec's explicit follow-ups."
+    },
+    {
+      "id": "closeout-check",
+      "disposition": "deferred",
+      "rationale": "Executed the diagnostic: lifecycle_done=false and review_approved=false. Final closeout verification follows recording this review and completing the lifecycle; no attestation was recorded during review."
+    },
+    {
+      "id": "review-check",
+      "disposition": "deferred",
+      "rationale": "Executed the diagnostic: review.approved=false with no recorded approval. Final verification follows the engine's recording of this review."
+    },
+    {
+      "id": "suggest-review",
+      "component": "pose-mcp",
+      "disposition": "passed",
+      "evidence": "integration:pose-mcp/go/distributed-instructions-parity-integration",
+      "rationale": "Ran pose suggest review --path pose-mcp and applied its backend-go, security, and documentation-style rules."
+    },
+    {
+      "id": "surface-check",
+      "disposition": "passed",
+      "evidence": "integration:pose-mcp/go/delivery-integration",
+      "rationale": "Ran pose surface-check --spec pose-validation-evidence-material-binding --strict: exit 0, one target, 189 results, zero findings. Reachability evidence: reachability:pose-mcp/go/delivery-reachability."
+    },
+    {
+      "id": "validate",
+      "disposition": "passed",
+      "evidence": "unit:pose-mcp/go/test",
+      "rationale": "Used the sealed passing strict-matrix evidence, including build:pose-mcp/go/build, integration:pose-mcp/go/delivery-integration, and e2e:pose-mcp/go/multi-repo-agent-installed-journey. Did not rerun the repository-writing command; targeted Go execution was blocked by the read-only temporary build directory."
+    },
+    {
+      "id": "validate",
+      "component": "pose-mcp",
+      "disposition": "passed",
+      "evidence": "unit:pose-mcp/go/test",
+      "rationale": "Used sealed module evidence, including build:pose-mcp/go/build, integration:pose-mcp/go/delivery-integration, and e2e:pose-mcp/go/multi-repo-agent-installed-journey. Independently inspected the new material-binding tests; local execution could not start in the read-only sandbox."
+    }
+  ],
+  "evidence_refs": [
+    "delegated-run:rrn-3b0445682359b7ef",
+    "integration:pose-mcp/go/cli-mcp-operation-results-integration",
+    "integration:pose-mcp/go/delivery-integration",
+    "integration:pose-mcp/go/delivery-integrity-index-compaction-integration",
+    "integration:pose-mcp/go/distributed-instructions-parity-integration",
+    "integration:pose-mcp/go/typed-diagnostics-integration",
+    "integration:pose-mcp/go/validate-concurrent-steps-integration",
+    "structure:design-1ac47735cb490977",
+    "unit:pose-mcp/go/test"
+  ],
+  "findings": null,
+  "authority": {
+    "schema_version": 1,
+    "project": "proj.pose-dist",
+    "bundle_digest": "sha256:398d6b9e448cab3d1381373084dc744363156ba5fc119a582928ef03d02155bf",
+    "principal": "agent:openai/gpt-6.1-sol",
+    "role": "agent",
+    "review_execution": "rrn-3b0445682359b7ef",
+    "implementation_principal": "agent:anthropic/claude-sonnet-5-5",
+    "implementation_execution": "sha256:219d2a3cc11e7462e553bda46a173d12b2cdff984fdf957d487089b095af4786",
+    "issuer": "b34-local-executor",
+    "issued_at": "2026-11-08T05:10:15Z",
+    "audience": "proj.pose-dist"
+  },
+  "envelope": {
+    "issuer": "b34-local-executor",
+    "subject": "rvb-398d6b9e448cab3d",
+    "algorithm": "ed25519",
+    "public_key": "ck4sApdfePV2GT+hJyAYfJd2qLzeG55P8pevGR0bvZE=",
+    "signature": "eOLi1Qg3kWR3Cn0Ij5N2fza97whVMdrzKxd4BQyh6kv1AIcOwkR68LDFb3R8pKYhHU9ZXzapHdablNt42vLeBw=="
+  },
+  "attested_at": "2026-11-08T05:10:15Z",
+  "path": ".pose/review-attestations/rva-dd40f1882bda7735.json"
+}
