@@ -385,6 +385,14 @@
       "digest": "sha256:d983a25a632c185ac2216d4bf5c97e5cb35a7c92b15b5b763efeb77515f783fd"
     },
     {
+      "spec": "pose-generation-bound-query-cursors",
+      "category": "changed",
+      "breaking": false,
+      "body": "Paginated MCP list tools continue a query over the collection it was issued\nfor. A cursor is now signed and bound to its tool, project, filters and the\nordered collection (with its index generation); a collection that changed\nbetween pages, another query, an expired token or a server restart is refused\nwith a `cursor-*` code and the caller restarts from the first page, instead of\nsilently skipping or repeating items. Version 1 cursors are refused, a page is\nat most 500 items, and each page discloses its generation and collection. Calls\nwithout cursor and limit are unchanged.",
+      "path": "pose-generation-bound-query-cursors.md",
+      "digest": "sha256:229454b1d66981f69ed9a3016d3f01a6aeaac7ef344bb85925243b78419fffa6"
+    },
+    {
       "spec": "pose-git-and-dispatch-snapshot-integrity",
       "category": "changed",
       "breaking": false,
