@@ -1,0 +1,152 @@
+{
+  "safety": {
+    "schema_version": 1,
+    "profile": "legacy-trusted",
+    "platform": "linux/amd64",
+    "capabilities": {
+      "automatic-expiry": "unavailable",
+      "bounded-capture": "available",
+      "cpu-limit": "unavailable",
+      "credential-filesystem-isolation": "unavailable",
+      "environment-allowlist": "available",
+      "escaped-descendant-termination": "unavailable",
+      "filesystem-isolation": "unavailable",
+      "memory-limit": "unavailable",
+      "network-isolation": "unavailable",
+      "origin-isolation": "unavailable",
+      "parent-termination": "available",
+      "process-group-termination": "available",
+      "shared-git-isolation": "unavailable"
+    },
+    "limitations": [
+      "trusted local executable required; worktree is not a sandbox",
+      "outside writes, transient writes, shared Git and credential files are not isolated",
+      "no memory/CPU quota or control of descendants escaping the process group",
+      "cleanup filesystem calls remain subject to operating-system I/O latency",
+      "legacy compatibility: HOME retained; other ambient credentials excluded"
+    ],
+    "stream_bytes": 8388608,
+    "output_bytes": 65536,
+    "retained_bytes": 16777216,
+    "timeout_ms": 3600000,
+    "max_runs_per_bundle": 3,
+    "retention": "retain-evidence; ttl=0; no automatic deletion",
+    "capture_complete": true,
+    "runtime_id": "pose-review-run-2081863172",
+    "operation": {
+      "schema_version": 1,
+      "operation": "review.dispatch.cleanup",
+      "scope": "spec:pose-generation-bound-query-cursors",
+      "outcome": "completed",
+      "steps_run": [
+        {
+          "id": "cleanup",
+          "result": "done"
+        }
+      ],
+      "effects": [],
+      "resumable": false
+    }
+  },
+  "provenance": {
+    "execution_state": "started",
+    "planned_wire_digest": "sha256:12ceab26ef76c876444928c240eef1a212c433deb9c1613b284dfe930a5db2e1",
+    "wire_bytes": 21741,
+    "wire_complete": true,
+    "schema_version": 1,
+    "project": "proj.pose-dist",
+    "audience": "proj.pose-dist",
+    "worktree_digest": "sha256:9c161dc895f6496d9f800581bef8673cc9123cda65951fa2d23b0cbdbc2bac41",
+    "trust": "executor-attested",
+    "implementation": {
+      "principal": "agent:anthropic/claude-sonnet-5-5",
+      "execution": "sha256:219d2a3cc11e7462e553bda46a173d12b2cdff984fdf957d487089b095af4786",
+      "vendor": "anthropic",
+      "model": "claude-sonnet-5-5"
+    },
+    "reviewer": {
+      "principal": "agent:openai/gpt-6.1-sol",
+      "vendor": "openai",
+      "model": "gpt-6.1-sol"
+    },
+    "config_digest": "sha256:637a9d88c40dbf75da8525db65c216ace591f828ef25c233358db1a99e70ee31",
+    "command_template_digest": "sha256:e49fc2491333bb1973855674a04dfcc3edf577094dabb278bf9ef23c413c48f5",
+    "argv_digest": "sha256:c99cb55fcfc3d7a633298db87edc37914b8b8ba0cdaf86070025ffe284266f33",
+    "executable_digest": "sha256:e14fc83739c13c1074b12bd1acce4010c893c7f6fbfc1593b4a31d74cabb57af",
+    "template_version": "review-brief/3",
+    "wire_digest": "sha256:12ceab26ef76c876444928c240eef1a212c433deb9c1613b284dfe930a5db2e1",
+    "notes_digest": "sha256:3b78226251aaa0dea8141c5cb0f17ab410b25728a87ebe3d2f10845d09cf90e6",
+    "raw_transcript_digest": "sha256:87844092f9ebd9cdf7eb74879379eda6c46d44606d318557b782f369cd8fa293",
+    "raw_output_digest": "sha256:579dcca205ff8f1ba4626ec2a664e18f1602c63e70b9e8ca6f9370e8b47cac51",
+    "output_source": "file",
+    "output_complete": true
+  },
+  "session_digest": "sha256:7c7a840c600a377619dc47790cf35bd0e27955c60c8ca35a477691990d60628a",
+  "tree_digest": "sha256:7e09c6546206b4377d04521fd7d6922f0cd86ac5b6a06c17cf9cb46d36a85b84",
+  "brief_notes": "Implementer note (not evidence). Post-completion checkpoint for spec `pose-generation-bound-query-cursors` (B36). The implementation was approved in an earlier delegated pass on the open spec (attestation rva-7c57f9a45545e148, whose plan carried the milestone exit gate). The spec is now `status: done`, so its review plan no longer carries the milestone exit-gate criterion and the earlier approval no longer matches the plan; this pass re-judges the completed spec under the current plan. Since that approval no Go source, test or ADR changed; only the spec's status/completed_at, derived indexes and review records changed. Verify the Final Report is truthful against the code, tests and ADR, and report every defect at once. Do NOT run `pose validate`, `pose index`, `pose assess ...` or any command that writes to the repository. Evidence references: never cite `SD-...` ids, `R\u003cN\u003e` or file paths as criterion evidence; cite the bundle's `structure:design-\u003cid\u003e` for design-causality and assumption-integrity and sealed `unit:`/`integration:`/`build:`/`e2e:` ids for the others; for `surface-check` cite one sealed `integration:` and one sealed `reachability:` evidence id (for example `reachability:pose-mcp/go/delivery-reachability` and `integration:pose-mcp/go/delivery-integration`).\n",
+  "ledger_version": 1,
+  "attempt_id": "rat-fe0df1d87c07f4c9cea76d981453a6f6b6e13d3bf5aa0fbeb2777176f7c71466",
+  "schema_version": 1,
+  "run_id": "rrn-207a81f2e9c7aed0",
+  "scope": "spec:pose-generation-bound-query-cursors",
+  "bundle_id": "rvb-9cf6ab49a1f941bd",
+  "bundle_digest": "sha256:9cf6ab49a1f941bdbaa5855d1011c0bd49b8071c037656143242ae1ed2b05d7f",
+  "sealed_commit": "f2f64a0fd59e34007bdaf71d465494a74544023a",
+  "kind": "review",
+  "brief_digest": "sha256:e0e5ad6b8e030f5c099099258937b1e77fd92208d5777e47674451cdcd523651",
+  "adapter": "sol-medium",
+  "vendor": "openai",
+  "model": "gpt-6.1-sol",
+  "started_at": "2026-11-08T12:18:55.801142025Z",
+  "ended_at": "2026-11-08T12:22:50.729872868Z",
+  "exit_code": 0,
+  "status": "completed",
+  "transcript_digest": "sha256:e4128652654638cea7cb18368317e779b58539d1283ecd5c91c0a65147ad843a",
+  "transcript_path": ".pose/review-runs/rrn-207a81f2e9c7aed0.transcript",
+  "output": "**Approved. No defects found.**\n\nVerified that Go code, tests and ADRs are unchanged since the previous reviewed commit. The completed spec’s Final Report matches the implementation and its documented limitations.\n\nThe focused race-enabled tests, `go vet`, strict artifact-check and strict surface-check passed. Artifact-check reported warnings only. Full validation relies on the supplied sealed evidence. Review-check and closeout-check did not pass: they report no current-plan approval and an unknown governance read view. Terminal closeout remains unverified.\n\nApplied backend-go, security, documentation-style and delivery-evidence rules. No repository changes or attestations were made. `SD-5c6c5a14` maps to D1, whose basis is R1–R8.\n\n```pose-draft\n{\n  \"schema\": \"pose.review.draft/v1\",\n  \"decision\": \"approved\",\n  \"findings\": [],\n  \"prior_findings\": [],\n  \"sweep\": \"Swept all declared cursor implementation paths, five MCP handlers, argument validation, token integrity and bindings, ordering and mutation handling, generation verification/cache invalidation, bounds and expiry, compatibility, tests, validation registration, ADR, changelog, operational/scaffold documentation and completed-spec Final Report. Compared the previous reviewed commit with the current head: no pose-mcp or ADR changes; the spec changes only status and completed_at. Independently ran the focused race-enabled regression selection, go vet, artifact-check, surface-check and diagnostic review/closeout checks. No prior findings were listed and no new defects were established.\",\n  \"criteria\": [\n    {\n      \"id\": \"assumption-integrity\",\n      \"disposition\": \"passed\",\n      \"evidence\": \"structure:design-484c6eb6d942f499\",\n      \"rationale\": \"Verified unchanged implementation and ADR, full-scan collection reads, process-local signing and explicit restart semantics. Accepted limits include restart invalidation and weaker metadata detection outside Linux. Cross-platform execution was not independently tested. Current governance read-view freshness remains unknown and is not claimed as verified.\"\n    },\n    {\n      \"id\": \"backend-concurrency\",\n      \"disposition\": \"passed\",\n      \"evidence\": \"integration:pose-mcp/go/generation-bound-query-cursors-integration\",\n      \"rationale\": \"Independent focused tests passed with -race in internal/pose and internal/mcpserver. Signing-key initialization and generation-cache access are synchronized; no retained query lifecycle is introduced.\"\n    },\n    {\n      \"id\": \"backend-contracts\",\n      \"disposition\": \"passed\",\n      \"evidence\": \"integration:pose-mcp/go/generation-bound-query-cursors-integration\",\n      \"rationale\": \"The five tools share pagination validation and generation-bound continuation. Legacy unpaginated calls remain supported; version-1 tokens are explicitly refused. HTTP/stdio compatibility tests are included in the passing regression selection.\"\n    },\n    {\n      \"id\": \"backend-input-errors\",\n      \"disposition\": \"passed\",\n      \"evidence\": \"integration:pose-mcp/go/generation-bound-query-cursors-integration\",\n      \"rationale\": \"Passing negative tests cover malformed, truncated, oversized and altered tokens, unsupported versions, expiry, invalid positions, mismatched bindings, null cursors, aliases and invalid explicit limits.\"\n    },\n    {\n      \"id\": \"backend-integration-impact\",\n      \"disposition\": \"passed\",\n      \"evidence\": \"integration:pose-mcp/go/generation-bound-query-cursors-integration\",\n      \"rationale\": \"Inspected every changed handler and its domain-helper integration. Generation-reader status, reason and diverged files propagate to pages. Strict surface-check passed with one delivery target and zero findings.\"\n    },\n    {\n      \"id\": \"backend-observability\",\n      \"disposition\": \"passed\",\n      \"evidence\": \"integration:pose-mcp/go/generation-bound-query-cursors-integration\",\n      \"rationale\": \"Pages disclose generation status, reason, divergence, collection, position, total and scan cost. Refusals provide bounded cursor codes and actionable restart guidance without exposing signing material.\"\n    },\n    {\n      \"id\": \"compatibility\",\n      \"disposition\": \"passed\",\n      \"evidence\": \"integration:pose-mcp/go/generation-bound-query-cursors-integration\",\n      \"rationale\": \"Token migration is deliberate and documented. Calls without pagination remain unpaginated, while continuations remain bounded. The CLI has no cursor-paginated surface requiring migration.\"\n    },\n    {\n      \"id\": \"correctness\",\n      \"disposition\": \"passed\",\n      \"evidence\": \"integration:pose-mcp/go/generation-bound-query-cursors-integration\",\n      \"rationale\": \"Independent focused race-enabled tests and go vet passed. Reviewed mutation, query binding, position, expiry, generation status and cache invalidation paths. The current source is identical to the previous reviewed source.\"\n    },\n    {\n      \"id\": \"design-causality\",\n      \"disposition\": \"passed\",\n      \"evidence\": \"structure:design-484c6eb6d942f499\",\n      \"rationale\": \"Signing the query binding and ordered-collection digest prevents a continuation from silently applying its offset to another sequence. Recomputing and refusing changed collections implements the selected restart strategy.\",\n      \"mappings\": [\n        {\n          \"delta\": \"SD-5c6c5a14\",\n          \"basis\": \"D1\",\n          \"disposition\": \"mapped\",\n          \"rationale\": \"D1 derives from R1-R8. The ADR records generation/query bindings, token integrity, restart behavior, resource bounds, scan costs and compatibility.\"\n        }\n      ]\n    },\n    {\n      \"id\": \"documentation\",\n      \"disposition\": \"passed\",\n      \"evidence\": \"integration:pose-mcp/go/distributed-instructions-parity-integration\",\n      \"rationale\": \"The Final Report, ADR, changelog, tool descriptions and English/Portuguese scaffold documentation agree with runtime behavior. The owned indexing follow-up and full-scan cost remain explicit; completion does not claim indexed optimization.\"\n    },\n    {\n      \"id\": \"operability\",\n      \"disposition\": \"passed\",\n      \"evidence\": \"integration:pose-mcp/go/generation-bound-query-cursors-integration\",\n      \"rationale\": \"Cursor errors identify malformed, unsupported, signature, binding, expired, stale and position failures. Generation movement requests retry, while page disclosure explains coverage and cost.\"\n    },\n    {\n      \"id\": \"requirements\",\n      \"disposition\": \"passed\",\n      \"evidence\": \"integration:pose-mcp/go/generation-bound-query-cursors-integration\",\n      \"rationale\": \"Checked R1-R8 against the unchanged implementation, requirement trace, ADR and passing focused tests. Indexed-read optimization remains an explicitly owned follow-up because these collections are not indexed.\"\n    },\n    {\n      \"id\": \"scope\",\n      \"disposition\": \"passed\",\n      \"evidence\": \"structure:design-484c6eb6d942f499\",\n      \"rationale\": \"The implementation covers the declared five list tools and shared helper. Artifact-check passed. The completion delta changes lifecycle and derived/review records without expanding implementation scope.\"\n    },\n    {\n      \"id\": \"security\",\n      \"disposition\": \"passed\",\n      \"evidence\": \"integration:pose-mcp/go/generation-bound-query-cursors-integration\",\n      \"rationale\": \"HMAC protects token integrity; tool/query/project/root bindings restrict replay; token size and expiry are bounded. Pagination introduces no gate or write authority and does not replace current request authorization.\"\n    },\n    {\n      \"id\": \"solution-proportionality\",\n      \"disposition\": \"passed\",\n      \"evidence\": \"structure:design-484c6eb6d942f499\",\n      \"rationale\": \"A shared signed cursor with collection comparison is sufficient for explicit restart semantics. Retained snapshots and durable keys would add unnecessary lifecycle obligations. Revisit the design if cross-process continuation or indexed selective reads become requirements.\"\n    }\n  ],\n  \"tools\": [\n    {\n      \"id\": \"artifact-check\",\n      \"disposition\": \"passed\",\n      \"evidence\": \"check:pose artifact-check --spec pose-generation-bound-query-cursors --strict --json\",\n      \"rationale\": \"Executed successfully: exit 0, 889 warnings, no nonwarning findings.\"\n    },\n    {\n      \"id\": \"assess-design\",\n      \"disposition\": \"passed\",\n      \"evidence\": \"structure:design-484c6eb6d942f499\",\n      \"rationale\": \"Executed the read-only assessment successfully. Its input digest matches the sealed structural evidence.\"\n    },\n    {\n      \"id\": \"assess-discover\",\n      \"component\": \"pose-mcp\",\n      \"disposition\": \"not-used\",\n      \"evidence\": \"\",\n      \"rationale\": \"The command persists assessment artifacts, conflicting with the no-repository-changes boundary. Inspected component structure and the unchanged source directly.\"\n    },\n    {\n      \"id\": \"assess-integrate\",\n      \"disposition\": \"not-used\",\n      \"evidence\": \"integration:pose-mcp/go/generation-bound-query-cursors-integration\",\n      \"rationale\": \"The assessment persists repository artifacts. Used direct inspection of all five handlers and passing integration evidence instead.\"\n    },\n    {\n      \"id\": \"assess-tech-debt\",\n      \"disposition\": \"not-used\",\n      \"evidence\": \"\",\n      \"rationale\": \"The assessment persists repository artifacts. Direct inspection found no TODO, FIXME, stub or panic markers in the cursor implementation; the indexing follow-up already has an owner and review date.\"\n    },\n    {\n      \"id\": \"closeout-check\",\n      \"disposition\": \"deferred\",\n      \"evidence\": \"\",\n      \"rationale\": \"Executed diagnostically: lifecycle_done=true, review_approved=false and terminal=false. It reports no current-plan review attempt and an unknown governance read view. Final verification remains deferred until the conclusion is recorded and governance inputs verify.\"\n    },\n    {\n      \"id\": \"review-check\",\n      \"disposition\": \"deferred\",\n      \"evidence\": \"\",\n      \"rationale\": \"Executed diagnostically: fresh=false and approved=false, with no current-plan review attempt and an unknown governance read view. This is not a passing gate; recheck after POSE records the conclusion and verifies current inputs.\"\n    },\n    {\n      \"id\": \"suggest-review\",\n      \"component\": \"pose-mcp\",\n      \"disposition\": \"passed\",\n      \"evidence\": \"check:pose suggest review --path pose-mcp\",\n      \"rationale\": \"Executed and applied the selected workflow and backend-go, security and documentation-style rules.\"\n    },\n    {\n      \"id\": \"surface-check\",\n      \"disposition\": \"passed\",\n      \"evidence\": \"integration:pose-mcp/go/generation-bound-query-cursors-integration\",\n      \"rationale\": \"Executed strict surface-check: exit 0, one target, 190 results and zero findings. Additional sealed evidence: integration:pose-mcp/go/delivery-integration and reachability:pose-mcp/go/delivery-reachability.\"\n    },\n    {\n      \"id\": \"validate\",\n      \"disposition\": \"passed\",\n      \"evidence\": \"build:pose-mcp/go/build\",\n      \"rationale\": \"Reused supplied sealed validation rather than rerunning repository-writing checks. Supporting classes: e2e:pose-mcp/go/multi-repo-agent-installed-journey; integration:pose-mcp/go/generation-bound-query-cursors-integration; unit:pose-mcp/go/test. Independently ran focused tests with -race and go vet; both passed.\"\n    },\n    {\n      \"id\": \"validate\",\n      \"component\": \"pose-mcp\",\n      \"disposition\": \"passed\",\n      \"evidence\": \"integration:pose-mcp/go/generation-bound-query-cursors-integration\",\n      \"rationale\": \"Reused sealed module validation over unchanged source. Supporting classes: build:pose-mcp/go/build; e2e:pose-mcp/go/multi-repo-agent-installed-journey; unit:pose-mcp/go/test. The focused race-enabled regression selection and go vet passed independently.\"\n    }\n  ]\n}\n```",
+  "policy_digest": "sha256:fff43ca5b338f626f9bc9be2bfc998d7fa780708e54e427024daf7788d0fc98e",
+  "purpose": "review",
+  "env_removed": [
+    "CLAUDE_CODE_BRIDGE_SESSION_ID",
+    "CLAUDE_CODE_CHILD_SESSION",
+    "CLAUDE_CODE_ENTRYPOINT",
+    "CLAUDE_CODE_EXECPATH",
+    "CLAUDE_CODE_MESSAGING_SOCKET",
+    "CLAUDE_CODE_MESSAGING_TOKEN",
+    "CLAUDE_CODE_SESSION_ATTENDED",
+    "CLAUDE_CODE_SESSION_ID",
+    "CLAUDE_EFFORT",
+    "CLAUDE_PID"
+  ],
+  "events": "codex-jsonl",
+  "events_digest": "sha256:5c06d7c88ce342f9a22a4319c1455903fe5c54df8ebe3f93088958dd08a200cb",
+  "routing": {
+    "requested": "auto",
+    "prefer": "opposite-vendor-of-implementation",
+    "implementation": {
+      "principal": "agent:anthropic/claude-sonnet-5-5",
+      "vendor": "anthropic",
+      "model": "claude-sonnet-5-5",
+      "execution_digest": "sha256:219d2a3cc11e7462e553bda46a173d12b2cdff984fdf957d487089b095af4786",
+      "source": "declared"
+    },
+    "implementation_from": "bundle",
+    "candidates": [
+      {
+        "agent": "sol-medium",
+        "vendor": "openai",
+        "model": "gpt-6.1-sol",
+        "group": "preferred",
+        "state": "available"
+      }
+    ],
+    "step": "preferred"
+  },
+  "independence_achieved": "different-vendor",
+  "round": 2,
+  "thread": {
+    "round": 2,
+    "mode": "continued",
+    "from": "rrn-c61a2d4907486035"
+  }
+}

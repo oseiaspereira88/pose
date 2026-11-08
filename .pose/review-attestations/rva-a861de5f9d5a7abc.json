@@ -1,0 +1,208 @@
+{
+  "run": {
+    "run_id": "rrn-207a81f2e9c7aed0",
+    "proof_id": "rrp-a94bc6e7900a3ac69a638437ff5db74347bdafb20dd36d51b1d132162ecf768e"
+  },
+  "schema_version": 1,
+  "attestation_id": "rva-a861de5f9d5a7abc",
+  "bundle_id": "rvb-9cf6ab49a1f941bd",
+  "bundle_digest": "sha256:9cf6ab49a1f941bdbaa5855d1011c0bd49b8071c037656143242ae1ed2b05d7f",
+  "reviewer": "agent:openai/gpt-6.1-sol",
+  "decision": "approved",
+  "criteria": [
+    {
+      "id": "assumption-integrity",
+      "disposition": "passed",
+      "evidence": "structure:design-484c6eb6d942f499",
+      "rationale": "Verified unchanged implementation and ADR, full-scan collection reads, process-local signing and explicit restart semantics. Accepted limits include restart invalidation and weaker metadata detection outside Linux. Cross-platform execution was not independently tested. Current governance read-view freshness remains unknown and is not claimed as verified."
+    },
+    {
+      "id": "backend-concurrency",
+      "disposition": "passed",
+      "evidence": "integration:pose-mcp/go/generation-bound-query-cursors-integration",
+      "rationale": "Independent focused tests passed with -race in internal/pose and internal/mcpserver. Signing-key initialization and generation-cache access are synchronized; no retained query lifecycle is introduced."
+    },
+    {
+      "id": "backend-contracts",
+      "disposition": "passed",
+      "evidence": "integration:pose-mcp/go/generation-bound-query-cursors-integration",
+      "rationale": "The five tools share pagination validation and generation-bound continuation. Legacy unpaginated calls remain supported; version-1 tokens are explicitly refused. HTTP/stdio compatibility tests are included in the passing regression selection."
+    },
+    {
+      "id": "backend-input-errors",
+      "disposition": "passed",
+      "evidence": "integration:pose-mcp/go/generation-bound-query-cursors-integration",
+      "rationale": "Passing negative tests cover malformed, truncated, oversized and altered tokens, unsupported versions, expiry, invalid positions, mismatched bindings, null cursors, aliases and invalid explicit limits."
+    },
+    {
+      "id": "backend-integration-impact",
+      "disposition": "passed",
+      "evidence": "integration:pose-mcp/go/generation-bound-query-cursors-integration",
+      "rationale": "Inspected every changed handler and its domain-helper integration. Generation-reader status, reason and diverged files propagate to pages. Strict surface-check passed with one delivery target and zero findings."
+    },
+    {
+      "id": "backend-observability",
+      "disposition": "passed",
+      "evidence": "integration:pose-mcp/go/generation-bound-query-cursors-integration",
+      "rationale": "Pages disclose generation status, reason, divergence, collection, position, total and scan cost. Refusals provide bounded cursor codes and actionable restart guidance without exposing signing material."
+    },
+    {
+      "id": "compatibility",
+      "disposition": "passed",
+      "evidence": "integration:pose-mcp/go/generation-bound-query-cursors-integration",
+      "rationale": "Token migration is deliberate and documented. Calls without pagination remain unpaginated, while continuations remain bounded. The CLI has no cursor-paginated surface requiring migration."
+    },
+    {
+      "id": "correctness",
+      "disposition": "passed",
+      "evidence": "integration:pose-mcp/go/generation-bound-query-cursors-integration",
+      "rationale": "Independent focused race-enabled tests and go vet passed. Reviewed mutation, query binding, position, expiry, generation status and cache invalidation paths. The current source is identical to the previous reviewed source."
+    },
+    {
+      "id": "design-causality",
+      "disposition": "passed",
+      "evidence": "structure:design-484c6eb6d942f499",
+      "rationale": "Signing the query binding and ordered-collection digest prevents a continuation from silently applying its offset to another sequence. Recomputing and refusing changed collections implements the selected restart strategy.",
+      "mappings": [
+        {
+          "delta": "SD-5c6c5a14",
+          "basis": "D1",
+          "disposition": "mapped",
+          "rationale": "D1 derives from R1-R8. The ADR records generation/query bindings, token integrity, restart behavior, resource bounds, scan costs and compatibility."
+        }
+      ]
+    },
+    {
+      "id": "documentation",
+      "disposition": "passed",
+      "evidence": "integration:pose-mcp/go/distributed-instructions-parity-integration",
+      "rationale": "The Final Report, ADR, changelog, tool descriptions and English/Portuguese scaffold documentation agree with runtime behavior. The owned indexing follow-up and full-scan cost remain explicit; completion does not claim indexed optimization."
+    },
+    {
+      "id": "operability",
+      "disposition": "passed",
+      "evidence": "integration:pose-mcp/go/generation-bound-query-cursors-integration",
+      "rationale": "Cursor errors identify malformed, unsupported, signature, binding, expired, stale and position failures. Generation movement requests retry, while page disclosure explains coverage and cost."
+    },
+    {
+      "id": "requirements",
+      "disposition": "passed",
+      "evidence": "integration:pose-mcp/go/generation-bound-query-cursors-integration",
+      "rationale": "Checked R1-R8 against the unchanged implementation, requirement trace, ADR and passing focused tests. Indexed-read optimization remains an explicitly owned follow-up because these collections are not indexed."
+    },
+    {
+      "id": "scope",
+      "disposition": "passed",
+      "evidence": "structure:design-484c6eb6d942f499",
+      "rationale": "The implementation covers the declared five list tools and shared helper. Artifact-check passed. The completion delta changes lifecycle and derived/review records without expanding implementation scope."
+    },
+    {
+      "id": "security",
+      "disposition": "passed",
+      "evidence": "integration:pose-mcp/go/generation-bound-query-cursors-integration",
+      "rationale": "HMAC protects token integrity; tool/query/project/root bindings restrict replay; token size and expiry are bounded. Pagination introduces no gate or write authority and does not replace current request authorization."
+    },
+    {
+      "id": "solution-proportionality",
+      "disposition": "passed",
+      "evidence": "structure:design-484c6eb6d942f499",
+      "rationale": "A shared signed cursor with collection comparison is sufficient for explicit restart semantics. Retained snapshots and durable keys would add unnecessary lifecycle obligations. Revisit the design if cross-process continuation or indexed selective reads become requirements."
+    }
+  ],
+  "tools": [
+    {
+      "id": "artifact-check",
+      "disposition": "passed",
+      "evidence": "check:pose artifact-check --spec pose-generation-bound-query-cursors --strict --json",
+      "rationale": "Executed successfully: exit 0, 889 warnings, no nonwarning findings."
+    },
+    {
+      "id": "assess-design",
+      "disposition": "passed",
+      "evidence": "structure:design-484c6eb6d942f499",
+      "rationale": "Executed the read-only assessment successfully. Its input digest matches the sealed structural evidence."
+    },
+    {
+      "id": "assess-discover",
+      "component": "pose-mcp",
+      "disposition": "not-used",
+      "rationale": "The command persists assessment artifacts, conflicting with the no-repository-changes boundary. Inspected component structure and the unchanged source directly."
+    },
+    {
+      "id": "assess-integrate",
+      "disposition": "not-used",
+      "evidence": "integration:pose-mcp/go/generation-bound-query-cursors-integration",
+      "rationale": "The assessment persists repository artifacts. Used direct inspection of all five handlers and passing integration evidence instead."
+    },
+    {
+      "id": "assess-tech-debt",
+      "disposition": "not-used",
+      "rationale": "The assessment persists repository artifacts. Direct inspection found no TODO, FIXME, stub or panic markers in the cursor implementation; the indexing follow-up already has an owner and review date."
+    },
+    {
+      "id": "closeout-check",
+      "disposition": "deferred",
+      "rationale": "Executed diagnostically: lifecycle_done=true, review_approved=false and terminal=false. It reports no current-plan review attempt and an unknown governance read view. Final verification remains deferred until the conclusion is recorded and governance inputs verify."
+    },
+    {
+      "id": "review-check",
+      "disposition": "deferred",
+      "rationale": "Executed diagnostically: fresh=false and approved=false, with no current-plan review attempt and an unknown governance read view. This is not a passing gate; recheck after POSE records the conclusion and verifies current inputs."
+    },
+    {
+      "id": "suggest-review",
+      "component": "pose-mcp",
+      "disposition": "passed",
+      "evidence": "check:pose suggest review --path pose-mcp",
+      "rationale": "Executed and applied the selected workflow and backend-go, security and documentation-style rules."
+    },
+    {
+      "id": "surface-check",
+      "disposition": "passed",
+      "evidence": "integration:pose-mcp/go/generation-bound-query-cursors-integration",
+      "rationale": "Executed strict surface-check: exit 0, one target, 190 results and zero findings. Additional sealed evidence: integration:pose-mcp/go/delivery-integration and reachability:pose-mcp/go/delivery-reachability."
+    },
+    {
+      "id": "validate",
+      "disposition": "passed",
+      "evidence": "build:pose-mcp/go/build",
+      "rationale": "Reused supplied sealed validation rather than rerunning repository-writing checks. Supporting classes: e2e:pose-mcp/go/multi-repo-agent-installed-journey; integration:pose-mcp/go/generation-bound-query-cursors-integration; unit:pose-mcp/go/test. Independently ran focused tests with -race and go vet; both passed."
+    },
+    {
+      "id": "validate",
+      "component": "pose-mcp",
+      "disposition": "passed",
+      "evidence": "integration:pose-mcp/go/generation-bound-query-cursors-integration",
+      "rationale": "Reused sealed module validation over unchanged source. Supporting classes: build:pose-mcp/go/build; e2e:pose-mcp/go/multi-repo-agent-installed-journey; unit:pose-mcp/go/test. The focused race-enabled regression selection and go vet passed independently."
+    }
+  ],
+  "evidence_refs": [
+    "delegated-run:rrn-207a81f2e9c7aed0",
+    "integration:pose-mcp/go/distributed-instructions-parity-integration",
+    "integration:pose-mcp/go/generation-bound-query-cursors-integration",
+    "structure:design-484c6eb6d942f499"
+  ],
+  "findings": null,
+  "authority": {
+    "schema_version": 1,
+    "project": "proj.pose-dist",
+    "bundle_digest": "sha256:9cf6ab49a1f941bdbaa5855d1011c0bd49b8071c037656143242ae1ed2b05d7f",
+    "principal": "agent:openai/gpt-6.1-sol",
+    "role": "agent",
+    "review_execution": "rrn-207a81f2e9c7aed0",
+    "implementation_principal": "agent:anthropic/claude-sonnet-5-5",
+    "implementation_execution": "sha256:219d2a3cc11e7462e553bda46a173d12b2cdff984fdf957d487089b095af4786",
+    "issuer": "b34-local-executor",
+    "issued_at": "2026-11-08T12:22:54Z",
+    "audience": "proj.pose-dist"
+  },
+  "envelope": {
+    "issuer": "b34-local-executor",
+    "subject": "rvb-9cf6ab49a1f941bd",
+    "algorithm": "ed25519",
+    "public_key": "ck4sApdfePV2GT+hJyAYfJd2qLzeG55P8pevGR0bvZE=",
+    "signature": "l/Ue3r/E0BJYIodbbCiDgapkB2wFKDRCv5QOZ0jA8Cu/L5Ri7+LptnZ7diJu3urJnNmYlKTTSQbPXfrD72n7DQ=="
+  },
+  "attested_at": "2026-11-08T12:22:54Z",
+  "path": ".pose/review-attestations/rva-a861de5f9d5a7abc.json"
+}
