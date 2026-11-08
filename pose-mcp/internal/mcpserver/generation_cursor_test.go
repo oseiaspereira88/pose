@@ -196,15 +196,42 @@ func TestAnExplicitNonPositiveLimitIsRefusedOnEveryPaginatedTool(t *testing.T) {
 	}
 }
 
-func TestAPageCarriesTheIndexReadersStatus(t *testing.T) {
+func TestAPageCarriesTheIndexReadersStatusReasonAndDivergedFiles(t *testing.T) {
 	ts, root := cursorServer(t, 3)
-	idx := filepath.Join(root, ".pose", "indexes")
-	if err := os.MkdirAll(idx, 0o755); err != nil {
+	outputs := map[string][]byte{}
+	for _, name := range pose.IndexGenerationFiles {
+		outputs[name] = []byte("[]\n")
+	}
+	if _, err := (pose.Store{Root: root}).PublishIndexGeneration(outputs, map[string]string{"specs": "sha256:a"}); err != nil {
 		t.Fatal(err)
 	}
 	result, isErr, _ := cursorCall(t, ts, "pose_list_specs", map[string]any{"limit": 2})
 	page, _ := result["page"].(map[string]any)
-	if isErr || page["generation_status"] == nil {
-		t.Fatalf("a page must carry the status the index reader reported: %v %+v", isErr, page)
+	if isErr || page["generation_status"] != "current" || page["generation"] == "" || page["generation_diverged"] != nil {
+		t.Fatalf("a whole, untouched generation: %v %+v", isErr, page)
+	}
+	// A legacy file edited by hand beside a whole generation: the generation is still
+	// current, and the page names the files that diverge from it.
+	idx := filepath.Join(root, ".pose", "indexes")
+	if err := os.WriteFile(filepath.Join(idx, "packages.json"), []byte("{}\n"), 0o644); err != nil {
+		t.Fatal(err)
+	}
+	if err := os.Remove(filepath.Join(idx, "releases.json")); err != nil {
+		t.Fatal(err)
+	}
+	result, isErr, _ = cursorCall(t, ts, "pose_list_specs", map[string]any{"limit": 2})
+	page, _ = result["page"].(map[string]any)
+	diverged, _ := page["generation_diverged"].([]any)
+	if isErr || page["generation_status"] != "current" || len(diverged) != 2 || diverged[0] != "packages.json" || diverged[1] != "releases.json" {
+		t.Fatalf("the diverged legacy files were not disclosed: %v %+v", isErr, page)
+	}
+	// A broken generation is not reported as current, and its reason is kept.
+	if err := os.WriteFile(filepath.Join(idx, "generation.json"), []byte("not json"), 0o644); err != nil {
+		t.Fatal(err)
+	}
+	result, _, _ = cursorCall(t, ts, "pose_list_specs", map[string]any{"limit": 2})
+	page, _ = result["page"].(map[string]any)
+	if page["generation_status"] == "current" || page["generation_status"] == nil || page["generation_reason"] == nil {
+		t.Fatalf("an unavailable generation lost its status or reason: %+v", page)
 	}
 }

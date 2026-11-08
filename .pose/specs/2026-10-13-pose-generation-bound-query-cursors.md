@@ -52,6 +52,7 @@ Esta escrita não implementa o comportamento. Preservar fontes canônicas, layou
 - created: pose-mcp/internal/pose/generation_query.go
 - created: pose-mcp/internal/pose/generation_query_test.go
 - created: pose-mcp/internal/mcpserver/generation_cursor_test.go
+- created: pose-mcp/internal/mcpserver/generation_cursor_linux_test.go
 - modified: .pose/indexes/validation-matrix.json
 - modified: POSE.md
 - modified: locales/pt-BR/POSE.md
@@ -103,13 +104,14 @@ Os casos da tabela são objetivos de cobertura e podem compartilhar fixtures e e
 - R1 [satisfied] test:TestPageByGenerationWalksTheCollectionExactlyOnce test:TestACursorStaysWithItsQuery test:TestEquivalentFiltersShareACursor check:generation-bound-query-cursors-integration
 - R2 [satisfied] test:TestACursorIsRefusedWhenTheCollectionChanged test:TestACursorIsRefusedAfterTheCollectionChangesBetweenPages test:TestACursorIsRefusedWhenAReturnedFieldChanges
 - R3 [satisfied] test:TestAnIssuedCursorStaysWithinTheSizeBoundForHugeFilters test:TestHostileCursorsAreRefusedNotCoerced test:TestAnExpiredCursorIsRefused test:TestAPositionOutsideTheCollectionIsRefused test:TestAHostileCursorIsRefusedOverMCP
-- R4 [satisfied] test:TestAPageCarriesTheIndexReadersStatus test:TestAPageStatesItsCostAndGenerationStatus test:TestEveryPageDisclosesItsGenerationAndCollection test:TestPageByGenerationWalksTheCollectionExactlyOnce
+- R4 [satisfied] test:TestAPageCarriesTheIndexReadersStatusReasonAndDivergedFiles test:TestAPageStatesItsCostAndGenerationStatus test:TestEveryPageDisclosesItsGenerationAndCollection test:TestPageByGenerationWalksTheCollectionExactlyOnce
 - R5 [satisfied] test:TestEveryPageStatesItsCost test:TestPageByGenerationClampsAndDisclosesTheLimit test:TestPageLimitIsBoundedAndDisclosed
 - R6 [satisfied] test:TestAnExplicitNonPositiveLimitIsRefusedOnEveryPaginatedTool test:TestAContinuationWithoutALimitIsStillABoundedPage test:TestAContinuationWithoutALimitIsBoundedOverMCP test:TestACursorDoesNotSurviveAnotherServerProcess test:TestAnExpiredCursorIsRefused
 - R7 [satisfied] test:TestPageByGenerationWithoutCursorOrLimitIsTheLegacyCall test:TestPaginationOmittedIsUnpaginatedAndBackwardCompatible test:TestHostileCursorsAreRefusedNotCoerced
-- R8 [satisfied] test:TestACursorIsRefusedWhenTheCollectionChanged test:TestACursorStaysWithItsToolAndFilters test:TestACursorDoesNotSurviveAnotherServerProcess
+- R8 [satisfied] test:TestPageCostIsMeasuredAndBounded test:TestACursorIsRefusedWhenTheCollectionChanged test:TestACursorStaysWithItsToolAndFilters test:TestACursorDoesNotSurviveAnotherServerProcess
 
 ### Known gaps
+- Measured (R8, `TestPageCostIsMeasuredAndBounded`, Linux `rchar` of the process, synthetic 4 KB specs): 20 specs read 95 KB for the whole call and 89 KB for `limit=5`; 80 specs read 374 KB and 340 KB. The bytes read grow linearly with the collection, a page costs about the whole call (limit bounds what is returned, not what is read), and the response follows the page (2 KB for `limit=5` against 4.6 KB and 16.5 KB for the whole call). Latency was 0.4-1.6 ms. The indexed case is dispositioned: none of the five list collections is indexed, so no reduction of reads is claimed; giving them an index is the open follow-up below.
 - The list tools load their whole collection, so a page costs one recomputation and the total is a full scan; this is disclosed, and no index-backed limit was introduced because none of the five collections is indexed.
 - The CLI has no cursor-paginated surface; only the MCP list tools paginate.
 
