@@ -295,6 +295,19 @@ func resolveGitChangeSetWithTrailersAndFiles(files posemodel.Files, root, spec, 
 			return posemodel.ChangeSet{}, err
 		}
 		_, _ = diffHash.Write(diff)
+		// The net diff folds a create and a later rename into one creation; the
+		// material inputs need each commit's own records.
+		for _, sha := range commits {
+			perCommit, err := gitOutput(4*1024*1024, "diff-tree", "--root", "--no-commit-id", "--name-status", "-z", "-M", "-r", sha, "--")
+			if err != nil {
+				return posemodel.ChangeSet{}, err
+			}
+			parsed, err := parseGitNameStatusNUL(perCommit)
+			if err != nil {
+				return posemodel.ChangeSet{}, err
+			}
+			observed = append(observed, parsed...)
+		}
 	}
 	digest := diffHash.Sum(nil)
 	idSum := sha256.Sum256([]byte(spec + "\x00" + resolvedBase + "\x00" + resolvedHead + "\x00" + hex.EncodeToString(digest[:])))

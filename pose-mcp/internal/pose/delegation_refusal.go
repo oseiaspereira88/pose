@@ -4,7 +4,11 @@ package pose
 // over MCP (spec pose-delegation-mcp R5). The message stays the engine's; the
 // code names the class a caller acts on.
 
-import "errors"
+import (
+	"errors"
+	"os"
+	"path/filepath"
+)
 
 // Reason codes of a refused delegated run.
 const (
@@ -22,10 +26,30 @@ const (
 const DelegateRootEnv = "POSE_DELEGATE_ROOT"
 
 // SealedCheckoutEnv marks a process a delegated review launched in its sealed
-// checkout. Diagnostic commands that would republish a derived record there
-// (the delivery index) read it and leave the checkout as sealed: a review that
+// checkout, as the path of that checkout. Diagnostic commands that would
+// republish a derived record there (the delivery index) read it and leave the checkout as sealed: a review that
 // changes its subject is invalid (spec pose-validation-evidence-material-binding R7).
 const SealedCheckoutEnv = "POSE_SEALED_CHECKOUT"
+
+// IsSealedCheckout reports whether root is the sealed checkout the environment
+// names. The marker carries the checkout's path, so a fixture or another project
+// a reviewer's process works in is not mistaken for the sealed one.
+func IsSealedCheckout(root string) bool {
+	sealed := os.Getenv(SealedCheckoutEnv)
+	if sealed == "" || root == "" {
+		return false
+	}
+	resolve := func(p string) string {
+		if abs, err := filepath.Abs(p); err == nil {
+			p = abs
+		}
+		if real, err := filepath.EvalSymlinks(p); err == nil {
+			p = real
+		}
+		return filepath.Clean(p)
+	}
+	return resolve(sealed) == resolve(root)
+}
 
 // DelegationRefusal is a refusal with its reason code.
 type DelegationRefusal struct {

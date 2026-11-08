@@ -337,3 +337,31 @@ func TestChangeSetMaterialDigestSeesACopyOfAnUntouchedSource(t *testing.T) {
 		t.Fatalf("editing a copy of an untouched source kept the digest: %q %q", copied.MaterialDigest, edited.MaterialDigest)
 	}
 }
+
+// An explicit range carries the intermediate renames too: a data file created
+// and then moved into an administrative class stays material.
+func TestChangeSetMaterialDigestKeepsAMovedFileMaterialInARange(t *testing.T) {
+	repo := newRemovalRepo(t)
+	repo.write("base.txt", "base\n")
+	base := repo.commit("base")
+	repo.write("data.txt", "data\n")
+	repo.commit("create")
+	if err := os.MkdirAll(filepath.Join(repo.root, ".pose", "results"), 0o755); err != nil {
+		t.Fatal(err)
+	}
+	artifactGit(t, repo.root, "mv", "data.txt", ".pose/results/data.txt")
+	repo.commit("move into a class")
+	moved, err := resolveGitChangeSet(repo.root, "alpha", base, "HEAD")
+	if err != nil {
+		t.Fatal(err)
+	}
+	repo.write(".pose/results/data.txt", "edited\n")
+	repo.commit("edit the destination")
+	edited, err := resolveGitChangeSet(repo.root, "alpha", base, "HEAD")
+	if err != nil {
+		t.Fatal(err)
+	}
+	if moved.MaterialDigest == "" || moved.MaterialDigest == edited.MaterialDigest {
+		t.Fatalf("a range lost the rename into a class: %q %q", moved.MaterialDigest, edited.MaterialDigest)
+	}
+}

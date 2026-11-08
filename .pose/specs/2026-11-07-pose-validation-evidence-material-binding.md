@@ -61,7 +61,7 @@ Caching individual check outputs, skipping checks by heuristic, weakening review
 - R8: A validation run shall record a material binding only when the working copy equals the committed material in every path outside the administrative classes, untracked files included; otherwise it records the binding as unavailable for every scope.
 - R9: Review bundle sealing shall judge material-bound evidence against the current tree, recomputing each change set's digest from its stored inputs (names and rename destinations) instead of trusting the digest the persisted index recorded.
 - R10: The governance read view shall retain at most 40,000 observations (it was 25,000), so that the closeout plan of a corpus of this size, which observes 26,051 entries, is judged `current` instead of `unknown`; the metadata cap rises with it, from 8 MiB to 16 MiB, because 40,000 retained observations no longer fit in 8 MiB; the input-byte cap is unchanged.
-- R7: A delegated review shall run its diagnostics in the sealed checkout without republishing derived records into it: the review process carries `POSE_SEALED_CHECKOUT`, and `refreshDeliveryIndex` leaves the checkout alone when it is set.
+- R7: A delegated review shall run its diagnostics in the sealed checkout without republishing derived records into it: the review process carries `POSE_SEALED_CHECKOUT` set to the checkout's path, and `refreshDeliveryIndex` leaves that checkout alone and no other root.
 
 ### Non-functional
 - A closeout whose administrative commits follow a passing run shall not rerun checks; the decision is computed from git objects, in time proportional to the changed paths.

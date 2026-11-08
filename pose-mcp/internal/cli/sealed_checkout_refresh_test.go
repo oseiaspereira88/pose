@@ -14,8 +14,9 @@ import (
 // pose-validation-evidence-material-binding R7).
 func TestRefreshDeliveryIndexLeavesASealedCheckoutAlone(t *testing.T) {
 	root := t.TempDir()
+	other := t.TempDir()
 	target := filepath.Join(root, ".pose", "indexes", "delivery-integrity.json")
-	t.Setenv(posepkg.SealedCheckoutEnv, "1")
+	t.Setenv(posepkg.SealedCheckoutEnv, root)
 	var stderr bytes.Buffer
 	refreshDeliveryIndex(root, []byte("{}\n"), &stderr)
 	if _, err := os.Stat(target); err == nil {
@@ -23,6 +24,11 @@ func TestRefreshDeliveryIndexLeavesASealedCheckoutAlone(t *testing.T) {
 	}
 	if _, err := os.Stat(filepath.Join(root, ".pose", "indexes")); err == nil {
 		t.Fatal("a sealed checkout gained a directory")
+	}
+	// Another project the same process works in is not the sealed checkout.
+	refreshDeliveryIndex(other, []byte("{}\n"), &stderr)
+	if _, err := os.Stat(filepath.Join(other, ".pose", "indexes", "delivery-integrity.json")); err != nil {
+		t.Fatalf("a fixture was mistaken for the sealed checkout: %v", err)
 	}
 	t.Setenv(posepkg.SealedCheckoutEnv, "")
 	refreshDeliveryIndex(root, []byte("{}\n"), &stderr)
