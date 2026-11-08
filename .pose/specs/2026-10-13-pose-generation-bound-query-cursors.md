@@ -1,8 +1,8 @@
 ---
 slug: pose-generation-bound-query-cursors
-status: in-progress
+status: done
 created_at: 2026-10-13
-completed_at:
+completed_at: 2026-11-08
 depends_on: pose-governance-read-view-generation, pose-obligation-projection
 priority: 1
 components: pose-mcp
