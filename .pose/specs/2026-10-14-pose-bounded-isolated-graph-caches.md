@@ -46,6 +46,8 @@ Esta escrita não implementa o comportamento. Preservar fontes canônicas, layou
 - created: .pose/starts/pose-bounded-isolated-graph-caches.json
 - created: .pose/changelogs/unreleased/pose-bounded-isolated-graph-caches.md
 - created: pose-mcp/internal/pose/bounded_cache.go
+- created: pose-mcp/internal/pose/cache_size.go
+- created: pose-mcp/internal/pose/cache_accounting_test.go
 - created: pose-mcp/internal/pose/bounded_cache_test.go
 - created: pose-mcp/internal/pose/graph_view_isolation_test.go
 - created: pose-mcp/internal/pose/graph_cache_measure_test.go
@@ -87,16 +89,16 @@ Fixtures sintéticas e o índice real do repositório como corpus de medição. 
 
 ### Requirement trace
 - R1 [satisfied] test:TestAViewOfTheGraphDoesNotCopyIt test:TestAViewSeesTheSameGraphEveryTimeAndTheCacheNeverWritesIt check:delivery-integrity-index-compaction-integration
-- R2 [satisfied] test:TestACachedGraphSharesNoReferenceWithItsCopies test:TestMutatingAReadNeverReachesTheNextRead test:TestDeliveryGraphCopyIsolatesProvenanceMaps test:TestDeliveryGraphCopyIsolatesMaterialInputs test:TestADesignDeltaReportIsIsolatedAndBounded
-- R3 [satisfied] test:TestTheGraphCacheKeyIsTheContentNotTheSizeOrTheOwner test:TestTheTestCatalogIsKeyedByTheMatrixAndMeteredPerRoot
-- R4 [satisfied] test:TestBoundedCacheEvictsByBytesNotEntries test:TestBoundedCacheHoldsAnOwnerToItsBudget test:TestBoundedCacheDoesNotRetainWhatExceedsTheBudget test:TestRepeatedReadsAreHitsAndAlternationStaysUnderTheBudget test:TestADesignDeltaReportIsIsolatedAndBounded
-- R5 [satisfied] test:TestBoundedCacheProducesOncePerKeyUnderConcurrentMisses test:TestBoundedCacheDoesNotSerializeIndependentKeys test:TestBoundedCacheWaiterCancellationLeavesTheProducerAndOthers test:TestBoundedCacheDoesNotRememberAFailure test:TestConcurrentMissesOnTheSameIndexParseItOnce
+- R2 [satisfied] test:TestADesignDeltaReportSharesNoReferenceWithItsCopies test:TestACachedGraphSharesNoReferenceWithItsCopies test:TestMutatingAReadNeverReachesTheNextRead test:TestDeliveryGraphCopyIsolatesProvenanceMaps test:TestDeliveryGraphCopyIsolatesMaterialInputs test:TestADesignDeltaReportIsIsolatedAndBounded
+- R3 [satisfied] test:TestADesignDeltaIsAssessedOncePerKeyAndOnlyACompleteOneIsRetained test:TestTheGraphCacheKeyIsTheContentNotTheSizeOrTheOwner test:TestTheTestCatalogIsKeyedByTheMatrixAndMeteredPerRoot
+- R4 [satisfied] test:TestTheEstimateChargesEveryVariableSizedField test:TestTheDesignDeltaBudgetIsPerWorktree test:TestAValueNotRetainedIsNotCopiedForRetention test:TestProductionsAreAdmittedWithinTheInflightBudget test:TestBoundedCacheEvictsByBytesNotEntries test:TestBoundedCacheHoldsAnOwnerToItsBudget test:TestBoundedCacheDoesNotRetainWhatExceedsTheBudget test:TestRepeatedReadsAreHitsAndAlternationStaysUnderTheBudget test:TestADesignDeltaReportIsIsolatedAndBounded
+- R5 [satisfied] test:TestTheNumberOfProductionsIsCapped test:TestWaitersPerKeyAreCappedAndTheRefusedCallerIsToldToProduceForItself test:TestAReservationLargerThanTheBudgetRunsAloneInsteadOfStarving test:TestACopyDoesNotDelayAnotherKey test:TestADesignDeltaIsAssessedOncePerKeyAndOnlyACompleteOneIsRetained test:TestBoundedCacheProducesOncePerKeyUnderConcurrentMisses test:TestBoundedCacheDoesNotSerializeIndependentKeys test:TestBoundedCacheWaiterCancellationLeavesTheProducerAndOthers test:TestBoundedCacheDoesNotRememberAFailure test:TestConcurrentMissesOnTheSameIndexParseItOnce
 - R6 [satisfied] test:TestCommitPathsAreReadOnceAndAFailureIsNotRemembered test:TestTheTestCatalogIsKeyedByTheMatrixAndMeteredPerRoot test:TestBoundedCacheExpiresByTTL
 - R7 [satisfied] test:TestGraphByteEstimateTracksTheMeasuredHeap test:TestTheCostOfDeepIsolationIsMeasured test:TestAViewOfTheGraphDoesNotCopyIt test:TestRepeatedReadsAreHitsAndAlternationStaysUnderTheBudget
 - R8 [satisfied] test:TestBoundedCacheSurvivesAlternatingOwnersUnderRace test:TestACancelledWaiterOnAGraphParseDoesNotAbandonTheOthers check:bounded-isolated-graph-caches-integration
 
 ### Known gaps
-- Measured on the real index (10.9 MB, 6,937 nodes), heap and allocation only, one machine, one corpus, `go test` timings of single runs (no percentile is claimed): the first parse takes 190 ms and a hit through the deep copy 11.5 ms; the deep copy allocates 18.5 MB where the shallow copy it replaces allocated 5.7 MB (7.2 ms against 1.0 ms), which is the price of isolation; a read of one scope's digest through the view allocates 30 KB against 18.5 MB through the copy (4.2 ms against 11.2 ms, most of it hashing the index bytes for the key). Twelve concurrent first reads produce one parse (274 ms wall, eleven waiters coalesced). The retained size is estimated at 61 MB against 23 MB measured heap, an estimate that errs high on purpose. RSS was not measured and no speedup of a whole command is claimed.
+- Measured on the real index (10.9 MB, 6,937 nodes), heap and allocation only, one machine, one corpus, `go test` timings of single runs (no percentile is claimed): the first parse takes 190 ms and a hit through the deep copy 11.5 ms; the deep copy allocates 18.5 MB where the shallow copy it replaces allocated 5.7 MB (7.2 ms against 1.0 ms), which is the price of isolation; a read of one scope's digest through the view allocates 30 KB against 18.5 MB through the copy (4.2 ms against 11.2 ms, most of it hashing the index bytes for the key). Twelve concurrent first reads produce one parse (274 ms wall, eleven waiters coalesced). The retained size is estimated at 54 MB against 23 MB measured heap (walking every field), an estimate that errs high on purpose. RSS was not measured and no speedup of a whole command is claimed.
 - Only two read-only consumers were moved to the view; the other callers of `GetDeliveryIntegrity` keep the deep copy.
 - The view's contract (do not modify or keep the graph) is documented and tested on the cache side, not enforced by the compiler.
 
@@ -105,7 +107,7 @@ Fixtures sintéticas e o índice real do repositório como corpus de medição. 
 ## 7. Final Report
 
 ### Delivered scope
-One bounded cache (bytes, global and per worktree, least recently used, optional expiry) carries the parsed delivery graph, the design-delta report, the test catalog and the paths of a commit. A missed key is produced once however many callers ask; a waiter that leaves does not disturb the producer or the others; a failure is never remembered; a value over its budget is served and not retained. Parsed graphs are keyed by engine, schema and the digest of the bytes, so identical bytes share an entry and nothing is served another worktree's graph. The test catalog is keyed by root and the digest of the validation matrix and expires after 30 seconds. The deep isolation is structural: a reflection test fills every slice, map and pointer of the graph and finds the references a copy shares with the original, which reproduced the aliasing the audit had not reproduced (the node attribute maps and the roadmap criteria refs) and fixed it. Read-only consumers can view the graph without a copy (`ViewDeliveryIntegrity`). Left out: moving every consumer to the view, RSS measurement, any persistent or cross-process cache, any global Git pool.
+One bounded cache (bytes, global and per worktree, least recently used, optional expiry) carries the parsed delivery graph, the design-delta report, the test catalog and the paths of a commit. A missed key is produced once however many callers ask, after reserving the bytes it expects to hold against global and per-worktree in-flight budgets, with a cap on productions and on waiters per key; a waiter that leaves does not disturb the producer or the others; a failure is never remembered; a value over its budget, or declared unretainable, is served and neither retained nor copied for retention; copies run outside the lock. Parsed graphs are keyed by engine, schema and the digest of the bytes, so identical bytes share an entry and nothing is served another worktree's graph. The test catalog is keyed by root and the digest of the validation matrix and expires after 30 seconds. The deep isolation is structural: a reflection test fills every slice, map and pointer of the graph and finds the references a copy shares with the original, which reproduced the aliasing the audit had not reproduced (the node attribute maps and the roadmap criteria refs) and fixed it. Read-only consumers can view the graph without a copy (`ViewDeliveryIntegrity`). Left out: moving every consumer to the view, RSS measurement, any persistent or cross-process cache, any global Git pool.
 
 ### Files and modules changed
 - pose-mcp/internal/pose (bounded_cache.go, delivery_integrity_cache.go, delivery_integrity.go, delegated_verdicts.go, design_delta.go, test_catalog.go, git_spawn_cache.go and their tests)
@@ -116,6 +118,7 @@ One bounded cache (bytes, global and per worktree, least recently used, optional
 - Result: recorded by the sealed validation evidence; independent delegated review by a different vendor, concluded with `pose review conclude`.
 
 ### Residual risks
+- The clone a caller keeps is the caller's memory and is outside the budget; the view exists for readers that keep nothing.
 - A consumer that needs a mutable graph pays about 7 ms and 18 MB per read; moving more consumers to the view lowers it.
 - The estimate of retained bytes errs high, so the cache holds less than its budget in practice.
 - The 30-second expiry of the test catalog is a policy, not a proof of freshness; gates read the matrix digest in the key.

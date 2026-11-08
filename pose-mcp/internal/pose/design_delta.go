@@ -7,6 +7,7 @@ package pose
 
 import (
 	"bytes"
+	"context"
 	"crypto/sha256"
 	"encoding/hex"
 	"encoding/json"
@@ -202,91 +203,105 @@ func AssessDesignDeltaIn(files Files, root string, subject ReviewBundleSubject, 
 	// One `pose check --strict` on this repository made 152 of these calls for 116
 	// distinct digests: 36 repeats at about 62 ms each. Measured before caching,
 	// because a cache for a ratio nobody counted is a guess.
-	if cached, ok := cachedDesignDelta(input); ok {
-		return cached, nil
-	}
-	report := DesignDeltaReport{
-		SchemaVersion: DesignDeltaSchemaVersion,
-		ParserVersion: DesignDeltaParserVersion,
-		Scope:         scope,
-		Status:        "unknown",
-		InputDigest:   input,
-		CacheKey:      input,
-		Subject:       summary,
-		Coverage: DesignDeltaCoverage{
-			FilesInSubject: len(subject.Entries), MaxFiles: options.MaxFiles, MaxBytes: options.MaxBytes,
-			Detectors: []DesignDeltaDetector{},
-		},
-		Deltas: []StructuralDelta{},
-	}
-
-	collector := &designDeltaCollector{
-		files: files,
-		root:  rootAbs, options: options, coverage: report.Coverage,
-		detectors: map[string]*designDeltaDetectorState{}, deltaKeys: map[string]bool{},
-		displayIDs: map[string]string{}, bytesLeft: options.MaxBytes,
-	}
-	collector.gitReader = &gitBatchReader{root: rootAbs}
-	defer collector.gitReader.close()
-	for _, id := range defaultDesignDeltaDetectors() {
-		collector.detectors[id] = &designDeltaDetectorState{}
-	}
-
-	entries := append([]ReviewBundleSubjectEntry{}, subject.Entries...)
-	sort.Slice(entries, func(i, j int) bool { return designDeltaEntryKey(entries[i]) < designDeltaEntryKey(entries[j]) })
-	if len(entries) > options.MaxFiles {
-		collector.coverage.Truncated = true
-		collector.coverage.FilesSkipped = len(entries) - options.MaxFiles
-		collector.warn(fmt.Sprintf("subject has %d entries; only the bounded first %d were assessed", len(entries), options.MaxFiles))
-		entries = entries[:options.MaxFiles]
-	}
-
-	attributed := map[string]ReviewBundlePathAttribution{}
-	for _, attribution := range subject.Attribution {
-		attributed[attribution.Path] = attribution
-	}
-	rangeEntries := []ReviewBundleSubjectEntry{}
-	for _, entry := range entries {
-		// A path the scope's own commits account for is compared over those
-		// commits only; everything else keeps the Base..Head comparison.
-		if attribution, ok := attributed[entry.Path]; ok && entry.Action != "renamed" && len(attribution.Segments) > 0 {
-			collector.observeAttributedEntry(entry, attribution)
-			continue
+	// The report is read from the root's Git objects and files, so the key carries the
+	// root: another clone with the same subject digest may hold other objects. The
+	// production is coordinated per key: simultaneous callers assess once.
+	cacheKey := rootAbs + "\x00" + input
+	assess := func() (DesignDeltaReport, int64, error) {
+		report := DesignDeltaReport{
+			SchemaVersion: DesignDeltaSchemaVersion,
+			ParserVersion: DesignDeltaParserVersion,
+			Scope:         scope,
+			Status:        "unknown",
+			InputDigest:   input,
+			CacheKey:      input,
+			Subject:       summary,
+			Coverage: DesignDeltaCoverage{
+				FilesInSubject: len(subject.Entries), MaxFiles: options.MaxFiles, MaxBytes: options.MaxBytes,
+				Detectors: []DesignDeltaDetector{},
+			},
+			Deltas: []StructuralDelta{},
 		}
-		rangeEntries = append(rangeEntries, entry)
-	}
-	if len(rangeEntries) == 0 {
-		// Nothing needs the range.
-	} else if subject.Base == "" || subject.Head == "" {
-		collector.warn("subject has no immutable base/head; structural comparison is unknown")
-	} else if !designDeltaRevisionRE.MatchString(subject.Base) || !designDeltaRevisionRE.MatchString(subject.Head) {
-		collector.warn("subject base/head is not a safe immutable Git revision")
-	} else {
-		for _, entry := range rangeEntries {
-			collector.observeEntry(subject.Base, subject.Head, entry)
-		}
-	}
 
-	collector.coverage.Detectors = collector.detectorReports()
-	report.Coverage = collector.coverage
-	report.Deltas = append([]StructuralDelta{}, collector.deltas...)
-	report.Warnings = uniqueSorted(collector.warnings)
-	if len(report.Deltas) > 0 || collector.coverage.FilesObserved > 0 {
-		report.Status = "observed"
-	}
-	if collector.coverage.Truncated || collector.hasUnknown() || collector.hasUnsupported() {
-		if report.Status == "unknown" {
-			report.Status = "unknown"
+		collector := &designDeltaCollector{
+			files: files,
+			root:  rootAbs, options: options, coverage: report.Coverage,
+			detectors: map[string]*designDeltaDetectorState{}, deltaKeys: map[string]bool{},
+			displayIDs: map[string]string{}, bytesLeft: options.MaxBytes,
+		}
+		collector.gitReader = &gitBatchReader{root: rootAbs}
+		defer collector.gitReader.close()
+		for _, id := range defaultDesignDeltaDetectors() {
+			collector.detectors[id] = &designDeltaDetectorState{}
+		}
+
+		entries := append([]ReviewBundleSubjectEntry{}, subject.Entries...)
+		sort.Slice(entries, func(i, j int) bool { return designDeltaEntryKey(entries[i]) < designDeltaEntryKey(entries[j]) })
+		if len(entries) > options.MaxFiles {
+			collector.coverage.Truncated = true
+			collector.coverage.FilesSkipped = len(entries) - options.MaxFiles
+			collector.warn(fmt.Sprintf("subject has %d entries; only the bounded first %d were assessed", len(entries), options.MaxFiles))
+			entries = entries[:options.MaxFiles]
+		}
+
+		attributed := map[string]ReviewBundlePathAttribution{}
+		for _, attribution := range subject.Attribution {
+			attributed[attribution.Path] = attribution
+		}
+		rangeEntries := []ReviewBundleSubjectEntry{}
+		for _, entry := range entries {
+			// A path the scope's own commits account for is compared over those
+			// commits only; everything else keeps the Base..Head comparison.
+			if attribution, ok := attributed[entry.Path]; ok && entry.Action != "renamed" && len(attribution.Segments) > 0 {
+				collector.observeAttributedEntry(entry, attribution)
+				continue
+			}
+			rangeEntries = append(rangeEntries, entry)
+		}
+		if len(rangeEntries) == 0 {
+			// Nothing needs the range.
+		} else if subject.Base == "" || subject.Head == "" {
+			collector.warn("subject has no immutable base/head; structural comparison is unknown")
+		} else if !designDeltaRevisionRE.MatchString(subject.Base) || !designDeltaRevisionRE.MatchString(subject.Head) {
+			collector.warn("subject base/head is not a safe immutable Git revision")
 		} else {
-			report.Status = "partial"
+			for _, entry := range rangeEntries {
+				collector.observeEntry(subject.Base, subject.Head, entry)
+			}
 		}
+
+		collector.coverage.Detectors = collector.detectorReports()
+		report.Coverage = collector.coverage
+		report.Deltas = append([]StructuralDelta{}, collector.deltas...)
+		report.Warnings = uniqueSorted(collector.warnings)
+		if len(report.Deltas) > 0 || collector.coverage.FilesObserved > 0 {
+			report.Status = "observed"
+		}
+		if collector.coverage.Truncated || collector.hasUnknown() || collector.hasUnsupported() {
+			if report.Status == "unknown" {
+				report.Status = "unknown"
+			} else {
+				report.Status = "partial"
+			}
+		}
+		if len(report.Deltas) == 0 && collector.coverage.FilesObserved == 0 && len(report.Warnings) == 0 {
+			report.Warnings = []string{"subject contains no structurally assessable entries"}
+		}
+		// Only a complete assessment is remembered. A partial or unknown report comes
+		// from a bound, an unreadable object or a failed read that a later call, after the
+		// objects are fetched or the read repaired, must recompute instead of repeating.
+		size := Unretainable
+		if report.Status == "observed" {
+			size = estimateRetainedBytes(report)
+		}
+		return report, size, nil
 	}
-	if len(report.Deltas) == 0 && collector.coverage.FilesObserved == 0 && len(report.Warnings) == 0 {
-		report.Warnings = []string{"subject contains no structurally assessable entries"}
-	}
-	storeDesignDelta(input, report)
-	return report, nil
+	return designDeltaCache.Get(context.Background(), rootAbs, cacheKey, designDeltaReserve, assess)
 }
+
+// designDeltaReserve is what one assessment is expected to hold while it runs: the
+// blobs it reads are bounded by the options, the collector by the subject.
+const designDeltaReserve = 8 << 20
 
 // AssessDesignDelta reads and writes the filesystem directly; AssessDesignDeltaIn takes the
 // operation's files.
@@ -304,29 +319,10 @@ func AssessDesignDelta(root string, subject ReviewBundleSubject, scope string, o
 // small, but a long-lived server sees every distinct subject.
 var designDeltaCache = newBoundedCache(32<<20, 16<<20, 0, copyDesignDeltaReport)
 
-func cachedDesignDelta(key string) (DesignDeltaReport, bool) { return designDeltaCache.Lookup(key) }
-
-func storeDesignDelta(key string, report DesignDeltaReport) {
-	size := int64(len(key)) + 256
-	for _, d := range report.Deltas {
-		size += int64(len(d.ID)+len(d.Kind)+len(d.Subject)+len(d.Path)+len(d.OldPath)+len(d.NewPath)) + 160
-	}
-	for _, w := range report.Warnings {
-		size += int64(len(w)) + 16
-	}
-	designDeltaCache.Store("design-delta", key, report, size)
-}
-
 // copyDesignDeltaReport copies every slice the report owns.
 // TestDesignDeltaCopyCoversEveryField fails when a field is added without being
 // handled here.
-func copyDesignDeltaReport(in DesignDeltaReport) DesignDeltaReport {
-	out := in
-	out.Deltas = append([]StructuralDelta{}, in.Deltas...)
-	out.Warnings = append([]string{}, in.Warnings...)
-	out.Coverage.Detectors = append([]DesignDeltaDetector{}, in.Coverage.Detectors...)
-	return out
-}
+func copyDesignDeltaReport(in DesignDeltaReport) DesignDeltaReport { return deepCopyValue(in) }
 
 func canonicalDesignDeltaSubject(subject ReviewBundleSubject) ReviewBundleSubject {
 	copy := subject

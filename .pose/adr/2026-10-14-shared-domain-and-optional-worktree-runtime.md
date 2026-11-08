@@ -111,9 +111,18 @@ changed) goes through one cache in the domain package:
 - **Bytes, not entries.** Each value reports its retained size; the cache evicts
   the least recently used entries under a global budget and a budget per owner (a
   worktree root). The parsed-graph budget is 192 MiB global and 96 MiB per
-  worktree, measured in estimated heap bytes, an estimate calibrated against the
-  measured heap of the real index (it errs high, about 2.6 times). A value larger
-  than its budget is served and not retained.
+  worktree. The size is estimated by walking every field of the value (strings,
+  slices, maps, pointers), so no variable-sized field is charged a constant; the
+  estimate is calibrated against the measured heap of the real index (it errs
+  high, about 2.3 times). A value larger than its budget, and a value its producer
+  declares unretainable, is served and neither retained nor copied for retention.
+- **Work in flight.** A production reserves bytes before it runs, globally and per
+  owner, and waits (or leaves with its context) until they fit; the number of
+  concurrent productions and of waiters per key is capped, and a caller refused for
+  lack of waiter capacity produces for itself. Copies run outside the lock, one of a
+  few copy slots each, so a large copy never delays another key. The clone a caller
+  keeps after it returns is the caller's memory and is outside the budget; a reader
+  that only looks up fields uses a view and keeps nothing.
 - **Key.** Parsed graphs are keyed by engine version, schema and the digest of the
   bytes: identical bytes cannot yield a different graph, so two worktrees holding
   the same index share one entry and none is served another's graph; the same size
@@ -121,6 +130,10 @@ changed) goes through one cache in the domain package:
   digest of the validation matrix and expires after 30 seconds, because it reads
   the working tree; a long-lived server never serves a catalog built before the
   tests changed. The commit-paths cache is keyed by root and commit (immutable).
+  The design-delta report is keyed by root and the digest of its subject and
+  options, metered per worktree, assessed once per key, and retained only when
+  complete: a partial or unknown report comes from a bound or a failed read that a
+  later call must recompute.
 - **Misses.** A miss is produced once per key however many callers ask together;
   the production runs outside the lock, so one key never delays another. A waiter
   whose context ends leaves without disturbing the producer or the other waiters.
@@ -128,7 +141,9 @@ changed) goes through one cache in the domain package:
   again. Producers and waiters are bounded by the callers themselves; no pool or
   queue is created.
 - **Isolation.** Every value handed out is a deep copy: the retained one is never
-  shared. Read-only consumers that only look up a few fields use a view
+  shared. The design-delta report is copied by reflection, so a field added later is
+  isolated without anyone remembering it; the graph keeps a hand-written copy
+  because it is hot, and a reflection test holds it to the same standard. Read-only consumers that only look up a few fields use a view
   (`ViewDeliveryIntegrity`), which hands out the retained graph without a copy and
   forbids modifying or keeping it; the cache never writes a retained value. The
   aliasing the audit could not reproduce is reproduced and fixed: the attribute

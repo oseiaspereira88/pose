@@ -182,19 +182,20 @@ func TestDesignDeltaCopyCoversEveryField(t *testing.T) {
 // A memo hit must be an independent value, and a different digest must not be
 // served from a previous one.
 func TestDesignDeltaMemoIsKeyedAndCopied(t *testing.T) {
-	storeDesignDelta("key-a", DesignDeltaReport{Status: "observed", Warnings: []string{"a"},
-		Deltas: []StructuralDelta{{ID: "sd-a"}}})
-	first, ok := cachedDesignDelta("key-a")
+	designDeltaCache.Reset()
+	designDeltaCache.Store("/r", "key-a", DesignDeltaReport{Status: "observed", Warnings: []string{"a"},
+		Deltas: []StructuralDelta{{ID: "sd-a"}}}, 100)
+	first, ok := designDeltaCache.Lookup("key-a")
 	if !ok || first.Deltas[0].ID != "sd-a" {
 		t.Fatalf("memo did not return the stored report: %+v", first)
 	}
 	first.Deltas[0].ID = "mutated"
 	first.Warnings[0] = "mutated"
-	second, ok := cachedDesignDelta("key-a")
+	second, ok := designDeltaCache.Lookup("key-a")
 	if !ok || second.Deltas[0].ID != "sd-a" || second.Warnings[0] != "a" {
 		t.Fatalf("a caller's edit reached the memo: %+v", second)
 	}
-	if _, ok := cachedDesignDelta("key-b"); ok {
+	if _, ok := designDeltaCache.Lookup("key-b"); ok {
 		t.Fatal("an unknown digest was served from the memo")
 	}
 }

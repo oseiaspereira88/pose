@@ -4,6 +4,7 @@ import (
 	"os"
 	"os/exec"
 	"path/filepath"
+	"reflect"
 	"strings"
 	"testing"
 )
@@ -123,22 +124,37 @@ func TestCommitPathsAreReadOnceAndAFailureIsNotRemembered(t *testing.T) {
 
 func TestADesignDeltaReportIsIsolatedAndBounded(t *testing.T) {
 	designDeltaCache.Reset()
-	report := DesignDeltaReport{Deltas: []StructuralDelta{{ID: "d1"}}, Warnings: []string{"w"}}
-	storeDesignDelta("k", report)
-	got, ok := cachedDesignDelta("k")
+	report := DesignDeltaReport{Deltas: []StructuralDelta{{ID: "d1", SharedWith: []string{"other"}}}, Warnings: []string{"w"}}
+	designDeltaCache.Store("/r", "k", report, 100)
+	got, ok := designDeltaCache.Lookup("k")
 	if !ok {
 		t.Fatal("miss")
 	}
 	got.Deltas[0].ID = "mutated"
+	got.Deltas[0].SharedWith[0] = "mutated"
 	got.Warnings[0] = "mutated"
-	again, _ := cachedDesignDelta("k")
-	if again.Deltas[0].ID != "d1" || again.Warnings[0] != "w" {
+	again, _ := designDeltaCache.Lookup("k")
+	if again.Deltas[0].ID != "d1" || again.Deltas[0].SharedWith[0] != "other" || again.Warnings[0] != "w" {
 		t.Fatalf("a caller's write reached the cached report: %+v", again)
 	}
 	for i := 0; i < 2000; i++ {
-		storeDesignDelta("bulk-"+strings.Repeat("x", 4096)+string(rune(i)), DesignDeltaReport{Warnings: []string{strings.Repeat("y", 60000)}})
+		designDeltaCache.Store("/r", "bulk-"+strings.Repeat("x", 100)+string(rune(i)), DesignDeltaReport{}, 1<<20)
 	}
 	if s := designDeltaCache.Stats(); s.Retained > 32<<20 {
 		t.Fatalf("the design-delta cache is not bounded in bytes: %+v", s)
+	}
+}
+
+// The deep copy of the design-delta report covers every field by construction: a
+// reflection test fills every slice, map and pointer and finds what the copy shares.
+func TestADesignDeltaReportSharesNoReferenceWithItsCopies(t *testing.T) {
+	var report DesignDeltaReport
+	populate(reflect.ValueOf(&report).Elem(), 0)
+	copied := copyDesignDeltaReport(report)
+	if !reflect.DeepEqual(report, copied) {
+		t.Fatal("the copy does not equal the original")
+	}
+	if shared := sharedReferences(report, copied); len(shared) != 0 {
+		t.Fatalf("the copy shares references with the original: %v", shared)
 	}
 }

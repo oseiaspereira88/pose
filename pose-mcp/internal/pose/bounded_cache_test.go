@@ -20,7 +20,7 @@ func produceInts(size int64, values ...int) func() ([]int, int64, error) {
 func TestBoundedCacheEvictsByBytesNotEntries(t *testing.T) {
 	c := intCache(100, 0, 0)
 	for i, key := range []string{"a", "b", "c", "d"} {
-		if _, err := c.Get(context.Background(), "o", key, produceInts(40, i)); err != nil {
+		if _, err := c.Get(context.Background(), "o", key, 0, produceInts(40, i)); err != nil {
 			t.Fatal(err)
 		}
 	}
@@ -29,7 +29,7 @@ func TestBoundedCacheEvictsByBytesNotEntries(t *testing.T) {
 		t.Fatalf("100 bytes cannot hold four 40-byte entries: %+v", s)
 	}
 	// The least recently used went first: a and b are gone, c and d stay.
-	if _, err := c.Get(context.Background(), "o", "d", produceInts(40, 9)); err != nil {
+	if _, err := c.Get(context.Background(), "o", "d", 0, produceInts(40, 9)); err != nil {
 		t.Fatal(err)
 	}
 	if c.Stats().Hits != 1 {
@@ -41,7 +41,7 @@ func TestBoundedCacheHoldsAnOwnerToItsBudget(t *testing.T) {
 	c := intCache(1000, 100, 0)
 	for _, owner := range []string{"a", "b"} {
 		for i := 0; i < 5; i++ {
-			if _, err := c.Get(context.Background(), owner, owner+string(rune('0'+i)), produceInts(40, i)); err != nil {
+			if _, err := c.Get(context.Background(), owner, owner+string(rune('0'+i)), 0, produceInts(40, i)); err != nil {
 				t.Fatal(err)
 			}
 		}
@@ -56,7 +56,7 @@ func TestBoundedCacheHoldsAnOwnerToItsBudget(t *testing.T) {
 
 func TestBoundedCacheDoesNotRetainWhatExceedsTheBudget(t *testing.T) {
 	c := intCache(100, 0, 0)
-	v, err := c.Get(context.Background(), "o", "big", produceInts(500, 1, 2, 3))
+	v, err := c.Get(context.Background(), "o", "big", 0, produceInts(500, 1, 2, 3))
 	if err != nil || len(v) != 3 {
 		t.Fatalf("an oversize value must still be served: %v %v", v, err)
 	}
@@ -75,7 +75,7 @@ func TestBoundedCacheProducesOncePerKeyUnderConcurrentMisses(t *testing.T) {
 		wg.Add(1)
 		go func(i int) {
 			defer wg.Done()
-			v, err := c.Get(context.Background(), "o", "k", func() ([]int, int64, error) {
+			v, err := c.Get(context.Background(), "o", "k", 0, func() ([]int, int64, error) {
 				produced.Add(1)
 				<-release
 				return []int{1, 2, 3}, 10, nil
@@ -109,7 +109,7 @@ func TestBoundedCacheDoesNotSerializeIndependentKeys(t *testing.T) {
 	hold := make(chan struct{})
 	started := make(chan struct{})
 	go func() {
-		_, _ = c.Get(context.Background(), "o", "slow", func() ([]int, int64, error) {
+		_, _ = c.Get(context.Background(), "o", "slow", 0, func() ([]int, int64, error) {
 			close(started)
 			<-hold
 			return []int{1}, 1, nil
@@ -118,7 +118,7 @@ func TestBoundedCacheDoesNotSerializeIndependentKeys(t *testing.T) {
 	<-started
 	done := make(chan struct{})
 	go func() {
-		_, _ = c.Get(context.Background(), "o", "fast", produceInts(1, 2))
+		_, _ = c.Get(context.Background(), "o", "fast", 0, produceInts(1, 2))
 		close(done)
 	}()
 	select {
@@ -141,19 +141,19 @@ func TestBoundedCacheWaiterCancellationLeavesTheProducerAndOthers(t *testing.T) 
 	}
 	producerDone := make(chan []int, 1)
 	go func() {
-		v, _ := c.Get(context.Background(), "o", "k", produce)
+		v, _ := c.Get(context.Background(), "o", "k", 0, produce)
 		producerDone <- v
 	}()
 	<-started
 	ctx, cancel := context.WithCancel(context.Background())
 	cancelled := make(chan error, 1)
 	go func() {
-		_, err := c.Get(ctx, "o", "k", produce)
+		_, err := c.Get(ctx, "o", "k", 0, produce)
 		cancelled <- err
 	}()
 	patient := make(chan []int, 1)
 	go func() {
-		v, _ := c.Get(context.Background(), "o", "k", produce)
+		v, _ := c.Get(context.Background(), "o", "k", 0, produce)
 		patient <- v
 	}()
 	time.Sleep(30 * time.Millisecond)
@@ -173,10 +173,10 @@ func TestBoundedCacheWaiterCancellationLeavesTheProducerAndOthers(t *testing.T) 
 func TestBoundedCacheDoesNotRememberAFailure(t *testing.T) {
 	c := intCache(1000, 0, 0)
 	boom := errors.New("boom")
-	if _, err := c.Get(context.Background(), "o", "k", func() ([]int, int64, error) { return nil, 0, boom }); !errors.Is(err, boom) {
+	if _, err := c.Get(context.Background(), "o", "k", 0, func() ([]int, int64, error) { return nil, 0, boom }); !errors.Is(err, boom) {
 		t.Fatalf("got %v", err)
 	}
-	v, err := c.Get(context.Background(), "o", "k", produceInts(1, 5))
+	v, err := c.Get(context.Background(), "o", "k", 0, produceInts(1, 5))
 	if err != nil || v[0] != 5 {
 		t.Fatalf("a failure was memorized as the answer: %v %v", v, err)
 	}
@@ -189,9 +189,9 @@ func TestBoundedCacheExpiresByTTL(t *testing.T) {
 	c := intCache(1000, 0, time.Minute)
 	now := time.Now()
 	c.now = func() time.Time { return now }
-	_, _ = c.Get(context.Background(), "o", "k", produceInts(1, 1))
+	_, _ = c.Get(context.Background(), "o", "k", 0, produceInts(1, 1))
 	now = now.Add(2 * time.Minute)
-	_, _ = c.Get(context.Background(), "o", "k", produceInts(1, 2))
+	_, _ = c.Get(context.Background(), "o", "k", 0, produceInts(1, 2))
 	if s := c.Stats(); s.Expired != 1 || s.Misses != 2 || s.Hits != 0 {
 		t.Fatalf("an expired entry was served: %+v", s)
 	}
@@ -207,7 +207,7 @@ func TestBoundedCacheSurvivesAlternatingOwnersUnderRace(t *testing.T) {
 			for i := 0; i < 300; i++ {
 				owner := string(rune('a' + (i+g)%4))
 				key := owner + string(rune('0'+i%7))
-				v, err := c.Get(context.Background(), owner, key, produceInts(100, i))
+				v, err := c.Get(context.Background(), owner, key, 0, produceInts(100, i))
 				if err != nil {
 					t.Error(err)
 					return

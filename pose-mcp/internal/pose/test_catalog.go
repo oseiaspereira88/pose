@@ -68,7 +68,7 @@ func LoadTestCatalog(root string) *TestCatalog {
 	matrix, _ := os.ReadFile(filepath.Join(abs, ".pose", "indexes", "validation-matrix.json"))
 	sum := sha256.Sum256(matrix)
 	key := fmt.Sprintf("%s|%s|%x", engineVersion, abs, sum[:8])
-	catalog, err := testCatalogCache.Get(context.Background(), abs, key, func() (*TestCatalog, int64, error) {
+	catalog, err := testCatalogCache.Get(context.Background(), abs, key, 4<<20, func() (*TestCatalog, int64, error) {
 		built := buildTestCatalog(abs)
 		if built == nil {
 			// Git could not list the tree: that is not an empty catalog, and it is not remembered.

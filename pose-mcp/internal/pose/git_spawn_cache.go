@@ -29,7 +29,7 @@ var commitPaths = newBoundedCache(64<<20, 32<<20, 0, func(m map[string]bool) map
 // once when several callers ask together). ok is false when Git cannot answer; a
 // failure is not remembered.
 func commitChangedPaths(root, commit string) (map[string]bool, bool) {
-	paths, err := commitPaths.Get(context.Background(), root, root+"\x00"+commit, func() (map[string]bool, int64, error) {
+	paths, err := commitPaths.Get(context.Background(), root, root+"\x00"+commit, 1<<16, func() (map[string]bool, int64, error) {
 		raw, err := gitCommand("-C", root, "diff-tree", "--root", "--no-commit-id", "--name-only", "--no-renames", "-r", "-z", commit).Output()
 		if err != nil {
 			return nil, 0, err

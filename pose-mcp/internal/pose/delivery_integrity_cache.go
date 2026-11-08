@@ -53,13 +53,19 @@ func DeliveryGraphCacheStats() CacheStats { return deliveryGraphCache.Stats() }
 func parseDeliveryIntegrityGraph(owner string, raw []byte) (DeliveryIntegrityGraph, bool) {
 	sum := sha256.Sum256(raw)
 	key := fmt.Sprintf("%s|%d|%x", engineVersion, len(raw), sum)
-	graph, err := deliveryGraphCache.Get(context.Background(), owner, key, func() (DeliveryIntegrityGraph, int64, error) {
+	produce := func() (DeliveryIntegrityGraph, int64, error) {
 		parsed, ok := decodeDeliveryIntegrityIndex(raw)
 		if !ok {
 			return DeliveryIntegrityGraph{}, 0, errInvalidDeliveryIndex
 		}
 		return parsed, estimateGraphBytes(parsed), nil
-	})
+	}
+	graph, err := deliveryGraphCache.Get(context.Background(), owner, key, graphParseReserve(raw), produce)
+	if errors.Is(err, ErrCacheBusy) {
+		// Too many callers already wait on this key: parse for this one, uncached.
+		parsed, _, perr := produce()
+		return parsed, perr == nil
+	}
 	if err != nil {
 		return DeliveryIntegrityGraph{}, false
 	}
@@ -73,13 +79,21 @@ func parseDeliveryIntegrityGraph(owner string, raw []byte) (DeliveryIntegrityGra
 func viewDeliveryIntegrityGraph(owner string, raw []byte, fn func(DeliveryIntegrityGraph)) bool {
 	sum := sha256.Sum256(raw)
 	key := fmt.Sprintf("%s|%d|%x", engineVersion, len(raw), sum)
-	err := deliveryGraphCache.View(context.Background(), owner, key, func() (DeliveryIntegrityGraph, int64, error) {
+	produce := func() (DeliveryIntegrityGraph, int64, error) {
 		parsed, ok := decodeDeliveryIntegrityIndex(raw)
 		if !ok {
 			return DeliveryIntegrityGraph{}, 0, errInvalidDeliveryIndex
 		}
 		return parsed, estimateGraphBytes(parsed), nil
-	}, fn)
+	}
+	err := deliveryGraphCache.View(context.Background(), owner, key, graphParseReserve(raw), produce, fn)
+	if errors.Is(err, ErrCacheBusy) {
+		parsed, _, perr := produce()
+		if perr == nil {
+			fn(parsed)
+		}
+		return perr == nil
+	}
 	return err == nil
 }
 
@@ -102,64 +116,14 @@ func (s Store) ViewDeliveryIntegrity(fn func(DeliveryIntegrityGraph)) error {
 
 var errInvalidDeliveryIndex = errors.New("pose: invalid delivery-integrity index")
 
-// estimateGraphBytes estimates the heap a parsed graph retains: string bytes plus a
-// fixed cost per string header, slice element and map entry. It is calibrated against
-// the measured heap of the real index (TestGraphByteEstimateTracksTheMeasuredHeap),
-// not claimed exact.
-func estimateGraphBytes(g DeliveryIntegrityGraph) int64 {
-	const header, entry = 16, 48
-	str := func(s string) int64 { return int64(len(s)) + header }
-	var n int64
-	for _, node := range g.Nodes {
-		n += str(node.ID) + str(node.Type) + 64
-		for k, v := range node.Attributes {
-			n += str(k) + str(v) + entry
-		}
-	}
-	for _, e := range g.Edges {
-		n += str(e.From) + str(e.To) + str(e.Type) + 24
-	}
-	for _, c := range g.Claims {
-		n += str(c.Spec) + str(c.Path) + str(c.Action) + str(c.OldPath) + str(c.NewPath) + 48
-	}
-	for _, set := range g.ChangeSets {
-		n += str(set.ID) + str(set.Spec) + str(set.Selector) + str(set.Base) + str(set.Head) + str(set.ResolvedBase) + str(set.ResolvedHead) + str(set.DiffDigest) + str(set.MaterialDigest) + 96
-		for _, c := range set.Commits {
-			n += str(c)
-		}
-		for _, p := range set.Paths {
-			n += str(p.Action) + str(p.Path) + str(p.OldPath) + str(p.NewPath) + 24
-		}
-	}
-	for k, v := range g.Reverse {
-		n += str(k) + entry
-		for _, s := range v {
-			n += str(s)
-		}
-	}
-	for k, v := range g.Paths {
-		n += str(k) + entry
-		for _, s := range v {
-			n += str(s)
-		}
-	}
-	for _, f := range g.Findings {
-		n += str(f.ID) + str(f.Code) + str(f.Severity) + str(f.Spec) + str(f.Path) + str(f.ChangeSet) + str(f.Message) + str(f.Remediation) + 32
-	}
-	for _, d := range g.Deliveries {
-		n += int64(len(d.Ref)) + 96
-	}
-	for _, r := range g.ValidationResults {
-		n += str(r.ID) + str(r.Module) + str(r.Check) + str(r.EvidenceClass) + str(r.Outcome) + str(r.GitHead) + str(r.Report) + 96
-		for k, v := range r.ScopeProvenance {
-			n += str(k) + str(v) + entry
-		}
-		for k, v := range r.MaterialProvenance {
-			n += str(k) + str(v) + entry
-		}
-	}
-	return n + int64(len(g.RoadmapCriteria)+len(g.Archivals)+len(g.Removals))*128
-}
+// estimateGraphBytes estimates the heap a parsed graph retains by walking every
+// field of it (see estimateRetainedBytes), so no variable-sized field is charged a
+// constant. TestGraphByteEstimateTracksTheMeasuredHeap calibrates it on the real index.
+func estimateGraphBytes(g DeliveryIntegrityGraph) int64 { return estimateRetainedBytes(g) }
+
+// graphParseReserve is what a parse is expected to hold while it runs: the bytes
+// being decoded and the graph being built.
+func graphParseReserve(raw []byte) int64 { return int64(len(raw)) * 4 }
 
 // decodeDeliveryIntegrityIndex reads schema 1, written as the expanded graph, and
 // schema 2, which stores validation runs and sets once. Any other schema is not

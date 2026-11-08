@@ -143,7 +143,7 @@ func TestACancelledWaiterOnAGraphParseDoesNotAbandonTheOthers(t *testing.T) {
 	started := make(chan struct{})
 	release := make(chan struct{})
 	go func() {
-		_, _ = deliveryGraphCache.Get(context.Background(), "o", "k-slow", func() (DeliveryIntegrityGraph, int64, error) {
+		_, _ = deliveryGraphCache.Get(context.Background(), "o", "k-slow", 0, func() (DeliveryIntegrityGraph, int64, error) {
 			close(started)
 			<-release
 			g, _ := decodeDeliveryIntegrityIndex(raw)
@@ -151,7 +151,7 @@ func TestACancelledWaiterOnAGraphParseDoesNotAbandonTheOthers(t *testing.T) {
 		})
 	}()
 	<-started
-	if _, err := deliveryGraphCache.Get(ctx, "o", "k-slow", nil); err == nil {
+	if _, err := deliveryGraphCache.Get(ctx, "o", "k-slow", 0, nil); err == nil {
 		t.Fatal("a cancelled waiter was served")
 	}
 	close(release)
