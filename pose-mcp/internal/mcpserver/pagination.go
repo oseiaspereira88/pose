@@ -149,6 +149,17 @@ func generationSignature(root string) string {
 			return
 		}
 		fmt.Fprintf(&b, "|%d:%o:%d", info.Size(), info.Mode(), info.ModTime().UnixNano())
+		// The reader follows links: a link's target string and the target's own
+		// metadata are what the verification saw.
+		if info.Mode()&os.ModeSymlink != 0 {
+			target, _ := os.Readlink(path)
+			fmt.Fprintf(&b, ">%s", target)
+			if resolved, err := os.Stat(path); err == nil {
+				fmt.Fprintf(&b, ":%d:%o:%d", resolved.Size(), resolved.Mode(), resolved.ModTime().UnixNano())
+			} else {
+				b.WriteString(":dangling")
+			}
+		}
 	}
 	for _, f := range desc.Files {
 		stat(filepath.Join(dir, "generations", desc.GenerationID, f.Name))

@@ -1027,6 +1027,9 @@ func (s *Server) dispatch(ctx context.Context, name string, args json.RawMessage
 		if err := decoder.Decode(&a); err != nil {
 			return nil, fmt.Errorf("pose_list_specs: invalid arguments: %v", err)
 		}
+		if err := requirePositiveLimit("pose_list_specs", args); err != nil {
+			return nil, err
+		}
 		// An explicit null is a value, not an omission: decoding would turn
 		// it into "no filter" and widen the listing.
 		var present map[string]json.RawMessage
@@ -1098,7 +1101,12 @@ func (s *Server) dispatch(ctx context.Context, name string, args json.RawMessage
 		if !sinceDate.IsZero() {
 			sinceFilter = sinceDate.Format("2006-01-02")
 		}
+		// The listing is in slug order unless a date order is asked for, so an omitted
+		// sort and an explicit "slug" are the same query.
 		effectiveSort := a.Sort
+		if effectiveSort == "" {
+			effectiveSort = "slug"
+		}
 		if recent > 0 {
 			effectiveSort = "date"
 		}

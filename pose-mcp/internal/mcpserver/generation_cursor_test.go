@@ -245,3 +245,31 @@ func TestAnAliasOfLimitOrCursorIsRefused(t *testing.T) {
 		}
 	}
 }
+
+func TestACursorAliasCannotRestartAWalk(t *testing.T) {
+	ts, _ := cursorServer(t, 7)
+	first, _, _ := cursorCall(t, ts, "pose_list_specs", map[string]any{"limit": 3})
+	cursor, _ := first["next_cursor"].(string)
+	for _, alias := range []string{"Cursor", "CURSOR"} {
+		args, _ := json.Marshal(map[string]any{"limit": 3, "cursor": cursor, alias: ""})
+		_, out := post(t, ts, fmt.Sprintf(`{"jsonrpc":"2.0","id":1,"method":"tools/call","params":{"name":"pose_list_specs","arguments":%s}}`, args))
+		if isErr, _ := out.Result["isError"].(bool); !isErr {
+			t.Errorf("a %s alias restarted or altered a continuation", alias)
+		}
+	}
+}
+
+func TestAnOmittedSortAndSlugSortAreTheSameQuery(t *testing.T) {
+	ts, _ := cursorServer(t, 7)
+	omitted, _, _ := cursorCall(t, ts, "pose_list_specs", map[string]any{"limit": 3})
+	explicit, _, _ := cursorCall(t, ts, "pose_list_specs", map[string]any{"limit": 3, "sort": "slug"})
+	a, _ := json.Marshal(omitted["specs"])
+	b, _ := json.Marshal(explicit["specs"])
+	if string(a) != string(b) {
+		t.Fatalf("the default order is not slug order: %s vs %s", a, b)
+	}
+	cursor, _ := omitted["next_cursor"].(string)
+	if _, isErr, text := cursorCall(t, ts, "pose_list_specs", map[string]any{"limit": 3, "cursor": cursor, "sort": "slug"}); isErr {
+		t.Fatalf("an equivalent sort was treated as another query: %s", text)
+	}
+}

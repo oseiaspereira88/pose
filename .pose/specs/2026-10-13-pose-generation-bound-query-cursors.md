@@ -101,10 +101,10 @@ Qualificar as consultas alteradas, cursor stale e mudança de geração com fixt
 Os casos da tabela são objetivos de cobertura e podem compartilhar fixtures e execuções. Reusar corpus e controles das fundações sem recriar sua qualificação inteira. Qualquer ensaio adicional deve responder a risco, contrato ou finding identificado, com escopo e limite definidos.
 
 ### Requirement trace
-- R1 [satisfied] test:TestPageByGenerationWalksTheCollectionExactlyOnce test:TestACursorStaysWithItsQuery test:TestEquivalentFiltersShareACursor check:generation-bound-query-cursors-integration
+- R1 [satisfied] test:TestAnOmittedSortAndSlugSortAreTheSameQuery test:TestPageByGenerationWalksTheCollectionExactlyOnce test:TestACursorStaysWithItsQuery test:TestEquivalentFiltersShareACursor check:generation-bound-query-cursors-integration
 - R2 [satisfied] test:TestACursorIsRefusedWhenTheCollectionChanged test:TestACursorIsRefusedAfterTheCollectionChangesBetweenPages test:TestACursorIsRefusedWhenAReturnedFieldChanges
-- R3 [satisfied] test:TestAnIssuedCursorStaysWithinTheSizeBoundForHugeFilters test:TestHostileCursorsAreRefusedNotCoerced test:TestAnExpiredCursorIsRefused test:TestAPositionOutsideTheCollectionIsRefused test:TestAHostileCursorIsRefusedOverMCP
-- R4 [satisfied] test:TestAPageCarriesTheIndexReadersStatusReasonAndDivergedFiles test:TestAPageStatesItsCostAndGenerationStatus test:TestEveryPageDisclosesItsGenerationAndCollection test:TestPageByGenerationWalksTheCollectionExactlyOnce
+- R3 [satisfied] test:TestACursorAliasCannotRestartAWalk test:TestAnIssuedCursorStaysWithinTheSizeBoundForHugeFilters test:TestHostileCursorsAreRefusedNotCoerced test:TestAnExpiredCursorIsRefused test:TestAPositionOutsideTheCollectionIsRefused test:TestAHostileCursorIsRefusedOverMCP
+- R4 [satisfied] test:TestAReusedGenerationSeesASymlinkTargetChange test:TestAPageCarriesTheIndexReadersStatusReasonAndDivergedFiles test:TestAPageStatesItsCostAndGenerationStatus test:TestEveryPageDisclosesItsGenerationAndCollection test:TestPageByGenerationWalksTheCollectionExactlyOnce
 - R5 [satisfied] test:TestAPageDoesNotReverifyAnUnchangedGeneration test:TestEveryPageStatesItsCost test:TestPageByGenerationClampsAndDisclosesTheLimit test:TestPageLimitIsBoundedAndDisclosed
 - R6 [satisfied] test:TestAnAliasOfLimitOrCursorIsRefused test:TestAnExplicitNonPositiveLimitIsRefusedOnEveryPaginatedTool test:TestAContinuationWithoutALimitIsStillABoundedPage test:TestAContinuationWithoutALimitIsBoundedOverMCP test:TestACursorDoesNotSurviveAnotherServerProcess test:TestAnExpiredCursorIsRefused
 - R7 [satisfied] test:TestPageByGenerationWithoutCursorOrLimitIsTheLegacyCall test:TestPaginationOmittedIsUnpaginatedAndBackwardCompatible test:TestHostileCursorsAreRefusedNotCoerced
@@ -140,5 +140,4 @@ Paginated MCP list tools continue a query over the collection the cursor was iss
 
 ### Follow-ups
 
-- [open] Canonicalize the default ordering of `pose_list_specs` (an omitted `sort` and an explicit `sort: slug` bind different cursors although they may list the same order), once the domain states its default order. (owner:@pose-maintainers crit:low review:2027-01-08)
 - [open] Give the list collections an index so that `limit` bounds the read, parse and copy work instead of only the page size, then measure it against the corpus. (owner:@pose-maintainers crit:low review:2027-01-08)

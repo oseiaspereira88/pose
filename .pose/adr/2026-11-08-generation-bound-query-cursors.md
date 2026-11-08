@@ -36,7 +36,8 @@ A cursor is a signed token that continues one query over one collection.
 - **Query binding:** the project and the canonical filters are digested into the
   token, so its size does not depend on the filters; equivalent filters (lists
   trimmed, case-folded, de-duplicated and sorted; `recent` implies date
-  ordering) bind the same cursor.
+  ordering; an omitted `sort` is `slug`, the listing's default order) bind the
+  same cursor.
 - **Generation and race:** the index generation is read before the collection
   and again before the page is labelled; a publication in between refuses the
   call (retry) instead of mislabelling items, and the generation status, reason
@@ -44,7 +45,8 @@ A cursor is a signed token that continues one query over one collection.
   generation reads and hashes every index file (tens of megabytes on this
   corpus), so the verification is reused per project while the descriptor and
   the files it names, with their legacy counterparts, keep the same size, mode
-  and modification time; a page after the first reads only the collection.
+  and modification time (and, for a link, the same target and target
+  metadata); a page after the first reads only the collection.
 - **Bounds:** a token is at most 2048 bytes (checked on issue as well as on
   receipt) and lives 15 minutes; a page is at most 500 items (a larger `limit`
   is clamped and the clamp is disclosed), and a continuation without `limit` is

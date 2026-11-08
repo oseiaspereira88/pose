@@ -146,3 +146,52 @@ func TestAPageDoesNotReverifyAnUnchangedGeneration(t *testing.T) {
 		t.Fatalf("a changed legacy file was not seen after the reuse: %+v", page)
 	}
 }
+
+func TestAReusedGenerationSeesASymlinkTargetChange(t *testing.T) {
+	root := t.TempDir()
+	for i := 0; i < 3; i++ {
+		writePaddedSpec(t, root, fmt.Sprintf("spec-%03d", i))
+	}
+	outputs := map[string][]byte{}
+	for _, name := range pose.IndexGenerationFiles {
+		outputs[name] = []byte("[]\n")
+	}
+	if _, err := (pose.Store{Root: root}).PublishIndexGeneration(outputs, map[string]string{"specs": "sha256:a"}); err != nil {
+		t.Fatal(err)
+	}
+	idx := filepath.Join(root, ".pose", "indexes")
+	// A legacy file that is a link to a copy with the generation's bytes: not diverged.
+	good := filepath.Join(idx, "good-copy.json")
+	if err := os.WriteFile(good, outputs["packages.json"], 0o644); err != nil {
+		t.Fatal(err)
+	}
+	link := filepath.Join(idx, "packages.json")
+	_ = os.Remove(link)
+	if err := os.Symlink("good-copy.json", link); err != nil {
+		t.Fatal(err)
+	}
+	ts := httptest.NewServer(New(pose.Store{Root: root}).Handler("", ""))
+	defer ts.Close()
+	diverged := func() []any {
+		_, out := post(t, ts, `{"jsonrpc":"2.0","id":1,"method":"tools/call","params":{"name":"pose_list_specs","arguments":{"limit":2}}}`)
+		sc, _ := out.Result["structuredContent"].(map[string]any)
+		page, _ := sc["page"].(map[string]any)
+		d, _ := page["generation_diverged"].([]any)
+		return d
+	}
+	if d := diverged(); len(d) != 0 {
+		t.Fatalf("a link to identical bytes diverged: %v", d)
+	}
+	// Retarget the link at different bytes: the cached verification must not hide it.
+	bad := filepath.Join(idx, "bad-copy.json")
+	if err := os.WriteFile(bad, []byte("{\"changed\":true}\n"), 0o644); err != nil {
+		t.Fatal(err)
+	}
+	_ = os.Remove(link)
+	if err := os.Symlink("bad-copy.json", link); err != nil {
+		t.Fatal(err)
+	}
+	if d := diverged(); len(d) != 1 || d[0] != "packages.json" {
+		t.Fatalf("a retargeted link was not seen after the reuse: %v", d)
+	}
+}
