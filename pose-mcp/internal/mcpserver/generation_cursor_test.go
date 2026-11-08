@@ -181,3 +181,30 @@ func TestAContinuationWithoutALimitIsBoundedOverMCP(t *testing.T) {
 		t.Fatalf("a continuation without limit returned %v items, want %d", got, pose.GenerationPageMax)
 	}
 }
+
+func TestAnExplicitNonPositiveLimitIsRefusedOnEveryPaginatedTool(t *testing.T) {
+	ts, _ := cursorServer(t, 3)
+	for _, tool := range []string{"pose_list_specs", "pose_list_roadmaps", "pose_list_knowledge", "pose_list_reports", "pose_capability_history"} {
+		for _, limit := range []any{0, -1, nil} {
+			if _, isErr, _ := cursorCall(t, ts, tool, map[string]any{"limit": limit}); !isErr {
+				t.Errorf("%s accepted limit %v", tool, limit)
+			}
+		}
+	}
+	if _, isErr, text := cursorCall(t, ts, "pose_list_roadmaps", map[string]any{}); isErr {
+		t.Fatalf("omitting the limit is the legacy call and must work: %s", text)
+	}
+}
+
+func TestAPageCarriesTheIndexReadersStatus(t *testing.T) {
+	ts, root := cursorServer(t, 3)
+	idx := filepath.Join(root, ".pose", "indexes")
+	if err := os.MkdirAll(idx, 0o755); err != nil {
+		t.Fatal(err)
+	}
+	result, isErr, _ := cursorCall(t, ts, "pose_list_specs", map[string]any{"limit": 2})
+	page, _ := result["page"].(map[string]any)
+	if isErr || page["generation_status"] == nil {
+		t.Fatalf("a page must carry the status the index reader reported: %v %+v", isErr, page)
+	}
+}

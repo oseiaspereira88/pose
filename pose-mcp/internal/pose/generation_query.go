@@ -72,12 +72,17 @@ type GenerationQuery struct {
 type GenerationPage struct {
 	Generation       string `json:"generation"`
 	GenerationStatus string `json:"generation_status,omitempty"`
-	Collection       string `json:"collection"`
-	Position         int    `json:"position"`
-	Total            int    `json:"total"`
-	LimitApplied     int    `json:"limit_applied,omitempty"`
-	Cost             string `json:"cost"`
-	Disclosure       string `json:"disclosure"`
+	// GenerationDiverged names the legacy index files whose bytes are not those of
+	// the verified generation, and GenerationReason is the index reader's reason: a
+	// whole generation can be current while the files beside it were edited by hand.
+	GenerationDiverged []string `json:"generation_diverged,omitempty"`
+	GenerationReason   string   `json:"generation_reason,omitempty"`
+	Collection         string   `json:"collection"`
+	Position           int      `json:"position"`
+	Total              int      `json:"total"`
+	LimitApplied       int      `json:"limit_applied,omitempty"`
+	Cost               string   `json:"cost"`
+	Disclosure         string   `json:"disclosure"`
 }
 
 // GenerationPageCost states what a page costs: these list tools load their whole

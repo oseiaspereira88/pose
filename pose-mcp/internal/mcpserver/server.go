@@ -960,6 +960,9 @@ func (s *Server) dispatch(ctx context.Context, name string, args json.RawMessage
 		if err := json.Unmarshal(args, &a); err != nil {
 			return nil, fmt.Errorf("pose_capability_history: invalid arguments")
 		}
+		if err := requirePositiveLimit("pose_capability_history", args); err != nil {
+			return nil, err
+		}
 		genBefore := pageGeneration(store)
 		events, err := pose.LoadCapabilityHistory(store.CapabilityHistoryPath())
 		if err != nil {
@@ -1090,8 +1093,8 @@ func (s *Server) dispatch(ctx context.Context, name string, args json.RawMessage
 			specs = specs[:recent]
 		}
 		sinceFilter := ""
-		if a.Since != nil {
-			sinceFilter = *a.Since
+		if !sinceDate.IsZero() {
+			sinceFilter = sinceDate.Format("2006-01-02")
 		}
 		effectiveSort := a.Sort
 		if recent > 0 {
@@ -1652,6 +1655,9 @@ func (s *Server) dispatch(ctx context.Context, name string, args json.RawMessage
 		if err := json.Unmarshal(args, &a); err != nil {
 			return nil, fmt.Errorf("pose_list_roadmaps: invalid arguments")
 		}
+		if err := requirePositiveLimit("pose_list_roadmaps", args); err != nil {
+			return nil, err
+		}
 		genBefore := pageGeneration(store)
 		roadmaps, err := store.ListRoadmaps()
 		if err != nil {
@@ -1834,6 +1840,9 @@ func (s *Server) dispatch(ctx context.Context, name string, args json.RawMessage
 		if err := json.Unmarshal(args, &a); err != nil {
 			return nil, fmt.Errorf("pose_list_knowledge: invalid arguments")
 		}
+		if err := requirePositiveLimit("pose_list_knowledge", args); err != nil {
+			return nil, err
+		}
 		genBefore := pageGeneration(store)
 		items, err := store.ListKnowledge()
 		if err != nil {
@@ -1863,6 +1872,9 @@ func (s *Server) dispatch(ctx context.Context, name string, args json.RawMessage
 		}
 		if err := json.Unmarshal(args, &a); err != nil {
 			return nil, fmt.Errorf("pose_list_reports: invalid arguments")
+		}
+		if err := requirePositiveLimit("pose_list_reports", args); err != nil {
+			return nil, err
 		}
 		genBefore := pageGeneration(store)
 		reports, err := store.ListReports()

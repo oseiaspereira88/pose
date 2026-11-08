@@ -103,9 +103,9 @@ Os casos da tabela são objetivos de cobertura e podem compartilhar fixtures e e
 - R1 [satisfied] test:TestPageByGenerationWalksTheCollectionExactlyOnce test:TestACursorStaysWithItsQuery test:TestEquivalentFiltersShareACursor check:generation-bound-query-cursors-integration
 - R2 [satisfied] test:TestACursorIsRefusedWhenTheCollectionChanged test:TestACursorIsRefusedAfterTheCollectionChangesBetweenPages test:TestACursorIsRefusedWhenAReturnedFieldChanges
 - R3 [satisfied] test:TestAnIssuedCursorStaysWithinTheSizeBoundForHugeFilters test:TestHostileCursorsAreRefusedNotCoerced test:TestAnExpiredCursorIsRefused test:TestAPositionOutsideTheCollectionIsRefused test:TestAHostileCursorIsRefusedOverMCP
-- R4 [satisfied] test:TestAPageStatesItsCostAndGenerationStatus test:TestEveryPageDisclosesItsGenerationAndCollection test:TestPageByGenerationWalksTheCollectionExactlyOnce
+- R4 [satisfied] test:TestAPageCarriesTheIndexReadersStatus test:TestAPageStatesItsCostAndGenerationStatus test:TestEveryPageDisclosesItsGenerationAndCollection test:TestPageByGenerationWalksTheCollectionExactlyOnce
 - R5 [satisfied] test:TestEveryPageStatesItsCost test:TestPageByGenerationClampsAndDisclosesTheLimit test:TestPageLimitIsBoundedAndDisclosed
-- R6 [satisfied] test:TestAContinuationWithoutALimitIsStillABoundedPage test:TestAContinuationWithoutALimitIsBoundedOverMCP test:TestACursorDoesNotSurviveAnotherServerProcess test:TestAnExpiredCursorIsRefused
+- R6 [satisfied] test:TestAnExplicitNonPositiveLimitIsRefusedOnEveryPaginatedTool test:TestAContinuationWithoutALimitIsStillABoundedPage test:TestAContinuationWithoutALimitIsBoundedOverMCP test:TestACursorDoesNotSurviveAnotherServerProcess test:TestAnExpiredCursorIsRefused
 - R7 [satisfied] test:TestPageByGenerationWithoutCursorOrLimitIsTheLegacyCall test:TestPaginationOmittedIsUnpaginatedAndBackwardCompatible test:TestHostileCursorsAreRefusedNotCoerced
 - R8 [satisfied] test:TestACursorIsRefusedWhenTheCollectionChanged test:TestACursorStaysWithItsToolAndFilters test:TestACursorDoesNotSurviveAnotherServerProcess
 
@@ -131,10 +131,12 @@ Paginated MCP list tools continue a query over the collection the cursor was iss
 
 ### Residual risks
 - A cursor never outlives the server process; clients must restart a walk after a restart.
+- A page discloses the index reader's status, reason and the legacy files that diverge from the verified generation.
 - A publication of the index generation between reading the collection and labelling the page is refused (retry), not mislabelled; an unavailable or diverged generation is disclosed in `generation_status`.
 - The total is a full scan of the recomputed collection for these tools.
 - A page is a navigation view: gates and effects read current inputs and must not consume a page.
 
 ### Follow-ups
 
+- [open] Canonicalize the default ordering of `pose_list_specs` (an omitted `sort` and an explicit `sort: slug` bind different cursors although they may list the same order), once the domain states its default order. (owner:@pose-maintainers crit:low review:2027-01-08)
 - [open] Give the list collections an index so that `limit` bounds the read, parse and copy work instead of only the page size, then measure it against the corpus. (owner:@pose-maintainers crit:low review:2027-01-08)

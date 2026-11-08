@@ -77,7 +77,10 @@ func pageList[T any](s *Server, store pose.Store, tool, filters string, before p
 	sum := sha256.Sum256([]byte(store.Root))
 	project := store.FederatedProjectID + "|" + hex.EncodeToString(sum[:8])
 	page, next, meta, err := pose.PageByGeneration(s.pageKey(), pose.GenerationQuery{Tool: tool, Project: project, Filters: filters}, after.id, items, keys, cursor, limit, time.Now())
-	meta.GenerationStatus = after.status
+	meta.GenerationStatus, meta.GenerationReason = after.status, after.reason
+	if after.diverged != "" {
+		meta.GenerationDiverged = strings.Split(after.diverged, ",")
+	}
 	if err != nil {
 		return nil, "", meta, fmt.Errorf("%s: %w", tool, err)
 	}
@@ -87,11 +90,30 @@ func pageList[T any](s *Server, store pose.Store, tool, filters string, before p
 // pageGen is the index generation a collection was read under, with the status
 // the index reader reported (an unavailable or diverged generation is disclosed,
 // not hidden behind a successful page).
-type pageGen struct{ id, status string }
+type pageGen struct{ id, status, reason, diverged string }
 
 func pageGeneration(store pose.Store) pageGen {
 	view := store.ReadIndexGeneration()
-	return pageGen{id: view.Descriptor.GenerationID, status: string(view.Status)}
+	diverged := append([]string(nil), view.Diverged...)
+	sort.Strings(diverged)
+	return pageGen{id: view.Descriptor.GenerationID, status: string(view.Status), reason: view.Reason, diverged: strings.Join(diverged, ",")}
+}
+
+// requirePositiveLimit rejects an explicit null, zero or negative limit: the call
+// that returns everything is the call that names neither cursor nor limit, and a
+// supplied value never reaches that branch (spec pose-generation-bound-query-cursors R6, R7).
+func requirePositiveLimit(tool string, args json.RawMessage) error {
+	var present map[string]json.RawMessage
+	_ = json.Unmarshal(args, &present)
+	raw, given := present["limit"]
+	if !given {
+		return nil
+	}
+	var n *int
+	if err := json.Unmarshal(raw, &n); err != nil || n == nil || *n <= 0 {
+		return fmt.Errorf("%s: limit must be a positive number; omit it to return everything", tool)
+	}
+	return nil
 }
 
 // canonicalList normalizes a comma-separated filter: trimmed, lower-cased,
