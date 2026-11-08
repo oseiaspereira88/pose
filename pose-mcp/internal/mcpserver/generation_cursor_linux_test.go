@@ -195,3 +195,44 @@ func TestAReusedGenerationSeesASymlinkTargetChange(t *testing.T) {
 		t.Fatalf("a retargeted link was not seen after the reuse: %v", d)
 	}
 }
+
+func TestAReusedGenerationSeesAnEditThatPreservesSizeAndModTime(t *testing.T) {
+	root := t.TempDir()
+	for i := 0; i < 3; i++ {
+		writePaddedSpec(t, root, fmt.Sprintf("spec-%03d", i))
+	}
+	outputs := map[string][]byte{}
+	for _, name := range pose.IndexGenerationFiles {
+		outputs[name] = []byte("[]\n")
+	}
+	if _, err := (pose.Store{Root: root}).PublishIndexGeneration(outputs, map[string]string{"specs": "sha256:a"}); err != nil {
+		t.Fatal(err)
+	}
+	ts := httptest.NewServer(New(pose.Store{Root: root}).Handler("", ""))
+	defer ts.Close()
+	diverged := func() []any {
+		_, out := post(t, ts, `{"jsonrpc":"2.0","id":1,"method":"tools/call","params":{"name":"pose_list_specs","arguments":{"limit":2}}}`)
+		sc, _ := out.Result["structuredContent"].(map[string]any)
+		page, _ := sc["page"].(map[string]any)
+		d, _ := page["generation_diverged"].([]any)
+		return d
+	}
+	if d := diverged(); len(d) != 0 {
+		t.Fatalf("a whole generation diverged: %v", d)
+	}
+	legacy := filepath.Join(root, ".pose", "indexes", "packages.json")
+	info, err := os.Stat(legacy)
+	if err != nil {
+		t.Fatal(err)
+	}
+	// Same size, same modification time, different bytes.
+	if err := os.WriteFile(legacy, []byte("{}\n"), 0o644); err != nil {
+		t.Fatal(err)
+	}
+	if err := os.Chtimes(legacy, info.ModTime(), info.ModTime()); err != nil {
+		t.Fatal(err)
+	}
+	if d := diverged(); len(d) != 1 || d[0] != "packages.json" {
+		t.Fatalf("an edit that restored size and mtime was hidden by the cache: %v", d)
+	}
+}

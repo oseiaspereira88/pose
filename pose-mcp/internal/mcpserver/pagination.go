@@ -148,14 +148,14 @@ func generationSignature(root string) string {
 			b.WriteString("|absent")
 			return
 		}
-		fmt.Fprintf(&b, "|%d:%o:%d", info.Size(), info.Mode(), info.ModTime().UnixNano())
+		fmt.Fprintf(&b, "|%d:%o:%d%s", info.Size(), info.Mode(), info.ModTime().UnixNano(), fileIdentity(info))
 		// The reader follows links: a link's target string and the target's own
 		// metadata are what the verification saw.
 		if info.Mode()&os.ModeSymlink != 0 {
 			target, _ := os.Readlink(path)
 			fmt.Fprintf(&b, ">%s", target)
 			if resolved, err := os.Stat(path); err == nil {
-				fmt.Fprintf(&b, ":%d:%o:%d", resolved.Size(), resolved.Mode(), resolved.ModTime().UnixNano())
+				fmt.Fprintf(&b, ":%d:%o:%d%s", resolved.Size(), resolved.Mode(), resolved.ModTime().UnixNano(), fileIdentity(resolved))
 			} else {
 				b.WriteString(":dangling")
 			}
@@ -181,6 +181,14 @@ func requirePositiveLimit(tool string, args json.RawMessage) error {
 			if key != name && strings.EqualFold(key, name) {
 				return fmt.Errorf("%s: argument %q is ambiguous; write it as %q", tool, key, name)
 			}
+		}
+	}
+	// An explicit null cursor would select the first page, or with no limit the whole
+	// collection: the cursor is omitted or a string.
+	if raw, given := present["cursor"]; given {
+		var c *string
+		if err := json.Unmarshal(raw, &c); err != nil || c == nil {
+			return fmt.Errorf("%s: cursor must be a string; omit it for the first page", tool)
 		}
 	}
 	raw, given := present["limit"]

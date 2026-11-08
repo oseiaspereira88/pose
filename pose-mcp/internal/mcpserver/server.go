@@ -1110,7 +1110,10 @@ func (s *Server) dispatch(ctx context.Context, name string, args json.RawMessage
 		if recent > 0 {
 			effectiveSort = "date"
 		}
-		filters := fmt.Sprintf("status=%s;components=%s;sort=%s;recent=%d;since=%s", canonicalList(a.Status), canonicalList(a.Components), effectiveSort, recent, sinceFilter)
+		// An unambiguous encoding of the normalized tuple: a delimiter inside a value
+		// must not make two different queries read the same.
+		encoded, _ := json.Marshal([]any{canonicalList(a.Status), canonicalList(a.Components), effectiveSort, recent, sinceFilter})
+		filters := string(encoded)
 		page, next, meta, err := pageList(s, store, "pose_list_specs", filters, genBefore, specs, contentKeys(specs), a.Cursor, limit)
 		if err != nil {
 			return nil, err

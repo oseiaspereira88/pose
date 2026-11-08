@@ -53,6 +53,8 @@ Esta escrita não implementa o comportamento. Preservar fontes canônicas, layou
 - created: pose-mcp/internal/pose/generation_query_test.go
 - created: pose-mcp/internal/mcpserver/generation_cursor_test.go
 - created: pose-mcp/internal/mcpserver/generation_cursor_linux_test.go
+- created: pose-mcp/internal/mcpserver/pagination_identity_linux.go
+- created: pose-mcp/internal/mcpserver/pagination_identity_other.go
 - modified: .pose/indexes/validation-matrix.json
 - modified: POSE.md
 - modified: locales/pt-BR/POSE.md
@@ -101,10 +103,10 @@ Qualificar as consultas alteradas, cursor stale e mudança de geração com fixt
 Os casos da tabela são objetivos de cobertura e podem compartilhar fixtures e execuções. Reusar corpus e controles das fundações sem recriar sua qualificação inteira. Qualquer ensaio adicional deve responder a risco, contrato ou finding identificado, com escopo e limite definidos.
 
 ### Requirement trace
-- R1 [satisfied] test:TestAnOmittedSortAndSlugSortAreTheSameQuery test:TestPageByGenerationWalksTheCollectionExactlyOnce test:TestACursorStaysWithItsQuery test:TestEquivalentFiltersShareACursor check:generation-bound-query-cursors-integration
+- R1 [satisfied] test:TestFiltersThatSerializeAlikeBindDifferentCursors test:TestAnOmittedSortAndSlugSortAreTheSameQuery test:TestPageByGenerationWalksTheCollectionExactlyOnce test:TestACursorStaysWithItsQuery test:TestEquivalentFiltersShareACursor check:generation-bound-query-cursors-integration
 - R2 [satisfied] test:TestACursorIsRefusedWhenTheCollectionChanged test:TestACursorIsRefusedAfterTheCollectionChangesBetweenPages test:TestACursorIsRefusedWhenAReturnedFieldChanges
-- R3 [satisfied] test:TestACursorAliasCannotRestartAWalk test:TestAnIssuedCursorStaysWithinTheSizeBoundForHugeFilters test:TestHostileCursorsAreRefusedNotCoerced test:TestAnExpiredCursorIsRefused test:TestAPositionOutsideTheCollectionIsRefused test:TestAHostileCursorIsRefusedOverMCP
-- R4 [satisfied] test:TestAReusedGenerationSeesASymlinkTargetChange test:TestAPageCarriesTheIndexReadersStatusReasonAndDivergedFiles test:TestAPageStatesItsCostAndGenerationStatus test:TestEveryPageDisclosesItsGenerationAndCollection test:TestPageByGenerationWalksTheCollectionExactlyOnce
+- R3 [satisfied] test:TestANullCursorIsRefusedOnEveryPaginatedTool test:TestACursorAliasCannotRestartAWalk test:TestAnIssuedCursorStaysWithinTheSizeBoundForHugeFilters test:TestHostileCursorsAreRefusedNotCoerced test:TestAnExpiredCursorIsRefused test:TestAPositionOutsideTheCollectionIsRefused test:TestAHostileCursorIsRefusedOverMCP
+- R4 [satisfied] test:TestAReusedGenerationSeesAnEditThatPreservesSizeAndModTime test:TestAReusedGenerationSeesASymlinkTargetChange test:TestAPageCarriesTheIndexReadersStatusReasonAndDivergedFiles test:TestAPageStatesItsCostAndGenerationStatus test:TestEveryPageDisclosesItsGenerationAndCollection test:TestPageByGenerationWalksTheCollectionExactlyOnce
 - R5 [satisfied] test:TestAPageDoesNotReverifyAnUnchangedGeneration test:TestEveryPageStatesItsCost test:TestPageByGenerationClampsAndDisclosesTheLimit test:TestPageLimitIsBoundedAndDisclosed
 - R6 [satisfied] test:TestAnAliasOfLimitOrCursorIsRefused test:TestAnExplicitNonPositiveLimitIsRefusedOnEveryPaginatedTool test:TestAContinuationWithoutALimitIsStillABoundedPage test:TestAContinuationWithoutALimitIsBoundedOverMCP test:TestACursorDoesNotSurviveAnotherServerProcess test:TestAnExpiredCursorIsRefused
 - R7 [satisfied] test:TestPageByGenerationWithoutCursorOrLimitIsTheLegacyCall test:TestPaginationOmittedIsUnpaginatedAndBackwardCompatible test:TestHostileCursorsAreRefusedNotCoerced

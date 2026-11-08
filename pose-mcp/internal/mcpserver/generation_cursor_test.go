@@ -273,3 +273,39 @@ func TestAnOmittedSortAndSlugSortAreTheSameQuery(t *testing.T) {
 		t.Fatalf("an equivalent sort was treated as another query: %s", text)
 	}
 }
+
+func TestANullCursorIsRefusedOnEveryPaginatedTool(t *testing.T) {
+	ts, _ := cursorServer(t, 3)
+	for _, tool := range []string{"pose_list_specs", "pose_list_roadmaps", "pose_list_knowledge", "pose_list_reports", "pose_capability_history"} {
+		if _, isErr, _ := cursorCall(t, ts, tool, map[string]any{"cursor": nil}); !isErr {
+			t.Errorf("%s accepted a null cursor", tool)
+		}
+	}
+}
+
+func TestFiltersThatSerializeAlikeBindDifferentCursors(t *testing.T) {
+	ts, root := cursorServer(t, 0)
+	for i := 0; i < 4; i++ {
+		slug := fmt.Sprintf("spec-%02d", i)
+		path := filepath.Join(root, ".pose", "specs", slug, "spec.md")
+		if err := os.MkdirAll(filepath.Dir(path), 0o755); err != nil {
+			t.Fatal(err)
+		}
+		body := fmt.Sprintf("---\nslug: %s\nstatus: draft\ncreated_at: 2026-06-01\ncomponents: x, y\n---\n\n# Spec: %s\n", slug, slug)
+		if err := os.WriteFile(path, []byte(body), 0o644); err != nil {
+			t.Fatal(err)
+		}
+	}
+	first, isErr, text := cursorCall(t, ts, "pose_list_specs", map[string]any{"limit": 2, "status": "draft,z;components=x", "components": "y"})
+	if isErr {
+		t.Fatal(text)
+	}
+	cursor, _ := first["next_cursor"].(string)
+	if cursor == "" {
+		t.Skip("the filters matched too few specs to page")
+	}
+	_, isErr, text = cursorCall(t, ts, "pose_list_specs", map[string]any{"limit": 2, "cursor": cursor, "status": "draft,z", "components": "x;components=y"})
+	if !isErr || !strings.Contains(text, pose.CursorBinding) {
+		t.Fatalf("two different filter tuples shared one cursor binding: %v %q", isErr, text)
+	}
+}
