@@ -33,15 +33,28 @@ A cursor is a signed token that continues one query over one collection.
   `cursor-malformed`). It never continues over a changed collection and never
   restarts silently at page zero. Version 1 tokens are refused as unsupported,
   not reinterpreted.
-- **Bounds:** a token is at most 2048 bytes and lives 15 minutes; a page is at
-  most 500 items (a larger `limit` is clamped and the clamp is disclosed).
+- **Query binding:** the project and the canonical filters are digested into the
+  token, so its size does not depend on the filters; equivalent filters (lists
+  trimmed, case-folded, de-duplicated and sorted; `recent` implies date
+  ordering) bind the same cursor.
+- **Generation and race:** the index generation is read before the collection
+  and again before the page is labelled; a publication in between refuses the
+  call (retry) instead of mislabelling items, and the generation status is
+  disclosed.
+- **Bounds:** a token is at most 2048 bytes (checked on issue as well as on
+  receipt) and lives 15 minutes; a page is at most 500 items (a larger `limit`
+  is clamped and the clamp is disclosed), and a continuation without `limit` is
+  still a bounded page.
 - **Disclosure:** every page carries its generation, collection digest,
   position, total and a statement that it is a navigation view of a collection
   read for the call: an absent `next_cursor` means that collection was
   exhausted, not that nothing is pending elsewhere, and a page authorizes no
   gate or effect (those read current inputs).
-- **Compatibility:** a call without cursor and limit returns everything, as
-  before. `limit` without a cursor starts a paginated walk.
+- **Compatibility:** only a call that names neither cursor nor limit returns
+  everything, as before. `limit` without a cursor starts a paginated walk.
+- **Cost:** every page states its cost: these tools load their whole
+  collection, so each page recomputes it and its exact total (`cost:
+  full-scan`); `limit` bounds the page returned, not the work done.
 
 ## Consequences
 
