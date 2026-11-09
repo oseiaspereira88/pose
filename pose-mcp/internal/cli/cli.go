@@ -255,6 +255,13 @@ func mainCommand(args []string, stdout, stderr io.Writer) int {
 			return 2
 		}
 		return cmdAdopt(root, args, stdout, stderr)
+	case "runtime":
+		root, err := projectRoot()
+		if err != nil {
+			render(stdout, stderr).Failure("pose runtime: " + err.Error())
+			return 2
+		}
+		return cmdRuntime(root, args, stdout, stderr)
 	case "delegate":
 		root, err := projectRoot()
 		// The root a caller resolved and authorized wins over the one the
@@ -511,6 +518,7 @@ Governed closeout:
   review record <scope> [...]         Compatibility entrypoint
   action <open|list|show|resolve|...> Open, read and resolve material requests to a person or system
   delegate review <scope> [--agent]   Run a delegated review; also adjudicate, smoke, ls, resume, cancel, agents
+  runtime <serve|start|attach|status|stop|restart>   Optional per-worktree runtime (opt-in); commands run standalone without it
   close <scope>                         Apply a review-gated lifecycle transition
   continuous-closeout <action>          Persist and project a terminal scope
   artifact-backfill --from-git          Propose explicit historical provenance
@@ -592,6 +600,7 @@ Fechamento governado:
   review record <escopo> [...]         Entrada de compatibilidade
   action <open|list|show|resolve|...>  Abre, lê e resolve pedidos materiais a uma pessoa ou sistema
   delegate review <escopo> [--agent]   Roda um review delegado; também adjudicate, smoke, ls, resume, cancel, agents
+  runtime <serve|start|attach|status|stop|restart>   Runtime opcional por worktree (opt-in); sem ele os comandos rodam standalone
   close <escopo>                        Aplica transição de ciclo de vida governada
   continuous-closeout <ação>            Persiste e projeta um escopo terminal
   artifact-backfill --from-git          Propõe proveniência histórica explícita

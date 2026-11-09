@@ -2597,6 +2597,21 @@
           "evidenceClass": "integration"
         },
         {
+          "name": "optional-worktree-runtime-integration",
+          "program": "go",
+          "args": [
+            "test",
+            "-race",
+            "./internal/worktreeruntime",
+            "./internal/cli",
+            "-run",
+            "TheIdentityNamesTheWorktree|TheEndpointIsProtected|TheLifecycleDrains|WithNoRuntimeTheClient|TestRuntimeCommands",
+            "-count=1"
+          ],
+          "severity": "required",
+          "evidenceClass": "integration"
+        },
+        {
           "name": "claude-sandboxed-profile-integration",
           "program": "go",
           "args": [

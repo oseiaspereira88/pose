@@ -2,7 +2,7 @@
 
 ## Status
 
-Proposed — 2026-10-14, for B31/B33/B35. No IPC, cache API/schema, daemon lifecycle,
+Proposed — 2026-10-14, for B31/B33/B35. The transport, the identity and the slicing of B35 are decided by the amendment at the end (2026-11-09). No IPC, cache API/schema, daemon lifecycle,
 platform default or policy is implemented/adopted by this proposal. Reconcile and
 resolve the structural contract before functional start. Preserve accepted ADRs
 for active-context discovery, scoped Git readers, obligations and the
@@ -235,3 +235,33 @@ with the CLI, without a resident service:
 - [B31](../specs/2026-10-14-pose-common-domain-and-cli-mcp-handoff.md)
 - [B33](../specs/2026-10-14-pose-bounded-isolated-graph-caches.md)
 - [B35](../specs/2026-10-14-pose-optional-worktree-runtime.md)
+
+## Amendment: transport, identity and slicing of the worktree runtime (B35)
+
+Decided 2026-11-09 with the maintainer, before the functional start of B35:
+
+- **Transport.** A stream socket in the user's own directory: a Unix domain socket
+  (Linux, macOS), mode 0600 in a 0700 directory owned by the user, whose peer is
+  checked by the operating system's credentials (`SO_PEERCRED`, `LOCAL_PEERCRED`)
+  before any byte is read. No TCP, no token, no network surface. Windows has no
+  named-pipe implementation in this repository (the standard library has none and
+  the repository takes no dependency for it): the runtime reports itself
+  unsupported there and every command runs standalone. That is a declared
+  limitation, not a silent one, and a named pipe with the owner's ACL is the
+  follow-up that lifts it.
+- **Identity.** user (uid) + canonical worktree (symlinks resolved) + Git common
+  directory + engine version/build + wire protocol + schema. The endpoint name is
+  a digest of it, so two worktrees, two users or two engines never share an
+  endpoint; the handshake repeats the comparison field by field and refuses a
+  difference, naming it.
+- **Authority.** The runtime of slice 1 hosts no domain operation: it answers
+  handshake, status and stop. It confers no authority, signature or presence, and a
+  client that attaches gains nothing it did not have standalone.
+- **Slicing.** B35 is delivered in three specs, each reviewed on its own:
+  `pose-optional-worktree-runtime` (identity, endpoint, handshake, lifecycle,
+  standalone fallback: R1-R4), `pose-worktree-runtime-resident-cache` (R5, R7: the
+  resident reuse of the B33 views, reconciliation, typed results) and
+  `pose-worktree-runtime-qos-and-measurement` (R6, R8: budgets, short queries
+  protected from heavy checks, measured thresholds). Budgets and thresholds are
+  fixed from a measured synthetic corpus with a declared environment, never from a
+  historical sample.

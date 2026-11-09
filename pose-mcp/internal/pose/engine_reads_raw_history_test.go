@@ -42,7 +42,8 @@ var directGitExceptions = map[string]string{
 // What starts a program the source does not name, by file and function, each with what
 // that program is. A new one has to say here that it is not git.
 var dynamicLaunches = map[string]string{
-	"internal/pose/delegation_policy.go#MissingRequirements":              "looks an executable of a profile up on the path, and starts nothing",
+	"internal/cli/runtime_cmd.go#":                                         "this binary, started detached as the optional runtime",
+	"internal/pose/delegation_policy.go#MissingRequirements":               "looks an executable of a profile up on the path, and starts nothing",
 	"internal/cli/action_resolve.go#sshSignNamespace":                      "ssh-keygen",
 	"internal/cli/delegate_wait.go#detachDelegateRun":                      "this binary",
 	"internal/cli/delegate_watch.go#pickAttempt":                           "fzf",
