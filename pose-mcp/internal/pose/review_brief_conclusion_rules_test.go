@@ -58,7 +58,7 @@ func TestAnEarlierConclusionBriefStillRendersWithoutTheRules(t *testing.T) {
 	if err != nil {
 		t.Fatal(err)
 	}
-	if current.TemplateVersion != "review-brief/6" || earlier.TemplateVersion != "review-brief/3" {
+	if current.TemplateVersion != "review-brief/7" || earlier.TemplateVersion != "review-brief/3" {
 		t.Fatalf("templates: %s %s", current.TemplateVersion, earlier.TemplateVersion)
 	}
 	if strings.Contains(earlier.Text, "POSE checks the conclusion before it records it") {
@@ -67,8 +67,8 @@ func TestAnEarlierConclusionBriefStillRendersWithoutTheRules(t *testing.T) {
 	if !strings.Contains(earlier.Text, "the conclusion POSE records as the attestation") || earlier.Digest == current.Digest {
 		t.Fatal("review-brief/3 no longer asks for the conclusion, or has the digest of /4")
 	}
-	if !reviewBriefAsksConclusion("review-brief/3") || !reviewBriefAsksConclusion("review-brief/4") || !reviewBriefAsksConclusion("review-brief/5") || !reviewBriefAsksConclusion("review-brief/6") || reviewBriefAsksConclusion("review-brief/2") {
-		t.Fatal("the templates that ask for a conclusion are /3 and /4")
+	if !reviewBriefAsksConclusion("review-brief/3") || !reviewBriefAsksConclusion("review-brief/4") || !reviewBriefAsksConclusion("review-brief/5") || !reviewBriefAsksConclusion("review-brief/6") || !reviewBriefAsksConclusion("review-brief/7") || reviewBriefAsksConclusion("review-brief/2") {
+		t.Fatal("the templates that ask for a conclusion are /3 to /7")
 	}
 }
 

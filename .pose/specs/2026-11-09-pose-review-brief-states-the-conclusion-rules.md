@@ -41,7 +41,7 @@ Reviews by Claude Opus 5.5 were refused four times by the preflight although the
 
 - R1: The brief of the current template shall state, for a run asked to conclude, each rule the four functions of the attestation preflight that judge a draft's criteria, tools, findings and evidence check before it records the conclusion (`validateBundleAttestationWith`, `reviewCriterionEvidenceBlockers`, `evaluateReviewToolCoverageIn`, `reviewToolEvidenceBlocker`): a passed judgment criterion carries a rationale; the evidence of a passed criterion is one of the refs listed under Sealed evidence; a criterion disposed as a finding carries the id of a finding of the draft; structural facts are answered as mappings by the criterion that asks for them; a not-applicable carries a rationale and is refused where the bundle seals evidence of the class the criterion asks for; every required criterion and tool is answered; a tool disposition is passed, failed, not-used or deferred, a required tool is run and passed, a recommended tool not run is not-used with a rationale, the evidence of a tool is a class:ref (a sealed ref of a class the tool lists, otherwise command: and the command run), and an approving draft leaves no finding open (each is a follow-up with action, owner and review_by, or the draft requests changes); and a draft that breaks one is refused whole.
 - R2: A test shall tie each message those four functions can refuse a conclusion with to the words of the brief that state its rule, or exempt it with the reason a reviewer cannot break it, so that a rule added to the preflight without a sentence in the brief fails the build.
-- R3: The template shall be versioned: `review-brief/6` is current (it adds the severities a follow-up can be accepted at, the deferred answer of a tool that needs the review complete, the component scoping of evidence, what a mapping's basis is and the one line outside the block that is read), `review-brief/5` (the identifiers of the findings a later round accounts for), `/4` and `/3` still render exactly as before, so a run briefed with it still verifies, resumes and concludes.
+- R3: The template shall be versioned: `review-brief/7` is current (it adds the refusal of a draft that dispenses with every required criterion, and `/6` added the severities a follow-up can be accepted at, the deferred answer of a tool that needs the review complete, the component scoping of evidence, what a mapping's basis is and the one line outside the block that is read), `review-brief/5` (the identifiers of the findings a later round accounts for), `/4` and `/3` still render exactly as before, so a run briefed with it still verifies, resumes and concludes.
 - R4: The delegation profile of the Claude reviewer shall allow, in its fresh, resumed and resumed-read commands, the required tools of a review plan (`pose artifact-check`, `surface-check`, `review-check`, `closeout-check`) and `git status` and `git ls-files`, and no verb that writes or runs a program: `pose assess`, `pose validate`, any `pose` verb that records, `git commit|push|add|checkout|reset`, `go build|install`, and the verbs whose flags write a file or run one (`git log|diff|show --output`, `go test -exec -c -o`, `go vet -vettool`, `pose lint-spec --json-out`), which a prefix allow-list cannot exclude by flag.
 - R5: The manual shall say which template asks for the conclusion and that the brief states the rules.
 
@@ -51,7 +51,7 @@ Reviews by Claude Opus 5.5 were refused four times by the preflight although the
 
 ### Security
 
-- The allowed commands are the required tools of the review plan and two Git reads that take no flag that writes. A prefix allow-list cannot exclude a flag, so a verb with a write or exec flag is not allowed at all; the reviewer reads the code with its read tools and relies on the sealed evidence for tests. The run safety record states that the worktree is not isolated from the filesystem, so no containment is claimed.
+- The allowed commands are the required tools of the review plan and two Git reads that take no flag that writes. The profile pre-approves those commands; Claude Code also runs, without asking, the commands it classifies as read-only itself (`cat`, `ls`, `find`, `git diff`, `git log`), and refuses a write (`touch` was refused in a probe). A prefix allow-list cannot exclude a flag, so a verb with a write or exec flag is not pre-approved; the reviewer reads the code with its read tools and relies on the sealed evidence for tests. The run safety record states that the worktree is not isolated from the filesystem, so no containment is claimed.
 
 ### Compatibility
 
@@ -88,7 +88,7 @@ Reviews by Claude Opus 5.5 were refused four times by the preflight although the
 
 ### API/contract changes
 
-The review brief template moves from `review-brief/3` to `review-brief/6` (`/4` stated the rules, `/5` the identifiers of prior findings, `/6` the accepted-risk severities and four more); the reviewer profile `claude-opus-5-5` allows the required tools of a review plan and two Git reads.
+The review brief template moves from `review-brief/3` to `review-brief/7` (`/4` stated the rules, `/5` the identifiers of prior findings, `/6` the accepted-risk severities and four more, `/7` that a draft cannot dispense with every required criterion); the reviewer profile `claude-opus-5-5` allows the required tools of a review plan and two Git reads.
 
 ## 4. Tasks
 
@@ -139,12 +139,21 @@ The brief is rendered from a real sealed bundle and read for each rule; the olde
 - `delegation.json` is the policy of each instance. This repository's copy is changed; the other instances adopt the profile with `pose update` or by editing theirs.
 - The brief rules (R1) are tied to the preflight by the words of the blockers in a test; a change to the wording of a blocker needs the table of that test updated.
 
+### Isolation of the secondary agents, reviewed at the end of this spec
+
+The two reviewer profiles do not give the same guarantee, and the difference is of kind, not only of degree:
+
+- Codex has two command profiles: `read` (`-s read-only`) and `sandboxed` (`-s workspace-write`). The restriction is the operating system's. A review accepts only `read` access, so the profile difference does not enter a review; it shows in `delegate task`, where only Codex can be given write access.
+- Claude has one, `read`, restricted by the agent's own permission system: `--safe-mode --restricted`, `dontAsk` and an allow-list matched by prefix. It has no `sandboxed` profile, and a prefix list cannot exclude a flag that writes a file or runs a program.
+- In practice Codex runs `go test` and the plan tools inside its sandbox and was hampered by the read-only build directory and by a full validation that exceeded the 600 s of its run; the Claude reviewer cannot rerun tests (it reads the code and relies on the sealed evidence) and runs the plan tools. Neither agent was measured for time or cost; the Claude rounds were no slower than Codex's and failed more on the shape of the draft than on speed, which this spec addresses.
+- Measured at the end of this spec: Claude Code offers an operating-system sandbox of its own (`sandbox.enabled` in the settings, which a profile can pass with `--settings`), built on bubblewrap and socat. `bwrap` is installed on this machine and `socat` is not: with the sandbox enabled and `socat` missing, the CLI reports "Sandbox disabled: dependencies are missing" and runs the commands unsandboxed, so enabling it without the dependency would claim a guarantee that is not enforced. Equivalence with Codex therefore needs `socat` installed and a Claude profile that passes the sandbox settings, checked at launch.
+
 ---
 
 ## 7. Final Report
 
 ### Delivered scope
-The brief of `review-brief/6` states eleven rules (the tenth, the identifiers of prior findings, in review-brief/5; the eleventh group, the accepted-risk severities, the deferred tool, the component scoping, the mapping basis and the decision line, in review-brief/6) the engine checks on a typed conclusion and that a draft breaking one is refused whole (R1); a test ties each preflight blocker to the sentence of the brief that states its rule (R2); `review-brief/3` still renders as before and runs briefed with it conclude (R3); the Claude reviewer profile allows read-only commands in all three of its commands (R4); the manual names the template (R5). Left out: validating a draft before the run ends, and a change to any rule of the preflight.
+The brief of `review-brief/7` states twelve rules (the tenth, the identifiers of prior findings, in review-brief/5; the eleventh group, the accepted-risk severities, the deferred tool, the component scoping, the mapping basis and the decision line, in review-brief/6) the engine checks on a typed conclusion and that a draft breaking one is refused whole (R1); a test ties each preflight blocker to the sentence of the brief that states its rule (R2); `review-brief/3` still renders as before and runs briefed with it conclude (R3); the Claude reviewer profile allows read-only commands in all three of its commands (R4); the manual names the template (R5). Left out: validating a draft before the run ends, and a change to any rule of the preflight.
 
 ### Files and modules changed
 - pose-mcp/internal/pose (review_brief.go, review_conclusions.go and their tests)
@@ -157,10 +166,11 @@ The brief of `review-brief/6` states eleven rules (the tenth, the identifiers of
 
 ### Residual risks
 - A reviewer that does not read the brief still writes a draft the preflight refuses; the refusal names each broken rule.
-- The allowed verbs run the repository's tests, which may write to the test cache of the reviewer's environment but not to the repository.
+- The reviewer runs the required plan tools and reads the code; it does not rerun the tests, which it takes from the sealed evidence.
 
 ### Follow-ups
 
+- [open] Give the Claude reviewer a `sandboxed`-equivalent profile with the operating-system sandbox of Claude Code (`--settings` with `sandbox.enabled`), once `socat` is installed on the machine that runs reviews, and have the profile refuse to launch when the sandbox reports its dependencies missing, so that `go test` can be allowed again. (owner:@pose-maintainers crit:medium review:2027-01-08)
 - [open] Extend the tie of the preflight messages to the rest of what refuses a conclusion (the structural-causality and causality-closeout mapping rules, the finding-decision rules, the reuse rules, the round protocol and `ParseReviewDraft`), and state in the brief the rules found there: three or more mappings on one basis with one pasted rationale, a basis that reaches no requirement, a draft whose outside `decision:` line disagrees with its block. (owner:@pose-maintainers crit:low review:2027-01-08)
 - [open] Let `pose review conclude --dry-run` print the preflight blockers of a run's draft before the attestation is attempted, so a reviewer round is not spent on the shape. (owner:@pose-maintainers crit:low review:2027-01-08)
 - [open] Offer `pose delegate review` the same read-only verbs for the Codex profile as an explicit list, so both profiles state what a reviewer may run. (owner:@pose-maintainers crit:low review:2027-01-08)

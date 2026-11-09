@@ -49,7 +49,7 @@ var stated = map[string]string{
 	"has no evidence":                                                                                   "`command:` followed by the command you ran",
 	"lacks a required evidence class":                                                                   "when the tool lists evidence classes, a ref of one of them that the bundle sealed",
 	"cites evidence from":                                                                               "of that component",
-	"every required criterion is not-applicable; a scope where the whole plan is inapplicable is not reviewed by it": "a `not-applicable` carries a `rationale`",
+	"every required criterion is not-applicable; a scope where the whole plan is inapplicable is not reviewed by it": "dispenses with every required criterion as `not-applicable` is refused",
 }
 
 // exempt names fragments no reviewer's draft can break, and why.
