@@ -1,0 +1,251 @@
+{
+  "run": {
+    "run_id": "rrn-01033ba3bb8cf153",
+    "proof_id": "rrp-c9bf87928fef93772f3d03a9637816738efb141e4bbd7d0414fbb871a5a4daf4"
+  },
+  "schema_version": 1,
+  "attestation_id": "rva-af3dd58d33197a9b",
+  "bundle_id": "rvb-c308d2456172bd7b",
+  "bundle_digest": "sha256:c308d2456172bd7bdd0fe228242efe72fe77d277652cb95ccaa924b2fdeeb6c4",
+  "reviewer": "agent:anthropic/claude-opus-5-5",
+  "decision": "approved",
+  "criteria": [
+    {
+      "id": "assumption-integrity",
+      "disposition": "passed",
+      "evidence": "integration:pose-mcp/go/delegated-approval-survives-routine-drift-integration",
+      "rationale": "Verified: the record checks and the pin are checked on every read (tests for an altered transcript and a revoked issuer). Assumption: 'done' comes from the spec's status field, the same trust the existing retention of human attestations relies on. Accepted risks: the brief is not re-rendered (D2), and there is no superseding-run test (known gap)."
+    },
+    {
+      "id": "backend-concurrency",
+      "disposition": "passed",
+      "evidence": "unit:pose-mcp/go/test",
+      "rationale": "Read-only verification with no new shared state; the targeted tests pass with go test -race."
+    },
+    {
+      "id": "backend-contracts",
+      "disposition": "passed",
+      "evidence": "integration:pose-mcp/go/delegated-run-provenance-integration",
+      "rationale": "Only exported functions are added; no schema, file or command changes; live verification is unchanged."
+    },
+    {
+      "id": "backend-input-errors",
+      "disposition": "passed",
+      "evidence": "integration:pose-mcp/go/delegated-approval-survives-routine-drift-integration",
+      "rationale": "Sealed-path failures return typed 'run provenance:' errors with reasons."
+    },
+    {
+      "id": "backend-integration-impact",
+      "disposition": "passed",
+      "evidence": "integration:pose-mcp/go/review-assurance-disclosure-integration",
+      "rationale": "verifyRunReviewReference feeds closeout, verify and the assurance disclosure consistently."
+    },
+    {
+      "id": "backend-observability",
+      "disposition": "passed",
+      "evidence": "unit:pose-mcp/go/test",
+      "rationale": "Refusal reasons are bounded and expose no secrets."
+    },
+    {
+      "id": "compatibility",
+      "disposition": "passed",
+      "evidence": "integration:pose-mcp/go/completed-review-retention-integration",
+      "rationale": "Examined the retained path: done scopes read terminal again with no re-review, and open scopes are unchanged."
+    },
+    {
+      "id": "correctness",
+      "disposition": "passed",
+      "evidence": "integration:pose-mcp/go/delegated-approval-survives-routine-drift-integration",
+      "rationale": "Positive and negative tests pass under -race."
+    },
+    {
+      "id": "design-causality",
+      "disposition": "passed",
+      "evidence": "structure:design-a398cc0f1665a42f",
+      "rationale": "Three present-state checks (prepared bundle, materialization, brief re-render) cannot hold after drift; the D1 split keeps the checks on the record and the pin.",
+      "mappings": [
+        {
+          "delta": "SD-2e3d62b7",
+          "basis": "D1",
+          "disposition": "mapped",
+          "rationale": "The ADR amendment records D1: a done scope's approval is verified as sealed, live checks stay for live scopes."
+        }
+      ]
+    },
+    {
+      "id": "documentation",
+      "disposition": "passed",
+      "evidence": "integration:pose-mcp/go/distributed-instructions-parity-integration",
+      "rationale": "Examined the ADR and the en/pt-BR manual plus their scaffold copies: they describe the sealed verification; the undocumented expiry drop is F2."
+    },
+    {
+      "id": "operability",
+      "disposition": "finding",
+      "evidence": "F1"
+    },
+    {
+      "id": "requirements",
+      "disposition": "passed",
+      "evidence": "integration:pose-mcp/go/delegated-approval-survives-routine-drift-integration",
+      "rationale": "R1-R7 each map to a passing traced test."
+    },
+    {
+      "id": "scope",
+      "disposition": "passed",
+      "evidence": "integration:pose-mcp/go/delegated-approval-survives-routine-drift-integration",
+      "rationale": "Examined the change set: it matches the spec's artifact list; the template-digest commit belongs to another spec."
+    },
+    {
+      "id": "security",
+      "disposition": "finding",
+      "evidence": "F2"
+    },
+    {
+      "id": "solution-proportionality",
+      "disposition": "passed",
+      "evidence": "structure:design-a398cc0f1665a42f",
+      "rationale": "Compared with the minimal option of lifting only the materialization check, which would fail on the next present-state check; the split is the smallest fix that works. The choice is invalidated if a template version changes text under the same version (now guarded by golden digests). Duplication is F4."
+    }
+  ],
+  "tools": [
+    {
+      "id": "artifact-check",
+      "disposition": "passed",
+      "evidence": "command:pose artifact-check --spec pose-delegated-approval-survives-routine-drift --strict",
+      "rationale": "No errors; only repository-wide orphan warnings."
+    },
+    {
+      "id": "assess-design",
+      "disposition": "not-used",
+      "rationale": "Relied on sealed structure:design-a398cc0f1665a42f; kept output within the capture limit."
+    },
+    {
+      "id": "assess-discover",
+      "component": "pose-mcp",
+      "disposition": "not-used",
+      "rationale": "Recommended only; callers were swept manually with grep."
+    },
+    {
+      "id": "assess-integrate",
+      "disposition": "not-used",
+      "rationale": "Recommended only; relied on sealed integration evidence."
+    },
+    {
+      "id": "assess-tech-debt",
+      "disposition": "not-used",
+      "rationale": "Recommended only; debt is noted in F4."
+    },
+    {
+      "id": "closeout-check",
+      "disposition": "deferred",
+      "rationale": "Ran it: it fails until this review is recorded and the spec is closed (status not done)."
+    },
+    {
+      "id": "review-check",
+      "disposition": "passed",
+      "evidence": "command:pose review-check spec:pose-delegated-approval-survives-routine-drift",
+      "rationale": "Warnings only; fresh=false because no review is recorded yet."
+    },
+    {
+      "id": "suggest-review",
+      "component": "pose-mcp",
+      "disposition": "not-used",
+      "rationale": "Recommended only; scope was taken from the brief."
+    },
+    {
+      "id": "surface-check",
+      "disposition": "passed",
+      "evidence": "integration:pose-mcp/go/delegated-approval-survives-routine-drift-integration",
+      "rationale": "Ran it: targets=1, findings=0."
+    },
+    {
+      "id": "validate",
+      "disposition": "passed",
+      "evidence": "unit:pose-mcp/go/test",
+      "rationale": "Not re-run because it writes results into the repository; sealed strict results pass, and the targeted go test -race run passes."
+    },
+    {
+      "id": "validate",
+      "component": "pose-mcp",
+      "disposition": "passed",
+      "evidence": "build:pose-mcp/go/build",
+      "rationale": "Not re-run because it writes results; relied on the sealed module evidence plus the targeted -race tests."
+    }
+  ],
+  "evidence_refs": [
+    "F1",
+    "F2",
+    "delegated-run:rrn-01033ba3bb8cf153",
+    "integration:pose-mcp/go/completed-review-retention-integration",
+    "integration:pose-mcp/go/delegated-approval-survives-routine-drift-integration",
+    "integration:pose-mcp/go/delegated-run-provenance-integration",
+    "integration:pose-mcp/go/distributed-instructions-parity-integration",
+    "integration:pose-mcp/go/review-assurance-disclosure-integration",
+    "structure:design-a398cc0f1665a42f",
+    "unit:pose-mcp/go/test"
+  ],
+  "findings": [
+    {
+      "id": "F1",
+      "severity": "low",
+      "evidence": "file:pose-mcp/internal/cli/review_run_provenance.go:76",
+      "action": "Route run-proof and verdict readers through VerifyReviewRunProofAsSealed when the run's scope is done, or have run-proof state which verification it ran.",
+      "disposition": "accepted-risk",
+      "owner": "@pose-maintainers",
+      "rationale": "`pose review run-proof` and the verdict readers (delegated_verdicts.go:345,428) still verify a done scope's run live, so after drift run-proof fails while review verify/closeout retain, and done specs' smoke/adjudication records stop verifying (surface-check reads them).",
+      "review_by": "2027-01-08"
+    },
+    {
+      "id": "F2",
+      "severity": "low",
+      "evidence": "file:pose-mcp/internal/pose/review_run_provenance.go:606",
+      "action": "Evaluate reviewClaimTimeBlockers at the attestation's attested_at on the sealed path and document that a proof is not aged out for a done scope.",
+      "disposition": "accepted-risk",
+      "owner": "@pose-maintainers",
+      "rationale": "The sealed path skips every claim-time check (unparseable expires_at, expiry before issue, expiry), not only age; R3, the ADR and the manual do not say expiry is dropped.",
+      "review_by": "2027-01-08"
+    },
+    {
+      "id": "F3",
+      "severity": "low",
+      "evidence": "file:pose-mcp/internal/pose/retained_run_approval_test.go:62",
+      "action": "Correct the requirement labels in the test comments.",
+      "disposition": "accepted-risk",
+      "owner": "@pose-maintainers",
+      "rationale": "Test comments cite R3/R4/R6 where the spec says R4/R5/R7 (also lines 83 and 127).",
+      "review_by": "2027-01-08"
+    },
+    {
+      "id": "F4",
+      "severity": "low",
+      "evidence": "file:pose-mcp/internal/pose/review_run_provenance.go:583",
+      "action": "Share the proof-loading helper and pass the loaded bundle through.",
+      "disposition": "accepted-risk",
+      "owner": "@pose-maintainers",
+      "rationale": "VerifyReviewRunProofAsSealed copies VerifyReviewRunProofRecord's loading code, and the bundle is reloaded several times per verification.",
+      "review_by": "2027-01-08"
+    }
+  ],
+  "authority": {
+    "schema_version": 1,
+    "project": "proj.pose-dist",
+    "bundle_digest": "sha256:c308d2456172bd7bdd0fe228242efe72fe77d277652cb95ccaa924b2fdeeb6c4",
+    "principal": "agent:anthropic/claude-opus-5-5",
+    "role": "agent",
+    "review_execution": "rrn-01033ba3bb8cf153",
+    "implementation_principal": "agent:anthropic/claude-sonnet-5-5",
+    "implementation_execution": "sha256:675189f7e0b769255994f8213acf8b1b57174c4353838cd875cdabd46aa9cc0b",
+    "issuer": "b34-local-executor",
+    "issued_at": "2026-11-09T10:20:35Z",
+    "audience": "proj.pose-dist"
+  },
+  "envelope": {
+    "issuer": "b34-local-executor",
+    "subject": "rvb-c308d2456172bd7b",
+    "algorithm": "ed25519",
+    "public_key": "ck4sApdfePV2GT+hJyAYfJd2qLzeG55P8pevGR0bvZE=",
+    "signature": "AcKyAqTmDhAq2iumxroSvSe5yNO9acrqrEXmJWsXDMATaaLUy5EswjqO3hXmO0es5Fvo2hJ9ZFCw2eIpW6krAg=="
+  },
+  "attested_at": "2026-11-09T10:20:35Z",
+  "path": ".pose/review-attestations/rva-af3dd58d33197a9b.json"
+}

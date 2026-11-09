@@ -1,0 +1,137 @@
+{
+  "safety": {
+    "schema_version": 1,
+    "profile": "legacy-trusted",
+    "platform": "linux/amd64",
+    "capabilities": {
+      "automatic-expiry": "unavailable",
+      "bounded-capture": "available",
+      "cpu-limit": "unavailable",
+      "credential-filesystem-isolation": "unavailable",
+      "environment-allowlist": "available",
+      "escaped-descendant-termination": "unavailable",
+      "filesystem-isolation": "unavailable",
+      "memory-limit": "unavailable",
+      "network-isolation": "unavailable",
+      "origin-isolation": "unavailable",
+      "parent-termination": "available",
+      "process-group-termination": "available",
+      "shared-git-isolation": "unavailable"
+    },
+    "limitations": [
+      "trusted local executable required; worktree is not a sandbox",
+      "outside writes, transient writes, shared Git and credential files are not isolated",
+      "no memory/CPU quota or control of descendants escaping the process group",
+      "cleanup filesystem calls remain subject to operating-system I/O latency",
+      "legacy compatibility: HOME retained; other ambient credentials excluded"
+    ],
+    "stream_bytes": 8388608,
+    "output_bytes": 65536,
+    "retained_bytes": 16777216,
+    "timeout_ms": 3600000,
+    "max_runs_per_bundle": 3,
+    "retention": "retain-evidence; ttl=0; no automatic deletion",
+    "capture_complete": true,
+    "runtime_id": "pose-review-run-3169999655",
+    "operation": {
+      "schema_version": 1,
+      "operation": "review.dispatch.cleanup",
+      "scope": "spec:pose-delegated-approval-survives-routine-drift",
+      "outcome": "completed",
+      "steps_run": [
+        {
+          "id": "cleanup",
+          "result": "done"
+        }
+      ],
+      "effects": [],
+      "resumable": false
+    }
+  },
+  "provenance": {
+    "execution_state": "started",
+    "planned_wire_digest": "sha256:f70f049cfc6fae7e9db9566e01f930956e8967964a7f02900560cb5ef180e4bd",
+    "wire_bytes": 23722,
+    "wire_complete": true,
+    "schema_version": 1,
+    "project": "proj.pose-dist",
+    "audience": "proj.pose-dist",
+    "worktree_digest": "sha256:9c161dc895f6496d9f800581bef8673cc9123cda65951fa2d23b0cbdbc2bac41",
+    "trust": "executor-attested",
+    "implementation": {
+      "principal": "agent:anthropic/claude-sonnet-5-5",
+      "execution": "sha256:675189f7e0b769255994f8213acf8b1b57174c4353838cd875cdabd46aa9cc0b",
+      "vendor": "anthropic",
+      "model": "claude-sonnet-5-5"
+    },
+    "reviewer": {
+      "principal": "agent:anthropic/claude-opus-5-5",
+      "vendor": "anthropic",
+      "model": "claude-opus-5-5"
+    },
+    "config_digest": "sha256:a90313b0452ad8f43357caf23dfd0e2136112057bc42b82451bab2c8a07160ca",
+    "command_template_digest": "sha256:2453c65a11d6e14f5d85fe7177ad51d82534f3221195c5aca7db4d310a3154c1",
+    "argv_digest": "sha256:58a0893f0c5fe91f0b349938da777da4e357800b7973d0132c7d43cb818e966d",
+    "executable_digest": "sha256:dabafec82ca1319fa43d8be36a10fc61b1d11821cb98ad5df04ad95e199b8eed",
+    "template_version": "review-brief/4",
+    "wire_digest": "sha256:f70f049cfc6fae7e9db9566e01f930956e8967964a7f02900560cb5ef180e4bd",
+    "notes_digest": "sha256:d3b2ea4a74ae20808faa5b9db07d446d7b49fd4a8537c61ffa589c84fbf87b91",
+    "raw_transcript_digest": "sha256:fe46ac0cb978b86ea018025fce815ff0214aa2c0e35b6d6c05007da7840c4651",
+    "raw_output_digest": "sha256:8e384a6c4ee1c7df77cc0fc02177115cb46dde3790df3918bfe4bbeb0eee6234",
+    "output_source": "stream-final",
+    "output_complete": true
+  },
+  "session_digest": "sha256:098f8771eeba3ba4bd06bb696dbcdee4411f10f4794d534d89126a45954cedef",
+  "tree_digest": "sha256:75194c1445a72dc36a1965a5301df87bdf15bed2c0c79c46820086a01a813461",
+  "brief_notes": "Review of spec pose-delegated-approval-survives-routine-drift, implemented by Claude. Scope: a done scope keeps the approval a delegated run backed over later drift of the files it sealed. `ReviewRunStillGoverns` is split into `ReviewRunRecordStands` (what the sealed record says: safe, completed, not superseded, persisted record equal to the copy, intact transcript, the named bundle readable with the recorded digest/scope/sealed commit) and the present-state checks; `VerifyReviewRunProofAsSealed` verifies the proof with `verifyRunProofCore` and the record checks, without the live checks (prepared bundle equality, materialization in the working tree, current policy/adapter, brief re-render); `verifyRunReviewReference` uses it when the scope is done. Measured: five specs of this repository that read non-terminal under the previous engine read terminal under this one. This review is by Claude Opus 5.5 (a different model from the implementer, Sonnet 5.5, same vendor; the report states independence is by model). The brief is review-brief/4: follow it, run the required tools your profile allows, give `\u003cclass\u003e:\u003cref\u003e` evidence, no finding left open (follow-ups carry `action`, `owner` @pose-maintainers, `review_by` 2027-01-08; a medium finding cannot be accepted as a risk, only low), and sweep every caller of the run-proof verification (assurance, conclusions, delegated review requests, attest) for the same class of defect: a place that still asks a done scope's approval the live question. Classify each finding as blocker or follow-up and report all of them.\n\nRerun: the previous run of this review failed with \"adapter capture incomplete: stream/output limit or unsafe output file\" before producing a draft. Keep your final message compact (the pose-draft block and a short summary, no long tables or transcripts of command output) so the capture stays within its limit.\n",
+  "ledger_version": 1,
+  "attempt_id": "rat-10ae59a0658c79a775bd7ab7f0693ca1197108fcebd1ca8042095dae6e01dbbd",
+  "schema_version": 1,
+  "run_id": "rrn-01033ba3bb8cf153",
+  "scope": "spec:pose-delegated-approval-survives-routine-drift",
+  "bundle_id": "rvb-c308d2456172bd7b",
+  "bundle_digest": "sha256:c308d2456172bd7bdd0fe228242efe72fe77d277652cb95ccaa924b2fdeeb6c4",
+  "sealed_commit": "0588f30d32f261fcab4d6503c1a5ef330143840a",
+  "kind": "review",
+  "brief_digest": "sha256:708b0b0fa2d3a8e28c84e318b307d1315beea62cfb3bee1a8a9d4c29ca9514d0",
+  "adapter": "claude-opus-5-5",
+  "vendor": "anthropic",
+  "model": "claude-opus-5-5",
+  "started_at": "2026-11-09T10:08:37.111623045Z",
+  "ended_at": "2026-11-09T10:20:31.777873108Z",
+  "exit_code": 0,
+  "status": "completed",
+  "transcript_digest": "sha256:570c7feda04c3266512586d354fb82338181dbb092b76d0774987639ebb8abfc",
+  "transcript_path": ".pose/review-runs/rrn-01033ba3bb8cf153.transcript",
+  "output": "I've reviewed the change. My decision is **approved**, with four low-severity follow-ups and no blockers. Two of the required tools could not be run to a pass, and I explain why below.\n\n**Checks I ran:**\n- **Tests:** `go test -race` passes for the five tests the spec traces to requirements, plus the run-proof tests.\n- **`surface-check --strict`:** 0 findings.\n- **`artifact-check --strict`:** only orphan warnings, which come from the whole repository and not from this change.\n- **`review-check`:** warnings only (unmapped paths, missing owner metadata, evidence sealed against parent commit `61e66e23`).\n- **`closeout-check`:** fails with \"lifecycle status is not done / review not approved\". That is the expected state before this review is recorded, so I marked it `deferred`.\n- **`pose validate --strict`:** not re-run, because it writes result files into the repository. I relied on the sealed evidence and my own `-race` run. Both validate entries are marked `passed` on that basis, which bends the brief's \"must be run\" rule; the draft's rationale says so.\n- **The five optional assessment tools:** not run.\n- **Exit codes:** this session would not let me read them, so the outcomes above come from each tool's printed output.\n\n**Design:** splitting the record checks (`ReviewRunRecordStands`) from the present-state checks is sound. A live scope still runs every check it had before, and the transcript-altered and revoked-issuer cases are still refused. Callers that never handle a done scope's approval stay on live checks, which is right: issuing a proof, concluding a run, and action fulfillment (which the manual says is re-verified on every read).\n\n**Findings (all low, follow-up):**\n- **F1** `pose-mcp/internal/cli/review_run_provenance.go:76`: three readers still run the live checks after the scope is done:\n  - `pose review run-proof` reports a failure on a proof that `review verify` and closeout accept, so the outputs disagree.\n  - The verdict readers in `delegated_verdicts.go:345,428` do the same, so a done spec's smoke and adjudication records stop verifying after drift. `surface-check` reads the smoke records.\n- **F2** `pose-mcp/internal/pose/review_run_provenance.go:606`: for a done scope, the sealed path skips all checks on the proof's issue and expiry times, including the purely internal ones (an unreadable expiry, an expiry before issue). Neither R3, the ADR nor the manual says expiry is dropped. These checks should be run against the attestation's own time.\n- **F3** `pose-mcp/internal/pose/retained_run_approval_test.go:62`: test comments carry the wrong requirement numbers (R3/R4/R6 where the spec says R4/R5/R7, also at lines 83 and 127).\n- **F4** `pose-mcp/internal/pose/review_run_provenance.go:583`: `VerifyReviewRunProofAsSealed` copies the loading code of `VerifyReviewRunProofRecord`, and the bundle is loaded several times per verification.\n\n**Structural fact:** SD-2e3d62b7 (the ADR amendment) comes from decision D1.\n\n```pose-draft\n{\"schema\":\"pose.review.draft/v1\",\"decision\":\"approved\",\n\"findings\":[\n{\"id\":\"F1\",\"severity\":\"low\",\"disposition\":\"follow-up\",\"file\":\"pose-mcp/internal/cli/review_run_provenance.go\",\"line\":76,\"summary\":\"`pose review run-proof` and the verdict readers (delegated_verdicts.go:345,428) still verify a done scope's run live, so after drift run-proof fails while review verify/closeout retain, and done specs' smoke/adjudication records stop verifying (surface-check reads them).\",\"action\":\"Route run-proof and verdict readers through VerifyReviewRunProofAsSealed when the run's scope is done, or have run-proof state which verification it ran.\",\"owner\":\"@pose-maintainers\",\"review_by\":\"2027-01-08\"},\n{\"id\":\"F2\",\"severity\":\"low\",\"disposition\":\"follow-up\",\"file\":\"pose-mcp/internal/pose/review_run_provenance.go\",\"line\":606,\"summary\":\"The sealed path skips every claim-time check (unparseable expires_at, expiry before issue, expiry), not only age; R3, the ADR and the manual do not say expiry is dropped.\",\"action\":\"Evaluate reviewClaimTimeBlockers at the attestation's attested_at on the sealed path and document that a proof is not aged out for a done scope.\",\"owner\":\"@pose-maintainers\",\"review_by\":\"2027-01-08\"},\n{\"id\":\"F3\",\"severity\":\"low\",\"disposition\":\"follow-up\",\"file\":\"pose-mcp/internal/pose/retained_run_approval_test.go\",\"line\":62,\"summary\":\"Test comments cite R3/R4/R6 where the spec says R4/R5/R7 (also lines 83 and 127).\",\"action\":\"Correct the requirement labels in the test comments.\",\"owner\":\"@pose-maintainers\",\"review_by\":\"2027-01-08\"},\n{\"id\":\"F4\",\"severity\":\"low\",\"disposition\":\"follow-up\",\"file\":\"pose-mcp/internal/pose/review_run_provenance.go\",\"line\":583,\"summary\":\"VerifyReviewRunProofAsSealed copies VerifyReviewRunProofRecord's loading code, and the bundle is reloaded several times per verification.\",\"action\":\"Share the proof-loading helper and pass the loaded bundle through.\",\"owner\":\"@pose-maintainers\",\"review_by\":\"2027-01-08\"}],\n\"criteria\":[\n{\"id\":\"assumption-integrity\",\"disposition\":\"passed\",\"evidence\":\"integration:pose-mcp/go/delegated-approval-survives-routine-drift-integration\",\"rationale\":\"Verified: the record checks and the pin are checked on every read (tests for an altered transcript and a revoked issuer). Assumption: 'done' comes from the spec's status field, the same trust the existing retention of human attestations relies on. Accepted risks: the brief is not re-rendered (D2), and there is no superseding-run test (known gap).\"},\n{\"id\":\"backend-concurrency\",\"disposition\":\"passed\",\"evidence\":\"unit:pose-mcp/go/test\",\"rationale\":\"Read-only verification with no new shared state; the targeted tests pass with go test -race.\"},\n{\"id\":\"backend-contracts\",\"disposition\":\"passed\",\"evidence\":\"integration:pose-mcp/go/delegated-run-provenance-integration\",\"rationale\":\"Only exported functions are added; no schema, file or command changes; live verification is unchanged.\"},\n{\"id\":\"backend-input-errors\",\"disposition\":\"passed\",\"evidence\":\"integration:pose-mcp/go/delegated-approval-survives-routine-drift-integration\",\"rationale\":\"Sealed-path failures return typed 'run provenance:' errors with reasons.\"},\n{\"id\":\"backend-integration-impact\",\"disposition\":\"passed\",\"evidence\":\"integration:pose-mcp/go/review-assurance-disclosure-integration\",\"rationale\":\"verifyRunReviewReference feeds closeout, verify and the assurance disclosure consistently.\"},\n{\"id\":\"backend-observability\",\"disposition\":\"passed\",\"evidence\":\"unit:pose-mcp/go/test\",\"rationale\":\"Refusal reasons are bounded and expose no secrets.\"},\n{\"id\":\"compatibility\",\"disposition\":\"passed\",\"evidence\":\"integration:pose-mcp/go/completed-review-retention-integration\",\"rationale\":\"Examined the retained path: done scopes read terminal again with no re-review, and open scopes are unchanged.\"},\n{\"id\":\"correctness\",\"disposition\":\"passed\",\"evidence\":\"integration:pose-mcp/go/delegated-approval-survives-routine-drift-integration\",\"rationale\":\"Positive and negative tests pass under -race.\"},\n{\"id\":\"design-causality\",\"disposition\":\"passed\",\"evidence\":\"structure:design-a398cc0f1665a42f\",\"rationale\":\"Three present-state checks (prepared bundle, materialization, brief re-render) cannot hold after drift; the D1 split keeps the checks on the record and the pin.\",\"mappings\":[{\"delta\":\"SD-2e3d62b7\",\"basis\":\"D1\",\"disposition\":\"mapped\",\"rationale\":\"The ADR amendment records D1: a done scope's approval is verified as sealed, live checks stay for live scopes.\"}]},\n{\"id\":\"documentation\",\"disposition\":\"passed\",\"evidence\":\"integration:pose-mcp/go/distributed-instructions-parity-integration\",\"rationale\":\"Examined the ADR and the en/pt-BR manual plus their scaffold copies: they describe the sealed verification; the undocumented expiry drop is F2.\"},\n{\"id\":\"operability\",\"disposition\":\"finding\",\"evidence\":\"F1\"},\n{\"id\":\"requirements\",\"disposition\":\"passed\",\"evidence\":\"integration:pose-mcp/go/delegated-approval-survives-routine-drift-integration\",\"rationale\":\"R1-R7 each map to a passing traced test.\"},\n{\"id\":\"scope\",\"disposition\":\"passed\",\"evidence\":\"integration:pose-mcp/go/delegated-approval-survives-routine-drift-integration\",\"rationale\":\"Examined the change set: it matches the spec's artifact list; the template-digest commit belongs to another spec.\"},\n{\"id\":\"security\",\"disposition\":\"finding\",\"evidence\":\"F2\"},\n{\"id\":\"solution-proportionality\",\"disposition\":\"passed\",\"evidence\":\"structure:design-a398cc0f1665a42f\",\"rationale\":\"Compared with the minimal option of lifting only the materialization check, which would fail on the next present-state check; the split is the smallest fix that works. The choice is invalidated if a template version changes text under the same version (now guarded by golden digests). Duplication is F4.\"}],\n\"tools\":[\n{\"id\":\"artifact-check\",\"disposition\":\"passed\",\"evidence\":\"command:pose artifact-check --spec pose-delegated-approval-survives-routine-drift --strict\",\"rationale\":\"No errors; only repository-wide orphan warnings.\"},\n{\"id\":\"assess-design\",\"disposition\":\"not-used\",\"rationale\":\"Relied on sealed structure:design-a398cc0f1665a42f; kept output within the capture limit.\"},\n{\"id\":\"assess-discover\",\"component\":\"pose-mcp\",\"disposition\":\"not-used\",\"rationale\":\"Recommended only; callers were swept manually with grep.\"},\n{\"id\":\"assess-integrate\",\"disposition\":\"not-used\",\"rationale\":\"Recommended only; relied on sealed integration evidence.\"},\n{\"id\":\"assess-tech-debt\",\"disposition\":\"not-used\",\"rationale\":\"Recommended only; debt is noted in F4.\"},\n{\"id\":\"closeout-check\",\"disposition\":\"deferred\",\"rationale\":\"Ran it: it fails until this review is recorded and the spec is closed (status not done).\"},\n{\"id\":\"review-check\",\"disposition\":\"passed\",\"evidence\":\"command:pose review-check spec:pose-delegated-approval-survives-routine-drift\",\"rationale\":\"Warnings only; fresh=false because no review is recorded yet.\"},\n{\"id\":\"suggest-review\",\"component\":\"pose-mcp\",\"disposition\":\"not-used\",\"rationale\":\"Recommended only; scope was taken from the brief.\"},\n{\"id\":\"surface-check\",\"disposition\":\"passed\",\"evidence\":\"integration:pose-mcp/go/delegated-approval-survives-routine-drift-integration\",\"rationale\":\"Ran it: targets=1, findings=0.\"},\n{\"id\":\"validate\",\"disposition\":\"passed\",\"evidence\":\"unit:pose-mcp/go/test\",\"rationale\":\"Not re-run because it writes results into the repository; sealed strict results pass, and the targeted go test -race run passes.\"},\n{\"id\":\"validate\",\"component\":\"pose-mcp\",\"disposition\":\"passed\",\"evidence\":\"build:pose-mcp/go/build\",\"rationale\":\"Not re-run because it writes results; relied on the sealed module evidence plus the targeted -race tests.\"}]}\n```",
+  "policy_digest": "sha256:3ce425ff658542b7442c6e7257b9ad82f89d2a4f662a1e0547c80d5b2cdbc0d5",
+  "purpose": "review",
+  "env_removed": [
+    "CLAUDE_CODE_BRIDGE_SESSION_ID",
+    "CLAUDE_CODE_CHILD_SESSION",
+    "CLAUDE_CODE_ENTRYPOINT",
+    "CLAUDE_CODE_EXECPATH",
+    "CLAUDE_CODE_MESSAGING_SOCKET",
+    "CLAUDE_CODE_MESSAGING_TOKEN",
+    "CLAUDE_CODE_SESSION_ATTENDED",
+    "CLAUDE_CODE_SESSION_ID",
+    "CLAUDE_EFFORT",
+    "CLAUDE_PID"
+  ],
+  "events": "claude-stream-json",
+  "events_digest": "sha256:bca772a4664340653765ac5a7bfd5280ca02308d39f25f379d0daf874aa26aba",
+  "routing": {
+    "requested": "claude-opus-5-5",
+    "implementation": {
+      "principal": "agent:anthropic/claude-sonnet-5-5",
+      "vendor": "anthropic",
+      "model": "claude-sonnet-5-5",
+      "execution_digest": "sha256:675189f7e0b769255994f8213acf8b1b57174c4353838cd875cdabd46aa9cc0b",
+      "source": "declared"
+    },
+    "implementation_from": "bundle",
+    "step": "explicit"
+  },
+  "independence_achieved": "different-model",
+  "round": 1
+}
