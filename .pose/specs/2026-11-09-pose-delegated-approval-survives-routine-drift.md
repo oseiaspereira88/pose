@@ -1,8 +1,8 @@
 ---
 slug: pose-delegated-approval-survives-routine-drift
-status: in-progress
+status: done
 created_at: 2026-11-09
-completed_at:
+completed_at: 2026-11-09
 supersedes:
 depends_on: pose-done-spec-keeps-its-sealed-plan
 remediates:
