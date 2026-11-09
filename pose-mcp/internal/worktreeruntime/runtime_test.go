@@ -282,3 +282,26 @@ func TestAStopAcceptsNothingWhileItDrains(t *testing.T) {
 		t.Fatalf("a connection was accepted after the stop: %v", err)
 	}
 }
+
+// G6: a runtime that exits after a successor took its name removes nothing: the endpoint it
+// finds is not the inode it created.
+func TestARuntimeThatOutlivesItsEndpointRemovesOnlyItsOwn(t *testing.T) {
+	skipUnsupported(t)
+	id := identity(t, repo(t), "7.4.1")
+	dir := shortDir(t)
+	cancel, done := start(t, id, dir, 0)
+	path := SocketPath(dir, id)
+	if err := os.Remove(path); err != nil {
+		t.Fatal(err)
+	}
+	successor, err := net.Listen("unix", path)
+	if err != nil {
+		t.Fatal(err)
+	}
+	defer successor.Close()
+	cancel()
+	<-done
+	if _, err := os.Lstat(path); err != nil {
+		t.Fatalf("the exiting runtime removed the endpoint of its successor: %v", err)
+	}
+}

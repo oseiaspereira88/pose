@@ -245,6 +245,11 @@ func Serve(ctx context.Context, opts Options) error {
 	if err != nil {
 		return err
 	}
+	// The listener would unlink the path on close whatever is there by then; the guard below
+	// removes it only if it is still ours.
+	if ul, ok := listener.(*net.UnixListener); ok {
+		ul.SetUnlinkOnClose(false)
+	}
 	if err := os.Chmod(path, 0o600); err != nil {
 		listener.Close()
 		return err

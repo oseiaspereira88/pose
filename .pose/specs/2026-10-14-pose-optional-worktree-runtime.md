@@ -49,6 +49,7 @@ Esta escrita não implementa o comportamento. Preservar fontes canônicas, layou
 - created: .pose/changelogs/unreleased/pose-optional-worktree-runtime.md
 - modified: .pose/specs/2026-10-14-pose-optional-worktree-runtime.md
 - modified: .pose/adr/2026-10-14-shared-domain-and-optional-worktree-runtime.md
+- modified: .pose/roadmaps/pose-shared-runtime.md
 - modified: pose-mcp/internal/cli/cli.go
 - created: pose-mcp/internal/cli/runtime_cmd.go
 - created: pose-mcp/internal/cli/runtime_cmd_test.go
@@ -102,7 +103,7 @@ Fixtures sintéticas: repositórios Git temporários, sockets em diretório temp
 - R6 [withdrawn: moved to pose-worktree-runtime-qos-and-measurement by the 2026-11-09 slicing]
 - R7 [withdrawn: moved to pose-worktree-runtime-resident-cache by the 2026-11-09 slicing]
 - R8 [withdrawn: moved to pose-worktree-runtime-qos-and-measurement by the 2026-11-09 slicing]
-- R9 [satisfied] test:TestConcurrentStartsLeaveOneRuntimeAndNoOneRemovesItsSocket test:TestAStopAcceptsNothingWhileItDrains test:TestTheIdentityNamesTheWorktreeAndTheHandshakeRefusesAnotherEngine test:TestTheEndpointIsProtectedAndAStaleOneIsReplaced test:TestTheLifecycleDrainsRestartsWithANewEpochAndIdlesOut
+- R9 [satisfied] test:TestARuntimeThatOutlivesItsEndpointRemovesOnlyItsOwn test:TestConcurrentStartsLeaveOneRuntimeAndNoOneRemovesItsSocket test:TestAStopAcceptsNothingWhileItDrains test:TestTheIdentityNamesTheWorktreeAndTheHandshakeRefusesAnotherEngine test:TestTheEndpointIsProtectedAndAStaleOneIsReplaced test:TestTheLifecycleDrainsRestartsWithANewEpochAndIdlesOut
 
 ### Known gaps
 - O peer de outro usuário (UID diferente) não é exercido em teste; só o dono do diretório e do socket.

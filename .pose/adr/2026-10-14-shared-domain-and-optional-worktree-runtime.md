@@ -251,9 +251,11 @@ Decided 2026-11-09 with the maintainer, before the functional start of B35:
   follow-up that lifts it.
 - **Identity.** user (uid) + canonical worktree (symlinks resolved) + Git common
   directory + engine version/build + wire protocol + schema. The endpoint name is
-  a digest of it, so two worktrees, two users or two engines never share an
-  endpoint; the handshake repeats the comparison field by field and refuses a
-  difference, naming it.
+  a digest of the location part only (user, worktree, Git common directory), so two
+  worktrees or two users never share an endpoint; the engine part is compared at the
+  handshake, field by field, and a difference is refused naming it, so that a new CLI
+  that finds an old process after an update is refused by name instead of being
+  given a different endpoint and never learning the old one is there.
 - **Authority.** The runtime of slice 1 hosts no domain operation: it answers
   handshake, status and stop. It confers no authority, signature or presence, and a
   client that attaches gains nothing it did not have standalone.

@@ -68,7 +68,7 @@ func parseRuntimeFlags(args []string) (runtimeFlags, string) {
 				return f, args[i] + " needs a duration"
 			}
 			d, err := time.ParseDuration(args[i+1])
-			if err != nil || d < 0 {
+			if err != nil || d < 0 || args[i] == "--drain" && d < time.Millisecond {
 				return f, args[i] + ": " + args[i+1] + " is not a duration"
 			}
 			if args[i] == "--idle" {
@@ -129,15 +129,21 @@ func cmdRuntime(root string, args []string, stdout, stderr io.Writer) int {
 		return runtimeReport(out, stdout, f, "stopped", reply, nil)
 	case "start", "restart":
 		if sub == "restart" {
-			if _, err := client.Stop(ctx, f.drain); err != nil && !errors.Is(err, worktreeruntime.ErrNoRuntime) {
-				return runtimeFailure(out, stdout, f, sub, err)
+			stopped, err := client.Stop(ctx, f.drain)
+			if err != nil && !errors.Is(err, worktreeruntime.ErrNoRuntime) {
+				return runtimeReport(out, stdout, f, sub, stopped, err)
+			}
+			if stopped.Abandoned > 0 {
+				// The process is still ending what it abandoned and holds the endpoint: a new
+				// one would be refused, so the restart says so instead of starting it.
+				return runtimeFailure(out, stdout, f, sub, fmt.Errorf("the runtime abandoned %d request(s) in flight and is still ending them (pid %d); start again when it has exited", stopped.Abandoned, stopped.PID))
 			}
 			waitRuntimeGone(ctx, client)
 		}
 		if reply, err := client.Handshake(ctx); err == nil {
 			return runtimeReport(out, stdout, f, "already-running", reply, nil)
 		} else if !errors.Is(err, worktreeruntime.ErrNoRuntime) {
-			return runtimeFailure(out, stdout, f, sub, err)
+			return runtimeReport(out, stdout, f, sub, worktreeruntime.Reply{}, err)
 		}
 		if !worktreeruntime.Supported() {
 			return runtimeFailure(out, stdout, f, sub, worktreeruntime.ErrUnsupported)

@@ -61,7 +61,7 @@ expansão total desnecessária ou cache de autorização stale. Git reader fica 
 - after: operation-performance, common-domain-handoff, bounded-graph-caches, spec:pose-git-and-dispatch-snapshot-integrity, spec:pose-cli-mcp-operation-results, spec:pose-writer-coordination-and-atomic-publication, spec:pose-index-generation-integrity, spec:pose-governance-read-view-generation, spec:pose-attention-within-a-second
 - target_start:
 - target_due:
-- specs: pose-optional-worktree-runtime
+- specs: pose-optional-worktree-runtime, pose-worktree-runtime-resident-cache, pose-worktree-runtime-qos-and-measurement
 
 **Exit gate:** B35 qualifica handshake user/worktree/Git/engine/schema, endpoint
 protegido, lifecycle/restart/update e fallback CI/standalone. Stdio não é IPC
