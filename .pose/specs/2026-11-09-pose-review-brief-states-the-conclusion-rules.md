@@ -39,10 +39,10 @@ Reviews by Claude Opus 5.5 were refused four times by the preflight although the
 
 ### Functional
 
-- R1: The brief of the current template shall state, for a run asked to conclude, each rule the engine checks before it records the conclusion: a passed judgment criterion carries a rationale; the evidence of a passed criterion is one of the refs listed under Sealed evidence; a criterion disposed as a finding carries the id of a finding of the draft; structural facts are answered as mappings by the criterion that asks for them; a not-applicable carries a rationale and is refused where the bundle seals evidence of the class the criterion asks for; every required criterion and tool is answered; a tool disposition is passed, failed, not-used or deferred, a required tool is run and passed, a recommended tool not run is not-used with a rationale, the evidence of a tool is a class:ref (a sealed ref of a class the tool lists, otherwise command: and the command run), and an approving draft leaves no finding open (each is a follow-up with action, owner and review_by, or the draft requests changes); and a draft that breaks one is refused whole.
-- R2: A test shall tie each blocker the preflight raises on a conclusion to the words of the brief that state its rule, so that a rule added to the preflight without a sentence in the brief fails the build.
+- R1: The brief of the current template shall state, for a run asked to conclude, each rule the four functions of the attestation preflight that judge a draft's criteria, tools, findings and evidence check before it records the conclusion (`validateBundleAttestationWith`, `reviewCriterionEvidenceBlockers`, `evaluateReviewToolCoverageIn`, `reviewToolEvidenceBlocker`): a passed judgment criterion carries a rationale; the evidence of a passed criterion is one of the refs listed under Sealed evidence; a criterion disposed as a finding carries the id of a finding of the draft; structural facts are answered as mappings by the criterion that asks for them; a not-applicable carries a rationale and is refused where the bundle seals evidence of the class the criterion asks for; every required criterion and tool is answered; a tool disposition is passed, failed, not-used or deferred, a required tool is run and passed, a recommended tool not run is not-used with a rationale, the evidence of a tool is a class:ref (a sealed ref of a class the tool lists, otherwise command: and the command run), and an approving draft leaves no finding open (each is a follow-up with action, owner and review_by, or the draft requests changes); and a draft that breaks one is refused whole.
+- R2: A test shall tie each message those four functions can refuse a conclusion with to the words of the brief that state its rule, or exempt it with the reason a reviewer cannot break it, so that a rule added to the preflight without a sentence in the brief fails the build.
 - R3: The template shall be versioned: `review-brief/6` is current (it adds the severities a follow-up can be accepted at, the deferred answer of a tool that needs the review complete, the component scoping of evidence, what a mapping's basis is and the one line outside the block that is read), `review-brief/5` (the identifiers of the findings a later round accounts for), `/4` and `/3` still render exactly as before, so a run briefed with it still verifies, resumes and concludes.
-- R4: The delegation profile of the Claude reviewer shall allow the commands a review needs (Git reads, `go test`, `go vet`, and the checks `artifact-check`, `surface-check`, `review-check`, `closeout-check`, `lint-spec`) in its fresh, resumed and resumed-read commands, by verb, and shall allow no verb that writes the repository or the project: `pose assess`, `pose validate`, any `pose` verb that records, `git commit|push|add|checkout|reset`, `go build|install`.
+- R4: The delegation profile of the Claude reviewer shall allow, in its fresh, resumed and resumed-read commands, the required tools of a review plan (`pose artifact-check`, `surface-check`, `review-check`, `closeout-check`) and `git status` and `git ls-files`, and no verb that writes or runs a program: `pose assess`, `pose validate`, any `pose` verb that records, `git commit|push|add|checkout|reset`, `go build|install`, and the verbs whose flags write a file or run one (`git log|diff|show --output`, `go test -exec -c -o`, `go vet -vettool`, `pose lint-spec --json-out`), which a prefix allow-list cannot exclude by flag.
 - R5: The manual shall say which template asks for the conclusion and that the brief states the rules.
 
 ### Non-functional
@@ -51,7 +51,7 @@ Reviews by Claude Opus 5.5 were refused four times by the preflight although the
 
 ### Security
 
-- The allowed commands are read-only by their verbs; a flag of an allowed verb that writes a file (`git log --output`, `go test -c -o`, `-coverprofile`, `go vet -vettool`) is not excluded by a prefix list, because the allow-list of the agent matches a prefix. The review runs in a disposable worktree and the engine checks that the run left the project as it found it, so such a write is contained and visible; the brief forbids it. `pose assess`, `pose validate`, `pose review bundle --seal` and every `pose` verb that writes stay denied, which a probe of the same flags confirms: an allowed command ran and a write was refused.
+- The allowed commands are the required tools of the review plan and two Git reads that take no flag that writes. A prefix allow-list cannot exclude a flag, so a verb with a write or exec flag is not allowed at all; the reviewer reads the code with its read tools and relies on the sealed evidence for tests. The run safety record states that the worktree is not isolated from the filesystem, so no containment is claimed.
 
 ### Compatibility
 
@@ -88,7 +88,7 @@ Reviews by Claude Opus 5.5 were refused four times by the preflight although the
 
 ### API/contract changes
 
-The review brief template moves from `review-brief/3` to `review-brief/4`; the reviewer profile `claude-opus-5-5` allows read-only commands.
+The review brief template moves from `review-brief/3` to `review-brief/6` (`/4` stated the rules, `/5` the identifiers of prior findings, `/6` the accepted-risk severities and four more); the reviewer profile `claude-opus-5-5` allows the required tools of a review plan and two Git reads.
 
 ## 4. Tasks
 
@@ -144,7 +144,7 @@ The brief is rendered from a real sealed bundle and read for each rule; the olde
 ## 7. Final Report
 
 ### Delivered scope
-The brief of `review-brief/4` states eleven rules (the tenth, the identifiers of prior findings, in review-brief/5; the eleventh group, the accepted-risk severities, the deferred tool, the component scoping, the mapping basis and the decision line, in review-brief/6) the engine checks on a typed conclusion and that a draft breaking one is refused whole (R1); a test ties each preflight blocker to the sentence of the brief that states its rule (R2); `review-brief/3` still renders as before and runs briefed with it conclude (R3); the Claude reviewer profile allows read-only commands in all three of its commands (R4); the manual names the template (R5). Left out: validating a draft before the run ends, and a change to any rule of the preflight.
+The brief of `review-brief/6` states eleven rules (the tenth, the identifiers of prior findings, in review-brief/5; the eleventh group, the accepted-risk severities, the deferred tool, the component scoping, the mapping basis and the decision line, in review-brief/6) the engine checks on a typed conclusion and that a draft breaking one is refused whole (R1); a test ties each preflight blocker to the sentence of the brief that states its rule (R2); `review-brief/3` still renders as before and runs briefed with it conclude (R3); the Claude reviewer profile allows read-only commands in all three of its commands (R4); the manual names the template (R5). Left out: validating a draft before the run ends, and a change to any rule of the preflight.
 
 ### Files and modules changed
 - pose-mcp/internal/pose (review_brief.go, review_conclusions.go and their tests)
@@ -161,5 +161,6 @@ The brief of `review-brief/4` states eleven rules (the tenth, the identifiers of
 
 ### Follow-ups
 
+- [open] Extend the tie of the preflight messages to the rest of what refuses a conclusion (the structural-causality and causality-closeout mapping rules, the finding-decision rules, the reuse rules, the round protocol and `ParseReviewDraft`), and state in the brief the rules found there: three or more mappings on one basis with one pasted rationale, a basis that reaches no requirement, a draft whose outside `decision:` line disagrees with its block. (owner:@pose-maintainers crit:low review:2027-01-08)
 - [open] Let `pose review conclude --dry-run` print the preflight blockers of a run's draft before the attestation is attempted, so a reviewer round is not spent on the shape. (owner:@pose-maintainers crit:low review:2027-01-08)
 - [open] Offer `pose delegate review` the same read-only verbs for the Codex profile as an explicit list, so both profiles state what a reviewer may run. (owner:@pose-maintainers crit:low review:2027-01-08)

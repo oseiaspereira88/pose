@@ -56,10 +56,10 @@ type ReviewBrief struct {
 // (spec pose-delegated-review-round-protocol), and the one before it, kept so
 // a run briefed with it still verifies.
 const (
-	// reviewBriefTemplateConclusions is the current template: it asks for the typed
+	// reviewBriefTemplateConclusions asked for the typed
 	// conclusion and states the rules the engine checks before it records one (spec
 	// pose-review-brief-states-the-conclusion-rules).
-	// reviewBriefTemplateRoundIDs is the current template: it also states how a round
+	// reviewBriefTemplateRoundIDs stated how a round
 	// after the first names the findings it accounts for. A change to the text of a
 	// published version takes a new one (spec pose-review-brief-templates-are-immutable).
 	reviewBriefTemplateRoundIDs = "review-brief/5"

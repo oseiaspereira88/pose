@@ -47,7 +47,7 @@ func TestTheBriefStatesEveryRuleThePreflightEnforces(t *testing.T) {
 }
 
 // R3: a run briefed with review-brief/3 still renders as it did, without the rules, so its
-// digest still verifies; the current template is /4.
+// digest still verifies; the current template is /6.
 func TestAnEarlierConclusionBriefStillRendersWithoutTheRules(t *testing.T) {
 	store, bundle := briefFixture(t)
 	current, err := store.RenderReviewBrief(bundle.BundleID, "", "")
@@ -96,7 +96,10 @@ func TestTheClaudeReviewerProfileAllowsOnlyReadOnlyCommands(t *testing.T) {
 		t.Skip("no Claude reviewer profile")
 	}
 	commands := [][]string{agent.Commands["read"], agent.Resume.Command, agent.Resume.Commands["read"]}
-	writers := []string{"assess", "validate", "--seal", "attest", "record", "apply", "close ", "start", "index", "git commit", "git push", "git add", "git checkout", "git reset", "go build", "go install", "rm ", "touch"}
+	// An allow-list matches a prefix, so a verb that takes a flag that writes a file or runs a program
+	// (`git log --output`, `go test -exec -c -o`, `go vet -vettool`, `pose lint-spec --json-out`) cannot be
+	// allowed at all: only verbs without such a flag are.
+	writers := []string{"assess", "validate", "--seal", "attest", "record", "apply", "close ", "start", "index", "git commit", "git push", "git add", "git checkout", "git reset", "go build", "go install", "go test", "go vet", "git log", "git diff", "git show", "lint-spec", "rm ", "touch"}
 	for i, command := range commands {
 		var allowed string
 		for j, arg := range command {
@@ -107,7 +110,7 @@ func TestTheClaudeReviewerProfileAllowsOnlyReadOnlyCommands(t *testing.T) {
 		if allowed == "" {
 			t.Fatalf("command %d of the Claude reviewer allows no command: it cannot reproduce what it judges", i)
 		}
-		for _, want := range []string{"Bash(git log:*)", "Bash(go test:*)", "Bash(pose artifact-check:*)"} {
+		for _, want := range []string{"Bash(git status:*)", "Bash(pose artifact-check:*)", "Bash(pose surface-check:*)", "Bash(pose review-check:*)", "Bash(pose closeout-check:*)"} {
 			if !strings.Contains(allowed, want) {
 				t.Errorf("command %d does not allow %s", i, want)
 			}
