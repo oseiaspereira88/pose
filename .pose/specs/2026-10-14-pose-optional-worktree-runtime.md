@@ -1,6 +1,6 @@
 ---
 slug: pose-optional-worktree-runtime
-status: in-progress
+status: draft
 created_at: 2026-10-14
 completed_at:
 depends_on: pose-git-and-dispatch-snapshot-integrity, pose-cli-mcp-operation-results, pose-writer-coordination-and-atomic-publication, pose-index-generation-integrity, pose-common-domain-and-cli-mcp-handoff, pose-governance-operation-performance, pose-bounded-isolated-graph-caches, pose-governance-read-view-generation, pose-attention-within-a-second
