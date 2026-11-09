@@ -38,7 +38,7 @@ A run records the digest of the brief it was sent and its proof signs it, so the
 
 ### Functional
 
-- R1: Every review brief template version in use (the current one and every earlier one a run may have been briefed with) shall have a recorded digest of the text it renders from a fixed bundle that carries every kind of content a brief renders.
+- R1: Every review brief template version in use (the current one and every earlier one a run may have been briefed with) shall have a recorded digest of the text it renders from fixed bundles that carry every kind of content a brief renders: bare, with implementer notes, structural facts (one shared with another spec) and a tool scoped to a component, and as the second round with an open finding of the first.
 - R2: A test shall fail when a version renders text whose digest differs from the recorded one, and its message shall say that a change to the text takes a new version.
 - R3: A version in use without a recorded digest shall fail the test, so a new version cannot be published unrecorded.
 - R4: Recording a digest shall never rewrite one already recorded.
@@ -116,9 +116,11 @@ The test was written, then a sentence of `review-brief/4` was edited to see it f
 - R2 [satisfied] test:TestEveryReviewBriefTemplateVersionRendersWhatItRenderedWhenItWasPublished
 - R3 [satisfied] test:TestEveryReviewBriefTemplateVersionRendersWhatItRenderedWhenItWasPublished
 - R4 [satisfied] test:TestEveryReviewBriefTemplateVersionRendersWhatItRenderedWhenItWasPublished
-- R5 [satisfied] test:TestAChangeToTheTextOfATemplateVersionChangesItsDigest
+- R5 [satisfied] test:TestTheDigestSeesEverySectionOfEveryVariant
 
 ### Known gaps
+- The versioned handoff renderers (`delegation_handoff.go`) and the adjudication and smoke templates sign text under a version name too and are not covered; the follow-up below names them.
+- A recorded version that is removed from the list of earlier templates fails the test, and the recording refuses to overwrite a digest file it cannot read or parse.
 - The adjudication and smoke templates are not covered: their versions did not change under one name, and they render from scripts and questions the fixed bundle does not carry.
 - The digest of `review-brief/4` is the text as it renders today; the two earlier texts it had before are not recorded and are not needed, since a done scope's approval is verified as sealed.
 - The recording is made with `UPDATE_BRIEF_GOLDEN=1` and keeps every digest already in the file; changing one by hand is visible in review.
@@ -143,4 +145,4 @@ Each review brief template version in use has a digest of what it renders from a
 
 ### Follow-ups
 
-- [open] Cover the adjudication and smoke brief templates with the same golden digests, rendered from a fixed script and fixed questions. (owner:@pose-maintainers crit:low review:2027-01-08)
+- [open] Cover the adjudication and smoke brief templates and the versioned delegation handoff renderers with the same golden digests, rendered from a fixed script, fixed questions and a fixed predecessor run. (owner:@pose-maintainers crit:low review:2027-01-08)

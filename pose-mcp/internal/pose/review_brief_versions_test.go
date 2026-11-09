@@ -43,16 +43,37 @@ func fixedBriefBundle() ReviewBundle {
 	return bundle
 }
 
-func renderFixedBrief(template string) string {
-	var round *ReviewRound
+// richBriefBundle adds what only some briefs carry: structural facts (one shared with another
+// spec) and a tool scoped to a component.
+func richBriefBundle() ReviewBundle {
+	bundle := fixedBriefBundle()
+	bundle.Payload.Plan.Structure = &ReviewPlanStructure{Material: []ReviewStructuralFact{
+		{ID: "SD-aaaa1111", Kind: "governance-contract", Action: "changed", Subject: "an ADR"},
+		{ID: "SD-bbbb2222", Kind: "api-contract", Action: "added", Subject: "an endpoint", SharedWith: []string{"other-spec"}},
+	}}
+	bundle.Payload.Plan.Tools = append(bundle.Payload.Plan.Tools, ReviewPlanTool{ID: "assess-discover", Component: "core", Requiredness: "recommended", Args: []string{"pose", "assess", "discover"}})
+	return bundle
+}
+
+// renderFixedBriefs renders a template every way a brief can differ: bare, with implementer
+// notes and structural facts, and as the second round with an open finding of the first. A
+// sentence of any section, in any of them, changes the digest.
+func renderFixedBriefs(template string) string {
+	conclusion := reviewBriefAsksConclusion(template)
+	var out []string
+	rounds := []*ReviewRound{nil}
 	if template != reviewBriefTemplateFirst {
-		round = &ReviewRound{Number: 1}
+		rounds = []*ReviewRound{{Number: 1}, {Number: 2, Open: []ReviewOpenFinding{{ID: "B1", Round: 1, Severity: "medium", Disposition: "blocker", File: "core/a.go", Line: 3, Summary: "a defect", Carried: "F1"}}}}
 	}
-	return renderReviewBriefBody(fixedBriefBundle(), ReviewBriefKindReview, template, "", nil, round, reviewBriefAsksConclusion(template), nil)
+	for _, round := range rounds {
+		out = append(out, renderReviewBriefBody(fixedBriefBundle(), ReviewBriefKindReview, template, "", nil, round, conclusion, nil))
+		out = append(out, renderReviewBriefBody(richBriefBundle(), ReviewBriefKindReview, template, "Implementer note.\nSecond line.", nil, round, conclusion, nil))
+	}
+	return strings.Join(out, "\n=====\n")
 }
 
 func briefTemplateDigest(template string) string {
-	sum := sha256.Sum256([]byte(renderFixedBrief(template)))
+	sum := sha256.Sum256([]byte(renderFixedBriefs(template)))
 	return "sha256:" + hex.EncodeToString(sum[:])
 }
 
@@ -68,7 +89,11 @@ func TestEveryReviewBriefTemplateVersionRendersWhatItRenderedWhenItWasPublished(
 	if os.Getenv("UPDATE_BRIEF_GOLDEN") != "" {
 		golden = map[string]string{}
 		if err == nil {
-			_ = json.Unmarshal(raw, &golden)
+			if jerr := json.Unmarshal(raw, &golden); jerr != nil {
+				t.Fatalf("the recorded digests cannot be read, and would be replaced by today's: %v", jerr)
+			}
+		} else if !os.IsNotExist(err) {
+			t.Fatalf("the recorded digests cannot be read: %v", err)
 		}
 		for _, version := range briefTemplatesInUse() {
 			if _, kept := golden[version]; !kept { // a published version is never rewritten
@@ -87,6 +112,15 @@ func TestEveryReviewBriefTemplateVersionRendersWhatItRenderedWhenItWasPublished(
 	if err := json.Unmarshal(raw, &golden); err != nil {
 		t.Fatal(err)
 	}
+	inUse := map[string]bool{}
+	for _, version := range briefTemplatesInUse() {
+		inUse[version] = true
+	}
+	for version := range golden {
+		if !inUse[version] {
+			t.Errorf("%s has a recorded digest but is no longer a template a run may have been briefed with: runs briefed with it could not be verified or resumed; keep it in reviewBriefEarlierTemplates", version)
+		}
+	}
 	for _, version := range briefTemplatesInUse() {
 		want, ok := golden[version]
 		if !ok {
@@ -99,18 +133,23 @@ func TestEveryReviewBriefTemplateVersionRendersWhatItRenderedWhenItWasPublished(
 	}
 }
 
-// The guard itself: a change to the text under the same version is seen.
-func TestAChangeToTheTextOfATemplateVersionChangesItsDigest(t *testing.T) {
-	before := briefTemplateDigest(reviewBriefTemplateConclusions)
-	text := renderFixedBrief(reviewBriefTemplateConclusions)
-	sum := sha256.Sum256([]byte(text + "an added sentence"))
-	if "sha256:"+hex.EncodeToString(sum[:]) == before {
-		t.Fatal("a changed text has the digest of the original")
+// The guard itself: every section of every variant is under the digest, two renderings agree
+// (also across a rebuilt bundle), and two versions never render the same text.
+func TestTheDigestSeesEverySectionOfEveryVariant(t *testing.T) {
+	text := renderFixedBriefs(reviewBriefTemplateConclusions)
+	for _, section := range []string{"## Structural facts to answer for", "SD-bbbb2222", "also changed by other-spec", "Implementer note.", "[core]", "round 2", "B1"} {
+		if !strings.Contains(strings.ToLower(text), strings.ToLower(section)) {
+			t.Errorf("the fixed renderings carry no %q: a sentence of that section could change without the digest moving", section)
+		}
 	}
-	if briefTemplateDigest(reviewBriefTemplateConclusions) != before {
+	if renderFixedBriefs(reviewBriefTemplateConclusions) != text || briefTemplateDigest(reviewBriefTemplateConclusions) != briefTemplateDigest(reviewBriefTemplateConclusions) {
 		t.Fatal("the rendering of a version is not deterministic")
 	}
 	if briefTemplateDigest(reviewBriefTemplateConclusions) == briefTemplateDigest(reviewBriefTemplateTypedConclusion) {
 		t.Fatal("two versions render the same text: a new version must differ from the one before it")
+	}
+	sum := sha256.Sum256([]byte(strings.Replace(text, "Map each fact", "Map every fact", 1)))
+	if "sha256:"+hex.EncodeToString(sum[:]) == briefTemplateDigest(reviewBriefTemplateConclusions) {
+		t.Fatal("an edited sentence of the structural section did not change the digest")
 	}
 }
