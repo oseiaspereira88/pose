@@ -73,6 +73,7 @@ Codex has two command profiles, `read` and `sandboxed` (`-s workspace-write`), r
 - modified: pose-mcp/internal/cli/delegate.go
 - modified: pose-mcp/internal/cli/doctor.go
 - created: pose-mcp/internal/cli/delegate_requirements_test.go
+- modified: pose-mcp/internal/pose/engine_reads_raw_history_test.go
 
 ### Delivery targets
 
