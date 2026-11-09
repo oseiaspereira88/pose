@@ -2597,6 +2597,20 @@
           "evidenceClass": "integration"
         },
         {
+          "name": "claude-sandboxed-profile-integration",
+          "program": "go",
+          "args": [
+            "test",
+            "-race",
+            "./internal/pose",
+            "-run",
+            "TestTheClaudeAgentDeclaresASandboxedProfile|TestTheSandboxedProfile",
+            "-count=1"
+          ],
+          "severity": "required",
+          "evidenceClass": "integration"
+        },
+        {
           "name": "delegate-picker-integration",
           "program": "go",
           "args": [
