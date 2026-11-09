@@ -144,7 +144,7 @@ func (s Store) runCLI(ctx context.Context, args []string) ([]byte, error) {
 	// A read-only command whose semantics the CLI package owns runs in process: one
 	// source of results, errors and coverage, and no second binary to start (spec
 	// pose-common-domain-and-cli-mcp-handoff R1).
-	if run, ok := inProcessCommand(args[0]); ok {
+	if run, ok := inProcessCommand(args[0]); ok && inProcessRunsTheSpawnedEngine() {
 		return s.runInProcess(ctx, run, args)
 	}
 	cliSpawnAttempts.Add(1)
@@ -221,6 +221,21 @@ func (s Store) runCLIExit(ctx context.Context, args []string) ([]byte, int, erro
 // pose-mcp-server-survives-self-update). The path is where the operator
 // installed pose, so after an update it holds the updated engine.
 var executableAtStart, executableAtStartErr = os.Executable()
+
+// executableInfoAtStart is the identity of the file executableAtStart named when this
+// process started, so a later replacement of that file can be told from the same file.
+var executableInfoAtStart = statExecutableAtStart()
+
+func statExecutableAtStart() os.FileInfo {
+	if executableAtStartErr != nil {
+		return nil
+	}
+	info, err := os.Stat(executableAtStart)
+	if err != nil {
+		return nil
+	}
+	return info
+}
 
 func (s Store) nativeExecutablePath() (string, error) {
 	if configured := os.Getenv("POSE_EXECUTABLE"); configured != "" {

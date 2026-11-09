@@ -4,6 +4,8 @@ import (
 	"context"
 	"errors"
 	"io"
+	"os"
+	"path/filepath"
 	"strings"
 	"sync/atomic"
 	"testing"
@@ -206,5 +208,69 @@ func TestAbandonedRunsDoNotAccumulateBeyondTheSlots(t *testing.T) {
 	}
 	if len(inProcessSlots) != 0 {
 		t.Fatalf("slots were not given back: %d held", len(inProcessSlots))
+	}
+}
+
+// Spec pose-common-domain-and-cli-mcp-handoff R1 (and pose-mcp-server-survives-self-update R2):
+// a command runs in process only when that answers as the spawn of the installed binary would.
+func TestAnInProcessRunIsNotTakenWhenTheSpawnWouldRunAnotherEngine(t *testing.T) {
+	dir := t.TempDir()
+	fake := filepath.Join(dir, "pose-fake")
+	write := func(body string) {
+		next := fake + ".next"
+		if err := os.WriteFile(next, []byte(body), 0o755); err != nil {
+			t.Fatal(err)
+		}
+		if err := os.Rename(next, fake); err != nil { // `pose update` writes the new engine at the same path
+			t.Fatal(err)
+		}
+	}
+	write("#!/bin/sh\necho '{\"engine\":\"old\"}'\n")
+	oldPath, oldInfo, oldErr := executableAtStart, executableInfoAtStart, executableAtStartErr
+	defer func() { executableAtStart, executableInfoAtStart, executableAtStartErr = oldPath, oldInfo, oldErr }()
+	executableAtStart, executableAtStartErr = fake, nil
+	executableInfoAtStart = statExecutableAtStart()
+	t.Setenv("POSE_EXECUTABLE", "")
+
+	if !inProcessRunsTheSpawnedEngine() {
+		t.Fatal("the installed binary is the one running: the command should run in process")
+	}
+	write("#!/bin/sh\necho '{\"engine\":\"updated\"}'\n")
+	if inProcessRunsTheSpawnedEngine() {
+		t.Fatal("the installed binary was replaced by an update: the command must be spawned so it runs the updated engine")
+	}
+	var inProcess atomic.Int64
+	RegisterInProcessCommand("t-engine", func(root string, args []string, stdout, stderr io.Writer) int {
+		inProcess.Add(1)
+		_, _ = io.WriteString(stdout, `{"engine":"in-memory"}`)
+		return 0
+	})
+	out, err := (Store{Root: t.TempDir()}).runCLI(context.Background(), []string{"t-engine"})
+	if err != nil || !strings.Contains(string(out), "updated") || inProcess.Load() != 0 {
+		t.Fatalf("a replaced binary was not asked: %q %v (in-process runs %d)", out, err, inProcess.Load())
+	}
+	// POSE_EXECUTABLE keeps its precedence over the in-process route.
+	other := filepath.Join(dir, "pose-other")
+	if err := os.WriteFile(other, []byte("#!/bin/sh\necho '{\"engine\":\"configured\"}'\n"), 0o755); err != nil {
+		t.Fatal(err)
+	}
+	t.Setenv("POSE_EXECUTABLE", other)
+	if inProcessRunsTheSpawnedEngine() {
+		t.Fatal("POSE_EXECUTABLE names another binary: it takes precedence")
+	}
+	out, err = (Store{Root: t.TempDir()}).runCLI(context.Background(), []string{"t-engine"})
+	if err != nil || !strings.Contains(string(out), "configured") {
+		t.Fatalf("POSE_EXECUTABLE was ignored: %q %v", out, err)
+	}
+}
+
+func TestAPanicInAnInProcessCommandIsAFailedRunNotACrash(t *testing.T) {
+	RegisterInProcessCommand("t-panic", func(root string, args []string, stdout, stderr io.Writer) int { panic("boom") })
+	_, err := (Store{Root: "/r"}).runCLI(context.Background(), []string{"t-panic"})
+	if err == nil || !strings.Contains(err.Error(), "panic: boom") {
+		t.Fatalf("a panic must become an error carrying its message: %v", err)
+	}
+	if len(inProcessSlots) != 0 {
+		t.Fatalf("the slot of a panicked run was not given back: %d held", len(inProcessSlots))
 	}
 }

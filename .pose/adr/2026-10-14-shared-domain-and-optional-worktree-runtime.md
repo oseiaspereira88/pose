@@ -183,15 +183,23 @@ with the CLI, without a resident service:
 - **Five route classes.** Every MCP tool is declared one of: domain-direct,
   cli-wrapper, read-only-planning, admitted-write, external-handoff. A test keeps
   the declaration equal to the advertised catalog, so a tool cannot ship without a
-  class, and checks that the tools that may write are exactly the four governance
-  write points (`pose_action_open`, `pose_action_resolve`, `pose_action_fulfil`,
-  `pose_review_attest`), which revalidate authority, assurance, policy and subjects
-  themselves. The MCP-Conductor-Harness boundary (`pose_validate_*`,
+  class, and checks that the tools classed admitted-write are exactly the four
+  governance write points (`pose_action_open`, `pose_action_resolve`,
+  `pose_action_fulfil`, `pose_review_attest`), which revalidate authority, assurance,
+  policy and subjects themselves. Other tools that start an agent or record a run
+  (`pose_delegate_*`) or request a gate (`pose_validate_*`) carry their own catalog
+  risk classes and are not admitted writes of the governance state. The MCP-Conductor-Harness boundary (`pose_validate_*`,
   `conductor_run_*`) is external-handoff: `tools/call` never becomes the execution
   of a project's checks.
 - **No second binary for read-only operations the CLI package owns.** The domain
   wrappers run a registered command function in process when it is read-only and
-  bounded (`suggest`, `followups`). The function is the single source: results,
+  bounded (`suggest`, `followups`), and only when that answers as the spawn of the
+  installed binary would: not when `POSE_EXECUTABLE` names another binary, and not
+  when the file the server started from has been replaced since (`pose update` writes
+  the new engine at the same path), because a spawned run then uses the updated engine
+  and the server still holds the old one in memory (spec
+  `pose-mcp-server-survives-self-update` R2). In those cases the wrapper spawns as it
+  always did. The function is the single source: results,
   errors and coverage are the CLI's. The contract of the spawned run is kept: a
   non-zero exit is an error carrying the command's message, and a deadline or a
   cancellation is an execution failure with no verdict (the run cannot be killed, so

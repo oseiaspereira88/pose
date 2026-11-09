@@ -57,6 +57,10 @@ Esta escrita não implementa o comportamento. Preservar fontes canônicas, layou
 - modified: pose-mcp/internal/mcpserver/testdata/tool-catalog.golden.json
 - modified: .pose/adr/2026-10-14-shared-domain-and-optional-worktree-runtime.md
 - modified: .pose/indexes/validation-matrix.json
+- modified: POSE.md
+- modified: locales/pt-BR/POSE.md
+- modified: pose-mcp/internal/scaffold/dist/POSE.md
+- modified: pose-mcp/internal/scaffold/dist/locales/pt-BR/POSE.md
 
 ### Delivery targets
 
@@ -85,7 +89,7 @@ Fixtures sintéticas (um repositório Git com uma spec aberta) e o catálogo rea
 `go test -race` dos testes da check acima nos três pacotes; a bateria completa de `internal/pose`, `internal/cli` e `internal/mcpserver`; a matriz estrita em clone limpo.
 
 ### Requirement trace
-- R1 [satisfied] test:TestAbandonedRunsDoNotAccumulateBeyondTheSlots test:TestEveryMCPRouteHasADeclaredClass test:TestTheReadOnlyWrappersNoLongerStartTheBinary test:TestTheGatesKeepTheProcessBoundary test:TestAnInProcessWrapperReturnsWhatTheSpawnedCommandReturns
+- R1 [satisfied] test:TestAnInProcessRunIsNotTakenWhenTheSpawnWouldRunAnotherEngine test:TestAPanicInAnInProcessCommandIsAFailedRunNotACrash test:TestAbandonedRunsDoNotAccumulateBeyondTheSlots test:TestEveryMCPRouteHasADeclaredClass test:TestTheReadOnlyWrappersNoLongerStartTheBinary test:TestTheGatesKeepTheProcessBoundary test:TestAnInProcessWrapperReturnsWhatTheSpawnedCommandReturns
 - R2 [satisfied] test:TestAnInProcessRunKeepsTheSpawnContract test:TestTheMCPPlanIsTheDomainPlan
 - R3 [satisfied] test:TestTheHandoffKeepsTheSelectedTarget test:TestACloseoutHandoffDescribesAndExecutesNothing test:TestThePlanAndItsHandoffAreStableAndADoneSpecHasNone
 - R4 [satisfied] test:TestTheDigestOfAHandoffIsTheDigestTheApplyChecks test:TestTheMCPPlanIsTheDomainPlan test:TestACloseoutPlanWithStepsLeftCarriesATypedHandoffThatExecutesNothing
@@ -96,6 +100,7 @@ Fixtures sintéticas (um repositório Git com uma spec aberta) e o catálogo rea
 - R9 [satisfied] test:TestAnInProcessWrapperReturnsWhatTheSpawnedCommandReturns test:TestTheGatesKeepTheProcessBoundary test:TestNoHandoffWhenThereIsNothingToApply test:TestInProcessWrappersAreSafeUnderConcurrency
 
 ### Known gaps
+- The in-process route is taken only when it answers as the spawn of the installed binary would: it is not taken when `POSE_EXECUTABLE` is set or when the file the server started from was replaced by an update, which keeps `pose-mcp-server-survives-self-update` R2. A panic in a registered command is a failed run, and a caller cancelled while it waited for a slot does not start the command.
 - Spawns, counted (`CLISpawnAttempts` and `CLIInProcessRuns`): of the ten CLI-wrapper routes, two (`pose_suggest`, `pose_get_followups`) no longer start the binary; `pose_check`, `pose_skills_check` and `pose_lint_spec` still do, by design, and the five `pose_delegate_*` routes drive `pose delegate`, a legitimate external harness. No latency or efficiency gain is claimed, and stdio is not offered as an IPC channel.
 - The semantics of `suggest` and `followups` stay in the CLI package; the domain wrapper runs the command function. Moving them into the domain package is the follow-up below.
 - An in-process run cannot be killed: on a deadline it finishes in the background, writes nothing, and the caller gets an execution failure with no verdict. A caller that has already cancelled never starts the command, a completion that races a cancellation is discarded, and the runs alive at once, abandoned ones included, are capped at four, so repeated timeouts cannot accumulate work; the work of one run (`followups` reads the follow-ups of the corpus) is bounded by the corpus, not by a ceiling, and a ceiling is the follow-up below.
@@ -106,7 +111,7 @@ Fixtures sintéticas (um repositório Git com uma spec aberta) e o catálogo rea
 ## 7. Final Report
 
 ### Delivered scope
-Every MCP tool has a declared route class (domain-direct 39, cli-wrapper 10, read-only-planning 6, admitted-write 4, external-handoff 8), kept equal to the catalog by a test, and the tools that may write are exactly the four governance write points. `pose_suggest` and `pose_get_followups` run the CLI package's command in process through a registry the CLI offers to the domain wrappers, with the contract of a spawned run (a non-zero exit is an error carrying the command's message; a deadline or cancellation is an execution failure with no verdict), and the spawn attempts and in-process runs are counted. `pose_closeout_state` with `include_plan` returns the plan the CLI computes (same digest, terminal, next action and steps) and, when steps are left, a typed `handoff`: the `pose close --apply` invocation as structured arguments, the plan, spec, revision, policy and generation digests, the authority it needs, how the outcome returns, when it stops being valid, and `executes: false`; none for a done, terminal or blocked plan. The catalog golden and the ADR record the change. Left out: moving the semantics of `suggest` and `followups` into the domain package, any MCP route that applies a closeout, a shared stdio channel, any scheduler or retry.
+Every MCP tool has a declared route class (domain-direct 39, cli-wrapper 10, read-only-planning 6, admitted-write 4, external-handoff 8), kept equal to the catalog by a test, and the tools classed admitted-write are exactly the four governance write points (other tools that start agents or request gates carry their own risk classes). `pose_suggest` and `pose_get_followups` run the CLI package's command in process through a registry the CLI offers to the domain wrappers, with the contract of a spawned run (a non-zero exit is an error carrying the command's message; a deadline or cancellation is an execution failure with no verdict), and the spawn attempts and in-process runs are counted. `pose_closeout_state` with `include_plan` returns the plan the CLI computes (same digest, terminal, next action and steps) and, when steps are left, a typed `handoff`: the `pose close --apply` invocation as structured arguments, the plan, spec, revision, policy and generation digests, the authority it needs, how the outcome returns, when it stops being valid, and `executes: false`; none for a done, terminal or blocked plan. The catalog golden and the ADR record the change. Left out: moving the semantics of `suggest` and `followups` into the domain package, any MCP route that applies a closeout, a shared stdio channel, any scheduler or retry.
 
 ### Files and modules changed
 - pose-mcp/internal/pose (common_operation.go, cli.go and their tests)

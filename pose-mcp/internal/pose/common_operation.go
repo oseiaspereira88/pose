@@ -7,6 +7,7 @@ import (
 	"encoding/hex"
 	"fmt"
 	"io"
+	"os"
 	"sort"
 	"strings"
 	"sync"
@@ -84,6 +85,27 @@ func inProcessCommand(name string) (InProcessCommand, bool) {
 func CLISpawnAttempts() int64 { return cliSpawnAttempts.Load() }
 func CLIInProcessRuns() int64 { return cliInProcessRuns.Load() }
 
+// inProcessRunsTheSpawnedEngine reports whether running a command in this process
+// answers as the spawn of the installed binary would. It does not when POSE_EXECUTABLE
+// names another binary, or when the file this process started from has been replaced
+// since (`pose update` writes the new engine at the same path): the spawned run would
+// use the updated engine, and a running server holds the old one in memory (spec
+// pose-mcp-server-survives-self-update R2, which the in-process route must not break).
+// A test process has no installed binary to compare with and runs in process.
+func inProcessRunsTheSpawnedEngine() bool {
+	if os.Getenv("POSE_EXECUTABLE") != "" {
+		return false
+	}
+	if executableAtStartErr != nil || strings.HasSuffix(executableAtStart, ".test") || executableInfoAtStart == nil {
+		return true
+	}
+	now, err := os.Stat(executableAtStart)
+	if err != nil {
+		return false // the installed binary is gone: the spawn reports it, a stale engine does not
+	}
+	return os.SameFile(executableInfoAtStart, now)
+}
+
 // runInProcess runs a registered read-only command with the same contract runCLI
 // gives a spawned one: a non-zero exit is an error carrying the command's message,
 // and a deadline or cancellation is an execution failure with no verdict, never a
@@ -110,11 +132,26 @@ func (s Store) runInProcess(ctx context.Context, run InProcessCommand, args []st
 		stdout, stderr []byte
 		code           int
 	}
+	// A caller that was cancelled while it waited for a slot does not start the command.
+	if ctx.Err() != nil {
+		<-inProcessSlots
+		return nil, failure("the command did not start; nothing ran and nothing was written")
+	}
 	done := make(chan outcome, 1)
 	go func() {
 		defer func() { <-inProcessSlots }()
 		var stdout, stderr bytes.Buffer
-		code := run(s.Root, args[1:], &stdout, &stderr)
+		// A panic in the command must not take the server down, as the exit of a spawned
+		// process never did: it becomes a failed run with the panic as its message.
+		code := func() (code int) {
+			defer func() {
+				if r := recover(); r != nil {
+					fmt.Fprintf(&stderr, "panic: %v", r)
+					code = 2
+				}
+			}()
+			return run(s.Root, args[1:], &stdout, &stderr)
+		}()
 		done <- outcome{stdout.Bytes(), stderr.Bytes(), code}
 	}()
 	var res outcome
@@ -230,7 +267,7 @@ func CloseoutHandoff(plan CloseoutPlan, target HandoffTarget) *OperationHandoff 
 		RequiredAuthority:  authority,
 		ContextRequirement: "run it in the target root, after `pose context --task " + plan.Scope + " --json` there shows the authority and revision this plan was computed under; `pose close --apply` takes no context flag, its binding is the plan digest, and this handoff carries no context",
 		Receipt:            "the CLI result of the apply, then `pose close " + plan.Scope + " --resume` or `pose_closeout_state` with include_plan to read the state again",
-		Invalidation:       "any change to the spec, the policy, the revision or the index generation makes the plan digest stale; plan again instead of applying this handoff",
+		Invalidation:       "any change to the spec, the policy or the revision makes the plan digest stale; the index generation it was read at is recorded in inputs.generation for the performer to compare, and the apply does not check it; plan again instead of applying this handoff",
 	}
 	if plan.ReadView != nil && len(plan.ReadView.Bindings) > 0 {
 		handoff.Inputs.Generation = plan.ReadView.Bindings[0].IndexGeneration
