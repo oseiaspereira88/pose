@@ -106,8 +106,8 @@ The preview command is run by `sh` with a fake pose and checked by `fish -n` whe
 
 ### Requirement trace
 - R1 [satisfied] test:TestThePickerPreviewIsOnePOSIXWordTheLoginShellCanParse check:delegate-picker-integration
-- R2 [satisfied] test:TestTheStateGlyphIsOneCellAndEveryStateHasOne
-- R3 [satisfied] test:TestDelegateWatchPicksARun
+- R2 [satisfied] test:TestTheStateGlyphIsOneCellAndEveryStateHasOne test:TestThePickerRowsAlignEveryStateAndTheArgumentsHideTheID
+- R3 [satisfied] test:TestDelegateWatchPicksARun test:TestThePickerRowsAlignEveryStateAndTheArgumentsHideTheID
 
 ### Known gaps
 - A delegated Claude task on an instance whose policy carries the older Claude profile ends with "the agent's output could not be redacted; it was not kept", a message that does not name the profile. The cause inside the redaction path was not isolated; this repository's policy now carries the engine repository's profile, under which Claude tasks complete. It is a follow-up.
@@ -133,4 +133,5 @@ The picker's preview is one `sh -c` word that fish parses (R1); the list shows g
 
 ### Follow-ups
 
+- [open] Quote the preview command for a pose path with a backslash under a fish login shell, where single quotes still process `\\`; and run the fish parse check where fish is absent by failing instead of skipping in CI. (owner:@pose-maintainers crit:low review:2027-01-08)
 - [open] Name the profile in the failure of a delegated task whose agent output could not be redacted, and find why the older Claude profile produces it. (owner:@pose-maintainers crit:low review:2027-01-08)

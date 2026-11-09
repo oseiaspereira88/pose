@@ -5,6 +5,9 @@ import (
 	"strings"
 	"testing"
 	"time"
+	"unicode/utf8"
+
+	posemodel "github.com/harne8/pose-mcp/internal/pose"
 )
 
 // Spec pose-delegate-picker-and-claude-runs.
@@ -41,5 +44,44 @@ func TestTheStateGlyphIsOneCellAndEveryStateHasOne(t *testing.T) {
 		if len([]rune(delegateStateGlyph(state))) != 1 {
 			t.Errorf("state %s has no one-cell glyph", state)
 		}
+	}
+}
+
+// R2/R3: the rows and the arguments of the picker. The state column is as wide as the widest
+// "glyph state" in code points, so no state shifts the columns after it; the id leads and is
+// hidden; the layout is reversed with a border and a header over the same columns.
+func TestThePickerRowsAlignEveryStateAndTheArgumentsHideTheID(t *testing.T) {
+	candidates := []posemodel.DelegationAttempt{
+		{AttemptID: "a1", State: "completed", Agent: "x", Label: "one"},
+		{AttemptID: "a2", State: "interrupted", Agent: "y", Label: "two"},
+		{AttemptID: "a3", State: "running", Agent: "z", Label: "three"},
+	}
+	var agentAt []int
+	for i, line := range pickerLines(candidates) {
+		if !strings.HasPrefix(line, candidates[i].AttemptID+"\t") {
+			t.Errorf("the id does not lead row %d: %q", i, line)
+		}
+		_, rest, _ := strings.Cut(line, "\t")
+		at := utf8.RuneCountInString(rest[:strings.Index(rest, string(candidates[i].Agent[0])+" ")])
+		agentAt = append(agentAt, at)
+	}
+	for _, at := range agentAt {
+		if at != agentAt[0] {
+			t.Fatalf("the agent column shifts between states: %v", agentAt)
+		}
+	}
+	if want := utf8.RuneCountInString("◐ interrupted"); agentAt[0] < want {
+		t.Errorf("the state column (%d) is narrower than the widest state (%d)", agentAt[0], want)
+	}
+	args := strings.Join(pickerArgs("PREVIEW", candidates), "\x00")
+	for _, want := range []string{"--with-nth\x002..", "--layout\x00reverse", "--border", "--preview\x00PREVIEW", "--delimiter\x00\t"} {
+		if !strings.Contains(args, want) {
+			t.Errorf("the picker arguments lack %q", want)
+		}
+	}
+	header := pickerArgs("P", candidates)
+	hdr := header[len(header)-1]
+	if got := utf8.RuneCountInString(hdr[:strings.Index(hdr, "AGENT")]); got != agentAt[0] {
+		t.Errorf("the header does not line up with the rows: %q", hdr)
 	}
 }

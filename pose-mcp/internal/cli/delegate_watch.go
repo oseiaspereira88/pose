@@ -146,23 +146,14 @@ func chooseWatchedAttempt(root string, attempts []posemodel.DelegationAttempt, f
 // pickAttempt opens fzf with a live preview of the run under the cursor, or a
 // numbered menu without it.
 func pickAttempt(root string, candidates []posemodel.DelegationAttempt, f delegateFlags, stderr io.Writer) (string, error) {
-	lines := make([]string, 0, len(candidates))
-	for _, a := range candidates {
-		// The id leads and is hidden (--with-nth 2..): it is what {1} hands the preview.
-		// The columns are padded so the state, the agent and the age line up and the label,
-		// which varies in length, comes last.
-		lines = append(lines, fmt.Sprintf("%s\t%-11s %-18s %-5s %s", a.AttemptID, delegateStateGlyph(a.State)+" "+a.State, a.Agent, delegateAge(a.StartedAt), a.Label))
-	}
+	lines := pickerLines(candidates)
 	if path, err := exec.LookPath(delegatePicker); err == nil {
 		self, err := os.Executable()
 		if err != nil {
 			return "", err
 		}
 		preview := pickerPreviewCommand(self, f)
-		cmd := exec.Command(path, "--delimiter", "\t", "--with-nth", "2..", "--preview", preview,
-			"--preview-window", "right,55%,border-left,wrap", "--layout", "reverse", "--height", "90%", "--border",
-			"--prompt", tr("run> ", "run> "), "--no-sort",
-			"--header", fmt.Sprintf("%-11s %-18s %-5s %s", tr("STATE", "ESTADO"), tr("AGENT", "AGENTE"), tr("AGE", "IDADE"), tr("LABEL", "RÓTULO")))
+		cmd := exec.Command(path, pickerArgs(preview, candidates)...)
 		cmd.Dir = root
 		cmd.Stdin = strings.NewReader(strings.Join(lines, "\n") + "\n")
 		cmd.Stderr = stderr
@@ -184,6 +175,48 @@ func pickAttempt(root string, candidates []posemodel.DelegationAttempt, f delega
 		return "", errors.New(tr("nothing was picked", "nada foi escolhido"))
 	}
 	return candidates[n-1].AttemptID, nil
+}
+
+// pickerStateWidth is the width of the state column: the widest "glyph state" among the
+// candidates, counted in code points, and never less than the header.
+func pickerStateWidth(candidates []posemodel.DelegationAttempt) int {
+	width := utf8.RuneCountInString(tr("STATE", "ESTADO"))
+	for _, a := range candidates {
+		if n := utf8.RuneCountInString(delegateStateGlyph(a.State) + " " + a.State); n > width {
+			width = n
+		}
+	}
+	return width
+}
+
+// pickerLines are the rows fzf shows. The id leads and is hidden (--with-nth 2..): it is what
+// {1} hands the preview. The columns are padded so the state, the agent and the age line up
+// and the label, which varies in length, comes last.
+func pickerLines(candidates []posemodel.DelegationAttempt) []string {
+	width := pickerStateWidth(candidates)
+	lines := make([]string, 0, len(candidates))
+	for _, a := range candidates {
+		lines = append(lines, fmt.Sprintf("%s\t%s %-18s %-5s %s", a.AttemptID, padCells(delegateStateGlyph(a.State)+" "+a.State, width), a.Agent, delegateAge(a.StartedAt), a.Label))
+	}
+	return lines
+}
+
+// padCells pads to width code points; fmt pads by bytes of the rune count only for ASCII-safe
+// widths, and the glyphs are multi-byte.
+func padCells(s string, width int) string {
+	if n := utf8.RuneCountInString(s); n < width {
+		return s + strings.Repeat(" ", width-n)
+	}
+	return s
+}
+
+// pickerArgs are the arguments of fzf: the hidden id, the preview, the layout and the header
+// over the same columns as the rows.
+func pickerArgs(preview string, candidates []posemodel.DelegationAttempt) []string {
+	return []string{"--delimiter", "\t", "--with-nth", "2..", "--preview", preview,
+		"--preview-window", "right,55%,border-left,wrap", "--layout", "reverse", "--height", "90%", "--border",
+		"--prompt", "run> ", "--no-sort",
+		"--header", fmt.Sprintf("%s %-18s %-5s %s", padCells(tr("STATE", "ESTADO"), pickerStateWidth(candidates)), tr("AGENT", "AGENTE"), tr("AGE", "IDADE"), tr("LABEL", "RÓTULO"))}
 }
 
 // pickerPreviewCommand is the command fzf runs for the run under the cursor. fzf hands it to
