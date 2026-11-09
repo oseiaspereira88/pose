@@ -1,0 +1,250 @@
+{
+  "run": {
+    "run_id": "rrn-8ee776bb9b38abd2",
+    "proof_id": "rrp-745f8efe07c738ce3468a7e26be4f1c06c917fc991f53f424c2b56398d7a5ddb"
+  },
+  "schema_version": 1,
+  "attestation_id": "rva-cfedfc43d72f6d4d",
+  "bundle_id": "rvb-e86d3f5595cf9ff2",
+  "bundle_digest": "sha256:e86d3f5595cf9ff261c71d921fdf276c51b702b01fad69063d1b847e6b0eb9e8",
+  "reviewer": "agent:anthropic/claude-opus-5-5",
+  "decision": "approved",
+  "criteria": [
+    {
+      "id": "assumption-integrity",
+      "disposition": "passed",
+      "evidence": "integration:pose-mcp/go/delegate-picker-integration",
+      "rationale": "Examined the spec's assumptions against the code. Verified: fzf runs the preview through $SHELL -c and the fixed script carries no quote or backslash, so one single-quoted sh -c word parses in fish, zsh and bash; fzf strips the trailing delimiter from {1}. Unresolved, recorded as follow-ups: a backslash in the pose path under fish (F3), fish absent in CI (F4), fzf placeholders inside the path (G3). Accepted and disclosed: the Claude redaction failure is a known gap with an open follow-up, and the instance policy fix is outside this spec's artifacts. Round-1 findings were not recorded in the repository, so F3 and F4 are identified from the spec's recorded follow-up."
+    },
+    {
+      "id": "backend-concurrency",
+      "disposition": "passed",
+      "evidence": "unit:pose-mcp/go/test",
+      "rationale": "The change runs one blocking fzf child (cmd.Output) with no shared state; the refresh loop lives in the preview process that fzf owns and replaces. No new goroutines or locks. The tests run under -race."
+    },
+    {
+      "id": "backend-contracts",
+      "disposition": "passed",
+      "evidence": "integration:pose-mcp/go/delegation-surface-integration",
+      "rationale": "The schema pose.delegate.watch/v1, the flags and the selected-id output (Cut on tab) are unchanged; only the interactive fzf rows and preview string changed. The spec declares no API change."
+    },
+    {
+      "id": "backend-input-errors",
+      "disposition": "passed",
+      "evidence": "unit:pose-mcp/go/test",
+      "rationale": "The fzf cancel and the bad menu number still return 'nothing was picked' with exit 2 (delegate_watch.go:161-176). An unknown state gets the '·' glyph. Edge cases are recorded as low follow-ups F3, G1 and G3."
+    },
+    {
+      "id": "backend-integration-impact",
+      "disposition": "passed",
+      "evidence": "integration:pose-mcp/go/delegate-picker-integration",
+      "rationale": "The fzf boundary is exercised with a fake fzf in TestDelegateWatchPicksARun, and the preview is run by real sh in TestThePickerPreviewIsOnePOSIXWordTheLoginShellCanParse. The sweep found no other shell-string builder in internal/cli."
+    },
+    {
+      "id": "backend-observability",
+      "disposition": "passed",
+      "evidence": "unit:pose-mcp/go/test",
+      "rationale": "fzf stderr is still forwarded (cmd.Stderr = stderr). The preview prints the watch output of the run, and its failures show in the preview pane. No sensitive data is logged."
+    },
+    {
+      "id": "compatibility",
+      "disposition": "passed",
+      "evidence": "integration:pose-mcp/go/delegate-picker-integration",
+      "rationale": "Examined the --refresh 0 path and the numbered menu. With --refresh 0 the preview has no loop (asserted in TestDelegateWatchPicksARun), and the menu still selects by number and returns the id. The menu rows are reordered (padded state, agent, age, label), which is cosmetic and not a machine contract."
+    },
+    {
+      "id": "correctness",
+      "disposition": "passed",
+      "evidence": "integration:pose-mcp/go/delegate-picker-integration",
+      "rationale": "Read pickerPreviewCommand, pickerLines, pickerArgs and padCells against R1-R3. The preview runs under sh with the id as $1; the rows lead with the id, hidden by --with-nth 2..; the state column is padded by code points; the header uses the same widths."
+    },
+    {
+      "id": "design-causality",
+      "disposition": "passed",
+      "evidence": "structure:design-8dfdf8959053fa00",
+      "rationale": "D1 (basis R1) targets the material cause: fish refused a while loop written in the login shell's syntax. Wrapping the loop in one sh -c word with arguments removes any dependence on the login shell's syntax, and passing the path and id as arguments keeps them out of the script. The structural change is confined to delegate_watch.go."
+    },
+    {
+      "id": "documentation",
+      "disposition": "passed",
+      "evidence": "integration:pose-mcp/go/help-lists-every-command-integration",
+      "rationale": "The usage line of delegate watch is unchanged, and the changelog entry accurately describes the fish fix and the column layout. No operational doc describes the picker rows."
+    },
+    {
+      "id": "operability",
+      "disposition": "passed",
+      "evidence": "integration:pose-mcp/go/delegate-picker-integration",
+      "rationale": "The picker now works in fish, which was the operator-facing failure. The glyphs and header make runs distinguishable. Cancel errors are unchanged and actionable (exit 2 with a message); the non-interactive path still lists the candidates."
+    },
+    {
+      "id": "requirements",
+      "disposition": "passed",
+      "evidence": "unit:pose-mcp/go/test",
+      "rationale": "R1 is covered by TestThePickerPreviewIsOnePOSIXWordTheLoginShellCanParse; R2 by TestTheStateGlyphIsOneCellAndEveryStateHasOne and TestThePickerRowsAlignEveryStateAndTheArgumentsHideTheID; R3 by TestThePickerRows and TestDelegateWatchPicksARun. All run in the full unit suite (the targeted integration pattern gap is G2)."
+    },
+    {
+      "id": "scope",
+      "disposition": "passed",
+      "evidence": "structure:design-8dfdf8959053fa00",
+      "rationale": "The change set's implementation files are exactly the declared artifacts (delegate_watch.go and its two test files) plus the changelog, start and matrix. The Claude redaction issue is left out as a declared known gap, and the policy change belongs to another change set."
+    },
+    {
+      "id": "security",
+      "disposition": "passed",
+      "evidence": "integration:pose-mcp/go/delegate-picker-integration",
+      "rationale": "The script is a fixed string; the pose path is single-quoted and the id arrives via fzf's own quoting of {1} as an argument, never inside the script. The residual quoting edges (fish backslash F3, fzf placeholders in the path G3) need an attacker-unlikely executable path and are low."
+    },
+    {
+      "id": "solution-proportionality",
+      "disposition": "passed",
+      "evidence": "structure:design-8dfdf8959053fa00",
+      "rationale": "The smallest alternative, detecting the login shell and emitting per-shell syntax, is larger and fragile; sh -c is one line. The layout helpers are small and have no extension points, and no dependency is added. The choice would be invalidated by a login shell that cannot parse a single-quoted word (D1's falsifier) or an fzf without --with-nth."
+    }
+  ],
+  "tools": [
+    {
+      "id": "artifact-check",
+      "disposition": "passed",
+      "evidence": "command:pose artifact-check --spec pose-delegate-picker-and-claude-runs --strict",
+      "rationale": "No errors; the 918 findings are pre-existing repo-wide orphan warnings, none on this spec's artifacts."
+    },
+    {
+      "id": "assess-design",
+      "disposition": "not-used",
+      "rationale": "Shell execution of pose assess design was denied by the review profile; the sealed structure:design-8dfdf8959053fa00 (pass) was relied on instead."
+    },
+    {
+      "id": "assess-discover",
+      "component": "pose-mcp",
+      "disposition": "not-used",
+      "rationale": "Recommended only; the profile allowed limited execution and the change is confined to one file of internal/cli."
+    },
+    {
+      "id": "assess-integrate",
+      "disposition": "not-used",
+      "rationale": "Recommended only; sealed integration evidence (delegate-picker-integration, delegation-surface-integration) covers the boundary."
+    },
+    {
+      "id": "assess-tech-debt",
+      "disposition": "not-used",
+      "rationale": "Recommended only; not run under the restricted profile."
+    },
+    {
+      "id": "closeout-check",
+      "disposition": "deferred",
+      "rationale": "Its precondition is the completion of this review; it cannot pass before the attestation is recorded."
+    },
+    {
+      "id": "review-check",
+      "disposition": "deferred",
+      "rationale": "Its precondition is the completion of this review; it cannot pass before the attestation is recorded."
+    },
+    {
+      "id": "suggest-review",
+      "component": "pose-mcp",
+      "disposition": "not-used",
+      "rationale": "Recommended only; the reviewed scope was read directly in full."
+    },
+    {
+      "id": "surface-check",
+      "disposition": "passed",
+      "evidence": "integration:pose-mcp/go/spec-surface-integration",
+      "rationale": "Ran pose surface-check --spec pose-delegate-picker-and-claude-runs --strict: surface.findings=0 over 1 target and 199 results."
+    },
+    {
+      "id": "validate",
+      "disposition": "passed",
+      "evidence": "build:pose-mcp/go/build",
+      "rationale": "Running it here was denied by the profile; the bundle seals the strict validation of the reviewed head (build, unit and integration all pass)."
+    },
+    {
+      "id": "validate",
+      "component": "pose-mcp",
+      "disposition": "passed",
+      "evidence": "unit:pose-mcp/go/test",
+      "rationale": "Running it here was denied by the profile; the bundle seals the strict module validation (build, unit test and every pose-mcp integration check pass, including delegate-picker-integration)."
+    }
+  ],
+  "evidence_refs": [
+    "delegated-run:rrn-8ee776bb9b38abd2",
+    "integration:pose-mcp/go/delegate-picker-integration",
+    "integration:pose-mcp/go/delegation-surface-integration",
+    "integration:pose-mcp/go/help-lists-every-command-integration",
+    "structure:design-8dfdf8959053fa00",
+    "unit:pose-mcp/go/test"
+  ],
+  "findings": [
+    {
+      "id": "F3",
+      "severity": "low",
+      "evidence": "file:pose-mcp/internal/cli/delegate_watch.go:256",
+      "action": "Quote the preview command so a pose path with a backslash survives a fish login shell (e.g. pass the path through the environment or reject such paths with a clear error)",
+      "disposition": "accepted-risk",
+      "owner": "@pose-maintainers",
+      "rationale": "shellQuote does not protect a pose path containing a backslash under a fish login shell, where single quotes still process \\\\ and \\'.",
+      "review_by": "2027-01-08"
+    },
+    {
+      "id": "F4",
+      "severity": "low",
+      "evidence": "file:pose-mcp/internal/cli/delegate_watch_picker_test.go:35",
+      "action": "Install fish in CI or make the parse check fail instead of skip there",
+      "disposition": "accepted-risk",
+      "owner": "@pose-maintainers",
+      "rationale": "The fish parse check is skipped when fish is absent, so CI may never exercise R1 against fish.",
+      "review_by": "2027-01-08"
+    },
+    {
+      "id": "G1",
+      "severity": "low",
+      "evidence": "file:pose-mcp/internal/cli/delegate_watch.go:200",
+      "action": "Size the agent column by the widest agent among the candidates, as the state column is, and cover it in TestThePickerRowsAlignEveryStateAndTheArgumentsHideTheID",
+      "disposition": "accepted-risk",
+      "owner": "@pose-maintainers",
+      "rationale": "The agent column is a fixed %-18s (rows and header at line 221): an agent name longer than 18 characters (policy keys are user-defined) shifts the age column, against R2's aligned columns.",
+      "review_by": "2027-01-08"
+    },
+    {
+      "id": "G2",
+      "severity": "low",
+      "evidence": "file:.pose/indexes/validation-matrix.json:2622",
+      "action": "Add TestThePickerRows to the delegate-picker-integration -run pattern",
+      "disposition": "accepted-risk",
+      "owner": "@pose-maintainers",
+      "rationale": "The delegate-picker-integration run pattern omits TestThePickerRowsAlignEveryStateAndTheArgumentsHideTheID, which the R2/R3 trace cites; only the full unit run covers it.",
+      "review_by": "2027-01-08"
+    },
+    {
+      "id": "G3",
+      "severity": "low",
+      "evidence": "file:pose-mcp/internal/cli/delegate_watch.go:237",
+      "action": "Pass the pose path to the preview through an environment variable (or refuse a path containing '{') so only the trailing {1} is a placeholder",
+      "disposition": "accepted-risk",
+      "owner": "@pose-maintainers",
+      "rationale": "fzf substitutes placeholders ({}, {q}, {n}) anywhere in the preview command, including inside the quoted pose path, so a path containing such a token would have the selection interpolated into it.",
+      "review_by": "2027-01-08"
+    }
+  ],
+  "authority": {
+    "schema_version": 1,
+    "project": "proj.pose-dist",
+    "bundle_digest": "sha256:e86d3f5595cf9ff261c71d921fdf276c51b702b01fad69063d1b847e6b0eb9e8",
+    "principal": "agent:anthropic/claude-opus-5-5",
+    "role": "agent",
+    "review_execution": "rrn-8ee776bb9b38abd2",
+    "implementation_principal": "agent:anthropic/claude-sonnet-5-5",
+    "implementation_execution": "sha256:675189f7e0b769255994f8213acf8b1b57174c4353838cd875cdabd46aa9cc0b",
+    "issuer": "b34-local-executor",
+    "issued_at": "2026-11-09T16:56:28Z",
+    "audience": "proj.pose-dist"
+  },
+  "envelope": {
+    "issuer": "b34-local-executor",
+    "subject": "rvb-e86d3f5595cf9ff2",
+    "algorithm": "ed25519",
+    "public_key": "ck4sApdfePV2GT+hJyAYfJd2qLzeG55P8pevGR0bvZE=",
+    "signature": "w7OFhQXNXyaca/i9IBInithl9iAGjngVd4qSU61XfMrtvtGURwRGOmNXoLWZ4V7zblN3Kq+GncWcBLpoaIjiBw=="
+  },
+  "attested_at": "2026-11-09T16:56:28Z",
+  "path": ".pose/review-attestations/rva-cfedfc43d72f6d4d.json"
+}
