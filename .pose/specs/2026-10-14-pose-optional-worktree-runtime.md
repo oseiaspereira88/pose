@@ -57,7 +57,6 @@ Esta escrita não implementa o comportamento. Preservar fontes canônicas, layou
 - created: pose-mcp/internal/worktreeruntime/peercred_darwin.go
 - created: pose-mcp/internal/worktreeruntime/peercred_other.go
 - created: pose-mcp/internal/worktreeruntime/runtime_test.go
-- modified: pose-mcp/internal/cli/command_catalog_parity_test.go
 - modified: pose-mcp/internal/pose/engine_reads_raw_history_test.go
 - modified: .pose/indexes/validation-matrix.json
 - modified: POSE.md
@@ -103,7 +102,7 @@ Fixtures sintéticas: repositórios Git temporários, sockets em diretório temp
 - R6 [withdrawn: moved to pose-worktree-runtime-qos-and-measurement by the 2026-11-09 slicing]
 - R7 [withdrawn: moved to pose-worktree-runtime-resident-cache by the 2026-11-09 slicing]
 - R8 [withdrawn: moved to pose-worktree-runtime-qos-and-measurement by the 2026-11-09 slicing]
-- R9 [satisfied] test:TestTheIdentityNamesTheWorktreeAndTheHandshakeRefusesAnotherEngine test:TestTheEndpointIsProtectedAndAStaleOneIsReplaced test:TestTheLifecycleDrainsRestartsWithANewEpochAndIdlesOut
+- R9 [satisfied] test:TestConcurrentStartsLeaveOneRuntimeAndNoOneRemovesItsSocket test:TestAStopAcceptsNothingWhileItDrains test:TestTheIdentityNamesTheWorktreeAndTheHandshakeRefusesAnotherEngine test:TestTheEndpointIsProtectedAndAStaleOneIsReplaced test:TestTheLifecycleDrainsRestartsWithANewEpochAndIdlesOut
 
 ### Known gaps
 - O peer de outro usuário (UID diferente) não é exercido em teste; só o dono do diretório e do socket.
@@ -130,5 +129,7 @@ Runtime opcional por worktree: identidade (usuário, worktree canônico, diretó
 
 ### Follow-ups
 
+- [open] Put the build's `vcs.modified` and the capabilities the runtime offers in the identity, so that two dev builds of one version do not handshake as compatible. (owner:@pose-maintainers crit:low review:2027-02-08)
+- [open] Keep the stderr of a detached `serve` in a log in the endpoint directory, so that a start whose serve dies reports why. (owner:@pose-maintainers crit:low review:2027-02-08)
 - [open] Named pipe com ACL do dono para o Windows, que hoje roda sempre standalone. (owner:@pose-maintainers crit:low review:2027-02-08)
 - [open] Exercer em teste o par com UID diferente (dois usuários). (owner:@pose-maintainers crit:low review:2027-02-08)

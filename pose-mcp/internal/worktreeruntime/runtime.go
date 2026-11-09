@@ -231,6 +231,13 @@ func Serve(ctx context.Context, opts Options) error {
 		return err
 	}
 	path := SocketPath(opts.Dir, opts.Identity)
+	// One lock per endpoint, held for the life of the runtime: of two concurrent starts only
+	// one holds it, so only the holder checks for, replaces or removes the socket.
+	unlock, err := lockEndpoint(path + ".lock")
+	if err != nil {
+		return err
+	}
+	defer unlock()
 	if err := clearStale(path); err != nil {
 		return err
 	}
@@ -242,7 +249,13 @@ func Serve(ctx context.Context, opts Options) error {
 		listener.Close()
 		return err
 	}
-	defer os.Remove(path)
+	ours, _ := os.Lstat(path)
+	// The endpoint is removed only if it is still the one this process created.
+	defer func() {
+		if now, err := os.Lstat(path); err == nil && ours != nil && os.SameFile(ours, now) {
+			os.Remove(path)
+		}
+	}()
 	var token [8]byte
 	_, _ = rand.Read(token[:])
 	s := &server{opts: opts, listener: listener, epoch: hex.EncodeToString(token[:]), started: time.Now(), last: time.Now().UnixNano(), done: make(chan struct{})}
@@ -363,7 +376,7 @@ func (s *server) handle(ctx context.Context, conn net.Conn) {
 			return
 		}
 		if mism := s.opts.Identity.Mismatches(*req.Identity); len(mism) > 0 {
-			writeReply(conn, Reply{Mismatch: mism, Error: "incompatible"})
+			writeReply(conn, Reply{Mismatch: mism, Error: "incompatible", PID: os.Getpid()})
 			return
 		}
 		writeReply(conn, s.state(true))
@@ -374,9 +387,10 @@ func (s *server) handle(ctx context.Context, conn net.Conn) {
 		if req.DrainMS > 0 {
 			drain = time.Duration(req.DrainMS) * time.Millisecond
 		}
+		// No new connection is accepted while the requests in flight drain.
+		s.shutdown()
 		reply := s.drain(drain)
 		writeReply(conn, reply)
-		s.shutdown()
 	default:
 		if s.opts.Handler != nil {
 			if reply, ok := s.opts.Handler(ctx, req.Op); ok {

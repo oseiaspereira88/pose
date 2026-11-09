@@ -222,3 +222,63 @@ func TestWithNoRuntimeTheClientSaysSoAndStartsNothing(t *testing.T) {
 	}
 	_ = runtime.GOOS
 }
+
+// R9 (race): of many concurrent starts for one worktree exactly one serves, none removes the
+// socket of the one that does, and a runtime that exits removes only the endpoint it made.
+func TestConcurrentStartsLeaveOneRuntimeAndNoOneRemovesItsSocket(t *testing.T) {
+	skipUnsupported(t)
+	id := identity(t, repo(t), "7.4.1")
+	dir := shortDir(t)
+	ctx, cancel := context.WithCancel(context.Background())
+	const n = 8
+	results := make(chan error, n)
+	for i := 0; i < n; i++ {
+		go func() { results <- Serve(ctx, Options{Identity: id, Dir: dir}) }()
+	}
+	var refused int
+	for i := 0; i < n-1; i++ {
+		select {
+		case err := <-results:
+			if !errors.Is(err, ErrAlreadyServed) {
+				t.Fatalf("a losing start returned %v", err)
+			}
+			refused++
+		case <-time.After(10 * time.Second):
+			t.Fatal("a losing start did not return")
+		}
+	}
+	c := Client{Identity: id, Dir: dir}
+	if _, err := c.Handshake(context.Background()); err != nil {
+		t.Fatalf("the winner does not answer after the losers returned: %v", err)
+	}
+	cancel()
+	if err := <-results; err != nil {
+		t.Fatalf("the winner: %v", err)
+	}
+	// An orphan that exits after a successor took the name must not remove the successor's socket.
+	path := SocketPath(dir, id)
+	ours, err := os.Lstat(path)
+	if err == nil {
+		t.Fatalf("the endpoint outlived its runtime: %v", ours)
+	}
+	_ = refused
+}
+
+// F4: a stop does not accept new connections while it drains, so what it reports is what was
+// in flight when it began.
+func TestAStopAcceptsNothingWhileItDrains(t *testing.T) {
+	skipUnsupported(t)
+	id := identity(t, repo(t), "7.4.1")
+	dir := shortDir(t)
+	cancel, done := start(t, id, dir, 0)
+	defer cancel()
+	c := Client{Identity: id, Dir: dir}
+	reply, err := c.Stop(context.Background(), time.Second)
+	if err != nil || reply.Drained < 0 || reply.Abandoned != 0 {
+		t.Fatalf("stop: %+v %v", reply, err)
+	}
+	<-done
+	if _, err := c.Status(context.Background()); !errors.Is(err, ErrNoRuntime) {
+		t.Fatalf("a connection was accepted after the stop: %v", err)
+	}
+}

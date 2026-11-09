@@ -180,7 +180,7 @@ func runtimeReport(out interface{ Field(string, string) }, stdout io.Writer, f r
 	case err != nil:
 		var inc *worktreeruntime.IncompatibleError
 		if errors.As(err, &inc) {
-			state, code, detail = "incompatible", 1, err.Error()+tr("; stop it with `pose runtime stop` from its own engine", "; pare-o com `pose runtime stop` do próprio engine")
+			state, code, detail = "incompatible", 1, err.Error()+tr("; stop it with `pose runtime stop` (this engine can, whatever its version) or end process ", "; pare-o com `pose runtime stop` (este engine consegue, qualquer que seja a versão) ou encerre o processo ")+fmt.Sprint(reply.PID)
 		} else {
 			return runtimeFailureFields(out, stdout, f, sub, err)
 		}
@@ -224,11 +224,19 @@ func runtimeFailure(out interface {
 	Field(string, string)
 	Failure(string)
 }, stdout io.Writer, f runtimeFlags, sub string, err error) int {
+	if f.jsonOut {
+		_ = json.NewEncoder(stdout).Encode(map[string]any{"schema": runtimeStatusSchema, "state": "error", "detail": err.Error(), "supported": worktreeruntime.Supported()})
+		return 1
+	}
 	out.Failure("pose runtime " + sub + ": " + err.Error())
 	return 1
 }
 
 func runtimeFailureFields(out interface{ Field(string, string) }, stdout io.Writer, f runtimeFlags, sub string, err error) int {
+	if f.jsonOut {
+		_ = json.NewEncoder(stdout).Encode(map[string]any{"schema": runtimeStatusSchema, "state": "error", "detail": strings.TrimSpace(err.Error()), "supported": worktreeruntime.Supported()})
+		return 1
+	}
 	out.Field("runtime.error", strings.TrimSpace(err.Error()))
 	return 1
 }

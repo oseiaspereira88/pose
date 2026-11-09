@@ -17,3 +17,5 @@ func peerUID(*net.UnixConn) (uint32, error) {
 }
 
 func fileOwnerUID(os.FileInfo) (uint32, bool) { return 0, false }
+
+func lockEndpoint(string) (func(), error) { return func() {}, ErrUnsupported }

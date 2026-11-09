@@ -41,3 +41,16 @@ func fileOwnerUID(info os.FileInfo) (uint32, bool) {
 	}
 	return st.Uid, true
 }
+
+// lockEndpoint takes the exclusive lock of an endpoint for the life of the runtime.
+func lockEndpoint(path string) (func(), error) {
+	file, err := os.OpenFile(path, os.O_CREATE|os.O_RDWR, 0o600)
+	if err != nil {
+		return nil, err
+	}
+	if err := unix.Flock(int(file.Fd()), unix.LOCK_EX|unix.LOCK_NB); err != nil {
+		file.Close()
+		return nil, ErrAlreadyServed
+	}
+	return func() { file.Close() }, nil
+}
