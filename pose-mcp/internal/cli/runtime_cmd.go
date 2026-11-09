@@ -164,13 +164,10 @@ func cmdRuntime(root string, args []string, stdout, stderr io.Writer) int {
 	return 2
 }
 
+// waitRuntimeGone waits until the endpoint can be taken: nothing answers and the old process
+// has released its lock, which happens after the socket is gone.
 func waitRuntimeGone(ctx context.Context, client worktreeruntime.Client) {
-	for i := 0; i < 100; i++ {
-		if _, err := client.Status(ctx); err != nil {
-			return
-		}
-		time.Sleep(50 * time.Millisecond)
-	}
+	client.WaitReleased(ctx, 10*time.Second)
 }
 
 // runtimeReport writes the state a subcommand ends in. Not running is a state, not a fault:

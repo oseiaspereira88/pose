@@ -66,7 +66,7 @@ func ResolveIdentity(root, engine, build string) (Identity, error) {
 	}
 	out, err := posemodel.RawHistoryGit(worktree, "rev-parse", "--path-format=absolute", "--git-common-dir").Output()
 	if err != nil {
-		return Identity{}, fmt.Errorf("%s is not a Git worktree: the runtime is identified by it", worktree)
+		return Identity{}, fmt.Errorf("%s is not a Git worktree, or git failed (%v): the runtime is identified by it", worktree, err)
 	}
 	common := strings.TrimSpace(string(out))
 	if resolved, err := filepath.EvalSymlinks(common); err == nil {
@@ -394,6 +394,8 @@ func (s *server) handle(ctx context.Context, conn net.Conn) {
 		}
 		// No new connection is accepted while the requests in flight drain.
 		s.shutdown()
+		// The reply of a long drain must still be writable.
+		_ = conn.SetDeadline(time.Now().Add(drain + requestDeadline))
 		reply := s.drain(drain)
 		writeReply(conn, reply)
 	default:
@@ -513,6 +515,30 @@ func (c Client) Handshake(ctx context.Context) (Reply, error) {
 // identity it carries.
 func (c Client) Status(ctx context.Context) (Reply, error) {
 	return c.roundTrip(ctx, request{Op: "status"})
+}
+
+// Do sends an operation the runtime hosts and returns its reply.
+func (c Client) Do(ctx context.Context, op string) (Reply, error) {
+	return c.roundTrip(ctx, request{Op: op})
+}
+
+// WaitReleased returns when the endpoint of the identity can be taken: nothing answers and the
+// previous holder has released its lock, or the timeout passed.
+func (c Client) WaitReleased(ctx context.Context, timeout time.Duration) bool {
+	if !Supported() {
+		return true
+	}
+	end := time.Now().Add(timeout)
+	for time.Now().Before(end) && ctx.Err() == nil {
+		if _, err := c.Status(ctx); errors.Is(err, ErrNoRuntime) {
+			if unlock, err := lockEndpoint(SocketPath(c.Dir, c.Identity) + ".lock"); err == nil {
+				unlock()
+				return true
+			}
+		}
+		time.Sleep(20 * time.Millisecond)
+	}
+	return false
 }
 
 // Stop asks the runtime to drain within the deadline and exit.

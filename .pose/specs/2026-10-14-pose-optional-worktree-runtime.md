@@ -97,7 +97,7 @@ Fixtures sintéticas: repositórios Git temporários, sockets em diretório temp
 ### Requirement trace
 - R1 [satisfied] test:TestTheIdentityNamesTheWorktreeAndTheHandshakeRefusesAnotherEngine check:optional-worktree-runtime-integration
 - R2 [satisfied] test:TestTheEndpointIsProtectedAndAStaleOneIsReplaced
-- R3 [satisfied] test:TestTheLifecycleDrainsRestartsWithANewEpochAndIdlesOut test:TestRuntimeCommandsRunTheLifecycleAndFallBackToStandalone
+- R3 [satisfied] test:TestAStopReportsWhatItDrainedAndWhatItAbandoned test:TestTheLifecycleDrainsRestartsWithANewEpochAndIdlesOut test:TestRuntimeCommandsRunTheLifecycleAndFallBackToStandalone
 - R4 [satisfied] test:TestWithNoRuntimeTheClientSaysSoAndStartsNothing test:TestRuntimeCommandsRunTheLifecycleAndFallBackToStandalone
 - R5 [withdrawn: moved to pose-worktree-runtime-resident-cache by the 2026-11-09 slicing]
 - R6 [withdrawn: moved to pose-worktree-runtime-qos-and-measurement by the 2026-11-09 slicing]
@@ -130,6 +130,7 @@ Runtime opcional por worktree: identidade (usuário, worktree canônico, diretó
 
 ### Follow-ups
 
+- [open] Answer a peer of another user with a reason before closing the connection, so that the client reports it instead of a bare EOF. (owner:@pose-maintainers crit:low review:2027-02-08)
 - [open] Put the build's `vcs.modified` and the capabilities the runtime offers in the identity, so that two dev builds of one version do not handshake as compatible. (owner:@pose-maintainers crit:low review:2027-02-08)
 - [open] Keep the stderr of a detached `serve` in a log in the endpoint directory, so that a start whose serve dies reports why. (owner:@pose-maintainers crit:low review:2027-02-08)
 - [open] Named pipe com ACL do dono para o Windows, que hoje roda sempre standalone. (owner:@pose-maintainers crit:low review:2027-02-08)

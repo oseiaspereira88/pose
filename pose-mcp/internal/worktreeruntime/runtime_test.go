@@ -305,3 +305,59 @@ func TestARuntimeThatOutlivesItsEndpointRemovesOnlyItsOwn(t *testing.T) {
 		t.Fatalf("the exiting runtime removed the endpoint of its successor: %v", err)
 	}
 }
+
+// R3: a stop with a request in flight reports it drained when it finishes inside the deadline
+// and abandoned when it does not, and accepts nothing new while it waits.
+func TestAStopReportsWhatItDrainedAndWhatItAbandoned(t *testing.T) {
+	skipUnsupported(t)
+	for _, tc := range []struct {
+		name                string
+		hold, drain         time.Duration
+		wantDrained, wantAb int64
+	}{
+		{"drained", 150 * time.Millisecond, 3 * time.Second, 1, 0},
+		{"abandoned", 2 * time.Second, 100 * time.Millisecond, 0, 1},
+	} {
+		t.Run(tc.name, func(t *testing.T) {
+			id := identity(t, repo(t), "7.4.1")
+			dir := shortDir(t)
+			entered := make(chan struct{}, 1)
+			ctx, cancel := context.WithCancel(context.Background())
+			defer cancel()
+			done := make(chan error, 1)
+			go func() {
+				done <- Serve(ctx, Options{Identity: id, Dir: dir, Handler: func(_ context.Context, op string) (Reply, bool) {
+					if op != "hold" {
+						return Reply{}, false
+					}
+					entered <- struct{}{}
+					time.Sleep(tc.hold)
+					return Reply{OK: true}, true
+				}})
+			}()
+			c := Client{Identity: id, Dir: dir}
+			for i := 0; i < 200; i++ {
+				if _, err := c.Status(context.Background()); err == nil {
+					break
+				}
+				time.Sleep(10 * time.Millisecond)
+			}
+			go c.Do(context.Background(), "hold")
+			<-entered
+			stopped := make(chan Reply, 1)
+			go func() { r, _ := c.Stop(context.Background(), tc.drain); stopped <- r }()
+			time.Sleep(50 * time.Millisecond)
+			if _, err := c.Status(context.Background()); !errors.Is(err, ErrNoRuntime) {
+				t.Fatalf("a connection was accepted while the stop drained: %v", err)
+			}
+			reply := <-stopped
+			if reply.Drained != tc.wantDrained || reply.Abandoned != tc.wantAb {
+				t.Fatalf("drained %d abandoned %d, want %d and %d", reply.Drained, reply.Abandoned, tc.wantDrained, tc.wantAb)
+			}
+			<-done
+			if !c.WaitReleased(context.Background(), 5*time.Second) {
+				t.Fatal("the endpoint was not released after the runtime exited")
+			}
+		})
+	}
+}

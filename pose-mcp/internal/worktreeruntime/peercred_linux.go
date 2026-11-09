@@ -3,6 +3,7 @@
 package worktreeruntime
 
 import (
+	"fmt"
 	"net"
 	"os"
 	"syscall"
@@ -50,7 +51,10 @@ func lockEndpoint(path string) (func(), error) {
 	}
 	if err := unix.Flock(int(file.Fd()), unix.LOCK_EX|unix.LOCK_NB); err != nil {
 		file.Close()
-		return nil, ErrAlreadyServed
+		if err == unix.EWOULDBLOCK {
+			return nil, ErrAlreadyServed
+		}
+		return nil, fmt.Errorf("the endpoint lock %s cannot be taken: %w", path, err)
 	}
 	return func() { file.Close() }, nil
 }

@@ -261,7 +261,7 @@ pose delegate resume <run> [--wait-until-reset[=<max>]] [--dry-run] [--json]
 pose delegate handoff <run> --to <agent|auto> [--dry-run] [--json]
 pose delegate cancel <run> [--json]
 pose delegate agents [--json]
-pose runtime serve|start|attach|status|stop|restart [--idle <d>] [--drain <d>] [--json]  # optional per-worktree runtime; opt-in, standalone without it
+pose runtime serve|start|attach|status|stop|restart [--idle <d>] [--drain <d>] [--json]  # runtime opcional por worktree; opt-in, sem ele roda standalone
 
 # Estado do projeto e governança de docs
 pose state [init|refresh [--if-stale]|diff]  # artefato nativo de estado; sem subcomando = valida
