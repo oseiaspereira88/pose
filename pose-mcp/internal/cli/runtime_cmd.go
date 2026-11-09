@@ -199,8 +199,8 @@ func runtimeReport(out interface{ Field(string, string) }, stdout io.Writer, f r
 			doc["epoch"], doc["pid"], doc["started_at"], doc["in_flight"], doc["served"] = reply.Epoch, reply.PID, reply.StartedAt, reply.InFlight, reply.Served
 			doc["drained"], doc["abandoned"] = reply.Drained, reply.Abandoned
 		}
-		raw, _ := json.Marshal(doc)
-		fmt.Fprintln(stdout, string(raw))
+		enc := json.NewEncoder(stdout)
+		_ = enc.Encode(doc)
 		return code
 	}
 	out.Field("runtime.state", state)
