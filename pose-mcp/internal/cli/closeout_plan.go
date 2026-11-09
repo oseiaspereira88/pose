@@ -284,6 +284,19 @@ func closeoutStopLeavesNoCheckpoint(plan posemodel.CloseoutPlan, step posemodel.
 	return step.ID == posemodel.CloseoutStepVerify && step.State == posemodel.CloseoutStateBlocked && plan.StoppedOnUnstableInputs()
 }
 
+// stopOnUnstableInputs ends a call at the terminal verification of a scope already done
+// whose governance read view is not current. It clears the checkpoint instead of
+// recording the stop, and says where the state is.
+func stopOnUnstableInputs(store posemodel.Store, ref, resume string, result *posemodel.OperationResult, step, reason string) posemodel.OperationResult {
+	if err := store.ClearCloseoutCheckpoint(ref); err != nil {
+		result.Unconfirmed = append(result.Unconfirmed, posemodel.OperationUncertain{Step: "checkpoint", Reason: "the checkpoint of the finished steps was not removed: " + err.Error()})
+	}
+	result.Fail(posemodel.OutcomeBlocked, step, "terminal-verification-unstable-inputs", reason)
+	result.Resumable = true
+	result.NextAction = "the lifecycle is done and the repository carries the state; no checkpoint is kept for this stop. Verify again with `pose closeout-check " + ref + "` or " + resume
+	return *result
+}
+
 func applyClosePlanGuarded(root string, store posemodel.Store, ref, mode, digest, reviewer string, skipEvidence bool) posemodel.OperationResult {
 	result := posemodel.NewOperationResult("close."+mode, ref)
 	resume := "`pose close " + ref + " --resume`"
@@ -305,6 +318,11 @@ func applyClosePlanGuarded(root string, store posemodel.Store, ref, mode, digest
 	// no operation step or effect ran (B12 already-satisfied contract).
 	if plan.LifecycleDone {
 		if !plan.Terminal {
+			if plan.StoppedOnUnstableInputs() {
+				// The same stop as inside the loop, reached by a call made after it: a
+				// checkpoint an earlier stop left is not progress either (R4).
+				return stopOnUnstableInputs(store, ref, resume, &result, posemodel.CloseoutStepVerify, strings.Join(plan.Blockers, "; "))
+			}
 			result.Fail(posemodel.OutcomeBlocked, posemodel.CloseoutStepVerify, "terminal-verification-blocked", strings.Join(plan.Blockers, "; "))
 			result.NextAction = plan.NextAction
 			return result
@@ -384,13 +402,7 @@ func applyClosePlanGuarded(root string, store posemodel.Store, ref, mode, digest
 				// unknown is whether the inputs are stable. A checkpoint recording that
 				// would be read as an open defect and is not progress, so none is kept:
 				// --resume re-plans from the repository (R4).
-				if err := store.ClearCloseoutCheckpoint(ref); err != nil {
-					result.Unconfirmed = append(result.Unconfirmed, posemodel.OperationUncertain{Step: "checkpoint", Reason: "the checkpoint of the finished steps was not removed: " + err.Error()})
-				}
-				result.Fail(posemodel.OutcomeBlocked, next.ID, "terminal-verification-unstable-inputs", next.Reason)
-				result.Resumable = true
-				result.NextAction = "the lifecycle is done and the repository carries the state; no checkpoint was written for this stop. Verify again with `pose closeout-check " + ref + "` or " + resume
-				return result
+				return stopOnUnstableInputs(store, ref, resume, &result, next.ID, next.Reason)
 			}
 			record(next.ID, fmt.Errorf("%s", next.Reason))
 			result.Fail(posemodel.OutcomeBlocked, next.ID, "step-blocked", next.Reason)

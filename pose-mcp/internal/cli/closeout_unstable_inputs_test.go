@@ -1,6 +1,9 @@
 package cli
 
 import (
+	"os"
+	"path/filepath"
+	"strings"
 	"testing"
 
 	posemodel "github.com/harne8/pose-mcp/internal/pose"
@@ -40,6 +43,28 @@ func TestEveryOtherStopStillRecordsItsCheckpoint(t *testing.T) {
 	for name, c := range cases {
 		if closeoutStopLeavesNoCheckpoint(c.plan, c.step) {
 			t.Errorf("%s: a stop that is progress or a real blocker lost its checkpoint", name)
+		}
+	}
+}
+
+// R4, on the path both modes share: a call that ends at the stop clears a checkpoint an
+// earlier stop left and says where the state is.
+func TestTheStopOnUnstableInputsClearsAnOlderCheckpointAndSaysWhereTheStateIs(t *testing.T) {
+	root := reviewBundleCLIFixture(t)
+	store := posemodel.Store{Root: root}
+	checkpoint := filepath.Join(root, ".pose/closeout-plans/spec-bundle.json")
+	for _, resume := range []string{"`pose close spec:bundle --resume`"} {
+		mustWrite(t, checkpoint, `{"schema_version":1,"scope":"spec:bundle","started_at":"2026-11-08T00:00:00Z","plan_digest":"sha256:old","completed":["context"],"last_error":"verify: unknown"}`)
+		result := posemodel.NewOperationResult("close.apply", "spec:bundle")
+		out := stopOnUnstableInputs(store, "spec:bundle", resume, &result, posemodel.CloseoutStepVerify, "governance read view is unknown")
+		if out.Outcome != posemodel.OutcomeBlocked || out.Error == nil || out.Error.Cause != "terminal-verification-unstable-inputs" || !out.Resumable {
+			t.Fatalf("the stop was not reported as one on unstable inputs: %+v", out)
+		}
+		if !strings.Contains(out.NextAction, "no checkpoint is kept for this stop") || !strings.Contains(out.NextAction, resume) {
+			t.Fatalf("the result does not say where the state is: %q", out.NextAction)
+		}
+		if _, err := os.Stat(checkpoint); err == nil {
+			t.Fatal("a checkpoint of the stop was kept")
 		}
 	}
 }

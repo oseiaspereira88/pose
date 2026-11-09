@@ -127,13 +127,13 @@ Integration tests over real bundles seen failing first: a sole-member spec seale
 - R1 [satisfied] test:TestADoneSpecSealedWithTheGateKeepsItsPlanAndItsApproval check:done-spec-keeps-its-sealed-plan-integration
 - R2 [satisfied] test:TestADoneSpecSealedWithoutTheGateGainsNone test:TestTheSpecAnswersForTheExitGate
 - R3 [satisfied] test:TestAnOpenSpecStillOwesTheGate test:TestEachExitGateHasItsOwnCriterion
-- R4 [satisfied] test:TestAStopOnAnUnknownViewOfADoneScopeLeavesNoCheckpoint
+- R4 [satisfied] test:TestTheStopOnUnstableInputsClearsAnOlderCheckpointAndSaysWhereTheStateIs test:TestAStopOnAnUnknownViewOfADoneScopeLeavesNoCheckpoint
 - R5 [satisfied] test:TestEveryOtherStopStillRecordsItsCheckpoint
 - R6 [satisfied] test:TestADoneSpecSealedWithTheGateKeepsItsPlanAndItsApproval
 
 ### Known gaps
 - Retained approvals backed by a delegated run: `ReviewRunStillGoverns` requires the run's bundle to equal what the scope prepares today, so a done spec whose inputs drifted after sealing, whatever the cause, cannot retain a run-backed approval. This spec removes the cause that every sole-member spec hit at the transition to done; routine drift later is left to the follow-up below.
-- The no-checkpoint stop is covered at the decision (`closeoutStopLeavesNoCheckpoint`) and not by an end-to-end apply that produces an unknown read view, which no fixture of this repository can provoke without a Git failure mid-apply.
+- The no-checkpoint stop is covered at the decision (`closeoutStopLeavesNoCheckpoint`) and at the helper both entry paths share, which clears an older checkpoint and names where the state is (`stopOnUnstableInputs`, the path of a call made after the stop and the path inside the apply loop); an end-to-end apply that produces an unknown read view is not covered, because no fixture of this repository can provoke one without a Git failure mid-apply (a Git that cannot be read at all fails the plan instead).
 - Measured: 17 done specs of this repository gain the criterion; `review verify` gives the same answer for each with the engine before and after (closed, fresh, approved).
 
 ---
