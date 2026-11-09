@@ -1,0 +1,247 @@
+{
+  "run": {
+    "run_id": "rrn-cc031d33300be2b4",
+    "proof_id": "rrp-9e1aaf7f7b6780038e49f3cbd3c178d89279cfc4b0e182d928d72c88480bd475"
+  },
+  "schema_version": 1,
+  "attestation_id": "rva-ee15ab4147fa4179",
+  "bundle_id": "rvb-548ccf8eb2922856",
+  "bundle_digest": "sha256:548ccf8eb2922856fc56875888dd4dddb910d6ef5e276d146a11a638b4710f51",
+  "reviewer": "agent:anthropic/claude-opus-5-5",
+  "decision": "approved",
+  "criteria": [
+    {
+      "id": "assumption-integrity",
+      "disposition": "passed",
+      "evidence": "integration:pose-mcp/go/common-domain-and-cli-mcp-handoff-integration",
+      "rationale": "Examined the assumptions in the spec's Known gaps and Residual risks against the code. Verified facts: pose update replaces the binary by rename (maintenance.go:531), so the os.SameFile check detects it; the spawn suppresses CLI usage (cli.go:160), so in-process runs lose no telemetry; the apply compares the full digest (closeout_plan.go:317). Unresolved but accepted as risks: the root-resolution difference (F2), the unbounded per-run work of followups and the hand-declared route classes, all disclosed with follow-ups."
+    },
+    {
+      "id": "backend-concurrency",
+      "disposition": "passed",
+      "evidence": "integration:pose-mcp/go/common-domain-and-cli-mcp-handoff-integration",
+      "rationale": "runInProcess checks cancellation before admission, after admission and after completion. Slots are released by the goroutine itself, panics included. Reran the suite with go test -race: it passed, including the concurrency and abandoned-slot tests."
+    },
+    {
+      "id": "backend-contracts",
+      "disposition": "passed",
+      "evidence": "integration:pose-mcp/go/common-domain-and-cli-mcp-handoff-integration",
+      "rationale": "The handoff is an additive omitempty field on the pose_closeout_state include_plan response; the existing execution_plan is unchanged. The catalog golden only gains description text. The in-process wrappers keep runCLI's error contract."
+    },
+    {
+      "id": "backend-input-errors",
+      "disposition": "passed",
+      "evidence": "integration:pose-mcp/go/common-domain-and-cli-mcp-handoff-integration",
+      "rationale": "A non-zero exit returns 'pose \u003ccmd\u003e failed: \u003cmessage\u003e'. A deadline, a cancellation or a full slot set returns GateExecutionError with a cause and a cleanup note, never a verdict. A panic becomes a failed run."
+    },
+    {
+      "id": "backend-integration-impact",
+      "disposition": "passed",
+      "evidence": "integration:pose-mcp/go/common-domain-and-cli-mcp-handoff-integration",
+      "rationale": "The CLI registers suggest and followups in an init linked into the pose binary that serves MCP. The parity test compares the spawned built binary with the in-process wrapper. The handoff's argv was run against the CLI apply."
+    },
+    {
+      "id": "backend-observability",
+      "disposition": "finding",
+      "evidence": "F3"
+    },
+    {
+      "id": "compatibility",
+      "disposition": "passed",
+      "evidence": "integration:pose-mcp/go/common-domain-and-cli-mcp-handoff-integration",
+      "rationale": "Examined the response shape, the catalog golden and the self-update path. The response change is additive. The in-process route is skipped when POSE_EXECUTABLE is set or the installed binary has been replaced, which keeps pose-mcp-server-survives-self-update R2. F2 is the only known divergence and cannot be reached by a root the server selects."
+    },
+    {
+      "id": "correctness",
+      "disposition": "passed",
+      "evidence": "unit:pose-mcp/go/test",
+      "rationale": "Reran the spec's tests with -race across the three packages, all passing. Checked CloseoutHandoff against cmdClosePlan's flags and the apply's digest comparison. Blocked, terminal and unknown-view plans get no handoff."
+    },
+    {
+      "id": "design-causality",
+      "disposition": "passed",
+      "evidence": "structure:design-dc3138c2fd99035e",
+      "rationale": "Examined the design against D1 and R1-R9. Running suggest and followups in process from the CLI's own registered command functions gives one source of results without a second implementation (R1, R8). The typed handoff, derived only from PlanCloseout's output, gives MCP a read-only closeout route that applies nothing (R3-R5). The route inventory, held equal to the catalog and to the governance-write risk class by tests, keeps writes at the four domain write points (R6, R7).",
+      "mappings": [
+        {
+          "delta": "SD-060e7b67",
+          "basis": "D1",
+          "disposition": "mapped",
+          "rationale": "The ADR amendment records the route classes, the in-process admission rule and the typed handoff that D1 adopts, and that R8 requires to be recorded before the code."
+        },
+        {
+          "delta": "SD-8d3051b9",
+          "basis": "R9",
+          "disposition": "mapped",
+          "rationale": "Adds the required common-domain-and-cli-mcp-handoff-integration check that qualifies R1-R9 under -race."
+        },
+        {
+          "delta": "SD-ac7fe101",
+          "basis": "R1",
+          "disposition": "mapped",
+          "rationale": "Adjusts the check's run pattern (commit 99b18c04 drops the renamed handoff-target test) so the matrix runs the tests in the requirement trace."
+        }
+      ]
+    },
+    {
+      "id": "documentation",
+      "disposition": "passed",
+      "evidence": "integration:pose-mcp/go/distributed-instructions-parity-integration",
+      "rationale": "Read the handoff paragraph in POSE.md:844 and in the scaffold dist/POSE.md:831: they are identical, and the pt-BR copies cover the same content. The text matches CloseoutHandoff's fields and conditions and the in-process admission rule. The ADR amendment matches the code."
+    },
+    {
+      "id": "milestone-exit-gate-pose-shared-runtime-common-domain-handoff",
+      "disposition": "passed",
+      "evidence": "integration:pose-mcp/go/common-domain-and-cli-mcp-handoff-integration",
+      "rationale": "B31 keeps results, errors and authority from one source: the CLI command function. The extracted wrappers count zero spawns. P04: the handoff states that apply takes no context flag and that the performer verifies context in the target root, which is an explicit limitation. MCP offers a read-only plan plus a typed handoff, and P15 parity is tested. Writes stay at the four admitted points. The gates and the delegate harness keep the process boundary."
+    },
+    {
+      "id": "operability",
+      "disposition": "passed",
+      "evidence": "integration:pose-mcp/go/common-domain-and-cli-mcp-handoff-integration",
+      "rationale": "Execution failures say whether the command started, ran in the background or was discarded, and that nothing was written. The handoff states required_inputs, its receipt path and its invalidation. Remediation is actionable."
+    },
+    {
+      "id": "requirements",
+      "disposition": "passed",
+      "evidence": "integration:pose-mcp/go/common-domain-and-cli-mcp-handoff-integration",
+      "rationale": "Every trace test of R1-R9 matches the check's -run pattern, and the suite passed when I reran it."
+    },
+    {
+      "id": "scope",
+      "disposition": "passed",
+      "evidence": "integration:pose-mcp/go/common-domain-and-cli-mcp-handoff-integration",
+      "rationale": "Compared the change set's files with the spec's Artifacts list: they match. No closeout-applying MCP tool, scheduler or retry was added. Moving the semantics into the domain package is left as a declared follow-up."
+    },
+    {
+      "id": "security",
+      "disposition": "passed",
+      "evidence": "integration:pose-mcp/go/common-domain-and-cli-mcp-handoff-integration",
+      "rationale": "Swept the fields of the changed MCP response: the handoff carries no filesystem path, secret or reviewer identity. Its argv is structured and executes nothing. The authority line is a hint and grants nothing. Only read-only commands are registered to run in process."
+    },
+    {
+      "id": "solution-proportionality",
+      "disposition": "passed",
+      "evidence": "integration:pose-mcp/go/common-domain-and-cli-mcp-handoff-integration",
+      "rationale": "The smallest sufficient alternative, a registry of two existing command functions plus a derived handoff struct, was the one chosen; no new runtime or tool was added. The choice is invalidated if a registered command writes, or if followups' work becomes unbounded in practice; both are disclosed with follow-ups."
+    }
+  ],
+  "tools": [
+    {
+      "id": "artifact-check",
+      "disposition": "passed",
+      "evidence": "command:pose artifact-check --spec pose-common-domain-and-cli-mcp-handoff --strict",
+      "rationale": "Exit 0. The output holds only repository-wide orphan warnings that predate this change."
+    },
+    {
+      "id": "assess-design",
+      "disposition": "not-used",
+      "rationale": "My permission profile refused the command. The sealed structure:design-dc3138c2fd99035e evidence is cited under design-causality."
+    },
+    {
+      "id": "assess-discover",
+      "component": "pose-mcp",
+      "disposition": "not-used",
+      "rationale": "My permission profile refused pose assess."
+    },
+    {
+      "id": "assess-integrate",
+      "disposition": "not-used",
+      "rationale": "My permission profile refused pose assess."
+    },
+    {
+      "id": "assess-tech-debt",
+      "disposition": "not-used",
+      "rationale": "My permission profile refused pose assess."
+    },
+    {
+      "id": "closeout-check",
+      "disposition": "deferred",
+      "evidence": "command:pose closeout-check spec:pose-common-domain-and-cli-mcp-handoff",
+      "rationale": "Run; exits non-zero with 'lifecycle status is not done' and next action 'record or remediate a fresh review'. The check can only pass after this review is recorded and the spec is closed."
+    },
+    {
+      "id": "review-check",
+      "disposition": "deferred",
+      "evidence": "command:pose review-check spec:pose-common-domain-and-cli-mcp-handoff",
+      "rationale": "Run; exits non-zero because review.approved=false: the review it checks is this one. It can only pass after this conclusion is recorded."
+    },
+    {
+      "id": "suggest-review",
+      "component": "pose-mcp",
+      "disposition": "not-used",
+      "rationale": "My permission profile refused the command."
+    },
+    {
+      "id": "surface-check",
+      "disposition": "passed",
+      "evidence": "integration:pose-mcp/go/spec-surface-integration",
+      "rationale": "Ran pose surface-check --spec pose-common-domain-and-cli-mcp-handoff --strict myself: exit 0, 1 target, 195 results, 0 findings."
+    },
+    {
+      "id": "validate",
+      "disposition": "passed",
+      "evidence": "build:pose-mcp/go/build",
+      "rationale": "Not rerun by me: my permission profile refused pose validate. The sealed strict validation passed. I reran the spec's suite with go test -race, which passed."
+    },
+    {
+      "id": "validate",
+      "component": "pose-mcp",
+      "disposition": "passed",
+      "evidence": "unit:pose-mcp/go/test",
+      "rationale": "Not rerun by me: my permission profile refused pose validate. The sealed strict module validation passed. I reran the spec's suite with go test -race, which passed."
+    }
+  ],
+  "evidence_refs": [
+    "F3",
+    "delegated-run:rrn-cc031d33300be2b4",
+    "integration:pose-mcp/go/common-domain-and-cli-mcp-handoff-integration",
+    "integration:pose-mcp/go/distributed-instructions-parity-integration",
+    "structure:design-dc3138c2fd99035e",
+    "unit:pose-mcp/go/test"
+  ],
+  "findings": [
+    {
+      "id": "F2",
+      "severity": "low",
+      "evidence": "file:pose-mcp/internal/pose/common_operation.go:153",
+      "action": "Resolve the root as the CLI dispatcher does before an in-process run, or reject a root that is not a project root.",
+      "disposition": "accepted-risk",
+      "owner": "@pose-maintainers",
+      "rationale": "An in-process run hands the command Store.Root as it is, while a spawned run starts in that directory and lets the CLI resolve the project root; a root that is a subdirectory of a project would resolve differently. No known path differs because the server selects project roots; declared in the spec's Known gaps.",
+      "review_by": "2027-01-08"
+    },
+    {
+      "id": "F3",
+      "severity": "low",
+      "evidence": "file:pose-mcp/internal/mcpserver/delegate_tools.go:54",
+      "action": "Count the delegate runner's spawns in CLISpawnAttempts (or a per-route counter), or narrow the counter's documentation to the runCLI/runCLIExit wrappers.",
+      "disposition": "accepted-risk",
+      "owner": "@pose-maintainers",
+      "rationale": "The pose_delegate_* cli-wrapper routes start the POSE binary through defaultDelegateRunner without incrementing CLISpawnAttempts, which common_operation.go:54-56 documents as counting every attempt of a wrapper to start the POSE binary; the spawn measurement R9 asks for undercounts those routes.",
+      "review_by": "2027-01-08"
+    }
+  ],
+  "authority": {
+    "schema_version": 1,
+    "project": "proj.pose-dist",
+    "bundle_digest": "sha256:548ccf8eb2922856fc56875888dd4dddb910d6ef5e276d146a11a638b4710f51",
+    "principal": "agent:anthropic/claude-opus-5-5",
+    "role": "agent",
+    "review_execution": "rrn-cc031d33300be2b4",
+    "implementation_principal": "agent:anthropic/claude-sonnet-5-5",
+    "implementation_execution": "sha256:675189f7e0b769255994f8213acf8b1b57174c4353838cd875cdabd46aa9cc0b",
+    "issuer": "b34-local-executor",
+    "issued_at": "2026-11-09T06:54:01Z",
+    "audience": "proj.pose-dist"
+  },
+  "envelope": {
+    "issuer": "b34-local-executor",
+    "subject": "rvb-548ccf8eb2922856",
+    "algorithm": "ed25519",
+    "public_key": "ck4sApdfePV2GT+hJyAYfJd2qLzeG55P8pevGR0bvZE=",
+    "signature": "DoaUbhzIZKvj10rTdOpTIXwBMz9bb5XXULSx6UoLCj0XkY3/tR5a8qs6E+drQbZCC2bBemTJO3wDuGVyVQLTBg=="
+  },
+  "attested_at": "2026-11-09T06:54:01Z",
+  "path": ".pose/review-attestations/rva-ee15ab4147fa4179.json"
+}
