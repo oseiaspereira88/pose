@@ -27,7 +27,7 @@ const (
 )
 
 var reviewBriefTemplates = map[string]string{
-	ReviewBriefKindReview:       reviewBriefTemplateRoundIDs,
+	ReviewBriefKindReview:       reviewBriefTemplateRiskRules,
 	ReviewBriefKindAdjudication: adjudicationBriefTemplateTyped,
 	ReviewBriefKindSmoke:        smokeBriefTemplateTyped,
 }
@@ -63,6 +63,8 @@ const (
 	// after the first names the findings it accounts for. A change to the text of a
 	// published version takes a new one (spec pose-review-brief-templates-are-immutable).
 	reviewBriefTemplateRoundIDs = "review-brief/5"
+	// reviewBriefTemplateRiskRules is the current template, see briefRulesText.
+	reviewBriefTemplateRiskRules = "review-brief/6"
 	// reviewBriefTemplateConclusions asked for the typed conclusion and stated its rules,
 	// without the identifiers of the findings of earlier rounds.
 	reviewBriefTemplateConclusions = "review-brief/4"
@@ -75,20 +77,42 @@ const (
 
 // reviewBriefAsksConclusion reports a template that asks for the typed conclusion.
 func reviewBriefAsksConclusion(template string) bool {
-	return template == reviewBriefTemplateRoundIDs || template == reviewBriefTemplateConclusions || template == reviewBriefTemplateTypedConclusion
+	return template == reviewBriefTemplateRiskRules || template == reviewBriefTemplateRoundIDs || template == reviewBriefTemplateConclusions || template == reviewBriefTemplateTypedConclusion
+}
+
+// briefRulesTextV5 is the statement of the rules the conclusion is checked against that
+// review-brief/4 and /5 carry, byte for byte; a version never changes its text.
+const briefRulesTextV5 = "POSE checks the conclusion before it records it, and refuses the whole draft when one rule breaks: (a) a `passed` criterion of kind judgment carries a `rationale` saying what you examined and what you concluded; (b) the `evidence` of a `passed` criterion is exactly one of the refs listed under Sealed evidence (`<class>:<id>`, of a class the criterion asks for when it names one), never a file and line, a command or a structural fact id: those go in a finding or in the `rationale`; (c) a criterion disposed `finding` carries as its `evidence` the `id` of a finding listed in `findings`, and that finding is open until you give it `action`, `owner` and `review_by`; (d) each structural fact listed above is answered by the criterion that asks for structural mapping, as its `mappings`: `[{\"delta\": <fact id>, \"basis\": <requirement or decision ref>, \"disposition\": \"mapped\", \"rationale\": <why>}]`, or `not-applicable` with the reason; (e) a `not-applicable` carries a `rationale` and is refused when the bundle seals evidence of a class the criterion asks for; (f) every required criterion and every tool above is answered; (g) the `disposition` of a tool is `passed`, `failed`, `not-used` or `deferred`, never anything else (`not-run` is refused); a tool listed as required must be run and `passed`, with the ref of the sealed evidence it produced as `evidence` when it names classes, and `not-used` is accepted for a required tool only when the plan says no producer exists; a recommended tool you did not run is `not-used` with a `rationale`; (h) the `evidence` of a tool is `<class>:<ref>`: when the tool lists evidence classes, a ref of one of them that the bundle sealed (listed under Sealed evidence), otherwise `command:` followed by the command you ran; a bare command line is refused; (i) a draft that approves leaves no finding open: each finding is either a follow-up with `action`, `owner` and `review_by`, which is recorded as an accepted risk, or the draft requests changes; a finding without them is open and the approval is refused."
+
+// briefRulesText is the statement of those rules in the brief of template. review-brief/6 also
+// says which severities the sealed policy lets a follow-up be accepted at, that a tool whose
+// precondition is the completion of the review is answered deferred, the component scoping of
+// evidence, and what a mapping's basis is.
+func briefRulesText(template string, bundle ReviewBundle) string {
+	if template != reviewBriefTemplateRiskRules {
+		return briefRulesTextV5
+	}
+	text := briefRulesTextV5
+	severities := strings.Join(bundle.Payload.SealedGates().AcceptedRiskSeverities, ", ")
+	if severities == "" {
+		severities = "none"
+	}
+	text = strings.Replace(text, "a recommended tool you did not run is `not-used` with a `rationale`;", "a recommended tool you did not run is `not-used` with a `rationale`; a required tool whose precondition is the completion of the review (`review-check`, `closeout-check`) cannot pass before your attestation: answer it `deferred` with a `rationale`;", 1)
+	text = strings.Replace(text, "which is recorded as an accepted risk, or the draft requests changes;", "which is recorded as an accepted risk only when its severity is one the sealed review policy accepts ("+severities+"), or the draft requests changes and any finding of another severity is fixed first;", 1)
+	return text + " (j) the `evidence` of a `passed` criterion is of a class the criterion asks for and, when the criterion or tool belongs to a component, of that component (the Sealed evidence list names the module of each ref); (k) the `basis` of a mapping is a requirement or decision id of the scope's spec, such as R1 or D1."
 }
 
 // reviewBriefStatesRules reports a template that states the rules the conclusion is
 // checked against.
 func reviewBriefStatesRules(template string) bool {
-	return template == reviewBriefTemplateRoundIDs || template == reviewBriefTemplateConclusions
+	return template == reviewBriefTemplateRiskRules || template == reviewBriefTemplateRoundIDs || template == reviewBriefTemplateConclusions
 }
 
 // reviewBriefEarlierTemplates are the review templates a run may have been
 // briefed with before the current one, newest first; a run briefed with one
 // is re-rendered with it to verify and to continue (the brief a run was sent
 // never changes under it).
-var reviewBriefEarlierTemplates = []string{reviewBriefTemplateConclusions, reviewBriefTemplateTypedConclusion, reviewBriefTemplateRounds, reviewBriefTemplateFirst}
+var reviewBriefEarlierTemplates = []string{reviewBriefTemplateRoundIDs, reviewBriefTemplateConclusions, reviewBriefTemplateTypedConclusion, reviewBriefTemplateRounds, reviewBriefTemplateFirst}
 
 // briefEarlierTemplates are, per kind, the templates a run may have been
 // briefed with before the current one, newest first.
@@ -444,9 +468,14 @@ func renderReviewBriefBody(bundle ReviewBundle, kind, template, notes string, sm
 		if conclusion {
 			line("%d. In the same block, the conclusion POSE records as the attestation: `criteria` (one entry per criterion above, each with `id`, `disposition` passed|finding|not-applicable, `evidence` as `<class>:<ref>` — a class the criterion asks for when it names one — and `rationale` for not-applicable), and `tools` (one entry per tool above, each with `id`, `component` when it has one, `disposition`, `evidence` and `rationale`). A follow-up finding that should be accepted as a risk carries `action`, `owner` and `review_by`; any other finding stays open. A criterion or tool you do not answer is not answered for you.", next+1)
 			if reviewBriefStatesRules(template) {
-				line("%d. POSE checks the conclusion before it records it, and refuses the whole draft when one rule breaks: (a) a `passed` criterion of kind judgment carries a `rationale` saying what you examined and what you concluded; (b) the `evidence` of a `passed` criterion is exactly one of the refs listed under Sealed evidence (`<class>:<id>`, of a class the criterion asks for when it names one), never a file and line, a command or a structural fact id: those go in a finding or in the `rationale`; (c) a criterion disposed `finding` carries as its `evidence` the `id` of a finding listed in `findings`, and that finding is open until you give it `action`, `owner` and `review_by`; (d) each structural fact listed above is answered by the criterion that asks for structural mapping, as its `mappings`: `[{\"delta\": <fact id>, \"basis\": <requirement or decision ref>, \"disposition\": \"mapped\", \"rationale\": <why>}]`, or `not-applicable` with the reason; (e) a `not-applicable` carries a `rationale` and is refused when the bundle seals evidence of a class the criterion asks for; (f) every required criterion and every tool above is answered; (g) the `disposition` of a tool is `passed`, `failed`, `not-used` or `deferred`, never anything else (`not-run` is refused); a tool listed as required must be run and `passed`, with the ref of the sealed evidence it produced as `evidence` when it names classes, and `not-used` is accepted for a required tool only when the plan says no producer exists; a recommended tool you did not run is `not-used` with a `rationale`; (h) the `evidence` of a tool is `<class>:<ref>`: when the tool lists evidence classes, a ref of one of them that the bundle sealed (listed under Sealed evidence), otherwise `command:` followed by the command you ran; a bare command line is refused; (i) a draft that approves leaves no finding open: each finding is either a follow-up with `action`, `owner` and `review_by`, which is recorded as an accepted risk, or the draft requests changes; a finding without them is open and the approval is refused.", next+2)
+				line("%d. %s", next+2, briefRulesText(template, bundle))
 			}
 		}
+	}
+	if template == reviewBriefTemplateRiskRules {
+		// ParseReviewDraft refuses a draft whose `decision:` line outside the block disagrees
+		// with the block, so the brief cannot say the outside is not read at all.
+		return strings.Replace(b.String(), "Everything outside the block is yours and is not read.", "Everything outside the block is yours and is not read, except a `decision:` line, which must agree with the decision of the block.", 1)
 	}
 	return b.String()
 }
@@ -455,7 +484,7 @@ func roundFields(round ReviewRound, template string) string {
 	if round.Number < 2 {
 		return ""
 	}
-	if template == reviewBriefTemplateRoundIDs {
+	if template == reviewBriefTemplateRoundIDs || template == reviewBriefTemplateRiskRules {
 		return ", `prior_findings` (each with `id`, `status` and `evidence`, one for every finding of the previous round; the `id` is the identifier listed under Findings to account for, which carries its round, for example R2-F1, never a bare F1, and a finding you report now takes an `id` that no earlier round used, for example N1: a bare or reused identifier makes the whole draft unreadable) and `sweep` (what you swept)"
 	}
 	return ", `prior_findings` (each with `id`, `status` and `evidence`, one for every finding of the previous round) and `sweep` (what you swept)"
