@@ -293,6 +293,10 @@ pose start spec:<slug> [--json|--apply --digest <sha256> [--json]|--status [--js
 pose adopt --list | <capability> [--off|--decline|--defer --reason <text>] [--date YYYY-MM-DD] [--apply] | --request <act-id> [--apply]  # decide a capability from the catalog
 pose setup [--json] [--no-input]  # what is in force, new and missing; the next step, confirmed one at a time
 pose identity add [<principal>] --key <file.pub> [--role <role>] [--apply] | list [--json] | remove <principal> [--fingerprint <fp>] [--apply]  # keys that prove answers
+pose action <open|list|show|statement|resolve|cancel|waive|invalidate> ...  # open, read and resolve material requests to a person or an external system
+pose issuer init <name> | pose issuer pin <name|name:public-key> [--attestations] [--human-authority] [--audience <id>] [--apply] | pose issuer list [--json]
+                                   # native issuers that sign review attestations; keys live outside the project
+pose migrate v7 --dry-run [--json]  # dry-run the legacy inventory a future major would convert, keep or refuse
 pose knowledge-housekeeping <list-expired|archive-expired|purge-archived> [--dry-run|--apply]
 pose knowledge-usage [--json]
 pose reports-housekeeping <list-stale|archive-stale|purge-archived> [--older-than N] [--dry-run|--apply]
@@ -328,6 +332,7 @@ pose release <plan|prepare|check|notes|record|status|open-next|backfill> --versi
                                    # prepare freezes manifest/notes; record imports
                                    # provider evidence; status projects the state
 pose release-notes --version vX.Y.Z  # compatibility alias for the immutable notes
+pose release-package-manifests --version X.Y.Z --checksums <checksums.txt> --out <dir>  # package-manager manifests of a release
 ```
 
 ### Command reference
@@ -339,7 +344,7 @@ pose release-notes --version vX.Y.Z  # compatibility alias for the immutable not
 - `spec-transfer` — explicit cross-project authority transfer. `preview` emits a deterministic digest-bound JSON plan without writing. Requirement mappings are explicit (`R1=equivalent:R1`, `R2=withdrawn`, `-=pending:R3`); apply requires the same digest plus one `--authorize-project` for every affected repository, and resume verifies the saved plan copies and receipts. Transfer is refused until both endpoints and every affected project adopt review-policy schema 4 (`qualified_artifact_refs_version: 1`, `spec_authority_transfer_version: 1`). Current dependency/membership links follow the verified redirect; the MCP tool `pose_spec_transfer_status` reads the journal only within its authorized project. `--mode reconcile-terminal` retires a coordinator spec onto an executor that is already `done` with a terminal closeout in its own project: the executor file is never written (apply only verifies its digest), the map is N:M over every source requirement and may target another spec with `destination_ref`, `withdrawn` needs a `rationale`, and `pending` needs a `rationale` plus an open target spec, recorded in the schema-2 redirect as `open_obligations`; `--map-file` reads the map as JSON. Engines without this mode refuse schema-2 plans and redirects. No automatic commits, pushes or policy adoption occur. Split-section specs without a single `spec.md` are reported as unsupported rather than rewritten.
 - `new-spec` — creates a new spec with standard lifecycle frontmatter and 7 engineering sections. By default writes the dated flat file `.pose/specs/YYYY-MM-DD-<slug>.md`; `--folder` writes `YYYY-MM-DD-<slug>/spec.md` and `--legacy` writes `<slug>/spec.md`, all under [`.pose/specs/`](.pose/specs/).
 - `new-adr` — creates an ADR with the standard template and a deterministic slug.
-- `new-roadmap` — creates a governed roadmap from [`.pose/templates/roadmap.md`](.pose/templates/roadmap.md): flat frontmatter (`status: draft|active|done|abandoned`, `depends_on:` between roadmaps) + milestones as `## Milestone: <id>` sections with flat bullets (`- after:`, `- target_start:`, `- target_due:`, `- specs:`). `check` validates single membership in active roadmaps, milestone/roadmap DAGs, dates and typed-ref resolution; `pose_spec_readiness` resolves those refs for real (milestone satisfied = its specs done; roadmap satisfied = status done). Dates are planning input; actuals derive from events.
+- `new-roadmap` — creates a governed roadmap in `.pose/roadmaps/` from [`.pose/templates/roadmap.md`](.pose/templates/roadmap.md): flat frontmatter (`status: draft|active|done|abandoned`, `depends_on:` between roadmaps) + milestones as `## Milestone: <id>` sections with flat bullets (`- after:`, `- target_start:`, `- target_due:`, `- specs:`). `check` validates single membership in active roadmaps, milestone/roadmap DAGs, dates and typed-ref resolution; `pose_spec_readiness` resolves those refs for real (milestone satisfied = its specs done; roadmap satisfied = status done). Dates are planning input; actuals derive from events.
 - `new-knowledge` — creates an artifact in [`.pose/knowledge/`](.pose/knowledge/) from [`.pose/templates/knowledge.md`](.pose/templates/knowledge.md) with mandatory frontmatter (`type`, `owner`, `sensitivity`, `created_at`, `last_reviewed_at`, `expires_at`). Computes `expires_at` from the TTL (default 30d, max 90d).
 - `validate` — runs the declarative matrix in [`validation-matrix.json`](.pose/indexes/validation-matrix.json): per-stack checks, per-module overrides, severity (`required`/`optional`) and mode (`strict`/`tolerant`). `--json-out`/`--junit`/`--sarif <path>` (`--json <path>` still works as a deprecated alias of `--json-out <path>`) emit the versioned structured result (schema 1) from one canonical model: stable check IDs (`<module>/<stack>/<name>`), command metadata, timing, severity, distinguishable outcomes (`pass|fail|error|skipped` — infra failures never masquerade as check failures), deterministic skip reasons, bounded captured output and secret redaction (configured env values only; inherited environment never enters the result). Text output stays authoritative; machine formats are additive. POSE-specific semantics survive the JUnit/SARIF projections via documented extensions (classname suffix / `pose/*` properties).
   **Runtime guardrails:** every check runs under a timeout (`timeoutSeconds` per check, `defaults.timeoutSeconds`, safe default 600s) and an output ceiling (`defaults.maxOutputBytes`, default 1 MiB); breaching either terminates the process group and records the explicit state (`limit_state: timeout|output-limit`). Checks marked `isolation: "required"` never run locally — they are skipped with a machine-readable reason and exported by `--emit-plan <file>`: an execution-plan envelope binding project, spec, check plan, matrix digest, git HEAD and an approval slot to be stamped with an expiring execution identity before the Harness may run it.
@@ -433,6 +438,14 @@ pose release-notes --version vX.Y.Z  # compatibility alias for the immutable not
 
 ### MCP connection contract
 
+The `pose context --task <xref> --json` command and the `pose_mcp_context` tool
+expose the current authority and revision without revealing paths. Cross-project
+CLI writes require the target in `POSE_PROJECT_ROOTS` and the current
+`context_revision` through `--expect-context`; discovering a project through
+`HARNE8_PROJECTS_DIR` allows reading but does not grant write authorization.
+For qualified creation, use `new-spec-qualified`: older engines refuse the
+command before interpreting new options as ignored arguments.
+
 - Treat `.mcp.json`, the connected server process and the selected project as
   separate states.
 - Run `pose doctor --json` only for local static configuration; its
@@ -481,6 +494,7 @@ distribution (`pose-action/`).
 - `moduleOverrides` adjusts stack, mode and extra checks per module
   (`pose init --wizard` seeds them from repository scan).
 - `required` in a `strict` or `tolerant` module → exit 1; `optional` failures don't block.
+- Logs use standardized `-> command` lines and a final summary, consumed by `pose report`.
 
 ---
 
@@ -489,16 +503,24 @@ distribution (`pose-action/`).
 The full loop (create → consult in workflows → schema validation → CI gate →
 housekeeping) is available from installation; maturity comes from usage.
 
-Write path: `pose new-knowledge <type> <slug>`.
-Read path: the feature/bugfix/review workflows include "consult
-`.pose/knowledge/`" as a mandatory checklist step.
-Gate: `pose knowledge-check --strict`, used in CI.
+Write path: `pose new-knowledge <type> <slug>` generates an artifact from [`.pose/templates/knowledge.md`](.pose/templates/knowledge.md) with validated frontmatter.
 
-Health criteria: a dedicated governance spec when activating the subsystem;
-the [`knowledge-governance.md`](.pose/rules/knowledge-governance.md) rule;
-defined ownership with biweekly/monthly review; minimal housekeeping.
+Read path: the [feature](.pose/workflows/feature.md), [bugfix](.pose/workflows/bugfix.md) and [review](.pose/workflows/review.md) workflows include "consult `.pose/knowledge/`" as a mandatory checklist step.
+
+Gate: `pose knowledge-check --strict` validates the schema natively together with the overdue backlog; used in CI.
+
+Criteria for considering the subsystem continuously "healthy":
+
+- a dedicated knowledge-governance spec (create it with `pose new-spec` when activating the subsystem);
+- a dedicated rule, [`knowledge-governance.md`](.pose/rules/knowledge-governance.md);
+- defined ownership (e.g. `@pose-maintainers`) with biweekly/monthly review;
+- minimal housekeeping through `pose knowledge-housekeeping`.
+
 On repeated neglect (overdue items untreated for 2 cycles), treat `knowledge`
 as degraded and block functional expansion until it recovers.
+The transition from "healthy" to "mature" requires two consecutive cycles with
+`pose knowledge-check --strict` passing and at least one documented consultation
+per feature in active specs.
 
 ---
 

@@ -33,7 +33,9 @@ var (
 func helpAdvertisedCommands(help string) []string {
 	seen := map[string]bool{}
 	for _, line := range strings.Split(help, "\n") {
-		if !strings.HasPrefix(line, "  ") || strings.HasPrefix(strings.TrimSpace(line), "-") {
+		// A command starts at the margin of its group; a line indented further is the
+		// continuation of the description above it.
+		if !strings.HasPrefix(line, "  ") || strings.HasPrefix(line, "      ") || strings.HasPrefix(strings.TrimSpace(line), "-") {
 			continue
 		}
 		entry := strings.TrimSpace(line)

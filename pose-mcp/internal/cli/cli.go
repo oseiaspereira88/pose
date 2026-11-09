@@ -477,6 +477,12 @@ Native binary:
   install <dir> [--locale tag] [...]  Install embedded POSE without cloning
   import <spec-kit|openspec> <path>   Import external specs [--dry-run]
   telemetry <enable|disable|status>   Anonymous opt-in telemetry
+  setup [--json] [--no-input]         See what is in force, what is new and what is missing
+  context [--project-id <id>] [--task <ref>]  Resolve the selected project and qualified task context
+  identity <add|list|remove> [...]    Register the SSH keys a principal proves its answers with
+  issuer <init|pin|list|...>          Create and pin native issuers that sign review attestations
+  adopt <capability> | --list         Turn a governed capability on or off in this instance
+  migrate v7 --dry-run [--json]       Dry-run the legacy inventory a future major would convert
 
 Scaffolds:
   new-spec <slug>                     Create a feature spec scaffold
@@ -485,11 +491,17 @@ Scaffolds:
   new-adr "<title>"                   Create an ADR
   new-knowledge <type> <slug>         Create a handoff, note, or decision log
   spec-transfer <preview|apply|resume|status> Transfer specification authority across projects
+  specs [--recent N] [--status S]     List and discover specifications
+  spec-format <migrate|status>        Inspect and migrate specs to the chronological layout
+  start spec:<slug> [--apply]         Preview or apply the atomic start of a draft spec
 
 Deterministic gates:
   check | validate | knowledge-check | recurrence-check | lint-spec |
   followups | amend | history-check | skills-check | review-check | closeout-check |
-  artifact-check | surface-check | roadmap-check | public-claims
+  artifact-check | surface-check | roadmap-check | public-claims | docs-check
+
+Documentation governance:
+  docs-init | docs-review | docs-sync Seed, review and export the docs contract of a project
 
 Governed closeout:
   review-plan <scope> [--explain]     Resolve component-aware criteria and tools
@@ -497,6 +509,7 @@ Governed closeout:
   review attest <bundle-id> [...]     Record/import a separate attestation
   review verify <scope|bundle-id>     Verify freshness and closeout readiness
   review record <scope> [...]         Compatibility entrypoint
+  action <open|list|show|resolve|...> Open, read and resolve material requests to a person or system
   delegate review <scope> [--agent]   Run a delegated review; also adjudicate, smoke, ls, resume, cancel, agents
   close <scope>                         Apply a review-gated lifecycle transition
   continuous-closeout <action>          Persist and project a terminal scope
@@ -505,6 +518,8 @@ Governed closeout:
 Release lifecycle:
   release <plan|prepare|check|notes|record|status|open-next|backfill>
   release-notes --version vX.Y.Z        Compatibility alias for immutable notes
+  release-package-manifests --version X.Y.Z --checksums <file> --out <dir>
+                                        Package-manager manifests of a release
 
 Project state:
   state [init|refresh|diff]           Native project-state artifact (bare = validate)
@@ -513,6 +528,7 @@ Discovery and metrics:
   suggest | stats | insights | usage | recurrence-effect | stacks
   record-deployment | record-incident | dora-metrics | adoption-metrics
   semantic-suggest | suggest-feedback | portfolio-projection | reconcile-evidence
+  assess <discover|integrate|tech-debt|design>  Bounded local assessments of modules and contracts
 
 Extensions:
   extension install <dir> [--target <dir>] [--dry-run] [--yes] [--force] [--allow-unsigned]
@@ -541,8 +557,13 @@ Nativos (binário):
                                       [--kind limitation|bug|suggestion] [--submit]
   install <dir> [--locale tag] [...]  Instala o POSE embutido num repo (sem clone)
   import <spec-kit|openspec> <path>   Importa specs externas [--dry-run]
-  telemetry <enable|disable|status>   Telemetria anônima OPT-IN (nada é enviado
-                                      sem opt-in E POSE_TELEMETRY_URL)
+  telemetry <enable|disable|status>   Telemetria anônima OPT-IN (nada é enviado sem opt-in E POSE_TELEMETRY_URL)
+  setup [--json] [--no-input]         Veja o que está em vigor, o que é novo e o que falta
+  context [--project-id <id>] [--task <ref>]  Resolve o projeto selecionado e o contexto qualificado da tarefa
+  identity <add|list|remove> [...]    Registra as chaves SSH com que um principal prova suas respostas
+  issuer <init|pin|list|...>          Cria e fixa issuers nativos que assinam atestações de review
+  adopt <capacidade> | --list         Liga ou desliga uma capacidade governada nesta instância
+  migrate v7 --dry-run [--json]       Simula o inventário legado que um major futuro converteria
 
 Scaffold:
   new-spec <slug>                     Cria scaffold de spec por feature
@@ -551,11 +572,17 @@ Scaffold:
   new-adr "<título>"                  Cria ADR com template padrão
   new-knowledge <type> <slug>         Cria handoff/note/decision-log
   spec-transfer <preview|apply|resume|status> Transfere autoridade de spec entre projetos
+  specs [--recent N] [--status S]     Lista e descobre specs
+  spec-format <migrate|status>        Inspeciona e migra specs para o layout cronológico
+  start spec:<slug> [--apply]         Pré-visualiza ou aplica o início atômico de uma spec em rascunho
 
 Gates determinísticos:
   check | validate | knowledge-check | recurrence-check | lint-spec |
   followups | amend | history-check | skills-check | review-check | closeout-check |
-  artifact-check | surface-check | roadmap-check
+  artifact-check | surface-check | roadmap-check | public-claims | docs-check
+
+Governança de documentação:
+  docs-init | docs-review | docs-sync Semeia, revisa e exporta o contrato de docs de um projeto
 
 Fechamento governado:
   review-plan <escopo> [--explain]     Resolve critérios e ferramentas por componente
@@ -563,6 +590,7 @@ Fechamento governado:
   review attest <bundle-id> [...]      Registra/importa atestação separada
   review verify <escopo|bundle-id>     Verifica atualidade e prontidão para fechamento
   review record <escopo> [...]         Entrada de compatibilidade
+  action <open|list|show|resolve|...>  Abre, lê e resolve pedidos materiais a uma pessoa ou sistema
   delegate review <escopo> [--agent]   Roda um review delegado; também adjudicate, smoke, ls, resume, cancel, agents
   close <escopo>                        Aplica transição de ciclo de vida governada
   continuous-closeout <ação>            Persiste e projeta um escopo terminal
@@ -571,6 +599,8 @@ Fechamento governado:
 Ciclo de release:
   release <plan|prepare|check|notes|record|status|open-next|backfill>
   release-notes --version vX.Y.Z        Alias para notas imutáveis
+  release-package-manifests --version X.Y.Z --checksums <arquivo> --out <dir>
+                                        Manifestos de gerenciadores de pacote de uma release
 
 Estado do projeto:
   state [init|refresh|diff]           Artefato nativo de project-state (sem subcomando = validar)
@@ -579,6 +609,7 @@ Descoberta e métricas:
   suggest | stats | insights | usage | recurrence-effect | stacks
   record-deployment | record-incident | dora-metrics | adoption-metrics
   semantic-suggest | suggest-feedback | portfolio-projection | reconcile-evidence
+  assess <discover|integrate|tech-debt|design>  Avaliações locais limitadas de módulos e contratos
 
 Extensões:
   extension install <dir> [--target <dir>] [--dry-run] [--yes] [--force] [--allow-unsigned]

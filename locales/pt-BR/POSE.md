@@ -297,6 +297,10 @@ pose start spec:<slug> [--json|--apply --digest <sha256> [--json]|--status [--js
 pose adopt --list | <capability> [--off|--decline|--defer --reason <texto>] [--date YYYY-MM-DD] [--apply] | --request <act-id> [--apply]  # decide uma capacidade do catálogo
 pose setup [--json] [--no-input]  # o que está em vigor, novo e faltando; o próximo passo, confirmado um a um
 pose identity add [<principal>] --key <file.pub> [--role <papel>] [--apply] | list [--json] | remove <principal> [--fingerprint <fp>] [--apply]  # chaves que provam respostas
+pose action <open|list|show|statement|resolve|cancel|waive|invalidate> ...  # abre, lê e resolve pedidos materiais a uma pessoa ou a um sistema externo
+pose issuer init <nome> | pose issuer pin <nome|nome:chave-pública> [--attestations] [--human-authority] [--audience <id>] [--apply] | pose issuer list [--json]
+                                   # issuers nativos que assinam atestações de review; as chaves ficam fora do projeto
+pose migrate v7 --dry-run [--json]  # simula o inventário legado que um major futuro converteria, manteria ou recusaria
 pose knowledge-housekeeping <list-expired|archive-expired|purge-archived> [--dry-run|--apply]
 pose knowledge-usage [--json]
 pose reports-housekeeping <list-stale|archive-stale|purge-archived> [--older-than N] [--dry-run|--apply]
@@ -332,6 +336,7 @@ pose release <plan|prepare|check|notes|record|status|open-next|backfill> --versi
                                    # prepare congela manifest/notes; record importa
                                    # evidência do provider; status projeta o estado
 pose release-notes --version vX.Y.Z # alias de compatibilidade para as notes imutáveis
+pose release-package-manifests --version X.Y.Z --checksums <checksums.txt> --out <dir>  # manifestos de gerenciadores de pacote de uma release
 ```
 
 ### Referência de comandos
@@ -423,6 +428,8 @@ pose release-notes --version vX.Y.Z # alias de compatibilidade para as notes imu
 - `knowledge-suggest <query>` / `semantic-suggest <query>` / `suggest-feedback` / `portfolio-projection` / `reconcile-evidence` — ranqueamento léxico determinístico e projeções consultivas para conhecimento, agrupamento de feedback, marcos de portfólio multi-roadmap e reconciliação de evidências de validação. Sugestões nunca bloqueiam nem se autoaplicam sem confirmação.
 - `hooks` — gerencia symlinks do binário nativo em `.git/hooks/`. O nome de invocação seleciona `check --tolerant` para `pre-commit` e `index` para `post-merge`; `install --force` preserva backup de hooks preexistentes.
 - `version` — exibe versão compilada do binário Go, SHA do commit e compara a versão do schema do repositório com os requisitos do motor.
+- `context` — resolve um projeto lógico selecionado e uma tarefa opcional, local ou qualificada por `xref:`, pelo resolvedor compartilhado de artefatos. O resultado JSON traz a autoridade canônica, as revisões do projeto e do artefato, o estado de resolução, os contratos suportados e um `context_revision`; nunca inclui roots do filesystem. Use esse token para detectar checkout ou revisão alterados antes de uma escrita entre projetos.
+- Escritas CLI entre projetos exigem o destino em `POSE_PROJECT_ROOTS` e o `context_revision` de uma chamada recente de `pose context`. Use `new-spec-qualified` para criação qualificada, de modo que motores antigos recusem o próprio comando. Um projeto encontrado apenas por varredura de `HARNE8_PROJECTS_DIR` pode ser lido, mas não concede acesso de escrita. Specs canônicas existentes são reutilizadas; redirecionamentos e transferências incompletas bloqueiam a criação de uma cópia.
 - `install <dir> [--locale tag] [--skip-mcp] [--force] [--no-backup] [--allow-non-git]` — instala o runtime, regras, workflows, templates e documentação embutidos do POSE em um diretório de destino sem clonar, grava no `adopted_at` da política de changelog o dia em que a instância a recebeu e roda o gate estrito.
 - `import <spec-kit|openspec> <path> [--dry-run]` — importa especificações externas para o formato canônico do POSE com frontmatter e 7 seções padronizadas.
 - `serve-mcp` — inicia o servidor POSE Model Context Protocol via stdio (`--stdio`) ou HTTP para integração com agentes de IA. O servidor stdio encerra com SIGTERM; ele resolve o CLI `pose` que executa uma única vez, ao iniciar, então um servidor iniciado antes de um `pose update` continua funcionando com o binário atualizado.
@@ -487,7 +494,8 @@ POSE (`pose-action/`).
 
 - Fonte única: [`validation-matrix.json`](.pose/indexes/validation-matrix.json).
 - Stacks base: `node`, `go`, `rust`, `java` (Maven/Gradle).
-- `moduleOverrides` ajusta stack, modo e checks adicionais por módulo.
+- `moduleOverrides` ajusta stack, modo e checks adicionais por módulo
+  (`pose init --wizard` os semeia a partir da varredura do repositório).
 - `required` em módulo `strict` ou `tolerant` → exit 1; `optional` falha não bloqueia pipeline.
 - Logs padronizados com linhas `-> comando` e resumo final para consumo por `pose report`.
 
