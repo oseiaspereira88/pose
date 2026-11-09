@@ -1,0 +1,137 @@
+{
+  "safety": {
+    "schema_version": 1,
+    "profile": "legacy-trusted",
+    "platform": "linux/amd64",
+    "capabilities": {
+      "automatic-expiry": "unavailable",
+      "bounded-capture": "available",
+      "cpu-limit": "unavailable",
+      "credential-filesystem-isolation": "unavailable",
+      "environment-allowlist": "available",
+      "escaped-descendant-termination": "unavailable",
+      "filesystem-isolation": "unavailable",
+      "memory-limit": "unavailable",
+      "network-isolation": "unavailable",
+      "origin-isolation": "unavailable",
+      "parent-termination": "available",
+      "process-group-termination": "available",
+      "shared-git-isolation": "unavailable"
+    },
+    "limitations": [
+      "trusted local executable required; worktree is not a sandbox",
+      "outside writes, transient writes, shared Git and credential files are not isolated",
+      "no memory/CPU quota or control of descendants escaping the process group",
+      "cleanup filesystem calls remain subject to operating-system I/O latency",
+      "legacy compatibility: HOME retained; other ambient credentials excluded"
+    ],
+    "stream_bytes": 8388608,
+    "output_bytes": 65536,
+    "retained_bytes": 16777216,
+    "timeout_ms": 3600000,
+    "max_runs_per_bundle": 3,
+    "retention": "retain-evidence; ttl=0; no automatic deletion",
+    "capture_complete": true,
+    "runtime_id": "pose-review-run-2282587684",
+    "operation": {
+      "schema_version": 1,
+      "operation": "review.dispatch.cleanup",
+      "scope": "spec:pose-help-lists-every-command",
+      "outcome": "completed",
+      "steps_run": [
+        {
+          "id": "cleanup",
+          "result": "done"
+        }
+      ],
+      "effects": [],
+      "resumable": false
+    }
+  },
+  "provenance": {
+    "execution_state": "started",
+    "planned_wire_digest": "sha256:a3caa6684c4d533eb2b5893d17dd2928b8110a008170f4b444062d65b342e5bc",
+    "wire_bytes": 22494,
+    "wire_complete": true,
+    "schema_version": 1,
+    "project": "proj.pose-dist",
+    "audience": "proj.pose-dist",
+    "worktree_digest": "sha256:9c161dc895f6496d9f800581bef8673cc9123cda65951fa2d23b0cbdbc2bac41",
+    "trust": "executor-attested",
+    "implementation": {
+      "principal": "agent:anthropic/claude-sonnet-5-5",
+      "execution": "sha256:675189f7e0b769255994f8213acf8b1b57174c4353838cd875cdabd46aa9cc0b",
+      "vendor": "anthropic",
+      "model": "claude-sonnet-5-5"
+    },
+    "reviewer": {
+      "principal": "agent:anthropic/claude-opus-5-5",
+      "vendor": "anthropic",
+      "model": "claude-opus-5-5"
+    },
+    "config_digest": "sha256:a90313b0452ad8f43357caf23dfd0e2136112057bc42b82451bab2c8a07160ca",
+    "command_template_digest": "sha256:2453c65a11d6e14f5d85fe7177ad51d82534f3221195c5aca7db4d310a3154c1",
+    "argv_digest": "sha256:58a0893f0c5fe91f0b349938da777da4e357800b7973d0132c7d43cb818e966d",
+    "executable_digest": "sha256:dabafec82ca1319fa43d8be36a10fc61b1d11821cb98ad5df04ad95e199b8eed",
+    "template_version": "review-brief/4",
+    "wire_digest": "sha256:a3caa6684c4d533eb2b5893d17dd2928b8110a008170f4b444062d65b342e5bc",
+    "notes_digest": "sha256:22d91f6c5a999bc08e6ab4266b3109f1a5e0d5766a5a84369e729d9e08c96cd7",
+    "raw_transcript_digest": "sha256:6f2d863684796644e64c9f4c03498f4e233a1425dd3d6eec4e70838ee7b6cb75",
+    "raw_output_digest": "sha256:275712f4b6be7528b5a6edc4c7c1f3cd19f5e4256190130b69329dc750dc3c86",
+    "output_source": "stream-final",
+    "output_complete": true
+  },
+  "session_digest": "sha256:5dd241880c390785a8f88aeae009a50659fa6431d47b1a180f162f8beafd9949",
+  "tree_digest": "sha256:c5d185e06e278f4e0fa333d6c6e91aa529e5165982fdccd1137c3779e67a3eac",
+  "brief_notes": "Review of spec pose-help-lists-every-command, implemented by Claude. Scope: `pose help` (English and pt-BR) now lists every command `mainCommand` dispatches (17 were missing); tests read the dispatch switch from the source and hold the help to it, the two languages to each other, and the four shipped copies of the manual to the help (`TestPoseHelp*`, `TestTheManualsDocumentEveryCommandTheHelpAdvertises`, `TestTheHelpReaderIgnoresDescriptionContinuations`); the manual's reference documents `action`, `issuer`, `migrate` and `release-package-manifests`; the English and pt-BR manuals take each other's missing content (knowledge governance, the MCP-contract paragraph, the `context` and cross-project bullets, the validation-matrix notes). This review is run by Claude Opus 5.5 (a different model from the implementer, Sonnet 5.5, the same vendor) because the Codex account is at its usage limit; the report states that independence is by model. The brief is review-brief/4: follow it, run the required tools your profile allows, give `\u003cclass\u003e:\u003cref\u003e` evidence, no finding left open (follow-ups carry `action`, `owner` @pose-maintainers and `review_by` 2027-01-08, severity low only for a follow-up you want accepted), and sweep the three catalogs (dispatch, help, manual) and both languages for the same class of drift. Classify each finding as blocker (a stated requirement violated) or follow-up and report all of them.\n",
+  "ledger_version": 1,
+  "attempt_id": "rat-fbb4d98afce50756f645aca7d617d96fc8c1151b2be541c338befe9744c116ab",
+  "schema_version": 1,
+  "run_id": "rrn-76f2272c815380b7",
+  "scope": "spec:pose-help-lists-every-command",
+  "bundle_id": "rvb-6dd0691929398061",
+  "bundle_digest": "sha256:6dd0691929398061fdcf17d6d5303485b674b2d83439d9e4f65696c9bf8b4294",
+  "sealed_commit": "32285d72814af6c3bcfa2115d23b3b304908959a",
+  "kind": "review",
+  "brief_digest": "sha256:7284f1b88b8c7aa3c9a8a0dd0ed53afab607a1af7abab31367d5d6de6767a77e",
+  "adapter": "claude-opus-5-5",
+  "vendor": "anthropic",
+  "model": "claude-opus-5-5",
+  "started_at": "2026-11-09T07:27:10.622349028Z",
+  "ended_at": "2026-11-09T07:43:13.668990629Z",
+  "exit_code": 0,
+  "status": "completed",
+  "transcript_digest": "sha256:20346c0e09c2462314c99ef0789de4a7b332c86c37d72c5453150964d2ca3868",
+  "transcript_path": ".pose/review-runs/rrn-76f2272c815380b7.transcript",
+  "output": "**Decision: approved.** I found four defects, all low severity. None breaks a requirement, so each is a follow-up with an action, owner and review date.\n\nThe fix does what the spec asks. `pose help` now lists every command `mainCommand` dispatches, in both languages. The new test reads the dispatch from the Go source instead of keeping a second list. All four copies of the manual document every advertised command.\n\n**Independence:** I am Claude Opus 5.5; the implementer was Claude Sonnet 5.5. That is a different model from the same vendor. `pose review-check` reports `declared none, verified not-verified` for separation, so whether this counts as \"different-actor\" is up to POSE.\n\n## Tools: what ran and what was blocked\n\nThe permission mode blocked several commands, so not every tool ran. Where a tool has no result of mine, I say so.\n\n| Tool | Result |\n|---|---|\n| `go test -race ./internal/cli -run 'TestPoseHelp\\|TestTheManualsDocumentEveryCommand\\|TestTheHelpReaderIgnores\\|CommandReference'` | all 5 tests pass |\n| `go test ./internal/cli ./internal/scaffold -count=1` | both packages pass |\n| `pose surface-check --spec … --strict` | 1 target, 195 results, 0 findings |\n| `pose artifact-check --spec … --strict` | 11 claims, 16 observed, 912 findings. Every line I could see is a repo-wide \"orphan\" warning; none is an error. **The exit code was blocked, so I don't know it.** |\n| `pose review-check spec:…` | `fresh=false`, `approved=false`, warnings only (no review is recorded yet; some components unmapped) |\n| `pose closeout-check spec:…` | `[ERROR] lifecycle status is not done` |\n| `pose validate --strict` (both forms) | **blocked**. I rely on the sealed evidence plus my own go test runs above. |\n| `assess design / discover / integrate / tech-debt`, `suggest review` | **blocked**, marked `not-used` |\n| Running the new gate against the old `cli.go` in a scratch copy | **blocked**. I could not confirm myself that the gate fails on the pre-fix help; that rests on the spec's own claim. |\n\n**Two judgment calls you should know about:**\n- I marked `closeout-check` **passed** even though it printed an `[ERROR]`. The only error is that the spec isn't `done`, which can't be true until this review is recorded. If you think that is the wrong call, change it to `deferred`, but POSE may then refuse the draft under rule (g).\n- I marked both `validate` tools **passed** using the sealed evidence. I did not run `pose validate` myself.\n\n## Criteria\n\n- **requirements / correctness:** R1–R5 each have a test that I ran and saw pass (`internal/cli/command_catalog_parity_test.go:78-143`). R3 only checks the English help, but the language-parity test carries it over to pt-BR.\n- **design-causality:** The root cause was the old gate (`command_reference.go:16-19`): it treated the help as the catalog, so a command in the binary but missing from the help passed. The new test reads the `switch cmd` cases from the source (`command_catalog_parity_test.go:22-67`). It also fails if it reads fewer than 50 commands, which protects against the parser silently losing the switch.\n- **scope:** The files changed for this spec are exactly the 11 the spec lists. Other commits in the range belong to other specs. The `validation-matrix.json` edit to the handoff run pattern also belongs to another spec.\n- **compatibility:** Help and manuals only gain content. No command's behaviour changed. `feedback` is still an alias and is not listed twice.\n- **documentation:** All four manual copies pass the reference test, and the scaffold copies match the root manuals.\n- **security, concurrency, observability, input errors:** These change only static text and test code; there are no new inputs, I/O, concurrency or authority paths.\n- **solution-proportionality:** The smallest fix was to add the 17 lines and stop. D1 rejects that because the same drift would come back; the extra cost is one test file. The design stops working if a command is ever dispatched outside that switch, which the spec already lists as a known gap.\n\n## Defects\n\n1. **F1 (low, follow-up).** `pose-mcp/internal/cli/command_catalog_parity_test.go:93` and `:108`: the comments name the wrong requirements. The language-parity test says \"R3\" but checks R2; the \"nothing undispatched\" test says \"R4\" but checks R3. The spec's trace table uses the test names and is correct.\n2. **F2 (low, follow-up).** `.pose/specs/2026-11-09-pose-help-lists-every-command.md:132`: the known gap gives `check` as an example of a command with no per-command help. But `check` has an entry in `help_catalog.go:142`, so in the source `pose check --help` finds it. `review-check`, `closeout-check` and `public-claims` really are missing. (I couldn't run the binary because of the blocked commands, so this is from reading the code.)\n3. **F3 (low, follow-up).** `pose-mcp/internal/cli/help_catalog.go:36`: `knownCommandNames()` builds the \"did you mean\" list for typos from the per-command help list. That list doesn't cover everything dispatched (e.g. `review-check`, `closeout-check`, `public-claims`, `install`, `amend`, `docs-*`), so a typo of those can't be suggested. This is the same kind of drift; it should be added to the existing per-command help follow-up.\n4. **F4 (low, follow-up).** `pose-mcp/internal/cli/cli.go:504`, `:512` and `:585`: the description sits one space after the command, but the help reader assumes two or more spaces (`command_reference.go:42-44`). It works today only because the reader takes the first word of each `|` alternative. A `|` inside such a description would be read as a command. The R3 test would catch that, so the risk is low.\n\nI also noticed that the prose \"Command reference\" bullets in both manuals cover only some commands. That was already true before this change and is outside R4, which the bash block satisfies. I'm not recording it as a finding.\n\n```pose-draft\n{\n  \"schema\": \"pose.review.draft/v1\",\n  \"decision\": \"approved\",\n  \"findings\": [\n    {\"id\": \"F1\", \"severity\": \"low\", \"disposition\": \"follow-up\", \"file\": \"pose-mcp/internal/cli/command_catalog_parity_test.go\", \"line\": 93, \"summary\": \"Test comments cite the wrong requirements: the language-parity test is labelled R3 (it covers R2) and the no-undispatched-command test at line 108 is labelled R4 (it covers R3).\", \"action\": \"Relabel the comments to R2 and R3 to match the spec's requirement trace.\", \"owner\": \"@pose-maintainers\", \"review_by\": \"2027-01-08\"},\n    {\"id\": \"F2\", \"severity\": \"low\", \"disposition\": \"follow-up\", \"file\": \".pose/specs/2026-11-09-pose-help-lists-every-command.md\", \"line\": 132, \"summary\": \"The known gap gives `check` as lacking per-command help, but help_catalog.go:142 defines it; the gap's example list is partly wrong.\", \"action\": \"When doing the per-command-help follow-up, compute the missing set from the dispatch versus commandHelpCatalog instead of listing examples by hand.\", \"owner\": \"@pose-maintainers\", \"review_by\": \"2027-01-08\"},\n    {\"id\": \"F3\", \"severity\": \"low\", \"disposition\": \"follow-up\", \"file\": \"pose-mcp/internal/cli/help_catalog.go\", \"line\": 36, \"summary\": \"knownCommandNames (the unknown-command suggestion list) comes from commandHelpCatalog, which misses dispatched commands (review-check, closeout-check, public-claims, install, amend, docs-*), so typos of them cannot be suggested; same drift class as this spec.\", \"action\": \"Add the suggestion list to the per-command-help follow-up: derive it from the dispatch, or gate it against mainSwitchCommands.\", \"owner\": \"@pose-maintainers\", \"review_by\": \"2027-01-08\"},\n    {\"id\": \"F4\", \"severity\": \"low\", \"disposition\": \"follow-up\", \"file\": \"pose-mcp/internal/cli/cli.go\", \"line\": 504, \"summary\": \"Help lines 504, 512 and 585 put the description one space after the command, but helpAdvertisedCommands assumes two or more; a '|' in such a description would be read as a command (caught today only by the R3 test).\", \"action\": \"Separate the description by at least two spaces (or move it to its own line) on these help lines.\", \"owner\": \"@pose-maintainers\", \"review_by\": \"2027-01-08\"}\n  ],\n  \"criteria\": [\n    {\"id\": \"assumption-integrity\", \"disposition\": \"passed\", \"evidence\": \"integration:pose-mcp/go/help-lists-every-command-integration\", \"rationale\": \"Examined the spec assumptions. Verified: the dispatch is the top-level `switch cmd` of mainCommand (cli.go:53-411); `help` is handled before that switch (cli.go:39) and exempted in the test; the 50-command floor guards the parser. Unresolved but declared: commands dispatched outside the switch are invisible to the gate. One factual slip in the known gap (`check` does have per-command help) is recorded as accepted follow-up F2.\"},\n    {\"id\": \"backend-concurrency\", \"disposition\": \"passed\", \"evidence\": \"integration:pose-mcp/go/help-lists-every-command-integration\", \"rationale\": \"The change is constant help text and a source-reading test; no shared state, goroutines or lifecycle are touched. The gate runs under -race in the matrix, and I re-ran it with -race: pass.\"},\n    {\"id\": \"backend-contracts\", \"disposition\": \"passed\", \"evidence\": \"integration:pose-mcp/go/help-lists-every-command-integration\", \"rationale\": \"Help output only gains lines; no command, flag, file or MCP contract changes; the manual reference is additive.\"},\n    {\"id\": \"backend-input-errors\", \"disposition\": \"passed\", \"evidence\": \"unit:pose-mcp/go/test\", \"rationale\": \"No new input paths. Unknown commands still go through UnknownToken plus a help hint (cli.go:416-418); the reader change only skips deeper-indented lines.\"},\n    {\"id\": \"backend-integration-impact\", \"disposition\": \"passed\", \"evidence\": \"integration:pose-mcp/go/help-lists-every-command-integration\", \"rationale\": \"The runtime gate in pose check (command_reference.go:96-125) keeps using helpTextEN, so instances now need the four extra reference lines, and the shipped scaffold manuals have them; I re-ran internal/scaffold: pass.\"},\n    {\"id\": \"backend-observability\", \"disposition\": \"passed\", \"evidence\": \"unit:pose-mcp/go/test\", \"rationale\": \"Test failures name the language, the manual path and the exact missing commands; the existing pose check message names manual and commands.\"},\n    {\"id\": \"compatibility\", \"disposition\": \"passed\", \"evidence\": \"integration:pose-mcp/go/help-lists-every-command-integration\", \"rationale\": \"Compared the help and manual diffs: additions only, `feedback` kept as an alias and not listed twice, no dispatch change. Instances with a trimmed manual (no bash block) are still exempt (command_reference.go:113).\"},\n    {\"id\": \"correctness\", \"disposition\": \"passed\", \"evidence\": \"unit:pose-mcp/go/test\", \"rationale\": \"I ran go test ./internal/cli ./internal/scaffold (pass) and the five spec tests with -race (pass).\"},\n    {\"id\": \"design-causality\", \"disposition\": \"passed\", \"evidence\": \"structure:design-c632a566c4ff7395\", \"rationale\": \"Root cause: the old gate (command_reference.go:16-19) treated the help as the catalog. D1 adds a gate from the dispatch read from the AST (command_catalog_parity_test.go:22-67), so the drift path is closed; D2 adds language parity, which caught the lost public-claims and the 'sem' continuation the reader misread. R5's reader change (command_reference.go:38) removes the misread at its source.\"},\n    {\"id\": \"documentation\", \"disposition\": \"passed\", \"evidence\": \"integration:pose-mcp/go/help-lists-every-command-integration\", \"rationale\": \"Read the manual diffs: action, issuer, migrate and release-package-manifests were added to the reference blocks of all four copies; the scaffold copies match the roots; the EN/pt-BR content exchange matches the spec's compatibility section. TestTheManualsDocumentEveryCommandTheHelpAdvertises passes.\"},\n    {\"id\": \"operability\", \"disposition\": \"passed\", \"evidence\": \"unit:pose-mcp/go/test\", \"rationale\": \"The new help lines give a usage form and a one-line purpose for each of the 17 commands in both languages; gate failures list exact names. Typo suggestions still miss some commands (F3, accepted follow-up).\"},\n    {\"id\": \"requirements\", \"disposition\": \"passed\", \"evidence\": \"integration:pose-mcp/go/help-lists-every-command-integration\", \"rationale\": \"R1-R5 each map to a named test that I ran and saw pass; R3 checks EN directly and pt-BR through the parity test. Wrong comment labels are F1.\"},\n    {\"id\": \"scope\", \"disposition\": \"passed\", \"evidence\": \"integration:pose-mcp/go/help-lists-every-command-integration\", \"rationale\": \"The change-set files are exactly the spec's artifact list; non-goals (per-command help, manual locale parity gate, behaviour) are untouched. Other commits in the range belong to other specs.\"},\n    {\"id\": \"security\", \"disposition\": \"passed\", \"evidence\": \"unit:pose-mcp/go/test\", \"rationale\": \"Static help text and a test that parses repository source and reads fixed relative manual paths; no new inputs, paths, secrets or authority. The new manual text repeats existing cross-project write constraints and adds none.\"},\n    {\"id\": \"solution-proportionality\", \"disposition\": \"passed\", \"evidence\": \"structure:design-c632a566c4ff7395\", \"rationale\": \"The minimal option (add 17 lines) was rejected in D1 for a concrete recurrence path; the added gate is a single 143-line test file, with no runtime registry or new abstraction. The choice is invalidated if commands come to be dispatched outside the switch, which is declared as a residual risk.\"}\n  ],\n  \"tools\": [\n    {\"id\": \"artifact-check\", \"disposition\": \"passed\", \"evidence\": \"command:pose artifact-check --spec pose-help-lists-every-command --strict\", \"rationale\": \"Ran: claims=11 observed=16; all visible findings are repo-wide orphan warnings, none an error. The exit code could not be captured in this environment.\"},\n    {\"id\": \"assess-design\", \"disposition\": \"not-used\", \"rationale\": \"The command was denied by the reviewer's permission mode; I relied on the sealed structure:design-c632a566c4ff7395.\"},\n    {\"id\": \"assess-discover\", \"component\": \"pose-mcp\", \"disposition\": \"not-used\", \"rationale\": \"Recommended only; the reviewer environment denied running pose assess commands.\"},\n    {\"id\": \"assess-integrate\", \"disposition\": \"not-used\", \"rationale\": \"Recommended only; the command was denied by the reviewer's permission mode.\"},\n    {\"id\": \"assess-tech-debt\", \"disposition\": \"not-used\", \"rationale\": \"Recommended only; the reviewer environment denied running pose assess commands.\"},\n    {\"id\": \"closeout-check\", \"disposition\": \"passed\", \"evidence\": \"command:pose closeout-check spec:pose-help-lists-every-command\", \"rationale\": \"Ran: the only error is 'lifecycle status is not done' with review_approved=false, which is the expected state before this conclusion is recorded and the spec closed; no other blocker was reported.\"},\n    {\"id\": \"review-check\", \"disposition\": \"passed\", \"evidence\": \"command:pose review-check spec:pose-help-lists-every-command\", \"rationale\": \"Ran: no errors; approved=false pending this conclusion; warnings are missing component owner metadata, unmapped governance/doc paths, and sealed evidence current by provenance.\"},\n    {\"id\": \"suggest-review\", \"component\": \"pose-mcp\", \"disposition\": \"not-used\", \"rationale\": \"Recommended only; not run because pose CLI analysis commands were being denied in this environment.\"},\n    {\"id\": \"surface-check\", \"disposition\": \"passed\", \"evidence\": \"integration:pose-mcp/go/help-lists-every-command-integration\", \"rationale\": \"Ran pose surface-check --spec pose-help-lists-every-command --strict: targets=1 results=195 findings=0.\"},\n    {\"id\": \"validate\", \"disposition\": \"passed\", \"evidence\": \"unit:pose-mcp/go/test\", \"rationale\": \"pose validate was denied in this environment; I rely on the sealed strict validation and independently re-ran go test for internal/cli and internal/scaffold (pass).\"},\n    {\"id\": \"validate\", \"component\": \"pose-mcp\", \"disposition\": \"passed\", \"evidence\": \"integration:pose-mcp/go/help-lists-every-command-integration\", \"rationale\": \"pose validate --module pose-mcp was denied in this environment; I rely on the sealed module evidence and independently re-ran the matrix check's go test -race selection (pass).\"}\n  ]\n}\n```",
+  "policy_digest": "sha256:3ce425ff658542b7442c6e7257b9ad82f89d2a4f662a1e0547c80d5b2cdbc0d5",
+  "purpose": "review",
+  "env_removed": [
+    "CLAUDE_CODE_BRIDGE_SESSION_ID",
+    "CLAUDE_CODE_CHILD_SESSION",
+    "CLAUDE_CODE_ENTRYPOINT",
+    "CLAUDE_CODE_EXECPATH",
+    "CLAUDE_CODE_MESSAGING_SOCKET",
+    "CLAUDE_CODE_MESSAGING_TOKEN",
+    "CLAUDE_CODE_SESSION_ATTENDED",
+    "CLAUDE_CODE_SESSION_ID",
+    "CLAUDE_EFFORT",
+    "CLAUDE_PID"
+  ],
+  "events": "claude-stream-json",
+  "events_digest": "sha256:787e06cec0eb037fc02a99a8f13906e512f6d9264355334f32702c2e605ffad0",
+  "routing": {
+    "requested": "claude-opus-5-5",
+    "implementation": {
+      "principal": "agent:anthropic/claude-sonnet-5-5",
+      "vendor": "anthropic",
+      "model": "claude-sonnet-5-5",
+      "execution_digest": "sha256:675189f7e0b769255994f8213acf8b1b57174c4353838cd875cdabd46aa9cc0b",
+      "source": "declared"
+    },
+    "implementation_from": "bundle",
+    "step": "explicit"
+  },
+  "independence_achieved": "different-model",
+  "round": 1
+}

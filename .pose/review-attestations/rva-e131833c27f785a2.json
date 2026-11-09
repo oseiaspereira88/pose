@@ -1,0 +1,240 @@
+{
+  "run": {
+    "run_id": "rrn-76f2272c815380b7",
+    "proof_id": "rrp-80d4472b715e935f790572710a24c69a34b5c683edcce221813efc8dea5f712b"
+  },
+  "schema_version": 1,
+  "attestation_id": "rva-e131833c27f785a2",
+  "bundle_id": "rvb-6dd0691929398061",
+  "bundle_digest": "sha256:6dd0691929398061fdcf17d6d5303485b674b2d83439d9e4f65696c9bf8b4294",
+  "reviewer": "agent:anthropic/claude-opus-5-5",
+  "decision": "approved",
+  "criteria": [
+    {
+      "id": "assumption-integrity",
+      "disposition": "passed",
+      "evidence": "integration:pose-mcp/go/help-lists-every-command-integration",
+      "rationale": "Examined the spec assumptions. Verified: the dispatch is the top-level `switch cmd` of mainCommand (cli.go:53-411); `help` is handled before that switch (cli.go:39) and exempted in the test; the 50-command floor guards the parser. Unresolved but declared: commands dispatched outside the switch are invisible to the gate. One factual slip in the known gap (`check` does have per-command help) is recorded as accepted follow-up F2."
+    },
+    {
+      "id": "backend-concurrency",
+      "disposition": "passed",
+      "evidence": "integration:pose-mcp/go/help-lists-every-command-integration",
+      "rationale": "The change is constant help text and a source-reading test; no shared state, goroutines or lifecycle are touched. The gate runs under -race in the matrix, and I re-ran it with -race: pass."
+    },
+    {
+      "id": "backend-contracts",
+      "disposition": "passed",
+      "evidence": "integration:pose-mcp/go/help-lists-every-command-integration",
+      "rationale": "Help output only gains lines; no command, flag, file or MCP contract changes; the manual reference is additive."
+    },
+    {
+      "id": "backend-input-errors",
+      "disposition": "passed",
+      "evidence": "unit:pose-mcp/go/test",
+      "rationale": "No new input paths. Unknown commands still go through UnknownToken plus a help hint (cli.go:416-418); the reader change only skips deeper-indented lines."
+    },
+    {
+      "id": "backend-integration-impact",
+      "disposition": "passed",
+      "evidence": "integration:pose-mcp/go/help-lists-every-command-integration",
+      "rationale": "The runtime gate in pose check (command_reference.go:96-125) keeps using helpTextEN, so instances now need the four extra reference lines, and the shipped scaffold manuals have them; I re-ran internal/scaffold: pass."
+    },
+    {
+      "id": "backend-observability",
+      "disposition": "passed",
+      "evidence": "unit:pose-mcp/go/test",
+      "rationale": "Test failures name the language, the manual path and the exact missing commands; the existing pose check message names manual and commands."
+    },
+    {
+      "id": "compatibility",
+      "disposition": "passed",
+      "evidence": "integration:pose-mcp/go/help-lists-every-command-integration",
+      "rationale": "Compared the help and manual diffs: additions only, `feedback` kept as an alias and not listed twice, no dispatch change. Instances with a trimmed manual (no bash block) are still exempt (command_reference.go:113)."
+    },
+    {
+      "id": "correctness",
+      "disposition": "passed",
+      "evidence": "unit:pose-mcp/go/test",
+      "rationale": "I ran go test ./internal/cli ./internal/scaffold (pass) and the five spec tests with -race (pass)."
+    },
+    {
+      "id": "design-causality",
+      "disposition": "passed",
+      "evidence": "structure:design-c632a566c4ff7395",
+      "rationale": "Root cause: the old gate (command_reference.go:16-19) treated the help as the catalog. D1 adds a gate from the dispatch read from the AST (command_catalog_parity_test.go:22-67), so the drift path is closed; D2 adds language parity, which caught the lost public-claims and the 'sem' continuation the reader misread. R5's reader change (command_reference.go:38) removes the misread at its source."
+    },
+    {
+      "id": "documentation",
+      "disposition": "passed",
+      "evidence": "integration:pose-mcp/go/help-lists-every-command-integration",
+      "rationale": "Read the manual diffs: action, issuer, migrate and release-package-manifests were added to the reference blocks of all four copies; the scaffold copies match the roots; the EN/pt-BR content exchange matches the spec's compatibility section. TestTheManualsDocumentEveryCommandTheHelpAdvertises passes."
+    },
+    {
+      "id": "operability",
+      "disposition": "passed",
+      "evidence": "unit:pose-mcp/go/test",
+      "rationale": "The new help lines give a usage form and a one-line purpose for each of the 17 commands in both languages; gate failures list exact names. Typo suggestions still miss some commands (F3, accepted follow-up)."
+    },
+    {
+      "id": "requirements",
+      "disposition": "passed",
+      "evidence": "integration:pose-mcp/go/help-lists-every-command-integration",
+      "rationale": "R1-R5 each map to a named test that I ran and saw pass; R3 checks EN directly and pt-BR through the parity test. Wrong comment labels are F1."
+    },
+    {
+      "id": "scope",
+      "disposition": "passed",
+      "evidence": "integration:pose-mcp/go/help-lists-every-command-integration",
+      "rationale": "The change-set files are exactly the spec's artifact list; non-goals (per-command help, manual locale parity gate, behaviour) are untouched. Other commits in the range belong to other specs."
+    },
+    {
+      "id": "security",
+      "disposition": "passed",
+      "evidence": "unit:pose-mcp/go/test",
+      "rationale": "Static help text and a test that parses repository source and reads fixed relative manual paths; no new inputs, paths, secrets or authority. The new manual text repeats existing cross-project write constraints and adds none."
+    },
+    {
+      "id": "solution-proportionality",
+      "disposition": "passed",
+      "evidence": "structure:design-c632a566c4ff7395",
+      "rationale": "The minimal option (add 17 lines) was rejected in D1 for a concrete recurrence path; the added gate is a single 143-line test file, with no runtime registry or new abstraction. The choice is invalidated if commands come to be dispatched outside the switch, which is declared as a residual risk."
+    }
+  ],
+  "tools": [
+    {
+      "id": "artifact-check",
+      "disposition": "passed",
+      "evidence": "command:pose artifact-check --spec pose-help-lists-every-command --strict",
+      "rationale": "Ran: claims=11 observed=16; all visible findings are repo-wide orphan warnings, none an error. The exit code could not be captured in this environment."
+    },
+    {
+      "id": "assess-design",
+      "disposition": "not-used",
+      "rationale": "The command was denied by the reviewer's permission mode; I relied on the sealed structure:design-c632a566c4ff7395."
+    },
+    {
+      "id": "assess-discover",
+      "component": "pose-mcp",
+      "disposition": "not-used",
+      "rationale": "Recommended only; the reviewer environment denied running pose assess commands."
+    },
+    {
+      "id": "assess-integrate",
+      "disposition": "not-used",
+      "rationale": "Recommended only; the command was denied by the reviewer's permission mode."
+    },
+    {
+      "id": "assess-tech-debt",
+      "disposition": "not-used",
+      "rationale": "Recommended only; the reviewer environment denied running pose assess commands."
+    },
+    {
+      "id": "closeout-check",
+      "disposition": "passed",
+      "evidence": "command:pose closeout-check spec:pose-help-lists-every-command",
+      "rationale": "Ran: the only error is 'lifecycle status is not done' with review_approved=false, which is the expected state before this conclusion is recorded and the spec closed; no other blocker was reported."
+    },
+    {
+      "id": "review-check",
+      "disposition": "passed",
+      "evidence": "command:pose review-check spec:pose-help-lists-every-command",
+      "rationale": "Ran: no errors; approved=false pending this conclusion; warnings are missing component owner metadata, unmapped governance/doc paths, and sealed evidence current by provenance."
+    },
+    {
+      "id": "suggest-review",
+      "component": "pose-mcp",
+      "disposition": "not-used",
+      "rationale": "Recommended only; not run because pose CLI analysis commands were being denied in this environment."
+    },
+    {
+      "id": "surface-check",
+      "disposition": "passed",
+      "evidence": "integration:pose-mcp/go/help-lists-every-command-integration",
+      "rationale": "Ran pose surface-check --spec pose-help-lists-every-command --strict: targets=1 results=195 findings=0."
+    },
+    {
+      "id": "validate",
+      "disposition": "passed",
+      "evidence": "unit:pose-mcp/go/test",
+      "rationale": "pose validate was denied in this environment; I rely on the sealed strict validation and independently re-ran go test for internal/cli and internal/scaffold (pass)."
+    },
+    {
+      "id": "validate",
+      "component": "pose-mcp",
+      "disposition": "passed",
+      "evidence": "integration:pose-mcp/go/help-lists-every-command-integration",
+      "rationale": "pose validate --module pose-mcp was denied in this environment; I rely on the sealed module evidence and independently re-ran the matrix check's go test -race selection (pass)."
+    }
+  ],
+  "evidence_refs": [
+    "delegated-run:rrn-76f2272c815380b7",
+    "integration:pose-mcp/go/help-lists-every-command-integration",
+    "structure:design-c632a566c4ff7395",
+    "unit:pose-mcp/go/test"
+  ],
+  "findings": [
+    {
+      "id": "F1",
+      "severity": "low",
+      "evidence": "file:pose-mcp/internal/cli/command_catalog_parity_test.go:93",
+      "action": "Relabel the comments to R2 and R3 to match the spec's requirement trace.",
+      "disposition": "accepted-risk",
+      "owner": "@pose-maintainers",
+      "rationale": "Test comments cite the wrong requirements: the language-parity test is labelled R3 (it covers R2) and the no-undispatched-command test at line 108 is labelled R4 (it covers R3).",
+      "review_by": "2027-01-08"
+    },
+    {
+      "id": "F2",
+      "severity": "low",
+      "evidence": "file:.pose/specs/2026-11-09-pose-help-lists-every-command.md:132",
+      "action": "When doing the per-command-help follow-up, compute the missing set from the dispatch versus commandHelpCatalog instead of listing examples by hand.",
+      "disposition": "accepted-risk",
+      "owner": "@pose-maintainers",
+      "rationale": "The known gap gives `check` as lacking per-command help, but help_catalog.go:142 defines it; the gap's example list is partly wrong.",
+      "review_by": "2027-01-08"
+    },
+    {
+      "id": "F3",
+      "severity": "low",
+      "evidence": "file:pose-mcp/internal/cli/help_catalog.go:36",
+      "action": "Add the suggestion list to the per-command-help follow-up: derive it from the dispatch, or gate it against mainSwitchCommands.",
+      "disposition": "accepted-risk",
+      "owner": "@pose-maintainers",
+      "rationale": "knownCommandNames (the unknown-command suggestion list) comes from commandHelpCatalog, which misses dispatched commands (review-check, closeout-check, public-claims, install, amend, docs-*), so typos of them cannot be suggested; same drift class as this spec.",
+      "review_by": "2027-01-08"
+    },
+    {
+      "id": "F4",
+      "severity": "low",
+      "evidence": "file:pose-mcp/internal/cli/cli.go:504",
+      "action": "Separate the description by at least two spaces (or move it to its own line) on these help lines.",
+      "disposition": "accepted-risk",
+      "owner": "@pose-maintainers",
+      "rationale": "Help lines 504, 512 and 585 put the description one space after the command, but helpAdvertisedCommands assumes two or more; a '|' in such a description would be read as a command (caught today only by the R3 test).",
+      "review_by": "2027-01-08"
+    }
+  ],
+  "authority": {
+    "schema_version": 1,
+    "project": "proj.pose-dist",
+    "bundle_digest": "sha256:6dd0691929398061fdcf17d6d5303485b674b2d83439d9e4f65696c9bf8b4294",
+    "principal": "agent:anthropic/claude-opus-5-5",
+    "role": "agent",
+    "review_execution": "rrn-76f2272c815380b7",
+    "implementation_principal": "agent:anthropic/claude-sonnet-5-5",
+    "implementation_execution": "sha256:675189f7e0b769255994f8213acf8b1b57174c4353838cd875cdabd46aa9cc0b",
+    "issuer": "b34-local-executor",
+    "issued_at": "2026-11-09T07:43:17Z",
+    "audience": "proj.pose-dist"
+  },
+  "envelope": {
+    "issuer": "b34-local-executor",
+    "subject": "rvb-6dd0691929398061",
+    "algorithm": "ed25519",
+    "public_key": "ck4sApdfePV2GT+hJyAYfJd2qLzeG55P8pevGR0bvZE=",
+    "signature": "ZTGFK6XxVRnNBs/Z8QRz/EwYhDV1/xaEqwB0z+YOwWdJfW0pFaQvi/hfoKA5lnL326KkLGioCUhwAcflnfk0Cg=="
+  },
+  "attested_at": "2026-11-09T07:43:17Z",
+  "path": ".pose/review-attestations/rva-e131833c27f785a2.json"
+}
