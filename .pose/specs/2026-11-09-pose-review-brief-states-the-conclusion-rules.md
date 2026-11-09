@@ -1,8 +1,8 @@
 ---
 slug: pose-review-brief-states-the-conclusion-rules
-status: in-progress
+status: done
 created_at: 2026-11-09
-completed_at:
+completed_at: 2026-11-09
 supersedes:
 depends_on: pose-delegated-review-conclusions
 remediates:
