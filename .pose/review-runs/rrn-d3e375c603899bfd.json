@@ -1,0 +1,137 @@
+{
+  "safety": {
+    "schema_version": 1,
+    "profile": "legacy-trusted",
+    "platform": "linux/amd64",
+    "capabilities": {
+      "automatic-expiry": "unavailable",
+      "bounded-capture": "available",
+      "cpu-limit": "unavailable",
+      "credential-filesystem-isolation": "unavailable",
+      "environment-allowlist": "available",
+      "escaped-descendant-termination": "unavailable",
+      "filesystem-isolation": "unavailable",
+      "memory-limit": "unavailable",
+      "network-isolation": "unavailable",
+      "origin-isolation": "unavailable",
+      "parent-termination": "available",
+      "process-group-termination": "available",
+      "shared-git-isolation": "unavailable"
+    },
+    "limitations": [
+      "trusted local executable required; worktree is not a sandbox",
+      "outside writes, transient writes, shared Git and credential files are not isolated",
+      "no memory/CPU quota or control of descendants escaping the process group",
+      "cleanup filesystem calls remain subject to operating-system I/O latency",
+      "legacy compatibility: HOME retained; other ambient credentials excluded"
+    ],
+    "stream_bytes": 8388608,
+    "output_bytes": 65536,
+    "retained_bytes": 16777216,
+    "timeout_ms": 3600000,
+    "max_runs_per_bundle": 3,
+    "retention": "retain-evidence; ttl=0; no automatic deletion",
+    "capture_complete": true,
+    "runtime_id": "pose-review-run-3567912673",
+    "operation": {
+      "schema_version": 1,
+      "operation": "review.dispatch.cleanup",
+      "scope": "spec:pose-claude-sandboxed-profile",
+      "outcome": "completed",
+      "steps_run": [
+        {
+          "id": "cleanup",
+          "result": "done"
+        }
+      ],
+      "effects": [],
+      "resumable": false
+    }
+  },
+  "provenance": {
+    "execution_state": "started",
+    "planned_wire_digest": "sha256:f3d39825129ce9cbbfd5f0e216b6c810c1251dfa4be5503da3be377fff03f7b2",
+    "wire_bytes": 23956,
+    "wire_complete": true,
+    "schema_version": 1,
+    "project": "proj.pose-dist",
+    "audience": "proj.pose-dist",
+    "worktree_digest": "sha256:9c161dc895f6496d9f800581bef8673cc9123cda65951fa2d23b0cbdbc2bac41",
+    "trust": "executor-attested",
+    "implementation": {
+      "principal": "agent:anthropic/claude-sonnet-5-5",
+      "execution": "sha256:675189f7e0b769255994f8213acf8b1b57174c4353838cd875cdabd46aa9cc0b",
+      "vendor": "anthropic",
+      "model": "claude-sonnet-5-5"
+    },
+    "reviewer": {
+      "principal": "agent:anthropic/claude-opus-5-5",
+      "vendor": "anthropic",
+      "model": "claude-opus-5-5"
+    },
+    "config_digest": "sha256:fa7add8c85f5c0c1dd74b1dba89cd12989a2a856fc7a59407bc04682bd575e25",
+    "command_template_digest": "sha256:4fb04e170e8d7f85923d1ab7c7d6eac045a3bb8d20b443991552d6b7bfa7c4f2",
+    "argv_digest": "sha256:6f7a9cc5aa680b285a37674b2fc17403c1b6f541da236f7fd09bb7d444f08935",
+    "executable_digest": "sha256:426c33815ca6645a772f722fbff10dbf2cbdb124a8aeab733c1365dbf8bbf61f",
+    "template_version": "review-brief/7",
+    "wire_digest": "sha256:f3d39825129ce9cbbfd5f0e216b6c810c1251dfa4be5503da3be377fff03f7b2",
+    "notes_digest": "sha256:4cbf3f6149465e51164e9153aaa9781415296035f71a130e5e796b08fe2a29a7",
+    "raw_transcript_digest": "sha256:9e7aaf5889c882b0f7cf44564706df6adb52f00f4e48fb73f30ffc3122bac187",
+    "raw_output_digest": "sha256:1ca5a31e9f89bf07ae77a147876e09b125b0d1d7f8e9c3800bcb79feb16fceb6",
+    "output_source": "stream-final",
+    "output_complete": true
+  },
+  "session_digest": "sha256:52f3f12a82fd1cb62a95fb3553c72634c41b21a533e6feccc5b3108a6fc39e9d",
+  "tree_digest": "sha256:ccb43b914db6db8339aff9e3f184c914f28d4f2e5d49de0bb1d8d6a6e653deda",
+  "brief_notes": "Review of spec pose-claude-sandboxed-profile, implemented by Claude. Scope: (1) `.pose/policy/delegation.json` gives the `claude-opus-5-5` agent a `sandboxed` command, and a resumed form, that turns on the Claude Code operating-system sandbox (`--settings` with `sandbox.enabled` true and `allowUnsandboxedCommands` false) behind a `sh -c` check that exits 127, naming bubblewrap/socat and how to install them, when `bwrap` or `socat` is missing (not on macOS); (2) a `requires` block per access profile in the policy (`DelegationRequirement`, `MissingRequirements` in `pose-mcp/internal/pose/delegation_policy.go`), read by `pose delegate agents` (`unavailable_access`) and by `pose doctor` (`delegation.requirements`). Tests: `claude_sandboxed_profile_test.go`, `delegate_requirements_test.go`, and the allowed-launch entry in `engine_reads_raw_history_test.go`. Measured by hand on this machine with socat installed: a sandboxed task wrote inside its working directory and a write to the home directory was refused with \"read-only file system\"; that run is a stated known gap of the spec, not an automated test. Your profile only allows the plan tools and `git status|ls-files`: rely on the sealed evidence and read the code; do not report the missing shell as a finding. A finding id never carries a round prefix (use F1, F2 …). Follow-ups carry `action`, `owner` and `review_by`; only low-severity risks are accepted by the policy.\n",
+  "ledger_version": 1,
+  "attempt_id": "rat-c9b92df624da028f039238df8944e0d1b5f6dd6c69dff204d4bf41eaf482a129",
+  "schema_version": 1,
+  "run_id": "rrn-d3e375c603899bfd",
+  "scope": "spec:pose-claude-sandboxed-profile",
+  "bundle_id": "rvb-567b6f0af2c7427f",
+  "bundle_digest": "sha256:567b6f0af2c7427f82eb039e7bd0f7732e069f1f8f44a50ec09540f3ebd02dc0",
+  "sealed_commit": "a74edc77efe52efe7c9fb3e43aba65f4ec4a8f24",
+  "kind": "review",
+  "brief_digest": "sha256:517f91a059e68b7ecd1fdaa7ea2b3bed747549ccc9907a91a7efd9b6b5521a44",
+  "adapter": "claude-opus-5-5",
+  "vendor": "anthropic",
+  "model": "claude-opus-5-5",
+  "started_at": "2026-11-09T20:47:14.600011807Z",
+  "ended_at": "2026-11-09T20:53:44.817343582Z",
+  "exit_code": 0,
+  "status": "completed",
+  "transcript_digest": "sha256:db15cc621bacee356b26239cfa34252b2d8f107db6ed85dae04942a07ed1eb46",
+  "transcript_path": ".pose/review-runs/rrn-d3e375c603899bfd.transcript",
+  "output": "I'm done with the review. **decision: approved.** I found seven defects, all low severity. None blocks the change, and each is drafted as a follow-up so it can be accepted as a risk.\n\n## How I checked\n- I read the spec, the full code diff, and how the policy is loaded, checked, routed and launched.\n- I ran `pose artifact-check --spec pose-claude-sandboxed-profile --strict`. It reported no errors and 915 orphan warnings. Those warnings cover files across the whole repo, and none of this spec's claimed files is among them.\n- I ran `pose surface-check --spec pose-claude-sandboxed-profile --strict`, which reported 0 findings.\n- I could not run `go test` or `pose validate` with my access, so for those I relied on the sealed evidence, as the brief allows.\n\n## What holds\n- **R1:** In `.pose/policy/delegation.json`, lines 151–176 (new run) and 236–263 (resumed run) add the `sandboxed` command. It passes `--settings` with `enabled:true` and `allowUnsandboxedCommands:false`. Nothing in the existing `read` commands or in Codex changed.\n- **R2:** The `sh -c` check skips Darwin, checks for `bwrap` and `socat` with `command -v`, writes a stderr message naming what is missing with the apt, dnf and pacman commands, and exits 127 before `exec \"$@\"`. The test runs it with an empty PATH and confirms that the program it guards never starts.\n- **R4:** `MissingRequirements` (`delegation_policy.go:143`) only looks programs up on the PATH and starts nothing. `requires` is left out of what a run's provenance binds (`agentAdapter`, `delegation_policy.go:745-763`). Runs inherit PATH (`review_adapter_containment.go:223`), so `doctor`, `delegate agents` and the check inside the command all find the same programs.\n- **SD-71c84cde** maps to **R1**: the policy file changed because R1 adds the command. The `requires` block in the same file comes from **R4**.\n\n## Defects (all low)\n1. **Spec says one thing, code does another:** the constraint at spec line 29 says \"no engine change, no new field\", but R4 adds `requires` and Go code. R4 also isn't in the start baseline, and no decision covers it.\n2. **Docs not updated:** `POSE.md:928`, its scaffold and pt-BR copies, and the `delegate agents` help at `help_catalog.go:365` don't mention `requires` or `unavailable_access`. The changelog doesn't mention them either, nor that older engines will reject a policy containing `requires`, because the policy is read with strict decoding.\n3. **Weak tests for R4:** the `doctor` warning has no test of its own, although the test's name says it covers it. The JSON form of `unavailable_access` isn't tested, and the test skips when it fails to write its setup file instead of failing.\n4. **`requires` is not checked:** a profile name that doesn't exist (for example a typo) or an empty list of programs is silently accepted, which turns the warning off without anyone noticing.\n5. **Routing ignores missing dependencies:** a profile listed as unavailable still matches `--access sandboxed` (`delegate.go:1226`), and automatic routing can still pick it, so the task fails with exit 127. When no install hint is declared, `doctor`'s remediation text starts with a stray \" — \".\n6. **R3's main claim has no automated test:** the trace marks R3 satisfied, but its test covers only the dependency check. The operating-system refusal was checked by hand only, which the spec does list as a known gap.\n7. **Sandbox coverage is narrower than stated:** the operating-system sandbox covers Bash commands only. The Edit and Write tools are kept inside the working directory by Claude Code's own permissions, not by the operating system. The check also only confirms that `bwrap` is on the PATH, not that it can actually run.\n\n```pose-draft\n{\n  \"schema\": \"pose.review.draft/v1\",\n  \"decision\": \"approved\",\n  \"findings\": [\n    {\"id\": \"F1\", \"severity\": \"low\", \"disposition\": \"follow-up\", \"file\": \".pose/specs/2026-11-09-pose-claude-sandboxed-profile.md\", \"line\": 29, \"summary\": \"The constraint 'No engine change, no new field' contradicts R4, which adds the optional `requires` field (delegation_policy.go:130) and engine code in delegate.go/doctor.go; R4 is absent from the start baseline (.pose/starts/pose-claude-sandboxed-profile.json holds R1-R3, D1) and no decision records the departure.\", \"action\": \"Amend the constraint to admit the diagnostic `requires` block and add a decision with basis R4 recording why it was added.\", \"owner\": \"@pose-maintainers\", \"review_by\": \"2027-01-08\"},\n    {\"id\": \"F2\", \"severity\": \"low\", \"disposition\": \"follow-up\", \"file\": \"POSE.md\", \"line\": 928, \"summary\": \"The operational guide (and its scaffold/pt-BR copies) lists the agent fields of delegation.json without `requires`; the `delegate agents` help (help_catalog.go:365) does not mention `unavailable_access`; the changelog does not mention `requires`, nor that engines older than this one reject a policy carrying it (strict decoding, delegation_policy.go:338).\", \"action\": \"Document `requires` in POSE.md and its distributed copies, add `unavailable_access` to the delegate agents help, and note the engine floor in the changelog.\", \"owner\": \"@pose-maintainers\", \"review_by\": \"2027-01-08\"},\n    {\"id\": \"F3\", \"severity\": \"low\", \"disposition\": \"follow-up\", \"file\": \"pose-mcp/internal/cli/delegate_requirements_test.go\", \"line\": 12, \"summary\": \"TestDelegateAgentsAndDoctorSayHowToInstallWhatAProfileNeeds only exercises `delegate agents` text output; the doctor `delegation.requirements` warning (doctor.go:1006-1014) and the JSON `unavailable_access` field are untested, and a setup write failure at line 19-20 skips instead of failing.\", \"action\": \"Add a doctor test for delegation.requirements and a --json assertion, and make setup failures fatal.\", \"owner\": \"@pose-maintainers\", \"review_by\": \"2027-01-08\"},\n    {\"id\": \"F4\", \"severity\": \"low\", \"disposition\": \"follow-up\", \"file\": \"pose-mcp/internal/pose/delegation_policy.go\", \"line\": 130, \"summary\": \"`requires` is not validated: a key that names no declared access profile (e.g. a typo), an empty executables list, or unknown skip_on values are accepted silently, which disables the diagnostic without any error.\", \"action\": \"Validate requires keys against the agent's commands and delegationAccessLevels and require a nonempty executables list in the policy validation.\", \"owner\": \"@pose-maintainers\", \"review_by\": \"2027-01-08\"},\n    {\"id\": \"F5\", \"severity\": \"low\", \"disposition\": \"follow-up\", \"file\": \"pose-mcp/internal/cli/delegate.go\", \"line\": 1226, \"summary\": \"A profile reported as `unavailable_access` still matches `--access` filtering and routing never consults MissingRequirements, so auto routing can choose an agent whose sandboxed profile then fails at once with exit 127; doctor's remediation begins with a stray ' — ' when no install hint is declared (doctor.go:1012).\", \"action\": \"Have routing treat a profile with missing requirements as unavailable (or state that it does not) and drop the dangling separator when no install hint exists.\", \"owner\": \"@pose-maintainers\", \"review_by\": \"2027-01-08\"},\n    {\"id\": \"F6\", \"severity\": \"low\", \"disposition\": \"follow-up\", \"file\": \".pose/specs/2026-11-09-pose-claude-sandboxed-profile.md\", \"line\": 117, \"summary\": \"R3 is traced [satisfied] by TestTheSandboxedProfileStartsWhenTheDependenciesArePresent, which only verifies the check hands over to its program; the operating-system refusal of an outside write is evidenced only by a manual run (disclosed as a known gap).\", \"action\": \"Add an opt-in e2e check (skipped without claude/bwrap/socat) that runs a sandboxed task writing inside and outside its directory, or mark R3 partially satisfied in the trace.\", \"owner\": \"@pose-maintainers\", \"review_by\": \"2027-01-08\"},\n    {\"id\": \"F7\", \"severity\": \"low\", \"disposition\": \"follow-up\", \"file\": \".pose/policy/delegation.json\", \"line\": 173, \"summary\": \"The OS sandbox covers Bash only: the Edit/Write tools enabled here are confined by Claude Code's permission layer (acceptEdits with no prompts), not by the operating system as R3 states; the launch check proves bwrap/socat are on PATH, not that bwrap can create namespaces, relying on allowUnsandboxedCommands:false to fail closed; the dependency list and install hint are duplicated between the sh script and the requires block and can drift.\", \"action\": \"State in the spec and docs that file-tool writes are confined by Claude Code permissions, verify fail-closed behaviour when bwrap cannot start, and add a test asserting the script and requires block name the same executables and hint.\", \"owner\": \"@pose-maintainers\", \"review_by\": \"2027-01-08\"}\n  ],\n  \"criteria\": [\n    {\"id\": \"assumption-integrity\", \"disposition\": \"passed\", \"evidence\": \"integration:pose-mcp/go/claude-sandboxed-profile-integration\", \"rationale\": \"Examined the spec's known gaps and residual risks against the code. Verified facts: the sh check exits 127 and never execs the program without bwrap/socat (claude_sandboxed_profile_test.go, sealed integration check); requires is excluded from the bound adapter (agentAdapter, delegation_policy.go:745-763); runs inherit PATH (review_adapter_containment.go:223), so doctor and the launch check see the same executables. Unresolved assumptions: the OS refusal of R3 is hand-measured only (F6); file tools are confined by Claude Code permissions, not the OS, and bwrap's functionality is not probed (F7). Accepted risks: the sandbox's limits are Claude Code's (spec residual risks).\"},\n    {\"id\": \"backend-concurrency\", \"disposition\": \"passed\", \"evidence\": \"unit:pose-mcp/go/test\", \"rationale\": \"MissingRequirements is a pure read of the agent value plus exec.LookPath with no shared mutable state; delegate agents and doctor build local maps only. The new tests run under -race in the matrix entry.\"},\n    {\"id\": \"backend-contracts\", \"disposition\": \"passed\", \"evidence\": \"integration:pose-mcp/go/claude-sandboxed-profile-integration\", \"rationale\": \"The JSON row gains an omitempty `unavailable_access` map and the text row an appended `unavailable_access=` token; the policy gains an optional omitempty `requires`. Existing fields are unchanged; the strict-decoding engine floor is a documentation gap (F2).\"},\n    {\"id\": \"backend-input-errors\", \"disposition\": \"finding\", \"evidence\": \"F4\"},\n    {\"id\": \"backend-integration-impact\", \"disposition\": \"finding\", \"evidence\": \"F5\"},\n    {\"id\": \"backend-observability\", \"disposition\": \"passed\", \"evidence\": \"unit:pose-mcp/go/test\", \"rationale\": \"Missing dependencies are surfaced by delegate agents (unavailable_access with the install hint), doctor (delegation.requirements warn) and the run's own stderr with exit 127; messages name executables and package commands only, nothing sensitive.\"},\n    {\"id\": \"compatibility\", \"disposition\": \"passed\", \"evidence\": \"integration:pose-mcp/go/delegation-surface-integration\", \"rationale\": \"Diffed delegation.json: the read commands of both agents and all Codex entries are unchanged; the only additions are the Claude sandboxed commands and the requires block. New CLI output fields are additive and omitempty. Older engines reject `requires` because of strict decoding; that is undocumented (F2) but does not break any existing contract of this engine.\"},\n    {\"id\": \"correctness\", \"disposition\": \"passed\", \"evidence\": \"integration:pose-mcp/go/claude-sandboxed-profile-integration\", \"rationale\": \"Positive and negative paths are tested: refusal with 127 and the hint and no program start when the dependencies are missing, hand-over when they are present, skip_on and installed-executable cases of MissingRequirements, and the delegate agents output.\"},\n    {\"id\": \"design-causality\", \"disposition\": \"passed\", \"evidence\": \"structure:design-ac9eda03a6f25bab\", \"rationale\": \"D1 (basis R2) explains the selected design: Claude Code only warns and runs unsandboxed when socat is missing, so the profile's command checks first and refuses to start. The requires block (R4) adds a diagnostic before use without binding the run's adapter. The single structural fact is the policy change those requirements cause.\", \"mappings\": [{\"delta\": \"SD-71c84cde\", \"basis\": \"R1\", \"disposition\": \"mapped\", \"rationale\": \"R1 requires the claude-opus-5-5 agent to declare sandboxed commands (fresh and resumed) in .pose/policy/delegation.json; the same file carries the R4 requires block and the R2 dependency check embedded in the command.\"}]},\n    {\"id\": \"documentation\", \"disposition\": \"finding\", \"evidence\": \"F2\"},\n    {\"id\": \"operability\", \"disposition\": \"passed\", \"evidence\": \"integration:pose-mcp/go/claude-sandboxed-profile-integration\", \"rationale\": \"Examined the refusal message and the doctor/delegate agents output: each names the missing executable, why it matters and install commands for three distributions; the remaining rough edges (routing, dangling separator) are recorded in F5.\"},\n    {\"id\": \"requirements\", \"disposition\": \"finding\", \"evidence\": \"F6\"},\n    {\"id\": \"scope\", \"disposition\": \"finding\", \"evidence\": \"F1\"},\n    {\"id\": \"security\", \"disposition\": \"finding\", \"evidence\": \"F7\"},\n    {\"id\": \"solution-proportionality\", \"disposition\": \"passed\", \"evidence\": \"structure:design-ac9eda03a6f25bab\", \"rationale\": \"The smallest alternative (enable the sandbox and rely on Claude Code's warning) is rejected by D1 because it runs unsandboxed. The selected check is one sh process with a command -v per dependency, the minimum that fails closed. The requires block is the only extra: about 35 lines of diagnostics that let doctor warn before use, with no speculative extension points. The choice would be invalidated if Claude Code itself refused to start without its sandbox dependencies when allowUnsandboxedCommands is false, which would make the wrapper redundant.\"}\n  ],\n  \"tools\": [\n    {\"id\": \"artifact-check\", \"disposition\": \"passed\", \"evidence\": \"command:pose artifact-check --spec pose-claude-sandboxed-profile --strict\", \"rationale\": \"Ran it: 11 claims, no errors; the 915 warnings are repository-wide orphan paths outside this spec's claims.\"},\n    {\"id\": \"assess-design\", \"disposition\": \"passed\", \"evidence\": \"structure:design-ac9eda03a6f25bab\", \"rationale\": \"Not runnable under this reviewer profile; relied on the sealed structure evidence, which passed.\"},\n    {\"id\": \"assess-discover\", \"component\": \"pose-mcp\", \"disposition\": \"not-used\", \"evidence\": \"command:none\", \"rationale\": \"Recommended only; this reviewer profile does not allow the command, and the change was reviewed by reading the code.\"},\n    {\"id\": \"assess-integrate\", \"disposition\": \"not-used\", \"evidence\": \"command:none\", \"rationale\": \"Recommended only and not allowed by this reviewer profile; integration impact was judged from the sealed integration checks and the code (F5).\"},\n    {\"id\": \"assess-tech-debt\", \"disposition\": \"not-used\", \"evidence\": \"command:none\", \"rationale\": \"Recommended only and not allowed by this reviewer profile.\"},\n    {\"id\": \"closeout-check\", \"disposition\": \"deferred\", \"evidence\": \"command:pose closeout-check spec:pose-claude-sandboxed-profile\", \"rationale\": \"Its precondition is the completion of this review; it cannot pass before the attestation is recorded.\"},\n    {\"id\": \"review-check\", \"disposition\": \"deferred\", \"evidence\": \"command:pose review-check spec:pose-claude-sandboxed-profile\", \"rationale\": \"Its precondition is the completion of this review; it cannot pass before the attestation is recorded.\"},\n    {\"id\": \"suggest-review\", \"component\": \"pose-mcp\", \"disposition\": \"not-used\", \"evidence\": \"command:none\", \"rationale\": \"Recommended only and not allowed by this reviewer profile.\"},\n    {\"id\": \"surface-check\", \"disposition\": \"passed\", \"evidence\": \"integration:pose-mcp/go/claude-sandboxed-profile-integration\", \"rationale\": \"Ran pose surface-check --spec pose-claude-sandboxed-profile --strict: 1 target, 199 results, 0 findings.\"},\n    {\"id\": \"validate\", \"disposition\": \"passed\", \"evidence\": \"build:pose-mcp/go/build\", \"rationale\": \"Not runnable under this reviewer profile; the sealed strict validation evidence passed (build, unit, integration, e2e).\"},\n    {\"id\": \"validate\", \"component\": \"pose-mcp\", \"disposition\": \"passed\", \"evidence\": \"integration:pose-mcp/go/claude-sandboxed-profile-integration\", \"rationale\": \"Not runnable under this reviewer profile; the sealed pose-mcp module evidence passed, including this spec's own integration check.\"}\n  ]\n}\n```\n\ndecision: approved",
+  "policy_digest": "sha256:f8cb9e16758e19e66e0e01f29d1d347b0c15cd1cfa191e32926de54742e3cb72",
+  "purpose": "review",
+  "env_removed": [
+    "CLAUDE_CODE_BRIDGE_SESSION_ID",
+    "CLAUDE_CODE_CHILD_SESSION",
+    "CLAUDE_CODE_ENTRYPOINT",
+    "CLAUDE_CODE_EXECPATH",
+    "CLAUDE_CODE_MESSAGING_SOCKET",
+    "CLAUDE_CODE_MESSAGING_TOKEN",
+    "CLAUDE_CODE_SESSION_ATTENDED",
+    "CLAUDE_CODE_SESSION_ID",
+    "CLAUDE_EFFORT",
+    "CLAUDE_PID"
+  ],
+  "events": "claude-stream-json",
+  "events_digest": "sha256:e0d0fe7238542f622d11ccf8d0ba67d2316b56f251a87469d8c7769440f4bc07",
+  "routing": {
+    "requested": "claude-opus-5-5",
+    "implementation": {
+      "principal": "agent:anthropic/claude-sonnet-5-5",
+      "vendor": "anthropic",
+      "model": "claude-sonnet-5-5",
+      "execution_digest": "sha256:675189f7e0b769255994f8213acf8b1b57174c4353838cd875cdabd46aa9cc0b",
+      "source": "declared"
+    },
+    "implementation_from": "bundle",
+    "step": "explicit"
+  },
+  "independence_achieved": "different-model",
+  "round": 1
+}
