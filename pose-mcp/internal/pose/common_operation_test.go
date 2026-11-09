@@ -2,6 +2,7 @@ package pose
 
 import (
 	"context"
+	"encoding/json"
 	"errors"
 	"io"
 	"os"
@@ -134,10 +135,19 @@ func TestABlockedOrUnstablePlanGetsNoHandoff(t *testing.T) {
 	}
 }
 
-func TestTheHandoffKeepsTheSelectedTarget(t *testing.T) {
-	h := CloseoutHandoff(handoffPlan(), HandoffTarget{ProjectID: "harne8", Root: "/work/harne8"})
-	if h == nil || h.Target.ProjectID != "harne8" || h.Target.Root != "/work/harne8" {
+func TestTheHandoffKeepsTheSelectedProjectAndExposesNoPath(t *testing.T) {
+	plan := handoffPlan()
+	plan.ReadView = &ReadViewMetadata{Freshness: ReadViewFreshnessCurrent, Bindings: []ReadViewBinding{{ProjectID: "harne8", RootDigest: "sha256:rootdigest", IndexGeneration: "g1"}}}
+	h := CloseoutHandoff(plan, HandoffTarget{ProjectID: "harne8"})
+	if h == nil || h.Target.ProjectID != "harne8" || h.Target.RootDigest != "sha256:rootdigest" {
 		t.Fatalf("the handoff lost the project the caller selected: %+v", h)
+	}
+	raw, err := json.Marshal(h)
+	if err != nil {
+		t.Fatal(err)
+	}
+	if strings.Contains(string(raw), "/work") || strings.Contains(string(raw), `"root"`) || strings.Contains(string(raw), "/home/") {
+		t.Fatalf("a handoff returned over MCP must carry no filesystem path: %s", raw)
 	}
 }
 

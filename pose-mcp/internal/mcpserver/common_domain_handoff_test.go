@@ -214,6 +214,24 @@ func TestTheMCPPlanIsTheDomainPlan(t *testing.T) {
 	}
 }
 
+// The handoff returned over MCP names the project by its logical id and carries no
+// filesystem path: the MCP contract exposes no root (spec pose-common-domain-and-cli-mcp-handoff).
+func TestTheHandoffOverMCPCarriesNoFilesystemPath(t *testing.T) {
+	ts, root := planFixtureRoot(t)
+	_, out := post(t, ts, `{"jsonrpc":"2.0","id":1,"method":"tools/call","params":{"name":"pose_closeout_state","arguments":{"scope":"spec:beta","include_plan":true}}}`)
+	raw, err := json.Marshal(out.Result)
+	if err != nil {
+		t.Fatal(err)
+	}
+	sc, _ := out.Result["structuredContent"].(map[string]any)
+	if sc["handoff"] == nil {
+		t.Fatalf("the fixture's plan has steps left and must carry a handoff: %s", raw)
+	}
+	if strings.Contains(string(raw), root) {
+		t.Fatalf("the MCP response carries the filesystem root %q: %s", root, raw)
+	}
+}
+
 // The write points an MCP caller can reach are exactly the four admitted ones, and
 // no tool is named for applying a closeout: the plan hands that operation off.
 func TestTheAdmittedWritesAreExactlyTheKnownFour(t *testing.T) {

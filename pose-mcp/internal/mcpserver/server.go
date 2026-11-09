@@ -1601,7 +1601,7 @@ func (s *Server) dispatch(ctx context.Context, name string, args json.RawMessage
 			pose.CloseoutState
 			ExecutionPlan *pose.CloseoutPlan     `json:"execution_plan"`
 			Handoff       *pose.OperationHandoff `json:"handoff,omitempty"`
-		}{state, plan, pose.CloseoutHandoff(*plan, pose.HandoffTarget{ProjectID: project, Root: store.Root})}, nil
+		}{state, plan, pose.CloseoutHandoff(*plan, pose.HandoffTarget{ProjectID: project})}, nil
 	case "pose_review_plan":
 		var a struct {
 			Scope string `json:"scope"`

@@ -203,8 +203,9 @@ type OperationHandoff struct {
 	RequiredAuthority string `json:"required_authority"`
 	// Executes is always false: the adapter that returned the handoff did not run it.
 	Executes bool `json:"executes"`
-	// Target is the project and root the plan was computed in. The handoff does not
-	// retarget itself: the performer applies it there, after verifying that context.
+	// Target is the project the plan was computed in, by its logical id and the digest of
+	// its root, never by a path: the MCP contract exposes no filesystem root. The handoff
+	// does not retarget itself: the performer applies it there, after verifying that context.
 	Target HandoffTarget `json:"target"`
 	// ContextRequirement says what the performer verifies before applying: the
 	// adapter never infers a context revision from a context it merely presented
@@ -217,10 +218,12 @@ type OperationHandoff struct {
 	Invalidation string `json:"invalidation"`
 }
 
-// HandoffTarget names the project an MCP caller selected and its root.
+// HandoffTarget names the project an MCP caller selected: its logical id, and the digest
+// of the root the plan was read from when the read view recorded one. A path is never
+// carried (spec pose-common-domain-and-cli-mcp-handoff, review round 6).
 type HandoffTarget struct {
-	ProjectID string `json:"project_id,omitempty"`
-	Root      string `json:"root,omitempty"`
+	ProjectID  string `json:"project_id,omitempty"`
+	RootDigest string `json:"root_digest,omitempty"`
 }
 
 // HandoffInputs are the digests a handoff was computed from.
@@ -272,7 +275,7 @@ func CloseoutHandoff(plan CloseoutPlan, target HandoffTarget) *OperationHandoff 
 		},
 		Target:             target,
 		RequiredAuthority:  authority,
-		ContextRequirement: "run it in the target root, after `pose context --task " + plan.Scope + " --json` there shows the authority and revision this plan was computed under; `pose close --apply` takes no context flag, its binding is the plan digest, and this handoff carries no context",
+		ContextRequirement: "run it in the root of the target project, after `pose context --task " + plan.Scope + " --json` there shows the authority and revision this plan was computed under; `pose close --apply` takes no context flag, its binding is the plan digest, and this handoff carries no context",
 		Receipt:            "the CLI result of the apply, then `pose close " + plan.Scope + " --resume` or `pose_closeout_state` with include_plan to read the state again",
 		Invalidation:       "any change to the spec, the policy or the revision makes the plan digest stale; the index generation it was read at is recorded in inputs.generation for the performer to compare, and the apply does not check it; plan again instead of applying this handoff",
 	}
@@ -283,6 +286,9 @@ func CloseoutHandoff(plan CloseoutPlan, target HandoffTarget) *OperationHandoff 
 	}
 	if plan.ReadView != nil && len(plan.ReadView.Bindings) > 0 {
 		handoff.Inputs.Generation = plan.ReadView.Bindings[0].IndexGeneration
+		if handoff.Target.RootDigest == "" {
+			handoff.Target.RootDigest = plan.ReadView.Bindings[0].RootDigest
+		}
 	}
 	return handoff
 }

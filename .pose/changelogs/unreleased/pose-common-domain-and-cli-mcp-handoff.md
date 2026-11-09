@@ -12,6 +12,6 @@ usage side effect. The gates (`pose_check`, `pose_skills_check`, `pose_lint_spec
 keep the process boundary. Every MCP tool now has a declared route class, kept
 equal to the catalog by a test. `pose_closeout_state` with `include_plan` also
 returns a typed handoff when the plan has steps left: the `pose close --apply`
-invocation as structured arguments, the full plan digest and the other digests it was computed from, the target project and root, the
+invocation as structured arguments, the full plan digest and the other digests it was computed from, the target project by its logical id and the digest of its root (never a path), the
 authority it needs and when it stops being valid; it executes nothing and is not
 an approval.

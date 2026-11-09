@@ -218,8 +218,9 @@ with the CLI, without a resident service:
   pending), how the outcome comes back and when it stops being valid, and
   `executes: false`. The request id is derived from the
   operation, scope and plan digest, so a stale handoff is not mistaken for the
-  current one. It names the project and root the caller selected and does not
-  retarget itself. It carries no secret, grants no authority and infers no context:
+  current one. It names the project the caller selected, by its logical id and the
+  digest of its root and never by a path (the MCP contract exposes no filesystem
+  root), and does not retarget itself. It carries no secret, grants no authority and infers no context:
   `pose close --apply` takes no context flag, its binding is the full plan digest it
   names (the digest the apply compares, with its `sha256:` prefix), and the performer
   verifies the authority and revision with a fresh `pose context` in the target root
