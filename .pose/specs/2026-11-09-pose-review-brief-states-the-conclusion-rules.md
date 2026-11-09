@@ -1,7 +1,7 @@
 ---
 slug: pose-review-brief-states-the-conclusion-rules
 status: in-progress
-created_at: 2026-11-08
+created_at: 2026-11-09
 completed_at:
 supersedes:
 depends_on: pose-delegated-review-conclusions
@@ -65,7 +65,7 @@ Reviews by Claude Opus 5.5 were refused four times by the preflight although the
 
 ### Artifacts
 
-- created: .pose/specs/2026-11-08-pose-review-brief-states-the-conclusion-rules.md
+- created: .pose/specs/2026-11-09-pose-review-brief-states-the-conclusion-rules.md
 - created: .pose/starts/pose-review-brief-states-the-conclusion-rules.json
 - created: .pose/changelogs/unreleased/pose-review-brief-states-the-conclusion-rules.md
 - modified: .pose/indexes/validation-matrix.json
