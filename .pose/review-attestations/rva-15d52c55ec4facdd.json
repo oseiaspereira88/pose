@@ -1,0 +1,279 @@
+{
+  "run": {
+    "run_id": "rrn-8c8c06010d37ad55",
+    "proof_id": "rrp-e437c65bc852091b5312abd4e28416c9e7dbd87cc05f8ef005d5f9d83d251337"
+  },
+  "schema_version": 1,
+  "attestation_id": "rva-15d52c55ec4facdd",
+  "bundle_id": "rvb-04f42572c64f13d2",
+  "bundle_digest": "sha256:04f42572c64f13d26ebeedf37ea99126f55e316dd2ea42393a836b9f028d58b2",
+  "reviewer": "agent:anthropic/claude-opus-5-5",
+  "decision": "approved",
+  "criteria": [
+    {
+      "id": "assumption-integrity",
+      "disposition": "passed",
+      "evidence": "integration:pose-mcp/go/review-brief-conclusion-rules-integration",
+      "rationale": "Examined the implementer's notes against the code. Verified: rule (l) at review_brief.go:105 and its tie at review_brief_preflight_tie_test.go:52; LastIndex at review_brief.go:486; the profile allow-list at delegation.json:147,183,206; no preflight rule changed (the rule-l message is at review_bundle.go:3874, a file outside the change). Accepted risks: Q1-Q6 (low). Unresolved: artifact-check reports change set cs-e8be018aeadf with head 1b53be73 while the bundle names cs-f60393635451 with head c863f9c3; the profile allows no git log, so this was not resolved."
+    },
+    {
+      "id": "backend-concurrency",
+      "disposition": "passed",
+      "evidence": "unit:pose-mcp/go/test",
+      "rationale": "The change is pure string rendering and a static policy; it adds no shared state or goroutine. The matrix check runs with -race."
+    },
+    {
+      "id": "backend-contracts",
+      "disposition": "passed",
+      "evidence": "integration:pose-mcp/go/review-brief-templates-are-immutable-integration",
+      "rationale": "The golden digests pin /1 to /7 (testdata/review_brief_template_digests.json); RenderReviewBriefMatching walks the earlier templates (review_brief.go:120,146-160)."
+    },
+    {
+      "id": "backend-input-errors",
+      "disposition": "passed",
+      "evidence": "integration:pose-mcp/go/review-brief-conclusion-rules-integration",
+      "rationale": "The brief now states the refusal messages, which are mapped by the tie test."
+    },
+    {
+      "id": "backend-integration-impact",
+      "disposition": "passed",
+      "evidence": "integration:pose-mcp/go/delegated-review-capability-integration",
+      "rationale": "reviewBriefAsksConclusion covers /3 to /7 (review_brief.go:81-83) and review_conclusions.go:216 consumes it."
+    },
+    {
+      "id": "backend-observability",
+      "disposition": "passed",
+      "evidence": "integration:pose-mcp/go/review-brief-conclusion-rules-integration",
+      "rationale": "The refusal messages are unchanged and named; the brief maps each one to a sentence."
+    },
+    {
+      "id": "compatibility",
+      "disposition": "finding",
+      "evidence": "Q1",
+      "rationale": "Runs briefed with /3 to /6 are re-rendered by version and their digests are pinned; Q1 is a latent /6 rendering change that occurs only when the notes contain the replaced sentence."
+    },
+    {
+      "id": "correctness",
+      "disposition": "passed",
+      "evidence": "integration:pose-mcp/go/review-brief-conclusion-rules-integration",
+      "rationale": "Read briefRulesText and renderReviewBriefBody: (l) is appended only for /7; the /6 severities are read from the sealed policy; the rendered brief of this run shows rules (a) to (l)."
+    },
+    {
+      "id": "design-causality",
+      "disposition": "passed",
+      "evidence": "structure:design-cba9a2b04088cab0",
+      "rationale": "D1 states the rules in a new template version because the brief, not the notes, reaches every run; D2 widens the profile to the plan tools only. Examined the spec decisions and the two structural facts.",
+      "mappings": [
+        {
+          "delta": "SD-2ca2036f",
+          "basis": "R2",
+          "disposition": "mapped",
+          "rationale": "The validation matrix gains review-brief-conclusion-rules-integration, which runs the tie test and the traced R1-R4 tests"
+        },
+        {
+          "delta": "SD-fb956636",
+          "basis": "D2",
+          "disposition": "mapped",
+          "rationale": "delegation.json gives the Claude reviewer profile the R4 allow-list in all three of its commands"
+        }
+      ]
+    },
+    {
+      "id": "documentation",
+      "disposition": "finding",
+      "evidence": "Q2",
+      "rationale": "POSE.md:1063 and pt-BR POSE.md:1060 name /7; scaffold parity is sealed; the spec still says /4 at line 58."
+    },
+    {
+      "id": "operability",
+      "disposition": "passed",
+      "evidence": "integration:pose-mcp/go/typed-diagnostics-integration",
+      "rationale": "Examined the brief text and the preflight messages: each rule is stated in actionable terms and the refusal names the broken rule."
+    },
+    {
+      "id": "requirements",
+      "disposition": "passed",
+      "evidence": "integration:pose-mcp/go/review-brief-conclusion-rules-integration",
+      "rationale": "Each of R1-R5 is traced to a test the matrix check runs; the R4 test gap is Q3."
+    },
+    {
+      "id": "scope",
+      "disposition": "passed",
+      "evidence": "integration:pose-mcp/go/artifact-claim-boundary-integration",
+      "rationale": "The 15 changed files plus the spec match the spec's artifact list exactly; the non-goals hold (no preflight rule changed, no write verb allowed)."
+    },
+    {
+      "id": "security",
+      "disposition": "passed",
+      "evidence": "integration:pose-mcp/go/delegated-adapter-containment-integration",
+      "rationale": "The allow-list is limited to git status, git ls-files and the four plan tools; my own compound commands were refused in this run, and the spec claims no filesystem containment."
+    },
+    {
+      "id": "solution-proportionality",
+      "disposition": "passed",
+      "evidence": "integration:pose-mcp/go/review-brief-conclusion-rules-integration",
+      "rationale": "Compared with the minimal option (notes per run): the template version is the existing mechanism and adds no file. The choice is invalidated when a draft that follows the brief is refused by an unstated rule (the low follow-up in the spec)."
+    }
+  ],
+  "tools": [
+    {
+      "id": "artifact-check",
+      "disposition": "passed",
+      "evidence": "command:pose artifact-check --spec pose-review-brief-states-the-conclusion-rules --strict",
+      "rationale": "No errors; the 913 findings are repo-wide orphan warnings, none in this scope"
+    },
+    {
+      "id": "assess-design",
+      "disposition": "not-used",
+      "rationale": "The profile does not allow pose assess; the sealed structure:design-cba9a2b04088cab0 was read instead"
+    },
+    {
+      "id": "assess-discover",
+      "component": "pose-mcp",
+      "disposition": "not-used",
+      "rationale": "The profile does not allow pose assess"
+    },
+    {
+      "id": "assess-integrate",
+      "disposition": "not-used",
+      "rationale": "The profile does not allow pose assess"
+    },
+    {
+      "id": "assess-tech-debt",
+      "disposition": "not-used",
+      "rationale": "The profile does not allow pose assess"
+    },
+    {
+      "id": "closeout-check",
+      "disposition": "deferred",
+      "rationale": "Its precondition is the completed review"
+    },
+    {
+      "id": "review-check",
+      "disposition": "deferred",
+      "rationale": "Its precondition is the completed review"
+    },
+    {
+      "id": "suggest-review",
+      "component": "pose-mcp",
+      "disposition": "not-used",
+      "rationale": "Not in the profile's allow-list"
+    },
+    {
+      "id": "surface-check",
+      "disposition": "passed",
+      "evidence": "integration:pose-mcp/go/spec-surface-integration",
+      "rationale": "Also run here: surface.findings=0, 198 results, 1 target"
+    },
+    {
+      "id": "validate",
+      "disposition": "passed",
+      "evidence": "build:pose-mcp/go/build",
+      "rationale": "The profile does not allow pose validate; the sealed strict validation produced this evidence"
+    },
+    {
+      "id": "validate",
+      "component": "pose-mcp",
+      "disposition": "passed",
+      "evidence": "unit:pose-mcp/go/test",
+      "rationale": "The profile does not allow pose validate; the sealed strict validation of pose-mcp produced this evidence"
+    }
+  ],
+  "evidence_refs": [
+    "Q1",
+    "Q2",
+    "delegated-run:rrn-8c8c06010d37ad55",
+    "integration:pose-mcp/go/artifact-claim-boundary-integration",
+    "integration:pose-mcp/go/delegated-adapter-containment-integration",
+    "integration:pose-mcp/go/delegated-review-capability-integration",
+    "integration:pose-mcp/go/review-brief-conclusion-rules-integration",
+    "integration:pose-mcp/go/review-brief-templates-are-immutable-integration",
+    "integration:pose-mcp/go/typed-diagnostics-integration",
+    "structure:design-cba9a2b04088cab0",
+    "unit:pose-mcp/go/test"
+  ],
+  "findings": [
+    {
+      "id": "Q1",
+      "severity": "low",
+      "evidence": "file:pose-mcp/internal/pose/review_brief.go:483",
+      "action": "Keep the earlier replacement for /6 and apply the last-occurrence one only from /7, or add a golden fixture whose notes contain the sentence",
+      "disposition": "accepted-risk",
+      "owner": "@pose-maintainers",
+      "rationale": "The P6 last-occurrence replacement also applies to review-brief/6, so /6 renders differently than before when the notes contain the sentence; the golden digest fixture has no such notes and cannot catch it",
+      "review_by": "2027-01-08"
+    },
+    {
+      "id": "Q2",
+      "severity": "low",
+      "evidence": "file:.pose/specs/2026-11-09-pose-review-brief-states-the-conclusion-rules.md:58",
+      "action": "Correct the line to /7 at closeout",
+      "disposition": "accepted-risk",
+      "owner": "@pose-maintainers",
+      "rationale": "Compatibility says new runs are briefed with /4; R3 makes /7 current",
+      "review_by": "2027-01-08"
+    },
+    {
+      "id": "Q3",
+      "severity": "low",
+      "evidence": "file:pose-mcp/internal/pose/review_brief_conclusion_rules_test.go:113",
+      "action": "Require git ls-files, fail instead of skipping in this repository, and fix the comment",
+      "disposition": "accepted-risk",
+      "owner": "@pose-maintainers",
+      "rationale": "The R4 test does not require Bash(git ls-files:*), skips silently when the policy or profile is missing (lines 80 and 96), and the comment at line 50 says the current template is /6",
+      "review_by": "2027-01-08"
+    },
+    {
+      "id": "Q4",
+      "severity": "low",
+      "evidence": "file:pose-mcp/internal/pose/review_brief_preflight_tie_test.go:98",
+      "action": "Take every string literal passed to the blockers append or Errorf calls, whatever its length, or list the ignored ones explicitly",
+      "disposition": "accepted-risk",
+      "owner": "@pose-maintainers",
+      "rationale": "Fragment extraction ignores literals under 14 characters and non-literal messages, so a short new blocker could escape the R2 tie",
+      "review_by": "2027-01-08"
+    },
+    {
+      "id": "Q5",
+      "severity": "low",
+      "evidence": "file:pose-mcp/internal/pose/review_brief.go:105",
+      "action": "Order the rule letters in the next template version and merge the comments",
+      "disposition": "accepted-risk",
+      "owner": "@pose-maintainers",
+      "rationale": "The brief renders rule (l) between (i) and (j); the comments at lines 68-71 on reviewBriefTemplateConclusions duplicate and contradict each other",
+      "review_by": "2027-01-08"
+    },
+    {
+      "id": "Q6",
+      "severity": "low",
+      "evidence": "file:pose-mcp/internal/pose/review_conclusions.go:211",
+      "action": "Update the comment to name reviewBriefAsksConclusion",
+      "disposition": "accepted-risk",
+      "owner": "@pose-maintainers",
+      "rationale": "The comment names review-brief/3 as the conclusion template; /3 to /7 now ask for one",
+      "review_by": "2027-01-08"
+    }
+  ],
+  "authority": {
+    "schema_version": 1,
+    "project": "proj.pose-dist",
+    "bundle_digest": "sha256:04f42572c64f13d26ebeedf37ea99126f55e316dd2ea42393a836b9f028d58b2",
+    "principal": "agent:anthropic/claude-opus-5-5",
+    "role": "agent",
+    "review_execution": "rrn-8c8c06010d37ad55",
+    "implementation_principal": "agent:anthropic/claude-sonnet-5-5",
+    "implementation_execution": "sha256:675189f7e0b769255994f8213acf8b1b57174c4353838cd875cdabd46aa9cc0b",
+    "issuer": "b34-local-executor",
+    "issued_at": "2026-11-09T15:31:30Z",
+    "audience": "proj.pose-dist"
+  },
+  "envelope": {
+    "issuer": "b34-local-executor",
+    "subject": "rvb-04f42572c64f13d2",
+    "algorithm": "ed25519",
+    "public_key": "ck4sApdfePV2GT+hJyAYfJd2qLzeG55P8pevGR0bvZE=",
+    "signature": "LcOb+BY1Cduv+t3uV9e5HTwDbVjqIx+ZMpl4rgGfrwMJTZ/JqZZZGkGYZEG4MW0pk2J13CIb7Dzs+WvCdvVNDA=="
+  },
+  "attested_at": "2026-11-09T15:31:30Z",
+  "path": ".pose/review-attestations/rva-15d52c55ec4facdd.json"
+}

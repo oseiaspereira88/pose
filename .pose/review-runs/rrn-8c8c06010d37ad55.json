@@ -1,0 +1,137 @@
+{
+  "safety": {
+    "schema_version": 1,
+    "profile": "legacy-trusted",
+    "platform": "linux/amd64",
+    "capabilities": {
+      "automatic-expiry": "unavailable",
+      "bounded-capture": "available",
+      "cpu-limit": "unavailable",
+      "credential-filesystem-isolation": "unavailable",
+      "environment-allowlist": "available",
+      "escaped-descendant-termination": "unavailable",
+      "filesystem-isolation": "unavailable",
+      "memory-limit": "unavailable",
+      "network-isolation": "unavailable",
+      "origin-isolation": "unavailable",
+      "parent-termination": "available",
+      "process-group-termination": "available",
+      "shared-git-isolation": "unavailable"
+    },
+    "limitations": [
+      "trusted local executable required; worktree is not a sandbox",
+      "outside writes, transient writes, shared Git and credential files are not isolated",
+      "no memory/CPU quota or control of descendants escaping the process group",
+      "cleanup filesystem calls remain subject to operating-system I/O latency",
+      "legacy compatibility: HOME retained; other ambient credentials excluded"
+    ],
+    "stream_bytes": 8388608,
+    "output_bytes": 65536,
+    "retained_bytes": 16777216,
+    "timeout_ms": 3600000,
+    "max_runs_per_bundle": 3,
+    "retention": "retain-evidence; ttl=0; no automatic deletion",
+    "capture_complete": true,
+    "runtime_id": "pose-review-run-1739780139",
+    "operation": {
+      "schema_version": 1,
+      "operation": "review.dispatch.cleanup",
+      "scope": "spec:pose-review-brief-states-the-conclusion-rules",
+      "outcome": "completed",
+      "steps_run": [
+        {
+          "id": "cleanup",
+          "result": "done"
+        }
+      ],
+      "effects": [],
+      "resumable": false
+    }
+  },
+  "provenance": {
+    "execution_state": "started",
+    "planned_wire_digest": "sha256:6f0fc9d333bc9975238d70c730c02fda1ea6779c0892ad6392637ff2bb065e87",
+    "wire_bytes": 27850,
+    "wire_complete": true,
+    "schema_version": 1,
+    "project": "proj.pose-dist",
+    "audience": "proj.pose-dist",
+    "worktree_digest": "sha256:9c161dc895f6496d9f800581bef8673cc9123cda65951fa2d23b0cbdbc2bac41",
+    "trust": "executor-attested",
+    "implementation": {
+      "principal": "agent:anthropic/claude-sonnet-5-5",
+      "execution": "sha256:675189f7e0b769255994f8213acf8b1b57174c4353838cd875cdabd46aa9cc0b",
+      "vendor": "anthropic",
+      "model": "claude-sonnet-5-5"
+    },
+    "reviewer": {
+      "principal": "agent:anthropic/claude-opus-5-5",
+      "vendor": "anthropic",
+      "model": "claude-opus-5-5"
+    },
+    "config_digest": "sha256:c70760e33f4ea7b6827710d424c247108c2442fac4514e5972960b8e60068d20",
+    "command_template_digest": "sha256:4fb04e170e8d7f85923d1ab7c7d6eac045a3bb8d20b443991552d6b7bfa7c4f2",
+    "argv_digest": "sha256:6f7a9cc5aa680b285a37674b2fc17403c1b6f541da236f7fd09bb7d444f08935",
+    "executable_digest": "sha256:dabafec82ca1319fa43d8be36a10fc61b1d11821cb98ad5df04ad95e199b8eed",
+    "template_version": "review-brief/7",
+    "wire_digest": "sha256:6f0fc9d333bc9975238d70c730c02fda1ea6779c0892ad6392637ff2bb065e87",
+    "notes_digest": "sha256:dd6897a1afc402aa6455bbd10cd052069498ca841cbf139e064a49399975f7f7",
+    "raw_transcript_digest": "sha256:651bff8da1b9afa0aa7bb000e784c1bc979bdcf789d4cc0920039c18af7625fa",
+    "raw_output_digest": "sha256:7c3c77bcaf1baaff87983ec34587a737b8e891484fa7fd9139b4598693977775",
+    "output_source": "stream-final",
+    "output_complete": true
+  },
+  "session_digest": "sha256:293f9a46a88515ada9c728f0b8e384576cef765e754b5e3519af713f1ae8d202",
+  "tree_digest": "sha256:f559d18e39dfc055ccb83ce85de24cf6bb7cb3ff64b45a10ae1b760bb0c2f4ca",
+  "brief_notes": "Review of spec pose-review-brief-states-the-conclusion-rules, implemented by Claude. Scope: the review brief now states the ten rules the attestation preflight applies to a typed conclusion (review-brief/4 states nine; review-brief/5, the current one, adds how a round after the first names the findings it accounts for), a test ties each preflight blocker to a sentence of the brief (`TestTheBriefStatesEveryRuleThePreflightEnforces`, `TestTheBriefOfALaterRoundStatesTheIdentifiersOfPriorFindings`), review-brief/3 and /4 still render as they did (`TestAnEarlierConclusionBriefStillRendersWithoutTheRules`, and the golden digests of `pose-review-brief-templates-are-immutable`), the Claude reviewer profile may run read-only commands (`TestTheClaudeReviewerProfileAllowsOnlyReadOnlyCommands`), and the manual names the template. This review is by Claude Opus 5.5 (a different model from the implementer, Sonnet 5.5, same vendor; independence is by model, not by vendor, and the report says so). This brief is review-brief/5: follow it, run the required tools your profile allows, give `\u003cclass\u003e:\u003cref\u003e` evidence, no finding left open (follow-ups carry `action`, `owner` @pose-maintainers and `review_by` 2027-01-08; only a low finding can be accepted as a risk), name prior findings by their carried identifiers and your new ones N1, N2, and keep your final message compact. Sweep every rule the preflight enforces (`validateBundleAttestationWith`, `evaluateReviewToolCoverageIn`, `reviewCriterionEvidenceBlockers`, the round protocol, `ParseReviewDraft`) for one that the brief still does not state, in this round. Classify each finding as blocker (a stated requirement violated) or follow-up and report all of them.\n\nRound 2 (this brief is review-brief/6): your round-1 blockers are addressed. N1: `TestEveryMessageThePreflightCanRefuseWithIsStatedByTheBriefOrExempt` extracts the message fragments from `validateBundleAttestationWith`, `reviewCriterionEvidenceBlockers`, `evaluateReviewToolCoverageIn` and `reviewToolEvidenceBlocker` and fails on one that is neither mapped to a sentence of the brief nor exempt with a reason. N2/N3/N5/N7: review-brief/6 states the accepted-risk severities (read from the sealed policy), that a tool whose precondition is the completed review is answered deferred, the component scoping of evidence, the basis of a mapping and the decision line outside the block. N4: R4 and the Security section now say what is true: the allowed verbs are read-only, a prefix allow-list cannot exclude a write-capable flag, and the disposable worktree contains it. N6: the spec and the test comments name /6. Name your round-1 findings by their carried identifiers (R1-N1 and so on) and new ones M1, M2; follow-ups carry `action`, `owner` and `review_by`.\n\nRound 3 (review-brief/6): round-2 findings are addressed as follows. M4 is fixed by removing what a prefix allow-list cannot make safe: `go test`, `go vet`, `git log|diff|show` and `pose lint-spec` are no longer allowed to your profile (they take flags that run a program or write a file); you keep `git status`, `git ls-files` and the four required plan tools, and the spec no longer claims containment by the worktree. For tests, rely on the sealed evidence and read the test code; do not report the missing shell for `go test` as a finding. M1 and M2: R1 and R2 now name the four preflight functions they cover, and the remaining rule sources (the causality mapping rules, the finding-decision rules, the reuse rules, the round protocol and `ParseReviewDraft`) are a recorded low follow-up with an owner. M3, M5 and M6: M3 stays a low follow-up (review-brief/4 changed text before the template guard existed; its approvals are verified as sealed); the stale references to the current template are corrected. Name your round-2 findings by their carried identifiers (R2-M1 and so on) and new ones P1, P2; follow-ups carry `action`, `owner` and `review_by`.\n\nRound 4 (review-brief/7): your round-3 P1 is fixed (the brief states that a draft dispensing with every required criterion as not-applicable is refused; the tie test maps that message to it); P2 (the manual limits an accepted risk to the policy's severities), P3, P5 (stale text), P6 (the decision-line exception now replaces the last occurrence, the instruction, not one in the notes) and P4 (the Security text now says what the harness does: the profile pre-approves the listed commands and Claude Code also runs what it classifies read-only itself) are addressed. The spec now ends with a section on the isolation of the two agents and a medium follow-up to give the Claude reviewer an operating-system sandbox once `socat` is installed. Name your round-3 findings by their carried identifiers (R3-P1 and so on) and new ones Q1, Q2; follow-ups carry `action`, `owner` and `review_by`.\n",
+  "ledger_version": 1,
+  "attempt_id": "rat-3e34994cc5c87b8221f46bffb81f3b302c950911a54f2519760f9b299be8af9b",
+  "schema_version": 1,
+  "run_id": "rrn-8c8c06010d37ad55",
+  "scope": "spec:pose-review-brief-states-the-conclusion-rules",
+  "bundle_id": "rvb-04f42572c64f13d2",
+  "bundle_digest": "sha256:04f42572c64f13d26ebeedf37ea99126f55e316dd2ea42393a836b9f028d58b2",
+  "sealed_commit": "c863f9c3aedb460a46ad4ea95a102e345512bf5a",
+  "kind": "review",
+  "brief_digest": "sha256:9b0e65e16c888cd64e0871c509e4af4d22c10cf44a26eac283288f2ccef29e81",
+  "adapter": "claude-opus-5-5",
+  "vendor": "anthropic",
+  "model": "claude-opus-5-5",
+  "started_at": "2026-11-09T15:25:39.223250418Z",
+  "ended_at": "2026-11-09T15:31:26.284683021Z",
+  "exit_code": 0,
+  "status": "completed",
+  "transcript_digest": "sha256:8930561309e0e20d50f5ba0f2b32080eeb52b2518b45c195f5a4e1558abc0380",
+  "transcript_path": ".pose/review-runs/rrn-8c8c06010d37ad55.transcript",
+  "output": "I'm **approving**. The change does what the spec asks; I found six low-severity defects, filed as follow-ups that can be accepted as risks.\n\nI couldn't run `go test`, `git log` or `git diff` because the profile doesn't allow them. Test results therefore come from the sealed evidence plus my reading of the test code. I ran the two tools the profile allows, and both passed: `artifact-check` reported 913 orphan warnings across the repository but none in this scope's files, and `surface-check` reported 0 findings.\n\n**Prior round-3 findings, checked:**\n- **P1 is fixed:** the brief now states rule (l) at `review_brief.go:105`, and the tie test maps its message at `review_brief_preflight_tie_test.go:52`.\n- **P6 is fixed:** the decision-line exception now replaces the last occurrence (`review_brief.go:486`).\n- **P4 is fixed:** the spec's Security text is corrected (spec line 54).\n- **P3 and P5 are not fully fixed:** two stale references remain (Q2, Q3).\n- **P2:** I didn't check the manual's wording on accepted-risk severities; I only grepped it for the template name.\n\nThis brief is round 1 of a new bundle and has no `prior_findings` field, so I name the earlier findings only here.\n\n**Unresolved assumption:** `artifact-check` reports change set `cs-e8be018aeadf` with head `1b53be73`, but the bundle names `cs-f60393635451` with head `c863f9c3`. I couldn't check this: `git log` isn't allowed and the worktree's HEAD file is outside my read scope. The tree does contain the `/7` content.\n\n## Criteria\n| criterion | disposition | evidence |\n|---|---|---|\n| assumption-integrity | passed | `integration:pose-mcp/go/review-brief-conclusion-rules-integration` |\n| backend-concurrency | passed | `unit:pose-mcp/go/test` |\n| backend-contracts | passed | `integration:pose-mcp/go/review-brief-templates-are-immutable-integration` |\n| backend-input-errors | passed | `integration:pose-mcp/go/review-brief-conclusion-rules-integration` |\n| backend-integration-impact | passed | `integration:pose-mcp/go/delegated-review-capability-integration` |\n| backend-observability | passed | `integration:pose-mcp/go/review-brief-conclusion-rules-integration` |\n| compatibility | finding | Q1 |\n| correctness | passed | `integration:pose-mcp/go/review-brief-conclusion-rules-integration` |\n| design-causality | passed | `structure:design-cba9a2b04088cab0` |\n| documentation | finding | Q2 |\n| operability | passed | `integration:pose-mcp/go/typed-diagnostics-integration` |\n| requirements | passed | `integration:pose-mcp/go/review-brief-conclusion-rules-integration` |\n| scope | passed | `integration:pose-mcp/go/artifact-claim-boundary-integration` |\n| security | passed | `integration:pose-mcp/go/delegated-adapter-containment-integration` |\n| solution-proportionality | passed | `integration:pose-mcp/go/review-brief-conclusion-rules-integration` |\n\n## Structural facts\n- **SD-2ca2036f** (`validation-matrix.json`) maps to R2. The new check `review-brief-conclusion-rules-integration` runs the tie test and the other traced tests.\n- **SD-fb956636** (`delegation.json`) maps to D2 (R4). The Claude reviewer profile's allow-list is in all three commands (`delegation.json:147,183,206`).\n\n## Defects (all low, follow-up)\n- **Q1, `review_brief.go:483-488`:** the P6 fix also changes how `review-brief/6` renders when the notes contain \"Everything outside the block is yours and is not read.\"\n  - Going by the implementer's P6 note, `/6` used to replace the first occurrence and now replaces the last. I couldn't diff the old code to confirm.\n  - The golden digest fixture has no such notes, so nothing would catch the change.\n  - For that input, `/6` no longer renders as it did, which breaks the \"a version never changes its text\" claim.\n- **Q2, spec line 58:** \"New runs are briefed with `/4`\" is stale; R3 makes `/7` current.\n- **Q3, `review_brief_conclusion_rules_test.go`:** three problems in the R4 and R3 tests:\n  - Line 50: the comment says \"current template is /6\".\n  - Line 113: the test doesn't require `Bash(git ls-files:*)`, which R4 names.\n  - Lines 80 and 96: the test skips silently when the policy or the profile is missing.\n- **Q4, `review_brief_preflight_tie_test.go:98`:** the extraction ignores string literals shorter than 14 characters and messages built from non-literal values. A short new blocker could get past R2.\n- **Q5, `review_brief.go:105-107` and `:68-71`:** the brief lists rule (l) between (i) and (j), and two comments on `reviewBriefTemplateConclusions` duplicate and contradict each other.\n- **Q6, `review_conclusions.go:211`:** the comment still says the conclusion template is `review-brief/3`, though `/3` to `/7` now ask for one. This may predate the change.\n\ndecision: approved\n\n```pose-draft\n{\n  \"schema\": \"pose.review.draft/v1\",\n  \"decision\": \"approved\",\n  \"findings\": [\n    {\"id\": \"Q1\", \"severity\": \"low\", \"disposition\": \"follow-up\", \"file\": \"pose-mcp/internal/pose/review_brief.go\", \"line\": 483, \"summary\": \"The P6 last-occurrence replacement also applies to review-brief/6, so /6 renders differently than before when the notes contain the sentence; the golden digest fixture has no such notes and cannot catch it\", \"action\": \"Keep the earlier replacement for /6 and apply the last-occurrence one only from /7, or add a golden fixture whose notes contain the sentence\", \"owner\": \"@pose-maintainers\", \"review_by\": \"2027-01-08\"},\n    {\"id\": \"Q2\", \"severity\": \"low\", \"disposition\": \"follow-up\", \"file\": \".pose/specs/2026-11-09-pose-review-brief-states-the-conclusion-rules.md\", \"line\": 58, \"summary\": \"Compatibility says new runs are briefed with /4; R3 makes /7 current\", \"action\": \"Correct the line to /7 at closeout\", \"owner\": \"@pose-maintainers\", \"review_by\": \"2027-01-08\"},\n    {\"id\": \"Q3\", \"severity\": \"low\", \"disposition\": \"follow-up\", \"file\": \"pose-mcp/internal/pose/review_brief_conclusion_rules_test.go\", \"line\": 113, \"summary\": \"The R4 test does not require Bash(git ls-files:*), skips silently when the policy or profile is missing (lines 80 and 96), and the comment at line 50 says the current template is /6\", \"action\": \"Require git ls-files, fail instead of skipping in this repository, and fix the comment\", \"owner\": \"@pose-maintainers\", \"review_by\": \"2027-01-08\"},\n    {\"id\": \"Q4\", \"severity\": \"low\", \"disposition\": \"follow-up\", \"file\": \"pose-mcp/internal/pose/review_brief_preflight_tie_test.go\", \"line\": 98, \"summary\": \"Fragment extraction ignores literals under 14 characters and non-literal messages, so a short new blocker could escape the R2 tie\", \"action\": \"Take every string literal passed to the blockers append or Errorf calls, whatever its length, or list the ignored ones explicitly\", \"owner\": \"@pose-maintainers\", \"review_by\": \"2027-01-08\"},\n    {\"id\": \"Q5\", \"severity\": \"low\", \"disposition\": \"follow-up\", \"file\": \"pose-mcp/internal/pose/review_brief.go\", \"line\": 105, \"summary\": \"The brief renders rule (l) between (i) and (j); the comments at lines 68-71 on reviewBriefTemplateConclusions duplicate and contradict each other\", \"action\": \"Order the rule letters in the next template version and merge the comments\", \"owner\": \"@pose-maintainers\", \"review_by\": \"2027-01-08\"},\n    {\"id\": \"Q6\", \"severity\": \"low\", \"disposition\": \"follow-up\", \"file\": \"pose-mcp/internal/pose/review_conclusions.go\", \"line\": 211, \"summary\": \"The comment names review-brief/3 as the conclusion template; /3 to /7 now ask for one\", \"action\": \"Update the comment to name reviewBriefAsksConclusion\", \"owner\": \"@pose-maintainers\", \"review_by\": \"2027-01-08\"}\n  ],\n  \"criteria\": [\n    {\"id\": \"assumption-integrity\", \"disposition\": \"passed\", \"evidence\": \"integration:pose-mcp/go/review-brief-conclusion-rules-integration\", \"rationale\": \"Examined the implementer's notes against the code. Verified: rule (l) at review_brief.go:105 and its tie at review_brief_preflight_tie_test.go:52; LastIndex at review_brief.go:486; the profile allow-list at delegation.json:147,183,206; no preflight rule changed (the rule-l message is at review_bundle.go:3874, a file outside the change). Accepted risks: Q1-Q6 (low). Unresolved: artifact-check reports change set cs-e8be018aeadf with head 1b53be73 while the bundle names cs-f60393635451 with head c863f9c3; the profile allows no git log, so this was not resolved.\"},\n    {\"id\": \"backend-concurrency\", \"disposition\": \"passed\", \"evidence\": \"unit:pose-mcp/go/test\", \"rationale\": \"The change is pure string rendering and a static policy; it adds no shared state or goroutine. The matrix check runs with -race.\"},\n    {\"id\": \"backend-contracts\", \"disposition\": \"passed\", \"evidence\": \"integration:pose-mcp/go/review-brief-templates-are-immutable-integration\", \"rationale\": \"The golden digests pin /1 to /7 (testdata/review_brief_template_digests.json); RenderReviewBriefMatching walks the earlier templates (review_brief.go:120,146-160).\"},\n    {\"id\": \"backend-input-errors\", \"disposition\": \"passed\", \"evidence\": \"integration:pose-mcp/go/review-brief-conclusion-rules-integration\", \"rationale\": \"The brief now states the refusal messages, which are mapped by the tie test.\"},\n    {\"id\": \"backend-integration-impact\", \"disposition\": \"passed\", \"evidence\": \"integration:pose-mcp/go/delegated-review-capability-integration\", \"rationale\": \"reviewBriefAsksConclusion covers /3 to /7 (review_brief.go:81-83) and review_conclusions.go:216 consumes it.\"},\n    {\"id\": \"backend-observability\", \"disposition\": \"passed\", \"evidence\": \"integration:pose-mcp/go/review-brief-conclusion-rules-integration\", \"rationale\": \"The refusal messages are unchanged and named; the brief maps each one to a sentence.\"},\n    {\"id\": \"compatibility\", \"disposition\": \"finding\", \"evidence\": \"Q1\", \"rationale\": \"Runs briefed with /3 to /6 are re-rendered by version and their digests are pinned; Q1 is a latent /6 rendering change that occurs only when the notes contain the replaced sentence.\"},\n    {\"id\": \"correctness\", \"disposition\": \"passed\", \"evidence\": \"integration:pose-mcp/go/review-brief-conclusion-rules-integration\", \"rationale\": \"Read briefRulesText and renderReviewBriefBody: (l) is appended only for /7; the /6 severities are read from the sealed policy; the rendered brief of this run shows rules (a) to (l).\"},\n    {\"id\": \"design-causality\", \"disposition\": \"passed\", \"evidence\": \"structure:design-cba9a2b04088cab0\", \"rationale\": \"D1 states the rules in a new template version because the brief, not the notes, reaches every run; D2 widens the profile to the plan tools only. Examined the spec decisions and the two structural facts.\", \"mappings\": [\n      {\"delta\": \"SD-2ca2036f\", \"basis\": \"R2\", \"disposition\": \"mapped\", \"rationale\": \"The validation matrix gains review-brief-conclusion-rules-integration, which runs the tie test and the traced R1-R4 tests\"},\n      {\"delta\": \"SD-fb956636\", \"basis\": \"D2\", \"disposition\": \"mapped\", \"rationale\": \"delegation.json gives the Claude reviewer profile the R4 allow-list in all three of its commands\"}\n    ]},\n    {\"id\": \"documentation\", \"disposition\": \"finding\", \"evidence\": \"Q2\", \"rationale\": \"POSE.md:1063 and pt-BR POSE.md:1060 name /7; scaffold parity is sealed; the spec still says /4 at line 58.\"},\n    {\"id\": \"operability\", \"disposition\": \"passed\", \"evidence\": \"integration:pose-mcp/go/typed-diagnostics-integration\", \"rationale\": \"Examined the brief text and the preflight messages: each rule is stated in actionable terms and the refusal names the broken rule.\"},\n    {\"id\": \"requirements\", \"disposition\": \"passed\", \"evidence\": \"integration:pose-mcp/go/review-brief-conclusion-rules-integration\", \"rationale\": \"Each of R1-R5 is traced to a test the matrix check runs; the R4 test gap is Q3.\"},\n    {\"id\": \"scope\", \"disposition\": \"passed\", \"evidence\": \"integration:pose-mcp/go/artifact-claim-boundary-integration\", \"rationale\": \"The 15 changed files plus the spec match the spec's artifact list exactly; the non-goals hold (no preflight rule changed, no write verb allowed).\"},\n    {\"id\": \"security\", \"disposition\": \"passed\", \"evidence\": \"integration:pose-mcp/go/delegated-adapter-containment-integration\", \"rationale\": \"The allow-list is limited to git status, git ls-files and the four plan tools; my own compound commands were refused in this run, and the spec claims no filesystem containment.\"},\n    {\"id\": \"solution-proportionality\", \"disposition\": \"passed\", \"evidence\": \"integration:pose-mcp/go/review-brief-conclusion-rules-integration\", \"rationale\": \"Compared with the minimal option (notes per run): the template version is the existing mechanism and adds no file. The choice is invalidated when a draft that follows the brief is refused by an unstated rule (the low follow-up in the spec).\"}\n  ],\n  \"tools\": [\n    {\"id\": \"artifact-check\", \"disposition\": \"passed\", \"evidence\": \"command:pose artifact-check --spec pose-review-brief-states-the-conclusion-rules --strict\", \"rationale\": \"No errors; the 913 findings are repo-wide orphan warnings, none in this scope\"},\n    {\"id\": \"assess-design\", \"disposition\": \"not-used\", \"evidence\": \"\", \"rationale\": \"The profile does not allow pose assess; the sealed structure:design-cba9a2b04088cab0 was read instead\"},\n    {\"id\": \"assess-discover\", \"component\": \"pose-mcp\", \"disposition\": \"not-used\", \"evidence\": \"\", \"rationale\": \"The profile does not allow pose assess\"},\n    {\"id\": \"assess-integrate\", \"disposition\": \"not-used\", \"evidence\": \"\", \"rationale\": \"The profile does not allow pose assess\"},\n    {\"id\": \"assess-tech-debt\", \"disposition\": \"not-used\", \"evidence\": \"\", \"rationale\": \"The profile does not allow pose assess\"},\n    {\"id\": \"closeout-check\", \"disposition\": \"deferred\", \"evidence\": \"\", \"rationale\": \"Its precondition is the completed review\"},\n    {\"id\": \"review-check\", \"disposition\": \"deferred\", \"evidence\": \"\", \"rationale\": \"Its precondition is the completed review\"},\n    {\"id\": \"suggest-review\", \"component\": \"pose-mcp\", \"disposition\": \"not-used\", \"evidence\": \"\", \"rationale\": \"Not in the profile's allow-list\"},\n    {\"id\": \"surface-check\", \"disposition\": \"passed\", \"evidence\": \"integration:pose-mcp/go/spec-surface-integration\", \"rationale\": \"Also run here: surface.findings=0, 198 results, 1 target\"},\n    {\"id\": \"validate\", \"disposition\": \"passed\", \"evidence\": \"build:pose-mcp/go/build\", \"rationale\": \"The profile does not allow pose validate; the sealed strict validation produced this evidence\"},\n    {\"id\": \"validate\", \"component\": \"pose-mcp\", \"disposition\": \"passed\", \"evidence\": \"unit:pose-mcp/go/test\", \"rationale\": \"The profile does not allow pose validate; the sealed strict validation of pose-mcp produced this evidence\"}\n  ]\n}\n```",
+  "policy_digest": "sha256:cba754858763dc116bbeb20deb3de076635ff0b10a0b308d92d23de54414fc04",
+  "purpose": "review",
+  "env_removed": [
+    "CLAUDE_CODE_BRIDGE_SESSION_ID",
+    "CLAUDE_CODE_CHILD_SESSION",
+    "CLAUDE_CODE_ENTRYPOINT",
+    "CLAUDE_CODE_EXECPATH",
+    "CLAUDE_CODE_MESSAGING_SOCKET",
+    "CLAUDE_CODE_MESSAGING_TOKEN",
+    "CLAUDE_CODE_SESSION_ATTENDED",
+    "CLAUDE_CODE_SESSION_ID",
+    "CLAUDE_EFFORT",
+    "CLAUDE_PID"
+  ],
+  "events": "claude-stream-json",
+  "events_digest": "sha256:cb6061795fa98341c11b33d715908c30fac00024b224b9afceb29b2213d90bc0",
+  "routing": {
+    "requested": "claude-opus-5-5",
+    "implementation": {
+      "principal": "agent:anthropic/claude-sonnet-5-5",
+      "vendor": "anthropic",
+      "model": "claude-sonnet-5-5",
+      "execution_digest": "sha256:675189f7e0b769255994f8213acf8b1b57174c4353838cd875cdabd46aa9cc0b",
+      "source": "declared"
+    },
+    "implementation_from": "bundle",
+    "step": "explicit"
+  },
+  "independence_achieved": "different-model",
+  "round": 1
+}
