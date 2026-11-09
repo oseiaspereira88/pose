@@ -33,6 +33,7 @@ func TestTheBriefStatesEveryRuleThePreflightEnforces(t *testing.T) {
 		"required review tool did not pass":                          {"a tool listed as required must be run and `passed`"},
 		"required review tool was not used":                          {"`not-used` is accepted for a required tool only when the plan says no producer exists"},
 		"recommended review tool lacks not-used rationale":           {"a recommended tool you did not run is `not-used` with a `rationale`"},
+		"finding F is open":                                          {"a draft that approves leaves no finding open", "a finding without them is open and the approval is refused"},
 		"invalid review evidence ref":                                {"`command:` followed by the command you ran; a bare command line is refused"},
 		"review tool lacks a required evidence class":                {"when the tool lists evidence classes, a ref of one of them that the bundle sealed"},
 	}
