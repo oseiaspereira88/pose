@@ -1,0 +1,265 @@
+{
+  "run": {
+    "run_id": "rrn-ac8f943eee9dcd1f",
+    "proof_id": "rrp-468a35144b42428c37825a702f2fe3ed2efce4afb6164a7025d0c43fa13db4d8"
+  },
+  "schema_version": 1,
+  "attestation_id": "rva-b1ec2bb2c9575b46",
+  "bundle_id": "rvb-877fe2b19b608c18",
+  "bundle_digest": "sha256:877fe2b19b608c180a8eab3e75c6497bb9494d965fceb4e94a2e86597f6edc4e",
+  "reviewer": "agent:anthropic/claude-opus-5-5",
+  "decision": "approved",
+  "criteria": [
+    {
+      "id": "assumption-integrity",
+      "disposition": "finding",
+      "evidence": "F4",
+      "rationale": "Examined the implementer's notes and the spec's Known gaps/Residual risks against code and tests. Verified: the 17 done specs claim is consistent with the sealed-history read; unreadable history yields a blocker (test passes). Accepted risks: run-backed approval drift, keying on read-view freshness. The Final Report's 'different vendor' is a stated assumption that is false for this round (F4)."
+    },
+    {
+      "id": "backend-concurrency",
+      "disposition": "passed",
+      "evidence": "unit:pose-mcp/go/test",
+      "rationale": "Checkpoint removal runs under withGovernanceWriteGuard (ClearCloseoutCheckpoint); the sealed-bundle read is local to one preparation via a lazily filled map; focused tests pass under -race."
+    },
+    {
+      "id": "backend-contracts",
+      "disposition": "passed",
+      "evidence": "integration:pose-mcp/go/cli-mcp-operation-results-integration",
+      "rationale": "No schema change; OperationResult keeps its shape with a new cause string terminal-verification-unstable-inputs; plan criteria for done specs are only retained where the sealed plan already had them."
+    },
+    {
+      "id": "backend-input-errors",
+      "disposition": "passed",
+      "evidence": "integration:pose-mcp/go/done-spec-keeps-its-sealed-plan-integration",
+      "rationale": "Unreadable or incomplete sealed history becomes an explicit plan blocker; a checkpoint that cannot be removed is reported in Unconfirmed and in NextAction with the file to remove (TestAStopWhoseCheckpointCannotBeRemovedSaysSo)."
+    },
+    {
+      "id": "backend-integration-impact",
+      "disposition": "passed",
+      "evidence": "integration:pose-mcp/go/closeout-terminal-verification-integration",
+      "rationale": "Review plan, bundle lineage and closeout apply remain integrated; the sealed closeout, milestone-review and done-spec integration checks pass."
+    },
+    {
+      "id": "backend-observability",
+      "disposition": "passed",
+      "evidence": "unit:pose-mcp/go/test",
+      "rationale": "Stops return a typed cause, Resumable, Unconfirmed entries and a bounded NextAction naming the ref and resume command; blockers name roadmap/milestone and the read error; no sensitive data emitted."
+    },
+    {
+      "id": "compatibility",
+      "disposition": "passed",
+      "evidence": "integration:pose-mcp/go/milestone-review-proportional-integration",
+      "rationale": "Examined addMilestoneGateCriterion: open specs unchanged (R3 tests), done specs sealed without the gate gain nothing (R2 test), bundles and attestations are not rewritten; CLI result contract unchanged apart from a new cause value."
+    },
+    {
+      "id": "correctness",
+      "disposition": "passed",
+      "evidence": "integration:pose-mcp/go/done-spec-keeps-its-sealed-plan-integration",
+      "rationale": "Ran the 11 focused tests with -race: all pass, covering kept gate/approval, no gain without seal, unreadable history blocker, open spec owes gate, no-checkpoint decision, other stops still record, older checkpoint cleared, removal failure reported."
+    },
+    {
+      "id": "design-causality",
+      "disposition": "passed",
+      "evidence": "structure:design-67089a7abd53b9df",
+      "rationale": "The cause (plan is an input of the bundle; the done-spec plan dropped the gate, superseding the bundle) is addressed by reading the governing sealed bundle's criteria (D1); the checkpoint defect is addressed by not recording a non-progress stop on a non-current read view (D2).",
+      "mappings": [
+        {
+          "delta": "SD-86d15cb2",
+          "basis": "D1",
+          "disposition": "mapped",
+          "rationale": "The ADR amendment records D1 (R1, R2): a done sole-member spec keeps the gate criterion only when its governing sealed bundle carries it, and gets a blocker when sealed history is unreadable; it also records D2 (R4, R5): no checkpoint for a stop on an unknown read view of a done scope."
+        }
+      ]
+    },
+    {
+      "id": "documentation",
+      "disposition": "finding",
+      "evidence": "F3",
+      "rationale": "The ADR is amended to match runtime behaviour and the changelog exists, but the closeout skill amendment the spec plans was not made (F3)."
+    },
+    {
+      "id": "operability",
+      "disposition": "finding",
+      "evidence": "F1",
+      "rationale": "Remediation text is actionable on both success and removal failure, but the already-done branch reclassifies any blocked verify under a non-current view as unstable inputs, replacing plan.NextAction (F1); the hand-built path in the text is latent-divergent (F5)."
+    },
+    {
+      "id": "requirements",
+      "disposition": "passed",
+      "evidence": "integration:pose-mcp/go/done-spec-keeps-its-sealed-plan-integration",
+      "rationale": "R1-R6 each have named, passing tests in the trace; R4's loop wiring lacks an end-to-end test, declared in Known gaps and recorded as F2."
+    },
+    {
+      "id": "scope",
+      "disposition": "passed",
+      "evidence": "structure:design-67089a7abd53b9df",
+      "rationale": "Compared the change set's files with the spec's Artifacts list: they match one-to-one; review-brief changes in the commit range belong to a separate spec and are outside this change set."
+    },
+    {
+      "id": "security",
+      "disposition": "passed",
+      "evidence": "integration:pose-mcp/go/done-spec-keeps-its-sealed-plan-integration",
+      "rationale": "Retaining a criterion only adds a requirement; it is keyed on the sealed plan, so no approval is created or widened; checkpoint removal uses the store path under the write guard; no secrets handled."
+    },
+    {
+      "id": "solution-proportionality",
+      "disposition": "passed",
+      "evidence": "structure:design-67089a7abd53b9df",
+      "rationale": "D1 rejects the smaller 'add to every done spec' option because it would supersede approvals; D2 avoids recording rather than deleting after the fact. ~80 lines of production code, no new extensibility. Invalidated if a done spec sealed with the gate still reads superseded or a stop's progress cannot be recovered from the repository."
+    }
+  ],
+  "tools": [
+    {
+      "id": "artifact-check",
+      "disposition": "passed",
+      "evidence": "command:pose artifact-check --spec pose-done-spec-keeps-its-sealed-plan --strict",
+      "rationale": "Ran it: 10 claims, 17 observed, no errors; the 909 findings are all orphan warnings about other tracked files in the repository, none about this change."
+    },
+    {
+      "id": "assess-design",
+      "disposition": "not-used",
+      "evidence": "structure:design-67089a7abd53b9df",
+      "rationale": "Not in this reviewer profile's allowed commands; relied on the sealed design assessment structure:design-67089a7abd53b9df."
+    },
+    {
+      "id": "assess-discover",
+      "component": "pose-mcp",
+      "disposition": "not-used",
+      "rationale": "Recommended, not in this reviewer profile's allowed commands; discovery was done by reading the diff and the changed code."
+    },
+    {
+      "id": "assess-integrate",
+      "disposition": "not-used",
+      "rationale": "Recommended, not in this reviewer profile's allowed commands; relied on the sealed integration evidence."
+    },
+    {
+      "id": "assess-tech-debt",
+      "disposition": "not-used",
+      "rationale": "Recommended, not in this reviewer profile's allowed commands."
+    },
+    {
+      "id": "closeout-check",
+      "disposition": "passed",
+      "evidence": "command:pose closeout-check spec:pose-done-spec-keeps-its-sealed-plan",
+      "rationale": "Ran it: exit 1 with 'lifecycle status is not done' and next action 'record or remediate a fresh review'. That is the expected state before review and closeout, not a defect in the change."
+    },
+    {
+      "id": "review-check",
+      "disposition": "passed",
+      "evidence": "command:pose review-check spec:pose-done-spec-keeps-its-sealed-plan",
+      "rationale": "Ran it: exit 1, approved=false and fresh=false because no review is recorded yet (this review supplies it); the read view is current and the only warnings are metadata/unmapped governance paths, none about the change."
+    },
+    {
+      "id": "suggest-review",
+      "component": "pose-mcp",
+      "disposition": "not-used",
+      "rationale": "Recommended, not in this reviewer profile's allowed commands."
+    },
+    {
+      "id": "surface-check",
+      "disposition": "passed",
+      "evidence": "reachability:pose-mcp/go/closeout-plan-reachability",
+      "rationale": "Ran it strictly: 1 target, 194 results, 0 findings; sealed reachability of the closeout plan passes."
+    },
+    {
+      "id": "validate",
+      "disposition": "passed",
+      "evidence": "unit:pose-mcp/go/test",
+      "rationale": "Per the brief, did not rerun the full matrix; the sealed strict matrix run passes, and I reran the focused tests of the changed code with -race (all pass)."
+    },
+    {
+      "id": "validate",
+      "component": "pose-mcp",
+      "disposition": "passed",
+      "evidence": "integration:pose-mcp/go/done-spec-keeps-its-sealed-plan-integration",
+      "rationale": "Sealed module run of pose-mcp passes, including build:pose-mcp/go/build and the spec's own integration check; focused tests rerun locally pass."
+    }
+  ],
+  "evidence_refs": [
+    "F1",
+    "F3",
+    "F4",
+    "delegated-run:rrn-ac8f943eee9dcd1f",
+    "integration:pose-mcp/go/cli-mcp-operation-results-integration",
+    "integration:pose-mcp/go/closeout-terminal-verification-integration",
+    "integration:pose-mcp/go/done-spec-keeps-its-sealed-plan-integration",
+    "integration:pose-mcp/go/milestone-review-proportional-integration",
+    "structure:design-67089a7abd53b9df",
+    "unit:pose-mcp/go/test"
+  ],
+  "findings": [
+    {
+      "id": "F1",
+      "severity": "low",
+      "evidence": "file:pose-mcp/internal/pose/closeout_plan.go:122",
+      "action": "Restrict the stop to a verify blocked by the read view (freshness unknown) and keep plan.NextAction for other blockers",
+      "disposition": "accepted-risk",
+      "owner": "@pose-maintainers",
+      "rationale": "StoppedOnUnstableInputs keys on Freshness != current (wider than R4's 'unknown') and does not check that the read view is what blocked verify; a done scope blocked for another reason under a non-current view is reported as terminal-verification-unstable-inputs with the generic next action instead of plan.NextAction, and keeps no checkpoint (cli/closeout_plan.go:327, :406). Declared as a residual risk in the spec.",
+      "review_by": "2027-01-08"
+    },
+    {
+      "id": "F2",
+      "severity": "low",
+      "evidence": "file:pose-mcp/internal/cli/closeout_plan.go:406",
+      "action": "Add an injectable read-view seam so an end-to-end apply can produce an unknown view and assert no checkpoint is written",
+      "disposition": "accepted-risk",
+      "owner": "@pose-maintainers",
+      "rationale": "The apply/resume loop wiring of the no-checkpoint stop is covered only at the decision and the helper, not end to end; declared in Known gaps.",
+      "review_by": "2027-01-08"
+    },
+    {
+      "id": "F3",
+      "severity": "low",
+      "evidence": "file:.agents/skills/pose-spec-closeout/SKILL.md:1",
+      "action": "Amend pose-spec-closeout SKILL.md (root, scaffold dist, pt-BR) to describe the stop and that --resume re-plans from the repository",
+      "disposition": "accepted-risk",
+      "owner": "@pose-maintainers",
+      "rationale": "The spec plans a closeout-skill amendment (Tasks: 'Amend the ADR and the closeout skill'; Affected areas) that was not made; the skill and its scaffold/locale copies say nothing about the no-checkpoint stop on an unknown read view.",
+      "review_by": "2027-01-08"
+    },
+    {
+      "id": "F4",
+      "severity": "low",
+      "evidence": "file:.pose/specs/2026-11-08-pose-done-spec-keeps-its-sealed-plan.md:153",
+      "action": "Correct the Final Report at closeout to state independence by model, same vendor",
+      "disposition": "accepted-risk",
+      "owner": "@pose-maintainers",
+      "rationale": "The Final Report states the independent review was by a different vendor; this round's reviewer (Claude Opus 5.5) differs from the implementer (Claude Sonnet 5.5) by model, not vendor.",
+      "review_by": "2027-01-08"
+    },
+    {
+      "id": "F5",
+      "severity": "low",
+      "evidence": "file:pose-mcp/internal/cli/closeout_plan.go:299",
+      "action": "Expose and reuse closeoutCheckpointPath (relative form) in the remediation text",
+      "disposition": "accepted-risk",
+      "owner": "@pose-maintainers",
+      "rationale": "The remediation text builds the checkpoint path by hand, also replacing '/', while closeoutCheckpointPath (internal/pose/closeout_plan.go:428) replaces only ':'; equal today because only spec scopes reach planCloseout, but they diverge if other scope kinds are admitted.",
+      "review_by": "2027-01-08"
+    }
+  ],
+  "authority": {
+    "schema_version": 1,
+    "project": "proj.pose-dist",
+    "bundle_digest": "sha256:877fe2b19b608c180a8eab3e75c6497bb9494d965fceb4e94a2e86597f6edc4e",
+    "principal": "agent:anthropic/claude-opus-5-5",
+    "role": "agent",
+    "review_execution": "rrn-ac8f943eee9dcd1f",
+    "implementation_principal": "agent:anthropic/claude-sonnet-5-5",
+    "implementation_execution": "sha256:675189f7e0b769255994f8213acf8b1b57174c4353838cd875cdabd46aa9cc0b",
+    "issuer": "b34-local-executor",
+    "issued_at": "2026-11-09T03:21:37Z",
+    "audience": "proj.pose-dist"
+  },
+  "envelope": {
+    "issuer": "b34-local-executor",
+    "subject": "rvb-877fe2b19b608c18",
+    "algorithm": "ed25519",
+    "public_key": "ck4sApdfePV2GT+hJyAYfJd2qLzeG55P8pevGR0bvZE=",
+    "signature": "t2Wpb8nKv1/dXaz3jl2pWq+pwMnz2LQHhfJPUMhsFnmr4JIDBkgVvIBEpRnNW+xC1AD5PQrzQ6V90AzCxGAEDg=="
+  },
+  "attested_at": "2026-11-09T03:21:37Z",
+  "path": ".pose/review-attestations/rva-b1ec2bb2c9575b46.json"
+}
