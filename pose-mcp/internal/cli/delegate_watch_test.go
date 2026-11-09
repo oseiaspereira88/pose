@@ -76,7 +76,7 @@ func TestDelegateWatchPicksARun(t *testing.T) {
 	delegatePicker = fake
 	code, out, errOut = runPoseSplit(t, root, "delegate", "watch", "--no-follow", "--refresh", "0")
 	recorded, _ := os.ReadFile(argsFile)
-	if code != 0 || !strings.Contains(string(recorded), "delegate watch {1} --no-follow") || strings.Contains(string(recorded), "while :") || !strings.Contains(out, "■ completed") {
+	if code != 0 || !strings.Contains(string(recorded), `delegate watch "$1" --no-follow`) || strings.Contains(string(recorded), "while :") || !strings.Contains(out, "■ completed") {
 		t.Fatalf("fzf: %d %s %s args=%s", code, out, errOut, recorded)
 	}
 	runPoseSplit(t, root, "delegate", "watch", "--no-follow")

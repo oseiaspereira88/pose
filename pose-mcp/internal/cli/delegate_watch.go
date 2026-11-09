@@ -148,23 +148,21 @@ func chooseWatchedAttempt(root string, attempts []posemodel.DelegationAttempt, f
 func pickAttempt(root string, candidates []posemodel.DelegationAttempt, f delegateFlags, stderr io.Writer) (string, error) {
 	lines := make([]string, 0, len(candidates))
 	for _, a := range candidates {
-		lines = append(lines, fmt.Sprintf("%s\t%s\t%s\t%s\t%s", a.AttemptID, a.State, a.Agent, a.Label, delegateAge(a.StartedAt)))
+		// The id leads and is hidden (--with-nth 2..): it is what {1} hands the preview.
+		// The columns are padded so the state, the agent and the age line up and the label,
+		// which varies in length, comes last.
+		lines = append(lines, fmt.Sprintf("%s\t%-11s %-18s %-5s %s", a.AttemptID, delegateStateGlyph(a.State)+" "+a.State, a.Agent, delegateAge(a.StartedAt), a.Label))
 	}
 	if path, err := exec.LookPath(delegatePicker); err == nil {
 		self, err := os.Executable()
 		if err != nil {
 			return "", err
 		}
-		preview := shellQuote(self) + " delegate watch {1} --no-follow --lines " + strconv.Itoa(f.lines)
-		if f.verbose {
-			preview += " -v"
-		}
-		if f.refresh > 0 {
-			// fzf replaces the preview when the cursor moves; the loop keeps
-			// the one in view current.
-			preview = "while :; do clear; " + preview + "; sleep " + strconv.FormatFloat(f.refresh.Seconds(), 'f', -1, 64) + "; done"
-		}
-		cmd := exec.Command(path, "--delimiter", "\t", "--with-nth", "1..", "--preview", preview, "--preview-window", "right,60%")
+		preview := pickerPreviewCommand(self, f)
+		cmd := exec.Command(path, "--delimiter", "\t", "--with-nth", "2..", "--preview", preview,
+			"--preview-window", "right,55%,border-left,wrap", "--layout", "reverse", "--height", "90%", "--border",
+			"--prompt", tr("run> ", "run> "), "--no-sort",
+			"--header", fmt.Sprintf("%-11s %-18s %-5s %s", tr("STATE", "ESTADO"), tr("AGENT", "AGENTE"), tr("AGE", "IDADE"), tr("LABEL", "RÓTULO")))
 		cmd.Dir = root
 		cmd.Stdin = strings.NewReader(strings.Join(lines, "\n") + "\n")
 		cmd.Stderr = stderr
@@ -186,6 +184,39 @@ func pickAttempt(root string, candidates []posemodel.DelegationAttempt, f delega
 		return "", errors.New(tr("nothing was picked", "nada foi escolhido"))
 	}
 	return candidates[n-1].AttemptID, nil
+}
+
+// pickerPreviewCommand is the command fzf runs for the run under the cursor. fzf hands it to
+// the user's login shell ($SHELL -c), which may be fish or any other: the command is
+// therefore one word of POSIX sh, `sh -c '<script>' <pose> {1}`, with the script in single
+// quotes and the pose path and the id passed as arguments, never a `while` loop written in
+// the login shell's own syntax (fish refuses it: "Missing end to balance this while loop").
+func pickerPreviewCommand(self string, f delegateFlags) string {
+	watch := `"$0" delegate watch "$1" --no-follow --lines ` + strconv.Itoa(f.lines)
+	if f.verbose {
+		watch += " -v"
+	}
+	script := watch
+	if f.refresh > 0 {
+		// fzf replaces the preview when the cursor moves; the loop keeps the one in view current.
+		script = "while :; do clear; " + watch + "; sleep " + strconv.FormatFloat(f.refresh.Seconds(), 'f', -1, 64) + "; done"
+	}
+	return "sh -c " + shellQuote(script) + " " + shellQuote(self) + " {1}"
+}
+
+// delegateStateGlyph marks a state so a list can be read at a glance.
+func delegateStateGlyph(state string) string {
+	switch state {
+	case "running":
+		return "●"
+	case "completed":
+		return "✓"
+	case "failed", "stalled":
+		return "✗"
+	case "interrupted":
+		return "◐"
+	}
+	return "·"
 }
 
 // shellQuote quotes a path for the shell fzf runs its preview with.
