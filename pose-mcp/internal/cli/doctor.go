@@ -1000,6 +1000,19 @@ func runDoctorDiagnostics(locale cliLocale) (root string, findings []doctorFindi
 					}
 				}
 			}
+			// A delegation profile whose dependencies are not installed would start and
+			// fail, or run without the guarantee it names: say so before it is used (spec
+			// pose-claude-sandboxed-profile).
+			if policy, _, found, policyErr := (posemodel.Store{Root: root}).LoadDelegationPolicy(); policyErr == nil && found {
+				for _, name := range policy.DeclaredAgentNames() {
+					agent := policy.Agents[name]
+					for access, missing := range agent.MissingRequirements() {
+						add("delegation.requirements", "warn",
+							fmt.Sprintf(text("agent %s: its %s profile needs %s, which is not installed", "agente %s: o perfil %s precisa de %s, que não está instalado"), name, access, strings.Join(missing, ", ")),
+							strings.TrimPrefix(installHint(agent, access), "; ")+text(" — until then that profile refuses to start", " — até lá esse perfil recusa iniciar"))
+					}
+				}
+			}
 			// Capabilities this project has not decided for the engine it runs
 			// are a next step, not a fault (spec pose-setup-command).
 			if pending, pendingErr := posemodel.CapabilitiesToReview(root, version.ReleaseBase()); pendingErr == nil && len(pending) > 0 {

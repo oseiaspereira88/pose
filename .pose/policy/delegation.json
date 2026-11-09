@@ -271,6 +271,18 @@
           "--version"
         ],
         "timeout": "10s"
+      },
+      "requires": {
+        "sandboxed": {
+          "executables": [
+            "bwrap",
+            "socat"
+          ],
+          "skip_on": [
+            "darwin"
+          ],
+          "install": "Debian/Ubuntu: sudo apt install bubblewrap socat; Fedora: sudo dnf install bubblewrap socat; Arch: sudo pacman -S bubblewrap socat"
+        }
       }
     }
   },

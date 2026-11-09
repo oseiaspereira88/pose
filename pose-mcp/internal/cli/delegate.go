@@ -1187,6 +1187,9 @@ type delegateAgentRow struct {
 	LimitedUntil      string   `json:"limited_until,omitempty"`
 	Detail            string   `json:"detail,omitempty"`
 	IndependentOfLead *bool    `json:"independent_of_lead,omitempty"`
+	// Unavailable names the access profiles whose dependencies are missing, with what is
+	// missing and how to install it.
+	Unavailable map[string]string `json:"unavailable_access,omitempty"`
 }
 
 func cmdDelegateAgents(root string, args []string, stdout, stderr io.Writer) int {
@@ -1233,6 +1236,12 @@ func cmdDelegateAgents(root string, args []string, stdout, stderr io.Writer) int
 		// limited is the state routing reads now; limit_reset_at stays the
 		// reset of the last limit ever recorded.
 		row.Limited = a.State == posemodel.DelegationAgentLimited
+		for access, missing := range agent.MissingRequirements() {
+			if row.Unavailable == nil {
+				row.Unavailable = map[string]string{}
+			}
+			row.Unavailable[access] = tr("missing ", "falta ") + strings.Join(missing, ", ") + installHint(agent, access)
+		}
 		if f.lead != "" {
 			independent := !strings.EqualFold(strings.TrimSpace(agent.Vendor), leadVendor(f.lead))
 			row.IndependentOfLead = &independent
@@ -1275,9 +1284,25 @@ func cmdDelegateAgents(root string, args []string, stdout, stderr io.Writer) int
 		if row.IndependentOfLead != nil {
 			value += fmt.Sprintf(" independent_of_lead=%t", *row.IndependentOfLead)
 		}
+		accesses := make([]string, 0, len(row.Unavailable))
+		for access := range row.Unavailable {
+			accesses = append(accesses, access)
+		}
+		sort.Strings(accesses)
+		for _, access := range accesses {
+			value += " unavailable_access=" + access + "(" + row.Unavailable[access] + ")"
+		}
 		out.Field("delegate.agent."+row.Name, value)
 	}
 	return 0
+}
+
+// installHint is how to install what an access profile needs, when the policy says.
+func installHint(agent posemodel.DelegationAgent, access string) string {
+	if install := agent.Requires[access].Install; install != "" {
+		return tr("; install: ", "; instale: ") + install
+	}
+	return ""
 }
 
 func containsString(values []string, wanted string) bool {

@@ -5,6 +5,7 @@ import (
 	"os"
 	"os/exec"
 	"path/filepath"
+	"runtime"
 	"strings"
 	"testing"
 )
@@ -114,4 +115,24 @@ func TestTheSandboxedProfileStartsWhenTheDependenciesArePresent(t *testing.T) {
 func runtimeIsDarwin() bool {
 	out, err := exec.Command("uname").Output()
 	return err == nil && strings.TrimSpace(string(out)) == "Darwin"
+}
+
+// R4: an agent that declares requirements for a profile reports which executables are missing,
+// and nothing when they are present or the platform is exempt.
+func TestTheDelegationPolicyReportsTheMissingRequirementsOfAProfile(t *testing.T) {
+	agent := DelegationAgent{Requires: map[string]DelegationRequirement{
+		"sandboxed": {Executables: []string{"definitely-not-installed-xyz"}, Install: "install it"},
+	}}
+	missing := agent.MissingRequirements()
+	if got := missing["sandboxed"]; len(got) != 1 || got[0] != "definitely-not-installed-xyz" {
+		t.Fatalf("missing = %v", missing)
+	}
+	agent.Requires["sandboxed"] = DelegationRequirement{Executables: []string{"definitely-not-installed-xyz"}, SkipOn: []string{runtime.GOOS}}
+	if len(agent.MissingRequirements()) != 0 {
+		t.Fatal("a platform in skip_on still reports missing executables")
+	}
+	agent.Requires["sandboxed"] = DelegationRequirement{Executables: []string{"sh"}}
+	if len(agent.MissingRequirements()) != 0 {
+		t.Fatal("an installed executable is reported missing")
+	}
 }

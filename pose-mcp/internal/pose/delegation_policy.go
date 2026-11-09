@@ -17,8 +17,10 @@ import (
 	"fmt"
 	"io"
 	"os"
+	"os/exec"
 	"path/filepath"
 	"reflect"
+	"runtime"
 	"sort"
 	"strings"
 	"time"
@@ -121,6 +123,40 @@ type DelegationAgent struct {
 	OutsideGitArgs []string `json:"outside_git_args,omitempty"`
 	AddDirArgs     []string `json:"add_dir_args,omitempty"`
 	NoNetworkArgs  []string `json:"no_network_args,omitempty"`
+	// Requires names, per access profile, the executables that profile needs beyond the
+	// agent's CLI, and how to install them (spec pose-claude-sandboxed-profile). It is not
+	// part of the adapter a run's provenance binds: a profile that checks its own
+	// dependencies at launch still refuses to start; this is how the diagnostics say so first.
+	Requires map[string]DelegationRequirement `json:"requires,omitempty"`
+}
+
+// DelegationRequirement is what an access profile needs on the machine that runs it.
+type DelegationRequirement struct {
+	Executables []string `json:"executables"`
+	// SkipOn lists the operating systems (GOOS) where the profile needs none of them.
+	SkipOn  []string `json:"skip_on,omitempty"`
+	Install string   `json:"install,omitempty"`
+}
+
+// MissingRequirements returns, per access profile, the executables that are not on the
+// path, for the profiles that declare requirements.
+func (a DelegationAgent) MissingRequirements() map[string][]string {
+	out := map[string][]string{}
+	for access, need := range a.Requires {
+		skipped := false
+		for _, goos := range need.SkipOn {
+			skipped = skipped || goos == runtime.GOOS
+		}
+		if skipped {
+			continue
+		}
+		for _, name := range need.Executables {
+			if _, err := exec.LookPath(name); err != nil {
+				out[access] = append(out[access], name)
+			}
+		}
+	}
+	return out
 }
 
 // DelegationHook is a command run after a run ends, with the run identifier

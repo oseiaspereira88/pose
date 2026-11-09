@@ -40,6 +40,7 @@ Codex has two command profiles, `read` and `sandboxed` (`-s workspace-write`), r
 
 - R1: The `claude-opus-5-5` agent shall declare a `sandboxed` command, and the same for its resumed run, that turns on the Claude Code sandbox with unsandboxed commands disallowed.
 - R2: Before it starts Claude, that command shall check for `bwrap` and `socat` (not on macOS, whose sandbox has no such dependency) and, when one is missing, write to stderr which one, why it matters and the install command for Debian/Ubuntu, Fedora and Arch, and exit 127 without starting Claude.
+- R4: A profile may declare `requires` (executables, operating systems that skip them, an install hint); `pose delegate agents` shall list a profile whose executables are missing as `unavailable_access=<profile>(missing …; install: …)` and `pose doctor` shall warn (`delegation.requirements`) with the same hint, before the profile is used. The block is not part of the adapter a run binds.
 - R3: With the dependencies present, a task with `--access sandboxed` shall write inside its working directory and be refused a write outside it by the operating system.
 
 ### Non-functional
@@ -68,6 +69,10 @@ Codex has two command profiles, `read` and `sandboxed` (`-s workspace-write`), r
 - modified: .pose/indexes/validation-matrix.json
 - modified: .pose/policy/delegation.json
 - created: pose-mcp/internal/pose/claude_sandboxed_profile_test.go
+- modified: pose-mcp/internal/pose/delegation_policy.go
+- modified: pose-mcp/internal/cli/delegate.go
+- modified: pose-mcp/internal/cli/doctor.go
+- created: pose-mcp/internal/cli/delegate_requirements_test.go
 
 ### Delivery targets
 
@@ -75,7 +80,7 @@ Codex has two command profiles, `read` and `sandboxed` (`-s workspace-write`), r
 
 ### API/contract changes
 
-`pose delegate agents` lists `access=read,sandboxed` for Claude; `delegate task --access sandboxed --agent claude-opus-5-5` is accepted.
+`pose delegate agents` lists `access=read,sandboxed` for Claude and `unavailable_access=` for a profile whose executables are missing (JSON: `unavailable_access`); the policy gains an optional `requires` per agent; `delegate task --access sandboxed --agent claude-opus-5-5` is accepted.
 
 ## 4. Tasks
 
@@ -109,8 +114,10 @@ The command's check is run with an empty PATH and must stop with 127 and the hin
 - R1 [satisfied] test:TestTheClaudeAgentDeclaresASandboxedProfileThatTurnsTheSandboxOn check:claude-sandboxed-profile-integration
 - R2 [satisfied] test:TestTheSandboxedProfileRefusesToStartWithoutItsDependenciesAndSaysHowToInstallThem
 - R3 [satisfied] test:TestTheSandboxedProfileStartsWhenTheDependenciesArePresent
+- R4 [satisfied] test:TestTheDelegationPolicyReportsTheMissingRequirementsOfAProfile test:TestDelegateAgentsAndDoctorSayHowToInstallWhatAProfileNeeds
 
 ### Known gaps
+- The doctor warning is covered by the shared `MissingRequirements` test and the `delegate agents` output test, not by its own doctor test.
 - R3 was exercised by hand on this machine (a write inside the working directory succeeded, a write to the home directory was refused with "read-only file system"); the automated tests cover the declaration and the dependency check, not the operating-system refusal, which needs Claude and bubblewrap.
 - Instances other than this repository adopt the profile by copying the block into their own `delegation.json`.
 
@@ -135,4 +142,4 @@ The Claude agent declares `sandboxed` (and its resumed form) with the Claude Cod
 
 ### Follow-ups
 
-- [open] Let the reviewer profile of Claude use the sandbox to allow `go test` again, and have `pose delegate agents` report a sandboxed profile whose dependencies are missing as unavailable. (owner:@pose-maintainers crit:low review:2027-01-08)
+- [open] Let the reviewer profile of Claude use the sandbox to allow `go test` again, (owner:@pose-maintainers crit:low review:2027-01-08)
