@@ -1058,13 +1058,20 @@ func (s Store) addMilestoneGateCriterion(scope ScopeRef, criteria []ReviewPlanCr
 		return criteria, blockers
 	}
 	done := terminalStatuses[sp.Status]
-	var sealedWith map[string]bool // criterion ids of the sealed bundles of a done spec, read once
+	var sealedWith map[string]bool // criterion ids of the governing bundle of a done spec, read once
+	var historyUnknown string      // why the history could not say, when it could not
 	sealedCarries := func(id string) bool {
 		if sealedWith == nil {
 			sealedWith = map[string]bool{}
 			// The governing bundle is the newest: a gate that only an older round of
 			// the review carried was dropped by a later seal and is not kept.
-			if read, readErr := s.ReadReviewBundles("spec:" + scope.Slug); readErr == nil {
+			read, readErr := s.ReadReviewBundles("spec:" + scope.Slug)
+			switch {
+			case readErr != nil:
+				historyUnknown = readErr.Error()
+			case !read.Coverage.CompleteFor("spec:" + scope.Slug):
+				historyUnknown = "a sealed bundle of the scope could not be read"
+			default:
 				if lineage := reviewBundleLineage(read.Bundles); len(lineage) > 0 {
 					for _, criterion := range lineage[0].Payload.Plan.Criteria {
 						sealedWith[criterion.ID] = true
@@ -1091,6 +1098,11 @@ func (s Store) addMilestoneGateCriterion(scope ScopeRef, criteria []ReviewPlanCr
 				continue
 			}
 			if done && !sealedCarries("milestone-exit-gate-"+rm.Slug+"-"+milestone.ID) {
+				if historyUnknown != "" {
+					// Absent history is not unreadable history: the plan says it cannot
+					// tell whether the gate was sealed, instead of silently dropping it.
+					blockers = append(blockers, "milestone exit gate of "+rm.Slug+"/"+milestone.ID+" cannot be carried into the plan of the done spec "+scope.Slug+": the sealed bundles could not establish whether it was sealed ("+historyUnknown+")")
+				}
 				continue
 			}
 			criteria, blockers = addReviewCriterion(criteria, ReviewPlanCriterion{

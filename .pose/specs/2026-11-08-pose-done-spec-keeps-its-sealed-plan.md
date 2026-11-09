@@ -124,10 +124,10 @@ Integration tests over real bundles seen failing first: a sole-member spec seale
 `go test -race` of the tests named in the trace; the strict matrix in a clean clone.
 
 ### Requirement trace
-- R1 [satisfied] test:TestADoneSpecSealedWithTheGateKeepsItsPlanAndItsApproval check:done-spec-keeps-its-sealed-plan-integration
+- R1 [satisfied] test:TestADoneSpecWithUnreadableSealedHistoryReportsItInsteadOfDroppingTheGate test:TestADoneSpecSealedWithTheGateKeepsItsPlanAndItsApproval check:done-spec-keeps-its-sealed-plan-integration
 - R2 [satisfied] test:TestADoneSpecSealedWithoutTheGateGainsNone test:TestTheSpecAnswersForTheExitGate
 - R3 [satisfied] test:TestAnOpenSpecStillOwesTheGate test:TestEachExitGateHasItsOwnCriterion
-- R4 [satisfied] test:TestTheStopOnUnstableInputsClearsAnOlderCheckpointAndSaysWhereTheStateIs test:TestAStopOnAnUnknownViewOfADoneScopeLeavesNoCheckpoint
+- R4 [satisfied] test:TestAStopWhoseCheckpointCannotBeRemovedSaysSo test:TestTheStopOnUnstableInputsClearsAnOlderCheckpointAndSaysWhereTheStateIs test:TestAStopOnAnUnknownViewOfADoneScopeLeavesNoCheckpoint
 - R5 [satisfied] test:TestEveryOtherStopStillRecordsItsCheckpoint
 - R6 [satisfied] test:TestADoneSpecSealedWithTheGateKeepsItsPlanAndItsApproval
 

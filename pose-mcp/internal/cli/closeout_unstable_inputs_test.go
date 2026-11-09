@@ -68,3 +68,16 @@ func TestTheStopOnUnstableInputsClearsAnOlderCheckpointAndSaysWhereTheStateIs(t 
 		}
 	}
 }
+
+func TestAStopWhoseCheckpointCannotBeRemovedSaysSo(t *testing.T) {
+	root := reviewBundleCLIFixture(t)
+	store := posemodel.Store{Root: root}
+	// A directory where the checkpoint file would be: it cannot be removed as a file.
+	dir := filepath.Join(root, ".pose/closeout-plans/spec-bundle.json")
+	mustWrite(t, filepath.Join(dir, "keep"), "x")
+	result := posemodel.NewOperationResult("close.apply", "spec:bundle")
+	out := stopOnUnstableInputs(store, "spec:bundle", "`pose close spec:bundle --resume`", &result, posemodel.CloseoutStepVerify, "governance read view is unknown")
+	if strings.Contains(out.NextAction, "no checkpoint is kept") || !strings.Contains(out.NextAction, "could not be removed") || len(out.Unconfirmed) == 0 {
+		t.Fatalf("the result claims a state it is not in: %q %+v", out.NextAction, out.Unconfirmed)
+	}
+}

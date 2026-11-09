@@ -288,11 +288,17 @@ func closeoutStopLeavesNoCheckpoint(plan posemodel.CloseoutPlan, step posemodel.
 // whose governance read view is not current. It clears the checkpoint instead of
 // recording the stop, and says where the state is.
 func stopOnUnstableInputs(store posemodel.Store, ref, resume string, result *posemodel.OperationResult, step, reason string) posemodel.OperationResult {
+	kept := ""
 	if err := store.ClearCloseoutCheckpoint(ref); err != nil {
+		kept = err.Error()
 		result.Unconfirmed = append(result.Unconfirmed, posemodel.OperationUncertain{Step: "checkpoint", Reason: "the checkpoint of the finished steps was not removed: " + err.Error()})
 	}
 	result.Fail(posemodel.OutcomeBlocked, step, "terminal-verification-unstable-inputs", reason)
 	result.Resumable = true
+	if kept != "" {
+		result.NextAction = "the lifecycle is done and the repository carries the state; the checkpoint of this stop could not be removed (" + kept + "): remove .pose/closeout-plans/" + strings.ReplaceAll(strings.ReplaceAll(ref, ":", "-"), "/", "-") + ".json by hand, it is not progress. Then verify again with `pose closeout-check " + ref + "` or " + resume
+		return *result
+	}
 	result.NextAction = "the lifecycle is done and the repository carries the state; no checkpoint is kept for this stop. Verify again with `pose closeout-check " + ref + "` or " + resume
 	return *result
 }

@@ -105,3 +105,23 @@ func TestAnOpenSpecStillOwesTheGate(t *testing.T) {
 		t.Fatalf("the open spec does not carry the gate: %+v", plan.Criteria)
 	}
 }
+
+// R1, the history: a done spec whose sealed bundles cannot be read does not silently lose
+// the gate; its plan says it cannot tell.
+func TestADoneSpecWithUnreadableSealedHistoryReportsItInsteadOfDroppingTheGate(t *testing.T) {
+	root, s := soleMemberWithAGate(t)
+	bundle, err := s.SealReviewBundle("spec:backend", reviewFixtureNow)
+	if err != nil {
+		t.Fatal(err, bundle.Blockers)
+	}
+	markDone(t, root)
+	// A malformed bundle of the same scope: the history is no longer readable whole.
+	federatedTestWrite(t, root, ".pose/review-bundles/rvb-0000000000000000.json", "{not json")
+	plan, err := s.ReviewPlan("spec:backend")
+	if err != nil {
+		t.Fatal(err)
+	}
+	if !strings.Contains(strings.Join(plan.Blockers, " "), "could not establish whether it was sealed") {
+		t.Fatalf("the unreadable history was taken for an empty one: blockers=%v gate=%v", plan.Blockers, gateCriteria(plan.Criteria))
+	}
+}
