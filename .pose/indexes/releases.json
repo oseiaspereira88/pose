@@ -81,6 +81,14 @@
       "digest": "sha256:5591d42a565f175a1f60ca7c56af8353bcc04746f4c01507d3c40d0171635eba"
     },
     {
+      "spec": "pose-common-domain-and-cli-mcp-handoff",
+      "category": "changed",
+      "breaking": false,
+      "body": "MCP tools no longer start the POSE binary for the two read-only operations whose\nsemantics the CLI package owns: `pose_suggest` and `pose_get_followups` run the\nsame command function in process, with the same results and errors, the same\ndeadline and cancellation handling (an execution failure, never a verdict) and no\nusage side effect. The gates (`pose_check`, `pose_skills_check`, `pose_lint_spec`)\nkeep the process boundary. Every MCP tool now has a declared route class, kept\nequal to the catalog by a test. `pose_closeout_state` with `include_plan` also\nreturns a typed handoff when the plan has steps left: the `pose close --apply`\ninvocation as structured arguments, the full plan digest and the other digests it was computed from, the target project and root, the\nauthority it needs and when it stops being valid; it executes nothing and is not\nan approval.",
+      "path": "pose-common-domain-and-cli-mcp-handoff.md",
+      "digest": "sha256:44531ebfdce7d6d7f6f7ac2296155a41cf4261989c9604ce419f2583dfdba831"
+    },
+    {
       "spec": "pose-community-claims-hold",
       "category": "fixed",
       "breaking": false,
@@ -369,6 +377,14 @@
       "digest": "sha256:dc57637ce52c2698fa4ebc494a2685eaf31e5a7882640514709906c5b266fd8c"
     },
     {
+      "spec": "pose-done-spec-keeps-its-sealed-plan",
+      "category": "fixed",
+      "breaking": false,
+      "body": "The approval of a spec that is the only member of a milestone with an exit gate stays valid when the spec turns done: the gate criterion remains in the plan of a done spec whose governing sealed bundle carries it, instead of dropping out and superseding the bundle. `pose close` also stops writing a checkpoint when the terminal verification of a done scope stops on an unknown governance read view, so the next reviewer is not shown an open defect that the next plan recomputes.",
+      "path": "pose-done-spec-keeps-its-sealed-plan.md",
+      "digest": "sha256:28c134bc2c757d69d8c7a6ac3cd387a7c9bd3cafedc3effab4de68c5eb73012c"
+    },
+    {
       "spec": "pose-effects-reported-for-what-they-did",
       "category": "fixed",
       "breaking": false,
@@ -543,6 +559,14 @@
       "body": "A milestone or roadmap stops verifying approved while the review of a child no longer stands: rejected, with lost attestation history, stale, or reopened under a done parent. It recovers with the child, with no reseal. Selection of the governing bundle honours replacement lineage, so retention no longer returns a bundle its replacement superseded, whatever the seal times say, and a `replaces` naming other content counts for nothing.",
       "path": "pose-review-approval-follows-children.md",
       "digest": "sha256:e3b4a649a92bb02bd0750df835599b17da6b8095503bbfa681ebcba2dbe5d732"
+    },
+    {
+      "spec": "pose-review-brief-states-the-conclusion-rules",
+      "category": "fixed",
+      "breaking": false,
+      "body": "The brief a delegated reviewer receives (`review-brief/4`) now states the rules the attestation preflight applies to a typed conclusion, so a draft that follows it is not refused for its shape: a passed judgment criterion carries a rationale, its evidence is a ref the bundle sealed, a finding criterion names a finding of the draft, structural facts are answered as mappings. `review-brief/3` still renders as before for the runs briefed with it. The Claude reviewer profile may now run read-only commands (Git reads, `go test`, `go vet`, the read-only checks), so it can reproduce the tests instead of citing file and line.",
+      "path": "pose-review-brief-states-the-conclusion-rules.md",
+      "digest": "sha256:ba4d64fd8c95b7b6395e987d53db874e8093f26d8aace6e907bc8a2a5dcd223b"
     },
     {
       "spec": "pose-review-disclosure-requires-proof",
