@@ -84,9 +84,9 @@
       "spec": "pose-common-domain-and-cli-mcp-handoff",
       "category": "changed",
       "breaking": false,
-      "body": "MCP tools no longer start the POSE binary for the two read-only operations whose\nsemantics the CLI package owns: `pose_suggest` and `pose_get_followups` run the\nsame command function in process, with the same results and errors, the same\ndeadline and cancellation handling (an execution failure, never a verdict) and no\nusage side effect. The gates (`pose_check`, `pose_skills_check`, `pose_lint_spec`)\nkeep the process boundary. Every MCP tool now has a declared route class, kept\nequal to the catalog by a test. `pose_closeout_state` with `include_plan` also\nreturns a typed handoff when the plan has steps left: the `pose close --apply`\ninvocation as structured arguments, the full plan digest and the other digests it was computed from, the target project and root, the\nauthority it needs and when it stops being valid; it executes nothing and is not\nan approval.",
+      "body": "MCP tools no longer start the POSE binary for the two read-only operations whose\nsemantics the CLI package owns: `pose_suggest` and `pose_get_followups` run the\nsame command function in process, with the same results and errors, the same\ndeadline and cancellation handling (an execution failure, never a verdict) and no\nusage side effect. The gates (`pose_check`, `pose_skills_check`, `pose_lint_spec`)\nkeep the process boundary. Every MCP tool now has a declared route class, kept\nequal to the catalog by a test. `pose_closeout_state` with `include_plan` also\nreturns a typed handoff when the plan has steps left: the `pose close --apply`\ninvocation as structured arguments, the full plan digest and the other digests it was computed from, the target project by its logical id and the digest of its root (never a path), the\nauthority it needs and when it stops being valid; it executes nothing and is not\nan approval.",
       "path": "pose-common-domain-and-cli-mcp-handoff.md",
-      "digest": "sha256:44531ebfdce7d6d7f6f7ac2296155a41cf4261989c9604ce419f2583dfdba831"
+      "digest": "sha256:473563076249763a8952368442f8a0a0533ffec90f4df9e499b47e81a87f70e9"
     },
     {
       "spec": "pose-community-claims-hold",
@@ -447,6 +447,14 @@
       "body": "Governance reads disclose which inputs they observed and report uncertainty when those inputs change during the operation. Participating writers coordinate evaluation and publication across the explicitly authorized roots they use. Historical reports remain readable; indexes without current input bindings require regeneration before they can support a current gate.",
       "path": "pose-governance-read-view-generation.md",
       "digest": "sha256:16a70a1cc9ec71c9e3ed814931ca47d21efde1b6a7f4c4c717559d2d586d9f94"
+    },
+    {
+      "spec": "pose-help-lists-every-command",
+      "category": "fixed",
+      "breaking": false,
+      "body": "`pose help` now lists every command the binary dispatches, in English and pt-BR: `setup`, `context`, `identity`, `issuer`, `adopt`, `migrate`, `specs`, `spec-format`, `start`, `action`, `assess`, `docs-check`, `docs-init`, `docs-review`, `docs-sync` and `release-package-manifests` were missing (and `public-claims` in pt-BR). A test reads the dispatch from the source and fails when a command is not advertised, and the manual's command reference now documents `action`, `issuer`, `migrate` and `release-package-manifests`.",
+      "path": "pose-help-lists-every-command.md",
+      "digest": "sha256:d8f8cbfa847e50c59e7010062dc776264b86c2d14df0d21184d05823e3b3d024"
     },
     {
       "spec": "pose-historical-trust-and-review-reuse",
