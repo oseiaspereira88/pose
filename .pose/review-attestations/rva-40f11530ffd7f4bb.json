@@ -1,0 +1,250 @@
+{
+  "run": {
+    "run_id": "rrn-c8abf19681d4e2b7",
+    "proof_id": "rrp-5e7b9dfcee92e6f95051992dc6da9658877b3d0e10c50b15f942a6dd165f081a"
+  },
+  "schema_version": 1,
+  "attestation_id": "rva-40f11530ffd7f4bb",
+  "bundle_id": "rvb-4dec858ea5a37ec0",
+  "bundle_digest": "sha256:4dec858ea5a37ec063a389ece78284f0b01b186e4a89dc5871a5c17fe70c3160",
+  "reviewer": "agent:anthropic/claude-opus-5-5",
+  "decision": "approved",
+  "criteria": [
+    {
+      "id": "assumption-integrity",
+      "disposition": "passed",
+      "evidence": "integration:pose-mcp/go/review-brief-templates-are-immutable-integration",
+      "rationale": "Examined the spec's Known gaps and Compatibility sections against the code. Verified: the digests are of today's renderings (re-run, both tests pass), and every version in reviewBriefEarlierTemplates plus the current one is recorded. Unresolved and accepted: the two earlier texts of review-brief/4 are not recorded; the spec relies on done scopes being verified as sealed rather than re-rendered. Accepted risk: a commit that changes both the text and the digest passes by design. Uncovered helper behaviour is in N1/N2."
+    },
+    {
+      "id": "backend-concurrency",
+      "disposition": "passed",
+      "evidence": "unit:pose-mcp/go/test",
+      "rationale": "The change is a test and a golden file with no concurrent code; the tests use no shared mutable state except the golden write, which happens only with UPDATE_BRIEF_GOLDEN; the matrix runs them under -race and so did I."
+    },
+    {
+      "id": "backend-contracts",
+      "disposition": "passed",
+      "evidence": "integration:pose-mcp/go/review-brief-templates-are-immutable-integration",
+      "rationale": "No runtime code changed in this spec's change set; the check itself proves that review-brief/1-4 render exactly what they rendered, so the brief contract is unchanged."
+    },
+    {
+      "id": "backend-input-errors",
+      "disposition": "passed",
+      "evidence": "integration:pose-mcp/go/review-brief-templates-are-immutable-integration",
+      "rationale": "The golden-file inputs are bounded: missing file, unreadable file and unparsable JSON each fail with a message (review_brief_versions_test.go:102,105,119,121), and recording refuses to overwrite a file it cannot parse."
+    },
+    {
+      "id": "backend-integration-impact",
+      "disposition": "passed",
+      "evidence": "integration:pose-mcp/go/delegated-review-capability-integration",
+      "rationale": "The renderer used by RenderReviewBriefMatching is unchanged; the delegated review and brief integration checks pass in the sealed bundle."
+    },
+    {
+      "id": "backend-observability",
+      "disposition": "passed",
+      "evidence": "integration:pose-mcp/go/review-brief-templates-are-immutable-integration",
+      "rationale": "Failure messages name the version, the got and recorded digests, and the fix (new version; record with UPDATE_BRIEF_GOLDEN=1; keep it in reviewBriefEarlierTemplates), and contain no sensitive data."
+    },
+    {
+      "id": "compatibility",
+      "disposition": "passed",
+      "evidence": "integration:pose-mcp/go/review-brief-templates-are-immutable-integration",
+      "rationale": "Examined the change set: no CLI, MCP or file contract changed; the only rule added is that a published template version's text is frozen, stated in POSE.md, the pt-BR manual and both scaffold copies. Concluded compatible."
+    },
+    {
+      "id": "correctness",
+      "disposition": "passed",
+      "evidence": "integration:pose-mcp/go/review-brief-templates-are-immutable-integration",
+      "rationale": "Ran go test -race for both tests (pass) and the full internal/pose suite (pass). Read the guard: mismatch, missing digest and dropped version all fail; renderFixedBriefs reaches the production code path renderReviewBriefBody with the same round/conclusion arguments renderReviewBriefAs uses per version."
+    },
+    {
+      "id": "design-causality",
+      "disposition": "passed",
+      "evidence": "structure:design-f0f55a04006a390d",
+      "rationale": "D1 (basis R1-R4) chose a golden digest checked by the build over a comment, because the cause was a rule that existed but was broken three times without the build noticing; the test fails at the moment of the change, which addresses that cause. The test renders through the same renderReviewBriefBody the runs use.",
+      "mappings": [
+        {
+          "delta": "SD-8c61a3e3",
+          "basis": "D1",
+          "disposition": "mapped",
+          "rationale": "Commit 44baa5b3 adds the check review-brief-templates-are-immutable-integration to validation-matrix.json, which runs the guard tests so the build enforces D1 (R1-R3 trace cites this check); the other added hunk (delegate-picker-integration) comes from commit cd4baef9 of pose-delegate-picker-and-claude-runs, which the review-check range warning attributes to other work."
+        }
+      ]
+    },
+    {
+      "id": "documentation",
+      "disposition": "passed",
+      "evidence": "integration:pose-mcp/go/distributed-instructions-parity-integration",
+      "rationale": "Compared the POSE.md, pt-BR and both scaffold diffs: each adds the same parenthetical that a template version's text is frozen by a golden digest, which matches the test's behaviour. The ADR mentioned in the spec's Affected areas is unchanged (N4)."
+    },
+    {
+      "id": "operability",
+      "disposition": "passed",
+      "evidence": "integration:pose-mcp/go/review-brief-templates-are-immutable-integration",
+      "rationale": "Read every t.Errorf/t.Fatalf in the test: each says what broke and what to do (take a new version, record once with UPDATE_BRIEF_GOLDEN=1, keep the version listed). Concluded actionable."
+    },
+    {
+      "id": "requirements",
+      "disposition": "passed",
+      "evidence": "integration:pose-mcp/go/review-brief-templates-are-immutable-integration",
+      "rationale": "R1 fixtures at test lines 26-82, R2 line 140, R3 line 136, R4 lines 100-110, R5 line 154; both tests pass under -race."
+    },
+    {
+      "id": "scope",
+      "disposition": "passed",
+      "evidence": "structure:design-f0f55a04006a390d",
+      "rationale": "The change set's files match the spec's ten artifacts exactly; no template text changed, as the non-functional requirement demands (the digests of today's rendering pass); adjudication/smoke are excluded as non-goals. The other files in the range belong to other specs per review-check."
+    },
+    {
+      "id": "security",
+      "disposition": "passed",
+      "evidence": "unit:pose-mcp/go/test",
+      "rationale": "Test-only code: a fixed relative testdata path, written only when UPDATE_BRIEF_GOLDEN is set, with no secrets and fixture-only data. No authority boundary changes. Concluded safe."
+    },
+    {
+      "id": "solution-proportionality",
+      "disposition": "passed",
+      "evidence": "structure:design-f0f55a04006a390d",
+      "rationale": "A single test plus a single JSON file of four digests, with no new runtime mechanism or extension points. The rejected minimal option (a comment) is shown insufficient by the history. The choice would be invalidated if text changed under one version and the build accepted it (D1's falsifier); N1/N2 name the remaining ways that can happen."
+    }
+  ],
+  "tools": [
+    {
+      "id": "artifact-check",
+      "disposition": "passed",
+      "evidence": "command:pose artifact-check --spec pose-review-brief-templates-are-immutable --strict",
+      "rationale": "Exit 0; 10 claims; the warnings are repo-wide orphans unrelated to this spec."
+    },
+    {
+      "id": "assess-design",
+      "disposition": "not-used",
+      "rationale": "The permission profile denied `pose assess design`; the bundle seals its structure evidence structure:design-f0f55a04006a390d, which I used for design-causality."
+    },
+    {
+      "id": "assess-discover",
+      "component": "pose-mcp",
+      "disposition": "not-used",
+      "rationale": "Recommended only; not run, because the permission profile denied the assess commands."
+    },
+    {
+      "id": "assess-integrate",
+      "disposition": "not-used",
+      "rationale": "Recommended only; not run, because the permission profile denied the assess commands; the sealed integration checks cover the boundary."
+    },
+    {
+      "id": "assess-tech-debt",
+      "disposition": "not-used",
+      "rationale": "Recommended only; not run, because the permission profile denied the assess commands."
+    },
+    {
+      "id": "closeout-check",
+      "disposition": "deferred",
+      "evidence": "command:pose closeout-check spec:pose-review-brief-templates-are-immutable",
+      "rationale": "Ran it: exit non-zero with '[ERROR] lifecycle status is not done' and next_action 'record or remediate a fresh review'. That is the expected state before this review is recorded, not a defect in the change; it can only pass after the conclusion is recorded and the spec closed."
+    },
+    {
+      "id": "review-check",
+      "disposition": "deferred",
+      "evidence": "command:pose review-check spec:pose-review-brief-templates-are-immutable",
+      "rationale": "Ran it: exit non-zero with review.approved=false, because no review is recorded yet (this one is pending), plus metadata warnings (component owner, unmapped governance paths, range spanning other specs' commits). It can only pass after this conclusion is recorded."
+    },
+    {
+      "id": "suggest-review",
+      "component": "pose-mcp",
+      "disposition": "not-used",
+      "rationale": "Recommended only; I read the change directly instead."
+    },
+    {
+      "id": "surface-check",
+      "disposition": "passed",
+      "evidence": "integration:pose-mcp/go/spec-surface-integration",
+      "rationale": "Ran it: surface.targets=1, surface.findings=0."
+    },
+    {
+      "id": "validate",
+      "disposition": "passed",
+      "evidence": "build:pose-mcp/go/build",
+      "rationale": "The permission profile denied re-running `pose validate`; the disposition rests on the sealed strict-validation evidence (all checks pass). I reproduced part of it: go vet and go test of internal/pose pass, and both spec tests pass under -race."
+    },
+    {
+      "id": "validate",
+      "component": "pose-mcp",
+      "disposition": "passed",
+      "evidence": "integration:pose-mcp/go/review-brief-templates-are-immutable-integration",
+      "rationale": "The permission profile denied re-running `pose validate --module pose-mcp`; the sealed module evidence passes, and I reproduced this spec's check with go test -race (pass)."
+    }
+  ],
+  "evidence_refs": [
+    "delegated-run:rrn-c8abf19681d4e2b7",
+    "integration:pose-mcp/go/delegated-review-capability-integration",
+    "integration:pose-mcp/go/distributed-instructions-parity-integration",
+    "integration:pose-mcp/go/review-brief-templates-are-immutable-integration",
+    "structure:design-f0f55a04006a390d",
+    "unit:pose-mcp/go/test"
+  ],
+  "findings": [
+    {
+      "id": "N1",
+      "severity": "low",
+      "evidence": "file:pose-mcp/internal/pose/review_brief_versions_test.go:73",
+      "action": "Add a backtick and repeated whitespace to the fixture's open finding summary and broken text, and record the digests under a new version only if the rendering changes",
+      "disposition": "accepted-risk",
+      "owner": "@pose-maintainers",
+      "rationale": "The open finding's summary, file and broken-draft text in the fixtures carry no backtick and no run of whitespace, so quoteLedgerText (review_rounds.go:577), which rewrites both, is never exercised: changing how it quotes earlier findings changes the round-2+ briefs of real runs (whose summaries often contain backticks) without moving the digest.",
+      "review_by": "2027-01-08"
+    },
+    {
+      "id": "N2",
+      "severity": "low",
+      "evidence": "file:pose-mcp/internal/pose/review_brief_versions_test.go:33",
+      "action": "Put the fixture criteria, entries, facts and evidence (at least two) out of order",
+      "disposition": "accepted-risk",
+      "owner": "@pose-maintainers",
+      "rationale": "The fixture criteria, subject entries, structural facts and evidence are already in sorted order (one evidence entry), so the sorts in renderReviewBriefBody (review_brief.go:278, 310, 349, 363) are not under the digest: dropping or changing a comparator would reorder real briefs without moving the digest.",
+      "review_by": "2027-01-08"
+    },
+    {
+      "id": "N3",
+      "severity": "low",
+      "evidence": "file:pose-mcp/internal/pose/review_brief.go:257",
+      "action": "Extend the golden digests to the adjudication and smoke templates and the handoff renderers with a fixed script, questions and predecessor run, as the spec's follow-up states",
+      "disposition": "accepted-risk",
+      "owner": "@pose-maintainers",
+      "rationale": "The adjudication and smoke wording in renderReviewBriefBody (lines 257-260, 284-305, 388-418) and the versioned delegation handoff renderers are not under any golden digest, so adjudication-brief/1-2 and smoke-brief/1-2 can still change text under one version; this is the spec's declared non-goal and open follow-up.",
+      "review_by": "2027-01-08"
+    },
+    {
+      "id": "N4",
+      "severity": "low",
+      "evidence": "file:.pose/specs/2026-11-09-pose-review-brief-templates-are-immutable.md:63",
+      "action": "Either drop the ADR from Affected areas at closeout or record the immutability rule in the ADR under a declared artifact",
+      "disposition": "accepted-risk",
+      "owner": "@pose-maintainers",
+      "rationale": "Affected areas names 'the ADR on delegated review conclusions', but no ADR is in the Artifacts list or changed in the range; the rule is only stated in the manual.",
+      "review_by": "2027-01-08"
+    }
+  ],
+  "authority": {
+    "schema_version": 1,
+    "project": "proj.pose-dist",
+    "bundle_digest": "sha256:4dec858ea5a37ec063a389ece78284f0b01b186e4a89dc5871a5c17fe70c3160",
+    "principal": "agent:anthropic/claude-opus-5-5",
+    "role": "agent",
+    "review_execution": "rrn-c8abf19681d4e2b7",
+    "implementation_principal": "agent:anthropic/claude-sonnet-5-5",
+    "implementation_execution": "sha256:675189f7e0b769255994f8213acf8b1b57174c4353838cd875cdabd46aa9cc0b",
+    "issuer": "b34-local-executor",
+    "issued_at": "2026-11-09T12:25:56Z",
+    "audience": "proj.pose-dist"
+  },
+  "envelope": {
+    "issuer": "b34-local-executor",
+    "subject": "rvb-4dec858ea5a37ec0",
+    "algorithm": "ed25519",
+    "public_key": "ck4sApdfePV2GT+hJyAYfJd2qLzeG55P8pevGR0bvZE=",
+    "signature": "dsE+N/DpY7JntSQI8kA1xAVxcQpIO56CpU9fulmfJxXQQjzDRpxo/tLkOObz8ivuu/fpzRCDje68HkUf+Uo9Cw=="
+  },
+  "attested_at": "2026-11-09T12:25:56Z",
+  "path": ".pose/review-attestations/rva-40f11530ffd7f4bb.json"
+}
