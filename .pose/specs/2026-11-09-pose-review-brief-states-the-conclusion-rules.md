@@ -74,6 +74,8 @@ Reviews by Claude Opus 5.5 were refused four times by the preflight although the
 - modified: pose-mcp/internal/pose/review_conclusions.go
 - modified: pose-mcp/internal/pose/review_brief_test.go
 - created: pose-mcp/internal/pose/review_brief_conclusion_rules_test.go
+- modified: pose-mcp/internal/pose/review_brief_versions_test.go
+- modified: pose-mcp/internal/pose/testdata/review_brief_template_digests.json
 - modified: POSE.md
 - modified: locales/pt-BR/POSE.md
 - modified: pose-mcp/internal/scaffold/dist/POSE.md
