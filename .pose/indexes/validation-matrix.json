@@ -2597,6 +2597,20 @@
           "evidenceClass": "integration"
         },
         {
+          "name": "review-brief-templates-are-immutable-integration",
+          "program": "go",
+          "args": [
+            "test",
+            "-race",
+            "./internal/pose",
+            "-run",
+            "TestEveryReviewBriefTemplateVersion|TestAChangeToTheTextOfATemplateVersion",
+            "-count=1"
+          ],
+          "severity": "required",
+          "evidenceClass": "integration"
+        },
+        {
           "name": "delegated-approval-survives-routine-drift-integration",
           "program": "go",
           "args": [
