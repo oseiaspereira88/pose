@@ -56,16 +56,27 @@ type ReviewBrief struct {
 // (spec pose-delegated-review-round-protocol), and the one before it, kept so
 // a run briefed with it still verifies.
 const (
-	reviewBriefTemplateConclusions = "review-brief/3"
-	reviewBriefTemplateRounds      = "review-brief/2"
-	reviewBriefTemplateFirst       = "review-brief/1"
+	// reviewBriefTemplateConclusions is the current template: it asks for the typed
+	// conclusion and states the rules the engine checks before it records one (spec
+	// pose-review-brief-states-the-conclusion-rules).
+	reviewBriefTemplateConclusions = "review-brief/4"
+	// reviewBriefTemplateTypedConclusion asked for the conclusion without stating
+	// those rules; kept so a run briefed with it still verifies and concludes.
+	reviewBriefTemplateTypedConclusion = "review-brief/3"
+	reviewBriefTemplateRounds          = "review-brief/2"
+	reviewBriefTemplateFirst           = "review-brief/1"
 )
+
+// reviewBriefAsksConclusion reports a template that asks for the typed conclusion.
+func reviewBriefAsksConclusion(template string) bool {
+	return template == reviewBriefTemplateConclusions || template == reviewBriefTemplateTypedConclusion
+}
 
 // reviewBriefEarlierTemplates are the review templates a run may have been
 // briefed with before the current one, newest first; a run briefed with one
 // is re-rendered with it to verify and to continue (the brief a run was sent
 // never changes under it).
-var reviewBriefEarlierTemplates = []string{reviewBriefTemplateRounds, reviewBriefTemplateFirst}
+var reviewBriefEarlierTemplates = []string{reviewBriefTemplateTypedConclusion, reviewBriefTemplateRounds, reviewBriefTemplateFirst}
 
 // briefEarlierTemplates are, per kind, the templates a run may have been
 // briefed with before the current one, newest first.
@@ -151,7 +162,7 @@ func (s Store) renderReviewBriefAs(target, kind, notes, version string) (ReviewB
 		smoke = &script
 	}
 	var round *ReviewRound
-	if template == reviewBriefTemplateRounds || template == reviewBriefTemplateConclusions {
+	if template == reviewBriefTemplateRounds || reviewBriefAsksConclusion(template) {
 		derived, err := s.ReviewRoundOf(bundle)
 		if err != nil {
 			return ReviewBrief{}, err
@@ -166,7 +177,7 @@ func (s Store) renderReviewBriefAs(target, kind, notes, version string) (ReviewB
 		}
 		questions = asked
 	}
-	body := renderReviewBriefBody(bundle, kind, template, notes, smoke, round, template == reviewBriefTemplateConclusions, questions)
+	body := renderReviewBriefBody(bundle, kind, template, notes, smoke, round, reviewBriefAsksConclusion(template), questions)
 	sum := sha256.Sum256([]byte(body))
 	digest := "sha256:" + hex.EncodeToString(sum[:])
 	return ReviewBrief{Kind: kind, TemplateVersion: template, Scope: bundle.Payload.Scope.Ref, BundleID: bundle.BundleID,
@@ -416,6 +427,9 @@ func renderReviewBriefBody(bundle ReviewBundle, kind, template, notes string, sm
 		line("%d. At the end, the draft POSE reads: one fenced block opened with ```pose-draft holding a JSON object with `schema` %q, `decision` (the decision above), `findings` (each with `id`, `severity` high|medium|low, `disposition` blocker|follow-up, `file`, `line` and `summary`)%s. Everything outside the block is yours and is not read.", next, ReviewDraftSchema, roundFields(*round))
 		if conclusion {
 			line("%d. In the same block, the conclusion POSE records as the attestation: `criteria` (one entry per criterion above, each with `id`, `disposition` passed|finding|not-applicable, `evidence` as `<class>:<ref>` — a class the criterion asks for when it names one — and `rationale` for not-applicable), and `tools` (one entry per tool above, each with `id`, `component` when it has one, `disposition`, `evidence` and `rationale`). A follow-up finding that should be accepted as a risk carries `action`, `owner` and `review_by`; any other finding stays open. A criterion or tool you do not answer is not answered for you.", next+1)
+			if template == reviewBriefTemplateConclusions {
+				line("%d. POSE checks the conclusion before it records it, and refuses the whole draft when one rule breaks: (a) a `passed` criterion of kind judgment carries a `rationale` saying what you examined and what you concluded; (b) the `evidence` of a `passed` criterion is exactly one of the refs listed under Sealed evidence (`<class>:<id>`, of a class the criterion asks for when it names one), never a file and line, a command or a structural fact id: those go in a finding or in the `rationale`; (c) a criterion disposed `finding` carries as its `evidence` the `id` of a finding listed in `findings`, and that finding is open until you give it `action`, `owner` and `review_by`; (d) each structural fact listed above is answered by the criterion that asks for structural mapping, as its `mappings`: `[{\"delta\": <fact id>, \"basis\": <requirement or decision ref>, \"disposition\": \"mapped\", \"rationale\": <why>}]`, or `not-applicable` with the reason; (e) a `not-applicable` carries a `rationale` and is refused when the bundle seals evidence of a class the criterion asks for; (f) every required criterion and every tool above is answered; (g) the `disposition` of a tool is `passed`, `failed`, `not-used` or `deferred`, never anything else (`not-run` is refused); a tool listed as required must be run and `passed`, with the ref of the sealed evidence it produced as `evidence` when it names classes, and `not-used` is accepted for a required tool only when the plan says no producer exists; a recommended tool you did not run is `not-used` with a `rationale`.", next+2)
+			}
 		}
 	}
 	return b.String()

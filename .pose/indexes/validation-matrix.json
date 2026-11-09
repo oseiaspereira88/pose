@@ -2597,6 +2597,20 @@
           "evidenceClass": "integration"
         },
         {
+          "name": "review-brief-conclusion-rules-integration",
+          "program": "go",
+          "args": [
+            "test",
+            "-race",
+            "./internal/pose",
+            "-run",
+            "TheBriefStatesEveryRule|AnEarlierConclusionBrief|ReviewBriefIsRenderedFromTheBundle|TheClaudeReviewerProfile",
+            "-count=1"
+          ],
+          "severity": "required",
+          "evidenceClass": "integration"
+        },
+        {
           "name": "done-spec-keeps-its-sealed-plan-integration",
           "program": "go",
           "args": [

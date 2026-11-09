@@ -213,7 +213,7 @@ func findingEvidence(f ReviewDraftFinding) string {
 // it. A run briefed with an earlier template carried no typed conclusion and
 // binds only its decision, as before (review round 1, B1; decision D1).
 func runConclusionDiffers(run ReviewRun, bundle ReviewBundle, att ReviewAttestation) string {
-	if run.Provenance == nil || run.Provenance.TemplateVersion != reviewBriefTemplateConclusions {
+	if run.Provenance == nil || !reviewBriefAsksConclusion(run.Provenance.TemplateVersion) {
 		return ""
 	}
 	draft, err := ParseReviewDraft(run.Output)
