@@ -1,8 +1,8 @@
 ---
 slug: pose-done-spec-keeps-its-sealed-plan
-status: in-progress
+status: done
 created_at: 2026-11-08
-completed_at:
+completed_at: 2026-11-09
 supersedes:
 depends_on: pose-milestone-review-proportional
 remediates:
