@@ -58,7 +58,7 @@ func TestAnEarlierConclusionBriefStillRendersWithoutTheRules(t *testing.T) {
 	if err != nil {
 		t.Fatal(err)
 	}
-	if current.TemplateVersion != "review-brief/4" || earlier.TemplateVersion != "review-brief/3" {
+	if current.TemplateVersion != "review-brief/5" || earlier.TemplateVersion != "review-brief/3" {
 		t.Fatalf("templates: %s %s", current.TemplateVersion, earlier.TemplateVersion)
 	}
 	if strings.Contains(earlier.Text, "POSE checks the conclusion before it records it") {
@@ -117,5 +117,21 @@ func TestTheClaudeReviewerProfileAllowsOnlyReadOnlyCommands(t *testing.T) {
 				t.Errorf("command %d allows %q, a verb that writes", i, verb)
 			}
 		}
+	}
+}
+
+// A round after the first tells the reviewer how to name the findings it accounts for: the
+// preflight refuses a draft whose prior_findings use a bare identifier ("prior finding id F1
+// is not a unique carried identifier"), and only the brief of a later round can say so.
+func TestTheBriefOfALaterRoundStatesTheIdentifiersOfPriorFindings(t *testing.T) {
+	text := renderReviewBriefBody(fixedBriefBundle(), ReviewBriefKindReview, reviewBriefTemplates[ReviewBriefKindReview], "", nil, &ReviewRound{Number: 2}, true, nil)
+	for _, phrase := range []string{"the identifier listed under Findings to account for, which carries its round, for example R2-F1, never a bare F1", "a finding you report now takes an `id` that no earlier round used"} {
+		if !strings.Contains(text, phrase) {
+			t.Errorf("the brief of round 2 does not state the rule behind \"prior finding id is not a unique carried identifier\": %q", phrase)
+		}
+	}
+	earlier := renderReviewBriefBody(fixedBriefBundle(), ReviewBriefKindReview, reviewBriefTemplateConclusions, "", nil, &ReviewRound{Number: 2}, true, nil)
+	if strings.Contains(earlier, "never a bare F1") {
+		t.Error("review-brief/4 changed under its version: the rule belongs to review-brief/5")
 	}
 }

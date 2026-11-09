@@ -87,7 +87,7 @@ func briefTemplateDigest(template string) string {
 }
 
 func briefTemplatesInUse() []string {
-	versions := append([]string{reviewBriefTemplateConclusions}, reviewBriefEarlierTemplates...)
+	versions := append([]string{reviewBriefTemplates[ReviewBriefKindReview]}, reviewBriefEarlierTemplates...)
 	sort.Strings(versions)
 	return versions
 }
