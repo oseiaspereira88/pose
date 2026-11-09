@@ -1,8 +1,8 @@
 ---
 slug: pose-common-domain-and-cli-mcp-handoff
-status: in-progress
+status: done
 created_at: 2026-10-14
-completed_at:
+completed_at: 2026-11-09
 depends_on: pose-cli-mcp-operation-results, pose-writer-coordination-and-atomic-publication, pose-governance-read-view-generation, pose-recoverable-closeout-plan, pose-mcp-active-context, pose-safe-validate-orchestration
 priority: 2
 components: pose-mcp
