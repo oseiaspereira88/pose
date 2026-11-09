@@ -35,3 +35,23 @@ the project and audience review policy protects, the sealed scope, kind,
 bundle and commit, the adapter, the brief, the output and the transcript.
 A proof of one project's run cannot verify in another project, and a proof
 of one bundle cannot approve another.
+
+## Amendment 2026-11-09: a done scope's approval is verified as sealed
+
+Spec `pose-delegated-approval-survives-routine-drift`. Verifying a run proof asks whether
+the run still governs its scope as the repository is now. That is the right question for a
+live scope and for issuing a proof, and no completed scope can answer it once anything it
+sealed changed: five specs closed with a delegated review read unreviewed a day later,
+because a file they sealed (`validation-matrix.json`, `POSE.md`) was edited by another spec.
+A person's attestation was already retained over such drift.
+
+For a scope that is done, the approval a run backed is verified as it was given: the proof's
+signature under an issuer that still holds its pin, the project and audience, the exact run
+record, output, transcript and provenance it binds, the order of run, proof and attestation,
+a completed and complete draft, no superseding run, the persisted record equal to the copy,
+an intact transcript, and the bundle the run names readable with the digest, scope and
+sealed commit it recorded. It does not ask whether the bundle equals what the scope prepares
+today, whether the persisted inputs materialize in the working tree, whether the policy and
+adapter are the run's, or whether the brief renders to the same bytes under today's
+templates. A live scope keeps all of those, and so does the issuing of a proof. Retention
+ends by revoking the issuer's pin, by altering the record, or by reopening the scope.

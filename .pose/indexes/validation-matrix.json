@@ -2597,6 +2597,20 @@
           "evidenceClass": "integration"
         },
         {
+          "name": "delegated-approval-survives-routine-drift-integration",
+          "program": "go",
+          "args": [
+            "test",
+            "-race",
+            "./internal/pose",
+            "-run",
+            "ADelegatedApproval|ARetainedDelegatedApproval|TheAssuranceOfARetained|ConcludeReviewRunRecordsTheAttestation",
+            "-count=1"
+          ],
+          "severity": "required",
+          "evidenceClass": "integration"
+        },
+        {
           "name": "help-lists-every-command-integration",
           "program": "go",
           "args": [

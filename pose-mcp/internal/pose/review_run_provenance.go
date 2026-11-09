@@ -558,13 +558,107 @@ func (s Store) verifyRunProof(proof ReviewRunProof, run ReviewRun, now time.Time
 	if run.Status == ReviewRunCompleted && (!p.WireComplete || !p.OutputComplete || strings.TrimSpace(run.Output) == "") {
 		return fail("truncated or incomplete draft cannot establish completed review")
 	}
+	return runAssuranceFrom(run, proof, bundle, implementation, reviewer), nil
+}
+
+// runAssuranceFrom is what a verified run says about who reviewed and how independently.
+func runAssuranceFrom(run ReviewRun, proof ReviewRunProof, bundle ReviewBundle, implementation, reviewer ModelIdentity) ReviewRunAssurance {
+	c, p := proof.Claim, run.Provenance
 	decision := draftReviewDecision(run.Output)
 	source := "policy"
 	if impl := bundle.Payload.Implementation; impl != nil {
 		source = impl.Source
 	}
-	return ReviewRunAssurance{IndependenceAchieved: AchievedIndependence(implementation.Vendor, implementation.Model, reviewer.Vendor, reviewer.Model), ImplementationSource: source, DraftDecision: decision, ProofIssuedAt: c.IssuedAt, ProofExpiresAt: c.ExpiresAt, State: run.Status, CompleteReview: run.Status == ReviewRunCompleted && p.WireComplete && p.OutputComplete && decision != "unknown" && len(run.DraftProblems) == 0, Assurance: ReviewRunMachineAttested, RunID: run.RunID, ProofID: proof.ProofID, Issuer: proof.Issuer, Reviewer: reviewer, Implementation: implementation, IdentitySource: "native-issuer-signed-executor-declaration", VendorDifference: AchievedIndependence(implementation.Vendor, implementation.Model, reviewer.Vendor, reviewer.Model) == IndependenceDifferentVendor, ModelDifference: knownIdentityPart(implementation.Model) && knownIdentityPart(reviewer.Model) && reviewer.Model != implementation.Model, OutputComplete: p.OutputComplete, Limitations: []string{"executor-declaration-not-independent-vendor-receipt", "raw-bytes-hashed-by-executor-redacted-artifacts-retained", ReviewLimitationIssuerTruthfulness, ReviewLimitationCognitive}}, nil
+	return ReviewRunAssurance{IndependenceAchieved: AchievedIndependence(implementation.Vendor, implementation.Model, reviewer.Vendor, reviewer.Model), ImplementationSource: source, DraftDecision: decision, ProofIssuedAt: c.IssuedAt, ProofExpiresAt: c.ExpiresAt, State: run.Status, CompleteReview: run.Status == ReviewRunCompleted && p.WireComplete && p.OutputComplete && decision != "unknown" && len(run.DraftProblems) == 0, Assurance: ReviewRunMachineAttested, RunID: run.RunID, ProofID: proof.ProofID, Issuer: proof.Issuer, Reviewer: reviewer, Implementation: implementation, IdentitySource: "native-issuer-signed-executor-declaration", VendorDifference: AchievedIndependence(implementation.Vendor, implementation.Model, reviewer.Vendor, reviewer.Model) == IndependenceDifferentVendor, ModelDifference: knownIdentityPart(implementation.Model) && knownIdentityPart(reviewer.Model) && reviewer.Model != implementation.Model, OutputComplete: p.OutputComplete, Limitations: []string{"executor-declaration-not-independent-vendor-receipt", "raw-bytes-hashed-by-executor-redacted-artifacts-retained", ReviewLimitationIssuerTruthfulness, ReviewLimitationCognitive}}
 }
+
+// VerifyReviewRunProofAsSealed verifies a signed run proof as the approval it backed was
+// given: what the proof and the run record say, and that the record still stands (the run
+// completed and complete, not superseded, the persisted record and the transcript intact,
+// the bundle it reviewed readable with the digest it recorded). It does not ask whether the
+// run still governs the repository as it is now, nor re-render the brief, nor compare the
+// current adapter policy: those are the questions of a live scope, and a scope that is done
+// keeps the approval it was closed with, as a person's attestation always has (spec
+// pose-delegated-approval-survives-routine-drift). The issuer must still hold its pin.
+func (s Store) VerifyReviewRunProofAsSealed(id, proofID string) (ReviewRunAssurance, error) {
+	s = s.reviewOperation()
+	run, e := s.LoadProvenanceReviewRun(id)
+	if e != nil {
+		return ReviewRunAssurance{}, e
+	}
+	rel, e := runProofPath(id, proofID)
+	if e != nil {
+		return ReviewRunAssurance{}, e
+	}
+	var proof ReviewRunProof
+	if e = readLedgerJSONIn(s.fsys(), filepath.Join(s.Root, rel), &proof); e != nil {
+		return ReviewRunAssurance{}, e
+	}
+	if proof.ProofID != proofID {
+		return ReviewRunAssurance{}, fmt.Errorf("run proof filename identity differs")
+	}
+	return s.verifyRunProofAsSealed(proof, run)
+}
+
+func (s Store) verifyRunProofAsSealed(proof ReviewRunProof, run ReviewRun) (ReviewRunAssurance, error) {
+	fail := func(message string) (ReviewRunAssurance, error) {
+		return ReviewRunAssurance{}, fmt.Errorf("run provenance: %s", message)
+	}
+	if _, e := s.verifyRunProofCore(proof, run); e != nil {
+		return ReviewRunAssurance{}, e
+	}
+	c, p := proof.Claim, run.Provenance
+	end, e := time.Parse(time.RFC3339Nano, run.EndedAt)
+	issued, e2 := time.Parse(time.RFC3339Nano, c.IssuedAt)
+	if e != nil || e2 != nil || issued.Before(end) {
+		return fail("proof predates the ended run")
+	}
+	if why := s.ReviewRunRecordStands(run); why != "" {
+		return fail(why)
+	}
+	bundle, e := s.LoadReviewBundle(run.BundleID)
+	if e != nil {
+		return fail("the reviewed bundle cannot be read")
+	}
+	recorded, recordErr := normalizeModelIdentity(ModelIdentity{Principal: p.Reviewer.Principal, Vendor: run.Vendor, Model: run.Model})
+	if recordErr != nil || recorded != p.Reviewer {
+		return fail("reviewer identity differs or is unknown")
+	}
+	if !validProofDigest(p.WorktreeDigest) {
+		return fail("the origin worktree of the run is not recorded")
+	}
+	switch p.ExecutionState {
+	case "started":
+		if !validProofDigest(p.ArgvDigest) || !validProofDigest(p.ExecutableDigest) || !validProofDigest(p.RawTranscriptDigest) || !validProofDigest(p.RawOutputDigest) {
+			return fail("execution or original-byte digests missing")
+		}
+		if p.WireComplete && (p.WireBytes < 0 || p.WireDigest != p.PlannedWireDigest) {
+			return fail("complete stdin claim is inconsistent")
+		}
+	case "not-started":
+		if p.WireBytes != 0 || p.WireComplete || p.WireDigest != "" || run.Status == ReviewRunCompleted || run.Status == ReviewRunInterrupted {
+			return fail("unstarted audit claims an executed or transmitted review")
+		}
+	default:
+		return fail("unknown execution observation")
+	}
+	if run.Status == ReviewRunCompleted && (!p.WireComplete || !p.OutputComplete || strings.TrimSpace(run.Output) == "") {
+		return fail("truncated or incomplete draft cannot establish completed review")
+	}
+	return runAssuranceFrom(run, proof, bundle, p.Implementation, p.Reviewer), nil
+}
+
+// runApprovalAsSealed reports whether a run-backed approval of this bundle is verified as it
+// was given: the scope it approved is done.
+func (s Store) runApprovalAsSealed(bundle ReviewBundle) bool {
+	ref, err := ParseScopeRef(bundle.Payload.Scope.Ref)
+	if err != nil {
+		return false
+	}
+	done, err := s.scopeLifecycleDone(ref)
+	return err == nil && done
+}
+
 func validProofDigest(value string) bool {
 	return regexp.MustCompile(`^sha256:[0-9a-f]{64}$`).MatchString(value)
 }
@@ -576,7 +670,13 @@ func (s Store) verifyRunReviewReference(bundle ReviewBundle, att ReviewAttestati
 	if att.Run == nil {
 		return ReviewRunAssurance{}, fmt.Errorf("signed run reference is missing")
 	}
-	assurance, e := s.VerifyReviewRunProof(att.Run.RunID, att.Run.ProofID)
+	var assurance ReviewRunAssurance
+	var e error
+	if s.runApprovalAsSealed(bundle) {
+		assurance, e = s.VerifyReviewRunProofAsSealed(att.Run.RunID, att.Run.ProofID)
+	} else {
+		assurance, e = s.VerifyReviewRunProof(att.Run.RunID, att.Run.ProofID)
+	}
 	if e != nil {
 		return assurance, e
 	}

@@ -1024,6 +1024,8 @@ Use `--wait-until-reset[=<duration>]` to wait once for a recorded reset, plus at
 
 ### Verify signed delegated run provenance
 
+Once a scope is done, the approval a delegated run backed is verified as it was sealed: the proof's signature under an issuer that still holds its pin, the exact run record, transcript and bundle it binds, and that no later run superseded it. It is not re-verified against the repository as it is now, so a later change to a file the review sealed (the validation matrix, this manual) does not unseat it; revoking the issuer's pin, altering the record or reopening the scope does. An open scope keeps the live checks.
+
 Declare the executor and implementation baseline before dispatch. A bundle that records its implementation identity is compared with that identity: `provenance.implementation` is read only for bundles sealed before bundles recorded it, and a dispatch warns when the policy still declares it for a later bundle. A run-backed different-actor attestation needs the sealed identity to name a known vendor and the sealing session's execution; seal from the implementing session, or with `--lead`, and read the seal's warnings. `verify` and the closeout disclose the identity's source and the independence the run achieved. Add `provenance` to the delegation policy and an `executor` agent principal to every agent. A schema 1 policy takes the same fields on its adapters, as below. The following identities are synthetic examples; record the real declared baseline rather than inferring it from a reviewer name:
 
 ```json

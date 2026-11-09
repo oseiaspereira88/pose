@@ -1487,7 +1487,11 @@ func (s Store) dispatchNoLongerGoverns(plan DispatchPlan) string {
 	return ""
 }
 
-func (s Store) ReviewRunStillGoverns(run ReviewRun) string {
+// ReviewRunRecordStands says why the record of a completed run no longer stands, or "": the
+// run completed with a safe record, no other run superseded it, the persisted record is the
+// copy in hand, its transcript is intact and the bundle it names reads with the digest, scope
+// and sealed commit it recorded. It asks nothing of the repository as it is now.
+func (s Store) ReviewRunRecordStands(run ReviewRun) string {
 	if why := reviewSafetyConflict(run); why != "" {
 		return why
 	}
@@ -1522,6 +1526,24 @@ func (s Store) ReviewRunStillGoverns(run ReviewRun) string {
 	if why := s.reviewRunTranscriptIntact(*persisted); why != "" {
 		return why
 	}
+	bundle, err := s.LoadReviewBundle(run.BundleID)
+	if err != nil {
+		return "the bundle of the run can no longer be read: " + err.Error()
+	}
+	// The record says what it reviewed; what it says must be what the bundle is.
+	if run.BundleDigest != bundle.BundleDigest || run.Scope != bundle.Payload.Scope.Ref || run.SealedCommit != bundle.Payload.Subject.Head {
+		return "the run record does not describe the bundle it names (bundle digest, scope or sealed commit differ)"
+	}
+	return ""
+}
+
+// ReviewRunStillGoverns says why a run no longer governs its scope as the repository is now,
+// or "": its record stands, Git answers, the persisted review inputs still materialize and the
+// bundle it reviewed is still what the scope prepares.
+func (s Store) ReviewRunStillGoverns(run ReviewRun) string {
+	if why := s.ReviewRunRecordStands(run); why != "" {
+		return why
+	}
 	if _, err := dispatchWorktreeIdentity(s.Root); err != nil {
 		return "origin Git identity unknown: " + err.Error()
 	}
@@ -1531,10 +1553,6 @@ func (s Store) ReviewRunStillGoverns(run ReviewRun) string {
 	bundle, err := s.LoadReviewBundle(run.BundleID)
 	if err != nil {
 		return "the bundle of the run can no longer be read: " + err.Error()
-	}
-	// The record says what it reviewed; what it says must be what the bundle is.
-	if run.BundleDigest != bundle.BundleDigest || run.Scope != bundle.Payload.Scope.Ref || run.SealedCommit != bundle.Payload.Subject.Head {
-		return "the run record does not describe the bundle it names (bundle digest, scope or sealed commit differ)"
 	}
 	if err := verifyBundleMaterialization(s.Root, bundle); err != nil {
 		return "persisted review inputs no longer materialize: " + err.Error()

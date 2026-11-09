@@ -1034,6 +1034,8 @@ Use `--wait-until-reset[=<duração>]` para esperar uma vez pelo reset registrad
 
 ### Verificar proveniência assinada de runs delegados
 
+Quando um scope está done, a aprovação que um run delegado sustentou é verificada como foi selada: a assinatura da prova por um issuer que ainda mantém seu pin, o registro do run, a transcrição e o bundle exatos a que ela se liga, e que nenhum run posterior a substituiu. Ela não é reverificada contra o repositório como ele está agora, então uma mudança posterior em um arquivo que a revisão selou (a matriz de validação, este manual) não a derruba; revogar o pin do issuer, alterar o registro ou reabrir o scope derruba. Um scope aberto mantém as verificações vivas.
+
 Declare executor e baseline de implementação antes do dispatch. Um bundle que registra a identidade da implementação é comparado com essa identidade: `provenance.implementation` só é lido para bundles selados antes de os bundles a registrarem, e um dispatch avisa quando a policy ainda a declara para um bundle posterior. Uma atestação different-actor apoiada em run exige que a identidade selada nomeie um vendor conhecido e a execução da sessão que selou; sele a partir da sessão que implementou, ou com `--lead`, e leia os avisos do selo. `verify` e o closeout divulgam a origem da identidade e a independência que o run alcançou. Acrescente `provenance` na policy de delegação e um principal agente `executor` em cada agente. Uma policy schema 1 recebe os mesmos campos nos adapters, como abaixo. As identidades abaixo são exemplos sintéticos; registre a baseline real declarada, sem inferi-la pelo nome do revisor:
 
 ```json
