@@ -38,7 +38,7 @@ A run records the digest of the brief it was sent and its proof signs it, so the
 
 ### Functional
 
-- R1: Every review brief template version in use (the current one and every earlier one a run may have been briefed with) shall have a recorded digest of the text it renders from fixed bundles that carry every kind of content a brief renders: bare, with implementer notes, structural facts (one shared with another spec) and a tool scoped to a component, and as the second round with an open finding of the first.
+- R1: Every review brief template version in use (the current one and every earlier one a run may have been briefed with) shall have a recorded digest of the text it renders from fixed bundles that carry every kind of content a brief renders: bare, with implementer notes, structural facts (one shared with another spec) and a tool scoped to a component, and as the second round with its predecessor run and bundle, an unreadable draft and an open finding, and as a third round with nothing open; with a renamed entry, an optional criterion and notes that carry a fence.
 - R2: A test shall fail when a version renders text whose digest differs from the recorded one, and its message shall say that a change to the text takes a new version.
 - R3: A version in use without a recorded digest shall fail the test, so a new version cannot be published unrecorded.
 - R4: Recording a digest shall never rewrite one already recorded.

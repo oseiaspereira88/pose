@@ -52,6 +52,8 @@ func richBriefBundle() ReviewBundle {
 		{ID: "SD-bbbb2222", Kind: "api-contract", Action: "added", Subject: "an endpoint", SharedWith: []string{"other-spec"}},
 	}}
 	bundle.Payload.Plan.Tools = append(bundle.Payload.Plan.Tools, ReviewPlanTool{ID: "assess-discover", Component: "core", Requiredness: "recommended", Args: []string{"pose", "assess", "discover"}})
+	bundle.Payload.Subject.Entries = append(bundle.Payload.Subject.Entries, ReviewBundleSubjectEntry{Action: "renamed", OldPath: "core/old.go", NewPath: "core/new.go", Class: "source", Reason: "moved"})
+	bundle.Payload.Plan.Criteria = append(bundle.Payload.Plan.Criteria, ReviewPlanCriterion{ID: "documentation", Description: "The docs say it.", Required: false, Kind: ReviewCriterionKindMechanical})
 	return bundle
 }
 
@@ -63,11 +65,18 @@ func renderFixedBriefs(template string) string {
 	var out []string
 	rounds := []*ReviewRound{nil}
 	if template != reviewBriefTemplateFirst {
-		rounds = []*ReviewRound{{Number: 1}, {Number: 2, Open: []ReviewOpenFinding{{ID: "B1", Round: 1, Severity: "medium", Disposition: "blocker", File: "core/a.go", Line: 3, Summary: "a defect", Carried: "F1"}}}}
+		prior := &ReviewRun{RunID: "rrn-prior0000000001", BundleID: "rvb-prior0000000001", Output: "decision: changes-requested"}
+		priorBundle := fixedBriefBundle()
+		priorBundle.Payload.Subject.Head = "0123456789abcdef0123456789abcdef01234567"
+		rounds = []*ReviewRound{
+			{Number: 1},
+			{Number: 2, Prior: prior, PriorBundle: &priorBundle, Broken: "a draft of round 1 could not be read", Open: []ReviewOpenFinding{{ID: "B1", Round: 1, Severity: "medium", Disposition: "blocker", File: "core/a.go", Line: 3, Summary: "a defect", Carried: "F1"}}},
+			{Number: 3},
+		}
 	}
 	for _, round := range rounds {
 		out = append(out, renderReviewBriefBody(fixedBriefBundle(), ReviewBriefKindReview, template, "", nil, round, conclusion, nil))
-		out = append(out, renderReviewBriefBody(richBriefBundle(), ReviewBriefKindReview, template, "Implementer note.\nSecond line.", nil, round, conclusion, nil))
+		out = append(out, renderReviewBriefBody(richBriefBundle(), ReviewBriefKindReview, template, "Implementer note.\n```\na fence in the notes\n```\nSecond line.", nil, round, conclusion, nil))
 	}
 	return strings.Join(out, "\n=====\n")
 }
@@ -137,7 +146,7 @@ func TestEveryReviewBriefTemplateVersionRendersWhatItRenderedWhenItWasPublished(
 // (also across a rebuilt bundle), and two versions never render the same text.
 func TestTheDigestSeesEverySectionOfEveryVariant(t *testing.T) {
 	text := renderFixedBriefs(reviewBriefTemplateConclusions)
-	for _, section := range []string{"## Structural facts to answer for", "SD-bbbb2222", "also changed by other-spec", "Implementer note.", "[core]", "round 2", "B1"} {
+	for _, section := range []string{"## Structural facts to answer for", "SD-bbbb2222", "also changed by other-spec", "Implementer note.", "[core]", "round 2", "B1", "The previous round is run rrn-prior0000000001", "draft of round 1 could not be read", "none recorded", "old.go", "(recommended", "fence in the notes"} {
 		if !strings.Contains(strings.ToLower(text), strings.ToLower(section)) {
 			t.Errorf("the fixed renderings carry no %q: a sentence of that section could change without the digest moving", section)
 		}
