@@ -193,6 +193,10 @@ type OperationHandoff struct {
 	Phase     string `json:"phase"`
 	// Argv is the CLI invocation, one element per argument. It is not a shell line.
 	Argv []string `json:"argv"`
+	// RequiredInputs are the arguments the performer must still supply, that the handoff
+	// does not carry because they name the performer: the apply refuses to run a step
+	// without them and never invents them.
+	RequiredInputs []string `json:"required_inputs,omitempty"`
 	// Inputs bind the handoff to the state it was computed from.
 	Inputs HandoffInputs `json:"inputs"`
 	// RequiredAuthority says who may perform it; the handoff grants none.
@@ -238,13 +242,16 @@ func CloseoutHandoff(plan CloseoutPlan, target HandoffTarget) *OperationHandoff 
 	if plan.ReadView != nil && plan.ReadView.Freshness == ReadViewFreshnessUnknown {
 		return nil // inputs not proven stable: the plan must be recomputed, not applied
 	}
-	pending, authority := false, "maintainer"
+	pending, authority, needsReviewer := false, "maintainer", false
 	for _, step := range plan.Steps {
 		switch step.State {
 		case CloseoutStateBlocked:
 			return nil // a blocked step stops the apply: there is nothing to hand off
 		case CloseoutStatePending, CloseoutStateWaiting:
 			pending = true
+		}
+		if step.ID == CloseoutStepMechanical && (step.State == CloseoutStatePending || step.State == CloseoutStateWaiting) {
+			needsReviewer = true
 		}
 		if step.ID == CloseoutStepJudgment && step.State == CloseoutStateWaiting {
 			authority = "reviewer (a different-actor judgment is pending; the apply stops there)"
@@ -268,6 +275,11 @@ func CloseoutHandoff(plan CloseoutPlan, target HandoffTarget) *OperationHandoff 
 		ContextRequirement: "run it in the target root, after `pose context --task " + plan.Scope + " --json` there shows the authority and revision this plan was computed under; `pose close --apply` takes no context flag, its binding is the plan digest, and this handoff carries no context",
 		Receipt:            "the CLI result of the apply, then `pose close " + plan.Scope + " --resume` or `pose_closeout_state` with include_plan to read the state again",
 		Invalidation:       "any change to the spec, the policy or the revision makes the plan digest stale; the index generation it was read at is recorded in inputs.generation for the performer to compare, and the apply does not check it; plan again instead of applying this handoff",
+	}
+	if needsReviewer {
+		// The mechanical attestation names the reviewing execution; `pose close --apply`
+		// stops at that step without --reviewer, so the handoff says it is owed.
+		handoff.RequiredInputs = append(handoff.RequiredInputs, "--reviewer <agent:id|human:id> (names the reviewing execution; the performer supplies it, the apply never invents it)")
 	}
 	if plan.ReadView != nil && len(plan.ReadView.Bindings) > 0 {
 		handoff.Inputs.Generation = plan.ReadView.Bindings[0].IndexGeneration

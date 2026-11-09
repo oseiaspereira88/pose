@@ -213,8 +213,10 @@ with the CLI, without a resident service:
 - **A typed handoff, not an execution.** A closeout plan with steps left carries an
   `OperationHandoff`: the operation and scope, the CLI invocation as structured
   arguments (no shell line), the plan, spec, revision, policy and generation digests
-  it was computed from, the authority it needs, how the outcome comes back and when
-  it stops being valid, and `executes: false`. The request id is derived from the
+  it was computed from, the authority it needs, the arguments the performer still owes and the handoff does
+  not carry (the `--reviewer` execution identity when a mechanical attestation is
+  pending), how the outcome comes back and when it stops being valid, and
+  `executes: false`. The request id is derived from the
   operation, scope and plan digest, so a stale handoff is not mistaken for the
   current one. It names the project and root the caller selected and does not
   retarget itself. It carries no secret, grants no authority and infers no context:

@@ -93,7 +93,7 @@ Fixtures sintéticas (um repositório Git com uma spec aberta) e o catálogo rea
 - R2 [satisfied] test:TestAnInProcessRunKeepsTheSpawnContract test:TestTheMCPPlanIsTheDomainPlan
 - R3 [satisfied] test:TestTheHandoffKeepsTheSelectedTarget test:TestACloseoutHandoffDescribesAndExecutesNothing test:TestThePlanAndItsHandoffAreStableAndADoneSpecHasNone
 - R4 [satisfied] test:TestTheDigestOfAHandoffIsTheDigestTheApplyChecks test:TestTheMCPPlanIsTheDomainPlan test:TestACloseoutPlanWithStepsLeftCarriesATypedHandoffThatExecutesNothing
-- R5 [satisfied] test:TestABlockedOrUnstablePlanGetsNoHandoff test:TestACloseoutPlanWithStepsLeftCarriesATypedHandoffThatExecutesNothing test:TestAHandoffIsDeterministicAndFollowsThePlan test:TestNoHandoffWhenThereIsNothingToApply
+- R5 [satisfied] test:TestAHandoffForAPendingMechanicalStepNamesTheReviewerItDoesNotCarry test:TestABlockedOrUnstablePlanGetsNoHandoff test:TestACloseoutPlanWithStepsLeftCarriesATypedHandoffThatExecutesNothing test:TestAHandoffIsDeterministicAndFollowsThePlan test:TestNoHandoffWhenThereIsNothingToApply
 - R6 [satisfied] test:TestOnlyAdmittedWritesAreGovernanceWrites test:TestTheAdmittedWritesAreExactlyTheKnownFour test:TestAPendingJudgmentNamesTheReviewerAsTheAuthority
 - R7 [satisfied] test:TestEveryMCPRouteHasADeclaredClass test:TestTheAdmittedWritesAreExactlyTheKnownFour
 - R8 [satisfied] test:TestACancelledCallerNeverStartsTheCommandAndNeverGetsAVerdict test:TestACompletionThatRacesACancellationIsDiscarded test:TestAnInProcessRunKeepsTheSpawnContract check:common-domain-and-cli-mcp-handoff-integration
@@ -101,6 +101,7 @@ Fixtures sintéticas (um repositório Git com uma spec aberta) e o catálogo rea
 
 ### Known gaps
 - The in-process route is taken only when it answers as the spawn of the installed binary would: it is not taken when `POSE_EXECUTABLE` is set or when the file the server started from was replaced by an update, which keeps `pose-mcp-server-survives-self-update` R2. A panic in a registered command is a failed run, and a caller cancelled while it waited for a slot does not start the command.
+- An in-process run hands the command `Store.Root` as it is, while a spawned run starts in that directory and lets the CLI resolve the project root from it; for a root the server selected the two agree, and a root that is a subdirectory of a project would resolve differently. The server selects roots, not subdirectories, so no known path differs.
 - Spawns, counted (`CLISpawnAttempts` and `CLIInProcessRuns`): of the ten CLI-wrapper routes, two (`pose_suggest`, `pose_get_followups`) no longer start the binary; `pose_check`, `pose_skills_check` and `pose_lint_spec` still do, by design, and the five `pose_delegate_*` routes drive `pose delegate`, a legitimate external harness. No latency or efficiency gain is claimed, and stdio is not offered as an IPC channel.
 - The semantics of `suggest` and `followups` stay in the CLI package; the domain wrapper runs the command function. Moving them into the domain package is the follow-up below.
 - An in-process run cannot be killed: on a deadline it finishes in the background, writes nothing, and the caller gets an execution failure with no verdict. A caller that has already cancelled never starts the command, a completion that races a cancellation is discarded, and the runs alive at once, abandoned ones included, are capped at four, so repeated timeouts cannot accumulate work; the work of one run (`followups` reads the follow-ups of the corpus) is bounded by the corpus, not by a ceiling, and a ceiling is the follow-up below.
@@ -131,5 +132,6 @@ Every MCP tool has a declared route class (domain-direct 39, cli-wrapper 10, rea
 ### Follow-ups
 
 - [open] Move the semantics of `suggest` and `followups` from the CLI package into the domain package so both adapters render one function, then drop the registry. (owner:@pose-maintainers crit:low review:2027-01-08)
+- [open] Resolve the root as the CLI dispatcher does before an in-process run, or reject a root that is not a project root. (owner:@pose-maintainers crit:low review:2027-01-08)
 - [open] Give `followups` an enforced ceiling on the corpus it compares, or a kill path, so the in-process admission rests on bounded work and not only on a cap of concurrent runs. (owner:@pose-maintainers crit:low review:2027-01-08)
 - [open] Decide whether the gates (`check`, `skills-check`, `lint-spec`) can run in process with a kill path, and measure the spawn count and latency per operation on the real corpus. (owner:@pose-maintainers crit:low review:2027-01-08)

@@ -274,3 +274,22 @@ func TestAPanicInAnInProcessCommandIsAFailedRunNotACrash(t *testing.T) {
 		t.Fatalf("the slot of a panicked run was not given back: %d held", len(inProcessSlots))
 	}
 }
+
+// The apply stops at the mechanical attestation without --reviewer; a handoff for a plan that
+// has that step owes the performer's execution identity and says so (it never carries one).
+func TestAHandoffForAPendingMechanicalStepNamesTheReviewerItDoesNotCarry(t *testing.T) {
+	plan := handoffPlan()
+	plan.Steps = append(plan.Steps, CloseoutPlanStep{ID: CloseoutStepMechanical, State: CloseoutStatePending})
+	h := CloseoutHandoff(plan, HandoffTarget{})
+	if h == nil || len(h.RequiredInputs) != 1 || !strings.Contains(h.RequiredInputs[0], "--reviewer") {
+		t.Fatalf("a plan with a pending mechanical attestation must name the --reviewer it needs: %+v", h)
+	}
+	for _, arg := range h.Argv {
+		if strings.Contains(arg, "reviewer") {
+			t.Fatalf("the handoff must not carry a reviewer identity: %q", h.Argv)
+		}
+	}
+	if without := CloseoutHandoff(handoffPlan(), HandoffTarget{}); without == nil || len(without.RequiredInputs) != 0 {
+		t.Fatalf("a plan without that step owes no reviewer: %+v", without)
+	}
+}
