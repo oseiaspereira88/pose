@@ -1,6 +1,6 @@
 ---
 slug: pose-review-brief-templates-are-immutable
-status: draft
+status: in-progress
 created_at: 2026-11-09
 completed_at:
 supersedes:
