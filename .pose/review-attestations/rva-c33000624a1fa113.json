@@ -1,0 +1,272 @@
+{
+  "run": {
+    "run_id": "rrn-aba13fd0a276182e",
+    "proof_id": "rrp-368d3cea24291a16f0ff00ee361cbc0530630b5f683fcfb51edb35556056b3a3"
+  },
+  "schema_version": 1,
+  "attestation_id": "rva-c33000624a1fa113",
+  "bundle_id": "rvb-b42357792c3a1f97",
+  "bundle_digest": "sha256:b42357792c3a1f975666bb364e6a257e25848d344616ac9703b11f66c4a2128e",
+  "reviewer": "agent:anthropic/claude-opus-5-5",
+  "decision": "approved",
+  "criteria": [
+    {
+      "id": "assumption-integrity",
+      "disposition": "passed",
+      "evidence": "integration:pose-mcp/go/optional-worktree-runtime-integration",
+      "rationale": "Examined peercred_linux.go:18-36, runtime.go:156-185 and the spec's known gaps and residual risks. Verified: OS peer-uid check, directory and socket ownership/mode/type checks, flock exclusivity. Unresolved and recorded as low follow-ups: no second-uid test, identity lacks vcs.modified/capabilities, Windows. Accepted risks: endpoint directory cleanup, shared-uid containers."
+    },
+    {
+      "id": "backend-concurrency",
+      "disposition": "passed",
+      "evidence": "integration:pose-mcp/go/optional-worktree-runtime-integration",
+      "rationale": "The per-endpoint flock (runtime.go:236) and the inode-guarded removal (runtime.go:259-263) are covered by TestConcurrentStartsLeaveOneRuntimeAndNoOneRemovesItsSocket and TestARuntimeThatOutlivesItsEndpointRemovesOnlyItsOwn under -race; residuals K1, K3, K4 are low follow-ups."
+    },
+    {
+      "id": "backend-contracts",
+      "disposition": "passed",
+      "evidence": "integration:pose-mcp/go/help-lists-every-command-integration",
+      "rationale": "The runtime command and the pose.runtime.status/1 document are additive; no existing CLI, file or MCP contract changes."
+    },
+    {
+      "id": "backend-input-errors",
+      "disposition": "passed",
+      "evidence": "integration:pose-mcp/go/optional-worktree-runtime-integration",
+      "rationale": "Requests are bounded (64 KiB, 5 s deadline, runtime.go:367); typed ErrNoRuntime/IncompatibleError/UnsafeError; flags validated at runtime_cmd.go:60-85."
+    },
+    {
+      "id": "backend-integration-impact",
+      "disposition": "passed",
+      "evidence": "integration:pose-mcp/go/engine-reads-raw-history-integration",
+      "rationale": "The new RawHistoryGit caller is registered in engine_reads_raw_history_test.go:45; the CLI dispatch is wired at cli.go:258."
+    },
+    {
+      "id": "backend-observability",
+      "disposition": "passed",
+      "evidence": "integration:pose-mcp/go/optional-worktree-runtime-integration",
+      "rationale": "Mismatch fields, PID, epoch and drained/abandoned counts are returned; the lost stderr of a detached serve is the existing follow-up J3."
+    },
+    {
+      "id": "compatibility",
+      "disposition": "passed",
+      "evidence": "integration:pose-mcp/go/distributed-instructions-parity-integration",
+      "rationale": "Examined cli.go help (en/pt-BR) and the four POSE.md copies: the command is opt-in and additive and no other command changes; concluded compatible."
+    },
+    {
+      "id": "correctness",
+      "disposition": "passed",
+      "evidence": "unit:pose-mcp/go/test",
+      "rationale": "Functional and negative paths (stale, unsafe, incompatible, no runtime) pass in sealed tests; residual low defects K1-K4 are follow-ups."
+    },
+    {
+      "id": "design-causality",
+      "disposition": "passed",
+      "evidence": "structure:design-ed004a44ddaaa4bf",
+      "rationale": "D1 selects a 0600 Unix socket in a 0700 directory with an OS peer check and a location-only endpoint name, so a newer CLI finds the old process and is refused by field, which addresses R1/R2 and the D1 falsifier; the lifecycle addresses R3, ErrNoRuntime/standalone addresses R4.",
+      "mappings": [
+        {
+          "delta": "SD-43b82275",
+          "basis": "D1",
+          "disposition": "mapped",
+          "rationale": "The ADR's 2026-11-09 amendment (transport, identity, slicing) is the decision basis D1 cites; R9 requires it to be resolved before start."
+        }
+      ]
+    },
+    {
+      "id": "documentation",
+      "disposition": "passed",
+      "evidence": "integration:pose-mcp/go/distributed-instructions-parity-integration",
+      "rationale": "Compared POSE.md:946 and its three copies with runtime.go and runtime_cmd.go: paths, modes, defaults (5s drain, 30m idle) and exit codes match."
+    },
+    {
+      "id": "operability",
+      "disposition": "passed",
+      "evidence": "integration:pose-mcp/go/optional-worktree-runtime-integration",
+      "rationale": "Examined the hints in runtime_cmd.go:139 and :186: they name the PID and the remediation; K2 (restart timeout message) is a low follow-up."
+    },
+    {
+      "id": "requirements",
+      "disposition": "passed",
+      "evidence": "integration:pose-mcp/go/trace-test-refs-integration",
+      "rationale": "Each of R1-R4 and R9 traces to tests that exist and run in the optional-worktree-runtime-integration matrix entry (validation-matrix.json:2600-2613)."
+    },
+    {
+      "id": "scope",
+      "disposition": "passed",
+      "evidence": "integration:pose-mcp/go/spec-surface-integration",
+      "rationale": "Examined the changed files against the spec's artifacts: the runtime hosts no operation (Handler nil in production) and confers no authority; R5-R8 are withdrawn to their own specs; surface-check found 0 findings."
+    },
+    {
+      "id": "security",
+      "disposition": "passed",
+      "evidence": "integration:pose-mcp/go/optional-worktree-runtime-integration",
+      "rationale": "Examined the Lstat checks (symlink refused), owner/mode checks, peer uid on both ends, no TCP or token, and squatting of the tmp fallback (refused, leaves standalone); concluded the authority boundaries hold."
+    },
+    {
+      "id": "solution-proportionality",
+      "disposition": "passed",
+      "evidence": "structure:design-ed004a44ddaaa4bf",
+      "rationale": "The minimal option (no runtime) cannot satisfy R1-R3; the implementation adds no hosted operation or cache (Handler is test-only), and the condition that invalidates it is a Windows named-pipe requirement, recorded as a follow-up."
+    }
+  ],
+  "tools": [
+    {
+      "id": "artifact-check",
+      "disposition": "passed",
+      "evidence": "command:pose artifact-check --spec pose-optional-worktree-runtime --strict",
+      "rationale": "Warnings only (orphan provenance on paths outside this change); no errors."
+    },
+    {
+      "id": "assess-design",
+      "disposition": "passed",
+      "evidence": "structure:design-ed004a44ddaaa4bf",
+      "rationale": "Running it was refused by this profile; the sealed structure result is cited."
+    },
+    {
+      "id": "assess-discover",
+      "component": "pose-mcp",
+      "disposition": "not-used",
+      "rationale": "Recommended; running it was refused by this review profile."
+    },
+    {
+      "id": "assess-integrate",
+      "disposition": "not-used",
+      "rationale": "Recommended; not run in this profile; integration was judged from the sealed integration evidence."
+    },
+    {
+      "id": "assess-tech-debt",
+      "disposition": "not-used",
+      "rationale": "Recommended; not run in this profile."
+    },
+    {
+      "id": "closeout-check",
+      "disposition": "deferred",
+      "rationale": "Its precondition is the completion of this review."
+    },
+    {
+      "id": "review-check",
+      "disposition": "deferred",
+      "rationale": "Its precondition is the recorded attestation of this review."
+    },
+    {
+      "id": "suggest-review",
+      "component": "pose-mcp",
+      "disposition": "not-used",
+      "rationale": "Recommended; running it was refused by this review profile."
+    },
+    {
+      "id": "surface-check",
+      "disposition": "passed",
+      "evidence": "reachability:pose-mcp/go/spec-surface-reachability",
+      "rationale": "Also ran pose surface-check --spec pose-optional-worktree-runtime --strict: 1 target, 200 results, 0 findings."
+    },
+    {
+      "id": "validate",
+      "disposition": "passed",
+      "evidence": "unit:pose-mcp/go/test",
+      "rationale": "Sealed strict validation evidence."
+    },
+    {
+      "id": "validate",
+      "component": "pose-mcp",
+      "disposition": "passed",
+      "evidence": "integration:pose-mcp/go/optional-worktree-runtime-integration",
+      "rationale": "Sealed strict validation evidence for pose-mcp, including the runtime's -race integration check."
+    }
+  ],
+  "evidence_refs": [
+    "delegated-run:rrn-aba13fd0a276182e",
+    "integration:pose-mcp/go/distributed-instructions-parity-integration",
+    "integration:pose-mcp/go/engine-reads-raw-history-integration",
+    "integration:pose-mcp/go/help-lists-every-command-integration",
+    "integration:pose-mcp/go/optional-worktree-runtime-integration",
+    "integration:pose-mcp/go/spec-surface-integration",
+    "integration:pose-mcp/go/trace-test-refs-integration",
+    "structure:design-ed004a44ddaaa4bf",
+    "unit:pose-mcp/go/test"
+  ],
+  "findings": [
+    {
+      "id": "K1",
+      "severity": "low",
+      "evidence": "file:pose-mcp/internal/worktreeruntime/runtime.go:316",
+      "action": "Cancel a per-runtime context when the drain deadline passes and bound the final wait before the resident-cache slice hosts operations.",
+      "disposition": "accepted-risk",
+      "owner": "@pose-maintainers",
+      "rationale": "A stop never cancels the handler context and run() waits on wg.Wait without bound, so abandoned requests keep running and the process outlives the stop; bounded today only because no Handler is set in production.",
+      "review_by": "2027-02-08"
+    },
+    {
+      "id": "K2",
+      "severity": "low",
+      "evidence": "file:pose-mcp/internal/cli/runtime_cmd.go:141",
+      "action": "Fail the restart with the previous PID when WaitReleased returns false.",
+      "disposition": "accepted-risk",
+      "owner": "@pose-maintainers",
+      "rationale": "restart ignores WaitReleased's false result; on timeout it spawns a serve that loses the lock silently and reports 'did not answer after it was started' instead of naming the holder.",
+      "review_by": "2027-02-08"
+    },
+    {
+      "id": "K3",
+      "severity": "low",
+      "evidence": "file:pose-mcp/internal/worktreeruntime/runtime.go:414",
+      "action": "Count only hosted operations in flight (not control ops) in the drain.",
+      "disposition": "accepted-risk",
+      "owner": "@pose-maintainers",
+      "rationale": "drain counts concurrent stop/status connections as requests in flight, so two concurrent stops each report the other as drained or abandoned.",
+      "review_by": "2027-02-08"
+    },
+    {
+      "id": "K4",
+      "severity": "low",
+      "evidence": "file:pose-mcp/internal/worktreeruntime/runtime.go:359",
+      "action": "Refresh the last-activity time when a request finishes.",
+      "disposition": "accepted-risk",
+      "owner": "@pose-maintainers",
+      "rationale": "The idle clock is set at the start of a request, not its end; a request longer than the idle timeout is followed by an immediate idle shutdown.",
+      "review_by": "2027-02-08"
+    },
+    {
+      "id": "K5",
+      "severity": "low",
+      "evidence": "file:pose-mcp/internal/cli/runtime_cmd_test.go:66",
+      "action": "Add a CLI case against a runtime of another engine and cancel the in-process serves in cleanup.",
+      "disposition": "accepted-risk",
+      "owner": "@pose-maintainers",
+      "rationale": "The CLI test does not exercise the documented 'incompatible' state / exit 1 path, and its stops/ctx are dead code, so in-process serves are never cancelled on a failed step.",
+      "review_by": "2027-02-08"
+    },
+    {
+      "id": "K6",
+      "severity": "low",
+      "evidence": "file:.pose/indexes/validation-matrix.json:2600",
+      "action": "Add a cross-build (windows, darwin) check to the matrix.",
+      "disposition": "accepted-risk",
+      "owner": "@pose-maintainers",
+      "rationale": "The spec's deterministic check 'GOOS=windows go build ./...' has no matrix producer or sealed evidence, and peercred_darwin.go is not exercised by sealed evidence.",
+      "review_by": "2027-02-08"
+    }
+  ],
+  "authority": {
+    "schema_version": 1,
+    "project": "proj.pose-dist",
+    "bundle_digest": "sha256:b42357792c3a1f975666bb364e6a257e25848d344616ac9703b11f66c4a2128e",
+    "principal": "agent:anthropic/claude-opus-5-5",
+    "role": "agent",
+    "review_execution": "rrn-aba13fd0a276182e",
+    "implementation_principal": "agent:anthropic/claude-sonnet-5-5",
+    "implementation_execution": "sha256:675189f7e0b769255994f8213acf8b1b57174c4353838cd875cdabd46aa9cc0b",
+    "issuer": "b34-local-executor",
+    "issued_at": "2026-11-09T23:43:01Z",
+    "audience": "proj.pose-dist"
+  },
+  "envelope": {
+    "issuer": "b34-local-executor",
+    "subject": "rvb-b42357792c3a1f97",
+    "algorithm": "ed25519",
+    "public_key": "ck4sApdfePV2GT+hJyAYfJd2qLzeG55P8pevGR0bvZE=",
+    "signature": "8amzWvV1z5hyKqDnzdii7ifdWWqmesrcozjUU5F4GE11MGRqikVnl8Cc7WNxUP8yDWIoOJnpJVwtpRE/uk0GCQ=="
+  },
+  "attested_at": "2026-11-09T23:43:01Z",
+  "path": ".pose/review-attestations/rva-c33000624a1fa113.json"
+}
