@@ -233,6 +233,14 @@
       "digest": "sha256:7fa761894519c8e7ee7024ae0161cdd4727db1d8ce10a404da50dde1b1a91521"
     },
     {
+      "spec": "pose-delegated-approval-survives-routine-drift",
+      "category": "fixed",
+      "breaking": false,
+      "body": "A scope that is done keeps the approval a delegated review gave it when the repository changes afterwards, as it already kept an approval a person attested. Specs closed with a delegated review no longer read \"no review attempt exists\" once another spec changes a file they sealed (`validation-matrix.json`, `POSE.md`). The approval is verified as sealed: the signature under a pinned issuer, the exact run record, transcript and bundle it binds; revoking the issuer's pin, altering the record or reopening the scope still ends it, and an open scope keeps the live checks.",
+      "path": "pose-delegated-approval-survives-routine-drift.md",
+      "digest": "sha256:9bb9ff977edf7003214c785873981531c82527ea6997fd1ee84be5447bc85be7"
+    },
+    {
       "spec": "pose-delegated-review-action-fulfillment",
       "category": "added",
       "breaking": false,
@@ -575,6 +583,14 @@
       "body": "The brief a delegated reviewer receives (`review-brief/4`) now states the rules the attestation preflight applies to a typed conclusion, so a draft that follows it is not refused for its shape: a passed judgment criterion carries a rationale, its evidence is a ref the bundle sealed, a finding criterion names a finding of the draft, structural facts are answered as mappings. `review-brief/3` still renders as before for the runs briefed with it. The Claude reviewer profile may now run read-only commands (Git reads, `go test`, `go vet`, the read-only checks), so it can reproduce the tests instead of citing file and line.",
       "path": "pose-review-brief-states-the-conclusion-rules.md",
       "digest": "sha256:ba4d64fd8c95b7b6395e987d53db874e8093f26d8aace6e907bc8a2a5dcd223b"
+    },
+    {
+      "spec": "pose-review-brief-templates-are-immutable",
+      "category": "fixed",
+      "breaking": false,
+      "body": "The text a review brief template version renders is now frozen by a golden digest per version: changing a sentence of a published version fails the build with a message saying that a change takes a new version, and a new version cannot be published without its digest. A run records and signs the brief it was sent, so a text that changed under one version name left its runs impossible to re-render.",
+      "path": "pose-review-brief-templates-are-immutable.md",
+      "digest": "sha256:71b6addbbca7a0319a80c116c0b07725bb8c2fc03876153d1c89b6a4f4ff761c"
     },
     {
       "spec": "pose-review-disclosure-requires-proof",
