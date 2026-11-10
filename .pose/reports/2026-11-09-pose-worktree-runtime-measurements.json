@@ -1,0 +1,90 @@
+{
+  "environment": {
+    "check": "review-check spec:pose-governance-audit-skips-pure-git-reads",
+    "cpus": 16,
+    "git": "git version 2.56.0",
+    "go": "go1.27.3-X:nodwarf5",
+    "goarch": "amd64",
+    "gomaxprocs": 16,
+    "goos": "linux",
+    "kernel": "7.2.10-1-cachyos",
+    "repo_commits": "2862",
+    "repo_head": "7c2abbf6801e1f57c9f4169f2fa66540284113e6",
+    "samples": {
+      "churn": 3,
+      "cold": 3,
+      "short": 10,
+      "warm": 5
+    },
+    "short_query": "surface-check spec:pose-governance-audit-skips-pure-git-reads"
+  },
+  "scenarios_ms": {
+    "cold_standalone": [
+      27103,
+      26781,
+      26466
+    ],
+    "fallback_no_runtime": [
+      25616,
+      25595,
+      26315
+    ],
+    "resident_first": [
+      26304
+    ],
+    "resident_warm": [
+      11033,
+      11089,
+      11012,
+      11083,
+      11049
+    ],
+    "restart_then_run": [
+      25741,
+      25754,
+      25770
+    ],
+    "short_idle": [
+      8,
+      7,
+      9,
+      8,
+      9,
+      8,
+      8,
+      7,
+      9,
+      8
+    ],
+    "short_under_heavy": [
+      8,
+      9,
+      8,
+      8,
+      7,
+      9,
+      7,
+      9,
+      8,
+      10
+    ]
+  },
+  "figures": {
+    "VmHWM_mib": 537.12890625,
+    "VmRSS_mib": 502.84375,
+    "churn_over_cold": 0.9616519174041298,
+    "fallback_extra_ms": -1165,
+    "short_p95_idle_ms": 9,
+    "short_p95_under_heavy_ms": 10,
+    "warm_over_cold": 0.4125686120757253
+  },
+  "runtime_metrics": null,
+  "verdicts": {
+    "T1 warm over cold": "pass: 11049 ms / 26781 ms = 0.41 \u003c= 0.60",
+    "T2 restart inherits nothing": "pass: 25754 ms / 26781 ms = 0.96 \u003e= 0.80",
+    "T3 short under heavy": "pass: p95 10 ms \u003c= 250 ms (idle p95 9 ms)",
+    "T4 runtime memory": "pass: peak resident 537 MiB \u003c= 1536 MiB",
+    "T5 output": "pass: every hosted run printed exactly what the standalone run printed (25561 bytes)",
+    "T6 fallback overhead": "pass: -1165 ms \u003c= 500 ms"
+  }
+}

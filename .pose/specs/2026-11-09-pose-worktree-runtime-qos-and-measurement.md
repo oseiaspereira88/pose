@@ -49,6 +49,7 @@ Fatia 3 da B35 (emenda do ADR de 2026-11-09). Depois da fatia 2 o runtime rodava
 - created: .pose/starts/pose-worktree-runtime-qos-and-measurement.json
 - created: .pose/changelogs/unreleased/pose-worktree-runtime-qos-and-measurement.md
 - created: .pose/reports/2026-11-09-pose-worktree-runtime-measurements.md
+- created: .pose/reports/2026-11-09-pose-worktree-runtime-measurements.json
 - modified: .pose/specs/2026-11-09-pose-worktree-runtime-qos-and-measurement.md
 - modified: .pose/indexes/validation-matrix.json
 - created: pose-mcp/internal/cli/runtime_lanes.go
@@ -76,7 +77,7 @@ Fatia 3 da B35 (emenda do ADR de 2026-11-09). Depois da fatia 2 o runtime rodava
 - [x] Faixas de admissão com fila limitada e métricas
 - [x] Flags de admissão em `start`/`serve` e repasse ao `serve` destacado
 - [x] Harness de medição com amostras, cenários e limiares fixados
-- [ ] Rodar a medição e registrar o relatório
+- [x] Rodar a medição e registrar o relatório
 - [ ] Revisão independente e fechamento
 
 ## 5. Decisions
@@ -112,7 +113,7 @@ Testes com um comando lento injetado provam o isolamento das faixas, a recusa po
 ## 7. Final Report
 
 ### Delivered scope
-Duas faixas de admissão com slots e fila limitada, métricas por faixa no status, as flags de configuração (R6) e o harness de medição com limiares fixados antes dos números (R8); o relatório registra os números.
+Duas faixas de admissão com slots e fila limitada, métricas por faixa no status, as flags de configuração (R6) e o harness de medição com limiares fixados antes dos números (R8); o relatório (`.pose/reports/2026-11-09-pose-worktree-runtime-measurements.md`) registra os números: warm 0,41 da cold (T1), restart 0,96 da cold (T2), consulta curta sob carga p95 10 ms contra 9 ms ocioso (T3), pico residente 537 MiB (T4), saída idêntica (T5) e custo do fallback dentro do ruído (T6); todos os limiares passaram na única execução.
 
 ### Files and modules changed
 - pose-mcp/internal/cli (faixas, flags, harness), worktreeruntime (métricas), os quatro POSE.md; a matriz ganha `runtime-qos-integration`.
