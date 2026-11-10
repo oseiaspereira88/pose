@@ -12,9 +12,12 @@ com reuso limitado e runtime opcional somente após qualificação de identidade
 coerência, autorização e recuperação. Consultar a [matriz](../results/pose-implementation-plan.json)
 e a [análise de performance](../reports/2026-10-12-pose-front-08-resident-performance.md).
 
-B32 foi materializado no lote 7 e B31/B33/B35 no lote 14, todos em draft.
-A escrita dos quatro deltas não qualifica domínio/caches ou runtime; manter
-standalone e opt-in, com resultados/limites demonstrados antes do closeout.
+**Estado (2026-11-10):** os quatro milestones estão fechados com revisão independente
+(B32 operation-performance, B31 common-domain-handoff, B33 bounded-graph-caches e B35
+optional-worktree-runtime, esta em três fatias medidas), com o runtime opt-in e standalone
+preservado. O que o roadmap não entrega (cota e afinidade de CPU, limites por comando,
+named pipe no Windows, roteamento dos checks para o runtime por padrão) está em specs
+rascunho próprias, fora deste roadmap.
 
 ## Milestone: operation-performance
 - after: spec:pose-check-spawns-fewer-git-processes, spec:pose-attention-within-a-second
