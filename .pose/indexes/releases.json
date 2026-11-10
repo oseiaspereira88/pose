@@ -457,6 +457,14 @@
       "digest": "sha256:e17eafe6999e0327ce92d36ea3b9ddc6b3c376b7a421e7a49d8f59ec2f920287"
     },
     {
+      "spec": "pose-governance-audit-skips-pure-git-reads",
+      "category": "fixed",
+      "breaking": false,
+      "body": "A auditoria final de uma operação de leitura governada não reexecuta mais os comandos do Git cuja saída é função pura de ids de objeto ou do commit do HEAD, enquanto esse commit se mantém; o `review-check` deste repositório passou de cerca de 52 s para cerca de 25 s, com a mesma saída e o mesmo veredito da auditoria.",
+      "path": "pose-governance-audit-skips-pure-git-reads.md",
+      "digest": "sha256:4bafaa75d4317b3254fad54604544c76186fc8571c55519330d63b1834844bfe"
+    },
+    {
       "spec": "pose-governance-operation-performance",
       "category": "fixed",
       "breaking": false,
