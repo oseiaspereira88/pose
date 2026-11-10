@@ -107,6 +107,10 @@ func (e *GitSnapshotError) Unwrap() error { return e.Cause }
 
 func snapshotGit(root string, args ...string) ([]byte, error) {
 	cmd := gitCommand(append([]string{"-C", root}, args...)...)
+	// Asking about the worktree writes nothing under .git: without this `git status` refreshes
+	// and rewrites the index, which a governed read view that watches .git reads as an input that
+	// changed during the operation (spec pose-git-status-leaves-the-git-directory-alone).
+	cmd.Env = append(cmd.Env, "GIT_OPTIONAL_LOCKS=0")
 	out, err := cmd.Output()
 	if err != nil {
 		return nil, &GitSnapshotError{Operation: strings.Join(args, " "), Cause: err}
