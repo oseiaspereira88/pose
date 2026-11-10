@@ -69,7 +69,7 @@ specs de engine que as medições pediram (`pose-index-input-binding-reads-each-
 `pose-governance-audit-skips-pure-git-reads`); o estado entregue e onde ele se afasta do ADR está na
 última emenda do ADR, e a medição em `.pose/reports/2026-11-09-pose-worktree-runtime-measurements.md`.
 Não entregues: cota e afinidade de CPU e limites por comando (o runtime limita o que admite e guarda).
-Medição: quatro execuções, a quarta qualifica (T1 a T7 passaram).
+Medição: quatro execuções, a quarta qualifica (T1 a T7 passaram). O fechamento do milestone revisa o estado final dos três specs membros.
 
 **Exit gate:** B35 qualifica handshake user/worktree/Git/engine/schema, endpoint
 protegido, lifecycle/restart/update e fallback CI/standalone. Stdio não é IPC
