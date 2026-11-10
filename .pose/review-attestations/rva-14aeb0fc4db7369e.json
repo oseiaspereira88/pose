@@ -1,0 +1,109 @@
+{
+  "run": {
+    "run_id": "rrn-261226609ad06321",
+    "proof_id": "rrp-dacf11bfaa9713b049f68a10bbc5fdd081f7c92dd5ffd945ea54bb3e680e1080"
+  },
+  "schema_version": 1,
+  "attestation_id": "rva-14aeb0fc4db7369e",
+  "bundle_id": "rvb-f9b534d71a947587",
+  "bundle_digest": "sha256:f9b534d71a947587f58be9fa12ae2ea3903181909f598d45b8495724d3b8599c",
+  "reviewer": "agent:anthropic/claude-opus-5-5",
+  "decision": "approved",
+  "criteria": [
+    {
+      "id": "exit-gate",
+      "disposition": "passed",
+      "evidence": "integration:pose-mcp/go/runtime-qos-integration",
+      "rationale": "Examined the B35 exit gate (.pose/roadmaps/pose-shared-runtime.md:77-81) against the code and the measurement: identity handshake plus a per-request identity check before the handler (worktreeruntime/runtime.go:421-456), peer-UID-protected Unix socket (runtime.go:404-408), lifecycle with stop, drain and idle (runtime.go:375-391, 470-487), and standalone fallback with no rerun after an ambiguous reply (runtime_host.go:168-172). The fourth measurement run passes T1-T7, with RAM, CPU and latency per scenario and two heavy checks at once (measurements.json:433-439). The departures (no watcher, because the memo is keyed by commit; no-rerun in place of a receipt; no CPU quota or per-command limits) are recorded in the ADR amendment and at roadmap :74. Concluded that the gate has falsifiable evidence."
+    },
+    {
+      "id": "integration",
+      "disposition": "passed",
+      "evidence": "integration:pose-mcp/go/optional-worktree-runtime-integration",
+      "rationale": "The three member contracts compose: the endpoint and handshake of pose-optional-worktree-runtime host the typed read checks and the resident memo of pose-worktree-runtime-resident-cache, which run in the admission lanes of pose-worktree-runtime-qos-and-measurement (runtime_host.go:106-120). Sealed integration evidence passes for all three (optional-worktree-runtime-integration, resident-cache-integration, runtime-qos-integration)."
+    },
+    {
+      "id": "membership",
+      "disposition": "passed",
+      "evidence": "integration:pose-mcp/go/resident-cache-integration",
+      "rationale": "The roadmap names three member specs (:67). Each is status: done (.pose/specs/2026-10-14-pose-optional-worktree-runtime.md:3, 2026-11-09-pose-worktree-runtime-resident-cache.md:3, 2026-11-09-pose-worktree-runtime-qos-and-measurement.md:3), and none of their delivered code changed since their closure and the round-5 approval."
+    },
+    {
+      "id": "regression",
+      "disposition": "passed",
+      "evidence": "unit:pose-mcp/go/test",
+      "rationale": "Cumulative module validation is sealed as passing: build:pose-mcp/go/build, unit:pose-mcp/go/test and every pose-mcp integration and reachability check listed in the bundle pass, including the checks covering the out-of-milestone changes in this range (check-index-generation-integration, sealed-checkout-child-evidence-integration). I could not rerun them in this profile."
+    },
+    {
+      "id": "residual-risk",
+      "disposition": "passed",
+      "evidence": "integration:pose-mcp/go/runtime-qos-integration",
+      "rationale": "The cross-spec items not delivered (CPU quota and affinity, per-command limits, Windows named pipe, routing checks to the runtime by default) are recorded in the ADR amendment and the roadmap state (:18-20) as separate draft specs. The remaining carried items, R3-N4 and R3-N5, are low-severity measurement and accounting imprecisions with no effect on correctness or security, and were accepted as low risks in earlier rounds."
+    }
+  ],
+  "tools": [
+    {
+      "id": "assess-discover",
+      "component": "pose-mcp",
+      "disposition": "not-used",
+      "rationale": "Recommended only; the profile does not allow running it, and the delivery code is unchanged since the previous approved round."
+    },
+    {
+      "id": "assess-tech-debt",
+      "disposition": "not-used",
+      "rationale": "Recommended only; the profile does not allow running it."
+    },
+    {
+      "id": "closeout-check",
+      "disposition": "deferred",
+      "rationale": "Its precondition is the completion of this review; it runs after the attestation is recorded."
+    },
+    {
+      "id": "review-check",
+      "disposition": "deferred",
+      "rationale": "Its precondition is the completion of this review; it runs after the attestation is recorded."
+    },
+    {
+      "id": "suggest-review",
+      "component": "pose-mcp",
+      "disposition": "not-used",
+      "rationale": "Recommended only; the profile does not allow running it. The review scope was taken from the brief and a direct diff."
+    },
+    {
+      "id": "validate",
+      "component": "pose-mcp",
+      "disposition": "passed",
+      "evidence": "unit:pose-mcp/go/test"
+    }
+  ],
+  "evidence_refs": [
+    "delegated-run:rrn-261226609ad06321",
+    "integration:pose-mcp/go/optional-worktree-runtime-integration",
+    "integration:pose-mcp/go/resident-cache-integration",
+    "integration:pose-mcp/go/runtime-qos-integration",
+    "unit:pose-mcp/go/test"
+  ],
+  "findings": null,
+  "authority": {
+    "schema_version": 1,
+    "project": "proj.pose-dist",
+    "bundle_digest": "sha256:f9b534d71a947587f58be9fa12ae2ea3903181909f598d45b8495724d3b8599c",
+    "principal": "agent:anthropic/claude-opus-5-5",
+    "role": "agent",
+    "review_execution": "rrn-261226609ad06321",
+    "implementation_principal": "agent:anthropic/claude-sonnet-5-5",
+    "implementation_execution": "sha256:675189f7e0b769255994f8213acf8b1b57174c4353838cd875cdabd46aa9cc0b",
+    "issuer": "b34-local-executor",
+    "issued_at": "2026-11-10T18:43:12Z",
+    "audience": "proj.pose-dist"
+  },
+  "envelope": {
+    "issuer": "b34-local-executor",
+    "subject": "rvb-f9b534d71a947587",
+    "algorithm": "ed25519",
+    "public_key": "ck4sApdfePV2GT+hJyAYfJd2qLzeG55P8pevGR0bvZE=",
+    "signature": "G4XPiw3Qq6GKWYSluhlQV3ADozI8hXldkx8Az7OzH9GSwRuRgGoYNjysyMkqreAewS4ehAhWqVGo5CK0yXSgAw=="
+  },
+  "attested_at": "2026-11-10T18:43:12Z",
+  "path": ".pose/review-attestations/rva-14aeb0fc4db7369e.json"
+}
