@@ -1,0 +1,228 @@
+{
+  "run": {
+    "run_id": "rrn-9c80ac13465832df",
+    "proof_id": "rrp-d3eaf1dd28917bac0f52a8903459d89cb8571476d3268e9f7222661f4bb2dceb"
+  },
+  "schema_version": 1,
+  "attestation_id": "rva-7ac1db0a9fca9dd0",
+  "bundle_id": "rvb-2d76e9efc666dec6",
+  "bundle_digest": "sha256:2d76e9efc666dec6e63aadd567f7c5e80b3741f42bb5bd569e991ae04e27b51d",
+  "reviewer": "agent:anthropic/claude-opus-5-5",
+  "decision": "approved",
+  "criteria": [
+    {
+      "id": "assumption-integrity",
+      "disposition": "passed",
+      "evidence": "structure:design-77143aa9e9dbf0cd",
+      "rationale": "Examined spec Constraints, D1 Consequences, Known gaps and Residual risks against the code. Verified: listing order and error positions are preserved (spec_transfer.go:1182-1244); write paths disable snapshots (spec_transfer_locks.go:161). Unresolved: the byte-identical output and 56s-\u003e38s claims are manual measurements, disclosed as such. Accepted risk: a plan written during an operation is not seen by that operation."
+    },
+    {
+      "id": "backend-concurrency",
+      "disposition": "passed",
+      "evidence": "unit:pose-mcp/go/test",
+      "rationale": "transfersOnce sync.Once (spec.go:88) and sync.Map.LoadOrStore (artifact_ref.go:126) give one read with happens-before for concurrent readers such as forEachSpec in readinessObligations; the listing is read-only after construction."
+    },
+    {
+      "id": "backend-contracts",
+      "disposition": "passed",
+      "evidence": "integration:pose-mcp/go/federated-roadmap-acceptance-integration",
+      "rationale": "No exported signature, state string or serialized shape changed; transferListing types are unexported."
+    },
+    {
+      "id": "backend-input-errors",
+      "disposition": "passed",
+      "evidence": "integration:pose-mcp/go/spec-authority-transfer-negative-gates",
+      "rationale": "listTransfers keeps the Lstat, symlink, artifactPathWithin and maxSpecTransferOperationsRead bounds and the transfer-state-invalid/unavailable codes; per-entry read errors are retained in position."
+    },
+    {
+      "id": "backend-integration-impact",
+      "disposition": "passed",
+      "evidence": "integration:pose-mcp/go/federated-spec-acceptance-integration",
+      "rationale": "Federated source stores now share the per-project snapshot (federated_acceptance.go:434) from the same StoreFor root; the sealed federated acceptance suites pass."
+    },
+    {
+      "id": "backend-observability",
+      "disposition": "passed",
+      "evidence": "integration:pose-mcp/go/typed-diagnostics-integration",
+      "rationale": "Returned resolution states and operation ids are unchanged; no new log or sensitive output."
+    },
+    {
+      "id": "compatibility",
+      "disposition": "passed",
+      "evidence": "integration:pose-mcp/go/cli-mcp-operation-results-integration",
+      "rationale": "Examined the diff for public CLI/MCP/file surface: none touched; the changelog is category fixed and breaking: false."
+    },
+    {
+      "id": "correctness",
+      "disposition": "passed",
+      "evidence": "integration:pose-mcp/go/index-input-binding-integration",
+      "rationale": "incompleteTransferIn iterates entries in the same directory order with the same invalid/operation-id checks and still reads status per resolution; answers match the previous loop. Test-strength gap recorded as F1."
+    },
+    {
+      "id": "requirements",
+      "disposition": "finding",
+      "evidence": "F2"
+    },
+    {
+      "id": "design-causality",
+      "disposition": "passed",
+      "evidence": "structure:design-77143aa9e9dbf0cd",
+      "rationale": "D1 (basis R1, R2) targets the profiled cause: incompleteTransferFor re-reading every plan per Resolve. It moves the read into the existing per-operation specSnapshot, which a resident runtime would not have removed. No structural fact ids were listed to map."
+    },
+    {
+      "id": "documentation",
+      "disposition": "passed",
+      "evidence": "structure:design-77143aa9e9dbf0cd",
+      "rationale": "Checked that the changelog's operations, unchanged output and timing claim match the code and spec. No user-facing docs or templates are affected."
+    },
+    {
+      "id": "operability",
+      "disposition": "passed",
+      "evidence": "integration:pose-mcp/go/typed-diagnostics-integration",
+      "rationale": "Error states and the remediation path are unchanged; the transfer-in-progress operation id is still returned."
+    },
+    {
+      "id": "scope",
+      "disposition": "passed",
+      "evidence": "structure:design-77143aa9e9dbf0cd",
+      "rationale": "The changed implementation files match the spec Artifacts list exactly. The git non-goal was not touched. The derived index refreshes are governance outputs."
+    },
+    {
+      "id": "security",
+      "disposition": "passed",
+      "evidence": "integration:pose-mcp/go/spec-authority-transfer-negative-gates",
+      "rationale": "Path containment, symlink refusal and size/count bounds are preserved in listTransfers and readSpecTransferPlan. The snapshot is per operation and is dropped by the write guard and the read-view unwrap, so it does not cross an authority boundary."
+    },
+    {
+      "id": "solution-proportionality",
+      "disposition": "passed",
+      "evidence": "structure:design-77143aa9e9dbf0cd",
+      "rationale": "About 60 lines reuse the existing snapshot mechanism, with no persistent cache or mtime freshness. The minimal alternative (rely on B35) was measured as ineffective. The choice would be invalidated if an operation had to observe transfers it writes itself; the write guard already disables snapshots for that case."
+    }
+  ],
+  "tools": [
+    {
+      "id": "artifact-check",
+      "disposition": "passed",
+      "evidence": "command:pose artifact-check --spec pose-index-input-binding-reads-each-transfer-once --strict",
+      "rationale": "Ran it; only orphan warnings for files outside this change, no errors."
+    },
+    {
+      "id": "assess-design",
+      "disposition": "passed",
+      "evidence": "structure:design-77143aa9e9dbf0cd",
+      "rationale": "The reviewer profile refused execution; relied on the sealed structure evidence produced by this tool."
+    },
+    {
+      "id": "assess-discover",
+      "component": "pose-mcp",
+      "disposition": "not-used",
+      "rationale": "Recommended; the reviewer profile refused execution of pose assess."
+    },
+    {
+      "id": "assess-integrate",
+      "disposition": "not-used",
+      "rationale": "Recommended; the reviewer profile refused execution. Integration impact was judged from the sealed integration evidence."
+    },
+    {
+      "id": "assess-tech-debt",
+      "disposition": "not-used",
+      "rationale": "Recommended; the reviewer profile refused execution of pose assess."
+    },
+    {
+      "id": "closeout-check",
+      "disposition": "deferred",
+      "rationale": "Its precondition is completion of this review; it cannot pass before the attestation."
+    },
+    {
+      "id": "review-check",
+      "disposition": "deferred",
+      "rationale": "Its precondition is completion of this review; it cannot pass before the attestation."
+    },
+    {
+      "id": "suggest-review",
+      "component": "pose-mcp",
+      "disposition": "not-used",
+      "rationale": "Recommended; the reviewer profile refused execution of pose suggest."
+    },
+    {
+      "id": "validate",
+      "disposition": "passed",
+      "evidence": "unit:pose-mcp/go/test",
+      "rationale": "The reviewer profile refused execution; relied on the sealed strict validation evidence, which is all pass."
+    },
+    {
+      "id": "validate",
+      "component": "pose-mcp",
+      "disposition": "passed",
+      "evidence": "integration:pose-mcp/go/index-input-binding-integration",
+      "rationale": "The reviewer profile refused execution; relied on the sealed pose-mcp strict validation evidence, which is all pass, including build:pose-mcp/go/build."
+    }
+  ],
+  "evidence_refs": [
+    "F2",
+    "delegated-run:rrn-9c80ac13465832df",
+    "integration:pose-mcp/go/cli-mcp-operation-results-integration",
+    "integration:pose-mcp/go/federated-roadmap-acceptance-integration",
+    "integration:pose-mcp/go/federated-spec-acceptance-integration",
+    "integration:pose-mcp/go/index-input-binding-integration",
+    "integration:pose-mcp/go/spec-authority-transfer-negative-gates",
+    "integration:pose-mcp/go/typed-diagnostics-integration",
+    "structure:design-77143aa9e9dbf0cd",
+    "unit:pose-mcp/go/test"
+  ],
+  "findings": [
+    {
+      "id": "F1",
+      "severity": "low",
+      "evidence": "file:pose-mcp/internal/pose/transfer_listing_once_test.go:36",
+      "action": "Add fixtures with valid digested plans (pending, activated, impacted) and an invalid plan after a matching one, and compare snapshot vs fresh answers; make the line-60 assertion strict.",
+      "disposition": "accepted-risk",
+      "owner": "@pose-maintainers",
+      "rationale": "All fixture plans are '{}' and invalid, so every resolution returns transfer-state-invalid on the first entry and the with/without-snapshot comparison (line 63) is trivially equal; valid, pending/activated, impacted-reference and invalid-after-match ordering cases named by R1 are not exercised; the saving assertion at line 60 uses \u0026\u0026 and is weaker than its message.",
+      "review_by": "2027-02-08"
+    },
+    {
+      "id": "F2",
+      "severity": "low",
+      "evidence": "file:.pose/specs/2026-11-10-pose-index-input-binding-reads-each-transfer-once.md:100",
+      "action": "Add a test that counts spec-directory listings during federated acceptance with a snapshot resolver, and correct the trace for R2/R3.",
+      "disposition": "accepted-risk",
+      "owner": "@pose-maintainers",
+      "rationale": "Requirement trace marks R2 and R3 satisfied by TestAnOperationReadsTheTransferPlansOfAProjectOnce, which exercises neither federated-acceptance source stores nor GetSpec; R2 has no dedicated test and no follow-up (the recorded follow-up covers only R3 output/time).",
+      "review_by": "2027-02-08"
+    },
+    {
+      "id": "F3",
+      "severity": "low",
+      "evidence": "file:pose-mcp/internal/pose/artifact_ref.go:174",
+      "action": "Key the branch on r.snapshots (or assert the invariant) so a store-borne snapshot cannot silently cache transfer state for a snapshot-less resolver.",
+      "disposition": "accepted-risk",
+      "owner": "@pose-maintainers",
+      "rationale": "The shared listing is selected on s.specs != nil rather than r.snapshots != nil; the 'no snapshot reads fresh' constraint relies on the unenforced invariant that StoreFor/governanceStores never return a store carrying a spec snapshot.",
+      "review_by": "2027-02-08"
+    }
+  ],
+  "authority": {
+    "schema_version": 1,
+    "project": "proj.pose-dist",
+    "bundle_digest": "sha256:2d76e9efc666dec6e63aadd567f7c5e80b3741f42bb5bd569e991ae04e27b51d",
+    "principal": "agent:anthropic/claude-opus-5-5",
+    "role": "agent",
+    "review_execution": "rrn-9c80ac13465832df",
+    "implementation_principal": "agent:anthropic/claude-sonnet-5-5",
+    "implementation_execution": "sha256:675189f7e0b769255994f8213acf8b1b57174c4353838cd875cdabd46aa9cc0b",
+    "issuer": "b34-local-executor",
+    "issued_at": "2026-11-10T05:06:43Z",
+    "audience": "proj.pose-dist"
+  },
+  "envelope": {
+    "issuer": "b34-local-executor",
+    "subject": "rvb-2d76e9efc666dec6",
+    "algorithm": "ed25519",
+    "public_key": "ck4sApdfePV2GT+hJyAYfJd2qLzeG55P8pevGR0bvZE=",
+    "signature": "yHj28PIsB8g3K1GC8xvNhWbUy8kHSeNMAxylEXQaDT+QJC6NnAVw6TlQfUTCkYFnCoJASG7DmxIUfXGPAzSqAg=="
+  },
+  "attested_at": "2026-11-10T05:06:43Z",
+  "path": ".pose/review-attestations/rva-7ac1db0a9fca9dd0.json"
+}

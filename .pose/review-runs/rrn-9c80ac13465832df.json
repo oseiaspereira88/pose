@@ -1,0 +1,137 @@
+{
+  "safety": {
+    "schema_version": 1,
+    "profile": "legacy-trusted",
+    "platform": "linux/amd64",
+    "capabilities": {
+      "automatic-expiry": "unavailable",
+      "bounded-capture": "available",
+      "cpu-limit": "unavailable",
+      "credential-filesystem-isolation": "unavailable",
+      "environment-allowlist": "available",
+      "escaped-descendant-termination": "unavailable",
+      "filesystem-isolation": "unavailable",
+      "memory-limit": "unavailable",
+      "network-isolation": "unavailable",
+      "origin-isolation": "unavailable",
+      "parent-termination": "available",
+      "process-group-termination": "available",
+      "shared-git-isolation": "unavailable"
+    },
+    "limitations": [
+      "trusted local executable required; worktree is not a sandbox",
+      "outside writes, transient writes, shared Git and credential files are not isolated",
+      "no memory/CPU quota or control of descendants escaping the process group",
+      "cleanup filesystem calls remain subject to operating-system I/O latency",
+      "legacy compatibility: HOME retained; other ambient credentials excluded"
+    ],
+    "stream_bytes": 8388608,
+    "output_bytes": 65536,
+    "retained_bytes": 16777216,
+    "timeout_ms": 3600000,
+    "max_runs_per_bundle": 3,
+    "retention": "retain-evidence; ttl=0; no automatic deletion",
+    "capture_complete": true,
+    "runtime_id": "pose-review-run-3962742447",
+    "operation": {
+      "schema_version": 1,
+      "operation": "review.dispatch.cleanup",
+      "scope": "spec:pose-index-input-binding-reads-each-transfer-once",
+      "outcome": "completed",
+      "steps_run": [
+        {
+          "id": "cleanup",
+          "result": "done"
+        }
+      ],
+      "effects": [],
+      "resumable": false
+    }
+  },
+  "provenance": {
+    "execution_state": "started",
+    "planned_wire_digest": "sha256:58a9bdef8c696ab3929909a8d9cb0549fd32a820b50ac7e7785cbcd3fad57f7b",
+    "wire_bytes": 24167,
+    "wire_complete": true,
+    "schema_version": 1,
+    "project": "proj.pose-dist",
+    "audience": "proj.pose-dist",
+    "worktree_digest": "sha256:9c161dc895f6496d9f800581bef8673cc9123cda65951fa2d23b0cbdbc2bac41",
+    "trust": "executor-attested",
+    "implementation": {
+      "principal": "agent:anthropic/claude-sonnet-5-5",
+      "execution": "sha256:675189f7e0b769255994f8213acf8b1b57174c4353838cd875cdabd46aa9cc0b",
+      "vendor": "anthropic",
+      "model": "claude-sonnet-5-5"
+    },
+    "reviewer": {
+      "principal": "agent:anthropic/claude-opus-5-5",
+      "vendor": "anthropic",
+      "model": "claude-opus-5-5"
+    },
+    "config_digest": "sha256:fa7add8c85f5c0c1dd74b1dba89cd12989a2a856fc7a59407bc04682bd575e25",
+    "command_template_digest": "sha256:4fb04e170e8d7f85923d1ab7c7d6eac045a3bb8d20b443991552d6b7bfa7c4f2",
+    "argv_digest": "sha256:6f7a9cc5aa680b285a37674b2fc17403c1b6f541da236f7fd09bb7d444f08935",
+    "executable_digest": "sha256:bfb3703ad5380242328459bc62ada4bde8ae7ba57c6e1eeadb9c00e08874c478",
+    "template_version": "review-brief/7",
+    "wire_digest": "sha256:58a9bdef8c696ab3929909a8d9cb0549fd32a820b50ac7e7785cbcd3fad57f7b",
+    "notes_digest": "sha256:b01abaa9794d9870dc401bf7ed15fda4292fb55fd0b654cf68568b9e5c529095",
+    "raw_transcript_digest": "sha256:bb2cfad29974caf91f0ad9f6e2dcf707f47c8018e07b947920305dfddfb0994f",
+    "raw_output_digest": "sha256:90db95c5c01ebc12e25e9112dbe24b32112b1f4391a2c90f471e528078769842",
+    "output_source": "stream-final",
+    "output_complete": true
+  },
+  "session_digest": "sha256:18cac221cdaef45eb20874dd201fa2043b27f6b35aca79fe9d881e72537e569d",
+  "tree_digest": "sha256:537979998fd46e9975bd25dcc2d30a840e8afa33431eb8e346df19da1449f952",
+  "brief_notes": "Review of spec pose-index-input-binding-reads-each-transfer-once, implemented by Claude: an engine performance fix that redirected B35's second slice. Evidence (measured 2026-11-10 on this repository, 2833 commits, 11 MB index): `review-check spec:\u003cslug\u003e` took about 56 s and the second call in the same process took the same time (the B33 graph cache does not touch the cost); the CPU profile put it in `incompleteTransferFor`, which read and validated every plan under `.pose/transfers` on every `Resolve`. Change: `listTransfers`/`incompleteTransferIn` in `spec_transfer.go` read the listing once per operation, stored in the project's `specSnapshot` (`spec.go`), used by `ArtifactResolver.resolve` (`artifact_ref.go`) when the resolver carries snapshots, and `withSpecSnapshot` gives the source stores of the federated acceptance (`federated_acceptance.go`) the same spec snapshot. Without snapshots the behaviour is the previous one (`incompleteTransferFor` reads fresh). Claimed and checked by hand: the output of `review-check` and `closeout-check` is byte-identical before and after, and `review-check` went from about 56 s to about 38 s; the spec says these two are measurements, not regression tests (a recorded follow-up). The test `TestAnOperationReadsTheTransferPlansOfAProjectOnce` fails against the previous code (verified) and passes. The remaining cost (about 3100 git executions, 348 `git log -1 -- \u003cpath\u003e`) is a stated non-goal and a follow-up. Your profile only allows the plan tools and `git status|ls-files`: rely on the sealed evidence and read the code; do not report the missing shell as a finding. IDs: new findings in `findings` have bare ids (F1, F2 …, never `R1-`); findings carried from an earlier round are named in `prior_findings` with the round prefix (`R1-F1` …). Follow-ups carry `action`, `owner` and `review_by`; only low-severity risks are accepted by the policy.\n",
+  "ledger_version": 1,
+  "attempt_id": "rat-306e0c1f16a6a04f15baa707abc3b4aa342e288520cada5d530a2d4797bd405b",
+  "schema_version": 1,
+  "run_id": "rrn-9c80ac13465832df",
+  "scope": "spec:pose-index-input-binding-reads-each-transfer-once",
+  "bundle_id": "rvb-2d76e9efc666dec6",
+  "bundle_digest": "sha256:2d76e9efc666dec6e63aadd567f7c5e80b3741f42bb5bd569e991ae04e27b51d",
+  "sealed_commit": "95ba0ec6f99950534fa3c4cb13c9d66bb4b7b5ef",
+  "kind": "review",
+  "brief_digest": "sha256:2e629ea159ad63d1e2cf2b07e12ded84d0372c1f8620b0f2bf11a39e91a466d9",
+  "adapter": "claude-opus-5-5",
+  "vendor": "anthropic",
+  "model": "claude-opus-5-5",
+  "started_at": "2026-11-10T05:01:34.345530651Z",
+  "ended_at": "2026-11-10T05:06:39.435155235Z",
+  "exit_code": 0,
+  "status": "completed",
+  "transcript_digest": "sha256:c8cb6ea249a8310d825dffc54c2bc534782b4e9bf814954e2671ff3993b03c2d",
+  "transcript_path": ".pose/review-runs/rrn-9c80ac13465832df.transcript",
+  "output": "**decision: approved**\n\nAll three findings are low severity. Each is a follow-up with an action, owner and review date, so none of them blocks approval.\n\n**What I could run.** My profile let me run `pose artifact-check --strict` and `git status` / `git diff` / `tail`. It refused `pose validate`, `pose assess *` and `pose suggest`. For the validate and assess-design tools I'm relying on the sealed evidence, and I say so in each tool entry. I could not run the tests myself, so the test-related points below come from reading the code.\n\n## How I checked the code\n\n- **The read is shared correctly.** `listTransfers` (`spec_transfer.go:1182-1206`) keeps the same safety checks as before: Lstat, refusing symlinks, `artifactPathWithin`, and the `maxSpecTransferOperationsRead` limit. It records each plan in directory order and keeps any read error next to its plan. `incompleteTransferIn` (`:1216-1244`) then checks entries in the same order as the old loop, so an invalid plan still wins or loses in the same position. The status file is still read fresh for every resolution (`:1235`).\n- **It is safe under concurrency.** `transfersOnce` (`spec.go:88`) and `sync.Map.LoadOrStore` (`artifact_ref.go:126`) guarantee one read, and every concurrent reader sees it, including the parallel calls in `readinessObligations`. Once built, the shared listing is only read.\n- **The cache never crosses operations.** It hangs off `WithSpecSnapshots`, which each operation creates fresh (`index_federated_material.go:98`, `obligation_projection.go:476`). Transfer writes turn snapshots off (`spec_transfer_locks.go:161`), and `withoutGovernanceReadView` clears them (`governance_read_view.go:2557-2560`). So the stale-plan consequence accepted in D1 only affects reads.\n- **R2 is a one-line change** (`federated_acceptance.go:434`). The source store comes from the same `StoreFor`, so it has the same root as the resolver's store for that project.\n- **No contract changes.** No public signature, state string or JSON shape changed. `artifact-check --strict` passed with only orphan warnings for files outside this change.\n\n## Criteria\n\n| criterion | result | evidence |\n|---|---|---|\n| assumption-integrity | passed | The measurements (56 s → 38 s, identical output) are disclosed as manual, not tested. The stale-within-operation behaviour is an accepted risk. |\n| backend-concurrency | passed | `sync.Once` and `LoadOrStore`; unit:pose-mcp/go/test |\n| backend-contracts | passed | integration:pose-mcp/go/federated-roadmap-acceptance-integration |\n| backend-input-errors | passed | The same error codes are kept; integration:pose-mcp/go/spec-authority-transfer-negative-gates |\n| backend-integration-impact | passed | integration:pose-mcp/go/federated-spec-acceptance-integration |\n| backend-observability | passed | Returned states and operation IDs are unchanged; integration:pose-mcp/go/typed-diagnostics-integration |\n| compatibility | passed | No public change |\n| correctness | passed | integration:pose-mcp/go/index-input-binding-integration |\n| design-causality | passed | D1 targets the profiled hotspot. There are no structural facts to map. |\n| documentation | passed | The changelog matches the behaviour. |\n| operability | passed | The diagnostics are unchanged. |\n| requirements | finding F2 | |\n| scope | passed | The changed files match the spec's Artifacts list. |\n| security | passed | The path and symlink checks are kept. |\n| solution-proportionality | passed | It reuses the existing snapshot mechanism. |\n\n## Defects (all low, follow-up)\n\n- **F1** – `pose-mcp/internal/pose/transfer_listing_once_test.go:36`\n  - Every fixture plan is `{}`, which fails `readSpecTransferPlan`. So every resolution returns `transfer-state-invalid` on the first entry, and the comparison at `:63` passes trivially.\n  - The test never covers a valid plan, a matching pending or activated plan, an impacted reference, or the \"invalid plan in the same order\" case that R1 names.\n  - The assertion at `:60` joins its two conditions with `\u0026\u0026`, so it is weaker than its message says.\n- **F2** – `.pose/specs/2026-11-10-pose-index-input-binding-reads-each-transfer-once.md:100`\n  - R2 and R3 are marked `[satisfied]` and point to a test that touches neither federated acceptance nor `GetSpec`.\n  - R2 has no test and no follow-up. Only the R3 measurement has a follow-up.\n- **F3** – `pose-mcp/internal/pose/artifact_ref.go:174`\n  - The shared listing is chosen when `s.specs != nil`, not when `r.snapshots != nil`.\n  - So the constraint \"without a snapshot, read fresh\" holds only because stores from `StoreFor` / `governanceStores` never carry a snapshot today. Nothing in the code enforces that.\n\n```pose-draft\n{\n  \"schema\": \"pose.review.draft/v1\",\n  \"decision\": \"approved\",\n  \"findings\": [\n    {\"id\": \"F1\", \"severity\": \"low\", \"disposition\": \"follow-up\", \"file\": \"pose-mcp/internal/pose/transfer_listing_once_test.go\", \"line\": 36, \"summary\": \"All fixture plans are '{}' and invalid, so every resolution returns transfer-state-invalid on the first entry and the with/without-snapshot comparison (line 63) is trivially equal; valid, pending/activated, impacted-reference and invalid-after-match ordering cases named by R1 are not exercised; the saving assertion at line 60 uses \u0026\u0026 and is weaker than its message.\", \"action\": \"Add fixtures with valid digested plans (pending, activated, impacted) and an invalid plan after a matching one, and compare snapshot vs fresh answers; make the line-60 assertion strict.\", \"owner\": \"@pose-maintainers\", \"review_by\": \"2027-02-08\"},\n    {\"id\": \"F2\", \"severity\": \"low\", \"disposition\": \"follow-up\", \"file\": \".pose/specs/2026-11-10-pose-index-input-binding-reads-each-transfer-once.md\", \"line\": 100, \"summary\": \"Requirement trace marks R2 and R3 satisfied by TestAnOperationReadsTheTransferPlansOfAProjectOnce, which exercises neither federated-acceptance source stores nor GetSpec; R2 has no dedicated test and no follow-up (the recorded follow-up covers only R3 output/time).\", \"action\": \"Add a test that counts spec-directory listings during federated acceptance with a snapshot resolver, and correct the trace for R2/R3.\", \"owner\": \"@pose-maintainers\", \"review_by\": \"2027-02-08\"},\n    {\"id\": \"F3\", \"severity\": \"low\", \"disposition\": \"follow-up\", \"file\": \"pose-mcp/internal/pose/artifact_ref.go\", \"line\": 174, \"summary\": \"The shared listing is selected on s.specs != nil rather than r.snapshots != nil; the 'no snapshot reads fresh' constraint relies on the unenforced invariant that StoreFor/governanceStores never return a store carrying a spec snapshot.\", \"action\": \"Key the branch on r.snapshots (or assert the invariant) so a store-borne snapshot cannot silently cache transfer state for a snapshot-less resolver.\", \"owner\": \"@pose-maintainers\", \"review_by\": \"2027-02-08\"}\n  ],\n  \"criteria\": [\n    {\"id\": \"assumption-integrity\", \"disposition\": \"passed\", \"evidence\": \"structure:design-77143aa9e9dbf0cd\", \"rationale\": \"Examined spec Constraints, D1 Consequences, Known gaps and Residual risks against the code. Verified: listing order and error positions are preserved (spec_transfer.go:1182-1244); write paths disable snapshots (spec_transfer_locks.go:161). Unresolved: the byte-identical output and 56s-\u003e38s claims are manual measurements, disclosed as such. Accepted risk: a plan written during an operation is not seen by that operation.\"},\n    {\"id\": \"backend-concurrency\", \"disposition\": \"passed\", \"evidence\": \"unit:pose-mcp/go/test\", \"rationale\": \"transfersOnce sync.Once (spec.go:88) and sync.Map.LoadOrStore (artifact_ref.go:126) give one read with happens-before for concurrent readers such as forEachSpec in readinessObligations; the listing is read-only after construction.\"},\n    {\"id\": \"backend-contracts\", \"disposition\": \"passed\", \"evidence\": \"integration:pose-mcp/go/federated-roadmap-acceptance-integration\", \"rationale\": \"No exported signature, state string or serialized shape changed; transferListing types are unexported.\"},\n    {\"id\": \"backend-input-errors\", \"disposition\": \"passed\", \"evidence\": \"integration:pose-mcp/go/spec-authority-transfer-negative-gates\", \"rationale\": \"listTransfers keeps the Lstat, symlink, artifactPathWithin and maxSpecTransferOperationsRead bounds and the transfer-state-invalid/unavailable codes; per-entry read errors are retained in position.\"},\n    {\"id\": \"backend-integration-impact\", \"disposition\": \"passed\", \"evidence\": \"integration:pose-mcp/go/federated-spec-acceptance-integration\", \"rationale\": \"Federated source stores now share the per-project snapshot (federated_acceptance.go:434) from the same StoreFor root; the sealed federated acceptance suites pass.\"},\n    {\"id\": \"backend-observability\", \"disposition\": \"passed\", \"evidence\": \"integration:pose-mcp/go/typed-diagnostics-integration\", \"rationale\": \"Returned resolution states and operation ids are unchanged; no new log or sensitive output.\"},\n    {\"id\": \"compatibility\", \"disposition\": \"passed\", \"evidence\": \"integration:pose-mcp/go/cli-mcp-operation-results-integration\", \"rationale\": \"Examined the diff for public CLI/MCP/file surface: none touched; the changelog is category fixed and breaking: false.\"},\n    {\"id\": \"correctness\", \"disposition\": \"passed\", \"evidence\": \"integration:pose-mcp/go/index-input-binding-integration\", \"rationale\": \"incompleteTransferIn iterates entries in the same directory order with the same invalid/operation-id checks and still reads status per resolution; answers match the previous loop. Test-strength gap recorded as F1.\"},\n    {\"id\": \"requirements\", \"disposition\": \"finding\", \"evidence\": \"F2\"},\n    {\"id\": \"design-causality\", \"disposition\": \"passed\", \"evidence\": \"structure:design-77143aa9e9dbf0cd\", \"rationale\": \"D1 (basis R1, R2) targets the profiled cause: incompleteTransferFor re-reading every plan per Resolve. It moves the read into the existing per-operation specSnapshot, which a resident runtime would not have removed. No structural fact ids were listed to map.\"},\n    {\"id\": \"documentation\", \"disposition\": \"passed\", \"evidence\": \"structure:design-77143aa9e9dbf0cd\", \"rationale\": \"Checked that the changelog's operations, unchanged output and timing claim match the code and spec. No user-facing docs or templates are affected.\"},\n    {\"id\": \"operability\", \"disposition\": \"passed\", \"evidence\": \"integration:pose-mcp/go/typed-diagnostics-integration\", \"rationale\": \"Error states and the remediation path are unchanged; the transfer-in-progress operation id is still returned.\"},\n    {\"id\": \"scope\", \"disposition\": \"passed\", \"evidence\": \"structure:design-77143aa9e9dbf0cd\", \"rationale\": \"The changed implementation files match the spec Artifacts list exactly. The git non-goal was not touched. The derived index refreshes are governance outputs.\"},\n    {\"id\": \"security\", \"disposition\": \"passed\", \"evidence\": \"integration:pose-mcp/go/spec-authority-transfer-negative-gates\", \"rationale\": \"Path containment, symlink refusal and size/count bounds are preserved in listTransfers and readSpecTransferPlan. The snapshot is per operation and is dropped by the write guard and the read-view unwrap, so it does not cross an authority boundary.\"},\n    {\"id\": \"solution-proportionality\", \"disposition\": \"passed\", \"evidence\": \"structure:design-77143aa9e9dbf0cd\", \"rationale\": \"About 60 lines reuse the existing snapshot mechanism, with no persistent cache or mtime freshness. The minimal alternative (rely on B35) was measured as ineffective. The choice would be invalidated if an operation had to observe transfers it writes itself; the write guard already disables snapshots for that case.\"}\n  ],\n  \"tools\": [\n    {\"id\": \"artifact-check\", \"disposition\": \"passed\", \"evidence\": \"command:pose artifact-check --spec pose-index-input-binding-reads-each-transfer-once --strict\", \"rationale\": \"Ran it; only orphan warnings for files outside this change, no errors.\"},\n    {\"id\": \"assess-design\", \"disposition\": \"passed\", \"evidence\": \"structure:design-77143aa9e9dbf0cd\", \"rationale\": \"The reviewer profile refused execution; relied on the sealed structure evidence produced by this tool.\"},\n    {\"id\": \"assess-discover\", \"component\": \"pose-mcp\", \"disposition\": \"not-used\", \"rationale\": \"Recommended; the reviewer profile refused execution of pose assess.\"},\n    {\"id\": \"assess-integrate\", \"disposition\": \"not-used\", \"rationale\": \"Recommended; the reviewer profile refused execution. Integration impact was judged from the sealed integration evidence.\"},\n    {\"id\": \"assess-tech-debt\", \"disposition\": \"not-used\", \"rationale\": \"Recommended; the reviewer profile refused execution of pose assess.\"},\n    {\"id\": \"closeout-check\", \"disposition\": \"deferred\", \"rationale\": \"Its precondition is completion of this review; it cannot pass before the attestation.\"},\n    {\"id\": \"review-check\", \"disposition\": \"deferred\", \"rationale\": \"Its precondition is completion of this review; it cannot pass before the attestation.\"},\n    {\"id\": \"suggest-review\", \"component\": \"pose-mcp\", \"disposition\": \"not-used\", \"rationale\": \"Recommended; the reviewer profile refused execution of pose suggest.\"},\n    {\"id\": \"validate\", \"disposition\": \"passed\", \"evidence\": \"unit:pose-mcp/go/test\", \"rationale\": \"The reviewer profile refused execution; relied on the sealed strict validation evidence, which is all pass.\"},\n    {\"id\": \"validate\", \"component\": \"pose-mcp\", \"disposition\": \"passed\", \"evidence\": \"integration:pose-mcp/go/index-input-binding-integration\", \"rationale\": \"The reviewer profile refused execution; relied on the sealed pose-mcp strict validation evidence, which is all pass, including build:pose-mcp/go/build.\"}\n  ]\n}\n```",
+  "policy_digest": "sha256:f8cb9e16758e19e66e0e01f29d1d347b0c15cd1cfa191e32926de54742e3cb72",
+  "purpose": "review",
+  "env_removed": [
+    "CLAUDE_CODE_BRIDGE_SESSION_ID",
+    "CLAUDE_CODE_CHILD_SESSION",
+    "CLAUDE_CODE_ENTRYPOINT",
+    "CLAUDE_CODE_EXECPATH",
+    "CLAUDE_CODE_MESSAGING_SOCKET",
+    "CLAUDE_CODE_MESSAGING_TOKEN",
+    "CLAUDE_CODE_SESSION_ATTENDED",
+    "CLAUDE_CODE_SESSION_ID",
+    "CLAUDE_EFFORT",
+    "CLAUDE_PID"
+  ],
+  "events": "claude-stream-json",
+  "events_digest": "sha256:90281aec4400f4487bd8bb65a28300a18eda15f23584f0ece4ef6dbec53f9222",
+  "routing": {
+    "requested": "claude-opus-5-5",
+    "implementation": {
+      "principal": "agent:anthropic/claude-sonnet-5-5",
+      "vendor": "anthropic",
+      "model": "claude-sonnet-5-5",
+      "execution_digest": "sha256:675189f7e0b769255994f8213acf8b1b57174c4353838cd875cdabd46aa9cc0b",
+      "source": "declared"
+    },
+    "implementation_from": "bundle",
+    "step": "explicit"
+  },
+  "independence_achieved": "different-model",
+  "round": 1
+}
