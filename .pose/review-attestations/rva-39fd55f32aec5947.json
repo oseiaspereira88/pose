@@ -1,0 +1,184 @@
+{
+  "run": {
+    "run_id": "rrn-c997f0a441a61876",
+    "proof_id": "rrp-4b1d9805a211f62c8b26ba97a2f65ce84f506c5863988d56f57159093a324add"
+  },
+  "schema_version": 1,
+  "attestation_id": "rva-39fd55f32aec5947",
+  "bundle_id": "rvb-973e902939907736",
+  "bundle_digest": "sha256:973e902939907736dce8d8abe06acaccd2bb75292371a2e2841600bd6e28e50c",
+  "reviewer": "agent:anthropic/claude-opus-5-5",
+  "decision": "changes-requested",
+  "criteria": [
+    {
+      "id": "cross-component-integration",
+      "disposition": "passed",
+      "evidence": "integration:pose-mcp/go/optional-worktree-runtime-integration",
+      "rationale": "Sealed integration evidence covers the CLI to runtime to memo boundary (also runtime-qos, resident-cache, common-domain-and-cli-mcp-handoff, bounded-isolated-graph-caches). Reading the code, the boundary contracts are consistent: identity re-checked per hosted request (runtime.go:453), env digest (runtime_host.go:93), typed outcomes and no retry of unknown outcomes (runtime_host.go:212)."
+    },
+    {
+      "id": "cut-criteria",
+      "disposition": "finding",
+      "evidence": "F1"
+    },
+    {
+      "id": "end-to-end",
+      "disposition": "passed",
+      "evidence": "integration:pose-mcp/go/runtime-qos-integration",
+      "rationale": "Examined the runtime run path (cmdRuntimeRun with standalone fallback) and the measurement report 2026-11-09, where T5 shows hosted output byte-identical to standalone and T6 shows fallback overhead within budget. Concluded the opt-in user path works end to end on Linux; Windows runs standalone, as declared."
+    },
+    {
+      "id": "milestones",
+      "disposition": "passed",
+      "evidence": "integration:pose-mcp/go/milestone-closes-when-reached-integration",
+      "rationale": "All six member specs of the four milestones are status done (verified in .pose/specs). The milestones' review records are not in this checkout, by the implementer's note; reviewed closeout is confirmed by closeout-check, which is deferred to after the attestation."
+    },
+    {
+      "id": "outcome",
+      "disposition": "finding",
+      "evidence": "F1"
+    },
+    {
+      "id": "release-readiness",
+      "disposition": "finding",
+      "evidence": "F3"
+    },
+    {
+      "id": "residual-risk",
+      "disposition": "finding",
+      "evidence": "F1"
+    }
+  ],
+  "tools": [
+    {
+      "id": "assess-discover",
+      "component": "pose-mcp",
+      "disposition": "not-used",
+      "rationale": "Shell execution was denied in this session."
+    },
+    {
+      "id": "assess-discover",
+      "component": "scripts",
+      "disposition": "not-used",
+      "rationale": "Shell execution was denied in this session."
+    },
+    {
+      "id": "assess-integrate",
+      "disposition": "deferred",
+      "rationale": "Not run: every shell command, including the plan tools, was denied in this session. It is not claimed as passed."
+    },
+    {
+      "id": "assess-tech-debt",
+      "disposition": "not-used",
+      "rationale": "Shell execution was denied in this session."
+    },
+    {
+      "id": "closeout-check",
+      "disposition": "deferred",
+      "rationale": "Its precondition is the completion of this review."
+    },
+    {
+      "id": "review-check",
+      "disposition": "deferred",
+      "rationale": "Its precondition is the completion of this review."
+    },
+    {
+      "id": "roadmap-check",
+      "disposition": "deferred",
+      "rationale": "Not run: 'pose roadmap-check pose-shared-runtime --strict' was denied by the session's permission mode. It is not claimed as passed."
+    },
+    {
+      "id": "suggest-review",
+      "component": "pose-mcp",
+      "disposition": "not-used",
+      "rationale": "Shell execution was denied in this session."
+    },
+    {
+      "id": "suggest-review",
+      "component": "scripts",
+      "disposition": "not-used",
+      "rationale": "Shell execution was denied in this session."
+    },
+    {
+      "id": "validate",
+      "component": "pose-mcp",
+      "disposition": "deferred",
+      "rationale": "Not run: shell execution was denied in this session. It is not claimed as passed."
+    },
+    {
+      "id": "validate",
+      "component": "scripts",
+      "disposition": "deferred",
+      "rationale": "Not run: 'pose validate --strict --module scripts' was denied by the session's permission mode. It is not claimed as passed."
+    }
+  ],
+  "evidence_refs": [
+    "F1",
+    "F3",
+    "delegated-run:rrn-c997f0a441a61876",
+    "integration:pose-mcp/go/milestone-closes-when-reached-integration",
+    "integration:pose-mcp/go/optional-worktree-runtime-integration",
+    "integration:pose-mcp/go/runtime-qos-integration"
+  ],
+  "findings": [
+    {
+      "id": "F1",
+      "severity": "medium",
+      "evidence": "file:pose-mcp/internal/pose/resident_git_memo.go:79",
+      "action": "The resident Git memo key digests only .git/config and shallow, not global/user/system or included Git config, which RawHistoryGit does not neutralise; after a config change during the runtime's life a hosted check can print output that differs from standalone. This contradicts resident_git_memo.go:19 and ADR line 294, weakens the B35 deterministic-output and B33 no-stale-cache gates, and is absent from the roadmap's not-delivered list (roadmap lines 11-14); it is tracked only in draft spec pose-runtime-memo-hits-and-git-config-key.",
+      "disposition": "open"
+    },
+    {
+      "id": "F2",
+      "severity": "low",
+      "evidence": "file:pose-mcp/internal/cli/runtime_host.go:134",
+      "action": "Count memo hits per operation (draft spec pose-runtime-memo-hits-and-git-config-key R1).",
+      "disposition": "accepted-risk",
+      "owner": "Oseias Pereira",
+      "rationale": "memo_hits is the difference of a global counter read before and after the command (lines 134, 145), so with concurrent lanes it includes other commands' hits.",
+      "review_by": "2026-12-10"
+    },
+    {
+      "id": "F3",
+      "severity": "low",
+      "evidence": "file:.pose/adr/2026-10-14-shared-domain-and-optional-worktree-runtime.md:5",
+      "action": "Update the ADR status line to the delivered and adopted state of the amended decision.",
+      "disposition": "accepted-risk",
+      "owner": "Oseias Pereira",
+      "rationale": "The ADR status still reads Proposed and says no IPC, cache API, daemon lifecycle or policy is implemented or adopted, which contradicts the delivered state its 2026-11-10 amendment describes.",
+      "review_by": "2026-12-10"
+    },
+    {
+      "id": "F4",
+      "severity": "low",
+      "evidence": "file:.pose/specs/2026-11-10-pose-runtime-resource-limits-per-command.md:36",
+      "action": "Add CPU affinity and I/O limits as requirements, or record them as explicit non-goals and amend the roadmap.",
+      "disposition": "accepted-risk",
+      "owner": "Oseias Pereira",
+      "rationale": "The roadmap says CPU quota and affinity are in a draft spec, but this spec's requirements cover only CPU and memory limits per lane: no CPU affinity, and I/O is in the goal but in no requirement.",
+      "review_by": "2026-12-10"
+    }
+  ],
+  "authority": {
+    "schema_version": 1,
+    "project": "proj.pose-dist",
+    "bundle_digest": "sha256:973e902939907736dce8d8abe06acaccd2bb75292371a2e2841600bd6e28e50c",
+    "principal": "agent:anthropic/claude-opus-5-5",
+    "role": "agent",
+    "review_execution": "rrn-c997f0a441a61876",
+    "implementation_principal": "agent:anthropic/claude-sonnet-5-5",
+    "implementation_execution": "sha256:675189f7e0b769255994f8213acf8b1b57174c4353838cd875cdabd46aa9cc0b",
+    "issuer": "b34-local-executor",
+    "issued_at": "2026-11-10T19:25:49Z",
+    "audience": "proj.pose-dist"
+  },
+  "envelope": {
+    "issuer": "b34-local-executor",
+    "subject": "rvb-973e902939907736",
+    "algorithm": "ed25519",
+    "public_key": "ck4sApdfePV2GT+hJyAYfJd2qLzeG55P8pevGR0bvZE=",
+    "signature": "nAs3XUbj5yy1XOyXyjhO/Z3xV+ij+uyVsOk/AZsIGOKM2mb6c2VlqVzgfnDXrGLHCm8yAvAYEt2+Olc0V8MwBg=="
+  },
+  "attested_at": "2026-11-10T19:25:49Z",
+  "path": ".pose/review-attestations/rva-39fd55f32aec5947.json"
+}
