@@ -1,8 +1,8 @@
 ---
 slug: pose-git-status-leaves-the-git-directory-alone
-status: in-progress
+status: done
 created_at: 2026-11-10
-completed_at:
+completed_at: 2026-11-10
 supersedes:
 depends_on:
 remediates:
