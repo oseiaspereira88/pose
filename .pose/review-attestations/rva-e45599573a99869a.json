@@ -1,0 +1,172 @@
+{
+  "run": {
+    "run_id": "rrn-bdcf82bd12194216",
+    "proof_id": "rrp-bdf35f5a5cac67b01fb2f0474bd0082215aa3d8a7b1dcf028ac2aee4afc0742b"
+  },
+  "schema_version": 1,
+  "attestation_id": "rva-e45599573a99869a",
+  "bundle_id": "rvb-6043e298e745c516",
+  "bundle_digest": "sha256:6043e298e745c5168c4d240a387fed683aa0df2584fe87720495dfbf0eb3a569",
+  "reviewer": "agent:anthropic/claude-opus-5-5",
+  "decision": "changes-requested",
+  "criteria": [
+    {
+      "id": "exit-gate",
+      "disposition": "finding",
+      "evidence": "F1"
+    },
+    {
+      "id": "integration",
+      "disposition": "finding",
+      "evidence": "F2"
+    },
+    {
+      "id": "membership",
+      "disposition": "passed",
+      "evidence": "integration:pose-mcp/go/runtime-qos-integration",
+      "rationale": "Read the three member specs: each is status done with completed_at, its requirements are traced to tests and an integration check (optional-worktree-runtime-integration, resident-cache-integration, runtime-qos-integration, all sealed pass), and the head commits close the last member and refresh the indexes."
+    },
+    {
+      "id": "regression",
+      "disposition": "passed",
+      "evidence": "unit:pose-mcp/go/test",
+      "rationale": "The sealed cumulative module evidence passes: unit:pose-mcp/go/test, build:pose-mcp/go/build and every pose-mcp integration check, including the three added by this milestone's specs."
+    },
+    {
+      "id": "residual-risk",
+      "disposition": "finding",
+      "evidence": "F6"
+    }
+  ],
+  "tools": [
+    {
+      "id": "assess-discover",
+      "component": "pose-mcp",
+      "disposition": "not-used",
+      "evidence": "command:pose assess discover --component pose-mcp",
+      "rationale": "The review profile denied the shell for pose commands; the change was read directly instead."
+    },
+    {
+      "id": "assess-tech-debt",
+      "disposition": "not-used",
+      "evidence": "command:pose assess tech-debt",
+      "rationale": "The review profile denied the shell for pose commands."
+    },
+    {
+      "id": "closeout-check",
+      "disposition": "deferred",
+      "evidence": "command:pose closeout-check milestone:pose-shared-runtime/optional-worktree-runtime",
+      "rationale": "Its precondition is the completion of this review."
+    },
+    {
+      "id": "review-check",
+      "disposition": "deferred",
+      "evidence": "command:pose review-check milestone:pose-shared-runtime/optional-worktree-runtime",
+      "rationale": "Its precondition is the completion of this review."
+    },
+    {
+      "id": "suggest-review",
+      "component": "pose-mcp",
+      "disposition": "not-used",
+      "evidence": "command:pose suggest review --path pose-mcp",
+      "rationale": "The review profile denied the shell for pose commands; the change files were read directly."
+    },
+    {
+      "id": "validate",
+      "component": "pose-mcp",
+      "disposition": "passed",
+      "evidence": "unit:pose-mcp/go/test",
+      "rationale": "Not rerun by the reviewer (the shell was denied); the strict pose-mcp validation of the reviewed head is the sealed evidence, with unit, build and all integration checks passing."
+    }
+  ],
+  "evidence_refs": [
+    "F1",
+    "F2",
+    "F6",
+    "delegated-run:rrn-bdcf82bd12194216",
+    "integration:pose-mcp/go/runtime-qos-integration",
+    "unit:pose-mcp/go/test"
+  ],
+  "findings": [
+    {
+      "id": "F1",
+      "severity": "medium",
+      "evidence": "file:.pose/reports/2026-11-09-pose-worktree-runtime-measurements.md:19",
+      "action": "The exit gate requires RAM/CPU/latency per scenario with simultaneous jobs; the measurement records latency per scenario, a single runtime-wide RAM peak (runtime_measure_test.go:225 reads only VmHWM/VmRSS) and no CPU at all, and no two heavy jobs run concurrently (report :53,:57). The implementer's notes disclose missing CPU limits, not missing CPU measurement.",
+      "disposition": "open"
+    },
+    {
+      "id": "F2",
+      "severity": "medium",
+      "evidence": "file:.pose/adr/2026-10-14-shared-domain-and-optional-worktree-runtime.md:259",
+      "action": "The ADR amendment still says the runtime hosts no domain operation and that slice 2 reuses B33 views, and the decision (:64-65) requires CPU quota/affinity and a global concurrency bound; the delivered slices host five checks, memoize pure Git reads and declare CPU and global limits as non-goals, without amending the ADR, which is still Proposed (:5).",
+      "disposition": "open"
+    },
+    {
+      "id": "F3",
+      "severity": "medium",
+      "evidence": "file:pose-mcp/internal/cli/runtime_host.go:196",
+      "action": "pose runtime run handshakes on one connection and sends run on another; Client.Run (worktreeruntime/runtime.go:605-606) carries no identity, the run handler does not check one, and the reply's Identity/Epoch are not compared with the handshake, so a runtime restarted with another engine between the two runs the command unhandshaken, which is the D1 falsifier of pose-optional-worktree-runtime.",
+      "disposition": "open"
+    },
+    {
+      "id": "F4",
+      "severity": "low",
+      "evidence": "file:pose-mcp/internal/worktreeruntime/runtime.go:461",
+      "action": "Include busy() in before, clamp drained to zero, and test a stop while a deadline-passed command is still running.",
+      "disposition": "accepted-risk",
+      "owner": "@pose-maintainers",
+      "rationale": "drain computes before from inflight only but left from inflight+Busy(), so with a command past its deadline the stop reply's drained is undercounted or negative.",
+      "review_by": "2027-02-08"
+    },
+    {
+      "id": "F5",
+      "severity": "low",
+      "evidence": "file:pose-mcp/internal/pose/resident_git_memo.go:66",
+      "action": "Key on the content digest of shallow/config (or amend D1 and the ADR to state the mtime dependence) and test a same-size config change.",
+      "disposition": "accepted-risk",
+      "owner": "@pose-maintainers",
+      "rationale": "The memo key uses size:mtime of .git/shallow and .git/config as the freshness signal, which the ADR rejects (:90) and the resident-cache spec D1 rationale says is not used (:91).",
+      "review_by": "2027-02-08"
+    },
+    {
+      "id": "F6",
+      "severity": "low",
+      "evidence": "file:.pose/specs/2026-11-09-pose-worktree-runtime-resident-cache.md:137",
+      "action": "A crit:medium follow-up (admission/QoS, slice 3) stays open in a done member spec although pose-worktree-runtime-qos-and-measurement delivered it; the milestone does not dispose it and the policy accepts only low risks.",
+      "disposition": "open"
+    },
+    {
+      "id": "F7",
+      "severity": "low",
+      "evidence": "file:.pose/specs/2026-11-09-pose-worktree-runtime-resident-cache.md:83",
+      "action": "Tick the review-and-close tasks in both done specs.",
+      "disposition": "accepted-risk",
+      "owner": "@pose-maintainers",
+      "rationale": "The task 'Revisão independente e fechamento' is left unchecked in done specs (also pose-worktree-runtime-qos-and-measurement :81).",
+      "review_by": "2027-02-08"
+    }
+  ],
+  "authority": {
+    "schema_version": 1,
+    "project": "proj.pose-dist",
+    "bundle_digest": "sha256:6043e298e745c5168c4d240a387fed683aa0df2584fe87720495dfbf0eb3a569",
+    "principal": "agent:anthropic/claude-opus-5-5",
+    "role": "agent",
+    "review_execution": "rrn-bdcf82bd12194216",
+    "implementation_principal": "agent:anthropic/claude-sonnet-5-5",
+    "implementation_execution": "sha256:675189f7e0b769255994f8213acf8b1b57174c4353838cd875cdabd46aa9cc0b",
+    "issuer": "b34-local-executor",
+    "issued_at": "2026-11-10T09:54:03Z",
+    "audience": "proj.pose-dist"
+  },
+  "envelope": {
+    "issuer": "b34-local-executor",
+    "subject": "rvb-6043e298e745c516",
+    "algorithm": "ed25519",
+    "public_key": "ck4sApdfePV2GT+hJyAYfJd2qLzeG55P8pevGR0bvZE=",
+    "signature": "HZPvK9xGb4F8GKTXFO+oG5uK8N+Ncf4EX4/Yd131R/52PBVMrDkGnqezT5abOrew4N/b6z0U29hF1H6s8MBQBw=="
+  },
+  "attested_at": "2026-11-10T09:54:03Z",
+  "path": ".pose/review-attestations/rva-e45599573a99869a.json"
+}
