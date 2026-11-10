@@ -1,8 +1,8 @@
 ---
 slug: pose-worktree-runtime-qos-and-measurement
-status: in-progress
+status: done
 created_at: 2026-11-09
-completed_at:
+completed_at: 2026-11-10
 supersedes:
 depends_on: pose-worktree-runtime-resident-cache
 remediates:
