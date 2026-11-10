@@ -1,8 +1,8 @@
 ---
 slug: pose-worktree-runtime-resident-cache
-status: in-progress
+status: done
 created_at: 2026-11-09
-completed_at:
+completed_at: 2026-11-10
 supersedes:
 depends_on: pose-optional-worktree-runtime, pose-governance-audit-skips-pure-git-reads
 remediates:
