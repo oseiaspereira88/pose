@@ -14,6 +14,7 @@ import (
 	"syscall"
 	"time"
 
+	posemodel "github.com/harne8/pose-mcp/internal/pose"
 	"github.com/harne8/pose-mcp/internal/version"
 	"github.com/harne8/pose-mcp/internal/worktreeruntime"
 )
@@ -88,10 +89,13 @@ func parseRuntimeFlags(args []string) (runtimeFlags, string) {
 func cmdRuntime(root string, args []string, stdout, stderr io.Writer) int {
 	out := render(stdout, stderr)
 	if len(args) == 0 {
-		out.Usage(tr("usage: pose runtime <serve|start|attach|status|stop|restart> [--idle <d>] [--drain <d>] [--json]", "uso: pose runtime <serve|start|attach|status|stop|restart> [--idle <d>] [--drain <d>] [--json]"))
+		out.Usage(tr("usage: pose runtime <serve|start|attach|status|stop|restart|run> [--idle <d>] [--drain <d>] [--json]", "uso: pose runtime <serve|start|attach|status|stop|restart|run> [--idle <d>] [--drain <d>] [--json]"))
 		return 2
 	}
 	sub := args[0]
+	if sub == "run" {
+		return cmdRuntimeRun(root, args[1:], stdout, stderr)
+	}
 	f, problem := parseRuntimeFlags(args[1:])
 	if problem != "" {
 		out.Failure("pose runtime: " + problem)
@@ -111,7 +115,10 @@ func cmdRuntime(root string, args []string, stdout, stderr io.Writer) int {
 		serveCtx, cancel := context.WithCancel(ctx)
 		defer cancel()
 		go func() { <-sigs; cancel() }()
-		if err := worktreeruntime.Serve(serveCtx, worktreeruntime.Options{Identity: id, Dir: client.Dir, Idle: f.idle}); err != nil {
+		// A resident process keeps the pure Git reads it makes between hosted commands.
+		posemodel.EnableResidentGitMemo(256 << 20)
+		defer posemodel.DisableResidentGitMemo()
+		if err := worktreeruntime.Serve(serveCtx, worktreeruntime.Options{Identity: id, Dir: client.Dir, Idle: f.idle, Handler: runtimeHostedHandler(runtimeEnvDigest(os.Environ()))}); err != nil {
 			return runtimeFailure(out, stdout, f, "serve", err)
 		}
 		return 0

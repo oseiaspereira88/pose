@@ -333,7 +333,28 @@ func (state *governanceReadViewGitState) capture(files Files, ctx context.Contex
 	if byHead {
 		headBefore = governanceHeadAt(ctx, files, root)
 	}
-	stdout, stderr, runErr := runGovernanceGitCommandOutputAdmittedContext(ctx, files, root, args, limit, state.op.reserveInput)
+	// A process that turned the resident memo on answers a pure read from it; the bytes are
+	// admitted against the operation's budget as a fresh read's are.
+	var stdout, stderr []byte
+	var runErr error
+	memoKey, memoized := "", false
+	memo := residentGit.Load()
+	if memo != nil && (byObject || byHead && headBefore != "") {
+		if key, ok := residentGitKey(root, headBefore, args); ok {
+			memoKey = key
+			if hit, found := memo.get(key); found {
+				if int64(len(hit)) > limit || !state.op.reserveInput(int64(len(hit))) {
+					state.mu.Unlock()
+					state.markUnknownForRoot(root, producer, "Git command output exceeded the read-view input byte budget")
+					return nil, errGovernanceReadViewBudget
+				}
+				stdout, memoized = hit, true
+			}
+		}
+	}
+	if !memoized {
+		stdout, stderr, runErr = runGovernanceGitCommandOutputAdmittedContext(ctx, files, root, args, limit, state.op.reserveInput)
+	}
 	if errors.Is(runErr, errGovernanceReadViewBudget) {
 		state.mu.Unlock()
 		state.markUnknownForRoot(root, producer, "Git command output exceeded the read-view input byte budget")
@@ -348,8 +369,14 @@ func (state *governanceReadViewGitState) capture(files Files, ctx context.Contex
 		switch {
 		case byObject:
 			observation.pure = true
+		case memoized && byHead:
+			// The commit is the one the memo's key names; nothing ran, so there is no second read.
+			observation.pure, observation.headAt = true, headBefore
 		case byHead && headBefore != "" && governanceHeadAt(ctx, files, root) == headBefore:
 			observation.pure, observation.headAt = true, headBefore
+		}
+		if memoKey != "" && !memoized && observation.pure {
+			memo.put(memoKey, stdout)
 		}
 	}
 	state.observations[key] = observation

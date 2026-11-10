@@ -326,8 +326,8 @@ func TestAStopReportsWhatItDrainedAndWhatItAbandoned(t *testing.T) {
 			defer cancel()
 			done := make(chan error, 1)
 			go func() {
-				done <- Serve(ctx, Options{Identity: id, Dir: dir, Handler: func(_ context.Context, op string) (Reply, bool) {
-					if op != "hold" {
+				done <- Serve(ctx, Options{Identity: id, Dir: dir, Handler: func(_ context.Context, req Request) (Reply, bool) {
+					if req.Op != "hold" {
 						return Reply{}, false
 					}
 					entered <- struct{}{}

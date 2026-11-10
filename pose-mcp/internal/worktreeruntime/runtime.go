@@ -33,10 +33,13 @@ const (
 	// EnvDir overrides the directory of the endpoints (tests, unusual layouts).
 	EnvDir = "POSE_RUNTIME_DIR"
 
-	maxRequest       = 64 << 10
-	requestDeadline  = 5 * time.Second
-	defaultDrain     = 5 * time.Second
-	socketNameDigits = 12
+	maxRequest = 64 << 10
+	maxReply   = 16 << 20
+	// A hosted operation with no deadline of its own may take this long; a longer one is cut to it.
+	maxHostedDuration = 10 * time.Minute
+	requestDeadline   = 5 * time.Second
+	defaultDrain      = 5 * time.Second
+	socketNameDigits  = 12
 )
 
 // Identity is what must be the same on both ends of an attach. The location part (user,
@@ -129,6 +132,16 @@ func (e *IncompatibleError) Error() string {
 	return "the running runtime is not compatible: " + strings.Join(e.Mismatch, "; ")
 }
 
+// OutcomeUnknownError is a request that was sent and whose answer did not arrive whole: the
+// operation may have run, so it is not repeated in another process unasked.
+type OutcomeUnknownError struct{ Cause error }
+
+func (e *OutcomeUnknownError) Error() string {
+	return "the runtime did not answer a request it received: " + e.Cause.Error()
+}
+
+func (e *OutcomeUnknownError) Unwrap() error { return e.Cause }
+
 // UnsafeError is an endpoint or directory that fails the ownership, mode or type checks.
 type UnsafeError struct{ Path, Reason string }
 
@@ -184,11 +197,25 @@ func checkSocket(path string) (os.FileInfo, error) {
 	return info, nil
 }
 
-type request struct {
-	Op       string    `json:"op"`
-	Identity *Identity `json:"identity,omitempty"`
-	DrainMS  int       `json:"drain_ms,omitempty"`
+// Request is one message to a runtime. Args, Env and DeadlineMS belong to a hosted operation:
+// the command line, the digest of the environment the caller ran in and how long it may take.
+type Request struct {
+	Op         string    `json:"op"`
+	Identity   *Identity `json:"identity,omitempty"`
+	DrainMS    int       `json:"drain_ms,omitempty"`
+	Args       []string  `json:"args,omitempty"`
+	Env        string    `json:"env,omitempty"`
+	DeadlineMS int       `json:"deadline_ms,omitempty"`
 }
+
+// Outcomes of a hosted operation. A refused one did not start; an error, a deadline and an
+// unknown outcome may have had effects, so a caller never repeats them elsewhere unasked.
+const (
+	OutcomeCompleted = "completed"
+	OutcomeRefused   = "refused"
+	OutcomeDeadline  = "deadline"
+	OutcomeError     = "error"
+)
 
 // Reply is the answer of a runtime.
 type Reply struct {
@@ -207,6 +234,14 @@ type Reply struct {
 	// drain deadline and the ones that did not.
 	Drained   int64 `json:"drained,omitempty"`
 	Abandoned int64 `json:"abandoned,omitempty"`
+	// A hosted operation's typed result.
+	Outcome   string `json:"outcome,omitempty"`
+	Reason    string `json:"reason,omitempty"`
+	ExitCode  int    `json:"exit_code,omitempty"`
+	Stdout    string `json:"stdout,omitempty"`
+	Stderr    string `json:"stderr,omitempty"`
+	ElapsedMS int64  `json:"elapsed_ms,omitempty"`
+	MemoHits  int64  `json:"memo_hits,omitempty"`
 }
 
 // Options start a runtime.
@@ -215,10 +250,9 @@ type Options struct {
 	Dir      string
 	// Idle stops the runtime after this long without a request; zero never does.
 	Idle time.Duration
-	// Handler, when set, is called for each admitted request before the reply of an unknown
-	// op; slice 1 hosts none, and the field exists so the in-flight count is the one a later
-	// slice's operations will be counted by.
-	Handler func(ctx context.Context, op string) (Reply, bool)
+	// Handler, when set, is called for each request the runtime does not answer itself, and
+	// counts as in flight while it runs; it reports whether it hosts the operation.
+	Handler func(ctx context.Context, req Request) (Reply, bool)
 }
 
 // Serve runs the runtime until ctx ends, a client stops it or it idles out. The epoch of
@@ -368,7 +402,7 @@ func (s *server) handle(ctx context.Context, conn net.Conn) {
 	if err != nil && len(line) == 0 {
 		return
 	}
-	var req request
+	var req Request
 	if err := json.Unmarshal(line, &req); err != nil {
 		writeReply(conn, Reply{Error: "the request is not valid JSON"})
 		return
@@ -400,7 +434,11 @@ func (s *server) handle(ctx context.Context, conn net.Conn) {
 		writeReply(conn, reply)
 	default:
 		if s.opts.Handler != nil {
-			if reply, ok := s.opts.Handler(ctx, req.Op); ok {
+			// The reply of a long operation must still be writable.
+			_ = conn.SetDeadline(time.Now().Add(hostedDuration(req.DeadlineMS) + requestDeadline))
+			if reply, ok := s.opts.Handler(ctx, req); ok {
+				id := s.opts.Identity
+				reply.Identity, reply.Epoch, reply.PID = &id, s.epoch, os.Getpid()
 				writeReply(conn, reply)
 				return
 			}
@@ -445,7 +483,7 @@ type Client struct {
 	Dir      string
 }
 
-func (c Client) roundTrip(ctx context.Context, req request) (Reply, error) {
+func (c Client) roundTrip(ctx context.Context, req Request) (Reply, error) {
 	if !Supported() {
 		return Reply{}, ErrUnsupported
 	}
@@ -477,14 +515,18 @@ func (c Client) roundTrip(ctx context.Context, req request) (Reply, error) {
 			return Reply{}, &UnsafeError{path, "the process that answers is not the user's"}
 		}
 	}
-	_ = conn.SetDeadline(time.Now().Add(requestDeadline + time.Duration(req.DrainMS)*time.Millisecond))
+	wait := time.Duration(req.DrainMS) * time.Millisecond
+	if req.Op != "handshake" && req.Op != "status" && req.Op != "stop" {
+		wait = hostedDuration(req.DeadlineMS)
+	}
+	_ = conn.SetDeadline(time.Now().Add(requestDeadline + wait))
 	raw, _ := json.Marshal(req)
 	if _, err := conn.Write(append(raw, '\n')); err != nil {
-		return Reply{}, err
+		return Reply{}, &OutcomeUnknownError{Cause: err}
 	}
-	line, err := bufio.NewReader(io.LimitReader(conn, maxRequest)).ReadBytes('\n')
+	line, err := bufio.NewReaderSize(io.LimitReader(conn, maxReply), 64<<10).ReadBytes('\n')
 	if err != nil && len(line) == 0 {
-		return Reply{}, err
+		return Reply{}, &OutcomeUnknownError{Cause: err}
 	}
 	var reply Reply
 	if err := json.Unmarshal(line, &reply); err != nil {
@@ -497,7 +539,7 @@ func (c Client) roundTrip(ctx context.Context, req request) (Reply, error) {
 // IncompatibleError naming each field that differs.
 func (c Client) Handshake(ctx context.Context) (Reply, error) {
 	id := c.Identity
-	reply, err := c.roundTrip(ctx, request{Op: "handshake", Identity: &id})
+	reply, err := c.roundTrip(ctx, Request{Op: "handshake", Identity: &id})
 	if err != nil {
 		return Reply{}, err
 	}
@@ -514,12 +556,28 @@ func (c Client) Handshake(ctx context.Context) (Reply, error) {
 // Status is the state of the runtime without comparing identities; the caller reads the
 // identity it carries.
 func (c Client) Status(ctx context.Context) (Reply, error) {
-	return c.roundTrip(ctx, request{Op: "status"})
+	return c.roundTrip(ctx, Request{Op: "status"})
+}
+
+// hostedDuration is how long a hosted operation may take: its own deadline, or the default,
+// and never more than the maximum.
+func hostedDuration(deadlineMS int) time.Duration {
+	d := time.Duration(deadlineMS) * time.Millisecond
+	if d <= 0 || d > maxHostedDuration {
+		return maxHostedDuration
+	}
+	return d
+}
+
+// Run sends a hosted operation: the command line, the digest of the caller's environment and
+// the longest it may take (zero for the runtime's default).
+func (c Client) Run(ctx context.Context, args []string, env string, deadline time.Duration) (Reply, error) {
+	return c.roundTrip(ctx, Request{Op: "run", Args: args, Env: env, DeadlineMS: int(deadline.Milliseconds())})
 }
 
 // Do sends an operation the runtime hosts and returns its reply.
 func (c Client) Do(ctx context.Context, op string) (Reply, error) {
-	return c.roundTrip(ctx, request{Op: op})
+	return c.roundTrip(ctx, Request{Op: op})
 }
 
 // WaitReleased returns when the endpoint of the identity can be taken: nothing answers and the
@@ -543,5 +601,5 @@ func (c Client) WaitReleased(ctx context.Context, timeout time.Duration) bool {
 
 // Stop asks the runtime to drain within the deadline and exit.
 func (c Client) Stop(ctx context.Context, drain time.Duration) (Reply, error) {
-	return c.roundTrip(ctx, request{Op: "stop", DrainMS: int(drain.Milliseconds())})
+	return c.roundTrip(ctx, Request{Op: "stop", DrainMS: int(drain.Milliseconds())})
 }
