@@ -31,6 +31,11 @@ type governanceReadViewGitObservation struct {
 	err            error
 	errText        string
 	producers      map[string]bool
+	// pure is set when the output cannot change while the commit it was read at stands: it is a
+	// function of object ids, or of headAt, the commit HEAD named before and after the command.
+	// The final audit then reruns it only if HEAD moved.
+	pure   bool
+	headAt string
 }
 
 // governanceReadViewGitState captures exact, bounded Git command results for
@@ -323,6 +328,11 @@ func (state *governanceReadViewGitState) capture(files Files, ctx context.Contex
 		state.markUnknownForRoot(root, producer, "read view exceeded its Git input byte budget")
 		return nil, errGovernanceReadViewBudget
 	}
+	byObject, byHead := governancePureGitRead(args)
+	headBefore := ""
+	if byHead {
+		headBefore = governanceHeadAt(ctx, files, root)
+	}
 	stdout, stderr, runErr := runGovernanceGitCommandOutputAdmittedContext(ctx, files, root, args, limit, state.op.reserveInput)
 	if errors.Is(runErr, errGovernanceReadViewBudget) {
 		state.mu.Unlock()
@@ -333,6 +343,14 @@ func (state *governanceReadViewGitState) capture(files Files, ctx context.Contex
 		root: root, args: append([]string(nil), args...), files: files, ctx: auditContext, deadline: deadline, hasDeadline: hasDeadline, maxOutputBytes: maxOutputBytes,
 		stdout: append([]byte(nil), stdout...), stderr: append([]byte(nil), stderr...), err: runErr, errText: errorText(runErr),
 		producers: map[string]bool{producer: true},
+	}
+	if runErr == nil && len(stderr) == 0 {
+		switch {
+		case byObject:
+			observation.pure = true
+		case byHead && headBefore != "" && governanceHeadAt(ctx, files, root) == headBefore:
+			observation.pure, observation.headAt = true, headBefore
+		}
 	}
 	state.observations[key] = observation
 	state.mu.Unlock()
@@ -419,7 +437,21 @@ func (state *governanceReadViewGitState) audit() governanceReadViewAudit {
 		return left < right
 	})
 	remaining := int64(governanceReadViewMaxInputBytes)
+	heads := map[string]string{}
 	for _, item := range observations {
+		if item.pure {
+			if item.headAt == "" {
+				continue
+			}
+			now, read := heads[item.root]
+			if !read {
+				now = governanceHeadAt(item.ctx, item.files, item.root)
+				heads[item.root] = now
+			}
+			if now == item.headAt {
+				continue
+			}
+		}
 		if remaining <= 0 {
 			for producer := range item.producers {
 				result.UnknownProducers[producer] = appendUnique(result.UnknownProducers[producer], "Git final audit exceeded its shared byte budget")
@@ -435,7 +467,7 @@ func (state *governanceReadViewGitState) audit() governanceReadViewAudit {
 		if item.hasDeadline {
 			auditContext, cancelAuditContext = context.WithDeadline(auditContext, item.deadline)
 		}
-		stdout, stderr, err := runGovernanceGitCommandOutputContext(auditContext, item.files, item.root, item.args, limit)
+		stdout, stderr, err := governanceAuditGit(auditContext, item.files, item.root, item.args, limit)
 		cancelAuditContext()
 		if errors.Is(err, errGovernanceReadViewBudget) {
 			command := "unknown"

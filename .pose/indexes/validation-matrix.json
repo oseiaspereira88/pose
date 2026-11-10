@@ -2597,6 +2597,19 @@
           "evidenceClass": "integration"
         },
         {
+          "name": "audit-pure-git-integration",
+          "program": "go",
+          "args": [
+            "test",
+            "./internal/pose",
+            "-run",
+            "TestOnlyReadsThatCannotDependOnMutableStateAreClassifiedPure|TestTheFinalAuditSkipsPureReads|GovernanceReadViewGit",
+            "-count=1"
+          ],
+          "severity": "required",
+          "evidenceClass": "integration"
+        },
+        {
           "name": "index-input-binding-integration",
           "program": "go",
           "args": [
