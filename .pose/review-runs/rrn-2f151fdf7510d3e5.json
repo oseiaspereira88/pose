@@ -1,0 +1,137 @@
+{
+  "safety": {
+    "schema_version": 1,
+    "profile": "legacy-trusted",
+    "platform": "linux/amd64",
+    "capabilities": {
+      "automatic-expiry": "unavailable",
+      "bounded-capture": "available",
+      "cpu-limit": "unavailable",
+      "credential-filesystem-isolation": "unavailable",
+      "environment-allowlist": "available",
+      "escaped-descendant-termination": "unavailable",
+      "filesystem-isolation": "unavailable",
+      "memory-limit": "unavailable",
+      "network-isolation": "unavailable",
+      "origin-isolation": "unavailable",
+      "parent-termination": "available",
+      "process-group-termination": "available",
+      "shared-git-isolation": "unavailable"
+    },
+    "limitations": [
+      "trusted local executable required; worktree is not a sandbox",
+      "outside writes, transient writes, shared Git and credential files are not isolated",
+      "no memory/CPU quota or control of descendants escaping the process group",
+      "cleanup filesystem calls remain subject to operating-system I/O latency",
+      "legacy compatibility: HOME retained; other ambient credentials excluded"
+    ],
+    "stream_bytes": 8388608,
+    "output_bytes": 65536,
+    "retained_bytes": 16777216,
+    "timeout_ms": 3600000,
+    "max_runs_per_bundle": 3,
+    "retention": "retain-evidence; ttl=0; no automatic deletion",
+    "capture_complete": true,
+    "runtime_id": "pose-review-run-2694577954",
+    "operation": {
+      "schema_version": 1,
+      "operation": "review.dispatch.cleanup",
+      "scope": "spec:pose-worktree-runtime-resident-cache",
+      "outcome": "completed",
+      "steps_run": [
+        {
+          "id": "cleanup",
+          "result": "done"
+        }
+      ],
+      "effects": [],
+      "resumable": false
+    }
+  },
+  "provenance": {
+    "execution_state": "started",
+    "planned_wire_digest": "sha256:dfa85d97a55132dc919f10be27059c32723318eaf146db9341eb8b6a987b8188",
+    "wire_bytes": 28255,
+    "wire_complete": true,
+    "schema_version": 1,
+    "project": "proj.pose-dist",
+    "audience": "proj.pose-dist",
+    "worktree_digest": "sha256:9c161dc895f6496d9f800581bef8673cc9123cda65951fa2d23b0cbdbc2bac41",
+    "trust": "executor-attested",
+    "implementation": {
+      "principal": "agent:anthropic/claude-sonnet-5-5",
+      "execution": "sha256:675189f7e0b769255994f8213acf8b1b57174c4353838cd875cdabd46aa9cc0b",
+      "vendor": "anthropic",
+      "model": "claude-sonnet-5-5"
+    },
+    "reviewer": {
+      "principal": "agent:anthropic/claude-opus-5-5",
+      "vendor": "anthropic",
+      "model": "claude-opus-5-5"
+    },
+    "config_digest": "sha256:fa7add8c85f5c0c1dd74b1dba89cd12989a2a856fc7a59407bc04682bd575e25",
+    "command_template_digest": "sha256:4fb04e170e8d7f85923d1ab7c7d6eac045a3bb8d20b443991552d6b7bfa7c4f2",
+    "argv_digest": "sha256:6f7a9cc5aa680b285a37674b2fc17403c1b6f541da236f7fd09bb7d444f08935",
+    "executable_digest": "sha256:bfb3703ad5380242328459bc62ada4bde8ae7ba57c6e1eeadb9c00e08874c478",
+    "template_version": "review-brief/7",
+    "wire_digest": "sha256:dfa85d97a55132dc919f10be27059c32723318eaf146db9341eb8b6a987b8188",
+    "notes_digest": "sha256:f5bccab410761b9d78742597b64a7343f2e6c7f6e62b7ee4c284e3b92901a88b",
+    "raw_transcript_digest": "sha256:7fbf91dbed3ee5664ed0786de73e48d32a14a6228d2792879f36717203f001cc",
+    "raw_output_digest": "sha256:35e3c55dc43a57f7c897e68edf4dfa5231f4840a569d977f93b4d1bc9e9f0697",
+    "output_source": "stream-final",
+    "output_complete": true
+  },
+  "session_digest": "sha256:c5784e16bcaad404fa0805d9f6607484f8154c0c1bf75b15bc240dc18eb8ae99",
+  "tree_digest": "sha256:a1ee61a39eb01f2a49688b150b2a5d8317fedf8e73b3ac175d259d34b372ca2b",
+  "brief_notes": "Review of spec pose-worktree-runtime-resident-cache, implemented by Claude: slice 2 of B35, rewritten after two engine specs (already closed) showed where the cost was. Read `.pose/adr/2026-10-14-shared-domain-and-optional-worktree-runtime.md` (amendment of 2026-11-09) for the decisions. Judge on R5, R7 and R10 of the spec. Scope: (1) `pose-mcp/internal/pose/resident_git_memo.go` and the hook in `governance_read_view_git.go` (`capture`): a process-wide memo, OFF unless `EnableResidentGitMemo` is called, of the output of the Git reads that `governancePureGitRead` classifies as pure (object-id reads and `log -1 --format=%H -- \u003cpaths\u003e` pinned to the HEAD read before the command), keyed by root, commit, shallow-file stamp and exact args, bounded in bytes, LRU; a hit's bytes are admitted against the operation budget and the observation is marked pure so the final audit skips it while HEAD stands. Please check soundness of the key (what could make a hit differ from what Git would answer: replace refs are disabled by `--no-replace-objects`; a shallow state change is in the key; a linked worktree, whose `.git` is a file, is not memoized) and the budget/audit interplay. (2) `pose-mcp/internal/worktreeruntime`: the `Request` and typed `Reply`, a hosted `run` op, `OutcomeUnknownError` for a request that was sent and whose answer did not arrive whole, bounded durations. (3) `pose-mcp/internal/cli/runtime_host.go`: the hosted handler (five read checks only; one at a time; refuses an unhosted command and a caller whose environment digest differs, before starting) and `pose runtime run` (fallback standalone only when the command did not start; a command that may have run is never repeated). `serve` turns the memo on. Measured by hand with the real binary on this repository: standalone `review-check` 25.2 s; through the runtime 25.1 s the first time, then 10.6 s and 10.6 s, stdout and stderr identical to standalone (a stated known gap: not a regression test). Tests: `TestTheResidentGitMemo…`, `TestASecondOperationIsAnsweredFromTheMemoAndANewCommitMissesIt`, `TestAHostedCommandAnswersThroughTheRuntimeAsItDoesStandalone`, `TestACommandThatMayHaveRunIsNotRepeatedStandalone`, `TestTheEnvironmentDigestFollowsWhatDecidesAnAnswer`. Known limits are in the spec (non-terminal rendering; no load limits, which is slice 3). Your profile only allows the plan tools and `git status|ls-files`: rely on the sealed evidence and read the code; do not report the missing shell as a finding. IDs: new findings in `findings` have bare ids (F1, F2 …, never `R1-`); findings carried from an earlier round are named in `prior_findings` with the round prefix (`R1-F1` …). Follow-ups carry `action`, `owner` and `review_by`; only low-severity risks are accepted by the policy.\n\nRound 2: round-1 findings are named F1 … F6 (carried as `R1-F1` … in `prior_findings`; new findings in `findings` get bare ids G1, G2). F1: a reply that arrives in part now returns `OutcomeUnknownError` (`TestAReplyThatArrivesInPartIsAnUnknownOutcome`, which fails without the change — verified). F2: a hosted command's output above 8 MiB is answered as a typed `error` (the command ran; the output is not sent). F3: `Options.Busy` counts a command left running after its deadline as in flight for the status, the idle timeout and the drain (`TestACommandRunningPastItsDeadlineStillCountsAsInFlight`). F4: `memo_hits` is the command's own delta. F5: the repository's `.git/config` stamp is in the memo key; user and global config are a recorded low follow-up. F6: the runtime-side refusal has a test (`TestTheRuntimeRefusesWhatItDoesNotHostAndAnotherEnvironment`); the budget admission of a hit is a recorded low follow-up.\n\nRound 3 (correction): the engine holds no record of the earlier rounds of this scope in this checkout (the closeout checkout is rebuilt for every round), so carrying findings with `prior_findings` is refused (\"prior finding R1-F1 is not an open finding of the scope's rounds\"). Leave `prior_findings` out of the draft entirely. Decide on the code as it is: the round-1 and round-2 findings (the partial-reply unknown outcome, the bounded output, the busy count after a deadline, the per-command memo hits, the config stamp in the memo key, the runtime-side refusal test) are addressed in the current head; judge whether each is, and report only findings you can still show, with bare ids (F1, F2 …).\n\nRound 4: do not use `prior_findings` (see round 3). Fixed since your last look: a hosted command's deadline now covers its wait for the one-at-a-time turn, and a command that has not started by then is refused (\"did not start\") and never runs later (`TestACommandThatNeverStartedIsRefusedAndNotRunLater`, with the runtime-side count of runs); with no `--timeout` the handler uses the same 10-minute maximum as the socket (`worktreeruntime.MaxHostedDuration`); the typed `error` outcome keeps the command's exit code and is documented; replies are encoded without HTML escaping and the hosted output bound is 2 MiB so escaping cannot push a completed reply past the 16 MiB bound (`TestAReplyDoesNotEscapeHTMLCharacters`, fails with escaping on — verified); the manuals list XDG_STATE_HOME, XDG_CONFIG_HOME and XDG_RUNTIME_DIR. Non-UTF-8 output is documented in the code as replaced, a known limit.\n",
+  "ledger_version": 1,
+  "attempt_id": "rat-5f7677c3fe08f15aca9499c5ee50333dbdd5d3e0d553944bf5119ed33a598bd9",
+  "schema_version": 1,
+  "run_id": "rrn-2f151fdf7510d3e5",
+  "scope": "spec:pose-worktree-runtime-resident-cache",
+  "bundle_id": "rvb-924c041ec6cd8d14",
+  "bundle_digest": "sha256:924c041ec6cd8d143aa861d49d65e748ee21b47c0e20a493b1c4184fa75be858",
+  "sealed_commit": "7ae1f2ef2c3a17f9bab55a767743f66ed1f89ee6",
+  "kind": "review",
+  "brief_digest": "sha256:564cf5f7dfe8a28a0939a05c764d26faa4ce65c3ff95caa0e9628481f3739f8b",
+  "adapter": "claude-opus-5-5",
+  "vendor": "anthropic",
+  "model": "claude-opus-5-5",
+  "started_at": "2026-11-10T07:56:39.499138281Z",
+  "ended_at": "2026-11-10T08:05:57.146862555Z",
+  "exit_code": 0,
+  "status": "completed",
+  "transcript_digest": "sha256:c4e504e946701d1f491aa958cb9b7f1c0987218c22a9597d8c957f050f0f9d0e",
+  "transcript_path": ".pose/review-runs/rrn-2f151fdf7510d3e5.transcript",
+  "output": "**decision: approved**\n\nThe change meets R5, R7 and R10. I found four defects, all low severity, and each is a follow-up with an owner and a review date. Under the review policy, low-severity risks can be accepted, so they don't block approval.\n\n**What I could and couldn't run:** I ran `pose artifact-check --strict` (no errors; the only warnings are orphan claims on files outside this scope) and `pose surface-check --strict` (`findings=0`). The sandbox refused `pose validate`, `pose assess design` and the other assess and suggest tools. For build, unit, e2e and integration I'm relying on the sealed evidence: `resident-cache-integration` runs the whole requirement trace under `-race`. `review-check` and `closeout-check` are deferred until after this attestation.\n\n## Criteria\n\n| Criterion | Result | Evidence and reasoning |\n|---|---|---|\n| assumption-integrity | passed | See below. |\n| backend-concurrency | passed | `resident_git_memo.go:78-115` holds a mutex for every change to the map and the LRU list. `runtime_host.go:83-149` has a semaphore of one, and the deadline timer also covers the wait for a turn. A command that runs past its deadline is still counted by `Busy`, which feeds idle, drain and status (`runtime.go:380, 458, 484`). Proved by `resident-cache-integration` under `-race`. |\n| backend-contracts | passed | `Request` is now exported, but `worktreeruntime` is an internal package. The new reply fields use `omitempty`, so slice-1 replies don't change. `pose.runtime.run/1` is new and documented. |\n| backend-input-errors | finding (F2) | Inputs are bounded: 64 KiB request, 16 MiB reply, 2 MiB hosted output, 10-minute cap. `--timeout` is validated. One error path is mislabelled (F2). |\n| backend-integration-impact | passed | The memo hooks into `capture` (`governance_read_view_git.go:336-380`) only when the memo is switched on. The read-view tests still pass. |\n| backend-observability | passed | Refusals, deadlines and unknown outcomes carry reasons. The envelope reports `via`, `fallback_reason`, `outcome`, `epoch` and `memo_hits`. |\n| compatibility | passed | Without `run` and without the memo, behaviour is unchanged. The memo is off by default, which a test checks. `status`, `stop` and `attach` keep their error types because `OutcomeUnknownError` unwraps to the original error. |\n| correctness | passed | Sealed `unit:pose-mcp/go/test`. I also confirmed the six round-1/2 fixes and the round-4 fixes are in the code. |\n| design-causality | passed | D1: once the earlier engine specs fixed the rest, the cost left over is Git (about 14 s of 242 `log -1` calls). Read-only Git queries tied to a fixed commit or object id don't need a freshness check, because the commit or object id is the key. |\n| documentation | finding (F1, F4) | All four manuals were updated, but they contain a literal `\\n\\n` and leave out the 10-minute cap. |\n| operability | passed | A command that never started falls back to running standalone. A command that may have run exits 1 with \"may have run, not repeated, check its effects\". |\n| requirements | passed | Every one of R5, R7 and R10 is traced to tests in `resident-cache-integration`. |\n| scope | passed | The changed files match the spec's artifact list. Only the five checks are hosted, and nothing is routed to the runtime by default. |\n| security | passed | The socket is 0600 and the server checks the caller's user ID before reading. It refuses unhosted commands and a different environment digest before starting anything. Commands run as the same user, so the caller gains no authority. |\n| solution-proportionality | passed (note F3) | The smallest alternative, hosting without caching, saves no time. The memo is small (115 lines) and only reaches read-only Git queries the earlier spec already identified. D1 states what would invalidate it. |\n\n**Assumptions:**\n- **Verified:**\n  - Replace refs and grafts are disabled for every Git call: `--no-replace-objects` plus `GIT_GRAFT_FILE=/dev/null` in `git_snapshot_integrity.go:579`.\n  - Linked worktrees and submodules are skipped, because `.git` must be a directory.\n  - The shallow state and the repository's `.git/config` are part of the key.\n  - A cache hit is admitted against the operation's budget, and is refused when it is over `limit`, the same as a fresh read.\n  - Every hosted check resolves its root from the Git top-level, and none takes a path relative to the caller's directory.\n- **Unresolved:** user and global Git configuration are not in the key; this is already recorded as a follow-up.\n- **Accepted risks:** the environment digest is an allow-list. The speed-up figure was measured by hand, not by a test.\n\n## Defects\n\n- **F1 (low)** `POSE.md:949`, `locales/pt-BR/POSE.md:944`, `pose-mcp/internal/scaffold/dist/POSE.md:936`, `pose-mcp/internal/scaffold/dist/locales/pt-BR/POSE.md:944`: the new paragraph ends with a literal `\\n\\n` and is joined to \"Review rounds\", which ships to installed projects.\n- **F2 (low)** `pose-mcp/internal/cli/runtime_host.go:208`: when the runtime answers with only `Error` and no `outcome` (for example, a request over 64 KiB is rejected as invalid JSON at `runtime.go:410`), the command certainly did not start. It is still reported as `unknown` and exits 1, instead of falling back to standalone as the spec requires.\n- **F3 (low)** `pose-mcp/internal/pose/resident_git_memo.go:92`: the byte budget counts only key and output, not per-entry overhead, so real memory use can exceed the 256 MiB stated in D1.\n- **F4 (low)** `pose-mcp/internal/worktreeruntime/runtime.go:589`: a `--timeout` above 10 minutes is silently cut to 10 minutes, and the manuals don't say so.\n\n```pose-draft\n{\n  \"schema\": \"pose.review.draft/v1\",\n  \"decision\": \"approved\",\n  \"findings\": [\n    {\"id\": \"F1\", \"severity\": \"low\", \"disposition\": \"follow-up\", \"file\": \"POSE.md\", \"line\": 949, \"summary\": \"The hosted-checks paragraph ends with a literal \\\\n\\\\n and absorbs the 'Review rounds' paragraph; same defect in locales/pt-BR/POSE.md:944 and both scaffold dist copies (shipped to installed projects).\", \"action\": \"Replace the literal \\\\n\\\\n with a real blank line in the four manuals and keep the parity test green.\", \"owner\": \"@pose-maintainers\", \"review_by\": \"2027-02-08\"},\n    {\"id\": \"F2\", \"severity\": \"low\", \"disposition\": \"follow-up\", \"file\": \"pose-mcp/internal/cli/runtime_host.go\", \"line\": 208, \"summary\": \"A runtime reply carrying only Error and no outcome (e.g. a request over 64 KiB rejected as invalid JSON at runtime.go:410) certainly did not start the command, yet the default branch reports it unknown and exits 1 instead of falling back standalone as the spec constraint requires.\", \"action\": \"Treat a reply with Error and empty Outcome as a refusal (fallback standalone) and add a test with an oversized request.\", \"owner\": \"@pose-maintainers\", \"review_by\": \"2027-02-08\"},\n    {\"id\": \"F3\", \"severity\": \"low\", \"disposition\": \"follow-up\", \"file\": \"pose-mcp/internal/pose/resident_git_memo.go\", \"line\": 92, \"summary\": \"The memo byte budget counts only key+stdout, not per-entry list/map/struct overhead, so the 256 MiB stated in D1 understates resident memory when entries are small (the common 41-byte log -1 output).\", \"action\": \"Add a fixed per-entry overhead to the accounted size or restate the bound in D1 and the manual.\", \"owner\": \"@pose-maintainers\", \"review_by\": \"2027-02-08\"},\n    {\"id\": \"F4\", \"severity\": \"low\", \"disposition\": \"follow-up\", \"file\": \"pose-mcp/internal/worktreeruntime/runtime.go\", \"line\": 589, \"summary\": \"A --timeout above MaxHostedDuration (10 min) is silently cut to 10 min on both ends; the manuals do not state the cap, so a caller can get an unknown outcome earlier than the timeout it asked for.\", \"action\": \"Document the 10-minute cap in the four manuals or refuse a larger --timeout with a usage error.\", \"owner\": \"@pose-maintainers\", \"review_by\": \"2027-02-08\"}\n  ],\n  \"criteria\": [\n    {\"id\": \"assumption-integrity\", \"disposition\": \"passed\", \"evidence\": \"integration:pose-mcp/go/resident-cache-integration\", \"rationale\": \"Examined the memo key and Git invocation. Verified: replace refs and grafts disabled for every governance Git call (git_snapshot_integrity.go:579), linked worktrees/submodules skipped (.git must be a directory), shallow and repo config stamps in the key, hits admitted against the operation budget, hosted checks resolve root from the Git toplevel and take no caller-relative paths. Unresolved: user/global Git config not in the key (recorded low follow-up). Accepted: env digest is an allow-list; the speed-up is measured by hand.\"},\n    {\"id\": \"backend-concurrency\", \"disposition\": \"passed\", \"evidence\": \"integration:pose-mcp/go/resident-cache-integration\", \"rationale\": \"Memo mutations under a mutex; one hosted command at a time via a semaphore with the deadline covering the queue wait; a command past its deadline counted by Busy in idle, drain and status; covered under -race.\"},\n    {\"id\": \"backend-contracts\", \"disposition\": \"passed\", \"evidence\": \"integration:pose-mcp/go/optional-worktree-runtime-integration\", \"rationale\": \"Request exported within an internal package; new Reply fields omitempty so slice-1 replies are unchanged; pose.runtime.run/1 is new and documented; the slice-1 runtime contract evidence still passes.\"},\n    {\"id\": \"backend-input-errors\", \"disposition\": \"finding\", \"evidence\": \"F2\"},\n    {\"id\": \"backend-integration-impact\", \"disposition\": \"passed\", \"evidence\": \"integration:pose-mcp/go/governance-read-view-integration\", \"rationale\": \"The memo hook in capture is inert unless enabled; read-view and pure-read audit integration still pass.\"},\n    {\"id\": \"backend-observability\", \"disposition\": \"passed\", \"evidence\": \"integration:pose-mcp/go/resident-cache-integration\", \"rationale\": \"Refusals, deadlines and unknown outcomes carry bounded typed reasons; the envelope reports via, fallback_reason, outcome, epoch and per-command memo_hits.\"},\n    {\"id\": \"compatibility\", \"disposition\": \"passed\", \"evidence\": \"integration:pose-mcp/go/optional-worktree-runtime-integration\", \"rationale\": \"Examined runtime_cmd.go, runtime.go and cli.go help: without run and with the memo off by default nothing changes; status, stop and attach keep error matching because OutcomeUnknownError unwraps; help and manuals add run. Concluded compatible.\"},\n    {\"id\": \"correctness\", \"disposition\": \"passed\", \"evidence\": \"unit:pose-mcp/go/test\", \"rationale\": \"Read the handler, client and memo; the round-1/2/4 fixes are present (partial reply unknown, 2 MiB output bound, Busy count, per-command hits, config stamp, runtime-side refusal, queued command withdrawn).\"},\n    {\"id\": \"design-causality\", \"disposition\": \"passed\", \"evidence\": \"structure:design-bce3b6ec3b695f0f\", \"rationale\": \"D1 (basis R5, R7, R10): measurement put the remaining cost in Git (about 14 s of 242 log -1 calls); reads pure in a commit or object id need no freshness proof because the commit is the key, and hosting gives the process lifetime the memo needs. The structure matches: memo in internal/pose, protocol in worktreeruntime, handler in cli.\"},\n    {\"id\": \"documentation\", \"disposition\": \"finding\", \"evidence\": \"F1\"},\n    {\"id\": \"operability\", \"disposition\": \"passed\", \"evidence\": \"integration:pose-mcp/go/resident-cache-integration\", \"rationale\": \"Examined runtimeRunUnknown and the refusal reasons: a command that never started falls back with a stated reason, and a command that may have run exits 1 telling the operator to check its effects before rerunning. Concluded actionable.\"},\n    {\"id\": \"requirements\", \"disposition\": \"passed\", \"evidence\": \"integration:pose-mcp/go/resident-cache-integration\", \"rationale\": \"Each of R5, R7 and R10 is traced to tests included in this check's -run pattern.\"},\n    {\"id\": \"scope\", \"disposition\": \"passed\", \"evidence\": \"integration:pose-mcp/go/resident-cache-integration\", \"rationale\": \"Compared the diff with the spec artifact list and non-goals: only the five checks are hosted, run is explicit, and there is no admission/QoS. Concluded in scope.\"},\n    {\"id\": \"security\", \"disposition\": \"passed\", \"evidence\": \"integration:pose-mcp/go/resident-cache-integration\", \"rationale\": \"Examined the endpoint and handler: 0600 socket with the peer uid checked before reading; unhosted commands and a different environment digest are refused before start; same user and worktree as standalone, so no authority gain; bounded request and reply sizes.\"},\n    {\"id\": \"solution-proportionality\", \"disposition\": \"passed\", \"evidence\": \"integration:pose-mcp/go/resident-cache-integration\", \"rationale\": \"The smallest alternative (hosting without a memo) gives no gain per the measurement; the memo is 115 lines limited to the already-classified pure reads, with no speculative extension points; D1 names the falsifier. The memory accounting gap is F3 (low).\"}\n  ],\n  \"tools\": [\n    {\"id\": \"artifact-check\", \"disposition\": \"passed\", \"evidence\": \"command:pose artifact-check --spec pose-worktree-runtime-resident-cache --strict\", \"rationale\": \"Ran it: only warning-severity orphan diagnostics on files outside this scope, none of higher severity.\"},\n    {\"id\": \"assess-design\", \"disposition\": \"not-used\", \"rationale\": \"The review sandbox refused the command; relied on the sealed structure:design-bce3b6ec3b695f0f.\"},\n    {\"id\": \"assess-discover\", \"component\": \"pose-mcp\", \"disposition\": \"not-used\", \"rationale\": \"Recommended; not available in this review profile.\"},\n    {\"id\": \"assess-integrate\", \"disposition\": \"not-used\", \"rationale\": \"Recommended; not available in this review profile; sealed integration evidence relied on.\"},\n    {\"id\": \"assess-tech-debt\", \"disposition\": \"not-used\", \"rationale\": \"Recommended; not available in this review profile.\"},\n    {\"id\": \"closeout-check\", \"disposition\": \"deferred\", \"rationale\": \"Its precondition is the completion of this review; it runs after the attestation.\"},\n    {\"id\": \"review-check\", \"disposition\": \"deferred\", \"rationale\": \"Its precondition is the completion of this review; it runs after the attestation.\"},\n    {\"id\": \"suggest-review\", \"component\": \"pose-mcp\", \"disposition\": \"not-used\", \"rationale\": \"Recommended; not available in this review profile.\"},\n    {\"id\": \"surface-check\", \"disposition\": \"passed\", \"evidence\": \"reachability:pose-mcp/go/spec-surface-reachability\", \"rationale\": \"Also ran it: surface.targets=1, results=203, findings=0.\"},\n    {\"id\": \"validate\", \"disposition\": \"passed\", \"evidence\": \"unit:pose-mcp/go/test\", \"rationale\": \"The sandbox refused a local run; the sealed strict validation of the reviewed head passed.\"},\n    {\"id\": \"validate\", \"component\": \"pose-mcp\", \"disposition\": \"passed\", \"evidence\": \"integration:pose-mcp/go/resident-cache-integration\", \"rationale\": \"The sandbox refused a local run; the sealed module validation, including this scope's check, passed.\"}\n  ]\n}\n```",
+  "policy_digest": "sha256:f8cb9e16758e19e66e0e01f29d1d347b0c15cd1cfa191e32926de54742e3cb72",
+  "purpose": "review",
+  "env_removed": [
+    "CLAUDE_CODE_BRIDGE_SESSION_ID",
+    "CLAUDE_CODE_CHILD_SESSION",
+    "CLAUDE_CODE_ENTRYPOINT",
+    "CLAUDE_CODE_EXECPATH",
+    "CLAUDE_CODE_MESSAGING_SOCKET",
+    "CLAUDE_CODE_MESSAGING_TOKEN",
+    "CLAUDE_CODE_SESSION_ATTENDED",
+    "CLAUDE_CODE_SESSION_ID",
+    "CLAUDE_EFFORT",
+    "CLAUDE_PID"
+  ],
+  "events": "claude-stream-json",
+  "events_digest": "sha256:83b69884f127471887cb75ae0d9b4ea7bb96c9c69b20cfd31444e45fc7dcc5f9",
+  "routing": {
+    "requested": "claude-opus-5-5",
+    "implementation": {
+      "principal": "agent:anthropic/claude-sonnet-5-5",
+      "vendor": "anthropic",
+      "model": "claude-sonnet-5-5",
+      "execution_digest": "sha256:675189f7e0b769255994f8213acf8b1b57174c4353838cd875cdabd46aa9cc0b",
+      "source": "declared"
+    },
+    "implementation_from": "bundle",
+    "step": "explicit"
+  },
+  "independence_achieved": "different-model",
+  "round": 1
+}

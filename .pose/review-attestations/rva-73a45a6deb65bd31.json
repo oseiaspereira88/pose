@@ -1,0 +1,240 @@
+{
+  "run": {
+    "run_id": "rrn-2f151fdf7510d3e5",
+    "proof_id": "rrp-e257671c0a768a581262cd7458a4a0e344376bceb41caccf5acf56ae56364798"
+  },
+  "schema_version": 1,
+  "attestation_id": "rva-73a45a6deb65bd31",
+  "bundle_id": "rvb-924c041ec6cd8d14",
+  "bundle_digest": "sha256:924c041ec6cd8d143aa861d49d65e748ee21b47c0e20a493b1c4184fa75be858",
+  "reviewer": "agent:anthropic/claude-opus-5-5",
+  "decision": "approved",
+  "criteria": [
+    {
+      "id": "assumption-integrity",
+      "disposition": "passed",
+      "evidence": "integration:pose-mcp/go/resident-cache-integration",
+      "rationale": "Examined the memo key and Git invocation. Verified: replace refs and grafts disabled for every governance Git call (git_snapshot_integrity.go:579), linked worktrees/submodules skipped (.git must be a directory), shallow and repo config stamps in the key, hits admitted against the operation budget, hosted checks resolve root from the Git toplevel and take no caller-relative paths. Unresolved: user/global Git config not in the key (recorded low follow-up). Accepted: env digest is an allow-list; the speed-up is measured by hand."
+    },
+    {
+      "id": "backend-concurrency",
+      "disposition": "passed",
+      "evidence": "integration:pose-mcp/go/resident-cache-integration",
+      "rationale": "Memo mutations under a mutex; one hosted command at a time via a semaphore with the deadline covering the queue wait; a command past its deadline counted by Busy in idle, drain and status; covered under -race."
+    },
+    {
+      "id": "backend-contracts",
+      "disposition": "passed",
+      "evidence": "integration:pose-mcp/go/optional-worktree-runtime-integration",
+      "rationale": "Request exported within an internal package; new Reply fields omitempty so slice-1 replies are unchanged; pose.runtime.run/1 is new and documented; the slice-1 runtime contract evidence still passes."
+    },
+    {
+      "id": "backend-input-errors",
+      "disposition": "finding",
+      "evidence": "F2"
+    },
+    {
+      "id": "backend-integration-impact",
+      "disposition": "passed",
+      "evidence": "integration:pose-mcp/go/governance-read-view-integration",
+      "rationale": "The memo hook in capture is inert unless enabled; read-view and pure-read audit integration still pass."
+    },
+    {
+      "id": "backend-observability",
+      "disposition": "passed",
+      "evidence": "integration:pose-mcp/go/resident-cache-integration",
+      "rationale": "Refusals, deadlines and unknown outcomes carry bounded typed reasons; the envelope reports via, fallback_reason, outcome, epoch and per-command memo_hits."
+    },
+    {
+      "id": "compatibility",
+      "disposition": "passed",
+      "evidence": "integration:pose-mcp/go/optional-worktree-runtime-integration",
+      "rationale": "Examined runtime_cmd.go, runtime.go and cli.go help: without run and with the memo off by default nothing changes; status, stop and attach keep error matching because OutcomeUnknownError unwraps; help and manuals add run. Concluded compatible."
+    },
+    {
+      "id": "correctness",
+      "disposition": "passed",
+      "evidence": "unit:pose-mcp/go/test",
+      "rationale": "Read the handler, client and memo; the round-1/2/4 fixes are present (partial reply unknown, 2 MiB output bound, Busy count, per-command hits, config stamp, runtime-side refusal, queued command withdrawn)."
+    },
+    {
+      "id": "design-causality",
+      "disposition": "passed",
+      "evidence": "structure:design-bce3b6ec3b695f0f",
+      "rationale": "D1 (basis R5, R7, R10): measurement put the remaining cost in Git (about 14 s of 242 log -1 calls); reads pure in a commit or object id need no freshness proof because the commit is the key, and hosting gives the process lifetime the memo needs. The structure matches: memo in internal/pose, protocol in worktreeruntime, handler in cli."
+    },
+    {
+      "id": "documentation",
+      "disposition": "finding",
+      "evidence": "F1"
+    },
+    {
+      "id": "operability",
+      "disposition": "passed",
+      "evidence": "integration:pose-mcp/go/resident-cache-integration",
+      "rationale": "Examined runtimeRunUnknown and the refusal reasons: a command that never started falls back with a stated reason, and a command that may have run exits 1 telling the operator to check its effects before rerunning. Concluded actionable."
+    },
+    {
+      "id": "requirements",
+      "disposition": "passed",
+      "evidence": "integration:pose-mcp/go/resident-cache-integration",
+      "rationale": "Each of R5, R7 and R10 is traced to tests included in this check's -run pattern."
+    },
+    {
+      "id": "scope",
+      "disposition": "passed",
+      "evidence": "integration:pose-mcp/go/resident-cache-integration",
+      "rationale": "Compared the diff with the spec artifact list and non-goals: only the five checks are hosted, run is explicit, and there is no admission/QoS. Concluded in scope."
+    },
+    {
+      "id": "security",
+      "disposition": "passed",
+      "evidence": "integration:pose-mcp/go/resident-cache-integration",
+      "rationale": "Examined the endpoint and handler: 0600 socket with the peer uid checked before reading; unhosted commands and a different environment digest are refused before start; same user and worktree as standalone, so no authority gain; bounded request and reply sizes."
+    },
+    {
+      "id": "solution-proportionality",
+      "disposition": "passed",
+      "evidence": "integration:pose-mcp/go/resident-cache-integration",
+      "rationale": "The smallest alternative (hosting without a memo) gives no gain per the measurement; the memo is 115 lines limited to the already-classified pure reads, with no speculative extension points; D1 names the falsifier. The memory accounting gap is F3 (low)."
+    }
+  ],
+  "tools": [
+    {
+      "id": "artifact-check",
+      "disposition": "passed",
+      "evidence": "command:pose artifact-check --spec pose-worktree-runtime-resident-cache --strict",
+      "rationale": "Ran it: only warning-severity orphan diagnostics on files outside this scope, none of higher severity."
+    },
+    {
+      "id": "assess-design",
+      "disposition": "not-used",
+      "rationale": "The review sandbox refused the command; relied on the sealed structure:design-bce3b6ec3b695f0f."
+    },
+    {
+      "id": "assess-discover",
+      "component": "pose-mcp",
+      "disposition": "not-used",
+      "rationale": "Recommended; not available in this review profile."
+    },
+    {
+      "id": "assess-integrate",
+      "disposition": "not-used",
+      "rationale": "Recommended; not available in this review profile; sealed integration evidence relied on."
+    },
+    {
+      "id": "assess-tech-debt",
+      "disposition": "not-used",
+      "rationale": "Recommended; not available in this review profile."
+    },
+    {
+      "id": "closeout-check",
+      "disposition": "deferred",
+      "rationale": "Its precondition is the completion of this review; it runs after the attestation."
+    },
+    {
+      "id": "review-check",
+      "disposition": "deferred",
+      "rationale": "Its precondition is the completion of this review; it runs after the attestation."
+    },
+    {
+      "id": "suggest-review",
+      "component": "pose-mcp",
+      "disposition": "not-used",
+      "rationale": "Recommended; not available in this review profile."
+    },
+    {
+      "id": "surface-check",
+      "disposition": "passed",
+      "evidence": "reachability:pose-mcp/go/spec-surface-reachability",
+      "rationale": "Also ran it: surface.targets=1, results=203, findings=0."
+    },
+    {
+      "id": "validate",
+      "disposition": "passed",
+      "evidence": "unit:pose-mcp/go/test",
+      "rationale": "The sandbox refused a local run; the sealed strict validation of the reviewed head passed."
+    },
+    {
+      "id": "validate",
+      "component": "pose-mcp",
+      "disposition": "passed",
+      "evidence": "integration:pose-mcp/go/resident-cache-integration",
+      "rationale": "The sandbox refused a local run; the sealed module validation, including this scope's check, passed."
+    }
+  ],
+  "evidence_refs": [
+    "F1",
+    "F2",
+    "delegated-run:rrn-2f151fdf7510d3e5",
+    "integration:pose-mcp/go/governance-read-view-integration",
+    "integration:pose-mcp/go/optional-worktree-runtime-integration",
+    "integration:pose-mcp/go/resident-cache-integration",
+    "structure:design-bce3b6ec3b695f0f",
+    "unit:pose-mcp/go/test"
+  ],
+  "findings": [
+    {
+      "id": "F1",
+      "severity": "low",
+      "evidence": "file:POSE.md:949",
+      "action": "Replace the literal \\n\\n with a real blank line in the four manuals and keep the parity test green.",
+      "disposition": "accepted-risk",
+      "owner": "@pose-maintainers",
+      "rationale": "The hosted-checks paragraph ends with a literal \\n\\n and absorbs the 'Review rounds' paragraph; same defect in locales/pt-BR/POSE.md:944 and both scaffold dist copies (shipped to installed projects).",
+      "review_by": "2027-02-08"
+    },
+    {
+      "id": "F2",
+      "severity": "low",
+      "evidence": "file:pose-mcp/internal/cli/runtime_host.go:208",
+      "action": "Treat a reply with Error and empty Outcome as a refusal (fallback standalone) and add a test with an oversized request.",
+      "disposition": "accepted-risk",
+      "owner": "@pose-maintainers",
+      "rationale": "A runtime reply carrying only Error and no outcome (e.g. a request over 64 KiB rejected as invalid JSON at runtime.go:410) certainly did not start the command, yet the default branch reports it unknown and exits 1 instead of falling back standalone as the spec constraint requires.",
+      "review_by": "2027-02-08"
+    },
+    {
+      "id": "F3",
+      "severity": "low",
+      "evidence": "file:pose-mcp/internal/pose/resident_git_memo.go:92",
+      "action": "Add a fixed per-entry overhead to the accounted size or restate the bound in D1 and the manual.",
+      "disposition": "accepted-risk",
+      "owner": "@pose-maintainers",
+      "rationale": "The memo byte budget counts only key+stdout, not per-entry list/map/struct overhead, so the 256 MiB stated in D1 understates resident memory when entries are small (the common 41-byte log -1 output).",
+      "review_by": "2027-02-08"
+    },
+    {
+      "id": "F4",
+      "severity": "low",
+      "evidence": "file:pose-mcp/internal/worktreeruntime/runtime.go:589",
+      "action": "Document the 10-minute cap in the four manuals or refuse a larger --timeout with a usage error.",
+      "disposition": "accepted-risk",
+      "owner": "@pose-maintainers",
+      "rationale": "A --timeout above MaxHostedDuration (10 min) is silently cut to 10 min on both ends; the manuals do not state the cap, so a caller can get an unknown outcome earlier than the timeout it asked for.",
+      "review_by": "2027-02-08"
+    }
+  ],
+  "authority": {
+    "schema_version": 1,
+    "project": "proj.pose-dist",
+    "bundle_digest": "sha256:924c041ec6cd8d143aa861d49d65e748ee21b47c0e20a493b1c4184fa75be858",
+    "principal": "agent:anthropic/claude-opus-5-5",
+    "role": "agent",
+    "review_execution": "rrn-2f151fdf7510d3e5",
+    "implementation_principal": "agent:anthropic/claude-sonnet-5-5",
+    "implementation_execution": "sha256:675189f7e0b769255994f8213acf8b1b57174c4353838cd875cdabd46aa9cc0b",
+    "issuer": "b34-local-executor",
+    "issued_at": "2026-11-10T08:06:01Z",
+    "audience": "proj.pose-dist"
+  },
+  "envelope": {
+    "issuer": "b34-local-executor",
+    "subject": "rvb-924c041ec6cd8d14",
+    "algorithm": "ed25519",
+    "public_key": "ck4sApdfePV2GT+hJyAYfJd2qLzeG55P8pevGR0bvZE=",
+    "signature": "Q0p2+knvAsfUYIc6k6yKRK3pGjqEsvdCEA8Kwbogw/n/rY/2dxiKi/4c4l1qRfeT4bnBFYGd5JapBKqUcQ3ECw=="
+  },
+  "attested_at": "2026-11-10T08:06:01Z",
+  "path": ".pose/review-attestations/rva-73a45a6deb65bd31.json"
+}
