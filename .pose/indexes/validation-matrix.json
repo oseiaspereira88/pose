@@ -2597,6 +2597,19 @@
           "evidenceClass": "integration"
         },
         {
+          "name": "sealed-checkout-child-evidence-integration",
+          "program": "go",
+          "args": [
+            "test",
+            "./internal/pose",
+            "-run",
+            "TestTheSealedCheckoutIsNotBlockedByChildEvidence",
+            "-count=1"
+          ],
+          "severity": "required",
+          "evidenceClass": "integration"
+        },
+        {
           "name": "git-status-clean-git-integration",
           "program": "go",
           "args": [

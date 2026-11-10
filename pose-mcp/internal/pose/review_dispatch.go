@@ -1693,14 +1693,28 @@ func sealedInputsThatDiffer(sealed, other ReviewBundle, checkout string) []strin
 	return differing
 }
 
+// checkoutBlockers are the blockers of the sealed checkout that hold there. Two kinds do not,
+// because they concern evidence that is not part of the sealed subject and that a checkout of
+// the sealed commit cannot hold: the delivery integrity index (derived, not checked out) and the
+// sealed review bundles of the children of a roadmap or milestone. The children are reviewed and
+// committed before the roadmap bundle is sealed, but the subject's head is the last commit that
+// changed a subject path, which is older than their records; the bundle sealed at the real head
+// already judged them, and closing the scope judges them again (spec
+// pose-sealed-checkout-does-not-require-later-child-evidence).
 func checkoutBlockers(blockers []string) []string {
 	var out []string
 	for _, blocker := range blockers {
-		if !strings.Contains(blocker, "delivery integrity is unavailable") {
-			out = append(out, blocker)
+		if strings.Contains(blocker, "delivery integrity is unavailable") || isChildReviewEvidenceBlocker(blocker) {
+			continue
 		}
+		out = append(out, blocker)
 	}
 	return out
+}
+
+// isChildReviewEvidenceBlocker recognises "child <scope> has no sealed review bundle[: why]".
+func isChildReviewEvidenceBlocker(blocker string) bool {
+	return strings.HasPrefix(blocker, "child ") && strings.Contains(blocker, " has no sealed review bundle")
 }
 
 func sourceMaterializationDiffers(root, commit string, entries []ReviewBundleSubjectEntry) string {
