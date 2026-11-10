@@ -67,6 +67,12 @@ func cmdClosePlan(root string, args []string, stdout, stderr io.Writer) int {
 	if ref == "" || mode == "" {
 		return usageError(stderr, usage)
 	}
+	// The plan modes are the closeout of a spec. Any other scope closes by the guarded
+	// transition, which takes no mode: say so before anything is read, instead of pointing at
+	// the invocation that was just refused.
+	if scope, perr := posemodel.ParseScopeRef(ref); perr == nil && scope.Kind != "spec" {
+		return refuse("--" + mode + " is the closeout plan of a spec; a " + scope.Kind + " scope closes with `pose close " + ref + "` and no --plan, --apply or --resume (it verifies the gate and names the next closeout), and is read with `pose closeout-check " + ref + "`")
+	}
 	if mode == "plan" && (digest != "" || reviewer != "" || skipEvidence) {
 		return refuse("--digest, --reviewer and --skip-evidence are taken only by --apply and --resume")
 	}

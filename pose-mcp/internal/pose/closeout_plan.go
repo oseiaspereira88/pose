@@ -128,7 +128,7 @@ func (s Store) planCloseout(ref string) (CloseoutPlan, error) {
 		return CloseoutPlan{}, err
 	}
 	if scope.Kind != "spec" {
-		return CloseoutPlan{}, fmt.Errorf("pose: the closeout plan covers spec scopes; use `pose close %s` for %s scopes", ref, scope.Kind)
+		return CloseoutPlan{}, fmt.Errorf("pose: the closeout plan (--plan, --apply, --resume) covers spec scopes; a %s scope closes with `pose close %s` and none of those flags, and is read with `pose closeout-check %s`", scope.Kind, ref, ref)
 	}
 	spec, err := s.GetSpec(scope.Slug)
 	if err != nil {

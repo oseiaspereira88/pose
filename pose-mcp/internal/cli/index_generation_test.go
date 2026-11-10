@@ -322,3 +322,51 @@ func TestRefreshDeliveryIndexNamesACommittedGenerationWhoseDurabilityIsUnconfirm
 		t.Fatalf("the refresh denied or hid its committed effect: %q", errOut.String())
 	}
 }
+
+// Spec pose-index-recovery-and-close-scope-consistency R1: a set whose published generation is
+// unavailable (the legacy copy of an index no longer matches the descriptor, and the generation
+// directory, which a checkout does not carry, is gone) is read as unavailable by every reader and
+// by --verify, and `pose index` repairs it: the indexes are derived, and the command the readers
+// name as the remedy has to be able to run.
+func TestIndexRepairsAnUnavailableGenerationThatItsReadersTellYouToRun(t *testing.T) {
+	root, _, _ := artifactGitFixture(t)
+	if code, _, errOut := runIndex(t, root); code != 0 {
+		t.Fatalf("index: %d %s", code, errOut)
+	}
+	before := string(indexBytes(t, root, "generation.json"))
+	if err := os.RemoveAll(filepath.Join(root, ".pose", "indexes", "generations")); err != nil {
+		t.Fatal(err)
+	}
+	if err := os.WriteFile(filepath.Join(root, ".pose", "indexes", "spec-graph.json"), []byte("{\"edited\":true}\n"), 0o644); err != nil {
+		t.Fatal(err)
+	}
+	store := posemodel.Store{Root: root}
+	if view := store.ReadIndexGeneration(); view.Status != posemodel.IndexGenerationUnavailable {
+		t.Fatalf("the set is %s, the test needs it unavailable", view.Status)
+	}
+	if code, _, errOut := runIndex(t, root, "--verify"); code == 0 || !strings.Contains(errOut, "unavailable") {
+		t.Fatalf("verify of an unavailable set: code=%d err=%s", code, errOut)
+	}
+	// A reader names `pose index` as the remedy ...
+	if _, _, err := store.ReadIndex("spec-graph.json"); err == nil || !strings.Contains(err.Error(), "pose index") {
+		t.Fatalf("a reader of the unavailable set does not name the remedy: %v", err)
+	}
+	// ... and the remedy works.
+	code, out, errOut := runIndex(t, root)
+	if code != 0 {
+		t.Fatalf("pose index over an unavailable generation exited %d: %s %s", code, out, errOut)
+	}
+	if view := store.ReadIndexGeneration(); view.Status != posemodel.IndexGenerationCurrent {
+		t.Fatalf("after the repair the set is %s: %s", view.Status, view.Reason)
+	}
+	if strings.Contains(string(indexBytes(t, root, "spec-graph.json")), "edited") {
+		t.Fatal("the repaired set kept the edited file")
+	}
+	if code, _, errOut := runIndex(t, root, "--verify"); code != 0 {
+		t.Fatalf("verify after the repair: %d %s", code, errOut)
+	}
+	// The same inputs name the same generation: the repair returns the set to what it was.
+	if string(indexBytes(t, root, "generation.json")) != before {
+		t.Fatal("the repair named another generation for the same inputs")
+	}
+}

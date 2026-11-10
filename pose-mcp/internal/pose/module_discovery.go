@@ -71,7 +71,11 @@ func ScanModuleDiscoveryIn(files Files, root string) (ModuleDiscoveryInventory, 
 		return ModuleDiscoveryInventory{}, fmt.Errorf("pose: module discovery ignore inventory: %w", err)
 	}
 	staticIgnored := map[string]bool{
-		".git": true, ".qwen": true, "node_modules": true, ".gradle": true,
+		// .pose is the governance record (specs, review bundles and attestations, results): it
+		// holds no module, and it grows with every closeout, so counting it against the bound of
+		// the walk would stop an instance from ever refreshing its indexes once it is large (spec
+		// pose-index-recovery-and-close-scope-consistency).
+		".git": true, ".pose": true, ".qwen": true, "node_modules": true, ".gradle": true,
 		"build": true, "dist": true, "target": true, "vendor": true,
 		"__pycache__": true, "testdata": true, "fixture": true, "fixtures": true,
 	}
@@ -96,7 +100,7 @@ func ScanModuleDiscoveryIn(files Files, root string) (ModuleDiscoveryInventory, 
 		visitedEntries++
 		traversalBytes += len(filepath.ToSlash(path)) + len(entry.Name())*2 + len(fmt.Sprintf("%o", entry.Type())) + 128
 		if visitedEntries > moduleDiscoveryMaxEntries || traversalBytes > moduleDiscoveryMaxBytes {
-			return errGovernanceReadViewBudget
+			return fmt.Errorf("%w: module discovery visited more than %d entries or %d bytes of paths; ignore generated or vendored directories in .gitignore", errGovernanceReadViewBudget, moduleDiscoveryMaxEntries, moduleDiscoveryMaxBytes)
 		}
 		if entry.IsDir() {
 			if path != root && (staticIgnored[entry.Name()] || strings.HasPrefix(entry.Name(), ".venv")) {

@@ -92,23 +92,27 @@ type governanceReadViewOperation struct {
 	rootProjectByPath                 map[string]string
 	rootRegistryID                    string
 	allowMissingPrimarySourceRevision bool
-	currentRoots                      func() (map[string]string, map[string]bool, bool)
-	resolver                          ArtifactResolver
-	baseStore                         Store
-	mainProject                       string
-	indexPins                         map[string]*IndexGenerationView
-	indexInputChecks                  map[string]*governanceReadViewIndexInputCheck
-	unknown                           map[string]map[string]bool
-	rootOverflow                      bool
-	registryOverflow                  bool
-	finalAudits                       map[*governanceReadView]governanceReadViewAudit
-	budgetMu                          sync.Mutex
-	inputBytes                        int64
-	metadataBytes                     int64
-	records                           int
-	directoryEntries                  int
-	git                               *governanceReadViewGitState
-	mu                                sync.Mutex
+	// rebuildsIndex is set for the one operation that computes the index set from its sources:
+	// it reads nothing from the published generation, so a generation that is unavailable
+	// does not make its closure unknown (spec pose-index-recovery-and-close-scope-consistency).
+	rebuildsIndex    bool
+	currentRoots     func() (map[string]string, map[string]bool, bool)
+	resolver         ArtifactResolver
+	baseStore        Store
+	mainProject      string
+	indexPins        map[string]*IndexGenerationView
+	indexInputChecks map[string]*governanceReadViewIndexInputCheck
+	unknown          map[string]map[string]bool
+	rootOverflow     bool
+	registryOverflow bool
+	finalAudits      map[*governanceReadView]governanceReadViewAudit
+	budgetMu         sync.Mutex
+	inputBytes       int64
+	metadataBytes    int64
+	records          int
+	directoryEntries int
+	git              *governanceReadViewGitState
+	mu               sync.Mutex
 }
 
 type governanceReadViewIndexInputCheck struct {
@@ -304,7 +308,9 @@ func (op *governanceReadViewOperation) route(name, producer, project string) *go
 			entry.indexGeneration = slot.Descriptor.GenerationID
 		case IndexGenerationUnavailable:
 			entry.indexGeneration = "unknown"
-			view.markUnknown(producer, "index generation could not be pinned: "+slot.Reason)
+			if !op.rebuildsIndex {
+				view.markUnknown(producer, "index generation could not be pinned: "+slot.Reason)
+			}
 		}
 	}
 	if err := op.adoptCapturedView(view); err != nil {
@@ -883,6 +889,7 @@ func (s Store) beginGovernanceReadView(allowMissingPrimaryRevision ...bool) (Sto
 	op := &governanceReadViewOperation{
 		primary: primary, resolver: resolver, baseStore: base, mainProject: project,
 		allowMissingPrimarySourceRevision: len(allowMissingPrimaryRevision) > 0 && allowMissingPrimaryRevision[0],
+		rebuildsIndex:                     len(allowMissingPrimaryRevision) > 0 && allowMissingPrimaryRevision[0],
 		indexPins:                         map[string]*IndexGenerationView{}, indexInputChecks: map[string]*governanceReadViewIndexInputCheck{}, unknown: map[string]map[string]bool{},
 	}
 	op.git = newGovernanceReadViewGitState(op)
@@ -1040,7 +1047,9 @@ func (op *governanceReadViewOperation) recordIndexPin(root string, pin *IndexGen
 			entry.indexGeneration = pin.Descriptor.GenerationID
 		case IndexGenerationUnavailable:
 			entry.indexGeneration = "unknown"
-			entry.view.markUnknown("projection", "index generation could not be pinned: "+pin.Reason)
+			if !op.rebuildsIndex {
+				entry.view.markUnknown("projection", "index generation could not be pinned: "+pin.Reason)
+			}
 		}
 	}
 }
