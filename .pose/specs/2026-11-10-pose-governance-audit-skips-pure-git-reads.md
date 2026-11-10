@@ -1,8 +1,8 @@
 ---
 slug: pose-governance-audit-skips-pure-git-reads
-status: in-progress
+status: done
 created_at: 2026-11-10
-completed_at:
+completed_at: 2026-11-10
 supersedes:
 depends_on: pose-index-input-binding-reads-each-transfer-once
 remediates:
