@@ -1,0 +1,127 @@
+{
+  "run": {
+    "run_id": "rrn-55b4d528040242cc",
+    "proof_id": "rrp-22a8ed5e7cab2991ffc78431e60b9ea37cbfe592ed460dc8134b259f785c1755"
+  },
+  "schema_version": 1,
+  "attestation_id": "rva-5c58b12e910c2b67",
+  "bundle_id": "rvb-4f4786ee3ffe17b9",
+  "bundle_digest": "sha256:4f4786ee3ffe17b983d687a6ca7fa744228b532f7bb8939b5c578079284da1cb",
+  "reviewer": "agent:anthropic/claude-opus-5-5",
+  "decision": "approved",
+  "criteria": [
+    {
+      "id": "exit-gate",
+      "disposition": "passed",
+      "evidence": "integration:pose-mcp/go/runtime-qos-integration",
+      "rationale": "Examined the exit gate (roadmap :77-81) against the ADR status (:5-11) and the roadmap delivery note (:69-75): handshake/endpoint/lifecycle/fallback are delivered; the departures (no watcher, memo keyed by commit; no rerun of a command that may have run; no CPU/per-command limits) are stated explicitly; the sealed runtime QoS and optional-runtime integration runs pass. Concluded that the gate has falsifiable evidence and the departures are disclosed."
+    },
+    {
+      "id": "integration",
+      "disposition": "passed",
+      "evidence": "integration:pose-mcp/go/optional-worktree-runtime-integration",
+      "rationale": "The three slices compose: endpoint/handshake, then hosted reads with the resident memo keyed by commit, shallow and effective config, then admission lanes. Sealed integration runs pass for all three (optional-worktree-runtime, resident-cache, runtime-qos)."
+    },
+    {
+      "id": "membership",
+      "disposition": "passed",
+      "evidence": "integration:pose-mcp/go/resident-cache-integration",
+      "rationale": "All three ordered member specs have status: done in .pose/specs; the round-7 memo-key fix is part of the sealed subject and is covered by the resident-cache integration and key tests."
+    },
+    {
+      "id": "regression",
+      "disposition": "passed",
+      "evidence": "unit:pose-mcp/go/test",
+      "rationale": "Module unit tests, build and every sealed integration/reachability ref for pose-mcp pass at this subject."
+    },
+    {
+      "id": "residual-risk",
+      "disposition": "passed",
+      "evidence": "build:pose-mcp/go/build",
+      "rationale": "Undelivered items (CPU quota/affinity, per-command limits, Windows pipe, default routing) are disposed to separate draft specs (ADR :9-11, roadmap :18-20); the remaining findings R3-N4, R3-N5 and N1 are low-severity follow-ups."
+    }
+  ],
+  "tools": [
+    {
+      "id": "validate",
+      "component": "pose-mcp",
+      "disposition": "passed",
+      "evidence": "unit:pose-mcp/go/test",
+      "rationale": "The reviewer profile refused shell; the sealed validate run of pose-mcp (unit, build, integration, reachability) passes."
+    },
+    {
+      "id": "review-check",
+      "disposition": "deferred",
+      "evidence": "command:pose review-check milestone:pose-shared-runtime/optional-worktree-runtime",
+      "rationale": "Its precondition is the completion of this review; it runs after the attestation."
+    },
+    {
+      "id": "closeout-check",
+      "disposition": "deferred",
+      "evidence": "command:pose closeout-check milestone:pose-shared-runtime/optional-worktree-runtime",
+      "rationale": "Its precondition is the completion of this review; it runs after the attestation."
+    },
+    {
+      "id": "assess-discover",
+      "component": "pose-mcp",
+      "disposition": "not-used",
+      "evidence": "command:pose assess discover --component pose-mcp",
+      "rationale": "Recommended only; the reviewer profile refused shell, so the code was reviewed by reading."
+    },
+    {
+      "id": "assess-tech-debt",
+      "disposition": "not-used",
+      "evidence": "command:pose assess tech-debt",
+      "rationale": "Recommended only; the reviewer profile refused shell."
+    },
+    {
+      "id": "suggest-review",
+      "component": "pose-mcp",
+      "disposition": "not-used",
+      "evidence": "command:pose suggest review --path pose-mcp",
+      "rationale": "Recommended only; the reviewer profile refused shell; the changed files were swept directly."
+    }
+  ],
+  "evidence_refs": [
+    "build:pose-mcp/go/build",
+    "delegated-run:rrn-55b4d528040242cc",
+    "integration:pose-mcp/go/optional-worktree-runtime-integration",
+    "integration:pose-mcp/go/resident-cache-integration",
+    "integration:pose-mcp/go/runtime-qos-integration",
+    "unit:pose-mcp/go/test"
+  ],
+  "findings": [
+    {
+      "id": "N1",
+      "severity": "low",
+      "evidence": "file:.pose/roadmaps/pose-shared-runtime.md:37",
+      "action": "Update the ADR link text at roadmap line 37 to Accepted at the next roadmap edit after this milestone's review",
+      "disposition": "accepted-risk",
+      "owner": "Oseias Pereira",
+      "rationale": "The roadmap still links the ADR as 'Proposed' while the ADR status (adr 2026-10-14-shared-domain-and-optional-worktree-runtime.md:5) now reads 'Accepted for the delivered scope'; stale status text.",
+      "review_by": "2026-12-10"
+    }
+  ],
+  "authority": {
+    "schema_version": 1,
+    "project": "proj.pose-dist",
+    "bundle_digest": "sha256:4f4786ee3ffe17b983d687a6ca7fa744228b532f7bb8939b5c578079284da1cb",
+    "principal": "agent:anthropic/claude-opus-5-5",
+    "role": "agent",
+    "review_execution": "rrn-55b4d528040242cc",
+    "implementation_principal": "agent:anthropic/claude-sonnet-5-5",
+    "implementation_execution": "sha256:675189f7e0b769255994f8213acf8b1b57174c4353838cd875cdabd46aa9cc0b",
+    "issuer": "b34-local-executor",
+    "issued_at": "2026-11-10T20:17:44Z",
+    "audience": "proj.pose-dist"
+  },
+  "envelope": {
+    "issuer": "b34-local-executor",
+    "subject": "rvb-4f4786ee3ffe17b9",
+    "algorithm": "ed25519",
+    "public_key": "ck4sApdfePV2GT+hJyAYfJd2qLzeG55P8pevGR0bvZE=",
+    "signature": "ZohThf1yaf5//6GLWf/kyUHwIVowCH82V2KNnH4aPZSCrWRTK6ZXU3aluGstUX+zCsNQLlXUf+nJG1Le5IJ4CA=="
+  },
+  "attested_at": "2026-11-10T20:17:44Z",
+  "path": ".pose/review-attestations/rva-5c58b12e910c2b67.json"
+}
