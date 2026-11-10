@@ -296,7 +296,8 @@ decisions of this ADR:
 - **Caches.** The B33 views are not what the runtime reuses (the measurements showed they do not
   address the cost). It keeps, between commands, the output of the Git reads that are pure
   functions of object ids or of the commit HEAD named when they ran, keyed by the commit, the
-  content of the shallow file and of the repository config, with a byte budget and
+  content of the shallow file and the digest of the effective Git configuration (system, global,
+  user, repository, worktree and command-line scopes, includes followed, read once per operation), with a byte budget and
   least-recently-used eviction; no watcher exists, so "watch events are hints" is met by not
   using them: freshness comes from the key, and nothing about mtime or a clean tree is taken as
   proof. The scoped Git batch reader is untouched.
