@@ -119,6 +119,16 @@ func (r ArtifactResolver) WithSpecSnapshots() ArtifactResolver {
 	return r
 }
 
+// withSpecSnapshot gives a store the operation's one spec listing of its project, when the
+// resolver carries snapshots; without them the store is returned as it is.
+func (r ArtifactResolver) withSpecSnapshot(project string, s Store) Store {
+	if r.snapshots != nil {
+		snapshot, _ := r.snapshots.LoadOrStore(project, &specSnapshot{})
+		s.specs = snapshot.(*specSnapshot)
+	}
+	return s
+}
+
 func (r ArtifactResolver) Resolve(localProject, raw string) ArtifactResolution {
 	return r.resolve(localProject, raw, map[string]bool{}, 0)
 }
@@ -143,9 +153,8 @@ func (r ArtifactResolver) resolve(localProject, raw string, redirectPath map[str
 		return out
 	}
 	s, err := r.Roots.StoreFor(ref.Project)
-	if err == nil && r.snapshots != nil {
-		snapshot, _ := r.snapshots.LoadOrStore(ref.Project, &specSnapshot{})
-		s.specs = snapshot.(*specSnapshot)
+	if err == nil {
+		s = r.withSpecSnapshot(ref.Project, s)
 	}
 	if err != nil {
 		out.State = "unknown-project"
@@ -160,7 +169,16 @@ func (r ArtifactResolver) resolve(localProject, raw string, redirectPath map[str
 		out.State = "unavailable-project"
 		return out
 	}
-	if operationID, pending := incompleteTransferFor(r.fsys(), s.Root, ref); pending {
+	var pending bool
+	var operationID string
+	if s.specs != nil {
+		// One read of the project's transfer plans for the whole operation.
+		s.specs.transfersOnce.Do(func() { s.specs.transfers = listTransfers(r.fsys(), s.Root) })
+		operationID, pending = incompleteTransferIn(r.fsys(), s.Root, ref, s.specs.transfers)
+	} else {
+		operationID, pending = incompleteTransferFor(r.fsys(), s.Root, ref)
+	}
+	if pending {
 		out.State = "transfer-in-progress"
 		out.OperationID = operationID
 		return out

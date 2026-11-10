@@ -83,6 +83,10 @@ type specSnapshot struct {
 	// read once per operation; ListReviewBundles otherwise decodes every
 	// bundle for every scoped call.
 	bundleScopes sync.Map
+	// transfers is the listing of the project's transfer plans, read once per operation
+	// (spec pose-index-input-binding-reads-each-transfer-once).
+	transfersOnce sync.Once
+	transfers     transferListing
 }
 
 // bundleScope returns the scope ref of the bundle file name in dir, reading

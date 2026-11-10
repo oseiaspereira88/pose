@@ -1164,28 +1164,62 @@ func transferPlanFile(root, operationID string) string {
 	return filepath.Join(transferOperationDir(root, operationID), "plan.json")
 }
 
-func incompleteTransferFor(files Files, root string, identity ArtifactRef) (string, bool) {
+// transferListing is what one read of a project's transfer directory found: either a state
+// that holds for every identity (code), or the plans of its operations in directory order. A
+// plan that did not read stays in its place with its error, so the order in which a bad entry
+// is met is the order of a fresh read.
+type transferListing struct {
+	code    string
+	entries []transferListingEntry
+}
+
+type transferListingEntry struct {
+	name string
+	plan SpecTransferPlan
+	err  error
+}
+
+func listTransfers(files Files, root string) transferListing {
 	transfersDir := filepath.Join(root, ".pose", "transfers")
 	info, err := files.Lstat(transfersDir)
 	if os.IsNotExist(err) {
-		return "", false
+		return transferListing{}
 	}
 	if err != nil || !info.IsDir() || info.Mode()&os.ModeSymlink != 0 || !artifactPathWithin(files, root, transfersDir) {
-		return "transfer-state-invalid", true
+		return transferListing{code: "transfer-state-invalid"}
 	}
 	entries, err := files.ReadDir(transfersDir)
 	if err != nil {
-		return "transfer-state-unavailable", true
+		return transferListing{code: "transfer-state-unavailable"}
 	}
 	if len(entries) > maxSpecTransferOperationsRead {
-		return "transfer-state-invalid", true
+		return transferListing{code: "transfer-state-invalid"}
 	}
+	var listing transferListing
 	for _, entry := range entries {
 		if !entry.IsDir() || !specTransferIDRE.MatchString(entry.Name()) {
 			continue
 		}
 		plan, err := readSpecTransferPlan(files, transferPlanFile(root, entry.Name()))
-		if err != nil || plan.OperationID != entry.Name() {
+		listing.entries = append(listing.entries, transferListingEntry{name: entry.Name(), plan: plan, err: err})
+	}
+	return listing
+}
+
+// incompleteTransferFor reads the transfer directory for one identity.
+func incompleteTransferFor(files Files, root string, identity ArtifactRef) (string, bool) {
+	return incompleteTransferIn(files, root, identity, listTransfers(files, root))
+}
+
+// incompleteTransferIn answers for one identity from a listing, which an operation reads once
+// and every resolution of the operation then shares.
+func incompleteTransferIn(files Files, root string, identity ArtifactRef, listing transferListing) (string, bool) {
+	if listing.code != "" {
+		return listing.code, true
+	}
+	for _, entry := range listing.entries {
+		plan, err := entry.plan, entry.err
+		if err != nil || plan.OperationID != entry.name {
 			return "transfer-state-invalid", true
 		}
 		impacted := false
@@ -1198,9 +1232,9 @@ func incompleteTransferFor(files Files, root string, identity ArtifactRef) (stri
 		if plan.Source != identity && plan.Destination != identity && !impacted {
 			continue
 		}
-		status, err := ReadSpecTransferStatusIn(files, Store{Root: root, FS: files}, entry.Name(), identity.Project)
+		status, err := ReadSpecTransferStatusIn(files, Store{Root: root, FS: files}, entry.name, identity.Project)
 		if err == nil && status.Phase != "activated" {
-			return entry.Name(), true
+			return entry.name, true
 		}
 		if err != nil {
 			return "transfer-state-invalid", true

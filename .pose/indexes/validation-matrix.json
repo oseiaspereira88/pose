@@ -2597,6 +2597,19 @@
           "evidenceClass": "integration"
         },
         {
+          "name": "index-input-binding-integration",
+          "program": "go",
+          "args": [
+            "test",
+            "./internal/pose",
+            "-run",
+            "TestAnOperationReadsTheTransferPlans",
+            "-count=1"
+          ],
+          "severity": "required",
+          "evidenceClass": "integration"
+        },
+        {
           "name": "optional-worktree-runtime-integration",
           "program": "go",
           "args": [

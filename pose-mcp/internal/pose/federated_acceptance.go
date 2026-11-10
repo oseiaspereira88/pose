@@ -431,6 +431,7 @@ func (s Store) federatedAcceptance(projectID string, coordinator ArtifactRef, ed
 			report.Manifest.Dependencies = append(report.Manifest.Dependencies, entry)
 			continue
 		}
+		source = resolver.withSpecSnapshot(identity.Project, source)
 		projectRoots[identity.Project] = source
 		source.FederatedProjectID = identity.Project
 		source.FederatedResolver = &resolver
