@@ -1,6 +1,6 @@
 ---
 slug: pose-governance-audit-skips-pure-git-reads
-status: draft
+status: in-progress
 created_at: 2026-11-10
 completed_at:
 supersedes:
