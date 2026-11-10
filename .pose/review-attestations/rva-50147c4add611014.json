@@ -1,0 +1,141 @@
+{
+  "run": {
+    "run_id": "rrn-5f42503f31ddc5ab",
+    "proof_id": "rrp-c2a343b1a27e7c25caebb49b61c63391e0b0610d3eedc343565d7c540391487c"
+  },
+  "schema_version": 1,
+  "attestation_id": "rva-50147c4add611014",
+  "bundle_id": "rvb-1f2d1fb3a4e3ecd7",
+  "bundle_digest": "sha256:1f2d1fb3a4e3ecd7e7b25be3073dfa584de6782d95835e7e1e8b54fc8af33905",
+  "reviewer": "agent:anthropic/claude-opus-5-5",
+  "decision": "changes-requested",
+  "criteria": [
+    {
+      "id": "exit-gate",
+      "disposition": "finding",
+      "evidence": "N1",
+      "rationale": "Handshake, protected endpoint, lifecycle/fallback, watcher-as-key and no-retry are met by code and sealed integration tests; RAM/CPU per scenario with simultaneous heavy jobs is not evidenced by the committed measurement."
+    },
+    {
+      "id": "integration",
+      "disposition": "passed",
+      "evidence": "integration:pose-mcp/go/optional-worktree-runtime-integration",
+      "rationale": "Examined runtime.go handle/Client.Run and runtime_host.go handler: the slice-1 identity check now gates the slice-2 hosted run, slice-3 lanes sit inside the handler before the command, and the fallback paths compose; the sealed optional-worktree-runtime, resident-cache and runtime-qos integration suites pass."
+    },
+    {
+      "id": "membership",
+      "disposition": "passed",
+      "evidence": "integration:pose-mcp/go/milestone-closes-when-reached-integration",
+      "rationale": "pose closeout-check reports lifecycle_done=true for the milestone; the three member specs (optional-worktree-runtime, resident-cache, qos-and-measurement) are done with every task checked (resident-cache :83, qos :81)."
+    },
+    {
+      "id": "regression",
+      "disposition": "passed",
+      "evidence": "unit:pose-mcp/go/test",
+      "rationale": "The sealed unit, build and all integration suites of pose-mcp pass at the bundle commit; I could not re-run pose validate because the session profile denied it, so this rests on the sealed evidence."
+    },
+    {
+      "id": "residual-risk",
+      "disposition": "passed",
+      "evidence": "integration:pose-mcp/go/runtime-qos-integration",
+      "rationale": "Examined the ADR amendment (:271-309) and the member specs' follow-ups: undelivered CPU, memory and I/O limits and the Windows named pipe are recorded as departures; the crit:medium follow-up is now covered; the remaining open follow-ups are crit:low with owner and review date. The measurement gap is tracked by N1 under exit-gate."
+    }
+  ],
+  "tools": [
+    {
+      "id": "closeout-check",
+      "disposition": "deferred",
+      "evidence": "command:pose closeout-check milestone:pose-shared-runtime/optional-worktree-runtime",
+      "rationale": "Ran it; it refuses because of the round-1 changes-requested attestation and the unknown read view, which only this review's conclusion can supersede."
+    },
+    {
+      "id": "review-check",
+      "disposition": "deferred",
+      "evidence": "command:pose review-check milestone:pose-shared-runtime/optional-worktree-runtime",
+      "rationale": "Ran it; its precondition is the completion of this review (it still reports the round-1 attestation)."
+    },
+    {
+      "id": "validate",
+      "component": "pose-mcp",
+      "disposition": "passed",
+      "evidence": "unit:pose-mcp/go/test",
+      "rationale": "Sealed strict validation evidence for pose-mcp passes; my re-run was denied by the session profile."
+    },
+    {
+      "id": "assess-discover",
+      "component": "pose-mcp",
+      "disposition": "not-used",
+      "rationale": "Recommended; the session profile denied running it."
+    },
+    {
+      "id": "assess-tech-debt",
+      "disposition": "not-used",
+      "rationale": "Recommended; the session profile denied running it."
+    },
+    {
+      "id": "suggest-review",
+      "component": "pose-mcp",
+      "disposition": "not-used",
+      "rationale": "Recommended; the session profile denied running it."
+    }
+  ],
+  "evidence_refs": [
+    "N1",
+    "delegated-run:rrn-5f42503f31ddc5ab",
+    "integration:pose-mcp/go/milestone-closes-when-reached-integration",
+    "integration:pose-mcp/go/optional-worktree-runtime-integration",
+    "integration:pose-mcp/go/runtime-qos-integration",
+    "unit:pose-mcp/go/test"
+  ],
+  "findings": [
+    {
+      "id": "N1",
+      "severity": "medium",
+      "evidence": "file:.pose/adr/2026-10-14-shared-domain-and-optional-worktree-runtime.md:303",
+      "action": "The ADR amendment (and the implementer's notes) claim the measurement records the runtime's CPU time and resident set per scenario, including two simultaneous heavy checks, and a qualifying third run; the committed report (.pose/reports/2026-11-09-pose-worktree-runtime-measurements.md:19-40) and its JSON hold two runs with no CPU figure, no per-scenario memory, no T7 and no two-heavy scenario (report unchanged since 89a65914). The exit gate's RAM/CPU/latency per scenario with simultaneous jobs therefore still has no evidence, and T7 is absent from R8 of pose-worktree-runtime-qos-and-measurement (spec :43 lists T1-T6), so it was not fixed in the spec before the numbers.",
+      "disposition": "open"
+    },
+    {
+      "id": "N2",
+      "severity": "low",
+      "evidence": "file:pose-mcp/internal/worktreeruntime/runtime.go:472",
+      "action": "Count in Busy only commands whose handler has answered (or subtract the open hosted connections) and test a stop during a normal hosted run.",
+      "disposition": "accepted-risk",
+      "owner": "@pose-maintainers",
+      "rationale": "busy is incremented at admission (cli/runtime_host.go:124), not only after a deadline as the Busy doc (:259) says, so a running command whose connection is still open counts in both inflight and busy: stop reports drained or abandoned 2 for one command, and status InFlight (:503) is one too high; the new test only covers busy with no open connection.",
+      "review_by": "2027-02-08"
+    },
+    {
+      "id": "N3",
+      "severity": "low",
+      "evidence": "file:pose-mcp/internal/cli/runtime_measure_test.go:242",
+      "action": "Mark CPU for short_idle, read the clock tick from the system or document the assumption, and record a per-scenario peak.",
+      "disposition": "accepted-risk",
+      "owner": "@pose-maintainers",
+      "rationale": "Measurement harness gaps: cpuIdleShortEnd is computed and discarded so short_idle has no CPU figure; the clock tick is hard-coded to 100 (:71); the per-scenario memory figure is VmRSS read after the scenario rather than its peak.",
+      "review_by": "2027-02-08"
+    }
+  ],
+  "authority": {
+    "schema_version": 1,
+    "project": "proj.pose-dist",
+    "bundle_digest": "sha256:1f2d1fb3a4e3ecd7e7b25be3073dfa584de6782d95835e7e1e8b54fc8af33905",
+    "principal": "agent:anthropic/claude-opus-5-5",
+    "role": "agent",
+    "review_execution": "rrn-5f42503f31ddc5ab",
+    "implementation_principal": "agent:anthropic/claude-sonnet-5-5",
+    "implementation_execution": "sha256:675189f7e0b769255994f8213acf8b1b57174c4353838cd875cdabd46aa9cc0b",
+    "issuer": "b34-local-executor",
+    "issued_at": "2026-11-10T10:43:08Z",
+    "audience": "proj.pose-dist"
+  },
+  "envelope": {
+    "issuer": "b34-local-executor",
+    "subject": "rvb-1f2d1fb3a4e3ecd7",
+    "algorithm": "ed25519",
+    "public_key": "ck4sApdfePV2GT+hJyAYfJd2qLzeG55P8pevGR0bvZE=",
+    "signature": "P3ZRU6h5CPf80uudqnuBb+tIw2VLRb+v9jiYFEa665FAarAcoCXHdYZyNSORXLMvAW+r1I36zsAT7f/W4Oz5Cw=="
+  },
+  "attested_at": "2026-11-10T10:43:08Z",
+  "path": ".pose/review-attestations/rva-50147c4add611014.json"
+}
