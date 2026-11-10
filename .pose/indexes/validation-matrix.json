@@ -2597,6 +2597,20 @@
           "evidenceClass": "integration"
         },
         {
+          "name": "runtime-qos-integration",
+          "program": "go",
+          "args": [
+            "test",
+            "-race",
+            "./internal/cli",
+            "-run",
+            "TestAShortQueryIsNotQueuedBehindAHeavyCheck|TestACommandThatNeverStarted",
+            "-count=1"
+          ],
+          "severity": "required",
+          "evidenceClass": "integration"
+        },
+        {
           "name": "resident-cache-integration",
           "program": "go",
           "args": [

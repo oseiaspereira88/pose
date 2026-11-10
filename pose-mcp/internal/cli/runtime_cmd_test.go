@@ -8,7 +8,6 @@ import (
 	"os/exec"
 	"strings"
 	"testing"
-	"time"
 
 	"github.com/harne8/pose-mcp/internal/worktreeruntime"
 )
@@ -63,10 +62,10 @@ func TestRuntimeCommandsRunTheLifecycleAndFallBackToStandalone(t *testing.T) {
 		}
 	}()
 	original := runtimeSpawn
-	runtimeSpawn = func(r string, idle time.Duration) error {
+	runtimeSpawn = func(r string, serveArgs []string) error {
 		ctx, cancel := context.WithCancel(context.Background())
 		stops = append(stops, cancel)
-		go cmdRuntime(r, []string{"serve", "--idle", idle.String()}, new(bytes.Buffer), new(bytes.Buffer))
+		go cmdRuntime(r, append([]string{"serve"}, serveArgs...), new(bytes.Buffer), new(bytes.Buffer))
 		_ = ctx
 		return nil
 	}

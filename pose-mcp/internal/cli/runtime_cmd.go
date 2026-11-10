@@ -10,6 +10,7 @@ import (
 	"os/exec"
 	"os/signal"
 	"runtime/debug"
+	"strconv"
 	"strings"
 	"sync/atomic"
 	"syscall"
@@ -26,12 +27,12 @@ import (
 const runtimeStatusSchema = "pose.runtime.status/1"
 
 // runtimeSpawn starts the runtime of root detached; tests replace it.
-var runtimeSpawn = func(root string, idle time.Duration) error {
+var runtimeSpawn = func(root string, serveArgs []string) error {
 	self, err := os.Executable()
 	if err != nil {
 		return err
 	}
-	cmd := exec.Command(self, "runtime", "serve", "--idle", idle.String())
+	cmd := exec.Command(self, append([]string{"runtime", "serve"}, serveArgs...)...)
 	cmd.Dir = root
 	cmd.Env = os.Environ()
 	cmd.Stdin, cmd.Stdout, cmd.Stderr = nil, nil, nil
@@ -54,17 +55,50 @@ func runtimeBuild() string {
 }
 
 type runtimeFlags struct {
-	jsonOut bool
-	idle    time.Duration
-	drain   time.Duration
+	jsonOut   bool
+	idle      time.Duration
+	drain     time.Duration
+	admission runtimeAdmission
+}
+
+// serveArgs are the flags `start` hands the detached `serve`.
+func (f runtimeFlags) serveArgs() []string {
+	a := f.admission
+	return []string{"--idle", f.idle.String(), "--heavy-slots", strconv.Itoa(a.HeavySlots), "--short-slots", strconv.Itoa(a.ShortSlots),
+		"--heavy-queue", strconv.Itoa(a.HeavyQueue), "--short-queue", strconv.Itoa(a.ShortQueue), "--memo-mib", strconv.Itoa(a.MemoMiB)}
 }
 
 func parseRuntimeFlags(args []string) (runtimeFlags, string) {
-	f := runtimeFlags{idle: 30 * time.Minute, drain: 5 * time.Second}
+	f := runtimeFlags{idle: 30 * time.Minute, drain: 5 * time.Second, admission: defaultRuntimeAdmission()}
 	for i := 0; i < len(args); i++ {
 		switch args[i] {
 		case "--json":
 			f.jsonOut = true
+		case "--heavy-slots", "--short-slots", "--heavy-queue", "--short-queue", "--memo-mib":
+			if i+1 >= len(args) {
+				return f, args[i] + " needs a number"
+			}
+			n, err := strconv.Atoi(args[i+1])
+			minimum := 0
+			if strings.HasSuffix(args[i], "-slots") || args[i] == "--memo-mib" {
+				minimum = 1
+			}
+			if err != nil || n < minimum || n > 1<<20 {
+				return f, args[i] + ": " + args[i+1] + " is not a number from " + strconv.Itoa(minimum) + " to 1048576"
+			}
+			switch args[i] {
+			case "--heavy-slots":
+				f.admission.HeavySlots = n
+			case "--short-slots":
+				f.admission.ShortSlots = n
+			case "--heavy-queue":
+				f.admission.HeavyQueue = n
+			case "--short-queue":
+				f.admission.ShortQueue = n
+			default:
+				f.admission.MemoMiB = n
+			}
+			i++
 		case "--idle", "--drain":
 			if i+1 >= len(args) {
 				return f, args[i] + " needs a duration"
@@ -117,10 +151,11 @@ func cmdRuntime(root string, args []string, stdout, stderr io.Writer) int {
 		defer cancel()
 		go func() { <-sigs; cancel() }()
 		// A resident process keeps the pure Git reads it makes between hosted commands.
-		posemodel.EnableResidentGitMemo(256 << 20)
+		posemodel.EnableResidentGitMemo(int64(f.admission.MemoMiB) << 20)
 		defer posemodel.DisableResidentGitMemo()
 		var busy atomic.Int64
-		if err := worktreeruntime.Serve(serveCtx, worktreeruntime.Options{Identity: id, Dir: client.Dir, Idle: f.idle, Busy: busy.Load, Handler: runtimeHostedHandler(runtimeEnvDigest(os.Environ()), &busy)}); err != nil {
+		lanes := newHostedLanes(f.admission)
+		if err := worktreeruntime.Serve(serveCtx, worktreeruntime.Options{Identity: id, Dir: client.Dir, Idle: f.idle, Busy: busy.Load, Metrics: lanes.metrics, Handler: runtimeHostedHandler(runtimeEnvDigest(os.Environ()), &busy, lanes)}); err != nil {
 			return runtimeFailure(out, stdout, f, "serve", err)
 		}
 		return 0
@@ -157,7 +192,7 @@ func cmdRuntime(root string, args []string, stdout, stderr io.Writer) int {
 		if !worktreeruntime.Supported() {
 			return runtimeFailure(out, stdout, f, sub, worktreeruntime.ErrUnsupported)
 		}
-		if err := runtimeSpawn(root, f.idle); err != nil {
+		if err := runtimeSpawn(root, f.serveArgs()); err != nil {
 			return runtimeFailure(out, stdout, f, sub, err)
 		}
 		var reply worktreeruntime.Reply

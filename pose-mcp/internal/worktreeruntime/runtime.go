@@ -243,6 +243,8 @@ type Reply struct {
 	Stderr    string `json:"stderr,omitempty"`
 	ElapsedMS int64  `json:"elapsed_ms,omitempty"`
 	MemoHits  int64  `json:"memo_hits,omitempty"`
+	// Metrics are the counters the runtime's host reports.
+	Metrics map[string]int64 `json:"metrics,omitempty"`
 }
 
 // Options start a runtime.
@@ -251,6 +253,9 @@ type Options struct {
 	Dir      string
 	// Idle stops the runtime after this long without a request; zero never does.
 	Idle time.Duration
+	// Metrics, when set, adds named counters to the status and handshake replies (admission,
+	// queue and wait figures of what the runtime hosts).
+	Metrics func() map[string]int64
 	// Busy, when set, counts work a handler left running after it answered (a command whose
 	// deadline passed): it is in flight for the idle timeout, the drain and the status.
 	Busy func() int64
@@ -479,7 +484,11 @@ func (s *server) busy() int64 {
 
 func (s *server) state(ok bool) Reply {
 	id := s.opts.Identity
-	return Reply{OK: ok, Identity: &id, Epoch: s.epoch, PID: os.Getpid(), StartedAt: s.started.UTC().Format(time.RFC3339),
+	var metrics map[string]int64
+	if s.opts.Metrics != nil {
+		metrics = s.opts.Metrics()
+	}
+	return Reply{Metrics: metrics, OK: ok, Identity: &id, Epoch: s.epoch, PID: os.Getpid(), StartedAt: s.started.UTC().Format(time.RFC3339),
 		UptimeMS: time.Since(s.started).Milliseconds(), IdleMS: s.opts.Idle.Milliseconds(), InFlight: s.inflight.Load() + s.busy() - 1, Served: s.served.Load()}
 }
 

@@ -79,8 +79,7 @@ func init() {
 // and may refresh the project's derived files, so two at once would race themselves), and
 // answers with a typed result. Anything it does not host or will not run is refused before it
 // starts.
-func runtimeHostedHandler(envDigest string, busy *atomic.Int64) func(context.Context, worktreeruntime.Request) (worktreeruntime.Reply, bool) {
-	sem := make(chan struct{}, 1)
+func runtimeHostedHandler(envDigest string, busy *atomic.Int64, lanes *hostedLanes) func(context.Context, worktreeruntime.Request) (worktreeruntime.Reply, bool) {
 	return func(ctx context.Context, req worktreeruntime.Request) (worktreeruntime.Reply, bool) {
 		if req.Op != "run" {
 			return worktreeruntime.Reply{}, false
@@ -104,11 +103,19 @@ func runtimeHostedHandler(envDigest string, busy *atomic.Int64) func(context.Con
 		}
 		timer := time.NewTimer(limit)
 		defer timer.Stop()
+		lane := lanes.of(req.Args[0])
+		if !lane.enter() {
+			return refuse("the " + lane.name + " lane of the runtime is full: this command did not start")
+		}
+		waitStart := time.Now()
 		select {
-		case sem <- struct{}{}:
+		case lane.slots <- struct{}{}:
+			lane.admit(time.Since(waitStart))
 		case <-timer.C:
+			lane.withdrawn()
 			return refuse("the runtime was busy with another command until the deadline: this one did not start")
 		case <-ctx.Done():
+			lane.withdrawn()
 			return refuse("the runtime is stopping: this command did not start")
 		}
 		done := make(chan worktreeruntime.Reply, 1)
@@ -117,7 +124,7 @@ func runtimeHostedHandler(envDigest string, busy *atomic.Int64) func(context.Con
 		busy.Add(1)
 		go func() {
 			defer busy.Add(-1)
-			defer func() { <-sem }()
+			defer func() { <-lane.slots; lane.running.Add(-1) }()
 			hitsBefore, _, _, _ := posemodel.ResidentGitMemoStats()
 			var out, errb bytes.Buffer
 			code := 1

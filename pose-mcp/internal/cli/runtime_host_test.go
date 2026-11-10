@@ -40,8 +40,8 @@ func newRuntimeFixture(t *testing.T) *runtimeFixture {
 	t.Cleanup(func() { os.RemoveAll(dir) })
 	t.Setenv(worktreeruntime.EnvDir, dir+"/r")
 	original := runtimeSpawn
-	runtimeSpawn = func(r string, idle time.Duration) error {
-		go cmdRuntime(r, []string{"serve", "--idle", idle.String()}, io.Discard, io.Discard)
+	runtimeSpawn = func(r string, serveArgs []string) error {
+		go cmdRuntime(r, append([]string{"serve"}, serveArgs...), io.Discard, io.Discard)
 		return nil
 	}
 	t.Cleanup(func() { runtimeSpawn = original })
@@ -58,9 +58,9 @@ func newRuntimeFixture(t *testing.T) *runtimeFixture {
 	return f
 }
 
-func (f *runtimeFixture) start(t *testing.T) {
+func (f *runtimeFixture) start(t *testing.T, flags ...string) {
 	t.Helper()
-	if code := cmdRuntime(f.root, []string{"start"}, io.Discard, io.Discard); code != 0 {
+	if code := cmdRuntime(f.root, append([]string{"start"}, flags...), io.Discard, io.Discard); code != 0 {
 		t.Fatalf("start exited %d", code)
 	}
 }
@@ -213,9 +213,9 @@ func TestACommandThatNeverStartedIsRefusedAndNotRunLater(t *testing.T) {
 		runtimeHostedRun.Store(original)
 	}()
 	first := make(chan map[string]any, 1)
-	go func() { doc, _, _ := f.run("roadmap-check"); first <- doc }()
+	go func() { doc, _, _ := f.run("closeout-check"); first <- doc }()
 	time.Sleep(150 * time.Millisecond)
-	doc, _, _ := f.run("--timeout", "100ms", "roadmap-check")
+	doc, _, _ := f.run("--timeout", "100ms", "closeout-check")
 	if doc["via"] != "standalone" || !strings.Contains(doc["fallback_reason"].(string), "did not start") {
 		t.Fatalf("a command queued past its deadline: %v", doc)
 	}
@@ -225,5 +225,46 @@ func TestACommandThatNeverStartedIsRefusedAndNotRunLater(t *testing.T) {
 	time.Sleep(300 * time.Millisecond)
 	if ran.Load() != 1 {
 		t.Fatalf("the runtime ran %d commands: the refused one ran later", ran.Load())
+	}
+}
+
+// R6: a short query is not queued behind a heavy check, and a full lane refuses before it waits.
+func TestAShortQueryIsNotQueuedBehindAHeavyCheckAndAFullLaneRefuses(t *testing.T) {
+	f := newRuntimeFixture(t)
+	f.start(t, "--heavy-slots", "1", "--heavy-queue", "0")
+	original := runtimeHostedRun.Load()
+	slow := hostedRunFunc(func(args []string, out, errb io.Writer) int {
+		if args[0] == "closeout-check" {
+			time.Sleep(900 * time.Millisecond)
+		}
+		return (*original)(args, out, errb)
+	})
+	runtimeHostedRun.Store(&slow)
+	defer func() {
+		time.Sleep(1200 * time.Millisecond)
+		runtimeHostedRun.Store(original)
+	}()
+	heavy := make(chan map[string]any, 1)
+	go func() { doc, _, _ := f.run("closeout-check"); heavy <- doc }()
+	time.Sleep(200 * time.Millisecond)
+	started := time.Now()
+	short, _, _ := f.run("surface-check", "--help")
+	if short["via"] != "runtime" || time.Since(started) > 600*time.Millisecond {
+		t.Fatalf("a short query waited for the heavy check: %v after %v", short["via"], time.Since(started))
+	}
+	full, _, _ := f.run("closeout-check")
+	if full["via"] != "standalone" || !strings.Contains(full["fallback_reason"].(string), "lane of the runtime is full") {
+		t.Fatalf("a full heavy lane: %v", full)
+	}
+	if d := <-heavy; d["via"] != "runtime" {
+		t.Fatalf("the first heavy check: %v", d)
+	}
+	id, err := worktreeruntime.ResolveIdentity(f.root, version.Version, runtimeBuild())
+	if err != nil {
+		t.Skip(err)
+	}
+	status, err := worktreeruntime.Client{Identity: id, Dir: worktreeruntime.DefaultDir()}.Status(context.Background())
+	if err != nil || status.Metrics["heavy_refused"] != 1 || status.Metrics["heavy_admitted"] != 1 || status.Metrics["short_admitted"] != 1 || status.Metrics["heavy_slots"] != 1 {
+		t.Fatalf("the metrics do not say what happened: %+v %v", status.Metrics, err)
 	}
 }
