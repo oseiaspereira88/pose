@@ -1,0 +1,241 @@
+{
+  "run": {
+    "run_id": "rrn-66e9af908722799c",
+    "proof_id": "rrp-a4588a7b2b8700ff9ff81bf12ed3998cfe3a549909b70e9c464110a25d62ad2a"
+  },
+  "schema_version": 1,
+  "attestation_id": "rva-b03dccbdc70a2970",
+  "bundle_id": "rvb-077f3751abb5aa69",
+  "bundle_digest": "sha256:077f3751abb5aa69264b0a697cfcd938b43a2b57c944b66da9a717c15b21d4d8",
+  "reviewer": "agent:anthropic/claude-opus-5-5",
+  "decision": "changes-requested",
+  "criteria": [
+    {
+      "id": "assumption-integrity",
+      "disposition": "passed",
+      "evidence": "integration:pose-mcp/go/check-index-generation-integration",
+      "rationale": "Verified: on a clean checkout readGenerationFile falls back to the committed copies when generations/ is gitignored (.gitignore:27), so a matching set gives no finding. Unverified, accepted risk: there is no .gitattributes, so line-ending rewriting would make the set unavailable for every reader, not only the gate."
+    },
+    {
+      "id": "backend-concurrency",
+      "disposition": "finding",
+      "evidence": "F5"
+    },
+    {
+      "id": "backend-contracts",
+      "disposition": "passed",
+      "evidence": "integration:pose-mcp/go/check-index-generation-integration"
+    },
+    {
+      "id": "backend-input-errors",
+      "disposition": "passed",
+      "evidence": "integration:pose-mcp/go/check-index-generation-integration"
+    },
+    {
+      "id": "backend-integration-impact",
+      "disposition": "passed",
+      "evidence": "integration:pose-mcp/go/index-generation-integrity-integration"
+    },
+    {
+      "id": "backend-observability",
+      "disposition": "passed",
+      "evidence": "integration:pose-mcp/go/check-index-generation-integration"
+    },
+    {
+      "id": "compatibility",
+      "disposition": "passed",
+      "evidence": "integration:pose-mcp/go/check-index-generation-integration",
+      "rationale": "Examined check.go:147 and 479-493: the change only adds findings through the existing renderer and JSON path. Strict mode gets stricter only for a set no reader can use; the changelog records the change."
+    },
+    {
+      "id": "correctness",
+      "disposition": "passed",
+      "evidence": "integration:pose-mcp/go/check-index-generation-integration"
+    },
+    {
+      "id": "design-causality",
+      "disposition": "passed",
+      "evidence": "structure:design-75651ca0a8b75886",
+      "rationale": "Under D1 (basis R1, R2) the gate reads only the set's structure through ReadIndexGeneration, which finds the harne8 state (descriptor not describing its files) without recomputing inputs. A stale set is not reported, as the spec intends."
+    },
+    {
+      "id": "documentation",
+      "disposition": "finding",
+      "evidence": "F6"
+    },
+    {
+      "id": "operability",
+      "disposition": "finding",
+      "evidence": "F4"
+    },
+    {
+      "id": "requirements",
+      "disposition": "finding",
+      "evidence": "F2"
+    },
+    {
+      "id": "scope",
+      "disposition": "finding",
+      "evidence": "F1"
+    },
+    {
+      "id": "security",
+      "disposition": "passed",
+      "evidence": "integration:pose-mcp/go/check-index-generation-integration",
+      "rationale": "Examined the new check: it is read-only, paths come from fixed index names under the root, the output holds only file names, generation ids and digests, and there are no secrets or authority changes."
+    },
+    {
+      "id": "solution-proportionality",
+      "disposition": "passed",
+      "evidence": "integration:pose-mcp/go/check-index-generation-integration",
+      "rationale": "17 lines reuse the existing reader. The smaller alternative (index --verify) costs about 20 s and flags normal staleness. The choice is invalidated if a commit leaves the set unreadable and still passes strict check, which the integration test guards for the unavailable branch."
+    }
+  ],
+  "tools": [
+    {
+      "id": "artifact-check",
+      "disposition": "failed",
+      "evidence": "command:pose artifact-check --spec pose-commit-gate-refuses-index-without-descriptor --strict",
+      "rationale": "Exit 1: action-mismatch on the spec file declared created (F1)."
+    },
+    {
+      "id": "assess-design",
+      "disposition": "not-used",
+      "rationale": "The reviewer's permissions refused the command; the sealed structure evidence was used instead."
+    },
+    {
+      "id": "assess-discover",
+      "component": "pose-mcp",
+      "disposition": "not-used",
+      "rationale": "The reviewer's permissions refused the command."
+    },
+    {
+      "id": "assess-integrate",
+      "disposition": "not-used",
+      "rationale": "The reviewer's permissions refused the command; sealed integration evidence was used instead."
+    },
+    {
+      "id": "assess-tech-debt",
+      "disposition": "not-used",
+      "rationale": "The reviewer's permissions refused the command."
+    },
+    {
+      "id": "closeout-check",
+      "disposition": "deferred",
+      "rationale": "Requires the review to be complete."
+    },
+    {
+      "id": "review-check",
+      "disposition": "deferred",
+      "rationale": "Requires the review to be complete."
+    },
+    {
+      "id": "suggest-review",
+      "component": "pose-mcp",
+      "disposition": "not-used",
+      "rationale": "The reviewer's permissions refused the command."
+    },
+    {
+      "id": "validate",
+      "disposition": "passed",
+      "evidence": "build:pose-mcp/go/build",
+      "rationale": "Sealed strict validation run."
+    },
+    {
+      "id": "validate",
+      "component": "pose-mcp",
+      "disposition": "passed",
+      "evidence": "unit:pose-mcp/go/test",
+      "rationale": "Sealed strict validation run of pose-mcp."
+    }
+  ],
+  "evidence_refs": [
+    "F1",
+    "F2",
+    "F4",
+    "F5",
+    "F6",
+    "delegated-run:rrn-66e9af908722799c",
+    "integration:pose-mcp/go/check-index-generation-integration",
+    "integration:pose-mcp/go/index-generation-integrity-integration",
+    "structure:design-75651ca0a8b75886"
+  ],
+  "findings": [
+    {
+      "id": "F1",
+      "severity": "medium",
+      "evidence": "file:.pose/specs/2026-11-10-pose-commit-gate-refuses-index-without-descriptor.md:50",
+      "action": "The spec file is declared 'created' but was created in af36fc0b before base d40ca62a; pose artifact-check --strict exits 1 with action-mismatch. Declare it 'modified'.",
+      "disposition": "open"
+    },
+    {
+      "id": "F2",
+      "severity": "medium",
+      "evidence": "file:pose-mcp/internal/cli/check_index_generation_test.go:36",
+      "action": "The R1 'index files differ from generation \u003cid\u003e' branch (check.go:490-491) is never exercised: the test removes generations/ first, so only the unavailable branch runs, yet the requirement trace marks R1 satisfied.",
+      "disposition": "open"
+    },
+    {
+      "id": "F3",
+      "severity": "low",
+      "evidence": "file:pose-mcp/internal/cli/check_index_generation_test.go:50",
+      "action": "Assert the warning state or exit code of the tolerant run",
+      "disposition": "accepted-risk",
+      "owner": "@pose-maintainers",
+      "rationale": "The R3 test asserts only that the tolerant output mentions the finding, not that it is a warning (exit code or finding state).",
+      "review_by": "2027-02-08"
+    },
+    {
+      "id": "F4",
+      "severity": "low",
+      "evidence": "file:pose-mcp/internal/cli/check.go:489",
+      "action": "Avoid the repeated fix hint and localize or mark the reason",
+      "disposition": "accepted-risk",
+      "owner": "@pose-maintainers",
+      "rationale": "Some reasons already end with '; run `pose index`' (index_generation.go:364), so the message repeats the fix; the reason stays English under the pt-BR locale.",
+      "review_by": "2027-02-08"
+    },
+    {
+      "id": "F5",
+      "severity": "low",
+      "evidence": "file:pose-mcp/internal/cli/check.go:490",
+      "action": "Distinguish an in-flight publication (lock held) from a diverged set, or document it",
+      "disposition": "accepted-risk",
+      "owner": "@pose-maintainers",
+      "rationale": "A strict check that runs while pose index is publishing can report a temporary divergence (index_generation.go:152-156) with misleading 'run pose index' advice.",
+      "review_by": "2027-02-08"
+    },
+    {
+      "id": "F6",
+      "severity": "low",
+      "evidence": "file:docs-site/docs/cli.md:59",
+      "action": "Mention the index-set check in cli.md and POSE.md (and locales)",
+      "disposition": "accepted-risk",
+      "owner": "@pose-maintainers",
+      "rationale": "The pose check descriptions in cli.md:59 and POSE.md:215 omit the new index-set check.",
+      "review_by": "2027-02-08"
+    }
+  ],
+  "authority": {
+    "schema_version": 1,
+    "project": "proj.pose-dist",
+    "bundle_digest": "sha256:077f3751abb5aa69264b0a697cfcd938b43a2b57c944b66da9a717c15b21d4d8",
+    "principal": "agent:anthropic/claude-opus-5-5",
+    "role": "agent",
+    "review_execution": "rrn-66e9af908722799c",
+    "implementation_principal": "agent:anthropic/claude-sonnet-5-5",
+    "implementation_execution": "sha256:675189f7e0b769255994f8213acf8b1b57174c4353838cd875cdabd46aa9cc0b",
+    "issuer": "b34-local-executor",
+    "issued_at": "2026-11-10T23:51:40Z",
+    "audience": "proj.pose-dist"
+  },
+  "envelope": {
+    "issuer": "b34-local-executor",
+    "subject": "rvb-077f3751abb5aa69",
+    "algorithm": "ed25519",
+    "public_key": "ck4sApdfePV2GT+hJyAYfJd2qLzeG55P8pevGR0bvZE=",
+    "signature": "pY0Y7pLrbI9fD5g5sjHvlGhVGl439mmrlqnlnQGZ4Hk9g/zJDaTJETn6mQRz+A7Jus2mAknPcqUGxCNKCb73Dw=="
+  },
+  "attested_at": "2026-11-10T23:51:40Z",
+  "path": ".pose/review-attestations/rva-b03dccbdc70a2970.json"
+}
