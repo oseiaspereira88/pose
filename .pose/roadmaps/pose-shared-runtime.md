@@ -63,6 +63,13 @@ expansão total desnecessária ou cache de autorização stale. Git reader fica 
 - target_due:
 - specs: pose-optional-worktree-runtime, pose-worktree-runtime-resident-cache, pose-worktree-runtime-qos-and-measurement
 
+**Entrega (2026-11-10):** as três fatias estão fechadas (`pose-optional-worktree-runtime`,
+`pose-worktree-runtime-resident-cache`, `pose-worktree-runtime-qos-and-measurement`), com as duas
+specs de engine que as medições pediram (`pose-index-input-binding-reads-each-transfer-once`,
+`pose-governance-audit-skips-pure-git-reads`); o estado entregue e onde ele se afasta do ADR está na
+última emenda do ADR, e a medição em `.pose/reports/2026-11-09-pose-worktree-runtime-measurements.md`.
+Não entregues: cota e afinidade de CPU e limites por comando (o runtime limita o que admite e guarda).
+
 **Exit gate:** B35 qualifica handshake user/worktree/Git/engine/schema, endpoint
 protegido, lifecycle/restart/update e fallback CI/standalone. Stdio não é IPC
 compartilhável; watcher é hint, writers publicam geração e efeitos ambíguos exigem

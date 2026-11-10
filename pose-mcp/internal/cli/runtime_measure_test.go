@@ -46,6 +46,33 @@ type measureReport struct {
 	Verdicts    map[string]string  `json:"verdicts"`
 }
 
+// measureClockTicks is the kernel's clock tick (getconf CLK_TCK), 100 where it cannot be read.
+func measureClockTicks() int64 {
+	if out, err := exec.Command("getconf", "CLK_TCK").Output(); err == nil {
+		if n, err := strconv.ParseInt(strings.TrimSpace(string(out)), 10, 64); err == nil && n > 0 {
+			return n
+		}
+	}
+	return 100
+}
+
+// resetPeak resets the process's peak resident set (Linux: clear_refs 5), so that the next
+// reading of VmHWM is the peak of the scenario that follows.
+func resetPeak(pid int) {
+	_ = os.WriteFile("/proc/"+strconv.Itoa(pid)+"/clear_refs", []byte("5"), 0o200)
+}
+
+func peakMiB(pid int) float64 {
+	status, _ := os.ReadFile("/proc/" + strconv.Itoa(pid) + "/status")
+	for _, line := range strings.Split(string(status), "\n") {
+		if strings.HasPrefix(line, "VmHWM:") {
+			kb, _ := strconv.ParseFloat(strings.Fields(line)[1], 64)
+			return kb / 1024
+		}
+	}
+	return 0
+}
+
 // runtimeProc reads the runtime process's cumulative CPU time (user + system, ms) and its
 // resident set (MiB) from /proc; ok is false where there is none.
 func runtimeProc(pid int) (cpuMS int64, rssMiB float64, ok bool) {
@@ -68,8 +95,7 @@ func runtimeProc(pid int) (cpuMS int64, rssMiB float64, ok bool) {
 			rssMiB = kb / 1024
 		}
 	}
-	const clockTicksPerSecond = 100
-	return (utime + stime) * 1000 / clockTicksPerSecond, rssMiB, true
+	return (utime + stime) * 1000 / measureClockTicks(), rssMiB, true
 }
 
 func measureMedian(v []int64) int64 {
@@ -199,12 +225,19 @@ func TestMeasureTheRuntimeOnTheRealRepository(t *testing.T) {
 		return d.PID
 	}
 	pid := pidOf()
+	peakAll := 0.0
 	// Per scenario: the CPU time the runtime process spent and its resident set afterwards.
 	mark := func(scenario string, since int64) int64 {
 		cpu, rss, ok := runtimeProc(pid)
 		if ok {
 			rep.Figures["cpu_ms_"+scenario] = float64(cpu - since)
 			rep.Figures["rss_mib_after_"+scenario] = rss
+			peak := peakMiB(pid)
+			rep.Figures["peak_rss_mib_"+scenario] = peak
+			if peak > peakAll {
+				peakAll = peak
+			}
+			resetPeak(pid)
 		}
 		return cpu
 	}
@@ -232,6 +265,8 @@ func TestMeasureTheRuntimeOnTheRealRepository(t *testing.T) {
 	// S5: short queries, idle then under a heavy check.
 	shortArgs := []string{"surface-check", spec}
 	shortStandalone, _, _ := run(shortArgs...)
+	cpuShortStart := cpuNow()
+	resetPeak(pid)
 	for i := 0; i < measureShortSamples; i++ {
 		so, ms, via := runtimeRun(shortArgs...)
 		if via != "runtime" || so != shortStandalone {
@@ -239,9 +274,7 @@ func TestMeasureTheRuntimeOnTheRealRepository(t *testing.T) {
 		}
 		rep.Scenarios["short_idle"] = append(rep.Scenarios["short_idle"], ms)
 	}
-	cpuIdleShortEnd := cpuNow()
-	_ = cpuIdleShortEnd
-	cpuHeavyStart := cpuNow()
+	cpuHeavyStart := mark("short_idle", cpuShortStart)
 	var wg sync.WaitGroup
 	wg.Add(1)
 	go func() { defer wg.Done(); runtimeRun("review-check", spec) }()
@@ -302,7 +335,11 @@ func TestMeasureTheRuntimeOnTheRealRepository(t *testing.T) {
 				rep.Figures[strings.TrimSuffix(f[0], ":")+"_mib"] = kb / 1024
 			}
 		}
-		if mib := rep.Figures["VmHWM_mib"]; mib <= thresholdRSSMiB {
+		if end := peakMiB(pid); end > peakAll {
+			peakAll = end
+		}
+		rep.Figures["peak_rss_mib_whole_run"] = peakAll
+		if mib := peakAll; mib <= thresholdRSSMiB {
 			pass("T4 runtime memory", "peak resident %.0f MiB <= %d MiB", mib, thresholdRSSMiB)
 		} else {
 			fail("T4 runtime memory", "peak resident %.0f MiB > %d MiB", mib, thresholdRSSMiB)

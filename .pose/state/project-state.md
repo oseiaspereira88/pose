@@ -1,7 +1,7 @@
 ---
 schema_version: 1
-generated_at: 2026-11-07T07:38:50Z
-baseline_commit: b6ef1e54f36e5b7cd5c4946ed42933d28949782b
+generated_at: 2026-11-10T10:51:41Z
+baseline_commit: 1c1655d655f942e673dadce7b83c1b0908099d50
 staleness_policy: max_age_days=7,max_commits=20
 refresh_pending: 
 ---
@@ -27,24 +27,24 @@ próprio deste repositório (produtização v2, DX) segue disponível conforme
 capacidade.
 
 ## Specs & Roadmaps
-<!-- state:derived hash:4447b87a344c -->
+<!-- state:derived hash:5999aced6d78 -->
 
-- specs: total=482 draft=16 in-progress=0 blocked=0 done=464 superseded=0 abandoned=2
+- specs: total=494 draft=12 in-progress=0 blocked=0 done=480 superseded=0 abandoned=2
 - roadmaps: total=23 active=3 done=16
 - últimos closeouts:
-  - spec:pose-governance-read-view-generation (2026-11-06)
-  - spec:pose-consolidation-batch-14-authoring (2026-11-03)
-  - spec:pose-consolidation-batch-4-authoring (2026-11-03)
-  - spec:pose-governance-operation-performance (2026-11-03)
-  - spec:pose-consolidation-batch-7-authoring (2026-11-03)
-  - ... e mais 459 (ver `pose_list_specs status:done`)
+  - spec:pose-governance-audit-skips-pure-git-reads (2026-11-10)
+  - spec:pose-worktree-runtime-resident-cache (2026-11-10)
+  - spec:pose-worktree-runtime-qos-and-measurement (2026-11-10)
+  - spec:pose-index-input-binding-reads-each-transfer-once (2026-11-10)
+  - spec:pose-done-spec-keeps-its-sealed-plan (2026-11-09)
+  - ... e mais 475 (ver `pose_list_specs status:done`)
 
 ## Follow-ups
-<!-- state:derived hash:b1d19f90cd74 -->
+<!-- state:derived hash:e2714353cc75 -->
 
-- abertos: 221
-- por criticidade: high=5 medium=43 low=154 sem-classificação=19
-- vencidos (review < hoje): 42
+- abertos: 259
+- por criticidade: high=5 medium=51 low=184 sem-classificação=19
+- vencidos (review < hoje): 55
 - cobertura: INCOMPLETA — 2 source(s) could not be read: invalid .pose/specs/2026-08-15-pose-instance-engine-version-tracking.md; invalid .pose/specs/2026-08-15-pose-knowledge-durable-reference-type.md; os números acima são o que pôde ser lido
   - spec:pose-package-manager-distribution (owner:@pose-maintainers review:2026-09-18)
   - spec:pose-federated-carried-forward-proof (owner:@harne8-platform review:2026-09-27)
@@ -52,11 +52,11 @@ capacidade.
   - spec:pose-review-root-binding-parity (owner:@pose-maintainers review:2026-10-02)
   - spec:pose-verifier-assets-variable-fix (owner:@pose-maintainers review:2026-10-02)
   - spec:pose-shellcheck-ci-gate (owner:@pose-maintainers review:2026-10-02)
-  - spec:pose-spec-transfer-reconcile-terminal (owner:@harne8-platform review:2026-10-03)
   - spec:pose-federated-spec-dependency-acceptance (owner:@harne8-platform review:2026-10-03)
-  - spec:pose-governance-gate-activation (owner:@pose-maintainers review:2026-10-08)
+  - spec:pose-spec-transfer-reconcile-terminal (owner:@harne8-platform review:2026-10-03)
   - spec:pose-package-channel-install-repair (owner:@pose-maintainers review:2026-10-08)
-  - ... e mais 32 vencidos (ver `pose followups --open`)
+  - spec:pose-governance-gate-activation (owner:@pose-maintainers review:2026-10-08)
+  - ... e mais 45 vencidos (ver `pose followups --open`)
 
 ## Capabilities
 <!-- state:derived hash:e20a9224b717 -->
@@ -76,16 +76,16 @@ capacidade.
 - knowledge: total=21 ativo=21 expirado=0
 
 ## Validação & Evidência
-<!-- state:derived hash:21ed16dff8a2 -->
+<!-- state:derived hash:8d31785032d6 -->
 
 - último registro: task=validate-native outcome=pass (2026-10-24T18:00:55Z)
 - últimos 30 dias: total=41 outcome_ok=27 outcome_outro=14
-- reports revisados (.md): total=290
-  - report:2026-11-06-pose-b34-global-review-view-budget.md
-  - report:2026-11-05-pose-b34-read-view-capacity-calibration.md
+- reports revisados (.md): total=291
+  - report:2026-11-09-pose-worktree-runtime-measurements.md
   - report:2026-11-05-pose-b34-dependency-budget-measurement.md
-  - report:pose-abm-capability-adoption.md
-  - report:pose-agency-readiness-pilot.md
+  - report:2026-11-05-pose-b34-read-view-capacity-calibration.md
+  - report:2026-11-06-pose-b34-global-review-view-budget.md
+  - report:2026-10-14-security-validation-release-api-auth.md
 
 ## Arquitetura
 <!-- state:derived hash:00ac0f3186cc status:active -->

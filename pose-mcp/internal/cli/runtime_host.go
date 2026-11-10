@@ -119,11 +119,17 @@ func runtimeHostedHandler(envDigest string, busy *atomic.Int64, lanes *hostedLan
 			return refuse("the runtime is stopping: this command did not start")
 		}
 		done := make(chan worktreeruntime.Reply, 1)
-		// The command counts as work in the runtime until it ends, even after its caller was
-		// answered at a deadline.
-		busy.Add(1)
+		// While its caller waits, the command is the caller's open connection and counts as in
+		// flight through it. Only when the caller is answered at a deadline with the command still
+		// running does it become busy work: orphaned is 0 while the caller waits, 1 once the
+		// deadline left it running, 2 once it ended, so it is counted once, by one of the two.
+		var orphaned atomic.Int32
 		go func() {
-			defer busy.Add(-1)
+			defer func() {
+				if !orphaned.CompareAndSwap(0, 2) {
+					busy.Add(-1)
+				}
+			}()
 			defer func() { <-lane.slots; lane.running.Add(-1) }()
 			hitsBefore, _, _, _ := posemodel.ResidentGitMemoStats()
 			var out, errb bytes.Buffer
@@ -151,6 +157,9 @@ func runtimeHostedHandler(envDigest string, busy *atomic.Int64, lanes *hostedLan
 		case <-timer.C:
 			// The command is read-only apart from refreshing derived files and cannot be
 			// cancelled; it ends on its own and the next one waits for it.
+			if orphaned.CompareAndSwap(0, 1) {
+				busy.Add(1)
+			}
 			return worktreeruntime.Reply{Outcome: worktreeruntime.OutcomeDeadline, Reason: "the deadline passed while the command ran; it was not stopped", ElapsedMS: time.Since(started).Milliseconds()}, true
 		}
 	}

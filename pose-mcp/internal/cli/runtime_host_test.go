@@ -281,3 +281,30 @@ func TestAShortQueryIsNotQueuedBehindAHeavyCheckAndAFullLaneRefuses(t *testing.T
 		t.Fatalf("the metrics do not say what happened: %+v %v", status.Metrics, err)
 	}
 }
+
+// A command whose caller still waits counts once as in flight, not twice (once as its open
+// connection and once as busy work).
+func TestARunningCommandIsCountedOnceAsInFlight(t *testing.T) {
+	f := newRuntimeFixture(t)
+	f.start(t)
+	original := runtimeHostedRun.Load()
+	slow := hostedRunFunc(func(args []string, out, errb io.Writer) int {
+		time.Sleep(700 * time.Millisecond)
+		return (*original)(args, out, errb)
+	})
+	runtimeHostedRun.Store(&slow)
+	defer func() {
+		time.Sleep(900 * time.Millisecond)
+		runtimeHostedRun.Store(original)
+	}()
+	go f.run("closeout-check")
+	time.Sleep(250 * time.Millisecond)
+	id, err := worktreeruntime.ResolveIdentity(f.root, version.Version, runtimeBuild())
+	if err != nil {
+		t.Skip(err)
+	}
+	status, err := worktreeruntime.Client{Identity: id, Dir: worktreeruntime.DefaultDir()}.Status(context.Background())
+	if err != nil || status.InFlight != 1 {
+		t.Fatalf("one running command with its caller waiting is %d in flight: %+v %v", status.InFlight, status, err)
+	}
+}
