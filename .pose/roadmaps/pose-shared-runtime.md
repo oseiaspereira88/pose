@@ -1,6 +1,6 @@
 ---
 slug: pose-shared-runtime
-status: draft
+status: done
 created_at: 2026-10-13
 depends_on:
 ---
