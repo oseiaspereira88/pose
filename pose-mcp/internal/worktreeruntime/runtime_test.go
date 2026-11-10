@@ -10,6 +10,7 @@ import (
 	"path/filepath"
 	"runtime"
 	"strings"
+	"sync/atomic"
 	"testing"
 	"time"
 )
@@ -414,4 +415,75 @@ func TestAReplyDoesNotEscapeHTMLCharacters(t *testing.T) {
 	if strings.Contains(string(raw), "\\u003c") || strings.Contains(string(raw), "\\u0026") {
 		t.Fatalf("the reply escapes HTML characters: %s", raw)
 	}
+}
+
+// A hosted operation is its own handshake: a caller whose engine differs from the runtime's is
+// refused before the handler runs, even if it handshook with an earlier runtime a moment before.
+func TestAHostedOperationFromAnotherEngineIsRefusedBeforeTheHandlerRuns(t *testing.T) {
+	skipUnsupported(t)
+	id := identity(t, repo(t), "7.4.1")
+	dir := shortDir(t)
+	var ran atomic.Int64
+	ctx, cancel := context.WithCancel(context.Background())
+	defer cancel()
+	done := make(chan error, 1)
+	go func() {
+		done <- Serve(ctx, Options{Identity: id, Dir: dir, Handler: func(_ context.Context, req Request) (Reply, bool) {
+			if req.Op != "run" {
+				return Reply{}, false
+			}
+			ran.Add(1)
+			return Reply{Outcome: OutcomeCompleted}, true
+		}})
+	}()
+	c := Client{Identity: id, Dir: dir}
+	for i := 0; i < 200; i++ {
+		if _, err := c.Status(context.Background()); err == nil {
+			break
+		}
+		time.Sleep(10 * time.Millisecond)
+	}
+	if _, err := c.Run(context.Background(), []string{"review-check"}, "env", 0); err != nil || ran.Load() != 1 {
+		t.Fatalf("a caller of the same identity: %v, ran %d", err, ran.Load())
+	}
+	other := c
+	other.Identity.Engine = "7.5.0"
+	_, err := other.Run(context.Background(), []string{"review-check"}, "env", 0)
+	var inc *IncompatibleError
+	if !errors.As(err, &inc) || ran.Load() != 1 {
+		t.Fatalf("a caller of another engine: %v, ran %d", err, ran.Load())
+	}
+	// A request with no identity at all is refused too.
+	reply, err := c.roundTrip(context.Background(), Request{Op: "run"})
+	if err != nil || reply.OK || ran.Load() != 1 {
+		t.Fatalf("a hosted request without an identity: %+v %v ran %d", reply, err, ran.Load())
+	}
+	cancel()
+	<-done
+}
+
+// A command past its deadline is counted by the stop as what it abandoned, never as a negative
+// drain.
+func TestAStopCountsWhatARunningCommandAbandonsAndNeverReportsANegativeDrain(t *testing.T) {
+	skipUnsupported(t)
+	id := identity(t, repo(t), "7.4.1")
+	dir := shortDir(t)
+	var busy atomic.Int64
+	busy.Store(1)
+	ctx, cancel := context.WithCancel(context.Background())
+	defer cancel()
+	done := make(chan error, 1)
+	go func() { done <- Serve(ctx, Options{Identity: id, Dir: dir, Busy: busy.Load}) }()
+	c := Client{Identity: id, Dir: dir}
+	for i := 0; i < 200; i++ {
+		if _, err := c.Status(context.Background()); err == nil {
+			break
+		}
+		time.Sleep(10 * time.Millisecond)
+	}
+	reply, err := c.Stop(context.Background(), 100*time.Millisecond)
+	if err != nil || reply.Abandoned != 1 || reply.Drained != 0 {
+		t.Fatalf("stop with a command still running: %+v %v", reply, err)
+	}
+	<-done
 }

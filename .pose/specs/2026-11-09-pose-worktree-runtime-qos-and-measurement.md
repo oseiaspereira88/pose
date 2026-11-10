@@ -78,7 +78,7 @@ Fatia 3 da B35 (emenda do ADR de 2026-11-09). Depois da fatia 2 o runtime rodava
 - [x] Flags de admissão em `start`/`serve` e repasse ao `serve` destacado
 - [x] Harness de medição com amostras, cenários e limiares fixados
 - [x] Rodar a medição e registrar o relatório
-- [ ] Revisão independente e fechamento
+- [x] Revisão independente e fechamento
 
 ## 5. Decisions
 

@@ -443,6 +443,17 @@ func (s *server) handle(ctx context.Context, conn net.Conn) {
 		writeReply(conn, reply)
 	default:
 		if s.opts.Handler != nil {
+			// A hosted operation is its own handshake: it carries the caller's identity, and a
+			// caller of another engine, build, protocol, schema or worktree is refused before the
+			// handler sees it, whatever the caller handshook with a moment before.
+			if req.Identity == nil {
+				writeReply(conn, Reply{Error: "a hosted operation carries the caller's identity"})
+				return
+			}
+			if mism := s.opts.Identity.Mismatches(*req.Identity); len(mism) > 0 {
+				writeReply(conn, Reply{Mismatch: mism, Error: "incompatible", PID: os.Getpid()})
+				return
+			}
 			// The reply of a long operation must still be writable.
 			_ = conn.SetDeadline(time.Now().Add(hostedDuration(req.DeadlineMS) + requestDeadline))
 			if reply, ok := s.opts.Handler(ctx, req); ok {
@@ -458,7 +469,7 @@ func (s *server) handle(ctx context.Context, conn net.Conn) {
 
 // drain waits, up to the deadline, for the requests in flight besides this one.
 func (s *server) drain(deadline time.Duration) Reply {
-	before := s.inflight.Load() - 1
+	before := s.inflight.Load() + s.busy() - 1
 	end := time.Now().Add(deadline)
 	for s.inflight.Load()+s.busy() > 1 && time.Now().Before(end) {
 		time.Sleep(5 * time.Millisecond)
@@ -603,12 +614,19 @@ func hostedDuration(deadlineMS int) time.Duration {
 // Run sends a hosted operation: the command line, the digest of the caller's environment and
 // the longest it may take (zero for the runtime's default).
 func (c Client) Run(ctx context.Context, args []string, env string, deadline time.Duration) (Reply, error) {
-	return c.roundTrip(ctx, Request{Op: "run", Args: args, Env: env, DeadlineMS: int(deadline.Milliseconds())})
+	id := c.Identity
+	reply, err := c.roundTrip(ctx, Request{Op: "run", Identity: &id, Args: args, Env: env, DeadlineMS: int(deadline.Milliseconds())})
+	if err == nil && len(reply.Mismatch) > 0 {
+		// Refused before it started: the caller falls back, as for any incompatible runtime.
+		return reply, &IncompatibleError{Mismatch: reply.Mismatch}
+	}
+	return reply, err
 }
 
 // Do sends an operation the runtime hosts and returns its reply.
 func (c Client) Do(ctx context.Context, op string) (Reply, error) {
-	return c.roundTrip(ctx, Request{Op: op})
+	id := c.Identity
+	return c.roundTrip(ctx, Request{Op: op, Identity: &id})
 }
 
 // WaitReleased returns when the endpoint of the identity can be taken: nothing answers and the

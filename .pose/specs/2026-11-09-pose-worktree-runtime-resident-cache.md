@@ -80,7 +80,7 @@ Fatia 2 da B35 (emenda do ADR de 2026-11-09), reescrita pela medição que as du
 - [x] Handler hospedado: admissão, digest de ambiente, um por vez
 - [x] `pose runtime run` com fallback standalone e sem repetir o que pode ter rodado
 - [x] Medir: o segundo `review-check` no runtime contra standalone, com a saída comparada
-- [ ] Revisão independente e fechamento
+- [x] Revisão independente e fechamento
 
 ## 5. Decisions
 
@@ -134,5 +134,5 @@ O runtime hospeda `review-check`, `closeout-check`, `artifact-check`, `surface-c
 
 - [open] Test the admission of a memo hit's bytes against an operation's input budget when the budget is nearly spent. (owner:@pose-maintainers crit:low review:2027-02-08)
 - [open] Put the user and global Git configuration in the memo key, as the repository's own is. (owner:@pose-maintainers crit:low review:2027-02-08)
-- [open] Admissão, orçamento e proteção das consultas curtas contra checks pesados, com medições fixadas (fatia 3, `pose-worktree-runtime-qos-and-measurement`). (owner:@pose-maintainers crit:medium review:2027-02-08)
+- [covered: pose-worktree-runtime-qos-and-measurement] Admissão, orçamento e proteção das consultas curtas contra checks pesados, com medições fixadas (fatia 3, `pose-worktree-runtime-qos-and-measurement`). (owner:@pose-maintainers crit:medium review:2027-02-08)
 - [open] Rotear os checks para o runtime quando ele existe, sem `run` explícito, e renderizar para terminal. (owner:@pose-maintainers crit:low review:2027-02-08)

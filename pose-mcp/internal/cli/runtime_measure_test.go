@@ -35,6 +35,7 @@ const (
 	thresholdShortFloorMS    = 250  // ... or 250 ms, whichever is more
 	thresholdRSSMiB          = 1536 // resident set of the runtime after the warm runs
 	thresholdFallbackExtraMS = 500  // trying a runtime that is not there costs at most this
+	thresholdTwoHeavyOverOne = 2.5  // T7: two simultaneous heavy checks on the one heavy slot: wall <= 2.5 x one warm run
 )
 
 type measureReport struct {
@@ -43,6 +44,32 @@ type measureReport struct {
 	Figures     map[string]float64 `json:"figures"`
 	Metrics     map[string]int64   `json:"runtime_metrics"`
 	Verdicts    map[string]string  `json:"verdicts"`
+}
+
+// runtimeProc reads the runtime process's cumulative CPU time (user + system, ms) and its
+// resident set (MiB) from /proc; ok is false where there is none.
+func runtimeProc(pid int) (cpuMS int64, rssMiB float64, ok bool) {
+	stat, err := os.ReadFile("/proc/" + strconv.Itoa(pid) + "/stat")
+	if err != nil {
+		return 0, 0, false
+	}
+	// The command name is in parentheses and may hold spaces: fields count from after it.
+	text := string(stat)
+	fields := strings.Fields(text[strings.LastIndex(text, ")")+2:])
+	if len(fields) < 13 {
+		return 0, 0, false
+	}
+	utime, _ := strconv.ParseInt(fields[11], 10, 64)
+	stime, _ := strconv.ParseInt(fields[12], 10, 64)
+	status, _ := os.ReadFile("/proc/" + strconv.Itoa(pid) + "/status")
+	for _, line := range strings.Split(string(status), "\n") {
+		if strings.HasPrefix(line, "VmRSS:") {
+			kb, _ := strconv.ParseFloat(strings.Fields(line)[1], 64)
+			rssMiB = kb / 1024
+		}
+	}
+	const clockTicksPerSecond = 100
+	return (utime + stime) * 1000 / clockTicksPerSecond, rssMiB, true
 }
 
 func measureMedian(v []int64) int64 {
@@ -163,6 +190,26 @@ func TestMeasureTheRuntimeOnTheRealRepository(t *testing.T) {
 		t.Fatalf("start: %s", o)
 	}
 	defer run("runtime", "stop")
+	pidOf := func() int {
+		o, _, _ := run("runtime", "status", "--json")
+		var d struct {
+			PID int `json:"pid"`
+		}
+		_ = json.Unmarshal([]byte(strings.SplitN(o, "\x00", 2)[0]), &d)
+		return d.PID
+	}
+	pid := pidOf()
+	// Per scenario: the CPU time the runtime process spent and its resident set afterwards.
+	mark := func(scenario string, since int64) int64 {
+		cpu, rss, ok := runtimeProc(pid)
+		if ok {
+			rep.Figures["cpu_ms_"+scenario] = float64(cpu - since)
+			rep.Figures["rss_mib_after_"+scenario] = rss
+		}
+		return cpu
+	}
+	cpuNow := func() int64 { cpu, _, _ := runtimeProc(pid); return cpu }
+	cpuBefore := cpuNow()
 	for i := 0; i < measureWarmSamples+1; i++ {
 		o, ms, via := runtimeRun("review-check", spec)
 		if via != "runtime" || o != coldOut {
@@ -174,6 +221,7 @@ func TestMeasureTheRuntimeOnTheRealRepository(t *testing.T) {
 			rep.Scenarios["resident_warm"] = append(rep.Scenarios["resident_warm"], ms)
 		}
 	}
+	mark("resident_first_and_warm", cpuBefore)
 	warm := measureMedian(rep.Scenarios["resident_warm"])
 	rep.Figures["warm_over_cold"] = float64(warm) / float64(cold)
 	if float64(warm) <= thresholdWarmOverCold*float64(cold) {
@@ -191,6 +239,9 @@ func TestMeasureTheRuntimeOnTheRealRepository(t *testing.T) {
 		}
 		rep.Scenarios["short_idle"] = append(rep.Scenarios["short_idle"], ms)
 	}
+	cpuIdleShortEnd := cpuNow()
+	_ = cpuIdleShortEnd
+	cpuHeavyStart := cpuNow()
 	var wg sync.WaitGroup
 	wg.Add(1)
 	go func() { defer wg.Done(); runtimeRun("review-check", spec) }()
@@ -203,6 +254,29 @@ func TestMeasureTheRuntimeOnTheRealRepository(t *testing.T) {
 		rep.Scenarios["short_under_heavy"] = append(rep.Scenarios["short_under_heavy"], ms)
 	}
 	wg.Wait()
+	mark("heavy_with_short_queries", cpuHeavyStart)
+	// S6: two heavy checks at once on the one heavy slot: the second waits its turn.
+	twoStart := time.Now()
+	cpuTwo := cpuNow()
+	var two [2]string
+	var twoVia [2]string
+	var wg2 sync.WaitGroup
+	for k := 0; k < 2; k++ {
+		wg2.Add(1)
+		go func(k int) { defer wg2.Done(); two[k], _, twoVia[k] = runtimeRun("review-check", spec) }(k)
+	}
+	wg2.Wait()
+	twoWall := time.Since(twoStart).Milliseconds()
+	mark("two_simultaneous_heavy", cpuTwo)
+	rep.Scenarios["two_heavy_wall"] = []int64{twoWall}
+	rep.Figures["two_heavy_over_one_warm"] = float64(twoWall) / float64(warm)
+	if two[0] != coldOut || two[1] != coldOut || twoVia[0] != "runtime" || twoVia[1] != "runtime" {
+		fail("T7 two simultaneous heavy checks", "via %v, outputs equal to standalone %v %v", twoVia, two[0] == coldOut, two[1] == coldOut)
+	} else if float64(twoWall) <= thresholdTwoHeavyOverOne*float64(warm) {
+		pass("T7 two simultaneous heavy checks", "both through the runtime with the standalone output; wall %d ms <= %.1f x %d ms", twoWall, thresholdTwoHeavyOverOne, warm)
+	} else {
+		fail("T7 two simultaneous heavy checks", "wall %d ms > %.1f x %d ms", twoWall, thresholdTwoHeavyOverOne, warm)
+	}
 	idle, loaded := measureP95(rep.Scenarios["short_idle"]), measureP95(rep.Scenarios["short_under_heavy"])
 	bound := int64(thresholdShortUnderHeavy * float64(idle))
 	if bound < thresholdShortFloorMS {

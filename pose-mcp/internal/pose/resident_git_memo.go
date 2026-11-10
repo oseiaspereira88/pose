@@ -2,7 +2,8 @@ package pose
 
 import (
 	"container/list"
-	"fmt"
+	"crypto/sha256"
+	"encoding/hex"
 	"os"
 	"path/filepath"
 	"strings"
@@ -63,15 +64,19 @@ func residentGitKey(root, head string, args []string) (string, bool) {
 	if err != nil || !info.IsDir() {
 		return "", false
 	}
-	shallow := "-"
-	if s, err := os.Stat(filepath.Join(gitDir, "shallow")); err == nil {
-		shallow = fmt.Sprintf("%d:%d", s.Size(), s.ModTime().UnixNano())
+	// The shallow file and the repository config are small: their content, not a timestamp,
+	// is part of the key.
+	digestOf := func(name string) string {
+		raw, err := os.ReadFile(filepath.Join(gitDir, name))
+		if err != nil {
+			return "-"
+		}
+		sum := sha256.Sum256(raw)
+		return hex.EncodeToString(sum[:8])
 	}
+	shallow := digestOf("shallow")
 	// The repository's own config can change what a read answers (log.follow, for one).
-	config := "-"
-	if c, err := os.Stat(filepath.Join(gitDir, "config")); err == nil {
-		config = fmt.Sprintf("%d:%d", c.Size(), c.ModTime().UnixNano())
-	}
+	config := digestOf("config")
 	return strings.Join([]string{filepath.Clean(root), head, shallow, config, strings.Join(args, "\x00")}, "\x01"), true
 }
 

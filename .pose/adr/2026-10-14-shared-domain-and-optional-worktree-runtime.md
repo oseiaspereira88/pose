@@ -2,7 +2,7 @@
 
 ## Status
 
-Proposed — 2026-10-14, for B31/B33/B35. The transport, the identity and the slicing of B35 are decided by the amendment at the end (2026-11-09). No IPC, cache API/schema, daemon lifecycle,
+Proposed — 2026-10-14, for B31/B33/B35; the optional worktree runtime (B35) was delivered in three slices and the delivered state, with where it departs from the decisions above, is the last amendment (2026-11-10). The transport, the identity and the slicing of B35 are decided by the amendment at the end (2026-11-09). No IPC, cache API/schema, daemon lifecycle,
 platform default or policy is implemented/adopted by this proposal. Reconcile and
 resolve the structural contract before functional start. Preserve accepted ADRs
 for active-context discovery, scoped Git readers, obligations and the
@@ -267,3 +267,43 @@ Decided 2026-11-09 with the maintainer, before the functional start of B35:
   protected from heavy checks, measured thresholds). Budgets and thresholds are
   fixed from a measured synthetic corpus with a declared environment, never from a
   historical sample.
+
+## Amendment: what the optional worktree runtime delivered, and where it departs (B35, 2026-11-10)
+
+The three slices are done and each was reviewed independently: `pose-optional-worktree-runtime`
+(identity, protected endpoint, handshake, lifecycle, standalone fallback),
+`pose-worktree-runtime-resident-cache` (hosted read checks, typed results, resident memo) and
+`pose-worktree-runtime-qos-and-measurement` (admission lanes and the measurement), with two engine
+specs that the measurements called for (`pose-index-input-binding-reads-each-transfer-once`,
+`pose-governance-audit-skips-pure-git-reads`). The statement above that "the runtime of slice 1
+hosts no domain operation" was true of slice 1 only. What stands now, and what differs from the
+decisions of this ADR:
+
+- **Hosted operations.** The runtime hosts five read checks (`review-check`, `closeout-check`,
+  `artifact-check`, `surface-check`, `roadmap-check`) through `pose runtime run`, as the user that
+  started it, in its worktree; a hosted request carries the caller's identity and is refused,
+  before any handler runs, when it does not match the runtime's engine, build, protocol, schema
+  or worktree; the caller's environment digest must equal the runtime's. They are not writes, but
+  they may refresh derived files as they do standalone (published atomically); a command that may
+  have run (deadline, lost reply) is never repeated elsewhere unasked, which is how the decision
+  "an ambiguous committed write requires a receipt before a retry" is met for these commands.
+  Hosted commands go through the domain's own entry (`mainCommand`), not a new typed interface:
+  the typed-domain extraction of the first bullet of the decision stays with B31.
+- **Caches.** The B33 views are not what the runtime reuses (the measurements showed they do not
+  address the cost). It keeps, between commands, the output of the Git reads that are pure
+  functions of object ids or of the commit HEAD named when they ran, keyed by the commit, the
+  content of the shallow file and of the repository config, with a byte budget and
+  least-recently-used eviction; no watcher exists, so "watch events are hints" is met by not
+  using them: freshness comes from the key, and nothing about mtime or a clean tree is taken as
+  proof. The scoped Git batch reader is untouched.
+- **Budgets and QoS.** Admission is by two lanes (`short`, `heavy`) with slots and bounded queues
+  and a bound on the memo; the global concurrency bound is the sum of the slots. **Not delivered:**
+  CPU quota or affinity awareness, and per-command memory or I/O limits; the runtime bounds what
+  it admits and keeps, not what each command consumes. The measurement records latency, the
+  runtime's resident set and CPU time per scenario, including two simultaneous heavy checks, on one
+  environment; it is not a general benchmark.
+- **Platforms.** Unix domain socket on Linux and macOS (credentials of the peer from the
+  operating system); Windows runs every command standalone and `pose runtime status` says so.
+  The named pipe is a follow-up.
+- **Status.** The decision stands as amended for the delivered scope; what is not delivered above
+  is not adopted and needs its own spec before it is claimed.
