@@ -1,0 +1,213 @@
+{
+  "run": {
+    "run_id": "rrn-653366dd2bbb084d",
+    "proof_id": "rrp-756acec372806d5e54f559e331c5ed3cae91bd5d51fd362d85806dcd05732943"
+  },
+  "schema_version": 1,
+  "attestation_id": "rva-04d9f687684f67b6",
+  "bundle_id": "rvb-cf94d939778d86fe",
+  "bundle_digest": "sha256:cf94d939778d86fed673f3bb0ed7e00183c5e245a2ef6570d4d5498dddf6199d",
+  "reviewer": "agent:anthropic/claude-opus-5-5",
+  "decision": "approved",
+  "criteria": [
+    {
+      "id": "assumption-integrity",
+      "disposition": "passed",
+      "evidence": "integration:pose-mcp/go/git-status-clean-git-integration",
+      "rationale": "Examined the fix, the gitCommandContext environment build and every snapshotGit caller. Verified: the env is preserved (git_snapshot_integrity.go:576-583, var appended at :113), all snapshotGit callers are covered, and no caller depends on index refresh. Unresolved: submodule children inherit GIT_OPTIONAL_LOCKS (reasoned from Git's behaviour, not tested); the test failing without the variable was not re-run by me; R2 is a manual harne8 measurement; artifact-check reports head 6e27b06d vs brief 4cc3b954. Accepted: F1, F2 (low)."
+    },
+    {
+      "id": "backend-concurrency",
+      "disposition": "passed",
+      "evidence": "unit:pose-mcp/go/test",
+      "rationale": "No shared state, goroutines or lifecycle changed; the fix removes a concurrent writer (index.lock) under .git, which reduces contention with governed read views and other git processes."
+    },
+    {
+      "id": "backend-contracts",
+      "disposition": "passed",
+      "evidence": "integration:pose-mcp/go/git-status-clean-git-integration",
+      "rationale": "Arguments, porcelain -z parsing and the GitSnapshotError type are unchanged; only the subprocess environment differs."
+    },
+    {
+      "id": "backend-input-errors",
+      "disposition": "passed",
+      "evidence": "unit:pose-mcp/go/test",
+      "rationale": "Error path unchanged: failures still return a typed GitSnapshotError naming the operation (git_snapshot_integrity.go:115-117)."
+    },
+    {
+      "id": "backend-integration-impact",
+      "disposition": "passed",
+      "evidence": "integration:pose-mcp/go/git-and-dispatch-snapshot-integrity-integration",
+      "rationale": "snapshotGit consumers (review_dispatch, review_attempt_ledger, review_adapter_containment, ReadGitStatusIn) parse output only; their sealed integration checks pass."
+    },
+    {
+      "id": "backend-observability",
+      "disposition": "passed",
+      "evidence": "unit:pose-mcp/go/test",
+      "rationale": "Diagnostics unchanged: GitSnapshotError still carries the operation and cause; the fix removes a false 'review inputs changed during operation: .git' diagnosis."
+    },
+    {
+      "id": "compatibility",
+      "disposition": "passed",
+      "evidence": "integration:pose-mcp/go/git-status-clean-git-integration",
+      "rationale": "Examined the CLI/MCP/file surfaces: no contract changes; git status output with GIT_OPTIONAL_LOCKS=0 is identical, only the opportunistic index write is skipped. Concluded compatible."
+    },
+    {
+      "id": "correctness",
+      "disposition": "passed",
+      "evidence": "integration:pose-mcp/go/git-status-clean-git-integration",
+      "rationale": "The test makes the stat cache stale with identical content (the exact trigger for git's optional index refresh) and asserts the index is byte-identical and no index.lock remains."
+    },
+    {
+      "id": "design-causality",
+      "disposition": "passed",
+      "evidence": "structure:design-0e2630317d0ecaf3",
+      "rationale": "Examined D1 against R1: the cause (git status rewriting .git/index via index.lock under a read view watching .git) is removed at its source, matching the policy of the governed executors (governance_read_view_git.go:601, operation_git.go:26). The rejected alternative, filtering .git from observation, would hide real writes. Concluded the design addresses the cause."
+    },
+    {
+      "id": "documentation",
+      "disposition": "passed",
+      "evidence": "integration:pose-mcp/go/git-status-clean-git-integration",
+      "rationale": "Examined the changelog entry, spec and in-code comment at git_snapshot_integrity.go:110-112; they match runtime behaviour. No operational docs or templates are affected."
+    },
+    {
+      "id": "operability",
+      "disposition": "passed",
+      "evidence": "integration:pose-mcp/go/git-status-clean-git-integration",
+      "rationale": "Examined the error paths: unchanged and typed. The fix eliminates a spurious, non-actionable closeout error (60 in harne8 per the spec)."
+    },
+    {
+      "id": "requirements",
+      "disposition": "finding",
+      "evidence": "F1"
+    },
+    {
+      "id": "scope",
+      "disposition": "passed",
+      "evidence": "integration:pose-mcp/go/git-status-clean-git-integration",
+      "rationale": "Examined the diff against the spec's artifact list: the Go change, test, start, changelog and matrix entry are as declared. The derived indexes are regenerated administrative files; artifact-check reports no error for this change. Concluded in scope."
+    },
+    {
+      "id": "security",
+      "disposition": "passed",
+      "evidence": "unit:pose-mcp/go/test",
+      "rationale": "Examined the env handling: gitRedirectingEnv filtering and replace/graft hardening are preserved because the variable is appended after them. No new inputs, paths or authority. Concluded safe."
+    },
+    {
+      "id": "solution-proportionality",
+      "disposition": "passed",
+      "evidence": "integration:pose-mcp/go/git-status-clean-git-integration",
+      "rationale": "Compared with the smallest alternative: a one-line env change plus one test is the minimum; there is no speculative extensibility. Invalidating condition: a snapshot git command that still writes under .git (D1's falsifier) or other executors on the read path lacking the variable (F2)."
+    }
+  ],
+  "tools": [
+    {
+      "id": "artifact-check",
+      "disposition": "passed",
+      "evidence": "command:pose artifact-check --spec pose-git-status-leaves-the-git-directory-alone --strict",
+      "rationale": "Ran it: 6 claims, 12 observed; all 938 findings are repo-wide orphan warnings, none an error on this change."
+    },
+    {
+      "id": "assess-design",
+      "disposition": "not-used",
+      "rationale": "The review profile refused execution; relied on the sealed structure:design-0e2630317d0ecaf3 pass."
+    },
+    {
+      "id": "assess-discover",
+      "component": "pose-mcp",
+      "disposition": "not-used",
+      "rationale": "Recommended only; not needed for a one-line env change, and the profile restricts commands."
+    },
+    {
+      "id": "assess-integrate",
+      "disposition": "not-used",
+      "rationale": "Recommended only; integration covered by the sealed integration evidence."
+    },
+    {
+      "id": "assess-tech-debt",
+      "disposition": "not-used",
+      "rationale": "Recommended only; the change adds no debt beyond F2, which was found by code reading."
+    },
+    {
+      "id": "closeout-check",
+      "disposition": "deferred",
+      "rationale": "Its precondition is the completion of this review; it cannot pass before the attestation."
+    },
+    {
+      "id": "review-check",
+      "disposition": "deferred",
+      "rationale": "Its precondition is the completion of this review; it cannot pass before the attestation."
+    },
+    {
+      "id": "suggest-review",
+      "component": "pose-mcp",
+      "disposition": "not-used",
+      "rationale": "Recommended only; the review surface is a single function and its callers, read directly."
+    },
+    {
+      "id": "validate",
+      "disposition": "passed",
+      "evidence": "integration:pose-mcp/go/git-status-clean-git-integration",
+      "rationale": "The profile refused execution in this session; relied on the sealed strict-validation evidence, as the brief directs."
+    },
+    {
+      "id": "validate",
+      "component": "pose-mcp",
+      "disposition": "passed",
+      "evidence": "build:pose-mcp/go/build",
+      "rationale": "The profile refused execution in this session; relied on the sealed pose-mcp build/unit/integration evidence (build, test and git-status-clean-git-integration all pass)."
+    }
+  ],
+  "evidence_refs": [
+    "F1",
+    "delegated-run:rrn-653366dd2bbb084d",
+    "integration:pose-mcp/go/git-and-dispatch-snapshot-integrity-integration",
+    "integration:pose-mcp/go/git-status-clean-git-integration",
+    "structure:design-0e2630317d0ecaf3",
+    "unit:pose-mcp/go/test"
+  ],
+  "findings": [
+    {
+      "id": "F1",
+      "severity": "low",
+      "evidence": "file:.pose/specs/2026-11-10-pose-git-status-leaves-the-git-directory-alone.md:92",
+      "action": "Add an integration test that runs review-check/check under a governed read view on a repository (with a submodule) whose index stat cache is stale, and asserts review.fresh=true with no 'governance read view changed during capture'; retarget the R2 trace to it.",
+      "disposition": "accepted-risk",
+      "owner": "@pose-maintainers",
+      "rationale": "R2 trace cites TestGitChangedPathsWritesNothingUnderTheGitDirectory, which only exercises R1; R2 (review-check fresh, strict pose check without 'changed during capture') rests on a manual harne8 measurement declared as a known gap.",
+      "review_by": "2027-02-08"
+    },
+    {
+      "id": "F2",
+      "severity": "low",
+      "evidence": "file:pose-mcp/internal/cli/validate.go:1598",
+      "action": "Implement the spec's open follow-up: a test that walks every Git executor of the engine and fails for any that runs status without GIT_OPTIONAL_LOCKS=0, and set the variable on these callers.",
+      "disposition": "accepted-risk",
+      "owner": "@pose-maintainers",
+      "rationale": "git status still runs without GIT_OPTIONAL_LOCKS=0 in validate.go:1598,1631, historycheck.go:87, report.go:299 and setup.go:300 (via RawHistoryGit/RawGit). They are outside the review read view, so this change is unaffected, but the spec's non-goal and residual-risk text say every existing executor sets the variable.",
+      "review_by": "2027-02-08"
+    }
+  ],
+  "authority": {
+    "schema_version": 1,
+    "project": "proj.pose-dist",
+    "bundle_digest": "sha256:cf94d939778d86fed673f3bb0ed7e00183c5e245a2ef6570d4d5498dddf6199d",
+    "principal": "agent:anthropic/claude-opus-5-5",
+    "role": "agent",
+    "review_execution": "rrn-653366dd2bbb084d",
+    "implementation_principal": "agent:anthropic/claude-sonnet-5-5",
+    "implementation_execution": "sha256:675189f7e0b769255994f8213acf8b1b57174c4353838cd875cdabd46aa9cc0b",
+    "issuer": "b34-local-executor",
+    "issued_at": "2026-11-10T15:12:28Z",
+    "audience": "proj.pose-dist"
+  },
+  "envelope": {
+    "issuer": "b34-local-executor",
+    "subject": "rvb-cf94d939778d86fe",
+    "algorithm": "ed25519",
+    "public_key": "ck4sApdfePV2GT+hJyAYfJd2qLzeG55P8pevGR0bvZE=",
+    "signature": "Me3RAuDNF9FM2jPPTmI3a7FIckSLsGhl0XNnFFiCOVFyhv1Rklfb43ndKN+0LbvSF1swwGgu8jNC/ACZxIifBQ=="
+  },
+  "attested_at": "2026-11-10T15:12:28Z",
+  "path": ".pose/review-attestations/rva-04d9f687684f67b6.json"
+}
