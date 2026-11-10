@@ -29,7 +29,7 @@ Fatia 3 da B35 (emenda do ADR de 2026-11-09). Depois da fatia 2 o runtime rodava
 
 - A saída de um comando hospedado continua sendo a do standalone, byte a byte, em todos os cenários.
 - Recusa por fila cheia é antes de esperar e leva ao fallback standalone; nada é enfileirado sem limite.
-- Os limiares abaixo foram fixados no teste de medição e nesta spec antes da primeira medição; não foram ajustados depois dela.
+- Os limiares abaixo foram fixados no teste de medição e nesta spec antes da primeira medição; não foram ajustados depois dela nem da segunda execução (que veio de lacunas no harness achadas pela revisão).
 
 ### Non-goals
 
@@ -113,7 +113,7 @@ Testes com um comando lento injetado provam o isolamento das faixas, a recusa po
 ## 7. Final Report
 
 ### Delivered scope
-Duas faixas de admissão com slots e fila limitada, métricas por faixa no status, as flags de configuração (R6) e o harness de medição com limiares fixados antes dos números (R8); o relatório (`.pose/reports/2026-11-09-pose-worktree-runtime-measurements.md`) registra os números: warm 0,41 da cold (T1), restart 0,96 da cold (T2), consulta curta sob carga p95 10 ms contra 9 ms ocioso (T3), pico residente 537 MiB (T4), saída idêntica (T5) e custo do fallback dentro do ruído (T6); todos os limiares passaram na única execução.
+Duas faixas de admissão com slots e fila limitada, métricas por faixa no status, as flags de configuração (R6) e o harness de medição com limiares fixados antes dos números (R8); o relatório (`.pose/reports/2026-11-09-pose-worktree-runtime-measurements.md`) registra duas execuções (a revisão achou lacunas no harness depois da primeira; os limiares não mudaram) e os números da segunda: warm 0,42 da cold (T1), restart 1,01 da cold (T2), consulta curta sob carga p95 9 ms contra 11 ms ocioso (T3), pico residente 535 MiB (T4), saída idêntica incluindo a consulta curta (T5) e custo do fallback de 102 ms (T6); todos os limiares passaram nas duas execuções.
 
 ### Files and modules changed
 - pose-mcp/internal/cli (faixas, flags, harness), worktreeruntime (métricas), os quatro POSE.md; a matriz ganha `runtime-qos-integration`.
@@ -128,4 +128,5 @@ Duas faixas de admissão com slots e fila limitada, métricas por faixa no statu
 
 ### Follow-ups
 
+- [open] Dar a `memo_hits` o valor do próprio comando com faixas concorrentes (hoje é a diferença de um contador global) e provar a concorrência com trabalho curto real ao lado de um pesado, não só com `surface-check --help`. (owner:@pose-maintainers crit:low review:2027-02-08)
 - [open] Rotear os checks para o runtime quando ele existe e limites por cgroup quando a plataforma os oferecer. (owner:@pose-maintainers crit:low review:2027-02-08)

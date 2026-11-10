@@ -1,90 +1,199 @@
 {
-  "environment": {
-    "check": "review-check spec:pose-governance-audit-skips-pure-git-reads",
-    "cpus": 16,
-    "git": "git version 2.56.0",
-    "go": "go1.27.3-X:nodwarf5",
-    "goarch": "amd64",
-    "gomaxprocs": 16,
-    "goos": "linux",
-    "kernel": "7.2.10-1-cachyos",
-    "repo_commits": "2862",
-    "repo_head": "7c2abbf6801e1f57c9f4169f2fa66540284113e6",
-    "samples": {
-      "churn": 3,
-      "cold": 3,
-      "short": 10,
-      "warm": 5
+  "run1": {
+    "environment": {
+      "check": "review-check spec:pose-governance-audit-skips-pure-git-reads",
+      "cpus": 16,
+      "git": "git version 2.56.0",
+      "go": "go1.27.3-X:nodwarf5",
+      "goarch": "amd64",
+      "gomaxprocs": 16,
+      "goos": "linux",
+      "kernel": "7.2.10-1-cachyos",
+      "repo_commits": "2862",
+      "repo_head": "7c2abbf6801e1f57c9f4169f2fa66540284113e6",
+      "samples": {
+        "churn": 3,
+        "cold": 3,
+        "short": 10,
+        "warm": 5
+      },
+      "short_query": "surface-check spec:pose-governance-audit-skips-pure-git-reads"
     },
-    "short_query": "surface-check spec:pose-governance-audit-skips-pure-git-reads"
+    "scenarios_ms": {
+      "cold_standalone": [
+        27103,
+        26781,
+        26466
+      ],
+      "fallback_no_runtime": [
+        25616,
+        25595,
+        26315
+      ],
+      "resident_first": [
+        26304
+      ],
+      "resident_warm": [
+        11033,
+        11089,
+        11012,
+        11083,
+        11049
+      ],
+      "restart_then_run": [
+        25741,
+        25754,
+        25770
+      ],
+      "short_idle": [
+        8,
+        7,
+        9,
+        8,
+        9,
+        8,
+        8,
+        7,
+        9,
+        8
+      ],
+      "short_under_heavy": [
+        8,
+        9,
+        8,
+        8,
+        7,
+        9,
+        7,
+        9,
+        8,
+        10
+      ]
+    },
+    "figures": {
+      "VmHWM_mib": 537.12890625,
+      "VmRSS_mib": 502.84375,
+      "churn_over_cold": 0.9616519174041298,
+      "fallback_extra_ms": -1165,
+      "short_p95_idle_ms": 9,
+      "short_p95_under_heavy_ms": 10,
+      "warm_over_cold": 0.4125686120757253
+    },
+    "runtime_metrics": null,
+    "verdicts": {
+      "T1 warm over cold": "pass: 11049 ms / 26781 ms = 0.41 <= 0.60",
+      "T2 restart inherits nothing": "pass: 25754 ms / 26781 ms = 0.96 >= 0.80",
+      "T3 short under heavy": "pass: p95 10 ms <= 250 ms (idle p95 9 ms)",
+      "T4 runtime memory": "pass: peak resident 537 MiB <= 1536 MiB",
+      "T5 output": "pass: every hosted run printed exactly what the standalone run printed (25561 bytes)",
+      "T6 fallback overhead": "pass: -1165 ms <= 500 ms"
+    }
   },
-  "scenarios_ms": {
-    "cold_standalone": [
-      27103,
-      26781,
-      26466
-    ],
-    "fallback_no_runtime": [
-      25616,
-      25595,
-      26315
-    ],
-    "resident_first": [
-      26304
-    ],
-    "resident_warm": [
-      11033,
-      11089,
-      11012,
-      11083,
-      11049
-    ],
-    "restart_then_run": [
-      25741,
-      25754,
-      25770
-    ],
-    "short_idle": [
-      8,
-      7,
-      9,
-      8,
-      9,
-      8,
-      8,
-      7,
-      9,
-      8
-    ],
-    "short_under_heavy": [
-      8,
-      9,
-      8,
-      8,
-      7,
-      9,
-      7,
-      9,
-      8,
-      10
-    ]
-  },
-  "figures": {
-    "VmHWM_mib": 537.12890625,
-    "VmRSS_mib": 502.84375,
-    "churn_over_cold": 0.9616519174041298,
-    "fallback_extra_ms": -1165,
-    "short_p95_idle_ms": 9,
-    "short_p95_under_heavy_ms": 10,
-    "warm_over_cold": 0.4125686120757253
-  },
-  "runtime_metrics": null,
-  "verdicts": {
-    "T1 warm over cold": "pass: 11049 ms / 26781 ms = 0.41 \u003c= 0.60",
-    "T2 restart inherits nothing": "pass: 25754 ms / 26781 ms = 0.96 \u003e= 0.80",
-    "T3 short under heavy": "pass: p95 10 ms \u003c= 250 ms (idle p95 9 ms)",
-    "T4 runtime memory": "pass: peak resident 537 MiB \u003c= 1536 MiB",
-    "T5 output": "pass: every hosted run printed exactly what the standalone run printed (25561 bytes)",
-    "T6 fallback overhead": "pass: -1165 ms \u003c= 500 ms"
+  "run2_qualifying": {
+    "environment": {
+      "check": "review-check spec:pose-governance-audit-skips-pure-git-reads",
+      "cpus": 16,
+      "git": "git version 2.56.0",
+      "go": "go1.27.3-X:nodwarf5",
+      "goarch": "amd64",
+      "gomaxprocs": 16,
+      "goos": "linux",
+      "kernel": "7.2.10-1-cachyos",
+      "repo_commits": "2871",
+      "repo_head": "1d4d257d0595cd9b0bb400b10903abd805dc07b3",
+      "samples": {
+        "churn": 3,
+        "cold": 3,
+        "short": 10,
+        "warm": 5
+      },
+      "short_query": "surface-check spec:pose-governance-audit-skips-pure-git-reads"
+    },
+    "scenarios_ms": {
+      "cold_standalone": [
+        26516,
+        26904,
+        26836
+      ],
+      "fallback_no_runtime": [
+        26965,
+        26914,
+        26938
+      ],
+      "resident_first": [
+        26924
+      ],
+      "resident_warm": [
+        11318,
+        11353,
+        11218,
+        11275,
+        11216
+      ],
+      "restart_then_run": [
+        27019,
+        26882,
+        26992
+      ],
+      "short_idle": [
+        9,
+        9,
+        9,
+        8,
+        11,
+        7,
+        9,
+        8,
+        9,
+        8
+      ],
+      "short_under_heavy": [
+        7,
+        8,
+        8,
+        8,
+        8,
+        9,
+        8,
+        9,
+        8,
+        9
+      ]
+    },
+    "figures": {
+      "VmHWM_mib": 535.109375,
+      "VmRSS_mib": 517.81640625,
+      "churn_over_cold": 1.0058130868981965,
+      "fallback_extra_ms": 102,
+      "short_p95_idle_ms": 11,
+      "short_p95_under_heavy_ms": 9,
+      "warm_over_cold": 0.42014458190490384
+    },
+    "runtime_metrics": {
+      "heavy_admitted": 7,
+      "heavy_queue_limit": 4,
+      "heavy_queued": 0,
+      "heavy_refused": 0,
+      "heavy_running": 0,
+      "heavy_slots": 1,
+      "heavy_wait_ms_max": 0,
+      "heavy_wait_ms_total": 0,
+      "short_admitted": 20,
+      "short_queue_limit": 16,
+      "short_queued": 0,
+      "short_refused": 0,
+      "short_running": 0,
+      "short_slots": 2,
+      "short_wait_ms_max": 0,
+      "short_wait_ms_total": 0
+    },
+    "verdicts": {
+      "T1 warm over cold": "pass: 11275 ms / 26836 ms = 0.42 <= 0.60",
+      "T2 restart inherits nothing": "pass: 26992 ms / 26836 ms = 1.01 >= 0.80",
+      "T3 short under heavy": "pass: p95 9 ms <= 250 ms (idle p95 11 ms)",
+      "T4 runtime memory": "pass: peak resident 535 MiB <= 1536 MiB",
+      "T5 output": "pass: every hosted run, the review-check and the short query idle and under load, printed exactly what the standalone run printed (25610 and 89 bytes)",
+      "T6 fallback overhead": "pass: 102 ms <= 500 ms"
+    }
   }
 }
