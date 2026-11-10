@@ -1,6 +1,6 @@
 ---
 slug: pose-worktree-runtime-resident-cache
-status: draft
+status: in-progress
 created_at: 2026-11-09
 completed_at:
 supersedes:
