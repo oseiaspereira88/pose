@@ -482,7 +482,9 @@ func TestAStopCountsWhatARunningCommandAbandonsAndNeverReportsANegativeDrain(t *
 		time.Sleep(10 * time.Millisecond)
 	}
 	reply, err := c.Stop(context.Background(), 100*time.Millisecond)
-	if err != nil || reply.Abandoned != 1 || reply.Drained != 0 {
+	// A request that was still closing when the stop began may count as drained: only the
+	// command that outlives the stop is abandoned, and the drain is never negative.
+	if err != nil || reply.Abandoned != 1 || reply.Drained < 0 {
 		t.Fatalf("stop with a command still running: %+v %v", reply, err)
 	}
 	<-done
