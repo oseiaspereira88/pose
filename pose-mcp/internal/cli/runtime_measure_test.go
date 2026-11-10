@@ -181,7 +181,40 @@ func TestMeasureTheRuntimeOnTheRealRepository(t *testing.T) {
 	} else {
 		fail("T1 warm over cold", "%d ms / %d ms = %.2f > %.2f", warm, cold, float64(warm)/float64(cold), thresholdWarmOverCold)
 	}
-	// Memory of the runtime after the warm runs.
+	// S5: short queries, idle then under a heavy check.
+	shortArgs := []string{"surface-check", spec}
+	shortStandalone, _, _ := run(shortArgs...)
+	for i := 0; i < measureShortSamples; i++ {
+		so, ms, via := runtimeRun(shortArgs...)
+		if via != "runtime" || so != shortStandalone {
+			t.Fatalf("a short query went %s, same output as standalone %v", via, so == shortStandalone)
+		}
+		rep.Scenarios["short_idle"] = append(rep.Scenarios["short_idle"], ms)
+	}
+	var wg sync.WaitGroup
+	wg.Add(1)
+	go func() { defer wg.Done(); runtimeRun("review-check", spec) }()
+	time.Sleep(1500 * time.Millisecond)
+	for i := 0; i < measureShortSamples; i++ {
+		so, ms, via := runtimeRun(shortArgs...)
+		if via != "runtime" || so != shortStandalone {
+			t.Fatalf("a short query under load went %s, same output as standalone %v", via, so == shortStandalone)
+		}
+		rep.Scenarios["short_under_heavy"] = append(rep.Scenarios["short_under_heavy"], ms)
+	}
+	wg.Wait()
+	idle, loaded := measureP95(rep.Scenarios["short_idle"]), measureP95(rep.Scenarios["short_under_heavy"])
+	bound := int64(thresholdShortUnderHeavy * float64(idle))
+	if bound < thresholdShortFloorMS {
+		bound = thresholdShortFloorMS
+	}
+	rep.Figures["short_p95_idle_ms"], rep.Figures["short_p95_under_heavy_ms"] = float64(idle), float64(loaded)
+	if loaded <= bound {
+		pass("T3 short under heavy", "p95 %d ms <= %d ms (idle p95 %d ms)", loaded, bound, idle)
+	} else {
+		fail("T3 short under heavy", "p95 %d ms > %d ms (idle p95 %d ms)", loaded, bound, idle)
+	}
+	// Memory of the runtime after the warm runs and the concurrent phase.
 	status, _, _ := run("runtime", "status", "--json")
 	var st struct {
 		PID int `json:"pid"`
@@ -204,44 +237,15 @@ func TestMeasureTheRuntimeOnTheRealRepository(t *testing.T) {
 		rep.Verdicts["T4 runtime memory"] = "not measured: no /proc on this platform"
 	}
 
-	// S5: short queries, idle then under a heavy check.
-	shortArgs := []string{"surface-check", spec}
-	for i := 0; i < measureShortSamples; i++ {
-		_, ms, via := runtimeRun(shortArgs...)
-		if via != "runtime" {
-			t.Fatalf("a short query went %s", via)
-		}
-		rep.Scenarios["short_idle"] = append(rep.Scenarios["short_idle"], ms)
-	}
-	var wg sync.WaitGroup
-	wg.Add(1)
-	go func() { defer wg.Done(); runtimeRun("review-check", spec) }()
-	time.Sleep(1500 * time.Millisecond)
-	for i := 0; i < measureShortSamples; i++ {
-		_, ms, via := runtimeRun(shortArgs...)
-		if via != "runtime" {
-			t.Fatalf("a short query under load went %s", via)
-		}
-		rep.Scenarios["short_under_heavy"] = append(rep.Scenarios["short_under_heavy"], ms)
-	}
-	wg.Wait()
-	idle, loaded := measureP95(rep.Scenarios["short_idle"]), measureP95(rep.Scenarios["short_under_heavy"])
-	bound := int64(thresholdShortUnderHeavy * float64(idle))
-	if bound < thresholdShortFloorMS {
-		bound = thresholdShortFloorMS
-	}
-	rep.Figures["short_p95_idle_ms"], rep.Figures["short_p95_under_heavy_ms"] = float64(idle), float64(loaded)
-	if loaded <= bound {
-		pass("T3 short under heavy", "p95 %d ms <= %d ms (idle p95 %d ms)", loaded, bound, idle)
-	} else {
-		fail("T3 short under heavy", "p95 %d ms > %d ms (idle p95 %d ms)", loaded, bound, idle)
-	}
 	st2, _, _ := run("runtime", "status", "--json")
 	var full struct {
 		Metrics map[string]int64 `json:"metrics"`
 	}
 	_ = json.Unmarshal([]byte(strings.SplitN(st2, "\x00", 2)[0]), &full)
 	rep.Metrics = full.Metrics
+	if len(rep.Metrics) == 0 {
+		t.Fatalf("the runtime status carries no lane metrics: %s", st2)
+	}
 
 	// S4: a restart inherits nothing.
 	for i := 0; i < measureChurnSamples; i++ {
@@ -260,7 +264,7 @@ func TestMeasureTheRuntimeOnTheRealRepository(t *testing.T) {
 	} else {
 		fail("T2 restart inherits nothing", "%d ms / %d ms = %.2f < %.2f", churn, cold, float64(churn)/float64(cold), thresholdChurnOverCold)
 	}
-	pass("T5 output", "every hosted run printed exactly what the standalone run printed (%d bytes)", len(coldOut))
+	pass("T5 output", "every hosted run, the review-check and the short query idle and under load, printed exactly what the standalone run printed (%d and %d bytes)", len(coldOut), len(shortStandalone))
 
 	raw, _ := json.MarshalIndent(rep, "", "  ")
 	if err := os.WriteFile(out, append(raw, '\n'), 0o644); err != nil {

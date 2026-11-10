@@ -75,9 +75,9 @@ func init() {
 	runtimeHostedRun.Store(&run)
 }
 
-// runtimeHostedHandler runs the commands the runtime hosts, one at a time (the commands read
-// and may refresh the project's derived files, so two at once would race themselves), and
-// answers with a typed result. Anything it does not host or will not run is refused before it
+// runtimeHostedHandler runs the commands the runtime hosts (the commands read
+// and may refresh the project's derived files, which they publish atomically as separate
+// processes do) in the lanes of the admission policy, and answers with a typed result. Anything it does not host or will not run is refused before it
 // starts.
 func runtimeHostedHandler(envDigest string, busy *atomic.Int64, lanes *hostedLanes) func(context.Context, worktreeruntime.Request) (worktreeruntime.Reply, bool) {
 	return func(ctx context.Context, req worktreeruntime.Request) (worktreeruntime.Reply, bool) {

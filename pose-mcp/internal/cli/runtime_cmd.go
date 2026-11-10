@@ -10,6 +10,7 @@ import (
 	"os/exec"
 	"os/signal"
 	"runtime/debug"
+	"sort"
 	"strconv"
 	"strings"
 	"sync/atomic"
@@ -245,6 +246,9 @@ func runtimeReport(out interface{ Field(string, string) }, stdout io.Writer, f r
 		if reply.Epoch != "" {
 			doc["epoch"], doc["pid"], doc["started_at"], doc["in_flight"], doc["served"] = reply.Epoch, reply.PID, reply.StartedAt, reply.InFlight, reply.Served
 			doc["drained"], doc["abandoned"] = reply.Drained, reply.Abandoned
+			if len(reply.Metrics) > 0 {
+				doc["metrics"] = reply.Metrics
+			}
 		}
 		enc := json.NewEncoder(stdout)
 		_ = enc.Encode(doc)
@@ -259,6 +263,14 @@ func runtimeReport(out interface{ Field(string, string) }, stdout io.Writer, f r
 		out.Field("runtime.pid", fmt.Sprint(reply.PID))
 		out.Field("runtime.started_at", reply.StartedAt)
 		out.Field("runtime.in_flight", fmt.Sprint(reply.InFlight))
+		names := make([]string, 0, len(reply.Metrics))
+		for name := range reply.Metrics {
+			names = append(names, name)
+		}
+		sort.Strings(names)
+		for _, name := range names {
+			out.Field("runtime.metrics."+name, fmt.Sprint(reply.Metrics[name]))
+		}
 		if state == "stopped" {
 			out.Field("runtime.drained", fmt.Sprint(reply.Drained))
 			out.Field("runtime.abandoned", fmt.Sprint(reply.Abandoned))

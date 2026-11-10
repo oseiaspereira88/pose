@@ -263,6 +263,19 @@ func TestAShortQueryIsNotQueuedBehindAHeavyCheckAndAFullLaneRefuses(t *testing.T
 	if err != nil {
 		t.Skip(err)
 	}
+	// The command's own status says it too, in JSON and in the human output.
+	var jsonOut, humanOut bytes.Buffer
+	cmdRuntime(f.root, []string{"status", "--json"}, &jsonOut, io.Discard)
+	var doc struct {
+		Metrics map[string]int64 `json:"metrics"`
+	}
+	if err := json.Unmarshal(jsonOut.Bytes(), &doc); err != nil || doc.Metrics["heavy_refused"] != 1 || doc.Metrics["short_admitted"] != 1 {
+		t.Fatalf("pose runtime status --json does not carry the lane metrics: %s", jsonOut.String())
+	}
+	cmdRuntime(f.root, []string{"status"}, &humanOut, io.Discard)
+	if !strings.Contains(humanOut.String(), "runtime.metrics.heavy_refused=1") {
+		t.Fatalf("pose runtime status does not print the lane metrics: %s", humanOut.String())
+	}
 	status, err := worktreeruntime.Client{Identity: id, Dir: worktreeruntime.DefaultDir()}.Status(context.Background())
 	if err != nil || status.Metrics["heavy_refused"] != 1 || status.Metrics["heavy_admitted"] != 1 || status.Metrics["short_admitted"] != 1 || status.Metrics["heavy_slots"] != 1 {
 		t.Fatalf("the metrics do not say what happened: %+v %v", status.Metrics, err)
