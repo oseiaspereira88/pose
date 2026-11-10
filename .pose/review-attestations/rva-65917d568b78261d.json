@@ -1,0 +1,229 @@
+{
+  "run": {
+    "run_id": "rrn-a99c61c69775e437",
+    "proof_id": "rrp-dd5976f06184abcf74830a790eb153554d37ce26ec0cf1a2ba86c1d65fbaf3ee"
+  },
+  "schema_version": 1,
+  "attestation_id": "rva-65917d568b78261d",
+  "bundle_id": "rvb-1a80daa588879e00",
+  "bundle_digest": "sha256:1a80daa588879e000f49cc6697ea2bd2d75f71ec2dbfa5a8073fd367331ec653",
+  "reviewer": "agent:anthropic/claude-opus-5-5",
+  "decision": "approved",
+  "criteria": [
+    {
+      "id": "assumption-integrity",
+      "disposition": "passed",
+      "evidence": "integration:pose-mcp/go/index-recovery-integration",
+      "rationale": "Examined the claims that no index-build reader depends on the pinned generation and that same inputs give the same generation. Verified: every ReadIndex caller propagates ErrIndexGenerationUnavailable (index_generation.go:421 and callers), entry.indexGeneration only feeds review metadata, and the test asserts byte-identical generation.json. Unresolved: the effect of suppression on foreign roots during verify (F1). Accepted: residual risks listed in the spec."
+    },
+    {
+      "id": "backend-concurrency",
+      "disposition": "passed",
+      "evidence": "integration:pose-mcp/go/writer-coordination-and-atomic-publication-integration"
+    },
+    {
+      "id": "backend-contracts",
+      "disposition": "passed",
+      "evidence": "integration:pose-mcp/go/index-recovery-integration"
+    },
+    {
+      "id": "backend-input-errors",
+      "disposition": "passed",
+      "evidence": "integration:pose-mcp/go/index-recovery-integration"
+    },
+    {
+      "id": "backend-integration-impact",
+      "disposition": "passed",
+      "evidence": "integration:pose-mcp/go/governance-read-view-integration"
+    },
+    {
+      "id": "backend-observability",
+      "disposition": "passed",
+      "evidence": "integration:pose-mcp/go/index-recovery-integration"
+    },
+    {
+      "id": "compatibility",
+      "disposition": "passed",
+      "evidence": "integration:pose-mcp/go/closeout-plan-integration",
+      "rationale": "Examined the CLI exit change (1 to 2, declared in the spec's API/contract changes), the repo-map losing .pose READMEs (declared, D2 consequence) and the MCP error wording. Concluded it is compatible or declared; the undeclared loss of the --json failure document is low (F4)."
+    },
+    {
+      "id": "correctness",
+      "disposition": "passed",
+      "evidence": "unit:pose-mcp/go/test"
+    },
+    {
+      "id": "design-causality",
+      "disposition": "passed",
+      "evidence": "structure:design-a61e6998b32b7faa",
+      "rationale": "D1 (basis R2) addresses the cause: the capture marked unknown the generation the build replaces, and the publisher already replaced unreadable descriptors. D2 (basis R3) addresses the cause that a growing record would outrun any fixed bound; a .pose directory holds no module. Both decisions name falsifiers, and the R2/R3 tests are reported to fail without the change."
+    },
+    {
+      "id": "documentation",
+      "disposition": "passed",
+      "evidence": "integration:pose-mcp/go/distributed-instructions-parity-integration",
+      "rationale": "Examined the four POSE.md diffs: identical EN/pt-BR text in the root and scaffold copies, matching the runtime refusal (exit 2, close without a mode, closeout-check). The changelog describes R2-R4 accurately."
+    },
+    {
+      "id": "operability",
+      "disposition": "passed",
+      "evidence": "integration:pose-mcp/go/index-recovery-integration",
+      "rationale": "Examined the three messages: the close refusal names the working invocation and the read command; the bound error names entries/bytes and the .gitignore remedy; the 'run `pose index`' remedy now works. Concluded they are actionable; MCP wording names CLI flags (F3, low)."
+    },
+    {
+      "id": "requirements",
+      "disposition": "passed",
+      "evidence": "integration:pose-mcp/go/index-recovery-integration"
+    },
+    {
+      "id": "scope",
+      "disposition": "passed",
+      "evidence": "integration:pose-mcp/go/index-recovery-integration",
+      "rationale": "Compared the changed files with the spec's artifact list: all listed artifacts are present and nothing outside them changed except regenerated indexes/results. The non-goals (commit guard, milestone close semantics) are untouched."
+    },
+    {
+      "id": "security",
+      "disposition": "passed",
+      "evidence": "integration:pose-mcp/go/governance-read-view-integration",
+      "rationale": "Examined whether suppressing the unknown mark weakens authority boundaries: it only applies inside index-build captures, the readers and --verify still refuse unavailable sets, ReadIndex still errors on an unavailable pin, and the .pose exclusion only removes paths from a read-only inventory. No new path inputs or secrets."
+    },
+    {
+      "id": "solution-proportionality",
+      "disposition": "passed",
+      "evidence": "structure:design-a61e6998b32b7faa",
+      "rationale": "Compared with the minimal options (manual restore; raising the bound): the change is about 20 production lines with no speculative extensibility. Raising the bound would be outrun by record growth. It is invalidated if .pose could contain a module, or if a build reader silently used an unavailable pin (checked: none does)."
+    }
+  ],
+  "tools": [
+    {
+      "id": "artifact-check",
+      "disposition": "passed",
+      "evidence": "command:pose artifact-check --spec pose-index-recovery-and-close-scope-consistency --strict",
+      "rationale": "Exit 0; the only warnings are five provenance orphans on files this change did not touch."
+    },
+    {
+      "id": "assess-design",
+      "disposition": "not-used",
+      "rationale": "The review profile denied the invocation; the sealed structure evidence structure:design-a61e6998b32b7faa was relied on instead."
+    },
+    {
+      "id": "assess-discover",
+      "component": "pose-mcp",
+      "disposition": "not-used",
+      "rationale": "Recommended only; module discovery was judged from code and the sealed integration evidence."
+    },
+    {
+      "id": "assess-integrate",
+      "disposition": "not-used",
+      "rationale": "Recommended only; integration impact was judged from the sealed integration evidence."
+    },
+    {
+      "id": "assess-tech-debt",
+      "disposition": "not-used",
+      "rationale": "Recommended only; not needed for this small bugfix."
+    },
+    {
+      "id": "closeout-check",
+      "disposition": "deferred",
+      "rationale": "Its precondition is the completion of this review; it cannot pass before the attestation."
+    },
+    {
+      "id": "review-check",
+      "disposition": "deferred",
+      "rationale": "Its precondition is the completion of this review; it cannot pass before the attestation."
+    },
+    {
+      "id": "suggest-review",
+      "component": "pose-mcp",
+      "disposition": "not-used",
+      "rationale": "Recommended only; the review scope was taken from the sealed brief."
+    },
+    {
+      "id": "validate",
+      "disposition": "passed",
+      "evidence": "unit:pose-mcp/go/test",
+      "rationale": "Strict validation evidence sealed in the bundle; not rerun because the review profile allows no shell beyond the plan tools."
+    },
+    {
+      "id": "validate",
+      "component": "pose-mcp",
+      "disposition": "passed",
+      "evidence": "build:pose-mcp/go/build",
+      "rationale": "Module strict validation evidence sealed in the bundle, including integration:pose-mcp/go/index-recovery-integration; not rerun because of the profile."
+    }
+  ],
+  "evidence_refs": [
+    "delegated-run:rrn-a99c61c69775e437",
+    "integration:pose-mcp/go/closeout-plan-integration",
+    "integration:pose-mcp/go/distributed-instructions-parity-integration",
+    "integration:pose-mcp/go/governance-read-view-integration",
+    "integration:pose-mcp/go/index-recovery-integration",
+    "integration:pose-mcp/go/writer-coordination-and-atomic-publication-integration",
+    "structure:design-a61e6998b32b7faa",
+    "unit:pose-mcp/go/test"
+  ],
+  "findings": [
+    {
+      "id": "F1",
+      "severity": "low",
+      "evidence": "file:pose-mcp/internal/pose/governance_read_view.go:892",
+      "action": "Pass rebuildsIndex as an explicit argument set only by the index.generate and preflight captures, or document and test that verify may carry it",
+      "disposition": "accepted-risk",
+      "owner": "@pose-maintainers",
+      "rationale": "rebuildsIndex is derived from the allowMissingPrimaryRevision argument, so it also applies to index.verify (cli/index.go:198) and the build preflight, contrary to the field comment at :95 ('the one operation'). It is harmless today because verify returns on the primary generation status before consulting the capture (cli/index.go:226-231) and ReadIndex errors on an unavailable pin (index_generation.go:421), but an unavailable foreign root is no longer reported in verify's closure and future callers inherit the suppression implicitly. Give it its own explicit parameter.",
+      "review_by": "2027-02-08"
+    },
+    {
+      "id": "F2",
+      "severity": "low",
+      "evidence": "file:pose-mcp/internal/cli/index_generation_test.go:326",
+      "action": "Correct the requirement ids in the three test comments",
+      "disposition": "accepted-risk",
+      "owner": "@pose-maintainers",
+      "rationale": "Test comments cite the wrong requirement ids: this test proves R2 but says R1; module_discovery_governance_record_test.go:13 says R1 for R3 and :51 says R2 for R4. The spec trace is correct; the comments mislead.",
+      "review_by": "2027-02-08"
+    },
+    {
+      "id": "F3",
+      "severity": "low",
+      "evidence": "file:pose-mcp/internal/pose/closeout_plan.go:131",
+      "action": "Add an MCP test for include_plan on a milestone/roadmap scope and make the wording channel-neutral",
+      "disposition": "accepted-risk",
+      "owner": "@pose-maintainers",
+      "rationale": "The reworded plan error is also returned by MCP pose_closeout_state with include_plan (mcpserver/server.go:1585); it names the CLI flags --plan/--apply/--resume rather than include_plan, and has no test (a declared known gap).",
+      "review_by": "2027-02-08"
+    },
+    {
+      "id": "F4",
+      "severity": "low",
+      "evidence": "file:pose-mcp/internal/cli/closeout_plan.go:73",
+      "action": "State the --json behaviour of the refusal in the changelog/contract notes, or emit the operation-failure document under --json",
+      "disposition": "accepted-risk",
+      "owner": "@pose-maintainers",
+      "rationale": "`pose close \u003cnon-spec\u003e --plan|--apply|--resume --json` previously wrote an operation-failure JSON document on stdout (exit 1, :84); it now writes only a usage error on stderr (exit 2) with no stdout document. Consistent with other usage refusals and the exit change is declared, but the loss of the JSON document is not stated in the spec's contract changes or changelog.",
+      "review_by": "2027-02-08"
+    }
+  ],
+  "authority": {
+    "schema_version": 1,
+    "project": "proj.pose-dist",
+    "bundle_digest": "sha256:1a80daa588879e000f49cc6697ea2bd2d75f71ec2dbfa5a8073fd367331ec653",
+    "principal": "agent:anthropic/claude-opus-5-5",
+    "role": "agent",
+    "review_execution": "rrn-a99c61c69775e437",
+    "implementation_principal": "agent:anthropic/claude-sonnet-5-5",
+    "implementation_execution": "sha256:675189f7e0b769255994f8213acf8b1b57174c4353838cd875cdabd46aa9cc0b",
+    "issuer": "b34-local-executor",
+    "issued_at": "2026-11-10T14:25:18Z",
+    "audience": "proj.pose-dist"
+  },
+  "envelope": {
+    "issuer": "b34-local-executor",
+    "subject": "rvb-1a80daa588879e00",
+    "algorithm": "ed25519",
+    "public_key": "ck4sApdfePV2GT+hJyAYfJd2qLzeG55P8pevGR0bvZE=",
+    "signature": "OdjoTCTSQiQrUB6H6UzGBoS2aA7zBPOUN36KDxRv5skG2IAAv3brnmZRxh92AoC4snKt0yNEx2esSIepHaTIDw=="
+  },
+  "attested_at": "2026-11-10T14:25:18Z",
+  "path": ".pose/review-attestations/rva-65917d568b78261d.json"
+}
