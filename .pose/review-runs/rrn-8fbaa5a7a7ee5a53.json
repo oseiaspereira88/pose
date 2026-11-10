@@ -1,0 +1,137 @@
+{
+  "safety": {
+    "schema_version": 1,
+    "profile": "legacy-trusted",
+    "platform": "linux/amd64",
+    "capabilities": {
+      "automatic-expiry": "unavailable",
+      "bounded-capture": "available",
+      "cpu-limit": "unavailable",
+      "credential-filesystem-isolation": "unavailable",
+      "environment-allowlist": "available",
+      "escaped-descendant-termination": "unavailable",
+      "filesystem-isolation": "unavailable",
+      "memory-limit": "unavailable",
+      "network-isolation": "unavailable",
+      "origin-isolation": "unavailable",
+      "parent-termination": "available",
+      "process-group-termination": "available",
+      "shared-git-isolation": "unavailable"
+    },
+    "limitations": [
+      "trusted local executable required; worktree is not a sandbox",
+      "outside writes, transient writes, shared Git and credential files are not isolated",
+      "no memory/CPU quota or control of descendants escaping the process group",
+      "cleanup filesystem calls remain subject to operating-system I/O latency",
+      "legacy compatibility: HOME retained; other ambient credentials excluded"
+    ],
+    "stream_bytes": 8388608,
+    "output_bytes": 65536,
+    "retained_bytes": 16777216,
+    "timeout_ms": 3600000,
+    "max_runs_per_bundle": 3,
+    "retention": "retain-evidence; ttl=0; no automatic deletion",
+    "capture_complete": true,
+    "runtime_id": "pose-review-run-3468190200",
+    "operation": {
+      "schema_version": 1,
+      "operation": "review.dispatch.cleanup",
+      "scope": "spec:pose-sealed-checkout-does-not-require-later-child-evidence",
+      "outcome": "completed",
+      "steps_run": [
+        {
+          "id": "cleanup",
+          "result": "done"
+        }
+      ],
+      "effects": [],
+      "resumable": false
+    }
+  },
+  "provenance": {
+    "execution_state": "started",
+    "planned_wire_digest": "sha256:50580daf4b85af2dbb7125cd24175479b38be1ba261f2badb9f66607385fcdc4",
+    "wire_bytes": 24845,
+    "wire_complete": true,
+    "schema_version": 1,
+    "project": "proj.pose-dist",
+    "audience": "proj.pose-dist",
+    "worktree_digest": "sha256:9c161dc895f6496d9f800581bef8673cc9123cda65951fa2d23b0cbdbc2bac41",
+    "trust": "executor-attested",
+    "implementation": {
+      "principal": "agent:anthropic/claude-sonnet-5-5",
+      "execution": "sha256:675189f7e0b769255994f8213acf8b1b57174c4353838cd875cdabd46aa9cc0b",
+      "vendor": "anthropic",
+      "model": "claude-sonnet-5-5"
+    },
+    "reviewer": {
+      "principal": "agent:anthropic/claude-opus-5-5",
+      "vendor": "anthropic",
+      "model": "claude-opus-5-5"
+    },
+    "config_digest": "sha256:fa7add8c85f5c0c1dd74b1dba89cd12989a2a856fc7a59407bc04682bd575e25",
+    "command_template_digest": "sha256:4fb04e170e8d7f85923d1ab7c7d6eac045a3bb8d20b443991552d6b7bfa7c4f2",
+    "argv_digest": "sha256:6f7a9cc5aa680b285a37674b2fc17403c1b6f541da236f7fd09bb7d444f08935",
+    "executable_digest": "sha256:bfb3703ad5380242328459bc62ada4bde8ae7ba57c6e1eeadb9c00e08874c478",
+    "template_version": "review-brief/7",
+    "wire_digest": "sha256:50580daf4b85af2dbb7125cd24175479b38be1ba261f2badb9f66607385fcdc4",
+    "notes_digest": "sha256:29fc8a657447afd9c8d33cb4321b268250397c1a621e6dc82346302c43a2d2a2",
+    "raw_transcript_digest": "sha256:c71d9ecfac64c60207f2d561520747d27cf19e0deb451566a57a571ce08d33b5",
+    "raw_output_digest": "sha256:2cb0b99129a56d231121f828c1c71a7a6a75a4715ebbbf6fa1d76e8f8147f4a0",
+    "output_source": "stream-final",
+    "output_complete": true
+  },
+  "session_digest": "sha256:a05141c6adc8358778ceb63ab20319beaecaace1257057c17580c4e20b0cca71",
+  "tree_digest": "sha256:279ded2644c4f9ad48634681587efddb72db1f45ef5484bb35a4afba1fea3283",
+  "brief_notes": "Review of spec pose-sealed-checkout-does-not-require-later-child-evidence, implemented by Claude: an engine fix found when the delegated review of the pose-shared-runtime roadmap failed before it began. Measured: the run record said \"sealed checkout blocked: child milestone:… has no sealed review bundle\" for the four milestones, all approved. Mechanism (read `review_dispatch.go` around the worktree setup, `plan.SealedCommit` = `Bundle.Payload.Subject.Head`, then `checkout.PrepareReviewBundle` and `checkoutBlockers`): the subject head is the last commit that changed a subject path (here the roadmap file), older than the commits that record the milestones' reviews, so the sealed worktree cannot hold them; and no commit that is the roadmap's last change can come after those records without invalidating them, because the retention rule (`manifestStandsOver` / `sameRoadmapApartFromLifecycle` in `review_bundle.go`) tolerates only the exact bytes of the guarded close (`status: done`). Change: `checkoutBlockers` now drops, besides the delivery-integrity blocker it already dropped, blockers of the form \"child \u003cscope\u003e has no sealed review bundle[: why]\". Please check soundness: that the sealing of the roadmap bundle at the real head still refuses a roadmap whose children lack a sealed bundle (it did in the same investigation: the first seal attempt failed with that exact message when a milestone's approval was stale), that closing the scope judges the children again, that the filter cannot hide any other blocker (the test keeps three others), and that dropping this blocker in the worktree does not weaken what the reviewer reviews (the subject). The test `TestTheSealedCheckoutIsNotBlockedByChildEvidenceItCannotHold` fails without the change (verified); there is no end-to-end dispatch test, stated as a known gap, and the proof is the delegated review of the roadmap that failed before. Your profile only allows the plan tools and `git status|ls-files`: rely on the sealed evidence and read the code; do not report the missing shell as a finding. If your draft carries earlier findings, name them in `prior_findings` with the round prefix (`R1-F1` …); new findings in `findings` have bare ids (F1, F2 …). Follow-ups carry `action`, `owner` and `review_by`; only low-severity risks are accepted by the policy.\n",
+  "ledger_version": 1,
+  "attempt_id": "rat-7c2827d7d2c5d9e0cb5b2217bb7e86c96788acc9a7e35d085a887e266210d7e3",
+  "schema_version": 1,
+  "run_id": "rrn-8fbaa5a7a7ee5a53",
+  "scope": "spec:pose-sealed-checkout-does-not-require-later-child-evidence",
+  "bundle_id": "rvb-0b7acbad47fb944e",
+  "bundle_digest": "sha256:0b7acbad47fb944e6337050647e262404dac65e5aaadabce523e34544f086d89",
+  "sealed_commit": "6fbed26813a6d8f70dff88b205ae687252cc7dc2",
+  "kind": "review",
+  "brief_digest": "sha256:7e0dc1d2a9267c2e2068ed3ea5352654221f2965a232101116bef95cf94b2660",
+  "adapter": "claude-opus-5-5",
+  "vendor": "anthropic",
+  "model": "claude-opus-5-5",
+  "started_at": "2026-11-10T17:25:27.103259996Z",
+  "ended_at": "2026-11-10T17:29:20.353300999Z",
+  "exit_code": 0,
+  "status": "completed",
+  "transcript_digest": "sha256:5aa939ed03786fa7d4a80d9051a5e2056e154d28a1388249ddfcaff48e18a296",
+  "transcript_path": ".pose/review-runs/rrn-8fbaa5a7a7ee5a53.transcript",
+  "output": "I recommend approving: the change is sound and correctly scoped. I found three low-severity follow-ups and no blocker.\n\nI could only run `pose artifact-check`; every other shell command (`go test`, `pose assess design`, `pose suggest review`) was denied. So the conclusions below rest on reading the code and on the sealed evidence, not on runs of my own.\n\n## What I checked\n\n**Producer and consumer.**\n- The one place that produces `\"child \u003cref\u003e has no sealed review bundle[: why]\"` is `review_bundle.go:1816`, in `reviewBundleChildren`.\n- The new filter is `review_dispatch.go:1715-1718`. It only drops text that starts with `child ` and contains ` has no sealed review bundle`.\n- Other child blockers still block in the worktree: `child … does not stand` (`review_bundle.go:1821`, `:1877`) and `child … is not closed` (`review_closeout.go:2671`, `:2692`).\n\n**Sealing still refuses missing children.** The child blockers are added to the bundle at `review_bundle.go:547`. Sealing at the real head refuses any blocker at `review_bundle.go:2082-2083`. The filter only runs at `review_dispatch.go:841`, so sealing is unchanged, as the spec requires.\n\n**Closing still judges the children.**\n- `getCloseoutState` blocks while a child is not terminal (`review_closeout.go:2664-2672`, `:2686-2693`).\n- Verification builds its blockers from the prepared bundle's blockers, which include the child blockers (`review_bundle.go:3567`).\n\n**The fix actually takes effect.** The next check, `sealedInputsThatDiffer` (`review_dispatch.go:1656-1694`), compares sections, governed inputs and subject file digests, but not `Children`. So a worktree without the children's records no longer fails at a later step. The subject is still checked file by file at `:1679-1691`, so the reviewer still sees what was sealed.\n\n**Test.** The new test keeps three other blockers and drops both child forms plus the delivery-integrity one. The sealed check `integration:pose-mcp/go/sealed-checkout-child-evidence-integration` passed.\n\n**`pose artifact-check --strict`:** no error findings, only warnings about orphan files (paths with no spec claim) in the rest of the repository. It reported change set `cs-661cfc6ac8b2` with head `25b24ee9`, a different id and head than the brief's `cs-2909fe8e4f4e` / `6fbed268`. It apparently read the main repository's later state; I don't count this as a defect in the change.\n\n## Findings\n\n- **F1 (low)** `pose-mcp/internal/pose/review_dispatch.go:1717`: the filter matches on message text from `review_bundle.go:1816`, with no shared constant or typed diagnostic between them. If the text changes, the filter fails safe: the blocker comes back, it does not hide anything else.\n- **F2 (low)** `.pose/indexes/validation-matrix.json:2610`: the check `sealed-checkout-child-evidence-integration` is classed as `integration`, but it is a unit test of a pure string filter. R2 (delegated dispatch for roadmap and milestone) has no end-to-end test; the spec already lists this as a known gap with a follow-up.\n- **F3 (low)** `pose-mcp/internal/pose/review_bundle.go:1821`: a milestone child whose bundle is in the sealed commit but whose approval was committed later would show up in the worktree as `child … does not stand`. That is not filtered, so the run would still fail. For milestones this probably can't happen, because closing the child specs moves the subject head forward, but I have not verified it. The planned dispatch test should cover this case.\n\n## Criteria\n\n| Criterion | Result | Evidence |\n|---|---|---|\n| assumption-integrity | passed | Verified: sealing, closing and the input comparison as above. Not verified: no end-to-end dispatch (F2), the milestone case (F3). Accepted risk: the roadmap reviewer doesn't see the children's records. |\n| backend-concurrency | passed | `unit:pose-mcp/go/test`; pure function, no shared state |\n| backend-contracts | passed | `integration:pose-mcp/go/review-subject-later-removal-integration`; no contract change |\n| backend-input-errors | passed | `integration:pose-mcp/go/sealed-checkout-child-evidence-integration` |\n| backend-integration-impact | passed | `integration:pose-mcp/go/review-approval-follows-children-integration` |\n| backend-observability | passed | `integration:pose-mcp/go/typed-diagnostics-integration`; message format unchanged |\n| compatibility | passed | No CLI, MCP or file contract change |\n| correctness | passed | `integration:pose-mcp/go/sealed-checkout-child-evidence-integration` |\n| design-causality | passed | `structure:design-c186f3c39a12e759`, mapped to D1 |\n| documentation | passed | Changelog, spec and code comment match the behaviour |\n| operability | passed | The other blockers still report as before |\n| requirements | passed | R1 tested; R2 by code reading plus a known gap |\n| scope | passed | Only `review_dispatch.go` and the test |\n| security | passed | Only drops evidence that sealing and closing still require |\n| solution-proportionality | passed | Smallest sufficient fix; D1's alternative is impossible |\n\ndecision: approved\n\n```pose-draft\n{\n  \"schema\": \"pose.review.draft/v1\",\n  \"decision\": \"approved\",\n  \"findings\": [\n    {\"id\": \"F1\", \"severity\": \"low\", \"disposition\": \"follow-up\", \"file\": \"pose-mcp/internal/pose/review_dispatch.go\", \"line\": 1717, \"summary\": \"isChildReviewEvidenceBlocker matches the free-text blocker produced at review_bundle.go:1816 with no shared constant or typed diagnostic; a wording change would make the filter stop dropping the blocker (fails closed, no hidden blocker).\", \"action\": \"Make the producer and the filter share one constant or a typed blocker code for 'child \u003cref\u003e has no sealed review bundle'.\", \"owner\": \"@pose-maintainers\", \"review_by\": \"2027-02-08\"},\n    {\"id\": \"F2\", \"severity\": \"low\", \"disposition\": \"follow-up\", \"file\": \".pose/indexes/validation-matrix.json\", \"line\": 2610, \"summary\": \"sealed-checkout-child-evidence-integration is classed integration but runs a unit test of a pure string filter; R2 (delegated dispatch of roadmap and milestone reviews) has no end-to-end test (known gap in the spec).\", \"action\": \"Add the dispatch test from the spec's follow-up (roadmap with approved children in a synthetic repo) and bind R2 to it.\", \"owner\": \"@pose-maintainers\", \"review_by\": \"2027-02-08\"},\n    {\"id\": \"F3\", \"severity\": \"low\", \"disposition\": \"follow-up\", \"file\": \"pose-mcp/internal/pose/review_bundle.go\", \"line\": 1821, \"summary\": \"A child whose bundle is in the sealed commit but whose approval was committed later shows in the worktree as 'child ... does not stand', which the filter keeps; unverified whether a milestone dispatch can reach this.\", \"action\": \"Cover the milestone case (child bundle sealed before the subject head, approved after it) in the dispatch test from F2.\", \"owner\": \"@pose-maintainers\", \"review_by\": \"2027-02-08\"}\n  ],\n  \"criteria\": [\n    {\"id\": \"assumption-integrity\", \"disposition\": \"passed\", \"evidence\": \"integration:pose-mcp/go/sealed-checkout-child-evidence-integration\", \"rationale\": \"Verified facts: the only producer is review_bundle.go:1816; sealing refuses blockers at review_bundle.go:2082 and includes child blockers at :547; sealedInputsThatDiffer does not compare Children; closeout blocks non-terminal children (review_closeout.go:2671,2692). Unresolved: no end-to-end dispatch test (F2) and the milestone 'does not stand' case (F3). Accepted risk: the roadmap reviewer does not see the children's review records.\"},\n    {\"id\": \"backend-concurrency\", \"disposition\": \"passed\", \"evidence\": \"unit:pose-mcp/go/test\", \"rationale\": \"The change is a pure slice filter with no shared state, goroutines or lifecycle; the unit suite passed.\"},\n    {\"id\": \"backend-contracts\", \"disposition\": \"passed\", \"evidence\": \"integration:pose-mcp/go/review-subject-later-removal-integration\", \"rationale\": \"No public API, file or MCP contract changes; only an internal dispatch filter.\"},\n    {\"id\": \"backend-input-errors\", \"disposition\": \"passed\", \"evidence\": \"integration:pose-mcp/go/sealed-checkout-child-evidence-integration\", \"rationale\": \"Other blockers still fail the run with the 'sealed checkout blocked' message; the test keeps three of them.\"},\n    {\"id\": \"backend-integration-impact\", \"disposition\": \"passed\", \"evidence\": \"integration:pose-mcp/go/review-approval-follows-children-integration\", \"rationale\": \"Sealing and closeout still judge the children; only the in-worktree recheck drops the blocker.\"},\n    {\"id\": \"backend-observability\", \"disposition\": \"passed\", \"evidence\": \"integration:pose-mcp/go/typed-diagnostics-integration\", \"rationale\": \"The failure message for the remaining blockers is unchanged and bounded.\"},\n    {\"id\": \"compatibility\", \"disposition\": \"passed\", \"evidence\": \"integration:pose-mcp/go/sealed-checkout-child-evidence-integration\", \"rationale\": \"Examined the diff: no CLI, file or MCP contract changes; behaviour only becomes less strict in the worktree recheck, which sealing already enforces.\"},\n    {\"id\": \"correctness\", \"disposition\": \"passed\", \"evidence\": \"integration:pose-mcp/go/sealed-checkout-child-evidence-integration\", \"rationale\": \"The filter drops both forms of the child blocker and keeps the others; the next step (sealedInputsThatDiffer) does not compare Children, so the fix takes effect.\"},\n    {\"id\": \"design-causality\", \"disposition\": \"passed\", \"evidence\": \"structure:design-c186f3c39a12e759\", \"rationale\": \"Root cause: Subject.Head comes before the commits holding the children's review records, and sameRoadmapApartFromLifecycle forbids reordering. D1 drops only the blocker the worktree cannot satisfy and keeps it at sealing and closing.\", \"mappings\": [{\"delta\": \"design-c186f3c39a12e759\", \"basis\": \"D1\", \"disposition\": \"mapped\", \"rationale\": \"The structural delta is the checkoutBlockers filter in review_dispatch.go that D1 selects to satisfy R1 and R2.\"}]},\n    {\"id\": \"documentation\", \"disposition\": \"passed\", \"evidence\": \"integration:pose-mcp/go/sealed-checkout-child-evidence-integration\", \"rationale\": \"The changelog, the spec's known gaps and residual risks, and the code comment at review_dispatch.go:1696-1703 match the runtime behaviour.\"},\n    {\"id\": \"operability\", \"disposition\": \"passed\", \"evidence\": \"integration:pose-mcp/go/sealed-checkout-child-evidence-integration\", \"rationale\": \"The remaining blockers are reported verbatim; a missing child is still reported actionably at seal time (review_bundle.go:2083).\"},\n    {\"id\": \"requirements\", \"disposition\": \"passed\", \"evidence\": \"integration:pose-mcp/go/sealed-checkout-child-evidence-integration\", \"rationale\": \"R1 is tested directly; R2 holds by code reading (one dispatch path for every scope kind at review_dispatch.go:841), with an end-to-end test as follow-up F2.\"},\n    {\"id\": \"scope\", \"disposition\": \"passed\", \"evidence\": \"integration:pose-mcp/go/sealed-checkout-child-evidence-integration\", \"rationale\": \"The implementation changes only checkoutBlockers plus the test and matrix entry, as the spec's artifacts list; sealing and closeout are untouched (non-goals respected).\"},\n    {\"id\": \"security\", \"disposition\": \"passed\", \"evidence\": \"integration:pose-mcp/go/sealed-checkout-child-evidence-integration\", \"rationale\": \"The filter cannot approve unreviewed children: sealing refuses them at review_bundle.go:2082 and closing re-judges them; the subject is still compared file by file at review_dispatch.go:1679-1691.\"},\n    {\"id\": \"solution-proportionality\", \"disposition\": \"passed\", \"evidence\": \"integration:pose-mcp/go/sealed-checkout-child-evidence-integration\", \"rationale\": \"A seven-line filter is the smallest sufficient change; D1's minimal alternative is impossible under the retention rule. Invalidated if sealing ever stops refusing missing children (D1 falsifier).\"}\n  ],\n  \"tools\": [\n    {\"id\": \"artifact-check\", \"disposition\": \"passed\", \"evidence\": \"command:pose artifact-check --spec pose-sealed-checkout-does-not-require-later-child-evidence --strict\", \"rationale\": \"Ran it: only orphan warnings for unrelated paths, no errors for this spec's claims.\"},\n    {\"id\": \"assess-design\", \"disposition\": \"not-used\", \"rationale\": \"The review profile denied running it; relied on sealed structure:design-c186f3c39a12e759.\"},\n    {\"id\": \"assess-discover\", \"component\": \"pose-mcp\", \"disposition\": \"not-used\", \"rationale\": \"Recommended only; the review profile denied extra commands.\"},\n    {\"id\": \"assess-integrate\", \"disposition\": \"not-used\", \"rationale\": \"Recommended only; the review profile denied extra commands; relied on sealed integration evidence.\"},\n    {\"id\": \"assess-tech-debt\", \"disposition\": \"not-used\", \"rationale\": \"Recommended only; the review profile denied extra commands.\"},\n    {\"id\": \"closeout-check\", \"disposition\": \"deferred\", \"rationale\": \"Its precondition is the completion of this review.\"},\n    {\"id\": \"review-check\", \"disposition\": \"deferred\", \"rationale\": \"Its precondition is the recorded attestation of this review.\"},\n    {\"id\": \"suggest-review\", \"component\": \"pose-mcp\", \"disposition\": \"not-used\", \"rationale\": \"Recommended only; the review profile denied running it.\"},\n    {\"id\": \"validate\", \"disposition\": \"passed\", \"evidence\": \"build:pose-mcp/go/build\", \"rationale\": \"Strict validation evidence is sealed in the bundle; the build passed.\"},\n    {\"id\": \"validate\", \"component\": \"pose-mcp\", \"disposition\": \"passed\", \"evidence\": \"unit:pose-mcp/go/test\", \"rationale\": \"Strict module validation evidence is sealed; the unit suite and sealed-checkout-child-evidence-integration passed.\"}\n  ]\n}\n```",
+  "policy_digest": "sha256:f8cb9e16758e19e66e0e01f29d1d347b0c15cd1cfa191e32926de54742e3cb72",
+  "purpose": "review",
+  "env_removed": [
+    "CLAUDE_CODE_BRIDGE_SESSION_ID",
+    "CLAUDE_CODE_CHILD_SESSION",
+    "CLAUDE_CODE_ENTRYPOINT",
+    "CLAUDE_CODE_EXECPATH",
+    "CLAUDE_CODE_MESSAGING_SOCKET",
+    "CLAUDE_CODE_MESSAGING_TOKEN",
+    "CLAUDE_CODE_SESSION_ATTENDED",
+    "CLAUDE_CODE_SESSION_ID",
+    "CLAUDE_EFFORT",
+    "CLAUDE_PID"
+  ],
+  "events": "claude-stream-json",
+  "events_digest": "sha256:53609c80befe5554e094e76a3165c7a5a0356f07c1eda41f92bc5241e6c0bbde",
+  "routing": {
+    "requested": "claude-opus-5-5",
+    "implementation": {
+      "principal": "agent:anthropic/claude-sonnet-5-5",
+      "vendor": "anthropic",
+      "model": "claude-sonnet-5-5",
+      "execution_digest": "sha256:675189f7e0b769255994f8213acf8b1b57174c4353838cd875cdabd46aa9cc0b",
+      "source": "declared"
+    },
+    "implementation_from": "bundle",
+    "step": "explicit"
+  },
+  "independence_achieved": "different-model",
+  "round": 1
+}
