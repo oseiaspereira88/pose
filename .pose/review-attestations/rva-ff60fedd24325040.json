@@ -1,0 +1,110 @@
+{
+  "run": {
+    "run_id": "rrn-cf3019ca776eca76",
+    "proof_id": "rrp-e8609dd9e655e8096de032db8f94a7a7d1cc3dba7e04bd2d3ece6264002882e5"
+  },
+  "schema_version": 1,
+  "attestation_id": "rva-ff60fedd24325040",
+  "bundle_id": "rvb-44eb48e28d52f466",
+  "bundle_digest": "sha256:44eb48e28d52f4662b7186d91f0c639d7811abd2be0a97b47d83ac31c5177edf",
+  "reviewer": "agent:anthropic/claude-opus-5-5",
+  "decision": "approved",
+  "criteria": [
+    {
+      "id": "exit-gate",
+      "disposition": "passed",
+      "evidence": "integration:pose-mcp/go/runtime-qos-integration",
+      "rationale": "Examined the B35 gate (roadmap :77-81) against the code and the measurements. Identity is checked at handshake and on every hosted request before the handler (runtime.go:426,449-456); the peer UID is checked before any read (runtime.go:404-408); admission refuses on a full lane or at the deadline (runtime_host.go:107-119); the fourth measurement run passes T1-T7 with RAM, CPU and latency per scenario. The departures (no watcher, so the memo is keyed by commit; no retry of hosted reads; no CPU quota or per-command limits) are disclosed in the ADR amendment at line 271 and in the roadmap. Concluded that the gate has falsifiable evidence."
+    },
+    {
+      "id": "integration",
+      "disposition": "passed",
+      "evidence": "integration:pose-mcp/go/optional-worktree-runtime-integration",
+      "rationale": "The runtime, resident-cache and QoS slices compose through one Handler/Busy/Metrics contract in worktreeruntime.Options, and the sealed integration evidence for all three passes (optional-worktree-runtime, resident-cache, runtime-qos)."
+    },
+    {
+      "id": "membership",
+      "disposition": "passed",
+      "evidence": "integration:pose-mcp/go/resident-cache-integration",
+      "rationale": "All three ordered member specs are status: done with no unchecked tasks. The crit:medium follow-up of the resident-cache spec is marked covered by the qos spec. The delivery code is unchanged since the round-4 approval, so the closures remain current."
+    },
+    {
+      "id": "regression",
+      "disposition": "passed",
+      "evidence": "unit:pose-mcp/go/test",
+      "rationale": "Examined the sealed module validation of pose-mcp: the unit, build and every integration and reachability check pass. Concluded there is no regression."
+    },
+    {
+      "id": "residual-risk",
+      "disposition": "passed",
+      "evidence": "integration:pose-mcp/go/runtime-qos-integration",
+      "rationale": "The cross-spec items not delivered (CPU quota/affinity, per-command limits, Windows named pipe, default routing) are in their own draft specs, per the roadmap (:18-20) and the ADR (:301). The only open items are R3-N4 and R3-N5, which are low and remain the follow-ups accepted in round 4."
+    }
+  ],
+  "tools": [
+    {
+      "id": "assess-discover",
+      "component": "pose-mcp",
+      "disposition": "not-used",
+      "rationale": "Recommended only. The review profile allows no shell beyond git status and ls-files, so I relied on reading the code."
+    },
+    {
+      "id": "assess-tech-debt",
+      "disposition": "not-used",
+      "rationale": "Recommended only. The review profile allows no shell beyond git status and ls-files."
+    },
+    {
+      "id": "closeout-check",
+      "disposition": "deferred",
+      "rationale": "Its precondition is this review's attestation; POSE runs it after recording."
+    },
+    {
+      "id": "review-check",
+      "disposition": "deferred",
+      "rationale": "Its precondition is this review's attestation; POSE runs it after recording."
+    },
+    {
+      "id": "suggest-review",
+      "component": "pose-mcp",
+      "disposition": "not-used",
+      "rationale": "Recommended only. The review profile allows no shell; I swept the subject by reading it instead."
+    },
+    {
+      "id": "validate",
+      "component": "pose-mcp",
+      "disposition": "passed",
+      "evidence": "unit:pose-mcp/go/test",
+      "rationale": "The strict module validation of pose-mcp is sealed in the bundle (unit, build and all integration and reachability checks pass)."
+    }
+  ],
+  "evidence_refs": [
+    "delegated-run:rrn-cf3019ca776eca76",
+    "integration:pose-mcp/go/optional-worktree-runtime-integration",
+    "integration:pose-mcp/go/resident-cache-integration",
+    "integration:pose-mcp/go/runtime-qos-integration",
+    "unit:pose-mcp/go/test"
+  ],
+  "findings": null,
+  "authority": {
+    "schema_version": 1,
+    "project": "proj.pose-dist",
+    "bundle_digest": "sha256:44eb48e28d52f4662b7186d91f0c639d7811abd2be0a97b47d83ac31c5177edf",
+    "principal": "agent:anthropic/claude-opus-5-5",
+    "role": "agent",
+    "review_execution": "rrn-cf3019ca776eca76",
+    "implementation_principal": "agent:anthropic/claude-sonnet-5-5",
+    "implementation_execution": "sha256:675189f7e0b769255994f8213acf8b1b57174c4353838cd875cdabd46aa9cc0b",
+    "issuer": "b34-local-executor",
+    "issued_at": "2026-11-10T16:18:57Z",
+    "audience": "proj.pose-dist"
+  },
+  "envelope": {
+    "issuer": "b34-local-executor",
+    "subject": "rvb-44eb48e28d52f466",
+    "algorithm": "ed25519",
+    "public_key": "ck4sApdfePV2GT+hJyAYfJd2qLzeG55P8pevGR0bvZE=",
+    "signature": "yG89Q3Ipgfdz6dGOpUWeFAhGXcV5nxEj4d16cYh80J9KeA8SiEmLUFrTZdjlGuQNqEH600J1Ld6mBOe8wjWuDQ=="
+  },
+  "attested_at": "2026-11-10T16:18:57Z",
+  "path": ".pose/review-attestations/rva-ff60fedd24325040.json"
+}
