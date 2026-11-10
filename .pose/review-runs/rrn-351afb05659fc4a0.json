@@ -1,0 +1,124 @@
+{
+  "safety": {
+    "schema_version": 1,
+    "profile": "legacy-trusted",
+    "platform": "linux/amd64",
+    "capabilities": {
+      "automatic-expiry": "unavailable",
+      "bounded-capture": "available",
+      "cpu-limit": "unavailable",
+      "credential-filesystem-isolation": "unavailable",
+      "environment-allowlist": "available",
+      "escaped-descendant-termination": "unavailable",
+      "filesystem-isolation": "unavailable",
+      "memory-limit": "unavailable",
+      "network-isolation": "unavailable",
+      "origin-isolation": "unavailable",
+      "parent-termination": "available",
+      "process-group-termination": "available",
+      "shared-git-isolation": "unavailable"
+    },
+    "limitations": [
+      "trusted local executable required; worktree is not a sandbox",
+      "outside writes, transient writes, shared Git and credential files are not isolated",
+      "no memory/CPU quota or control of descendants escaping the process group",
+      "cleanup filesystem calls remain subject to operating-system I/O latency",
+      "legacy compatibility: HOME retained; other ambient credentials excluded"
+    ],
+    "stream_bytes": 8388608,
+    "output_bytes": 65536,
+    "retained_bytes": 16777216,
+    "timeout_ms": 3600000,
+    "max_runs_per_bundle": 3,
+    "retention": "retain-evidence; ttl=0; no automatic deletion",
+    "capture_complete": false,
+    "runtime_id": "pose-review-run-3770146271",
+    "operation": {
+      "schema_version": 1,
+      "operation": "review.dispatch.cleanup",
+      "scope": "roadmap:pose-shared-runtime",
+      "outcome": "completed",
+      "steps_run": [
+        {
+          "id": "cleanup",
+          "result": "done"
+        }
+      ],
+      "effects": [],
+      "resumable": false
+    }
+  },
+  "provenance": {
+    "execution_state": "not-started",
+    "planned_wire_digest": "sha256:00e96ec3ab822c0c5e58ed6d4f1e9ac1f806378ea898bdd144279eb8021e14bd",
+    "wire_bytes": 0,
+    "wire_complete": false,
+    "schema_version": 1,
+    "project": "proj.pose-dist",
+    "audience": "proj.pose-dist",
+    "worktree_digest": "sha256:9c161dc895f6496d9f800581bef8673cc9123cda65951fa2d23b0cbdbc2bac41",
+    "trust": "executor-attested",
+    "implementation": {
+      "principal": "agent:anthropic/claude-sonnet-5-5",
+      "execution": "sha256:675189f7e0b769255994f8213acf8b1b57174c4353838cd875cdabd46aa9cc0b",
+      "vendor": "anthropic",
+      "model": "claude-sonnet-5-5"
+    },
+    "reviewer": {
+      "principal": "agent:anthropic/claude-opus-5-5",
+      "vendor": "anthropic",
+      "model": "claude-opus-5-5"
+    },
+    "config_digest": "sha256:fa7add8c85f5c0c1dd74b1dba89cd12989a2a856fc7a59407bc04682bd575e25",
+    "command_template_digest": "sha256:4fb04e170e8d7f85923d1ab7c7d6eac045a3bb8d20b443991552d6b7bfa7c4f2",
+    "argv_digest": "",
+    "executable_digest": "",
+    "template_version": "review-brief/7",
+    "wire_digest": "",
+    "notes_digest": "sha256:abc2f96dcf92eba686728073063d87717130cc0b8bf325f92e9e8644aafd7456",
+    "raw_transcript_digest": "",
+    "raw_output_digest": "",
+    "output_source": "",
+    "output_complete": false
+  },
+  "brief_notes": "Review of roadmap pose-shared-runtime (\"Domínio e runtime comuns com desempenho qualificado\"): its four milestones are closed with an independent review each — operation-performance (spec pose-governance-operation-performance), common-domain-handoff (pose-common-domain-and-cli-mcp-handoff), bounded-graph-caches (pose-bounded-isolated-graph-caches) and optional-worktree-runtime (pose-optional-worktree-runtime, pose-worktree-runtime-resident-cache, pose-worktree-runtime-qos-and-measurement). Judge the roadmap's own outcome and exit gates in `.pose/roadmaps/pose-shared-runtime.md` against what the milestones delivered, not the members again: coherent CLI/MCP operations and a controlled cost per producer, bounded reuse, and an optional runtime only after identity, coherence, authorization and recovery are qualified. Read the ADR `.pose/adr/2026-10-14-shared-domain-and-optional-worktree-runtime.md` (its last amendment, 2026-11-10, states what the runtime delivered and where it departs from the decisions: no CPU quota or affinity, no per-command limits, Windows runs standalone, the B33 views were not what the runtime reuses), the measurement `.pose/reports/2026-11-09-pose-worktree-runtime-measurements.md` and the closed engine specs that the measurements called for. The roadmap's \"Estado (2026-11-10)\" paragraph names what it does not deliver; confirm each of those is in a draft spec of its own (pose-runtime-resource-limits-per-command, pose-runtime-windows-named-pipe, pose-checks-route-to-the-runtime-by-default) and that nothing the roadmap claims is missing evidence. The last commit carries the trailers of the six member specs so that your pinned checkout is the final state. Your profile only allows the plan tools and `git status|ls-files`: rely on the sealed evidence and read the code and reports; do not report the missing shell as a finding. If your draft carries earlier findings, name them in `prior_findings` with the round prefix (`R1-F1` …); new findings in `findings` have bare ids (F1, F2 …). Follow-ups carry `action`, `owner` and `review_by`; only low-severity risks are accepted by the policy.\n",
+  "ledger_version": 1,
+  "attempt_id": "rat-150cf3cb5d8e8048047d7ddfb7a6c418f7ae9e8f03c5ad17a1667e7821628d86",
+  "schema_version": 1,
+  "run_id": "rrn-351afb05659fc4a0",
+  "scope": "roadmap:pose-shared-runtime",
+  "bundle_id": "rvb-4820e8b2234a478f",
+  "bundle_digest": "sha256:4820e8b2234a478fa106efd91dab00e7334866a6fa87843e8675639a902c17b4",
+  "sealed_commit": "aa575b36566dda63d670a95262ae6f7e4c4a13d5",
+  "kind": "review",
+  "brief_digest": "sha256:491be6db67747a9856bb4f21ba4d2962881a0bceab945cc408198b765532b922",
+  "adapter": "claude-opus-5-5",
+  "vendor": "anthropic",
+  "model": "claude-opus-5-5",
+  "started_at": "2026-11-10T16:49:49.817049899Z",
+  "ended_at": "2026-11-10T16:53:41.079332024Z",
+  "exit_code": -1,
+  "status": "failed",
+  "failure": "sealed checkout blocked: [child milestone:pose-shared-runtime/bounded-graph-caches has no sealed review bundle child milestone:pose-shared-runtime/common-domain-handoff has no sealed review bundle child milestone:pose-shared-runtime/operation-performance has no sealed review bundle child milestone:pose-shared-runtime/optional-worktree-runtime has no sealed review bundle: current semantic inputs are not represented by a sealed bundle; the approval of bundle rvb-891fa38953b21b1d is not retained: the federated manifest of milestone:pose-shared-runtime/optional-worktree-runtime changed in a way that bears on its authority]",
+  "transcript_digest": "sha256:e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+  "transcript_path": ".pose/review-runs/rrn-351afb05659fc4a0.transcript",
+  "output": "",
+  "policy_digest": "sha256:f8cb9e16758e19e66e0e01f29d1d347b0c15cd1cfa191e32926de54742e3cb72",
+  "purpose": "review",
+  "events": "claude-stream-json",
+  "events_digest": "sha256:e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+  "routing": {
+    "requested": "claude-opus-5-5",
+    "implementation": {
+      "principal": "agent:anthropic/claude-sonnet-5-5",
+      "vendor": "anthropic",
+      "model": "claude-sonnet-5-5",
+      "execution_digest": "sha256:675189f7e0b769255994f8213acf8b1b57174c4353838cd875cdabd46aa9cc0b",
+      "source": "declared"
+    },
+    "implementation_from": "bundle",
+    "step": "explicit"
+  },
+  "independence_achieved": "different-model",
+  "round": 1
+}
