@@ -1,0 +1,136 @@
+{
+  "run": {
+    "run_id": "rrn-5d885c6f7781dd12",
+    "proof_id": "rrp-ea1f02d4900a041fd90ad5347e209932667e0505582b1056d3494534c81f9aab"
+  },
+  "schema_version": 1,
+  "attestation_id": "rva-3ac204cf82649868",
+  "bundle_id": "rvb-891fa38953b21b1d",
+  "bundle_digest": "sha256:891fa38953b21b1d49e0dd64bb1dfdec07f099af4aa7d6fb3605463f68c46b50",
+  "reviewer": "agent:anthropic/claude-opus-5-5",
+  "decision": "approved",
+  "criteria": [
+    {
+      "id": "exit-gate",
+      "disposition": "passed",
+      "evidence": "integration:pose-mcp/go/runtime-qos-integration",
+      "rationale": "Examined the exit gate (roadmap :74-78) against the code and the fourth measurement run: field-by-field handshake and per-request identity (runtime.go:426,449-455), peer credentials before read (:404-408), restart inherits nothing (T2), standalone fallback (T6), memo keyed by commit/shallow/config with no watcher, no rerun of possibly-run commands, short-query QoS and deterministic output under one and two heavy jobs (T3,T5,T7) with RAM/CPU/latency per scenario. CPU quota and per-command limits are not delivered and are disclosed in ADR :299-304; concluded the gate has falsifiable evidence."
+    },
+    {
+      "id": "integration",
+      "disposition": "passed",
+      "evidence": "integration:pose-mcp/go/optional-worktree-runtime-integration",
+      "rationale": "The ADR amendment of 2026-11-10 composes the three slices (endpoint/handshake, hosted checks with resident memo, admission lanes); the hosted handler uses the server's identity check, the lanes and the memo without contradiction; the sealed integration evidence of all three member specs passes."
+    },
+    {
+      "id": "membership",
+      "disposition": "passed",
+      "evidence": "integration:pose-mcp/go/resident-cache-integration",
+      "rationale": "All three ordered member specs show status: done and have no unchecked task (searched ^- \\[ \\]); the last commit carries the three member specs."
+    },
+    {
+      "id": "regression",
+      "disposition": "passed",
+      "evidence": "unit:pose-mcp/go/test",
+      "rationale": "Examined the sealed cumulative module validation: build, unit and the full integration/reachability set for pose-mcp all pass. Not re-run here because the shell was denied."
+    },
+    {
+      "id": "residual-risk",
+      "disposition": "passed",
+      "evidence": "integration:pose-mcp/go/runtime-qos-integration",
+      "rationale": "Cross-spec departures (no watcher, no CPU quota or per-command limits, Windows standalone, B33 views not reused) are disposed in the ADR's final amendment; the remaining findings N4 and N5 are low and carry follow-ups with owner and date."
+    }
+  ],
+  "tools": [
+    {
+      "id": "validate",
+      "component": "pose-mcp",
+      "disposition": "passed",
+      "evidence": "unit:pose-mcp/go/test",
+      "rationale": "Relied on the sealed strict validation (commit 95acbc58 records it); the shell was denied in this run, so it was not re-executed by the reviewer."
+    },
+    {
+      "id": "closeout-check",
+      "disposition": "deferred",
+      "evidence": "command:pose closeout-check milestone:pose-shared-runtime/optional-worktree-runtime",
+      "rationale": "Its precondition is the completion of this review; it runs after the attestation."
+    },
+    {
+      "id": "review-check",
+      "disposition": "deferred",
+      "evidence": "command:pose review-check milestone:pose-shared-runtime/optional-worktree-runtime",
+      "rationale": "Its precondition is the completion of this review; it runs after the attestation."
+    },
+    {
+      "id": "assess-discover",
+      "component": "pose-mcp",
+      "disposition": "not-used",
+      "evidence": "command:pose assess discover --component pose-mcp",
+      "rationale": "Recommended only; the shell was denied in this run."
+    },
+    {
+      "id": "assess-tech-debt",
+      "disposition": "not-used",
+      "evidence": "command:pose assess tech-debt",
+      "rationale": "Recommended only; the shell was denied in this run."
+    },
+    {
+      "id": "suggest-review",
+      "component": "pose-mcp",
+      "disposition": "not-used",
+      "evidence": "command:pose suggest review --path pose-mcp",
+      "rationale": "Recommended only; the shell was denied in this run."
+    }
+  ],
+  "evidence_refs": [
+    "delegated-run:rrn-5d885c6f7781dd12",
+    "integration:pose-mcp/go/optional-worktree-runtime-integration",
+    "integration:pose-mcp/go/resident-cache-integration",
+    "integration:pose-mcp/go/runtime-qos-integration",
+    "unit:pose-mcp/go/test"
+  ],
+  "findings": [
+    {
+      "id": "N4",
+      "severity": "low",
+      "evidence": "file:pose-mcp/internal/cli/runtime_measure_test.go:280",
+      "action": "Compare the concurrent heavy run's output and via with the standalone run before T5 passes, as S6 does.",
+      "disposition": "accepted-risk",
+      "owner": "pose-mcp maintainers",
+      "rationale": "The heavy check run alongside the short queries discards its output and via, yet the T5 verdict (:378) claims every hosted run printed the standalone output; lane metrics corroborate it ran hosted, but its output is never compared.",
+      "review_by": "2026-12-10"
+    },
+    {
+      "id": "N5",
+      "severity": "low",
+      "evidence": "file:pose-mcp/internal/cli/runtime_host.go:161",
+      "action": "Increment busy after the connection leaves inflight (or count the deadline handoff atomically), and make the stop-count test strict again.",
+      "disposition": "accepted-risk",
+      "owner": "pose-mcp maintainers",
+      "rationale": "At a deadline busy is incremented before the handler returns, while the connection stays in inflight until the reply is written and closed (runtime.go:369); in that window one command counts twice, so status InFlight can read one too high and a stop overcounts drained.",
+      "review_by": "2026-12-10"
+    }
+  ],
+  "authority": {
+    "schema_version": 1,
+    "project": "proj.pose-dist",
+    "bundle_digest": "sha256:891fa38953b21b1d49e0dd64bb1dfdec07f099af4aa7d6fb3605463f68c46b50",
+    "principal": "agent:anthropic/claude-opus-5-5",
+    "role": "agent",
+    "review_execution": "rrn-5d885c6f7781dd12",
+    "implementation_principal": "agent:anthropic/claude-sonnet-5-5",
+    "implementation_execution": "sha256:675189f7e0b769255994f8213acf8b1b57174c4353838cd875cdabd46aa9cc0b",
+    "issuer": "b34-local-executor",
+    "issued_at": "2026-11-10T11:44:13Z",
+    "audience": "proj.pose-dist"
+  },
+  "envelope": {
+    "issuer": "b34-local-executor",
+    "subject": "rvb-891fa38953b21b1d",
+    "algorithm": "ed25519",
+    "public_key": "ck4sApdfePV2GT+hJyAYfJd2qLzeG55P8pevGR0bvZE=",
+    "signature": "4slRH8x6hGn6GtIsWbnpVx9HRQQ237GxLqFud5uXkLhbiKMNZ8RXPqolzC6EjB3OqaWgcQnLeEyHi04kxaruBg=="
+  },
+  "attested_at": "2026-11-10T11:44:13Z",
+  "path": ".pose/review-attestations/rva-3ac204cf82649868.json"
+}
