@@ -248,8 +248,16 @@ func TestConcurrentStartsLeaveOneRuntimeAndNoOneRemovesItsSocket(t *testing.T) {
 		}
 	}
 	c := Client{Identity: id, Dir: dir}
-	if _, err := c.Handshake(context.Background()); err != nil {
-		t.Fatalf("the winner does not answer after the losers returned: %v", err)
+	// The winner holds the lock before it listens: it answers once it has bound the socket.
+	var herr error
+	for i := 0; i < 300; i++ {
+		if _, herr = c.Handshake(context.Background()); herr == nil {
+			break
+		}
+		time.Sleep(10 * time.Millisecond)
+	}
+	if herr != nil {
+		t.Fatalf("the winner does not answer after the losers returned: %v", herr)
 	}
 	cancel()
 	if err := <-results; err != nil {
