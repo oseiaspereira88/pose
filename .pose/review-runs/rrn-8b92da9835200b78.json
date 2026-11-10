@@ -1,0 +1,130 @@
+{
+  "safety": {
+    "schema_version": 1,
+    "profile": "legacy-trusted",
+    "platform": "linux/amd64",
+    "capabilities": {
+      "automatic-expiry": "unavailable",
+      "bounded-capture": "available",
+      "cpu-limit": "unavailable",
+      "credential-filesystem-isolation": "unavailable",
+      "environment-allowlist": "available",
+      "escaped-descendant-termination": "unavailable",
+      "filesystem-isolation": "unavailable",
+      "memory-limit": "unavailable",
+      "network-isolation": "unavailable",
+      "origin-isolation": "unavailable",
+      "parent-termination": "available",
+      "process-group-termination": "available",
+      "shared-git-isolation": "unavailable"
+    },
+    "limitations": [
+      "trusted local executable required; worktree is not a sandbox",
+      "outside writes, transient writes, shared Git and credential files are not isolated",
+      "no memory/CPU quota or control of descendants escaping the process group",
+      "cleanup filesystem calls remain subject to operating-system I/O latency",
+      "legacy compatibility: HOME retained; other ambient credentials excluded"
+    ],
+    "stream_bytes": 8388608,
+    "output_bytes": 65536,
+    "retained_bytes": 16777216,
+    "timeout_ms": 3600000,
+    "max_runs_per_bundle": 3,
+    "retention": "retain-evidence; ttl=0; no automatic deletion",
+    "capture_complete": false,
+    "runtime_id": "pose-review-run-3365738193",
+    "operation": {
+      "schema_version": 1,
+      "operation": "review.dispatch.cleanup",
+      "scope": "milestone:pose-shared-runtime/optional-worktree-runtime",
+      "outcome": "completed",
+      "steps_run": [
+        {
+          "id": "cleanup",
+          "result": "done"
+        }
+      ],
+      "effects": [],
+      "resumable": false
+    }
+  },
+  "provenance": {
+    "execution_state": "not-started",
+    "planned_wire_digest": "sha256:481c7fa9f896acc4a6727a41c23b8f7cd283b42b9a091d64811e0ad6bb8c12c6",
+    "wire_bytes": 0,
+    "wire_complete": false,
+    "schema_version": 1,
+    "project": "proj.pose-dist",
+    "audience": "proj.pose-dist",
+    "worktree_digest": "sha256:9c161dc895f6496d9f800581bef8673cc9123cda65951fa2d23b0cbdbc2bac41",
+    "trust": "executor-attested",
+    "implementation": {
+      "principal": "agent:anthropic/claude-sonnet-5-5",
+      "execution": "sha256:675189f7e0b769255994f8213acf8b1b57174c4353838cd875cdabd46aa9cc0b",
+      "vendor": "anthropic",
+      "model": "claude-sonnet-5-5"
+    },
+    "reviewer": {
+      "principal": "agent:anthropic/claude-opus-5-5",
+      "vendor": "anthropic",
+      "model": "claude-opus-5-5"
+    },
+    "config_digest": "sha256:fa7add8c85f5c0c1dd74b1dba89cd12989a2a856fc7a59407bc04682bd575e25",
+    "command_template_digest": "sha256:4fb04e170e8d7f85923d1ab7c7d6eac045a3bb8d20b443991552d6b7bfa7c4f2",
+    "argv_digest": "",
+    "executable_digest": "",
+    "template_version": "review-brief/7",
+    "wire_digest": "",
+    "notes_digest": "sha256:2fc54886bb11f73a6e3fa6ea9b44508d004571e4bdb430f2dcb9b398aca18e8d",
+    "raw_transcript_digest": "",
+    "raw_output_digest": "",
+    "output_source": "",
+    "output_complete": false
+  },
+  "brief_notes": "Review of milestone pose-shared-runtime/optional-worktree-runtime (roadmap B35), the closeout of the sliced delivery of the optional per-worktree runtime. Its three specs are done, each reviewed independently on its own: `pose-optional-worktree-runtime` (identity, protected Unix-socket endpoint, handshake, lifecycle, standalone fallback), `pose-worktree-runtime-resident-cache` (hosted read checks with typed results and fallback, resident memo of pure Git reads), `pose-worktree-runtime-qos-and-measurement` (admission lanes, measurement with thresholds fixed before the numbers). Two engine specs came out of the measurements and are done too (`pose-index-input-binding-reads-each-transfer-once`, `pose-governance-audit-skips-pure-git-reads`); the ADR amendment of 2026-11-09 (`.pose/adr/2026-10-14-shared-domain-and-optional-worktree-runtime.md`) records the transport, identity and slicing decisions. Judge the milestone's exit gate in `.pose/roadmaps/pose-shared-runtime.md`: handshake by user/worktree/Git/engine/schema, protected endpoint, lifecycle/restart/update and CI/standalone fallback, stdio not shared IPC, watcher as a hint, writers publishing generations and ambiguous effects needing a receipt before a retry, and concurrent short queries and heavy checks keeping QoS and deterministic output with RAM/CPU/latency per scenario and no scheduler/agents/workflows in the core. Where the delivery departs from the gate, say so: the watcher-as-hint clause is satisfied by keying the resident memo by commit rather than watching files (no watcher exists); the \"receipt before retry\" clause is satisfied by never repeating a command that may have run (the hosted checks are not writes); CPU/IO limits per command are not implemented (the runtime bounds admission and the memo). The measurement is `.pose/reports/2026-11-09-pose-worktree-runtime-measurements.md`. Your profile only allows the plan tools and `git status|ls-files`: rely on the sealed evidence and read the code and the reports; do not report the missing shell as a finding. If your draft carries earlier findings, name them in `prior_findings` with the round prefix; new findings in `findings` have bare ids (F1, F2 …). Follow-ups carry `action`, `owner` and `review_by`; only low-severity risks are accepted by the policy.\n\nRound 2: this checkout holds the round-1 record: carry your earlier findings in `prior_findings` with the round prefix (`R1-F1` … `R1-F7`). Fixed: F1 (the measurement now records the runtime's CPU time and resident set per scenario and runs two heavy checks at once, threshold T7 committed before the run; three runs are in `.pose/reports/2026-11-09-pose-worktree-runtime-measurements.md`, the third qualifies), F2 (the ADR has a last amendment with the delivered state and the departures, including the CPU quota/affinity and per-command limits not delivered), F3 (a hosted request carries the caller's identity and the server checks it before any handler, `TestAHostedOperationFromAnotherEngineIsRefusedBeforeTheHandlerRuns`), F4 (the stop counts what a command past its deadline abandons, `TestAStopCountsWhatARunningCommandAbandonsAndNeverReportsANegativeDrain`), F5 (the memo key hashes the content of `.git/shallow` and `.git/config` instead of reading their mtime), F6 (the open crit:medium follow-up of the resident-cache spec is `[covered: pose-worktree-runtime-qos-and-measurement]`) and F7 (the last task is checked in both specs; both stay terminal, checked with `pose closeout-check`).\n\nRound 3: carry earlier findings in `prior_findings` (`R1-F1` … `R1-F7`, `R2-N1` … `R2-N3`). IMPORTANT for N1: the sealed subject of a milestone is the last commit that changed its roadmap, so the worktree you read may differ from HEAD; the roadmap was touched again after the report, so the subject now holds the four-run report (`.pose/reports/2026-11-09-pose-worktree-runtime-measurements.md` and `.json`: T7, per-scenario CPU, peak and end RSS) and the R8 text of the qos spec that states T7. N2 is fixed (`busy` counts only a command that outlived its caller's deadline, `TestARunningCommandIsCountedOnceAsInFlight`); N3 is fixed in the harness (`getconf CLK_TCK`, `clear_refs` peak per scenario, idle short-query CPU, all in the fourth run).\n",
+  "ledger_version": 1,
+  "attempt_id": "rat-a1f669bd2363c9be5238701ef6e26934cc64281387973f205ba7f8ed7e8262cd",
+  "schema_version": 1,
+  "run_id": "rrn-8b92da9835200b78",
+  "scope": "milestone:pose-shared-runtime/optional-worktree-runtime",
+  "bundle_id": "rvb-be070001d35205a0",
+  "bundle_digest": "sha256:be070001d35205a05a8c283a1cf3618ecf490f3ed09a5874488a2a4fab62565a",
+  "sealed_commit": "e91c7fff898b0cd0cadfe070310478198fd3f029",
+  "kind": "review",
+  "brief_digest": "sha256:3a0e581db5817e2b3fe297df8e035b40b58911106c9ef5e99c9543738170418f",
+  "adapter": "claude-opus-5-5",
+  "vendor": "anthropic",
+  "model": "claude-opus-5-5",
+  "started_at": "2026-11-10T11:11:50.488615509Z",
+  "ended_at": "2026-11-10T11:12:39.392997351Z",
+  "exit_code": -1,
+  "status": "failed",
+  "failure": "sealed checkout inputs differ: [milestone optional-worktree-runtime subject .pose/roadmaps/pose-shared-runtime.md subject pose-mcp/internal/cli/runtime_host.go subject pose-mcp/internal/cli/runtime_host.go subject pose-mcp/internal/cli/runtime_host_test.go subject pose-mcp/internal/cli/runtime_host_test.go subject pose-mcp/internal/cli/runtime_measure_test.go subject pose-mcp/internal/cli/runtime_measure_test.go]",
+  "transcript_digest": "sha256:e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+  "transcript_path": ".pose/review-runs/rrn-8b92da9835200b78.transcript",
+  "output": "",
+  "policy_digest": "sha256:f8cb9e16758e19e66e0e01f29d1d347b0c15cd1cfa191e32926de54742e3cb72",
+  "purpose": "review",
+  "events": "claude-stream-json",
+  "events_digest": "sha256:e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+  "routing": {
+    "requested": "claude-opus-5-5",
+    "implementation": {
+      "principal": "agent:anthropic/claude-sonnet-5-5",
+      "vendor": "anthropic",
+      "model": "claude-sonnet-5-5",
+      "execution_digest": "sha256:675189f7e0b769255994f8213acf8b1b57174c4353838cd875cdabd46aa9cc0b",
+      "source": "declared"
+    },
+    "implementation_from": "bundle",
+    "step": "explicit"
+  },
+  "independence_achieved": "different-model",
+  "round": 3,
+  "thread": {
+    "round": 3,
+    "mode": "new",
+    "from": "rrn-5f42503f31ddc5ab",
+    "reason": "the previous round's session cannot be resumed: lstat /var/tmp/closeout/pose-dist/.pose/review-private: no such file or directory"
+  }
+}
