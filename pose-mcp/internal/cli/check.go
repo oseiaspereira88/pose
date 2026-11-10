@@ -486,7 +486,12 @@ func (checker *nativeChecker) checkIndexGeneration() {
 	view := pose.Store{Root: checker.root, FS: checker.fsys()}.ReadIndexGeneration()
 	switch {
 	case view.Status == pose.IndexGenerationUnavailable:
-		checker.failOrWarn(checker.message("index set unavailable: ", "conjunto de índices indisponível: ") + view.Reason + checker.message("; run `pose index`", "; rode `pose index`"))
+		remedy := checker.message("; run `pose index`", "; rode `pose index`")
+		if strings.Contains(view.Reason, "pose index") {
+			// Some reasons already name the remedy.
+			remedy = ""
+		}
+		checker.failOrWarn(checker.message("index set unavailable: ", "conjunto de índices indisponível: ") + view.Reason + remedy)
 	case view.Status == pose.IndexGenerationCurrent && len(view.Diverged) > 0:
 		checker.failOrWarn(checker.message("index files differ from generation ", "arquivos de índice diferem da geração ") + view.Descriptor.GenerationID + ": " + strings.Join(view.Diverged, ", ") + checker.message("; run `pose index`", "; rode `pose index`"))
 	}

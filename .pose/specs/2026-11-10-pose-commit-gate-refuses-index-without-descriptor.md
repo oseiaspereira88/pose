@@ -47,10 +47,15 @@ O harne8 ficou meses com 113 avisos porque o commit `e1593bde` regenerou `spec-g
 
 ### Artifacts
 
-- created: .pose/specs/2026-11-10-pose-commit-gate-refuses-index-without-descriptor.md
+- modified: .pose/specs/2026-11-10-pose-commit-gate-refuses-index-without-descriptor.md
 - created: .pose/starts/pose-commit-gate-refuses-index-without-descriptor.json
 - created: .pose/changelogs/unreleased/pose-commit-gate-refuses-index-without-descriptor.md
 - modified: pose-mcp/internal/cli/check.go
+- modified: POSE.md
+- modified: locales/pt-BR/POSE.md
+- modified: pose-mcp/internal/scaffold/dist/POSE.md
+- modified: pose-mcp/internal/scaffold/dist/locales/pt-BR/POSE.md
+- modified: docs-site/docs/cli.md
 - created: pose-mcp/internal/cli/check_index_generation_test.go
 - modified: .pose/indexes/validation-matrix.json
 
@@ -94,7 +99,7 @@ O teste cria o estado que o commit do harne8 deixou (diretório da geração aus
 - R3 [satisfied] test:TestCheckRefusesAnIndexSetThatItsDescriptorDoesNotDescribe
 
 ### Known gaps
-- O teste do modo tolerante só confere que o achado aparece, não o código de saída do hook de cada instância.
+- O teste do modo tolerante confere que o achado é um aviso, não o código de saída do hook de cada instância; o motivo da indisponibilidade fica em inglês sob o locale pt-BR.
 
 ---
 
@@ -115,4 +120,5 @@ O teste cria o estado que o commit do harne8 deixou (diretório da geração aus
 
 ### Follow-ups
 
+- [open] Um `pose check` rodado enquanto o `pose index` publica pode ver uma divergência passageira e recomendar `pose index`: dar à mensagem o estado de publicação em andamento. (owner:@pose-maintainers crit:low review:2027-02-08)
 - [open] Um hook de commit do harne8 que rode o `pose` com os roots explícitos, para que os avisos `unknown-project` das xref para `proj.pose-dist` deixem de aparecer. (owner:@pose-maintainers crit:low review:2027-02-08)
