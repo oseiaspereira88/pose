@@ -1,0 +1,216 @@
+{
+  "run": {
+    "run_id": "rrn-3f0307ed850953ee",
+    "proof_id": "rrp-7eee98d04c5a546a0fcfd2ed363a10ca8b62a02e4cb83933dd65179b4dd548ac"
+  },
+  "schema_version": 1,
+  "attestation_id": "rva-690331369780273b",
+  "bundle_id": "rvb-a9297d926fb96d1f",
+  "bundle_digest": "sha256:a9297d926fb96d1fd5b39932027b52ebf627e62eedbe7264e45effba91f1eb86",
+  "reviewer": "agent:anthropic/claude-opus-5-5",
+  "decision": "approved",
+  "criteria": [
+    {
+      "id": "assumption-integrity",
+      "disposition": "passed",
+      "evidence": "integration:pose-mcp/go/audit-pure-git-integration",
+      "rationale": "Verified facts: governance Git runs with --no-replace-objects, GIT_NO_REPLACE_OBJECTS=1 and GIT_GRAFT_FILE=/dev/null (git_snapshot_integrity.go:571-579, governance_read_view_git.go:572), so reads by object id cannot change. git show only applies textconv to a blob when asked on the command line. A 40-hex name that collides with a ref warns on stderr, and a read with stderr is never marked pure. Accepted risks stated in the spec: R4 was measured by hand, and deepening a shallow clone is not detected. Unstated residual: log output also depends on repository config (F1, low, follow-up)."
+    },
+    {
+      "id": "backend-concurrency",
+      "disposition": "passed",
+      "evidence": "integration:pose-mcp/go/governance-read-view-integration",
+      "rationale": "The two extra HEAD reads at capture run under state.mu, which was already held while the command ran (governance_read_view_git.go:309-356), so nothing new is serialized. The audit works on copied observations and a local per-root heads map. If a context is cancelled, the HEAD read returns empty and the code falls back to a rerun."
+    },
+    {
+      "id": "backend-contracts",
+      "disposition": "passed",
+      "evidence": "integration:pose-mcp/go/governance-outcomes-v2-contract",
+      "rationale": "No public contract changes. The audit result type, the ChangedPaths digest format and identityDigest are unchanged. The only new names are the internal governanceAuditGit test seam and two unexported fields on the observation."
+    },
+    {
+      "id": "backend-input-errors",
+      "disposition": "passed",
+      "evidence": "integration:pose-mcp/go/audit-pure-git-integration",
+      "rationale": "Only reads that succeed with empty stderr are marked pure (governance_read_view_git.go:347). Failed reads keep their rerun, so error paths are audited exactly as before. Unknown forms or flags classify as not pure (governance_git_pure.go:44-63), and the classification test exercises the rejected forms."
+    },
+    {
+      "id": "backend-integration-impact",
+      "disposition": "passed",
+      "evidence": "integration:pose-mcp/go/governance-read-view-integration",
+      "rationale": "The callers (review_bundle.go:1513/4552/4559, federated_acceptance.go:565/636/673) go through the same captureGovernanceGit path unchanged. Only the final audit's rerun choice differs. The sealed integration suites for federated acceptance and review bundles pass."
+    },
+    {
+      "id": "backend-observability",
+      "disposition": "passed",
+      "evidence": "integration:pose-mcp/go/audit-pure-git-integration",
+      "rationale": "A change is still reported through ChangedProducers and the digest-only ChangedPaths (no raw paths or output), and the test shows the change is found after HEAD moves. Skipped reads don't spend the audit budget, so unknown-budget reporting is unchanged or more precise."
+    },
+    {
+      "id": "compatibility",
+      "disposition": "passed",
+      "evidence": "integration:pose-mcp/go/governance-outcomes-v2-contract",
+      "rationale": "I compared the audit's output fields and the CLI/MCP surfaces before and after the change: none changed. The implementer reports byte-identical review-check output by hand (R4, a stated gap). The changelog is filed as category fixed, breaking false, which is accurate."
+    },
+    {
+      "id": "correctness",
+      "disposition": "passed",
+      "evidence": "unit:pose-mcp/go/test",
+      "rationale": "I traced the classification and the audit skip logic by hand. When HEAD has not moved, pure reads are skipped and non-pure reads (rev-parse, ls-tree HEAD) are rerun. When HEAD moved, the log read is rerun and the change is found. A HEAD read that fails falls back to a rerun."
+    },
+    {
+      "id": "design-causality",
+      "disposition": "passed",
+      "evidence": "structure:design-ada9f127e9dfa84f",
+      "rationale": "The measured cause was each of 242 'log -1' reads running twice (capture and audit). D1 (basis R1-R3) skips only the rerun of reads that are a pure function of an object id or of HEAD's commit, and checks that HEAD still names that commit with one read per root. That removes the duplicated cost and keeps the audit's verdict."
+    },
+    {
+      "id": "documentation",
+      "disposition": "passed",
+      "evidence": "integration:pose-mcp/go/audit-pure-git-integration",
+      "rationale": "The changelog entry and the spec's Known gaps match the code. The code comments state the classification and the reason ls-tree HEAD keeps its rerun. No operator docs or templates describe the audit's internals, so none needed updating. The residual list is incomplete (F1)."
+    },
+    {
+      "id": "operability",
+      "disposition": "passed",
+      "evidence": "integration:pose-mcp/go/audit-pure-git-integration",
+      "rationale": "Errors and remediation are unchanged: a changed or unknown read is still reported per producer with the same messages. An operator needs to do nothing new."
+    },
+    {
+      "id": "requirements",
+      "disposition": "passed",
+      "evidence": "integration:pose-mcp/go/audit-pure-git-integration",
+      "rationale": "Each requirement has current evidence. R1 is covered by the classification test. R2 and R3 are covered by the rerun-count test, including the HEAD-moved case, which runs in the audit-pure-git-integration matrix check. R4 is a measurement by hand, declared as a known gap with a follow-up."
+    },
+    {
+      "id": "scope",
+      "disposition": "passed",
+      "evidence": "integration:pose-mcp/go/audit-pure-git-integration",
+      "rationale": "The changed implementation files match the spec's artifact list exactly. Byte budget, capture and observation identity are untouched, as the spec's non-goals require. The derived index refreshes are routine governance."
+    },
+    {
+      "id": "security",
+      "disposition": "passed",
+      "evidence": "integration:pose-mcp/go/audit-pure-git-integration",
+      "rationale": "The authority boundary holds. Only exact forms are trusted, and ref names, --all and ref-naming formats are rejected. Replace objects and grafts are neutralized by the runner. The new HEAD reads use the same root that was already authorized. No new inputs are trusted. The config-dependence residual (F1) is low."
+    },
+    {
+      "id": "solution-proportionality",
+      "disposition": "passed",
+      "evidence": "integration:pose-mcp/go/audit-pure-git-integration",
+      "rationale": "The smallest alternative, rerunning everything, costs about 27 s per review-check. This change is about 80 lines with a closed list of forms and no extension point, and keeps ls-tree HEAD rerunning. It is invalidated if a classified form's output turns out to depend on mutable state other than HEAD (shallow clones, config; see F1)."
+    }
+  ],
+  "tools": [
+    {
+      "id": "artifact-check",
+      "disposition": "passed",
+      "evidence": "command:pose artifact-check --spec pose-governance-audit-skips-pure-git-reads --strict",
+      "rationale": "Exit 0. All 928 findings are orphan warnings on files outside this change set."
+    },
+    {
+      "id": "assess-design",
+      "disposition": "not-used",
+      "evidence": "structure:design-ada9f127e9dfa84f",
+      "rationale": "The review profile denied the command. I relied on the sealed structure evidence."
+    },
+    {
+      "id": "assess-discover",
+      "component": "pose-mcp",
+      "disposition": "not-used",
+      "rationale": "Recommended only. I did not try it because the profile denied the other assess commands."
+    },
+    {
+      "id": "assess-integrate",
+      "disposition": "not-used",
+      "evidence": "integration:pose-mcp/go/governance-read-view-integration",
+      "rationale": "The review profile denied the command. I relied on the sealed integration evidence."
+    },
+    {
+      "id": "assess-tech-debt",
+      "disposition": "not-used",
+      "rationale": "Recommended only. I did not try it because the profile denied the other assess commands."
+    },
+    {
+      "id": "closeout-check",
+      "disposition": "deferred",
+      "rationale": "Its precondition is the completion of this review, which is recorded after this attestation."
+    },
+    {
+      "id": "review-check",
+      "disposition": "deferred",
+      "rationale": "Its precondition is this attestation."
+    },
+    {
+      "id": "suggest-review",
+      "component": "pose-mcp",
+      "disposition": "not-used",
+      "rationale": "Recommended only. I did not try it; I scoped the review by reading the diff directly."
+    },
+    {
+      "id": "validate",
+      "disposition": "passed",
+      "evidence": "unit:pose-mcp/go/test",
+      "rationale": "The review profile denied rerunning it. The sealed strict validation recorded build, unit, integration and e2e passes."
+    },
+    {
+      "id": "validate",
+      "component": "pose-mcp",
+      "disposition": "passed",
+      "evidence": "integration:pose-mcp/go/audit-pure-git-integration",
+      "rationale": "The review profile denied rerunning it. The sealed pose-mcp module evidence includes the new audit-pure-git-integration check, which passes."
+    }
+  ],
+  "evidence_refs": [
+    "delegated-run:rrn-3f0307ed850953ee",
+    "integration:pose-mcp/go/audit-pure-git-integration",
+    "integration:pose-mcp/go/governance-outcomes-v2-contract",
+    "integration:pose-mcp/go/governance-read-view-integration",
+    "structure:design-ada9f127e9dfa84f",
+    "unit:pose-mcp/go/test"
+  ],
+  "findings": [
+    {
+      "id": "F1",
+      "severity": "low",
+      "evidence": "file:pose-mcp/internal/pose/governance_git_pure.go:38",
+      "action": "Add --no-show-signature (or -c log.showSignature=false) to the classified log form, or record the config dependence in the spec's Known gaps",
+      "disposition": "accepted-risk",
+      "owner": "@pose-maintainers",
+      "rationale": "The spec lists only 'git fetch --deepen' as a remaining gap, but 'log -1 --format=%H -- \u003cpath\u003e' also depends on mutable repository config. With log.showSignature=true, Git prints keyring-dependent signature output to stdout even with --format=%H. The old rerun would catch such a change during the operation; the skip does not. Pin it with --no-show-signature or -c, or state the config dependence in Known gaps.",
+      "review_by": "2027-02-08"
+    },
+    {
+      "id": "F2",
+      "severity": "low",
+      "evidence": "file:pose-mcp/internal/pose/governance_read_view_git.go:351",
+      "action": "Add a test that moves HEAD between the before and after HEAD reads (via a seam) and checks the observation is not pure, and extend the audit test to count cat-file and ls-tree \u003cid40\u003e reruns",
+      "disposition": "accepted-risk",
+      "owner": "@pose-maintainers",
+      "rationale": "No test covers HEAD moving during the captured log command, the branch that must leave the observation unmarked. The audit test also does not show that cat-file blob \u003cid\u003e or ls-tree \u003cid\u003e reads are skipped; only the classification test covers those forms.",
+      "review_by": "2027-02-08"
+    }
+  ],
+  "authority": {
+    "schema_version": 1,
+    "project": "proj.pose-dist",
+    "bundle_digest": "sha256:a9297d926fb96d1fd5b39932027b52ebf627e62eedbe7264e45effba91f1eb86",
+    "principal": "agent:anthropic/claude-opus-5-5",
+    "role": "agent",
+    "review_execution": "rrn-3f0307ed850953ee",
+    "implementation_principal": "agent:anthropic/claude-sonnet-5-5",
+    "implementation_execution": "sha256:675189f7e0b769255994f8213acf8b1b57174c4353838cd875cdabd46aa9cc0b",
+    "issuer": "b34-local-executor",
+    "issued_at": "2026-11-10T05:49:28Z",
+    "audience": "proj.pose-dist"
+  },
+  "envelope": {
+    "issuer": "b34-local-executor",
+    "subject": "rvb-a9297d926fb96d1f",
+    "algorithm": "ed25519",
+    "public_key": "ck4sApdfePV2GT+hJyAYfJd2qLzeG55P8pevGR0bvZE=",
+    "signature": "5r9J9CrdSB/lJBwxgQX9w5f/yXFU/tUm52g3LsuryDGRJ+bmWib82AgVKPb7H0EdFHXjgjFHC4zFCSY8hrAfAw=="
+  },
+  "attested_at": "2026-11-10T05:49:28Z",
+  "path": ".pose/review-attestations/rva-690331369780273b.json"
+}
