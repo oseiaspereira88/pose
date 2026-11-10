@@ -61,7 +61,7 @@ Medido em 2026-11-10 neste repositório (2833 commits, 11 MB de índice): `revie
 
 ### Delivery targets
 
-- governance:index-input-binding-reads-each-transfer-once module:pose-mcp profile:composed-capability entrypoint:pose-mcp/cmd/pose/main.go
+- governance:index-input-binding-reads-each-transfer-once module:pose-mcp profile:backend-go entrypoint:pose-mcp/cmd/pose/main.go
 
 ### API/contract changes
 
