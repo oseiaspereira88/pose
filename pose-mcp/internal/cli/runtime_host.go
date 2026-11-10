@@ -25,6 +25,10 @@ import (
 
 const runtimeRunSchema = "pose.runtime.run/1"
 
+// maxHostedOutput bounds what a hosted command's reply carries; past it the reply says the
+// command ran and its output is not sent.
+const maxHostedOutput = 8 << 20
+
 // hostedCommands are the commands the runtime runs for a caller: the checks that read the
 // project and answer. They run as the user that started the runtime, in its worktree, with
 // the environment digest the caller proved equal to the runtime's: a caller never gains,
@@ -76,7 +80,7 @@ func init() {
 // and may refresh the project's derived files, so two at once would race themselves), and
 // answers with a typed result. Anything it does not host or will not run is refused before it
 // starts.
-func runtimeHostedHandler(envDigest string) func(context.Context, worktreeruntime.Request) (worktreeruntime.Reply, bool) {
+func runtimeHostedHandler(envDigest string, busy *atomic.Int64) func(context.Context, worktreeruntime.Request) (worktreeruntime.Reply, bool) {
 	var serial sync.Mutex
 	return func(ctx context.Context, req worktreeruntime.Request) (worktreeruntime.Reply, bool) {
 		if req.Op != "run" {
@@ -93,9 +97,14 @@ func runtimeHostedHandler(envDigest string) func(context.Context, worktreeruntim
 		}
 		started := time.Now()
 		done := make(chan worktreeruntime.Reply, 1)
+		// The command counts as work in the runtime until it ends, even after its caller was
+		// answered at a deadline.
+		busy.Add(1)
 		go func() {
+			defer busy.Add(-1)
 			serial.Lock()
 			defer serial.Unlock()
+			hitsBefore, _, _, _ := posemodel.ResidentGitMemoStats()
 			var out, errb bytes.Buffer
 			code := 1
 			func() {
@@ -106,9 +115,14 @@ func runtimeHostedHandler(envDigest string) func(context.Context, worktreeruntim
 				}()
 				code = (*runtimeHostedRun.Load())(req.Args, &out, &errb)
 			}()
-			hits, _, _, _ := posemodel.ResidentGitMemoStats()
+			hitsAfter, _, _, _ := posemodel.ResidentGitMemoStats()
+			if out.Len()+errb.Len() > maxHostedOutput {
+				// The command ran; its output is too large to send whole.
+				done <- worktreeruntime.Reply{Outcome: worktreeruntime.OutcomeError, Reason: "the command's output exceeds what the runtime sends back", ExitCode: code, ElapsedMS: time.Since(started).Milliseconds()}
+				return
+			}
 			done <- worktreeruntime.Reply{Outcome: worktreeruntime.OutcomeCompleted, ExitCode: code, Stdout: out.String(), Stderr: errb.String(),
-				ElapsedMS: time.Since(started).Milliseconds(), MemoHits: hits}
+				ElapsedMS: time.Since(started).Milliseconds(), MemoHits: hitsAfter - hitsBefore}
 		}()
 		var deadline <-chan time.Time
 		if req.DeadlineMS > 0 {

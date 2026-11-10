@@ -11,6 +11,7 @@ import (
 	"os/signal"
 	"runtime/debug"
 	"strings"
+	"sync/atomic"
 	"syscall"
 	"time"
 
@@ -118,7 +119,8 @@ func cmdRuntime(root string, args []string, stdout, stderr io.Writer) int {
 		// A resident process keeps the pure Git reads it makes between hosted commands.
 		posemodel.EnableResidentGitMemo(256 << 20)
 		defer posemodel.DisableResidentGitMemo()
-		if err := worktreeruntime.Serve(serveCtx, worktreeruntime.Options{Identity: id, Dir: client.Dir, Idle: f.idle, Handler: runtimeHostedHandler(runtimeEnvDigest(os.Environ()))}); err != nil {
+		var busy atomic.Int64
+		if err := worktreeruntime.Serve(serveCtx, worktreeruntime.Options{Identity: id, Dir: client.Dir, Idle: f.idle, Busy: busy.Load, Handler: runtimeHostedHandler(runtimeEnvDigest(os.Environ()), &busy)}); err != nil {
 			return runtimeFailure(out, stdout, f, "serve", err)
 		}
 		return 0

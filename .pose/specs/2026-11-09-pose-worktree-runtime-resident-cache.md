@@ -104,8 +104,8 @@ Fixtures sintéticas: repositórios Git temporários, o runtime em processo, um 
 
 ### Requirement trace
 - R5 [satisfied] test:TestTheResidentGitMemoIsOffByDefaultBoundedAndKeyedByTheCommit test:TestASecondOperationIsAnsweredFromTheMemoAndANewCommitMissesIt check:resident-cache-integration
-- R7 [satisfied] test:TestACommandThatMayHaveRunIsNotRepeatedStandalone test:TestAHostedCommandAnswersThroughTheRuntimeAsItDoesStandalone
-- R10 [satisfied] test:TestAHostedCommandAnswersThroughTheRuntimeAsItDoesStandalone test:TestTheEnvironmentDigestFollowsWhatDecidesAnAnswer
+- R7 [satisfied] test:TestAReplyThatArrivesInPartIsAnUnknownOutcome test:TestACommandRunningPastItsDeadlineStillCountsAsInFlight test:TestACommandThatMayHaveRunIsNotRepeatedStandalone test:TestAHostedCommandAnswersThroughTheRuntimeAsItDoesStandalone
+- R10 [satisfied] test:TestTheRuntimeRefusesWhatItDoesNotHostAndAnotherEnvironment test:TestAHostedCommandAnswersThroughTheRuntimeAsItDoesStandalone test:TestTheEnvironmentDigestFollowsWhatDecidesAnAnswer
 
 ### Known gaps
 - A medição (cerca de 25 s standalone, cerca de 10 s o segundo `review-check` no runtime, saída idêntica) foi feita à mão com o binário real, não num teste.
@@ -132,5 +132,7 @@ O runtime hospeda `review-check`, `closeout-check`, `artifact-check`, `surface-c
 
 ### Follow-ups
 
+- [open] Test the admission of a memo hit's bytes against an operation's input budget when the budget is nearly spent. (owner:@pose-maintainers crit:low review:2027-02-08)
+- [open] Put the user and global Git configuration in the memo key, as the repository's own is. (owner:@pose-maintainers crit:low review:2027-02-08)
 - [open] Admissão, orçamento e proteção das consultas curtas contra checks pesados, com medições fixadas (fatia 3, `pose-worktree-runtime-qos-and-measurement`). (owner:@pose-maintainers crit:medium review:2027-02-08)
 - [open] Rotear os checks para o runtime quando ele existe, sem `run` explícito, e renderizar para terminal. (owner:@pose-maintainers crit:low review:2027-02-08)

@@ -12,6 +12,7 @@ import (
 	"testing"
 	"time"
 
+	"github.com/harne8/pose-mcp/internal/version"
 	"github.com/harne8/pose-mcp/internal/worktreeruntime"
 )
 
@@ -139,4 +140,57 @@ func TestTheEnvironmentDigestFollowsWhatDecidesAnAnswer(t *testing.T) {
 		}
 	}
 	_ = context.Background
+}
+
+// R10: the runtime itself refuses what it does not host and a caller in another environment,
+// before it starts anything, whatever the client filtered.
+func TestTheRuntimeRefusesWhatItDoesNotHostAndAnotherEnvironment(t *testing.T) {
+	f := newRuntimeFixture(t)
+	f.start(t)
+	id, err := worktreeruntime.ResolveIdentity(f.root, version.Version, runtimeBuild())
+	if err != nil {
+		t.Skip(err)
+	}
+	client := worktreeruntime.Client{Identity: id, Dir: worktreeruntime.DefaultDir()}
+	good := runtimeEnvDigest(os.Environ())
+	if r, err := client.Run(context.Background(), []string{"state"}, good, 0); err != nil || r.Outcome != worktreeruntime.OutcomeRefused {
+		t.Fatalf("an unhosted command: %+v %v", r, err)
+	}
+	if r, err := client.Run(context.Background(), []string{"roadmap-check"}, "another", 0); err != nil || r.Outcome != worktreeruntime.OutcomeRefused || !strings.Contains(r.Reason, "environment") {
+		t.Fatalf("another environment: %+v %v", r, err)
+	}
+	if r, err := client.Run(context.Background(), nil, good, 0); err != nil || r.Outcome != worktreeruntime.OutcomeRefused {
+		t.Fatalf("no command: %+v %v", r, err)
+	}
+}
+
+// A command left running after its deadline still counts as work in the runtime: the status
+// shows it in flight, and a stop waits for it and reports what it abandoned.
+func TestACommandRunningPastItsDeadlineStillCountsAsInFlight(t *testing.T) {
+	f := newRuntimeFixture(t)
+	f.start(t)
+	original := runtimeHostedRun.Load()
+	slow := hostedRunFunc(func(args []string, out, errb io.Writer) int {
+		time.Sleep(700 * time.Millisecond)
+		return (*original)(args, out, errb)
+	})
+	runtimeHostedRun.Store(&slow)
+	defer func() {
+		time.Sleep(900 * time.Millisecond)
+		runtimeHostedRun.Store(original)
+	}()
+	f.run("--timeout", "50ms", "roadmap-check")
+	id, err := worktreeruntime.ResolveIdentity(f.root, version.Version, runtimeBuild())
+	if err != nil {
+		t.Skip(err)
+	}
+	client := worktreeruntime.Client{Identity: id, Dir: worktreeruntime.DefaultDir()}
+	status, err := client.Status(context.Background())
+	if err != nil || status.InFlight < 1 {
+		t.Fatalf("the command running past its deadline is not in flight: %+v %v", status, err)
+	}
+	stopped, err := client.Stop(context.Background(), 50*time.Millisecond)
+	if err != nil || stopped.Abandoned < 1 {
+		t.Fatalf("a stop did not report the running command abandoned: %+v %v", stopped, err)
+	}
 }

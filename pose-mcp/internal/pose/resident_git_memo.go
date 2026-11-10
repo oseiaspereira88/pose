@@ -67,7 +67,12 @@ func residentGitKey(root, head string, args []string) (string, bool) {
 	if s, err := os.Stat(filepath.Join(gitDir, "shallow")); err == nil {
 		shallow = fmt.Sprintf("%d:%d", s.Size(), s.ModTime().UnixNano())
 	}
-	return strings.Join([]string{filepath.Clean(root), head, shallow, strings.Join(args, "\x00")}, "\x01"), true
+	// The repository's own config can change what a read answers (log.follow, for one).
+	config := "-"
+	if c, err := os.Stat(filepath.Join(gitDir, "config")); err == nil {
+		config = fmt.Sprintf("%d:%d", c.Size(), c.ModTime().UnixNano())
+	}
+	return strings.Join([]string{filepath.Clean(root), head, shallow, config, strings.Join(args, "\x00")}, "\x01"), true
 }
 
 func (m *ResidentGitMemo) get(key string) ([]byte, bool) {

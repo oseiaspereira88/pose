@@ -250,6 +250,9 @@ type Options struct {
 	Dir      string
 	// Idle stops the runtime after this long without a request; zero never does.
 	Idle time.Duration
+	// Busy, when set, counts work a handler left running after it answered (a command whose
+	// deadline passed): it is in flight for the idle timeout, the drain and the status.
+	Busy func() int64
 	// Handler, when set, is called for each request the runtime does not answer itself, and
 	// counts as in flight while it runs; it reports whether it hosts the operation.
 	Handler func(ctx context.Context, req Request) (Reply, bool)
@@ -373,7 +376,7 @@ func (s *server) watchIdle() {
 		case <-s.done:
 			return
 		case <-tick.C:
-			if s.inflight.Load() == 0 && time.Since(time.Unix(0, atomic.LoadInt64(&s.last))) >= s.opts.Idle {
+			if s.inflight.Load()+s.busy() == 0 && time.Since(time.Unix(0, atomic.LoadInt64(&s.last))) >= s.opts.Idle {
 				s.shutdown()
 				return
 			}
@@ -451,10 +454,10 @@ func (s *server) handle(ctx context.Context, conn net.Conn) {
 func (s *server) drain(deadline time.Duration) Reply {
 	before := s.inflight.Load() - 1
 	end := time.Now().Add(deadline)
-	for s.inflight.Load() > 1 && time.Now().Before(end) {
+	for s.inflight.Load()+s.busy() > 1 && time.Now().Before(end) {
 		time.Sleep(5 * time.Millisecond)
 	}
-	left := s.inflight.Load() - 1
+	left := s.inflight.Load() + s.busy() - 1
 	if left < 0 {
 		left = 0
 	}
@@ -466,10 +469,17 @@ func (s *server) drain(deadline time.Duration) Reply {
 	return r
 }
 
+func (s *server) busy() int64 {
+	if s.opts.Busy == nil {
+		return 0
+	}
+	return s.opts.Busy()
+}
+
 func (s *server) state(ok bool) Reply {
 	id := s.opts.Identity
 	return Reply{OK: ok, Identity: &id, Epoch: s.epoch, PID: os.Getpid(), StartedAt: s.started.UTC().Format(time.RFC3339),
-		UptimeMS: time.Since(s.started).Milliseconds(), IdleMS: s.opts.Idle.Milliseconds(), InFlight: s.inflight.Load() - 1, Served: s.served.Load()}
+		UptimeMS: time.Since(s.started).Milliseconds(), IdleMS: s.opts.Idle.Milliseconds(), InFlight: s.inflight.Load() + s.busy() - 1, Served: s.served.Load()}
 }
 
 func writeReply(conn net.Conn, r Reply) {
@@ -529,8 +539,14 @@ func (c Client) roundTrip(ctx context.Context, req Request) (Reply, error) {
 		return Reply{}, &OutcomeUnknownError{Cause: err}
 	}
 	var reply Reply
-	if err := json.Unmarshal(line, &reply); err != nil {
-		return Reply{}, fmt.Errorf("the runtime answered something that is not a reply: %w", err)
+	if uerr := json.Unmarshal(line, &reply); uerr != nil {
+		// A reply that arrives in part (the connection closed, or the reply was cut at its
+		// bound) is a request that may have been served: its outcome is unknown.
+		cause := uerr
+		if err != nil {
+			cause = fmt.Errorf("%w (%v)", uerr, err)
+		}
+		return Reply{}, &OutcomeUnknownError{Cause: fmt.Errorf("the runtime answered something that is not a whole reply: %w", cause)}
 	}
 	return reply, nil
 }

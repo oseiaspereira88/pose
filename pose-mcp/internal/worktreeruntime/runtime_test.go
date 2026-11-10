@@ -361,3 +361,36 @@ func TestAStopReportsWhatItDrainedAndWhatItAbandoned(t *testing.T) {
 		})
 	}
 }
+
+// A reply that arrives in part, here cut at its bound, is a request that may have been served:
+// an unknown outcome, not a plain error a caller could treat as "it did not run".
+func TestAReplyThatArrivesInPartIsAnUnknownOutcome(t *testing.T) {
+	skipUnsupported(t)
+	id := identity(t, repo(t), "7.4.1")
+	dir := shortDir(t)
+	ctx, cancel := context.WithCancel(context.Background())
+	defer cancel()
+	done := make(chan error, 1)
+	go func() {
+		done <- Serve(ctx, Options{Identity: id, Dir: dir, Handler: func(_ context.Context, req Request) (Reply, bool) {
+			if req.Op != "run" {
+				return Reply{}, false
+			}
+			return Reply{Outcome: OutcomeCompleted, Stdout: strings.Repeat("x", maxReply+1<<20)}, true
+		}})
+	}()
+	c := Client{Identity: id, Dir: dir}
+	for i := 0; i < 200; i++ {
+		if _, err := c.Status(context.Background()); err == nil {
+			break
+		}
+		time.Sleep(10 * time.Millisecond)
+	}
+	_, err := c.Run(context.Background(), []string{"review-check"}, "env", 0)
+	var unknown *OutcomeUnknownError
+	if !errors.As(err, &unknown) {
+		t.Fatalf("a reply cut at its bound returned %v, not an unknown outcome", err)
+	}
+	cancel()
+	<-done
+}
