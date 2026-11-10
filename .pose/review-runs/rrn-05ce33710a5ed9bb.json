@@ -1,0 +1,144 @@
+{
+  "safety": {
+    "schema_version": 1,
+    "profile": "legacy-trusted",
+    "platform": "linux/amd64",
+    "capabilities": {
+      "automatic-expiry": "unavailable",
+      "bounded-capture": "available",
+      "cpu-limit": "unavailable",
+      "credential-filesystem-isolation": "unavailable",
+      "environment-allowlist": "available",
+      "escaped-descendant-termination": "unavailable",
+      "filesystem-isolation": "unavailable",
+      "memory-limit": "unavailable",
+      "network-isolation": "unavailable",
+      "origin-isolation": "unavailable",
+      "parent-termination": "available",
+      "process-group-termination": "available",
+      "shared-git-isolation": "unavailable"
+    },
+    "limitations": [
+      "trusted local executable required; worktree is not a sandbox",
+      "outside writes, transient writes, shared Git and credential files are not isolated",
+      "no memory/CPU quota or control of descendants escaping the process group",
+      "cleanup filesystem calls remain subject to operating-system I/O latency",
+      "legacy compatibility: HOME retained; other ambient credentials excluded"
+    ],
+    "stream_bytes": 8388608,
+    "output_bytes": 65536,
+    "retained_bytes": 16777216,
+    "timeout_ms": 3600000,
+    "max_runs_per_bundle": 3,
+    "retention": "retain-evidence; ttl=0; no automatic deletion",
+    "capture_complete": true,
+    "runtime_id": "pose-review-run-964178616",
+    "operation": {
+      "schema_version": 1,
+      "operation": "review.dispatch.cleanup",
+      "scope": "roadmap:pose-shared-runtime",
+      "outcome": "completed",
+      "steps_run": [
+        {
+          "id": "cleanup",
+          "result": "done"
+        }
+      ],
+      "effects": [],
+      "resumable": false
+    }
+  },
+  "provenance": {
+    "execution_state": "started",
+    "planned_wire_digest": "sha256:56a9e2ed67d44ca195e5b7e02cf276549070dd5ca9448de943e057ec6899ce67",
+    "wire_bytes": 35185,
+    "wire_complete": true,
+    "schema_version": 1,
+    "project": "proj.pose-dist",
+    "audience": "proj.pose-dist",
+    "worktree_digest": "sha256:9c161dc895f6496d9f800581bef8673cc9123cda65951fa2d23b0cbdbc2bac41",
+    "trust": "executor-attested",
+    "implementation": {
+      "principal": "agent:anthropic/claude-sonnet-5-5",
+      "execution": "sha256:675189f7e0b769255994f8213acf8b1b57174c4353838cd875cdabd46aa9cc0b",
+      "vendor": "anthropic",
+      "model": "claude-sonnet-5-5"
+    },
+    "reviewer": {
+      "principal": "agent:anthropic/claude-opus-5-5",
+      "vendor": "anthropic",
+      "model": "claude-opus-5-5"
+    },
+    "config_digest": "sha256:fa7add8c85f5c0c1dd74b1dba89cd12989a2a856fc7a59407bc04682bd575e25",
+    "command_template_digest": "sha256:4fb04e170e8d7f85923d1ab7c7d6eac045a3bb8d20b443991552d6b7bfa7c4f2",
+    "argv_digest": "sha256:6f7a9cc5aa680b285a37674b2fc17403c1b6f541da236f7fd09bb7d444f08935",
+    "executable_digest": "sha256:bfb3703ad5380242328459bc62ada4bde8ae7ba57c6e1eeadb9c00e08874c478",
+    "template_version": "review-brief/7",
+    "wire_digest": "sha256:56a9e2ed67d44ca195e5b7e02cf276549070dd5ca9448de943e057ec6899ce67",
+    "notes_digest": "sha256:8b36611c314da36c939404c4d1f1c55f20fba025b6b478a60956f73688036e65",
+    "raw_transcript_digest": "sha256:e4a1b5c2b8f1443a7726bed106891612fdd6826c3f36dc70c614a2030772f43b",
+    "raw_output_digest": "sha256:ad9a2e0cd350c42e69ecd09fe735e73de2375999a5eb68350e309c2e146114d2",
+    "output_source": "stream-final",
+    "output_complete": true
+  },
+  "session_digest": "sha256:9b0ae64b5d71a8b501d1a4944cdce064f4023a26375f2533f3218302d4cbc590",
+  "tree_digest": "sha256:b4dea3db56d545683bc53cdf2c95985aca3978af4edbada0404e63eee74d9ea2",
+  "brief_notes": "Review of roadmap pose-shared-runtime (\"Domínio e runtime comuns com desempenho qualificado\"): its four milestones are closed with an independent review each — operation-performance (spec pose-governance-operation-performance), common-domain-handoff (pose-common-domain-and-cli-mcp-handoff), bounded-graph-caches (pose-bounded-isolated-graph-caches) and optional-worktree-runtime (pose-optional-worktree-runtime, pose-worktree-runtime-resident-cache, pose-worktree-runtime-qos-and-measurement). Judge the roadmap's own outcome and exit gates in `.pose/roadmaps/pose-shared-runtime.md` against what the milestones delivered, not the members again: coherent CLI/MCP operations and a controlled cost per producer, bounded reuse, and an optional runtime only after identity, coherence, authorization and recovery are qualified. Read the ADR `.pose/adr/2026-10-14-shared-domain-and-optional-worktree-runtime.md` (its last amendment, 2026-11-10, states what the runtime delivered and where it departs from the decisions: no CPU quota or affinity, no per-command limits, Windows runs standalone, the B33 views were not what the runtime reuses), the measurement `.pose/reports/2026-11-09-pose-worktree-runtime-measurements.md` and the closed engine specs that the measurements called for. The roadmap's \"Estado (2026-11-10)\" paragraph names what it does not deliver; confirm each of those is in a draft spec of its own (pose-runtime-resource-limits-per-command, pose-runtime-windows-named-pipe, pose-checks-route-to-the-runtime-by-default) and that nothing the roadmap claims is missing evidence. The last commit carries the trailers of the six member specs so that your pinned checkout is the final state. Your profile only allows the plan tools and `git status|ls-files`: rely on the sealed evidence and read the code and reports; do not report the missing shell as a finding. If your draft carries earlier findings, name them in `prior_findings` with the round prefix (`R1-F1` …); new findings in `findings` have bare ids (F1, F2 …). Follow-ups carry `action`, `owner` and `review_by`; only low-severity risks are accepted by the policy.\n\nSecond attempt: the first failed before the review began (\"sealed checkout blocked: child … has no sealed review bundle\"); the engine now ignores that blocker in the sealed worktree (spec pose-sealed-checkout-does-not-require-later-child-evidence, closed). The four milestones are approved against the current roadmap (the optional-worktree-runtime milestone was reviewed again after the last roadmap edit). The worktree you read is the roadmap's last change and does not hold the milestones' review records: judge the roadmap, not the records.\n\nThird attempt: the second failed with \"sealed checkout inputs differ: [governed-config .pose/indexes/validation-matrix.json …]\": the matrix had changed after the roadmap's last commit. The roadmap was edited once more so that its last commit holds the final matrix, the optional-worktree-runtime milestone was reviewed again (approved), and the matrix and policy are frozen until the closure.\n\nFourth attempt: your round-1 findings are addressed in the roadmap's last commit and in the code it holds. F1 (the memo key) is fixed: the key holds the digest of `git config --list -z --includes` of every scope, read once per operation (`governance_read_view_git.go` `effectiveGitConfig`, `resident_git_memo.go` `residentGitKey`; `TestTheEffectiveGitConfigurationFollowsTheUsersConfigurationFile`, and `TestTheResidentGitMemoIsOffByDefaultBoundedAndKeyedByTheCommit` for the key). F3: the ADR status line now reads \"Accepted for the delivered scope\" and lists what was and was not delivered. F4: the resource-limits draft now covers CPU affinity and I/O (R2, R4). F2 (`memo_hits`) is a recorded low follow-up. The optional-worktree-runtime milestone was reviewed again and approved. Carry your earlier findings in `prior_findings` with the round prefix (`R1-F1` …): this checkout holds the round-1 record.\n\nTool dispositions (the previous attempt was approved by you but refused by the attestation preflight, because `validate` was declared `deferred`, which is not a valid disposition for a tool that has no `review-complete` precondition). Declare them exactly so: `validate` for component `pose-mcp` is `passed` with `evidence` `unit:pose-mcp/go/test` (the sealed strict validation run, as accepted for the milestone review); `validate` for component `scripts` has `producer_coverage: none` (no registered check covers that component) and takes `not-used` with a non-empty rationale saying so; `roadmap-check` is `passed` with the sealed integration evidence you cited; `review-check` and `closeout-check` stay `deferred` (their precondition is the completion of this review). Your findings N1 and N2 are fine as follow-ups; N1 (the ADR's Caches bullet describes the old memo key) I fix in the roadmap's next commit, so list it as a follow-up with `action`, `owner` and `review_by`.\n\nCorrection: the draft is a closed schema. A tool entry in the draft carries only `id`, `component` (when the tool has one), `disposition`, `evidence` (when the disposition names it) and `rationale`; `producer_coverage` is a field of the PLAN, not of the draft: do not write it in the draft (the last attempt was refused for \"unknown field producer_coverage\"). For `validate` of component `scripts` write `{\"id\":\"validate\",\"component\":\"scripts\",\"disposition\":\"not-used\",\"rationale\":\"no registered check covers the scripts component (the plan marks it producer_coverage none)\"}`. This is the last run the bundle allows: copy each tool entry from your first approved draft and change only the two `validate` entries as described.\n",
+  "ledger_version": 1,
+  "attempt_id": "rat-530c1439c544413302dbf3a6b87ce79aa9aafa1a0863dd9a5aee87ccee9d4fc7",
+  "reason": "the previous run was refused for an unknown field in the draft; the note gives the closed schema of a tool entry",
+  "schema_version": 1,
+  "run_id": "rrn-05ce33710a5ed9bb",
+  "scope": "roadmap:pose-shared-runtime",
+  "bundle_id": "rvb-d19f83b0c85d37f9",
+  "bundle_digest": "sha256:d19f83b0c85d37f9e07b1e683469c6427d5933dcbaa400e6a75ff4f7283e008a",
+  "sealed_commit": "80b49143698e7a4d175456448bad10c6cf9bd993",
+  "kind": "review",
+  "brief_digest": "sha256:70ea3c16f645aa83da39b1dce5fb3790094750c9156b3e02b3fcf5c2a4e9f988",
+  "adapter": "claude-opus-5-5",
+  "vendor": "anthropic",
+  "model": "claude-opus-5-5",
+  "started_at": "2026-11-10T21:55:17.830042644Z",
+  "ended_at": "2026-11-10T22:02:31.884163256Z",
+  "exit_code": 0,
+  "status": "completed",
+  "transcript_digest": "sha256:29b964316c9214e6aaf5a433e30bcf1b12d519be27ff5e39af23b8c9681f0278",
+  "transcript_path": ".pose/review-runs/rrn-05ce33710a5ed9bb.transcript",
+  "output": "I read the code, the roadmap, the ADR and the draft specs, but couldn't run any tool or test. My session refused every command, including the plan's own `pose` tools. So every tool and criterion below rests on the sealed evidence plus my reading of the code, not on a run of mine.\n\ndecision: approved\n\n## Round-1 findings\n\n| ID | Status | Evidence |\n|---|---|---|\n| R1-F1 (medium) | **fixed** | The memo key now includes a digest of `git config --list -z --includes`, which covers every Git config scope. It is read once per operation (`governance_read_view_git.go:55-69`), passed in at `:363` and added to the key at `resident_git_memo.go:86`. If the config can't be read, nothing is cached (`:63-66`). A test covers a change to the user's config file (`resident_git_memo_test.go:120-153`). Requirement R2 of draft spec `pose-runtime-memo-hits-and-git-config-key` is withdrawn to match. |\n| R1-F2 (low) | **not fixed, still a follow-up** | `runtime_host.go:134,145` still compute `memo_hits` from the global counter. It's tracked as R1 of draft spec `pose-runtime-memo-hits-and-git-config-key`. |\n| R1-F3 (low) | **fixed** | ADR line 5 now reads \"Accepted for the delivered scope\" and lists what was and wasn't delivered (lines 5-13). |\n| R1-F4 (low) | **fixed** | `pose-runtime-resource-limits-per-command.md:37-38`: R2 adds CPU affinity and `io.max`, and R4 measures I/O. |\n\n## New findings (both low, follow-ups)\n\n- **N1**: `.pose/adr/2026-10-14-shared-domain-and-optional-worktree-runtime.md:298` describes the old memo key: commit, shallow file and repository config. It doesn't mention the effective config digest.\n- **N2**: `pose-mcp/internal/pose/resident_git_memo.go:18-19` has the same outdated wording in the comment above `ResidentGitMemo` (\"the key holds the commit and the shallow state\").\n\n## Criteria\n\nAll seven are judged **passed** on sealed evidence plus my reading of the code. Details are in the draft. The four not-delivered items in the roadmap's status paragraph are each in a spec of their own, all with `status: draft`:\n- `pose-runtime-resource-limits-per-command`\n- `pose-runtime-windows-named-pipe`\n- `pose-checks-route-to-the-runtime-by-default`\n- `pose-runtime-memo-hits-and-git-config-key`\n\n## Points to check before recording\n\n- **No tool run of mine.** `roadmap-check` and `validate` for pose-mcp are declared `passed` on sealed refs, as the implementer's notes instruct. I didn't run them.\n- **`validate` for scripts.** It's `not-used` because the notes say the plan marks it `producer_coverage none`. I couldn't see the plan to confirm that. The sealed evidence has no scripts refs, which is consistent with it.\n- **Owner and dates.** I put the git user name as owner and 2026-12-10 as `review_by` on the follow-ups. Change either if they're wrong.\n\n```pose-draft\n{\n  \"schema\": \"pose.review.draft/v1\",\n  \"decision\": \"approved\",\n  \"findings\": [\n    {\"id\": \"N1\", \"severity\": \"low\", \"disposition\": \"follow-up\", \"file\": \".pose/adr/2026-10-14-shared-domain-and-optional-worktree-runtime.md\", \"line\": 298, \"summary\": \"The ADR amendment's Caches bullet says the resident memo is keyed by the commit, the shallow file and the repository config; the key now holds the digest of the effective Git configuration of every scope (resident_git_memo.go:86, governance_read_view_git.go:55).\", \"action\": \"Update the Caches bullet to name the effective Git configuration digest as part of the key\", \"owner\": \"Oseias Pereira\", \"review_by\": \"2026-12-10\"},\n    {\"id\": \"N2\", \"severity\": \"low\", \"disposition\": \"follow-up\", \"file\": \"pose-mcp/internal/pose/resident_git_memo.go\", \"line\": 18, \"summary\": \"The ResidentGitMemo doc comment still says the key holds the commit and the shallow state; it omits the effective Git configuration digest that the key now includes (line 86).\", \"action\": \"Update the doc comment to list the configuration digest as part of the key\", \"owner\": \"Oseias Pereira\", \"review_by\": \"2026-12-10\"}\n  ],\n  \"prior_findings\": [\n    {\"id\": \"R1-F1\", \"status\": \"fixed\", \"evidence\": \"pose-mcp/internal/pose/governance_read_view_git.go:55-69 digests `git config --list -z --includes` once per operation per root; :363 passes it to residentGitKey; resident_git_memo.go:62-66,86 puts it in the key and memoizes nothing when it is unreadable; resident_git_memo_test.go:120-153 shows a user-config change alters the digest across operations; draft spec pose-runtime-memo-hits-and-git-config-key R2 withdrawn accordingly.\"},\n    {\"id\": \"R1-F2\", \"status\": \"not-fixed\", \"evidence\": \"pose-mcp/internal/cli/runtime_host.go:134,145 still take memo_hits as the difference of the global ResidentGitMemoStats counter; still a low follow-up tracked as R1 of draft spec .pose/specs/2026-11-10-pose-runtime-memo-hits-and-git-config-key.md:36.\"},\n    {\"id\": \"R1-F3\", \"status\": \"fixed\", \"evidence\": \".pose/adr/2026-10-14-shared-domain-and-optional-worktree-runtime.md:5-13 status reads 'Accepted for the delivered scope — 2026-11-10' and lists delivered and not-adopted items.\"},\n    {\"id\": \"R1-F4\", \"status\": \"fixed\", \"evidence\": \".pose/specs/2026-11-10-pose-runtime-resource-limits-per-command.md:37-38: R2 covers CPU affinity and an I/O limit (io.max), and R4 measures I/O under the limit.\"}\n  ],\n  \"sweep\": \"Read the roadmap .pose/roadmaps/pose-shared-runtime.md (outcome, Estado paragraph, four milestones and exit gates), the ADR status and 2026-11-10 amendment (lines 1-13, 275-313), the resident memo (resident_git_memo.go), the config digest and memo use in the governance Git capture (governance_read_view_git.go:1-110, 300-420), the pure-read classifier (governance_git_pure.go) and gitCommandContext env handling, the hosted handler and env digest (cli/runtime_host.go:1-170), the memo tests (resident_git_memo_test.go), and the draft follow-up specs (resource-limits, memo-hits-and-git-config-key, windows-named-pipe and checks-route-to-the-runtime-by-default, all status draft; the member and engine specs are status done). Every shell command, including the plan tools, was refused by the session profile, so there is no test or tool run of my own; criteria rely on the sealed evidence and code reading.\",\n  \"criteria\": [\n    {\"id\": \"cross-component-integration\", \"disposition\": \"passed\", \"evidence\": \"integration:pose-mcp/go/optional-worktree-runtime-integration\", \"rationale\": \"The CLI-to-runtime boundary (pose runtime run, hosted handler and worktreeruntime endpoint) and the CLI/MCP shared operation boundary are covered by sealed integration evidence (optional-worktree-runtime, resident-cache, runtime-qos and common-domain-and-cli-mcp-handoff integration all pass).\"},\n    {\"id\": \"cut-criteria\", \"disposition\": \"passed\", \"evidence\": \"integration:pose-mcp/go/runtime-qos-integration\", \"rationale\": \"Each milestone exit gate (B32, B31, B33, B35) has a sealed passing integration check (governance-operation-performance, common-domain-and-cli-mcp-handoff, bounded-isolated-graph-caches, optional-worktree-runtime, resident-cache and runtime-qos). The B35 departures (no CPU quota or affinity, no per-command limits, Windows standalone) are declared in ADR lines 296-311 and the roadmap's Estado paragraph.\"},\n    {\"id\": \"end-to-end\", \"disposition\": \"passed\", \"evidence\": \"integration:pose-mcp/go/optional-worktree-runtime-integration\", \"rationale\": \"The user-facing path (start the runtime, run a hosted check through pose runtime run, fall back to standalone) is exercised by the sealed optional-worktree-runtime integration check. The hosted handler (runtime_host.go:82-166) refuses an unhosted command or a mismatched environment before running anything.\"},\n    {\"id\": \"milestones\", \"disposition\": \"passed\", \"evidence\": \"integration:pose-mcp/go/bounded-isolated-graph-caches-integration\", \"rationale\": \"All six member specs and the two engine specs are status done. The implementer states that each milestone has an approved independent review; per the brief I judged the roadmap, not the review records, which are absent from this checkout.\"},\n    {\"id\": \"outcome\", \"disposition\": \"passed\", \"evidence\": \"integration:pose-mcp/go/common-domain-and-cli-mcp-handoff-integration\", \"rationale\": \"The stated outcome is coherent CLI/MCP operations, controlled cost per producer, bounded reuse, and an optional runtime only after qualification. It is supported by sealed common-domain, operation-performance, bounded-cache and runtime checks. The round-1 blocker on memo-key staleness is fixed (R1-F1).\"},\n    {\"id\": \"release-readiness\", \"disposition\": \"passed\", \"evidence\": \"integration:pose-mcp/go/distributed-instructions-parity-integration\", \"rationale\": \"POSE.md, its pt-BR locale and the scaffold dist copies change together under a passing parity check. Six unreleased changelog entries exist, one per member spec. The ADR status is consistent; only low documentation drift remains (N1, N2).\"},\n    {\"id\": \"residual-risk\", \"disposition\": \"passed\", \"evidence\": \"unit:pose-mcp/go/test\", \"rationale\": \"No medium or high risk remains. Open items are low follow-ups (R1-F2, N1, N2), and the four not-delivered capabilities each have a draft spec of their own.\"}\n  ],\n  \"tools\": [\n    {\"id\": \"assess-discover\", \"component\": \"pose-mcp\", \"disposition\": \"not-used\", \"rationale\": \"Recommended tool; the session profile refused every shell command, so it could not be run.\"},\n    {\"id\": \"assess-discover\", \"component\": \"scripts\", \"disposition\": \"not-used\", \"rationale\": \"Recommended tool; the session profile refused every shell command, so it could not be run.\"},\n    {\"id\": \"assess-integrate\", \"disposition\": \"passed\", \"evidence\": \"integration:pose-mcp/go/optional-worktree-runtime-integration\", \"rationale\": \"Answered from the sealed integration evidence of the runtime boundary; not re-run by the reviewer.\"},\n    {\"id\": \"assess-tech-debt\", \"disposition\": \"not-used\", \"rationale\": \"Recommended tool; the session profile refused every shell command, so it could not be run.\"},\n    {\"id\": \"closeout-check\", \"disposition\": \"deferred\", \"rationale\": \"Its precondition is the completion of this review.\"},\n    {\"id\": \"review-check\", \"disposition\": \"deferred\", \"rationale\": \"Its precondition is the completion of this review.\"},\n    {\"id\": \"roadmap-check\", \"disposition\": \"passed\", \"evidence\": \"integration:pose-mcp/go/optional-worktree-runtime-integration\", \"rationale\": \"Sealed integration evidence for the roadmap's runtime milestone; the reviewer could not re-run the command under the session profile.\"},\n    {\"id\": \"suggest-review\", \"component\": \"pose-mcp\", \"disposition\": \"not-used\", \"rationale\": \"Recommended tool; the session profile refused every shell command, so it could not be run.\"},\n    {\"id\": \"suggest-review\", \"component\": \"scripts\", \"disposition\": \"not-used\", \"rationale\": \"Recommended tool; the session profile refused every shell command, so it could not be run.\"},\n    {\"id\": \"validate\", \"component\": \"pose-mcp\", \"disposition\": \"passed\", \"evidence\": \"unit:pose-mcp/go/test\", \"rationale\": \"The sealed strict validation run of pose-mcp passed.\"},\n    {\"id\": \"validate\", \"component\": \"scripts\", \"disposition\": \"not-used\", \"rationale\": \"no registered check covers the scripts component (the plan marks it producer_coverage none)\"}\n  ]\n}\n```",
+  "policy_digest": "sha256:f8cb9e16758e19e66e0e01f29d1d347b0c15cd1cfa191e32926de54742e3cb72",
+  "purpose": "review",
+  "env_removed": [
+    "CLAUDE_CODE_BRIDGE_SESSION_ID",
+    "CLAUDE_CODE_CHILD_SESSION",
+    "CLAUDE_CODE_ENTRYPOINT",
+    "CLAUDE_CODE_EXECPATH",
+    "CLAUDE_CODE_MESSAGING_SOCKET",
+    "CLAUDE_CODE_MESSAGING_TOKEN",
+    "CLAUDE_CODE_SESSION_ATTENDED",
+    "CLAUDE_CODE_SESSION_ID",
+    "CLAUDE_EFFORT",
+    "CLAUDE_PID"
+  ],
+  "events": "claude-stream-json",
+  "events_digest": "sha256:7f168aba4459653f9ffbdb5462c2a683ff23e7abeef3c7bdf640b31782faad3b",
+  "routing": {
+    "requested": "claude-opus-5-5",
+    "implementation": {
+      "principal": "agent:anthropic/claude-sonnet-5-5",
+      "vendor": "anthropic",
+      "model": "claude-sonnet-5-5",
+      "execution_digest": "sha256:675189f7e0b769255994f8213acf8b1b57174c4353838cd875cdabd46aa9cc0b",
+      "source": "declared"
+    },
+    "implementation_from": "bundle",
+    "step": "explicit"
+  },
+  "independence_achieved": "different-model",
+  "round": 2,
+  "thread": {
+    "round": 2,
+    "mode": "new",
+    "from": "rrn-c997f0a441a61876",
+    "reason": "the previous round's session cannot be resumed: lstat /var/tmp/closeout/pose-dist/.pose/review-private/769df0d986c1472f1d5816c9cbe87a2a4be76fbe9355ba5b7270fd61fbadd44f.session: no such file or directory"
+  }
+}

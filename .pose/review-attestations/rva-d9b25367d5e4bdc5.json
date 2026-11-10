@@ -1,0 +1,175 @@
+{
+  "run": {
+    "run_id": "rrn-05ce33710a5ed9bb",
+    "proof_id": "rrp-61e357c949c7eb4eed1205af14efce0da8a57707856e8dbcc67c925cacd48257"
+  },
+  "schema_version": 1,
+  "attestation_id": "rva-d9b25367d5e4bdc5",
+  "bundle_id": "rvb-d19f83b0c85d37f9",
+  "bundle_digest": "sha256:d19f83b0c85d37f9e07b1e683469c6427d5933dcbaa400e6a75ff4f7283e008a",
+  "reviewer": "agent:anthropic/claude-opus-5-5",
+  "decision": "approved",
+  "criteria": [
+    {
+      "id": "cross-component-integration",
+      "disposition": "passed",
+      "evidence": "integration:pose-mcp/go/optional-worktree-runtime-integration",
+      "rationale": "The CLI-to-runtime boundary (pose runtime run, hosted handler and worktreeruntime endpoint) and the CLI/MCP shared operation boundary are covered by sealed integration evidence (optional-worktree-runtime, resident-cache, runtime-qos and common-domain-and-cli-mcp-handoff integration all pass)."
+    },
+    {
+      "id": "cut-criteria",
+      "disposition": "passed",
+      "evidence": "integration:pose-mcp/go/runtime-qos-integration",
+      "rationale": "Each milestone exit gate (B32, B31, B33, B35) has a sealed passing integration check (governance-operation-performance, common-domain-and-cli-mcp-handoff, bounded-isolated-graph-caches, optional-worktree-runtime, resident-cache and runtime-qos). The B35 departures (no CPU quota or affinity, no per-command limits, Windows standalone) are declared in ADR lines 296-311 and the roadmap's Estado paragraph."
+    },
+    {
+      "id": "end-to-end",
+      "disposition": "passed",
+      "evidence": "integration:pose-mcp/go/optional-worktree-runtime-integration",
+      "rationale": "The user-facing path (start the runtime, run a hosted check through pose runtime run, fall back to standalone) is exercised by the sealed optional-worktree-runtime integration check. The hosted handler (runtime_host.go:82-166) refuses an unhosted command or a mismatched environment before running anything."
+    },
+    {
+      "id": "milestones",
+      "disposition": "passed",
+      "evidence": "integration:pose-mcp/go/bounded-isolated-graph-caches-integration",
+      "rationale": "All six member specs and the two engine specs are status done. The implementer states that each milestone has an approved independent review; per the brief I judged the roadmap, not the review records, which are absent from this checkout."
+    },
+    {
+      "id": "outcome",
+      "disposition": "passed",
+      "evidence": "integration:pose-mcp/go/common-domain-and-cli-mcp-handoff-integration",
+      "rationale": "The stated outcome is coherent CLI/MCP operations, controlled cost per producer, bounded reuse, and an optional runtime only after qualification. It is supported by sealed common-domain, operation-performance, bounded-cache and runtime checks. The round-1 blocker on memo-key staleness is fixed (R1-F1)."
+    },
+    {
+      "id": "release-readiness",
+      "disposition": "passed",
+      "evidence": "integration:pose-mcp/go/distributed-instructions-parity-integration",
+      "rationale": "POSE.md, its pt-BR locale and the scaffold dist copies change together under a passing parity check. Six unreleased changelog entries exist, one per member spec. The ADR status is consistent; only low documentation drift remains (N1, N2)."
+    },
+    {
+      "id": "residual-risk",
+      "disposition": "passed",
+      "evidence": "unit:pose-mcp/go/test",
+      "rationale": "No medium or high risk remains. Open items are low follow-ups (R1-F2, N1, N2), and the four not-delivered capabilities each have a draft spec of their own."
+    }
+  ],
+  "tools": [
+    {
+      "id": "assess-discover",
+      "component": "pose-mcp",
+      "disposition": "not-used",
+      "rationale": "Recommended tool; the session profile refused every shell command, so it could not be run."
+    },
+    {
+      "id": "assess-discover",
+      "component": "scripts",
+      "disposition": "not-used",
+      "rationale": "Recommended tool; the session profile refused every shell command, so it could not be run."
+    },
+    {
+      "id": "assess-integrate",
+      "disposition": "passed",
+      "evidence": "integration:pose-mcp/go/optional-worktree-runtime-integration",
+      "rationale": "Answered from the sealed integration evidence of the runtime boundary; not re-run by the reviewer."
+    },
+    {
+      "id": "assess-tech-debt",
+      "disposition": "not-used",
+      "rationale": "Recommended tool; the session profile refused every shell command, so it could not be run."
+    },
+    {
+      "id": "closeout-check",
+      "disposition": "deferred",
+      "rationale": "Its precondition is the completion of this review."
+    },
+    {
+      "id": "review-check",
+      "disposition": "deferred",
+      "rationale": "Its precondition is the completion of this review."
+    },
+    {
+      "id": "roadmap-check",
+      "disposition": "passed",
+      "evidence": "integration:pose-mcp/go/optional-worktree-runtime-integration",
+      "rationale": "Sealed integration evidence for the roadmap's runtime milestone; the reviewer could not re-run the command under the session profile."
+    },
+    {
+      "id": "suggest-review",
+      "component": "pose-mcp",
+      "disposition": "not-used",
+      "rationale": "Recommended tool; the session profile refused every shell command, so it could not be run."
+    },
+    {
+      "id": "suggest-review",
+      "component": "scripts",
+      "disposition": "not-used",
+      "rationale": "Recommended tool; the session profile refused every shell command, so it could not be run."
+    },
+    {
+      "id": "validate",
+      "component": "pose-mcp",
+      "disposition": "passed",
+      "evidence": "unit:pose-mcp/go/test",
+      "rationale": "The sealed strict validation run of pose-mcp passed."
+    },
+    {
+      "id": "validate",
+      "component": "scripts",
+      "disposition": "not-used",
+      "rationale": "no registered check covers the scripts component (the plan marks it producer_coverage none)"
+    }
+  ],
+  "evidence_refs": [
+    "delegated-run:rrn-05ce33710a5ed9bb",
+    "integration:pose-mcp/go/bounded-isolated-graph-caches-integration",
+    "integration:pose-mcp/go/common-domain-and-cli-mcp-handoff-integration",
+    "integration:pose-mcp/go/distributed-instructions-parity-integration",
+    "integration:pose-mcp/go/optional-worktree-runtime-integration",
+    "integration:pose-mcp/go/runtime-qos-integration",
+    "unit:pose-mcp/go/test"
+  ],
+  "findings": [
+    {
+      "id": "N1",
+      "severity": "low",
+      "evidence": "file:.pose/adr/2026-10-14-shared-domain-and-optional-worktree-runtime.md:298",
+      "action": "Update the Caches bullet to name the effective Git configuration digest as part of the key",
+      "disposition": "accepted-risk",
+      "owner": "Oseias Pereira",
+      "rationale": "The ADR amendment's Caches bullet says the resident memo is keyed by the commit, the shallow file and the repository config; the key now holds the digest of the effective Git configuration of every scope (resident_git_memo.go:86, governance_read_view_git.go:55).",
+      "review_by": "2026-12-10"
+    },
+    {
+      "id": "N2",
+      "severity": "low",
+      "evidence": "file:pose-mcp/internal/pose/resident_git_memo.go:18",
+      "action": "Update the doc comment to list the configuration digest as part of the key",
+      "disposition": "accepted-risk",
+      "owner": "Oseias Pereira",
+      "rationale": "The ResidentGitMemo doc comment still says the key holds the commit and the shallow state; it omits the effective Git configuration digest that the key now includes (line 86).",
+      "review_by": "2026-12-10"
+    }
+  ],
+  "authority": {
+    "schema_version": 1,
+    "project": "proj.pose-dist",
+    "bundle_digest": "sha256:d19f83b0c85d37f9e07b1e683469c6427d5933dcbaa400e6a75ff4f7283e008a",
+    "principal": "agent:anthropic/claude-opus-5-5",
+    "role": "agent",
+    "review_execution": "rrn-05ce33710a5ed9bb",
+    "implementation_principal": "agent:anthropic/claude-sonnet-5-5",
+    "implementation_execution": "sha256:675189f7e0b769255994f8213acf8b1b57174c4353838cd875cdabd46aa9cc0b",
+    "issuer": "b34-local-executor",
+    "issued_at": "2026-11-10T22:07:08Z",
+    "audience": "proj.pose-dist"
+  },
+  "envelope": {
+    "issuer": "b34-local-executor",
+    "subject": "rvb-d19f83b0c85d37f9",
+    "algorithm": "ed25519",
+    "public_key": "ck4sApdfePV2GT+hJyAYfJd2qLzeG55P8pevGR0bvZE=",
+    "signature": "+j7zYaOUw4xUefo3oSn1s3eT2GbxP/eHjCpaPKTL9Q17IJwOs68W6tIRQfsY4TGa2giKHPQVX8wCsMfNARJVCQ=="
+  },
+  "attested_at": "2026-11-10T22:07:08Z",
+  "path": ".pose/review-attestations/rva-d9b25367d5e4bdc5.json"
+}
