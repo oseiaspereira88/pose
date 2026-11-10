@@ -196,7 +196,7 @@
       "T6 fallback overhead": "pass: 102 ms <= 500 ms"
     }
   },
-  "run3_qualifying": {
+  "run3": {
     "environment": {
       "check": "review-check spec:pose-governance-audit-skips-pure-git-reads",
       "cpus": 16,
@@ -312,6 +312,131 @@
       "T5 output": "pass: every hosted run, the review-check and the short query idle and under load, printed exactly what the standalone run printed (25610 and 89 bytes)",
       "T6 fallback overhead": "pass: -148 ms <= 500 ms",
       "T7 two simultaneous heavy checks": "pass: both through the runtime with the standalone output; wall 21197 ms <= 2.5 x 10573 ms"
+    }
+  },
+  "run4_qualifying": {
+    "environment": {
+      "check": "review-check spec:pose-governance-audit-skips-pure-git-reads",
+      "cpus": 16,
+      "git": "git version 2.56.0",
+      "go": "go1.27.3-X:nodwarf5",
+      "goarch": "amd64",
+      "gomaxprocs": 16,
+      "goos": "linux",
+      "kernel": "7.2.10-1-cachyos",
+      "repo_commits": "2889",
+      "repo_head": "57e20957ce49b0f35f7aa6bd3343b5137540805c",
+      "samples": {
+        "churn": 3,
+        "cold": 3,
+        "short": 10,
+        "warm": 5
+      },
+      "short_query": "surface-check spec:pose-governance-audit-skips-pure-git-reads"
+    },
+    "scenarios_ms": {
+      "cold_standalone": [
+        26596,
+        25643,
+        25706
+      ],
+      "fallback_no_runtime": [
+        25619,
+        25600,
+        25577
+      ],
+      "resident_first": [
+        25677
+      ],
+      "resident_warm": [
+        10626,
+        10666,
+        10662,
+        10667,
+        10619
+      ],
+      "restart_then_run": [
+        25633,
+        25649,
+        25719
+      ],
+      "short_idle": [
+        8,
+        8,
+        8,
+        8,
+        8,
+        9,
+        8,
+        7,
+        8,
+        8
+      ],
+      "short_under_heavy": [
+        7,
+        8,
+        7,
+        8,
+        7,
+        8,
+        10,
+        8,
+        7,
+        7
+      ],
+      "two_heavy_wall": [
+        21266
+      ]
+    },
+    "figures": {
+      "VmHWM_mib": 496.0390625,
+      "VmRSS_mib": 496.0390625,
+      "churn_over_cold": 0.9977826188438497,
+      "cpu_ms_heavy_with_short_queries": 10250,
+      "cpu_ms_resident_first_and_warm": 61200,
+      "cpu_ms_short_idle": 0,
+      "cpu_ms_two_simultaneous_heavy": 20530,
+      "fallback_extra_ms": -106,
+      "peak_rss_mib_heavy_with_short_queries": 537.3046875,
+      "peak_rss_mib_resident_first_and_warm": 549.578125,
+      "peak_rss_mib_short_idle": 498.265625,
+      "peak_rss_mib_two_simultaneous_heavy": 548.12109375,
+      "peak_rss_mib_whole_run": 549.578125,
+      "rss_mib_after_heavy_with_short_queries": 500.5859375,
+      "rss_mib_after_resident_first_and_warm": 498.203125,
+      "rss_mib_after_short_idle": 498.265625,
+      "rss_mib_after_two_simultaneous_heavy": 496.0390625,
+      "short_p95_idle_ms": 9,
+      "short_p95_under_heavy_ms": 10,
+      "two_heavy_over_one_warm": 1.994560120052523,
+      "warm_over_cold": 0.41476698047148525
+    },
+    "runtime_metrics": {
+      "heavy_admitted": 9,
+      "heavy_queue_limit": 4,
+      "heavy_queued": 0,
+      "heavy_refused": 0,
+      "heavy_running": 0,
+      "heavy_slots": 1,
+      "heavy_wait_ms_max": 10619,
+      "heavy_wait_ms_total": 10619,
+      "short_admitted": 20,
+      "short_queue_limit": 16,
+      "short_queued": 0,
+      "short_refused": 0,
+      "short_running": 0,
+      "short_slots": 2,
+      "short_wait_ms_max": 0,
+      "short_wait_ms_total": 0
+    },
+    "verdicts": {
+      "T1 warm over cold": "pass: 10662 ms / 25706 ms = 0.41 <= 0.60",
+      "T2 restart inherits nothing": "pass: 25649 ms / 25706 ms = 1.00 >= 0.80",
+      "T3 short under heavy": "pass: p95 10 ms <= 250 ms (idle p95 9 ms)",
+      "T4 runtime memory": "pass: peak resident 550 MiB <= 1536 MiB",
+      "T5 output": "pass: every hosted run, the review-check and the short query idle and under load, printed exactly what the standalone run printed (25610 and 89 bytes)",
+      "T6 fallback overhead": "pass: -106 ms <= 500 ms",
+      "T7 two simultaneous heavy checks": "pass: both through the runtime with the standalone output; wall 21266 ms <= 2.5 x 10662 ms"
     }
   }
 }
