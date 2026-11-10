@@ -41,6 +41,19 @@ O que não está nos requisitos abaixo.
 
 Os artefatos e os alvos de entrega são fixados antes do start.
 
+## 4. Tasks
+
+- [ ] Completar a spec (artefatos, alvos de entrega, estratégia de validação) e iniciar
+- [ ] Implementar e testar
+- [ ] Revisão independente e fechamento
+
 ## 6. Validation
 
 A estratégia e o rastreio dos requisitos são escritos antes do start.
+
+---
+
+## 7. Final Report
+
+### Delivered scope
+Rascunho: nada entregue ainda.
