@@ -34,7 +34,7 @@ O que não está nos requisitos abaixo.
 ## 2. Requirements
 
 - R1: `memo_hits` é contado por operação.
-- R2: A chave do memo inclui o digest do config global e de usuário do Git.
+- R2: [withdrawn: a chave do memo passou a conter o digest da configuração efetiva do Git na revisão do roadmap `pose-shared-runtime`, spec `pose-worktree-runtime-resident-cache`]
 - R3: Um teste admite um acerto contra um orçamento quase esgotado e vê o recuso do budget.
 
 ## 3. Technical Plan

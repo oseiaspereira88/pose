@@ -42,13 +42,33 @@ type governanceReadViewGitObservation struct {
 // one read-view operation. Repeated commands replay the first result; audit
 // reruns each exact command and reports any changed or unprovable result.
 type governanceReadViewGitState struct {
-	op           *governanceReadViewOperation
-	mu           sync.Mutex
-	observations map[string]*governanceReadViewGitObservation
+	op            *governanceReadViewOperation
+	mu            sync.Mutex
+	observations  map[string]*governanceReadViewGitObservation
+	configMu      sync.Mutex
+	configDigests map[string]string
+}
+
+// effectiveGitConfig is the digest of `git config --list` of a root (every scope, includes
+// followed), read once per operation and kept apart from the command observations: it is a key
+// of the resident memo, not an input the audit replays. Empty when it could not be read.
+func (state *governanceReadViewGitState) effectiveGitConfig(ctx context.Context, files Files, root string) string {
+	state.configMu.Lock()
+	defer state.configMu.Unlock()
+	if digest, ok := state.configDigests[root]; ok {
+		return digest
+	}
+	digest := ""
+	if out, _, err := runGovernanceGitCommandOutputContext(ctx, files, root, []string{"config", "--list", "-z", "--includes"}, 1<<20); err == nil {
+		sum := sha256.Sum256(out)
+		digest = hex.EncodeToString(sum[:8])
+	}
+	state.configDigests[root] = digest
+	return digest
 }
 
 func newGovernanceReadViewGitState(op *governanceReadViewOperation) *governanceReadViewGitState {
-	return &governanceReadViewGitState{op: op, observations: map[string]*governanceReadViewGitObservation{}}
+	return &governanceReadViewGitState{op: op, observations: map[string]*governanceReadViewGitObservation{}, configDigests: map[string]string{}}
 }
 
 // captureGovernanceGit runs a Git command through the read-view generation
@@ -340,7 +360,7 @@ func (state *governanceReadViewGitState) capture(files Files, ctx context.Contex
 	memoKey, memoized := "", false
 	memo := residentGit.Load()
 	if memo != nil && (byObject || byHead && headBefore != "") {
-		if key, ok := residentGitKey(root, headBefore, args); ok {
+		if key, ok := residentGitKey(root, headBefore, state.effectiveGitConfig(ctx, files, root), args); ok {
 			memoKey = key
 			if hit, found := memo.get(key); found {
 				if int64(len(hit)) > limit || !state.op.reserveInput(int64(len(hit))) {

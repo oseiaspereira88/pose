@@ -57,8 +57,13 @@ func ResidentGitMemoStats() (hits, misses int64, entries int, bytes int64) {
 
 // residentGitKey names a read: the root, the commit it was made at (empty for a read by object
 // id), the shallow state of the repository and the exact command. A root whose Git directory
-// is not a plain .git directory is not memoized: its shallow state is not read here.
-func residentGitKey(root, head string, args []string) (string, bool) {
+// is not a plain .git directory is not memoized: its shallow state is not read here. The key
+// also holds the digest of the effective Git configuration of the root.
+func residentGitKey(root, head, config string, args []string) (string, bool) {
+	if config == "" {
+		// The effective Git configuration could not be read: nothing is memoized.
+		return "", false
+	}
 	gitDir := filepath.Join(root, ".git")
 	info, err := os.Lstat(gitDir)
 	if err != nil || !info.IsDir() {
@@ -75,8 +80,9 @@ func residentGitKey(root, head string, args []string) (string, bool) {
 		return hex.EncodeToString(sum[:8])
 	}
 	shallow := digestOf("shallow")
-	// The repository's own config can change what a read answers (log.follow, for one).
-	config := digestOf("config")
+	// config is the digest of the effective Git configuration of the root (system, global, user,
+	// repository, worktree and command-line scopes, includes followed): any of them can change
+	// what a read answers (log.follow, for one), and the digest is taken once per operation.
 	return strings.Join([]string{filepath.Clean(root), head, shallow, config, strings.Join(args, "\x00")}, "\x01"), true
 }
 

@@ -17,7 +17,7 @@ e a [análise de performance](../reports/2026-10-12-pose-front-08-resident-perfo
 optional-worktree-runtime, esta em três fatias medidas), com o runtime opt-in e standalone
 preservado. O que o roadmap não entrega (cota e afinidade de CPU, limites por comando,
 named pipe no Windows, roteamento dos checks para o runtime por padrão) está em specs
-rascunho próprias, fora deste roadmap. A revisão do roadmap é feita sobre o estado congelado deste commit (sem mudar a matriz de validação nem a política até o fechamento).
+rascunho próprias, fora deste roadmap. A revisão do roadmap é feita sobre o estado congelado deste commit (sem mudar a matriz de validação nem a política até o fechamento). A chave do memo residente passou a conter a configuração efetiva do Git (revisão do roadmap, achado F1).
 
 ## Milestone: operation-performance
 - after: spec:pose-check-spawns-fewer-git-processes, spec:pose-attention-within-a-second

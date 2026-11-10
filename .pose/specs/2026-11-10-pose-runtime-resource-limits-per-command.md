@@ -34,7 +34,8 @@ O que não está nos requisitos abaixo.
 ## 2. Requirements
 
 - R1: Um limite por faixa de CPU e de memória, aplicado onde há cgroup v2, e reportado como efetivo ou não no status.
-- R2: A medição inclui a CPU e a memória sob o limite e um comando que o excede.
+- R2: A afinidade de CPU (conjunto de CPUs de cada faixa) e um limite de E/S (`io.max` no cgroup v2) são configuráveis e reportados como efetivos ou não, como a CPU e a memória.
+- R4: A medição inclui a CPU, a memória e a E/S sob o limite e um comando que o excede.
 - R3: ADR: o limite é do processo do runtime ou de um filho por comando.
 
 ## 3. Technical Plan

@@ -2,10 +2,14 @@
 
 ## Status
 
-Proposed — 2026-10-14, for B31/B33/B35; the optional worktree runtime (B35) was delivered in three slices and the delivered state, with where it departs from the decisions above, is the last amendment (2026-11-10). The transport, the identity and the slicing of B35 are decided by the amendment at the end (2026-11-09). No IPC, cache API/schema, daemon lifecycle,
-platform default or policy is implemented/adopted by this proposal. Reconcile and
-resolve the structural contract before functional start. Preserve accepted ADRs
-for active-context discovery, scoped Git readers, obligations and the
+Accepted for the delivered scope — 2026-11-10 (proposed 2026-10-14, for B31/B33/B35). The
+optional worktree runtime (B35) was delivered in three slices, each reviewed independently, and
+the last amendment below states what stands and where it departs from the decisions above:
+a protected Unix-socket endpoint with identity and handshake, five hosted read checks with typed
+results, a resident memo of pure Git reads, and admission lanes with a measurement. Not adopted,
+and needing a spec of their own before they are claimed: CPU quota and affinity, per-command
+memory and I/O limits, a named pipe for Windows, routing the checks to the runtime by default.
+Preserve accepted ADRs for active-context discovery, scoped Git readers, obligations and the
 MCP-Conductor-Harness validation boundary.
 
 ## Context

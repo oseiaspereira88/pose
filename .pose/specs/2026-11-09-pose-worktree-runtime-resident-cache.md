@@ -39,7 +39,7 @@ Fatia 2 da B35 (emenda do ADR de 2026-11-09), reescrita pela medição que as du
 
 ## 2. Requirements
 
-- R5: O reuso residente guarda só o que é função pura de ids de objeto ou do commit do HEAD nomeado quando a leitura rodou (`governancePureGitRead`), chaveado por raiz, commit, estado raso e comando exato, com budget em bytes e a menos recentemente usada primeiro; fica desligado salvo num processo que o liga (o runtime); um commit novo é um miss; um worktree vinculado não é guardado; os bytes de um hit são admitidos contra o budget da operação como os de uma leitura nova e a auditoria final não aponta mudança.
+- R5: O reuso residente guarda só o que é função pura de ids de objeto ou do commit do HEAD nomeado quando a leitura rodou (`governancePureGitRead`), chaveado por raiz, commit, estado raso, configuração efetiva do Git (todos os escopos, includes seguidos) e comando exato, com budget em bytes e a menos recentemente usada primeiro; fica desligado salvo num processo que o liga (o runtime); um commit novo é um miss; um worktree vinculado não é guardado; os bytes de um hit são admitidos contra o budget da operação como os de uma leitura nova e a auditoria final não aponta mudança.
 - R7: Um comando hospedado devolve resultado tipado (`outcome` `completed`, `refused`, `deadline` ou `error`, código de saída, saída, época, tempo e acertos do memo); `refused` não iniciou o comando (inclusive o que ainda esperava a sua vez quando o prazo passou, que é retirado e nunca roda depois) e leva ao fallback standalone; `error` é o comando que rodou e terminou com a saída grande demais (acima de 2 MiB) para voltar, com o código de saída dele; `deadline` e uma resposta perdida são `unknown` para o chamador, que não repete o comando e sai com 1 dizendo isso.
 - R10: O runtime só hospeda os cinco checks e só roda um chamador cujo digest de ambiente (variáveis `POSE_`, `HARNE8_`, `GIT_`, `CLAUDE`, `CODEX`, o locale, `HOME`, `NO_COLOR`, o usuário) é o dele; a saída de um comando hospedado é a mesma que ele dá standalone.
 
@@ -133,6 +133,6 @@ O runtime hospeda `review-check`, `closeout-check`, `artifact-check`, `surface-c
 ### Follow-ups
 
 - [open] Test the admission of a memo hit's bytes against an operation's input budget when the budget is nearly spent. (owner:@pose-maintainers crit:low review:2027-02-08)
-- [open] Put the user and global Git configuration in the memo key, as the repository's own is. (owner:@pose-maintainers crit:low review:2027-02-08)
+- [done] Put the user and global Git configuration in the memo key (the key holds the digest of the effective configuration, read once per operation). (owner:@pose-maintainers crit:low review:2027-02-08)
 - [covered: pose-worktree-runtime-qos-and-measurement] Admissão, orçamento e proteção das consultas curtas contra checks pesados, com medições fixadas (fatia 3, `pose-worktree-runtime-qos-and-measurement`). (owner:@pose-maintainers crit:medium review:2027-02-08)
 - [open] Rotear os checks para o runtime quando ele existe, sem `run` explícito, e renderizar para terminal. (owner:@pose-maintainers crit:low review:2027-02-08)

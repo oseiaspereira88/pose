@@ -1,6 +1,7 @@
 package pose
 
 import (
+	"context"
 	"os"
 	"path/filepath"
 	"strings"
@@ -19,18 +20,18 @@ func TestTheResidentGitMemoIsOffByDefaultBoundedAndKeyedByTheCommit(t *testing.T
 	m := EnableResidentGitMemo(400)
 	defer DisableResidentGitMemo()
 	args := []string{"log", "-1", "--format=%H", "--", "a.md"}
-	k1, ok := residentGitKey(root, "head1", args)
+	k1, ok := residentGitKey(root, "head1", "cfg", args)
 	if !ok {
 		t.Fatal("a plain .git directory is not memoizable")
 	}
-	k2, _ := residentGitKey(root, "head2", args)
+	k2, _ := residentGitKey(root, "head2", "cfg", args)
 	if k1 == k2 {
 		t.Fatal("two commits share a key")
 	}
 	if err := os.WriteFile(filepath.Join(root, ".git", "shallow"), []byte("x\n"), 0o644); err != nil {
 		t.Fatal(err)
 	}
-	if k3, _ := residentGitKey(root, "head1", args); k3 == k1 {
+	if k3, _ := residentGitKey(root, "head1", "cfg", args); k3 == k1 {
 		t.Fatal("a shallow repository shares the key of a full one")
 	}
 	m.put("a", []byte(strings.Repeat("x", 150)))
@@ -52,12 +53,24 @@ func TestTheResidentGitMemoIsOffByDefaultBoundedAndKeyedByTheCommit(t *testing.T
 	if _, hit := m.get("huge"); hit {
 		t.Fatal("an entry larger than the budget was retained")
 	}
+	// The effective Git configuration is part of the key, and an unreadable one memoizes nothing.
+	if os.Remove(filepath.Join(root, ".git", "shallow")) != nil {
+		t.Fatal("the shallow file the test wrote is gone")
+	}
+	kc1, _ := residentGitKey(root, "head1", "cfgA", args)
+	kc2, _ := residentGitKey(root, "head1", "cfgB", args)
+	if kc1 == kc2 {
+		t.Fatal("two configurations share a key")
+	}
+	if _, ok := residentGitKey(root, "head1", "", args); ok {
+		t.Fatal("an unreadable configuration was memoized")
+	}
 	// A linked worktree (.git is a file) is not memoized.
 	linked := t.TempDir()
 	if err := os.WriteFile(filepath.Join(linked, ".git"), []byte("gitdir: elsewhere\n"), 0o644); err != nil {
 		t.Fatal(err)
 	}
-	if _, ok := residentGitKey(linked, "h", args); ok {
+	if _, ok := residentGitKey(linked, "h", "cfg", args); ok {
 		t.Fatal("a linked worktree was memoized")
 	}
 }
@@ -99,5 +112,42 @@ func TestASecondOperationIsAnsweredFromTheMemoAndANewCommitMissesIt(t *testing.T
 	}
 	if hits, misses, _, _ := ResidentGitMemoStats(); hits != 1 || misses != 2 {
 		t.Fatalf("after the new commit hits %d misses %d, want 1 and 2", hits, misses)
+	}
+}
+
+// A global Git configuration that changes what a read answers must change the key: the digest of
+// the effective configuration follows a change of the user's own configuration file.
+func TestTheEffectiveGitConfigurationFollowsTheUsersConfigurationFile(t *testing.T) {
+	root := snapshotRepo(t, map[string]string{"a.md": "one\n"})
+	home := t.TempDir()
+	t.Setenv("HOME", home)
+	t.Setenv("XDG_CONFIG_HOME", filepath.Join(home, "xdg"))
+	t.Setenv("GIT_CONFIG_NOSYSTEM", "1")
+	_, view := (Store{Root: root}).beginGovernanceReadView()
+	state := view.operation.git
+	ctx := context.Background()
+	before := state.effectiveGitConfig(ctx, NativeFiles(), root)
+	if before == "" {
+		t.Skip("the effective Git configuration cannot be read here")
+	}
+	// The test process points GIT_CONFIG_GLOBAL at a file of its own (testgit.Isolate): that is the
+	// user's configuration here.
+	userConfig := os.Getenv("GIT_CONFIG_GLOBAL")
+	if userConfig == "" {
+		userConfig = filepath.Join(home, ".gitconfig")
+	}
+	original, _ := os.ReadFile(userConfig)
+	t.Cleanup(func() { _ = os.WriteFile(userConfig, original, 0o644) })
+	if err := os.WriteFile(userConfig, append(append([]byte(nil), original...), []byte("\n[log]\n\tfollow = true\n")...), 0o644); err != nil {
+		t.Fatal(err)
+	}
+	// A new operation reads it again; the same operation keeps the digest it took.
+	if same := state.effectiveGitConfig(ctx, NativeFiles(), root); same != before {
+		t.Fatal("the digest changed inside one operation")
+	}
+	_, next := (Store{Root: root}).beginGovernanceReadView()
+	after := next.operation.git.effectiveGitConfig(ctx, NativeFiles(), root)
+	if after == before {
+		t.Fatal("a change of the user's Git configuration did not change the key")
 	}
 }
