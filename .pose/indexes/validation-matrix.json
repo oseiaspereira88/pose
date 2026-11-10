@@ -2597,6 +2597,19 @@
           "evidenceClass": "integration"
         },
         {
+          "name": "check-index-generation-integration",
+          "program": "go",
+          "args": [
+            "test",
+            "./internal/cli",
+            "-run",
+            "TestCheckRefusesAnIndexSet",
+            "-count=1"
+          ],
+          "severity": "required",
+          "evidenceClass": "integration"
+        },
+        {
           "name": "sealed-checkout-child-evidence-integration",
           "program": "go",
           "args": [

@@ -144,6 +144,7 @@ func cmdCheckWithLocaleIn(files pose.Files, root string, args []string, stdout, 
 	checker.checkSchemaVersion()
 	checker.checkReferences()
 	checker.checkValidationMatrix()
+	checker.checkIndexGeneration()
 	checker.checkTaskMap()
 	checker.checkSpecs()
 	checker.checkReviewCloseout()
@@ -473,6 +474,22 @@ func isRuntimeReference(ref string) bool {
 		}
 	}
 	return false
+}
+
+// checkIndexGeneration reports an index set that cannot be read as a whole: the descriptor names a
+// generation whose files are gone or no longer match it, or files under .pose/indexes differ from
+// the generation they belong to. It is the structural half of `pose index --verify` (no input is
+// recomputed): a commit that regenerated indexes without their descriptor leaves the set exactly
+// so, and every review closeout after it is unknown (spec
+// pose-commit-gate-refuses-index-without-descriptor).
+func (checker *nativeChecker) checkIndexGeneration() {
+	view := pose.Store{Root: checker.root, FS: checker.fsys()}.ReadIndexGeneration()
+	switch {
+	case view.Status == pose.IndexGenerationUnavailable:
+		checker.failOrWarn(checker.message("index set unavailable: ", "conjunto de índices indisponível: ") + view.Reason + checker.message("; run `pose index`", "; rode `pose index`"))
+	case view.Status == pose.IndexGenerationCurrent && len(view.Diverged) > 0:
+		checker.failOrWarn(checker.message("index files differ from generation ", "arquivos de índice diferem da geração ") + view.Descriptor.GenerationID + ": " + strings.Join(view.Diverged, ", ") + checker.message("; run `pose index`", "; rode `pose index`"))
+	}
 }
 
 func (checker *nativeChecker) checkValidationMatrix() {
