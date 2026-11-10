@@ -1,0 +1,137 @@
+{
+  "safety": {
+    "schema_version": 1,
+    "profile": "legacy-trusted",
+    "platform": "linux/amd64",
+    "capabilities": {
+      "automatic-expiry": "unavailable",
+      "bounded-capture": "available",
+      "cpu-limit": "unavailable",
+      "credential-filesystem-isolation": "unavailable",
+      "environment-allowlist": "available",
+      "escaped-descendant-termination": "unavailable",
+      "filesystem-isolation": "unavailable",
+      "memory-limit": "unavailable",
+      "network-isolation": "unavailable",
+      "origin-isolation": "unavailable",
+      "parent-termination": "available",
+      "process-group-termination": "available",
+      "shared-git-isolation": "unavailable"
+    },
+    "limitations": [
+      "trusted local executable required; worktree is not a sandbox",
+      "outside writes, transient writes, shared Git and credential files are not isolated",
+      "no memory/CPU quota or control of descendants escaping the process group",
+      "cleanup filesystem calls remain subject to operating-system I/O latency",
+      "legacy compatibility: HOME retained; other ambient credentials excluded"
+    ],
+    "stream_bytes": 8388608,
+    "output_bytes": 65536,
+    "retained_bytes": 16777216,
+    "timeout_ms": 3600000,
+    "max_runs_per_bundle": 3,
+    "retention": "retain-evidence; ttl=0; no automatic deletion",
+    "capture_complete": true,
+    "runtime_id": "pose-review-run-2313386238",
+    "operation": {
+      "schema_version": 1,
+      "operation": "review.dispatch.cleanup",
+      "scope": "spec:pose-worktree-runtime-qos-and-measurement",
+      "outcome": "completed",
+      "steps_run": [
+        {
+          "id": "cleanup",
+          "result": "done"
+        }
+      ],
+      "effects": [],
+      "resumable": false
+    }
+  },
+  "provenance": {
+    "execution_state": "started",
+    "planned_wire_digest": "sha256:603a44b2678390f6fd5658b59762f3f7ec6406a27a427834cbbe7d94ceb0f092",
+    "wire_bytes": 25148,
+    "wire_complete": true,
+    "schema_version": 1,
+    "project": "proj.pose-dist",
+    "audience": "proj.pose-dist",
+    "worktree_digest": "sha256:9c161dc895f6496d9f800581bef8673cc9123cda65951fa2d23b0cbdbc2bac41",
+    "trust": "executor-attested",
+    "implementation": {
+      "principal": "agent:anthropic/claude-sonnet-5-5",
+      "execution": "sha256:675189f7e0b769255994f8213acf8b1b57174c4353838cd875cdabd46aa9cc0b",
+      "vendor": "anthropic",
+      "model": "claude-sonnet-5-5"
+    },
+    "reviewer": {
+      "principal": "agent:anthropic/claude-opus-5-5",
+      "vendor": "anthropic",
+      "model": "claude-opus-5-5"
+    },
+    "config_digest": "sha256:fa7add8c85f5c0c1dd74b1dba89cd12989a2a856fc7a59407bc04682bd575e25",
+    "command_template_digest": "sha256:4fb04e170e8d7f85923d1ab7c7d6eac045a3bb8d20b443991552d6b7bfa7c4f2",
+    "argv_digest": "sha256:6f7a9cc5aa680b285a37674b2fc17403c1b6f541da236f7fd09bb7d444f08935",
+    "executable_digest": "sha256:bfb3703ad5380242328459bc62ada4bde8ae7ba57c6e1eeadb9c00e08874c478",
+    "template_version": "review-brief/7",
+    "wire_digest": "sha256:603a44b2678390f6fd5658b59762f3f7ec6406a27a427834cbbe7d94ceb0f092",
+    "notes_digest": "sha256:148d7d8a598cc5217882d725ea281fe1ab7fa42adefdfee5393fa16e41541f12",
+    "raw_transcript_digest": "sha256:dcde6cc9a46a71664556c35608498c33bfac664912f0355a35411e8f215da043",
+    "raw_output_digest": "sha256:916097cf93bba98d639a7595c30ba71da0083f3441cf1a3f4a0a91fd18573eb8",
+    "output_source": "stream-final",
+    "output_complete": true
+  },
+  "session_digest": "sha256:81f7c15a36af1e4ab84ccef9a47e560b217af80bc2fc798572e06447b6f66e7c",
+  "tree_digest": "sha256:1b0099f287cf23caecffd646d1685d23555b67b744f5668c3651f04fe100057b",
+  "brief_notes": "Review of spec pose-worktree-runtime-qos-and-measurement, implemented by Claude: slice 3 of B35 (the last). Judge on R6 and R8. Scope: `pose-mcp/internal/cli/runtime_lanes.go` (two admission lanes, `short` = `surface-check` and `heavy` = the other hosted commands, each with slots and a bounded queue; `enter` refuses before waiting when every slot is busy and the queue is full; per-lane counters exposed as `metrics` in the status and handshake replies through `Options.Metrics` in `worktreeruntime`), the flags in `runtime_cmd.go` (`--short-slots`, `--heavy-slots`, `--short-queue`, `--heavy-queue`, `--memo-mib`, forwarded by `start` to the detached `serve`), the handler change in `runtime_host.go`, and `runtime_measure_test.go`, an opt-in measurement (`POSE_RUNTIME_MEASURE=\u003cfile\u003e`) whose samples, scenarios and thresholds T1–T6 were committed in the test and in the spec BEFORE the first run (git history shows it: the commit that adds the test and thresholds precedes the report commit). The one run (330 s, 16 CPUs, this repository, 2862 commits) is in `.pose/reports/2026-11-10-pose-worktree-runtime-measurements.{md,json}`: all thresholds passed unchanged. Things to check: that the thresholds in the code, the spec and the report are the same; that the lane isolation and the full-lane refusal are really tested (`TestAShortQueryIsNotQueuedBehindAHeavyCheckAndAFullLaneRefuses` injects a slow heavy command); that the classification (`surface-check` short, everything else heavy) matches the measurements stated in the spec (`roadmap-check \u003cslug\u003e` took 160 s here, `surface-check \u003cspec\u003e` about 10 ms); that the known gaps are honest (one environment and repository; two simultaneous arrivals at the last free slot may exceed the queue by one instant; no CPU/memory limit per command). Your profile only allows the plan tools and `git status|ls-files`: rely on the sealed evidence and read the code; do not report the missing shell as a finding. This checkout may hold records of earlier rounds: if your draft carries earlier findings, name them in `prior_findings` with the round prefix (`R1-F1` …); new findings in `findings` have bare ids (F1, F2 …). Follow-ups carry `action`, `owner` and `review_by`; only low-severity risks are accepted by the policy.\n",
+  "ledger_version": 1,
+  "attempt_id": "rat-3f5a60fa5a0cf960af28e4e1a24dd8e7f39200d28a3c13245a582805827b89a6",
+  "schema_version": 1,
+  "run_id": "rrn-4014d684821185b3",
+  "scope": "spec:pose-worktree-runtime-qos-and-measurement",
+  "bundle_id": "rvb-319efc548f381855",
+  "bundle_digest": "sha256:319efc548f381855e83405fede78d454ec527a4303532f95ee16d0e46b24b9c1",
+  "sealed_commit": "95af7b636832236de6a310247276daf109113b0f",
+  "kind": "review",
+  "brief_digest": "sha256:3a2dc91884d6411fd867d8dd96ebe02541227e25241eebc3d9e787cbc64df457",
+  "adapter": "claude-opus-5-5",
+  "vendor": "anthropic",
+  "model": "claude-opus-5-5",
+  "started_at": "2026-11-10T08:49:35.290243325Z",
+  "ended_at": "2026-11-10T08:52:26.089657742Z",
+  "exit_code": 0,
+  "status": "completed",
+  "transcript_digest": "sha256:213840e2f1aa7e18e6356c02326c83fe5f06911130d55a3c3b5403045bcc668d",
+  "transcript_path": ".pose/review-runs/rrn-4014d684821185b3.transcript",
+  "output": "**decision: changes-requested**\n\nThe lanes themselves work. The problem is that the per-lane metrics R6 requires never reach the operator: `pose runtime status` (JSON or text) doesn't print them. The one measurement run shows this: it recorded `runtime_metrics: null`, and its report has `?` placeholders for those counts. The docs promise those fields in `status`. That's a medium-severity defect, and the policy only accepts low-severity risks, so I can't approve.\n\nI had no shell access (the Bash tool was denied), so I didn't run any tests or tools myself. This review relies on reading the code at `95af7b63` and the sealed evidence.\n\n## What I checked in the code\n\n- **Lanes:** `runtime_lanes.go` keeps its counts consistently. A command is counted when it enters a lane, and on every exit path the count is released, including deadline and shutdown withdrawals (`runtime_host.go:106-127`). `surface-check` goes to the short lane and everything else to the heavy lane, which matches the timings in the spec (about 10 ms against 25 s and 160 s).\n- **Flags:** the numeric flags are bounded and their error messages are clear (`runtime_cmd.go:118-142`). `start` passes them on to the detached `serve` (`runtime_cmd.go:105-108`, `195`).\n- **Thresholds:** T1 0.60, T2 0.80, T3 3× or 250 ms, T4 1536 MiB and T6 500 ms are the same in the test (`runtime_measure_test.go:32-37`), in spec R8 and in the report. The report's `repo_head` is `7c2abbf6`, the commit that added the test and its thresholds. Without git I couldn't confirm that the spec text already had them before that run.\n- **Running commands in parallel in one process:** this is now possible, and the D1 rationale only argues from separate processes. On the plus side, the resident memo is protected by a lock (`resident_git_memo.go:20`) and no hosted path changes the working directory or environment. But the `-race` test only runs `surface-check --help` alongside a heavy check, so the real `surface-check` code path was never race-checked in the same process.\n\n## Findings\n\n| id | sev | where | summary |\n|---|---|---|---|\n| F1 | **medium**, blocker | `pose-mcp/internal/cli/runtime_cmd.go:244` | `runtimeReport` never prints `reply.Metrics`, in either `--json` (`pose.runtime.status/1`) or the text output. R6 and the docs (`POSE.md:947`) say `status` carries `\u003clane\u003e_*` in `metrics`. Only the Go client API returns them, and that is all the R6 test checks (`runtime_host_test.go:317`). |\n| F2 | low, blocker | `POSE.md:947` (same in `locales/pt-BR/POSE.md:944` and both scaffold copies) | The paragraph still says \"The runtime runs one hosted command at a time\", which contradicts the new lanes text added after it. |\n| F3 | low, blocker | `.pose/reports/2026-11-09-pose-worktree-runtime-measurements.md:51` | The \"effective\" line has `?` placeholders, and the JSON has `\"runtime_metrics\": null` (line 81), a symptom of F1. R8 asks the report to say what was effective. |\n| F4 | low, follow-up | `pose-mcp/internal/cli/runtime_host.go:78` | The comment still says commands run \"one at a time… two at once would race themselves\". The safety of parallel runs in one process is still an unverified assumption: no `-race` test covers real short-lane work alongside a heavy check. |\n| F5 | low, follow-up | `pose-mcp/internal/cli/runtime_host.go:139` | `memo_hits` is the difference of a counter shared by the whole process. When commands overlap, one command's count includes cache hits from the others. |\n| F6 | low, follow-up | `pose-mcp/internal/cli/runtime_measure_test.go:210` | T5 says every hosted output equals the standalone one, but only `review-check` is compared. The `surface-check` outputs, idle and under load, are never compared to standalone. |\n| F7 | low, follow-up | `pose-mcp/internal/cli/runtime_measure_test.go:185` | The memory peak for T4 is read before the short-query and concurrent-load phases, so the reported peak leaves those phases out. |\n\n## Criteria\n\n- **Passed:**\n  - **backend-concurrency:** lane counts are balanced; sealed `runtime-qos-integration` (`-race`).\n  - **backend-contracts / compatibility:** `Reply.Metrics` is an additive `omitempty` field, and `status/1` is unchanged.\n  - **backend-input-errors:** the flag bounds hold.\n  - **backend-integration-impact:** the flags reach `serve`.\n  - **design-causality:** two lanes address the 10 ms against 25 s wait the spec measured.\n  - **scope:** the artifacts match the plan.\n  - **security:** no new authority, and the metrics are plain counters.\n  - **solution-proportionality:** a fixed list and two lanes is small. The choice would no longer hold if a short command became slow, or if running commands in parallel in one process caused races.\n- **Finding:**\n  - correctness, requirements, observability, operability: F1.\n  - documentation: F2.\n  - assumption-integrity: F4.\n- **Tools:**\n  - surface-check and both validate runs are answered with the sealed refs.\n  - artifact-check is `deferred`: it names no evidence class, and I couldn't run it without a shell.\n  - review-check and closeout-check are `deferred` until the review is complete.\n  - The recommended tools are `not-used`.\n\n```pose-draft\n{\n  \"schema\": \"pose.review.draft/v1\",\n  \"decision\": \"changes-requested\",\n  \"findings\": [\n    {\"id\": \"F1\", \"severity\": \"medium\", \"disposition\": \"blocker\", \"file\": \"pose-mcp/internal/cli/runtime_cmd.go\", \"line\": 244, \"summary\": \"runtimeReport never emits reply.Metrics in `pose runtime status --json` (pose.runtime.status/1) or in the human output, although R6 and POSE.md:947 say status carries the per-lane metrics; only the Go client API returns them, which is all the R6 test checks (runtime_host_test.go:317). The measurement consequently recorded runtime_metrics null.\"},\n    {\"id\": \"F2\", \"severity\": \"low\", \"disposition\": \"blocker\", \"file\": \"POSE.md\", \"line\": 947, \"summary\": \"The hosted-checks paragraph still states 'The runtime runs one hosted command at a time', contradicting the new lanes text in the same paragraph; same in locales/pt-BR/POSE.md:944 and both scaffold copies.\"},\n    {\"id\": \"F3\", \"severity\": \"low\", \"disposition\": \"blocker\", \"file\": \".pose/reports/2026-11-09-pose-worktree-runtime-measurements.md\", \"line\": 51, \"summary\": \"The 'Efetivo' line keeps '?' placeholders for admitted/refused counts and the JSON report has runtime_metrics null (line 81); R8 requires the report to state what was effective.\"},\n    {\"id\": \"F4\", \"severity\": \"low\", \"disposition\": \"follow-up\", \"file\": \"pose-mcp/internal/cli/runtime_host.go\", \"line\": 78, \"summary\": \"Stale comment says hosted commands run one at a time because two would race; the in-process concurrency safety (D1 argues from separate processes) is only race-tested with `surface-check --help`, not real short-lane work beside a heavy check.\", \"action\": \"Update the comment and add a -race test running a real surface-check concurrently with a heavy check on a fixture project.\", \"owner\": \"@pose-maintainers\", \"review_by\": \"2027-02-08\"},\n    {\"id\": \"F5\", \"severity\": \"low\", \"disposition\": \"follow-up\", \"file\": \"pose-mcp/internal/cli/runtime_host.go\", \"line\": 139, \"summary\": \"memo_hits is the delta of a process-global counter; with concurrent lanes a command's reported memo_hits includes other commands' hits.\", \"action\": \"Attribute memo hits per command (context-scoped counter) or document memo_hits as approximate under concurrency.\", \"owner\": \"@pose-maintainers\", \"review_by\": \"2027-02-08\"},\n    {\"id\": \"F6\", \"severity\": \"low\", \"disposition\": \"follow-up\", \"file\": \"pose-mcp/internal/cli/runtime_measure_test.go\", \"line\": 210, \"summary\": \"T5 claims every hosted output equals standalone, but surface-check outputs (idle and under heavy load) are never compared with a standalone run.\", \"action\": \"Compare the short-query hosted outputs with a standalone surface-check output in the measurement.\", \"owner\": \"@pose-maintainers\", \"review_by\": \"2027-02-08\"},\n    {\"id\": \"F7\", \"severity\": \"low\", \"disposition\": \"follow-up\", \"file\": \"pose-mcp/internal/cli/runtime_measure_test.go\", \"line\": 185, \"summary\": \"T4 reads VmHWM before the short-query and concurrent heavy-load scenarios, so the reported peak excludes the concurrent phase.\", \"action\": \"Read VmHWM at the end of the resident scenarios, before the restart loop.\", \"owner\": \"@pose-maintainers\", \"review_by\": \"2027-02-08\"}\n  ],\n  \"criteria\": [\n    {\"id\": \"assumption-integrity\", \"disposition\": \"finding\", \"evidence\": \"F4\"},\n    {\"id\": \"backend-concurrency\", \"disposition\": \"passed\", \"evidence\": \"integration:pose-mcp/go/runtime-qos-integration\", \"rationale\": \"Read runtime_lanes.go and runtime_host.go:106-127: enter/admit/withdrawn/release keep queued and running balanced on every path; the -race integration check runs a heavy and a short command concurrently.\"},\n    {\"id\": \"backend-contracts\", \"disposition\": \"passed\", \"evidence\": \"integration:pose-mcp/go/optional-worktree-runtime-integration\", \"rationale\": \"Reply.Metrics is an additive omitempty field; pose.runtime.status/1 and pose.runtime.run/1 are unchanged; runtimeSpawn signature change is internal.\"},\n    {\"id\": \"backend-input-errors\", \"disposition\": \"passed\", \"evidence\": \"unit:pose-mcp/go/test\", \"rationale\": \"parseRuntimeFlags (runtime_cmd.go:118-142) bounds each admission flag (slots/memo \u003e=1, queues \u003e=0, \u003c=1048576) with a message naming the flag and range; a full lane refuses with a typed refused outcome.\"},\n    {\"id\": \"backend-integration-impact\", \"disposition\": \"passed\", \"evidence\": \"integration:pose-mcp/go/optional-worktree-runtime-integration\", \"rationale\": \"start forwards the admission flags to the detached serve via serveArgs (runtime_cmd.go:105-108,195); the fixture spawn path in runtime_host_test.go exercises the same forwarding.\"},\n    {\"id\": \"backend-observability\", \"disposition\": \"finding\", \"evidence\": \"F1\"},\n    {\"id\": \"compatibility\", \"disposition\": \"passed\", \"evidence\": \"integration:pose-mcp/go/optional-worktree-runtime-integration\", \"rationale\": \"Examined Reply, Options and the status/run documents: only additive fields and new optional flags; defaults preserve prior behaviour apart from allowing concurrent lanes.\"},\n    {\"id\": \"correctness\", \"disposition\": \"finding\", \"evidence\": \"F1\"},\n    {\"id\": \"design-causality\", \"disposition\": \"passed\", \"evidence\": \"structure:design-2c8c4050b1833f7e\", \"rationale\": \"D1 basis R6: the cause (a 10 ms surface-check waiting behind a 25 s review-check under a single semaphore) is removed by a separate short lane; the classification follows the spec's measured timings (roadmap-check heavy).\"},\n    {\"id\": \"documentation\", \"disposition\": \"finding\", \"evidence\": \"F2\"},\n    {\"id\": \"operability\", \"disposition\": \"finding\", \"evidence\": \"F1\"},\n    {\"id\": \"requirements\", \"disposition\": \"finding\", \"evidence\": \"F1\"},\n    {\"id\": \"scope\", \"disposition\": \"passed\", \"evidence\": \"structure:design-2c8c4050b1833f7e\", \"rationale\": \"Compared the change list with the spec's Artifacts: every implementation and doc file is listed; no CPU/cgroup limits or durable queue were added, matching the non-goals.\"},\n    {\"id\": \"security\", \"disposition\": \"passed\", \"evidence\": \"integration:pose-mcp/go/optional-worktree-runtime-integration\", \"rationale\": \"No new endpoint or authority; new inputs are bounded integers; metrics are non-sensitive counters; the env-digest and peer checks precede lane admission.\"},\n    {\"id\": \"solution-proportionality\", \"disposition\": \"passed\", \"evidence\": \"structure:design-2c8c4050b1833f7e\", \"rationale\": \"Minimal alternative (one-at-a-time) cannot meet R6; two static lanes with atomics and a channel are ~110 lines with no speculative extension. Invalidated if a short-listed command becomes slow or in-process concurrency races (see F4).\"}\n  ],\n  \"tools\": [\n    {\"id\": \"artifact-check\", \"disposition\": \"deferred\", \"rationale\": \"No evidence class is named and the reviewer profile had no shell to run it; needs a run by POSE or the implementer.\"},\n    {\"id\": \"assess-design\", \"disposition\": \"not-used\", \"rationale\": \"Recommended; no shell available; sealed structure:design-2c8c4050b1833f7e consulted instead.\"},\n    {\"id\": \"assess-discover\", \"component\": \"pose-mcp\", \"disposition\": \"not-used\", \"rationale\": \"Recommended; no shell available.\"},\n    {\"id\": \"assess-integrate\", \"disposition\": \"not-used\", \"rationale\": \"Recommended; no shell available; sealed integration evidence consulted.\"},\n    {\"id\": \"assess-tech-debt\", \"disposition\": \"not-used\", \"rationale\": \"Recommended; no shell available.\"},\n    {\"id\": \"closeout-check\", \"disposition\": \"deferred\", \"rationale\": \"Its precondition is the completion of this review.\"},\n    {\"id\": \"review-check\", \"disposition\": \"deferred\", \"rationale\": \"Its precondition is the completion of this review.\"},\n    {\"id\": \"suggest-review\", \"component\": \"pose-mcp\", \"disposition\": \"not-used\", \"rationale\": \"Recommended; no shell available.\"},\n    {\"id\": \"surface-check\", \"disposition\": \"passed\", \"evidence\": \"integration:pose-mcp/go/spec-surface-integration\"},\n    {\"id\": \"validate\", \"disposition\": \"passed\", \"evidence\": \"unit:pose-mcp/go/test\"},\n    {\"id\": \"validate\", \"component\": \"pose-mcp\", \"disposition\": \"passed\", \"evidence\": \"build:pose-mcp/go/build\"}\n  ]\n}\n```",
+  "policy_digest": "sha256:f8cb9e16758e19e66e0e01f29d1d347b0c15cd1cfa191e32926de54742e3cb72",
+  "purpose": "review",
+  "env_removed": [
+    "CLAUDE_CODE_BRIDGE_SESSION_ID",
+    "CLAUDE_CODE_CHILD_SESSION",
+    "CLAUDE_CODE_ENTRYPOINT",
+    "CLAUDE_CODE_EXECPATH",
+    "CLAUDE_CODE_MESSAGING_SOCKET",
+    "CLAUDE_CODE_MESSAGING_TOKEN",
+    "CLAUDE_CODE_SESSION_ATTENDED",
+    "CLAUDE_CODE_SESSION_ID",
+    "CLAUDE_EFFORT",
+    "CLAUDE_PID"
+  ],
+  "events": "claude-stream-json",
+  "events_digest": "sha256:a3c9e2c16582d6425014c0a45ff11dfabb5a2b12ab379ec8ba9f9a4daa6121d1",
+  "routing": {
+    "requested": "claude-opus-5-5",
+    "implementation": {
+      "principal": "agent:anthropic/claude-sonnet-5-5",
+      "vendor": "anthropic",
+      "model": "claude-sonnet-5-5",
+      "execution_digest": "sha256:675189f7e0b769255994f8213acf8b1b57174c4353838cd875cdabd46aa9cc0b",
+      "source": "declared"
+    },
+    "implementation_from": "bundle",
+    "step": "explicit"
+  },
+  "independence_achieved": "different-model",
+  "round": 1
+}
