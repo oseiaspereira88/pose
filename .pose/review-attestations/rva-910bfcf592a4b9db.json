@@ -1,0 +1,251 @@
+{
+  "run": {
+    "run_id": "rrn-8e5e9c595102d768",
+    "proof_id": "rrp-f46eccf4cabca8a3de68e30825971de1d4f6a4ca9051817e6af6e3a0d3535e10"
+  },
+  "schema_version": 1,
+  "attestation_id": "rva-910bfcf592a4b9db",
+  "bundle_id": "rvb-7cb6e08cebbc421f",
+  "bundle_digest": "sha256:7cb6e08cebbc421f964feaa1c9112678eb399066007ff3402bbc6ecde58d5d17",
+  "reviewer": "agent:anthropic/claude-opus-5-5",
+  "decision": "approved",
+  "criteria": [
+    {
+      "id": "assumption-integrity",
+      "disposition": "passed",
+      "evidence": "integration:pose-mcp/go/runtime-qos-integration",
+      "rationale": "Verified: thresholds T1-T6 identical in spec R8, runtime_measure_test.go:32-37 and both report runs; classification surface-check=short matches the measured timings. Unresolved and stated: one environment and repository, the race at the last free slot, no per-command CPU/memory limit, short defaults tuned to the measured machine. Accepted risks are low follow-ups (R1-F4, R1-F5, N1-N5)."
+    },
+    {
+      "id": "backend-concurrency",
+      "disposition": "passed",
+      "evidence": "integration:pose-mcp/go/runtime-qos-integration"
+    },
+    {
+      "id": "backend-contracts",
+      "disposition": "passed",
+      "evidence": "integration:pose-mcp/go/runtime-qos-integration"
+    },
+    {
+      "id": "backend-input-errors",
+      "disposition": "finding",
+      "evidence": "N5"
+    },
+    {
+      "id": "backend-integration-impact",
+      "disposition": "passed",
+      "evidence": "integration:pose-mcp/go/optional-worktree-runtime-integration"
+    },
+    {
+      "id": "backend-observability",
+      "disposition": "passed",
+      "evidence": "integration:pose-mcp/go/runtime-qos-integration"
+    },
+    {
+      "id": "compatibility",
+      "disposition": "passed",
+      "evidence": "integration:pose-mcp/go/runtime-qos-integration",
+      "rationale": "pose.runtime.status/1 only gains an optional 'metrics' field (omitempty in Reply); runtimeSpawn's signature is internal; the new flags are additive with defaults; the run envelope is unchanged."
+    },
+    {
+      "id": "correctness",
+      "disposition": "passed",
+      "evidence": "unit:pose-mcp/go/test"
+    },
+    {
+      "id": "design-causality",
+      "disposition": "passed",
+      "evidence": "structure:design-c96df3d8a0d0c17f",
+      "rationale": "D1 addresses the cause (one global semaphore in slice 2 made a 10 ms surface-check wait for a 25 s review-check) with per-lane slot channels (runtime_lanes.go:47-52) chosen by a declared, measured list (shortCommands); queue bound and refusal before waiting (enter, runtime_host.go:107-109) meet the falsifier.",
+      "mappings": [
+        {
+          "delta": "design-c96df3d8a0d0c17f",
+          "basis": "D1",
+          "disposition": "mapped",
+          "rationale": "The structural change (new runtime_lanes.go, handler gated by lanes, Options.Metrics) is the selected option of D1 for R6 and R8."
+        }
+      ]
+    },
+    {
+      "id": "documentation",
+      "disposition": "finding",
+      "evidence": "N1"
+    },
+    {
+      "id": "operability",
+      "disposition": "finding",
+      "evidence": "N4"
+    },
+    {
+      "id": "requirements",
+      "disposition": "passed",
+      "evidence": "integration:pose-mcp/go/runtime-qos-integration"
+    },
+    {
+      "id": "scope",
+      "disposition": "passed",
+      "evidence": "integration:pose-mcp/go/runtime-qos-integration",
+      "rationale": "The changed files match the spec's artifact list; there are no cgroup limits or durable queue (non-goals respected); the governance index churn is generated."
+    },
+    {
+      "id": "security",
+      "disposition": "passed",
+      "evidence": "integration:pose-mcp/go/runtime-qos-integration",
+      "rationale": "Flag values are bounded to 0/1..1048576; metrics are counters only, with no paths or secrets; env-digest and hosted-command refusal precede lane entry (runtime_host.go:90-95), so admission adds no authority."
+    },
+    {
+      "id": "solution-proportionality",
+      "disposition": "passed",
+      "evidence": "integration:pose-mcp/go/runtime-qos-integration",
+      "rationale": "The smallest sufficient alternative (D1 minimal: one command at a time) fails the stated 10 ms vs 25 s cause. Two lanes from a static map plus channels and atomics are about 110 lines, with no scheduler. Invalidating condition: a hosted command that is not safe to run concurrently in-process, or a short command that becomes slow."
+    }
+  ],
+  "tools": [
+    {
+      "id": "artifact-check",
+      "disposition": "passed",
+      "evidence": "command:pose artifact-check --spec pose-worktree-runtime-qos-and-measurement --strict",
+      "rationale": "Ran it; only repository-wide orphan warnings for files outside this change, no errors."
+    },
+    {
+      "id": "assess-design",
+      "disposition": "not-used",
+      "rationale": "The review profile refused the command; I relied on sealed structure:design-c96df3d8a0d0c17f."
+    },
+    {
+      "id": "assess-discover",
+      "component": "pose-mcp",
+      "disposition": "not-used",
+      "rationale": "Recommended only; the profile did not allow it and the change is confined to the runtime package."
+    },
+    {
+      "id": "assess-integrate",
+      "disposition": "not-used",
+      "rationale": "Recommended only; covered by sealed integration evidence."
+    },
+    {
+      "id": "assess-tech-debt",
+      "disposition": "not-used",
+      "rationale": "Recommended only; not needed to judge this scope."
+    },
+    {
+      "id": "closeout-check",
+      "disposition": "deferred",
+      "rationale": "Its precondition is the completion of this review."
+    },
+    {
+      "id": "review-check",
+      "disposition": "deferred",
+      "rationale": "Its precondition is the completion of this review."
+    },
+    {
+      "id": "suggest-review",
+      "component": "pose-mcp",
+      "disposition": "not-used",
+      "rationale": "Recommended only; the files to review were read directly."
+    },
+    {
+      "id": "surface-check",
+      "disposition": "passed",
+      "evidence": "integration:pose-mcp/go/runtime-qos-integration",
+      "rationale": "Also ran pose surface-check --spec pose-worktree-runtime-qos-and-measurement --strict: 1 target, 204 results, 0 findings."
+    },
+    {
+      "id": "validate",
+      "disposition": "passed",
+      "evidence": "build:pose-mcp/go/build",
+      "rationale": "Relied on the sealed validation evidence (build, unit, integration, e2e all pass); not re-run under this profile."
+    },
+    {
+      "id": "validate",
+      "component": "pose-mcp",
+      "disposition": "passed",
+      "evidence": "unit:pose-mcp/go/test",
+      "rationale": "Relied on the sealed pose-mcp module evidence; not re-run under this profile."
+    }
+  ],
+  "evidence_refs": [
+    "N1",
+    "N4",
+    "N5",
+    "delegated-run:rrn-8e5e9c595102d768",
+    "integration:pose-mcp/go/optional-worktree-runtime-integration",
+    "integration:pose-mcp/go/runtime-qos-integration",
+    "structure:design-c96df3d8a0d0c17f",
+    "unit:pose-mcp/go/test"
+  ],
+  "findings": [
+    {
+      "id": "N1",
+      "severity": "low",
+      "evidence": "file:pose-mcp/internal/cli/runtime_cmd.go:128",
+      "action": "Add the admission flags to the runtime usage string in both locales.",
+      "disposition": "accepted-risk",
+      "owner": "@pose-maintainers",
+      "rationale": "The usage string of pose runtime omits --heavy-slots, --short-slots, --heavy-queue, --short-queue and --memo-mib.",
+      "review_by": "2027-02-08"
+    },
+    {
+      "id": "N2",
+      "severity": "low",
+      "evidence": "file:pose-mcp/internal/cli/runtime_lanes.go:23",
+      "action": "Document the single-CPU default in R6 and the four POSE.md copies, or drop the special case.",
+      "disposition": "accepted-risk",
+      "owner": "@pose-maintainers",
+      "rationale": "Default short slots silently become 1 when GOMAXPROCS \u003c 2; R6 and POSE.md:949 state a default of 2 without that exception.",
+      "review_by": "2027-02-08"
+    },
+    {
+      "id": "N3",
+      "severity": "low",
+      "evidence": "file:pose-mcp/internal/cli/runtime_measure_test.go:196",
+      "action": "Assert via == runtime and output == coldOut for the concurrent heavy run.",
+      "disposition": "accepted-risk",
+      "owner": "@pose-maintainers",
+      "rationale": "The concurrent heavy review-check discards its via and output, so the T5 verdict (line 267) does not cover the heavy run under concurrency, and the harness never confirms that the load really ran in the runtime.",
+      "review_by": "2027-02-08"
+    },
+    {
+      "id": "N4",
+      "severity": "low",
+      "evidence": "file:pose-mcp/internal/cli/runtime_cmd.go:175",
+      "action": "Document that restart takes the admission flags (and defaults without them), or refuse the admission flags on subcommands that ignore them.",
+      "disposition": "accepted-risk",
+      "owner": "@pose-maintainers",
+      "rationale": "restart starts serve again with default admission unless the flags are repeated, dropping a previous non-default configuration; status/stop/attach accept the admission flags and silently ignore them. Neither behaviour is documented.",
+      "review_by": "2027-02-08"
+    },
+    {
+      "id": "N5",
+      "severity": "low",
+      "evidence": "file:pose-mcp/internal/cli/runtime_cmd.go:78",
+      "action": "Add a table test of parseRuntimeFlags for invalid admission values.",
+      "disposition": "accepted-risk",
+      "owner": "@pose-maintainers",
+      "rationale": "No test covers the admission-flag error path (out-of-range, non-numeric or missing values).",
+      "review_by": "2027-02-08"
+    }
+  ],
+  "authority": {
+    "schema_version": 1,
+    "project": "proj.pose-dist",
+    "bundle_digest": "sha256:7cb6e08cebbc421f964feaa1c9112678eb399066007ff3402bbc6ecde58d5d17",
+    "principal": "agent:anthropic/claude-opus-5-5",
+    "role": "agent",
+    "review_execution": "rrn-8e5e9c595102d768",
+    "implementation_principal": "agent:anthropic/claude-sonnet-5-5",
+    "implementation_execution": "sha256:675189f7e0b769255994f8213acf8b1b57174c4353838cd875cdabd46aa9cc0b",
+    "issuer": "b34-local-executor",
+    "issued_at": "2026-11-10T09:21:32Z",
+    "audience": "proj.pose-dist"
+  },
+  "envelope": {
+    "issuer": "b34-local-executor",
+    "subject": "rvb-7cb6e08cebbc421f",
+    "algorithm": "ed25519",
+    "public_key": "ck4sApdfePV2GT+hJyAYfJd2qLzeG55P8pevGR0bvZE=",
+    "signature": "aOZrQix2iOmSaSIHSHxSs3VpnrgOggeqFggC49t7jmpfKR7B+rr9emG+0TZzQ/wDkxR28z2J7C+mv7wLZZjQCQ=="
+  },
+  "attested_at": "2026-11-10T09:21:32Z",
+  "path": ".pose/review-attestations/rva-910bfcf592a4b9db.json"
+}
