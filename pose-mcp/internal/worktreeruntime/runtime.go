@@ -6,6 +6,7 @@ package worktreeruntime
 
 import (
 	"bufio"
+	"bytes"
 	"context"
 	"crypto/rand"
 	"crypto/sha256"
@@ -36,7 +37,7 @@ const (
 	maxRequest = 64 << 10
 	maxReply   = 16 << 20
 	// A hosted operation with no deadline of its own may take this long; a longer one is cut to it.
-	maxHostedDuration = 10 * time.Minute
+	MaxHostedDuration = 10 * time.Minute
 	requestDeadline   = 5 * time.Second
 	defaultDrain      = 5 * time.Second
 	socketNameDigits  = 12
@@ -483,8 +484,13 @@ func (s *server) state(ok bool) Reply {
 }
 
 func writeReply(conn net.Conn, r Reply) {
-	raw, _ := json.Marshal(r)
-	_, _ = conn.Write(append(raw, '\n'))
+	// Without HTML escaping a < or & in a command's output costs one byte, not six; the output
+	// travels as UTF-8 text, so bytes that are not valid UTF-8 come back replaced.
+	var buf bytes.Buffer
+	enc := json.NewEncoder(&buf)
+	enc.SetEscapeHTML(false)
+	_ = enc.Encode(r)
+	_, _ = conn.Write(buf.Bytes())
 }
 
 // Client talks to the runtime of one identity.
@@ -579,8 +585,8 @@ func (c Client) Status(ctx context.Context) (Reply, error) {
 // and never more than the maximum.
 func hostedDuration(deadlineMS int) time.Duration {
 	d := time.Duration(deadlineMS) * time.Millisecond
-	if d <= 0 || d > maxHostedDuration {
-		return maxHostedDuration
+	if d <= 0 || d > MaxHostedDuration {
+		return MaxHostedDuration
 	}
 	return d
 }

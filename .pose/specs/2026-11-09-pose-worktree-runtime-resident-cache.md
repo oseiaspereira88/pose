@@ -40,7 +40,7 @@ Fatia 2 da B35 (emenda do ADR de 2026-11-09), reescrita pela medição que as du
 ## 2. Requirements
 
 - R5: O reuso residente guarda só o que é função pura de ids de objeto ou do commit do HEAD nomeado quando a leitura rodou (`governancePureGitRead`), chaveado por raiz, commit, estado raso e comando exato, com budget em bytes e a menos recentemente usada primeiro; fica desligado salvo num processo que o liga (o runtime); um commit novo é um miss; um worktree vinculado não é guardado; os bytes de um hit são admitidos contra o budget da operação como os de uma leitura nova e a auditoria final não aponta mudança.
-- R7: Um comando hospedado devolve resultado tipado (`outcome` `completed`, `refused`, `deadline` ou `error`, código de saída, saída, época, tempo e acertos do memo); `refused` não iniciou o comando e leva ao fallback standalone; `deadline` e uma resposta perdida são `unknown` para o chamador, que não repete o comando e sai com 1 dizendo isso.
+- R7: Um comando hospedado devolve resultado tipado (`outcome` `completed`, `refused`, `deadline` ou `error`, código de saída, saída, época, tempo e acertos do memo); `refused` não iniciou o comando (inclusive o que ainda esperava a sua vez quando o prazo passou, que é retirado e nunca roda depois) e leva ao fallback standalone; `error` é o comando que rodou e terminou com a saída grande demais (acima de 2 MiB) para voltar, com o código de saída dele; `deadline` e uma resposta perdida são `unknown` para o chamador, que não repete o comando e sai com 1 dizendo isso.
 - R10: O runtime só hospeda os cinco checks e só roda um chamador cujo digest de ambiente (variáveis `POSE_`, `HARNE8_`, `GIT_`, `CLAUDE`, `CODEX`, o locale, `HOME`, `NO_COLOR`, o usuário) é o dele; a saída de um comando hospedado é a mesma que ele dá standalone.
 
 ## 3. Technical Plan
@@ -104,7 +104,7 @@ Fixtures sintéticas: repositórios Git temporários, o runtime em processo, um 
 
 ### Requirement trace
 - R5 [satisfied] test:TestTheResidentGitMemoIsOffByDefaultBoundedAndKeyedByTheCommit test:TestASecondOperationIsAnsweredFromTheMemoAndANewCommitMissesIt check:resident-cache-integration
-- R7 [satisfied] test:TestAReplyThatArrivesInPartIsAnUnknownOutcome test:TestACommandRunningPastItsDeadlineStillCountsAsInFlight test:TestACommandThatMayHaveRunIsNotRepeatedStandalone test:TestAHostedCommandAnswersThroughTheRuntimeAsItDoesStandalone
+- R7 [satisfied] test:TestACommandThatNeverStartedIsRefusedAndNotRunLater test:TestAReplyDoesNotEscapeHTMLCharacters test:TestAReplyThatArrivesInPartIsAnUnknownOutcome test:TestACommandRunningPastItsDeadlineStillCountsAsInFlight test:TestACommandThatMayHaveRunIsNotRepeatedStandalone test:TestAHostedCommandAnswersThroughTheRuntimeAsItDoesStandalone
 - R10 [satisfied] test:TestTheRuntimeRefusesWhatItDoesNotHostAndAnotherEnvironment test:TestAHostedCommandAnswersThroughTheRuntimeAsItDoesStandalone test:TestTheEnvironmentDigestFollowsWhatDecidesAnAnswer
 
 ### Known gaps

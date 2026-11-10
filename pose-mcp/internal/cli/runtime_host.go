@@ -12,7 +12,6 @@ import (
 	"os"
 	"sort"
 	"strings"
-	"sync"
 	"sync/atomic"
 	"time"
 
@@ -27,7 +26,7 @@ const runtimeRunSchema = "pose.runtime.run/1"
 
 // maxHostedOutput bounds what a hosted command's reply carries; past it the reply says the
 // command ran and its output is not sent.
-const maxHostedOutput = 8 << 20
+const maxHostedOutput = 2 << 20
 
 // hostedCommands are the commands the runtime runs for a caller: the checks that read the
 // project and answer. They run as the user that started the runtime, in its worktree, with
@@ -81,7 +80,7 @@ func init() {
 // answers with a typed result. Anything it does not host or will not run is refused before it
 // starts.
 func runtimeHostedHandler(envDigest string, busy *atomic.Int64) func(context.Context, worktreeruntime.Request) (worktreeruntime.Reply, bool) {
-	var serial sync.Mutex
+	sem := make(chan struct{}, 1)
 	return func(ctx context.Context, req worktreeruntime.Request) (worktreeruntime.Reply, bool) {
 		if req.Op != "run" {
 			return worktreeruntime.Reply{}, false
@@ -96,14 +95,29 @@ func runtimeHostedHandler(envDigest string, busy *atomic.Int64) func(context.Con
 			return refuse("the caller's environment differs from the one the runtime started in")
 		}
 		started := time.Now()
+		// One hosted command at a time. The deadline covers the wait for its turn: a command
+		// that has not started by then is withdrawn and refused, so its caller may run it
+		// standalone without the runtime running it later as well.
+		limit := time.Duration(req.DeadlineMS) * time.Millisecond
+		if limit <= 0 || limit > worktreeruntime.MaxHostedDuration {
+			limit = worktreeruntime.MaxHostedDuration
+		}
+		timer := time.NewTimer(limit)
+		defer timer.Stop()
+		select {
+		case sem <- struct{}{}:
+		case <-timer.C:
+			return refuse("the runtime was busy with another command until the deadline: this one did not start")
+		case <-ctx.Done():
+			return refuse("the runtime is stopping: this command did not start")
+		}
 		done := make(chan worktreeruntime.Reply, 1)
 		// The command counts as work in the runtime until it ends, even after its caller was
 		// answered at a deadline.
 		busy.Add(1)
 		go func() {
 			defer busy.Add(-1)
-			serial.Lock()
-			defer serial.Unlock()
+			defer func() { <-sem }()
 			hitsBefore, _, _, _ := posemodel.ResidentGitMemoStats()
 			var out, errb bytes.Buffer
 			code := 1
@@ -124,14 +138,10 @@ func runtimeHostedHandler(envDigest string, busy *atomic.Int64) func(context.Con
 			done <- worktreeruntime.Reply{Outcome: worktreeruntime.OutcomeCompleted, ExitCode: code, Stdout: out.String(), Stderr: errb.String(),
 				ElapsedMS: time.Since(started).Milliseconds(), MemoHits: hitsAfter - hitsBefore}
 		}()
-		var deadline <-chan time.Time
-		if req.DeadlineMS > 0 {
-			deadline = time.After(time.Duration(req.DeadlineMS) * time.Millisecond)
-		}
 		select {
 		case reply := <-done:
 			return reply, true
-		case <-deadline:
+		case <-timer.C:
 			// The command is read-only apart from refreshing derived files and cannot be
 			// cancelled; it ends on its own and the next one waits for it.
 			return worktreeruntime.Reply{Outcome: worktreeruntime.OutcomeDeadline, Reason: "the deadline passed while the command ran; it was not stopped", ElapsedMS: time.Since(started).Milliseconds()}, true
@@ -191,6 +201,10 @@ func cmdRuntimeRun(root string, args []string, stdout, stderr io.Writer) int {
 				via = "runtime"
 			case reply.Outcome == worktreeruntime.OutcomeRefused:
 				reason = reply.Reason
+			case reply.Outcome == worktreeruntime.OutcomeError:
+				// The command ran and ended; only its output was too large to bring back. The
+				// outcome is known, so the exit code is the command's.
+				via, reply.Stderr = "runtime", reply.Reason+"\n"
 			default:
 				return runtimeRunUnknown(stdout, stderr, envelope, args, errors.New(reply.Outcome+": "+reply.Reason))
 			}

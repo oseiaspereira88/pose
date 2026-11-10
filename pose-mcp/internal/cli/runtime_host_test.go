@@ -194,3 +194,36 @@ func TestACommandRunningPastItsDeadlineStillCountsAsInFlight(t *testing.T) {
 		t.Fatalf("a stop did not report the running command abandoned: %+v %v", stopped, err)
 	}
 }
+
+// A command still waiting for its turn when its deadline passes did not start: it is refused,
+// the caller runs it standalone, and the runtime never runs it later as well.
+func TestACommandThatNeverStartedIsRefusedAndNotRunLater(t *testing.T) {
+	f := newRuntimeFixture(t)
+	f.start(t)
+	original := runtimeHostedRun.Load()
+	var ran atomic.Int64
+	slow := hostedRunFunc(func(args []string, out, errb io.Writer) int {
+		ran.Add(1)
+		time.Sleep(600 * time.Millisecond)
+		return (*original)(args, out, errb)
+	})
+	runtimeHostedRun.Store(&slow)
+	defer func() {
+		time.Sleep(900 * time.Millisecond)
+		runtimeHostedRun.Store(original)
+	}()
+	first := make(chan map[string]any, 1)
+	go func() { doc, _, _ := f.run("roadmap-check"); first <- doc }()
+	time.Sleep(150 * time.Millisecond)
+	doc, _, _ := f.run("--timeout", "100ms", "roadmap-check")
+	if doc["via"] != "standalone" || !strings.Contains(doc["fallback_reason"].(string), "did not start") {
+		t.Fatalf("a command queued past its deadline: %v", doc)
+	}
+	if d := <-first; d["via"] != "runtime" {
+		t.Fatalf("the first command: %v", d)
+	}
+	time.Sleep(300 * time.Millisecond)
+	if ran.Load() != 1 {
+		t.Fatalf("the runtime ran %d commands: the refused one ran later", ran.Load())
+	}
+}

@@ -3,6 +3,7 @@ package worktreeruntime
 import (
 	"context"
 	"errors"
+	"io"
 	"net"
 	"os"
 	"os/exec"
@@ -401,4 +402,16 @@ func TestAReplyThatArrivesInPartIsAnUnknownOutcome(t *testing.T) {
 	}
 	cancel()
 	<-done
+}
+
+// A reply carries < > & as one byte each, so output near the bound is not pushed past it by
+// escaping.
+func TestAReplyDoesNotEscapeHTMLCharacters(t *testing.T) {
+	client, server := net.Pipe()
+	defer client.Close()
+	go func() { writeReply(server, Reply{Stdout: "<a href='x'>&</a>"}); server.Close() }()
+	raw, _ := io.ReadAll(client)
+	if strings.Contains(string(raw), "\\u003c") || strings.Contains(string(raw), "\\u0026") {
+		t.Fatalf("the reply escapes HTML characters: %s", raw)
+	}
 }
