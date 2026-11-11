@@ -1,0 +1,143 @@
+{
+  "safety": {
+    "schema_version": 1,
+    "profile": "legacy-trusted",
+    "platform": "linux/amd64",
+    "capabilities": {
+      "automatic-expiry": "unavailable",
+      "bounded-capture": "available",
+      "cpu-limit": "unavailable",
+      "credential-filesystem-isolation": "unavailable",
+      "environment-allowlist": "available",
+      "escaped-descendant-termination": "unavailable",
+      "filesystem-isolation": "unavailable",
+      "memory-limit": "unavailable",
+      "network-isolation": "unavailable",
+      "origin-isolation": "unavailable",
+      "parent-termination": "available",
+      "process-group-termination": "available",
+      "shared-git-isolation": "unavailable"
+    },
+    "limitations": [
+      "trusted local executable required; worktree is not a sandbox",
+      "outside writes, transient writes, shared Git and credential files are not isolated",
+      "no memory/CPU quota or control of descendants escaping the process group",
+      "cleanup filesystem calls remain subject to operating-system I/O latency",
+      "legacy compatibility: HOME retained; other ambient credentials excluded"
+    ],
+    "stream_bytes": 8388608,
+    "output_bytes": 65536,
+    "retained_bytes": 16777216,
+    "timeout_ms": 3600000,
+    "max_runs_per_bundle": 3,
+    "retention": "retain-evidence; ttl=0; no automatic deletion",
+    "capture_complete": true,
+    "runtime_id": "pose-review-run-2677410952",
+    "operation": {
+      "schema_version": 1,
+      "operation": "review.dispatch.cleanup",
+      "scope": "spec:pose-review-subject-head-is-the-newest",
+      "outcome": "completed",
+      "steps_run": [
+        {
+          "id": "cleanup",
+          "result": "done"
+        }
+      ],
+      "effects": [],
+      "resumable": false
+    }
+  },
+  "provenance": {
+    "execution_state": "started",
+    "planned_wire_digest": "sha256:67f90019eadf16d492e7ff2889406d0016f2541fa25c3e505210ab9befcead5a",
+    "wire_bytes": 28049,
+    "wire_complete": true,
+    "schema_version": 1,
+    "project": "proj.pose-dist",
+    "audience": "proj.pose-dist",
+    "worktree_digest": "sha256:9c161dc895f6496d9f800581bef8673cc9123cda65951fa2d23b0cbdbc2bac41",
+    "trust": "executor-attested",
+    "implementation": {
+      "principal": "agent:anthropic/claude-sonnet-5-5",
+      "execution": "sha256:675189f7e0b769255994f8213acf8b1b57174c4353838cd875cdabd46aa9cc0b",
+      "vendor": "anthropic",
+      "model": "claude-sonnet-5-5"
+    },
+    "reviewer": {
+      "principal": "agent:anthropic/claude-opus-5-5",
+      "vendor": "anthropic",
+      "model": "claude-opus-5-5"
+    },
+    "config_digest": "sha256:fa7add8c85f5c0c1dd74b1dba89cd12989a2a856fc7a59407bc04682bd575e25",
+    "command_template_digest": "sha256:4fb04e170e8d7f85923d1ab7c7d6eac045a3bb8d20b443991552d6b7bfa7c4f2",
+    "argv_digest": "sha256:6f7a9cc5aa680b285a37674b2fc17403c1b6f541da236f7fd09bb7d444f08935",
+    "executable_digest": "sha256:bfb3703ad5380242328459bc62ada4bde8ae7ba57c6e1eeadb9c00e08874c478",
+    "template_version": "review-brief/7",
+    "wire_digest": "sha256:67f90019eadf16d492e7ff2889406d0016f2541fa25c3e505210ab9befcead5a",
+    "notes_digest": "sha256:d3994002ccd5b607cda8b7469eaf335aecbd28611dcc7ca772243dec68ec4527",
+    "raw_transcript_digest": "sha256:a82d8b0d2367831db8c9163f4722c3755ad8d39e0f5acfb3cb1b6df9f06392c9",
+    "raw_output_digest": "sha256:6825ddf5e30f6f1d8bc88de8acd1ae43cb15e756ed0d73b52989c81d6a5a1ae6",
+    "output_source": "stream-final",
+    "output_complete": true
+  },
+  "session_digest": "sha256:390ce0bd9b89fb4b24848c937c604519cc7d45747b8fdc1c3ba6fe43330e17d9",
+  "tree_digest": "sha256:bd981f404b9c68ad41e77203998b8a3a968987b76c33f3e3419d4a5329ef3250",
+  "brief_notes": "Review of spec pose-review-subject-head-is-the-newest, implemented by Claude: an engine fix found when the delegated review of a six-spec roadmap failed before it began (\"sealed checkout inputs differ\", \"child … has no sealed review bundle\"). Mechanism: `reviewBundleSubject` in `pose-mcp/internal/pose/review_bundle.go` iterates the change sets of the scope sorted by id and assigned `subject.Head = set.ResolvedHead` on every iteration, so the head was the one of the set that sorts last, arbitrary with respect to history; `plan.SealedCommit` (the commit of the sealed worktree) is `Bundle.Payload.Subject.Head` (`review_dispatch.go`), so the reviewer's worktree was older than commits of other members. Change: `newestResolvedHead` returns, among the distinct heads of the sets, the one no other descends from (`git rev-list --topo-order -n 1 \u003cheads\u003e`: the first commit of the topological order, which lists a descendant before its ancestors; a date order was rejected because commits of one second tie), and `reviewBundleSubject` uses it; with fewer than two distinct heads, or if Git cannot order them, the head of the last set is kept (a one-set scope, every spec scope, is unchanged). Please check soundness: the choice when heads diverge (a head among the newest), that sealed bundles keep their recorded head (only new ones change), that nothing else assumed the old head (the spec's note: the focused tests of bundle, subject, milestone, roadmap and attribution pass, 142 s), and the stated gap (no test of `reviewBundleSubject` with several change sets; the test covers the function that picks the head and fails without the change only by compilation) and non-goal (a governed file such as the validation matrix that changed after the head still makes the sealed checkout differ; a recorded follow-up). Your profile only allows the plan tools and `git status|ls-files`: rely on the sealed evidence and read the code; do not report the missing shell as a finding. A tool entry in your draft carries only `id`, `component`, `disposition`, `evidence`, `rationale`; `validate` of a component with a registered check is `passed` with `evidence` of the sealed run (for example `unit:pose-mcp/go/test`); `review-check` and `closeout-check` are `deferred`. If your draft carries earlier findings, name them in `prior_findings` with the round prefix (`R1-F1` …); new findings in `findings` have bare ids (F1, F2 …). Follow-ups carry `action`, `owner` and `review_by`; only low-severity risks are accepted by the policy.\n\nRequired tool: the plan REQUIRES `artifact-check`; declare it `passed` only after running `pose artifact-check --spec pose-review-subject-head-is-the-newest --strict` (evidence `command:pose artifact-check --spec pose-review-subject-head-is-the-newest --strict`, rationale quoting its result; if it fails, report a finding). Command shape: the allow-list matches the WHOLE command line against one rule, so send each command ALONE in its own Bash call (no pipe, `;`, `\u0026\u0026`, redirect or `echo`); anything compound is denied in don't-ask mode. Read the exit from the tool result. Same for `git status`, `git ls-files`, `pose surface-check …`.\n",
+  "ledger_version": 1,
+  "attempt_id": "rat-470b1384574344942780def9e983f79713dafad9ac054795f9a23888dc051e51",
+  "schema_version": 1,
+  "run_id": "rrn-7d4c1286d5837a75",
+  "scope": "spec:pose-review-subject-head-is-the-newest",
+  "bundle_id": "rvb-ee017119c56e4f56",
+  "bundle_digest": "sha256:ee017119c56e4f563c44806ed8f4c183596c109a4cb467496021c88d60cd7d02",
+  "sealed_commit": "c94d2da7c23999705c98c17fbe55e31acc619f0d",
+  "kind": "review",
+  "brief_digest": "sha256:7e14cc7862af680ee8f4a6c98b5f1990cda4e4f769b3de7004f1157aed5d6ad5",
+  "adapter": "claude-opus-5-5",
+  "vendor": "anthropic",
+  "model": "claude-opus-5-5",
+  "started_at": "2026-11-11T06:16:21.661870469Z",
+  "ended_at": "2026-11-11T06:20:56.911272484Z",
+  "exit_code": 0,
+  "status": "completed",
+  "transcript_digest": "sha256:19bbb4e5981d2c98732046a46df68c4d423d6a1ea25cdc5d79201768abe8122a",
+  "transcript_path": ".pose/review-runs/rrn-7d4c1286d5837a75.transcript",
+  "output": "**decision: approved**\n\nThis is round 2. The code hasn't changed since round 1. The diff from `f966dfeb` to `c94d2da7` touches only `.pose/` records: indexes, the round-1 bundle and run records, and the start file. So the four round-1 findings are still there. All four are low severity and go forward as accepted follow-ups. Round 1 was refused only because `artifact-check` hadn't been run. I ran it this time and it exited 0, reporting 941 items, all of them repo-wide \"orphan\" warnings.\n\n## What I checked\n- **The fix** (`pose-mcp/internal/pose/review_bundle.go:783-794`, `:4468-4490`): the head is now picked as the first commit from `git rev-list --topo-order -n 1 \u003cheads\u003e`. That commit is always one of the input heads and no other input head descends from it, because any non-input commit is an ancestor of some input and would be listed later. The choice works whatever order the change sets are in, and a commit that isn't a full 40-character object id gives an empty result, which keeps the old head. A scope with a single head never calls Git, so spec scopes behave exactly as before.\n- **Sealed bundles keep their recorded head:** `reviewBundleSubject` is only called when a bundle is prepared (`review_bundle.go:522`) and from `review_structure.go:118`. Every check that uses the head compares the stored `Bundle.Payload.Subject.Head` and never recomputes it (`review_dispatch.go:543,1165,1534`, `review_run_provenance.go:755`, `review_run_continuity.go:390`, `delegation_handoff.go:312`). The bundle digest clears `Subject.Head`, `Base` and `ChangeSets` (`review_bundle.go:1963-1965`), so the new head doesn't change bundle identity.\n- **Head source:** `ResolvedHead` is read from the delivery-integrity index (`delivery_integrity.go:51`) and isn't validated before it reaches `rev-list` (R1-F1).\n- **Side note:** `artifact-check` resolved the change set `cs-9d0a5e7baf55` with head `2f525e14`. That commit is a descendant of the reviewed head, and it isn't an ancestor of `c94d2da7`. It's the commit that sealed this round's bundle. It's expected and isn't a defect.\n\n## Prior findings\n- **R1-F1:** not fixed. `review_bundle.go:4482` still has no `--` and doesn't validate the heads.\n- **R1-F2:** not fixed. When heads diverge, one tip is still picked without any warning.\n- **R1-F3:** not fixed. There is still no test that calls `reviewBundleSubject` with several change sets.\n- **R1-F4:** not fixed. Falling back to the last set's head still leaves no warning or reason in the bundle.\n\n## New finding\n- **N1 (low)**, `pose-mcp/internal/pose/review_bundle.go:786`: `Subject.Base` still comes from the first change set by id, the same arbitrary choice this spec fixes for the head. The brief's displayed range (`review_brief.go:316`) and the design-delta range (`design_delta.go:184,269`) now pair the newest head with an arbitrary base. That range can leave out commits of members whose base is older.\n\n## Criteria\nAll criteria pass; the evidence and rationale for each are in the draft below.\n\n## Tools\n- **Passed:** `artifact-check` (run here) and both `validate` entries (from the sealed runs).\n- **`assess-design`:** cited from its sealed structure evidence. My own run was denied by the session's permission profile.\n- **Not used:** the other recommended tools, because the profile doesn't allow them.\n- **Deferred:** `review-check` and `closeout-check`, which can only run after the attestation.\n\n```pose-draft\n{\n  \"schema\": \"pose.review.draft/v1\",\n  \"decision\": \"approved\",\n  \"findings\": [\n    {\"id\": \"N1\", \"severity\": \"low\", \"disposition\": \"follow-up\", \"file\": \"pose-mcp/internal/pose/review_bundle.go\", \"line\": 786, \"summary\": \"Subject.Base is still taken from the first change set by id, the same arbitrary selection this spec fixes for the head; the brief range (review_brief.go:316) and the design-delta range (design_delta.go:184,269) now pair the newest head with an arbitrary base, which may exclude commits of members with older bases.\", \"action\": \"Select the base consistently with the head (e.g. the oldest base / merge-base of the sets) or document Base as advisory only, with a test over several change sets.\", \"owner\": \"@pose-maintainers\", \"review_by\": \"2027-02-08\"}\n  ],\n  \"prior_findings\": [\n    {\"id\": \"R1-F1\", \"status\": \"not-fixed\", \"evidence\": \"git diff --stat f966dfeb..c94d2da7 touches only .pose/ records; pose-mcp/internal/pose/review_bundle.go:4482 still passes unvalidated ResolvedHead values to rev-list without '--' (siblings at :1003, :1012, :969 terminate with '--').\"},\n    {\"id\": \"R1-F2\", \"status\": \"not-fixed\", \"evidence\": \"pose-mcp/internal/pose/review_bundle.go:783-794 unchanged since round 1: with divergent heads one maximal tip is chosen and no warning or blocker is appended.\"},\n    {\"id\": \"R1-F3\", \"status\": \"not-fixed\", \"evidence\": \"pose-mcp/internal/pose/review_subject_head_newest_test.go only calls newestResolvedHead; no caller of reviewBundleSubject in tests (review_bundle_test.go:1123,1180, review_path_attribution_test.go:59, review_release_archive_test.go) builds several change sets with distinct heads; spec Known gaps confirms.\"},\n    {\"id\": \"R1-F4\", \"status\": \"not-fixed\", \"evidence\": \"pose-mcp/internal/pose/review_bundle.go:4483-4485 returns \\\"\\\" on git error with no warning; caller at :791-794 silently keeps the last-by-id head; code unchanged since f966dfeb.\"}\n  ],\n  \"sweep\": \"Diffed 6dbeddf2..c94d2da7 and f966dfeb..c94d2da7 (no code change since round 1); read reviewBundleSubject (review_bundle.go:704-850), newestResolvedHead (:4463-4490), reduceReviewBundleChangeSets (:1019), payload digest canonicalisation (:1957-1979); traced every non-test use of Subject.Head/Subject.Base (review_dispatch.go, review_run_provenance.go, review_run_continuity.go, delegation_handoff.go, review_rounds.go, federated_acceptance.go, design_delta.go, review_brief.go); checked ResolvedHead provenance (delivery_integrity.go:51) and captureGovernanceGit / governanceFullObjectID; read the new test, validation-matrix entry, changelog, start record and spec; ran pose artifact-check --strict (exit 0; 941 repo-wide orphan warnings only); checked ancestry of the change-set head artifact-check reported (2f525e14 descends from c94d2da7).\",\n  \"criteria\": [\n    {\"id\": \"assumption-integrity\", \"disposition\": \"passed\", \"evidence\": \"integration:pose-mcp/go/review-subject-head-integration\", \"rationale\": \"Verified: the topological first commit is always one of the input heads that no other input head descends from; sealed bundles are never recomputed (all Head consumers compare the stored value); the bundle digest excludes Head. Unresolved/accepted: divergent heads (R1-F2), silent fallback (R1-F4), no multi-set wiring test (R1-F3), governed files changed after the head (spec non-goal with recorded follow-up).\"},\n    {\"id\": \"backend-concurrency\", \"disposition\": \"passed\", \"evidence\": \"unit:pose-mcp/go/test\", \"rationale\": \"The change adds one read-only, bounded git call through captureGovernanceGit inside bundle preparation; no shared state, goroutines or lifecycle changed.\"},\n    {\"id\": \"backend-contracts\", \"disposition\": \"passed\", \"evidence\": \"integration:pose-mcp/go/review-bundle-convergence\", \"rationale\": \"Bundle schema unchanged; Subject.Head is cleared from the payload digest (review_bundle.go:1965), so bundle identity is unaffected; only new multi-set bundles carry a different advisory head.\"},\n    {\"id\": \"backend-input-errors\", \"disposition\": \"passed\", \"evidence\": \"integration:pose-mcp/go/review-subject-head-integration\", \"rationale\": \"Unknown head and single head return empty and fall back (test lines 29-34); output is accepted only if it is a full 40-hex object id. Missing '--'/pre-validation tracked as R1-F1 (low).\"},\n    {\"id\": \"backend-integration-impact\", \"disposition\": \"passed\", \"evidence\": \"integration:pose-mcp/go/milestone-review-proportional-integration\", \"rationale\": \"Milestone/roadmap bundle and dispatch suites pass on the sealed run; the dispatch consumes Subject.Head as the sealed commit (review_dispatch.go:543), which now contains every member's commits for linear histories.\"},\n    {\"id\": \"backend-observability\", \"disposition\": \"passed\", \"evidence\": \"unit:pose-mcp/go/test\", \"rationale\": \"The chosen head is recorded in the bundle and printed in the brief range; the silent fallback lacks a reason (R1-F4, low, carried).\"},\n    {\"id\": \"compatibility\", \"disposition\": \"passed\", \"evidence\": \"integration:pose-mcp/go/review-bundle-convergence\", \"rationale\": \"Examined the bundle digest canonicalisation and every Head consumer; no CLI/MCP/file format change, sealed bundles keep their recorded head, spec scopes (single change set) are unchanged.\"},\n    {\"id\": \"correctness\", \"disposition\": \"passed\", \"evidence\": \"integration:pose-mcp/go/review-subject-head-integration\", \"rationale\": \"Test covers three orderings, duplicate heads and an unknown head; read the code and found the selection sound for linear and divergent histories.\"},\n    {\"id\": \"design-causality\", \"disposition\": \"passed\", \"evidence\": \"structure:design-f2cfbe5276c3bb83\", \"rationale\": \"Cause: subject.Head assigned per loop iteration over id-sorted sets (review_bundle.go:791) made the sealed commit arbitrary; D1 replaces it with the topological maximum, which does not depend on timestamps (same-second commits tie on date), so the sealed worktree (review_dispatch.go:543) contains every member's commits.\"},\n    {\"id\": \"documentation\", \"disposition\": \"passed\", \"evidence\": \"integration:pose-mcp/go/review-subject-head-integration\", \"rationale\": \"Changelog entry (fixed, non-breaking) and spec Known gaps/Residual risks match the runtime behaviour I read; no operator docs describe the head choice.\"},\n    {\"id\": \"operability\", \"disposition\": \"passed\", \"evidence\": \"unit:pose-mcp/go/test\", \"rationale\": \"Removes the 'sealed checkout inputs differ'/'no sealed review bundle' failures caused by an old sealed commit; residual silent fallback is R1-F4 (low).\"},\n    {\"id\": \"requirements\", \"disposition\": \"passed\", \"evidence\": \"integration:pose-mcp/go/review-subject-head-integration\", \"rationale\": \"R1 tested directly; R2 wiring verified by reading review_bundle.go:783-794, test gap tracked as R1-F3 (low).\"},\n    {\"id\": \"scope\", \"disposition\": \"passed\", \"evidence\": \"integration:pose-mcp/go/review-subject-head-integration\", \"rationale\": \"Compared the diff with the spec artifacts list: only review_bundle.go, the new test, the matrix entry, start and changelog changed, matching the declared artifacts; Base selection left untouched (N1).\"},\n    {\"id\": \"security\", \"disposition\": \"passed\", \"evidence\": \"unit:pose-mcp/go/test\", \"rationale\": \"Examined the new git invocation: arguments come from the governed delivery-integrity index, run via gitCommand with no shell; rev-list has no write-capable options and the output is validated as a full object id. Hardening (pre-validation and '--') tracked as R1-F1 (low).\"},\n    {\"id\": \"solution-proportionality\", \"disposition\": \"passed\", \"evidence\": \"structure:design-f2cfbe5276c3bb83\", \"rationale\": \"Compared with sorting by commit date (rejected in D1 because same-second commits tie); one helper and a single git call, skipped for single-head scopes; no speculative extension. The choice would be invalidated if the sets' heads routinely diverge (merge workflows), see R1-F2.\"}\n  ],\n  \"tools\": [\n    {\"id\": \"artifact-check\", \"disposition\": \"passed\", \"evidence\": \"command:pose artifact-check --spec pose-review-subject-head-is-the-newest --strict\", \"rationale\": \"Exit 0; change_set cs-9d0a5e7baf55, claims=6, observed=22, findings=941, all '[!] warning orphan' repo-wide provenance warnings, none for this scope's paths.\"},\n    {\"id\": \"assess-design\", \"disposition\": \"passed\", \"evidence\": \"structure:design-f2cfbe5276c3bb83\", \"rationale\": \"Sealed design assessment passed; a local rerun was denied by the reviewer profile.\"},\n    {\"id\": \"assess-discover\", \"component\": \"pose-mcp\", \"disposition\": \"not-used\", \"evidence\": \"command:none\", \"rationale\": \"Recommended only; not permitted by the reviewer profile.\"},\n    {\"id\": \"assess-integrate\", \"disposition\": \"not-used\", \"evidence\": \"command:none\", \"rationale\": \"Recommended only; not permitted by the reviewer profile; integration evidence relied on from the sealed run.\"},\n    {\"id\": \"assess-tech-debt\", \"disposition\": \"not-used\", \"evidence\": \"command:none\", \"rationale\": \"Recommended only; not permitted by the reviewer profile.\"},\n    {\"id\": \"closeout-check\", \"disposition\": \"deferred\", \"evidence\": \"command:none\", \"rationale\": \"Its precondition is the completion of this review; it cannot pass before the attestation.\"},\n    {\"id\": \"review-check\", \"disposition\": \"deferred\", \"evidence\": \"command:none\", \"rationale\": \"Its precondition is the completion of this review; it cannot pass before the attestation.\"},\n    {\"id\": \"suggest-review\", \"component\": \"pose-mcp\", \"disposition\": \"not-used\", \"evidence\": \"command:none\", \"rationale\": \"Recommended only; not permitted by the reviewer profile.\"},\n    {\"id\": \"validate\", \"disposition\": \"passed\", \"evidence\": \"build:pose-mcp/go/build\", \"rationale\": \"Sealed strict validation run passed (build, unit, integration, e2e checks all pass).\"},\n    {\"id\": \"validate\", \"component\": \"pose-mcp\", \"disposition\": \"passed\", \"evidence\": \"unit:pose-mcp/go/test\", \"rationale\": \"Sealed strict validation of pose-mcp passed, including review-subject-head-integration.\"}\n  ]\n}\n```",
+  "policy_digest": "sha256:f8cb9e16758e19e66e0e01f29d1d347b0c15cd1cfa191e32926de54742e3cb72",
+  "purpose": "review",
+  "env_removed": [
+    "CLAUDE_CODE_BRIDGE_SESSION_ID",
+    "CLAUDE_CODE_CHILD_SESSION",
+    "CLAUDE_CODE_ENTRYPOINT",
+    "CLAUDE_CODE_EXECPATH",
+    "CLAUDE_CODE_MESSAGING_SOCKET",
+    "CLAUDE_CODE_MESSAGING_TOKEN",
+    "CLAUDE_CODE_SESSION_ATTENDED",
+    "CLAUDE_CODE_SESSION_ID",
+    "CLAUDE_EFFORT",
+    "CLAUDE_PID"
+  ],
+  "events": "claude-stream-json",
+  "events_digest": "sha256:0bd264c404fa0ae0e6149320b1ca31d77aeefc87b37ed2b0c2bfeef8eee2693b",
+  "routing": {
+    "requested": "claude-opus-5-5",
+    "implementation": {
+      "principal": "agent:anthropic/claude-sonnet-5-5",
+      "vendor": "anthropic",
+      "model": "claude-sonnet-5-5",
+      "execution_digest": "sha256:675189f7e0b769255994f8213acf8b1b57174c4353838cd875cdabd46aa9cc0b",
+      "source": "declared"
+    },
+    "implementation_from": "bundle",
+    "step": "explicit"
+  },
+  "independence_achieved": "different-model",
+  "round": 2,
+  "thread": {
+    "round": 2,
+    "mode": "new",
+    "from": "rrn-04122e8ff7d29b8b",
+    "reason": "the previous round's session cannot be resumed: lstat /var/tmp/closeout/pose-dist/.pose/review-private: no such file or directory"
+  }
+}

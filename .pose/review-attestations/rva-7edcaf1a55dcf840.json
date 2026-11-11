@@ -1,0 +1,211 @@
+{
+  "run": {
+    "run_id": "rrn-7d4c1286d5837a75",
+    "proof_id": "rrp-3e9758ab323ebae24b8ef628084ad3ebbfba38bdf7237abf8783fdcc0db5dba9"
+  },
+  "schema_version": 1,
+  "attestation_id": "rva-7edcaf1a55dcf840",
+  "bundle_id": "rvb-ee017119c56e4f56",
+  "bundle_digest": "sha256:ee017119c56e4f563c44806ed8f4c183596c109a4cb467496021c88d60cd7d02",
+  "reviewer": "agent:anthropic/claude-opus-5-5",
+  "decision": "approved",
+  "criteria": [
+    {
+      "id": "assumption-integrity",
+      "disposition": "passed",
+      "evidence": "integration:pose-mcp/go/review-subject-head-integration",
+      "rationale": "Verified: the topological first commit is always one of the input heads that no other input head descends from; sealed bundles are never recomputed (all Head consumers compare the stored value); the bundle digest excludes Head. Unresolved/accepted: divergent heads (R1-F2), silent fallback (R1-F4), no multi-set wiring test (R1-F3), governed files changed after the head (spec non-goal with recorded follow-up)."
+    },
+    {
+      "id": "backend-concurrency",
+      "disposition": "passed",
+      "evidence": "unit:pose-mcp/go/test",
+      "rationale": "The change adds one read-only, bounded git call through captureGovernanceGit inside bundle preparation; no shared state, goroutines or lifecycle changed."
+    },
+    {
+      "id": "backend-contracts",
+      "disposition": "passed",
+      "evidence": "integration:pose-mcp/go/review-bundle-convergence",
+      "rationale": "Bundle schema unchanged; Subject.Head is cleared from the payload digest (review_bundle.go:1965), so bundle identity is unaffected; only new multi-set bundles carry a different advisory head."
+    },
+    {
+      "id": "backend-input-errors",
+      "disposition": "passed",
+      "evidence": "integration:pose-mcp/go/review-subject-head-integration",
+      "rationale": "Unknown head and single head return empty and fall back (test lines 29-34); output is accepted only if it is a full 40-hex object id. Missing '--'/pre-validation tracked as R1-F1 (low)."
+    },
+    {
+      "id": "backend-integration-impact",
+      "disposition": "passed",
+      "evidence": "integration:pose-mcp/go/milestone-review-proportional-integration",
+      "rationale": "Milestone/roadmap bundle and dispatch suites pass on the sealed run; the dispatch consumes Subject.Head as the sealed commit (review_dispatch.go:543), which now contains every member's commits for linear histories."
+    },
+    {
+      "id": "backend-observability",
+      "disposition": "passed",
+      "evidence": "unit:pose-mcp/go/test",
+      "rationale": "The chosen head is recorded in the bundle and printed in the brief range; the silent fallback lacks a reason (R1-F4, low, carried)."
+    },
+    {
+      "id": "compatibility",
+      "disposition": "passed",
+      "evidence": "integration:pose-mcp/go/review-bundle-convergence",
+      "rationale": "Examined the bundle digest canonicalisation and every Head consumer; no CLI/MCP/file format change, sealed bundles keep their recorded head, spec scopes (single change set) are unchanged."
+    },
+    {
+      "id": "correctness",
+      "disposition": "passed",
+      "evidence": "integration:pose-mcp/go/review-subject-head-integration",
+      "rationale": "Test covers three orderings, duplicate heads and an unknown head; read the code and found the selection sound for linear and divergent histories."
+    },
+    {
+      "id": "design-causality",
+      "disposition": "passed",
+      "evidence": "structure:design-f2cfbe5276c3bb83",
+      "rationale": "Cause: subject.Head assigned per loop iteration over id-sorted sets (review_bundle.go:791) made the sealed commit arbitrary; D1 replaces it with the topological maximum, which does not depend on timestamps (same-second commits tie on date), so the sealed worktree (review_dispatch.go:543) contains every member's commits."
+    },
+    {
+      "id": "documentation",
+      "disposition": "passed",
+      "evidence": "integration:pose-mcp/go/review-subject-head-integration",
+      "rationale": "Changelog entry (fixed, non-breaking) and spec Known gaps/Residual risks match the runtime behaviour I read; no operator docs describe the head choice."
+    },
+    {
+      "id": "operability",
+      "disposition": "passed",
+      "evidence": "unit:pose-mcp/go/test",
+      "rationale": "Removes the 'sealed checkout inputs differ'/'no sealed review bundle' failures caused by an old sealed commit; residual silent fallback is R1-F4 (low)."
+    },
+    {
+      "id": "requirements",
+      "disposition": "passed",
+      "evidence": "integration:pose-mcp/go/review-subject-head-integration",
+      "rationale": "R1 tested directly; R2 wiring verified by reading review_bundle.go:783-794, test gap tracked as R1-F3 (low)."
+    },
+    {
+      "id": "scope",
+      "disposition": "passed",
+      "evidence": "integration:pose-mcp/go/review-subject-head-integration",
+      "rationale": "Compared the diff with the spec artifacts list: only review_bundle.go, the new test, the matrix entry, start and changelog changed, matching the declared artifacts; Base selection left untouched (N1)."
+    },
+    {
+      "id": "security",
+      "disposition": "passed",
+      "evidence": "unit:pose-mcp/go/test",
+      "rationale": "Examined the new git invocation: arguments come from the governed delivery-integrity index, run via gitCommand with no shell; rev-list has no write-capable options and the output is validated as a full object id. Hardening (pre-validation and '--') tracked as R1-F1 (low)."
+    },
+    {
+      "id": "solution-proportionality",
+      "disposition": "passed",
+      "evidence": "structure:design-f2cfbe5276c3bb83",
+      "rationale": "Compared with sorting by commit date (rejected in D1 because same-second commits tie); one helper and a single git call, skipped for single-head scopes; no speculative extension. The choice would be invalidated if the sets' heads routinely diverge (merge workflows), see R1-F2."
+    }
+  ],
+  "tools": [
+    {
+      "id": "artifact-check",
+      "disposition": "passed",
+      "evidence": "command:pose artifact-check --spec pose-review-subject-head-is-the-newest --strict",
+      "rationale": "Exit 0; change_set cs-9d0a5e7baf55, claims=6, observed=22, findings=941, all '[!] warning orphan' repo-wide provenance warnings, none for this scope's paths."
+    },
+    {
+      "id": "assess-design",
+      "disposition": "passed",
+      "evidence": "structure:design-f2cfbe5276c3bb83",
+      "rationale": "Sealed design assessment passed; a local rerun was denied by the reviewer profile."
+    },
+    {
+      "id": "assess-discover",
+      "component": "pose-mcp",
+      "disposition": "not-used",
+      "evidence": "command:none",
+      "rationale": "Recommended only; not permitted by the reviewer profile."
+    },
+    {
+      "id": "assess-integrate",
+      "disposition": "not-used",
+      "evidence": "command:none",
+      "rationale": "Recommended only; not permitted by the reviewer profile; integration evidence relied on from the sealed run."
+    },
+    {
+      "id": "assess-tech-debt",
+      "disposition": "not-used",
+      "evidence": "command:none",
+      "rationale": "Recommended only; not permitted by the reviewer profile."
+    },
+    {
+      "id": "closeout-check",
+      "disposition": "deferred",
+      "evidence": "command:none",
+      "rationale": "Its precondition is the completion of this review; it cannot pass before the attestation."
+    },
+    {
+      "id": "review-check",
+      "disposition": "deferred",
+      "evidence": "command:none",
+      "rationale": "Its precondition is the completion of this review; it cannot pass before the attestation."
+    },
+    {
+      "id": "suggest-review",
+      "component": "pose-mcp",
+      "disposition": "not-used",
+      "evidence": "command:none",
+      "rationale": "Recommended only; not permitted by the reviewer profile."
+    },
+    {
+      "id": "validate",
+      "disposition": "passed",
+      "evidence": "build:pose-mcp/go/build",
+      "rationale": "Sealed strict validation run passed (build, unit, integration, e2e checks all pass)."
+    },
+    {
+      "id": "validate",
+      "component": "pose-mcp",
+      "disposition": "passed",
+      "evidence": "unit:pose-mcp/go/test",
+      "rationale": "Sealed strict validation of pose-mcp passed, including review-subject-head-integration."
+    }
+  ],
+  "evidence_refs": [
+    "delegated-run:rrn-7d4c1286d5837a75",
+    "integration:pose-mcp/go/milestone-review-proportional-integration",
+    "integration:pose-mcp/go/review-bundle-convergence",
+    "integration:pose-mcp/go/review-subject-head-integration",
+    "structure:design-f2cfbe5276c3bb83",
+    "unit:pose-mcp/go/test"
+  ],
+  "findings": [
+    {
+      "id": "N1",
+      "severity": "low",
+      "evidence": "file:pose-mcp/internal/pose/review_bundle.go:786",
+      "action": "Select the base consistently with the head (e.g. the oldest base / merge-base of the sets) or document Base as advisory only, with a test over several change sets.",
+      "disposition": "accepted-risk",
+      "owner": "@pose-maintainers",
+      "rationale": "Subject.Base is still taken from the first change set by id, the same arbitrary selection this spec fixes for the head; the brief range (review_brief.go:316) and the design-delta range (design_delta.go:184,269) now pair the newest head with an arbitrary base, which may exclude commits of members with older bases.",
+      "review_by": "2027-02-08"
+    }
+  ],
+  "authority": {
+    "schema_version": 1,
+    "project": "proj.pose-dist",
+    "bundle_digest": "sha256:ee017119c56e4f563c44806ed8f4c183596c109a4cb467496021c88d60cd7d02",
+    "principal": "agent:anthropic/claude-opus-5-5",
+    "role": "agent",
+    "review_execution": "rrn-7d4c1286d5837a75",
+    "implementation_principal": "agent:anthropic/claude-sonnet-5-5",
+    "implementation_execution": "sha256:675189f7e0b769255994f8213acf8b1b57174c4353838cd875cdabd46aa9cc0b",
+    "issuer": "b34-local-executor",
+    "issued_at": "2026-11-11T06:21:01Z",
+    "audience": "proj.pose-dist"
+  },
+  "envelope": {
+    "issuer": "b34-local-executor",
+    "subject": "rvb-ee017119c56e4f56",
+    "algorithm": "ed25519",
+    "public_key": "ck4sApdfePV2GT+hJyAYfJd2qLzeG55P8pevGR0bvZE=",
+    "signature": "t5hRHlrP3Poa6pABA1WwgfHeXy7qY2Jr08LD91mHFCCCTDo7yL4dkvHBmHYUsKpb6Wm/zWDXaDN6w6Pp+Hz5Ag=="
+  },
+  "attested_at": "2026-11-11T06:21:01Z",
+  "path": ".pose/review-attestations/rva-7edcaf1a55dcf840.json"
+}
