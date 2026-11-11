@@ -1,0 +1,143 @@
+{
+  "safety": {
+    "schema_version": 1,
+    "profile": "legacy-trusted",
+    "platform": "linux/amd64",
+    "capabilities": {
+      "automatic-expiry": "unavailable",
+      "bounded-capture": "available",
+      "cpu-limit": "unavailable",
+      "credential-filesystem-isolation": "unavailable",
+      "environment-allowlist": "available",
+      "escaped-descendant-termination": "unavailable",
+      "filesystem-isolation": "unavailable",
+      "memory-limit": "unavailable",
+      "network-isolation": "unavailable",
+      "origin-isolation": "unavailable",
+      "parent-termination": "available",
+      "process-group-termination": "available",
+      "shared-git-isolation": "unavailable"
+    },
+    "limitations": [
+      "trusted local executable required; worktree is not a sandbox",
+      "outside writes, transient writes, shared Git and credential files are not isolated",
+      "no memory/CPU quota or control of descendants escaping the process group",
+      "cleanup filesystem calls remain subject to operating-system I/O latency",
+      "legacy compatibility: HOME retained; other ambient credentials excluded"
+    ],
+    "stream_bytes": 8388608,
+    "output_bytes": 65536,
+    "retained_bytes": 16777216,
+    "timeout_ms": 3600000,
+    "max_runs_per_bundle": 3,
+    "retention": "retain-evidence; ttl=0; no automatic deletion",
+    "capture_complete": true,
+    "runtime_id": "pose-review-run-239315660",
+    "operation": {
+      "schema_version": 1,
+      "operation": "review.dispatch.cleanup",
+      "scope": "spec:pose-commit-gate-refuses-index-without-descriptor",
+      "outcome": "completed",
+      "steps_run": [
+        {
+          "id": "cleanup",
+          "result": "done"
+        }
+      ],
+      "effects": [],
+      "resumable": false
+    }
+  },
+  "provenance": {
+    "execution_state": "started",
+    "planned_wire_digest": "sha256:ddc8d7051185eade3f5c875fcf57b9bc5f820e99c6328a487bd721e2e75a6e17",
+    "wire_bytes": 29784,
+    "wire_complete": true,
+    "schema_version": 1,
+    "project": "proj.pose-dist",
+    "audience": "proj.pose-dist",
+    "worktree_digest": "sha256:9c161dc895f6496d9f800581bef8673cc9123cda65951fa2d23b0cbdbc2bac41",
+    "trust": "executor-attested",
+    "implementation": {
+      "principal": "agent:anthropic/claude-sonnet-5-5",
+      "execution": "sha256:675189f7e0b769255994f8213acf8b1b57174c4353838cd875cdabd46aa9cc0b",
+      "vendor": "anthropic",
+      "model": "claude-sonnet-5-5"
+    },
+    "reviewer": {
+      "principal": "agent:anthropic/claude-opus-5-5",
+      "vendor": "anthropic",
+      "model": "claude-opus-5-5"
+    },
+    "config_digest": "sha256:fa7add8c85f5c0c1dd74b1dba89cd12989a2a856fc7a59407bc04682bd575e25",
+    "command_template_digest": "sha256:4fb04e170e8d7f85923d1ab7c7d6eac045a3bb8d20b443991552d6b7bfa7c4f2",
+    "argv_digest": "sha256:6f7a9cc5aa680b285a37674b2fc17403c1b6f541da236f7fd09bb7d444f08935",
+    "executable_digest": "sha256:bfb3703ad5380242328459bc62ada4bde8ae7ba57c6e1eeadb9c00e08874c478",
+    "template_version": "review-brief/7",
+    "wire_digest": "sha256:ddc8d7051185eade3f5c875fcf57b9bc5f820e99c6328a487bd721e2e75a6e17",
+    "notes_digest": "sha256:75d5c21136431a0b030ee05b06b1d776bb5f39f16030dc4031c1be0084ee35a8",
+    "raw_transcript_digest": "sha256:f96090181a3e59be3e0a8753ddf246305bf7a6d7b4b1ba7b8cd26dbaaef70c27",
+    "raw_output_digest": "sha256:aeb6dc2e9f224009968c7bdcd5e7893460052a13bd0564658b100a8bda26b53e",
+    "output_source": "stream-final",
+    "output_complete": true
+  },
+  "session_digest": "sha256:610c98aa1dac7522b4a822646e5b7959095b51e1bf5f1d528a8deeb3935f7af8",
+  "tree_digest": "sha256:bc97033b65d9cf6feeb7de96241b583930c3de260be151c23bc09468b4b8e832",
+  "brief_notes": "Review of spec pose-commit-gate-refuses-index-without-descriptor, implemented by Claude. Context: the harne8 instance carried 113 gate warnings for weeks after a commit regenerated two indexes (`spec-graph.json`, `roadmaps.json`) without their `generation.json` descriptor; nothing in the gate said so, each review closeout only said \"input closure is unknown\". Change: `checkIndexGeneration` in `pose-mcp/internal/cli/check.go`, called by `pose check` after the validation-matrix check, reads `ReadIndexGeneration()` and reports, through `failOrWarn` (error in strict mode, warning in tolerant mode, which is what a commit hook runs), \"index set unavailable: \u003creason\u003e; run `pose index`\" when the published generation is unavailable and \"index files differ from generation \u003cid\u003e: \u003cfiles\u003e; run `pose index`\" when files diverge from a whole generation, in English and Portuguese. Design decision D1: only the structural read of the set (the same as `pose index --verify` before it recomputes inputs): a stale index relative to the sources, the normal state between commits, is not reported; the gate does not recompute inputs (about 20 s on harne8). A repository with no generation (legacy or never indexed) and a whole or repaired set pass. Evidence: `TestCheckRefusesAnIndexSetThatItsDescriptorDoesNotDescribe` (whole set, no generation, the state the harne8 commit left — generation directory gone and a legacy copy differing from the descriptor — strict finding naming `pose index`, tolerant mention, repaired by `pose index`); it fails without the change (verified). By hand: the corrected engine's `pose check` in harne8 no longer needs the descriptor to be whole to say what is wrong. Please check that no false positive is possible on a clean checkout of a repository whose generation directory is not committed (`.pose/indexes/generations/` is gitignored in instances: `ReadIndexGeneration` falls back to the committed copies, which must match the descriptor), that the message and the strict/tolerant split are right, and that the manual mentions it where `check` is described (a stated expectation: the manuals were not changed; tell me if they must be). Your profile only allows the plan tools and `git status|ls-files`: rely on the sealed evidence and read the code; do not report the missing shell as a finding. A tool entry in your draft carries only `id`, `component`, `disposition`, `evidence`, `rationale`; `validate` of a component with a registered check is `passed` with `evidence` of the sealed run (for example `unit:pose-mcp/go/test`); `review-check` and `closeout-check` are `deferred`. If your draft carries earlier findings, name them in `prior_findings` with the round prefix (`R1-F1` …); new findings in `findings` have bare ids (F1, F2 …). Follow-ups carry `action`, `owner` and `review_by`; only low-severity risks are accepted by the policy.\n\nRound 2: this checkout holds the round-1 record: carry your earlier findings in `prior_findings` with the round prefix (`R1-F1` … `R1-F6`). Fixed: F1 (the spec declares itself modified; `pose artifact-check --spec … --strict` has no action-mismatch for it), F2 (the test now exercises the divergence branch: a hand-edited `services.json` while the generation is whole, strict error and tolerant warning, repaired by `pose index`; the unavailable branch as before), F3 (`findIsAWarning`: the tolerant line must be a \"[!] warning\" line), F4 (a reason that already contains \"pose index\" is not followed by a second remedy; the reason stays English under pt-BR, a recorded limit), F6 (POSE.md, its pt-BR and scaffold copies, and `docs-site/docs/cli.md` say that `pose check` verifies the index set). F5 (a strict check during an index publication) is a recorded low follow-up.\n",
+  "ledger_version": 1,
+  "attempt_id": "rat-71f9291216c3cea8954533e288c5a1ecd377240955f51ab0271a8c94dc2333fd",
+  "schema_version": 1,
+  "run_id": "rrn-ee17181cea98be12",
+  "scope": "spec:pose-commit-gate-refuses-index-without-descriptor",
+  "bundle_id": "rvb-fa143df8ae2e3990",
+  "bundle_digest": "sha256:fa143df8ae2e39903d3843a222525ba262ea7666a3ae5ba032cc0780d7f6aeec",
+  "sealed_commit": "3e88066027c3ef8f9baf838cf3c2c4baf9c43c81",
+  "kind": "review",
+  "brief_digest": "sha256:d1f873e5ed57f829c77284388aa793b95e069731780c4f094ca4c90e1d422c6a",
+  "adapter": "claude-opus-5-5",
+  "vendor": "anthropic",
+  "model": "claude-opus-5-5",
+  "started_at": "2026-11-11T00:20:10.056387419Z",
+  "ended_at": "2026-11-11T00:25:03.857075415Z",
+  "exit_code": 0,
+  "status": "completed",
+  "transcript_digest": "sha256:8af5ef6d36e8bc6bd95d3be3e8682049d4a33a25a9531fb67f91c9cf619d4122",
+  "transcript_path": ".pose/review-runs/rrn-ee17181cea98be12.transcript",
+  "output": "decision: approved\n\n# Round 2 review: spec `pose-commit-gate-refuses-index-without-descriptor`\n\n**Decision: approved.** The fixes from round 1 are correct and I found no medium or high defect. I found one new low-severity gap: the built-in `pose check --help` text doesn't mention the new check. I've proposed it as an accepted low follow-up.\n\nMy profile let me read code, run `pose artifact-check` and run `git ls-files`. The other plan tools (`assess integrate/design/discover/tech-debt`, `suggest review`, `validate`) were denied. For those I rely on the sealed evidence, which the brief allows.\n\n## Previous findings\n- **R1-F1, fixed.** The spec now declares itself `modified` (spec line 50). I ran `pose artifact-check --spec … --strict`: it reports no action-mismatch and no finding for this spec's files. Its only warnings are repo-wide orphan-path warnings.\n- **R1-F2, fixed.** The test now edits `services.json` while the generation is whole (test lines 34–48). That runs the divergence branch at `check.go:495-496`, with a strict non-zero exit and a tolerant warning.\n- **R1-F3, fixed.** `findingIsAWarning` (test lines 82–88) requires the finding's line to start with `[!]`. Errors render as `[err]` (`cliout/state.go:117-121`), so an error can't pass as a warning.\n- **R1-F4, partial.** The repeated remedy is fixed: the `strings.Contains(view.Reason, \"pose index\")` guard at `check.go:490-493` stops the second \"run `pose index`\". The reason text is still English under pt-BR, which spec line 102 records as a known gap.\n- **R1-F5, not fixed.** It's recorded as a low follow-up (spec line 123). The cause is still there: `index_generation.go:152-156`.\n- **R1-F6, fixed.** `docs-site/docs/cli.md:59` and `POSE.md:343` (plus the pt-BR and scaffold copies at lines 343/347) now describe the check. The short summary at `POSE.md:215-216` is still abbreviated, but it omits other checks too.\n\n## Implementer's questions\n- **False positive on a clean checkout?** No. Only the legacy index files and `generation.json` are tracked (`git ls-files .pose/indexes`); `generations/` is not. When the generation copy is missing, `readGenerationFile` falls back to the legacy file (`index_generation.go:337-347`). If that file matches the descriptor, the set is current with no divergence (`index_generation.go:385-394`). A repo with no descriptor reads as legacy and isn't reported (`index_generation.go:366`).\n  - `validation-matrix.json`, which is edited by hand, is not one of the generation's files (`index_generation.go:63-66`).\n  - No `.gitattributes` exists. An `autocrlf` checkout would change the bytes, but every generation reader already compares bytes, so this check adds no new exposure.\n- **Strict/tolerant split and message:** correct, via `failOrWarn` (`check.go:71-77`). The post-install gate runs `--tolerant` (`maintenance.go:1089`), so an upgrade can't start failing because of this check. MCP runs the same `check` command (`pose/cli.go:92`).\n- **Manuals:** updated (see R1-F6). What's still missing is the in-binary help (N1).\n\n## New finding\n- **N1 (low, follow-up):** `pose-mcp/internal/cli/help_catalog.go:144-148`. The summary and description of `check` don't mention the index-set check, so `pose check --help` no longer matches what the command checks or the manuals.\n\n```pose-draft\n{\n  \"schema\": \"pose.review.draft/v1\",\n  \"decision\": \"approved\",\n  \"findings\": [\n    {\n      \"id\": \"N1\",\n      \"severity\": \"low\",\n      \"disposition\": \"follow-up\",\n      \"file\": \"pose-mcp/internal/cli/help_catalog.go\",\n      \"line\": 144,\n      \"summary\": \"The built-in help for `pose check` (SummaryEN/PtBR and DescriptionEN/PtBR, lines 144-148) does not mention the new index-set check, while POSE.md:343 and docs-site/docs/cli.md:59 do; `pose check --help` no longer matches what the command checks.\",\n      \"action\": \"Add the index-set check (index set whole, naming `pose index`) to the check entry of the help catalog in English and pt-BR.\",\n      \"owner\": \"@pose-maintainers\",\n      \"review_by\": \"2027-02-08\"\n    }\n  ],\n  \"prior_findings\": [\n    {\n      \"id\": \"R1-F1\",\n      \"status\": \"fixed\",\n      \"evidence\": \"Spec line 50 now declares '- modified: .pose/specs/2026-11-10-pose-commit-gate-refuses-index-without-descriptor.md'; `pose artifact-check --spec pose-commit-gate-refuses-index-without-descriptor --strict` reports no action-mismatch or any finding for the spec's files (only repo-wide orphan warnings).\"\n    },\n    {\n      \"id\": \"R1-F2\",\n      \"status\": \"fixed\",\n      \"evidence\": \"pose-mcp/internal/cli/check_index_generation_test.go:34-48 edits services.json while the generation is whole and asserts 'index files differ from generation' + 'services.json' + 'pose index', a non-zero strict exit and a tolerant warning, then repairs it with pose index; this exercises check.go:495-496. Sealed integration:pose-mcp/go/check-index-generation-integration pass.\"\n    },\n    {\n      \"id\": \"R1-F3\",\n      \"status\": \"fixed\",\n      \"evidence\": \"findingIsAWarning (check_index_generation_test.go:82-88) requires the finding's line to start with '[!]'; errors render '[err]' (cliout/state.go:117-121), so an error line fails the assertion. It is used at test lines 46 and 69.\"\n    },\n    {\n      \"id\": \"R1-F4\",\n      \"status\": \"partial\",\n      \"evidence\": \"The repeated remedy is fixed: check.go:490-493 drops the appended remedy when view.Reason already contains 'pose index' (the index_generation.go:364 reason). The reason still stays English under pt-BR, which spec line 102 records as a known gap.\"\n    },\n    {\n      \"id\": \"R1-F5\",\n      \"status\": \"not-fixed\",\n      \"evidence\": \"check.go:495-496 still reports any Diverged entry, including the transient one during a publication (index_generation.go:152-156); this is recorded as a low follow-up at spec line 123 (owner @pose-maintainers, review 2027-02-08).\"\n    },\n    {\n      \"id\": \"R1-F6\",\n      \"status\": \"fixed\",\n      \"evidence\": \"docs-site/docs/cli.md:59 now says '... + the published index set is whole'; POSE.md:343, locales/pt-BR/POSE.md:347 and both scaffold copies (dist/POSE.md:343, dist/locales/pt-BR/POSE.md:347) describe the check, its strict/tolerant split, `pose index` and the stale-is-not-reported limit. The in-binary help is a separate gap (N1).\"\n    }\n  ],\n  \"sweep\": \"Read the whole diff surface: check.go:479-498 (new check) and its call at check.go:147; failOrWarn/issue (check.go:53-77); the new test; ReadIndexGeneration/readGenerationFile/readIndexDescriptor (index_generation.go:63-66, 142-158, 308-398) for false positives on a clean checkout with untracked generations/ (git ls-files .pose/indexes: only legacy files and generation.json tracked) and for whether validation-matrix.json belongs to the generation (it does not); the other callers of the gate (cli.go:222, maintenance.go:1089 post-install runs --tolerant, MCP pose/cli.go:92 runGate); the help catalog entry (help_catalog.go:142-155); the spec, changelog, validation-matrix entry check-index-generation-integration (validation-matrix.json:2600-2610), docs-site/docs/cli.md and the four POSE.md copies; the docs-site matrix module (checks: [], no producer); ran pose artifact-check --strict. Denied by profile: pose assess integrate/design/discover/tech-debt, pose suggest review, pose validate. For those I relied on the sealed evidence.\"\n  ,\n  \"criteria\": [\n    {\"id\": \"assumption-integrity\", \"disposition\": \"passed\", \"evidence\": \"integration:pose-mcp/go/check-index-generation-integration\", \"rationale\": \"Verified: no false positive on a clean checkout. generations/ is untracked, readGenerationFile falls back to the committed legacy copies (index_generation.go:337-347) and a matching legacy copy is not diverged (385-394). A descriptor-less repo reads as legacy and is not reported. Unresolved/accepted: the transient divergence during publication (R1-F5 follow-up), the English reason under pt-BR (spec line 102), and byte-level comparison under CRLF conversion (no .gitattributes; a risk shared by every generation reader, not introduced here).\"},\n    {\"id\": \"backend-concurrency\", \"disposition\": \"passed\", \"evidence\": \"integration:pose-mcp/go/index-generation-integrity-integration\", \"rationale\": \"The check is read-only and calls ReadIndexGeneration, which retries a bounded number of times when the descriptor changes mid-read (index_generation.go:357-397). The remaining transient divergence during publication is the recorded low follow-up R1-F5.\"},\n    {\"id\": \"backend-contracts\", \"disposition\": \"passed\", \"evidence\": \"integration:pose-mcp/go/check-verdict-mode-integration\", \"rationale\": \"No flag, exit-code or JSON shape changes; the finding uses the existing error/warning vocabulary through failOrWarn, so --json severity anchors are unchanged.\"},\n    {\"id\": \"backend-input-errors\", \"disposition\": \"passed\", \"evidence\": \"integration:pose-mcp/go/check-index-generation-integration\", \"rationale\": \"Both branches carry a bounded, actionable message (the reason or the diverged file list, plus the `pose index` remedy) with no duplicate remedy (check.go:489-496).\"},\n    {\"id\": \"backend-integration-impact\", \"disposition\": \"passed\", \"evidence\": \"integration:pose-mcp/go/install-and-upgrade-journeys-integration\", \"rationale\": \"The post-install gate runs check --tolerant (maintenance.go:1089), so install/update only warn; MCP runs the same check command (pose/cli.go:92).\"},\n    {\"id\": \"backend-observability\", \"disposition\": \"passed\", \"evidence\": \"integration:pose-mcp/go/check-index-generation-integration\", \"rationale\": \"The finding names the generation id, the diverged files or the unavailability reason, and the remedy; the reason contains only digests and file names, nothing sensitive.\"},\n    {\"id\": \"compatibility\", \"disposition\": \"passed\", \"evidence\": \"integration:pose-mcp/go/check-verdict-mode-integration\", \"rationale\": \"Examined CLI flags, exit semantics, the MCP gate path and the post-install gate. The only behaviour change is a new strict error for an index set that no reader can use, which the changelog records (category added); a repo with no descriptor and a whole set are unaffected, so I judge it compatible.\"},\n    {\"id\": \"correctness\", \"disposition\": \"passed\", \"evidence\": \"unit:pose-mcp/go/test\", \"rationale\": \"The test covers no generation, whole set, diverged (strict error/tolerant warning), unavailable (strict error/tolerant warning) and repaired states; the code paths match ReadIndexGeneration's statuses.\"},\n    {\"id\": \"cross-component-integration\", \"disposition\": \"passed\", \"evidence\": \"integration:pose-mcp/go/cli-mcp-operation-results-integration\", \"rationale\": \"The CLI gate and the MCP runGate share cmdCheck, so both see the new finding; there is no separate MCP checker.\"},\n    {\"id\": \"design-causality\", \"disposition\": \"passed\", \"evidence\": \"structure:design-5c57d0d3abf4b0eb\", \"rationale\": \"The cause (a commit leaving index files the descriptor does not describe, visible only as 'input closure is unknown' downstream) is addressed at the commit gate, by reusing the same structural read every engine reader uses (ReadIndexGeneration). D1 rejects running pose index --verify (input recompute of about 20 s; staleness is normal between commits), which matches R1/R2.\"},\n    {\"id\": \"documentation\", \"disposition\": \"finding\", \"evidence\": \"N1\", \"rationale\": \"POSE.md (EN, pt-BR, scaffold) and docs-site/docs/cli.md:59 are updated; the in-binary help (help_catalog.go:144-148) is not.\"},\n    {\"id\": \"operability\", \"disposition\": \"passed\", \"evidence\": \"integration:pose-mcp/go/check-index-generation-integration\", \"rationale\": \"Examined both messages: each names what is wrong (files or reason, generation id) and the one remedy, `pose index`, which the test proves repairs the state. The English-only reason under pt-BR is a recorded limit (R1-F4).\"},\n    {\"id\": \"requirements\", \"disposition\": \"passed\", \"evidence\": \"integration:pose-mcp/go/check-index-generation-integration\", \"rationale\": \"R1: both message branches are asserted in strict mode (test lines 38-44, 60-66). R2: no generation, whole and repaired states pass (lines 25-33, 75-77). R3: tolerant warning (lines 45-48, 68-71).\"},\n    {\"id\": \"scope\", \"disposition\": \"passed\", \"evidence\": \"integration:pose-mcp/go/check-index-generation-integration\", \"rationale\": \"Compared the change set with the spec artifacts (lines 50-60): the code change is limited to check.go plus the test, docs and matrix entry; no diff inspection and no input recompute, which matches the non-goals and D1. artifact-check --strict reports no mismatch.\"},\n    {\"id\": \"security\", \"disposition\": \"passed\", \"evidence\": \"integration:pose-mcp/go/check-index-generation-integration\", \"rationale\": \"Read-only; paths are fixed under .pose/indexes, and the generation id is validated against ^gen-[0-9a-f]{16}$ before it is used in a path (index_generation.go:206, 284). No authority or evidence boundary is touched.\"},\n    {\"id\": \"solution-proportionality\", \"disposition\": \"passed\", \"evidence\": \"structure:design-5c57d0d3abf4b0eb\", \"rationale\": \"About 15 lines reusing an existing reader is close to the smallest sufficient change; the alternative (pose index --verify in the gate) is heavier and would flag normal staleness. No speculative extension. The choice would be invalidated if commits routinely left the set legitimately mid-publication (R1-F5) or if indexes were byte-transformed on checkout.\"}\n  ],\n  \"tools\": [\n    {\"id\": \"artifact-check\", \"disposition\": \"passed\", \"evidence\": \"command:pose artifact-check --spec pose-commit-gate-refuses-index-without-descriptor --strict\", \"rationale\": \"No error and no action-mismatch for this spec; only repo-wide orphan warnings.\"},\n    {\"id\": \"assess-design\", \"disposition\": \"passed\", \"evidence\": \"structure:design-5c57d0d3abf4b0eb\", \"rationale\": \"Sealed design assessment passed; the profile denied a rerun.\"},\n    {\"id\": \"assess-discover\", \"component\": \"docs-site\", \"disposition\": \"not-used\", \"evidence\": \"\", \"rationale\": \"Recommended; the review profile denied the command.\"},\n    {\"id\": \"assess-discover\", \"component\": \"pose-mcp\", \"disposition\": \"not-used\", \"evidence\": \"\", \"rationale\": \"Recommended; the review profile denied the command.\"},\n    {\"id\": \"assess-integrate\", \"disposition\": \"passed\", \"evidence\": \"integration:pose-mcp/go/check-index-generation-integration\", \"rationale\": \"Sealed integration evidence passed; the profile denied a rerun.\"},\n    {\"id\": \"assess-tech-debt\", \"disposition\": \"not-used\", \"evidence\": \"\", \"rationale\": \"Recommended; the review profile denied the command.\"},\n    {\"id\": \"closeout-check\", \"disposition\": \"deferred\", \"evidence\": \"\", \"rationale\": \"Its precondition is the recorded completion of this review.\"},\n    {\"id\": \"review-check\", \"disposition\": \"deferred\", \"evidence\": \"\", \"rationale\": \"Its precondition is the recorded completion of this review.\"},\n    {\"id\": \"suggest-review\", \"component\": \"docs-site\", \"disposition\": \"not-used\", \"evidence\": \"\", \"rationale\": \"Recommended; the review profile denied the command.\"},\n    {\"id\": \"suggest-review\", \"component\": \"pose-mcp\", \"disposition\": \"not-used\", \"evidence\": \"\", \"rationale\": \"Recommended; the review profile denied the command.\"},\n    {\"id\": \"validate\", \"disposition\": \"passed\", \"evidence\": \"unit:pose-mcp/go/test\", \"rationale\": \"Sealed strict validation run passed.\"},\n    {\"id\": \"validate\", \"component\": \"docs-site\", \"disposition\": \"not-used\", \"evidence\": \"\", \"rationale\": \"No producer exists: the validation matrix registers no check for docs-site (validation-matrix.json:2855-2859, checks: [], replaceDefaultChecks: true), and the bundle seals no docs-site evidence.\"},\n    {\"id\": \"validate\", \"component\": \"pose-mcp\", \"disposition\": \"passed\", \"evidence\": \"unit:pose-mcp/go/test\", \"rationale\": \"Sealed strict pose-mcp validation run passed (with build:pose-mcp/go/build).\"}\n  ]\n}\n```",
+  "policy_digest": "sha256:f8cb9e16758e19e66e0e01f29d1d347b0c15cd1cfa191e32926de54742e3cb72",
+  "purpose": "review",
+  "env_removed": [
+    "CLAUDE_CODE_BRIDGE_SESSION_ID",
+    "CLAUDE_CODE_CHILD_SESSION",
+    "CLAUDE_CODE_ENTRYPOINT",
+    "CLAUDE_CODE_EXECPATH",
+    "CLAUDE_CODE_MESSAGING_SOCKET",
+    "CLAUDE_CODE_MESSAGING_TOKEN",
+    "CLAUDE_CODE_SESSION_ATTENDED",
+    "CLAUDE_CODE_SESSION_ID",
+    "CLAUDE_EFFORT",
+    "CLAUDE_PID"
+  ],
+  "events": "claude-stream-json",
+  "events_digest": "sha256:1ceca09e345bd9227bf69eb3a3cb2a76cdb606cf05b3ef25e60f410b76e1ac79",
+  "routing": {
+    "requested": "claude-opus-5-5",
+    "implementation": {
+      "principal": "agent:anthropic/claude-sonnet-5-5",
+      "vendor": "anthropic",
+      "model": "claude-sonnet-5-5",
+      "execution_digest": "sha256:675189f7e0b769255994f8213acf8b1b57174c4353838cd875cdabd46aa9cc0b",
+      "source": "declared"
+    },
+    "implementation_from": "bundle",
+    "step": "explicit"
+  },
+  "independence_achieved": "different-model",
+  "round": 2,
+  "thread": {
+    "round": 2,
+    "mode": "new",
+    "from": "rrn-66e9af908722799c",
+    "reason": "the previous round's session cannot be resumed: lstat /var/tmp/closeout/pose-dist/.pose/review-private: no such file or directory"
+  }
+}
