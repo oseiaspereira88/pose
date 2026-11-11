@@ -1,8 +1,8 @@
 ---
 slug: pose-review-subject-head-is-the-newest
-status: in-progress
+status: done
 created_at: 2026-11-11
-completed_at:
+completed_at: 2026-11-11
 supersedes:
 depends_on:
 remediates:
