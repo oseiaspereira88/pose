@@ -47,7 +47,7 @@ delivers: governance:verdict-readers-ask-the-sealed-question
 
 ### Artifacts
 
-- created: .pose/specs/2026-11-10-pose-verdict-readers-ask-the-sealed-question.md
+- modified: .pose/specs/2026-11-10-pose-verdict-readers-ask-the-sealed-question.md
 - created: .pose/starts/pose-verdict-readers-ask-the-sealed-question.json
 - created: .pose/changelogs/unreleased/pose-verdict-readers-ask-the-sealed-question.md
 - modified: pose-mcp/internal/pose/review_run_provenance.go
@@ -103,6 +103,7 @@ Os dois testes novos e os testes existentes de aprovação retida (`TestADelegat
 - R3 [satisfied] test:TestTheProofReaderAndTheCloseoutAgreeOnADoneScopeWithDrift test:TestTheProofReaderKeepsTheLiveQuestionForAnOpenScope
 
 ### Known gaps
+- A prova selada agora recusa um diretório de provas que seja symlink, como a viva (achado F4 da revisão).
 - Os leitores de adjudicação e smoke (`verifiedVerdictProof`) já verificam por `SpecAdjudications`/`SmokeResults`, que têm a própria pergunta; não foram alterados.
 
 ---
@@ -124,4 +125,5 @@ Os leitores da prova de uma run respondem como o fechamento responde para um esc
 
 ### Follow-ups
 
+- [open] Testar com uma prova de TTL lida depois da expiração: o leitor selado aceita e o vivo recusa (R2 hoje tem o código e o manual, sem teste comportamental). (owner:@pose-maintainers crit:low review:2027-02-08)
 - [open] Fazer `verifiedVerdictProof` (adjudicação e smoke) perguntar a mesma pergunta selada para escopos done. (owner:@pose-maintainers crit:low review:2027-02-08)

@@ -590,6 +590,9 @@ func (s Store) VerifyReviewRunProofAsSealed(id, proofID string) (ReviewRunAssura
 	if e != nil {
 		return ReviewRunAssurance{}, e
 	}
+	if _, e = ensureReviewArtifactDirIn(s.fsys(), s.Root, filepath.ToSlash(filepath.Dir(rel)), false); e != nil {
+		return ReviewRunAssurance{}, e
+	}
 	var proof ReviewRunProof
 	if e = readLedgerJSONIn(s.fsys(), filepath.Join(s.Root, rel), &proof); e != nil {
 		return ReviewRunAssurance{}, e
