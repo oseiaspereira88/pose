@@ -1,7 +1,7 @@
 {
   "schema_version": 2,
-  "input_digest": "sha256:d4794ebddfbed1ae8d2af9f605d7f09f77293108487dbfb010222569df6be35e",
-  "provenance_digest": "sha256:87bcbbbf9750db4c6b4466638b1d763edb4452ca767b3f2db14c58e73eda9302",
+  "input_digest": "sha256:facd7efbc12dc1b6d3651cc54b1b7248363ac4b9c516dab6de5f669b654ae233",
+  "provenance_digest": "sha256:3ef15e28dcf5d494ee46b719893412f868b791c9ad0e3db72ce927ffe8825705",
   "implied_edges": [
     "changes"
   ],
@@ -43265,14 +43265,6 @@
       }
     },
     {
-      "id": "change-set:cs-e3cbc5c66db7",
-      "type": "change-set",
-      "attributes": {
-        "diff_digest": "sha256:11c42965f41146707de310081118ff60bc422c67b5fab7bc78a988ed073d97e8",
-        "selector": "trailers:pose-review-subject-head-is-the-newest"
-      }
-    },
-    {
       "id": "change-set:cs-e4245c98bfe2",
       "type": "change-set",
       "attributes": {
@@ -43694,6 +43686,14 @@
       "attributes": {
         "diff_digest": "sha256:ea2ec691773eeb22fe82b146070344457f593f0d0c8ce80fdc69c2372be134ce",
         "selector": "trailers:pose-milestone-review-proportional"
+      }
+    },
+    {
+      "id": "change-set:cs-f8cabdaeb22d",
+      "type": "change-set",
+      "attributes": {
+        "diff_digest": "sha256:9a32945965a4d35a5cc4a118ccf5447bc953ef26355502ef6d5e7b889981a4ac",
+        "selector": "trailers:pose-review-subject-head-is-the-newest"
       }
     },
     {
@@ -48802,6 +48802,13 @@
       }
     },
     {
+      "id": "spec:pose-commit-hook-runs-with-explicit-roots",
+      "type": "spec",
+      "attributes": {
+        "status": "draft"
+      }
+    },
+    {
       "id": "spec:pose-common-domain-and-cli-mcp-handoff",
       "type": "spec",
       "attributes": {
@@ -50686,6 +50693,13 @@
       "type": "spec",
       "attributes": {
         "status": "done"
+      }
+    },
+    {
+      "id": "spec:pose-retroactive-attribution-record",
+      "type": "spec",
+      "attributes": {
+        "status": "draft"
       }
     },
     {
@@ -123498,7 +123512,7 @@
     },
     {
       "from": "spec:pose-review-subject-head-is-the-newest",
-      "to": "change-set:cs-e3cbc5c66db7",
+      "to": "change-set:cs-f8cabdaeb22d",
       "type": "observed-by"
     },
     {
@@ -264665,189 +264679,6 @@
       }
     },
     {
-      "id": "cs-e3cbc5c66db7",
-      "spec": "pose-review-subject-head-is-the-newest",
-      "selector": "trailers:pose-review-subject-head-is-the-newest",
-      "base": "94fc203f0fdadd1774a4861e10bbd7dccd905d6e^",
-      "head": "ef90dedaecebaf59de02903801eae288aaf1a735",
-      "resolved_base": "6dbeddf2c97d3ffd564a124ff08c1094999045d5",
-      "resolved_head": "ef90dedaecebaf59de02903801eae288aaf1a735",
-      "commits": [
-        "94fc203f0fdadd1774a4861e10bbd7dccd905d6e",
-        "827a317da461dd534e78723789aada9334f3882c",
-        "f966dfeb28f44ca5f3e53d65e7cba6fa9016b7fe",
-        "c4dd20037e678c65f133d7008af40e413f0fd973",
-        "b94b42cf446a3c205b49b5f1f41b00a34ed3d852",
-        "f7376eb7c5643d4d35b1499e8bf7a0f65b5d9d29",
-        "5c32e91c006838c02631871a783c0a22d70d0a21",
-        "c94d2da7c23999705c98c17fbe55e31acc619f0d",
-        "6647ca6fd5e3944b9535ec34fe8e98ccfcdeb095",
-        "2f525e1464d62ef3c9e3b02d27d2e2e129f654b4",
-        "bd4ef4c789513055d72591982de2dc2a080118af",
-        "55124be89ce80d2cb4b6368a0743419853fc5c1d",
-        "ef90dedaecebaf59de02903801eae288aaf1a735"
-      ],
-      "paths": [
-        {
-          "action": "created",
-          "path": ".pose/changelogs/unreleased/pose-review-subject-head-is-the-newest.md"
-        },
-        {
-          "action": "created",
-          "path": ".pose/review-attempts/1e073f637ddcf4a33d71572a/000001.json"
-        },
-        {
-          "action": "created",
-          "path": ".pose/review-attempts/1e073f637ddcf4a33d71572a/000001.result.json"
-        },
-        {
-          "action": "created",
-          "path": ".pose/review-attempts/a52381e8c470c5c88d2008d2/000001.json"
-        },
-        {
-          "action": "created",
-          "path": ".pose/review-attempts/a52381e8c470c5c88d2008d2/000001.result.json"
-        },
-        {
-          "action": "created",
-          "path": ".pose/review-attestations/rva-7edcaf1a55dcf840.json"
-        },
-        {
-          "action": "created",
-          "path": ".pose/review-bundles/rvb-946516b1e0984260.json"
-        },
-        {
-          "action": "created",
-          "path": ".pose/review-bundles/rvb-ee017119c56e4f56.json"
-        },
-        {
-          "action": "created",
-          "path": ".pose/review-conclusions/rrn-04122e8ff7d29b8b.json"
-        },
-        {
-          "action": "created",
-          "path": ".pose/review-conclusions/rrn-7d4c1286d5837a75.json"
-        },
-        {
-          "action": "created",
-          "path": ".pose/review-run-ledger/rrn-04122e8ff7d29b8b.json"
-        },
-        {
-          "action": "created",
-          "path": ".pose/review-run-ledger/rrn-7d4c1286d5837a75.json"
-        },
-        {
-          "action": "created",
-          "path": ".pose/review-run-proofs/rrn-04122e8ff7d29b8b/rrp-5baeba15c332329b6e3ab92447cb54cde0852e40c0fc854aca40adc9c1844210.json"
-        },
-        {
-          "action": "created",
-          "path": ".pose/review-run-proofs/rrn-7d4c1286d5837a75/rrp-3e9758ab323ebae24b8ef628084ad3ebbfba38bdf7237abf8783fdcc0db5dba9.json"
-        },
-        {
-          "action": "created",
-          "path": ".pose/review-runs/rrn-04122e8ff7d29b8b.events.ndjson"
-        },
-        {
-          "action": "created",
-          "path": ".pose/review-runs/rrn-04122e8ff7d29b8b.json"
-        },
-        {
-          "action": "created",
-          "path": ".pose/review-runs/rrn-04122e8ff7d29b8b.transcript"
-        },
-        {
-          "action": "created",
-          "path": ".pose/review-runs/rrn-7d4c1286d5837a75.events.ndjson"
-        },
-        {
-          "action": "created",
-          "path": ".pose/review-runs/rrn-7d4c1286d5837a75.json"
-        },
-        {
-          "action": "created",
-          "path": ".pose/review-runs/rrn-7d4c1286d5837a75.transcript"
-        },
-        {
-          "action": "created",
-          "path": ".pose/specs/2026-11-11-pose-review-subject-head-is-the-newest.md"
-        },
-        {
-          "action": "created",
-          "path": ".pose/starts/pose-review-subject-head-is-the-newest.json"
-        },
-        {
-          "action": "created",
-          "path": "pose-mcp/internal/pose/review_subject_head_newest_test.go"
-        },
-        {
-          "action": "modified",
-          "path": ".pose/indexes/delivery-integrity.json"
-        },
-        {
-          "action": "modified",
-          "path": ".pose/indexes/generation.json"
-        },
-        {
-          "action": "modified",
-          "path": ".pose/indexes/releases.json"
-        },
-        {
-          "action": "modified",
-          "path": ".pose/indexes/spec-graph.json"
-        },
-        {
-          "action": "modified",
-          "path": ".pose/indexes/validation-matrix.json"
-        },
-        {
-          "action": "modified",
-          "path": ".pose/results/delivery-validation.json"
-        },
-        {
-          "action": "modified",
-          "path": "pose-mcp/internal/pose/review_bundle.go"
-        }
-      ],
-      "diff_digest": "sha256:11c42965f41146707de310081118ff60bc422c67b5fab7bc78a988ed073d97e8",
-      "material_digest": "sha256:470f59d3ef4e46715e4119de9623482d34ba51ad0defde9dc36a5050dd69e2de",
-      "material_inputs": {
-        "names": [
-          ".pose/changelogs/unreleased/pose-review-subject-head-is-the-newest.md",
-          ".pose/closeout-plans/spec-pose-review-subject-head-is-the-newest.json",
-          ".pose/indexes/delivery-integrity.json",
-          ".pose/indexes/generation.json",
-          ".pose/indexes/releases.json",
-          ".pose/indexes/spec-graph.json",
-          ".pose/indexes/validation-matrix.json",
-          ".pose/results/delivery-validation.json",
-          ".pose/review-attempts/1e073f637ddcf4a33d71572a/000001.json",
-          ".pose/review-attempts/1e073f637ddcf4a33d71572a/000001.result.json",
-          ".pose/review-attempts/a52381e8c470c5c88d2008d2/000001.json",
-          ".pose/review-attempts/a52381e8c470c5c88d2008d2/000001.result.json",
-          ".pose/review-attestations/rva-7edcaf1a55dcf840.json",
-          ".pose/review-bundles/rvb-946516b1e0984260.json",
-          ".pose/review-bundles/rvb-ee017119c56e4f56.json",
-          ".pose/review-conclusions/rrn-04122e8ff7d29b8b.json",
-          ".pose/review-conclusions/rrn-7d4c1286d5837a75.json",
-          ".pose/review-run-ledger/rrn-04122e8ff7d29b8b.json",
-          ".pose/review-run-ledger/rrn-7d4c1286d5837a75.json",
-          ".pose/review-run-proofs/rrn-04122e8ff7d29b8b/rrp-5baeba15c332329b6e3ab92447cb54cde0852e40c0fc854aca40adc9c1844210.json",
-          ".pose/review-run-proofs/rrn-7d4c1286d5837a75/rrp-3e9758ab323ebae24b8ef628084ad3ebbfba38bdf7237abf8783fdcc0db5dba9.json",
-          ".pose/review-runs/rrn-04122e8ff7d29b8b.events.ndjson",
-          ".pose/review-runs/rrn-04122e8ff7d29b8b.json",
-          ".pose/review-runs/rrn-04122e8ff7d29b8b.transcript",
-          ".pose/review-runs/rrn-7d4c1286d5837a75.events.ndjson",
-          ".pose/review-runs/rrn-7d4c1286d5837a75.json",
-          ".pose/review-runs/rrn-7d4c1286d5837a75.transcript",
-          ".pose/specs/2026-11-11-pose-review-subject-head-is-the-newest.md",
-          ".pose/starts/pose-review-subject-head-is-the-newest.json",
-          "pose-mcp/internal/pose/review_bundle.go",
-          "pose-mcp/internal/pose/review_subject_head_newest_test.go"
-        ]
-      }
-    },
-    {
       "id": "cs-e4245c98bfe2",
       "spec": "pose-lint-spec-flat-layout-followup-resolution",
       "selector": "trailers:pose-lint-spec-flat-layout-followup-resolution",
@@ -277143,6 +276974,190 @@
           "pose-mcp/internal/scaffold/dist/POSE.md",
           "pose-mcp/internal/scaffold/dist/locales/pt-BR/.agents/skills/pose-spec-closeout/SKILL.md",
           "pose-mcp/internal/scaffold/dist/locales/pt-BR/POSE.md"
+        ]
+      }
+    },
+    {
+      "id": "cs-f8cabdaeb22d",
+      "spec": "pose-review-subject-head-is-the-newest",
+      "selector": "trailers:pose-review-subject-head-is-the-newest",
+      "base": "94fc203f0fdadd1774a4861e10bbd7dccd905d6e^",
+      "head": "2f0038cf2fbf479bb4486e6779d4645656f02572",
+      "resolved_base": "6dbeddf2c97d3ffd564a124ff08c1094999045d5",
+      "resolved_head": "2f0038cf2fbf479bb4486e6779d4645656f02572",
+      "commits": [
+        "94fc203f0fdadd1774a4861e10bbd7dccd905d6e",
+        "827a317da461dd534e78723789aada9334f3882c",
+        "f966dfeb28f44ca5f3e53d65e7cba6fa9016b7fe",
+        "c4dd20037e678c65f133d7008af40e413f0fd973",
+        "b94b42cf446a3c205b49b5f1f41b00a34ed3d852",
+        "f7376eb7c5643d4d35b1499e8bf7a0f65b5d9d29",
+        "5c32e91c006838c02631871a783c0a22d70d0a21",
+        "c94d2da7c23999705c98c17fbe55e31acc619f0d",
+        "6647ca6fd5e3944b9535ec34fe8e98ccfcdeb095",
+        "2f525e1464d62ef3c9e3b02d27d2e2e129f654b4",
+        "bd4ef4c789513055d72591982de2dc2a080118af",
+        "55124be89ce80d2cb4b6368a0743419853fc5c1d",
+        "ef90dedaecebaf59de02903801eae288aaf1a735",
+        "2f0038cf2fbf479bb4486e6779d4645656f02572"
+      ],
+      "paths": [
+        {
+          "action": "created",
+          "path": ".pose/changelogs/unreleased/pose-review-subject-head-is-the-newest.md"
+        },
+        {
+          "action": "created",
+          "path": ".pose/review-attempts/1e073f637ddcf4a33d71572a/000001.json"
+        },
+        {
+          "action": "created",
+          "path": ".pose/review-attempts/1e073f637ddcf4a33d71572a/000001.result.json"
+        },
+        {
+          "action": "created",
+          "path": ".pose/review-attempts/a52381e8c470c5c88d2008d2/000001.json"
+        },
+        {
+          "action": "created",
+          "path": ".pose/review-attempts/a52381e8c470c5c88d2008d2/000001.result.json"
+        },
+        {
+          "action": "created",
+          "path": ".pose/review-attestations/rva-7edcaf1a55dcf840.json"
+        },
+        {
+          "action": "created",
+          "path": ".pose/review-bundles/rvb-946516b1e0984260.json"
+        },
+        {
+          "action": "created",
+          "path": ".pose/review-bundles/rvb-ee017119c56e4f56.json"
+        },
+        {
+          "action": "created",
+          "path": ".pose/review-conclusions/rrn-04122e8ff7d29b8b.json"
+        },
+        {
+          "action": "created",
+          "path": ".pose/review-conclusions/rrn-7d4c1286d5837a75.json"
+        },
+        {
+          "action": "created",
+          "path": ".pose/review-run-ledger/rrn-04122e8ff7d29b8b.json"
+        },
+        {
+          "action": "created",
+          "path": ".pose/review-run-ledger/rrn-7d4c1286d5837a75.json"
+        },
+        {
+          "action": "created",
+          "path": ".pose/review-run-proofs/rrn-04122e8ff7d29b8b/rrp-5baeba15c332329b6e3ab92447cb54cde0852e40c0fc854aca40adc9c1844210.json"
+        },
+        {
+          "action": "created",
+          "path": ".pose/review-run-proofs/rrn-7d4c1286d5837a75/rrp-3e9758ab323ebae24b8ef628084ad3ebbfba38bdf7237abf8783fdcc0db5dba9.json"
+        },
+        {
+          "action": "created",
+          "path": ".pose/review-runs/rrn-04122e8ff7d29b8b.events.ndjson"
+        },
+        {
+          "action": "created",
+          "path": ".pose/review-runs/rrn-04122e8ff7d29b8b.json"
+        },
+        {
+          "action": "created",
+          "path": ".pose/review-runs/rrn-04122e8ff7d29b8b.transcript"
+        },
+        {
+          "action": "created",
+          "path": ".pose/review-runs/rrn-7d4c1286d5837a75.events.ndjson"
+        },
+        {
+          "action": "created",
+          "path": ".pose/review-runs/rrn-7d4c1286d5837a75.json"
+        },
+        {
+          "action": "created",
+          "path": ".pose/review-runs/rrn-7d4c1286d5837a75.transcript"
+        },
+        {
+          "action": "created",
+          "path": ".pose/specs/2026-11-11-pose-review-subject-head-is-the-newest.md"
+        },
+        {
+          "action": "created",
+          "path": ".pose/starts/pose-review-subject-head-is-the-newest.json"
+        },
+        {
+          "action": "created",
+          "path": "pose-mcp/internal/pose/review_subject_head_newest_test.go"
+        },
+        {
+          "action": "modified",
+          "path": ".pose/indexes/delivery-integrity.json"
+        },
+        {
+          "action": "modified",
+          "path": ".pose/indexes/generation.json"
+        },
+        {
+          "action": "modified",
+          "path": ".pose/indexes/releases.json"
+        },
+        {
+          "action": "modified",
+          "path": ".pose/indexes/spec-graph.json"
+        },
+        {
+          "action": "modified",
+          "path": ".pose/indexes/validation-matrix.json"
+        },
+        {
+          "action": "modified",
+          "path": ".pose/results/delivery-validation.json"
+        },
+        {
+          "action": "modified",
+          "path": "pose-mcp/internal/pose/review_bundle.go"
+        }
+      ],
+      "diff_digest": "sha256:9a32945965a4d35a5cc4a118ccf5447bc953ef26355502ef6d5e7b889981a4ac",
+      "material_digest": "sha256:470f59d3ef4e46715e4119de9623482d34ba51ad0defde9dc36a5050dd69e2de",
+      "material_inputs": {
+        "names": [
+          ".pose/changelogs/unreleased/pose-review-subject-head-is-the-newest.md",
+          ".pose/closeout-plans/spec-pose-review-subject-head-is-the-newest.json",
+          ".pose/indexes/delivery-integrity.json",
+          ".pose/indexes/generation.json",
+          ".pose/indexes/releases.json",
+          ".pose/indexes/spec-graph.json",
+          ".pose/indexes/validation-matrix.json",
+          ".pose/results/delivery-validation.json",
+          ".pose/review-attempts/1e073f637ddcf4a33d71572a/000001.json",
+          ".pose/review-attempts/1e073f637ddcf4a33d71572a/000001.result.json",
+          ".pose/review-attempts/a52381e8c470c5c88d2008d2/000001.json",
+          ".pose/review-attempts/a52381e8c470c5c88d2008d2/000001.result.json",
+          ".pose/review-attestations/rva-7edcaf1a55dcf840.json",
+          ".pose/review-bundles/rvb-946516b1e0984260.json",
+          ".pose/review-bundles/rvb-ee017119c56e4f56.json",
+          ".pose/review-conclusions/rrn-04122e8ff7d29b8b.json",
+          ".pose/review-conclusions/rrn-7d4c1286d5837a75.json",
+          ".pose/review-run-ledger/rrn-04122e8ff7d29b8b.json",
+          ".pose/review-run-ledger/rrn-7d4c1286d5837a75.json",
+          ".pose/review-run-proofs/rrn-04122e8ff7d29b8b/rrp-5baeba15c332329b6e3ab92447cb54cde0852e40c0fc854aca40adc9c1844210.json",
+          ".pose/review-run-proofs/rrn-7d4c1286d5837a75/rrp-3e9758ab323ebae24b8ef628084ad3ebbfba38bdf7237abf8783fdcc0db5dba9.json",
+          ".pose/review-runs/rrn-04122e8ff7d29b8b.events.ndjson",
+          ".pose/review-runs/rrn-04122e8ff7d29b8b.json",
+          ".pose/review-runs/rrn-04122e8ff7d29b8b.transcript",
+          ".pose/review-runs/rrn-7d4c1286d5837a75.events.ndjson",
+          ".pose/review-runs/rrn-7d4c1286d5837a75.json",
+          ".pose/review-runs/rrn-7d4c1286d5837a75.transcript",
+          ".pose/specs/2026-11-11-pose-review-subject-head-is-the-newest.md",
+          ".pose/starts/pose-review-subject-head-is-the-newest.json",
+          "pose-mcp/internal/pose/review_bundle.go",
+          "pose-mcp/internal/pose/review_subject_head_newest_test.go"
         ]
       }
     },
@@ -291164,6 +291179,14 @@
       "remediation": "backfill an explicit claim or add an exact reviewed exclusion"
     },
     {
+      "id": "dif-1974929fd689",
+      "code": "legacy-narrative",
+      "severity": "info",
+      "spec": "pose-commit-hook-runs-with-explicit-roots",
+      "message": "spec has no structured Artifacts section",
+      "remediation": "add a machine-parseable ### Artifacts section"
+    },
+    {
       "id": "dif-1a139a57dd4e",
       "code": "action-mismatch",
       "severity": "error",
@@ -291260,6 +291283,14 @@
       "path": ".pose/changelogs/unreleased/pose-residual-nature-commitment-and-effect.md",
       "message": "declared current artifact is not tracked at the selected head; no release manifest archives .pose/changelogs/unreleased/pose-residual-nature-commitment-and-effect.md",
       "remediation": "correct the exact path or commit the artifact before closeout"
+    },
+    {
+      "id": "dif-21225db2262c",
+      "code": "legacy-narrative",
+      "severity": "info",
+      "spec": "pose-retroactive-attribution-record",
+      "message": "spec has no structured Artifacts section",
+      "remediation": "add a machine-parseable ### Artifacts section"
     },
     {
       "id": "dif-2137b27ad8dc",
