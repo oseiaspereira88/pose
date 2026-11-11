@@ -1,0 +1,229 @@
+{
+  "run": {
+    "run_id": "rrn-5194c12d6de2fcf7",
+    "proof_id": "rrp-93af056a036eafea079249b7c1a38917288257f929166a4e4898ddf4aeec9cf6"
+  },
+  "schema_version": 1,
+  "attestation_id": "rva-e78e492a16c8f689",
+  "bundle_id": "rvb-0d621ff532f058c4",
+  "bundle_digest": "sha256:0d621ff532f058c45a85a89b7bae10213d998aae298c8f328982018d3fdb88a4",
+  "reviewer": "agent:anthropic/claude-opus-5-5",
+  "decision": "changes-requested",
+  "criteria": [
+    {
+      "id": "assumption-integrity",
+      "disposition": "passed",
+      "evidence": "integration:pose-mcp/go/verdict-readers-sealed-integration",
+      "rationale": "Examined the assumptions. Verified: no caller of VerifyReviewRunProofForReading uses its result to back a new attestation (three callers only print or fill Issuer metadata; conclude/adjudication/smoke/fulfilment stay on VerifyReviewRunProof at review_conclusions.go:568, delegated_verdicts.go:428, delegated_review_request.go:300); an unreadable bundle falls back to the live verifier, which fails closed. Unresolved but stated: the adjudication/smoke gap (spec Known gaps). Accepted risk: low follow-ups F2-F4."
+    },
+    {
+      "id": "backend-concurrency",
+      "disposition": "passed",
+      "evidence": "integration:pose-mcp/go/verdict-readers-sealed-integration",
+      "rationale": "The new function is a read-only dispatcher with no shared state, locks or goroutines. A scope that turns done between the dispatch check and the verification only changes which read-only question is answered; no write depends on it."
+    },
+    {
+      "id": "backend-contracts",
+      "disposition": "passed",
+      "evidence": "integration:pose-mcp/go/verdict-readers-sealed-integration",
+      "rationale": "The output shape of the 'pose review run-proof' CLI is unchanged (same ReviewRunAssurance rendering). Its meaning for done scopes changes on purpose and is disclosed in the changelog (category fixed) and the manual. The new exported Go function is additive."
+    },
+    {
+      "id": "backend-input-errors",
+      "disposition": "passed",
+      "evidence": "integration:pose-mcp/go/verdict-readers-sealed-integration",
+      "rationale": "Errors from LoadProvenanceReviewRun, runProofPath and the verifiers propagate unchanged; when the bundle cannot be read or lifecycle detection fails, the function falls back to the live verifier, which is fail-closed (review_run_provenance.go:674-677)."
+    },
+    {
+      "id": "backend-integration-impact",
+      "disposition": "passed",
+      "evidence": "integration:pose-mcp/go/delegated-approval-survives-routine-drift-integration",
+      "rationale": "The CLI, delegated verdict and conclusion-recovery consumers now share the closeout's dispatch (runApprovalAsSealed). Retained-approval and conclusion integration checks remain sealed as passing."
+    },
+    {
+      "id": "backend-observability",
+      "disposition": "passed",
+      "evidence": "unit:pose-mcp/go/test",
+      "rationale": "Failures still return the verifier's bounded 'run provenance: ...' reasons; no new logging, and no secrets are exposed."
+    },
+    {
+      "id": "compatibility",
+      "disposition": "passed",
+      "evidence": "integration:pose-mcp/go/verdict-readers-sealed-integration",
+      "rationale": "Examined the CLI and MCP surfaces: no flag, file format or tool schema changed; open scopes keep the live answer (TestTheProofReaderKeepsTheLiveQuestionForAnOpenScope). The more permissive reading for done scopes is documented in the manual (EN/pt-BR, root and scaffold) and in the changelog."
+    },
+    {
+      "id": "correctness",
+      "disposition": "passed",
+      "evidence": "integration:pose-mcp/go/verdict-readers-sealed-integration",
+      "rationale": "The done-scope test shows the closeout approves, the live verifier refuses and the reader agrees with the closeout; the open-scope test shows the reader refuses after drift. Together they rule out an always-live or always-sealed reader."
+    },
+    {
+      "id": "design-causality",
+      "disposition": "passed",
+      "evidence": "integration:pose-mcp/go/verdict-readers-sealed-integration",
+      "rationale": "Cause: the readers called VerifyReviewRunProof while the closeout used runApprovalAsSealed to choose between sealed and live. Design: one function that reuses the closeout's exact predicate and verifiers, so the two cannot diverge (R1); D1 drops expiry on the sealed path because the sealed verifier never checked it (R2). No structural fact ids were listed for mapping; the sealed design assessment is structure:design-d354476c9c16ae8a."
+    },
+    {
+      "id": "documentation",
+      "disposition": "finding",
+      "evidence": "F3"
+    },
+    {
+      "id": "operability",
+      "disposition": "passed",
+      "evidence": "integration:pose-mcp/go/verdict-readers-sealed-integration",
+      "rationale": "Examined the CLI error path (cli/review_run_provenance.go:76-80): failures still render 'pose review run proof: \u003creason\u003e' with exit 1; the manual explains when the sealed versus live answer applies."
+    },
+    {
+      "id": "requirements",
+      "disposition": "finding",
+      "evidence": "F2"
+    },
+    {
+      "id": "scope",
+      "disposition": "finding",
+      "evidence": "F1"
+    },
+    {
+      "id": "security",
+      "disposition": "finding",
+      "evidence": "F4"
+    },
+    {
+      "id": "solution-proportionality",
+      "disposition": "passed",
+      "evidence": "integration:pose-mcp/go/verdict-readers-sealed-integration",
+      "rationale": "An 18-line dispatcher reusing existing verifiers, plus three one-line call-site swaps, is the smallest sufficient change; the alternative of inlining the predicate at each caller would duplicate it. No speculative extension. The choice would be invalidated if any caller used the reading answer to back a new attestation (D1 falsifier); none does today."
+    }
+  ],
+  "tools": [
+    {
+      "id": "artifact-check",
+      "disposition": "failed",
+      "evidence": "command:pose artifact-check --spec pose-verdict-readers-ask-the-sealed-question --strict",
+      "rationale": "Exit 1. The same error appears when pinned to the sealed range (--from 50768fbb --to 7d5f0193): '[err] error action-mismatch .pose/specs/2026-11-10-pose-verdict-readers-ask-the-sealed-question.md: declared artifact action is absent from the attributed Git change sets'. See F1."
+    },
+    {
+      "id": "assess-design",
+      "disposition": "not-used",
+      "rationale": "Recommended; running it was denied in this profile. The sealed structure evidence structure:design-d354476c9c16ae8a exists."
+    },
+    {
+      "id": "assess-discover",
+      "component": "pose-mcp",
+      "disposition": "not-used",
+      "rationale": "Recommended; not run. The review relied on reading the code directly."
+    },
+    {
+      "id": "assess-integrate",
+      "disposition": "not-used",
+      "rationale": "Recommended; not run. Integration was judged from sealed integration evidence."
+    },
+    {
+      "id": "assess-tech-debt",
+      "disposition": "not-used",
+      "rationale": "Recommended; not run. The change is small and was read in full."
+    },
+    {
+      "id": "closeout-check",
+      "disposition": "deferred",
+      "rationale": "Its precondition is a completed review; it cannot pass before the attestation."
+    },
+    {
+      "id": "review-check",
+      "disposition": "deferred",
+      "rationale": "Its precondition is a completed review; it cannot pass before the attestation."
+    },
+    {
+      "id": "suggest-review",
+      "component": "pose-mcp",
+      "disposition": "not-used",
+      "rationale": "Recommended; not run. The review scope was taken from the sealed change list."
+    },
+    {
+      "id": "validate",
+      "disposition": "passed",
+      "evidence": "unit:pose-mcp/go/test",
+      "rationale": "Strict validation is sealed as passing in the bundle."
+    },
+    {
+      "id": "validate",
+      "component": "pose-mcp",
+      "disposition": "passed",
+      "evidence": "unit:pose-mcp/go/test",
+      "rationale": "Strict pose-mcp validation is sealed as passing, including integration:pose-mcp/go/verdict-readers-sealed-integration."
+    }
+  ],
+  "evidence_refs": [
+    "F1",
+    "F2",
+    "F3",
+    "F4",
+    "delegated-run:rrn-5194c12d6de2fcf7",
+    "integration:pose-mcp/go/delegated-approval-survives-routine-drift-integration",
+    "integration:pose-mcp/go/verdict-readers-sealed-integration",
+    "unit:pose-mcp/go/test"
+  ],
+  "findings": [
+    {
+      "id": "F1",
+      "severity": "medium",
+      "evidence": "file:.pose/specs/2026-11-10-pose-verdict-readers-ask-the-sealed-question.md:50",
+      "action": "The spec's own artifact is declared 'created' but was added in af36fc0b, before the range; the range only modifies it. 'pose artifact-check --spec pose-verdict-readers-ask-the-sealed-question --strict' exits 1 with '[err] error action-mismatch' on this path (the other 938 findings are repo-wide orphan warnings), so the required artifact-check does not pass. Declare it 'modified:'.",
+      "disposition": "open"
+    },
+    {
+      "id": "F2",
+      "severity": "low",
+      "evidence": "file:pose-mcp/internal/pose/retained_run_approval_test.go:144",
+      "action": "Add a test: a done scope whose run proof has a TTL, read at a time past expiry; VerifyReviewRunProofForReading succeeds and VerifyReviewRunProof refuses.",
+      "disposition": "accepted-risk",
+      "owner": "@pose-maintainers",
+      "rationale": "R2 (expiry not checked on the sealed path) is traced to TestTheProofReaderAndTheCloseoutAgreeOnADoneScopeWithDrift, which never uses a proof with a TTL or a clock past expiry; R2 is backed only by code reading and the manual, not by a behavioural test.",
+      "review_by": "2027-02-08"
+    },
+    {
+      "id": "F3",
+      "severity": "low",
+      "evidence": "file:POSE.md:1063",
+      "action": "Narrow the manual sentence to the readers actually changed, or close the follow-up that makes verifiedVerdictProof ask the sealed question for done scopes.",
+      "disposition": "accepted-risk",
+      "owner": "@pose-maintainers",
+      "rationale": "The manual (also scaffold/dist/POSE.md:1050 and both pt-BR copies) says 'pose review run-proof and the other readers of a run's verdict' ask the sealed question, but the adjudication/smoke readers (verifiedVerdictProof via SpecAdjudications/SmokeResults -\u003e verifiedVerdictRun) still ask the live question. As a result, the change at delegated_verdicts.go:345 has no visible effect for a drifted done scope. The gap is in the spec but not in the manual.",
+      "review_by": "2027-02-08"
+    },
+    {
+      "id": "F4",
+      "severity": "low",
+      "evidence": "file:pose-mcp/internal/pose/review_run_provenance.go:589",
+      "action": "Apply the same proof-directory symlink refusal on the sealed path (and in VerifyReviewRunProofRecord).",
+      "disposition": "accepted-risk",
+      "owner": "@pose-maintainers",
+      "rationale": "VerifyReviewRunProofAsSealed, now reached by 'pose review run-proof' for done scopes, does not call ensureReviewArtifactDirIn(..., false) like VerifyReviewRunProof does at line 367, so a symlinked proof directory is not refused (readBoundedRegularIn Lstats only the final file). Signature and run-digest binding still prevent forgery; this is an inconsistency in hardening that predates this change.",
+      "review_by": "2027-02-08"
+    }
+  ],
+  "authority": {
+    "schema_version": 1,
+    "project": "proj.pose-dist",
+    "bundle_digest": "sha256:0d621ff532f058c45a85a89b7bae10213d998aae298c8f328982018d3fdb88a4",
+    "principal": "agent:anthropic/claude-opus-5-5",
+    "role": "agent",
+    "review_execution": "rrn-5194c12d6de2fcf7",
+    "implementation_principal": "agent:anthropic/claude-sonnet-5-5",
+    "implementation_execution": "sha256:675189f7e0b769255994f8213acf8b1b57174c4353838cd875cdabd46aa9cc0b",
+    "issuer": "b34-local-executor",
+    "issued_at": "2026-11-11T23:07:23Z",
+    "audience": "proj.pose-dist"
+  },
+  "envelope": {
+    "issuer": "b34-local-executor",
+    "subject": "rvb-0d621ff532f058c4",
+    "algorithm": "ed25519",
+    "public_key": "ck4sApdfePV2GT+hJyAYfJd2qLzeG55P8pevGR0bvZE=",
+    "signature": "8bqXhyLsE3IKK9uN0PprUasLLMwZTPEr9WK8mCb6VJAakQlu2PnLXpQbWyCkTt8oyo//5Dq2itZ4Ub+Vz48RCw=="
+  },
+  "attested_at": "2026-11-11T23:07:23Z",
+  "path": ".pose/review-attestations/rva-e78e492a16c8f689.json"
+}
