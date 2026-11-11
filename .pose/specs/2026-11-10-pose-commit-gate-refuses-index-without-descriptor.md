@@ -1,8 +1,8 @@
 ---
 slug: pose-commit-gate-refuses-index-without-descriptor
-status: in-progress
+status: done
 created_at: 2026-11-10
-completed_at:
+completed_at: 2026-11-11
 supersedes:
 depends_on: pose-index-recovery-and-close-scope-consistency
 remediates:
