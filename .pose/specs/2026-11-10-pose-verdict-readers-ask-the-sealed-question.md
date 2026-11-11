@@ -1,8 +1,8 @@
 ---
 slug: pose-verdict-readers-ask-the-sealed-question
-status: in-progress
+status: done
 created_at: 2026-11-10
-completed_at:
+completed_at: 2026-11-11
 supersedes:
 depends_on: pose-delegated-approval-survives-routine-drift
 remediates:
