@@ -2597,6 +2597,19 @@
           "evidenceClass": "integration"
         },
         {
+          "name": "review-subject-head-integration",
+          "program": "go",
+          "args": [
+            "test",
+            "./internal/pose",
+            "-run",
+            "TestTheSubjectHeadIsTheNewestHeadOfItsChangeSets",
+            "-count=1"
+          ],
+          "severity": "required",
+          "evidenceClass": "integration"
+        },
+        {
           "name": "check-index-generation-integration",
           "program": "go",
           "args": [

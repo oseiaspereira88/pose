@@ -780,12 +780,18 @@ func (s Store) reviewBundleSubject(scope ScopeRef, components []ReviewPlanCompon
 	gitlinks := reviewBundleGitlinksIn(s.fsys(), s.Root, uniqueSorted(candidatePaths))
 	// One status of the tree for the whole subject, taken on first need.
 	var status *workingTreeSnapshot
+	newestHead := s.newestResolvedHead(sets)
 	for _, set := range sets {
 		subject.ChangeSets = append(subject.ChangeSets, set.ID)
 		if subject.Base == "" {
 			subject.Base = set.ResolvedBase
 		}
+		// The head of the subject is the newest head of its change sets, not the head of the
+		// one the sort by id happens to put last (spec pose-review-subject-head-is-the-newest).
 		subject.Head = set.ResolvedHead
+		if newestHead != "" {
+			subject.Head = newestHead
+		}
 		for _, observed := range set.Paths {
 			if observed.Action != "renamed" && supersededPaths[observed.Path] {
 				excluded = append(excluded, ReviewBundleInput{Kind: "superseded-path", Path: observed.Path, Reason: "a later attributed rename supplies the current review subject identity"})
@@ -4452,6 +4458,35 @@ func (s Store) sealedDeclarationHolds(bundle *ReviewBundle) bool {
 		}
 	}
 	return sealed == rm.UnreviewedMilestones
+}
+
+// newestResolvedHead is, of the heads of the change sets, the one no other descends from (the
+// first commit of the topological order of their histories, which lists a descendant before its
+// ancestors, so it does not depend on timestamps); empty when
+// there are fewer than two distinct heads (nothing to choose) or Git cannot order them, in which
+// case the caller keeps the head of the last set.
+func (s Store) newestResolvedHead(sets []ChangeSet) string {
+	var heads []string
+	seen := map[string]bool{}
+	for _, set := range sets {
+		if set.ResolvedHead != "" && !seen[set.ResolvedHead] {
+			seen[set.ResolvedHead] = true
+			heads = append(heads, set.ResolvedHead)
+		}
+	}
+	if len(heads) < 2 {
+		return ""
+	}
+	files := s.fsys()
+	producer := governanceProducerFromFiles(files, "review")
+	out, err := captureGovernanceGit(files, s.Root, producer, append([]string{"rev-list", "--topo-order", "-n", "1"}, heads...)...)
+	if err != nil {
+		return ""
+	}
+	if first, _, _ := strings.Cut(strings.TrimSpace(string(out)), "\n"); governanceFullObjectID.MatchString(first) {
+		return first
+	}
+	return ""
 }
 
 func retainedManifestChanged(bundle *ReviewBundle, scope string) string {
