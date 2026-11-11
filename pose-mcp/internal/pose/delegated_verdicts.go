@@ -342,7 +342,7 @@ func (s Store) verifiedVerdictOf(kind, runID string) (*verifiedVerdict, string) 
 		return nil, "the run's draft cannot be read"
 	}
 	issuer := ""
-	if assurance, err := s.VerifyReviewRunProof(runID, proof); err == nil {
+	if assurance, err := s.VerifyReviewRunProofForReading(runID, proof); err == nil {
 		issuer = assurance.Issuer
 	}
 	return &verifiedVerdict{ProofID: proof, Issuer: issuer, BundleID: run.BundleID, Scope: run.Scope, Decision: draft.Decision}, ""

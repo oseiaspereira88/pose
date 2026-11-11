@@ -507,7 +507,7 @@ func (s Store) recoveredReviewConclusion(pending ReviewConclusion) (*ReviewConcl
 		done.State, done.Attestation, done.ProofID, done.BundleID, done.Scope, done.Decision, done.Destination = ReviewConclusionRecorded, att.AttestationID, att.Run.ProofID, att.BundleID, bundle.Payload.Scope.Ref, att.Decision, ""
 		// The issuer is the one that signed the run's proof, never the
 		// reservation's (review round 2, R2-F02).
-		if assurance, err := s.VerifyReviewRunProof(att.Run.RunID, att.Run.ProofID); err == nil {
+		if assurance, err := s.VerifyReviewRunProofForReading(att.Run.RunID, att.Run.ProofID); err == nil {
 			done.Issuer = assurance.Issuer
 		}
 		done.Reasons = []string{"completed from the attestation an interrupted conclusion recorded"}

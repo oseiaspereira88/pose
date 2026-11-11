@@ -73,7 +73,7 @@ func cmdReviewRunProof(root string, args []string, stdout, stderr io.Writer) int
 	if len(args) < 2 || len(args) > 3 || len(args) == 3 && args[2] != "--json" {
 		return usageError(stderr, "Usage: pose review run-proof <run-id> <proof-id> [--json]")
 	}
-	proof, e := cliGovernedStore(root).VerifyReviewRunProof(args[0], args[1])
+	proof, e := cliGovernedStore(root).VerifyReviewRunProofForReading(args[0], args[1])
 	if e != nil {
 		render(stdout, stderr).Failure("pose review run proof: " + strings.TrimPrefix(e.Error(), "pose: "))
 		return 1

@@ -659,6 +659,24 @@ func (s Store) runApprovalAsSealed(bundle ReviewBundle) bool {
 	return err == nil && done
 }
 
+// VerifyReviewRunProofForReading verifies a signed run proof for a reader that reports on a
+// run: as it was given when the scope the run reviewed is done, as it is now otherwise. It is
+// the question the closeout asks (verifyRunReviewReference), so a reader and the closeout
+// cannot disagree about one run (spec pose-verdict-readers-ask-the-sealed-question). On the
+// sealed path the expiry of the proof is not asked: it bounds the window in which a proof may
+// back a new attestation, and an attestation already given to a done scope stands.
+func (s Store) VerifyReviewRunProofForReading(id, proofID string) (ReviewRunAssurance, error) {
+	s = s.reviewOperation()
+	run, e := s.LoadProvenanceReviewRun(id)
+	if e != nil {
+		return ReviewRunAssurance{}, e
+	}
+	if bundle, e := s.LoadReviewBundle(run.BundleID); e == nil && s.runApprovalAsSealed(bundle) {
+		return s.VerifyReviewRunProofAsSealed(id, proofID)
+	}
+	return s.VerifyReviewRunProof(id, proofID)
+}
+
 func validProofDigest(value string) bool {
 	return regexp.MustCompile(`^sha256:[0-9a-f]{64}$`).MatchString(value)
 }

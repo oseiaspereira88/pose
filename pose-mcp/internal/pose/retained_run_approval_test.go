@@ -137,3 +137,50 @@ func TestTheAssuranceOfARetainedDelegatedApprovalIsVerified(t *testing.T) {
 		t.Fatalf("the assurance of a retained delegated approval is not the sealed run's: %+v", assurance)
 	}
 }
+
+// Spec pose-verdict-readers-ask-the-sealed-question, R1 and R3: after routine drift of a done
+// scope the closeout keeps the approval, and the reader of the run's proof answers as the
+// closeout does, where the live verifier refuses.
+func TestTheProofReaderAndTheCloseoutAgreeOnADoneScopeWithDrift(t *testing.T) {
+	f, run := approvedByARunThenDone(t)
+	commitReviewFixture(t, f.store.Root, "false")
+	if verification, err := f.store.VerifyReviewBundle(f.bundle.Payload.Scope.Ref); err != nil || !verification.Approved {
+		t.Fatalf("the closeout must keep the approval, or this test proves nothing: %+v %v", verification.Blockers, err)
+	}
+	entries, err := os.ReadDir(filepath.Join(f.store.Root, filepath.FromSlash(reviewRunProofDir), run.RunID))
+	if err != nil || len(entries) != 1 {
+		t.Fatalf("the run's proof: %v %v", entries, err)
+	}
+	proofID := strings.TrimSuffix(entries[0].Name(), ".json")
+	if _, err := f.store.VerifyReviewRunProof(run.RunID, proofID); err == nil {
+		t.Fatal("the live verifier accepted a run whose scope drifted: the fixture shows no disagreement")
+	}
+	if assurance, err := f.store.VerifyReviewRunProofForReading(run.RunID, proofID); err != nil || !assurance.CompleteReview {
+		t.Fatalf("the reader disagrees with the closeout about a done scope: %+v %v", assurance, err)
+	}
+}
+
+// R3 (open scope): the reader keeps the live question while the scope is open.
+func TestTheProofReaderKeepsTheLiveQuestionForAnOpenScope(t *testing.T) {
+	f, draftPath := conclusionFixture(t)
+	att := approvedBundleAttestation(f.bundle, "agent:reviewer")
+	if err := os.WriteFile(draftPath, []byte(draftFrom(t, att, nil)), 0o600); err != nil {
+		t.Fatal(err)
+	}
+	run := dispatchConclusion(t, f, "an open scope")
+	if _, err := f.store.ConcludeReviewRun(run.RunID, f.key.Name, true, time.Now()); err != nil {
+		t.Fatal(err)
+	}
+	for _, kv := range [][]string{{"user.name", "fixture"}, {"user.email", "fixture@example.invalid"}, {"commit.gpgsign", "false"}} {
+		federatedTestGit(t, f.store.Root, "config", kv[0], kv[1])
+	}
+	commitReviewFixture(t, f.store.Root, "false")
+	entries, err := os.ReadDir(filepath.Join(f.store.Root, filepath.FromSlash(reviewRunProofDir), run.RunID))
+	if err != nil || len(entries) != 1 {
+		t.Fatalf("the run's proof: %v %v", entries, err)
+	}
+	proofID := strings.TrimSuffix(entries[0].Name(), ".json")
+	if _, err := f.store.VerifyReviewRunProofForReading(run.RunID, proofID); err == nil {
+		t.Fatal("an open scope was read as sealed")
+	}
+}
