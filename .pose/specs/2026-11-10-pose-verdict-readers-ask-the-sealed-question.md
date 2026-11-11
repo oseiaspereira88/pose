@@ -1,6 +1,6 @@
 ---
 slug: pose-verdict-readers-ask-the-sealed-question
-status: draft
+status: in-progress
 created_at: 2026-11-10
 completed_at:
 supersedes:
