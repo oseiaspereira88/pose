@@ -1,0 +1,214 @@
+{
+  "run": {
+    "run_id": "rrn-e0ff67e5650fa813",
+    "proof_id": "rrp-257116242413229a340e30901797e776f51cf662d6470e90e24742ed7997179f"
+  },
+  "schema_version": 1,
+  "attestation_id": "rva-e5f68c7fb514f381",
+  "bundle_id": "rvb-dacc920864b44d67",
+  "bundle_digest": "sha256:dacc920864b44d679dc18e0c5b010c0e49c0ff0676a1a158fe47507cf8360873",
+  "reviewer": "agent:anthropic/claude-opus-5-5",
+  "decision": "approved",
+  "criteria": [
+    {
+      "id": "assumption-integrity",
+      "disposition": "passed",
+      "evidence": "integration:pose-mcp/go/delegated-output-redaction-diagnostics-integration",
+      "rationale": "Examined the spec, the investigation findings and the regression tests. Verified fact: captureReviewValue refuses more than one match per channel, and the legacy broad session_id regex fails on a synthetic two-event stream while the system/init regex completes on the same stream. Unresolved assumption, explicitly accepted as a residual risk: the historical harne8 stream was discarded, so its exact composition is unproven; the claim is limited to the mechanism."
+    },
+    {
+      "id": "backend-concurrency",
+      "disposition": "passed",
+      "evidence": "unit:pose-mcp/go/test",
+      "rationale": "The change adds one function-local stage variable in RunDelegationTask and a pure formatting function, with no shared state, goroutines or lifecycle changes; the full unit suite passed in the sealed matrix."
+    },
+    {
+      "id": "backend-contracts",
+      "disposition": "passed",
+      "evidence": "integration:pose-mcp/go/delegation-surface-integration",
+      "rationale": "The failure field keeps its old message as a prefix and adds a parenthesized diagnostic; the record schema, status values and retention files are unchanged. Grep shows no consumer matching the exact old string."
+    },
+    {
+      "id": "backend-input-errors",
+      "disposition": "passed",
+      "evidence": "integration:pose-mcp/go/delegated-output-redaction-diagnostics-integration",
+      "rationale": "Capture errors are mapped to a closed six-reason vocabulary plus the stage; unknown errors become a fixed 'private error details withheld' reason (delegation_capture_failure.go:8-14), so the output is bounded and typed. F1 and F2 are low follow-ups on hint precision and robustness."
+    },
+    {
+      "id": "backend-integration-impact",
+      "disposition": "passed",
+      "evidence": "integration:pose-mcp/go/delegated-run-continuity-integration",
+      "rationale": "classifyReviewInterruption, redactReviewCapture and redactedDelegationEvents are unchanged; only the final failure string in delegation_task.go:833 differs. The continuity, attempt-ledger and adapter-containment integrations all passed in the sealed matrix."
+    },
+    {
+      "id": "backend-observability",
+      "disposition": "passed",
+      "evidence": "integration:pose-mcp/go/delegated-output-redaction-diagnostics-integration",
+      "rationale": "The recorded failure now names the agent, event format, stage and a safe reason. The tests assert the session id does not appear in the record, stdout or stderr, and that arbitrary filesystem error text is withheld."
+    },
+    {
+      "id": "compatibility",
+      "disposition": "passed",
+      "evidence": "integration:pose-mcp/go/delegation-surface-integration",
+      "rationale": "Examined the CLI record and the failure string: the old message is retained as the prefix and no field or exit semantics changed. The repository policy already carries the system/init-only pattern (.pose/policy/delegation.json:188). No migration is needed."
+    },
+    {
+      "id": "correctness",
+      "disposition": "passed",
+      "evidence": "integration:pose-mcp/go/delegated-output-redaction-diagnostics-integration",
+      "rationale": "Positive case: the init-only profile completes with output 'task finished'. Negative cases: the legacy profile fails at the session/interrupt recognition stage with the ambiguity reason, and redaction growth fails at the stdout stage with every channel empty or absent. All passed in the sealed matrix (208/208)."
+    },
+    {
+      "id": "design-causality",
+      "disposition": "passed",
+      "evidence": "structure:design-5a3833d2c839a777",
+      "rationale": "R1/D1: the material cause is the single-match rule (review_run_continuity.go:150) meeting a regex that matches session_id in every Claude stream-json event; the old handler discarded the reason. R2/D1: per-stage tracking (delegation_task.go:786-828) and a closed vocabulary (delegation_capture_failure.go) surface agent, format, stage and reason while keeping refusal and discard. R3: the CLI regression reproduces both profiles on one synthetic stream."
+    },
+    {
+      "id": "documentation",
+      "disposition": "passed",
+      "evidence": "integration:pose-mcp/go/delegated-output-redaction-diagnostics-integration",
+      "rationale": "The changelog entry (fixed, non-breaking) matches runtime: agent, format, stage, safe reason, the system/init hint, and unsafe output still withheld. The spec trace, final report and investigation report match the code. No operator doc described the old message."
+    },
+    {
+      "id": "operability",
+      "disposition": "passed",
+      "evidence": "integration:pose-mcp/go/delegated-output-redaction-diagnostics-integration",
+      "rationale": "For the reproduced Claude case the message gives a concrete remediation (restrict the session pattern to system/init). For budget growth it names the stdout stage and the budget reason. The hint can mislead for reset-pattern or multi-group ambiguity (low follow-up F1)."
+    },
+    {
+      "id": "requirements",
+      "disposition": "passed",
+      "evidence": "integration:pose-mcp/go/delegated-output-redaction-diagnostics-integration",
+      "rationale": "R1: TestDelegateTaskExplainsTheLegacyClaudeSessionCaptureFailure reproduces the legacy and current profiles and isolates the session/interrupt recognition stage. R2: the failure names the profile, event format and reason, covered by both CLI tests and the unit test. R3: the regression asserts diagnostic fields that the old constant message lacked."
+    },
+    {
+      "id": "scope",
+      "disposition": "passed",
+      "evidence": "integration:pose-mcp/go/delegated-output-redaction-diagnostics-integration",
+      "rationale": "Compared the diff with the spec's artifact list: implementation changes are limited to delegation_task.go plus the new failure helper and tests. Session capture, byte budgets, retention and live-event guarantees are untouched, matching the non-goals."
+    },
+    {
+      "id": "security",
+      "disposition": "passed",
+      "evidence": "integration:pose-mcp/go/delegated-output-redaction-diagnostics-integration",
+      "rationale": "Only fixed vocabulary strings are interpolated; unknown errors, including saveReviewSession filesystem errors and regex compile errors that contain the pattern, are withheld. Agent and event names come from policy and are quoted with %q. Captures are cleared before finish (delegation_task.go:831), and the tests assert no session leak and empty retained channels."
+    },
+    {
+      "id": "solution-proportionality",
+      "disposition": "passed",
+      "evidence": "structure:design-5a3833d2c839a777",
+      "rationale": "The smallest alternative (keeping the generic message) is the defect itself. The chosen change is about 30 lines with no new types, configuration or extension points. Negative space: it does not relax single-match capture or recover output. It would be invalidated if adapters began emitting other actionable errors, which the withheld fallback would hide (see F2)."
+    }
+  ],
+  "tools": [
+    {
+      "id": "artifact-check",
+      "disposition": "passed",
+      "evidence": "command:pose artifact-check --spec pose-delegated-output-redaction-root-cause --strict",
+      "rationale": "Exit 0; 9 claims, 33 observed paths; all 942 findings are pre-existing orphan warnings, none on this spec's paths."
+    },
+    {
+      "id": "assess-design",
+      "disposition": "not-used",
+      "rationale": "The reviewer's restricted profile denied execution; the sealed structure:design-5a3833d2c839a777 (pass) was used instead."
+    },
+    {
+      "id": "assess-discover",
+      "component": "pose-mcp",
+      "disposition": "not-used",
+      "rationale": "Recommended only; not run under the restricted review profile."
+    },
+    {
+      "id": "assess-integrate",
+      "disposition": "not-used",
+      "rationale": "Recommended only; not run under the restricted review profile. Sealed integration evidence was relied on instead."
+    },
+    {
+      "id": "assess-tech-debt",
+      "disposition": "not-used",
+      "rationale": "Recommended only; not run under the restricted review profile."
+    },
+    {
+      "id": "closeout-check",
+      "disposition": "deferred",
+      "rationale": "Its precondition is a recorded review attestation, which this draft produces."
+    },
+    {
+      "id": "review-check",
+      "disposition": "deferred",
+      "rationale": "Its precondition is a recorded review attestation, which this draft produces."
+    },
+    {
+      "id": "suggest-review",
+      "component": "pose-mcp",
+      "disposition": "not-used",
+      "rationale": "Recommended only; not run under the restricted review profile."
+    },
+    {
+      "id": "validate",
+      "disposition": "passed",
+      "evidence": "unit:pose-mcp/go/test",
+      "rationale": "The reviewer's profile denied running validate; relying on the bundle's sealed strict matrix (208 passed, 0 failed)."
+    },
+    {
+      "id": "validate",
+      "component": "pose-mcp",
+      "disposition": "passed",
+      "evidence": "integration:pose-mcp/go/delegated-output-redaction-diagnostics-integration",
+      "rationale": "The reviewer's profile denied running validate; relying on the sealed pose-mcp strict matrix, including the new diagnostics integration check (pass), build, unit and e2e refs."
+    }
+  ],
+  "evidence_refs": [
+    "delegated-run:rrn-e0ff67e5650fa813",
+    "integration:pose-mcp/go/delegated-output-redaction-diagnostics-integration",
+    "integration:pose-mcp/go/delegated-run-continuity-integration",
+    "integration:pose-mcp/go/delegation-surface-integration",
+    "structure:design-5a3833d2c839a777",
+    "unit:pose-mcp/go/test"
+  ],
+  "findings": [
+    {
+      "id": "F1",
+      "severity": "low",
+      "evidence": "file:pose-mcp/internal/pose/delegation_capture_failure.go:18",
+      "action": "Distinguish session-pattern from reset-pattern ambiguity (and multi-group patterns) before adding the system/init hint, with a test for each.",
+      "disposition": "accepted-risk",
+      "owner": "@pose-maintainers",
+      "rationale": "The claude-stream-json hint to restrict the session pattern to system/init is appended to every 'ambiguous adapter capture' at the session/interrupt stage, including ambiguity from limit.reset_pattern (review_run_continuity.go:253) or from a session pattern with more than one capture group (review_run_continuity.go:150); in those cases the remediation names the wrong pattern.",
+      "review_by": "2027-02-12"
+    },
+    {
+      "id": "F2",
+      "severity": "low",
+      "evidence": "file:pose-mcp/internal/pose/delegation_capture_failure.go:9",
+      "action": "Replace the string match with sentinel errors (errors.Is) shared by producers and the classifier, or add a test that drives every vocabulary entry from its real producer.",
+      "disposition": "accepted-risk",
+      "owner": "@pose-maintainers",
+      "rationale": "The closed vocabulary matches err.Error() against fmt.Errorf strings defined in other files; rewording a producer silently degrades the diagnostic to 'withheld'. 'adapter capture is not a bounded reference' and 'adapter reset instant is not RFC3339' have no end-to-end test.",
+      "review_by": "2027-02-12"
+    }
+  ],
+  "authority": {
+    "schema_version": 1,
+    "project": "proj.pose-dist",
+    "bundle_digest": "sha256:dacc920864b44d679dc18e0c5b010c0e49c0ff0676a1a158fe47507cf8360873",
+    "principal": "agent:anthropic/claude-opus-5-5",
+    "role": "agent",
+    "review_execution": "rrn-e0ff67e5650fa813",
+    "implementation_principal": "agent:openai/unknown",
+    "implementation_execution": "sha256:5396294805f4f44743ab53f75e9cf8067b3f44e572de59c613384eae153d93ad",
+    "issuer": "b34-local-executor",
+    "issued_at": "2026-11-12T17:36:40Z",
+    "audience": "proj.pose-dist"
+  },
+  "envelope": {
+    "issuer": "b34-local-executor",
+    "subject": "rvb-dacc920864b44d67",
+    "algorithm": "ed25519",
+    "public_key": "ck4sApdfePV2GT+hJyAYfJd2qLzeG55P8pevGR0bvZE=",
+    "signature": "YHXDhaBuIogPnOYLIjau0I2Ju0vy3PvlYN3c7V/K+RaWt1bZIESAea5p4b/WI45l6rIa+Da8h5lZERjnwTN+Ag=="
+  },
+  "attested_at": "2026-11-12T17:36:40Z",
+  "path": ".pose/review-attestations/rva-e5f68c7fb514f381.json"
+}
