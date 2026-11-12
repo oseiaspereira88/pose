@@ -97,7 +97,7 @@ Diagnóstico implementado: agente, formato de eventos, etapa e motivo seguro, co
 
 - `go test ./internal/cli -run 'TestDelegateTask|TestDelegate.*Session|TestDelegate.*Capture' -count=1`: passou (14.051s).
 - `go test ./internal/pose -run 'DelegationCaptureFailure|ReviewCapture|Review.*Continu|DelegationEvents' -count=1`: passou.
-- `LC_ALL=C LANGUAGE=C pose validate --strict --module pose-mcp --jobs 4 --json-out .pose/results/delivery-validation.json`: 208/208 checks passaram; wall 418.0s em 2026-11-12, incluindo suíte completa, build, vet e integrações.
+- `LC_ALL=C LANGUAGE=C pose validate --strict --module pose-mcp --jobs 4 --json-out .pose/results/delivery-validation.json`: 208/208 checks passaram em 2026-11-12, incluindo suíte completa, build, vet e integrações. O resultado atual a ser selado é o do arquivo estruturado; a primeira execução verde precedeu a finalização editorial desta spec.
 - `pose lint-spec pose-delegated-output-redaction-root-cause --strict`: passou.
 - `pose artifact-check --spec pose-delegated-output-redaction-root-cause --strict`: passou após corrigir os caminhos literais; 9 claims, 17 caminhos observados (incluindo saídas derivadas), sem erros.
 - `pose assess tech-debt`: scan incompleto por duas specs históricas inválidas; nenhuma garantia de completude é inferida.
