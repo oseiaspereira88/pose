@@ -88,10 +88,10 @@ capacidade.
   - report:2026-10-14-security-validation-release-api-auth.md
 
 ## Arquitetura
-<!-- state:derived hash:4e0bfc62609e status:active -->
+<!-- state:derived hash:abd31a9d1ad0 status:active -->
 
 - componentes: total=3 verificados=3 completude=99.2%
-- linhas_de_codigo: producao=115203 testes=110188 total=225391
+- linhas_de_codigo: producao=115203 testes=110242 total=225445
 - linguagens: go
 - saude_de_codigo: TODOs=1 FIXMEs=0 panics=1 stubs=0
 - integracoes: contratos=70 ativos=6 gaps=64
