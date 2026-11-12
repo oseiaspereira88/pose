@@ -1,7 +1,7 @@
 {
   "schema_version": 2,
-  "input_digest": "sha256:5597dfa1ac6de9ffbd1b3d955f2a4d729459b1c21f585bbccb032399810993c8",
-  "provenance_digest": "sha256:2ceb3a186df7a0ebb2d4d8714f739096b064bc13dd14dd93a027cccae38acc31",
+  "input_digest": "sha256:af1b97b49b7546965cea6ddc302e9353664e63e6be7723b0c4948e8b8a96663e",
+  "provenance_digest": "sha256:0160e0bbcf1293a59e56968bb3fb65ce8c695ceaf5e846ff1ed93bdc3bf03f10",
   "implied_edges": [
     "changes"
   ],
@@ -40414,6 +40414,14 @@
       }
     },
     {
+      "id": "change-set:cs-225027ccaa9f",
+      "type": "change-set",
+      "attributes": {
+        "diff_digest": "sha256:1cde4137c2250900dc246d22e1aed773fa5c12344db6960c3d6567c07e8201bb",
+        "selector": "trailers:pose-claude-reviewer-runs-tests-in-sandbox"
+      }
+    },
+    {
       "id": "change-set:cs-2329c88ddc9d",
       "type": "change-set",
       "attributes": {
@@ -42907,14 +42915,6 @@
       "attributes": {
         "diff_digest": "sha256:50676cabddcbca199a97d9d458596083473adafe52f4357fedfa681a75d1298c",
         "selector": "trailers:pose-suite-history-promise-per-step"
-      }
-    },
-    {
-      "id": "change-set:cs-b2822fd3a6d1",
-      "type": "change-set",
-      "attributes": {
-        "diff_digest": "sha256:dcc01e45c434df398216d31ab84186591428ff3625d58161e047c5e704f6681b",
-        "selector": "trailers:pose-claude-reviewer-runs-tests-in-sandbox"
       }
     },
     {
@@ -101112,7 +101112,7 @@
     },
     {
       "from": "spec:pose-claude-reviewer-runs-tests-in-sandbox",
-      "to": "change-set:cs-b2822fd3a6d1",
+      "to": "change-set:cs-225027ccaa9f",
       "type": "observed-by"
     },
     {
@@ -183868,6 +183868,138 @@
       }
     },
     {
+      "id": "cs-225027ccaa9f",
+      "spec": "pose-claude-reviewer-runs-tests-in-sandbox",
+      "selector": "trailers:pose-claude-reviewer-runs-tests-in-sandbox",
+      "base": "fe3871420afab6c3a5ddea0f422192b8aabbc136^",
+      "head": "16e80fa2aa78b00637fff4f4d3adc455d7ad8fe6",
+      "resolved_base": "881a84962f38417aa3989cf2c3aa17e739ce6123",
+      "resolved_head": "16e80fa2aa78b00637fff4f4d3adc455d7ad8fe6",
+      "commits": [
+        "fe3871420afab6c3a5ddea0f422192b8aabbc136",
+        "c43c4a4b22b6bacb80e5d47a2113047b6627cb03",
+        "16e80fa2aa78b00637fff4f4d3adc455d7ad8fe6"
+      ],
+      "paths": [
+        {
+          "action": "created",
+          "path": ".pose/adr/2026-11-12-sandboxed-claude-review-commands.md"
+        },
+        {
+          "action": "created",
+          "path": ".pose/changelogs/unreleased/pose-claude-reviewer-runs-tests-in-sandbox.md"
+        },
+        {
+          "action": "created",
+          "path": ".pose/reports/claude-review-sandbox-qualification.md"
+        },
+        {
+          "action": "created",
+          "path": ".pose/starts/pose-claude-reviewer-runs-tests-in-sandbox.json"
+        },
+        {
+          "action": "created",
+          "path": "pose-mcp/internal/pose/claude_sandboxed_review_test.go"
+        },
+        {
+          "action": "modified",
+          "path": ".pose/assessments/README.md"
+        },
+        {
+          "action": "modified",
+          "path": ".pose/assessments/consolidated.md"
+        },
+        {
+          "action": "modified",
+          "path": ".pose/assessments/technical-debt.md"
+        },
+        {
+          "action": "modified",
+          "path": ".pose/indexes/delivery-integrity.json"
+        },
+        {
+          "action": "modified",
+          "path": ".pose/indexes/generation.json"
+        },
+        {
+          "action": "modified",
+          "path": ".pose/indexes/releases.json"
+        },
+        {
+          "action": "modified",
+          "path": ".pose/indexes/spec-graph.json"
+        },
+        {
+          "action": "modified",
+          "path": ".pose/indexes/validation-matrix.json"
+        },
+        {
+          "action": "modified",
+          "path": ".pose/policy/delegation.json"
+        },
+        {
+          "action": "modified",
+          "path": ".pose/results/delivery-validation.json"
+        },
+        {
+          "action": "modified",
+          "path": ".pose/specs/2026-11-10-pose-claude-reviewer-runs-tests-in-sandbox.md"
+        },
+        {
+          "action": "modified",
+          "path": ".pose/state/technical-debt.json"
+        },
+        {
+          "action": "modified",
+          "path": "POSE.md"
+        },
+        {
+          "action": "modified",
+          "path": "locales/pt-BR/POSE.md"
+        },
+        {
+          "action": "modified",
+          "path": "pose-mcp/internal/pose/delegation_policy.go"
+        },
+        {
+          "action": "modified",
+          "path": "pose-mcp/internal/scaffold/dist/POSE.md"
+        },
+        {
+          "action": "modified",
+          "path": "pose-mcp/internal/scaffold/dist/locales/pt-BR/POSE.md"
+        }
+      ],
+      "diff_digest": "sha256:1cde4137c2250900dc246d22e1aed773fa5c12344db6960c3d6567c07e8201bb",
+      "material_digest": "sha256:b31c4f62d82a3c621d132ae97716ee466b0edb0192c2ea81f035a51efb396fce",
+      "material_inputs": {
+        "names": [
+          ".pose/adr/2026-11-12-sandboxed-claude-review-commands.md",
+          ".pose/assessments/README.md",
+          ".pose/assessments/consolidated.md",
+          ".pose/assessments/technical-debt.md",
+          ".pose/changelogs/unreleased/pose-claude-reviewer-runs-tests-in-sandbox.md",
+          ".pose/indexes/delivery-integrity.json",
+          ".pose/indexes/generation.json",
+          ".pose/indexes/releases.json",
+          ".pose/indexes/spec-graph.json",
+          ".pose/indexes/validation-matrix.json",
+          ".pose/policy/delegation.json",
+          ".pose/reports/claude-review-sandbox-qualification.md",
+          ".pose/results/delivery-validation.json",
+          ".pose/specs/2026-11-10-pose-claude-reviewer-runs-tests-in-sandbox.md",
+          ".pose/starts/pose-claude-reviewer-runs-tests-in-sandbox.json",
+          ".pose/state/technical-debt.json",
+          "POSE.md",
+          "locales/pt-BR/POSE.md",
+          "pose-mcp/internal/pose/claude_sandboxed_review_test.go",
+          "pose-mcp/internal/pose/delegation_policy.go",
+          "pose-mcp/internal/scaffold/dist/POSE.md",
+          "pose-mcp/internal/scaffold/dist/locales/pt-BR/POSE.md"
+        ]
+      }
+    },
+    {
       "id": "cs-2329c88ddc9d",
       "spec": "pose-adoption-stamp-stays-readable",
       "selector": "range:36664a7^..54158ef",
@@ -247460,112 +247592,6 @@
           ".pose/indexes/validation-matrix.json",
           ".pose/specs/2026-10-01-pose-suite-history-promise-per-step.md",
           "pose-mcp/internal/version/workflow_history_depth_test.go"
-        ]
-      }
-    },
-    {
-      "id": "cs-b2822fd3a6d1",
-      "spec": "pose-claude-reviewer-runs-tests-in-sandbox",
-      "selector": "trailers:pose-claude-reviewer-runs-tests-in-sandbox",
-      "base": "fe3871420afab6c3a5ddea0f422192b8aabbc136^",
-      "head": "c43c4a4b22b6bacb80e5d47a2113047b6627cb03",
-      "resolved_base": "881a84962f38417aa3989cf2c3aa17e739ce6123",
-      "resolved_head": "c43c4a4b22b6bacb80e5d47a2113047b6627cb03",
-      "commits": [
-        "fe3871420afab6c3a5ddea0f422192b8aabbc136",
-        "c43c4a4b22b6bacb80e5d47a2113047b6627cb03"
-      ],
-      "paths": [
-        {
-          "action": "created",
-          "path": ".pose/adr/2026-11-12-sandboxed-claude-review-commands.md"
-        },
-        {
-          "action": "created",
-          "path": ".pose/changelogs/unreleased/pose-claude-reviewer-runs-tests-in-sandbox.md"
-        },
-        {
-          "action": "created",
-          "path": ".pose/reports/claude-review-sandbox-qualification.md"
-        },
-        {
-          "action": "created",
-          "path": ".pose/starts/pose-claude-reviewer-runs-tests-in-sandbox.json"
-        },
-        {
-          "action": "created",
-          "path": "pose-mcp/internal/pose/claude_sandboxed_review_test.go"
-        },
-        {
-          "action": "modified",
-          "path": ".pose/assessments/README.md"
-        },
-        {
-          "action": "modified",
-          "path": ".pose/assessments/consolidated.md"
-        },
-        {
-          "action": "modified",
-          "path": ".pose/assessments/technical-debt.md"
-        },
-        {
-          "action": "modified",
-          "path": ".pose/indexes/validation-matrix.json"
-        },
-        {
-          "action": "modified",
-          "path": ".pose/policy/delegation.json"
-        },
-        {
-          "action": "modified",
-          "path": ".pose/specs/2026-11-10-pose-claude-reviewer-runs-tests-in-sandbox.md"
-        },
-        {
-          "action": "modified",
-          "path": ".pose/state/technical-debt.json"
-        },
-        {
-          "action": "modified",
-          "path": "POSE.md"
-        },
-        {
-          "action": "modified",
-          "path": "locales/pt-BR/POSE.md"
-        },
-        {
-          "action": "modified",
-          "path": "pose-mcp/internal/pose/delegation_policy.go"
-        },
-        {
-          "action": "modified",
-          "path": "pose-mcp/internal/scaffold/dist/POSE.md"
-        },
-        {
-          "action": "modified",
-          "path": "pose-mcp/internal/scaffold/dist/locales/pt-BR/POSE.md"
-        }
-      ],
-      "diff_digest": "sha256:dcc01e45c434df398216d31ab84186591428ff3625d58161e047c5e704f6681b",
-      "material_digest": "sha256:b31c4f62d82a3c621d132ae97716ee466b0edb0192c2ea81f035a51efb396fce",
-      "material_inputs": {
-        "names": [
-          ".pose/adr/2026-11-12-sandboxed-claude-review-commands.md",
-          ".pose/assessments/README.md",
-          ".pose/assessments/consolidated.md",
-          ".pose/assessments/technical-debt.md",
-          ".pose/changelogs/unreleased/pose-claude-reviewer-runs-tests-in-sandbox.md",
-          ".pose/indexes/validation-matrix.json",
-          ".pose/policy/delegation.json",
-          ".pose/reports/claude-review-sandbox-qualification.md",
-          ".pose/specs/2026-11-10-pose-claude-reviewer-runs-tests-in-sandbox.md",
-          ".pose/starts/pose-claude-reviewer-runs-tests-in-sandbox.json",
-          ".pose/state/technical-debt.json",
-          "POSE.md",
-          "locales/pt-BR/POSE.md",
-          "pose-mcp/internal/pose/claude_sandboxed_review_test.go",
-          "pose-mcp/internal/pose/delegation_policy.go",
-          "pose-mcp/internal/scaffold/dist/POSE.md",
-          "pose-mcp/internal/scaffold/dist/locales/pt-BR/POSE.md"
         ]
       }
     },
