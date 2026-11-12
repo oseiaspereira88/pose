@@ -78,6 +78,8 @@ O perfil anterior à correção harne8 `5752ec08` usa uma regex global de `sessi
 
 Executar primeiro o teste de regressão contra o código anterior; ele deve falhar por ausência de diagnóstico. Depois executar o mesmo teste, os testes de tasks/continuidade/eventos e a matriz strict de `pose-mcp` (build, testes completos, vet e integrações). Conferir lint-spec, artifact-check, revisão independente e closeout-check antes de fechar. Rollback: reverter apenas a mensagem e sua classificação; a política de retenção não muda.
 
+Executar a matriz com `LC_ALL=C LANGUAGE=C`. A execução inicial passou 206 checks, mas um teste existente dependia do fallback ASCII e a suíte completa atingiu o orçamento de 600s. O teste de locale passou isoladamente com `LC_ALL=C`. O orçamento da suíte completa passa a 1800s, tanto no runner quanto no Go; nenhum teste, asserção ou check é removido. Não executar outra suíte completa concorrente com a matriz.
+
 ### Requirement trace
 
 - R1 [satisfied] test:TestDelegateTaskExplainsTheLegacyClaudeSessionCaptureFailure reproduz perfil histórico e atual; relatório de investigação registra o limite da evidência histórica.

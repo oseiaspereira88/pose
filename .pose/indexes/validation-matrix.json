@@ -328,7 +328,8 @@
         {
           "name": "test",
           "program": "go",
-          "args": ["test", "./...", "-count=1"],
+          "args": ["test", "./...", "-count=1", "-timeout=30m"],
+          "timeoutSeconds": 1800,
           "severity": "required",
           "evidenceClass": "unit"
         },

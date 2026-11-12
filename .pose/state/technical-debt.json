@@ -1,20 +1,31 @@
 {
   "schema_version": 1,
-  "evaluated_at": "2026-11-07T05:43:43Z",
-  "baseline_commit": "fc00115337b9",
+  "evaluated_at": "2026-11-12T08:27:24Z",
+  "baseline_commit": "30cd2b1749d1",
   "summary": {
-    "total_markers": 1,
+    "total_markers": 2,
     "todos": 1,
     "fixmes": 0,
-    "panics": 0,
+    "panics": 1,
     "stubs": 0,
     "covered_count": 1,
-    "uncovered_count": 0,
-    "recommended_followups": 0,
+    "uncovered_count": 1,
+    "recommended_followups": 1,
     "recommended_specs": 0,
     "recommended_roadmaps": 0
   },
   "items": [
+    {
+      "id": "DEBT-057f3bf2",
+      "marker": "PANIC",
+      "file": "pose-mcp/internal/pose/bounded_cache.go",
+      "line": 334,
+      "snippet": "panic(r)",
+      "component": "pose-mcp",
+      "coverage": "uncovered",
+      "recommendation": "create_followup",
+      "link": "file:///home/go/IdeaProjects/harne8/pose-dist/pose-mcp/internal/pose/bounded_cache.go#L334"
+    },
     {
       "id": "DEBT-8dcc4523",
       "marker": "TODO",
@@ -25,10 +36,10 @@
       "coverage": "covered_by_spec",
       "coverage_ref": "spec:pose-residual-material-coverage-and-identity",
       "recommendation": "none",
-      "link": "file:///home/go/IdeaProjects/harne8/.worktrees/pose-b34-recovery/pose-mcp/internal/pose/techdebt.go#L329"
+      "link": "file:///home/go/IdeaProjects/harne8/pose-dist/pose-mcp/internal/pose/techdebt.go#L329"
     }
   ],
-  "scanned_files": 352,
+  "scanned_files": 355,
   "complete": false,
   "coverage": {
     "losses": [
@@ -57,18 +68,9 @@
       },
       {
         "producer": "assessment-scan",
-        "pattern": "over-size-limit",
-        "reason": "files larger than 4194304 bytes are not scanned",
-        "count": 1,
-        "examples": [
-          "recovery-notes/closeout-surface.json"
-        ]
-      },
-      {
-        "producer": "assessment-scan",
         "pattern": "skipped-directory",
         "reason": "directories that hold dependencies, build output or tool state are not scanned",
-        "count": 37,
+        "count": 40,
         "examples": [
           ".agents",
           ".claude",
