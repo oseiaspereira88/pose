@@ -134,4 +134,4 @@ The picker's preview is one `sh -c` word that fish parses (R1); the list shows g
 ### Follow-ups
 
 - [open] Quote the preview command for a pose path with a backslash under a fish login shell, where single quotes still process `\\`; and run the fish parse check where fish is absent by failing instead of skipping in CI. (owner:@pose-maintainers crit:low review:2027-01-08)
-- [open] Name the profile in the failure of a delegated task whose agent output could not be redacted, and find why the older Claude profile produces it. (owner:@pose-maintainers crit:low review:2027-01-08)
+- [done] Name the profile in the failure of a delegated task whose agent output could not be redacted, and find why the older Claude profile produces it. Delivered by spec:pose-delegated-output-redaction-root-cause on 2026-11-12; approved review rva-e5f68c7fb514f381.
