@@ -88,14 +88,14 @@ capacidade.
   - report:2026-10-14-security-validation-release-api-auth.md
 
 ## Arquitetura
-<!-- state:derived hash:00ac0f3186cc status:active -->
+<!-- state:derived hash:4e0bfc62609e status:active -->
 
-- componentes: total=3 verificados=3 completude=99.8%
-- linhas_de_codigo: producao=110745 testes=103751 total=214496
+- componentes: total=3 verificados=3 completude=99.2%
+- linhas_de_codigo: producao=115203 testes=110188 total=225391
 - linguagens: go
-- saude_de_codigo: TODOs=1 FIXMEs=0 panics=0 stubs=0
+- saude_de_codigo: TODOs=1 FIXMEs=0 panics=1 stubs=0
 - integracoes: contratos=70 ativos=6 gaps=64
-- divida_tecnica: total=1 coberta=1 descoberta=0 (piso: relatório de dívida incompleto — 2 source(s) could not be read: invalid .pose/specs/2026-08-15-pose-instance-engine-version-tracking.md (scope unknown); invalid .pose/specs/2026-08-15-pose-knowledge-durable-reference-type.md (scope unknown); não certificado)
+- divida_tecnica: total=2 coberta=1 descoberta=1 (piso: relatório de dívida incompleto — 2 source(s) could not be read: invalid .pose/specs/2026-08-15-pose-instance-engine-version-tracking.md (scope unknown); invalid .pose/specs/2026-08-15-pose-knowledge-durable-reference-type.md (scope unknown); não certificado)
 - ultimos_assessments: ver artefatos em .pose/assessments/ e .pose/state/
 
 ## Docs

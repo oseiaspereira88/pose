@@ -30,7 +30,7 @@ Preservar limites de bytes, retenção privada e recusa de sessão ambígua. Nã
 
 ### Non-goals
 
-O que não está nos requisitos abaixo.
+Alterar a captura única de sessão, recuperar saída histórica descartada, mudar a policy do fornecedor ou ampliar a garantia dos eventos live.
 
 ## 2. Requirements
 
@@ -91,4 +91,22 @@ Executar a matriz com `LC_ALL=C LANGUAGE=C`. A execução inicial passou 206 che
 ## 7. Final Report
 
 ### Delivered scope
-Diagnóstico implementado e testes focados passando. Fechamento e revisão independente pendentes.
+Diagnóstico implementado: agente, formato de eventos, etapa e motivo seguro, com dica para regex Claude ampla. A recusa e o descarte da captura ambígua permanecem. A reprodução sintética compara o perfil histórico e o atual. Revisão independente e fechamento pendentes.
+
+### Validation executed
+
+- `go test ./internal/cli -run 'TestDelegateTask|TestDelegate.*Session|TestDelegate.*Capture' -count=1`: passou (14.051s).
+- `go test ./internal/pose -run 'DelegationCaptureFailure|ReviewCapture|Review.*Continu|DelegationEvents' -count=1`: passou.
+- `LC_ALL=C LANGUAGE=C pose validate --strict --module pose-mcp --jobs 4 --json-out .pose/results/delivery-validation.json`: 208/208 checks passaram; wall 418.0s em 2026-11-12, incluindo suíte completa, build, vet e integrações.
+- `pose lint-spec pose-delegated-output-redaction-root-cause --strict`: passou.
+- `pose artifact-check --spec pose-delegated-output-redaction-root-cause --strict`: passou após corrigir os caminhos literais; 9 claims, 17 caminhos observados (incluindo saídas derivadas), sem erros.
+- `pose assess tech-debt`: scan incompleto por duas specs históricas inválidas; nenhuma garantia de completude é inferida.
+- A primeira matriz teve 206 passes, uma falha de locale e um timeout. A execução final acima substitui esses resultados para o fechamento, sem apagar as falhas históricas dos logs de execução.
+
+### Residual risks
+
+- O stream bruto da ocorrência histórica não existe mais; a investigação confirma o mecanismo com fixture sintética, não a composição exata daquele stream.
+
+### Follow-ups
+
+- [open] Fazer TestCheckRefusesAnIndexSetThatItsDescriptorDoesNotDescribe reconhecer o símbolo de warning tanto no perfil UTF-8 quanto no ASCII; hoje a matriz precisa de LC_ALL=C para esse teste existente. (owner:@pose-maintainers crit:low review:2027-02-12)
