@@ -783,6 +783,7 @@ func (s Store) RunDelegationTask(parent context.Context, plan DelegationTaskPlan
 	// The session, the limit and the reset are recognized on stdout and
 	// stderr, each as written; a session both print is one session, two
 	// different ones are refused (B2; review round 3, B2 and B3).
+	captureStage := "session/interrupt recognition"
 	status, failure, captureErr := s.classifyReviewInterruption(&run, DispatchPlan{Config: plan.adapter, session: plan.session, extraChannels: []string{string(errText)}}, transcript, runErr, ctx.Err())
 	if run.Interruption != nil {
 		// A task resumes with its access's command, not the review's.
@@ -793,6 +794,7 @@ func (s Store) RunDelegationTask(parent context.Context, plan DelegationTaskPlan
 	// The recorded argv is redacted again once the session is known: a
 	// template may carry it literally.
 	for i := 0; captureErr == nil && session != "" && i < len(run.Argv); i++ {
+		captureStage = "argv"
 		var red []byte
 		if red, captureErr = redactReviewCapture([]byte(run.Argv[i]), secrets, session, 17*int64(len(run.Argv[i]))+1); captureErr == nil {
 			run.Argv[i] = string(red)
@@ -800,6 +802,7 @@ func (s Store) RunDelegationTask(parent context.Context, plan DelegationTaskPlan
 	}
 	argvSafe = captureErr == nil
 	if captureErr == nil {
+		captureStage = "stdout"
 		stdout, captureErr = redactReviewCapture(transcript, secrets, session, safety.StreamBytes)
 	}
 	if captureErr == nil && tailed {
@@ -810,21 +813,24 @@ func (s Store) RunDelegationTask(parent context.Context, plan DelegationTaskPlan
 		run.Output = tail(string(stdout), limit)
 	}
 	if captureErr == nil {
+		captureStage = "final output"
 		var redacted []byte
 		if redacted, captureErr = redactReviewCapture([]byte(run.Output), secrets, session, safety.OutputBytes); captureErr == nil {
 			run.Output = string(redacted)
 		}
 	}
 	if captureErr == nil && run.Events != "" {
+		captureStage = "normalized events"
 		run.eventsBytes, captureErr = redactedDelegationEvents(run.Events, transcript, run.Output, secrets, session)
 	}
 	if captureErr == nil {
+		captureStage = "stderr"
 		stderr, captureErr = redactReviewCapture(errText, secrets, session, safety.StreamBytes)
 	}
 	if captureErr != nil {
 		run.Output, stdout, stderr, run.eventsBytes = "", nil, nil, nil
 		safety.CaptureComplete = false
-		return finish(ReviewRunFailed, "the agent's output could not be redacted; it was not kept")
+		return finish(ReviewRunFailed, delegationCaptureFailure(run.Adapter, run.Events, captureStage, captureErr))
 	}
 	if status == "" {
 		status = ReviewRunCompleted
