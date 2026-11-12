@@ -44,15 +44,15 @@ O perfil anterior à correção harne8 `5752ec08` usa uma regex global de `sessi
 
 ### Artifacts
 
-- modified: `.pose/specs/2026-11-10-pose-delegated-output-redaction-root-cause.md`
-- modified: `pose-mcp/internal/pose/delegation_task.go`
-- created: `pose-mcp/internal/pose/delegation_capture_failure.go`
-- created: `pose-mcp/internal/pose/delegation_capture_failure_test.go`
-- created: `pose-mcp/internal/cli/delegate_redaction_failure_test.go`
-- created: `.pose/investigations/pose-delegated-output-redaction-root-cause/2026-11-12-findings.md`
-- created: `.pose/changelogs/unreleased/pose-delegated-output-redaction-root-cause.md`
-- created: `.pose/starts/pose-delegated-output-redaction-root-cause.json`
-- modified: `.pose/indexes/validation-matrix.json`
+- modified: .pose/specs/2026-11-10-pose-delegated-output-redaction-root-cause.md
+- modified: pose-mcp/internal/pose/delegation_task.go
+- created: pose-mcp/internal/pose/delegation_capture_failure.go
+- created: pose-mcp/internal/pose/delegation_capture_failure_test.go
+- created: pose-mcp/internal/cli/delegate_redaction_failure_test.go
+- created: .pose/investigations/pose-delegated-output-redaction-root-cause/2026-11-12-findings.md
+- created: .pose/changelogs/unreleased/pose-delegated-output-redaction-root-cause.md
+- created: .pose/starts/pose-delegated-output-redaction-root-cause.json
+- modified: .pose/indexes/validation-matrix.json
 
 ### Delivery targets
 
