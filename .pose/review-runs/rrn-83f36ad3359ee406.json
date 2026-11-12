@@ -1,0 +1,125 @@
+{
+  "safety": {
+    "schema_version": 1,
+    "profile": "legacy-trusted",
+    "platform": "linux/amd64",
+    "capabilities": {
+      "automatic-expiry": "unavailable",
+      "bounded-capture": "available",
+      "cpu-limit": "unavailable",
+      "credential-filesystem-isolation": "unavailable",
+      "environment-allowlist": "available",
+      "escaped-descendant-termination": "unavailable",
+      "filesystem-isolation": "unavailable",
+      "memory-limit": "unavailable",
+      "network-isolation": "unavailable",
+      "origin-isolation": "unavailable",
+      "parent-termination": "available",
+      "process-group-termination": "available",
+      "shared-git-isolation": "unavailable"
+    },
+    "limitations": [
+      "trusted local executable required; worktree is not a sandbox",
+      "outside writes, transient writes, shared Git and credential files are not isolated",
+      "no memory/CPU quota or control of descendants escaping the process group",
+      "cleanup filesystem calls remain subject to operating-system I/O latency",
+      "legacy compatibility: HOME retained; other ambient credentials excluded"
+    ],
+    "stream_bytes": 8388608,
+    "output_bytes": 65536,
+    "retained_bytes": 16777216,
+    "timeout_ms": 3600000,
+    "max_runs_per_bundle": 3,
+    "retention": "retain-evidence; ttl=0; no automatic deletion",
+    "capture_complete": false,
+    "runtime_id": "pose-review-run-1341246562",
+    "operation": {
+      "schema_version": 1,
+      "operation": "review.dispatch.cleanup",
+      "scope": "spec:pose-delegated-output-redaction-root-cause",
+      "outcome": "completed",
+      "steps_run": [
+        {
+          "id": "cleanup",
+          "result": "done"
+        }
+      ],
+      "effects": [],
+      "resumable": false
+    }
+  },
+  "provenance": {
+    "execution_state": "not-started",
+    "planned_wire_digest": "sha256:16583d28c33a0ec95c6ffadc2312c776407c4703d11aa4c57ba10f7d7e866705",
+    "wire_bytes": 0,
+    "wire_complete": false,
+    "schema_version": 1,
+    "project": "proj.pose-dist",
+    "audience": "proj.pose-dist",
+    "worktree_digest": "sha256:1d9f3718e4f2ed070d47b3e5f4d166573b7d9b8254ddc3015e06758d93321837",
+    "trust": "executor-attested",
+    "implementation": {
+      "principal": "agent:openai/unknown",
+      "execution": "sha256:5396294805f4f44743ab53f75e9cf8067b3f44e572de59c613384eae153d93ad",
+      "vendor": "openai",
+      "model": "unknown"
+    },
+    "reviewer": {
+      "principal": "agent:anthropic/claude-opus-5-5",
+      "vendor": "anthropic",
+      "model": "claude-opus-5-5"
+    },
+    "config_digest": "sha256:fa7add8c85f5c0c1dd74b1dba89cd12989a2a856fc7a59407bc04682bd575e25",
+    "command_template_digest": "sha256:4fb04e170e8d7f85923d1ab7c7d6eac045a3bb8d20b443991552d6b7bfa7c4f2",
+    "argv_digest": "",
+    "executable_digest": "",
+    "template_version": "review-brief/7",
+    "wire_digest": "",
+    "notes_digest": "sha256:cd73694fa36315c6f172b6087b424b279284150af7fd21b85d6dbb1885ed2e61",
+    "raw_transcript_digest": "",
+    "raw_output_digest": "",
+    "output_source": "",
+    "output_complete": false
+  },
+  "brief_notes": "Implementer note; the generated sealed brief remains authoritative.\n\nSecurity checks after the source froze: govulncheck ./... exited 0 with no affected call paths or imported packages; it reported two advisories in required modules whose vulnerable symbols are not called. Diff whitespace checks and a bounded common-token/private-key pattern scan found no matches. These are separate from the canonical matrix, not invented sealed evidence IDs.\n\nReview spec pose-delegated-output-redaction-root-cause. The implementation changes only the diagnostic of delegated task capture failures. It preserves strict single-match-per-channel session capture and withholding on any capture/redaction failure. The historical harne8 profile before 5752ec08 used a broad session_id regex; the current one restricts capture to system/init. The CLI regression runs both over the same small synthetic stream, without calling a provider. The regression failed on the original code because every requested diagnostic field was absent, and passed after the change. The original historical stream was withheld and is unavailable: the report explicitly limits the historical causal claim.\n\nInspect safe error classification, stage tracking, retention and private-session non-disclosure, including the negative test of arbitrary filesystem error text. Do not interpret this as expanding the guarantee of live events. Run required artifact-check as its own command. Run every shell command separately; the restricted review profile may deny compound commands. For validation, distinguish your own execution from the evidence sealed by the bundle. review-check and closeout-check may be deferred until this review is recorded. Do not write source, policy, attestations or contribution drafts, and do not delegate another reviewer. Return the typed draft required by the native brief, with all exact criterion/tool IDs, and only properly owned low follow-ups accepted under policy.\n",
+  "ledger_version": 1,
+  "attempt_id": "rat-8e2678e878e377f52019f2d7a0b1ece76771c74a03b59c526525af8b29a8c15f",
+  "schema_version": 1,
+  "run_id": "rrn-83f36ad3359ee406",
+  "scope": "spec:pose-delegated-output-redaction-root-cause",
+  "bundle_id": "rvb-51cd813f5aa7da47",
+  "bundle_digest": "sha256:51cd813f5aa7da471c1151c56148e81491bbcf455b07978ba8ad368da7e07df4",
+  "sealed_commit": "eb124d13a15c7201f72daa4e5a84bdce38cf63ab",
+  "kind": "review",
+  "brief_digest": "sha256:b2632a84a1fd964a6c7cdb902c87a0c300e7c3719137ed6aee88a9d6b30d8c23",
+  "adapter": "claude-opus-5-5",
+  "vendor": "anthropic",
+  "model": "claude-opus-5-5",
+  "started_at": "2026-11-12T12:59:09.468453242Z",
+  "ended_at": "2026-11-12T12:59:14.500799555Z",
+  "exit_code": -1,
+  "status": "failed",
+  "failure": "sealed checkout blocked: [no passed structured validation evidence is attributed to the review scope]",
+  "transcript_digest": "sha256:e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+  "transcript_path": ".pose/review-runs/rrn-83f36ad3359ee406.transcript",
+  "output": "",
+  "policy_digest": "sha256:f8cb9e16758e19e66e0e01f29d1d347b0c15cd1cfa191e32926de54742e3cb72",
+  "label": "capture-diagnostic-r1",
+  "purpose": "review",
+  "events": "claude-stream-json",
+  "events_digest": "sha256:e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+  "routing": {
+    "requested": "claude-opus-5-5",
+    "implementation": {
+      "principal": "agent:openai/unknown",
+      "vendor": "openai",
+      "model": "unknown",
+      "execution_digest": "sha256:5396294805f4f44743ab53f75e9cf8067b3f44e572de59c613384eae153d93ad",
+      "source": "declared"
+    },
+    "implementation_from": "bundle",
+    "step": "explicit"
+  },
+  "independence_achieved": "different-vendor",
+  "round": 1
+}
