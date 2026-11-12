@@ -49,6 +49,14 @@
       "digest": "sha256:f82745f7617af27b174546d75a5e5f405d91420f470b0f560528136d8de216e7"
     },
     {
+      "spec": "pose-claude-reviewer-runs-tests-in-sandbox",
+      "category": "added",
+      "breaking": false,
+      "body": "- Optional per-agent `review_profile` selects fresh and resumed governed-review commands without widening read tasks, adjudication or smoke.\n- This repository's Claude review profile executes tests in the mandatory shell sandbox, with private Go cache/temp scratch and an absolute write denial for sealed source. Missing bubblewrap, socat or jq refuses launch with installation advice; sandbox failure never falls back to an unrestricted command.",
+      "path": "pose-claude-reviewer-runs-tests-in-sandbox.md",
+      "digest": "sha256:b353db49602ecf06f156fc0f1550489584b1c518704b09d33f6ca65af1631bba"
+    },
+    {
       "spec": "pose-claude-sandboxed-profile",
       "category": "added",
       "breaking": false,
