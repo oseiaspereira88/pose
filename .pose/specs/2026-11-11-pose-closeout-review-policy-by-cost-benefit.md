@@ -93,7 +93,7 @@ Ordem: verificar história terminal selada primeiro; para escopo aberto validar 
 ### Explicit close and historical state (R4, R5, R7)
 
 - Em escopo adotado aberto, membros terminais significam reached/eligible, não terminal. `pose close milestone:program/core` e `pose close roadmap:program` seguem sintaxe existente sem --apply/--resume; não ampliar os modos de close de spec. Next actions, readiness de dependentes, attention e aceitação federada exigem receipt para esses novos fechamentos, inclusive quando revisão própria aprovada ou dispensada.
-- Criar receipt schema 1 em `.pose/closeouts/milestone/<roadmap>/<milestone>.json` e `.pose/closeouts/roadmap/<roadmap>.json`, com escopo canônico, instante, subject/input digests, snapshot da policy e decisão do avaliador, membros/associações resolvidos e refs de revisão opcional/obrigatória. Para dispensa persistir literalmente `review: not-required`, chave, valor, versão e razão com counts (`members=1, threshold>2`, por exemplo); uma revisão voluntária aprovada fica referenciada à parte. Para revisão exigida registrar `review: required` e evidência verificada, nunca um revisor inventado.
+- Criar receipt schema 1 em `.pose/review-closeouts/milestone/<roadmap>/<milestone>.json` e `.pose/review-closeouts/roadmap/<roadmap>.json`, com escopo canônico, instante, subject/input digests, snapshot da policy e decisão do avaliador, membros/associações resolvidos e refs de revisão opcional/obrigatória. Reutilizar a classe administrativa existente `.pose/review-*` para JSON de evidência derivada, sem ampliar a lista de exclusões materiais. Para dispensa persistir literalmente `review: not-required`, chave, valor, versão e razão com counts (`members=1, threshold>2`, por exemplo); uma revisão voluntária aprovada fica referenciada à parte. Para revisão exigida registrar `review: required` e evidência verificada, nunca um revisor inventado.
 - Publicar receipt via writer guard/atomic publication existentes, com rechecagem dos inputs e dos gates na região protegida. Fechar roadmap ainda altera status; receipt é o commit marker terminal e só é publicado após status. Falha entre essas publicações fica explicitamente incompleta e repetição verifica os mesmos inputs antes de concluir, sem fabricar sucesso. Recibo existente igual torna repetição somente verificação; diferente/corrompido não pode ser sobrescrito para limpar um veto. Não incluir o próprio receipt/status na identidade semântica que ele atesta.
 - Receipt não substitui evidência de entrega ou revisão de membro. Preservar exit gates mesmo quando não há revisão agregada; resultado negativo de gate continua bloqueante, sem auto-attest de juízo humano. Mudança de composição/policy antes de close recalcula elegibilidade; aprovação de bundle aberto com inputs relevantes alterados precisa supersessão como hoje.
 - Sem receipt, história terminal anterior à adoção é verificada pelo contrato/plano selado existente, inclusive milestones herdados de roadmap selado. Nunca inferir adoção pela data ou preencher receipts retroativos. Um mero milestone reached sem prova terminal prévia continua aberto na adoção. Done não permite esconder corrupção ou veto histórico. Fechamento novo usa receipt selado; mudanças posteriores da policy não reavaliam a decisão histórica, mas mudanças semânticas e integridade continuam verificadas pelas regras existentes.
@@ -107,9 +107,10 @@ Na federação, avaliar o escopo na sua autoridade, com bindings/autorização/p
 
 ### Artifacts
 
-Lista prevista para implementação futura; somente a primeira linha pode ser escrita nesta tarefa. A ADR aceita já existe e é referência, não um arquivo a recriar. Não adotar `.pose/policy/review.json` local. Artefatos de runtime dos testes ficam em `t.TempDir`, não no repositório.
+Lista do change set completo da spec, incluindo a ADR criada e aprovada nos commits de planejamento. Os demais caminhos são previstos para implementação futura; não recriar a ADR nem adotar `.pose/policy/review.json` local. Artefatos de runtime dos testes ficam em `t.TempDir`, não no repositório.
 
 - modified: .pose/specs/2026-11-11-pose-closeout-review-policy-by-cost-benefit.md
+- created: .pose/adr/2026-11-12-closeout-review-policy-by-cost-and-benefit.md
 - modified: .pose/indexes/validation-matrix.json
 - modified: pose-mcp/internal/pose/review_closeout.go
 - modified: pose-mcp/internal/pose/review_plan.go
@@ -140,6 +141,7 @@ Lista prevista para implementação futura; somente a primeira linha pode ser es
 - modified: pose-mcp/schemas/v1/review-plan.schema.json
 - created: pose-mcp/schemas/v1/closeout-receipt.schema.json
 - modified: POSE.md
+- modified: locales/pt-BR/POSE.md
 - modified: pose-mcp/internal/scaffold/dist/POSE.md
 - modified: pose-mcp/internal/scaffold/dist/locales/pt-BR/POSE.md
 - modified: .pose/templates/roadmap.md
@@ -205,8 +207,9 @@ Risco alto: dispensa indevida de autoridade, reinterpretação de aprovação hi
 | Required negative R2-R7 — cancelamento/timeout/dependência indisponível e inventário limitado excedido | `go test ./internal/pose ./internal/cli ./internal/mcpserver -run '^TestCloseoutReviewPolicyUnavailable$' -count=1 -v` | Erro/unknown, nunca not-required por falta de dados; nenhuma receipt ou adoção parcial. Sem provider remoto necessário; fallback só o legado explicitamente não adotado. |
 | Required e2e/smoke R2-R7 — binário e instalação temporária, configurar cada modo, fechar membros e agregado, verificar estado | `go test ./internal/cli -run '^TestCloseoutReviewPolicySmoke$' -count=1 -v` | Harness constrói CLI em tempdir, instala fixture, exerce flags/close reais e receipt; prova entrada de produção até verificador, sem projetos reais. |
 | Required permanent integration — todo prefixo novo | `go test ./internal/pose ./internal/cli ./internal/mcpserver -run '^TestCloseoutReviewPolicy' -count=1` | Check closeout-review-policy-integration verde e todas as famílias acima presentes; não aceitar filtro vazio. |
-| Required existing regressions — herança, reached, proteção, história e aceitação federada | `go test ./internal/pose ./internal/cli ./internal/mcpserver -count=1 -timeout=30m` | Fixtures legadas seguem verdes; fixtures adotadas testam semântica nova sem enfraquecer asserts legados. |
-| Required module baseline / build/security/contract | `pose validate --strict --module pose-mcp --report --report-task test-plan-baseline-pose-closeout-review-policy-by-cost-benefit` | Todas as checks required da matriz passam, inclusive integração permanente; relatório contém comandos/outcomes/classes vigentes. |
+| Required existing regressions — herança, reached, proteção, história e aceitação federada | `LC_ALL=C LANGUAGE=C go test ./internal/pose ./internal/cli ./internal/mcpserver -count=1 -timeout=30m` | Fixtures legadas seguem verdes; fixtures adotadas testam semântica nova sem enfraquecer asserts legados. |
+| Required module baseline / build/security/contract | `LC_ALL=C LANGUAGE=C pose validate --strict --module pose-mcp --report --report-task test-plan-baseline-pose-closeout-review-policy-by-cost-benefit` | Todas as checks required da matriz passam, inclusive integração permanente; relatório contém comandos/outcomes/classes vigentes. |
+| Required dependency security | `govulncheck ./...` | Sem caminhos vulneráveis alcançáveis; registrar separadamente avisos em módulos requeridos não chamados. |
 | Required Go rule | `go vet ./...` | Sem achados bloqueantes; executar mesmo sendo optional na matriz. |
 | Required delivery/structure (raiz) | `pose check --strict` | Estrutura e matriz válidas; sem falha nova nos fechamentos históricos. |
 | Required contract assessment futuro (raiz) | `pose assess integrate` | Impacto CLI/MCP/federação documentado, sem contrato divergente. |
