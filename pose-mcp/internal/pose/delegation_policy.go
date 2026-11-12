@@ -94,19 +94,22 @@ type ReviewerEffort struct {
 
 // DelegationAgent is one configured CLI profile.
 type DelegationAgent struct {
-	Vendor           string               `json:"vendor"`
-	Model            string               `json:"model"`
-	CLI              string               `json:"cli,omitempty"`
-	Events           string               `json:"events,omitempty"`
-	Commands         map[string][]string  `json:"commands"`
-	Effort           *ReviewerEffort      `json:"effort,omitempty"`
-	Timeout          string               `json:"timeout,omitempty"`
-	MaxRunsPerBundle int                  `json:"max_runs_per_bundle,omitempty"`
-	Limit            *ReviewerLimit       `json:"limit,omitempty"`
-	Session          *ReviewerSession     `json:"session,omitempty"`
-	Resume           *ReviewerResume      `json:"resume,omitempty"`
-	Executor         string               `json:"executor,omitempty"`
-	Containment      *ReviewerContainment `json:"containment,omitempty"`
+	Vendor   string              `json:"vendor"`
+	Model    string              `json:"model"`
+	CLI      string              `json:"cli,omitempty"`
+	Events   string              `json:"events,omitempty"`
+	Commands map[string][]string `json:"commands"`
+	// ReviewProfile selects a separate executable contract for governed review only.
+	// Omission preserves the read adapter, including its provenance digest.
+	ReviewProfile    *DelegationReviewProfile `json:"review_profile,omitempty"`
+	Effort           *ReviewerEffort          `json:"effort,omitempty"`
+	Timeout          string                   `json:"timeout,omitempty"`
+	MaxRunsPerBundle int                      `json:"max_runs_per_bundle,omitempty"`
+	Limit            *ReviewerLimit           `json:"limit,omitempty"`
+	Session          *ReviewerSession         `json:"session,omitempty"`
+	Resume           *ReviewerResume          `json:"resume,omitempty"`
+	Executor         string                   `json:"executor,omitempty"`
+	Containment      *ReviewerContainment     `json:"containment,omitempty"`
 	// Probe is an optional availability check (spec pose-delegation-routing
 	// R6). It is not part of the adapter the review path verifies, so it never
 	// changes the adapter digest a run's provenance binds; adding one is still a
@@ -128,6 +131,13 @@ type DelegationAgent struct {
 	// part of the adapter a run's provenance binds: a profile that checks its own
 	// dependencies at launch still refuses to start; this is how the diagnostics say so first.
 	Requires map[string]DelegationRequirement `json:"requires,omitempty"`
+}
+
+// DelegationReviewProfile permits test execution without widening read tasks.
+// Spec pose-claude-reviewer-runs-tests-in-sandbox.
+type DelegationReviewProfile struct {
+	Command       []string `json:"command"`
+	ResumeCommand []string `json:"resume_command,omitempty"`
 }
 
 // DelegationRequirement is what an access profile needs on the machine that runs it.
@@ -588,6 +598,28 @@ func validateDelegationPolicy(policy DelegationPolicy) error {
 		if err := validateTaskFragments(name, agent); err != nil {
 			return err
 		}
+		if profile := agent.ReviewProfile; profile != nil {
+			if len(agent.Commands[DelegationAccessRead]) == 0 {
+				return fmt.Errorf("pose: delegation agent %s review_profile requires read access", name)
+			}
+			if err := validateDelegationArgv(profile.Command, agent.Effort); err != nil {
+				return fmt.Errorf("pose: delegation agent %s review_profile command: %w", name, err)
+			}
+			for _, argv := range [][]string{profile.Command, profile.ResumeCommand} {
+				for _, arg := range argv {
+					if containsString([]string{"{outside_git}", "{add_dirs}", "{no_network}"}, arg) {
+						return fmt.Errorf("pose: delegation agent %s review_profile cannot use task fragments", name)
+					}
+				}
+			}
+			if agent.Resume != nil {
+				if err := validateDelegationArgv(profile.ResumeCommand, agent.Effort); err != nil || !containsString(profile.ResumeCommand, "{session}") {
+					return fmt.Errorf("pose: delegation agent %s review_profile resume_command requires a valid argv and {session}", name)
+				}
+			} else if len(profile.ResumeCommand) > 0 {
+				return fmt.Errorf("pose: delegation agent %s review_profile resume_command requires resume/session configuration", name)
+			}
+		}
 		if agent.Timeout != "" {
 			if d, err := time.ParseDuration(agent.Timeout); err != nil || d <= 0 {
 				return fmt.Errorf("pose: delegation agent %s: timeout must be a positive duration", name)
@@ -752,6 +784,14 @@ func (p DelegationPolicy) agentAdapter(name, purpose string) (ReviewerAdapter, b
 		Containment: agent.Containment, Executor: agent.Executor, Command: agent.Commands[DelegationAccessRead],
 		Vendor: agent.Vendor, Model: agent.Model, Timeout: agent.Timeout, MaxRunsPerBundle: agent.MaxRunsPerBundle,
 		Limit: agent.Limit, Session: agent.Session, Resume: agent.Resume, Events: agent.Events, Effort: agent.Effort,
+	}
+	if purpose == DelegationPurposeReview && agent.ReviewProfile != nil {
+		adapter.Command = append([]string(nil), agent.ReviewProfile.Command...)
+		if agent.Resume != nil {
+			resume := *agent.Resume
+			resume.Command = append([]string(nil), agent.ReviewProfile.ResumeCommand...)
+			adapter.Resume = &resume
+		}
 	}
 	if budget.Timeout != "" {
 		adapter.Timeout = budget.Timeout
