@@ -78,12 +78,12 @@ O perfil anterior à correção harne8 `5752ec08` usa uma regex global de `sessi
 
 Executar primeiro o teste de regressão contra o código anterior; ele deve falhar por ausência de diagnóstico. Depois executar o mesmo teste, os testes de tasks/continuidade/eventos e a matriz strict de `pose-mcp` (build, testes completos, vet e integrações). Conferir lint-spec, artifact-check, revisão independente e closeout-check antes de fechar. Rollback: reverter apenas a mensagem e sua classificação; a política de retenção não muda.
 
-Executar a matriz com `LC_ALL=C LANGUAGE=C`. A execução inicial passou 206 checks, mas um teste existente dependia do fallback ASCII e a suíte completa atingiu o orçamento de 600s. O teste de locale passou isoladamente com `LC_ALL=C`. O orçamento da suíte completa passa a 1800s, tanto no runner quanto no Go; nenhum teste, asserção ou check é removido. Não executar outra suíte completa concorrente com a matriz.
+Executar a matriz com `LC_ALL=C LANGUAGE=C`. A execução inicial passou 206 checks, mas um teste existente dependia do fallback ASCII e a suíte completa atingiu o orçamento de 600s enquanto havia outra suíte completa concorrente. O teste de locale passou isoladamente com `LC_ALL=C`; duas matrizes isoladas passaram em 418.0s e 416.8s. O aumento experimental do orçamento foi retirado do change set final: manter os limites originais de Go/runner, sem remover testes, asserções ou checks. Não executar outra suíte completa concorrente com a matriz. Cobrir também o canal stdout quando a expansão da redação excede o limite, sem preservar canais inseguros.
 
 ### Requirement trace
 
 - R1 [satisfied] test:TestDelegateTaskExplainsTheLegacyClaudeSessionCaptureFailure reproduz perfil histórico e atual; relatório de investigação registra o limite da evidência histórica.
-- R2 [satisfied] test:TestDelegateTaskExplainsTheLegacyClaudeSessionCaptureFailure test:TestDelegationCaptureFailureWithholdsPrivateErrorDetails
+- R2 [satisfied] test:TestDelegateTaskExplainsTheLegacyClaudeSessionCaptureFailure test:TestDelegateTaskDiagnosesRedactionGrowthWithoutKeepingTheCapture test:TestDelegationCaptureFailureWithholdsPrivateErrorDetails
 - R3 [satisfied] test:TestDelegateTaskExplainsTheLegacyClaudeSessionCaptureFailure falhou antes por ausência do diagnóstico e passou depois; os testes de tasks passaram (14.051s).
 
 ---
@@ -97,6 +97,7 @@ Diagnóstico implementado: agente, formato de eventos, etapa e motivo seguro, co
 
 - `go test ./internal/cli -run 'TestDelegateTask|TestDelegate.*Session|TestDelegate.*Capture' -count=1`: passou (14.051s).
 - `go test ./internal/pose -run 'DelegationCaptureFailure|ReviewCapture|Review.*Continu|DelegationEvents' -count=1`: passou.
+- `go test ./internal/cli -run 'TestDelegateTaskExplainsTheLegacyClaudeSessionCaptureFailure|TestDelegateTaskDiagnosesRedactionGrowth' -count=1`: passou (0.345s), cobrindo perfil histórico/corrigido e falha por expansão no stdout com todos os canais retidos vazios.
 - `LC_ALL=C LANGUAGE=C pose validate --strict --module pose-mcp --jobs 4 --json-out .pose/results/delivery-validation.json`: 208/208 checks passaram em 2026-11-12, incluindo suíte completa, build, vet e integrações. O resultado atual a ser selado é o do arquivo estruturado; a primeira execução verde precedeu a finalização editorial desta spec.
 - `pose lint-spec pose-delegated-output-redaction-root-cause --strict`: passou.
 - `pose artifact-check --spec pose-delegated-output-redaction-root-cause --strict`: passou após corrigir os caminhos literais; 9 claims, 17 caminhos observados (incluindo saídas derivadas), sem erros.
