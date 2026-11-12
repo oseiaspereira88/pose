@@ -1,8 +1,8 @@
 # Project Assessment: pose-dist
 
 > **Gerado por**: POSE Discovery Engine (`pose assess discover`)
-> **Data de Avaliação**: 2026-11-12T13:16:54Z
-> **Baseline Commit**: 1af0142eddd2
+> **Data de Avaliação**: 2026-11-12T17:56:38Z
+> **Baseline Commit**: a0a80270fd0d
 
 ---
 
@@ -13,9 +13,9 @@
 - **Linhas de Código de Testes**: 110242
 - **Total Geral de Linhas de Código**: 225445
 - **Total de Arquivos Auditados**: 886
-- **Completude Dinâmica da Plataforma**: 42.7%
+- **Completude Dinâmica da Plataforma**: 44.7%
 - **Dívidas Técnicas em Aberto**: 1 TODOs | 0 FIXMEs | 1 Panics | 0 Stubs
-- **Especificações (Specs) em Aberto**: 26
+- **Especificações (Specs) em Aberto**: 25
 - **Gaps de Integração Identificados**: 3
 
 ---

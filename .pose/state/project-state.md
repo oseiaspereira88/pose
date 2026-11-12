@@ -1,7 +1,7 @@
 ---
 schema_version: 1
-generated_at: 2026-11-10T10:51:41Z
-baseline_commit: 1c1655d655f942e673dadce7b83c1b0908099d50
+generated_at: 2026-11-12T17:56:37Z
+baseline_commit: a0a80270fd0d5001bffa09f8181587f30dd4a08e
 staleness_policy: max_age_days=7,max_commits=20
 refresh_pending: 
 ---
@@ -27,36 +27,36 @@ próprio deste repositório (produtização v2, DX) segue disponível conforme
 capacidade.
 
 ## Specs & Roadmaps
-<!-- state:derived hash:5999aced6d78 -->
+<!-- state:derived hash:bebd25e859ac -->
 
-- specs: total=494 draft=12 in-progress=0 blocked=0 done=480 superseded=0 abandoned=2
-- roadmaps: total=23 active=3 done=16
+- specs: total=514 draft=25 in-progress=0 blocked=0 done=487 superseded=0 abandoned=2
+- roadmaps: total=23 active=3 done=17
 - últimos closeouts:
-  - spec:pose-governance-audit-skips-pure-git-reads (2026-11-10)
-  - spec:pose-worktree-runtime-resident-cache (2026-11-10)
-  - spec:pose-worktree-runtime-qos-and-measurement (2026-11-10)
+  - spec:pose-delegated-output-redaction-root-cause (2026-11-12)
+  - spec:pose-verdict-readers-ask-the-sealed-question (2026-11-11)
+  - spec:pose-commit-gate-refuses-index-without-descriptor (2026-11-11)
+  - spec:pose-review-subject-head-is-the-newest (2026-11-11)
   - spec:pose-index-input-binding-reads-each-transfer-once (2026-11-10)
-  - spec:pose-done-spec-keeps-its-sealed-plan (2026-11-09)
-  - ... e mais 475 (ver `pose_list_specs status:done`)
+  - ... e mais 482 (ver `pose_list_specs status:done`)
 
 ## Follow-ups
-<!-- state:derived hash:e2714353cc75 -->
+<!-- state:derived hash:d624c8a11bcf -->
 
-- abertos: 259
-- por criticidade: high=5 medium=51 low=184 sem-classificação=19
-- vencidos (review < hoje): 55
+- abertos: 268
+- por criticidade: high=5 medium=51 low=193 sem-classificação=19
+- vencidos (review < hoje): 60
 - cobertura: INCOMPLETA — 2 source(s) could not be read: invalid .pose/specs/2026-08-15-pose-instance-engine-version-tracking.md; invalid .pose/specs/2026-08-15-pose-knowledge-durable-reference-type.md; os números acima são o que pôde ser lido
   - spec:pose-package-manager-distribution (owner:@pose-maintainers review:2026-09-18)
   - spec:pose-federated-carried-forward-proof (owner:@harne8-platform review:2026-09-27)
   - spec:pose-release-signing-rejection (owner:@pose-maintainers review:2026-10-02)
-  - spec:pose-review-root-binding-parity (owner:@pose-maintainers review:2026-10-02)
   - spec:pose-verifier-assets-variable-fix (owner:@pose-maintainers review:2026-10-02)
   - spec:pose-shellcheck-ci-gate (owner:@pose-maintainers review:2026-10-02)
+  - spec:pose-review-root-binding-parity (owner:@pose-maintainers review:2026-10-02)
   - spec:pose-federated-spec-dependency-acceptance (owner:@harne8-platform review:2026-10-03)
   - spec:pose-spec-transfer-reconcile-terminal (owner:@harne8-platform review:2026-10-03)
   - spec:pose-package-channel-install-repair (owner:@pose-maintainers review:2026-10-08)
   - spec:pose-governance-gate-activation (owner:@pose-maintainers review:2026-10-08)
-  - ... e mais 45 vencidos (ver `pose followups --open`)
+  - ... e mais 50 vencidos (ver `pose followups --open`)
 
 ## Capabilities
 <!-- state:derived hash:e20a9224b717 -->
@@ -76,10 +76,10 @@ capacidade.
 - knowledge: total=21 ativo=21 expirado=0
 
 ## Validação & Evidência
-<!-- state:derived hash:8d31785032d6 -->
+<!-- state:derived hash:2182f66db4c3 -->
 
 - último registro: task=validate-native outcome=pass (2026-10-24T18:00:55Z)
-- últimos 30 dias: total=41 outcome_ok=27 outcome_outro=14
+- últimos 30 dias: total=39 outcome_ok=27 outcome_outro=12
 - reports revisados (.md): total=291
   - report:2026-11-09-pose-worktree-runtime-measurements.md
   - report:2026-11-05-pose-b34-dependency-budget-measurement.md
