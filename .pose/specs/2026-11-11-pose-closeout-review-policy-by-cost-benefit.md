@@ -58,7 +58,7 @@ Esta lista cobre a decisão em rascunho; os artefatos de implementação serão 
 
 ## 4. Tasks
 
-- [ ] ADR (R1) e aprovação do mantenedor
+- [x] ADR (R1) e aprovação explícita do mantenedor em 2026-11-12
 - [ ] Completar a spec (artefatos, alvos de entrega, estratégia de validação) e iniciar
 - [ ] Implementar e testar
 - [ ] Revisão independente e fechamento
@@ -67,7 +67,7 @@ Esta lista cobre a decisão em rascunho; os artefatos de implementação serão 
 
 ### Decision D1
 - Basis: R1, R2, R3, R4, R5, R6, R7
-- Selected option: proposta na ADR [Closeout review policy by cost and benefit](../adr/2026-11-12-closeout-review-policy-by-cost-and-benefit.md), aguardando aprovação do mantenedor.
+- Selected option: ADR [Closeout review policy by cost and benefit](../adr/2026-11-12-closeout-review-policy-by-cost-and-benefit.md), aprovada explicitamente pelo mantenedor em 2026-11-12.
 - Rationale: separar o fechamento obrigatório da revisão opcional com limiares determinísticos e preservação do histórico selado.
 - Consequences: a adoção é explícita; uma policy legada sem as chaves mantém a semântica atual, enquanto instalações/adotantes novas recebem `never`.
 

@@ -1,8 +1,9 @@
 # ADR: Closeout review policy by cost and benefit
 
 ## Status
-Proposed — 2026-11-12. The maintainer specified the three modes and thresholds;
-the adoption and compatibility mechanism below awaits approval. No policy is changed.
+Accepted — the maintainer approved this base explicitly on 2026-11-12, including
+legacy compatibility and `always` requiring a one-member milestone's own review.
+This records the architectural decision, not policy adoption or a delivery attestation.
 
 ## Context
 
