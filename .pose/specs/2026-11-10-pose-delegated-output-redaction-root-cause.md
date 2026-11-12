@@ -1,8 +1,8 @@
 ---
 slug: pose-delegated-output-redaction-root-cause
-status: in-progress
+status: done
 created_at: 2026-11-10
-completed_at:
+completed_at: 2026-11-12
 supersedes:
 depends_on: pose-delegate-picker-and-claude-runs
 remediates:
@@ -62,7 +62,7 @@ O perfil anterior à correção harne8 `5752ec08` usa uma regex global de `sessi
 
 - [x] Completar a spec (artefatos, alvos de entrega, estratégia de validação) e iniciar
 - [x] Implementar e testar
-- [ ] Revisão independente e fechamento
+- [x] Revisão independente e fechamento
 
 ## 5. Decisions
 
@@ -91,7 +91,7 @@ Executar a matriz com `LC_ALL=C LANGUAGE=C`. A execução inicial passou 206 che
 ## 7. Final Report
 
 ### Delivered scope
-Diagnóstico implementado: agente, formato de eventos, etapa e motivo seguro, com dica para regex Claude ampla. A recusa e o descarte da captura ambígua permanecem. A reprodução sintética compara o perfil histórico e o atual. Revisão independente e fechamento pendentes.
+Diagnóstico implementado: agente, formato de eventos, etapa e motivo seguro, com dica para regex Claude ampla. A recusa e o descarte da captura ambígua permanecem. A reprodução sintética compara o perfil histórico e o atual. Revisão independente aprovada no run `rrn-e0ff67e5650fa813`, atestação `rva-e5f68c7fb514f381`, bundle `rvb-dacc920864b44d67`; fechamento nativo aplicado em 2026-11-12.
 
 ### Validation executed
 
@@ -100,6 +100,8 @@ Diagnóstico implementado: agente, formato de eventos, etapa e motivo seguro, co
 - `go test ./internal/cli -run 'TestDelegateTaskExplainsTheLegacyClaudeSessionCaptureFailure|TestDelegateTaskDiagnosesRedactionGrowth' -count=1`: passou (0.345s), cobrindo perfil histórico/corrigido e falha por expansão no stdout com todos os canais retidos vazios.
 - `LC_ALL=C LANGUAGE=C pose validate --strict --module pose-mcp --jobs 4 --json-out .pose/results/delivery-validation.json`: 208/208 checks passaram em 2026-11-12, incluindo suíte completa, build, vet e integrações. O resultado atual a ser selado é o do arquivo estruturado; a primeira execução verde precedeu a finalização editorial desta spec.
 - `pose lint-spec pose-delegated-output-redaction-root-cause --strict`: passou.
+- `pose review conclude rrn-e0ff67e5650fa813 --apply`: state recorded, decision approved; `pose review-check spec:pose-delegated-output-redaction-root-cause`: fresh=true, approved=true, different-vendor.
+- `pose close spec:pose-delegated-output-redaction-root-cause`: exit 0, Closed. O material de código validado está no commit `1af0142e`; este relatório final registra o resultado posterior da revisão e da transição.
 - `pose artifact-check --spec pose-delegated-output-redaction-root-cause --strict`: passou após corrigir os caminhos literais; 9 claims, 17 caminhos observados (incluindo saídas derivadas), sem erros.
 - `pose assess tech-debt`: scan incompleto por duas specs históricas inválidas; nenhuma garantia de completude é inferida.
 - A primeira matriz teve 206 passes, uma falha de locale e um timeout. A execução final acima substitui esses resultados para o fechamento, sem apagar as falhas históricas dos logs de execução.
@@ -111,3 +113,5 @@ Diagnóstico implementado: agente, formato de eventos, etapa e motivo seguro, co
 ### Follow-ups
 
 - [open] Fazer TestCheckRefusesAnIndexSetThatItsDescriptorDoesNotDescribe reconhecer o símbolo de warning tanto no perfil UTF-8 quanto no ASCII; hoje a matriz precisa de LC_ALL=C para esse teste existente. (owner:@pose-maintainers crit:low review:2027-02-12)
+- [open] Distinguir ambiguidade de session/reset e padrões com múltiplos grupos antes de sugerir system/init, com testes dos casos; finding:rva-e5f68c7fb514f381/F1. (owner:@pose-maintainers crit:low review:2027-02-12)
+- [open] Usar sentinels compartilhados ou testar todos os motivos a partir dos produtores reais, para que mudanças no texto não degradem o diagnóstico silenciosamente; finding:rva-e5f68c7fb514f381/F2. (owner:@pose-maintainers crit:low review:2027-02-12)
