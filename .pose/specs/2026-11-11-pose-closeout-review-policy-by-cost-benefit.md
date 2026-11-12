@@ -49,12 +49,27 @@ Dados do pose-dist em 2026-11-11: 7 runs de revisão de milestone e 6 de roadmap
 
 Os artefatos e os alvos de entrega são fixados antes do start, depois da ADR.
 
+### Artifacts
+
+- modified: .pose/specs/2026-11-11-pose-closeout-review-policy-by-cost-benefit.md
+- created: .pose/adr/2026-11-12-closeout-review-policy-by-cost-and-benefit.md
+
+Esta lista cobre a decisão em rascunho; os artefatos de implementação serão fixados antes do start.
+
 ## 4. Tasks
 
 - [ ] ADR (R1) e aprovação do mantenedor
 - [ ] Completar a spec (artefatos, alvos de entrega, estratégia de validação) e iniciar
 - [ ] Implementar e testar
 - [ ] Revisão independente e fechamento
+
+## 5. Decisions
+
+### Decision D1
+- Basis: R1, R2, R3, R4, R5, R6, R7
+- Selected option: proposta na ADR [Closeout review policy by cost and benefit](../adr/2026-11-12-closeout-review-policy-by-cost-and-benefit.md), aguardando aprovação do mantenedor.
+- Rationale: separar o fechamento obrigatório da revisão opcional com limiares determinísticos e preservação do histórico selado.
+- Consequences: a adoção é explícita; uma policy legada sem as chaves mantém a semântica atual, enquanto instalações/adotantes novas recebem `never`.
 
 ## 6. Validation
 
