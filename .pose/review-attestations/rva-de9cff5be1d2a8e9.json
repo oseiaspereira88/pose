@@ -1,0 +1,256 @@
+{
+  "run": {
+    "run_id": "rrn-c65b2904a61d6055",
+    "proof_id": "rrp-a70c1a713bdcc90af3688afeebc6c407fc952275ca1a6b3a9647b69d1d649944"
+  },
+  "schema_version": 1,
+  "attestation_id": "rva-de9cff5be1d2a8e9",
+  "bundle_id": "rvb-6b28e970d696e950",
+  "bundle_digest": "sha256:6b28e970d696e9508a21bbaca3df241e1ff6372d847e59d9f796723900bb2941",
+  "reviewer": "agent:anthropic/claude-opus-5-5",
+  "decision": "approved",
+  "criteria": [
+    {
+      "id": "assumption-integrity",
+      "disposition": "passed",
+      "evidence": "integration:pose-mcp/go/claude-sandboxed-review-integration",
+      "rationale": "Verified facts: OS write denial of sealed cwd, physical Git common dir and worktree gitdir, scratch-only writability (non-mutating access(2) probes in this run); 11 TestSandboxedReview tests and go vet pass. Unresolved: exact bytes of withheld runs rrn-ce731a2bf0bb5e07/rrn-69d970d2cf18753b (not claimed). Accepted risks: no full Claude-process isolation, Linux-only qualification, requalification on Claude Code upgrades owned in the ADR."
+    },
+    {
+      "id": "backend-concurrency",
+      "disposition": "passed",
+      "evidence": "integration:pose-mcp/go/delegated-run-continuity-integration",
+      "rationale": "Resume projection copies Resume before replacing its command (test shows shared config unmutated); fresh/resume wrappers identical except --resume {session}. My in-sandbox rerun of this check failed only on '/home belongs to another user' (sandbox UID mapping); sealed host evidence passes."
+    },
+    {
+      "id": "backend-contracts",
+      "disposition": "passed",
+      "evidence": "integration:pose-mcp/go/claude-sandboxed-review-integration",
+      "rationale": "review_profile is opt-in with omitempty; TestSandboxedReviewOmissionPreservesLegacyAdapter shows the review adapter stays deep-equal to legacy when absent; task/adjudicate/smoke keep read commands."
+    },
+    {
+      "id": "backend-input-errors",
+      "disposition": "passed",
+      "evidence": "integration:pose-mcp/go/claude-sandboxed-review-integration",
+      "rationale": "Eight invalid profiles refused at parse (missing output/session, interpolation, task fragments); missing bwrap/socat/jq exits 127 with install advice before launch; unconfined staging component refused."
+    },
+    {
+      "id": "backend-integration-impact",
+      "disposition": "passed",
+      "evidence": "integration:pose-mcp/go/delegated-review-capability-integration",
+      "rationale": "Projected adapter still passes containment, continuity and run-provenance validation; task paths use agentAdapter(..., task) and are unchanged."
+    },
+    {
+      "id": "backend-observability",
+      "disposition": "passed",
+      "evidence": "integration:pose-mcp/go/delegated-output-redaction-diagnostics-integration",
+      "rationale": "Capture refusal now names a closed-vocabulary stage/reason without raw session values (TestSandboxedReviewCaptureFailureNamesTheSafeStageAndKeepsOutputWithheld)."
+    },
+    {
+      "id": "compatibility",
+      "disposition": "passed",
+      "evidence": "integration:pose-mcp/go/delegated-run-provenance-integration",
+      "rationale": "Examined policy struct, agentAdapter and docs: absence preserves the byte-identical adapter and provenance digest; the new key is opt-in and older strict parsers refusing it is documented in POSE.md, pt-BR and the ADR."
+    },
+    {
+      "id": "correctness",
+      "disposition": "passed",
+      "evidence": "unit:pose-mcp/go/test",
+      "rationale": "Focused tests and vet pass in this run; full internal/pose rerun failed only on sandbox ownership/mode tests in files this change does not touch. Low findings F1-F3 are accepted follow-ups."
+    },
+    {
+      "id": "design-causality",
+      "disposition": "passed",
+      "evidence": "structure:design-505f8b5061a68fbf",
+      "rationale": "Examined the ADR, D1 and the code: a review-only profile with an OS-enforced shell sandbox addresses the cause (a prefix allow-list cannot contain Go's executable flags) while keeping the read profile; each later addition (absolute denyWrite, common-dir denial, staging, in-sandbox cleanup, init canonicalization) traces to a recorded qualification failure. My assess design reproduced the sealed digest.",
+      "mappings": [
+        {
+          "delta": "SD-6c4edd72",
+          "basis": "D1",
+          "disposition": "mapped",
+          "rationale": "The ADR is D1's selected option (review-specific profile) and records the qualification-driven additions."
+        },
+        {
+          "delta": "SD-8ab46582",
+          "basis": "R4",
+          "disposition": "mapped",
+          "rationale": "delegation.json adds the opt-in review_profile (fresh/resume) for the Claude agent, carrying the R1/R2 sandbox and dependency wrapper."
+        }
+      ]
+    },
+    {
+      "id": "documentation",
+      "disposition": "passed",
+      "evidence": "integration:pose-mcp/go/distributed-instructions-parity-integration",
+      "rationale": "POSE.md, locales/pt-BR/POSE.md and both scaffold copies add identical paragraphs matching the runtime (opt-in, no fallback, jq dependency, common-dir denial, staging, in-sandbox cleanup, codec scope); the ADR, changelog and qualification report agree."
+    },
+    {
+      "id": "operability",
+      "disposition": "passed",
+      "evidence": "integration:pose-mcp/go/delegated-output-redaction-diagnostics-integration",
+      "rationale": "Examined the wrapper refusals (per-package-manager install hints, common-dir resolution message, exit 127/1) and staged capture diagnostics; they are actionable without leaking data."
+    },
+    {
+      "id": "requirements",
+      "disposition": "passed",
+      "evidence": "integration:pose-mcp/go/claude-sandboxed-review-integration",
+      "rationale": "R1 real qualification plus this run's probes; R2 dependency tests; R3 re-executed here (11 tests, vet exit 0); R4 projection/refusal/resume tests."
+    },
+    {
+      "id": "scope",
+      "disposition": "passed",
+      "evidence": "integration:pose-mcp/go/spec-surface-integration",
+      "rationale": "Compared the diff with the spec's Artifacts: every changed implementation/governance file is declared; non-goals (no task/adjudicate/smoke change, no full-process isolation claim) are respected; surface-check reported 0 findings."
+    },
+    {
+      "id": "security",
+      "disposition": "passed",
+      "evidence": "integration:pose-mcp/go/delegated-adapter-containment-integration",
+      "rationale": "Probed in this run: sealed source, Git common dir (HEAD/refs/objects) and worktree gitdir are OS-denied; only operation scratch is writable. No Edit/Write tools, hooks or MCP; paths encoded via jq; staging via os.Root with IsLocal; no secrets observed."
+    },
+    {
+      "id": "solution-proportionality",
+      "disposition": "passed",
+      "evidence": "integration:pose-mcp/go/claude-sandboxed-review-integration",
+      "rationale": "The minimal option (wider allow-list) is insufficient for executable Go flags. Additions are each tied to observed failures; the remaining coupling (F1) is low. Invalidation condition: Claude sandbox vendor/platform change or enabling file-writing tools, as the ADR states."
+    }
+  ],
+  "tools": [
+    {
+      "id": "artifact-check",
+      "disposition": "passed",
+      "evidence": "command:pose artifact-check --spec pose-claude-reviewer-runs-tests-in-sandbox --strict",
+      "rationale": "Exit 0; the 942 findings are repository-wide pre-existing orphan warnings."
+    },
+    {
+      "id": "assess-design",
+      "disposition": "passed",
+      "evidence": "structure:design-505f8b5061a68fbf",
+      "rationale": "Ran pose assess design --json; input digest sha256:505f8b50... matches the sealed ref; 3 deltas."
+    },
+    {
+      "id": "assess-discover",
+      "component": "pose-mcp",
+      "disposition": "not-used",
+      "evidence": "command:pose assess discover --component pose-mcp",
+      "rationale": "Ran but refused: it saves state into the sealed checkout (read-only file system); no result produced."
+    },
+    {
+      "id": "assess-integrate",
+      "disposition": "not-used",
+      "evidence": "command:pose assess integrate",
+      "rationale": "Ran but refused: save to .pose/state/integrations.json is OS-denied in the sealed checkout; integration covered by sealed integration evidence."
+    },
+    {
+      "id": "assess-tech-debt",
+      "disposition": "not-used",
+      "evidence": "command:pose assess tech-debt",
+      "rationale": "Ran but refused: save to .pose/state/technical-debt.json is OS-denied in the sealed checkout."
+    },
+    {
+      "id": "closeout-check",
+      "disposition": "deferred",
+      "evidence": "command:pose closeout-check spec:pose-claude-reviewer-runs-tests-in-sandbox",
+      "rationale": "Its precondition is the recorded attestation of this review."
+    },
+    {
+      "id": "review-check",
+      "disposition": "deferred",
+      "evidence": "command:pose review-check spec:pose-claude-reviewer-runs-tests-in-sandbox",
+      "rationale": "Its precondition is completion of this review."
+    },
+    {
+      "id": "suggest-review",
+      "component": "pose-mcp",
+      "disposition": "passed",
+      "evidence": "command:pose suggest review --path pose-mcp",
+      "rationale": "Returned the backend-go rules/workflow; applied during review."
+    },
+    {
+      "id": "surface-check",
+      "disposition": "passed",
+      "evidence": "integration:pose-mcp/go/spec-surface-integration",
+      "rationale": "Ran pose surface-check --strict: exit 0, 209 results, 0 findings."
+    },
+    {
+      "id": "validate",
+      "disposition": "passed",
+      "evidence": "build:pose-mcp/go/build",
+      "rationale": "Pass rests on the sealed host matrix. My in-sandbox run of pose validate --strict gave 200 pass/10 fail/2 timeout; all failures in pose-mcp from sandbox UID ownership, file mode, detach/runtime-host, network or host-only refusals; docs-site, examples, mcp-enforce, scripts and tests passed."
+    },
+    {
+      "id": "validate",
+      "component": "pose-mcp",
+      "disposition": "passed",
+      "evidence": "unit:pose-mcp/go/test",
+      "rationale": "Pass rests on the sealed host matrix. My in-sandbox run gave 197 pass/10 fail/2 timeout, all sandbox-related and none in changed code; claude-sandboxed-review-integration and build passed in-sandbox."
+    }
+  ],
+  "evidence_refs": [
+    "delegated-run:rrn-c65b2904a61d6055",
+    "integration:pose-mcp/go/claude-sandboxed-review-integration",
+    "integration:pose-mcp/go/delegated-adapter-containment-integration",
+    "integration:pose-mcp/go/delegated-output-redaction-diagnostics-integration",
+    "integration:pose-mcp/go/delegated-review-capability-integration",
+    "integration:pose-mcp/go/delegated-run-continuity-integration",
+    "integration:pose-mcp/go/delegated-run-provenance-integration",
+    "integration:pose-mcp/go/distributed-instructions-parity-integration",
+    "integration:pose-mcp/go/spec-surface-integration",
+    "structure:design-505f8b5061a68fbf",
+    "unit:pose-mcp/go/test"
+  ],
+  "findings": [
+    {
+      "id": "F1",
+      "severity": "low",
+      "evidence": "file:pose-mcp/internal/pose/review_dispatch.go:852",
+      "action": "Carry an explicit staging flag in DispatchPlan derived from the projected review adapter (bound by provenance) instead of reloading policy at dispatch.",
+      "disposition": "accepted-risk",
+      "owner": "@pose-maintainers",
+      "rationale": "Claude staging decision re-reads delegation.json from the working tree and keys on events codec plus presence of review_profile instead of the plan's projected adapter; vendor-specific .claude/.cc-writes logic in generic dispatch can drift from the planned command. Fails closed.",
+      "review_by": "2026-12-13"
+    },
+    {
+      "id": "F2",
+      "severity": "low",
+      "evidence": "file:pose-mcp/internal/pose/delegation_events.go:453",
+      "action": "Introduce a sentinel error for ambiguous capture and use errors.Is in captureReviewValue callers and delegationCaptureFailure.",
+      "disposition": "accepted-risk",
+      "owner": "@pose-maintainers",
+      "rationale": "Canonicalization gates on originalErr.Error() == \"ambiguous adapter capture\"; rewording the message silently disables the fix (fails closed).",
+      "review_by": "2026-12-13"
+    },
+    {
+      "id": "F3",
+      "severity": "low",
+      "evidence": "file:pose-mcp/internal/pose/delegation_events.go:471",
+      "action": "Add a regression pinning the intended behaviour for unambiguous channels with conflicting typed init IDs and document it in POSE.md.",
+      "disposition": "accepted-risk",
+      "owner": "@pose-maintainers",
+      "rationale": "For an originally unambiguous channel, differing typed init session IDs now return a conflict where capture previously succeeded; this stricter behaviour is untested and not stated by the pass-through test/docs.",
+      "review_by": "2026-12-13"
+    }
+  ],
+  "authority": {
+    "schema_version": 1,
+    "project": "proj.pose-dist",
+    "bundle_digest": "sha256:6b28e970d696e9508a21bbaca3df241e1ff6372d847e59d9f796723900bb2941",
+    "principal": "agent:anthropic/claude-opus-5-5",
+    "role": "agent",
+    "review_execution": "rrn-c65b2904a61d6055",
+    "implementation_principal": "agent:openai/unknown",
+    "implementation_execution": "sha256:5396294805f4f44743ab53f75e9cf8067b3f44e572de59c613384eae153d93ad",
+    "issuer": "b34-local-executor",
+    "issued_at": "2026-11-13T09:22:15Z",
+    "audience": "proj.pose-dist"
+  },
+  "envelope": {
+    "issuer": "b34-local-executor",
+    "subject": "rvb-6b28e970d696e950",
+    "algorithm": "ed25519",
+    "public_key": "ck4sApdfePV2GT+hJyAYfJd2qLzeG55P8pevGR0bvZE=",
+    "signature": "aCeQbz35xwzTGpTFQaGDQVNGNfyTEBcurylJxiwhxtdsaVWMhOKFOEfMasKf38eZ927ICQ+U+7AQCZLK5Ip2Dg=="
+  },
+  "attested_at": "2026-11-13T09:22:15Z",
+  "path": ".pose/review-attestations/rva-de9cff5be1d2a8e9.json"
+}
