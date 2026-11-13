@@ -143,7 +143,7 @@ func TestAdoptTogglesACapabilityThroughTheReader(t *testing.T) {
 	if code, _, errOut := run("causality-closeout", "--date", "06/10/2026", "--apply"); code == 0 || !strings.Contains(errOut, "YYYY-MM-DD") {
 		t.Fatalf("a malformed date was written: code=%d err=%s", code, errOut)
 	}
-	if code, _, errOut := run("time-travel"); code == 0 || !strings.Contains(errOut, "agency-readiness, atomic-start, causality-closeout, contract-nodes") {
+	if code, _, errOut := run("time-travel"); code == 0 || !strings.Contains(errOut, "agency-readiness, atomic-start, causality-closeout, closeout-review-policy, contract-nodes") {
 		t.Fatalf("an unknown capability was not refused with the known ones: code=%d err=%s", code, errOut)
 	}
 }

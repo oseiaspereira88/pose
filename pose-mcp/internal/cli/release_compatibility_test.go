@@ -62,6 +62,34 @@ func TestPreviousReleaseReadsThisEnginesReviewPolicy(t *testing.T) {
 		t.Fatal(err)
 	}
 
+	// A fresh install adopts the closeout review policy, review policy schema
+	// 5, which older engines refuse by design (ADR
+	// closeout-review-policy-by-cost-and-benefit): they must not read an
+	// adopted exemption as the legacy rule. The refusal has to be the clean
+	// schema refusal, never a misread of another field.
+	var written map[string]any
+	if err := json.Unmarshal(original, &written); err != nil {
+		t.Fatal(err)
+	}
+	if _, adopted := written["milestone_review_required"]; adopted {
+		if out := runRelease(t, prev, instance); mentionsPolicy(out) && !strings.Contains(out, "unsupported review policy schema 5") {
+			t.Fatalf("%s refused the schema-5 policy for another reason than its schema:\n%s", tag, out)
+		}
+		// What an update leaves behind stays readable: a policy that has not
+		// adopted the pair keeps its schema, and update never adopts it.
+		writePolicyWith(t, policy, func(p map[string]any) {
+			delete(p, "milestone_review_required")
+			delete(p, "roadmap_review_required")
+			p["schema_version"] = 2
+		})
+		if code, out := runPose(t, instance, "update", "--no-self", "--force"); code != 0 {
+			t.Fatalf("update of the legacy instance: %d %s", code, out)
+		}
+		updated, _ := os.ReadFile(policy)
+		if strings.Contains(string(updated), "milestone_review_required") {
+			t.Fatalf("pose update adopted the closeout review policy:\n%s", updated)
+		}
+	}
 	if out := runRelease(t, prev, instance); mentionsPolicy(out) {
 		t.Fatalf("%s cannot read the review policy v%s writes, so an instance updated to v%s stops working for anyone still on %s:\n%s",
 			tag, version.ReleaseBase(), version.ReleaseBase(), tag, out)

@@ -27,7 +27,7 @@ func TestAdoptCatalogTogglesEveryCapabilityKind(t *testing.T) {
 		}
 	}
 	policy, err := store.GetReviewPolicy()
-	if err != nil || policy.SpecAuthorityTransferVersion != 1 || policy.SchemaVersion != posemodel.SpecAuthorityTransferPolicySchemaVersion || policy.OverlayAdoptedAt["engineering-judgment@1"] != "2026-10-06" {
+	if err != nil || policy.SpecAuthorityTransferVersion != 1 || policy.SchemaVersion != posemodel.CloseoutReviewPolicySchemaVersion || policy.OverlayAdoptedAt["engineering-judgment@1"] != "2026-10-06" {
 		t.Fatalf("catalog adoptions did not reach the policy: %+v err=%v", policy, err)
 	}
 	if code, _, errB := runAdopt(t, repo, "qualified-artifact-refs", "--off", "--apply"); code == 0 || !strings.Contains(errB, "spec-authority-transfer depends on qualified-artifact-refs") {
@@ -38,8 +38,10 @@ func TestAdoptCatalogTogglesEveryCapabilityKind(t *testing.T) {
 			t.Fatalf("off %s: %s", id, errB)
 		}
 	}
-	if policy, _ := store.GetReviewPolicy(); policy.SchemaVersion != posemodel.ReviewPolicySchemaVersion {
-		t.Fatalf("schema was not restored: %d", policy.SchemaVersion)
+	// A fresh install adopts the closeout review pair (schema 5), which no
+	// other capability lowers (spec pose-closeout-review-policy-by-cost-benefit).
+	if policy, _ := store.GetReviewPolicy(); policy.SchemaVersion != posemodel.CloseoutReviewPolicySchemaVersion || policy.QualifiedArtifactRefsVersion != 0 || policy.SpecAuthorityTransferVersion != 0 {
+		t.Fatalf("schema was not kept: %+v", policy)
 	}
 	if code, _, errB := runAdopt(t, repo, "signed-attestations", "--apply"); code == 0 || !strings.Contains(errB, "trusted issuer") {
 		t.Fatalf("an unmet prerequisite was not refused with what is missing: code=%d err=%s", code, errB)

@@ -1976,15 +1976,14 @@ func cmdCloseLocalWithGuardedStore(root string, store posemodel.Store, ref strin
 			render(stdout, stderr).Failure("pose close: milestone gate failed: " + strings.Join(blockers, "; "))
 			return 1
 		}
+		label := "Milestone closeout verified"
 		if receiptClose != nil {
 			if code := publishCloseoutReceipt(store, ref, *receiptClose, state, guard, stdout, stderr); code != 0 {
 				return code
 			}
-			fmt.Fprintf(stdout, "Closed: %s\n", ref)
-			renderCloseNext(render(stdout, stderr), nextCloses(store, ref))
-			return 0
+			label = "Closed"
 		}
-		fmt.Fprintf(stdout, "Milestone closeout verified: %s\n", ref)
+		fmt.Fprintf(stdout, "%s: %s\n", label, ref)
 		renderCloseNext(render(stdout, stderr), nextCloses(store, ref))
 		return 0
 	}

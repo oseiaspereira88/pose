@@ -42,6 +42,9 @@ func TestABMProgressiveReviewInstallAndCLIPlan(t *testing.T) {
 	delete(policy, "overlay_adopted_at")
 	policy["component_aware"] = true
 	policy["schema_version"] = 2
+	// Schema 2 cannot carry the closeout review pair a fresh install adopts.
+	delete(policy, "milestone_review_required")
+	delete(policy, "roadmap_review_required")
 	policy["component_aware_adopted_at"] = "2026-09-19"
 	raw, err = json.Marshal(policy)
 	if err != nil {
@@ -112,6 +115,9 @@ func TestABMProgressiveReviewCLIShowsBandAndDeclaredForecast(t *testing.T) {
 	delete(policy, "overlay_adopted_at")
 	policy["component_aware"] = true
 	policy["schema_version"] = 2
+	// Schema 2 cannot carry the closeout review pair a fresh install adopts.
+	delete(policy, "milestone_review_required")
+	delete(policy, "roadmap_review_required")
 	policy["component_aware_adopted_at"] = "2026-09-19"
 	raw, err = json.Marshal(policy)
 	if err != nil {
