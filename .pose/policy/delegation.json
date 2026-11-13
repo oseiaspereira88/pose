@@ -288,7 +288,7 @@
         "command": [
           "sh",
           "-c",
-          "case \"$(uname)\" in Darwin) command -v jq >/dev/null 2>&1 || { echo \"pose: the sandboxed Claude review needs jq. Install: brew install jq\" >&2; exit 127; };; *) for t in bwrap socat jq; do command -v \"$t\" >/dev/null 2>&1 || { echo \"pose: the sandboxed Claude review needs bubblewrap, socat and jq, and $t is missing. Install them (Debian/Ubuntu: sudo apt install bubblewrap socat jq; Fedora: sudo dnf install bubblewrap socat jq; Arch: sudo pacman -S bubblewrap socat jq).\" >&2; exit 127; }; done;; esac\nscratch=\"${1%/*}/claude-review\"\nsettings=$2\nshift 2\numask 077\nmkdir -p \"$scratch/cache\" \"$scratch/tmp\" || exit 1\nexport CLAUDE_CODE_TMPDIR=\"$scratch\" TMPDIR=\"$scratch/tmp\" GOTMPDIR=\"$scratch/tmp\" GOCACHE=\"$scratch/cache\"\nsettings=$(printf '%s' \"$settings\" | jq -c --arg scratch \"$scratch\" --arg cwd \"$(pwd -P)\" '.sandbox.filesystem.allowWrite=[$scratch] | .sandbox.filesystem.denyWrite=[$cwd]') || exit 1\nstatus=0\n\"$@\" --settings \"$settings\" || status=$?\nif command -v go >/dev/null 2>&1; then go clean -cache || exit 1; fi\nexit \"$status\"",
+          "case \"$(uname)\" in Darwin) command -v jq >/dev/null 2>&1 || { echo \"pose: the sandboxed Claude review needs jq. Install: brew install jq\" >&2; exit 127; };; *) for t in bwrap socat jq; do command -v \"$t\" >/dev/null 2>&1 || { echo \"pose: the sandboxed Claude review needs bubblewrap, socat and jq, and $t is missing. Install them (Debian/Ubuntu: sudo apt install bubblewrap socat jq; Fedora: sudo dnf install bubblewrap socat jq; Arch: sudo pacman -S bubblewrap socat jq).\" >&2; exit 127; }; done;; esac\nscratch=\"${1%/*}/claude-review\"\nsettings=$2\nshift 2\numask 077\nmkdir -p \"$scratch/cache\" \"$scratch/tmp\" || exit 1\nexport CLAUDE_CODE_TMPDIR=\"$scratch\" TMPDIR=\"$scratch/tmp\" GOTMPDIR=\"$scratch/tmp\" GOCACHE=\"$scratch/cache\"\nsettings=$(printf '%s' \"$settings\" | jq -c --arg scratch \"$scratch\" --arg cwd \"$(pwd -P)\" '.sandbox.filesystem.allowWrite=[$scratch] | .sandbox.filesystem.denyWrite=[$cwd]') || exit 1\nexec \"$@\" --settings \"$settings\"",
           "sh",
           "{output}",
           "{\"disableAllHooks\":true,\"sandbox\":{\"enabled\":true,\"failIfUnavailable\":true,\"autoAllowBashIfSandboxed\":true,\"allowUnsandboxedCommands\":false,\"excludedCommands\":[],\"filesystem\":{\"denyWrite\":[\".\"],\"disabled\":false},\"allowNestedUserNamespaces\":false}}",
@@ -310,12 +310,14 @@
           "--tools",
           "Read,Grep,Glob,Bash",
           "--allowedTools",
-          "Bash"
+          "Bash",
+          "--append-system-prompt",
+          "Before returning your final review draft, run go clean -cache as a final Bash tool command inside the mandatory sandbox, after all test/vet/build commands. GOCACHE is operation-owned. Do not clean outside the sandbox or request an override. The engine retains failed cleanup as a failed run; do not claim successful cleanup if the command fails."
         ],
         "resume_command": [
           "sh",
           "-c",
-          "case \"$(uname)\" in Darwin) command -v jq >/dev/null 2>&1 || { echo \"pose: the sandboxed Claude review needs jq. Install: brew install jq\" >&2; exit 127; };; *) for t in bwrap socat jq; do command -v \"$t\" >/dev/null 2>&1 || { echo \"pose: the sandboxed Claude review needs bubblewrap, socat and jq, and $t is missing. Install them (Debian/Ubuntu: sudo apt install bubblewrap socat jq; Fedora: sudo dnf install bubblewrap socat jq; Arch: sudo pacman -S bubblewrap socat jq).\" >&2; exit 127; }; done;; esac\nscratch=\"${1%/*}/claude-review\"\nsettings=$2\nshift 2\numask 077\nmkdir -p \"$scratch/cache\" \"$scratch/tmp\" || exit 1\nexport CLAUDE_CODE_TMPDIR=\"$scratch\" TMPDIR=\"$scratch/tmp\" GOTMPDIR=\"$scratch/tmp\" GOCACHE=\"$scratch/cache\"\nsettings=$(printf '%s' \"$settings\" | jq -c --arg scratch \"$scratch\" --arg cwd \"$(pwd -P)\" '.sandbox.filesystem.allowWrite=[$scratch] | .sandbox.filesystem.denyWrite=[$cwd]') || exit 1\nstatus=0\n\"$@\" --settings \"$settings\" || status=$?\nif command -v go >/dev/null 2>&1; then go clean -cache || exit 1; fi\nexit \"$status\"",
+          "case \"$(uname)\" in Darwin) command -v jq >/dev/null 2>&1 || { echo \"pose: the sandboxed Claude review needs jq. Install: brew install jq\" >&2; exit 127; };; *) for t in bwrap socat jq; do command -v \"$t\" >/dev/null 2>&1 || { echo \"pose: the sandboxed Claude review needs bubblewrap, socat and jq, and $t is missing. Install them (Debian/Ubuntu: sudo apt install bubblewrap socat jq; Fedora: sudo dnf install bubblewrap socat jq; Arch: sudo pacman -S bubblewrap socat jq).\" >&2; exit 127; }; done;; esac\nscratch=\"${1%/*}/claude-review\"\nsettings=$2\nshift 2\numask 077\nmkdir -p \"$scratch/cache\" \"$scratch/tmp\" || exit 1\nexport CLAUDE_CODE_TMPDIR=\"$scratch\" TMPDIR=\"$scratch/tmp\" GOTMPDIR=\"$scratch/tmp\" GOCACHE=\"$scratch/cache\"\nsettings=$(printf '%s' \"$settings\" | jq -c --arg scratch \"$scratch\" --arg cwd \"$(pwd -P)\" '.sandbox.filesystem.allowWrite=[$scratch] | .sandbox.filesystem.denyWrite=[$cwd]') || exit 1\nexec \"$@\" --settings \"$settings\"",
           "sh",
           "{output}",
           "{\"disableAllHooks\":true,\"sandbox\":{\"enabled\":true,\"failIfUnavailable\":true,\"autoAllowBashIfSandboxed\":true,\"allowUnsandboxedCommands\":false,\"excludedCommands\":[],\"filesystem\":{\"denyWrite\":[\".\"],\"disabled\":false},\"allowNestedUserNamespaces\":false}}",
@@ -339,7 +341,9 @@
           "--allowedTools",
           "Bash",
           "--resume",
-          "{session}"
+          "{session}",
+          "--append-system-prompt",
+          "Before returning your final review draft, run go clean -cache as a final Bash tool command inside the mandatory sandbox, after all test/vet/build commands. GOCACHE is operation-owned. Do not clean outside the sandbox or request an override. The engine retains failed cleanup as a failed run; do not claim successful cleanup if the command fails."
         ]
       }
     }

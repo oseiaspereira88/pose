@@ -123,7 +123,7 @@ func sandboxedClaudeReviewCommands(t *testing.T) [][]string {
 func TestSandboxedReviewClaudeEnforcesFreshAndResumedShellBoundaries(t *testing.T) {
 	for i, argv := range sandboxedClaudeReviewCommands(t) {
 		joined := strings.Join(argv, "\x00")
-		for _, want := range []string{`"enabled":true`, `"failIfUnavailable":true`, `"allowUnsandboxedCommands":false`, `"denyWrite":["."]`, "--safe-mode", "--restricted", "--strict-mcp-config", "Read,Grep,Glob,Bash", "GOCACHE", "GOTMPDIR", "CLAUDE_CODE_TMPDIR", "{output}"} {
+		for _, want := range []string{`"enabled":true`, `"failIfUnavailable":true`, `"allowUnsandboxedCommands":false`, `"denyWrite":["."]`, "--safe-mode", "--restricted", "--strict-mcp-config", "Read,Grep,Glob,Bash", "GOCACHE", "GOTMPDIR", "CLAUDE_CODE_TMPDIR", "{output}", "--append-system-prompt", "go clean -cache", "inside the mandatory sandbox"} {
 			if !strings.Contains(joined, want) {
 				t.Errorf("command %d lacks %s", i, want)
 			}
@@ -203,10 +203,6 @@ func TestSandboxedReviewWrapperKeepsScratchPrivateAndPropagatesStartupFailure(t 
 			}
 		}
 		fake := filepath.Join(bin, "claude")
-		goStub := "#!/bin/sh\ntest \"$1\" = clean && test \"$2\" = -cache || exit 93\ntest -d \"$GOCACHE\" || exit 94\necho cleaned > \"$CLAUDE_CODE_TMPDIR/cleaned\"\n"
-		if err := os.WriteFile(filepath.Join(bin, "go"), []byte(goStub), 0o700); err != nil {
-			t.Fatal(err)
-		}
 		body := `#!/bin/sh
 test -d "$GOCACHE" && test -d "$GOTMPDIR" && test "$TMPDIR" = "$GOTMPDIR" || exit 90
 test "$1" = --settings || exit 91
@@ -226,9 +222,6 @@ exit 78
 		info, err := os.Stat(filepath.Join(dir, "claude-review"))
 		if err != nil || info.Mode().Perm() != 0o700 {
 			t.Fatalf("scratch not private: %v %v", info, err)
-		}
-		if _, err := os.Stat(filepath.Join(dir, "claude-review", "cleaned")); err != nil {
-			t.Fatal("the operation-owned Go cache was not cleaned before returning")
 		}
 	}
 }
