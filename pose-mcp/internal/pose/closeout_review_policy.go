@@ -320,6 +320,52 @@ func (s Store) CloseoutMemberTarget(raw string) (string, bool, string) {
 	return canonical, true, ""
 }
 
+// AggregateDependencyClosed reports whether a resolved dependency on a
+// milestone or roadmap is closed, beyond the status its members give it:
+// under the closeout review policy its owning project adopted, only the
+// terminal projection closes it (an explicit close with its receipt, or a
+// verified closure from before adoption). A spec, or an aggregate scope of a
+// project still on the legacy rule, keeps its status contract. A transferred
+// artifact is judged at its canonical destination; a project whose store or
+// policy cannot be read is not proven closed (review round 7, N27).
+func (s Store) AggregateDependencyClosed(resolver ArtifactResolver, localProject string, resolved ArtifactResolution) (bool, string) {
+	identity := resolved.Identity
+	if resolved.CanonicalIdentity != nil {
+		identity = *resolved.CanonicalIdentity
+	}
+	if identity.Kind != "milestone" && identity.Kind != "roadmap" {
+		return true, ""
+	}
+	if identity.Project == "" {
+		identity.Project = localProject
+	}
+	scope := localFederatedScope(identity)
+	owner := s
+	if identity.Project != localProject {
+		if resolver.Roots == nil {
+			return false, scope + " of " + identity.Project + " cannot be checked for its close: project roots are unavailable"
+		}
+		source, err := resolver.Roots.StoreFor(identity.Project)
+		if err != nil {
+			return false, scope + " of " + identity.Project + " cannot be checked for its close: " + projectResolutionState(err)
+		}
+		source = resolver.withSpecSnapshot(identity.Project, source)
+		source.closeoutChain = s.closeoutChain
+		owner = source
+	}
+	if owner.FederatedResolver == nil {
+		owner.FederatedProjectID, owner.FederatedResolver = identity.Project, &resolver
+	}
+	adopted, err := owner.closeoutReviewPolicyAdopted()
+	if err != nil {
+		return false, scope + " cannot be checked for its close: " + err.Error()
+	}
+	if !adopted || owner.localScopeClosed(scope) {
+		return true, ""
+	}
+	return false, scope + " is reached but not closed: `pose close " + scope + "` publishes its closeout receipt"
+}
+
 // localScopeClosed reports a local milestone or roadmap a dependency edge
 // names as closed by the terminal projection, under an adopted closeout
 // review policy where status alone never closes it. A scope already asking
@@ -819,13 +865,18 @@ func (s Store) CloseoutReviewsOwed() ([]CloseoutReviewOwing, error) {
 			})
 			continue
 		}
-		decision, err := s.currentCloseoutDecision(ref, policy)
+		// The applicable gate, not the current threshold alone: a receipt
+		// keeps the decision it closed under, and a review recorded on the
+		// scope anyway stands until it approves (review round 7, N26).
+		gated, exempt, err := s.closeoutReviewGate(ref, policy)
 		if err != nil {
-			return nil, err
-		}
-		if !decision.Required {
+			owing = append(owing, CloseoutReviewOwing{Scope: ref, Decision: CloseoutReviewDecision{Scope: ref, Adopted: true, Required: true, Reason: err.Error()}, Previous: "unknown: no snapshot of the earlier policy or composition is recorded", Action: "resolve " + err.Error()})
 			continue
 		}
+		if exempt || gated == nil {
+			continue
+		}
+		decision := *gated
 		// A recorded approval counts only while it satisfies the current
 		// obligation: fresh, for the scope as it is now.
 		if eval, err := s.ReviewCheck(ref); err == nil && eval.Approved && eval.Fresh {

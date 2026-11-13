@@ -174,6 +174,11 @@ func buildPortfolioProjection(now time.Time, knownProjects map[string]string, ma
 					res.Reason = resolved.State
 				} else {
 					res.Blocking = resolved.Status != "done"
+					// A milestone or roadmap of a project that adopted the
+					// closeout review policy is done only once closed.
+					if closed, why := store.AggregateDependencyClosed(resolver, project, resolved); !res.Blocking && !closed {
+						res.Blocking, res.Reason = true, why
+					}
 					if reason := resolver.ValidateGraph(project, dep); reason != "" {
 						res.Blocking, res.Reason = true, reason
 					}

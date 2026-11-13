@@ -1111,3 +1111,122 @@ func TestCloseoutReviewPolicyRoundSix(t *testing.T) {
 		}
 	})
 }
+
+// closeCoreWithReceipt closes milestone:program/core of a never fixture with
+// its receipt.
+func closeCoreWithReceipt(t *testing.T, s Store) {
+	t.Helper()
+	ref := "milestone:program/core"
+	state, err := s.GetCloseoutState(ref)
+	if err != nil {
+		t.Fatal(err)
+	}
+	receipt, err := s.NewCloseoutReceipt(ref, *state.Review.CloseoutReview, state.Review, state.ScopeDigest, reviewFixtureNow.Add(time.Hour))
+	if err != nil || s.PublishCloseoutReceipt(receipt) != nil {
+		t.Fatal(err)
+	}
+}
+
+func TestCloseoutReviewPolicyRoundSeven(t *testing.T) {
+	t.Run("a transferred dependency is proven at its destination", func(t *testing.T) {
+		resolver := artifactGraphTransferFixture(t, map[string][]string{"xref:a/spec:moved": nil, "xref:b/spec:dest": nil}, map[string]string{"xref:a/spec:moved": "xref:b/spec:dest"})
+		source, err := resolver.Roots.StoreFor("a")
+		if err != nil {
+			t.Fatal(err)
+		}
+		writeReviewFixture(t, source.Root, ".pose/roadmaps/moves.md", "---\nslug: moves\nstatus: active\n---\n\n## Milestone: m\n- specs: moved\n")
+		destination, err := resolver.Roots.StoreFor("b")
+		if err != nil {
+			t.Fatal(err)
+		}
+		for _, root := range []string{source.Root, destination.Root} {
+			federatedTestGit(t, root, "add", "--all")
+			federatedTestGit(t, root, "commit", "-q", "-m", "transfer fixture")
+		}
+		s := Store{Root: source.Root, FederatedProjectID: "a", FederatedResolver: &resolver}
+		report, err := s.FederatedMilestoneAcceptance("a", "moves", "m", resolver)
+		if err != nil {
+			t.Fatal(err)
+		}
+		for _, blocker := range report.Blockers {
+			if strings.Contains(blocker, "source-revision-unavailable") || strings.Contains(blocker, federatedSourceUncommitted) {
+				t.Fatalf("the destination's proof was checked against the redirect stub: %v", report.Blockers)
+			}
+		}
+	})
+	t.Run("doctor keeps a rejected voluntary review after a never receipt", func(t *testing.T) {
+		_, s := closeoutReviewedFixture(t, "never", "never")
+		closeCoreWithReceipt(t, s)
+		ref := "milestone:program/core"
+		bundle, err := s.SealReviewBundle(ref, reviewFixtureNow.Add(2*time.Hour))
+		if err != nil {
+			t.Fatal(err, bundle.Blockers)
+		}
+		attestChildReview(t, s, bundle, reviewFixtureNow.Add(3*time.Hour), "rejected")
+		owing, err := s.CloseoutReviewsOwed()
+		if err != nil {
+			t.Fatal(err)
+		}
+		listed := []string{}
+		for _, o := range owing {
+			listed = append(listed, o.Scope)
+		}
+		if !strings.Contains(strings.Join(listed, ","), ref) {
+			t.Fatalf("a rejected review on a receipt-closed scope is not owed under never: %v", listed)
+		}
+	})
+	t.Run("a dependent spec waits for the explicit close of a reached milestone", func(t *testing.T) {
+		root, s := closeoutReviewedFixture(t, "never", "never")
+		writeReviewFixture(t, root, ".pose/specs/dependent.md", "---\nslug: dependent\nstatus: draft\ncreated_at: 2026-09-26\ndepends_on: [milestone:program/core]\n---\n\n# Spec: dependent\n")
+		waits := func() bool {
+			t.Helper()
+			readiness, err := s.SpecReadiness("dependent")
+			if err != nil {
+				t.Fatal(err)
+			}
+			for _, waiting := range readiness.WaitingOn {
+				if waiting.Ref == "milestone:program/core" {
+					return true
+				}
+			}
+			return false
+		}
+		if !waits() {
+			t.Fatal("a dependent spec was ready on a reached milestone with no closeout receipt")
+		}
+		closeCoreWithReceipt(t, s)
+		if waits() {
+			t.Fatal("a dependent spec still waits on a closed milestone")
+		}
+	})
+	t.Run("a receipt-closed milestone of a done roadmap is reached again when it falls", func(t *testing.T) {
+		root, s := closeoutReviewedFixture(t, "never", "never")
+		editRoadmapFixture(t, root, "\n## Milestone: later\n- after: core\n- specs: pending\n", "")
+		closeCoreWithReceipt(t, s)
+		roadmapRef := "roadmap:program"
+		decision, err := s.CurrentCloseoutDecision(roadmapRef)
+		if err != nil {
+			t.Fatal(err)
+		}
+		state, _ := s.GetCloseoutState(roadmapRef)
+		receipt, err := s.NewCloseoutReceipt(roadmapRef, decision, state.Review, state.ScopeDigest, reviewFixtureNow.Add(2*time.Hour))
+		if err != nil || s.PublishCloseoutReceipt(receipt) != nil {
+			t.Fatal(err)
+		}
+		editRoadmapFixture(t, root, "status: active\n", "status: done\n")
+		if reached, err := s.ReachedMilestones("backend"); err != nil || len(reached) != 0 {
+			t.Fatalf("a standing closed milestone is reached: %v %v", reached, err)
+		}
+		member, err := s.SealReviewBundle("spec:backend", reviewFixtureNow.Add(3*time.Hour))
+		if err != nil {
+			t.Fatal(err, member.Blockers)
+		}
+		attestChildReview(t, s, member, reviewFixtureNow.Add(4*time.Hour), "rejected")
+		if state, err := s.GetCloseoutState("milestone:program/core"); err == nil && state.Terminal {
+			t.Fatal("the fixture's rejected member left the milestone terminal")
+		}
+		if reached, err := s.ReachedMilestones("backend"); err != nil || len(reached) != 1 {
+			t.Fatalf("a fallen milestone of a done roadmap disappeared from reached: %v %v", reached, err)
+		}
+	})
+}

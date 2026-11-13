@@ -107,9 +107,15 @@ func (s Store) milestonesWithTerminalMembers(spec, scope string) ([]string, erro
 	for _, sp := range specs {
 		statuses[sp.Slug] = sp.Status
 	}
+	adopted, _ := s.closeoutReviewPolicyAdopted()
 	found := []string{}
 	for _, rm := range roadmaps {
-		if rm.Status == "done" {
+		// Under an adopted closeout review policy a done roadmap closed by
+		// its receipt keeps its milestones as candidates: they leave only
+		// when the terminal projection stands. A roadmap closed before
+		// adoption keeps the contract it was sealed under (review round 7,
+		// N28); doctor reports one whose closure no longer verifies.
+		if rm.Status == "done" && (!adopted || s.closeoutScopeHistorical(ScopeRef{Kind: "roadmap", Slug: rm.Slug})) {
 			continue
 		}
 		for _, milestone := range rm.Milestones {

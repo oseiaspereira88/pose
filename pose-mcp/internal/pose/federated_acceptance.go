@@ -403,16 +403,24 @@ func (s Store) federatedAcceptance(projectID string, coordinator ArtifactRef, ed
 		}
 		visited[key] = true
 		entry := FederatedDependency{Ref: key, Relationship: item.relationship, Relationships: []string{item.relationship}, Identity: identity, ResolutionState: resolved.State, Status: resolved.Status, SourceRevision: resolved.Revision, SourceDigest: resolved.Digest}
+		// The dependency keeps the identity it was named by, as the manifest
+		// records it; a transferred artifact is proven at its canonical
+		// destination: its store, revision, trust and closeout (review
+		// round 7, N25). The resolver authorized the redirect chain.
+		proven := identity
+		if resolved.CanonicalIdentity != nil {
+			proven = *resolved.CanonicalIdentity
+		}
 		dependencyIndexes[key] = len(report.Manifest.Dependencies)
 		if !resolved.Resolved {
 			report.Blockers = append(report.Blockers, key+":"+resolved.State)
 			report.Manifest.Dependencies = append(report.Manifest.Dependencies, entry)
 			continue
 		}
-		if selected, exists := snapshotRevisions[identity.Project]; exists && selected != "" && resolved.Revision != selected {
+		if selected, exists := snapshotRevisions[proven.Project]; exists && selected != "" && resolved.Revision != selected {
 			report.Blockers = append(report.Blockers, key+":source-revision-changed-during-resolution")
-		} else if _, exists := snapshotRevisions[identity.Project]; !exists && resolved.Revision != "" {
-			snapshotRevisions[identity.Project] = resolved.Revision
+		} else if _, exists := snapshotRevisions[proven.Project]; !exists && resolved.Revision != "" {
+			snapshotRevisions[proven.Project] = resolved.Revision
 		}
 		graphValid := true
 		if reason := resolver.ValidateGraph(item.project, item.raw); reason != "" {
@@ -424,19 +432,19 @@ func (s Store) federatedAcceptance(projectID string, coordinator ArtifactRef, ed
 		if !statusDone {
 			report.Blockers = append(report.Blockers, key+":not-done")
 		}
-		source, sourceErr := resolver.Roots.StoreFor(identity.Project)
+		source, sourceErr := resolver.Roots.StoreFor(proven.Project)
 		if sourceErr != nil {
 			entry.ResolutionState = projectResolutionState(sourceErr)
 			report.Blockers = append(report.Blockers, key+":"+entry.ResolutionState)
 			report.Manifest.Dependencies = append(report.Manifest.Dependencies, entry)
 			continue
 		}
-		source = resolver.withSpecSnapshot(identity.Project, source)
-		projectRoots[identity.Project] = source
-		source.FederatedProjectID = identity.Project
+		source = resolver.withSpecSnapshot(proven.Project, source)
+		projectRoots[proven.Project] = source
+		source.FederatedProjectID = proven.Project
 		source.FederatedResolver = &resolver
 		artifactValid := true
-		if err := verifyFederatedArtifactAtRevision(s.fsys(), source, identity, resolved); err != nil {
+		if err := verifyFederatedArtifactAtRevision(s.fsys(), source, proven, resolved); err != nil {
 			artifactValid = false
 			entry.ResolutionState = err.Error()
 			blocker := key + ":" + err.Error()
@@ -449,27 +457,27 @@ func (s Store) federatedAcceptance(projectID string, coordinator ArtifactRef, ed
 		// Using repository HEAD makes every unrelated evidence commit stale a
 		// sealed milestone or roadmap. External dependencies retain the explicit
 		// whole-repository pin checked below.
-		if identity.Project == projectID {
-			if stable := federatedArtifactLastChange(s.fsys(), source, identity); stable != "" {
+		if proven.Project == projectID {
+			if stable := federatedArtifactLastChange(s.fsys(), source, proven); stable != "" {
 				entry.SourceRevision = stable
 			}
 			// Under an adopted closeout review policy a local milestone or
 			// roadmap is closed by its explicit close, never by the status
 			// its members give it: the edge asks the terminal projection,
 			// along a chain that stops at a cycle (review round 6, N22).
-			if statusDone && graphValid && (identity.Kind == "milestone" || identity.Kind == "roadmap") {
-				if adopted, err := s.closeoutReviewPolicyAdopted(); err != nil || adopted && !s.localScopeClosed(localFederatedScope(identity)) {
+			if statusDone && graphValid && (proven.Kind == "milestone" || proven.Kind == "roadmap") {
+				if adopted, err := s.closeoutReviewPolicyAdopted(); err != nil || adopted && !s.localScopeClosed(localFederatedScope(proven)) {
 					report.Blockers = append(report.Blockers, key+":closeout-not-terminal")
 				}
 			}
 		}
-		if identity.Project != projectID {
+		if proven.Project != projectID {
 			// Do not recurse into source closeout when graph traversal has already
 			// found a cycle or stale artifact. The blocker is conclusive, and
 			// recursively asking each side of a cycle for its review would never
 			// converge.
 			gitlinkValid := true
-			pin, pinErr := FederatedProjectTrustForIn(s.fsys(), source.Root, identity.Project)
+			pin, pinErr := FederatedProjectTrustForIn(s.fsys(), source.Root, proven.Project)
 			if pinErr != nil {
 				entry.ResolutionState = pinErr.Error()
 				report.Blockers = append(report.Blockers, key+":"+entry.ResolutionState)
@@ -480,7 +488,7 @@ func (s Store) federatedAcceptance(projectID string, coordinator ArtifactRef, ed
 				entry.ResolutionState = "consumer-trust-not-adopted"
 				report.Blockers = append(report.Blockers, key+":"+entry.ResolutionState)
 			} else {
-				accepted, exists := policy.TrustedProjects[identity.Project]
+				accepted, exists := policy.TrustedProjects[proven.Project]
 				if pinErr != nil {
 					// The pin error was recorded above; retain the stable state.
 				} else if !exists {
@@ -490,7 +498,7 @@ func (s Store) federatedAcceptance(projectID string, coordinator ArtifactRef, ed
 					entry.ResolutionState = "consumer-trust-stale"
 					report.Blockers = append(report.Blockers, key+":"+entry.ResolutionState)
 				} else {
-					if identity.Project == item.parent {
+					if proven.Project == item.parent {
 						// This edge remains inside the selected source repository;
 						// its local artifacts inherit that repository's pin.
 					} else if parentStore, parentErr := resolver.Roots.StoreFor(item.parent); parentErr != nil || !federatedGitlinkMatchesIn(s.fsys(), parentStore, source, resolved.Revision) {
@@ -504,10 +512,10 @@ func (s Store) federatedAcceptance(projectID string, coordinator ArtifactRef, ed
 					}
 				}
 			}
-			accepted, trusted := policy.TrustedProjects[identity.Project]
+			accepted, trusted := policy.TrustedProjects[proven.Project]
 			proofInputsReady := graphValid && statusDone && artifactValid && pinErr == nil && policy.Enabled && trusted && accepted == pin && gitlinkValid
 			if proofInputsReady {
-				bundleID, bundleDigest, subjectDigest, planDigest, contracts, evidence, proofBlockers := federatedSourceProof(s.fsys(), source, identity, resolved.Revision)
+				bundleID, bundleDigest, subjectDigest, planDigest, contracts, evidence, proofBlockers := federatedSourceProof(s.fsys(), source, proven, resolved.Revision)
 				entry.ReviewBundleID, entry.ReviewBundleDigest = bundleID, bundleDigest
 				entry.ImplementationDigest, entry.PlanDigest = subjectDigest, planDigest
 				entry.GoverningContracts, entry.Evidence = contracts, evidence
@@ -519,7 +527,7 @@ func (s Store) federatedAcceptance(projectID string, coordinator ArtifactRef, ed
 		}
 		report.Manifest.Dependencies = append(report.Manifest.Dependencies, entry)
 		for _, dep := range resolved.Dependencies {
-			queue = append(queue, federatedQueuedRef{project: dep.Project, parent: identity.Project, raw: dep.String(), relationship: "prerequisite"})
+			queue = append(queue, federatedQueuedRef{project: dep.Project, parent: proven.Project, raw: dep.String(), relationship: "prerequisite"})
 		}
 	}
 	for project, selected := range snapshotRevisions {

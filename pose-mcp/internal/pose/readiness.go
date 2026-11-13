@@ -187,6 +187,8 @@ func (s Store) SpecReadinessWithResolver(slug, project string, resolver Artifact
 				if ref.Kind == "milestone" && ref.Project == "" {
 					reason = s.milestoneWaitingReason(ref.Slug + "/" + ref.Milestone)
 				}
+			} else if closed, why := s.AggregateDependencyClosed(resolver, project, resolved); !closed {
+				notDone, reason = true, why
 			}
 		}
 		if reason != "" {
