@@ -1,6 +1,6 @@
 ---
 slug: pose-closeout-review-policy-by-cost-benefit
-status: draft
+status: in-progress
 created_at: 2026-11-11
 completed_at:
 supersedes:
