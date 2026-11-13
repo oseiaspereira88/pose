@@ -143,4 +143,4 @@ The Claude agent declares `sandboxed` (and its resumed form) with the Claude Cod
 
 ### Follow-ups
 
-- [open] Let the reviewer profile of Claude use the sandbox to allow `go test` again, (owner:@pose-maintainers crit:low review:2027-01-08)
+- [done] Let the reviewer profile of Claude use the sandbox to allow `go test` again, (owner:@pose-maintainers crit:low review:2027-01-08)
