@@ -192,11 +192,8 @@ func (s Store) evaluateCloseoutReview(ref string, policy ReviewPolicy) (Closeout
 		decision.Reason = fmt.Sprintf("members=%d, threshold>%d", members, closeoutMilestoneMemberThreshold)
 		return decision, nil
 	}
-	if members <= closeoutRoadmapMemberThreshold {
-		decision.Required = false
-		decision.Reason = fmt.Sprintf("members=%d, threshold>%d", members, closeoutRoadmapMemberThreshold)
-		return decision, nil
-	}
+	// The associations are resolved even below the member threshold: an
+	// association input that cannot be read never proves an exemption.
 	adrs, diagnostics := s.closeoutADRAssociations(rm, project)
 	decision.ADRs = adrs
 	if len(diagnostics) > 0 {
@@ -206,7 +203,7 @@ func (s Store) evaluateCloseoutReview(ref string, policy ReviewPolicy) (Closeout
 		decision.Reason = fmt.Sprintf("members=%d, threshold>%d, adr associations unknown", members, closeoutRoadmapMemberThreshold)
 		return decision, nil
 	}
-	decision.Required = len(adrs) > 0
+	decision.Required = members > closeoutRoadmapMemberThreshold && len(adrs) > 0
 	decision.Reason = fmt.Sprintf("members=%d, threshold>%d, adrs=%d", members, closeoutRoadmapMemberThreshold, len(adrs))
 	return decision, nil
 }
@@ -306,12 +303,23 @@ func (s Store) mandatoryHumanReview(kind string, policy ReviewPolicy) bool {
 	if policy.ReviewerIndependence[kind] == "mandatory-human" {
 		return true
 	}
-	ref := policy.Profiles[kind]
-	if ref == "" {
-		return false
+	refs := append([]string{}, policy.OverlayProfiles...)
+	if ref := policy.Profiles[kind]; ref != "" {
+		refs = append(refs, ref)
 	}
-	profile, _, err := s.loadReviewProfile(ref)
-	return err != nil || profile.Independence == "mandatory-human"
+	// An adopted overlay for this kind that can ask for a human counts
+	// whether or not its selector matches now: an exemption must not depend
+	// on a selection the review plan makes later.
+	for _, ref := range refs {
+		profile, _, err := s.loadReviewProfile(ref)
+		if err != nil {
+			return true
+		}
+		if (profile.Scope == kind || profile.Scope == "" || ref == policy.Profiles[kind]) && profile.Independence == "mandatory-human" {
+			return true
+		}
+	}
+	return false
 }
 
 // closeoutReviewGate is the one place the readers of an approval ask whether
@@ -357,15 +365,24 @@ func (s Store) closeoutReviewGate(ref string, policy ReviewPolicy) (*CloseoutRev
 // same canonical members. A receipt is never re-decided under a later policy,
 // but it does not carry over to a scope whose composition changed.
 func (s Store) closeoutReceiptStands(receipt CloseoutReceipt, policy ReviewPolicy) error {
-	current, err := s.evaluateCloseoutReview(receipt.Scope, policy)
+	// The closed contract, read without the current policy: a later policy
+	// never re-decides a receipt, but a scope whose composition or exit gate
+	// changed is no longer the scope it closed.
+	members, gate, diagnostics, err := s.closeoutSubject(receipt.Scope)
 	if err != nil {
 		return fmt.Errorf("pose: closeout receipt of %s cannot be checked against its scope: %w", receipt.Scope, err)
 	}
-	if !current.Known {
-		return fmt.Errorf("pose: closeout receipt of %s cannot be checked against its scope: %s", receipt.Scope, strings.Join(current.Diagnostics, "; "))
+	if len(diagnostics) > 0 {
+		return fmt.Errorf("pose: closeout receipt of %s cannot be checked against its scope: %s", receipt.Scope, strings.Join(diagnostics, "; "))
 	}
-	if strings.Join(current.Members, ",") != strings.Join(receipt.Decision.Members, ",") {
-		return fmt.Errorf("pose: closeout receipt of %s no longer matches its scope: closed with members %v, now %v; a receipt is never rewritten, so restore the composition or record the change in a new scope", receipt.Scope, receipt.Decision.Members, current.Members)
+	drift := func(what string) error {
+		return fmt.Errorf("pose: closeout receipt of %s no longer matches its scope: its %s changed since the close; a receipt is never rewritten, so restore it or record the change in a new scope", receipt.Scope, what)
+	}
+	if strings.Join(members, ",") != strings.Join(receipt.Decision.Members, ",") {
+		return drift(fmt.Sprintf("members (closed with %v, now %v)", receipt.Decision.Members, members))
+	}
+	if receipt.ExitGateDigest != gate {
+		return drift("exit gate")
 	}
 	return nil
 }
@@ -406,8 +423,46 @@ func (s Store) protectCloseoutDecision(scope ScopeRef, decision *CloseoutReviewD
 	}
 }
 
+// closeoutSubject is what a closeout receipt binds: the canonical members of
+// the scope and, for a milestone, the digest of its exit gate (a roadmap's is
+// the gates of its milestones, which their own receipts bind).
+func (s Store) closeoutSubject(ref string) ([]string, string, []string, error) {
+	scope, err := ParseScopeRef(ref)
+	if err != nil {
+		return nil, "", nil, err
+	}
+	slug := scope.Roadmap
+	if scope.Kind == "roadmap" {
+		slug = scope.Slug
+	}
+	rm, err := s.GetRoadmap(slug)
+	if err != nil {
+		return nil, "", nil, err
+	}
+	project, err := s.WriteProjectID()
+	if err != nil {
+		return nil, "", []string{"the project identity is unknown: " + err.Error()}, nil
+	}
+	var raws []string
+	gate := ""
+	for _, milestone := range rm.Milestones {
+		if scope.Kind == "milestone" && milestone.ID != scope.Milestone {
+			continue
+		}
+		raws = append(raws, milestone.Specs...)
+		if scope.Kind == "milestone" {
+			gate = digestText(milestone.ExitGate)
+		}
+	}
+	members, diagnostics := s.closeoutCanonicalMembers(raws, project)
+	return members, gate, diagnostics, nil
+}
+
 // closeoutScopeHistorical reports a scope whose roadmap was closed before
-// adoption: done, with no receipt and no close of this engine in progress.
+// adoption: done, with no receipt and no close of this engine in progress,
+// and with positive evidence of its legacy closure: an approval recorded on
+// the roadmap, or the legacy rule exempting it as done before review
+// adoption. Status alone proves nothing.
 // Its milestones and itself are verified by the contract they were sealed
 // under, never re-evaluated, and no receipt is backfilled for them. A close
 // interrupted between its status and its receipt left an intent, so it stays
@@ -426,7 +481,37 @@ func (s Store) closeoutScopeHistorical(scope ScopeRef) bool {
 		return false
 	}
 	pending, err := s.closeoutIntentPending(ref)
-	return err == nil && !pending
+	if err != nil || pending {
+		return false
+	}
+	policy, _, err := s.loadReviewPolicy()
+	if err != nil {
+		return false
+	}
+	if required, err := s.reviewRequiredForScope(ScopeRef{Kind: "roadmap", Slug: slug}, policy); err == nil && !required {
+		return true
+	}
+	recorded, refused, err := s.milestonesWithRecordedApproval([]string{ref})
+	return err == nil && recorded[ref] && !refused[ref]
+}
+
+// closedByReceipt reports an aggregate scope its receipt still closes: the
+// receipt stands for the scope as it is, and no refusal was recorded on the
+// scope after it. It is what reached, attention and doctor ask, instead of
+// the mere presence of a receipt.
+func (s Store) closedByReceipt(ref string) (bool, error) {
+	receipt, err := s.ReadCloseoutReceipt(ref)
+	if err != nil || receipt == nil {
+		return false, err
+	}
+	policy, _, err := s.loadReviewPolicy()
+	if err != nil {
+		return false, err
+	}
+	if s.closeoutReceiptStands(*receipt, policy) != nil {
+		return false, nil
+	}
+	return !s.milestoneReviewRefused(ref), nil
 }
 
 // scopeReviewRecorded reports a review of the scope on file: a bundle or a
@@ -475,7 +560,7 @@ func (s Store) CloseoutReviewsOwed() ([]CloseoutReviewOwing, error) {
 	}
 	refs := []string{}
 	for _, rm := range roadmaps {
-		if rm.Status == "done" {
+		if s.closeoutScopeHistorical(ScopeRef{Kind: "roadmap", Slug: rm.Slug}) {
 			continue
 		}
 		for _, milestone := range rm.Milestones {
@@ -485,11 +570,11 @@ func (s Store) CloseoutReviewsOwed() ([]CloseoutReviewOwing, error) {
 	}
 	owing := []CloseoutReviewOwing{}
 	for _, ref := range refs {
-		receipt, err := s.ReadCloseoutReceipt(ref)
+		closed, err := s.closedByReceipt(ref)
 		if err != nil {
 			return nil, err
 		}
-		if receipt != nil {
+		if closed {
 			continue
 		}
 		decision, err := s.currentCloseoutDecision(ref, policy)

@@ -680,11 +680,11 @@ func (s Store) milestoneReachedObligations(project, scope string, coverage *Cove
 			// Under an adopted closeout review policy a reached milestone is
 			// closed only by its explicit close, which publishes a receipt,
 			// approved review or not (spec pose-closeout-review-policy-by-cost-benefit).
-			receipt, err := s.ReadCloseoutReceipt(ref)
+			closed, err := s.closedByReceipt(ref)
 			if err != nil {
 				return lost(err)
 			}
-			if receipt != nil {
+			if closed {
 				continue
 			}
 		} else {

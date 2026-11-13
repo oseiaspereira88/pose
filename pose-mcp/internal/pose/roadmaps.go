@@ -62,11 +62,11 @@ func (s Store) ReachedMilestones(spec string) ([]string, error) {
 		// Under an adopted closeout review policy, only the explicit close
 		// makes a milestone terminal: reached means no receipt yet.
 		for _, ref := range candidates {
-			receipt, err := s.ReadCloseoutReceipt(ref)
+			closed, err := s.closedByReceipt(ref)
 			if err != nil {
 				return reached, err
 			}
-			if receipt == nil {
+			if !closed {
 				reached = append(reached, ref)
 			}
 		}
@@ -349,7 +349,7 @@ func (s Store) roadmapReachedApartFrom(slug, closing string) bool {
 			continue
 		}
 		if adopted {
-			if receipt, err := s.ReadCloseoutReceipt("milestone:" + slug + "/" + milestone.ID); err != nil || receipt == nil {
+			if closed, err := s.closedByReceipt("milestone:" + slug + "/" + milestone.ID); err != nil || !closed {
 				return false
 			}
 			continue

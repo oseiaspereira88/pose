@@ -101,7 +101,7 @@ func cmdAdopt(root string, args []string, stdout, stderr io.Writer) int {
 	if requestID != "" {
 		// An answered configuration-review request decides the capability
 		// it asked about (spec pose-update-configuration-review).
-		if id != "" || mode != "on" {
+		if id != "" || mode != "on" || closeoutPairGiven {
 			return usageError(stderr, adoptUsage)
 		}
 		req, err := loadReviewRequest(root, requestID)
@@ -307,6 +307,11 @@ func adoptGovernedCapabilitiesAtInstallIn(files posemodel.Files, target string, 
 		return
 	}
 	for _, id := range adopted {
+		if id == "closeout-review-policy" {
+			// This one is not turned off: its values change instead.
+			log("capability (adoption): %s from %s — `pose adopt %s --milestone-review-required <never|when-justified|always> --roadmap-review-required <never|when-justified|always> --apply` changes it", "capacidade (adoção): %s desde %s — `pose adopt %s --milestone-review-required <never|when-justified|always> --roadmap-review-required <never|when-justified|always> --apply` altera", id, date, id)
+			continue
+		}
 		log("capability (adoption): %s from %s — `pose adopt %s --off --apply` turns it off", "capacidade (adoção): %s desde %s — `pose adopt %s --off --apply` desliga", id, date, id)
 	}
 }

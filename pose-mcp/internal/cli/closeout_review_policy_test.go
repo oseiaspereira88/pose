@@ -139,13 +139,10 @@ func TestCloseoutReviewPolicyPublication(t *testing.T) {
 	raw, _ := os.ReadFile(rm)
 	mustWrite(t, rm, strings.Replace(string(raw), "status: active", "status: done", 1))
 	commitCloseoutFixture(t, root, "status only")
-	// Done without an intent is a roadmap closed before adoption: its sealed
-	// contract governs, and it owes the review it never had.
-	if code, out := runPose(t, root, "close", "roadmap:program"); code == 0 || strings.Contains(out, "close.receipt=") {
-		t.Fatalf("a roadmap done before adoption was given a receipt: %d %s", code, out)
-	}
-	// A close of this engine interrupted after the status left its intent:
-	// it is incomplete, and the next close verifies and publishes.
+	// Done by hand, with no intent and no evidence of a legacy close, is not
+	// history: the adopted rule decides it and the close publishes its receipt.
+	// A close of this engine interrupted after the status leaves its intent,
+	// read the same way.
 	store := posemodel.Store{Root: root}
 	decision, err := store.CurrentCloseoutDecision("roadmap:program")
 	if err != nil {
@@ -309,5 +306,12 @@ func TestCloseoutReviewPolicyTypedLocalMemberCloses(t *testing.T) {
 	commitCloseoutFixture(t, root, "closeout")
 	if code, out := runPose(t, root, "close", "milestone:program/first"); code != 0 || !strings.Contains(out, "close.receipt=") {
 		t.Fatalf("a spec:<slug> member did not close: %d %s", code, out)
+	}
+}
+
+func TestCloseoutReviewPolicyAdoptRequestRefusesThePair(t *testing.T) {
+	root := reachedMilestoneFixture(t)
+	if code, out := runPose(t, root, "adopt", "--request", "act-x", "--milestone-review-required", "never"); code != 2 {
+		t.Fatalf("an answered request swallowed the pair flags: %d %s", code, out)
 	}
 }

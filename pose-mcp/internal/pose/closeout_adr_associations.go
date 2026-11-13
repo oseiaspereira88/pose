@@ -135,16 +135,15 @@ func (s Store) closeoutADRAssociations(rm *Roadmap, project string) ([]string, [
 	roadmapPath := filepath.Clean(filepath.Join(s.roadmapsDir(), rm.Slug+".md"))
 	for _, entry := range entries {
 		name := entry.Name()
-		// An ADR already associated is read like any other: its size, its
-		// readability and its own declaration are inputs too.
-		if entry.IsDir() || !strings.HasSuffix(name, ".md") || strings.EqualFold(name, "README.md") {
+		// Every candidate is read, the associated ones included: its size,
+		// its readability and its own declaration are inputs. One that
+		// cannot be read could hold a backlink, so it is unknown.
+		if entry.IsDir() || !strings.HasSuffix(name, ".md") || strings.EqualFold(name, "README.md") && !found[name] {
 			continue
 		}
 		if err := s.regularADR(name); err != nil {
-			if found[name] {
-				diagnostics = append(diagnostics, "ADR "+name+" is associated but is not a regular file of .pose/adr")
-			}
-			continue // not an ADR record this inventory reads; a link to it is judged above
+			diagnostics = append(diagnostics, "ADR "+name+" is not a regular file of .pose/adr: "+err.Error())
+			continue
 		}
 		path := filepath.Join(s.adrDir(), name)
 		if info, err := s.fsys().Lstat(path); err != nil || info.Size() > closeoutADRSizeLimit {

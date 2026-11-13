@@ -452,8 +452,11 @@ func TestCloseoutReviewPolicyHistory(t *testing.T) {
 		t.Fatalf("legacy inheritance: %+v %v", before, err)
 	}
 	// A done roadmap closed under the legacy rule keeps its sealed reading
-	// after adoption, under any value, and gets no backfilled receipt.
-	editRoadmapFixture(t, root, "status: active\n", "status: done\n")
+	// after adoption, under any value, and gets no backfilled receipt. Its
+	// legacy closure is positive evidence: here, the legacy rule exempted it
+	// as done before review adoption.
+	editRoadmapFixture(t, root, "status: active\n", "status: done\ncreated_at: 2026-01-01\n")
+	setPolicyField(t, root, "adopted_at", "2026-09-01")
 	for _, mode := range []string{"never", "when-justified", "always"} {
 		setCloseoutPolicy(t, root, mode, mode)
 		after, err := s.VerifyReviewBundle(ref)
@@ -587,6 +590,13 @@ func TestCloseoutReviewPolicyInterruptedRoadmapClose(t *testing.T) {
 	if err := s.ClearCloseoutIntent(ref); err != nil {
 		t.Fatal(err)
 	}
+	// Without the intent, status alone is still no evidence of a legacy close.
+	if eval, err := s.ReviewCheck("milestone:program/core"); err != nil || eval.CloseoutReview == nil {
+		t.Fatalf("a hand-marked roadmap read as history: %+v %v", eval, err)
+	}
+	// With evidence of the legacy closure it is history.
+	editRoadmapFixture(t, root, "status: done\n", "status: done\ncreated_at: 2026-01-01\n")
+	setPolicyField(t, root, "adopted_at", "2026-09-01")
 	if eval, err := s.ReviewCheck("milestone:program/core"); err != nil || eval.CloseoutReview != nil {
 		t.Fatalf("a roadmap done before adoption was evaluated: %+v %v", eval, err)
 	}
@@ -630,4 +640,115 @@ func TestCloseoutReviewPolicyFederatedReceiptProof(t *testing.T) {
 	if len(blockers) != 0 || id != "closeout-receipt:"+ref || !strings.HasPrefix(digest, "sha256:") {
 		t.Fatalf("the receipt of an exempt close did not prove it to a consumer: %s %s %v", id, digest, blockers)
 	}
+}
+
+func setPolicyField(t *testing.T, root, key string, value any) {
+	t.Helper()
+	path := filepath.Join(root, ".pose", "policy", "review.json")
+	raw, err := os.ReadFile(path)
+	if err != nil {
+		t.Fatal(err)
+	}
+	var policy map[string]any
+	if err := json.Unmarshal(raw, &policy); err != nil {
+		t.Fatal(err)
+	}
+	policy[key] = value
+	out, _ := json.Marshal(policy)
+	if err := os.WriteFile(path, out, 0o644); err != nil {
+		t.Fatal(err)
+	}
+}
+
+func TestCloseoutReviewPolicyStatusAloneIsNotHistory(t *testing.T) {
+	root, s := closeoutReviewedFixture(t, "always", "always")
+	// Marked done by hand, with no receipt, no intent and no evidence of a
+	// legacy closure: the adopted rule still governs its milestones.
+	editRoadmapFixture(t, root, "status: active\n", "status: done\n")
+	verification, err := s.VerifyReviewBundle("milestone:program/core")
+	if err != nil || verification.Approved {
+		t.Fatalf("a hand-edited status re-enabled singleton inheritance under always: %+v %v", verification, err)
+	}
+	if eval, err := s.ReviewCheck("milestone:program/core"); err != nil || eval.CloseoutReview == nil || !eval.Required {
+		t.Fatalf("%+v %v", eval, err)
+	}
+}
+
+func TestCloseoutReviewPolicyRoundTwo(t *testing.T) {
+	t.Run("an adopted mandatory-human overlay is never dispensed", func(t *testing.T) {
+		root, s := closeoutMembersFixture(t, "never", "never")
+		os.MkdirAll(filepath.Join(root, ".pose", "review-profiles"), 0o755)
+		os.WriteFile(filepath.Join(root, ".pose", "review-profiles", "human-gate.json"), []byte(`{"schema_version":2,"id":"human-gate","version":1,"scope":"milestone","independence":"mandatory-human","criteria":[{"id":"human","description":"x","evidence_classes":["integration"]}]}`), 0o644)
+		os.WriteFile(filepath.Join(root, ".pose", "review-profiles", "milestone-integration.json"), []byte(`{"schema_version":1,"id":"milestone-integration","version":1,"scope":"milestone","criteria":[{"id":"integration","description":"x","kind":"judgment","evidence_classes":["integration"]}]}`), 0o644)
+		setPolicyField(t, root, "overlay_profiles", []string{"human-gate@1"})
+		if d, err := s.CurrentCloseoutDecision("milestone:program/one"); err != nil || !d.Required {
+			t.Fatalf("never dispensed a mandatory-human overlay: %+v %v", d, err)
+		}
+	})
+	t.Run("a single-member roadmap with a malformed association is unknown", func(t *testing.T) {
+		root, s := closeoutMembersFixture(t, "when-justified", "when-justified")
+		editFile(t, filepath.Join(root, ".pose/roadmaps/single.md"), "adrs: [adr:decision.md]", "adrs: [adr:../decision.md]")
+		if d := evaluate(t, s, "roadmap:single"); d.Known || !d.Required {
+			t.Fatalf("an unknown association granted an exemption below the threshold: %+v", d)
+		}
+	})
+	t.Run("an unreadable unassociated ADR candidate is unknown", func(t *testing.T) {
+		root, s := closeoutMembersFixture(t, "when-justified", "when-justified")
+		editFile(t, filepath.Join(root, ".pose/roadmaps/pair.md"), "status: active\n", "status: active\n")
+		outside := filepath.Join(t.TempDir(), "elsewhere.md")
+		os.WriteFile(outside, []byte("---\nroadmaps: [roadmap:pair]\n---\n"), 0o644)
+		if err := os.Symlink(outside, filepath.Join(root, ".pose/adr/elsewhere.md")); err != nil {
+			t.Skip(err)
+		}
+		if d := evaluate(t, s, "roadmap:pair"); d.Known {
+			t.Fatalf("an unreadable candidate became absence: %+v", d)
+		}
+	})
+	t.Run("an associated README is read too", func(t *testing.T) {
+		root, s := closeoutMembersFixture(t, "when-justified", "when-justified")
+		os.WriteFile(filepath.Join(root, ".pose/adr/README.md"), []byte("---\nroadmaps: [spec:pair]\n---\n"), 0o644)
+		editFile(t, filepath.Join(root, ".pose/roadmaps/pair.md"), "status: active\n", "status: active\nadrs: [adr:README.md]\n")
+		if d := evaluate(t, s, "roadmap:pair"); d.Known {
+			t.Fatalf("an associated README was not validated: %+v", d)
+		}
+	})
+	t.Run("an exit gate change does not inherit the receipt", func(t *testing.T) {
+		_, s := closeoutReviewedFixture(t, "never", "never")
+		ref := "milestone:program/core"
+		state, err := s.GetCloseoutState(ref)
+		if err != nil {
+			t.Fatal(err)
+		}
+		receipt, err := s.NewCloseoutReceipt(ref, *state.Review.CloseoutReview, state.Review, state.ScopeDigest, reviewFixtureNow.Add(time.Hour))
+		if err != nil || s.PublishCloseoutReceipt(receipt) != nil {
+			t.Fatal(err)
+		}
+		editRoadmapFixture(t, s.Root, "- specs: backend\n", "- specs: backend\n\n**Exit gate:** a gate written after the close\n")
+		if _, err := s.ReviewCheck(ref); err == nil || !strings.Contains(err.Error(), "exit gate") {
+			t.Fatalf("a receipt carried over a changed exit gate: %v", err)
+		}
+		if reached, err := s.ReachedMilestones("backend"); err != nil || len(reached) != 1 {
+			t.Fatalf("a milestone whose receipt no longer stands is not reached again: %v %v", reached, err)
+		}
+	})
+	t.Run("a refusal recorded after the receipt reopens the milestone", func(t *testing.T) {
+		_, s := closeoutReviewedFixture(t, "never", "never")
+		ref := "milestone:program/core"
+		state, _ := s.GetCloseoutState(ref)
+		receipt, err := s.NewCloseoutReceipt(ref, *state.Review.CloseoutReview, state.Review, state.ScopeDigest, reviewFixtureNow.Add(time.Hour))
+		if err != nil || s.PublishCloseoutReceipt(receipt) != nil {
+			t.Fatal(err)
+		}
+		bundle, err := s.SealReviewBundle(ref, reviewFixtureNow.Add(2*time.Hour))
+		if err != nil {
+			t.Fatal(err, bundle.Blockers)
+		}
+		attestChildReview(t, s, bundle, reviewFixtureNow.Add(3*time.Hour), "rejected")
+		if reached, err := s.ReachedMilestones("backend"); err != nil || len(reached) != 1 {
+			t.Fatalf("attention hid a milestone rejected after its receipt: %v %v", reached, err)
+		}
+		if state, err := s.GetCloseoutState(ref); err == nil && state.Terminal {
+			t.Fatalf("%+v", state)
+		}
+	})
 }

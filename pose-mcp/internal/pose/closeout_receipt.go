@@ -30,6 +30,8 @@ type CloseoutReceipt struct {
 	Decision      CloseoutReviewDecision `json:"decision"`
 	PolicyDigest  string                 `json:"policy_digest"`
 	SubjectDigest string                 `json:"subject_digest"`
+	// ExitGateDigest binds a milestone's exit gate as it was closed.
+	ExitGateDigest string `json:"exit_gate_digest,omitempty"`
 	// ReviewBundle and ReviewAttestation name the verified review the close
 	// stood on: required, or made by choice when not required.
 	ReviewBundle      string `json:"review_bundle,omitempty"`
@@ -139,8 +141,13 @@ func (s Store) NewCloseoutReceipt(ref string, decision CloseoutReviewDecision, v
 	if err != nil {
 		return CloseoutReceipt{}, err
 	}
+	_, gate, _, err := s.closeoutSubject(ref)
+	if err != nil {
+		return CloseoutReceipt{}, err
+	}
 	receipt := CloseoutReceipt{
-		SchemaVersion: CloseoutReceiptSchemaVersion, Scope: ref, ClosedAt: now.UTC().Format(time.RFC3339),
+		ExitGateDigest: gate,
+		SchemaVersion:  CloseoutReceiptSchemaVersion, Scope: ref, ClosedAt: now.UTC().Format(time.RFC3339),
 		Review: decision.Review(), Decision: decision, PolicyDigest: "sha256:" + digestHex(raw), SubjectDigest: subjectDigest,
 		ReviewBundle: verification.BundleID, ReviewAttestation: verification.AttestationID,
 	}
