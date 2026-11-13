@@ -41,7 +41,7 @@ Sandbox de todo o processo Claude, sigilo de todo o filesystem, mudança de adju
 
 ## 3. Technical Plan
 
-Adicionar `review_profile.command` e `review_profile.resume_command` opcionais por agente. Projetar somente no adaptador de review; clonar Resume antes de substituir seu comando. A policy atual adota o perfil Claude com sandbox obrigatório e Bash sem Edit/Write. O wrapper deriva scratch privado do caminho de output gerado pelo motor, configura Go/TMPDIR e nega escrita no cwd selado. O módulo é de criticidade high. Assessment de 2026-11-12: 114333 LOC de produção, 109213 de testes, um TODO; conteúdo reaproveitado. knowledge:delegated-conclusions-round4 orienta preservar recusas e provas, sem transformar task em atestação.
+Adicionar `review_profile.command` e `review_profile.resume_command` opcionais por agente. Projetar somente no adaptador de review; clonar Resume antes de substituir seu comando. A policy atual adota o perfil Claude com sandbox obrigatório e Bash sem Edit/Write. O wrapper deriva scratch privado do output do motor, configura Go/TMPDIR e nega escrita no cwd selado e no Git comum físico. O motor prepara apenas diretórios vazios de staging Claude no checkout descartável antes do snapshot; arquivos continuam sujeitos à mesma checagem. A limpeza Go fica dentro do sandbox. O módulo é de criticidade high. Assessment de 2026-11-12: 114333 LOC de produção, 109213 de testes, um TODO; conteúdo reaproveitado. knowledge:delegated-conclusions-round4 orienta preservar recusas e provas, sem transformar task em atestação.
 
 ### Artifacts
 
@@ -104,7 +104,7 @@ Executar obrigatoriamente as camadas abaixo, em série nas operações que captu
 - R3: review governado com reexecução do rastreio; ainda não executado.
 - R4: testes de projeção, continuidade e compatibilidade passaram, incluindo regressão do read restrito e suite de policy.
 
-2026-11-12: regressão de seleção falhou antes por `unknown field review_profile` e passou após a implementação. Testes focados de sandbox/policy/read restrito passaram (0.569s). Qualificação fresh `trn-43c6174032cb0775` e continuação nativa `trn-a1c0193704f5f055` passaram em Linux; os testes executaram a tentativa de escrita em subprocesso, com recusa do SO. O scan de dívida é incompleto pelas mesmas duas specs históricas inválidas, com dois marcadores e um descoberto sem cobertura. Matriz completa e reexecução governada ainda pendentes.
+2026-11-12: regressão de seleção falhou antes por `unknown field review_profile` e passou após a implementação. Testes focados de sandbox/policy/read restrito passaram (0.569s). Qualificação fresh `trn-43c6174032cb0775` e continuação nativa `trn-a1c0193704f5f055` passaram em Linux; os testes executaram a tentativa de escrita em subprocesso, com recusa do SO. O scan de dívida é incompleto pelas mesmas duas specs históricas inválidas, com dois marcadores e um descoberto sem cobertura. Matrizes do implementador passaram 209/209, a última em 390s. O run governado rrn-41cc27dbae7fdd47 reexecutou os oito testes então existentes e vet, mas foi recusado por mutação de diretórios e limpeza incompleta; suas críticas F1/F2/F3 motivaram a negação do Git comum, qualificação em worktree real e recusa de jq ausente no teste. A nova versão com staging controlado passou nove testes focados (0.489s) e qualificação real de Git comum trn-8d24f721bc87ba11. Ainda requer matriz e revisão frescas.
 
 ---
 

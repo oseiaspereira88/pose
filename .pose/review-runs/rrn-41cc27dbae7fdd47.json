@@ -1,0 +1,144 @@
+{
+  "safety": {
+    "schema_version": 1,
+    "profile": "legacy-trusted",
+    "platform": "linux/amd64",
+    "capabilities": {
+      "automatic-expiry": "unavailable",
+      "bounded-capture": "available",
+      "cpu-limit": "unavailable",
+      "credential-filesystem-isolation": "unavailable",
+      "environment-allowlist": "available",
+      "escaped-descendant-termination": "unavailable",
+      "filesystem-isolation": "unavailable",
+      "memory-limit": "unavailable",
+      "network-isolation": "unavailable",
+      "origin-isolation": "unavailable",
+      "parent-termination": "available",
+      "process-group-termination": "available",
+      "shared-git-isolation": "unavailable"
+    },
+    "limitations": [
+      "trusted local executable required; worktree is not a sandbox",
+      "outside writes, transient writes, shared Git and credential files are not isolated",
+      "no memory/CPU quota or control of descendants escaping the process group",
+      "cleanup filesystem calls remain subject to operating-system I/O latency",
+      "legacy compatibility: HOME retained; other ambient credentials excluded"
+    ],
+    "stream_bytes": 8388608,
+    "output_bytes": 65536,
+    "retained_bytes": 16777216,
+    "timeout_ms": 3600000,
+    "max_runs_per_bundle": 3,
+    "retention": "retain-evidence; ttl=0; no automatic deletion",
+    "capture_complete": true,
+    "runtime_id": "pose-review-run-2104483385",
+    "operation": {
+      "schema_version": 1,
+      "operation": "review.dispatch.cleanup",
+      "scope": "spec:pose-claude-reviewer-runs-tests-in-sandbox",
+      "outcome": "failed",
+      "step": "cleanup",
+      "steps_run": [
+        {
+          "id": "cleanup",
+          "result": "failed"
+        }
+      ],
+      "effects": [],
+      "unconfirmed": [
+        {
+          "step": "cleanup",
+          "reason": "owned resources may remain; no automatic respawn"
+        }
+      ],
+      "resumable": false,
+      "error": {
+        "cause": "cleanup-incomplete",
+        "message": "runtime cleanup inventory incomplete; resources retained"
+      }
+    }
+  },
+  "provenance": {
+    "execution_state": "started",
+    "planned_wire_digest": "sha256:b033e73db6562be0efe1d1d6da50269bd02bb0881332424a9fa8c98fdf859417",
+    "wire_bytes": 27534,
+    "wire_complete": true,
+    "schema_version": 1,
+    "project": "proj.pose-dist",
+    "audience": "proj.pose-dist",
+    "worktree_digest": "sha256:1d9f3718e4f2ed070d47b3e5f4d166573b7d9b8254ddc3015e06758d93321837",
+    "trust": "executor-attested",
+    "implementation": {
+      "principal": "agent:openai/unknown",
+      "execution": "sha256:5396294805f4f44743ab53f75e9cf8067b3f44e572de59c613384eae153d93ad",
+      "vendor": "openai",
+      "model": "unknown"
+    },
+    "reviewer": {
+      "principal": "agent:anthropic/claude-opus-5-5",
+      "vendor": "anthropic",
+      "model": "claude-opus-5-5"
+    },
+    "config_digest": "sha256:a4244c6529e136aceb7e225fc97bb3972930d9d008778eacb4509f5ec1a5ceff",
+    "command_template_digest": "sha256:870f874adb964bb3cf62ed3b5e570afa6fecb5b899654460752d2486f68a41bc",
+    "argv_digest": "sha256:37f27c25175d4d5e2c053cd50b75ed594564035a240a373a38c937f9bc0d798b",
+    "executable_digest": "sha256:c157074818b094c84aaf31b8c80a1e149f234bb1c8c84a25e9a53e96afa30a29",
+    "template_version": "review-brief/7",
+    "wire_digest": "sha256:b033e73db6562be0efe1d1d6da50269bd02bb0881332424a9fa8c98fdf859417",
+    "notes_digest": "sha256:ac384479d892a97803eebcca2aadf17456ec99f54f3d97346cbe44128efe7ea1",
+    "raw_transcript_digest": "sha256:25ce0bc6103f5cb5371fa6b945f855135cbabb5cf46079c8064f83553de02163",
+    "raw_output_digest": "sha256:bde0e4671899cd25208375f863e0fa8de1284fc7fa417d129272371cd0b1c7b9",
+    "output_source": "stream-final",
+    "output_complete": true
+  },
+  "session_digest": "sha256:9422d06e31b8d10a1f70886df0babf0cc1c4793e985a989d4efbac78bbc84068",
+  "tree_digest": "sha256:37ea4569c4d62168c99cf6983f0df7f6998ae9866f927af571b2545914ab054d",
+  "brief_notes": "Implementer note (not the reviewer's conclusion). Implementation vendor OpenAI; review requested from Claude Opus 5.5.\n\nSpec pose-claude-reviewer-runs-tests-in-sandbox adds optional per-agent review_profile with fresh/resumed commands, selected ONLY for governed review. Read task/adjudication/smoke commands remain unchanged. Projection clones Resume and command slices; command digests/provenance keep using the existing adapter mechanism. No engine containment capability was upgraded.\n\nThe repository's Claude review command must now actually execute tests in the enforced Bash sandbox. Please run these commands separately:\n1. go test ./internal/pose -run TestSandboxedReview -count=1 (from pose-mcp)\n2. go vet ./internal/pose (from pose-mcp)\n3. pose artifact-check --spec pose-claude-reviewer-runs-tests-in-sandbox --strict (from repo root; required).\nUse the CLI available to the sealed checkout; do not edit source or run pose index. GOCACHE/GOTMPDIR are operation-owned and writable, source is denied by absolute physical cwd. This run itself is the outstanding R3 integration criterion: report exact executed tests, commands, outputs, refusal/errors and any inability to reproduce. No claim that R3 passed has been made before this run. The spec's planned coverage will be reconciled against the actual run before close; a source change will be revalidated/reviewed if required.\n\nReal synthetic qualification is recorded in .pose/reports/claude-review-sandbox-qualification.md: first two attempts failed (cache not writable; relative '.' did not deny source), both preserved. Fixed fresh and resumed commands passed go test/go vet with test-process writes to sealed/external sentinels OS-denied. These were native tasks, not attestations. The vendor narrative failed to infer scratch success from a fatal-error assertion; the report explains the distinction. Shared Git sentinel is synthetic; actual dispatch still enforces before/after worktree/origin checks. Claude itself remains trusted and can use its documented per-user temporary fallback, so no full-process filesystem/credential isolation is claimed.\n\nPlease inspect that command startup failures propagate without read/task fallback and fresh/resume have identical mandatory-sandbox settings. jq is an additional checked dependency for safe absolute-path JSON encoding. The read-only restricted profile regression remains present. No raw session IDs/credentials are published. The known global 19 historical attribution errors are unrelated; artifact-check must pass for this scope. Scan completeness is limited by two pre-existing invalid specs (documented in spec).\n\nApply the generated brief's dispositions exactly: required tools must run; recommended tools not run need an explicit rationale; only low residual findings may be accepted with action, owner and review_by. Bare finding IDs for new findings, round-prefixed IDs only for carried findings. A refused tool is not a passed check.\n\nOperational attempt rrn-ce731a2bf0bb5e07 failed before any usable conclusion: capture was withheld and a 1.6 GB private Go cache exceeded the residual runtime cleanup bound (128 MiB/4096 entries). No approval or prior findings were manufactured. The current profile explicitly instructs the reviewer to run `go clean -cache` as the LAST Bash command INSIDE the mandatory sandbox, after tests/vet/build. Please do that before the final draft. All engine cleanup bounds remain unchanged and the engine independently refuses incomplete cleanup. Do NOT clean this adapter-controlled cache outside the sandbox: a test could replace the cache path with a symlink to host data. The considered outer-wrapper cleanup was removed before a new live execution; the wrapper only execs Claude. Review capture refusal now names a safe stage/reason while withholding unsafe channels. Its exact previous cause remains unknown.\n",
+  "ledger_version": 1,
+  "attempt_id": "rat-25dde47791eaf404b27515274c043d09e0c422ea917a85a11a21d9df4c05ad1a",
+  "schema_version": 1,
+  "run_id": "rrn-41cc27dbae7fdd47",
+  "scope": "spec:pose-claude-reviewer-runs-tests-in-sandbox",
+  "bundle_id": "rvb-8faef26f7b9b8061",
+  "bundle_digest": "sha256:8faef26f7b9b8061fc6a9ea8595f3d59e35a9dfde1abbc15295a3b569519adec",
+  "sealed_commit": "692ec9fcd9b9e32b24941fcc19d4644dfb88ce14",
+  "kind": "review",
+  "brief_digest": "sha256:fd557099f4a0143cc2a4fcad84f268978b30eb8a8663a6e4e47b46b38e72c9c0",
+  "adapter": "claude-opus-5-5",
+  "vendor": "anthropic",
+  "model": "claude-opus-5-5",
+  "started_at": "2026-11-13T03:08:54.992072426Z",
+  "ended_at": "2026-11-13T03:50:09.034205172Z",
+  "exit_code": 0,
+  "status": "failed",
+  "failure": "the run changed files in the sealed worktree (including ignored materialization): [\".claude/.cc-writes\" \"pose-mcp/.claude\" \"pose-mcp/.claude/.cc-writes\"]",
+  "transcript_digest": "sha256:b4895a01c343e939ffd9b6d111d57a3d1d3171fa09a3a9e1c31cd87f946c9eb3",
+  "transcript_path": ".pose/review-runs/rrn-41cc27dbae7fdd47.transcript",
+  "output": "decision: changes-requested\n\nI'm requesting changes. The code works and the focused tests pass. But the main promise of R1, that the review profile blocks writes outside the run directory, doesn't hold in a real review run: test code run by the reviewer can write to the main repository's Git data.\n\n## What I ran (this run is the R3 evidence)\n\nAll commands ran inside the mandatory sandbox. Go's cache and temp files were in the run's private scratch directory.\n\n| Command | Result |\n|---|---|\n| `go test ./internal/pose -run TestSandboxedReview -count=1 -v` (in pose-mcp) | All 8 `TestSandboxedReview*` tests pass (0.091s) |\n| `go vet ./internal/pose` | exit 0 |\n| `touch ../SANDBOX_PROBE` | `Read-only file system`: writes to the sealed source are blocked by the OS. Writing to scratch works. |\n| `pose artifact-check --spec … --strict` | exit 0. Only warnings for files that already had no spec claim. It took the change-set head as `4a4077c4`, a later commit holding only sealing chores. |\n| `pose surface-check --spec … --strict` | exit 0, 209 results, 0 findings |\n| `pose assess design --spec … --json` | input digest `b05eed146f58614e` matches the sealed `structure:design-b05eed146f58614e` |\n| `pose suggest review --path pose-mcp` | exit 0 |\n| `pose assess integrate` | Refused: it can't save `.pose/state/integrations.json` because the checkout is read-only |\n| `pose validate --strict --module pose-mcp --jobs 4` | **exit 1**: 197 pass, 10 fail, 2 time out at 600s (`test`, `optional-worktree-runtime-integration`) |\n| `pose validate --strict --jobs 4` | **exit 1**: 200 pass, the same 10 fail and 2 time-outs. All five other modules pass. |\n| `go clean -cache` (last command, inside the sandbox) | exit 0; 8.0K left in the cache |\n\n**The validation failures come from this sandbox, not from the change.** None of the failing tests touch the changed code:\n- Inside the sandbox, `/tmp` and `/home` show up as owned by `nobody(65534)`, which makes POSE refuse \"belongs to another user\".\n- The proxy returned 403 when the install journey tried to list published releases.\n- The runtime host couldn't start, and the full suite ran past 600s.\n\nStill, the validate tools did not pass in this run, so I report them as `failed`. The sealed evidence shows they passed on the implementer's machine.\n\n## Defects\n\n**F1 (high): the sandbox can write to the main repository's Git data.**\n- Where: `.pose/policy/delegation.json:287` and `:317`, the `review_profile` wrappers.\n- When the review runs in a Git worktree, Claude Code automatically adds the main repo's `.git` to the sandbox's write allow-list. This session's sandbox config lists `/home/go/IdeaProjects/harne8/pose-dist/.git`.\n- I checked without writing anything (`test -w`, which reports read-only mounts):\n  - **writable:** `.git/HEAD`, `.git/refs/heads`, `.git/refs/tags`, `.git/objects/pack`, `.git/info`, `.git/worktrees/worktree/HEAD`\n  - **protected:** `.git/config`, `.git/hooks`\n- So a test inside the reviewed change could move branches or release tags, or add objects, in your real repository.\n- This breaks R1 (\"nega gravação fora do diretório do run\") and triggers D1's own falsifier (\"escrever fora do scratch autorizado\").\n- The after-run checks don't catch it. `checkDispatchOrigin` only checks that the main repo's HEAD still resolves (`review_dispatch.go:1186`, result thrown away). Refs, tags and objects are never compared.\n- A fix to consider: have the wrapper add `git rev-parse --git-common-dir` to `denyWrite`, then qualify that in a real worktree dispatch.\n\n**F2 (medium): the qualification claims a check it didn't really make.**\n- Where: `.pose/reports/claude-review-sandbox-qualification.md:13` and `:35`; `.pose/adr/2026-11-12-sandboxed-claude-review-commands.md:16`.\n- The ADR requires a real execution to show that writes to shared Git metadata are denied.\n- The qualification used a made-up `/tmp/pose-sandbox-shared-git` sentinel. That doesn't match how a real review runs (see F1).\n- The report then names \"existing dispatch integrity checks\" as the safeguard, but those checks don't look at refs, tags or objects.\n\n**F3 (low): one test can skip silently.**\n- Where: `pose-mcp/internal/pose/claude_sandboxed_review_test.go:187`.\n- `TestSandboxedReviewWrapperKeepsScratchPrivateAndPropagatesStartupFailure` skips when `jq` is missing, even though `jq` is now required.\n- On a CI machine without `jq`, the tests for passing on startup failures and keeping scratch private quietly stop running.\n\n## Checks that hold\n- **Only governed review uses the profile:** `delegation_policy.go:788-795` applies it to review only and copies Resume before replacing its command. Review resume reads `plan.Config.Resume.Command` (`review_dispatch.go:868`), so a resumed run is held to the same limits as a fresh one.\n- **Invalid profiles are refused before anything runs:** `delegation_policy.go:601-622`.\n- **Leaving the profile out changes nothing:** existing adapters stay byte-identical (tested).\n- **Fresh and resume commands are identical** apart from `--resume {session}`. Both set `failIfUnavailable:true` and `allowUnsandboxedCommands:false`.\n- **Missing tools stop the run with install advice:** without bwrap, socat or jq the wrapper exits 127 with install hints.\n- **Startup failures pass through:** a failing Claude start is reported as is (exit 78 in the test), with no fallback to another command.\n- **Capture-failure messages are safe:** they now name the stage where capture failed and withhold the raw output.\n- **Docs match:** the new paragraphs are identical in the root and scaffold copies. The only other difference (contributor mode) is older than this change.\n\n## Structural facts\n- **SD-2147e11f** (ADR added) → D1: it is the decision record for choosing a review-specific profile.\n- **SD-29d21675** (`delegation.json` changed) → R1: it adopts the sandboxed Claude review profile and its dependency gate.\n\n```pose-draft\n{\n  \"schema\": \"pose.review.draft/v1\",\n  \"decision\": \"changes-requested\",\n  \"findings\": [\n    {\"id\": \"F1\", \"severity\": \"high\", \"disposition\": \"blocker\", \"file\": \".pose/policy/delegation.json\", \"line\": 287, \"summary\": \"In real worktree dispatch Claude Code auto-allows writes to the primary repository's Git common dir; from inside the review sandbox .git/HEAD, refs/heads, refs/tags, objects/pack and info are writable (verified with non-mutating test -w; config/hooks are protected). The fresh and resumed review_profile wrappers (lines 287, 317) set allowWrite=[scratch] and denyWrite=[cwd] but do not deny the git common dir, so untrusted tests can move branches/tags or add objects in the user's repo. Violates R1 and triggers D1's falsifier; checkDispatchOrigin (review_dispatch.go:1186) only checks that origin HEAD resolves and does not detect ref/tag/object tampering.\"},\n    {\"id\": \"F2\", \"severity\": \"medium\", \"disposition\": \"blocker\", \"file\": \".pose/reports/claude-review-sandbox-qualification.md\", \"line\": 13, \"summary\": \"Qualification claims shared Git metadata writes are denied using a synthetic /tmp/pose-sandbox-shared-git sentinel that does not match real worktree dispatch, where the git common dir is auto-allowed; the ADR (2026-11-12-sandboxed-claude-review-commands.md:16) requires a real demonstration, and line 35 names dispatch integrity checks as the safeguard even though they do not compare refs, tags or objects.\"},\n    {\"id\": \"F3\", \"severity\": \"low\", \"disposition\": \"follow-up\", \"file\": \"pose-mcp/internal/pose/claude_sandboxed_review_test.go\", \"line\": 187, \"summary\": \"The startup-failure-propagation and private-scratch regression skips when jq is absent although jq is now a mandatory dependency, so CI without jq silently loses that coverage; it should fail rather than skip.\"}\n  ],\n  \"criteria\": [\n    {\"id\": \"assumption-integrity\", \"disposition\": \"finding\", \"evidence\": \"F2\"},\n    {\"id\": \"backend-concurrency\", \"disposition\": \"passed\", \"evidence\": \"integration:pose-mcp/go/claude-sandboxed-review-integration\", \"rationale\": \"The projection copies Command and Resume before replacing them, so shared policy is not mutated; TestSandboxedReviewSelectsOnlyReviewAndKeepsResumeConfiguration passes (reproduced). No new concurrency surface.\"},\n    {\"id\": \"backend-contracts\", \"disposition\": \"passed\", \"evidence\": \"integration:pose-mcp/go/claude-sandboxed-review-integration\", \"rationale\": \"Optional review_profile is opt-in; omission keeps legacy adapters byte-identical (TestSandboxedReviewOmissionPreservesLegacyAdapter, reproduced); task/adjudicate/smoke keep their commands.\"},\n    {\"id\": \"backend-input-errors\", \"disposition\": \"passed\", \"evidence\": \"integration:pose-mcp/go/claude-sandboxed-review-integration\", \"rationale\": \"Empty, incomplete, interpolated, task-fragment and executable-session profiles are refused at parse time (delegation_policy.go:601-622; TestSandboxedReviewRefusesIncompleteOrUnsafeCommands reproduced).\"},\n    {\"id\": \"backend-integration-impact\", \"disposition\": \"passed\", \"evidence\": \"integration:pose-mcp/go/claude-sandboxed-profile-integration\", \"rationale\": \"Review resume and provenance consume plan.Config.Resume.Command (review_dispatch.go:868, review_run_provenance.go:531) and the origin check uses the same kind-to-purpose projection; claude-sandboxed-profile-integration passed in my sandboxed run.\"},\n    {\"id\": \"backend-observability\", \"disposition\": \"passed\", \"evidence\": \"integration:pose-mcp/go/delegated-output-redaction-diagnostics-integration\", \"rationale\": \"Capture failure now names a closed-vocabulary stage/reason and withholds raw output (review_dispatch.go:1055); reproduced pass, and TestSandboxedReviewCaptureFailureNamesTheSafeStage... confirms no leak.\"},\n    {\"id\": \"compatibility\", \"disposition\": \"passed\", \"evidence\": \"integration:pose-mcp/go/claude-sandboxed-review-integration\", \"rationale\": \"Examined the DelegationAgent schema change, the omission test and the docs: the field is optional, existing adapters and digests are unchanged, and the docs/changelog state that older strict parsers reject the key. Compatible, with the migration explicitly documented.\"},\n    {\"id\": \"correctness\", \"disposition\": \"passed\", \"evidence\": \"integration:pose-mcp/go/claude-sandboxed-review-integration\", \"rationale\": \"Selection, refusal, dependency gating (exit 127 with hints, Claude never launched) and startup-failure propagation (exit 78) behave as specified; 8/8 TestSandboxedReview and go vet pass in this run. The boundary gap is tracked under security/requirements as F1.\"},\n    {\"id\": \"design-causality\", \"disposition\": \"passed\", \"evidence\": \"structure:design-b05eed146f58614e\", \"rationale\": \"Examined the ADR, D1 and the projection code: a review-only profile running under the OS sandbox addresses the stated cause (Go flags that execute code can't be blocked by a prefix allow-list) without widening task/read. The design is causally sound; how the boundary is configured is a separate defect (F1).\", \"mappings\": [\n      {\"delta\": \"SD-2147e11f\", \"basis\": \"D1\", \"disposition\": \"mapped\", \"rationale\": \"The ADR is D1's decision record for choosing a review-specific sandboxed profile.\"},\n      {\"delta\": \"SD-29d21675\", \"basis\": \"R1\", \"disposition\": \"mapped\", \"rationale\": \"delegation.json adopts the sandboxed Claude review_profile that R1 requires, including the dependency gate.\"}\n    ]},\n    {\"id\": \"documentation\", \"disposition\": \"finding\", \"evidence\": \"F2\"},\n    {\"id\": \"operability\", \"disposition\": \"passed\", \"evidence\": \"integration:pose-mcp/go/claude-sandboxed-review-integration\", \"rationale\": \"Examined the wrapper refusals and capture diagnostics: missing bwrap/socat/jq names the tool and gives apt/dnf/pacman advice; capture failure names a safe stage and reason. Remediation is actionable.\"},\n    {\"id\": \"requirements\", \"disposition\": \"finding\", \"evidence\": \"F1\"},\n    {\"id\": \"scope\", \"disposition\": \"passed\", \"evidence\": \"integration:pose-mcp/go/claude-sandboxed-review-integration\", \"rationale\": \"Compared the diff with the spec's artifact list and non-goals: the files changed match the declared artifacts; no change to adjudication/smoke/tasks and no engine containment upgrade.\"},\n    {\"id\": \"security\", \"disposition\": \"finding\", \"evidence\": \"F1\"},\n    {\"id\": \"solution-proportionality\", \"disposition\": \"passed\", \"evidence\": \"structure:design-b05eed146f58614e\", \"rationale\": \"Compared with the smallest alternative (widening the read allow-list), which can't contain executable Go flags; the opt-in field plus a policy wrapper is minimal with no speculative extension. The choice is invalidated if the sandbox cannot be configured to deny shared Git metadata (see F1).\"}\n  ],\n  \"tools\": [\n    {\"id\": \"artifact-check\", \"disposition\": \"passed\", \"evidence\": \"command:pose artifact-check --spec pose-claude-reviewer-runs-tests-in-sandbox --strict\", \"rationale\": \"exit 0; only pre-existing orphan warnings; change-set head resolved to descendant 4a4077c4 (sealing chores only).\"},\n    {\"id\": \"assess-design\", \"disposition\": \"passed\", \"evidence\": \"structure:design-b05eed146f58614e\", \"rationale\": \"Ran pose assess design --json; input digest matches the sealed ref; two governance-contract deltas.\"},\n    {\"id\": \"assess-discover\", \"component\": \"pose-mcp\", \"disposition\": \"not-used\", \"rationale\": \"Not run: it persists assessment state under .pose, which is read-only in the sealed checkout; design and surface evidence covered the structural questions.\"},\n    {\"id\": \"assess-integrate\", \"disposition\": \"not-used\", \"rationale\": \"Ran pose assess integrate; it refused to save .pose/state/integrations.json on the read-only sealed checkout (exit 1), so it produced no assessment. Integration is covered by the module integration checks.\"},\n    {\"id\": \"assess-tech-debt\", \"disposition\": \"not-used\", \"rationale\": \"Not run: it persists .pose/state/technical-debt.json, which is read-only here; the change adds no TODO markers.\"},\n    {\"id\": \"closeout-check\", \"disposition\": \"deferred\", \"rationale\": \"Requires the review to be complete and attested first.\"},\n    {\"id\": \"review-check\", \"disposition\": \"deferred\", \"rationale\": \"Requires the review attestation this draft precedes.\"},\n    {\"id\": \"suggest-review\", \"component\": \"pose-mcp\", \"disposition\": \"passed\", \"evidence\": \"command:pose suggest review --path pose-mcp\", \"rationale\": \"exit 0; it pointed to the security, documentation-style and backend-go rules, which were applied.\"},\n    {\"id\": \"surface-check\", \"disposition\": \"passed\", \"evidence\": \"integration:pose-mcp/go/spec-surface-integration\", \"rationale\": \"Ran pose surface-check --spec pose-claude-reviewer-runs-tests-in-sandbox --strict: exit 0, 209 results, 0 findings.\"},\n    {\"id\": \"validate\", \"disposition\": \"failed\", \"evidence\": \"unit:pose-mcp/go/test\", \"rationale\": \"Ran pose validate --strict --jobs 4 inside the review sandbox: exit 1, 200 pass, 10 fail, 2 timeouts, all in pose-mcp checks with environmental signatures (/tmp and /home seen as uid 65534, proxy 403, runtime host start failure, 600s timeout); none touch the changed code. The sealed ref passed on the host, but the tool did not pass in this run.\"},\n    {\"id\": \"validate\", \"component\": \"pose-mcp\", \"disposition\": \"failed\", \"evidence\": \"integration:pose-mcp/go/claude-sandboxed-review-integration\", \"rationale\": \"Ran pose validate --strict --module pose-mcp --jobs 4 inside the review sandbox: exit 1, 197 pass, 10 fail, 2 timeouts, all environmental as above; claude-sandboxed-review, claude-sandboxed-profile, redaction-diagnostics, build and vet passed.\"}\n  ]\n}\n```",
+  "policy_digest": "sha256:aa9e0c56648481a5d87c2c4bf2084a342b4660978d368af84230c5d8d8ed4823",
+  "label": "claude-sandbox-review-r2",
+  "purpose": "review",
+  "env_removed": [
+    "CODEX_CI",
+    "CODEX_SANDBOX_NETWORK_DISABLED",
+    "CODEX_SESSION_ID",
+    "CODEX_THREAD_ID"
+  ],
+  "events": "claude-stream-json",
+  "events_digest": "sha256:bed945228f639726c01969beda2100c4d55efe75d4af131d9a9d4c9444dd4612",
+  "routing": {
+    "requested": "claude-opus-5-5",
+    "implementation": {
+      "principal": "agent:openai/unknown",
+      "vendor": "openai",
+      "model": "unknown",
+      "execution_digest": "sha256:5396294805f4f44743ab53f75e9cf8067b3f44e572de59c613384eae153d93ad",
+      "source": "declared"
+    },
+    "implementation_from": "bundle",
+    "step": "explicit"
+  },
+  "independence_achieved": "different-vendor",
+  "round": 1
+}

@@ -123,7 +123,7 @@ func sandboxedClaudeReviewCommands(t *testing.T) [][]string {
 func TestSandboxedReviewClaudeEnforcesFreshAndResumedShellBoundaries(t *testing.T) {
 	for i, argv := range sandboxedClaudeReviewCommands(t) {
 		joined := strings.Join(argv, "\x00")
-		for _, want := range []string{`"enabled":true`, `"failIfUnavailable":true`, `"allowUnsandboxedCommands":false`, `"denyWrite":["."]`, "--safe-mode", "--restricted", "--strict-mcp-config", "Read,Grep,Glob,Bash", "GOCACHE", "GOTMPDIR", "CLAUDE_CODE_TMPDIR", "{output}", "--append-system-prompt", "go clean -cache", "inside the mandatory sandbox"} {
+		for _, want := range []string{`"enabled":true`, `"failIfUnavailable":true`, `"allowUnsandboxedCommands":false`, `"denyWrite":["."]`, "--safe-mode", "--restricted", "--strict-mcp-config", "Read,Grep,Glob,Bash", "GOCACHE", "GOTMPDIR", "CLAUDE_CODE_TMPDIR", "{output}", "--append-system-prompt", "go clean -cache", "INSIDE the mandatory sandbox"} {
 			if !strings.Contains(joined, want) {
 				t.Errorf("command %d lacks %s", i, want)
 			}
@@ -185,10 +185,13 @@ func TestSandboxedReviewWrapperKeepsScratchPrivateAndPropagatesStartupFailure(t 
 		t.Skip("no sh")
 	}
 	if _, err := exec.LookPath("jq"); err != nil {
-		t.Skip("no jq for the qualified Claude profile")
+		t.Fatal("jq is required for the qualified Claude review profile")
 	}
 	for _, argv := range sandboxedClaudeReviewCommands(t) {
 		dir := t.TempDir()
+		if out, err := exec.Command("git", "-c", "init.templateDir=", "-c", "core.hooksPath=/dev/null", "init", "-q", dir).CombinedOutput(); err != nil {
+			t.Fatalf("fixture Git directory: %v %s", err, out)
+		}
 		bin := filepath.Join(dir, "bin")
 		if err := os.Mkdir(bin, 0o700); err != nil {
 			t.Fatal(err)
@@ -206,7 +209,7 @@ func TestSandboxedReviewWrapperKeepsScratchPrivateAndPropagatesStartupFailure(t 
 		body := `#!/bin/sh
 test -d "$GOCACHE" && test -d "$GOTMPDIR" && test "$TMPDIR" = "$GOTMPDIR" || exit 90
 test "$1" = --settings || exit 91
-printf '%s' "$2" | jq -e --arg scratch "$CLAUDE_CODE_TMPDIR" --arg cwd "$PWD" '.sandbox.failIfUnavailable == true and .sandbox.allowUnsandboxedCommands == false and .sandbox.filesystem.allowWrite == [$scratch] and .sandbox.filesystem.denyWrite == [$cwd] and .sandbox.filesystem.disabled == false and .sandbox.allowNestedUserNamespaces == false' >/dev/null || exit 92
+printf '%s' "$2" | jq -e --arg scratch "$CLAUDE_CODE_TMPDIR" --arg cwd "$(pwd -P)" --arg common "$(cd .git && pwd -P)" '.sandbox.failIfUnavailable == true and .sandbox.allowUnsandboxedCommands == false and .sandbox.filesystem.allowWrite == [$scratch] and .sandbox.filesystem.denyWrite == [$cwd,$common] and .sandbox.filesystem.disabled == false and .sandbox.allowNestedUserNamespaces == false' >/dev/null || exit 92
 echo sandbox-initialization-refused >&2
 exit 78
 `
@@ -214,6 +217,7 @@ exit 78
 			t.Fatal(err)
 		}
 		cmd := exec.Command(sh, "-c", argv[2], "sh", filepath.Join(dir, "output"), argv[5], fake)
+		cmd.Dir = dir
 		cmd.Env = append(os.Environ(), "PATH="+bin+string(os.PathListSeparator)+os.Getenv("PATH"))
 		out, err := cmd.CombinedOutput()
 		if ee, ok := err.(*exec.ExitError); !ok || ee.ExitCode() != 78 || !strings.Contains(string(out), "sandbox-initialization-refused") {
@@ -256,5 +260,43 @@ func TestSandboxedReviewSessionPatternCapturesAnActualInitEvent(t *testing.T) {
 	value, err := captureReviewValue(p.Agents["claude-opus-5-5"].Session.Pattern, `{"type":"system","subtype":"init","session_id":"synthetic-session"}`)
 	if err != nil || value != "synthetic-session" {
 		t.Fatalf("init capture: %q %v", value, err)
+	}
+}
+
+func TestSandboxedReviewStagingIsMaterializedBeforeIntegrityAndFilesStillCount(t *testing.T) {
+	dir := t.TempDir()
+	if err := os.MkdirAll(filepath.Join(dir, "worktree", "module"), 0o700); err != nil {
+		t.Fatal(err)
+	}
+	r, err := os.OpenRoot(dir)
+	if err != nil {
+		t.Fatal(err)
+	}
+	defer r.Close()
+	if err := prepareClaudeReviewStaging(r, []ReviewPlanComponent{{Path: "module"}}); err != nil {
+		t.Fatal(err)
+	}
+	before, err := dispatchDiskSnapshot(filepath.Join(dir, "worktree"))
+	if err != nil {
+		t.Fatal(err)
+	}
+	for _, p := range []string{".claude/.cc-writes", "module/.claude/.cc-writes"} {
+		if info, err := os.Stat(filepath.Join(dir, "worktree", filepath.FromSlash(p))); err != nil || !info.IsDir() {
+			t.Fatalf("staging %s: %v", p, err)
+		}
+	}
+	path := filepath.Join(dir, "worktree", "module", ".claude", ".cc-writes", "unexpected")
+	if err := os.WriteFile(path, []byte("not ignored"), 0o600); err != nil {
+		t.Fatal(err)
+	}
+	after, err := dispatchDiskSnapshot(filepath.Join(dir, "worktree"))
+	if err != nil {
+		t.Fatal(err)
+	}
+	if reflect.DeepEqual(before, after) {
+		t.Fatal("staging file was hidden from integrity checking")
+	}
+	if err := prepareClaudeReviewStaging(r, []ReviewPlanComponent{{Path: "../outside"}}); err == nil {
+		t.Fatal("unconfined staging component accepted")
 	}
 }

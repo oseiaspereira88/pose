@@ -849,6 +849,17 @@ func (s Store) RunReviewDispatchContext(parent context.Context, plan DispatchPla
 	if err := verifyBundleMaterialization(worktree, plan.Bundle); err != nil {
 		return finish(ReviewRunFailed, err.Error())
 	}
+	if plan.Purpose == DelegationPurposeReview && plan.Config.Events == DelegationEventsClaudeStreamJSON {
+		policy, _, found, err := s.LoadDelegationPolicy()
+		if err != nil {
+			return finish(ReviewRunFailed, "review staging policy unavailable")
+		}
+		if found && policy.Agents[plan.Adapter].ReviewProfile != nil {
+			if err := prepareClaudeReviewStaging(runtimeRoot, plan.Bundle.Payload.Plan.Components); err != nil {
+				return finish(ReviewRunFailed, "review staging directories unavailable")
+			}
+		}
+	}
 	diskBefore, err := dispatchDiskSnapshot(worktree)
 	if err != nil {
 		return finish(ReviewRunFailed, err.Error())
@@ -1122,6 +1133,30 @@ func (s Store) RunReviewDispatchContext(parent context.Context, plan DispatchPla
 		return s.recordReviewRun(late, transcript)
 	}
 	return published, nil
+}
+
+// Materialize only empty vendor staging directories in the disposable checkout,
+// before its integrity snapshot. Files created there remain visible as mutations.
+// The source repository and the legacy read profile are untouched.
+func prepareClaudeReviewStaging(runtime *os.Root, components []ReviewPlanComponent) error {
+	root, err := runtime.OpenRoot("worktree")
+	if err != nil {
+		return err
+	}
+	defer root.Close()
+	paths := []string{"."}
+	for _, component := range components {
+		if !filepath.IsLocal(component.Path) {
+			return fmt.Errorf("review staging component is not confined")
+		}
+		paths = append(paths, component.Path)
+	}
+	for _, path := range paths {
+		if err := root.MkdirAll(filepath.Join(path, ".claude", ".cc-writes"), 0o700); err != nil {
+			return err
+		}
+	}
+	return nil
 }
 
 // The adapter has no authenticated producer/output declaration. Until such a
