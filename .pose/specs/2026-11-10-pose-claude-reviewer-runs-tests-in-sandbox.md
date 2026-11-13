@@ -76,8 +76,7 @@ O codec Claude configurado canonicaliza somente init tipado repetido para a mesm
 
 - [x] Completar a spec (artefatos, alvos de entrega, estratégia de validação) e iniciar
 - [x] Implementar e testar
-- [x] Revisão independente
-- [ ] Fechamento nativo
+- [ ] Revisão independente e fechamento
 
 ## 5. Decisions
 
@@ -102,29 +101,18 @@ Executar obrigatoriamente as camadas abaixo, em série nas operações que captu
 | Build, suite completa, vet e integração | `LC_ALL=C LANGUAGE=C pose validate --strict --module pose-mcp --jobs 4 --json-out .pose/results/delivery-validation.json` | Todos os checks obrigatórios passam; não rodar suite completa concorrente |
 | Segurança e governança | `govulncheck ./...` no módulo; `pose lint-spec pose-claude-reviewer-runs-tests-in-sandbox --strict`; `pose artifact-check --spec pose-claude-reviewer-runs-tests-in-sandbox --strict`; `pose surface-check --spec pose-claude-reviewer-runs-tests-in-sandbox --strict` | Sem vulnerabilidade alcançável nova, diff sem segredos, claims reconciliados e composição comprovada |
 
-### Requirement trace
+### Planned coverage
 
-- R1 [satisfied] test:TestSandboxedReviewClaudeEnforcesFreshAndResumedShellBoundaries test:TestSandboxedReviewStagingIsMaterializedBeforeIntegrityAndFilesStillCount check:claude-sandboxed-review-integration report:claude-review-sandbox-qualification
-- R2 [satisfied] test:TestSandboxedReviewDependencyFailuresNeverLaunchClaude test:TestSandboxedReviewWrapperKeepsScratchPrivateAndPropagatesStartupFailure check:claude-sandboxed-review-integration
-- R3 [satisfied] check:claude-sandboxed-review-integration report:claude-review-sandbox-qualification
-- R4 [satisfied] test:TestSandboxedReviewSelectsOnlyReviewAndKeepsResumeConfiguration test:TestSandboxedReviewOmissionPreservesLegacyAdapter test:TestSandboxedReviewRefusesIncompleteOrUnsafeCommands test:TestSandboxedReviewRepeatedTypedInitKeepsOneIdentityButRejectsConflicts test:TestSandboxedReviewSessionCodecPreservesUnambiguousChannelsExactly check:claude-sandboxed-review-integration
+- R1: testes `TestSandboxedReview` e qualificação real em `.pose/reports/claude-review-sandbox-qualification.md`: fresh e forma retomada passaram, após duas falhas preservadas.
+- R2: testes de dependência em fresh/resume e failIfUnavailable passaram; jq é dependência adicional para codificar caminhos absolutos sem interpolação insegura.
+- R3: review governado com reexecução do rastreio; ainda não executado.
+- R4: testes de projeção, continuidade e compatibilidade passaram, incluindo regressão do read restrito e suite de policy.
 
-2026-11-13: matriz do implementador 209/209 PASS em 372,6s sobre o código 37a96344, selada no bundle rvb-6b28e970d696e950. O run governado rrn-c65b2904a61d6055 terminou com captura e limpeza completas e decisão approved: Claude Opus 5.5 (Anthropic), independente da implementação OpenAI, reexecutou os 11 testes TestSandboxedReview (0.094s) e go vet (exit 0), confirmou por probes não mutantes a recusa de escrita no source, Git comum e gitdir do worktree, e passou artifact-check e surface-check. A suite completa dentro do sandbox apresentou falhas de ambiente/ownership/rede e timeouts; sua aprovação da matriz completa cita a evidência selada do host, sem alegar execução integral bem-sucedida no sandbox. Govulncheck: nenhuma vulnerabilidade alcançável; dois avisos em módulos requeridos não chamados. O scan de dívida permanece incompleto por duas specs históricas inválidas. Runs anteriores recusados e suas evidências estão preservados.
+2026-11-12: regressão de seleção falhou antes por `unknown field review_profile` e passou após a implementação. Testes focados de sandbox/policy/read restrito passaram (0.569s). Qualificação fresh `trn-43c6174032cb0775` e continuação nativa `trn-a1c0193704f5f055` passaram em Linux; os testes executaram a tentativa de escrita em subprocesso, com recusa do SO. O scan de dívida é incompleto pelas mesmas duas specs históricas inválidas, com dois marcadores e um descoberto sem cobertura. Matrizes do implementador passaram 209/209, a última em 390s. O run governado rrn-41cc27dbae7fdd47 reexecutou os oito testes então existentes e vet, mas foi recusado por mutação de diretórios e limpeza incompleta; suas críticas F1/F2/F3 motivaram a negação do Git comum, qualificação em worktree real e recusa de jq ausente no teste. A nova versão com staging controlado passou nove testes focados (0.489s) e qualificação real de Git comum trn-8d24f721bc87ba11. Ainda requer matriz e revisão frescas.
 
 ---
 
 ## 7. Final Report
 
 ### Delivered scope
-
-Perfil Claude exclusivo de review, com sandbox de shell obrigatório, scratch privado, negação de escrita no checkout e Git comum físico, mesmas proteções no resume e recusa explícita sem dependências. Staging vazio é preparado antes do snapshot; arquivos continuam contados pela integridade. A captura aceita init tipado repetido da mesma sessão, preservando bytes originais para proveniência e redação. Qualificação real Linux, testes determinísticos e revisão governada aprovados. Não há alegação de isolamento do processo Claude inteiro nem qualificação de outras plataformas.
-
-### Review
-
-Bundle rvb-6b28e970d696e950; run rrn-c65b2904a61d6055; attempt rat-26c766961e9166a238e29681bf37d434ef3df7956743baff7e6887e074727e06. Reviewer claude-opus-5-5, Anthropic; implementação OpenAI. Decisão approved, com três riscos baixos aceitos pelo revisor. Assinatura do executor b34-local-executor não é recibo criptográfico do vendor.
-
-### Follow-ups
-
-- [open] F1: derivar o staging Claude de um sinal explícito do adaptador projetado no DispatchPlan, vinculado à proveniência, em vez de reler a policy no dispatch; o comportamento atual falha fechado. (owner:@pose-maintainers crit:low review:2026-12-13)
-- [open] F2: usar erro sentinel e errors.Is para ambiguidade de captura, evitando dependência da mensagem textual; alteração dessa mensagem hoje volta a recusar captura. (owner:@pose-maintainers crit:low review:2026-12-13)
-- [open] F3: adicionar regressão e documentação para IDs init conflitantes em canal originalmente não ambíguo, fixando a recusa mais estrita já implementada. (owner:@pose-maintainers crit:low review:2026-12-13)
+Implementado e verificado com testes focados e qualificação sintética real no Linux. A matriz completa, a reexecução do rastreio pela revisão governada e o fechamento ainda não ocorreram. Relatório de qualificação preserva as duas falhas anteriores, o limite do sandbox de shell e a ausência de qualificação de outros sistemas.
