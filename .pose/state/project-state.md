@@ -1,7 +1,7 @@
 ---
 schema_version: 1
-generated_at: 2026-11-12T17:56:37Z
-baseline_commit: a0a80270fd0d5001bffa09f8181587f30dd4a08e
+generated_at: 2026-11-13T09:36:14Z
+baseline_commit: 5e64bf3a542a85e905e817d19e41993d341f4f09
 staleness_policy: max_age_days=7,max_commits=20
 refresh_pending: 
 ---
@@ -27,23 +27,23 @@ próprio deste repositório (produtização v2, DX) segue disponível conforme
 capacidade.
 
 ## Specs & Roadmaps
-<!-- state:derived hash:bebd25e859ac -->
+<!-- state:derived hash:0d8552427d40 -->
 
-- specs: total=514 draft=25 in-progress=0 blocked=0 done=487 superseded=0 abandoned=2
+- specs: total=514 draft=24 in-progress=0 blocked=0 done=488 superseded=0 abandoned=2
 - roadmaps: total=23 active=3 done=17
 - últimos closeouts:
+  - spec:pose-claude-reviewer-runs-tests-in-sandbox (2026-11-13)
   - spec:pose-delegated-output-redaction-root-cause (2026-11-12)
-  - spec:pose-verdict-readers-ask-the-sealed-question (2026-11-11)
-  - spec:pose-commit-gate-refuses-index-without-descriptor (2026-11-11)
   - spec:pose-review-subject-head-is-the-newest (2026-11-11)
-  - spec:pose-index-input-binding-reads-each-transfer-once (2026-11-10)
-  - ... e mais 482 (ver `pose_list_specs status:done`)
+  - spec:pose-commit-gate-refuses-index-without-descriptor (2026-11-11)
+  - spec:pose-verdict-readers-ask-the-sealed-question (2026-11-11)
+  - ... e mais 483 (ver `pose_list_specs status:done`)
 
 ## Follow-ups
-<!-- state:derived hash:d624c8a11bcf -->
+<!-- state:derived hash:44fcf268bd36 -->
 
-- abertos: 268
-- por criticidade: high=5 medium=51 low=193 sem-classificação=19
+- abertos: 270
+- por criticidade: high=5 medium=51 low=195 sem-classificação=19
 - vencidos (review < hoje): 60
 - cobertura: INCOMPLETA — 2 source(s) could not be read: invalid .pose/specs/2026-08-15-pose-instance-engine-version-tracking.md; invalid .pose/specs/2026-08-15-pose-knowledge-durable-reference-type.md; os números acima são o que pôde ser lido
   - spec:pose-package-manager-distribution (owner:@pose-maintainers review:2026-09-18)
@@ -76,22 +76,22 @@ capacidade.
 - knowledge: total=21 ativo=21 expirado=0
 
 ## Validação & Evidência
-<!-- state:derived hash:2182f66db4c3 -->
+<!-- state:derived hash:334d5133b7f0 -->
 
 - último registro: task=validate-native outcome=pass (2026-10-24T18:00:55Z)
 - últimos 30 dias: total=39 outcome_ok=27 outcome_outro=12
-- reports revisados (.md): total=291
+- reports revisados (.md): total=292
+  - report:claude-review-sandbox-qualification.md
   - report:2026-11-09-pose-worktree-runtime-measurements.md
   - report:2026-11-05-pose-b34-dependency-budget-measurement.md
   - report:2026-11-05-pose-b34-read-view-capacity-calibration.md
   - report:2026-11-06-pose-b34-global-review-view-budget.md
-  - report:2026-10-14-security-validation-release-api-auth.md
 
 ## Arquitetura
-<!-- state:derived hash:abd31a9d1ad0 status:active -->
+<!-- state:derived hash:ded82cd56c67 status:active -->
 
 - componentes: total=3 verificados=3 completude=99.2%
-- linhas_de_codigo: producao=115203 testes=110242 total=225445
+- linhas_de_codigo: producao=115333 testes=110580 total=225913
 - linguagens: go
 - saude_de_codigo: TODOs=1 FIXMEs=0 panics=1 stubs=0
 - integracoes: contratos=70 ativos=6 gaps=64
