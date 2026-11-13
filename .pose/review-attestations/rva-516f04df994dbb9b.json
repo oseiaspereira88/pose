@@ -1,0 +1,250 @@
+{
+  "run": {
+    "run_id": "rrn-14440942e94386b7",
+    "proof_id": "rrp-7e28a1adc1ccac866f8970132aa5af428b719e842064fda81cbae302bb9f4508"
+  },
+  "schema_version": 1,
+  "attestation_id": "rva-516f04df994dbb9b",
+  "bundle_id": "rvb-455844752bc5e83f",
+  "bundle_digest": "sha256:455844752bc5e83fda0f30a67c735db6c6048814f6a1f47576ac5c6a8e0db31c",
+  "reviewer": "agent:openai/gpt-6.1-sol",
+  "decision": "changes-requested",
+  "criteria": [
+    {
+      "id": "assumption-integrity",
+      "disposition": "passed",
+      "evidence": "integration:pose-mcp/go/closeout-review-policy-integration",
+      "rationale": "Compared implementer claims with the spec, accepted ADR, current source and independently executed focused tests. Verified the mode thresholds, explicit receipt requirement and legacy exceptions. Distinguished passing existing tests from the four source-established uncovered scenarios. No new residual risk is accepted."
+    },
+    {
+      "id": "backend-concurrency",
+      "disposition": "passed",
+      "evidence": "integration:pose-mcp/go/writer-coordination-and-atomic-publication-integration",
+      "rationale": "Inspected guarded publication, decision revalidation, ExpectAbsent receipt publication, interrupted-close intent handling and cycle-chain copying. The new code reuses existing writer coordination rather than introducing concurrent mutable state."
+    },
+    {
+      "id": "backend-contracts",
+      "disposition": "finding",
+      "evidence": "N25",
+      "rationale": "Supported transferred-member references do not remain integrated through composed closeout acceptance."
+    },
+    {
+      "id": "backend-input-errors",
+      "disposition": "passed",
+      "evidence": "integration:pose-mcp/go/closeout-review-policy-integration",
+      "rationale": "Inspected strict pair/schema validation, duplicate JSON rejection, confined regular-file checks, bounded ADR inventory, unknown-input diagnostics and immutable receipt error paths. Focused negative tests passed."
+    },
+    {
+      "id": "backend-integration-impact",
+      "disposition": "finding",
+      "evidence": "N25",
+      "rationale": "The canonical resolver result and federated proof consumer disagree about which project/artifact owns the proof."
+    },
+    {
+      "id": "backend-observability",
+      "disposition": "finding",
+      "evidence": "N26",
+      "rationale": "Doctor can report no owed review while the applicable closeout verifier rejects the scope."
+    },
+    {
+      "id": "compatibility",
+      "disposition": "finding",
+      "evidence": "N25",
+      "rationale": "Schema-5 refusal by old engines is an explicit migration choice, but the promised canonical transfer-member contract remains incomplete."
+    },
+    {
+      "id": "correctness",
+      "disposition": "finding",
+      "evidence": "N27",
+      "rationale": "Dependent-spec readiness still treats reached aggregate lifecycle status as completed explicit closeout."
+    },
+    {
+      "id": "design-causality",
+      "disposition": "passed",
+      "evidence": "structure:design-e6f453542e50fa78",
+      "rationale": "The pair of deterministic policy settings addresses aggregate review cost; a shared evaluator supplies thresholds and protections, while immutable receipts separate explicit close from review exemption. This follows the accepted ADR and R1-R4. Remaining consumer omissions are reported separately.",
+      "mappings": [
+        {
+          "delta": "SD-607ff681",
+          "basis": "R3",
+          "disposition": "mapped",
+          "rationale": "The roadmap template exposes the explicit adrs association syntax needed for the deterministic when-justified roadmap predicate."
+        },
+        {
+          "delta": "SD-ec2d86f4",
+          "basis": "R1",
+          "disposition": "mapped",
+          "rationale": "The accepted ADR records policy location, mode semantics, default never, explicit close receipts and preservation of historical contracts."
+        }
+      ]
+    },
+    {
+      "id": "documentation",
+      "disposition": "passed",
+      "evidence": "integration:pose-mcp/go/distributed-instructions-parity-integration",
+      "rationale": "Reviewed English and Portuguese operating documentation, roadmap templates and scaffold copies. They consistently describe schema 5, adoption, thresholds, canonical members, exit gates and explicit close receipts."
+    },
+    {
+      "id": "operability",
+      "disposition": "finding",
+      "evidence": "N26",
+      "rationale": "The authoritative closeout failure can be hidden by the operational doctor summary; N28 also hides affected milestones from attention."
+    },
+    {
+      "id": "requirements",
+      "disposition": "finding",
+      "evidence": "N27",
+      "rationale": "The explicit-close technical contract requires dependent readiness to wait for receipts. R3-R6 also remain incomplete through N25, N26 and N28 despite passing registered tests."
+    },
+    {
+      "id": "scope",
+      "disposition": "passed",
+      "evidence": "integration:pose-mcp/go/closeout-review-policy-integration",
+      "rationale": "The scoped implementation follows the approved policy/evaluator/receipt/adoption/projection work and introduces no generic settings framework, remote ADR inventory or new MCP write authority. Separately attributed work in the wider Git range was not treated as this delivery."
+    },
+    {
+      "id": "security",
+      "disposition": "passed",
+      "evidence": "integration:pose-mcp/go/spec-authority-transfer-negative-gates",
+      "rationale": "Inspected member resolution authorization, verified redirects, ADR path containment and regular-file checks, receipt containment and protected review baselines. The transfer integration defect fails closed; no new authority widening or secret exposure was established."
+    },
+    {
+      "id": "solution-proportionality",
+      "disposition": "passed",
+      "evidence": "structure:design-e6f453542e50fa78",
+      "rationale": "Two enums, one domain evaluator and one receipt artifact are proportionate to deterministic exemption plus explicit lifecycle close. Boolean switches cannot express the middle mode, and agent-estimated benefit would lose reproducibility. The implementation avoids global backlink discovery and a generic settings framework. Requiring cross-project ADR inventories would invalidate the current deliberately local association design and require a new decision."
+    }
+  ],
+  "tools": [
+    {
+      "id": "artifact-check",
+      "disposition": "passed",
+      "evidence": "command:pose artifact-check --spec pose-closeout-review-policy-by-cost-benefit --strict",
+      "rationale": "Executed the exact command; exit 0. Output included artifact.claims=40, artifact.observed=103 and artifact.findings=925, reported as provenance warnings. The first displayed historical change set was cs-6a7972103194; this was not mistaken for the sealed review subject."
+    },
+    {
+      "id": "assess-design",
+      "disposition": "not-used",
+      "evidence": "structure:design-e6f453542e50fa78",
+      "rationale": "Did not run the assessment writer under the read-only review boundary. Used sealed structural evidence and independently inspected the spec, ADR and mapped deltas."
+    },
+    {
+      "id": "assess-discover",
+      "component": "pose-mcp",
+      "disposition": "not-used",
+      "evidence": "command:pose context --task spec:pose-closeout-review-policy-by-cost-benefit --json",
+      "rationale": "Did not refresh assessments. Used the sealed component evidence inventory; the executed context command confirmed authority proj.pose-dist and revision 22a03dceb3e85684503c6f3a3a2a51c5b579d1cf, not a new discovery assessment."
+    },
+    {
+      "id": "assess-integrate",
+      "disposition": "not-used",
+      "evidence": "integration:pose-mcp/go/closeout-review-policy-integration",
+      "rationale": "Did not run the assessment writer. Used sealed integration evidence, independently reran the focused domain/CLI/MCP suite and traced provider-consumer boundaries."
+    },
+    {
+      "id": "assess-tech-debt",
+      "disposition": "not-used",
+      "evidence": "command:rg -n 'TODO|FIXME|stub|panic\\(' pose-mcp/internal/pose/closeout_review_policy.go pose-mcp/internal/pose/closeout_receipt.go pose-mcp/internal/pose/closeout_adr_associations.go pose-mcp/internal/cli/closeout_review_policy_test.go",
+      "rationale": "Did not run the assessment writer. The read-only marker scan found only an explanatory redirect-stub comment. Read the spec's existing follow-ups and prior review dispositions."
+    },
+    {
+      "id": "closeout-check",
+      "disposition": "deferred",
+      "rationale": "Completion requires POSE to record the review conclusion. This reviewer was instructed not to record an attestation."
+    },
+    {
+      "id": "review-check",
+      "disposition": "deferred",
+      "rationale": "Completion requires POSE to record the review conclusion. This reviewer was instructed not to record an attestation."
+    },
+    {
+      "id": "suggest-review",
+      "component": "pose-mcp",
+      "disposition": "passed",
+      "evidence": "command:pose suggest review --path pose-mcp",
+      "rationale": "Executed successfully; selected the review workflow and backend-go, security and documentation-style rules."
+    },
+    {
+      "id": "surface-check",
+      "disposition": "passed",
+      "evidence": "integration:pose-mcp/go/closeout-review-policy-integration",
+      "rationale": "Executed pose surface-check --spec pose-closeout-review-policy-by-cost-benefit --strict; exit 0 with surface.targets=1, surface.results=213 and surface.findings=0. Composition evidence: integration:pose-mcp/go/closeout-review-policy-integration. Reachability evidence: reachability:pose-mcp/go/closeout-plan-reachability."
+    },
+    {
+      "id": "validate",
+      "disposition": "passed",
+      "evidence": "unit:pose-mcp/go/test",
+      "rationale": "Used the sealed validation run for registered checks rather than rerunning the repository-writing producer. The bundle also seals build:pose-mcp/go/build, integration:pose-mcp/go/closeout-review-policy-integration and e2e:pose-mcp/go/multi-repo-agent-installed-journey. Independently executed focused tests and go vet successfully."
+    },
+    {
+      "id": "validate",
+      "component": "pose-mcp",
+      "disposition": "passed",
+      "evidence": "unit:pose-mcp/go/test",
+      "rationale": "Used sealed module validation evidence. Independently ran go test ./internal/pose ./internal/cli ./internal/mcpserver -run '^TestCloseoutReviewPolicy' -count=1, additional readiness/round-six tests, TestArtifactGraphTransferMetadataPreservesIdentityAndProofs and go vet ./...; all passed. The remaining findings are composed cases those assertions do not establish."
+    }
+  ],
+  "evidence_refs": [
+    "N25",
+    "N26",
+    "N27",
+    "delegated-run:rrn-14440942e94386b7",
+    "integration:pose-mcp/go/closeout-review-policy-integration",
+    "integration:pose-mcp/go/distributed-instructions-parity-integration",
+    "integration:pose-mcp/go/spec-authority-transfer-negative-gates",
+    "integration:pose-mcp/go/writer-coordination-and-atomic-publication-integration",
+    "structure:design-e6f453542e50fa78"
+  ],
+  "findings": [
+    {
+      "id": "N25",
+      "severity": "medium",
+      "evidence": "file:pose-mcp/internal/pose/federated_acceptance.go:380",
+      "action": "Complete transferred-member acceptance at the canonical destination. ArtifactResolver deliberately retains the original Identity while returning the destination's CanonicalIdentity, Revision and Digest (artifact_ref.go:250-268; verified by TestArtifactGraphTransferMetadataPreservesIdentityAndProofs). federatedAcceptance selects resolved.Identity, opens that original project's store, and verifies the destination revision/digest against the original artifact at line 439. A cross-project transfer therefore produces source-revision-unavailable or source-artifact-uncommitted instead of accepting the authorized terminal destination. CloseoutMemberTarget fixes the child lookup, but both CLI roadmapGate and terminal closeout still run this acceptance path over the original member reference. Use canonical identity consistently for destination proof, revisions and trust while preserving authorization of the redirect chain. The round-six test checks that the source stub is not a child blocker; it does not establish successful composed acceptance.",
+      "disposition": "open"
+    },
+    {
+      "id": "N26",
+      "severity": "medium",
+      "evidence": "file:pose-mcp/internal/pose/closeout_review_policy.go:822",
+      "action": "Doctor must retain the applicable receipt/review obligation after terminal verification fails. CloseoutReviewsOwed first finds closedByReceipt false, but then computes currentCloseoutDecision and skips the scope whenever its current threshold says review is unnecessary. A scope closed under always whose review is later rejected, followed by an authorized switch to never, is omitted even though closeoutReviewGate preserves its required receipt decision and closeout-check rejects it. The same omission occurs for a voluntary review rejected after a never receipt. Use the applicable gate and recorded-review verification rather than the current threshold alone; historical no-receipt scopes already have separate handling.",
+      "disposition": "open"
+    },
+    {
+      "id": "N27",
+      "severity": "high",
+      "evidence": "file:pose-mcp/internal/pose/readiness.go:184",
+      "action": "Apply the adopted aggregate terminal gate to dependent-spec readiness and local spec dependency acceptance. SpecReadinessWithResolver considers a resolved dependency satisfied solely when Status is done. ArtifactResolver derives a milestone's done status from its members, so a draft spec depending on a reached milestone becomes ready before its mandatory explicit close and receipt, including under always with no aggregate approval. A done roadmap with pending closeout intent is similarly accepted by status. FederatedSpecAcceptance also explicitly skips unqualified and same-project dependencies at federated_acceptance.go:327, so the new localScopeClosed check inside aggregate acceptance does not repair this consumer. Resolve applicable aggregate terminal closeout cycle-safely before satisfying these dependencies, preserving legacy contracts. This violates the spec's explicit requirement that dependent readiness require the new close receipt.",
+      "disposition": "open"
+    },
+    {
+      "id": "N28",
+      "severity": "medium",
+      "evidence": "file:pose-mcp/internal/pose/roadmaps.go:112",
+      "action": "Do not discard done roadmaps before checking adopted milestone terminal standing. ReachedMilestones and milestoneReachedObligations obtain candidates through milestonesWithTerminalMembers, which unconditionally skips every done roadmap. After a newly adopted roadmap and its milestones close with receipts, a later rejected member review or invalidated dependency makes their terminal closeout fail, but their milestones never reach the new closedByReceipt filter and disappear from reached/attention obligations. Enumerate these receipt-governed scopes and suppress them only when the applicable terminal projection stands. Preserve the explicitly exempt legacy roadmap contract.",
+      "disposition": "open"
+    }
+  ],
+  "authority": {
+    "schema_version": 1,
+    "project": "proj.pose-dist",
+    "bundle_digest": "sha256:455844752bc5e83fda0f30a67c735db6c6048814f6a1f47576ac5c6a8e0db31c",
+    "principal": "agent:openai/gpt-6.1-sol",
+    "role": "agent",
+    "review_execution": "rrn-14440942e94386b7",
+    "implementation_principal": "agent:anthropic/claude-opus-5-5",
+    "implementation_execution": "sha256:d5e9946f46682b5ac0e88e5ac3756c4d3f89a628915c65dd925e21833c53d1f6",
+    "issuer": "b34-local-executor",
+    "issued_at": "2026-11-13T22:29:48Z",
+    "audience": "proj.pose-dist"
+  },
+  "envelope": {
+    "issuer": "b34-local-executor",
+    "subject": "rvb-455844752bc5e83f",
+    "algorithm": "ed25519",
+    "public_key": "ck4sApdfePV2GT+hJyAYfJd2qLzeG55P8pevGR0bvZE=",
+    "signature": "1efm+ddYu8c9oMFtm+Ak5WROWJqZVZSz1d2BApKL7w7CQDAcQGN9oABNfnL48LMw4fSrAJJ0MpBWa4GMnlLuCA=="
+  },
+  "attested_at": "2026-11-13T22:29:48Z",
+  "path": ".pose/review-attestations/rva-516f04df994dbb9b.json"
+}
