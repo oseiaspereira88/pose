@@ -1,0 +1,284 @@
+{
+  "run": {
+    "run_id": "rrn-2ad3c228c124a4f4",
+    "proof_id": "rrp-65f4669afdd2a685ff6542b312cb96750d2fe5936a705e534e3596c806ac4fe0"
+  },
+  "schema_version": 1,
+  "attestation_id": "rva-15b77929c77babfe",
+  "bundle_id": "rvb-7716cbe72ee9c6df",
+  "bundle_digest": "sha256:7716cbe72ee9c6df4076d241afbf199043921b13e8bc7cbb6b1ae96c3e7a700d",
+  "reviewer": "agent:openai/gpt-6.1-sol",
+  "decision": "changes-requested",
+  "criteria": [
+    {
+      "id": "assumption-integrity",
+      "disposition": "passed",
+      "evidence": "integration:pose-mcp/go/closeout-review-policy-integration",
+      "rationale": "Compared implementation claims with the spec, ADR, code, and executed checks. Distinguished passing focused tests and sealed evidence from source-derived counterexamples and current failed gates. The cause of the full-validation failures remains unresolved. Writers respecting engine locks are an explicit operating assumption; no finding is accepted as a risk."
+    },
+    {
+      "id": "backend-concurrency",
+      "disposition": "passed",
+      "evidence": "integration:pose-mcp/go/writer-coordination-and-atomic-publication-integration",
+      "rationale": "Inspected guarded close publication, ExpectAbsent receipt publication, intent ordering, and conflict handling. The targeted CLI publication test also passed under the race detector; no separate concurrency defect was established."
+    },
+    {
+      "id": "backend-contracts",
+      "disposition": "finding",
+      "evidence": "N11",
+      "rationale": "The public closeout/MCP terminal projection can discard a genuine child blocker."
+    },
+    {
+      "id": "backend-input-errors",
+      "disposition": "finding",
+      "evidence": "N12",
+      "rationale": "Unresolved explicit Markdown association targets can silently become absence."
+    },
+    {
+      "id": "backend-integration-impact",
+      "disposition": "finding",
+      "evidence": "N14",
+      "rationale": "Federated source proof can accept a receipt-backed terminal result that repeated CLI close rejects."
+    },
+    {
+      "id": "backend-observability",
+      "disposition": "finding",
+      "evidence": "N12",
+      "rationale": "Missing association knowledge is not surfaced through the evaluator's diagnostics."
+    },
+    {
+      "id": "compatibility",
+      "disposition": "finding",
+      "evidence": "N16",
+      "rationale": "Adoption changes the terminal state of an independently approved historical milestone under an active roadmap."
+    },
+    {
+      "id": "correctness",
+      "disposition": "finding",
+      "evidence": "N10",
+      "rationale": "Exempt aggregate review currently permits an unjudged multi-member milestone exit gate."
+    },
+    {
+      "id": "design-causality",
+      "disposition": "passed",
+      "evidence": "structure:design-89a10c4a9871f35f",
+      "rationale": "The accepted design separates mandatory explicit close from aggregate review cost through deterministic thresholds and an immutable receipt. A shared evaluator, schema-versioned adoption, and local explicit ADR associations address that cause. The findings concern incomplete enforcement of this selected design.",
+      "mappings": [
+        {
+          "delta": "SD-607ff681",
+          "basis": "R3",
+          "disposition": "mapped",
+          "rationale": "The roadmap template adds adrs: so an explicit ADR association can participate in the deterministic when-justified predicate."
+        },
+        {
+          "delta": "SD-ec2d86f4",
+          "basis": "R1",
+          "disposition": "mapped",
+          "rationale": "The accepted ADR records policy location, modes, defaults, deterministic thresholds, and historical compatibility before implementation."
+        }
+      ]
+    },
+    {
+      "id": "documentation",
+      "disposition": "passed",
+      "evidence": "integration:pose-mcp/go/distributed-instructions-parity-integration",
+      "rationale": "Compared English and pt-BR manuals, embedded mirrors, roadmap templates, adoption flags, and receipt descriptions. Thresholds, policy syntax, explicit close, defaults, and prospective adoption are consistently documented. Runtime enforcement defects are reported separately."
+    },
+    {
+      "id": "operability",
+      "disposition": "finding",
+      "evidence": "N13",
+      "rationale": "Reached and attention projections can suppress a scope whose child-terminal verifier is nonterminal."
+    },
+    {
+      "id": "requirements",
+      "disposition": "finding",
+      "evidence": "N10",
+      "rationale": "The required preservation of exit gates under aggregate-review exemption is not fulfilled."
+    },
+    {
+      "id": "scope",
+      "disposition": "finding",
+      "evidence": "N15",
+      "rationale": "A governed implementation modification is absent from the approved artifact declaration and fails both strict delivery gates."
+    },
+    {
+      "id": "security",
+      "disposition": "finding",
+      "evidence": "N9",
+      "rationale": "A contract-changing scope can bypass the protected baseline's mandatory-human overlay."
+    },
+    {
+      "id": "solution-proportionality",
+      "disposition": "passed",
+      "evidence": "structure:design-89a10c4a9871f35f",
+      "rationale": "Reusing capability adoption and one evaluator is smaller than introducing a settings subsystem or agent judgment. Receipts are justified by the required explicit milestone transition. Local association inventory avoids speculative global discovery and adds no external dependency. A future requirement for remote backlink discovery would invalidate this bounded association design and require another decision."
+    }
+  ],
+  "tools": [
+    {
+      "id": "artifact-check",
+      "disposition": "failed",
+      "evidence": "command:pose artifact-check --spec pose-closeout-review-policy-by-cost-benefit --strict",
+      "rationale": "Executed, exit 1: artifact.claims=39, artifact.observed=73, artifact.findings=927. The JSON rerun confirms one error: undeclared pose-mcp/internal/pose/spec.go; the other findings are warnings. This command loads a recorded change set ending at fe2013c7; direct inspection of the requested sealed range independently confirms the same undeclared modification. See N15."
+    },
+    {
+      "id": "assess-design",
+      "disposition": "not-used",
+      "evidence": "structure:design-89a10c4a9871f35f",
+      "rationale": "Did not execute assessment producers under the no-write boundary. Reviewed the sealed structural evidence, current diff, spec, ADR, and both material structural mappings directly."
+    },
+    {
+      "id": "assess-discover",
+      "component": "pose-mcp",
+      "disposition": "not-used",
+      "evidence": "integration:pose-mcp/go/closeout-review-policy-integration",
+      "rationale": "Did not execute the assessment producer because repository writes are prohibited. Inspected the component's source, validation matrix, registered tests, and sealed component evidence."
+    },
+    {
+      "id": "assess-integrate",
+      "disposition": "not-used",
+      "evidence": "integration:pose-mcp/go/closeout-review-policy-integration",
+      "rationale": "Did not execute the writing assessment. Manually traced CLI, Store, MCP, receipt, and federation consumers; N11, N13, and N14 identify remaining integration inconsistencies."
+    },
+    {
+      "id": "assess-tech-debt",
+      "disposition": "not-used",
+      "evidence": "integration:pose-mcp/go/closeout-review-policy-integration",
+      "rationale": "Did not execute the writing assessment. Searched the new evaluator, receipt, and association implementations for TODO, FIXME, stub, and panic markers; none were found."
+    },
+    {
+      "id": "closeout-check",
+      "disposition": "deferred",
+      "evidence": "integration:pose-mcp/go/closeout-terminal-verification-integration",
+      "rationale": "Completion-only gate deferred until POSE records and verifies the review conclusion. This task explicitly prohibits recording an attestation."
+    },
+    {
+      "id": "review-check",
+      "disposition": "deferred",
+      "evidence": "integration:pose-mcp/go/closeout-review-policy-integration",
+      "rationale": "Completion-only gate deferred until POSE records the review conclusion; no attestation was written."
+    },
+    {
+      "id": "suggest-review",
+      "component": "pose-mcp",
+      "disposition": "passed",
+      "evidence": "command:pose suggest review --path pose-mcp",
+      "rationale": "Executed, exit 0. Resolved backend-go and selected the review workflow plus security, documentation-style, and backend-go rules."
+    },
+    {
+      "id": "surface-check",
+      "disposition": "failed",
+      "evidence": "integration:pose-mcp/go/closeout-review-policy-integration",
+      "rationale": "Executed pose surface-check --spec pose-closeout-review-policy-by-cost-benefit --strict, exit 1: surface.targets=1, surface.results=213, surface.findings=1; error undeclared pose-mcp/internal/pose/spec.go. Considered sealed integration:pose-mcp/go/closeout-review-policy-integration and reachability:pose-mcp/go/closeout-plan-reachability; those passing checks do not override the current artifact failure. See N15."
+    },
+    {
+      "id": "validate",
+      "disposition": "failed",
+      "evidence": "unit:pose-mcp/go/test",
+      "rationale": "Executed pose validate --strict, exit 1: 213 steps, 212 pass, 1 fail, 598.1 seconds. The sealed unit reference passed previously; it does not establish success of this newly executed run. No report was written and no unsupported root cause is asserted."
+    },
+    {
+      "id": "validate",
+      "component": "pose-mcp",
+      "disposition": "failed",
+      "evidence": "unit:pose-mcp/go/test",
+      "rationale": "Executed pose validate --strict --module pose-mcp, exit 1: 210 steps, 208 pass, 1 fail, 1 error. The unit step timed out after 600 seconds. Separately, go test ./internal/pose ./internal/cli ./internal/mcpserver -run '^TestCloseoutReviewPolicy' -count=1 and go vet ./... passed; the targeted CLI publication race test passed. The sealed passing evidence is distinguished from this failed current full run."
+    }
+  ],
+  "evidence_refs": [
+    "N10",
+    "N11",
+    "N12",
+    "N13",
+    "N14",
+    "N15",
+    "N16",
+    "N9",
+    "delegated-run:rrn-2ad3c228c124a4f4",
+    "integration:pose-mcp/go/closeout-review-policy-integration",
+    "integration:pose-mcp/go/distributed-instructions-parity-integration",
+    "integration:pose-mcp/go/writer-coordination-and-atomic-publication-integration",
+    "structure:design-89a10c4a9871f35f"
+  ],
+  "findings": [
+    {
+      "id": "N9",
+      "severity": "high",
+      "evidence": "file:pose-mcp/internal/pose/closeout_review_policy.go:309",
+      "action": "Removing the current scope-kind profile bypasses protected mandatory-human overlays. Consider an adopted baseline with never, an ordinary base profile, and a selected mandatory-human overlay. A contract-changing scope removes profiles.milestone. protectCloseoutDecision checks baseline policy independence and its base profile, but not baseline overlays; evaluateCloseoutReview(base) returns exempt. mandatoryHumanReview then returns false here without constructing the protected effective plan. ReviewCheck grants the exemption before its missing-profile check. Resolve protected effective independence even when the current profile mapping is absent.",
+      "disposition": "open"
+    },
+    {
+      "id": "N10",
+      "severity": "high",
+      "evidence": "file:pose-mcp/internal/cli/surface_check.go:373",
+      "action": "An exempt multi-member milestone can close without evidence for its exit gate. roadmapGate evaluates cut criteria only for a roadmap and never reads Milestone.ExitGate. The milestone close branch calls this gate and publishes a receipt. The exit-gate judgment otherwise belongs to the skipped aggregate review; addMilestoneGateCriterion carries it into a member review only for a singleton (review_plan.go:1111). Thus a two-member milestone under when-justified, or a multi-member milestone under never, can close with an unsatisfied exit gate. Preserve independent gate verification when aggregate review is exempt.",
+      "disposition": "open"
+    },
+    {
+      "id": "N11",
+      "severity": "high",
+      "evidence": "file:pose-mcp/internal/pose/review_closeout.go:2819",
+      "action": "Exemption can erase a child-scope blocker based on the child's name. removeReviewOnlyBlockers removes every message containing review, criterion, or finding (line 2983), including 'child spec:review-client is not closed'. After a valid exempt close, a later authentic rejection of that child leaves its status done and the aggregate receipt unchanged. The child becomes nonterminal, but its blocker is removed and the aggregate can still report Terminal=true. MCP and federatedSourceProof consume that false terminal state. Filter typed aggregate-review diagnostics instead of arbitrary message substrings, and retain every child blocker.",
+      "disposition": "open"
+    },
+    {
+      "id": "N12",
+      "severity": "medium",
+      "evidence": "file:pose-mcp/internal/pose/closeout_adr_associations.go:183",
+      "action": "Backward Markdown associations still do not resolve their targets. An inventoried ADR containing [program](../roadmaps/missing.md) is silently ignored because its normalized path is not exactly the current roadmapPath. Unlike roadmaps: declarations, missing, ambiguous, or unreadable local Markdown roadmap targets produce no diagnostic. A multi-member roadmap can consequently receive a known when-justified exemption from an incomplete association inventory. Resolve local Markdown association targets before proving absence.",
+      "disposition": "open"
+    },
+    {
+      "id": "N13",
+      "severity": "medium",
+      "evidence": "file:pose-mcp/internal/pose/closeout_review_policy.go:535",
+      "action": "closedByReceipt verifies only the aggregate's review, not its terminal closeout. For an exempt receipt without an aggregate review record, reviewCheck returns immediately as not-required without checking children or dependency acceptance. If a member later receives a negative or incomplete review while remaining done, GetCloseoutState reports the child open, but closedByReceipt still returns true. ReachedMilestones, milestoneReachedObligations, and roadmapReachedApartFrom therefore suppress or count a nonterminal scope as closed. Project the applicable terminal verifier rather than only its review half.",
+      "disposition": "open"
+    },
+    {
+      "id": "N14",
+      "severity": "high",
+      "evidence": "file:pose-mcp/internal/pose/closeout_review_policy.go:383",
+      "action": "Receipt-backed domain terminal verification checks gate text but not whether its evidence still holds. Close an exempt roadmap with C1: manual-review:docs/review.md, then remove that report while retaining the criterion and members. closeoutReceiptStands still succeeds because their digests are unchanged; GetCloseoutState never evaluates cut criteria and can remain terminal, allowing federatedSourceProof to accept the receipt. Repeating CLI close now correctly fails through closeGateBlocker, so the surfaces disagree. Move applicable gate verification into the shared terminal path and preserve historical policy independence separately.",
+      "disposition": "open"
+    },
+    {
+      "id": "N15",
+      "severity": "medium",
+      "evidence": "file:.pose/specs/2026-11-11-pose-closeout-review-policy-by-cost-benefit.md:108",
+      "action": "The artifact declaration omits modified pose-mcp/internal/pose/spec.go. The supplied range changes Store by adding planWithoutCloseoutGate, but the Artifacts section does not claim that path. Both required gates exit 1: surface-check reports 'error undeclared pose-mcp/internal/pose/spec.go'; artifact-check JSON confirms the same undeclared path as its sole error. Declare the exact modification and rerun both strict gates.",
+      "disposition": "open"
+    },
+    {
+      "id": "N16",
+      "severity": "high",
+      "evidence": "file:pose-mcp/internal/pose/closeout_review_policy.go:489",
+      "action": "Previously terminal milestones with their own sealed approval are still reopened when their parent roadmap remains active. closeoutScopeHistorical requires the parent roadmap to be done and never checks the milestone's own positive historical terminal evidence. Adoption therefore sets CloseRequired=true and Terminal=false for a milestone that the prior verifier considered terminal, even when its review and members remain valid. R7 and the technical plan preserve prior terminal history, not only milestones under done roadmaps. Distinguish a historically approved terminal milestone from a merely reached milestone.",
+      "disposition": "open"
+    }
+  ],
+  "authority": {
+    "schema_version": 1,
+    "project": "proj.pose-dist",
+    "bundle_digest": "sha256:7716cbe72ee9c6df4076d241afbf199043921b13e8bc7cbb6b1ae96c3e7a700d",
+    "principal": "agent:openai/gpt-6.1-sol",
+    "role": "agent",
+    "review_execution": "rrn-2ad3c228c124a4f4",
+    "implementation_principal": "agent:anthropic/claude-opus-5-5",
+    "implementation_execution": "sha256:d30b539ffb1be4ae04c1d7e8051399ea88078e2961cff1126a8d8e2d7e6471be",
+    "issuer": "b34-local-executor",
+    "issued_at": "2026-11-13T19:36:43Z",
+    "audience": "proj.pose-dist"
+  },
+  "envelope": {
+    "issuer": "b34-local-executor",
+    "subject": "rvb-7716cbe72ee9c6df",
+    "algorithm": "ed25519",
+    "public_key": "ck4sApdfePV2GT+hJyAYfJd2qLzeG55P8pevGR0bvZE=",
+    "signature": "0ySumo00aOTF4nvz+hv9KFiKG2rt+PFDIutsYOK2hfQhFYrQktL9l/NbLhlkCIyqWGhMKyh3/1bEGB7tazSVCg=="
+  },
+  "attested_at": "2026-11-13T19:36:43Z",
+  "path": ".pose/review-attestations/rva-15b77929c77babfe.json"
+}
