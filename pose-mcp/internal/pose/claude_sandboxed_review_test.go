@@ -203,6 +203,10 @@ func TestSandboxedReviewWrapperKeepsScratchPrivateAndPropagatesStartupFailure(t 
 			}
 		}
 		fake := filepath.Join(bin, "claude")
+		goStub := "#!/bin/sh\ntest \"$1\" = clean && test \"$2\" = -cache || exit 93\ntest -d \"$GOCACHE\" || exit 94\necho cleaned > \"$CLAUDE_CODE_TMPDIR/cleaned\"\n"
+		if err := os.WriteFile(filepath.Join(bin, "go"), []byte(goStub), 0o700); err != nil {
+			t.Fatal(err)
+		}
 		body := `#!/bin/sh
 test -d "$GOCACHE" && test -d "$GOTMPDIR" && test "$TMPDIR" = "$GOTMPDIR" || exit 90
 test "$1" = --settings || exit 91
@@ -223,5 +227,41 @@ exit 78
 		if err != nil || info.Mode().Perm() != 0o700 {
 			t.Fatalf("scratch not private: %v %v", info, err)
 		}
+		if _, err := os.Stat(filepath.Join(dir, "claude-review", "cleaned")); err != nil {
+			t.Fatal("the operation-owned Go cache was not cleaned before returning")
+		}
+	}
+}
+
+func TestSandboxedReviewCaptureFailureNamesTheSafeStageAndKeepsOutputWithheld(t *testing.T) {
+	f := provenanceRunFixture(t, "anthropic", "review-model", func(a *ReviewerAdapter) {
+		a.Command = []string{"sh", "-c", "cat >/dev/null; printf 'session: synthetic-a\\nsession: synthetic-b\\n'"}
+		a.Session = &ReviewerSession{Pattern: `session: (\S+)`}
+	})
+	if f.run.Status != ReviewRunFailed || f.run.Output != "" || f.run.Safety.CaptureComplete {
+		t.Fatalf("unsafe capture was not refused: %+v", f.run)
+	}
+	for _, want := range []string{"adapter capture failed", "session/interrupt recognition", "ambiguous adapter capture"} {
+		if !strings.Contains(f.run.Failure, want) {
+			t.Errorf("missing safe diagnostic %q: %s", want, f.run.Failure)
+		}
+	}
+	if strings.Contains(f.run.Failure, "synthetic-a") || strings.Contains(f.run.Failure, "synthetic-b") {
+		t.Fatal("raw capture leaked")
+	}
+}
+
+func TestSandboxedReviewSessionPatternCapturesAnActualInitEvent(t *testing.T) {
+	raw, err := os.ReadFile(filepath.Join("..", "..", "..", delegationPolicyPath))
+	if err != nil {
+		t.Fatal(err)
+	}
+	p, err := ParseDelegationPolicy(raw)
+	if err != nil {
+		t.Fatal(err)
+	}
+	value, err := captureReviewValue(p.Agents["claude-opus-5-5"].Session.Pattern, `{"type":"system","subtype":"init","session_id":"synthetic-session"}`)
+	if err != nil || value != "synthetic-session" {
+		t.Fatalf("init capture: %q %v", value, err)
 	}
 }

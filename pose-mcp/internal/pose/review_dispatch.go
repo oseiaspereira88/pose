@@ -1022,17 +1022,21 @@ func (s Store) RunReviewDispatchContext(parent context.Context, plan DispatchPla
 		safety.ExecutionCause = "capture-incomplete"
 		return finish(ReviewRunFailed, "adapter capture incomplete: stream/output limit or unsafe output file")
 	}
+	captureStage := "session/interrupt recognition"
 	status, failure, captureErr := s.classifyReviewInterruption(&run, plan, transcript, runErr, ctx.Err())
 	if captureErr == nil {
 		var redactErr error
 		raw := transcript
+		captureStage = "stdout"
 		transcript, redactErr = redactReviewCapture(transcript, secrets, run.sessionForRedaction, safety.StreamBytes)
 		var output []byte
 		if redactErr == nil {
+			captureStage = "final output"
 			output, redactErr = redactReviewCapture([]byte(run.Output), secrets, run.sessionForRedaction, safety.OutputBytes)
 		}
 		run.Output = string(output)
 		if redactErr == nil && run.Events != "" {
+			captureStage = "normalized events"
 			// Events are parsed from the decoded stream, where a JSON escape no longer
 			// hides a value: each text is redacted again after decoding.
 			run.eventsBytes, redactErr = redactedDelegationEvents(run.Events, raw, run.Output, secrets, run.sessionForRedaction)
@@ -1048,7 +1052,7 @@ func (s Store) RunReviewDispatchContext(parent context.Context, plan DispatchPla
 		if run.Provenance != nil {
 			run.Provenance.OutputComplete = false
 		}
-		return finish(ReviewRunFailed, "adapter capture failed; unredacted output withheld")
+		return finish(ReviewRunFailed, "adapter capture failed; unredacted output withheld; "+delegationCaptureFailure(run.Adapter, run.Events, captureStage, captureErr))
 	}
 	run.sessionForRedaction = ""
 

@@ -51,6 +51,7 @@ Adicionar `review_profile.command` e `review_profile.resume_command` opcionais p
 - modified: .pose/policy/delegation.json
 - modified: .pose/indexes/validation-matrix.json
 - modified: pose-mcp/internal/pose/delegation_policy.go
+- modified: pose-mcp/internal/pose/review_dispatch.go
 - created: pose-mcp/internal/pose/claude_sandboxed_review_test.go
 - created: .pose/reports/claude-review-sandbox-qualification.md
 - created: .pose/changelogs/unreleased/pose-claude-reviewer-runs-tests-in-sandbox.md

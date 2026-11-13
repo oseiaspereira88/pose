@@ -1,0 +1,144 @@
+{
+  "safety": {
+    "schema_version": 1,
+    "profile": "legacy-trusted",
+    "platform": "linux/amd64",
+    "capabilities": {
+      "automatic-expiry": "unavailable",
+      "bounded-capture": "available",
+      "cpu-limit": "unavailable",
+      "credential-filesystem-isolation": "unavailable",
+      "environment-allowlist": "available",
+      "escaped-descendant-termination": "unavailable",
+      "filesystem-isolation": "unavailable",
+      "memory-limit": "unavailable",
+      "network-isolation": "unavailable",
+      "origin-isolation": "unavailable",
+      "parent-termination": "available",
+      "process-group-termination": "available",
+      "shared-git-isolation": "unavailable"
+    },
+    "limitations": [
+      "trusted local executable required; worktree is not a sandbox",
+      "outside writes, transient writes, shared Git and credential files are not isolated",
+      "no memory/CPU quota or control of descendants escaping the process group",
+      "cleanup filesystem calls remain subject to operating-system I/O latency",
+      "legacy compatibility: HOME retained; other ambient credentials excluded"
+    ],
+    "stream_bytes": 8388608,
+    "output_bytes": 65536,
+    "retained_bytes": 16777216,
+    "timeout_ms": 3600000,
+    "max_runs_per_bundle": 3,
+    "retention": "retain-evidence; ttl=0; no automatic deletion",
+    "capture_complete": false,
+    "runtime_id": "pose-review-run-3832369996",
+    "execution_cause": "capture-incomplete",
+    "operation": {
+      "schema_version": 1,
+      "operation": "review.dispatch.cleanup",
+      "scope": "spec:pose-claude-reviewer-runs-tests-in-sandbox",
+      "outcome": "failed",
+      "step": "cleanup",
+      "steps_run": [
+        {
+          "id": "cleanup",
+          "result": "failed"
+        }
+      ],
+      "effects": [],
+      "unconfirmed": [
+        {
+          "step": "cleanup",
+          "reason": "owned resources may remain; no automatic respawn"
+        }
+      ],
+      "resumable": false,
+      "error": {
+        "cause": "cleanup-incomplete",
+        "message": "runtime cleanup inventory incomplete; resources retained"
+      }
+    }
+  },
+  "provenance": {
+    "execution_state": "started",
+    "planned_wire_digest": "sha256:28217b083e249cb74a44633148fcd663c84a3d387fc8563120520dce197c52db",
+    "wire_bytes": 26553,
+    "wire_complete": true,
+    "schema_version": 1,
+    "project": "proj.pose-dist",
+    "audience": "proj.pose-dist",
+    "worktree_digest": "sha256:1d9f3718e4f2ed070d47b3e5f4d166573b7d9b8254ddc3015e06758d93321837",
+    "trust": "executor-attested",
+    "implementation": {
+      "principal": "agent:openai/unknown",
+      "execution": "sha256:5396294805f4f44743ab53f75e9cf8067b3f44e572de59c613384eae153d93ad",
+      "vendor": "openai",
+      "model": "unknown"
+    },
+    "reviewer": {
+      "principal": "agent:anthropic/claude-opus-5-5",
+      "vendor": "anthropic",
+      "model": "claude-opus-5-5"
+    },
+    "config_digest": "sha256:ed05851ecb5353fb3970701bfcc9f2b8786cb8ebf0d88fe871bed505df89d687",
+    "command_template_digest": "sha256:9df862a0fccb13e980389faa44a6d4c97f7a390fae237d791d382a406bb2935c",
+    "argv_digest": "sha256:046d3543e61a845c99abd2da03f3436b96cc3a278ddafe3ee95bb40860ae0e17",
+    "executable_digest": "sha256:c157074818b094c84aaf31b8c80a1e149f234bb1c8c84a25e9a53e96afa30a29",
+    "template_version": "review-brief/7",
+    "wire_digest": "sha256:28217b083e249cb74a44633148fcd663c84a3d387fc8563120520dce197c52db",
+    "notes_digest": "sha256:02b34b8c84217d2bddc31452a0b6594e21ae9b035e1fd83b49ce61cc6f094691",
+    "raw_transcript_digest": "sha256:b1877fe32ee79c5f7bcd131e7b60f1dd9d885a660f6dcc66f8c17832f462cb07",
+    "raw_output_digest": "sha256:5016dc1168cc5e2510effa6541cd71289f8861c2e97b2d11a135d7597bdebfda",
+    "output_source": "stream-final",
+    "output_complete": false
+  },
+  "tree_digest": "sha256:3673d1b9c4b65c1c44d86e4dc9d56ce9bff982e49fa73c7f3f4c0472f770ebdb",
+  "brief_notes": "Implementer note (not the reviewer's conclusion). Implementation vendor OpenAI; review requested from Claude Opus 5.5.\n\nSpec pose-claude-reviewer-runs-tests-in-sandbox adds optional per-agent review_profile with fresh/resumed commands, selected ONLY for governed review. Read task/adjudication/smoke commands remain unchanged. Projection clones Resume and command slices; command digests/provenance keep using the existing adapter mechanism. No engine containment capability was upgraded.\n\nThe repository's Claude review command must now actually execute tests in the enforced Bash sandbox. Please run these commands separately:\n1. go test ./internal/pose -run TestSandboxedReview -count=1 (from pose-mcp)\n2. go vet ./internal/pose (from pose-mcp)\n3. pose artifact-check --spec pose-claude-reviewer-runs-tests-in-sandbox --strict (from repo root; required).\nUse the CLI available to the sealed checkout; do not edit source or run pose index. GOCACHE/GOTMPDIR are operation-owned and writable, source is denied by absolute physical cwd. This run itself is the outstanding R3 integration criterion: report exact executed tests, commands, outputs, refusal/errors and any inability to reproduce. No claim that R3 passed has been made before this run. The spec's planned coverage will be reconciled against the actual run before close; a source change will be revalidated/reviewed if required.\n\nReal synthetic qualification is recorded in .pose/reports/claude-review-sandbox-qualification.md: first two attempts failed (cache not writable; relative '.' did not deny source), both preserved. Fixed fresh and resumed commands passed go test/go vet with test-process writes to sealed/external sentinels OS-denied. These were native tasks, not attestations. The vendor narrative failed to infer scratch success from a fatal-error assertion; the report explains the distinction. Shared Git sentinel is synthetic; actual dispatch still enforces before/after worktree/origin checks. Claude itself remains trusted and can use its documented per-user temporary fallback, so no full-process filesystem/credential isolation is claimed.\n\nPlease inspect that command startup failures propagate without read/task fallback and fresh/resume have identical mandatory-sandbox settings. jq is an additional checked dependency for safe absolute-path JSON encoding. The read-only restricted profile regression remains present. No raw session IDs/credentials are published. The known global 19 historical attribution errors are unrelated; artifact-check must pass for this scope. Scan completeness is limited by two pre-existing invalid specs (documented in spec).\n\nApply the generated brief's dispositions exactly: required tools must run; recommended tools not run need an explicit rationale; only low residual findings may be accepted with action, owner and review_by. Bare finding IDs for new findings, round-prefixed IDs only for carried findings. A refused tool is not a passed check.\n",
+  "ledger_version": 1,
+  "attempt_id": "rat-f067a234d1d071513ef618b1425d64f31872de84ad38f2989f7a6a3b346923d7",
+  "schema_version": 1,
+  "run_id": "rrn-ce731a2bf0bb5e07",
+  "scope": "spec:pose-claude-reviewer-runs-tests-in-sandbox",
+  "bundle_id": "rvb-60317e86c49d6c9e",
+  "bundle_digest": "sha256:60317e86c49d6c9e7c81556a01d738dbd9265e0caa20a51dfccb4971da167f6b",
+  "sealed_commit": "0e7753ba7c855cd832be52f2024e5cd23d6bc431",
+  "kind": "review",
+  "brief_digest": "sha256:e2ec751b019c3f43a90ecabcd0ce7104cecba74e10d5d30ab8f99e38a0e6599a",
+  "adapter": "claude-opus-5-5",
+  "vendor": "anthropic",
+  "model": "claude-opus-5-5",
+  "started_at": "2026-11-13T00:56:39.231152557Z",
+  "ended_at": "2026-11-13T01:40:40.948595717Z",
+  "exit_code": 0,
+  "status": "failed",
+  "failure": "adapter capture failed; unredacted output withheld",
+  "transcript_digest": "sha256:e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+  "transcript_path": ".pose/review-runs/rrn-ce731a2bf0bb5e07.transcript",
+  "output": "",
+  "policy_digest": "sha256:c61147d09a29783b6cd6707f6214cfc2a23fb8adbacb5fd93b2b6e467f173a1b",
+  "label": "claude-sandbox-review",
+  "purpose": "review",
+  "env_removed": [
+    "CODEX_CI",
+    "CODEX_SANDBOX_NETWORK_DISABLED",
+    "CODEX_SESSION_ID",
+    "CODEX_THREAD_ID"
+  ],
+  "events": "claude-stream-json",
+  "events_digest": "sha256:e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+  "routing": {
+    "requested": "claude-opus-5-5",
+    "implementation": {
+      "principal": "agent:openai/unknown",
+      "vendor": "openai",
+      "model": "unknown",
+      "execution_digest": "sha256:5396294805f4f44743ab53f75e9cf8067b3f44e572de59c613384eae153d93ad",
+      "source": "declared"
+    },
+    "implementation_from": "bundle",
+    "step": "explicit"
+  },
+  "independence_achieved": "different-vendor",
+  "round": 1
+}
