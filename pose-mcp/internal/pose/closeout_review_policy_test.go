@@ -830,3 +830,42 @@ func TestCloseoutReviewPolicyRoundThree(t *testing.T) {
 		}
 	})
 }
+
+func TestCloseoutReviewPolicyRoundFour(t *testing.T) {
+	t.Run("a dispensed multi-member milestone with an exit gate owes its review", func(t *testing.T) {
+		root, s := closeoutMembersFixture(t, "when-justified", "when-justified")
+		os.MkdirAll(filepath.Join(root, ".pose", "review-profiles"), 0o755)
+		os.WriteFile(filepath.Join(root, ".pose", "review-profiles", "milestone-integration.json"), []byte(`{"schema_version":1,"id":"milestone-integration","version":1,"scope":"milestone","criteria":[{"id":"integration","description":"x","kind":"judgment","evidence_classes":["integration"]}]}`), 0o644)
+		if d, _ := s.CurrentCloseoutDecision("milestone:program/two"); d.Required {
+			t.Fatalf("a gateless two-member milestone owes a review under when-justified: %+v", d)
+		}
+		editFile(t, filepath.Join(root, ".pose/roadmaps/program.md"), "- specs: a, b\n", "- specs: a, b\n\n**Exit gate:** both parts integrate\n")
+		d, err := s.CurrentCloseoutDecision("milestone:program/two")
+		if err != nil || !d.Required || !strings.Contains(d.Reason, "exit gate") {
+			t.Fatalf("an exit gate was left with no judge: %+v %v", d, err)
+		}
+		if d, _ := s.CurrentCloseoutDecision("milestone:program/one"); d.Required {
+			t.Fatalf("a one-member milestone's gate is judged in its member's review: %+v", d)
+		}
+	})
+	t.Run("a backward link to a missing roadmap is unknown", func(t *testing.T) {
+		root, s := closeoutMembersFixture(t, "when-justified", "when-justified")
+		os.WriteFile(filepath.Join(root, ".pose/adr/decision.md"), []byte("Governs [the program](../roadmaps/missing.md).\n"), 0o644)
+		if d := evaluate(t, s, "roadmap:pair"); d.Known {
+			t.Fatalf("an unresolved backward link proved absence: %+v", d)
+		}
+	})
+	t.Run("a milestone approved before adoption stays closed", func(t *testing.T) {
+		root, s := inheritedFixture(t)
+		ref := "milestone:program/core"
+		approveCore(t, s, reviewFixtureNow.Add(2*time.Minute))
+		setCloseoutPolicy(t, root, "always", "always")
+		eval, err := s.ReviewCheck(ref)
+		if err != nil || eval.CloseoutReview != nil || !eval.Approved {
+			t.Fatalf("a pre-adoption approval was re-decided: %+v %v", eval, err)
+		}
+		if state, err := s.GetCloseoutState(ref); err != nil || state.CloseRequired {
+			t.Fatalf("a historically approved milestone owes a receipt: %+v %v", state, err)
+		}
+	})
+}

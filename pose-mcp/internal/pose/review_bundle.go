@@ -127,6 +127,11 @@ type ReviewBundlePlan struct {
 	// would judge an immutable bundle by today's selection, which is the whole
 	// thing sealing exists to prevent.
 	SelectedProfiles []ReviewPlanProfile `json:"selected_profiles,omitempty"`
+	// CloseoutReview seals the closeout-review@1 decision an aggregate scope
+	// was reviewed under (spec pose-closeout-review-policy-by-cost-benefit).
+	// Nil on every bundle sealed before adoption, which is how such a bundle
+	// proves a closure from before the policy.
+	CloseoutReview *CloseoutReviewDecision `json:"closeout_review,omitempty"`
 	// Structure seals the material structural facts the plan observed, so the
 	// mapping obligation is fixed at seal time. Recomputing it at verification
 	// would let a later detector improvement retroactively block an approved
@@ -505,7 +510,7 @@ func (s Store) prepareReviewBundle(ref string, legacyMilestoneManifest bool) (Re
 	if err != nil {
 		return ReviewBundle{}, err
 	}
-	bundle.Payload.Plan = ReviewBundlePlan{DelegatedRunProofRequired: plan.DelegatedRunProofRequired, Limitations: append([]string(nil), plan.Limitations...), PlanDigest: bundlePlanDigest, Independence: plan.Independence, Components: append([]ReviewPlanComponent{}, plan.Components...), Criteria: append([]ReviewPlanCriterion{}, plan.Criteria...), Tools: append([]ReviewPlanTool{}, plan.Tools...), SelectedProfiles: append([]ReviewPlanProfile{}, plan.SelectedProfiles...), Structure: plan.Structure}
+	bundle.Payload.Plan = ReviewBundlePlan{DelegatedRunProofRequired: plan.DelegatedRunProofRequired, Limitations: append([]string(nil), plan.Limitations...), PlanDigest: bundlePlanDigest, Independence: plan.Independence, Components: append([]ReviewPlanComponent{}, plan.Components...), Criteria: append([]ReviewPlanCriterion{}, plan.Criteria...), Tools: append([]ReviewPlanTool{}, plan.Tools...), SelectedProfiles: append([]ReviewPlanProfile{}, plan.SelectedProfiles...), Structure: plan.Structure, CloseoutReview: plan.CloseoutReview}
 
 	scopeProjection, excluded, err := s.reviewBundleScopeProjection(scope)
 	if err != nil {

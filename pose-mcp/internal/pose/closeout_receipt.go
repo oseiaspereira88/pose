@@ -249,3 +249,38 @@ func (s Store) ClearCloseoutIntent(ref string) error {
 	}
 	return nil
 }
+
+// roadmapCriteriaBlockers evaluates a roadmap's cut criteria from the indexed
+// delivery graph, as the roadmap gate does: a criterion that does not pass,
+// or a manual review that does not resolve inside the project. A graph that
+// cannot be read is a blocker, never a pass.
+func (s Store) roadmapCriteriaBlockers(slug string) []string {
+	graph, err := s.GetDeliveryIntegrity("")
+	if err != nil {
+		return []string{"the cut criteria of roadmap " + slug + " cannot be evaluated: " + err.Error()}
+	}
+	blockers := []string{}
+	for _, criterion := range graph.RoadmapCriteria {
+		if criterion.Roadmap != slug {
+			continue
+		}
+		if !criterion.Passed {
+			blockers = append(blockers, criterion.ID+": "+strings.Join(criterion.Reasons, "; "))
+		}
+		for _, ref := range criterion.Refs {
+			relative, manual := strings.CutPrefix(ref, "manual-review:")
+			if !manual {
+				continue
+			}
+			path := filepath.Join(s.Root, filepath.FromSlash(relative))
+			if !filepath.IsLocal(filepath.FromSlash(relative)) || !artifactPathWithin(s.fsys(), s.Root, path) {
+				blockers = append(blockers, criterion.ID+": manual review escapes project")
+				continue
+			}
+			if info, err := s.fsys().Stat(path); err != nil || info.IsDir() {
+				blockers = append(blockers, criterion.ID+": manual review does not resolve: "+relative)
+			}
+		}
+	}
+	return blockers
+}

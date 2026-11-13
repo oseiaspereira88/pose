@@ -293,6 +293,13 @@ func (s Store) currentCloseoutDecision(ref string, policy ReviewPolicy) (Closeou
 		decision.Required = true
 		decision.Reason += "; a mandatory-human review is never dispensed"
 	}
+	if !decision.Required && scope.Kind == "milestone" && len(decision.Members) > 1 && s.milestoneExitGate(scope) != "" {
+		// A one-member milestone's exit gate is judged in its member's review
+		// (addMilestoneGateCriterion); with more members only the aggregate
+		// review judges it, so that review cannot be dispensed.
+		decision.Required = true
+		decision.Reason += "; its exit gate is judged only by the milestone's own review"
+	}
 	return decision, nil
 }
 
@@ -307,7 +314,10 @@ func (s Store) mandatoryHumanReview(ref, kind string, policy ReviewPolicy) bool 
 		return true
 	}
 	if policy.Profiles[kind] == "" {
-		return false
+		// No profile, no review to ask for, unless the scope itself removed
+		// the profile: then the contract it changes cannot exempt it.
+		scope, err := ParseScopeRef(ref)
+		return err != nil || len(s.resolveReviewGovernanceGuard(scope).Paths) > 0
 	}
 	planner := s
 	planner.planWithoutCloseoutGate = true
@@ -319,6 +329,19 @@ func (s Store) mandatoryHumanReview(ref, kind string, policy ReviewPolicy) bool 
 	// read from the profile the plan named.
 	base, _, err := s.loadReviewProfile(plan.BaseProfile)
 	return err != nil || base.Independence == "mandatory-human"
+}
+
+func (s Store) milestoneExitGate(scope ScopeRef) string {
+	rm, err := s.GetRoadmap(scope.Roadmap)
+	if err != nil {
+		return "unknown"
+	}
+	for _, milestone := range rm.Milestones {
+		if milestone.ID == scope.Milestone {
+			return strings.TrimSpace(milestone.ExitGate)
+		}
+	}
+	return "unknown"
 }
 
 // closeoutReviewGate is the one place the readers of an approval ask whether
@@ -350,7 +373,7 @@ func (s Store) closeoutReviewGate(ref string, policy ReviewPolicy) (*CloseoutRev
 		decision := receipt.Decision
 		return &decision, !decision.Required && !s.scopeReviewRecorded(ref), nil
 	}
-	if s.closeoutScopeHistorical(scope) {
+	if s.closeoutScopeHistorical(scope) || s.milestoneClosedBeforeAdoption(scope) {
 		return nil, false, nil
 	}
 	decision, err := s.currentCloseoutDecision(ref, policy)
@@ -416,9 +439,16 @@ func (s Store) protectCloseoutDecision(scope ScopeRef, decision *CloseoutReviewD
 		restore("the protected baseline at " + guard.Revision + " requires a mandatory-human review")
 		return
 	}
+	// The baseline's base profile and every overlay it adopted for this kind,
+	// selected or not: protection is the conservative reading.
+	refs := append([]string{}, base.OverlayProfiles...)
 	if ref := base.Profiles[scope.Kind]; ref != "" {
-		if profile, err := s.parseReviewProfileAt(guard.Revision, ref); err != nil || profile.Independence == "mandatory-human" {
-			restore("the protected baseline at " + guard.Revision + " requires a mandatory-human review or its profile cannot be read")
+		refs = append(refs, ref)
+	}
+	for _, ref := range refs {
+		profile, err := s.parseReviewProfileAt(guard.Revision, ref)
+		if err != nil || (profile.Scope == scope.Kind || ref == base.Profiles[scope.Kind]) && profile.Independence == "mandatory-human" {
+			restore("the protected baseline at " + guard.Revision + " requires a mandatory-human review or a profile of it cannot be read")
 			return
 		}
 	}
@@ -514,6 +544,32 @@ func (s Store) closeoutScopeHistorical(scope ScopeRef) bool {
 	return err == nil && recorded[ref] && !refused[ref]
 }
 
+// milestoneClosedBeforeAdoption reports a milestone with positive terminal
+// evidence from before adoption: its own approved review, sealed under a
+// policy that had not adopted the closeout pair. A milestone merely reached
+// has no such record and owes its close.
+func (s Store) milestoneClosedBeforeAdoption(scope ScopeRef) bool {
+	if scope.Kind != "milestone" {
+		return false
+	}
+	ref := scope.String()
+	recorded, refused, err := s.milestonesWithRecordedApproval([]string{ref})
+	if err != nil || !recorded[ref] || refused[ref] {
+		return false
+	}
+	latest, err := s.latestBundlesOf([]string{ref})
+	if err != nil || len(latest[ref]) == 0 {
+		return false
+	}
+	for _, id := range latest[ref] {
+		bundle, err := s.LoadReviewBundle(id)
+		if err != nil || bundle.Payload.Plan.CloseoutReview != nil {
+			return false
+		}
+	}
+	return true
+}
+
 // closedByReceipt reports an aggregate scope its receipt still closes: the
 // receipt stands for the scope as it is, and no refusal was recorded on the
 // scope after it. It is what reached, attention and doctor ask, instead of
@@ -530,13 +586,13 @@ func (s Store) closedByReceipt(ref string) (bool, error) {
 	if s.closeoutReceiptStands(*receipt, policy) != nil {
 		return false, nil
 	}
-	// The applicable verifier, as closeout asks it: a review recorded after
-	// the receipt, complete or not, is judged like any other.
-	eval, err := s.reviewCheck(ref)
+	// The applicable terminal verifier, as closeout asks it: the review, a
+	// review recorded after the receipt included, the children and the gates.
+	state, err := s.getCloseoutState(ref, false)
 	if err != nil {
 		return false, nil
 	}
-	return (eval.Approved || !eval.Required) && len(eval.Blockers) == 0, nil
+	return state.Terminal, nil
 }
 
 // scopeReviewRecorded reports a review of the scope on file: a bundle or a

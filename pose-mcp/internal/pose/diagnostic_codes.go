@@ -51,6 +51,7 @@ var DiagnosticCatalog = map[string]struct {
 	"milestone-reached":               {DiagnosticCloseout, "the milestone is approved and closed"},
 	"closeout-receipt-invalid":        {DiagnosticCloseout, "the closeout receipt of the scope is restored or its corruption is resolved; it is never overwritten"},
 	"closeout-review-unknown":         {DiagnosticCloseout, "every member and ADR association of the scope resolves, so the closeout review policy can decide"},
+	"closeout-receipt-gate-failed":    {DiagnosticCloseout, "the cut criteria the roadmap's closeout receipt stands for hold again"},
 	"closeout-receipt-incomplete":     {DiagnosticCloseout, "`pose close` verifies the inputs again and publishes the closeout receipt"},
 	"external-member-unaccepted":      {DiagnosticCloseout, "federated acceptance of the external member"},
 	"federated-acceptance-blocker":    {DiagnosticCloseout, "the federated acceptance blocker is resolved at its source"},

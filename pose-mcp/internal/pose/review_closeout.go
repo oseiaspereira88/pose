@@ -2815,7 +2815,16 @@ func (s Store) getCloseoutState(ref string, includeFederated bool) (CloseoutStat
 		}
 	}
 	state.CloseRequired = closeOwed
-	if !review.Required {
+	if scope.Kind == "roadmap" && state.CloseoutReceipt != nil {
+		// A receipt stands for its cut criteria only while they still hold:
+		// the shared terminal path checks them, as the roadmap gate does.
+		for _, blocker := range s.roadmapCriteriaBlockers(scope.Slug) {
+			block(NewDiagnostic("closeout-receipt-gate-failed", blocker, ref))
+		}
+	}
+	// An exemption under the adopted policy leaves the review no blockers to
+	// remove; only the legacy path strips review-only messages, by text.
+	if !review.Required && review.CloseoutReview == nil {
 		state.Blockers = removeReviewOnlyBlockers(state.Blockers)
 		kept := diagnostics[:0]
 		for _, d := range diagnostics {

@@ -181,7 +181,17 @@ func (s Store) closeoutADRAssociations(rm *Roadmap, project string) ([]string, [
 			}
 		}
 		for _, dest := range markdownLinkDestinations(adrBody) {
-			if filepath.Clean(filepath.Join(s.adrDir(), filepath.FromSlash(dest))) == roadmapPath {
+			target := filepath.Clean(filepath.Join(s.adrDir(), filepath.FromSlash(dest)))
+			if filepath.Dir(target) != filepath.Clean(s.roadmapsDir()) || !strings.HasSuffix(target, ".md") {
+				continue
+			}
+			// A link into the roadmaps namespace is an association input: one
+			// that does not resolve to a roadmap leaves the answer unknown.
+			if info, err := s.fsys().Lstat(target); err != nil || !info.Mode().IsRegular() || !artifactPathWithin(s.fsys(), s.Root, target) {
+				diagnostics = append(diagnostics, "ADR "+name+" links to "+dest+", which is not a roadmap of this project")
+				continue
+			}
+			if target == roadmapPath {
 				found[name] = true
 			}
 		}
