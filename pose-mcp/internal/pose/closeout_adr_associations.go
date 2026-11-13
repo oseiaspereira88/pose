@@ -191,6 +191,17 @@ func (s Store) closeoutADRAssociations(rm *Roadmap, project string) ([]string, [
 				diagnostics = append(diagnostics, "ADR "+name+" links to "+dest+", which is not a roadmap of this project")
 				continue
 			}
+			// The target is read as the roadmap it names, as a roadmaps:
+			// declaration is: a regular entry that cannot be read or parsed
+			// leaves the answer unknown, never an absence. The roadmaps README
+			// is no roadmap, as ListRoadmaps reads the namespace.
+			if strings.EqualFold(filepath.Base(target), "README.md") {
+				continue
+			}
+			if _, err := s.GetRoadmap(strings.TrimSuffix(filepath.Base(target), ".md")); err != nil {
+				diagnostics = append(diagnostics, "ADR "+name+" links to "+dest+", which could not be read as a roadmap of this project")
+				continue
+			}
 			if target == roadmapPath {
 				found[name] = true
 			}

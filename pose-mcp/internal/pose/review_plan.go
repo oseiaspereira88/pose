@@ -1099,6 +1099,7 @@ func (s Store) addMilestoneGateCriterion(scope ScopeRef, criteria []ReviewPlanCr
 	if err != nil {
 		return criteria, blockers
 	}
+	adopted, _ := s.closeoutReviewPolicyAdopted()
 	for _, rm := range roadmaps {
 		if terminalStatuses[rm.Status] {
 			continue
@@ -1108,10 +1109,19 @@ func (s Store) addMilestoneGateCriterion(scope ScopeRef, criteria []ReviewPlanCr
 				continue
 			}
 			ref := ScopeRef{Kind: "milestone", Roadmap: rm.Slug, Milestone: milestone.ID}
-			if member, ok := s.soleMemberOf(ref); !ok || member != scope.Slug {
+			member, ok := s.soleMemberOf(ref)
+			carries := ok && member == scope.Slug
+			// Under an adopted closeout review policy a milestone of more
+			// members may close without its own review; its gate is then
+			// judged in the review of its last member (spec
+			// pose-closeout-review-policy-by-cost-benefit, review round 5 N19).
+			if !carries && adopted {
+				carries = s.lastOpenMemberOf(rm.Slug, milestone, scope.Slug)
+			}
+			if !carries {
 				continue
 			}
-			if done && !sealedCarries("milestone-exit-gate-"+rm.Slug+"-"+milestone.ID) {
+			if done && !sealedCarries(milestoneExitGateCriterionID(rm.Slug, milestone.ID)) {
 				if historyUnknown != "" {
 					// Absent history is not unreadable history: the plan says it cannot
 					// tell whether the gate was sealed, instead of silently dropping it.
@@ -1120,8 +1130,8 @@ func (s Store) addMilestoneGateCriterion(scope ScopeRef, criteria []ReviewPlanCr
 				continue
 			}
 			criteria, blockers = addReviewCriterion(criteria, ReviewPlanCriterion{
-				ID:          "milestone-exit-gate-" + rm.Slug + "-" + milestone.ID,
-				Description: "The exit gate of milestone:" + rm.Slug + "/" + milestone.ID + " holds: " + milestone.ExitGate,
+				ID:          milestoneExitGateCriterionID(rm.Slug, milestone.ID),
+				Description: milestoneExitGateCriterionDescription(rm.Slug, milestone.ID, milestone.ExitGate),
 				Required:    true,
 				Kind:        ReviewCriterionKindJudgment,
 				Profiles:    []string{"milestone-exit-gate"},

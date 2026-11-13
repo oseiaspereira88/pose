@@ -293,13 +293,6 @@ func (s Store) currentCloseoutDecision(ref string, policy ReviewPolicy) (Closeou
 		decision.Required = true
 		decision.Reason += "; a mandatory-human review is never dispensed"
 	}
-	if !decision.Required && scope.Kind == "milestone" && len(decision.Members) > 1 && s.milestoneExitGate(scope) != "" {
-		// A one-member milestone's exit gate is judged in its member's review
-		// (addMilestoneGateCriterion); with more members only the aggregate
-		// review judges it, so that review cannot be dispensed.
-		decision.Required = true
-		decision.Reason += "; its exit gate is judged only by the milestone's own review"
-	}
 	return decision, nil
 }
 
@@ -329,6 +322,69 @@ func (s Store) mandatoryHumanReview(ref, kind string, policy ReviewPolicy) bool 
 	// read from the profile the plan named.
 	base, _, err := s.loadReviewProfile(plan.BaseProfile)
 	return err != nil || base.Independence == "mandatory-human"
+}
+
+// milestoneExitGateCriterionID names the criterion that carries a
+// milestone's exit gate into a member's review.
+func milestoneExitGateCriterionID(roadmap, milestone string) string {
+	return "milestone-exit-gate-" + roadmap + "-" + milestone
+}
+
+func milestoneExitGateCriterionDescription(roadmap, milestone, gate string) string {
+	return "The exit gate of milestone:" + roadmap + "/" + milestone + " holds: " + gate
+}
+
+// lastOpenMemberOf reports a spec that, under an adopted closeout review
+// policy, carries its multi-member milestone's exit gate into its own review:
+// it is a local member and every other member is terminal, so its review is
+// the last one of the milestone. A member of another project is never known
+// terminal here, so the gate is not carried and the milestone needs its own
+// review to judge it.
+func (s Store) lastOpenMemberOf(roadmap string, milestone Milestone, slug string) bool {
+	if len(milestone.Specs) < 2 {
+		return false
+	}
+	member := false
+	for _, raw := range milestone.Specs {
+		other, external := s.milestoneMember(raw)
+		if external {
+			return false
+		}
+		other = strings.TrimPrefix(other, "spec:")
+		if other == slug {
+			member = true
+			continue
+		}
+		sp, err := s.GetSpec(other)
+		if err != nil || !terminalStatuses[sp.Status] {
+			return false
+		}
+	}
+	return member
+}
+
+// exitGateJudgedByMember reports a multi-member milestone whose exit gate an
+// approved member review judged: the member's governing bundle carried the
+// gate's criterion with the gate as it reads now. A gate edited after that
+// review is judged by nobody yet.
+func (s Store) exitGateJudgedByMember(roadmap string, milestone Milestone, children []CloseoutState) bool {
+	id := milestoneExitGateCriterionID(roadmap, milestone.ID)
+	description := milestoneExitGateCriterionDescription(roadmap, milestone.ID, milestone.ExitGate)
+	for _, child := range children {
+		if !child.Review.Approved || child.Review.BundleID == "" {
+			continue
+		}
+		bundle, err := s.LoadReviewBundle(child.Review.BundleID)
+		if err != nil {
+			continue
+		}
+		for _, criterion := range bundle.Payload.Plan.Criteria {
+			if criterion.ID == id && criterion.Description == description && criterion.Required {
+				return true
+			}
+		}
+	}
+	return false
 }
 
 func (s Store) milestoneExitGate(scope ScopeRef) string {
@@ -570,29 +626,57 @@ func (s Store) milestoneClosedBeforeAdoption(scope ScopeRef) bool {
 	return true
 }
 
-// closedByReceipt reports an aggregate scope its receipt still closes: the
-// receipt stands for the scope as it is, and no refusal was recorded on the
-// scope after it. It is what reached, attention and doctor ask, instead of
-// the mere presence of a receipt.
+// closedByReceipt reports an aggregate scope that reads closed: a receipt
+// that still stands for the scope as it is, or, with no receipt, a verified
+// closure from before adoption (a historical roadmap's scopes, or a milestone
+// approved under a plan without a closeout decision), never backfilled with a
+// receipt. Either way the scope must pass the whole terminal verifier closeout
+// applies: its review, a refusal recorded later, its children, its gates, and
+// the acceptance of its dependency edges (predecessors, consumed outcomes,
+// members), local and remote. It is the one terminal projection reached,
+// roadmap-reached, attention and doctor ask.
 func (s Store) closedByReceipt(ref string) (bool, error) {
 	receipt, err := s.ReadCloseoutReceipt(ref)
-	if err != nil || receipt == nil {
-		return false, err
-	}
-	policy, _, err := s.loadReviewPolicy()
 	if err != nil {
 		return false, err
 	}
-	if s.closeoutReceiptStands(*receipt, policy) != nil {
-		return false, nil
+	if receipt != nil {
+		policy, _, err := s.loadReviewPolicy()
+		if err != nil {
+			return false, err
+		}
+		if s.closeoutReceiptStands(*receipt, policy) != nil {
+			return false, nil
+		}
+	} else {
+		scope, err := ParseScopeRef(ref)
+		if err != nil {
+			return false, err
+		}
+		if !s.closeoutScopeHistorical(scope) && !s.milestoneClosedBeforeAdoption(scope) {
+			return false, nil
+		}
 	}
-	// The applicable terminal verifier, as closeout asks it: the review, a
-	// review recorded after the receipt included, the children and the gates.
-	state, err := s.getCloseoutState(ref, false)
-	if err != nil {
-		return false, nil
+	return s.closeoutTerminalWithDependencies(ref), nil
+}
+
+// closeoutTerminalWithDependencies runs the terminal verifier with dependency
+// acceptance, through the store's bound resolver or, without one, the
+// resolver the environment binds to this root, as `pose close` does. A
+// resolver that cannot be built leaves the edges unjudged, so the scope does
+// not read closed. Same-project edges are judged by their lifecycle and
+// revision, without recursion into their closeout, and remote recursion stops
+// at a cycle, so the projection converges.
+func (s Store) closeoutTerminalWithDependencies(ref string) bool {
+	if s.FederatedResolver == nil || s.FederatedResolver.Roots == nil {
+		resolver, project, err := EnvironmentArtifactResolverIn(s.fsys(), s.Root, "")
+		if err != nil {
+			return false
+		}
+		s.FederatedProjectID, s.FederatedResolver = project, &resolver
 	}
-	return state.Terminal, nil
+	state, err := s.getCloseoutState(ref, true)
+	return err == nil && state.Terminal
 }
 
 // scopeReviewRecorded reports a review of the scope on file: a bundle or a

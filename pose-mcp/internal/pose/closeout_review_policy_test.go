@@ -832,20 +832,15 @@ func TestCloseoutReviewPolicyRoundThree(t *testing.T) {
 }
 
 func TestCloseoutReviewPolicyRoundFour(t *testing.T) {
-	t.Run("a dispensed multi-member milestone with an exit gate owes its review", func(t *testing.T) {
+	t.Run("a dispensed multi-member milestone with an exit gate keeps its mode", func(t *testing.T) {
 		root, s := closeoutMembersFixture(t, "when-justified", "when-justified")
 		os.MkdirAll(filepath.Join(root, ".pose", "review-profiles"), 0o755)
 		os.WriteFile(filepath.Join(root, ".pose", "review-profiles", "milestone-integration.json"), []byte(`{"schema_version":1,"id":"milestone-integration","version":1,"scope":"milestone","criteria":[{"id":"integration","description":"x","kind":"judgment","evidence_classes":["integration"]}]}`), 0o644)
-		if d, _ := s.CurrentCloseoutDecision("milestone:program/two"); d.Required {
-			t.Fatalf("a gateless two-member milestone owes a review under when-justified: %+v", d)
-		}
 		editFile(t, filepath.Join(root, ".pose/roadmaps/program.md"), "- specs: a, b\n", "- specs: a, b\n\n**Exit gate:** both parts integrate\n")
+		// Round 5 N19: the threshold decides, the gate adds no review.
 		d, err := s.CurrentCloseoutDecision("milestone:program/two")
-		if err != nil || !d.Required || !strings.Contains(d.Reason, "exit gate") {
-			t.Fatalf("an exit gate was left with no judge: %+v %v", d, err)
-		}
-		if d, _ := s.CurrentCloseoutDecision("milestone:program/one"); d.Required {
-			t.Fatalf("a one-member milestone's gate is judged in its member's review: %+v", d)
+		if err != nil || d.Required {
+			t.Fatalf("an exit gate forced the aggregate review under when-justified: %+v %v", d, err)
 		}
 	})
 	t.Run("a backward link to a missing roadmap is unknown", func(t *testing.T) {
@@ -866,6 +861,138 @@ func TestCloseoutReviewPolicyRoundFour(t *testing.T) {
 		}
 		if state, err := s.GetCloseoutState(ref); err != nil || state.CloseRequired {
 			t.Fatalf("a historically approved milestone owes a receipt: %+v %v", state, err)
+		}
+	})
+}
+
+// withDistProfiles gives a members fixture the distribution's review profiles,
+// so plans and closeout states can be built on it.
+func withDistProfiles(t *testing.T, root string) {
+	t.Helper()
+	os.MkdirAll(filepath.Join(root, ".pose", "review-profiles"), 0o755)
+	for _, id := range []string{"spec-closeout", "milestone-integration", "roadmap-outcome"} {
+		if err := os.WriteFile(filepath.Join(root, ".pose", "review-profiles", id+".json"), []byte(mustReadDistProfile(t, id)), 0o644); err != nil {
+			t.Fatal(err)
+		}
+	}
+}
+
+func TestCloseoutReviewPolicyRoundFive(t *testing.T) {
+	t.Run("a milestone approved before adoption is not reached again", func(t *testing.T) {
+		root, s := inheritedFixture(t)
+		approveCore(t, s, reviewFixtureNow.Add(2*time.Minute))
+		setCloseoutPolicy(t, root, "always", "always")
+		if reached, err := s.ReachedMilestones("backend"); err != nil || len(reached) != 0 {
+			t.Fatalf("a historically approved milestone is offered for close again: %v %v", reached, err)
+		}
+		if closed, err := s.closedByReceipt("milestone:program/core"); err != nil || !closed {
+			t.Fatalf("the shared terminal projection does not recognise the historical closure: %v %v", closed, err)
+		}
+	})
+	t.Run("a merely reached milestone without a receipt is not closed", func(t *testing.T) {
+		_, s := closeoutReviewedFixture(t, "never", "never")
+		if closed, err := s.closedByReceipt("milestone:program/core"); err != nil || closed {
+			t.Fatalf("a milestone with neither receipt nor historical approval reads closed: %v %v", closed, err)
+		}
+	})
+	t.Run("a receipt does not close a milestone whose consumed outcome is unavailable", func(t *testing.T) {
+		root, s := closeoutReviewedFixture(t, "never", "never")
+		ref := "milestone:program/core"
+		state, err := s.GetCloseoutState(ref)
+		if err != nil {
+			t.Fatal(err)
+		}
+		receipt, err := s.NewCloseoutReceipt(ref, *state.Review.CloseoutReview, state.Review, state.ScopeDigest, reviewFixtureNow.Add(time.Hour))
+		if err != nil || s.PublishCloseoutReceipt(receipt) != nil {
+			t.Fatal(err)
+		}
+		if reached, err := s.ReachedMilestones("backend"); err != nil || len(reached) != 0 {
+			t.Fatalf("the closed milestone is still reached: %v %v", reached, err)
+		}
+		editRoadmapFixture(t, root, "- specs: backend\n", "- specs: backend\n- consumes: xref:source/roadmap:absent\n")
+		if reached, err := s.ReachedMilestones("backend"); err != nil || len(reached) != 1 || reached[0] != ref {
+			t.Fatalf("a receipt with an unavailable dependency still reads closed: %v %v", reached, err)
+		}
+		unbound := Store{Root: root}
+		if closed, err := unbound.closedByReceipt(ref); err != nil || closed {
+			t.Fatalf("without a bound resolver the dependency edges were not judged: %v %v", closed, err)
+		}
+	})
+	t.Run("the last open member carries a multi-member exit gate", func(t *testing.T) {
+		root, s := closeoutMembersFixture(t, "when-justified", "when-justified")
+		withDistProfiles(t, root)
+		editFile(t, filepath.Join(root, ".pose/roadmaps/program.md"), "- specs: a, b\n", "- specs: a, b\n\n**Exit gate:** both parts integrate\n")
+		editFile(t, filepath.Join(root, ".pose/specs/b.md"), "status: done", "status: in-progress")
+		carries := func(s Store, slug string) bool {
+			t.Helper()
+			plan, err := s.ReviewPlan("spec:" + slug)
+			if err != nil {
+				t.Fatal(err)
+			}
+			for _, criterion := range plan.Criteria {
+				if criterion.ID == "milestone-exit-gate-program-two" {
+					return criterion.Description == "The exit gate of milestone:program/two holds: both parts integrate" && criterion.Required
+				}
+			}
+			return false
+		}
+		if !carries(s, "b") {
+			t.Fatal("the last open member does not carry the milestone's exit gate")
+		}
+		editFile(t, filepath.Join(root, ".pose/specs/a.md"), "status: done", "status: in-progress")
+		if carries(s, "b") {
+			t.Fatal("a member carried the gate while another member is still open")
+		}
+		legacyRoot, legacy := closeoutMembersFixture(t, "", "")
+		withDistProfiles(t, legacyRoot)
+		editFile(t, filepath.Join(legacyRoot, ".pose/roadmaps/program.md"), "- specs: a, b\n", "- specs: a, b\n\n**Exit gate:** both parts integrate\n")
+		editFile(t, filepath.Join(legacyRoot, ".pose/specs/b.md"), "status: done", "status: in-progress")
+		if carries(legacy, "b") {
+			t.Fatal("the legacy policy moved a multi-member gate out of the milestone's own review")
+		}
+	})
+	t.Run("an exempt multi-member milestone with an unjudged exit gate does not close", func(t *testing.T) {
+		root, s := closeoutMembersFixture(t, "never", "never")
+		withDistProfiles(t, root)
+		editFile(t, filepath.Join(root, ".pose/roadmaps/program.md"), "- specs: a, b\n", "- specs: a, b\n\n**Exit gate:** both parts integrate\n")
+		state, err := s.GetCloseoutState("milestone:program/two")
+		if err != nil {
+			t.Fatal(err)
+		}
+		if state.Review.Required || !strings.Contains(strings.Join(state.Blockers, "\n"), "is judged by no approved review") || state.Terminal {
+			t.Fatalf("an unjudged exit gate did not block the exempt close: required=%v blockers=%v", state.Review.Required, state.Blockers)
+		}
+		gateless, err := s.GetCloseoutState("milestone:program/three")
+		if err != nil {
+			t.Fatal(err)
+		}
+		if strings.Contains(strings.Join(gateless.Blockers, "\n"), "is judged by no approved review") {
+			t.Fatalf("a gateless milestone was blocked for its gate: %v", gateless.Blockers)
+		}
+	})
+	t.Run("an unreadable backward link target is unknown", func(t *testing.T) {
+		for name, prepare := range map[string]func(t *testing.T, path string){
+			"unreadable": func(t *testing.T, path string) {
+				os.WriteFile(path, []byte("---\nslug: other\nstatus: active\n---\n"), 0o644)
+				if err := os.Chmod(path, 0); err != nil {
+					t.Skip(err)
+				}
+				if _, err := os.ReadFile(path); err == nil {
+					t.Skip("the file stays readable to this user")
+				}
+			},
+		} {
+			t.Run(name, func(t *testing.T) {
+				root, s := closeoutMembersFixture(t, "when-justified", "when-justified")
+				path := filepath.Join(root, ".pose/roadmaps/other.md")
+				prepare(t, path)
+				defer os.Chmod(path, 0o644)
+				os.WriteFile(filepath.Join(root, ".pose/adr/decision.md"), []byte("Governs [the other](../roadmaps/other.md).\n"), 0o644)
+				d, err := s.EvaluateCloseoutReview("roadmap:pair")
+				if err == nil && d.Known {
+					t.Fatalf("an unresolvable backward target proved absence: %+v", d)
+				}
+			})
 		}
 	})
 }

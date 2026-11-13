@@ -2739,6 +2739,12 @@ func (s Store) getCloseoutState(ref string, includeFederated bool) (CloseoutStat
 					block(NewDiagnostic("child-scope-open", "child "+child.Scope+" is not closed", child.Scope))
 				}
 			}
+			// An exempt milestone of more members has no review of its own to
+			// judge its exit gate: an approved member review must have judged
+			// it, or the close is blocked; the review stays dispensed.
+			if decision := review.CloseoutReview; decision != nil && !decision.Required && len(milestone.Specs) > 1 && strings.TrimSpace(milestone.ExitGate) != "" && !review.Approved && !s.exitGateJudgedByMember(rm.Slug, milestone, state.Children) {
+				block(NewDiagnostic("milestone-exit-gate-unjudged", "the exit gate of "+ref+" is judged by no approved review: once every other member is closed, seal and review its last member, whose plan then carries the gate, or review the milestone itself (`pose review bundle "+ref+" --seal`)", ref))
+			}
 			break
 		}
 		if !found {
