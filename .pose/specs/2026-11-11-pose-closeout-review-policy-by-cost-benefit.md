@@ -158,13 +158,13 @@ Produção composta exige integração atravessando CLI e MCP até o avaliador e
 ## 4. Tasks
 
 - [x] Registrar a ADR (R1) e a aprovação explícita do mantenedor em 2026-11-12; sem afirmar implementação.
-- [ ] Antes de implementar, resolver novamente contexto local, confirmar schema 5 disponível, executar discovery exigido e start autorizado em outra execução; manter baseline de história legada em fixtures.
-- [ ] Incremento 1 — R1/R2/R6/R7: fixtures de loader, schema 5, catálogo/adopt/setup e defaults distribuídos; validar Schema/Adoption; nenhum update silencioso de policy.
-- [ ] Incremento 2 — R3: fixtures de aliases, redirects e metadata ADR, avaliador comum e integração com plano/proteção; validar Members/Associations/Thresholds/Protection.
-- [ ] Incremento 3 — R4/R5/R7: receipt guardado, close explícito, reached/attention/state e verificação terminal histórica; validar Receipt/Veto/History/Publication. Não deixar membro final fechar agregado implicitamente.
-- [ ] Incremento 4 — R2-R7: projeções CLI/MCP/federação, doctor, indexer e schema JSON; validar Parity/Federation/Doctor e smoke de instalação temporária.
-- [ ] Incremento 5 — Atualizar manuais/templates e matriz; executar checks completos proporcionais ao risco, artifact/surface-check e trace real antes de solicitar revisão independente da implementação.
-- [ ] Fazer revisão e closeout futuros com evidência vigente, follow-ups e changelog; só então mudar status/completed_at. Este planejamento não executa essa etapa.
+- [x] Antes de implementar, resolver novamente contexto local, confirmar schema 5 disponível, executar discovery exigido e start autorizado em outra execução; manter baseline de história legada em fixtures.
+- [x] Incremento 1 — R1/R2/R6/R7: fixtures de loader, schema 5, catálogo/adopt/setup e defaults distribuídos; validar Schema/Adoption; nenhum update silencioso de policy.
+- [x] Incremento 2 — R3: fixtures de aliases, redirects e metadata ADR, avaliador comum e integração com plano/proteção; validar Members/Associations/Thresholds/Protection.
+- [x] Incremento 3 — R4/R5/R7: receipt guardado, close explícito, reached/attention/state e verificação terminal histórica; validar Receipt/Veto/History/Publication. Não deixar membro final fechar agregado implicitamente.
+- [x] Incremento 4 — R2-R7: projeções CLI/MCP/federação, doctor e schema JSON; validar Parity/Federation/Doctor e smoke de instalação temporária.
+- [x] Incremento 5 — Atualizar manuais/templates e matriz; executar checks completos proporcionais ao risco, artifact/surface-check e trace real antes de solicitar revisão independente da implementação.
+- [ ] Fazer revisão e closeout com evidência vigente, follow-ups e changelog; só então mudar status/completed_at.
 
 ## 5. Decisions
 
@@ -216,9 +216,19 @@ Risco alto: dispensa indevida de autoridade, reinterpretação de aprovação hi
 
 Não criar check permanente para cada subteste: uma integração registrada com o prefixo novo é suficiente; preservar checks existentes de milestone-review-proportional, milestone-closes-when-reached, review-policy-adoption, policy-scope-validation, federated-roadmap-acceptance e done-spec-keeps-its-sealed-plan. Nenhuma atualização da matriz nesta tarefa de planejamento.
 
-### Requirement trace (planned only)
+### Requirement trace
 
-R1: base ADR aceita; implementação/documentação pendentes. R2: Schema/Adoption/Parity planejados. R3: Thresholds/Members/Associations/Federation planejados. R4: Receipt/Publication/Smoke planejados. R5: Protection/Veto planejados. R6: Adoption/Doctor planejados. R7: History/regressões planejados. Nenhum requisito marcado satisfied; inserir referências reais e evidência de execução somente após implementação.
+- R1 [satisfied] test:TestCloseoutReviewPolicySchema test:TestCloseoutReviewPolicyThresholds check:closeout-review-policy-integration
+- R2 [satisfied] test:TestCloseoutReviewPolicySchema test:TestCloseoutReviewPolicyAdoption test:TestCloseoutReviewPolicyUnavailable check:closeout-review-policy-integration
+- R3 [satisfied] test:TestCloseoutReviewPolicyThresholds test:TestCloseoutReviewPolicyMembers test:TestCloseoutReviewPolicyAssociations test:TestCloseoutReviewPolicyFederation check:closeout-review-policy-integration
+- R4 [satisfied] test:TestCloseoutReviewPolicyReceipt test:TestCloseoutReviewPolicyPublication test:TestCloseoutReviewPolicySmoke test:TestCloseoutReviewPolicyParity check:closeout-review-policy-integration
+- R5 [satisfied] test:TestCloseoutReviewPolicyVeto test:TestCloseoutReviewPolicyProtection test:TestCloseoutReviewPolicyAlwaysRefusesWithoutReview check:closeout-review-policy-integration
+- R6 [satisfied] test:TestCloseoutReviewPolicyAdoption test:TestCloseoutReviewPolicySetupShowsTheLegacyRule test:TestCloseoutReviewPolicyDoctor check:closeout-review-policy-integration
+- R7 [satisfied] test:TestCloseoutReviewPolicyHistory test:TestPreviousReleaseReadsThisEnginesReviewPolicy check:closeout-review-policy-integration check:milestone-review-proportional-integration check:milestone-closes-when-reached-integration
+
+### Execution results
+
+2026-11-13, sobre o código de `36fdc959` e índices de `8fc1e9a6`: `go test ./internal/pose ./internal/cli ./internal/mcpserver -run '^TestCloseoutReviewPolicy' -count=1` passa com 17 testes de topo e todos os subtestes (61 em `internal/pose`), nenhum skip. A regressão completa dos três pacotes reprovou primeiro 11 testes existentes, todos corrigidos e reexecutados: inventários (catálogo de capacidades, códigos de diagnóstico, classe de `.pose/review-closeouts/`, limite de prints diretos), `POSE.md` citando um diretório ausente (o gate pós-instalação reprovava, arrastando quickstart e preview do update), fixtures que forçavam schema 2 numa policy com o par, e a compatibilidade com a release anterior, que agora exige recusa pelo schema e leitura da instância legada após `pose update`. `pose validate --strict --module pose-mcp --json-out .pose/results/delivery-validation.json`: 210/210 pass em 404,5s (a execução anterior, concorrente com `pose check`, perdeu só o `test` por timeout de 600s). `go vet ./...` exit 0. `govulncheck ./...`: nenhuma vulnerabilidade alcançável; dois avisos em módulos requeridos não chamados. `pose artifact-check --spec … --strict` e `pose surface-check --spec … --strict` exit 0 (surface: 1 alvo, 210 resultados, 0 findings). `pose lint-spec … --strict` SUCESSO. `pose check --strict` lista 19 erros de contrato de entrega, nenhum desta spec: são de `pose-optional-worktree-runtime`, `pose-worktree-runtime-qos-and-measurement`, `pose-worktree-runtime-resident-cache`, `pose-common-domain-and-cli-mcp-handoff`, `pose-governance-operation-performance` e `pose-bounded-isolated-graph-caches`. O mesmo `pose check --strict` no commit base `956153f1`, com o binário daquele commit, lista os mesmos 19 erros, linha a linha: nenhum é introduzido por esta entrega (R7).
 
 ### Planning checks
 
@@ -230,8 +240,15 @@ Executado em 2026-11-12: `/tmp/pose-redaction-cli context --task spec:pose-close
 
 ### Delivered scope
 
-**Planned only.** Plano pré-implementação; status permanece draft e completed_at vazio. A ADR está Accepted, mas nenhum código, policy adotada, requisito implementado, revisão independente ou evidência de entrega é afirmado. Somente este arquivo é alterado pela tarefa atual.
+Review policy schema 5 com `milestone_review_required` e `roadmap_review_required` (`never`, `when-justified`, `always`), recusado por engines anteriores e validado antes de qualquer plano ou escrita (par incompleto, null, tipo, enum, chave duplicada, chave em schema antigo). Capability `closeout-review-policy` no catálogo: instalação nova adota `never`/`never` pelo mesmo produtor de `pose adopt`; `pose adopt closeout-review-policy` mostra a regra atual e a proposta, aceita o par só junto e não se desliga; nenhuma outra capability rebaixa o schema 5; `pose update` não adota. Avaliador único `closeout-review@1` (membros canônicos `xref:<projeto>/spec:<slug>` com aliases e redirects verificados, associações de ADR nas duas direções por metadata ou link local, desconhecido nunca dispensa, proteção pelo baseline quando o escopo muda o contrato de revisão) consumido por review check, verificação de bundle, review plan, closeout state, reached, attention, doctor e MCP. `pose close` de milestone e roadmap publica um recibo imutável em `review-closeouts/`; o escopo só é terminal com ele; recibo corrompido bloqueia e não é sobrescrito; roadmap done sem recibo é completado por novo `pose close`. `always` anula a herança do membro único e `unreviewed_milestones`; rejeição registrada vale sob `never`; roadmaps fechados antes da adoção mantêm a leitura selada. Membros escritos `spec:<slug>` passaram a resolver no closeout state, onde viravam `spec:spec:<slug>`.
 
 ### Residual risks and next owner
 
-Implementação futura por mantenedor/implementador de proj.pose-dist: conferir reserva de schema, preservar história/proteção e executar a tabela de risco antes da revisão. Metadata ADR e receipt descritos são contratos novos planejados. Não há decisão da ADR base a reapresentar ao mantenedor; só solicitar input se surgir colisão de schema ou necessidade de backlink remoto fora do escopo local explicitado. Nenhum follow-up ou contribuição é criado nesta tarefa.
+A política desta instância não foi adotada (fora do escopo); a adoção do pose-dist e do Harne8 é decisão separada e destrava o fechamento de B31/B35 sem revisão agregada quando o valor escolhido dispensar. Uma instalação nova fica ilegível para a v7.4.0 por decisão da ADR. O recibo grava o motivo, não um snapshot da regra anterior, então o `doctor` declara a regra anterior como desconhecida. A comparação de decisão no momento da publicação não cobre corrida com um escritor que ignore os locks do motor.
+
+### Follow-ups
+
+- [open] F1: adotar a closeout review policy no pose-dist e no Harne8 e fechar B31 e B35 sob ela. (owner:@pose-maintainers crit:medium review:2026-11-20)
+- [open] F2: registrar no recibo um snapshot da regra efetiva anterior, para o doctor comparar a transição em vez de declará-la desconhecida. (owner:@pose-maintainers crit:low review:2026-12-13)
+- [open] F4: reconciliar os 19 erros de contrato de entrega que `pose check --strict` já reportava antes desta entrega (specs do runtime de worktree, `pose-common-domain-and-cli-mcp-handoff`, `pose-governance-operation-performance`, `pose-bounded-isolated-graph-caches`). (owner:@pose-maintainers crit:medium review:2026-11-20)
+- [open] F3: projetar `adrs:` de roadmap no índice e no MCP `pose_get_roadmap`, hoje lido só pelo avaliador. (owner:@pose-maintainers crit:low review:2026-12-13)
