@@ -3456,15 +3456,41 @@ func (s Store) proportionalReviewVerification(scope string) (ReviewBundleVerific
 		return own, err
 	}
 	ref, parseErr := ParseScopeRef(scope)
-	if parseErr != nil || ref.Kind != "milestone" {
+	if parseErr != nil || (ref.Kind != "milestone" && ref.Kind != "roadmap") {
 		return own, nil
 	}
 	// A policy without bundles answers through its review attempts alone, and has no
 	// bundle of the spec to stand on.
-	if policy, err := s.GetReviewPolicy(); err != nil || !policy.ReviewBundles {
+	policy, err := s.GetReviewPolicy()
+	if err != nil || !policy.ReviewBundles {
 		return own, nil
 	}
 	if s.milestoneReviewRefused(scope) {
+		return own, nil
+	}
+	// An adopted closeout review policy is the only rule for an open scope:
+	// legacy inheritance and declared exemptions cannot weaken `always`, and
+	// the policy's own exemption reads the same gate as reviewCheck. A roadmap
+	// closed before adoption keeps the legacy reading below.
+	adopted := policy.CloseoutReviewAdopted() && !s.closeoutScopeHistorical(ref)
+	if adopted {
+		decision, exempt, gateErr := s.closeoutReviewGate(scope, policy)
+		if gateErr != nil || decision == nil || !exempt || !decision.Known {
+			return own, nil
+		}
+		if ref.Kind == "milestone" && s.FederatedResolver != nil {
+			acceptance, err := s.FederatedMilestoneAcceptance(s.FederatedProjectID, ref.Roadmap, ref.Milestone, *s.FederatedResolver)
+			if err != nil || !acceptance.Ready {
+				return own, nil
+			}
+		}
+		return ReviewBundleVerification{
+			Scope: scope, State: "closed", Fresh: true, Approved: true, NextAction: "none",
+			Warnings:       []string{closeoutExemptionWarning(scope, *decision)},
+			ApprovalOrigin: closeoutApprovalOrigin(*decision), inherited: true,
+		}, nil
+	}
+	if ref.Kind != "milestone" {
 		return own, nil
 	}
 	// Edges still bind: a milestone inherits a review, not the acceptance of what it

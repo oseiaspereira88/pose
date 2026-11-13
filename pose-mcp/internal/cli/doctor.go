@@ -262,6 +262,7 @@ func runDoctorDiagnostics(locale cliLocale) (root string, findings []doctorFindi
 	}
 	add("instance.pose-dir", "ok", text(".pose/ present", ".pose/ presente"), "")
 	diagnoseProjectState(root, add, text)
+	diagnoseCloseoutReviewPolicy(root, add, text)
 	diagnoseReviewContinuity(root, add)
 
 	// 3. Native engine contract.
@@ -1573,4 +1574,28 @@ func declaredMCPProjectID(raw []byte) string {
 	}
 	id, _ := doc.MCPServers["pose"].Env["POSE_DEFAULT_PROJECT_ID"].(string)
 	return id
+}
+
+// diagnoseCloseoutReviewPolicy reports open milestones and roadmaps that owe
+// their own review under the adopted closeout review policy, because of the
+// policy or of their composition (spec pose-closeout-review-policy-by-cost-benefit
+// R6). It only reports: `pose close` remains the gate.
+func diagnoseCloseoutReviewPolicy(root string, add func(string, string, string, string), text func(string, string) string) {
+	store := posemodel.Store{Root: root}
+	policy, err := store.GetReviewPolicy()
+	if err != nil || !policy.CloseoutReviewAdopted() {
+		return
+	}
+	owing, err := store.CloseoutReviewsOwed()
+	if err != nil {
+		add("closeout-review.owed", "warn", fmt.Sprintf(text("open scopes owing a closeout review could not be listed: %v", "escopos abertos que devem revisão de fechamento não puderam ser listados: %v"), err), text("run `pose closeout-check <scope>` for each open milestone and roadmap", "rode `pose closeout-check <escopo>` para cada milestone e roadmap aberto"))
+		return
+	}
+	if len(owing) == 0 {
+		add("closeout-review.owed", "ok", fmt.Sprintf(text("no open scope owes a review it lacks (milestone_review_required=%s, roadmap_review_required=%s)", "nenhum escopo aberto deve uma revisão que não tem (milestone_review_required=%s, roadmap_review_required=%s)"), policy.MilestoneReviewRequired, policy.RoadmapReviewRequired), "")
+		return
+	}
+	for _, item := range owing {
+		add("closeout-review.owed", "warn", fmt.Sprintf(text("%s owes its own review: %s=%s, %s; previous rule %s", "%s deve revisão própria: %s=%s, %s; regra anterior %s"), item.Scope, item.Decision.PolicyKey, item.Decision.PolicyValue, item.Decision.Reason, item.Previous), item.Action)
+	}
 }

@@ -1,0 +1,42 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://pose.dev/schemas/v1/closeout-receipt.schema.json",
+  "title": "POSE closeout receipt of a milestone or roadmap",
+  "description": "Published by the explicit `pose close` of an aggregate scope under an adopted closeout review policy (spec pose-closeout-review-policy-by-cost-benefit). Written once; never reinterpreted by a later policy.",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["schema_version", "scope", "closed_at", "review", "decision", "policy_digest", "subject_digest"],
+  "properties": {
+    "schema_version": {"const": 1},
+    "scope": {"$ref": "#/$defs/scope"},
+    "closed_at": {"type": "string", "format": "date-time"},
+    "review": {"enum": ["required", "not-required"]},
+    "decision": {"$ref": "#/$defs/decision"},
+    "policy_digest": {"type": "string", "pattern": "^sha256:[a-f0-9]{64}$"},
+    "subject_digest": {"type": "string", "pattern": "^sha256:[a-f0-9]{64}$"},
+    "review_bundle": {"type": "string"},
+    "review_attestation": {"type": "string"},
+    "approval_origin": {"type": "string"}
+  },
+  "$defs": {
+    "scope": {"type": "string", "pattern": "^roadmap:[a-z0-9][a-z0-9._-]*$|^milestone:[a-z0-9][a-z0-9._-]*/[A-Za-z0-9][A-Za-z0-9._-]*$"},
+    "decision": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["scope", "adopted", "required", "known"],
+      "properties": {
+        "scope": {"$ref": "#/$defs/scope"},
+        "adopted": {"type": "boolean"},
+        "evaluator_version": {"const": "closeout-review@1"},
+        "policy_key": {"enum": ["milestone_review_required", "roadmap_review_required"]},
+        "policy_value": {"enum": ["never", "when-justified", "always"]},
+        "required": {"type": "boolean"},
+        "known": {"type": "boolean"},
+        "reason": {"type": "string"},
+        "members": {"type": "array", "items": {"type": "string", "pattern": "^xref:[^/]+/spec:[a-z0-9][a-z0-9._-]*$"}},
+        "adr_associations": {"type": "array", "items": {"type": "string", "pattern": "^[^/\\\\]+\\.md$"}},
+        "diagnostics": {"type": "array", "items": {"type": "string"}}
+      }
+    }
+  }
+}

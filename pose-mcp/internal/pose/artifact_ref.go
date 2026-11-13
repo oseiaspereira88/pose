@@ -201,7 +201,13 @@ func (r ArtifactResolver) resolve(localProject, raw string, redirectPath map[str
 		refsRequired := policy.SchemaVersion == QualifiedArtifactPolicySchemaVersion || policy.SchemaVersion == SpecAuthorityTransferPolicySchemaVersion
 		transferValid := policy.SchemaVersion == SpecAuthorityTransferPolicySchemaVersion && policy.TransferVersion == 1 || policy.SchemaVersion != SpecAuthorityTransferPolicySchemaVersion && policy.TransferVersion == 0
 		refsCompatible := policy.RefsVersion == 0 || policy.RefsVersion == 1 && refsRequired
-		if !refsCompatible || refsRequired && policy.RefsVersion != 1 || policy.SchemaVersion > SpecAuthorityTransferPolicySchemaVersion || !transferValid {
+		if policy.SchemaVersion == CloseoutReviewPolicySchemaVersion {
+			// Schema 5 (closeout review pair) keeps references and transfer
+			// optional: 0, or 1 as schemas 3 and 4 define them.
+			refsCompatible = policy.RefsVersion == 0 || policy.RefsVersion == 1
+			transferValid = policy.TransferVersion == 0 || policy.TransferVersion == 1 && policy.RefsVersion == 1
+		}
+		if !refsCompatible || refsRequired && policy.RefsVersion != 1 || policy.SchemaVersion > CloseoutReviewPolicySchemaVersion || !transferValid {
 			out.State = "unsupported-artifact-contract"
 			return out
 		}

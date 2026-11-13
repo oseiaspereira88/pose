@@ -195,6 +195,8 @@ type CatalogEntry struct {
 	Adopt        func(docs PolicyDocs, date string) []string
 	Retire       func(docs PolicyDocs) []string
 	Adopted      func(docs PolicyDocs) bool
+	// RetireRefusal, when set, is why the capability cannot be turned off.
+	RetireRefusal string
 }
 
 func governedEntry(c GovernedCapability, introduced, effect string, implies ...string) CatalogEntry {
@@ -305,6 +307,7 @@ func catalogEntries() []CatalogEntry {
 			},
 			Adopted: func(docs PolicyDocs) bool { v, _ := docs.DoR["adopted_at"].(string); return v != "" },
 		},
+		closeoutReviewPolicyCatalogEntry(),
 		overlayEntry("backend-review", "1.1.0", "a spec touching a backend component is also reviewed for contracts, input errors, concurrency, observability and integration impact"),
 		overlayEntry("engineering-judgment", "6.0.0", "a scope selected by its declared risk is also reviewed for engineering judgment"),
 		overlayEntry("frontend-review", "1.1.0", "a spec touching a frontend component is also reviewed for accessibility, state and rendering"),
@@ -319,7 +322,7 @@ func catalogEntries() []CatalogEntry {
 				}
 				changes := []string{"set qualified_artifact_refs_version=1"}
 				docs.Review["qualified_artifact_refs_version"] = 1
-				if schemaVersionOf(docs) < QualifiedArtifactPolicySchemaVersion {
+				if schemaVersionOf(docs) < QualifiedArtifactPolicySchemaVersion && !closeoutPairPresent(docs) {
 					docs.Review["schema_version"] = QualifiedArtifactPolicySchemaVersion
 					changes = append(changes, fmt.Sprintf("set schema_version=%d", QualifiedArtifactPolicySchemaVersion))
 				}
@@ -330,6 +333,10 @@ func catalogEntries() []CatalogEntry {
 					return nil
 				}
 				delete(docs.Review, "qualified_artifact_refs_version")
+				if closeoutPairPresent(docs) {
+					// Schema 5 keeps the closeout pair; references are optional under it.
+					return []string{"remove qualified_artifact_refs_version"}
+				}
 				docs.Review["schema_version"] = ReviewPolicySchemaVersion
 				return []string{"remove qualified_artifact_refs_version", fmt.Sprintf("set schema_version=%d", ReviewPolicySchemaVersion)}
 			},
@@ -343,6 +350,9 @@ func catalogEntries() []CatalogEntry {
 					return nil
 				}
 				docs.Review["spec_authority_transfer_version"] = 1
+				if closeoutPairPresent(docs) {
+					return []string{"set spec_authority_transfer_version=1"}
+				}
 				docs.Review["schema_version"] = SpecAuthorityTransferPolicySchemaVersion
 				return []string{"set spec_authority_transfer_version=1", fmt.Sprintf("set schema_version=%d", SpecAuthorityTransferPolicySchemaVersion)}
 			},
@@ -351,6 +361,9 @@ func catalogEntries() []CatalogEntry {
 					return nil
 				}
 				delete(docs.Review, "spec_authority_transfer_version")
+				if closeoutPairPresent(docs) {
+					return []string{"remove spec_authority_transfer_version"}
+				}
 				docs.Review["schema_version"] = QualifiedArtifactPolicySchemaVersion
 				return []string{"remove spec_authority_transfer_version", fmt.Sprintf("set schema_version=%d", QualifiedArtifactPolicySchemaVersion)}
 			},
@@ -493,6 +506,9 @@ func CatalogAdoptBlocker(root string, docs PolicyDocs, entry CatalogEntry) strin
 
 // CatalogRetireBlocker names the adopted capability that depends on entry.
 func CatalogRetireBlocker(docs PolicyDocs, entry CatalogEntry) string {
+	if entry.RetireRefusal != "" && entry.Adopted(docs) {
+		return entry.RetireRefusal
+	}
 	for _, other := range catalogEntries() {
 		if other.ID == entry.ID || !other.Adopted(docs) {
 			continue
@@ -770,4 +786,62 @@ func CapabilityStatesIn(files Files, root string) ([]CapabilityState, error) {
 // operation's files.
 func CapabilityStates(root string) ([]CapabilityState, error) {
 	return CapabilityStatesIn(NativeFiles(), root)
+}
+
+// closeoutPairPresent reports a policy that carries the closeout review pair,
+// whose schema (5) no other capability may lower.
+func closeoutPairPresent(docs PolicyDocs) bool {
+	_, milestone := docs.Review[MilestoneReviewRequiredKey]
+	_, roadmap := docs.Review[RoadmapReviewRequiredKey]
+	return milestone || roadmap
+}
+
+// SetCloseoutReviewPolicy writes both closeout review keys and schema 5
+// together (spec pose-closeout-review-policy-by-cost-benefit R2, R6). It is the
+// one producer for adoption, install defaults and later changes, so the pair
+// is never written half.
+func SetCloseoutReviewPolicy(docs PolicyDocs, milestone, roadmap string) ([]string, error) {
+	if !validCloseoutReviewValue(milestone) || !validCloseoutReviewValue(roadmap) {
+		return nil, fmt.Errorf("pose: %s and %s take never, when-justified or always (got %q, %q)", MilestoneReviewRequiredKey, RoadmapReviewRequiredKey, milestone, roadmap)
+	}
+	changes := []string{}
+	if schemaVersionOf(docs) != CloseoutReviewPolicySchemaVersion {
+		docs.Review["schema_version"] = CloseoutReviewPolicySchemaVersion
+		changes = append(changes, fmt.Sprintf("set schema_version=%d", CloseoutReviewPolicySchemaVersion))
+	}
+	for _, pair := range [][2]string{{MilestoneReviewRequiredKey, milestone}, {RoadmapReviewRequiredKey, roadmap}} {
+		if current, _ := docs.Review[pair[0]].(string); current != pair[1] {
+			docs.Review[pair[0]] = pair[1]
+			changes = append(changes, "set "+pair[0]+"="+pair[1])
+		}
+	}
+	return changes, nil
+}
+
+// CloseoutReviewPolicyEffective describes the rule a policy applies today: the
+// adopted pair, or the legacy rule it keeps until adoption.
+func CloseoutReviewPolicyEffective(docs PolicyDocs) (adopted bool, milestone, roadmap string) {
+	if !closeoutPairPresent(docs) {
+		return false, "legacy (a one-member milestone inherits its spec; others and roadmaps owe their own review)", "legacy (owes its own review)"
+	}
+	milestone, _ = docs.Review[MilestoneReviewRequiredKey].(string)
+	roadmap, _ = docs.Review[RoadmapReviewRequiredKey].(string)
+	return true, milestone, roadmap
+}
+
+func closeoutReviewPolicyCatalogEntry() CatalogEntry {
+	return CatalogEntry{
+		ID: "closeout-review-policy", Summary: "milestone and roadmap reviews by cost and benefit", IntroducedIn: "7.4.1", DefaultForNew: true,
+		Effect: "the close of a milestone or a roadmap owes its own review only as milestone_review_required and roadmap_review_required say (never, when-justified, always); `pose close` stays explicit and records why",
+		Adopt: func(docs PolicyDocs, _ string) []string {
+			if closeoutPairPresent(docs) {
+				return nil
+			}
+			changes, _ := SetCloseoutReviewPolicy(docs, CloseoutReviewNever, CloseoutReviewNever)
+			return changes
+		},
+		Retire:        func(PolicyDocs) []string { return nil },
+		RetireRefusal: "closeout-review-policy cannot be turned off: removing the pair would reinterpret closes already recorded under it; change the values with `pose adopt closeout-review-policy --milestone-review-required <v> --roadmap-review-required <v> --apply`",
+		Adopted:       func(docs PolicyDocs) bool { return closeoutPairPresent(docs) },
+	}
 }

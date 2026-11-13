@@ -19,10 +19,11 @@ import (
 	"github.com/harne8/pose-mcp/internal/version"
 )
 
-const adoptUsage = "Usage: pose adopt --list [--json] | pose adopt <capability> [--off | --decline --reason <text> | --defer --reason <text>] [--date YYYY-MM-DD] [--issuer <name>] [--apply] | pose adopt --request <act-id> [--issuer <name>] [--reason <text>] [--apply]"
+const adoptUsage = "Usage: pose adopt --list [--json] | pose adopt <capability> [--off | --decline --reason <text> | --defer --reason <text>] [--date YYYY-MM-DD] [--issuer <name>] [--apply] | pose adopt closeout-review-policy --milestone-review-required <never|when-justified|always> --roadmap-review-required <never|when-justified|always> [--apply] | pose adopt --request <act-id> [--issuer <name>] [--reason <text>] [--apply]"
 
 func cmdAdopt(root string, args []string, stdout, stderr io.Writer) int {
 	id, mode, reason, apply, list, jsonOutput, requestID, issuer := "", "on", "", false, false, false, "", ""
+	milestoneReview, roadmapReview, closeoutPairGiven := "", "", false
 	date := time.Now().UTC().Format(time.DateOnly)
 	for i := 0; i < len(args); i++ {
 		switch args[i] {
@@ -38,6 +39,17 @@ func cmdAdopt(root string, args []string, stdout, stderr io.Writer) int {
 			mode = posemodel.AdoptionDeferred
 		case "--apply":
 			apply = true
+		case "--milestone-review-required", "--roadmap-review-required":
+			if i+1 >= len(args) {
+				return usageError(stderr, adoptUsage)
+			}
+			if args[i] == "--milestone-review-required" {
+				milestoneReview = args[i+1]
+			} else {
+				roadmapReview = args[i+1]
+			}
+			closeoutPairGiven = true
+			i++
 		case "--date", "--reason", "--request", "--issuer":
 			if i+1 >= len(args) {
 				return usageError(stderr, adoptUsage)
@@ -132,6 +144,13 @@ func cmdAdopt(root string, args []string, stdout, stderr io.Writer) int {
 	if id == "" {
 		return usageError(stderr, adoptUsage)
 	}
+	// The closeout review pair is set together, only for its own capability,
+	// and only to turn it on or change it (spec
+	// pose-closeout-review-policy-by-cost-benefit R6).
+	if closeoutPairGiven && (id != "closeout-review-policy" || mode != "on" || milestoneReview == "" || roadmapReview == "") {
+		out.Failure("pose adopt: --milestone-review-required and --roadmap-review-required go together, with closeout-review-policy, without --off, --decline or --defer")
+		return 2
+	}
 	entry, known := posemodel.LookupCatalogEntry(id)
 	if !known {
 		out.Failure("pose adopt: unknown capability " + id + "; governed capabilities: " + strings.Join(posemodel.CatalogIDs(), ", "))
@@ -186,7 +205,21 @@ func cmdAdopt(root string, args []string, stdout, stderr io.Writer) int {
 				return 1
 			}
 		}
-		changes = entry.Adopt(docs, date)
+		if id == "closeout-review-policy" {
+			// Preview shows the rule applied today next to the one proposed.
+			_, milestoneNow, roadmapNow := posemodel.CloseoutReviewPolicyEffective(docs)
+			out.Field("adopt.current", posemodel.MilestoneReviewRequiredKey+"="+milestoneNow+"; "+posemodel.RoadmapReviewRequiredKey+"="+roadmapNow)
+		}
+		if closeoutPairGiven {
+			pair, err := posemodel.SetCloseoutReviewPolicy(docs, milestoneReview, roadmapReview)
+			if err != nil {
+				out.Failure("pose adopt: " + strings.TrimPrefix(err.Error(), "pose: "))
+				return 2
+			}
+			changes = pair
+		} else {
+			changes = entry.Adopt(docs, date)
+		}
 	}
 	var effects []posemodel.AdoptionEffect
 	if mode == "on" && len(changes) > 0 {

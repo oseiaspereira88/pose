@@ -29,6 +29,13 @@ const QualifiedArtifactPolicySchemaVersion = 3
 // refused by older engines so they cannot silently operate on transfer state.
 const SpecAuthorityTransferPolicySchemaVersion = 4
 
+// CloseoutReviewPolicySchemaVersion carries milestone_review_required and
+// roadmap_review_required (spec pose-closeout-review-policy-by-cost-benefit).
+// Older engines refuse it, so none of them reads an adopted exemption as the
+// legacy rule. It decouples the schema number from qualified references and
+// authority transfer: both stay optional under it.
+const CloseoutReviewPolicySchemaVersion = 5
+
 // ScopeRef is the canonical address of a reviewable POSE scope.
 type ScopeRef struct {
 	Kind      string `json:"kind"`
@@ -247,6 +254,13 @@ type ReviewPolicy struct {
 	// pose-authority-claim-project-is-not-the-audience). Like the audience it is
 	// read from the protected policy, never from the environment.
 	AuthorityProject string `json:"authority_project,omitempty"`
+	// MilestoneReviewRequired and RoadmapReviewRequired decide whether the close
+	// of an aggregate scope owes its own independent review: never,
+	// when-justified or always. Both are present exactly under schema 5; an
+	// older schema keeps the legacy rule (ADR
+	// closeout-review-policy-by-cost-and-benefit).
+	MilestoneReviewRequired string `json:"milestone_review_required,omitempty"`
+	RoadmapReviewRequired   string `json:"roadmap_review_required,omitempty"`
 }
 
 // ReviewIdentityAssurance resolves the assurance a scope kind requires,
@@ -412,6 +426,13 @@ type ReviewEvaluation struct {
 	BundleDigest  string         `json:"bundle_digest,omitempty"`
 	AttestationID string         `json:"attestation_id,omitempty"`
 	BundleState   string         `json:"bundle_state,omitempty"`
+	// ApprovalOrigin names where an approval not attested on the scope itself
+	// came from: an inherited member, a roadmap declaration, or
+	// not-required:<key>=<value> under an adopted closeout review policy.
+	ApprovalOrigin string `json:"approval_origin,omitempty"`
+	// CloseoutReview is the closeout-review@1 decision for an aggregate scope
+	// under an adopted policy (spec pose-closeout-review-policy-by-cost-benefit).
+	CloseoutReview *CloseoutReviewDecision `json:"closeout_review,omitempty"`
 	// Assurance discloses what the current review record proves about its
 	// reviewer (spec pose-review-assurance-disclosure).
 	Assurance *ReviewAssurance `json:"assurance,omitempty"`
@@ -445,6 +466,12 @@ type CloseoutState struct {
 	// NextStep is NextAction as a code and refs, for a consumer that must not
 	// parse the sentence.
 	NextStep *Diagnostic `json:"next_step,omitempty"`
+	// CloseoutReceipt is the receipt an explicit close published under an
+	// adopted closeout review policy; CloseRequired says the scope is
+	// eligible but still owes that close (spec
+	// pose-closeout-review-policy-by-cost-benefit R4).
+	CloseoutReceipt *CloseoutReceipt `json:"closeout_receipt,omitempty"`
+	CloseRequired   bool             `json:"close_required,omitempty"`
 }
 
 func withGovernanceReviewReadView[T any](s Store, producer string, run func(Store) (T, error), attach func(*T, *ReadViewMetadata, governanceReadViewAudit)) (T, error) {
@@ -667,8 +694,17 @@ func (s Store) parseReviewPolicy(raw []byte) (ReviewPolicy, error) {
 	if err := ValidateDelegationAdoptionDate(p.DelegatedReviewDisabledAt); err != nil {
 		return ReviewPolicy{}, err
 	}
+	if err := validateCloseoutReviewPolicyKeys(raw, fields, p.SchemaVersion); err != nil {
+		return ReviewPolicy{}, err
+	}
 	qualifiedRefsRequired := p.SchemaVersion == QualifiedArtifactPolicySchemaVersion || p.SchemaVersion == SpecAuthorityTransferPolicySchemaVersion
-	if (qualifiedRefsRequired && p.QualifiedArtifactRefsVersion != 1) || (!qualifiedRefsRequired && p.QualifiedArtifactRefsVersion != 0) {
+	if p.SchemaVersion == CloseoutReviewPolicySchemaVersion {
+		// Schema 5 recognizes the closeout pair without adopting references or
+		// transfer: each stays at 0, or 1 as the earlier schemas define it.
+		if p.QualifiedArtifactRefsVersion != 0 && p.QualifiedArtifactRefsVersion != 1 {
+			return ReviewPolicy{}, fmt.Errorf("pose: unsupported qualified_artifact_refs_version %d", p.QualifiedArtifactRefsVersion)
+		}
+	} else if (qualifiedRefsRequired && p.QualifiedArtifactRefsVersion != 1) || (!qualifiedRefsRequired && p.QualifiedArtifactRefsVersion != 0) {
 		return ReviewPolicy{}, fmt.Errorf("pose: qualified artifact references require review policy schema 3 and qualified_artifact_refs_version 1")
 	}
 	if p.CausalityCloseoutVersion != 0 && p.CausalityCloseoutVersion != CausalityCloseoutPolicyVersion {
@@ -705,7 +741,14 @@ func (s Store) parseReviewPolicy(raw []byte) (ReviewPolicy, error) {
 	if p.ContractNodesVersion != 0 && p.ContractNodesVersion != ContractNodesPolicyVersion {
 		return ReviewPolicy{}, fmt.Errorf("pose: unsupported contract_nodes_version %d (engine supports %d)", p.ContractNodesVersion, ContractNodesPolicyVersion)
 	}
-	if (p.SchemaVersion == SpecAuthorityTransferPolicySchemaVersion && p.SpecAuthorityTransferVersion != 1) || (p.SchemaVersion != SpecAuthorityTransferPolicySchemaVersion && p.SpecAuthorityTransferVersion != 0) {
+	if p.SchemaVersion == CloseoutReviewPolicySchemaVersion {
+		if p.SpecAuthorityTransferVersion != 0 && p.SpecAuthorityTransferVersion != 1 {
+			return ReviewPolicy{}, fmt.Errorf("pose: unsupported spec_authority_transfer_version %d", p.SpecAuthorityTransferVersion)
+		}
+		if p.SpecAuthorityTransferVersion == 1 && p.QualifiedArtifactRefsVersion != 1 {
+			return ReviewPolicy{}, fmt.Errorf("pose: spec authority transfer requires qualified_artifact_refs_version 1")
+		}
+	} else if (p.SchemaVersion == SpecAuthorityTransferPolicySchemaVersion && p.SpecAuthorityTransferVersion != 1) || (p.SchemaVersion != SpecAuthorityTransferPolicySchemaVersion && p.SpecAuthorityTransferVersion != 0) {
 		return ReviewPolicy{}, fmt.Errorf("pose: spec authority transfer requires review policy schema 4 and spec_authority_transfer_version 1")
 	}
 	if p.SchemaVersion >= ReviewPolicySchemaVersion {
@@ -719,7 +762,7 @@ func (s Store) parseReviewPolicy(raw []byte) (ReviewPolicy, error) {
 			return ReviewPolicy{}, fmt.Errorf("pose: invalid schema-v2 review policy: %w", err)
 		}
 	}
-	if p.SchemaVersion != ReviewSchemaVersion && p.SchemaVersion != ReviewPolicySchemaVersion && p.SchemaVersion != QualifiedArtifactPolicySchemaVersion && p.SchemaVersion != SpecAuthorityTransferPolicySchemaVersion {
+	if p.SchemaVersion != ReviewSchemaVersion && p.SchemaVersion != ReviewPolicySchemaVersion && p.SchemaVersion != QualifiedArtifactPolicySchemaVersion && p.SchemaVersion != SpecAuthorityTransferPolicySchemaVersion && p.SchemaVersion != CloseoutReviewPolicySchemaVersion {
 		return ReviewPolicy{}, fmt.Errorf("pose: unsupported review policy schema %d", p.SchemaVersion)
 	}
 	if err := validateReviewPolicyScopes("identity_assurance", p.IdentityAssurance); err != nil {
@@ -1490,6 +1533,18 @@ func (s Store) reviewCheck(ref string) (ReviewEvaluation, error) {
 	eval.Required = required
 	if !required {
 		eval.Warnings = append(eval.Warnings, "review is not required for a legacy done scope created before policy adoption")
+		return eval, nil
+	}
+	decision, exempt, err := s.closeoutReviewGate(ref, policy)
+	if err != nil {
+		return eval, err
+	}
+	eval.CloseoutReview = decision
+	if exempt {
+		eval.Required = false
+		eval.Fresh = true
+		eval.ApprovalOrigin = closeoutApprovalOrigin(*decision)
+		eval.Warnings = append(eval.Warnings, closeoutExemptionWarning(ref, *decision))
 		return eval, nil
 	}
 	if profileRef == "" {
@@ -2725,6 +2780,28 @@ func (s Store) getCloseoutState(ref string, includeFederated bool) (CloseoutStat
 			}
 		}
 	}
+	closeOwed := false
+	if scope.Kind == "milestone" || scope.Kind == "roadmap" {
+		if policy, policyErr := s.GetReviewPolicy(); policyErr == nil && policy.CloseoutReviewAdopted() {
+			receipt, receiptErr := s.ReadCloseoutReceipt(ref)
+			if receiptErr != nil {
+				block(OpaqueDiagnostic("closeout-receipt-invalid", DiagnosticCloseout, receiptErr.Error()))
+			}
+			state.CloseoutReceipt = receipt
+			if decision := review.CloseoutReview; decision != nil && receipt == nil && receiptErr == nil {
+				// Terminal members make the scope eligible, never closed: the
+				// explicit close publishes the receipt that makes it terminal.
+				closeOwed = true
+				for _, diagnostic := range decision.Diagnostics {
+					block(NewDiagnostic("closeout-review-unknown", diagnostic, ref))
+				}
+			}
+			if review.CloseoutReview == nil && receipt == nil && scope.Kind == "roadmap" && state.LifecycleDone && review.Required && !review.Approved {
+				diagnostics = append(diagnostics, NewDiagnostic("closeout-receipt-incomplete", "roadmap "+scope.Slug+" is done with neither an approved review nor a closeout receipt; `pose close "+ref+"` verifies its inputs again and publishes the receipt", ref))
+			}
+		}
+	}
+	state.CloseRequired = closeOwed
 	if !review.Required {
 		state.Blockers = removeReviewOnlyBlockers(state.Blockers)
 		kept := diagnostics[:0]
@@ -2757,7 +2834,7 @@ func (s Store) getCloseoutState(ref string, includeFederated bool) (CloseoutStat
 		}
 	}
 	state.Blockers = uniqueSorted(state.Blockers)
-	state.Terminal = len(state.Blockers) == 0 && (review.Approved || !review.Required) && state.LifecycleDone
+	state.Terminal = len(state.Blockers) == 0 && (review.Approved || !review.Required) && state.LifecycleDone && !closeOwed
 	if state.Terminal {
 		state.NextAction = "none"
 	} else if len(state.Children) > 0 {
@@ -2780,6 +2857,9 @@ func (s Store) getCloseoutState(ref string, includeFederated bool) (CloseoutStat
 	}
 	if state.NextAction == "" && scope.Kind == "spec" && state.FederatedAcceptance != nil && !state.FederatedAcceptance.Ready {
 		state.NextAction = "resolve federated dependency blockers for " + ref
+	}
+	if state.NextAction == "" && closeOwed && len(state.Blockers) == 0 {
+		state.NextAction = "close " + ref + " with `pose close " + ref + "`, which publishes its closeout receipt"
 	}
 	if state.NextAction == "" {
 		state.NextAction = "resolve closeout blockers for " + ref
@@ -2815,6 +2895,9 @@ func closeoutNextStep(state CloseoutState, review ReviewEvaluation, ref string) 
 				return step("continue-child", child.Scope)
 			}
 		}
+		if state.CloseRequired && len(state.Blockers) == 0 {
+			return step("close-scope", ref)
+		}
 		return step("resolve-federated-blockers", ref)
 	case !review.Approved && review.Required:
 		return step("record-fresh-review", ref)
@@ -2822,6 +2905,8 @@ func closeoutNextStep(state CloseoutState, review ReviewEvaluation, ref string) 
 		return step("apply-lifecycle-transition", ref)
 	case state.FederatedAcceptance != nil && !state.FederatedAcceptance.Ready:
 		return step("resolve-federated-blockers", ref)
+	case state.CloseRequired && len(state.Blockers) == 0:
+		return step("close-scope", ref)
 	}
 	return step("resolve-closeout-blockers", ref)
 }
@@ -2856,6 +2941,10 @@ func (s Store) GetCloseoutStateWithFederatedAcceptance(ref, projectID string, re
 // a federated resolver must fail closed on an external member.
 func (s Store) milestoneMember(raw string) (string, bool) {
 	ref, err := ParseArtifactRef(raw)
+	if err == nil && ref.Project == "" && ref.Kind == "spec" && ref.Milestone == "" {
+		// `spec:<slug>` and `<slug>` name the same local member.
+		return ref.Slug, false
+	}
 	if err != nil || ref.Project == "" {
 		return raw, false
 	}

@@ -3,6 +3,7 @@ slug: <roadmap-slug>
 status: draft        # draft | active | done | abandoned
 created_at: <YYYY-MM-DD>
 depends_on:          # prerequisite roadmaps, inline list: other-roadmap-a, other-roadmap-b
+adrs:                # optional ADR associations, inline list: [adr:<file>.md] (closeout review policy, when-justified)
 ---
 
 # Roadmap: <roadmap-slug>

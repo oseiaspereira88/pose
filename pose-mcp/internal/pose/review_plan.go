@@ -131,6 +131,10 @@ type ReviewPlan struct {
 	Warnings                  []string `json:"warnings,omitempty"`
 	Blockers                  []string `json:"blockers,omitempty"`
 	Explain                   []string `json:"explain"`
+	// CloseoutReview is the closeout-review@1 decision for a milestone or a
+	// roadmap under an adopted policy. Like Band it is a projection: it stays
+	// out of the plan digest (spec pose-closeout-review-policy-by-cost-benefit).
+	CloseoutReview *CloseoutReviewDecision `json:"closeout_review,omitempty"`
 }
 
 type reviewRepoEntry struct {
@@ -396,6 +400,11 @@ func (s Store) ReviewPlan(ref string) (ReviewPlan, error) {
 	plan.PlanDigest, err = digestReviewPlan(plan)
 	if err != nil {
 		return ReviewPlan{}, err
+	}
+	if decision, _, gateErr := s.closeoutReviewGate(ref, policy); gateErr == nil && decision != nil {
+		// Warnings and Explain enter the digest; the decision does not, so it
+		// is attached only as its own field.
+		plan.CloseoutReview = decision
 	}
 	return plan, nil
 }

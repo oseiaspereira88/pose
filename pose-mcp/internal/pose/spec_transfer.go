@@ -528,7 +528,7 @@ func requireSpecTransferCapability(files Files, store Store) error {
 	if err != nil {
 		return specTransferError("unsupported-policy")
 	}
-	if policy.SchemaVersion != SpecAuthorityTransferPolicySchemaVersion || policy.QualifiedArtifactRefsVersion != 1 || policy.SpecAuthorityTransferVersion != 1 {
+	if (policy.SchemaVersion != SpecAuthorityTransferPolicySchemaVersion && policy.SchemaVersion != CloseoutReviewPolicySchemaVersion) || policy.QualifiedArtifactRefsVersion != 1 || policy.SpecAuthorityTransferVersion != 1 {
 		return specTransferError("spec-authority-transfer-capability-not-adopted")
 	}
 	return nil

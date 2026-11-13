@@ -65,8 +65,20 @@ type setupPlan struct {
 	NeedsSetup      []posemodel.CapabilityState `json:"needs_setup"`
 	Available       []string                    `json:"available"`
 	Onboarding      string                      `json:"onboarding_spec,omitempty"`
+	CloseoutReview  setupCloseoutReview         `json:"closeout_review"`
 	Steps           []setupStep                 `json:"steps"`
 	Next            *setupStep                  `json:"next,omitempty"`
+}
+
+// setupCloseoutReview shows the closeout review rule in force and the pair an
+// adoption would write (spec pose-closeout-review-policy-by-cost-benefit R6).
+type setupCloseoutReview struct {
+	Adopted           bool   `json:"adopted"`
+	Milestone         string `json:"milestone_review_required"`
+	Roadmap           string `json:"roadmap_review_required"`
+	ProposedMilestone string `json:"proposed_milestone_review_required,omitempty"`
+	ProposedRoadmap   string `json:"proposed_roadmap_review_required,omitempty"`
+	Command           string `json:"command"`
 }
 
 // candidateKeyFile returns the user's public key POSE would suggest
@@ -134,6 +146,14 @@ func buildSetupPlan(root string) (setupPlan, error) {
 	review, err := posemodel.CapabilitiesToReview(root, engine)
 	if err != nil {
 		return plan, err
+	}
+	if docs, err := posemodel.LoadPolicyDocs(root); err == nil {
+		adopted, milestone, roadmap := posemodel.CloseoutReviewPolicyEffective(docs)
+		plan.CloseoutReview = setupCloseoutReview{Adopted: adopted, Milestone: milestone, Roadmap: roadmap,
+			Command: "pose adopt closeout-review-policy --milestone-review-required <never|when-justified|always> --roadmap-review-required <never|when-justified|always> --apply"}
+		if !adopted {
+			plan.CloseoutReview.ProposedMilestone, plan.CloseoutReview.ProposedRoadmap = posemodel.CloseoutReviewNever, posemodel.CloseoutReviewNever
+		}
 	}
 	isNew := map[string]bool{}
 	for _, state := range review {
@@ -396,6 +416,14 @@ func renderSetupPlan(rawField func(string, string), section func(string), plan s
 	for _, state := range plan.NeedsSetup {
 		field("setup.needs_setup."+state.ID, state.Missing)
 	}
+	if closeout := plan.CloseoutReview; closeout.Milestone != "" {
+		line := "milestone_review_required=" + closeout.Milestone + "; roadmap_review_required=" + closeout.Roadmap
+		if !closeout.Adopted {
+			line += " — adopting proposes milestone_review_required=" + closeout.ProposedMilestone + ", roadmap_review_required=" + closeout.ProposedRoadmap
+		}
+		rawField("setup.closeout_review", line)
+		rawField("setup.closeout_review.command", closeout.Command)
+	}
 	if len(plan.Available) > 0 {
 		sort.Strings(plan.Available)
 		field("setup.available", strings.Join(plan.Available, ", ")+" — off; `pose adopt --list` explains each")
@@ -489,7 +517,19 @@ func runSetupInteractive(root string, plan setupPlan, in *bufio.Reader, stdout, 
 			answer := strings.ToLower(ask(step.Summary + "\n  [a]dopt, [d]ecline, [l]ater (defer), [s]kip? "))
 			switch answer {
 			case "a", "adopt":
-				if code := cmdAdopt(root, []string{step.capability, "--apply"}, stdout, stderr); code != 0 {
+				args := []string{step.capability, "--apply"}
+				if step.capability == "closeout-review-policy" {
+					// The pair is chosen here and written by the same operation.
+					choose := func(key string) string {
+						value := strings.TrimSpace(ask("  " + key + " [never|when-justified|always] (never)? "))
+						if value == "" {
+							value = posemodel.CloseoutReviewNever
+						}
+						return value
+					}
+					args = []string{step.capability, "--milestone-review-required", choose("milestone_review_required"), "--roadmap-review-required", choose("roadmap_review_required"), "--apply"}
+				}
+				if code := cmdAdopt(root, args, stdout, stderr); code != 0 {
 					return code
 				}
 				decided = true

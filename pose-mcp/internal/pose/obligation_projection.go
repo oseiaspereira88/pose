@@ -676,10 +676,23 @@ func (s Store) milestoneReachedObligations(project, scope string, coverage *Cove
 		if err != nil {
 			return lost(err)
 		}
-		member, sole := s.soleMemberOf(parsed)
-		owed := !recorded[ref] && !(sole && recorded["spec:"+member]) && s.declaredUnreviewed(parsed) == ""
-		if !required || !owed && !refused[ref] {
-			continue
+		if policy.CloseoutReviewAdopted() {
+			// Under an adopted closeout review policy a reached milestone is
+			// closed only by its explicit close, which publishes a receipt,
+			// approved review or not (spec pose-closeout-review-policy-by-cost-benefit).
+			receipt, err := s.ReadCloseoutReceipt(ref)
+			if err != nil {
+				return lost(err)
+			}
+			if receipt != nil {
+				continue
+			}
+		} else {
+			member, sole := s.soleMemberOf(parsed)
+			owed := !recorded[ref] && !(sole && recorded["spec:"+member]) && s.declaredUnreviewed(parsed) == ""
+			if !required || !owed && !refused[ref] {
+				continue
+			}
 		}
 		source := QualifyNodeRef(project, ArtifactRef{Kind: "milestone", Slug: parsed.Roadmap, Milestone: parsed.Milestone}, "", "")
 		o := newObligation(project, "closeout", source, "milestone-reached", ref)

@@ -1953,11 +1953,19 @@ func cmdCloseLocalWithGuardedStore(root string, store posemodel.Store, ref strin
 		out.Failure(fmt.Sprintf("pose close: %d action request(s) restrict closeout of %s", len(governed), ref))
 		return 1
 	}
-	if !state.Review.Approved || len(state.Children) > 0 && hasOpenChild(state.Children) {
+	scope, _ := posemodel.ParseScopeRef(ref)
+	// Under an adopted closeout review policy (spec
+	// pose-closeout-review-policy-by-cost-benefit) the close of a milestone or a
+	// roadmap publishes a receipt. A receipt already there makes the close a
+	// read-only verification; a scope the evaluator cannot decide is refused.
+	receiptClose, code := closeoutReceiptPreflight(store, ref, scope, &state, stdout, stderr)
+	if code >= 0 {
+		return code
+	}
+	if !closeReviewSatisfied(state) || len(state.Children) > 0 && hasOpenChild(state.Children) {
 		fmt.Fprintf(stderr, "pose close: scope is not eligible; next action: %s\n", state.NextAction)
 		return 1
 	}
-	scope, _ := posemodel.ParseScopeRef(ref)
 	if scope.Kind == "milestone" {
 		gate, err := roadmapGate(root, scope.Roadmap, scope.Milestone)
 		if err != nil {
@@ -1967,6 +1975,14 @@ func cmdCloseLocalWithGuardedStore(root string, store posemodel.Store, ref strin
 		if blockers := uniqueCLIStrings(gate.blockers); len(blockers) > 0 {
 			render(stdout, stderr).Failure("pose close: milestone gate failed: " + strings.Join(blockers, "; "))
 			return 1
+		}
+		if receiptClose != nil {
+			if code := publishCloseoutReceipt(store, ref, *receiptClose, state, guard, stdout, stderr); code != 0 {
+				return code
+			}
+			fmt.Fprintf(stdout, "Closed: %s\n", ref)
+			renderCloseNext(render(stdout, stderr), nextCloses(store, ref))
+			return 0
 		}
 		fmt.Fprintf(stdout, "Milestone closeout verified: %s\n", ref)
 		renderCloseNext(render(stdout, stderr), nextCloses(store, ref))
@@ -2061,7 +2077,7 @@ func cmdCloseLocalWithGuardedStore(root string, store posemodel.Store, ref strin
 	if current, err := cliCloseoutStateForStore(store, ref); err != nil {
 		render(io.Discard, stderr).Failure("pose close: " + err.Error())
 		return 1
-	} else if !current.Review.Approved || hasActionRequestPending(current.Diagnostics) || hasDiagnostic(current.Diagnostics, posemodel.AdjudicationDoesNotHoldCode) {
+	} else if !(closeReviewSatisfied(current) || receiptClose != nil && !receiptClose.Required) || hasActionRequestPending(current.Diagnostics) || hasDiagnostic(current.Diagnostics, posemodel.AdjudicationDoesNotHoldCode) {
 		render(io.Discard, stderr).Failure("pose close: the closeout authorization changed while its gates ran; next action: " + current.NextAction)
 		return 1
 	}
@@ -2096,6 +2112,14 @@ func cmdCloseLocalWithGuardedStore(root string, store posemodel.Store, ref strin
 		}
 		unsynced = err
 		render(stdout, stderr).Field("close.unsynced", err.Error())
+	}
+	if receiptClose != nil {
+		// The status is published; the receipt is the terminal marker and
+		// comes after it. A failure here leaves the roadmap explicitly
+		// incomplete, and the next `pose close` verifies again and publishes.
+		if code := publishCloseoutReceipt(store, ref, *receiptClose, state, nil, stdout, stderr); code != 0 {
+			return code
+		}
 	}
 	if transitioned != nil {
 		transitioned(unsynced)
@@ -2383,3 +2407,88 @@ func hasActionRequestPending(diagnostics []posemodel.Diagnostic) bool {
 // before the protected region. Only tests set it, to change the repository
 // at that point.
 var closeGatesJudged func()
+
+// closeReviewSatisfied is the review half of close eligibility: an approval,
+// or a review the adopted closeout review policy does not require.
+func closeReviewSatisfied(state posemodel.CloseoutState) bool {
+	return state.Review.Approved || state.Review.CloseoutReview != nil && !state.Review.Required
+}
+
+// closeoutReceiptPreflight decides whether this close publishes a receipt.
+// It returns the decision to record (nil: legacy close) and an exit code, or
+// -1 to go on. A done roadmap with no receipt is the incomplete case: its
+// decision is evaluated again over the current inputs.
+func closeoutReceiptPreflight(store posemodel.Store, ref string, scope posemodel.ScopeRef, state *posemodel.CloseoutState, stdout, stderr io.Writer) (*posemodel.CloseoutReviewDecision, int) {
+	if scope.Kind != "milestone" && scope.Kind != "roadmap" {
+		return nil, -1
+	}
+	policy, err := store.GetReviewPolicy()
+	if err != nil {
+		render(io.Discard, stderr).Failure("pose close: " + err.Error())
+		return nil, 1
+	}
+	if !policy.CloseoutReviewAdopted() {
+		return nil, -1
+	}
+	if state.CloseoutReceipt != nil {
+		receipt := state.CloseoutReceipt
+		out := render(stdout, stderr)
+		out.Field("close.already-satisfied", ref+"; closeout receipt of "+receipt.ClosedAt+" stands (review: "+receipt.Review+"); no transition executed")
+		return nil, 0
+	}
+	decision := state.Review.CloseoutReview
+	if decision == nil {
+		if scope.Kind != "roadmap" || !state.LifecycleDone {
+			return nil, -1
+		}
+		evaluated, err := store.EvaluateCloseoutReview(ref)
+		if err != nil {
+			render(io.Discard, stderr).Failure("pose close: " + err.Error())
+			return nil, 1
+		}
+		decision = &evaluated
+		if !evaluated.Required && !state.Review.Approved {
+			state.Review.CloseoutReview = decision
+			state.Review.Required = false
+		}
+	}
+	if !decision.Known {
+		render(io.Discard, stderr).Failure("pose close: the closeout review of " + ref + " cannot be decided: " + strings.Join(decision.Diagnostics, "; "))
+		return nil, 1
+	}
+	render(stdout, stderr).Field("close.review", decision.Review()+" ("+decision.PolicyKey+"="+decision.PolicyValue+", "+decision.Reason+")")
+	return decision, -1
+}
+
+// publishCloseoutReceipt publishes the receipt of a close after judging the
+// authorization once more inside the protected region.
+func publishCloseoutReceipt(store posemodel.Store, ref string, decision posemodel.CloseoutReviewDecision, judged posemodel.CloseoutState, guard func() error, stdout, stderr io.Writer) int {
+	if guard != nil {
+		if err := guard(); err != nil {
+			render(io.Discard, stderr).Failure("pose close: " + err.Error())
+			return 1
+		}
+	}
+	if current, err := store.EvaluateCloseoutReview(ref); err != nil {
+		render(io.Discard, stderr).Failure("pose close: " + err.Error())
+		return 1
+	} else if current.Required != decision.Required || strings.Join(current.Members, ",") != strings.Join(decision.Members, ",") || current.PolicyValue != decision.PolicyValue {
+		render(io.Discard, stderr).Failure("pose close: the closeout review decision of " + ref + " changed while its gates ran; run `pose close " + ref + "` again")
+		return 1
+	}
+	receipt, err := store.NewCloseoutReceipt(ref, decision, judged.Review, judged.ScopeDigest, time.Now())
+	if err != nil {
+		render(io.Discard, stderr).Failure("pose close: " + strings.TrimPrefix(err.Error(), "pose: "))
+		return 1
+	}
+	if err := store.PublishCloseoutReceipt(receipt); err != nil {
+		if errors.Is(err, posemodel.ErrPublishUnsynced) {
+			render(stdout, stderr).Field("close.unsynced", err.Error())
+		} else {
+			render(io.Discard, stderr).Failure("pose close: closeout receipt not published: " + err.Error() + "; `pose close " + ref + "` verifies again and publishes it")
+			return 1
+		}
+	}
+	render(stdout, stderr).Field("close.receipt", "review: "+receipt.Review+"; "+decision.PolicyKey+"="+decision.PolicyValue+"; "+decision.Reason)
+	return 0
+}

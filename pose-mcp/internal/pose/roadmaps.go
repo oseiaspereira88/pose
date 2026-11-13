@@ -22,10 +22,14 @@ type Roadmap struct {
 	Consumes  []string `json:"consumes,omitempty"`
 	// UnreviewedMilestones is the reason a roadmap gives for its reached milestones
 	// standing without a review (ADR a-milestone-of-one-member-is-that-member).
-	UnreviewedMilestones string      `json:"-"`
-	Milestones           []Milestone `json:"milestones"`
-	Path                 string      `json:"path"`
-	Body                 string      `json:"body,omitempty"`
+	UnreviewedMilestones string `json:"-"`
+	// ADRs is the raw `adrs:` declaration, `[adr:<file>.md, …]`, read by the
+	// closeout review evaluator (spec pose-closeout-review-policy-by-cost-benefit).
+	// Raw so that a malformed declaration is unknown, not absent.
+	ADRs       string      `json:"-"`
+	Milestones []Milestone `json:"milestones"`
+	Path       string      `json:"path"`
+	Body       string      `json:"body,omitempty"`
 }
 
 type Milestone struct {
@@ -52,6 +56,22 @@ func (s Store) ReachedMilestones(spec string) ([]string, error) {
 		return nil, err
 	}
 	reached := []string{}
+	if adopted, err := s.closeoutReviewPolicyAdopted(); err != nil {
+		return reached, err
+	} else if adopted {
+		// Under an adopted closeout review policy, only the explicit close
+		// makes a milestone terminal: reached means no receipt yet.
+		for _, ref := range candidates {
+			receipt, err := s.ReadCloseoutReceipt(ref)
+			if err != nil {
+				return reached, err
+			}
+			if receipt == nil {
+				reached = append(reached, ref)
+			}
+		}
+		return reached, nil
+	}
 	for _, ref := range candidates {
 		// Its only member has just closed, uncommitted, so its verification cannot
 		// answer yet: only a refusal recorded on the milestone says it will not stand.
@@ -290,6 +310,10 @@ func (s Store) RoadmapsReachedBy(spec string) ([]string, error) {
 		return nil, err
 	}
 	found := []string{}
+	if adopted, err := s.closeoutReviewPolicyAdopted(); err != nil || adopted {
+		// Adopted: a member's close leaves its milestone reached, never closed.
+		return found, err
+	}
 	for _, rm := range roadmaps {
 		for _, milestone := range rm.Milestones {
 			if member, ok := s.soleMemberOf(ScopeRef{Kind: "milestone", Roadmap: rm.Slug, Milestone: milestone.ID}); ok && member == spec {
@@ -316,8 +340,18 @@ func (s Store) roadmapReachedApartFrom(slug, closing string) bool {
 	if err != nil || rm.Status == "done" || len(rm.Milestones) == 0 {
 		return false
 	}
+	adopted, err := s.closeoutReviewPolicyAdopted()
+	if err != nil {
+		return false
+	}
 	for _, milestone := range rm.Milestones {
 		if milestone.ID == closing {
+			continue
+		}
+		if adopted {
+			if receipt, err := s.ReadCloseoutReceipt("milestone:" + slug + "/" + milestone.ID); err != nil || receipt == nil {
+				return false
+			}
 			continue
 		}
 		if approved, err := s.scopeApproved("milestone:" + slug + "/" + milestone.ID); err != nil || !approved {
@@ -434,6 +468,8 @@ func parseRoadmapFile(files Files, path, slug string, includeBody bool) (*Roadma
 			rm.Consumes = parseInlineList(value)
 		case "unreviewed_milestones":
 			rm.UnreviewedMilestones = cleanValue(value)
+		case "adrs":
+			rm.ADRs = strings.TrimSpace(value)
 		}
 	}
 	var current *Milestone
@@ -486,4 +522,9 @@ func parseRoadmapFile(files Files, path, slug string, includeBody bool) (*Roadma
 		rm.Body = body
 	}
 	return rm, nil
+}
+
+func (s Store) closeoutReviewPolicyAdopted() (bool, error) {
+	policy, _, err := s.loadReviewPolicy()
+	return policy.CloseoutReviewAdopted(), err
 }
