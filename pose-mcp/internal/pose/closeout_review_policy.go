@@ -792,6 +792,18 @@ func (s Store) closeoutTerminalWithDependencies(ref string) bool {
 	return err == nil && state.Terminal
 }
 
+// receiptStandsFor reports a closeout receipt on file that still stands for
+// the scope as it is. It reads no terminal state, so the review verification
+// can ask it without recursing into closeout.
+func (s Store) receiptStandsFor(ref string) bool {
+	receipt, err := s.ReadCloseoutReceipt(ref)
+	if err != nil || receipt == nil {
+		return false
+	}
+	policy, _, err := s.loadReviewPolicy()
+	return err == nil && s.closeoutReceiptStands(*receipt, policy) == nil
+}
+
 // scopeReviewRecorded reports a review of the scope on file: a bundle or a
 // legacy attempt. A record that cannot be read counts as recorded, so an
 // unreadable rejection never turns into an exemption.

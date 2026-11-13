@@ -1071,7 +1071,9 @@ func (s Store) reviewBundleScopeSpecs(scope ScopeRef) (map[string]bool, error) {
 		for _, milestone := range rm.Milestones {
 			if milestone.ID == scope.Milestone {
 				for _, raw := range milestone.Specs {
-					if slug, external := s.milestoneMember(raw); !external {
+					// The member as closeout counts it: a transferred one at its
+					// canonical destination (review round 8, N29).
+					if slug, external, unresolved := s.CloseoutMemberTarget(raw); unresolved == "" && !external {
 						result[slug] = true
 					}
 				}
@@ -1086,7 +1088,7 @@ func (s Store) reviewBundleScopeSpecs(scope ScopeRef) (map[string]bool, error) {
 		}
 		for _, milestone := range rm.Milestones {
 			for _, raw := range milestone.Specs {
-				if slug, external := s.milestoneMember(raw); !external {
+				if slug, external, unresolved := s.CloseoutMemberTarget(raw); unresolved == "" && !external {
 					result[slug] = true
 				}
 			}
@@ -1761,7 +1763,7 @@ func (s Store) milestoneOnlyExternal(scope ScopeRef) bool {
 			continue
 		}
 		for _, raw := range milestone.Specs {
-			if _, external := s.milestoneMember(raw); !external {
+			if _, external, unresolved := s.CloseoutMemberTarget(raw); unresolved != "" || !external {
 				return false
 			}
 		}
@@ -1781,8 +1783,14 @@ func (s Store) reviewBundleChildRefs(scope ScopeRef) ([]string, error) {
 			if milestone.ID == scope.Milestone {
 				for _, raw := range milestone.Specs {
 					// External members are sealed through the federated
-					// manifest, not as local child bundles.
-					if slug, external := s.milestoneMember(raw); !external {
+					// manifest, not as local child bundles; a member a
+					// transfer moved is the destination it resolves to,
+					// never the redirect stub (review round 8, N29).
+					slug, external, unresolved := s.CloseoutMemberTarget(raw)
+					if unresolved != "" {
+						return nil, fmt.Errorf("pose: %s", unresolved)
+					}
+					if !external {
 						refs = append(refs, "spec:"+slug)
 					}
 				}
@@ -3483,17 +3491,45 @@ func (s Store) proportionalReviewVerification(scope string) (ReviewBundleVerific
 		if gateErr != nil || decision == nil || !exempt || !decision.Known {
 			return own, nil
 		}
-		if ref.Kind == "milestone" && s.FederatedResolver != nil {
-			acceptance, err := s.FederatedMilestoneAcceptance(s.FederatedProjectID, ref.Roadmap, ref.Milestone, *s.FederatedResolver)
+		if s.FederatedResolver != nil {
+			var acceptance FederatedRoadmapAcceptanceReport
+			var err error
+			if ref.Kind == "milestone" {
+				acceptance, err = s.FederatedMilestoneAcceptance(s.FederatedProjectID, ref.Roadmap, ref.Milestone, *s.FederatedResolver)
+			} else {
+				acceptance, err = s.FederatedRoadmapAcceptance(s.FederatedProjectID, ref.Slug, *s.FederatedResolver)
+			}
 			if err != nil || !acceptance.Ready {
 				return own, nil
 			}
 		}
-		return ReviewBundleVerification{
-			Scope: scope, State: "closed", Fresh: true, Approved: true, NextAction: "none",
+		// The exemption satisfies the review, not the close: the scope is
+		// closed only by its explicit close, whose receipt must stand, and a
+		// roadmap only over closed milestones. The full terminal verifier
+		// is closeout's (review round 8, N30).
+		verification := ReviewBundleVerification{
+			Scope: scope, State: "ready-to-close", Fresh: true, Approved: true,
+			NextAction:     "apply the guarded lifecycle transition for " + scope + " (`pose close " + scope + "` publishes its closeout receipt)",
 			Warnings:       []string{closeoutExemptionWarning(scope, *decision)},
 			ApprovalOrigin: closeoutApprovalOrigin(*decision), inherited: true,
-		}, nil
+		}
+		if ref.Kind == "roadmap" {
+			if rm, err := s.GetRoadmap(ref.Slug); err == nil {
+				for _, milestone := range rm.Milestones {
+					child := ScopeRef{Kind: "milestone", Roadmap: rm.Slug, Milestone: milestone.ID}
+					if !s.receiptStandsFor(child.String()) && !s.milestoneClosedBeforeAdoption(child) {
+						verification.Blockers = append(verification.Blockers, "child "+child.String()+" is not closed")
+					}
+				}
+			}
+			if len(verification.Blockers) > 0 {
+				verification.NextAction = "close the milestones of " + scope + " first: " + strings.Join(verification.Blockers, "; ")
+			}
+		}
+		if len(verification.Blockers) == 0 && s.receiptStandsFor(scope) {
+			verification.State, verification.NextAction = "closed", "scope is closed by its closeout receipt"
+		}
+		return verification, nil
 	}
 	if ref.Kind != "milestone" {
 		return own, nil

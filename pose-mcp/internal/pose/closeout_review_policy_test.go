@@ -1230,3 +1230,64 @@ func TestCloseoutReviewPolicyRoundSeven(t *testing.T) {
 		}
 	})
 }
+
+func TestCloseoutReviewPolicyRoundEight(t *testing.T) {
+	t.Run("aggregate review preparation follows a transferred member", func(t *testing.T) {
+		resolver := artifactGraphTransferFixture(t, map[string][]string{"xref:a/spec:moved": nil, "xref:b/spec:dest": nil, "xref:a/spec:stays": nil}, map[string]string{"xref:a/spec:moved": "xref:b/spec:dest"})
+		source, err := resolver.Roots.StoreFor("a")
+		if err != nil {
+			t.Fatal(err)
+		}
+		writeReviewFixture(t, source.Root, ".pose/roadmaps/moves.md", "---\nslug: moves\nstatus: active\n---\n\n## Milestone: m\n- specs: moved, stays\n\n## Milestone: away\n- specs: spec:moved\n")
+		s := Store{Root: source.Root, FederatedProjectID: "a", FederatedResolver: &resolver}
+		children, err := s.reviewBundleChildRefs(ScopeRef{Kind: "milestone", Roadmap: "moves", Milestone: "m"})
+		if err != nil || strings.Join(children, ",") != "spec:stays" {
+			t.Fatalf("the redirect stub was asked for a local child review: %v %v", children, err)
+		}
+		specs, err := s.reviewBundleScopeSpecs(ScopeRef{Kind: "roadmap", Slug: "moves"})
+		if err != nil || specs["moved"] || !specs["stays"] {
+			t.Fatalf("the redirect stub is a subject of the roadmap's review: %v %v", specs, err)
+		}
+		if !s.milestoneOnlyExternal(ScopeRef{Kind: "milestone", Roadmap: "moves", Milestone: "away"}) {
+			t.Fatal("a milestone whose only member moved to another project is not external")
+		}
+	})
+	t.Run("an exempt aggregate scope is closed only by its receipt", func(t *testing.T) {
+		root, s := closeoutReviewedFixture(t, "never", "never")
+		editRoadmapFixture(t, root, "\n## Milestone: later\n- after: core\n- specs: pending\n", "")
+		milestone, roadmap := "milestone:program/core", "roadmap:program"
+		state := func(ref string) ReviewBundleVerification {
+			t.Helper()
+			v, err := s.VerifyReviewBundle(ref)
+			if err != nil {
+				t.Fatal(err)
+			}
+			return v
+		}
+		if v := state(milestone); v.State == "closed" || !v.Approved || !strings.Contains(v.NextAction, "pose close "+milestone) {
+			t.Fatalf("an exempt milestone read closed before its receipt: %+v", v)
+		}
+		if v := state(roadmap); v.State == "closed" || !strings.Contains(strings.Join(v.Blockers, ";"), "child "+milestone+" is not closed") {
+			t.Fatalf("an exempt roadmap read closed over an open milestone: %+v", v)
+		}
+		closeCoreWithReceipt(t, s)
+		if v := state(milestone); v.State != "closed" {
+			t.Fatalf("a milestone with its receipt is not closed: %+v", v)
+		}
+		if v := state(roadmap); v.State != "ready-to-close" || len(v.Blockers) != 0 {
+			t.Fatalf("an exempt roadmap over closed milestones is not ready to close: %+v", v)
+		}
+		decision, err := s.CurrentCloseoutDecision(roadmap)
+		if err != nil {
+			t.Fatal(err)
+		}
+		closeout, _ := s.GetCloseoutState(roadmap)
+		receipt, err := s.NewCloseoutReceipt(roadmap, decision, closeout.Review, closeout.ScopeDigest, reviewFixtureNow.Add(2*time.Hour))
+		if err != nil || s.PublishCloseoutReceipt(receipt) != nil {
+			t.Fatal(err)
+		}
+		if v := state(roadmap); v.State != "closed" {
+			t.Fatalf("a roadmap with its receipt is not closed: %+v", v)
+		}
+	})
+}
