@@ -193,7 +193,15 @@ func (s Store) readReviewSession(digest string) (string, error) {
 func (s Store) classifyReviewInterruption(run *ReviewRun, plan DispatchPlan, transcript []byte, runErr, ctxErr error) (string, string, error) {
 	// Inspect both supported output channels before any public publication.
 	channels := append([]string{string(transcript), run.Output}, plan.extraChannels...)
-	value, e := captureReviewChannels(sessionPattern(plan.Config), channels...)
+	sessionChannels := make([]string, 0, len(channels))
+	for _, channel := range channels {
+		canonical, err := canonicalDelegationSessionChannel(plan.Config.Events, sessionPattern(plan.Config), channel)
+		if err != nil {
+			return "", "", err
+		}
+		sessionChannels = append(sessionChannels, canonical)
+	}
+	value, e := captureReviewChannels(sessionPattern(plan.Config), sessionChannels...)
 	if e != nil {
 		return "", "", e
 	}

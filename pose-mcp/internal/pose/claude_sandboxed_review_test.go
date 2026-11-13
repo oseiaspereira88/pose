@@ -300,3 +300,36 @@ func TestSandboxedReviewStagingIsMaterializedBeforeIntegrityAndFilesStillCount(t
 		t.Fatal("unconfined staging component accepted")
 	}
 }
+
+func TestSandboxedReviewRepeatedTypedInitKeepsOneIdentityButRejectsConflicts(t *testing.T) {
+	raw, err := os.ReadFile(filepath.Join("..", "..", "..", delegationPolicyPath))
+	if err != nil {
+		t.Fatal(err)
+	}
+	p, err := ParseDelegationPolicy(raw)
+	if err != nil {
+		t.Fatal(err)
+	}
+	a, _ := p.agentAdapter("claude-opus-5-5", DelegationPurposeReview)
+	first := `{"type":"system","subtype":"init","session_id":"synthetic-a"}`
+	for _, tc := range []struct {
+		name, second string
+		wantErr      bool
+	}{
+		{"same-typed-identity", first, false},
+		{"same-identity-new-init-metadata", `{"type":"system","subtype":"init","cwd":"synthetic-new-cwd","session_id":"synthetic-a"}`, false},
+		{"different-typed-identity", `{"type":"system","subtype":"init","session_id":"synthetic-b"}`, true},
+	} {
+		t.Run(tc.name, func(t *testing.T) {
+			s := Store{Root: t.TempDir()}
+			run := ReviewRun{ExitCode: 0}
+			_, _, err := s.classifyReviewInterruption(&run, DispatchPlan{Config: a}, []byte(first+"\n"+tc.second+"\n"), nil, nil)
+			if (err != nil) != tc.wantErr {
+				t.Fatalf("capture error=%v, wantErr=%v", err, tc.wantErr)
+			}
+			if !tc.wantErr && run.SessionDigest != digestBytes([]byte("synthetic-a")) {
+				t.Fatal("the expected typed identity was not retained privately")
+			}
+		})
+	}
+}

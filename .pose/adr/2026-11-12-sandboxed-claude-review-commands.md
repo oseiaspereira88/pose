@@ -3,6 +3,8 @@
 ## Status
 Accepted (2026-11-12), implementation decision for `pose-claude-reviewer-runs-tests-in-sandbox`. Runtime qualification remains a delivery gate.
 
+Qualification-driven additions below were decided on 2026-11-13; they are not represented as pre-implementation decisions. @pose-maintainers owns requalification on CLI/platform/codec changes and review by 2026-12-13.
+
 ## Context
 
 Governed review projects an agent's `commands.read` and `resume.command`. The existing restricted Claude profile cannot safely permit arbitrary Go test flags through a prefix allow-list. The task sandbox permits editing and cannot be substituted for a review. The trusted-process containment ADR deliberately does not promise filesystem isolation of the Claude process itself.
@@ -28,3 +30,5 @@ The first governed qualification exceeded the residual cleanup inventory with it
 Real-worktree qualification found that Claude automatically adds the origin Git common directory to its shell write permissions. Explicitly resolve its physical path with git rev-parse and deny it on fresh/resume; resolution failure refuses launch. Synthetic directories named shared-git do not qualify this boundary. Native post-run integrity checks do not certify origin refs/tags/objects; prevention comes from this explicit OS denial, measured in a disposable real Git worktree and checked again by the governed reviewer.
 
 Claude Code 2.1.322 creates empty `.claude/.cc-writes` staging directories outside its Bash boundary. For the opt-in profile only, prepare those empty directories at the disposable root and declared components through os.Root before the integrity snapshot. Never ignore files there or alter the original repository. This is controlled runtime materialization, not permission to edit sealed files. Keep final Go temporary-workspace cleanup inside the sandbox. Requalify this integration when upgrading Claude Code.
+
+For the explicit claude-stream-json codec, repeated top-level system/init records may identify one session. Before session-pattern recognition only, canonicalize repeats when the pattern captures that parsed session_id and every typed init identifies the same bounded reference. Different identities fail closed; generic regex matching and init-plus-result ambiguity remain strict. Preserve original bytes for provenance, redaction and limit/reset recognition. Reject selecting an arbitrary first or last conflicting identity. Qualification covers same/different identity and changed init metadata, without recovering withheld runs.

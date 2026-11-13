@@ -440,3 +440,45 @@ func redactedDelegationEvents(format string, raw []byte, final string, secrets [
 	}
 	return EncodeDelegationEvents(events), nil
 }
+
+// A vendor can repeat a typed init for the same session. Canonicalize only
+// those records for identity recognition; raw provenance and redaction still
+// use the original bytes. Generic regex captures remain strict, including the
+// legacy broad session_id pattern that also matches result events.
+func canonicalDelegationSessionChannel(format, pattern, channel string) (string, error) {
+	if format != DelegationEventsClaudeStreamJSON || pattern == "" {
+		return channel, nil
+	}
+	var out strings.Builder
+	identity := ""
+	matched := false
+	for _, line := range strings.Split(channel, "\n") {
+		var event struct {
+			Type    string `json:"type"`
+			Subtype string `json:"subtype"`
+			Session string `json:"session_id"`
+		}
+		if json.Unmarshal([]byte(line), &event) == nil && event.Type == "system" && event.Subtype == "init" && event.Session != "" {
+			if len(event.Session) > 2048 || strings.ContainsAny(event.Session, "\x00\r\n") {
+				return "", fmt.Errorf("adapter capture is not a bounded reference")
+			}
+			if identity != "" && identity != event.Session {
+				return "", fmt.Errorf("conflicting adapter capture channels")
+			}
+			identity = event.Session
+			value, err := captureReviewValue(pattern, line)
+			if err != nil {
+				return "", err
+			}
+			if value == event.Session {
+				if matched {
+					continue
+				}
+				matched = true
+			}
+		}
+		out.WriteString(line)
+		out.WriteByte('\n')
+	}
+	return out.String(), nil
+}

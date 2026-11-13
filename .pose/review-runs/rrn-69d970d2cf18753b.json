@@ -1,0 +1,133 @@
+{
+  "safety": {
+    "schema_version": 1,
+    "profile": "legacy-trusted",
+    "platform": "linux/amd64",
+    "capabilities": {
+      "automatic-expiry": "unavailable",
+      "bounded-capture": "available",
+      "cpu-limit": "unavailable",
+      "credential-filesystem-isolation": "unavailable",
+      "environment-allowlist": "available",
+      "escaped-descendant-termination": "unavailable",
+      "filesystem-isolation": "unavailable",
+      "memory-limit": "unavailable",
+      "network-isolation": "unavailable",
+      "origin-isolation": "unavailable",
+      "parent-termination": "available",
+      "process-group-termination": "available",
+      "shared-git-isolation": "unavailable"
+    },
+    "limitations": [
+      "trusted local executable required; worktree is not a sandbox",
+      "outside writes, transient writes, shared Git and credential files are not isolated",
+      "no memory/CPU quota or control of descendants escaping the process group",
+      "cleanup filesystem calls remain subject to operating-system I/O latency",
+      "legacy compatibility: HOME retained; other ambient credentials excluded"
+    ],
+    "stream_bytes": 8388608,
+    "output_bytes": 65536,
+    "retained_bytes": 16777216,
+    "timeout_ms": 3600000,
+    "max_runs_per_bundle": 3,
+    "retention": "retain-evidence; ttl=0; no automatic deletion",
+    "capture_complete": false,
+    "runtime_id": "pose-review-run-2817586820",
+    "execution_cause": "capture-incomplete",
+    "operation": {
+      "schema_version": 1,
+      "operation": "review.dispatch.cleanup",
+      "scope": "spec:pose-claude-reviewer-runs-tests-in-sandbox",
+      "outcome": "completed",
+      "steps_run": [
+        {
+          "id": "cleanup",
+          "result": "done"
+        }
+      ],
+      "effects": [],
+      "resumable": false
+    }
+  },
+  "provenance": {
+    "execution_state": "started",
+    "planned_wire_digest": "sha256:29b52de63ef9f9cbde6bdb58b5d4f8ee0d2d0813331da278c7107164e972f1a7",
+    "wire_bytes": 29563,
+    "wire_complete": true,
+    "schema_version": 1,
+    "project": "proj.pose-dist",
+    "audience": "proj.pose-dist",
+    "worktree_digest": "sha256:1d9f3718e4f2ed070d47b3e5f4d166573b7d9b8254ddc3015e06758d93321837",
+    "trust": "executor-attested",
+    "implementation": {
+      "principal": "agent:openai/unknown",
+      "execution": "sha256:5396294805f4f44743ab53f75e9cf8067b3f44e572de59c613384eae153d93ad",
+      "vendor": "openai",
+      "model": "unknown"
+    },
+    "reviewer": {
+      "principal": "agent:anthropic/claude-opus-5-5",
+      "vendor": "anthropic",
+      "model": "claude-opus-5-5"
+    },
+    "config_digest": "sha256:e1ddc3c1271b531a70d2c5bb9354dc618af0af8a253ccc2d94f2ff3f48224862",
+    "command_template_digest": "sha256:fe92ab9beb2d06bcbed8c834916fd839e931269cea22d30819b20ba37aaede2a",
+    "argv_digest": "sha256:549d0b77d6c1d7a06dbd6f8ff2efe631bdcdacc8c6231edca82e3e544b3eacd7",
+    "executable_digest": "sha256:c157074818b094c84aaf31b8c80a1e149f234bb1c8c84a25e9a53e96afa30a29",
+    "template_version": "review-brief/7",
+    "wire_digest": "sha256:29b52de63ef9f9cbde6bdb58b5d4f8ee0d2d0813331da278c7107164e972f1a7",
+    "notes_digest": "sha256:3c2cbc44192a76c9850eeb72c793a09d1d8eeafa761214be6c5aeeacc17b4dc0",
+    "raw_transcript_digest": "sha256:9439e5ee5fe321bfd794e055a881ab7a3b38b455bd3dc1ee40dab7d6eb4e9da1",
+    "raw_output_digest": "sha256:1e9dda907593e09827ecde22a5febe3d2e2b8b2ce9aaf6daa3710c906633e7b1",
+    "output_source": "stream-final",
+    "output_complete": false
+  },
+  "tree_digest": "sha256:c089462fb29c831aa2a98780c556ef6a9019afdb736e043f9fca3da784f98868",
+  "brief_notes": "Implementer note (not the reviewer's conclusion). Implementation vendor OpenAI; review requested from Claude Opus 5.5.\n\nSpec pose-claude-reviewer-runs-tests-in-sandbox adds optional per-agent review_profile with fresh/resumed commands, selected ONLY for governed review. Read task/adjudication/smoke commands remain unchanged. Projection clones Resume and command slices; command digests/provenance keep using the existing adapter mechanism. No engine containment capability was upgraded.\n\nThe repository's Claude review command must now actually execute tests in the enforced Bash sandbox. Please run these commands separately:\n1. go test ./internal/pose -run TestSandboxedReview -count=1 (from pose-mcp)\n2. go vet ./internal/pose (from pose-mcp)\n3. pose artifact-check --spec pose-claude-reviewer-runs-tests-in-sandbox --strict (from repo root; required).\nUse the CLI available to the sealed checkout; do not edit source or run pose index. GOCACHE/GOTMPDIR are operation-owned and writable, source is denied by absolute physical cwd. This run itself is the outstanding R3 integration criterion: report exact executed tests, commands, outputs, refusal/errors and any inability to reproduce. No claim that R3 passed has been made before this run. The spec's planned coverage will be reconciled against the actual run before close; a source change will be revalidated/reviewed if required.\n\nReal synthetic qualification is recorded in .pose/reports/claude-review-sandbox-qualification.md: first two attempts failed (cache not writable; relative '.' did not deny source), both preserved. Fixed fresh and resumed commands passed go test/go vet with test-process writes to sealed/external sentinels OS-denied. These were native tasks, not attestations. The vendor narrative failed to infer scratch success from a fatal-error assertion; the report explains the distinction. Shared Git sentinel is synthetic; actual dispatch still enforces before/after worktree/origin checks. Claude itself remains trusted and can use its documented per-user temporary fallback, so no full-process filesystem/credential isolation is claimed.\n\nPlease inspect that command startup failures propagate without read/task fallback and fresh/resume have identical mandatory-sandbox settings. jq is an additional checked dependency for safe absolute-path JSON encoding. The read-only restricted profile regression remains present. No raw session IDs/credentials are published. The known global 19 historical attribution errors are unrelated; artifact-check must pass for this scope. Scan completeness is limited by two pre-existing invalid specs (documented in spec).\n\nApply the generated brief's dispositions exactly: required tools must run; recommended tools not run need an explicit rationale; only low residual findings may be accepted with action, owner and review_by. Bare finding IDs for new findings, round-prefixed IDs only for carried findings. A refused tool is not a passed check.\n\nOperational attempt rrn-ce731a2bf0bb5e07 failed before any usable conclusion: capture was withheld and a 1.6 GB private Go cache exceeded the residual runtime cleanup bound (128 MiB/4096 entries). No approval or prior findings were manufactured. The current profile explicitly instructs the reviewer to run `go clean -cache` as the LAST Bash command INSIDE the mandatory sandbox, after tests/vet/build. Please do that before the final draft. All engine cleanup bounds remain unchanged and the engine independently refuses incomplete cleanup. Do NOT clean this adapter-controlled cache outside the sandbox: a test could replace the cache path with a symlink to host data. The considered outer-wrapper cleanup was removed before a new live execution; the wrapper only execs Claude. Review capture refusal now names a safe stage/reason while withholding unsafe channels. Its exact previous cause remains unknown.\n\nCurrent changes since operational run rrn-41cc27dbae7fdd47: F1's Git-common-dir gap is fixed by resolving the absolute physical git common dir in both wrappers and including it in denyWrite. Native task trn-8d24f721bc87ba11 qualified a REAL linked Git worktree with an OS-denied sentinel write inside the actual common dir, plus non-writable HEAD/refs/objects probes, source refusal and scratch success. F2's report now explicitly says the original synthetic directory was insufficient and post-run integrity doesn't certify origin refs/tags/objects. F3 is fixed: missing jq fails the regression; its positive wrapper uses a private Git fixture. The opt-in Claude profile precreates only EMPTY .claude/.cc-writes directories at disposable root/components BEFORE diskBefore; new files still change the integrity snapshot, proven by TestSandboxedReviewStagingIsMaterializedBeforeIntegrityAndFilesStillCount. No metadata files/changes are ignored, and no original checkout is modified. Please verify the actual common-dir boundary with non-mutating probes in this run.\nThe previous run's typed feedback was not an attested conclusion because the run failed integrity/cleanup. Do not invent carried findings: use only identifiers the generated brief lists under Findings to account for. Independently confirm the fixes in your criteria/rationale.\nRun the nine focused TestSandboxedReview tests and vet; the full host matrix is sealed. Optional full-suite reruns have known sandbox-only UID/proxy/runtime failures, as the last run reported; do not run multiple full suites concurrently or treat blocked tools as passes. Wait for every background job before final sandboxed cleanup: run go clean -cache and remove only go-build* directories directly under GOTMPDIR with the exact find command in the profile's system instruction. The engine's 128 MiB/4096-entry residual cleanup bounds remain unchanged, and failure still refuses the run. Do not remove all vendor TMPDIR while Claude is running or clean anything outside the sandbox.\n",
+  "ledger_version": 1,
+  "attempt_id": "rat-d66eccf9ddb6ba54fbf56b61c8af513eb78eadcdce119067938c183c18e560b2",
+  "schema_version": 1,
+  "run_id": "rrn-69d970d2cf18753b",
+  "scope": "spec:pose-claude-reviewer-runs-tests-in-sandbox",
+  "bundle_id": "rvb-285d6c70d2f61d38",
+  "bundle_digest": "sha256:285d6c70d2f61d38808e1e5bdb67bf9aa71f920ecf763377365fba1c6e03a033",
+  "sealed_commit": "bc9ea3fef53aeff9e3f687fde02e106da10b5014",
+  "kind": "review",
+  "brief_digest": "sha256:8df3ae69e04d9014a3f10de3bab9b69cb53ac8f9016ff55051cc983904709ec7",
+  "adapter": "claude-opus-5-5",
+  "vendor": "anthropic",
+  "model": "claude-opus-5-5",
+  "started_at": "2026-11-13T05:10:12.842199335Z",
+  "ended_at": "2026-11-13T05:36:59.372078214Z",
+  "exit_code": 0,
+  "status": "failed",
+  "failure": "adapter capture failed; unredacted output withheld; the agent's output could not be redacted; it was not kept (agent=\"claude-opus-5-5\" events=\"claude-stream-json\" stage=\"session/interrupt recognition\": ambiguous adapter capture); the session/reset pattern must capture one reference per channel; for a session_id repeated across events, restrict the session pattern to the system/init event",
+  "transcript_digest": "sha256:e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+  "transcript_path": ".pose/review-runs/rrn-69d970d2cf18753b.transcript",
+  "output": "",
+  "policy_digest": "sha256:90ca53a44c8202b7914e12baa143afac5707221147f71fe6fa30a74bb415f911",
+  "label": "claude-sandbox-review-r3",
+  "purpose": "review",
+  "env_removed": [
+    "CODEX_CI",
+    "CODEX_SANDBOX_NETWORK_DISABLED",
+    "CODEX_SESSION_ID",
+    "CODEX_THREAD_ID"
+  ],
+  "events": "claude-stream-json",
+  "events_digest": "sha256:e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+  "routing": {
+    "requested": "claude-opus-5-5",
+    "implementation": {
+      "principal": "agent:openai/unknown",
+      "vendor": "openai",
+      "model": "unknown",
+      "execution_digest": "sha256:5396294805f4f44743ab53f75e9cf8067b3f44e572de59c613384eae153d93ad",
+      "source": "declared"
+    },
+    "implementation_from": "bundle",
+    "step": "explicit"
+  },
+  "independence_achieved": "different-vendor",
+  "round": 1
+}

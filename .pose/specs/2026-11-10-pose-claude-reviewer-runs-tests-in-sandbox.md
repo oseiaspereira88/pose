@@ -52,6 +52,8 @@ Adicionar `review_profile.command` e `review_profile.resume_command` opcionais p
 - modified: .pose/indexes/validation-matrix.json
 - modified: pose-mcp/internal/pose/delegation_policy.go
 - modified: pose-mcp/internal/pose/review_dispatch.go
+- modified: pose-mcp/internal/pose/review_run_continuity.go
+- modified: pose-mcp/internal/pose/delegation_events.go
 - created: pose-mcp/internal/pose/claude_sandboxed_review_test.go
 - created: .pose/reports/claude-review-sandbox-qualification.md
 - created: .pose/changelogs/unreleased/pose-claude-reviewer-runs-tests-in-sandbox.md
@@ -67,6 +69,8 @@ Adicionar `review_profile.command` e `review_profile.resume_command` opcionais p
 ### API/contract changes
 
 Schema 2 ganha `review_profile` opt-in. Perfil ausente não muda o adaptador; parsers antigos estritos recusam a chave. Review continua com acesso read ao sujeito e scratch descartável para execução. Não ampliar as capacidades declaradas do backend trusted-process.
+
+O codec Claude configurado canonicaliza somente init tipado repetido para a mesma identidade capturada, antes da classificação da sessão; identidades diferentes e regex genérica ambígua continuam recusadas. Bytes originais continuam usados em proveniência, redação e reconhecimento de limites/reset. A ADR registra o gatilho e o owner da requalificação quando o fornecedor muda.
 
 ## 4. Tasks
 
