@@ -333,3 +333,20 @@ func TestSandboxedReviewRepeatedTypedInitKeepsOneIdentityButRejectsConflicts(t *
 		})
 	}
 }
+
+func TestSandboxedReviewSessionCodecPreservesUnambiguousChannelsExactly(t *testing.T) {
+	init := `{"type":"system","subtype":"init","session_id":"synthetic-a"}`
+	for _, channel := range []string{"session: synthetic-a", "log\nsession: synthetic-a", init, init + "\r\n", init + "\n" + init} {
+		pattern := `session: (\S+)$`
+		if strings.HasPrefix(channel, "{") {
+			pattern = `"session_id":"([^"]+)"\}`
+		}
+		if strings.Contains(channel, "\n"+init) {
+			pattern = `"session_id":"([^"]+)"\}$`
+		}
+		got, err := canonicalDelegationSessionChannel(DelegationEventsClaudeStreamJSON, pattern, channel)
+		if err != nil || got != channel {
+			t.Fatalf("unambiguous bytes changed: %q -> %q (%v)", channel, got, err)
+		}
+	}
+}

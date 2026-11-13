@@ -449,10 +449,15 @@ func canonicalDelegationSessionChannel(format, pattern, channel string) (string,
 	if format != DelegationEventsClaudeStreamJSON || pattern == "" {
 		return channel, nil
 	}
+	_, originalErr := captureReviewValue(pattern, channel)
+	if originalErr != nil && originalErr.Error() != "ambiguous adapter capture" {
+		return "", originalErr
+	}
 	var out strings.Builder
 	identity := ""
 	matched := false
-	for _, line := range strings.Split(channel, "\n") {
+	for _, chunk := range strings.SplitAfter(channel, "\n") {
+		line := strings.TrimSuffix(chunk, "\n")
 		var event struct {
 			Type    string `json:"type"`
 			Subtype string `json:"subtype"`
@@ -470,15 +475,14 @@ func canonicalDelegationSessionChannel(format, pattern, channel string) (string,
 			if err != nil {
 				return "", err
 			}
-			if value == event.Session {
+			if originalErr != nil && value == event.Session {
 				if matched {
 					continue
 				}
 				matched = true
 			}
 		}
-		out.WriteString(line)
-		out.WriteByte('\n')
+		out.WriteString(chunk)
 	}
 	return out.String(), nil
 }
