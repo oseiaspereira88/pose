@@ -453,6 +453,15 @@ func (s Store) federatedAcceptance(projectID string, coordinator ArtifactRef, ed
 			if stable := federatedArtifactLastChange(s.fsys(), source, identity); stable != "" {
 				entry.SourceRevision = stable
 			}
+			// Under an adopted closeout review policy a local milestone or
+			// roadmap is closed by its explicit close, never by the status
+			// its members give it: the edge asks the terminal projection,
+			// along a chain that stops at a cycle (review round 6, N22).
+			if statusDone && graphValid && (identity.Kind == "milestone" || identity.Kind == "roadmap") {
+				if adopted, err := s.closeoutReviewPolicyAdopted(); err != nil || adopted && !s.localScopeClosed(localFederatedScope(identity)) {
+					report.Blockers = append(report.Blockers, key+":closeout-not-terminal")
+				}
+			}
 		}
 		if identity.Project != projectID {
 			// Do not recurse into source closeout when graph traversal has already

@@ -2722,7 +2722,11 @@ func (s Store) getCloseoutState(ref string, includeFederated bool) (CloseoutStat
 			}
 			found = true
 			for _, raw := range milestone.Specs {
-				slug, external := s.milestoneMember(raw)
+				slug, external, unresolved := s.CloseoutMemberTarget(raw)
+				if unresolved != "" {
+					block(NewDiagnostic("closeout-review-unknown", unresolved, raw))
+					continue
+				}
 				if external {
 					if s.FederatedResolver == nil {
 						block(NewDiagnostic("external-member-unaccepted", "external member "+raw+" needs federated acceptance", raw))
@@ -2739,11 +2743,13 @@ func (s Store) getCloseoutState(ref string, includeFederated bool) (CloseoutStat
 					block(NewDiagnostic("child-scope-open", "child "+child.Scope+" is not closed", child.Scope))
 				}
 			}
-			// An exempt milestone of more members has no review of its own to
-			// judge its exit gate: an approved member review must have judged
-			// it, or the close is blocked; the review stays dispensed.
-			if decision := review.CloseoutReview; decision != nil && !decision.Required && len(milestone.Specs) > 1 && strings.TrimSpace(milestone.ExitGate) != "" && !review.Approved && !s.exitGateJudgedByMember(rm.Slug, milestone, state.Children) {
-				block(NewDiagnostic("milestone-exit-gate-unjudged", "the exit gate of "+ref+" is judged by no approved review: once every other member is closed, seal and review its last member, whose plan then carries the gate, or review the milestone itself (`pose review bundle "+ref+" --seal`)", ref))
+			// An exempt milestone has no review of its own to judge its exit
+			// gate: an approved member review must have judged it as it reads
+			// now, or the close is blocked; the review stays dispensed. This
+			// holds for one member too: a done spec sealed before the gate
+			// existed never gains it (review round 6, N21).
+			if decision := review.CloseoutReview; decision != nil && !decision.Required && strings.TrimSpace(milestone.ExitGate) != "" && !review.Approved && !s.exitGateJudgedByMember(rm.Slug, milestone, state.Children) {
+				block(NewDiagnostic("milestone-exit-gate-unjudged", "the exit gate of "+ref+" is judged by no approved review: seal and review the member that carries it (the only member, or the last one once every other member is closed), or review the milestone itself (`pose review bundle "+ref+" --seal`)", ref))
 			}
 			break
 		}

@@ -271,6 +271,70 @@ func (s Store) closeoutCanonicalMember(raw, project string) (string, string) {
 	return ref.String(), ""
 }
 
+// CloseoutMemberTarget resolves a milestone member to the spec whose closeout
+// stands for it, as the closeout review policy counts it: a local member a
+// verified transfer moved is followed to its canonical destination, which is
+// local (its slug) or external (its identity, judged by federated
+// acceptance). A redirect that cannot be followed is reported, never read as
+// the redirect stub the transfer left behind (review round 6, N24).
+func (s Store) CloseoutMemberTarget(raw string) (string, bool, string) {
+	slug, external := s.milestoneMember(raw)
+	if external {
+		return slug, true, ""
+	}
+	// The project the store is bound to, as milestoneMember reads a
+	// qualified member, else the one the root declares.
+	project := s.FederatedProjectID
+	if project == "" {
+		id, err := s.WriteProjectID()
+		if err != nil {
+			return "", false, "member " + raw + " cannot be resolved: " + err.Error()
+		}
+		project = id
+	}
+	_, found, err := readSpecTransferRedirect(s.fsys(), s, ArtifactRef{Project: project, Kind: "spec", Slug: slug})
+	if err != nil {
+		return "", false, "member " + raw + " has an unverifiable redirect: " + err.Error()
+	}
+	if !found {
+		return slug, false, ""
+	}
+	if s.FederatedResolver == nil || s.FederatedResolver.Roots == nil {
+		resolver, _, err := EnvironmentArtifactResolverIn(s.fsys(), s.Root, "")
+		if err != nil {
+			return "", false, "member " + raw + " was transferred and no resolver can follow it: " + err.Error()
+		}
+		s.FederatedResolver = &resolver
+	}
+	canonical, diagnostic := s.closeoutCanonicalMember(strings.TrimSpace(raw), project)
+	if diagnostic != "" {
+		return "", false, diagnostic
+	}
+	ref, err := ParseArtifactRef(canonical)
+	if err != nil {
+		return "", false, "member " + raw + " resolved to " + canonical + ", which is not a spec reference"
+	}
+	if ref.Project == "" || ref.Project == project {
+		return ref.Slug, false, ""
+	}
+	return canonical, true, ""
+}
+
+// localScopeClosed reports a local milestone or roadmap a dependency edge
+// names as closed by the terminal projection, under an adopted closeout
+// review policy where status alone never closes it. A scope already asking
+// along the chain is a cycle and is not proven closed.
+func (s Store) localScopeClosed(scope string) bool {
+	for _, asking := range s.closeoutChain {
+		if asking == scope {
+			return false
+		}
+	}
+	s.closeoutChain = append(append([]string{}, s.closeoutChain...), scope)
+	closed, err := s.closedByReceipt(scope)
+	return err == nil && closed
+}
+
 // CurrentCloseoutDecision is the decision for an open aggregate scope now:
 // the evaluator, then every protection that can only make it stronger. It is
 // what close judges before publishing and again inside the protected region.
@@ -636,6 +700,9 @@ func (s Store) milestoneClosedBeforeAdoption(scope ScopeRef) bool {
 // members), local and remote. It is the one terminal projection reached,
 // roadmap-reached, attention and doctor ask.
 func (s Store) closedByReceipt(ref string) (bool, error) {
+	if len(s.closeoutChain) == 0 || s.closeoutChain[len(s.closeoutChain)-1] != ref {
+		s.closeoutChain = append(append([]string{}, s.closeoutChain...), ref)
+	}
 	receipt, err := s.ReadCloseoutReceipt(ref)
 	if err != nil {
 		return false, err
@@ -725,9 +792,6 @@ func (s Store) CloseoutReviewsOwed() ([]CloseoutReviewOwing, error) {
 	}
 	refs := []string{}
 	for _, rm := range roadmaps {
-		if s.closeoutScopeHistorical(ScopeRef{Kind: "roadmap", Slug: rm.Slug}) {
-			continue
-		}
 		for _, milestone := range rm.Milestones {
 			refs = append(refs, "milestone:"+rm.Slug+"/"+milestone.ID)
 		}
@@ -740,6 +804,19 @@ func (s Store) CloseoutReviewsOwed() ([]CloseoutReviewOwing, error) {
 			return nil, err
 		}
 		if closed {
+			continue
+		}
+		// A scope closed before adoption is never re-decided under the
+		// current policy, but its terminal evidence must still stand: one
+		// that no longer verifies is listed with the check that says why
+		// (review round 6, N23).
+		if scope, err := ParseScopeRef(ref); err == nil && (s.closeoutScopeHistorical(scope) || s.milestoneClosedBeforeAdoption(scope)) {
+			owing = append(owing, CloseoutReviewOwing{
+				Scope:    ref,
+				Decision: CloseoutReviewDecision{Scope: ref, Adopted: true, Known: true, Required: true, Reason: "closed before adoption; its sealed closure no longer verifies"},
+				Previous: "closed before adoption under the legacy rule",
+				Action:   "run `pose closeout-check " + ref + "` and remediate the review or child it names; the closure is verified by the contract it was sealed under",
+			})
 			continue
 		}
 		decision, err := s.currentCloseoutDecision(ref, policy)

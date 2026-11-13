@@ -397,15 +397,16 @@ func roadmapGate(root, slug, milestone string) (roadmapGateResult, error) {
 		}
 		found = true
 		for _, member := range candidate.Specs {
-			local := member
-			if ref, err := posemodel.ParseArtifactRef(member); err == nil && ref.Project != "" {
-				if ref.Project != project {
-					continue
-				}
-				local = ref.Slug
-			} else if err == nil && ref.Kind == "spec" && ref.Milestone == "" {
-				// `spec:<slug>` and `<slug>` name the same local member.
-				local = ref.Slug
+			// The member as the closeout review policy counts it: a local
+			// member a transfer moved is judged at its destination, and an
+			// external one by federated acceptance (review round 6, N24).
+			local, external, unresolved := store.CloseoutMemberTarget(member)
+			if unresolved != "" {
+				blockers = append(blockers, "member spec is not resolvable: "+unresolved)
+				continue
+			}
+			if external {
+				continue
 			}
 			state, err := store.GetCloseoutState("spec:" + local)
 			if err != nil || !state.Terminal {

@@ -996,3 +996,118 @@ func TestCloseoutReviewPolicyRoundFive(t *testing.T) {
 		}
 	})
 }
+
+func TestCloseoutReviewPolicyRoundSix(t *testing.T) {
+	t.Run("an exempt one-member milestone with an unjudged exit gate does not close", func(t *testing.T) {
+		root, s := closeoutMembersFixture(t, "never", "never")
+		withDistProfiles(t, root)
+		editFile(t, filepath.Join(root, ".pose/roadmaps/program.md"), "- specs: a\n\n## Milestone: two", "- specs: a\n\n**Exit gate:** the part works alone\n\n## Milestone: two")
+		state, err := s.GetCloseoutState("milestone:program/one")
+		if err != nil {
+			t.Fatal(err)
+		}
+		if state.Review.Required || !strings.Contains(strings.Join(state.Blockers, "\n"), "is judged by no approved review") {
+			t.Fatalf("a singleton exit gate closed with no judge: required=%v blockers=%v", state.Review.Required, state.Blockers)
+		}
+	})
+	t.Run("a reached but unclosed local predecessor does not satisfy after", func(t *testing.T) {
+		_, s := closeoutReviewedFixture(t, "never", "never")
+		blocked := func() bool {
+			t.Helper()
+			report, err := s.FederatedMilestoneAcceptance("coordinator", "program", "later", *s.FederatedResolver)
+			if err != nil {
+				t.Fatal(err)
+			}
+			return strings.Contains(strings.Join(report.Blockers, "\n"), "milestone:program/core:closeout-not-terminal")
+		}
+		if !blocked() {
+			t.Fatal("a predecessor with no closeout receipt was accepted from its members' status")
+		}
+		ref := "milestone:program/core"
+		state, err := s.GetCloseoutState(ref)
+		if err != nil {
+			t.Fatal(err)
+		}
+		receipt, err := s.NewCloseoutReceipt(ref, *state.Review.CloseoutReview, state.Review, state.ScopeDigest, reviewFixtureNow.Add(time.Hour))
+		if err != nil || s.PublishCloseoutReceipt(receipt) != nil {
+			t.Fatal(err)
+		}
+		if blocked() {
+			t.Fatal("a closed predecessor is still refused")
+		}
+	})
+	t.Run("doctor lists a historical scope whose closure no longer verifies", func(t *testing.T) {
+		root, s, child, _, now := approvedParentFixture(t, true)
+		// A done roadmap whose milestones all closed: the fixture's later
+		// milestone has a draft member, which doctor rightly lists.
+		editRoadmapFixture(t, root, "\n## Milestone: later\n- after: core\n- specs: pending\n", "")
+		// The fixture leaves no resolver bound, so the external outcome the
+		// roadmap consumes cannot be judged and rightly keeps it open.
+		editRoadmapFixture(t, root, "consumes: xref:source/roadmap:component\n", "")
+		// The root declares the identity the fixture's bundles carry, as an
+		// installed project does: the projection, with no resolver bound,
+		// binds the one the environment gives this root.
+		os.WriteFile(filepath.Join(root, ".pose", "project.json"), []byte(`{"schema_version":1,"project_id":"coordinator","name":"coordinator"}`), 0o644)
+		federatedTestGit(t, root, "add", "--all")
+		federatedTestGit(t, root, "commit", "-q", "-m", "declare the project")
+		resolver, project, err := EnvironmentArtifactResolverIn(s.fsys(), root, "")
+		if err != nil || project != "coordinator" {
+			t.Fatal(project, err)
+		}
+		s.FederatedProjectID, s.FederatedResolver = project, &resolver
+		// Historical by its own recorded approval, not by the legacy
+		// exemption (under which a rejected child does not reopen it).
+		editRoadmapFixture(t, root, "status: active\n", "status: done\n")
+		roadmap, err := s.SealReviewBundle("roadmap:program", now.Add(6*time.Minute))
+		if err != nil {
+			t.Fatal(err, roadmap.Blockers)
+		}
+		attestChildReview(t, s, roadmap, now.Add(7*time.Minute), "approved")
+		if state, err := s.GetCloseoutState("roadmap:program"); err != nil || !state.Terminal {
+			t.Fatalf("the fixture's legacy roadmap is not closed: %v %v", state.Blockers, err)
+		}
+		setCloseoutPolicy(t, root, "never", "never")
+		if !s.closeoutScopeHistorical(ScopeRef{Kind: "roadmap", Slug: "program"}) {
+			t.Fatal("the fixture's roadmap is not historical")
+		}
+		if owing, err := s.CloseoutReviewsOwed(); err != nil || len(owing) != 0 {
+			t.Fatalf("a standing historical closure was listed: %+v %v", owing, err)
+		}
+		// The member's review is rejected after the roadmap closed.
+		attestChildReview(t, s, child, now.Add(8*time.Minute), "rejected")
+		if state, err := s.GetCloseoutState("milestone:program/core"); err == nil && state.Terminal {
+			t.Fatal("the fixture's rejected member left the milestone terminal")
+		}
+		owing, err := s.CloseoutReviewsOwed()
+		if err != nil {
+			t.Fatal(err)
+		}
+		listed := []string{}
+		for _, o := range owing {
+			listed = append(listed, o.Scope)
+		}
+		if !strings.Contains(strings.Join(listed, ","), "milestone:program/core") {
+			t.Fatalf("a historical milestone whose member review was rejected is not listed: %v", listed)
+		}
+	})
+	t.Run("a transferred member is judged at its destination", func(t *testing.T) {
+		resolver := artifactGraphTransferFixture(t, map[string][]string{"xref:a/spec:moved": nil, "xref:b/spec:dest": nil}, map[string]string{"xref:a/spec:moved": "xref:b/spec:dest"})
+		source, err := resolver.Roots.StoreFor("a")
+		if err != nil {
+			t.Fatal(err)
+		}
+		s := Store{Root: source.Root, FederatedProjectID: "a", FederatedResolver: &resolver}
+		writeReviewFixture(t, source.Root, ".pose/roadmaps/moves.md", "---\nslug: moves\nstatus: active\n---\n\n## Milestone: m\n- specs: moved\n")
+		state, err := s.GetCloseoutState("milestone:moves/m")
+		if err != nil {
+			t.Fatal(err)
+		}
+		if strings.Contains(strings.Join(state.Blockers, "\n"), "child spec:moved") {
+			t.Fatalf("the redirect stub was judged instead of the destination: %v", state.Blockers)
+		}
+		target, external, unresolved := s.CloseoutMemberTarget("moved")
+		if unresolved != "" || !external || target != "xref:b/spec:dest" {
+			t.Fatalf("the member was not followed to its destination: %q %v %q", target, external, unresolved)
+		}
+	})
+}

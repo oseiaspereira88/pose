@@ -56,6 +56,10 @@ type Store struct {
 	Root               string // project root containing .pose/
 	FederatedProjectID string
 	FederatedResolver  *ArtifactResolver
+	// closeoutChain is the chain of local aggregate scopes whose terminal
+	// verification is asking for this one, through their dependency edges:
+	// a scope already in it is a cycle and is not proven closed.
+	closeoutChain []string
 	// specs, when set, is the spec listing of one operation, read once
 	// (spec pose-attention-within-a-second). Nil outside such an operation.
 	specs *specSnapshot
