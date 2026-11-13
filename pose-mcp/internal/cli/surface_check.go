@@ -403,6 +403,9 @@ func roadmapGate(root, slug, milestone string) (roadmapGateResult, error) {
 					continue
 				}
 				local = ref.Slug
+			} else if err == nil && ref.Kind == "spec" && ref.Milestone == "" {
+				// `spec:<slug>` and `<slug>` name the same local member.
+				local = ref.Slug
 			}
 			state, err := store.GetCloseoutState("spec:" + local)
 			if err != nil || !state.Terminal {

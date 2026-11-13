@@ -1520,31 +1520,44 @@ func (s Store) reviewCheck(ref string) (ReviewEvaluation, error) {
 		return ReviewEvaluation{}, err
 	}
 	eval := ReviewEvaluation{Scope: ref, ScopeDigest: digest, PolicyEnabled: policy.Enabled, Required: policy.Enabled, Fresh: false, Approved: false, Blockers: []string{}}
-	if !policy.Enabled {
-		eval.Warnings = append(eval.Warnings, "review policy is absent or disabled; closeout review is not enforced")
-		return eval, nil
-	}
-	profileRef := policy.Profiles[scope.Kind]
-	eval.Profile = profileRef
-	required, err := s.reviewRequiredForScope(scope, policy)
-	if err != nil {
-		return eval, err
-	}
-	eval.Required = required
-	if !required {
-		eval.Warnings = append(eval.Warnings, "review is not required for a legacy done scope created before policy adoption")
-		return eval, nil
-	}
+	// An adopted closeout review policy decides an aggregate scope before the
+	// legacy shortcuts: neither enabled=false nor an adoption cutoff weakens
+	// what it requires (spec pose-closeout-review-policy-by-cost-benefit).
 	decision, exempt, err := s.closeoutReviewGate(ref, policy)
 	if err != nil {
 		return eval, err
 	}
 	eval.CloseoutReview = decision
-	if exempt {
-		eval.Required = false
-		eval.Fresh = true
-		eval.ApprovalOrigin = closeoutApprovalOrigin(*decision)
-		eval.Warnings = append(eval.Warnings, closeoutExemptionWarning(ref, *decision))
+	if decision != nil {
+		if exempt {
+			eval.Required = false
+			eval.Fresh = true
+			eval.ApprovalOrigin = closeoutApprovalOrigin(*decision)
+			eval.Warnings = append(eval.Warnings, closeoutExemptionWarning(ref, *decision))
+			return eval, nil
+		}
+		eval.Required = true
+		if !decision.Known {
+			eval.Blockers = append(eval.Blockers, decision.Diagnostics...)
+			return eval, nil
+		}
+	}
+	if !policy.Enabled && decision == nil {
+		eval.Warnings = append(eval.Warnings, "review policy is absent or disabled; closeout review is not enforced")
+		return eval, nil
+	}
+	profileRef := policy.Profiles[scope.Kind]
+	eval.Profile = profileRef
+	required := true
+	if decision == nil {
+		required, err = s.reviewRequiredForScope(scope, policy)
+		if err != nil {
+			return eval, err
+		}
+	}
+	eval.Required = required
+	if !required {
+		eval.Warnings = append(eval.Warnings, "review is not required for a legacy done scope created before policy adoption")
 		return eval, nil
 	}
 	if profileRef == "" {

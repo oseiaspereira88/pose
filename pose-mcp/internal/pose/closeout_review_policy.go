@@ -242,9 +242,9 @@ func (s Store) closeoutCanonicalMember(raw, project string) (string, string) {
 	if ref.Project == "" {
 		ref.Project = project
 	}
-	if ref.Project != project {
+	resolve := func(why string) (string, string) {
 		if s.FederatedResolver == nil {
-			return "", fmt.Sprintf("member %s belongs to another project and no federated resolver is bound", ref.String())
+			return "", fmt.Sprintf("member %s %s and no federated resolver is bound to follow it", ref.String(), why)
 		}
 		resolved := s.FederatedResolver.Resolve(project, ref.String())
 		if !resolved.Resolved {
@@ -255,12 +255,18 @@ func (s Store) closeoutCanonicalMember(raw, project string) (string, string) {
 		}
 		return resolved.Identity.String(), ""
 	}
-	redirect, found, err := readSpecTransferRedirect(s.fsys(), s, ref)
+	if ref.Project != project {
+		return resolve("belongs to another project")
+	}
+	_, found, err := readSpecTransferRedirect(s.fsys(), s, ref)
 	if err != nil {
 		return "", fmt.Sprintf("member %s has an unverifiable redirect: %v", ref.String(), err)
 	}
 	if found {
-		return redirect.Destination.String(), ""
+		// The resolver follows the whole chain, with its cycle and depth
+		// limits and the destination's authorization: the immediate
+		// destination may itself have moved.
+		return resolve("was transferred")
 	}
 	if _, err := s.GetSpec(ref.Slug); err != nil {
 		return "", fmt.Sprintf("member %s names no spec of this project", ref.String())
@@ -268,15 +274,56 @@ func (s Store) closeoutCanonicalMember(raw, project string) (string, string) {
 	return ref.String(), ""
 }
 
+// CurrentCloseoutDecision is the decision for an open aggregate scope now:
+// the evaluator, then every protection that can only make it stronger. It is
+// what close judges before publishing and again inside the protected region.
+func (s Store) CurrentCloseoutDecision(ref string) (CloseoutReviewDecision, error) {
+	policy, _, err := s.loadReviewPolicy()
+	if err != nil {
+		return CloseoutReviewDecision{}, err
+	}
+	return s.currentCloseoutDecision(ref, policy)
+}
+
+func (s Store) currentCloseoutDecision(ref string, policy ReviewPolicy) (CloseoutReviewDecision, error) {
+	decision, err := s.evaluateCloseoutReview(ref, policy)
+	if err != nil || !decision.Adopted || decision.Required {
+		return decision, err
+	}
+	scope, _ := ParseScopeRef(ref)
+	s.protectCloseoutDecision(scope, &decision)
+	if !decision.Required && s.mandatoryHumanReview(scope.Kind, policy) {
+		decision.Required = true
+		decision.Reason += "; a mandatory-human review is never dispensed"
+	}
+	return decision, nil
+}
+
+// mandatoryHumanReview reports a scope kind whose policy or base profile asks
+// for a human reviewer. No setting dispenses that review. A profile that
+// cannot be read is treated as asking for it.
+func (s Store) mandatoryHumanReview(kind string, policy ReviewPolicy) bool {
+	if policy.ReviewerIndependence[kind] == "mandatory-human" {
+		return true
+	}
+	ref := policy.Profiles[kind]
+	if ref == "" {
+		return false
+	}
+	profile, _, err := s.loadReviewProfile(ref)
+	return err != nil || profile.Independence == "mandatory-human"
+}
+
 // closeoutReviewGate is the one place the readers of an approval ask whether
 // an aggregate scope owes its own review under an adopted policy. It returns
 // the decision that governs the scope and whether its own review is dispensed.
 //
 // Order (spec pose-closeout-review-policy-by-cost-benefit, "One evaluator and
-// precedence"): a receipt already published decides by what it recorded; a
-// roadmap closed before adoption keeps its sealed contract (nil decision);
-// an open scope is evaluated now. A review recorded on the scope, required or
-// not, is never bypassed: it is verified as before and its veto stands.
+// precedence"): a receipt already published decides by what it recorded, as
+// long as the scope it closed is still the scope; a roadmap closed before
+// adoption keeps its sealed contract (nil decision); an open scope is decided
+// now. A review recorded on the scope, required or not, is never bypassed: it
+// is verified as before and its veto stands. An unknown input never exempts.
 func (s Store) closeoutReviewGate(ref string, policy ReviewPolicy) (*CloseoutReviewDecision, bool, error) {
 	if !policy.CloseoutReviewAdopted() {
 		return nil, false, nil
@@ -290,20 +337,37 @@ func (s Store) closeoutReviewGate(ref string, policy ReviewPolicy) (*CloseoutRev
 		return nil, false, err
 	}
 	if receipt != nil {
+		if err := s.closeoutReceiptStands(*receipt, policy); err != nil {
+			return nil, false, err
+		}
 		decision := receipt.Decision
 		return &decision, !decision.Required && !s.scopeReviewRecorded(ref), nil
 	}
 	if s.closeoutScopeHistorical(scope) {
 		return nil, false, nil
 	}
-	decision, err := s.evaluateCloseoutReview(ref, policy)
+	decision, err := s.currentCloseoutDecision(ref, policy)
 	if err != nil {
 		return nil, false, err
 	}
-	if !decision.Required {
-		s.protectCloseoutDecision(scope, &decision)
+	return &decision, !decision.Required && decision.Known && !s.scopeReviewRecorded(ref), nil
+}
+
+// closeoutReceiptStands checks a receipt against the scope it closed: the
+// same canonical members. A receipt is never re-decided under a later policy,
+// but it does not carry over to a scope whose composition changed.
+func (s Store) closeoutReceiptStands(receipt CloseoutReceipt, policy ReviewPolicy) error {
+	current, err := s.evaluateCloseoutReview(receipt.Scope, policy)
+	if err != nil {
+		return fmt.Errorf("pose: closeout receipt of %s cannot be checked against its scope: %w", receipt.Scope, err)
 	}
-	return &decision, !decision.Required && !s.scopeReviewRecorded(ref), nil
+	if !current.Known {
+		return fmt.Errorf("pose: closeout receipt of %s cannot be checked against its scope: %s", receipt.Scope, strings.Join(current.Diagnostics, "; "))
+	}
+	if strings.Join(current.Members, ",") != strings.Join(receipt.Decision.Members, ",") {
+		return fmt.Errorf("pose: closeout receipt of %s no longer matches its scope: closed with members %v, now %v; a receipt is never rewritten, so restore the composition or record the change in a new scope", receipt.Scope, receipt.Decision.Members, current.Members)
+	}
+	return nil
 }
 
 // protectCloseoutDecision restores the review when the scope itself changes
@@ -342,16 +406,27 @@ func (s Store) protectCloseoutDecision(scope ScopeRef, decision *CloseoutReviewD
 	}
 }
 
-// closeoutScopeHistorical reports a scope whose roadmap was closed: its
-// milestones and itself are verified by the contract they were sealed under,
-// never re-evaluated, and no receipt is backfilled for them.
+// closeoutScopeHistorical reports a scope whose roadmap was closed before
+// adoption: done, with no receipt and no close of this engine in progress.
+// Its milestones and itself are verified by the contract they were sealed
+// under, never re-evaluated, and no receipt is backfilled for them. A close
+// interrupted between its status and its receipt left an intent, so it stays
+// incomplete instead of reading as history.
 func (s Store) closeoutScopeHistorical(scope ScopeRef) bool {
 	slug := scope.Slug
 	if scope.Kind == "milestone" {
 		slug = scope.Roadmap
 	}
 	rm, err := s.GetRoadmap(slug)
-	return err == nil && rm.Status == "done"
+	if err != nil || rm.Status != "done" {
+		return false
+	}
+	ref := "roadmap:" + slug
+	if receipt, err := s.ReadCloseoutReceipt(ref); err != nil || receipt != nil {
+		return false
+	}
+	pending, err := s.closeoutIntentPending(ref)
+	return err == nil && !pending
 }
 
 // scopeReviewRecorded reports a review of the scope on file: a bundle or a
@@ -391,7 +466,7 @@ type CloseoutReviewOwing struct {
 // policy returns nothing. Close remains the authoritative gate.
 func (s Store) CloseoutReviewsOwed() ([]CloseoutReviewOwing, error) {
 	policy, _, err := s.loadReviewPolicy()
-	if err != nil || !policy.CloseoutReviewAdopted() || !policy.Enabled {
+	if err != nil || !policy.CloseoutReviewAdopted() {
 		return nil, err
 	}
 	roadmaps, err := s.ListRoadmaps()
@@ -408,27 +483,25 @@ func (s Store) CloseoutReviewsOwed() ([]CloseoutReviewOwing, error) {
 		}
 		refs = append(refs, "roadmap:"+rm.Slug)
 	}
-	recorded, _, err := s.milestonesWithRecordedApproval(refs)
-	if err != nil {
-		return nil, err
-	}
 	owing := []CloseoutReviewOwing{}
 	for _, ref := range refs {
 		receipt, err := s.ReadCloseoutReceipt(ref)
 		if err != nil {
 			return nil, err
 		}
-		if receipt != nil || recorded[ref] {
+		if receipt != nil {
 			continue
 		}
-		decision, err := s.evaluateCloseoutReview(ref, policy)
+		decision, err := s.currentCloseoutDecision(ref, policy)
 		if err != nil {
 			return nil, err
 		}
 		if !decision.Required {
-			s.protectCloseoutDecision(mustScope(ref), &decision)
+			continue
 		}
-		if !decision.Required {
+		// A recorded approval counts only while it satisfies the current
+		// obligation: fresh, for the scope as it is now.
+		if eval, err := s.ReviewCheck(ref); err == nil && eval.Approved && eval.Fresh {
 			continue
 		}
 		action := "seal and review " + ref + " (`pose review bundle " + ref + " --seal`), then `pose close " + ref + "`"
@@ -443,4 +516,19 @@ func (s Store) CloseoutReviewsOwed() ([]CloseoutReviewOwing, error) {
 func mustScope(ref string) ScopeRef {
 	scope, _ := ParseScopeRef(ref)
 	return scope
+}
+
+// CloseoutRecoveryDecision decides a roadmap left done without its receipt,
+// under the same rules as an open scope: the protected decision, and an
+// exemption only when every input is known and no review is on file.
+func (s Store) CloseoutRecoveryDecision(ref string) (CloseoutReviewDecision, bool, error) {
+	policy, _, err := s.loadReviewPolicy()
+	if err != nil {
+		return CloseoutReviewDecision{}, false, err
+	}
+	decision, err := s.currentCloseoutDecision(ref, policy)
+	if err != nil {
+		return decision, false, err
+	}
+	return decision, !decision.Required && decision.Known && !s.scopeReviewRecorded(ref), nil
 }

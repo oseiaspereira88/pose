@@ -207,11 +207,18 @@ func TestCloseoutReviewPolicyMembers(t *testing.T) {
 			t.Fatalf("%+v", d)
 		}
 	})
-	t.Run("never still reports unknown members", func(t *testing.T) {
+	t.Run("never still reports unknown members and does not exempt", func(t *testing.T) {
 		setCloseoutPolicy(t, root, "never", "never")
 		d := evaluate(t, s, "milestone:program/one")
 		if d.Required || d.Known {
 			t.Fatalf("%+v", d)
+		}
+		os.MkdirAll(filepath.Join(root, ".pose", "review-profiles"), 0o755)
+		os.WriteFile(filepath.Join(root, ".pose", "review-profiles", "milestone-integration.json"), []byte(`{"schema_version":1,"id":"milestone-integration","version":1,"scope":"milestone","criteria":[{"id":"integration","description":"x","kind":"judgment","evidence_classes":["integration"]}]}`), 0o644)
+		eval, err := s.ReviewCheck("milestone:program/one")
+		// Failing closed with an error is as good as a blocked evaluation.
+		if err == nil && (!eval.Required || eval.Approved || len(eval.Blockers) == 0) {
+			t.Fatalf("an unknown member read as an exemption: %+v", eval)
 		}
 	})
 }
@@ -238,6 +245,7 @@ func TestCloseoutReviewPolicyAssociations(t *testing.T) {
 		{"link to a missing ADR", "", "See [x](../adr/absent.md).\n", "# ADR\n", 0, false},
 		{"malformed declaration", "adrs: adr:decision.md\n", "", "# ADR\n", 0, false},
 		{"malformed backward declaration", "", "", "---\nroadmaps: [spec:pair]\n---\n", 0, false},
+		{"forward association does not hide a malformed ADR", "adrs: [adr:decision.md]\n", "", "---\nroadmaps: [spec:pair]\n---\n", 1, false},
 	}
 	for _, tc := range cases {
 		t.Run(tc.name, func(t *testing.T) {
@@ -317,12 +325,40 @@ func TestCloseoutReviewPolicyProtection(t *testing.T) {
 			t.Fatalf("the member review was dispensed too: %+v %v", member, err)
 		}
 	})
-	t.Run("disabled policy is not an exemption source", func(t *testing.T) {
-		root, s := closeoutMembersFixture(t, "always", "always")
+	t.Run("enabled=false does not weaken always", func(t *testing.T) {
+		root, s := closeoutReviewedFixture(t, "always", "always")
 		path := filepath.Join(root, ".pose", "policy", "review.json")
-		editFile(t, path, `"enabled":true`, `"enabled":false`)
-		if owed, err := s.CloseoutReviewsOwed(); err != nil || len(owed) != 0 {
-			t.Fatalf("a disabled policy reported obligations: %+v %v", owed, err)
+		raw, _ := os.ReadFile(path)
+		os.WriteFile(path, []byte(strings.Replace(string(raw), `"enabled":true`, `"enabled":false`, 1)), 0o644)
+		eval, err := s.ReviewCheck("milestone:program/core")
+		if !eval.Required || eval.Approved || eval.CloseoutReview == nil {
+			t.Fatalf("a disabled policy dispensed an always review: %+v %v", eval, err)
+		}
+		if state, err := s.GetCloseoutState("milestone:program/core"); err == nil && state.Terminal {
+			t.Fatalf("%+v", state)
+		}
+		owed, err := s.CloseoutReviewsOwed()
+		if err != nil || len(owed) == 0 {
+			t.Fatalf("doctor lost the owed review under enabled=false: %+v %v", owed, err)
+		}
+	})
+	t.Run("mandatory-human is never dispensed", func(t *testing.T) {
+		root, s := closeoutMembersFixture(t, "never", "never")
+		path := filepath.Join(root, ".pose", "policy", "review.json")
+		raw, _ := os.ReadFile(path)
+		var policy map[string]any
+		json.Unmarshal(raw, &policy)
+		policy["reviewer_independence"] = map[string]any{"milestone": "mandatory-human"}
+		os.MkdirAll(filepath.Join(root, ".pose", "review-profiles"), 0o755)
+		os.WriteFile(filepath.Join(root, ".pose", "review-profiles", "roadmap-outcome.json"), []byte(`{"schema_version":1,"id":"roadmap-outcome","version":1,"scope":"roadmap","criteria":[{"id":"outcome","description":"x","kind":"judgment","evidence_classes":["integration"]}]}`), 0o644)
+		out, _ := json.Marshal(policy)
+		os.WriteFile(path, out, 0o644)
+		d, err := s.CurrentCloseoutDecision("milestone:program/one")
+		if err != nil || !d.Required || !strings.Contains(d.Reason, "mandatory-human") {
+			t.Fatalf("never dispensed a mandatory-human review: %+v %v", d, err)
+		}
+		if d, _ := s.CurrentCloseoutDecision("roadmap:program"); d.Required {
+			t.Fatalf("the roadmap kind inherited the milestone's human requirement: %+v", d)
 		}
 	})
 }
@@ -490,5 +526,108 @@ func TestCloseoutReviewPolicyFederation(t *testing.T) {
 	}
 	if state, err := s.GetCloseoutState(ref); err == nil && state.Terminal {
 		t.Fatalf("%+v", state)
+	}
+}
+
+func TestCloseoutReviewPolicyReceiptIntegrity(t *testing.T) {
+	_, s := closeoutReviewedFixture(t, "never", "never")
+	ref := "milestone:program/core"
+	state, err := s.GetCloseoutState(ref)
+	if err != nil {
+		t.Fatal(err)
+	}
+	receipt, err := s.NewCloseoutReceipt(ref, *state.Review.CloseoutReview, state.Review, state.ScopeDigest, reviewFixtureNow.Add(time.Hour))
+	if err != nil {
+		t.Fatal(err)
+	}
+	t.Run("always cannot record not-required", func(t *testing.T) {
+		forged := receipt
+		forged.Decision.PolicyValue = CloseoutReviewAlways
+		if _, err := parseCloseoutReceipt(CanonicalJSON(forged)); err == nil {
+			t.Fatal("an always receipt without a required review parsed")
+		}
+	})
+	if err := s.PublishCloseoutReceipt(receipt); err != nil {
+		t.Fatal(err)
+	}
+	if _, err := s.ReviewPlan(ref); err != nil {
+		t.Fatalf("a standing receipt failed the plan: %v", err)
+	}
+	t.Run("a changed composition does not inherit the receipt", func(t *testing.T) {
+		editRoadmapFixture(t, s.Root, "- specs: backend\n", "- specs: backend, pending\n")
+		if _, err := s.ReviewCheck(ref); err == nil || !strings.Contains(err.Error(), "no longer matches its scope") {
+			t.Fatalf("a receipt carried over to another composition: %v", err)
+		}
+		editRoadmapFixture(t, s.Root, "- specs: backend, pending\n", "- specs: backend\n")
+	})
+	t.Run("a corrupt receipt fails the plan as it fails closeout", func(t *testing.T) {
+		path, _ := s.CloseoutReceiptPath(ref)
+		os.WriteFile(path, []byte(`{"schema_version":1}`), 0o644)
+		if _, err := s.ReviewPlan(ref); err == nil {
+			t.Fatal("the plan hid a corrupt receipt")
+		}
+	})
+}
+
+func TestCloseoutReviewPolicyInterruptedRoadmapClose(t *testing.T) {
+	root, s := closeoutReviewedFixture(t, "never", "never")
+	ref := "roadmap:program"
+	decision, err := s.CurrentCloseoutDecision(ref)
+	if err != nil {
+		t.Fatal(err)
+	}
+	if err := s.PublishCloseoutIntent(ref, decision, reviewFixtureNow); err != nil {
+		t.Fatal(err)
+	}
+	editRoadmapFixture(t, root, "status: active\n", "status: done\n")
+	eval, err := s.ReviewCheck("milestone:program/core")
+	if err != nil || eval.CloseoutReview == nil {
+		t.Fatalf("a close interrupted before its receipt read as history: %+v %v", eval, err)
+	}
+	if err := s.ClearCloseoutIntent(ref); err != nil {
+		t.Fatal(err)
+	}
+	if eval, err := s.ReviewCheck("milestone:program/core"); err != nil || eval.CloseoutReview != nil {
+		t.Fatalf("a roadmap done before adoption was evaluated: %+v %v", eval, err)
+	}
+}
+
+func TestCloseoutReviewPolicyRecoveryKeepsTheVeto(t *testing.T) {
+	_, s := closeoutReviewedFixture(t, "never", "never")
+	ref := "milestone:program/core"
+	if _, exempt, err := s.CloseoutRecoveryDecision(ref); err != nil || !exempt {
+		t.Fatalf("no review on file should be exempt: %v %v", exempt, err)
+	}
+	bundle, err := s.SealReviewBundle(ref, reviewFixtureNow.Add(2*time.Minute))
+	if err != nil {
+		t.Fatal(err, bundle.Blockers)
+	}
+	attestChildReview(t, s, bundle, reviewFixtureNow.Add(3*time.Minute), "rejected")
+	if _, exempt, err := s.CloseoutRecoveryDecision(ref); err != nil || exempt {
+		t.Fatalf("recovery exempted a scope with a rejection on file: %v %v", exempt, err)
+	}
+}
+
+func TestCloseoutReviewPolicyFederatedReceiptProof(t *testing.T) {
+	_, s := closeoutReviewedFixture(t, "never", "never")
+	ref := "milestone:program/core"
+	identity := ArtifactRef{Kind: "milestone", Slug: "program", Milestone: "core", Project: "coordinator"}
+	if _, _, _, _, _, _, blockers := federatedSourceProof(NativeFiles(), s, identity, gitHeadAtRoot(s.Root)); len(blockers) == 0 {
+		t.Fatal("an exempt milestone without its receipt was federated as closed")
+	}
+	state, err := s.GetCloseoutState(ref)
+	if err != nil {
+		t.Fatal(err)
+	}
+	receipt, err := s.NewCloseoutReceipt(ref, *state.Review.CloseoutReview, state.Review, state.ScopeDigest, reviewFixtureNow.Add(time.Hour))
+	if err != nil {
+		t.Fatal(err)
+	}
+	if err := s.PublishCloseoutReceipt(receipt); err != nil {
+		t.Fatal(err)
+	}
+	id, digest, _, _, _, _, blockers := federatedSourceProof(NativeFiles(), s, identity, gitHeadAtRoot(s.Root))
+	if len(blockers) != 0 || id != "closeout-receipt:"+ref || !strings.HasPrefix(digest, "sha256:") {
+		t.Fatalf("the receipt of an exempt close did not prove it to a consumer: %s %s %v", id, digest, blockers)
 	}
 }

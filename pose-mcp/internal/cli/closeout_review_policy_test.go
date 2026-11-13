@@ -6,6 +6,7 @@ import (
 	"path/filepath"
 	"strings"
 	"testing"
+	"time"
 
 	posemodel "github.com/harne8/pose-mcp/internal/pose"
 )
@@ -138,6 +139,21 @@ func TestCloseoutReviewPolicyPublication(t *testing.T) {
 	raw, _ := os.ReadFile(rm)
 	mustWrite(t, rm, strings.Replace(string(raw), "status: active", "status: done", 1))
 	commitCloseoutFixture(t, root, "status only")
+	// Done without an intent is a roadmap closed before adoption: its sealed
+	// contract governs, and it owes the review it never had.
+	if code, out := runPose(t, root, "close", "roadmap:program"); code == 0 || strings.Contains(out, "close.receipt=") {
+		t.Fatalf("a roadmap done before adoption was given a receipt: %d %s", code, out)
+	}
+	// A close of this engine interrupted after the status left its intent:
+	// it is incomplete, and the next close verifies and publishes.
+	store := posemodel.Store{Root: root}
+	decision, err := store.CurrentCloseoutDecision("roadmap:program")
+	if err != nil {
+		t.Fatal(err)
+	}
+	if err := store.PublishCloseoutIntent("roadmap:program", decision, time.Now()); err != nil {
+		t.Fatal(err)
+	}
 	if code, out := runPose(t, root, "close", "roadmap:program"); code != 0 || !strings.Contains(out, "close.receipt=") {
 		t.Fatalf("the incomplete roadmap close was not completed: %d %s", code, out)
 	}
@@ -260,5 +276,38 @@ func TestCloseoutReviewPolicySmoke(t *testing.T) {
 	code, out := runBuilt(t, root, "closeout-check", "roadmap:program", "--json")
 	if err := json.Unmarshal([]byte(out), &state); err != nil || state.CloseoutReceipt == nil || state.CloseoutReceipt.Review != "not-required" {
 		t.Fatalf("closeout-check %d %s %v", code, out, err)
+	}
+}
+
+func TestCloseoutReviewPolicyRepeatedCloseVerifiesTheTerminalContract(t *testing.T) {
+	root := closeoutPolicyCLIFixture(t, "never", "never")
+	if code, out := runPose(t, root, "close", "milestone:program/first"); code != 0 {
+		t.Fatalf("close milestone %d %s", code, out)
+	}
+	// The member reopens: the receipt still names the same composition, but
+	// the milestone is no longer terminal, so a repeated close fails.
+	spec := filepath.Join(root, ".pose/specs/bundle/spec.md")
+	raw, err := os.ReadFile(spec)
+	if err != nil {
+		t.Fatal(err)
+	}
+	mustWrite(t, spec, strings.Replace(string(raw), "status: done", "status: in-progress", 1))
+	if code, out := runPose(t, root, "close", "milestone:program/first"); code == 0 || strings.Contains(out, "close.already-satisfied") {
+		t.Fatalf("a receipt answered for a milestone that is no longer terminal: %d %s", code, out)
+	}
+}
+
+func TestCloseoutReviewPolicyTypedLocalMemberCloses(t *testing.T) {
+	root := reachedMilestoneFixture(t)
+	writeCloseoutCLIFile(t, root, ".pose/roadmaps/program.md", "---\nslug: program\nstatus: active\n---\n\n## Milestone: first\n- specs: spec:bundle\n")
+	writeCloseoutCLIFile(t, root, ".pose/indexes/validation-matrix.json", `{"defaults":{"mode":"strict"},"deliveryProfiles":{"api-contract":{"kind":"contract","requiredEvidenceClasses":["integration","unit"]}}}`)
+	adoptCloseoutPolicyFixture(t, root, "never", "never")
+	commitCloseoutFixture(t, root, "typed member")
+	if code, out := runPose(t, root, "close", "spec:bundle", "--apply", "--reviewer", "agent:closeout-reviewer"); code != 0 {
+		t.Fatalf("close spec %d %s", code, out)
+	}
+	commitCloseoutFixture(t, root, "closeout")
+	if code, out := runPose(t, root, "close", "milestone:program/first"); code != 0 || !strings.Contains(out, "close.receipt=") {
+		t.Fatalf("a spec:<slug> member did not close: %d %s", code, out)
 	}
 }

@@ -692,6 +692,18 @@ func federatedSourceProof(files Files, source Store, identity ArtifactRef, pinne
 	if err != nil || !state.Terminal {
 		return "", "", "", "", nil, nil, []string{scope + ":source-closeout-not-terminal"}
 	}
+	// A milestone or roadmap the source closed without its own review, under
+	// its adopted closeout review policy, is proven by the receipt of that
+	// close: the source's policy decides, never the consumer's. Its members
+	// are federated with their own reviews (spec
+	// pose-closeout-review-policy-by-cost-benefit).
+	if receipt := state.CloseoutReceipt; receipt != nil && !receipt.Decision.Required && (identity.Kind == "milestone" || identity.Kind == "roadmap") {
+		raw, err := json.Marshal(receipt)
+		if err != nil {
+			return "", "", "", "", nil, nil, []string{scope + ":source-closeout-receipt-unreadable"}
+		}
+		return "closeout-receipt:" + scope, "sha256:" + digestHex(raw), receipt.SubjectDigest, receipt.PolicyDigest, nil, nil, nil
+	}
 	verification, err := source.VerifyReviewBundle(scope)
 	// A milestone its roadmap declares has no review of its own: what a consumer can
 	// hold is the review of that roadmap, which sealed the declaration.

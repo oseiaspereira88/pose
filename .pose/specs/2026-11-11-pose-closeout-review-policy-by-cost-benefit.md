@@ -120,6 +120,7 @@ Lista do change set completo da spec, incluindo a ADR criada e aprovada nos comm
 - modified: pose-mcp/internal/pose/spec_transfer.go
 - modified: pose-mcp/internal/pose/obligation_projection.go
 - modified: pose-mcp/internal/pose/capability_catalog.go
+- modified: pose-mcp/internal/pose/federated_acceptance.go
 - created: pose-mcp/internal/pose/closeout_review_policy.go
 - created: pose-mcp/internal/pose/closeout_receipt.go
 - created: pose-mcp/internal/pose/closeout_adr_associations.go
@@ -134,6 +135,7 @@ Lista do change set completo da spec, incluindo a ADR criada e aprovada nos comm
 - modified: pose-mcp/internal/cli/setup.go
 - modified: pose-mcp/internal/cli/adopt.go
 - modified: pose-mcp/internal/cli/doctor.go
+- modified: pose-mcp/internal/cli/surface_check.go
 - created: pose-mcp/internal/cli/closeout_review_policy_test.go
 - created: pose-mcp/internal/mcpserver/closeout_review_policy_test.go
 - modified: pose-mcp/schemas/v1/review-plan.schema.json
@@ -147,7 +149,7 @@ Lista do change set completo da spec, incluindo a ADR criada e aprovada nos comm
 - created: .pose/starts/pose-closeout-review-policy-by-cost-benefit.json
 - created: .pose/changelogs/unreleased/pose-closeout-review-policy-by-cost-benefit.md
 
-Reconciliação na implementação (2026-11-13): a lista acima é o change set real. Saíram do plano `review_policy_baseline.go` (a proteção reusa `resolveReviewGovernanceGuard` e `parseReviewPolicyAt` a partir do avaliador, sem mudar o arquivo), `federated_acceptance.go`, `state.go` e `mcpserver/server.go` (a projeção MCP é a do `CloseoutState`, que já carrega a decisão e o recibo), `cli/index.go` e `cli/help.go` (nenhuma projeção de índice nova; o uso do `pose adopt` vive em `adopt.go`), `distpolicy.go` (instalação nova adota pelo catálogo, `DefaultForNew`, com o mesmo produtor de `pose adopt`) e os arquivos de teste separados de recibo e associações, unidos em `closeout_review_policy_test.go`. Entrou `spec_transfer.go`, cujo gate de capacidade recusava schema 5 com transferência adotada. Entraram também `diagnostic_codes.go` (três códigos novos catalogados) e os testes existentes que fixavam o catálogo, o schema após `adopt` e a compatibilidade com a release anterior: uma instalação nova agora adota o par, logo schema 5, que a v7.4.0 recusa por decisão da ADR; o teste passa a exigir que essa recusa seja a do schema e que uma instância legada continue legível pela release anterior depois do `pose update`, que não adota o par.
+Reconciliação na implementação (2026-11-13): a lista acima é o change set real. Saíram do plano `review_policy_baseline.go` (a proteção reusa `resolveReviewGovernanceGuard` e `parseReviewPolicyAt` a partir do avaliador, sem mudar o arquivo), `state.go` e `mcpserver/server.go` (a projeção MCP é a do `CloseoutState`, que já carrega a decisão e o recibo), `cli/index.go` e `cli/help.go` (nenhuma projeção de índice nova; o uso do `pose adopt` vive em `adopt.go`), `distpolicy.go` (instalação nova adota pelo catálogo, `DefaultForNew`, com o mesmo produtor de `pose adopt`) e os arquivos de teste separados de recibo e associações, unidos em `closeout_review_policy_test.go`. Entraram `federated_acceptance.go` (prova de origem atrelada ao recibo de um fechamento sem revisão exigida, achado F7 da revisão), `cli/surface_check.go` (o gate do milestone normaliza `spec:<slug>`, F13) e `spec_transfer.go`, cujo gate de capacidade recusava schema 5 com transferência adotada. Entraram também `diagnostic_codes.go` (três códigos novos catalogados) e os testes existentes que fixavam o catálogo, o schema após `adopt` e a compatibilidade com a release anterior: uma instalação nova agora adota o par, logo schema 5, que a v7.4.0 recusa por decisão da ADR; o teste passa a exigir que essa recusa seja a do schema e que uma instância legada continue legível pela release anterior depois do `pose update`, que não adota o par.
 
 ### Delivery targets
 
@@ -228,6 +230,8 @@ Não criar check permanente para cada subteste: uma integração registrada com 
 
 ### Execution results
 
+Depois da rodada 1 de revisão (2026-11-13): `go test ./internal/pose ./internal/cli ./internal/mcpserver -count=1` verde (pose 359s, cli 249s, mcpserver 6s), incluindo os testes novos de cada achado; `go vet ./...` exit 0. A matriz completa é reexecutada pelo pipeline de fechamento sobre o commit final.
+
 2026-11-13, sobre o código de `36fdc959` e índices de `8fc1e9a6`: `go test ./internal/pose ./internal/cli ./internal/mcpserver -run '^TestCloseoutReviewPolicy' -count=1` passa com 17 testes de topo e todos os subtestes (61 em `internal/pose`), nenhum skip. A regressão completa dos três pacotes reprovou primeiro 11 testes existentes, todos corrigidos e reexecutados: inventários (catálogo de capacidades, códigos de diagnóstico, classe de `.pose/review-closeouts/`, limite de prints diretos), `POSE.md` citando um diretório ausente (o gate pós-instalação reprovava, arrastando quickstart e preview do update), fixtures que forçavam schema 2 numa policy com o par, e a compatibilidade com a release anterior, que agora exige recusa pelo schema e leitura da instância legada após `pose update`. `pose validate --strict --module pose-mcp --json-out .pose/results/delivery-validation.json`: 210/210 pass em 404,5s (a execução anterior, concorrente com `pose check`, perdeu só o `test` por timeout de 600s). `go vet ./...` exit 0. `govulncheck ./...`: nenhuma vulnerabilidade alcançável; dois avisos em módulos requeridos não chamados. `pose artifact-check --spec … --strict` e `pose surface-check --spec … --strict` exit 0 (surface: 1 alvo, 210 resultados, 0 findings). `pose lint-spec … --strict` SUCESSO. `pose check --strict` lista 19 erros de contrato de entrega, nenhum desta spec: são de `pose-optional-worktree-runtime`, `pose-worktree-runtime-qos-and-measurement`, `pose-worktree-runtime-resident-cache`, `pose-common-domain-and-cli-mcp-handoff`, `pose-governance-operation-performance` e `pose-bounded-isolated-graph-caches`. O mesmo `pose check --strict` no commit base `956153f1`, com o binário daquele commit, lista os mesmos 19 erros, linha a linha: nenhum é introduzido por esta entrega (R7).
 
 ### Planning checks
@@ -245,6 +249,10 @@ Review policy schema 5 com `milestone_review_required` e `roadmap_review_require
 ### Residual risks and next owner
 
 A política desta instância não foi adotada (fora do escopo); a adoção do pose-dist e do Harne8 é decisão separada e destrava o fechamento de B31/B35 sem revisão agregada quando o valor escolhido dispensar. Uma instalação nova fica ilegível para a v7.4.0 por decisão da ADR. O recibo grava o motivo, não um snapshot da regra anterior, então o `doctor` declara a regra anterior como desconhecida. A comparação de decisão no momento da publicação não cobre corrida com um escritor que ignore os locks do motor.
+
+### Review
+
+Rodada 1 (run rrn-7c2315202e585212, Codex gpt-6.1-sol, bundle rvb-08c2ad291964aeda): a run foi recusada pelo motor porque o revisor rodou `pose assess integrate`/`tech-debt`, que escrevem no worktree selado; sua conclusão, decisão changes-requested, trouxe 15 achados bloqueadores, todos tratados no código e cobertos por testes: F1 mandatory-human nunca é dispensado (`mandatoryHumanReview`); F2 repetir o close com recibo exige estado terminal atual; F3 a recuperação de um roadmap done sem recibo segue as regras de um escopo aberto e não fecha sobre revisão registrada; F4 o recibo só vale para a mesma composição canônica e `always` não pode gravar not-required; F5 o fechamento grava uma intenção antes do status, então uma interrupção fica incompleta e só um roadmap done sem recibo nem intenção é histórico; F6 sob adoção o gate vem antes de `enabled=false` e do cutoff legado; F7 prova federada por recibo; F8 preflight e publicação usam a mesma decisão protegida (`CurrentCloseoutDecision`); F9 dispensa exige estado sem bloqueios e a publicação revalida decisão, membros, ADRs e estado na região protegida, antes do status no roadmap; F10 membro transferido é seguido pelo resolvedor até a identidade final; F11 ADR associada é lida e validada como as demais; F12 o review plan falha com recibo corrompido ou divergente; F13 `spec:<slug>` fecha pelo gate do milestone; F14 desconhecido nunca dispensa nem aprova; F15 o doctor só aceita aprovação fresca para a obrigação atual. F8–F10 e F15 têm cobertura por construção, não por teste dedicado.
 
 ### Follow-ups
 

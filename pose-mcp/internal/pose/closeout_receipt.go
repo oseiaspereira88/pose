@@ -15,6 +15,7 @@ import (
 	"io"
 	"os"
 	"path/filepath"
+	"strings"
 	"time"
 )
 
@@ -113,6 +114,9 @@ func parseCloseoutReceipt(raw []byte) (CloseoutReceipt, error) {
 	if !d.Adopted || d.EvaluatorVersion != CloseoutReviewEvaluatorVersion || !validCloseoutReviewValue(d.PolicyValue) || d.Reason == "" {
 		return receipt, errors.New("decision is not one of " + CloseoutReviewEvaluatorVersion)
 	}
+	if d.PolicyValue == CloseoutReviewNever && d.Required && d.Reason == "" || d.PolicyValue == CloseoutReviewAlways && !d.Required {
+		return receipt, fmt.Errorf("a %s decision cannot be required=%v", d.PolicyValue, d.Required)
+	}
 	if receipt.Review != d.Review() {
 		return receipt, fmt.Errorf("review %q contradicts the recorded decision (%s)", receipt.Review, d.Review())
 	}
@@ -180,4 +184,61 @@ func (s Store) PublishCloseoutReceipt(receipt CloseoutReceipt) error {
 		return ErrCloseoutReceiptExists
 	}
 	return err
+}
+
+// A roadmap's close publishes its status and then its receipt. Between the
+// two an intent stands, so a close interrupted there reads as incomplete,
+// never as a roadmap closed before adoption (spec
+// pose-closeout-review-policy-by-cost-benefit R4, R7).
+func (s Store) closeoutIntentPath(ref string) (string, error) {
+	path, err := s.CloseoutReceiptPath(ref)
+	if err != nil {
+		return "", err
+	}
+	return strings.TrimSuffix(path, ".json") + ".intent.json", nil
+}
+
+// closeoutIntentPending reports an intent on file. What cannot be read is an
+// error, which the caller treats as pending: it never proves history.
+func (s Store) closeoutIntentPending(ref string) (bool, error) {
+	path, err := s.closeoutIntentPath(ref)
+	if err != nil {
+		return false, err
+	}
+	if _, err := s.fsys().Lstat(path); err == nil {
+		return true, nil
+	} else if os.IsNotExist(err) {
+		return false, nil
+	} else {
+		return false, err
+	}
+}
+
+// PublishCloseoutIntent records that this engine is closing ref under the
+// adopted policy, before the roadmap's status is published.
+func (s Store) PublishCloseoutIntent(ref string, decision CloseoutReviewDecision, now time.Time) error {
+	path, err := s.closeoutIntentPath(ref)
+	if err != nil {
+		return err
+	}
+	raw, err := json.MarshalIndent(map[string]any{"schema_version": 1, "scope": ref, "started_at": now.UTC().Format(time.RFC3339), "review": decision.Review()}, "", "  ")
+	if err != nil {
+		return err
+	}
+	if err := s.fsys().MkdirAll(filepath.Dir(path), 0o755); err != nil {
+		return err
+	}
+	return s.fsys().Publish(path, append(raw, '\n'), 0o644, PublishDerived, PublishExpectation{Mode: ExpectAny})
+}
+
+// ClearCloseoutIntent removes the intent once the receipt stands.
+func (s Store) ClearCloseoutIntent(ref string) error {
+	path, err := s.closeoutIntentPath(ref)
+	if err != nil {
+		return err
+	}
+	if err := s.fsys().Remove(path); err != nil && !os.IsNotExist(err) {
+		return err
+	}
+	return nil
 }
