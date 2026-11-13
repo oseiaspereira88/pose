@@ -89,6 +89,14 @@
       "digest": "sha256:43405b761e2bc5dcccfadc6d74937061f09334b4e3cb054e083a5934d4dff816"
     },
     {
+      "spec": "pose-closeout-review-policy-by-cost-benefit",
+      "category": "added",
+      "breaking": false,
+      "body": "Add the closeout review policy (review policy schema 5): `milestone_review_required` and `roadmap_review_required` take `never`, `when-justified` or `always`, adopted with `pose adopt closeout-review-policy` (new instances default to `never`/`never`; existing policies keep the legacy rule until they adopt). One evaluator, `closeout-review@1`, answers for review plans, verification, closeout state, attention, doctor and MCP: `when-justified` requires a milestone review above two distinct canonical specs and a roadmap review above one spec with a resolved ADR association (`adrs:` on the roadmap, `roadmaps:` on the ADR, or a local Markdown link). Under adoption `pose close` of a milestone or roadmap stays explicit and publishes a receipt under `.pose/review-closeouts/` recording `review: not-required` or `required`, the key, value, evaluator and reason; unknown members or associations never exempt, a recorded rejection stands, `always` overrides singleton inheritance and `unreviewed_milestones`, and scopes closed before adoption keep their sealed reading. Milestone members written as `spec:\u003cslug\u003e` now resolve as their slug in closeout state.",
+      "path": "pose-closeout-review-policy-by-cost-benefit.md",
+      "digest": "sha256:08fcd007d8fc010fed3682a136f25f60821f60c6a887156a38f3f4b7bf869eb6"
+    },
+    {
       "spec": "pose-closeout-terminal-verification",
       "category": "fixed",
       "breaking": true,

@@ -115,29 +115,27 @@ Lista do change set completo da spec, incluindo a ADR criada e aprovada nos comm
 - modified: pose-mcp/internal/pose/review_closeout.go
 - modified: pose-mcp/internal/pose/review_plan.go
 - modified: pose-mcp/internal/pose/review_bundle.go
-- modified: pose-mcp/internal/pose/review_policy_baseline.go
 - modified: pose-mcp/internal/pose/roadmaps.go
 - modified: pose-mcp/internal/pose/artifact_ref.go
-- modified: pose-mcp/internal/pose/federated_acceptance.go
+- modified: pose-mcp/internal/pose/spec_transfer.go
 - modified: pose-mcp/internal/pose/obligation_projection.go
-- modified: pose-mcp/internal/pose/state.go
 - modified: pose-mcp/internal/pose/capability_catalog.go
 - created: pose-mcp/internal/pose/closeout_review_policy.go
 - created: pose-mcp/internal/pose/closeout_receipt.go
 - created: pose-mcp/internal/pose/closeout_adr_associations.go
 - created: pose-mcp/internal/pose/closeout_review_policy_test.go
-- created: pose-mcp/internal/pose/closeout_receipt_test.go
-- created: pose-mcp/internal/pose/closeout_adr_associations_test.go
+- modified: pose-mcp/internal/pose/diagnostic_codes.go
+- modified: pose-mcp/internal/pose/capability_catalog_test.go
+- modified: pose-mcp/internal/cli/adopt_test.go
+- modified: pose-mcp/internal/cli/adopt_catalog_test.go
+- modified: pose-mcp/internal/cli/progressive_review_test.go
+- modified: pose-mcp/internal/cli/release_compatibility_test.go
 - modified: pose-mcp/internal/cli/review_closeout.go
 - modified: pose-mcp/internal/cli/setup.go
 - modified: pose-mcp/internal/cli/adopt.go
 - modified: pose-mcp/internal/cli/doctor.go
-- modified: pose-mcp/internal/cli/index.go
-- modified: pose-mcp/internal/cli/help.go
 - created: pose-mcp/internal/cli/closeout_review_policy_test.go
-- modified: pose-mcp/internal/mcpserver/server.go
 - created: pose-mcp/internal/mcpserver/closeout_review_policy_test.go
-- modified: pose-mcp/internal/scaffold/distpolicy/distpolicy.go
 - modified: pose-mcp/schemas/v1/review-plan.schema.json
 - created: pose-mcp/schemas/v1/closeout-receipt.schema.json
 - modified: POSE.md
@@ -149,7 +147,7 @@ Lista do change set completo da spec, incluindo a ADR criada e aprovada nos comm
 - created: .pose/starts/pose-closeout-review-policy-by-cost-benefit.json
 - created: .pose/changelogs/unreleased/pose-closeout-review-policy-by-cost-benefit.md
 
-Atualizar index.go apenas para projetar metadata nova de roadmap, não regenerar indexes nesta tarefa. Atualizar review-plan schema com a decisão adicional e closeout-receipt schema novo; omitir campos novos em payload histórico sem reserializar bundle selado. Validar o par local/template distribuído no fluxo normal de implementação. Se reconciliação identificar outro caminho necessário, emendar esta lista antes de alterá-lo.
+Reconciliação na implementação (2026-11-13): a lista acima é o change set real. Saíram do plano `review_policy_baseline.go` (a proteção reusa `resolveReviewGovernanceGuard` e `parseReviewPolicyAt` a partir do avaliador, sem mudar o arquivo), `federated_acceptance.go`, `state.go` e `mcpserver/server.go` (a projeção MCP é a do `CloseoutState`, que já carrega a decisão e o recibo), `cli/index.go` e `cli/help.go` (nenhuma projeção de índice nova; o uso do `pose adopt` vive em `adopt.go`), `distpolicy.go` (instalação nova adota pelo catálogo, `DefaultForNew`, com o mesmo produtor de `pose adopt`) e os arquivos de teste separados de recibo e associações, unidos em `closeout_review_policy_test.go`. Entrou `spec_transfer.go`, cujo gate de capacidade recusava schema 5 com transferência adotada. Entraram também `diagnostic_codes.go` (três códigos novos catalogados) e os testes existentes que fixavam o catálogo, o schema após `adopt` e a compatibilidade com a release anterior: uma instalação nova agora adota o par, logo schema 5, que a v7.4.0 recusa por decisão da ADR; o teste passa a exigir que essa recusa seja a do schema e que uma instância legada continue legível pela release anterior depois do `pose update`, que não adota o par.
 
 ### Delivery targets
 
