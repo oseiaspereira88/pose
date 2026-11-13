@@ -289,37 +289,36 @@ func (s Store) currentCloseoutDecision(ref string, policy ReviewPolicy) (Closeou
 	}
 	scope, _ := ParseScopeRef(ref)
 	s.protectCloseoutDecision(scope, &decision)
-	if !decision.Required && s.mandatoryHumanReview(scope.Kind, policy) {
+	if !decision.Required && s.mandatoryHumanReview(ref, scope.Kind, policy) {
 		decision.Required = true
 		decision.Reason += "; a mandatory-human review is never dispensed"
 	}
 	return decision, nil
 }
 
-// mandatoryHumanReview reports a scope kind whose policy or base profile asks
-// for a human reviewer. No setting dispenses that review. A profile that
-// cannot be read is treated as asking for it.
-func (s Store) mandatoryHumanReview(kind string, policy ReviewPolicy) bool {
+// mandatoryHumanReview reports a scope whose effective review plan asks for a
+// human reviewer: the base profile, the overlays the plan selects for it with
+// their cutoffs, and the protected baseline when the scope changes the review
+// contract, exactly as the plan composes them. No setting dispenses that
+// review. A plan that cannot be built is treated as asking for one, unless the
+// policy names no profile for the kind, where no review can be asked at all.
+func (s Store) mandatoryHumanReview(ref, kind string, policy ReviewPolicy) bool {
 	if policy.ReviewerIndependence[kind] == "mandatory-human" {
 		return true
 	}
-	refs := append([]string{}, policy.OverlayProfiles...)
-	if ref := policy.Profiles[kind]; ref != "" {
-		refs = append(refs, ref)
+	if policy.Profiles[kind] == "" {
+		return false
 	}
-	// An adopted overlay for this kind that can ask for a human counts
-	// whether or not its selector matches now: an exemption must not depend
-	// on a selection the review plan makes later.
-	for _, ref := range refs {
-		profile, _, err := s.loadReviewProfile(ref)
-		if err != nil {
-			return true
-		}
-		if (profile.Scope == kind || profile.Scope == "" || ref == policy.Profiles[kind]) && profile.Independence == "mandatory-human" {
-			return true
-		}
+	planner := s
+	planner.planWithoutCloseoutGate = true
+	plan, err := planner.ReviewPlan(ref)
+	if err != nil || plan.Independence == "mandatory-human" {
+		return true
 	}
-	return false
+	// The plan composes the overlays' independence; the base profile's own is
+	// read from the profile the plan named.
+	base, _, err := s.loadReviewProfile(plan.BaseProfile)
+	return err != nil || base.Independence == "mandatory-human"
 }
 
 // closeoutReviewGate is the one place the readers of an approval ask whether
@@ -410,8 +409,18 @@ func (s Store) protectCloseoutDecision(scope ScopeRef, decision *CloseoutReviewD
 		restore("the protected baseline policy cannot be read: " + err.Error())
 		return
 	}
-	if !base.Enabled {
+	if !base.Enabled && !base.CloseoutReviewAdopted() {
 		return
+	}
+	if base.ReviewerIndependence[scope.Kind] == "mandatory-human" {
+		restore("the protected baseline at " + guard.Revision + " requires a mandatory-human review")
+		return
+	}
+	if ref := base.Profiles[scope.Kind]; ref != "" {
+		if profile, err := s.parseReviewProfileAt(guard.Revision, ref); err != nil || profile.Independence == "mandatory-human" {
+			restore("the protected baseline at " + guard.Revision + " requires a mandatory-human review or its profile cannot be read")
+			return
+		}
 	}
 	if !base.CloseoutReviewAdopted() {
 		restore("the protected baseline at " + guard.Revision + " keeps the legacy rule, under which this scope owes its review")
@@ -453,6 +462,16 @@ func (s Store) closeoutSubject(ref string) ([]string, string, []string, error) {
 		if scope.Kind == "milestone" {
 			gate = digestText(milestone.ExitGate)
 		}
+	}
+	if scope.Kind == "roadmap" {
+		// A roadmap's gate is its cut criteria; its milestones' gates are
+		// bound by their own receipts.
+		criteria, problems := ParseRoadmapCriteria(*rm)
+		raw, _ := json.Marshal(struct {
+			Criteria []RoadmapCriterion
+			Problems []string
+		}{criteria, problems})
+		gate = "sha256:" + digestHex(raw)
 	}
 	members, diagnostics := s.closeoutCanonicalMembers(raws, project)
 	return members, gate, diagnostics, nil
@@ -511,7 +530,13 @@ func (s Store) closedByReceipt(ref string) (bool, error) {
 	if s.closeoutReceiptStands(*receipt, policy) != nil {
 		return false, nil
 	}
-	return !s.milestoneReviewRefused(ref), nil
+	// The applicable verifier, as closeout asks it: a review recorded after
+	// the receipt, complete or not, is judged like any other.
+	eval, err := s.reviewCheck(ref)
+	if err != nil {
+		return false, nil
+	}
+	return (eval.Approved || !eval.Required) && len(eval.Blockers) == 0, nil
 }
 
 // scopeReviewRecorded reports a review of the scope on file: a bundle or a
@@ -601,19 +626,4 @@ func (s Store) CloseoutReviewsOwed() ([]CloseoutReviewOwing, error) {
 func mustScope(ref string) ScopeRef {
 	scope, _ := ParseScopeRef(ref)
 	return scope
-}
-
-// CloseoutRecoveryDecision decides a roadmap left done without its receipt,
-// under the same rules as an open scope: the protected decision, and an
-// exemption only when every input is known and no review is on file.
-func (s Store) CloseoutRecoveryDecision(ref string) (CloseoutReviewDecision, bool, error) {
-	policy, _, err := s.loadReviewPolicy()
-	if err != nil {
-		return CloseoutReviewDecision{}, false, err
-	}
-	decision, err := s.currentCloseoutDecision(ref, policy)
-	if err != nil {
-		return decision, false, err
-	}
-	return decision, !decision.Required && decision.Known && !s.scopeReviewRecorded(ref), nil
 }

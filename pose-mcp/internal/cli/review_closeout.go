@@ -2457,32 +2457,30 @@ func closeoutReceiptPreflight(store posemodel.Store, ref string, scope posemodel
 			render(io.Discard, stderr).Failure("pose close: terminal verification blocked: " + strings.Join(state.Blockers, "; ") + "; " + state.NextAction)
 			return nil, 1
 		}
+		// The gates the close passed are verified again, independently of the
+		// policy: a receipt does not stand for a gate that no longer holds.
+		if blocker := closeGateBlocker(store.Root, scope); blocker != "" {
+			render(io.Discard, stderr).Failure("pose close: terminal verification blocked: " + blocker)
+			return nil, 1
+		}
 		receipt := state.CloseoutReceipt
 		render(stdout, stderr).Field("close.already-satisfied", ref+"; closeout receipt of "+receipt.ClosedAt+" stands (review: "+receipt.Review+"); applicable terminal verifier passed; no transition executed")
 		return nil, 0
 	}
 	decision := state.Review.CloseoutReview
 	if decision == nil {
-		if scope.Kind != "roadmap" || !state.LifecycleDone {
-			return nil, -1
+		// No decision: a scope of a roadmap closed before adoption, verified by
+		// the contract it was sealed under. It never gets a receipt; for a done
+		// roadmap the close is a read-only verification.
+		if scope.Kind == "roadmap" && state.LifecycleDone {
+			if !state.Terminal {
+				render(io.Discard, stderr).Failure("pose close: terminal verification blocked: " + strings.Join(state.Blockers, "; ") + "; " + state.NextAction)
+				return nil, 1
+			}
+			render(stdout, stderr).Field("close.already-satisfied", ref+"; closed before the closeout review policy was adopted; its sealed contract verifies; no transition executed")
+			return nil, 0
 		}
-		recovered, exempt, err := store.CloseoutRecoveryDecision(ref)
-		if err != nil {
-			render(io.Discard, stderr).Failure("pose close: " + err.Error())
-			return nil, 1
-		}
-		if recovered.Required && !state.Review.Approved {
-			render(io.Discard, stderr).Failure("pose close: " + ref + " is done without a receipt and owes an approved review (" + recovered.PolicyKey + "=" + recovered.PolicyValue + ", " + recovered.Reason + "); next action: " + state.NextAction)
-			return nil, 1
-		}
-		if !recovered.Required && !exempt && !state.Review.Approved {
-			render(io.Discard, stderr).Failure("pose close: " + ref + " has a review on file that is not approved; it stands until remediated")
-			return nil, 1
-		}
-		decision = &recovered
-		if exempt {
-			state.Review.CloseoutReview, state.Review.Required = decision, false
-		}
+		return nil, -1
 	}
 	if !decision.Known {
 		render(io.Discard, stderr).Failure("pose close: the closeout review of " + ref + " cannot be decided: " + strings.Join(decision.Diagnostics, "; "))
@@ -2574,4 +2572,25 @@ func onlyLifecycleBlockers(blockers []string) bool {
 		}
 	}
 	return true
+}
+
+// closeGateBlocker runs the gate the close of an aggregate scope passed: the
+// milestone gate, or the roadmap check with its cut criteria.
+func closeGateBlocker(root string, scope posemodel.ScopeRef) string {
+	switch scope.Kind {
+	case "milestone":
+		gate, err := roadmapGate(root, scope.Roadmap, scope.Milestone)
+		if err != nil {
+			return "milestone gate failed: " + err.Error()
+		}
+		if blockers := uniqueCLIStrings(gate.blockers); len(blockers) > 0 {
+			return "milestone gate failed: " + strings.Join(blockers, "; ")
+		}
+	case "roadmap":
+		var gateOut, gateErr bytes.Buffer
+		if code := cmdRoadmapCheck(root, []string{scope.Slug, "--strict"}, &gateOut, &gateErr); code != 0 {
+			return "roadmap gate failed: " + strings.TrimSpace(gateErr.String()+gateOut.String())
+		}
+	}
+	return ""
 }

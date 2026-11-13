@@ -315,3 +315,32 @@ func TestCloseoutReviewPolicyAdoptRequestRefusesThePair(t *testing.T) {
 		t.Fatalf("an answered request swallowed the pair flags: %d %s", code, out)
 	}
 }
+
+func TestCloseoutReviewPolicyHistoricalRoadmapCloseIsReadOnly(t *testing.T) {
+	root := reachedMilestoneFixture(t)
+	writeCloseoutCLIFile(t, root, ".pose/roadmaps/program.md", "---\nslug: program\nstatus: active\n---\n\n## Milestone: first\n- specs: bundle\n")
+	writeCloseoutCLIFile(t, root, ".pose/indexes/validation-matrix.json", `{"defaults":{"mode":"strict"},"deliveryProfiles":{"api-contract":{"kind":"contract","requiredEvidenceClasses":["integration","unit"]}}}`)
+	commitCloseoutFixture(t, root, "one milestone")
+	if code, out := runPose(t, root, "close", "spec:bundle", "--apply", "--reviewer", "agent:closeout-reviewer"); code != 0 {
+		t.Fatalf("close spec %d %s", code, out)
+	}
+	// Closed under the legacy rule: done before review adoption, so the
+	// legacy cutoff exempts it.
+	writeCloseoutCLIFile(t, root, ".pose/roadmaps/program.md", "---\nslug: program\nstatus: done\ncreated_at: 2026-01-01\n---\n\n## Milestone: first\n- specs: bundle\n")
+	policyPath := filepath.Join(root, ".pose/policy/review.json")
+	raw, _ := os.ReadFile(policyPath)
+	var policy map[string]any
+	json.Unmarshal(raw, &policy)
+	policy["adopted_at"] = "2026-08-01"
+	out, _ := json.Marshal(policy)
+	mustWrite(t, policyPath, string(out))
+	adoptCloseoutPolicyFixture(t, root, "always", "always")
+	commitCloseoutFixture(t, root, "history then adoption")
+	code, closeOut := runPose(t, root, "close", "roadmap:program")
+	if code != 0 || !strings.Contains(closeOut, "close.already-satisfied") || strings.Contains(closeOut, "close.receipt=") {
+		t.Fatalf("a historical roadmap was not verified read-only: %d %s", code, closeOut)
+	}
+	if _, err := os.Stat(filepath.Join(root, ".pose/review-closeouts/roadmap/program.json")); !os.IsNotExist(err) {
+		t.Fatal("a receipt was backfilled for history")
+	}
+}

@@ -138,7 +138,7 @@ func (s Store) closeoutADRAssociations(rm *Roadmap, project string) ([]string, [
 		// Every candidate is read, the associated ones included: its size,
 		// its readability and its own declaration are inputs. One that
 		// cannot be read could hold a backlink, so it is unknown.
-		if entry.IsDir() || !strings.HasSuffix(name, ".md") || strings.EqualFold(name, "README.md") && !found[name] {
+		if entry.IsDir() || !strings.HasSuffix(name, ".md") {
 			continue
 		}
 		if err := s.regularADR(name); err != nil {
@@ -167,7 +167,14 @@ func (s Store) closeoutADRAssociations(rm *Roadmap, project string) ([]string, [
 						diagnostics = append(diagnostics, fmt.Sprintf("ADR %s declares %q, not roadmap:<slug>", name, item))
 						continue
 					}
-					if ref.Slug == rm.Slug && (ref.Project == "" || ref.Project == project) {
+					if ref.Project != "" && ref.Project != project {
+						continue // a roadmap of another project: not this association
+					}
+					if _, err := s.GetRoadmap(ref.Slug); err != nil {
+						diagnostics = append(diagnostics, fmt.Sprintf("ADR %s declares %s, which names no roadmap of this project", name, item))
+						continue
+					}
+					if ref.Slug == rm.Slug {
 						found[name] = true
 					}
 				}

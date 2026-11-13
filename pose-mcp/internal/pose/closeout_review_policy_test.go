@@ -602,22 +602,6 @@ func TestCloseoutReviewPolicyInterruptedRoadmapClose(t *testing.T) {
 	}
 }
 
-func TestCloseoutReviewPolicyRecoveryKeepsTheVeto(t *testing.T) {
-	_, s := closeoutReviewedFixture(t, "never", "never")
-	ref := "milestone:program/core"
-	if _, exempt, err := s.CloseoutRecoveryDecision(ref); err != nil || !exempt {
-		t.Fatalf("no review on file should be exempt: %v %v", exempt, err)
-	}
-	bundle, err := s.SealReviewBundle(ref, reviewFixtureNow.Add(2*time.Minute))
-	if err != nil {
-		t.Fatal(err, bundle.Blockers)
-	}
-	attestChildReview(t, s, bundle, reviewFixtureNow.Add(3*time.Minute), "rejected")
-	if _, exempt, err := s.CloseoutRecoveryDecision(ref); err != nil || exempt {
-		t.Fatalf("recovery exempted a scope with a rejection on file: %v %v", exempt, err)
-	}
-}
-
 func TestCloseoutReviewPolicyFederatedReceiptProof(t *testing.T) {
 	_, s := closeoutReviewedFixture(t, "never", "never")
 	ref := "milestone:program/core"
@@ -675,14 +659,20 @@ func TestCloseoutReviewPolicyStatusAloneIsNotHistory(t *testing.T) {
 }
 
 func TestCloseoutReviewPolicyRoundTwo(t *testing.T) {
-	t.Run("an adopted mandatory-human overlay is never dispensed", func(t *testing.T) {
+	t.Run("the effective plan decides the human requirement", func(t *testing.T) {
 		root, s := closeoutMembersFixture(t, "never", "never")
 		os.MkdirAll(filepath.Join(root, ".pose", "review-profiles"), 0o755)
 		os.WriteFile(filepath.Join(root, ".pose", "review-profiles", "human-gate.json"), []byte(`{"schema_version":2,"id":"human-gate","version":1,"scope":"milestone","independence":"mandatory-human","criteria":[{"id":"human","description":"x","evidence_classes":["integration"]}]}`), 0o644)
 		os.WriteFile(filepath.Join(root, ".pose", "review-profiles", "milestone-integration.json"), []byte(`{"schema_version":1,"id":"milestone-integration","version":1,"scope":"milestone","criteria":[{"id":"integration","description":"x","kind":"judgment","evidence_classes":["integration"]}]}`), 0o644)
 		setPolicyField(t, root, "overlay_profiles", []string{"human-gate@1"})
-		if d, err := s.CurrentCloseoutDecision("milestone:program/one"); err != nil || !d.Required {
-			t.Fatalf("never dispensed a mandatory-human overlay: %+v %v", d, err)
+		// The plan selects no overlay here, so it asks for no human either.
+		if d, err := s.CurrentCloseoutDecision("milestone:program/one"); err != nil || d.Required {
+			t.Fatalf("an overlay the plan does not select forced a review: %+v %v", d, err)
+		}
+		// A base profile asking for a human is in the effective plan.
+		os.WriteFile(filepath.Join(root, ".pose", "review-profiles", "milestone-integration.json"), []byte(`{"schema_version":2,"id":"milestone-integration","version":1,"scope":"milestone","independence":"mandatory-human","criteria":[{"id":"integration","description":"x","evidence_classes":["integration"]}]}`), 0o644)
+		if d, err := s.CurrentCloseoutDecision("milestone:program/one"); err != nil || !d.Required || !strings.Contains(d.Reason, "mandatory-human") {
+			t.Fatalf("never dispensed the plan's mandatory-human review: %+v %v", d, err)
 		}
 	})
 	t.Run("a single-member roadmap with a malformed association is unknown", func(t *testing.T) {
@@ -749,6 +739,94 @@ func TestCloseoutReviewPolicyRoundTwo(t *testing.T) {
 		}
 		if state, err := s.GetCloseoutState(ref); err == nil && state.Terminal {
 			t.Fatalf("%+v", state)
+		}
+	})
+}
+
+func TestCloseoutReviewPolicyRoundThree(t *testing.T) {
+	t.Run("a backward declaration of a missing roadmap is unknown", func(t *testing.T) {
+		root, s := closeoutMembersFixture(t, "when-justified", "when-justified")
+		os.WriteFile(filepath.Join(root, ".pose/adr/decision.md"), []byte("---\nroadmaps: [roadmap:missing]\n---\n"), 0o644)
+		if d := evaluate(t, s, "roadmap:pair"); d.Known {
+			t.Fatalf("an unresolved backward target proved absence: %+v", d)
+		}
+	})
+	t.Run("a README backlink counts", func(t *testing.T) {
+		root, s := closeoutMembersFixture(t, "when-justified", "when-justified")
+		os.WriteFile(filepath.Join(root, ".pose/adr/README.md"), []byte("---\nroadmaps: [roadmap:pair]\n---\n"), 0o644)
+		if d := evaluate(t, s, "roadmap:pair"); !d.Known || !d.Required || strings.Join(d.ADRs, ",") != "README.md" {
+			t.Fatalf("a README backlink was ignored: %+v", d)
+		}
+	})
+	t.Run("a sealed but unattested review after the receipt reopens reached", func(t *testing.T) {
+		_, s := closeoutReviewedFixture(t, "never", "never")
+		ref := "milestone:program/core"
+		state, _ := s.GetCloseoutState(ref)
+		receipt, err := s.NewCloseoutReceipt(ref, *state.Review.CloseoutReview, state.Review, state.ScopeDigest, reviewFixtureNow.Add(time.Hour))
+		if err != nil || s.PublishCloseoutReceipt(receipt) != nil {
+			t.Fatal(err)
+		}
+		if bundle, err := s.SealReviewBundle(ref, reviewFixtureNow.Add(2*time.Hour)); err != nil {
+			t.Fatal(err, bundle.Blockers)
+		}
+		if reached, err := s.ReachedMilestones("backend"); err != nil || len(reached) != 1 {
+			t.Fatalf("a pending review after the receipt was hidden: %v %v", reached, err)
+		}
+	})
+	t.Run("a roadmap receipt binds its cut criteria", func(t *testing.T) {
+		_, s := closeoutReviewedFixture(t, "never", "never")
+		ref := "roadmap:program"
+		decision, err := s.CurrentCloseoutDecision(ref)
+		if err != nil {
+			t.Fatal(err)
+		}
+		state, _ := s.GetCloseoutState(ref)
+		receipt, err := s.NewCloseoutReceipt(ref, decision, state.Review, state.ScopeDigest, reviewFixtureNow.Add(time.Hour))
+		if err != nil || s.PublishCloseoutReceipt(receipt) != nil {
+			t.Fatal(err)
+		}
+		editRoadmapFixture(t, s.Root, "## Milestone: core\n", "## Cut criteria\n\n- C1: manual-review:docs/missing.md\n\n## Milestone: core\n")
+		if _, err := s.ReviewCheck(ref); err == nil || !strings.Contains(err.Error(), "exit gate") {
+			t.Fatalf("a roadmap receipt survived a new cut criterion: %v", err)
+		}
+	})
+	t.Run("emitted receipts conform to the published schema", func(t *testing.T) {
+		_, s := closeoutReviewedFixture(t, "never", "never")
+		ref := "milestone:program/core"
+		state, _ := s.GetCloseoutState(ref)
+		receipt, err := s.NewCloseoutReceipt(ref, *state.Review.CloseoutReview, state.Review, state.ScopeDigest, reviewFixtureNow.Add(time.Hour))
+		if err != nil {
+			t.Fatal(err)
+		}
+		raw, _ := json.Marshal(receipt)
+		var emitted map[string]any
+		json.Unmarshal(raw, &emitted)
+		schemaRaw, err := os.ReadFile(filepath.Join("..", "..", "schemas", "v1", "closeout-receipt.schema.json"))
+		if err != nil {
+			t.Fatal(err)
+		}
+		var schema struct {
+			Required   []string                  `json:"required"`
+			Properties map[string]map[string]any `json:"properties"`
+			Defs       map[string]struct {
+				Properties map[string]any `json:"properties"`
+			} `json:"$defs"`
+		}
+		json.Unmarshal(schemaRaw, &schema)
+		for key := range emitted {
+			if _, ok := schema.Properties[key]; !ok {
+				t.Fatalf("receipt field %q is not in the published schema", key)
+			}
+		}
+		for _, key := range schema.Required {
+			if _, ok := emitted[key]; !ok {
+				t.Fatalf("required field %q is not emitted", key)
+			}
+		}
+		for key := range emitted["decision"].(map[string]any) {
+			if _, ok := schema.Defs["decision"].Properties[key]; !ok {
+				t.Fatalf("decision field %q is not in the published schema", key)
+			}
 		}
 	})
 }

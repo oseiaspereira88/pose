@@ -67,6 +67,10 @@ type Store struct {
 	// the disk, a preview reads its staged view. A store built from this one
 	// carries it on.
 	FS Files
+	// planWithoutCloseoutGate builds a review plan without asking the
+	// closeout review gate, for the gate's own question about the plan's
+	// effective independence (spec pose-closeout-review-policy-by-cost-benefit).
+	planWithoutCloseoutGate bool
 }
 
 // fsys is the store's filesystem.

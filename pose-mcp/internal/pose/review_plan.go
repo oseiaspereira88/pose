@@ -404,11 +404,13 @@ func (s Store) ReviewPlan(ref string) (ReviewPlan, error) {
 	// Warnings and Explain enter the digest; the decision does not, so it is
 	// attached only as its own field. A gate that cannot answer (a corrupt or
 	// drifted receipt) fails the plan as it fails closeout-check.
-	decision, _, gateErr := s.closeoutReviewGate(ref, policy)
-	if gateErr != nil {
-		return ReviewPlan{}, gateErr
+	if !s.planWithoutCloseoutGate {
+		decision, _, gateErr := s.closeoutReviewGate(ref, policy)
+		if gateErr != nil {
+			return ReviewPlan{}, gateErr
+		}
+		plan.CloseoutReview = decision
 	}
-	plan.CloseoutReview = decision
 	return plan, nil
 }
 
