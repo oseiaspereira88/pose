@@ -1,7 +1,7 @@
 {
   "schema_version": 2,
-  "input_digest": "sha256:be2a35de3b66287ce4e35739a5c34acf54a69791746622d5eb50642b0097d3aa",
-  "provenance_digest": "sha256:349e4d28060ff2cd01c551ec19c911e744e6a3424d47bed7d55ab3e66792424d",
+  "input_digest": "sha256:f635ce031d2db7ae2d072d355e9f798882e6178dc819f3423e247c0ea0d9e645",
+  "provenance_digest": "sha256:6e38cb6479e26f1eb2331a13a8673cbccbecab896015230b4a61e2b21a417110",
   "implied_edges": [
     "changes"
   ],
@@ -40081,14 +40081,6 @@
       }
     },
     {
-      "id": "change-set:cs-063fac5f35df",
-      "type": "change-set",
-      "attributes": {
-        "diff_digest": "sha256:d70b158ef9801b67e3ca00e3507afcb8a4d70fa4195c10203d90153e1c164136",
-        "selector": "trailers:pose-closeout-review-policy-by-cost-benefit"
-      }
-    },
-    {
       "id": "change-set:cs-066c09dad60d",
       "type": "change-set",
       "attributes": {
@@ -43462,6 +43454,14 @@
       "attributes": {
         "diff_digest": "sha256:886b604c3d6af9448e937fdc88cdc9f56d9c8621760b62b7513d23a102b1ba1e",
         "selector": "range:612243c..af710b6"
+      }
+    },
+    {
+      "id": "change-set:cs-c4db614c2d33",
+      "type": "change-set",
+      "attributes": {
+        "diff_digest": "sha256:e5eda81ded307003193a2516e6bc60626e5d6083804f06a9d6c7dd19aa619b75",
+        "selector": "trailers:pose-closeout-review-policy-by-cost-benefit"
       }
     },
     {
@@ -102800,7 +102800,7 @@
     },
     {
       "from": "spec:pose-closeout-review-policy-by-cost-benefit",
-      "to": "change-set:cs-063fac5f35df",
+      "to": "change-set:cs-c4db614c2d33",
       "type": "observed-by"
     },
     {
@@ -171588,219 +171588,6 @@
         }
       ],
       "diff_digest": "sha256:d3ad4fb72296946e27af3b25a55e53673d5955f337e3b08c83228623ba5f657b"
-    },
-    {
-      "id": "cs-063fac5f35df",
-      "spec": "pose-closeout-review-policy-by-cost-benefit",
-      "selector": "trailers:pose-closeout-review-policy-by-cost-benefit",
-      "base": "f9425e2bc4152baa53d28a3804e720c305fa8398^",
-      "head": "36fdc959efa6565edbbbfc84ebc15735dca8b36b",
-      "resolved_base": "8e3009b2c7305cd94500009875ddc1b7880d8331",
-      "resolved_head": "36fdc959efa6565edbbbfc84ebc15735dca8b36b",
-      "commits": [
-        "f9425e2bc4152baa53d28a3804e720c305fa8398",
-        "f6fa91fee8aa7f2abbc314bb077bb0aa1d824a1b",
-        "ed0cdd44ab6d4a001e405e1f9adbdeffd5d66496",
-        "95b7eee855989187b6e07f355d06e459c8751157",
-        "9f2a9308b71d63e5e8b4363cb775ca0f6cf51701",
-        "a0a80270fd0d5001bffa09f8181587f30dd4a08e",
-        "baa8c5d9986052586ec3cc4b47eb312770c158ed",
-        "87d5abd5b9a2c9fa889ed8045169205e564bbb12",
-        "36fdc959efa6565edbbbfc84ebc15735dca8b36b"
-      ],
-      "paths": [
-        {
-          "action": "created",
-          "path": ".pose/adr/2026-11-12-closeout-review-policy-by-cost-and-benefit.md"
-        },
-        {
-          "action": "created",
-          "path": ".pose/changelogs/unreleased/pose-closeout-review-policy-by-cost-benefit.md"
-        },
-        {
-          "action": "created",
-          "path": ".pose/starts/pose-closeout-review-policy-by-cost-benefit.json"
-        },
-        {
-          "action": "created",
-          "path": "pose-mcp/internal/cli/closeout_review_policy_test.go"
-        },
-        {
-          "action": "created",
-          "path": "pose-mcp/internal/mcpserver/closeout_review_policy_test.go"
-        },
-        {
-          "action": "created",
-          "path": "pose-mcp/internal/pose/closeout_adr_associations.go"
-        },
-        {
-          "action": "created",
-          "path": "pose-mcp/internal/pose/closeout_receipt.go"
-        },
-        {
-          "action": "created",
-          "path": "pose-mcp/internal/pose/closeout_review_policy.go"
-        },
-        {
-          "action": "created",
-          "path": "pose-mcp/internal/pose/closeout_review_policy_test.go"
-        },
-        {
-          "action": "created",
-          "path": "pose-mcp/schemas/v1/closeout-receipt.schema.json"
-        },
-        {
-          "action": "modified",
-          "path": ".pose/indexes/validation-matrix.json"
-        },
-        {
-          "action": "modified",
-          "path": ".pose/specs/2026-11-11-pose-closeout-review-policy-by-cost-benefit.md"
-        },
-        {
-          "action": "modified",
-          "path": ".pose/templates/roadmap.md"
-        },
-        {
-          "action": "modified",
-          "path": "POSE.md"
-        },
-        {
-          "action": "modified",
-          "path": "locales/pt-BR/POSE.md"
-        },
-        {
-          "action": "modified",
-          "path": "pose-mcp/internal/cli/adopt.go"
-        },
-        {
-          "action": "modified",
-          "path": "pose-mcp/internal/cli/adopt_catalog_test.go"
-        },
-        {
-          "action": "modified",
-          "path": "pose-mcp/internal/cli/adopt_test.go"
-        },
-        {
-          "action": "modified",
-          "path": "pose-mcp/internal/cli/doctor.go"
-        },
-        {
-          "action": "modified",
-          "path": "pose-mcp/internal/cli/progressive_review_test.go"
-        },
-        {
-          "action": "modified",
-          "path": "pose-mcp/internal/cli/release_compatibility_test.go"
-        },
-        {
-          "action": "modified",
-          "path": "pose-mcp/internal/cli/review_closeout.go"
-        },
-        {
-          "action": "modified",
-          "path": "pose-mcp/internal/cli/setup.go"
-        },
-        {
-          "action": "modified",
-          "path": "pose-mcp/internal/pose/artifact_ref.go"
-        },
-        {
-          "action": "modified",
-          "path": "pose-mcp/internal/pose/capability_catalog.go"
-        },
-        {
-          "action": "modified",
-          "path": "pose-mcp/internal/pose/capability_catalog_test.go"
-        },
-        {
-          "action": "modified",
-          "path": "pose-mcp/internal/pose/diagnostic_codes.go"
-        },
-        {
-          "action": "modified",
-          "path": "pose-mcp/internal/pose/obligation_projection.go"
-        },
-        {
-          "action": "modified",
-          "path": "pose-mcp/internal/pose/review_bundle.go"
-        },
-        {
-          "action": "modified",
-          "path": "pose-mcp/internal/pose/review_closeout.go"
-        },
-        {
-          "action": "modified",
-          "path": "pose-mcp/internal/pose/review_plan.go"
-        },
-        {
-          "action": "modified",
-          "path": "pose-mcp/internal/pose/roadmaps.go"
-        },
-        {
-          "action": "modified",
-          "path": "pose-mcp/internal/pose/spec_transfer.go"
-        },
-        {
-          "action": "modified",
-          "path": "pose-mcp/internal/scaffold/dist/.pose/templates/roadmap.md"
-        },
-        {
-          "action": "modified",
-          "path": "pose-mcp/internal/scaffold/dist/POSE.md"
-        },
-        {
-          "action": "modified",
-          "path": "pose-mcp/internal/scaffold/dist/locales/pt-BR/POSE.md"
-        },
-        {
-          "action": "modified",
-          "path": "pose-mcp/schemas/v1/review-plan.schema.json"
-        }
-      ],
-      "diff_digest": "sha256:d70b158ef9801b67e3ca00e3507afcb8a4d70fa4195c10203d90153e1c164136",
-      "material_digest": "sha256:8629e2bdcd265aac7de3307e045c4ccbebe12b2f23a3bc5af6bc2c516b546dc5",
-      "material_inputs": {
-        "names": [
-          ".pose/adr/2026-11-12-closeout-review-policy-by-cost-and-benefit.md",
-          ".pose/changelogs/unreleased/pose-closeout-review-policy-by-cost-benefit.md",
-          ".pose/indexes/validation-matrix.json",
-          ".pose/specs/2026-11-11-pose-closeout-review-policy-by-cost-benefit.md",
-          ".pose/starts/pose-closeout-review-policy-by-cost-benefit.json",
-          ".pose/templates/roadmap.md",
-          "POSE.md",
-          "locales/pt-BR/POSE.md",
-          "pose-mcp/internal/cli/adopt.go",
-          "pose-mcp/internal/cli/adopt_catalog_test.go",
-          "pose-mcp/internal/cli/adopt_test.go",
-          "pose-mcp/internal/cli/closeout_review_policy_test.go",
-          "pose-mcp/internal/cli/doctor.go",
-          "pose-mcp/internal/cli/progressive_review_test.go",
-          "pose-mcp/internal/cli/release_compatibility_test.go",
-          "pose-mcp/internal/cli/review_closeout.go",
-          "pose-mcp/internal/cli/setup.go",
-          "pose-mcp/internal/mcpserver/closeout_review_policy_test.go",
-          "pose-mcp/internal/pose/artifact_ref.go",
-          "pose-mcp/internal/pose/capability_catalog.go",
-          "pose-mcp/internal/pose/capability_catalog_test.go",
-          "pose-mcp/internal/pose/closeout_adr_associations.go",
-          "pose-mcp/internal/pose/closeout_receipt.go",
-          "pose-mcp/internal/pose/closeout_review_policy.go",
-          "pose-mcp/internal/pose/closeout_review_policy_test.go",
-          "pose-mcp/internal/pose/diagnostic_codes.go",
-          "pose-mcp/internal/pose/obligation_projection.go",
-          "pose-mcp/internal/pose/review_bundle.go",
-          "pose-mcp/internal/pose/review_closeout.go",
-          "pose-mcp/internal/pose/review_plan.go",
-          "pose-mcp/internal/pose/roadmaps.go",
-          "pose-mcp/internal/pose/spec_transfer.go",
-          "pose-mcp/internal/scaffold/dist/.pose/templates/roadmap.md",
-          "pose-mcp/internal/scaffold/dist/POSE.md",
-          "pose-mcp/internal/scaffold/dist/locales/pt-BR/POSE.md",
-          "pose-mcp/schemas/v1/closeout-receipt.schema.json",
-          "pose-mcp/schemas/v1/review-plan.schema.json"
-        ]
-      }
     },
     {
       "id": "cs-066c09dad60d",
@@ -255402,6 +255189,240 @@
         }
       ],
       "diff_digest": "sha256:886b604c3d6af9448e937fdc88cdc9f56d9c8621760b62b7513d23a102b1ba1e"
+    },
+    {
+      "id": "cs-c4db614c2d33",
+      "spec": "pose-closeout-review-policy-by-cost-benefit",
+      "selector": "trailers:pose-closeout-review-policy-by-cost-benefit",
+      "base": "f9425e2bc4152baa53d28a3804e720c305fa8398^",
+      "head": "9713db4610848b158c289bc51ec05f3a041a3af8",
+      "resolved_base": "8e3009b2c7305cd94500009875ddc1b7880d8331",
+      "resolved_head": "9713db4610848b158c289bc51ec05f3a041a3af8",
+      "commits": [
+        "f9425e2bc4152baa53d28a3804e720c305fa8398",
+        "f6fa91fee8aa7f2abbc314bb077bb0aa1d824a1b",
+        "ed0cdd44ab6d4a001e405e1f9adbdeffd5d66496",
+        "95b7eee855989187b6e07f355d06e459c8751157",
+        "9f2a9308b71d63e5e8b4363cb775ca0f6cf51701",
+        "a0a80270fd0d5001bffa09f8181587f30dd4a08e",
+        "baa8c5d9986052586ec3cc4b47eb312770c158ed",
+        "87d5abd5b9a2c9fa889ed8045169205e564bbb12",
+        "36fdc959efa6565edbbbfc84ebc15735dca8b36b",
+        "9713db4610848b158c289bc51ec05f3a041a3af8"
+      ],
+      "paths": [
+        {
+          "action": "created",
+          "path": ".pose/adr/2026-11-12-closeout-review-policy-by-cost-and-benefit.md"
+        },
+        {
+          "action": "created",
+          "path": ".pose/changelogs/unreleased/pose-closeout-review-policy-by-cost-benefit.md"
+        },
+        {
+          "action": "created",
+          "path": ".pose/starts/pose-closeout-review-policy-by-cost-benefit.json"
+        },
+        {
+          "action": "created",
+          "path": "pose-mcp/internal/cli/closeout_review_policy_test.go"
+        },
+        {
+          "action": "created",
+          "path": "pose-mcp/internal/mcpserver/closeout_review_policy_test.go"
+        },
+        {
+          "action": "created",
+          "path": "pose-mcp/internal/pose/closeout_adr_associations.go"
+        },
+        {
+          "action": "created",
+          "path": "pose-mcp/internal/pose/closeout_receipt.go"
+        },
+        {
+          "action": "created",
+          "path": "pose-mcp/internal/pose/closeout_review_policy.go"
+        },
+        {
+          "action": "created",
+          "path": "pose-mcp/internal/pose/closeout_review_policy_test.go"
+        },
+        {
+          "action": "created",
+          "path": "pose-mcp/schemas/v1/closeout-receipt.schema.json"
+        },
+        {
+          "action": "modified",
+          "path": ".pose/indexes/delivery-integrity.json"
+        },
+        {
+          "action": "modified",
+          "path": ".pose/indexes/generation.json"
+        },
+        {
+          "action": "modified",
+          "path": ".pose/indexes/releases.json"
+        },
+        {
+          "action": "modified",
+          "path": ".pose/indexes/spec-graph.json"
+        },
+        {
+          "action": "modified",
+          "path": ".pose/indexes/validation-matrix.json"
+        },
+        {
+          "action": "modified",
+          "path": ".pose/specs/2026-11-11-pose-closeout-review-policy-by-cost-benefit.md"
+        },
+        {
+          "action": "modified",
+          "path": ".pose/templates/roadmap.md"
+        },
+        {
+          "action": "modified",
+          "path": "POSE.md"
+        },
+        {
+          "action": "modified",
+          "path": "locales/pt-BR/POSE.md"
+        },
+        {
+          "action": "modified",
+          "path": "pose-mcp/internal/cli/adopt.go"
+        },
+        {
+          "action": "modified",
+          "path": "pose-mcp/internal/cli/adopt_catalog_test.go"
+        },
+        {
+          "action": "modified",
+          "path": "pose-mcp/internal/cli/adopt_test.go"
+        },
+        {
+          "action": "modified",
+          "path": "pose-mcp/internal/cli/doctor.go"
+        },
+        {
+          "action": "modified",
+          "path": "pose-mcp/internal/cli/progressive_review_test.go"
+        },
+        {
+          "action": "modified",
+          "path": "pose-mcp/internal/cli/release_compatibility_test.go"
+        },
+        {
+          "action": "modified",
+          "path": "pose-mcp/internal/cli/review_closeout.go"
+        },
+        {
+          "action": "modified",
+          "path": "pose-mcp/internal/cli/setup.go"
+        },
+        {
+          "action": "modified",
+          "path": "pose-mcp/internal/pose/artifact_ref.go"
+        },
+        {
+          "action": "modified",
+          "path": "pose-mcp/internal/pose/capability_catalog.go"
+        },
+        {
+          "action": "modified",
+          "path": "pose-mcp/internal/pose/capability_catalog_test.go"
+        },
+        {
+          "action": "modified",
+          "path": "pose-mcp/internal/pose/diagnostic_codes.go"
+        },
+        {
+          "action": "modified",
+          "path": "pose-mcp/internal/pose/obligation_projection.go"
+        },
+        {
+          "action": "modified",
+          "path": "pose-mcp/internal/pose/review_bundle.go"
+        },
+        {
+          "action": "modified",
+          "path": "pose-mcp/internal/pose/review_closeout.go"
+        },
+        {
+          "action": "modified",
+          "path": "pose-mcp/internal/pose/review_plan.go"
+        },
+        {
+          "action": "modified",
+          "path": "pose-mcp/internal/pose/roadmaps.go"
+        },
+        {
+          "action": "modified",
+          "path": "pose-mcp/internal/pose/spec_transfer.go"
+        },
+        {
+          "action": "modified",
+          "path": "pose-mcp/internal/scaffold/dist/.pose/templates/roadmap.md"
+        },
+        {
+          "action": "modified",
+          "path": "pose-mcp/internal/scaffold/dist/POSE.md"
+        },
+        {
+          "action": "modified",
+          "path": "pose-mcp/internal/scaffold/dist/locales/pt-BR/POSE.md"
+        },
+        {
+          "action": "modified",
+          "path": "pose-mcp/schemas/v1/review-plan.schema.json"
+        }
+      ],
+      "diff_digest": "sha256:e5eda81ded307003193a2516e6bc60626e5d6083804f06a9d6c7dd19aa619b75",
+      "material_digest": "sha256:43ab8f0ee3005f545975f756208ce56c20ead0df851e3fad979c1e9028d77339",
+      "material_inputs": {
+        "names": [
+          ".pose/adr/2026-11-12-closeout-review-policy-by-cost-and-benefit.md",
+          ".pose/changelogs/unreleased/pose-closeout-review-policy-by-cost-benefit.md",
+          ".pose/indexes/delivery-integrity.json",
+          ".pose/indexes/generation.json",
+          ".pose/indexes/releases.json",
+          ".pose/indexes/spec-graph.json",
+          ".pose/indexes/validation-matrix.json",
+          ".pose/specs/2026-11-11-pose-closeout-review-policy-by-cost-benefit.md",
+          ".pose/starts/pose-closeout-review-policy-by-cost-benefit.json",
+          ".pose/templates/roadmap.md",
+          "POSE.md",
+          "locales/pt-BR/POSE.md",
+          "pose-mcp/internal/cli/adopt.go",
+          "pose-mcp/internal/cli/adopt_catalog_test.go",
+          "pose-mcp/internal/cli/adopt_test.go",
+          "pose-mcp/internal/cli/closeout_review_policy_test.go",
+          "pose-mcp/internal/cli/doctor.go",
+          "pose-mcp/internal/cli/progressive_review_test.go",
+          "pose-mcp/internal/cli/release_compatibility_test.go",
+          "pose-mcp/internal/cli/review_closeout.go",
+          "pose-mcp/internal/cli/setup.go",
+          "pose-mcp/internal/mcpserver/closeout_review_policy_test.go",
+          "pose-mcp/internal/pose/artifact_ref.go",
+          "pose-mcp/internal/pose/capability_catalog.go",
+          "pose-mcp/internal/pose/capability_catalog_test.go",
+          "pose-mcp/internal/pose/closeout_adr_associations.go",
+          "pose-mcp/internal/pose/closeout_receipt.go",
+          "pose-mcp/internal/pose/closeout_review_policy.go",
+          "pose-mcp/internal/pose/closeout_review_policy_test.go",
+          "pose-mcp/internal/pose/diagnostic_codes.go",
+          "pose-mcp/internal/pose/obligation_projection.go",
+          "pose-mcp/internal/pose/review_bundle.go",
+          "pose-mcp/internal/pose/review_closeout.go",
+          "pose-mcp/internal/pose/review_plan.go",
+          "pose-mcp/internal/pose/roadmaps.go",
+          "pose-mcp/internal/pose/spec_transfer.go",
+          "pose-mcp/internal/scaffold/dist/.pose/templates/roadmap.md",
+          "pose-mcp/internal/scaffold/dist/POSE.md",
+          "pose-mcp/internal/scaffold/dist/locales/pt-BR/POSE.md",
+          "pose-mcp/schemas/v1/closeout-receipt.schema.json",
+          "pose-mcp/schemas/v1/review-plan.schema.json"
+        ]
+      }
     },
     {
       "id": "cs-c520197c369c",
