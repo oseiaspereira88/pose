@@ -52,9 +52,9 @@
       "spec": "pose-claude-reviewer-runs-tests-in-sandbox",
       "category": "added",
       "breaking": false,
-      "body": "- Optional per-agent `review_profile` selects fresh and resumed governed-review commands without widening read tasks, adjudication or smoke.\n- This repository's Claude review profile executes tests in the mandatory shell sandbox, with private Go cache/temp scratch and absolute write denials for sealed source and the shared Git common directory. Missing bubblewrap, socat or jq refuses launch with installation advice; sandbox failure never falls back to an unrestricted command.",
+      "body": "- Optional per-agent `review_profile` selects fresh and resumed governed-review commands without widening read tasks, adjudication or smoke.\n- This repository's Claude review profile executes tests in the mandatory shell sandbox, with private Go cache/temp scratch and absolute write denials for sealed source and the shared Git common directory. Missing bubblewrap, socat or jq refuses launch with installation advice; sandbox failure never falls back to an unrestricted command.\n\n- Typed Claude init repeats for the same session no longer cause a false capture refusal; conflicting identities and generic regex ambiguity remain refused, with original provenance/redaction bytes preserved.",
       "path": "pose-claude-reviewer-runs-tests-in-sandbox.md",
-      "digest": "sha256:f9b69690af494a33edaf50bc6ad295a07c31cf22d5b4c4059ed1dbe02e13250a"
+      "digest": "sha256:3c7fa5d6c4e17784c4fae97f9f9e108a46b28ceb4b6de4b70abcf163cad97587"
     },
     {
       "spec": "pose-claude-sandboxed-profile",
