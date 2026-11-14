@@ -72,6 +72,7 @@ Em 2026-11-13, fechando `pose-closeout-review-policy-by-cost-benefit`, todo `pos
 - modified: locales/pt-BR/POSE.md
 - modified: pose-mcp/internal/scaffold/dist/POSE.md
 - modified: pose-mcp/internal/scaffold/dist/locales/pt-BR/POSE.md
+- created: pose-mcp/internal/pose/governance_read_view_stream.go
 - created: pose-mcp/internal/pose/governance_read_view_stream_test.go
 
 ### Delivery targets
