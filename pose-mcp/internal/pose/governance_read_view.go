@@ -22,11 +22,16 @@ const (
 	GovernanceReadViewSchemaVersion = 1
 	governanceReadViewParserVersion = "pose-governance-inputs-v1"
 	governanceReadViewMaxRecords    = 40000
-	governanceReadViewMaxInputBytes = 512 * 1024 * 1024
+	governanceReadViewMaxInputBytes = 1024 * 1024 * 1024
 	governanceReadViewMaxMetadata   = 16 * 1024 * 1024
 	ReadViewFreshnessCurrent        = "current"
 	ReadViewFreshnessUnknown        = "unknown"
 )
+
+// GovernanceReadViewMaxInputBytes is the captured-input budget of one
+// governance read view, capture and audit alike (ADR
+// governance-reads-use-bounded-operation-scoped-views, D10).
+const GovernanceReadViewMaxInputBytes = governanceReadViewMaxInputBytes
 
 var errGovernanceReadViewWrite = errors.New("pose: governance read view is read-only")
 var errGovernanceReadViewFinalized = errors.New("pose: governance read view is finalized")

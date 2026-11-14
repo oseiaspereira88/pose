@@ -229,3 +229,25 @@ uses Read/Grep/Glob/Bash without Edit/Write/Agent tools or plan approval mode.
 This changes neither independence nor stream/output/run limits; the actual
 working tree remains checked for mutation. No vendor profile becomes a scaffold
 default.
+
+
+## Capacity recalibration of captured input bytes (D10) — 2026-11-13
+
+Closing spec `pose-closeout-review-policy-by-cost-benefit`, `pose index` in a
+fresh clone and then in the maintainer checkout refused the pose-dist corpus:
+`index.delivery-integrity` exceeded the captured-input budget and
+`index.generate` was left without a complete observation. Measured with a Git
+shim on the real builder: the change sets of every spec read `git show
+--binary` for 2,451 distinct trailer commits, 492 MB of Git output in the
+capture (the final audit reads it again under its own budget), plus the file
+inputs of the generation, so the operation needed more than 512 MiB. Nothing
+was truncated; the refusal was correct. Raise the captured-input budget to
+1 GiB, for capture and audit alike, and keep every other limit, including the
+512 MiB executable-hash bound of D9. Observations retain their bytes, so the
+operation may now hold up to 1 GiB of captured input in memory. This
+recalibration buys headroom, not a scaling property: the corpus grows with
+every attributed commit. The structural fix, retaining only a digest for pure
+reads of immutable Git objects whose bytes a producer only hashes, is a
+follow-up of that spec, and a further raise again requires a measured
+reassessment.
+

@@ -1227,7 +1227,7 @@ func TestGovernanceReadViewProbeAuditAndReplayShareInputByteCapacity(t *testing.
 			if got, err := view.filesFor("capacity").ReadFile(path); err != nil || !bytes.Equal(got, payload) {
 				t.Fatalf("capture failed: %q %v", got, err)
 			}
-			prior := int64(512*1024*1024 - len(payload))
+			prior := int64(governanceReadViewMaxInputBytes - len(payload))
 			if overflow {
 				prior++
 			}

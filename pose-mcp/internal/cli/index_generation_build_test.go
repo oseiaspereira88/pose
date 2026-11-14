@@ -281,7 +281,7 @@ func TestIndexBuildFailureUsesRealCaptureAuditForCallbackPathFailure(t *testing.
 			}
 			if oversized {
 				// Sparse file: metadata proves overflow before any content read.
-				if err := os.Truncate(path, 512*1024*1024+1); err != nil {
+				if err := os.Truncate(path, posepkg.GovernanceReadViewMaxInputBytes+1); err != nil {
 					t.Fatal(err)
 				}
 			}
