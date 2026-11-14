@@ -74,18 +74,31 @@ var (
 func markdownWithoutCode(body string) string {
 	body = markdownCommentRE.ReplaceAllString(body, "")
 	var out strings.Builder
-	fence := ""
+	// A fence keeps its whole delimiter: it closes only on a line of the
+	// same character, at least as long, and nothing else (review round 13,
+	// N44).
+	fenceChar, fenceLen := byte(0), 0
+	run := func(s string) (byte, int) {
+		if s == "" || s[0] != '`' && s[0] != '~' {
+			return 0, 0
+		}
+		n := 0
+		for n < len(s) && s[n] == s[0] {
+			n++
+		}
+		return s[0], n
+	}
 	for _, line := range strings.SplitAfter(body, "\n") {
 		trimmed := strings.TrimSpace(line)
-		if fence != "" {
-			if strings.HasPrefix(trimmed, fence) {
-				fence = ""
+		if fenceLen > 0 {
+			if c, n := run(trimmed); c == fenceChar && n >= fenceLen && n == len(trimmed) {
+				fenceChar, fenceLen = 0, 0
 			}
 			out.WriteString("\n")
 			continue
 		}
-		if strings.HasPrefix(trimmed, "```") || strings.HasPrefix(trimmed, "~~~") {
-			fence = trimmed[:3]
+		if c, n := run(trimmed); n >= 3 && !(c == '`' && strings.Contains(trimmed[n:], "`")) {
+			fenceChar, fenceLen = c, n
 			out.WriteString("\n")
 			continue
 		}
@@ -109,8 +122,10 @@ func associationList(raw, key, owner string) ([]string, bool, string) {
 		if strings.TrimSpace(line) == "---" {
 			break
 		}
-		if value, ok := strings.CutPrefix(line, key+":"); ok {
-			values = append(values, strings.TrimSpace(value))
+		// The key and value as SplitFrontmatter reads them: the key trimmed,
+		// a template comment removed (review round 13, N45).
+		if name, value, ok := strings.Cut(line, ":"); ok && strings.TrimSpace(name) == key {
+			values = append(values, cleanValue(value))
 		}
 	}
 	switch {

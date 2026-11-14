@@ -2,11 +2,14 @@ package pose
 
 import (
 	"encoding/json"
+	"io/fs"
 	"os"
 	"path/filepath"
 	"strings"
 	"testing"
 	"time"
+
+	"github.com/harne8/pose-mcp/internal/scaffold"
 )
 
 // Tests of spec pose-closeout-review-policy-by-cost-benefit. Every test name
@@ -1453,7 +1456,7 @@ func TestCloseoutReviewPolicyRoundTwelve(t *testing.T) {
 	t.Run("association declarations are read strictly", func(t *testing.T) {
 		cases := []struct {
 			name, roadmapFrontmatter, adr string
-			known, required           bool
+			known, required               bool
 		}{
 			{"explicit empty list", "adrs: []\n", "# ADR\n", true, false},
 			{"key with no value", "adrs:\n", "# ADR\n", false, true},
@@ -1531,6 +1534,66 @@ func TestCloseoutReviewPolicyRoundTwelve(t *testing.T) {
 		}
 		if closed, err := s.closedByReceipt(ref); err == nil && closed {
 			t.Fatal("unreviewed_milestones hid a fallen child of a receipt-closed milestone")
+		}
+	})
+}
+
+func TestCloseoutReviewPolicyRoundThirteen(t *testing.T) {
+	t.Run("a roadmap approved under the adopted policy is not history", func(t *testing.T) {
+		root, s := closeoutReviewedFixture(t, "never", "always")
+		editRoadmapFixture(t, root, "\n## Milestone: later\n- after: core\n- specs: pending\n", "")
+		bundle, err := s.SealReviewBundle("roadmap:program", reviewFixtureNow.Add(2*time.Hour))
+		if err != nil {
+			t.Fatal(err, bundle.Blockers)
+		}
+		if bundle.Payload.Plan.CloseoutReview == nil {
+			t.Fatal("a bundle sealed under the adopted policy carries no closeout decision")
+		}
+		attestChildReview(t, s, bundle, reviewFixtureNow.Add(3*time.Hour), "approved")
+		editRoadmapFixture(t, root, "status: active\n", "status: done\n")
+		if s.closeoutScopeHistorical(ScopeRef{Kind: "roadmap", Slug: "program"}) {
+			t.Fatal("a roadmap approved after adoption and done without its receipt read as history")
+		}
+	})
+	t.Run("a disabled policy is no evidence of a legacy closure", func(t *testing.T) {
+		root, s := closeoutReviewedFixture(t, "always", "always")
+		editRoadmapFixture(t, root, "status: active\n", "status: done\n")
+		setPolicyField(t, root, "enabled", false)
+		if s.closeoutScopeHistorical(ScopeRef{Kind: "roadmap", Slug: "program"}) {
+			t.Fatal("enabled=false made a done roadmap history under the adopted policy")
+		}
+	})
+	t.Run("the distributed roadmap template declares a readable adrs default", func(t *testing.T) {
+		raw, err := fs.ReadFile(scaffold.Dist(), ".pose/templates/roadmap.md")
+		if err != nil {
+			t.Fatal(err)
+		}
+		items, present, problem := associationList(string(raw), "adrs", "the roadmap template")
+		if problem != "" || present && len(items) != 0 {
+			t.Fatalf("the template's adrs default is not an empty declaration: %v %v %q", items, present, problem)
+		}
+	})
+	t.Run("a longer fence keeps a shorter one inside and the link after it counts", func(t *testing.T) {
+		root, s := closeoutMembersFixture(t, "when-justified", "when-justified")
+		os.WriteFile(filepath.Join(root, ".pose/adr/decision.md"), []byte("````md\n```\n[example](../roadmaps/missing.md)\n````\n\nGoverns [the pair](../roadmaps/pair.md).\n"), 0o644)
+		if d := evaluate(t, s, "roadmap:pair"); !d.Known || !d.Required || strings.Join(d.ADRs, ",") != "decision.md" {
+			t.Fatalf("the link after a longer fence was dropped: %+v", d)
+		}
+	})
+	t.Run("association keys are normalized as the frontmatter reader reads them", func(t *testing.T) {
+		for name, frontmatter := range map[string]string{
+			"spaced key":           "adrs : [adr:decision.md]\n",
+			"spaced duplicate":     "adrs: []\nadrs : [adr:decision.md]\n",
+			"comment-only value":   "adrs:   # optional\n",
+			"value with a comment": "adrs: [adr:decision.md] # the governing ADR\n",
+		} {
+			t.Run(name, func(t *testing.T) {
+				root, s := closeoutMembersFixture(t, "when-justified", "when-justified")
+				os.WriteFile(filepath.Join(root, ".pose/roadmaps/pair.md"), []byte("---\nslug: pair\nstatus: active\n"+frontmatter+"---\n\n## Milestone: m1\n- specs: d\n\n## Milestone: m2\n- specs: e\n"), 0o644)
+				if d := evaluate(t, s, "roadmap:pair"); !d.Required {
+					t.Fatalf("%q granted an exemption: %+v", frontmatter, d)
+				}
+			})
 		}
 	})
 }

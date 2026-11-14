@@ -716,22 +716,20 @@ func (s Store) closeoutScopeHistorical(scope ScopeRef) bool {
 	if err != nil {
 		return false
 	}
-	if required, err := s.reviewRequiredForScope(ScopeRef{Kind: "roadmap", Slug: slug}, policy); err == nil && !required {
+	// The legacy cutoff, created before review adoption and done, is positive
+	// evidence of a legacy closure; a disabled policy is not, it proves
+	// nothing about when the roadmap closed (review round 13, N42).
+	if required, err := s.reviewRequiredForScope(ScopeRef{Kind: "roadmap", Slug: slug}, policy); err == nil && !required && policy.Enabled {
 		return true
 	}
-	recorded, refused, err := s.milestonesWithRecordedApproval([]string{ref})
-	return err == nil && recorded[ref] && !refused[ref]
+	return s.approvedBeforeAdoption(ref)
 }
 
-// milestoneClosedBeforeAdoption reports a milestone with positive terminal
-// evidence from before adoption: its own approved review, sealed under a
-// policy that had not adopted the closeout pair. A milestone merely reached
-// has no such record and owes its close.
-func (s Store) milestoneClosedBeforeAdoption(scope ScopeRef) bool {
-	if scope.Kind != "milestone" {
-		return false
-	}
-	ref := scope.String()
+// approvedBeforeAdoption reports an aggregate scope with its own approved
+// review sealed under a plan that had no closeout decision: an approval from
+// before adoption. An approval sealed under the adopted policy is no history,
+// it still owes its close (review round 13, N42).
+func (s Store) approvedBeforeAdoption(ref string) bool {
 	recorded, refused, err := s.milestonesWithRecordedApproval([]string{ref})
 	if err != nil || !recorded[ref] || refused[ref] {
 		return false
@@ -747,6 +745,17 @@ func (s Store) milestoneClosedBeforeAdoption(scope ScopeRef) bool {
 		}
 	}
 	return true
+}
+
+// milestoneClosedBeforeAdoption reports a milestone with positive terminal
+// evidence from before adoption: its own approved review, sealed under a
+// policy that had not adopted the closeout pair. A milestone merely reached
+// has no such record and owes its close.
+func (s Store) milestoneClosedBeforeAdoption(scope ScopeRef) bool {
+	if scope.Kind != "milestone" {
+		return false
+	}
+	return s.approvedBeforeAdoption(scope.String())
 }
 
 // closedByReceipt reports an aggregate scope that reads closed: a receipt
