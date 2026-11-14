@@ -40,9 +40,9 @@ func (s Store) adrDir() string { return filepath.Join(s.Root, ".pose", "adr") }
 // markdownLinkDestinations lists the link destinations of a Markdown body,
 // angle brackets and fragments removed. External URLs are kept out.
 func markdownLinkDestinations(body string) []string {
-	// Fenced code, inline code and comments document links; they do not make
-	// them (review round 12, N40).
-	body = markdownWithoutCode(body)
+	// Code and comments are read like prose: a link shown as an example
+	// still counts, so the reader over-enforces rather than dropping a real
+	// link it misparsed (review round 14, N46; follow-up F6).
 	out := []string{}
 	add := func(dest string) {
 		dest = strings.TrimSpace(dest)
@@ -62,49 +62,6 @@ func markdownLinkDestinations(body string) []string {
 		add(m[1])
 	}
 	return out
-}
-
-var (
-	markdownCommentRE    = regexp.MustCompile(`(?s)<!--.*?-->`)
-	markdownInlineCodeRE = regexp.MustCompile("`+[^`\n]*`+")
-)
-
-// markdownWithoutCode blanks fenced code blocks, inline code spans and HTML
-// comments, so the links they show are not read as links.
-func markdownWithoutCode(body string) string {
-	body = markdownCommentRE.ReplaceAllString(body, "")
-	var out strings.Builder
-	// A fence keeps its whole delimiter: it closes only on a line of the
-	// same character, at least as long, and nothing else (review round 13,
-	// N44).
-	fenceChar, fenceLen := byte(0), 0
-	run := func(s string) (byte, int) {
-		if s == "" || s[0] != '`' && s[0] != '~' {
-			return 0, 0
-		}
-		n := 0
-		for n < len(s) && s[n] == s[0] {
-			n++
-		}
-		return s[0], n
-	}
-	for _, line := range strings.SplitAfter(body, "\n") {
-		trimmed := strings.TrimSpace(line)
-		if fenceLen > 0 {
-			if c, n := run(trimmed); c == fenceChar && n >= fenceLen && n == len(trimmed) {
-				fenceChar, fenceLen = 0, 0
-			}
-			out.WriteString("\n")
-			continue
-		}
-		if c, n := run(trimmed); n >= 3 && !(c == '`' && strings.Contains(trimmed[n:], "`")) {
-			fenceChar, fenceLen = c, n
-			out.WriteString("\n")
-			continue
-		}
-		out.WriteString(markdownInlineCodeRE.ReplaceAllString(line, ""))
-	}
-	return out.String()
 }
 
 // associationList reads one association key (adrs: on a roadmap, roadmaps: on
@@ -210,6 +167,10 @@ func (s Store) closeoutADRAssociations(rm *Roadmap, project string) ([]string, [
 	roadmapDir := filepath.Dir(rm.Path)
 	for _, dest := range markdownLinkDestinations(body) {
 		target := filepath.Clean(filepath.Join(roadmapDir, filepath.FromSlash(dest)))
+		if filepath.Dir(target) == filepath.Clean(s.adrDir()) && strings.ContainsAny(dest, "()") {
+			diagnostics = append(diagnostics, fmt.Sprintf("roadmap %s links to %s, a destination with parentheses the association reader does not read whole; rename the ADR or the link", rm.Slug, dest))
+			continue
+		}
 		if filepath.Dir(target) != filepath.Clean(s.adrDir()) || !strings.HasSuffix(target, ".md") {
 			continue
 		}
@@ -275,6 +236,12 @@ func (s Store) closeoutADRAssociations(rm *Roadmap, project string) ([]string, [
 		}
 		for _, dest := range markdownLinkDestinations(adrBody) {
 			target := filepath.Clean(filepath.Join(s.adrDir(), filepath.FromSlash(dest)))
+			// A destination the reader may have cut short is unknown, never an
+			// absent association (review round 14, N47).
+			if filepath.Dir(target) == filepath.Clean(s.roadmapsDir()) && strings.ContainsAny(dest, "()") {
+				diagnostics = append(diagnostics, "ADR "+name+" links to "+dest+", a destination with parentheses the association reader does not read whole; rename the roadmap or the link")
+				continue
+			}
 			if filepath.Dir(target) != filepath.Clean(s.roadmapsDir()) || !strings.HasSuffix(target, ".md") {
 				continue
 			}

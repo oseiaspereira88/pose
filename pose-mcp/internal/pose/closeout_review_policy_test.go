@@ -1480,7 +1480,7 @@ func TestCloseoutReviewPolicyRoundTwelve(t *testing.T) {
 			})
 		}
 	})
-	t.Run("links shown as code or in comments are not associations", func(t *testing.T) {
+	t.Run("links shown as code or in comments still count, failing closed", func(t *testing.T) {
 		for name, body := range map[string]string{
 			"fenced":  "```\n[example](../roadmaps/missing.md)\n```\n",
 			"tilde":   "~~~md\n[example](../roadmaps/missing.md)\n~~~\n",
@@ -1490,8 +1490,11 @@ func TestCloseoutReviewPolicyRoundTwelve(t *testing.T) {
 			t.Run(name, func(t *testing.T) {
 				root, s := closeoutMembersFixture(t, "when-justified", "when-justified")
 				os.WriteFile(filepath.Join(root, ".pose/adr/decision.md"), []byte(body), 0o644)
-				if d := evaluate(t, s, "roadmap:pair"); !d.Known || d.Required {
-					t.Fatalf("a documented example link was read as an association: %+v", d)
+				// Round 14 (N46): the reader does not exclude code, so an
+				// example link to a missing roadmap leaves the answer unknown
+				// and never exempts.
+				if d := evaluate(t, s, "roadmap:pair"); d.Known || !d.Required {
+					t.Fatalf("a link shown as code was dropped: %+v", d)
 				}
 			})
 		}
@@ -1575,7 +1578,7 @@ func TestCloseoutReviewPolicyRoundThirteen(t *testing.T) {
 	})
 	t.Run("a longer fence keeps a shorter one inside and the link after it counts", func(t *testing.T) {
 		root, s := closeoutMembersFixture(t, "when-justified", "when-justified")
-		os.WriteFile(filepath.Join(root, ".pose/adr/decision.md"), []byte("````md\n```\n[example](../roadmaps/missing.md)\n````\n\nGoverns [the pair](../roadmaps/pair.md).\n"), 0o644)
+		os.WriteFile(filepath.Join(root, ".pose/adr/decision.md"), []byte("````md\n```\n[example](../roadmaps/pair.md)\n````\n\nGoverns [the pair](../roadmaps/pair.md).\n"), 0o644)
 		if d := evaluate(t, s, "roadmap:pair"); !d.Known || !d.Required || strings.Join(d.ADRs, ",") != "decision.md" {
 			t.Fatalf("the link after a longer fence was dropped: %+v", d)
 		}
@@ -1595,5 +1598,47 @@ func TestCloseoutReviewPolicyRoundThirteen(t *testing.T) {
 				}
 			})
 		}
+	})
+}
+
+func TestCloseoutReviewPolicyRoundFourteen(t *testing.T) {
+	t.Run("code and comment context never drops a real link", func(t *testing.T) {
+		for name, body := range map[string]string{
+			"indented literal fence": "    ~~~\n\nGoverns [the pair](../roadmaps/pair.md).\n",
+			"comment opener in code": "~~~\n<!--\n~~~\n\n[real](../roadmaps/pair.md)\n\n<!-- -->\n",
+		} {
+			t.Run("backward "+name, func(t *testing.T) {
+				root, s := closeoutMembersFixture(t, "when-justified", "when-justified")
+				os.WriteFile(filepath.Join(root, ".pose/adr/decision.md"), []byte(body), 0o644)
+				if d := evaluate(t, s, "roadmap:pair"); !d.Required || strings.Join(d.ADRs, ",") != "decision.md" {
+					t.Fatalf("a real backward link was dropped: %+v", d)
+				}
+			})
+			t.Run("forward "+name, func(t *testing.T) {
+				root, s := closeoutMembersFixture(t, "when-justified", "when-justified")
+				forward := strings.ReplaceAll(body, "../roadmaps/pair.md", "../adr/decision.md")
+				os.WriteFile(filepath.Join(root, ".pose/roadmaps/pair.md"), []byte("---\nslug: pair\nstatus: active\n---\n\n"+forward+"\n## Milestone: m1\n- specs: d\n\n## Milestone: m2\n- specs: e\n"), 0o644)
+				if d := evaluate(t, s, "roadmap:pair"); !d.Required || strings.Join(d.ADRs, ",") != "decision.md" {
+					t.Fatalf("a real forward link was dropped: %+v", d)
+				}
+			})
+		}
+	})
+	t.Run("a destination with parentheses is unknown, never an absence", func(t *testing.T) {
+		t.Run("forward", func(t *testing.T) {
+			root, s := closeoutMembersFixture(t, "when-justified", "when-justified")
+			os.WriteFile(filepath.Join(root, ".pose/adr/decision(extra).md"), []byte("# ADR\n"), 0o644)
+			editFile(t, filepath.Join(root, ".pose/roadmaps/pair.md"), "mentions decision.md in prose only.", "follows [decision](../adr/decision(extra).md).")
+			if d := evaluate(t, s, "roadmap:pair"); d.Known || !d.Required {
+				t.Fatalf("a link cut short at a parenthesis granted an exemption: %+v", d)
+			}
+		})
+		t.Run("backward", func(t *testing.T) {
+			root, s := closeoutMembersFixture(t, "when-justified", "when-justified")
+			os.WriteFile(filepath.Join(root, ".pose/adr/decision.md"), []byte("Governs [the pair](../roadmaps/pair(extra).md).\n"), 0o644)
+			if d := evaluate(t, s, "roadmap:pair"); d.Known || !d.Required {
+				t.Fatalf("a backward link cut short at a parenthesis granted an exemption: %+v", d)
+			}
+		})
 	})
 }
