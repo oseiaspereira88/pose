@@ -57,6 +57,41 @@ func gitOutputBoundedContext(ctx context.Context, root string, limit int, args .
 	return stdout.Bytes(), nil
 }
 
+// gitStreamBounded streams a raw-history read into sink, bounded like
+// gitOutputBounded, without retaining the output.
+func gitStreamBounded(root string, limit int, sink io.Writer, args ...string) error {
+	ctx, cancel := context.WithTimeout(context.Background(), 2*time.Minute)
+	defer cancel()
+	cmd := posemodel.RawHistoryGitContext(ctx, root, args...)
+	cmd.WaitDelay = 2 * time.Second
+	var stderr bytes.Buffer
+	cmd.Stdout = &streamThrough{limit: limit, sink: sink}
+	cmd.Stderr = &limitedBuffer{buf: &stderr, limit: 64 * 1024}
+	if err := cmd.Run(); err != nil {
+		if ctx.Err() != nil {
+			return fmt.Errorf("git %s failed: %w", args[0], ctx.Err())
+		}
+		return fmt.Errorf("git %s failed: %w: %s", args[0], err, strings.TrimSpace(stderr.String()))
+	}
+	return nil
+}
+
+// streamThrough counts the bytes against the limit, keeping none, and
+// forwards them to sink.
+type streamThrough struct {
+	limit   int
+	sink    io.Writer
+	written int
+}
+
+func (w *streamThrough) Write(data []byte) (int, error) {
+	if w.written+len(data) > w.limit {
+		return 0, fmt.Errorf("bounded Git output exceeded %d bytes", w.limit)
+	}
+	w.written += len(data)
+	return w.sink.Write(data)
+}
+
 // gitOutputBoundedIn preserves the raw-history command policy while routing
 // the exact output through an operation read view when Files carries one.
 func gitOutputBoundedIn(files posemodel.Files, root string, limit int, args ...string) ([]byte, error) {
@@ -202,6 +237,14 @@ func resolveGitChangeSetWithTrailersAndFiles(files posemodel.Files, root, spec, 
 		}
 		return gitOutputBoundedIn(files, root, limit, args...)
 	}
+	gitStream := func(limit int, sink io.Writer, args ...string) error {
+		if files == nil {
+			return gitStreamBounded(root, limit, sink, args...)
+		}
+		ctx, cancel := context.WithTimeout(context.Background(), 2*time.Minute)
+		defer cancel()
+		return posemodel.StreamGovernanceRawHistoryGitIn(files, ctx, root, "index.delivery-integrity", int64(limit), sink, args...)
+	}
 	resolveRevision := func(revision string) (string, error) {
 		return resolveGitRevisionWithFiles(files, root, revision)
 	}
@@ -274,11 +317,12 @@ func resolveGitChangeSetWithTrailersAndFiles(files posemodel.Files, root, spec, 
 			}
 			commitPathLists = append(commitPathLists, parsed)
 			observed = append(observed, parsed...)
-			commitDiff, err := gitOutput(16*1024*1024, "show", "--binary", "--no-ext-diff", "--format=", sha, "--")
-			if err != nil {
+			// The commit's patch only feeds the digest: it is streamed into
+			// it, the same bytes in the same order, and the read view keeps
+			// its digest, not its bytes (spec pose-read-view-streamed-object-digests).
+			if err := gitStream(16*1024*1024, diffHash, "show", "--binary", "--no-ext-diff", "--format=", sha, "--"); err != nil {
 				return posemodel.ChangeSet{}, err
 			}
-			_, _ = diffHash.Write(commitDiff)
 		}
 		paths = mergeObservedPaths(commitPathLists)
 	} else {

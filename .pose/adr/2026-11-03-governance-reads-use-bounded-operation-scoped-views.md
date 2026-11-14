@@ -250,3 +250,20 @@ every attributed commit. The structural fix, retaining only a digest for pure
 reads of immutable Git objects whose bytes a producer only hashes, is a
 follow-up of that spec, and a further raise again requires a measured
 reassessment.
+
+## Streamed object reads restore the captured-input budget (D11) — 2026-11-14
+
+Spec `pose-read-view-streamed-object-digests` supersedes D10. A Git object
+read whose bytes a producer only hashes (the `git show --binary` of each
+commit that feeds a change set's diff digest) is streamed into the producer:
+the read view retains its digest and length, never its bytes, and charges a
+separate streamed budget of 8 GiB per operation, and 8 GiB again for the
+final audit, with at most 256 MiB per read. The final audit does not stream a
+patch read of a commit named by its full id again while the root's effective
+Git configuration is the one it was read under. The same bytes enter the
+same hash, so every diff digest and change-set id is unchanged: on the
+pose-dist corpus the 567 change sets and the whole `delivery-integrity.json`
+were identical before and after. The captured-input budget returns to
+512 MiB. Streaming bounds memory, not I/O: the bytes read still grow with
+the attributed history.
+

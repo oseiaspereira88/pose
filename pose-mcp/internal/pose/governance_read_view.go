@@ -22,7 +22,7 @@ const (
 	GovernanceReadViewSchemaVersion = 1
 	governanceReadViewParserVersion = "pose-governance-inputs-v1"
 	governanceReadViewMaxRecords    = 40000
-	governanceReadViewMaxInputBytes = 1024 * 1024 * 1024
+	governanceReadViewMaxInputBytes = 512 * 1024 * 1024
 	governanceReadViewMaxMetadata   = 16 * 1024 * 1024
 	ReadViewFreshnessCurrent        = "current"
 	ReadViewFreshnessUnknown        = "unknown"
@@ -113,6 +113,7 @@ type governanceReadViewOperation struct {
 	finalAudits      map[*governanceReadView]governanceReadViewAudit
 	budgetMu         sync.Mutex
 	inputBytes       int64
+	streamedBytes    int64
 	metadataBytes    int64
 	records          int
 	directoryEntries int

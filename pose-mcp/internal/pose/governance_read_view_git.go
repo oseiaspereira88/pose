@@ -45,6 +45,7 @@ type governanceReadViewGitState struct {
 	op            *governanceReadViewOperation
 	mu            sync.Mutex
 	observations  map[string]*governanceReadViewGitObservation
+	streams       map[string]*governanceReadViewStreamObservation
 	configMu      sync.Mutex
 	configDigests map[string]string
 }
@@ -280,10 +281,24 @@ func (op *governanceReadViewOperation) captureFilesBoundedContext(files Files, c
 	if op == nil {
 		return runGovernanceGitCommandContext(ctx, files, root, args, maxOutputBytes)
 	}
+	absolute, target, state, err := op.gitRoot(root, producer)
+	if err != nil {
+		return nil, err
+	}
+	if err := target.begin(); err != nil {
+		return nil, err
+	}
+	defer target.end()
+	return state.capture(files, ctx, absolute, producer, maxOutputBytes, args...)
+}
+
+// gitRoot resolves a Git command's root against the operation's authorized
+// roots and returns the view that owns it and the operation's Git state.
+func (op *governanceReadViewOperation) gitRoot(root, producer string) (string, *governanceReadView, *governanceReadViewGitState, error) {
 	absolute, err := filepath.Abs(root)
 	if err != nil {
 		op.primary.markUnknown(producer, "Git root identity could not be resolved")
-		return nil, err
+		return "", nil, nil, err
 	}
 	absolute = filepath.Clean(absolute)
 	op.mu.Lock()
@@ -304,16 +319,12 @@ func (op *governanceReadViewOperation) captureFilesBoundedContext(files Files, c
 	op.mu.Unlock()
 	if !authorized {
 		op.primary.markUnknown(producer, "Git command root is outside the authorized root generation vector")
-		return nil, errGovernanceReadViewOutsideRoot
+		return "", nil, nil, errGovernanceReadViewOutsideRoot
 	}
 	if target == nil {
 		target = op.primary
 	}
-	if err := target.begin(); err != nil {
-		return nil, err
-	}
-	defer target.end()
-	return state.capture(files, ctx, absolute, producer, maxOutputBytes, args...)
+	return absolute, target, state, nil
 }
 
 func (state *governanceReadViewGitState) capture(files Files, ctx context.Context, root, producer string, maxOutputBytes int64, args ...string) ([]byte, error) {
@@ -536,6 +547,7 @@ func (state *governanceReadViewGitState) audit() governanceReadViewAudit {
 			result.ChangedPaths = append(result.ChangedPaths, "git:"+strings.TrimPrefix(rootDigest, "sha256:")+":"+strings.TrimPrefix(argsDigest, "sha256:"))
 		}
 	}
+	state.auditStreams(&result)
 	result.ChangedPaths = uniqueSorted(result.ChangedPaths)
 	for producer := range result.UnknownProducers {
 		result.UnknownProducers[producer] = uniqueSorted(result.UnknownProducers[producer])
@@ -563,6 +575,15 @@ func (state *governanceReadViewGitState) identityDigest() string {
 			RootDigest: digestBytes([]byte(filepath.Clean(item.root))), ArgsDigest: digestBytes(args),
 			OutputLimit:  item.maxOutputBytes,
 			OutputDigest: digestBytes(append(append([]byte(nil), item.stdout...), item.stderr...)),
+			ErrorDigest:  errorDigest(item.errText), Producers: sortedBoolKeys(item.producers),
+		})
+	}
+	for _, item := range state.streams {
+		args, _ := json.Marshal(item.args)
+		items = append(items, identity{
+			RootDigest: digestBytes([]byte(filepath.Clean(item.root))), ArgsDigest: digestBytes(args),
+			OutputLimit:  item.maxBytes,
+			OutputDigest: "streamed:" + item.digest + ":" + fmt.Sprint(item.length),
 			ErrorDigest:  errorDigest(item.errText), Producers: sortedBoolKeys(item.producers),
 		})
 	}
