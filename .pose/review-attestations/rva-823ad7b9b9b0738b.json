@@ -1,0 +1,199 @@
+{
+  "run": {
+    "run_id": "rrn-11320f4eeb5bcde3",
+    "proof_id": "rrp-0caea9cc0cebacf01020fbe6332532ffc265fa994e7185026d1058865fca6398"
+  },
+  "schema_version": 1,
+  "attestation_id": "rva-823ad7b9b9b0738b",
+  "bundle_id": "rvb-36a60dc7aca0483b",
+  "bundle_digest": "sha256:36a60dc7aca0483bc25f2223797737a770d2f4abe5c4b0b1ebea597afc63875c",
+  "reviewer": "agent:openai/gpt-6.1-sol",
+  "decision": "changes-requested",
+  "criteria": [
+    {
+      "id": "assumption-integrity",
+      "disposition": "passed",
+      "evidence": "integration:pose-mcp/go/review-cleanup-removes-go-build-leftovers-integration",
+      "rationale": "Verified the shared cleanup call, numeric name filter, descriptor confinement, separate budgets and positive symlink regression. Continued pathname stability after opening is unresolved and recorded as F1, not accepted as a risk. The independent full validation runs timed out, so their success is not assumed."
+    },
+    {
+      "id": "backend-concurrency",
+      "disposition": "finding",
+      "evidence": "F1"
+    },
+    {
+      "id": "backend-contracts",
+      "disposition": "passed",
+      "evidence": "integration:pose-mcp/go/delegated-adapter-containment-integration",
+      "rationale": "No exported API, CLI, MCP schema or persisted format changes; cleanup remains behind the existing shared dispatch lifecycle."
+    },
+    {
+      "id": "backend-input-errors",
+      "disposition": "finding",
+      "evidence": "F1"
+    },
+    {
+      "id": "backend-integration-impact",
+      "disposition": "passed",
+      "evidence": "integration:pose-mcp/go/review-cleanup-removes-go-build-leftovers-integration",
+      "rationale": "The helper is called from cleanupReviewResources before the ordinary runtime inventory. The shared dispatch caller continues to propagate cleanup errors into the operation result."
+    },
+    {
+      "id": "backend-observability",
+      "disposition": "finding",
+      "evidence": "F1"
+    },
+    {
+      "id": "compatibility",
+      "disposition": "passed",
+      "evidence": "integration:pose-mcp/go/delegated-adapter-containment-integration",
+      "rationale": "Examined the implementation and validation-matrix diff. Public CLI, MCP and file formats remain compatible; the intended behavioral change is removal of qualifying build leftovers."
+    },
+    {
+      "id": "correctness",
+      "disposition": "finding",
+      "evidence": "F1"
+    },
+    {
+      "id": "design-causality",
+      "disposition": "passed",
+      "evidence": "structure:design-b66fabbf6a20353d",
+      "rationale": "R1's separate bounded inventory directly addresses large interrupted Go builds exhausting the ordinary runtime budget. Placing it in shared cleanup addresses the adapter parity cause without increasing the general budget. F1 concerns incomplete implementation of R3."
+    },
+    {
+      "id": "documentation",
+      "disposition": "finding",
+      "evidence": "F1"
+    },
+    {
+      "id": "operability",
+      "disposition": "finding",
+      "evidence": "F1"
+    },
+    {
+      "id": "requirements",
+      "disposition": "finding",
+      "evidence": "F1"
+    },
+    {
+      "id": "scope",
+      "disposition": "passed",
+      "evidence": "structure:design-b66fabbf6a20353d",
+      "rationale": "The four attributed paths contain the shared cleanup helper, focused regression, permanent validation entry and start metadata. The implementation stays within the approved cleanup scope."
+    },
+    {
+      "id": "security",
+      "disposition": "finding",
+      "evidence": "F1"
+    },
+    {
+      "id": "solution-proportionality",
+      "disposition": "passed",
+      "evidence": "structure:design-b66fabbf6a20353d",
+      "rationale": "Reusing the existing confined removal primitive in a small preliminary pass is proportional. Increasing the general runtime budget would contradict the non-goal and weaken unrelated cleanup bounds. No dependencies or speculative extension mechanisms were added. The choice would need reconsideration if Go changes its temporary-directory naming or placement."
+    }
+  ],
+  "tools": [
+    {
+      "id": "artifact-check",
+      "disposition": "passed",
+      "evidence": "command:pose artifact-check --spec pose-review-cleanup-removes-go-build-leftovers --strict",
+      "rationale": "Executed and independently confirmed exit code 0. The command also reported repository-wide orphan warnings."
+    },
+    {
+      "id": "assess-design",
+      "disposition": "not-used",
+      "rationale": "Used the supplied sealed structure evidence and inspected the source directly; did not rerun an assessment that could persist repository artifacts."
+    },
+    {
+      "id": "assess-discover",
+      "component": "pose-mcp",
+      "disposition": "not-used",
+      "rationale": "Not rerun under the no-repository-change boundary because discovery persists assessment artifacts."
+    },
+    {
+      "id": "assess-integrate",
+      "disposition": "not-used",
+      "rationale": "No public inter-module contract changed. Examined the shared dispatch and cleanup boundary directly and used the sealed containment integration evidence."
+    },
+    {
+      "id": "assess-tech-debt",
+      "disposition": "not-used",
+      "rationale": "Did not run the assessment writer under the no-change boundary. Inspected the changed code; it introduces no TODO, FIXME, stub or panic markers."
+    },
+    {
+      "id": "closeout-check",
+      "disposition": "deferred",
+      "rationale": "Requires the completed review and its recorded attestation. This task explicitly prohibits recording an attestation."
+    },
+    {
+      "id": "review-check",
+      "disposition": "deferred",
+      "rationale": "Requires the completed review and its recorded attestation. This draft leaves F1 open."
+    },
+    {
+      "id": "suggest-review",
+      "component": "pose-mcp",
+      "disposition": "passed",
+      "evidence": "command:pose suggest review --path pose-mcp",
+      "rationale": "Executed successfully; selected the Go, security and documentation-style rules."
+    },
+    {
+      "id": "surface-check",
+      "disposition": "passed",
+      "evidence": "integration:pose-mcp/go/review-cleanup-removes-go-build-leftovers-integration",
+      "rationale": "Executed pose surface-check --spec pose-review-cleanup-removes-go-build-leftovers --strict: exit 0, one target, 218 results and zero findings."
+    },
+    {
+      "id": "validate",
+      "disposition": "failed",
+      "evidence": "unit:pose-mcp/go/test",
+      "rationale": "The referenced sealed result passed. The independent pose validate --strict rerun exited 1: 217 steps passed and the full pose-mcp unit-suite step exceeded 600 seconds. The timeout is not established as a change-specific defect."
+    },
+    {
+      "id": "validate",
+      "component": "pose-mcp",
+      "disposition": "failed",
+      "evidence": "unit:pose-mcp/go/test",
+      "rationale": "The referenced sealed result passed. The independent pose validate --strict --module pose-mcp rerun exited 1: 214 steps passed and the full unit-suite step exceeded 600 seconds. Focused cleanup tests, containment tests with the race detector and go vet ./internal/pose passed independently."
+    }
+  ],
+  "evidence_refs": [
+    "F1",
+    "delegated-run:rrn-11320f4eeb5bcde3",
+    "integration:pose-mcp/go/delegated-adapter-containment-integration",
+    "integration:pose-mcp/go/review-cleanup-removes-go-build-leftovers-integration",
+    "structure:design-b66fabbf6a20353d"
+  ],
+  "findings": [
+    {
+      "id": "F1",
+      "severity": "medium",
+      "evidence": "file:pose-mcp/internal/pose/review_adapter_containment.go:632",
+      "action": "R3 requires identity changes during cleanup to leave cleanup incomplete. Identity is checked only when the build directory is opened at lines 622-625. If that directory is subsequently renamed outside the runtime root and an empty replacement is installed at its original name, removal continues through the original descriptor, root.Remove deletes the replacement, and the outer cleanup can report success while the renamed directory remains. Disappearance is also silently accepted here. Preserve and verify the parent-name binding before confirming cleanup, and add a synchronized regression for replacement after the initial identity check. The spec's cited TestAdapterContainmentCleanupCapturedRootsRefuseReplacement replaces runtime or registration roots before cleanup; it does not exercise this build-directory window.",
+      "disposition": "open"
+    }
+  ],
+  "authority": {
+    "schema_version": 1,
+    "project": "proj.pose-dist",
+    "bundle_digest": "sha256:36a60dc7aca0483bc25f2223797737a770d2f4abe5c4b0b1ebea597afc63875c",
+    "principal": "agent:openai/gpt-6.1-sol",
+    "role": "agent",
+    "review_execution": "rrn-11320f4eeb5bcde3",
+    "implementation_principal": "agent:anthropic/claude-opus-5-5",
+    "implementation_execution": "sha256:0eb880a4fc2ed87a379c949a567b1d3dfbd6b58b466f4755fcd363dd2b7fed98",
+    "issuer": "b34-local-executor",
+    "issued_at": "2026-11-14T23:34:07Z",
+    "audience": "proj.pose-dist"
+  },
+  "envelope": {
+    "issuer": "b34-local-executor",
+    "subject": "rvb-36a60dc7aca0483b",
+    "algorithm": "ed25519",
+    "public_key": "ck4sApdfePV2GT+hJyAYfJd2qLzeG55P8pevGR0bvZE=",
+    "signature": "ETZ9bj8Z0ZyFOYJfsNqwqZ8Z4NYbv7dJ5WIzSUhcBsis45z2LXu6iVrpyRazSrroRyRJ240qopQ2kLfZfdV3Dg=="
+  },
+  "attested_at": "2026-11-14T23:34:07Z",
+  "path": ".pose/review-attestations/rva-823ad7b9b9b0738b.json"
+}
