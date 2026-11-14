@@ -1,7 +1,7 @@
 {
   "schema_version": 2,
-  "input_digest": "sha256:196859a1d1ef50bd973db4d5665c97528b8a8d3b1fc073e590da3a08f3223816",
-  "provenance_digest": "sha256:6548500b3f0dccd4a4129d12ea42f9efdfec940a21e24ea0a27b0027e78c4eba",
+  "input_digest": "sha256:3273cea0032cfd90063a9a3edfbabd69cdf6dc9dc34b2385665bac4fba0871d6",
+  "provenance_digest": "sha256:d3924dffe8cd26b95befaebdd3fdda05ae6a4a063c260cbc7544b94816e45175",
   "implied_edges": [
     "changes"
   ],
@@ -42846,6 +42846,14 @@
       }
     },
     {
+      "id": "change-set:cs-4ed5fcac5b89",
+      "type": "change-set",
+      "attributes": {
+        "diff_digest": "sha256:a98709fb4743e577b5009586e367bad9093aa94762da9a9fda42194fa8749fc9",
+        "selector": "trailers:pose-index-streams-each-commit-once"
+      }
+    },
+    {
       "id": "change-set:cs-4eebc9f2bd20",
       "type": "change-set",
       "attributes": {
@@ -44003,14 +44011,6 @@
       "attributes": {
         "diff_digest": "sha256:d90954d0e69701db2a8f9d15db2d734266abe5c45dce6be9cce1ee2b94007fc1",
         "selector": "trailers:pose-extension-signing-clean-tree"
-      }
-    },
-    {
-      "id": "change-set:cs-97cdba3f11de",
-      "type": "change-set",
-      "attributes": {
-        "diff_digest": "sha256:478ad95eea51bf23a981c1c881e87b846e35ca74bb20ee753c7c50495a4c8f9a",
-        "selector": "trailers:pose-index-streams-each-commit-once"
       }
     },
     {
@@ -117777,7 +117777,7 @@
     },
     {
       "from": "spec:pose-index-streams-each-commit-once",
-      "to": "change-set:cs-97cdba3f11de",
+      "to": "change-set:cs-4ed5fcac5b89",
       "type": "observed-by"
     },
     {
@@ -209518,6 +209518,79 @@
       }
     },
     {
+      "id": "cs-4ed5fcac5b89",
+      "spec": "pose-index-streams-each-commit-once",
+      "selector": "trailers:pose-index-streams-each-commit-once",
+      "base": "fab17dd99aad676ebad318319b3a64c210df47e5^",
+      "head": "a9ded487a6a9d53d4f2dc3e9eb2d2b9a412646b1",
+      "resolved_base": "6e853c755a7fe723f8a7940ebb66a6fcc60b07ff",
+      "resolved_head": "a9ded487a6a9d53d4f2dc3e9eb2d2b9a412646b1",
+      "commits": [
+        "fab17dd99aad676ebad318319b3a64c210df47e5",
+        "8cfe99bbc144694ff1ba7c7c05981af78ae0458e",
+        "3caa2437264d5422f66167a93f4a6e37cdc2e6ae",
+        "a9ded487a6a9d53d4f2dc3e9eb2d2b9a412646b1"
+      ],
+      "paths": [
+        {
+          "action": "created",
+          "path": ".pose/specs/2026-11-14-pose-index-streams-each-commit-once.md"
+        },
+        {
+          "action": "created",
+          "path": ".pose/starts/pose-index-streams-each-commit-once.json"
+        },
+        {
+          "action": "created",
+          "path": "pose-mcp/internal/cli/change_set_single_pass_test.go"
+        },
+        {
+          "action": "modified",
+          "path": ".pose/indexes/delivery-integrity.json"
+        },
+        {
+          "action": "modified",
+          "path": ".pose/indexes/generation.json"
+        },
+        {
+          "action": "modified",
+          "path": ".pose/indexes/spec-graph.json"
+        },
+        {
+          "action": "modified",
+          "path": ".pose/indexes/validation-matrix.json"
+        },
+        {
+          "action": "modified",
+          "path": "pose-mcp/internal/cli/artifact_integrity.go"
+        },
+        {
+          "action": "modified",
+          "path": "pose-mcp/internal/cli/governance_operation_performance_test.go"
+        },
+        {
+          "action": "modified",
+          "path": "pose-mcp/internal/pose/spec_trailers.go"
+        }
+      ],
+      "diff_digest": "sha256:a98709fb4743e577b5009586e367bad9093aa94762da9a9fda42194fa8749fc9",
+      "material_digest": "sha256:54585d1e8e79b470cff68ca93ebe5603fd43e74b77996ac4532cde72f7f70544",
+      "material_inputs": {
+        "names": [
+          ".pose/indexes/delivery-integrity.json",
+          ".pose/indexes/generation.json",
+          ".pose/indexes/spec-graph.json",
+          ".pose/indexes/validation-matrix.json",
+          ".pose/specs/2026-11-14-pose-index-streams-each-commit-once.md",
+          ".pose/starts/pose-index-streams-each-commit-once.json",
+          "pose-mcp/internal/cli/artifact_integrity.go",
+          "pose-mcp/internal/cli/change_set_single_pass_test.go",
+          "pose-mcp/internal/cli/governance_operation_performance_test.go",
+          "pose-mcp/internal/pose/spec_trailers.go"
+        ]
+      }
+    },
+    {
       "id": "cs-4eebc9f2bd20",
       "spec": "pose-locale-obligation-flags",
       "selector": "trailers:pose-locale-obligation-flags",
@@ -237754,63 +237827,6 @@
         "moved": [
           ".pose/changelogs/v0.20.1/pose-extension-signing-clean-tree.md",
           "pose-mcp/internal/scaffold/dist/.pose/changelogs/v0.20.1/pose-extension-signing-clean-tree.md"
-        ]
-      }
-    },
-    {
-      "id": "cs-97cdba3f11de",
-      "spec": "pose-index-streams-each-commit-once",
-      "selector": "trailers:pose-index-streams-each-commit-once",
-      "base": "fab17dd99aad676ebad318319b3a64c210df47e5^",
-      "head": "3caa2437264d5422f66167a93f4a6e37cdc2e6ae",
-      "resolved_base": "6e853c755a7fe723f8a7940ebb66a6fcc60b07ff",
-      "resolved_head": "3caa2437264d5422f66167a93f4a6e37cdc2e6ae",
-      "commits": [
-        "fab17dd99aad676ebad318319b3a64c210df47e5",
-        "8cfe99bbc144694ff1ba7c7c05981af78ae0458e",
-        "3caa2437264d5422f66167a93f4a6e37cdc2e6ae"
-      ],
-      "paths": [
-        {
-          "action": "created",
-          "path": ".pose/specs/2026-11-14-pose-index-streams-each-commit-once.md"
-        },
-        {
-          "action": "created",
-          "path": ".pose/starts/pose-index-streams-each-commit-once.json"
-        },
-        {
-          "action": "created",
-          "path": "pose-mcp/internal/cli/change_set_single_pass_test.go"
-        },
-        {
-          "action": "modified",
-          "path": ".pose/indexes/validation-matrix.json"
-        },
-        {
-          "action": "modified",
-          "path": "pose-mcp/internal/cli/artifact_integrity.go"
-        },
-        {
-          "action": "modified",
-          "path": "pose-mcp/internal/cli/governance_operation_performance_test.go"
-        },
-        {
-          "action": "modified",
-          "path": "pose-mcp/internal/pose/spec_trailers.go"
-        }
-      ],
-      "diff_digest": "sha256:478ad95eea51bf23a981c1c881e87b846e35ca74bb20ee753c7c50495a4c8f9a",
-      "material_digest": "sha256:54585d1e8e79b470cff68ca93ebe5603fd43e74b77996ac4532cde72f7f70544",
-      "material_inputs": {
-        "names": [
-          ".pose/indexes/validation-matrix.json",
-          ".pose/specs/2026-11-14-pose-index-streams-each-commit-once.md",
-          ".pose/starts/pose-index-streams-each-commit-once.json",
-          "pose-mcp/internal/cli/artifact_integrity.go",
-          "pose-mcp/internal/cli/change_set_single_pass_test.go",
-          "pose-mcp/internal/cli/governance_operation_performance_test.go",
-          "pose-mcp/internal/pose/spec_trailers.go"
         ]
       }
     },
