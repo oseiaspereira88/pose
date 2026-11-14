@@ -2,6 +2,8 @@ package pose
 
 import (
 	"bytes"
+	"errors"
+	"fmt"
 	"os"
 	"os/exec"
 	"path/filepath"
@@ -325,4 +327,48 @@ func TestAdapterContainmentEscapedFiniteChildIsDisclosedNotContained(t *testing.
 		time.Sleep(10 * time.Millisecond)
 	}
 	t.Fatal("escape fixture did not exercise the disclosed limitation")
+}
+
+// Spec pose-review-cleanup-removes-go-build-leftovers: the Go build directory
+// an interrupted reviewer test left in the runtime directory is removed even
+// when it alone exceeds the runtime inventory, and a link named like one is
+// never followed.
+func TestAdapterCleanupRemovesGoBuildLeftovers(t *testing.T) {
+	if runtime.GOOS != "linux" {
+		t.Skip("Linux descriptor and symlink qualification")
+	}
+	f := makeContainmentCleanupFixture(t)
+	build := filepath.Join(f.tmp, "go-build4066122796")
+	if err := os.MkdirAll(filepath.Join(build, "b001"), 0o700); err != nil {
+		t.Fatal(err)
+	}
+	big := filepath.Join(build, "b001", "cli.test")
+	if err := os.WriteFile(big, nil, 0o700); err != nil {
+		t.Fatal(err)
+	}
+	if err := os.Truncate(big, 200<<20); err != nil {
+		t.Fatal(err)
+	}
+	for i := 0; i < 4200; i++ {
+		if err := os.WriteFile(filepath.Join(build, fmt.Sprintf("obj%04d.a", i)), []byte("x"), 0o600); err != nil {
+			t.Fatal(err)
+		}
+	}
+	outside := t.TempDir()
+	keep := filepath.Join(outside, "keep")
+	if err := os.WriteFile(keep, []byte("outside"), 0o600); err != nil {
+		t.Fatal(err)
+	}
+	if err := os.Symlink(outside, filepath.Join(f.tmp, "go-build1")); err != nil {
+		t.Fatal(err)
+	}
+	if err := f.cleanup(); err != nil {
+		t.Fatalf("a go-build leftover kept the run from cleaning up: %v", err)
+	}
+	if _, err := os.Lstat(f.tmp); !errors.Is(err, os.ErrNotExist) {
+		t.Fatalf("the runtime directory remains: %v", err)
+	}
+	if raw, err := os.ReadFile(keep); err != nil || string(raw) != "outside" {
+		t.Fatalf("a go-build link was followed out of the runtime: %v %q", err, raw)
+	}
 }

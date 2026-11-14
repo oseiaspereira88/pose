@@ -573,6 +573,9 @@ func (s Store) cleanupReviewResources(tmp string, owned os.FileInfo, worktree st
 	} else if _, e := root.Lstat("worktree"); !errors.Is(e, os.ErrNotExist) {
 		return fmt.Errorf("partial worktree setup has no verified ownership; resources retained")
 	}
+	if err := removeReviewGoBuildLeftovers(root); err != nil {
+		return err
+	}
 	if err := removeReviewOwnedContents(root, 4096, 128<<20); err != nil {
 		return err
 	}
@@ -585,6 +588,50 @@ func (s Store) cleanupReviewResources(tmp string, owned os.FileInfo, worktree st
 	}
 	if o != nil {
 		o.removed = true
+	}
+	return nil
+}
+
+// reviewGoBuildDir names the temporary build directory the Go toolchain
+// creates under the TMPDIR the engine gives a review run.
+var reviewGoBuildDir = regexp.MustCompile(`^go-build[0-9]+$`)
+
+// removeReviewGoBuildLeftovers removes the Go build directories a reviewer's
+// interrupted `go test` or `go build` left at the top of the run's runtime
+// directory, each under its own bounded inventory, before the runtime's own
+// inventory, which a single test binary can exceed. Only a real directory is
+// removed; a link or any other entry stays for the runtime inventory to judge
+// (spec pose-review-cleanup-removes-go-build-leftovers).
+func removeReviewGoBuildLeftovers(root *os.Root) error {
+	entries, err := fs.ReadDir(root.FS(), ".")
+	if err != nil {
+		return fmt.Errorf("runtime cleanup inventory incomplete; resources retained")
+	}
+	for _, entry := range entries {
+		if !reviewGoBuildDir.MatchString(entry.Name()) {
+			continue
+		}
+		info, err := root.Lstat(entry.Name())
+		if err != nil || !info.IsDir() || info.Mode()&os.ModeSymlink != 0 {
+			continue
+		}
+		build, err := root.OpenRoot(entry.Name())
+		if err != nil {
+			return fmt.Errorf("runtime cleanup inventory incomplete; resources retained")
+		}
+		opened, err := build.Stat(".")
+		if err != nil || !os.SameFile(info, opened) {
+			build.Close()
+			return fmt.Errorf("runtime path changed during cleanup; replacement retained")
+		}
+		err = removeReviewOwnedContents(build, 200000, 8<<30)
+		build.Close()
+		if err != nil {
+			return err
+		}
+		if err := root.Remove(entry.Name()); err != nil && !errors.Is(err, os.ErrNotExist) {
+			return fmt.Errorf("runtime cleanup incomplete; resources retained")
+		}
 	}
 	return nil
 }
