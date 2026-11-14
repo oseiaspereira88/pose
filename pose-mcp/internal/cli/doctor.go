@@ -1581,7 +1581,10 @@ func declaredMCPProjectID(raw []byte) string {
 // policy or of their composition (spec pose-closeout-review-policy-by-cost-benefit
 // R6). It only reports: `pose close` remains the gate.
 func diagnoseCloseoutReviewPolicy(root string, add func(string, string, string, string), text func(string, string) string) {
-	store := posemodel.Store{Root: root}
+	// The store `pose close` uses, with the resolver the environment binds,
+	// so an external or transferred member resolves here as it does there
+	// (review round 11, N37).
+	store := cliGovernedStore(root)
 	policy, err := store.GetReviewPolicy()
 	if err != nil || !policy.CloseoutReviewAdopted() {
 		return
