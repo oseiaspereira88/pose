@@ -250,4 +250,3 @@ every attributed commit. The structural fix, retaining only a digest for pure
 reads of immutable Git objects whose bytes a producer only hashes, is a
 follow-up of that spec, and a further raise again requires a measured
 reassessment.
-

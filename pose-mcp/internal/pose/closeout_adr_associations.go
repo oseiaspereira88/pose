@@ -40,6 +40,9 @@ func (s Store) adrDir() string { return filepath.Join(s.Root, ".pose", "adr") }
 // markdownLinkDestinations lists the link destinations of a Markdown body,
 // angle brackets and fragments removed. External URLs are kept out.
 func markdownLinkDestinations(body string) []string {
+	// Fenced code, inline code and comments document links; they do not make
+	// them (review round 12, N40).
+	body = markdownWithoutCode(body)
 	out := []string{}
 	add := func(dest string) {
 		dest = strings.TrimSpace(dest)
@@ -59,6 +62,83 @@ func markdownLinkDestinations(body string) []string {
 		add(m[1])
 	}
 	return out
+}
+
+var (
+	markdownCommentRE    = regexp.MustCompile(`(?s)<!--.*?-->`)
+	markdownInlineCodeRE = regexp.MustCompile("`+[^`\n]*`+")
+)
+
+// markdownWithoutCode blanks fenced code blocks, inline code spans and HTML
+// comments, so the links they show are not read as links.
+func markdownWithoutCode(body string) string {
+	body = markdownCommentRE.ReplaceAllString(body, "")
+	var out strings.Builder
+	fence := ""
+	for _, line := range strings.SplitAfter(body, "\n") {
+		trimmed := strings.TrimSpace(line)
+		if fence != "" {
+			if strings.HasPrefix(trimmed, fence) {
+				fence = ""
+			}
+			out.WriteString("\n")
+			continue
+		}
+		if strings.HasPrefix(trimmed, "```") || strings.HasPrefix(trimmed, "~~~") {
+			fence = trimmed[:3]
+			out.WriteString("\n")
+			continue
+		}
+		out.WriteString(markdownInlineCodeRE.ReplaceAllString(line, ""))
+	}
+	return out.String()
+}
+
+// associationList reads one association key (adrs: on a roadmap, roadmaps: on
+// an ADR) from the raw frontmatter of a governance file, strictly: a key
+// declared more than once, declared with no value, outside a [list], or with
+// an empty item is reported, never read as an absent or empty association. An
+// explicit [] declares none (review round 12, N39).
+func associationList(raw, key, owner string) ([]string, bool, string) {
+	lines := strings.Split(strings.ReplaceAll(raw, "\r\n", "\n"), "\n")
+	if len(lines) == 0 || strings.TrimSpace(lines[0]) != "---" {
+		return nil, false, ""
+	}
+	values := []string{}
+	for _, line := range lines[1:] {
+		if strings.TrimSpace(line) == "---" {
+			break
+		}
+		if value, ok := strings.CutPrefix(line, key+":"); ok {
+			values = append(values, strings.TrimSpace(value))
+		}
+	}
+	switch {
+	case len(values) == 0:
+		return nil, false, ""
+	case len(values) > 1:
+		return nil, true, fmt.Sprintf("%s declares %s: %d times; one declaration is required", owner, key, len(values))
+	}
+	value := values[0]
+	if value == "" {
+		return nil, true, fmt.Sprintf("%s declares %s: with no value; declare [] for none", owner, key)
+	}
+	if !strings.HasPrefix(value, "[") || !strings.HasSuffix(value, "]") {
+		return nil, true, fmt.Sprintf("%s declares %s: outside a [list]", owner, key)
+	}
+	inner := strings.TrimSpace(value[1 : len(value)-1])
+	if inner == "" {
+		return []string{}, true, ""
+	}
+	items := []string{}
+	for _, item := range strings.Split(inner, ",") {
+		item = strings.TrimSpace(item)
+		if item == "" {
+			return nil, true, fmt.Sprintf("%s declares %s: with an empty item", owner, key)
+		}
+		items = append(items, item)
+	}
+	return items, true, ""
 }
 
 // validADRBasename accepts exactly a file name ending in .md directly inside
@@ -86,24 +166,25 @@ func (s Store) regularADR(name string) error {
 func (s Store) closeoutADRAssociations(rm *Roadmap, project string) ([]string, []string) {
 	found := map[string]bool{}
 	diagnostics := []string{}
-	if rm.ADRs != "" {
-		value := strings.TrimSpace(rm.ADRs)
-		if !strings.HasPrefix(value, "[") || !strings.HasSuffix(value, "]") {
-			diagnostics = append(diagnostics, "roadmap "+rm.Slug+" declares adrs: outside a [list]")
-		} else {
-			for _, item := range parseInlineList(value) {
-				name, ok := strings.CutPrefix(item, "adr:")
-				if !ok || !validADRBasename(name) {
-					diagnostics = append(diagnostics, fmt.Sprintf("roadmap %s declares %q, not adr:<file>.md", rm.Slug, item))
-					continue
-				}
-				if err := s.regularADR(name); err != nil {
-					diagnostics = append(diagnostics, fmt.Sprintf("roadmap %s declares adr:%s, which cannot be read: %v", rm.Slug, name, err))
-					continue
-				}
-				found[name] = true
-			}
+	rawRoadmap, readErr := s.fsys().ReadFile(rm.Path)
+	if readErr != nil {
+		diagnostics = append(diagnostics, "roadmap "+rm.Slug+" could not be read for its adrs: "+readErr.Error())
+	}
+	declared, _, declarationProblem := associationList(string(rawRoadmap), "adrs", "roadmap "+rm.Slug)
+	if declarationProblem != "" {
+		diagnostics = append(diagnostics, declarationProblem)
+	}
+	for _, item := range declared {
+		name, ok := strings.CutPrefix(item, "adr:")
+		if !ok || !validADRBasename(name) {
+			diagnostics = append(diagnostics, fmt.Sprintf("roadmap %s declares %q, not adr:<file>.md", rm.Slug, item))
+			continue
 		}
+		if err := s.regularADR(name); err != nil {
+			diagnostics = append(diagnostics, fmt.Sprintf("roadmap %s declares adr:%s, which cannot be read: %v", rm.Slug, name, err))
+			continue
+		}
+		found[name] = true
 	}
 	body := rm.Body
 	if body == "" {
@@ -155,29 +236,26 @@ func (s Store) closeoutADRAssociations(rm *Roadmap, project string) ([]string, [
 			diagnostics = append(diagnostics, "ADR "+name+" could not be read: "+err.Error())
 			continue
 		}
-		fm, adrBody := SplitFrontmatter(string(raw))
-		if declared, ok := fm["roadmaps"]; ok {
-			value := strings.TrimSpace(declared)
-			if !strings.HasPrefix(value, "[") || !strings.HasSuffix(value, "]") {
-				diagnostics = append(diagnostics, "ADR "+name+" declares roadmaps: outside a [list]")
-			} else {
-				for _, item := range parseInlineList(value) {
-					ref, err := ParseArtifactRef(item)
-					if err != nil || ref.Kind != "roadmap" || ref.Milestone != "" {
-						diagnostics = append(diagnostics, fmt.Sprintf("ADR %s declares %q, not roadmap:<slug>", name, item))
-						continue
-					}
-					if ref.Project != "" && ref.Project != project {
-						continue // a roadmap of another project: not this association
-					}
-					if _, err := s.GetRoadmap(ref.Slug); err != nil {
-						diagnostics = append(diagnostics, fmt.Sprintf("ADR %s declares %s, which names no roadmap of this project", name, item))
-						continue
-					}
-					if ref.Slug == rm.Slug {
-						found[name] = true
-					}
-				}
+		_, adrBody := SplitFrontmatter(string(raw))
+		backward, _, backwardProblem := associationList(string(raw), "roadmaps", "ADR "+name)
+		if backwardProblem != "" {
+			diagnostics = append(diagnostics, backwardProblem)
+		}
+		for _, item := range backward {
+			ref, err := ParseArtifactRef(item)
+			if err != nil || ref.Kind != "roadmap" || ref.Milestone != "" {
+				diagnostics = append(diagnostics, fmt.Sprintf("ADR %s declares %q, not roadmap:<slug>", name, item))
+				continue
+			}
+			if ref.Project != "" && ref.Project != project {
+				continue // a roadmap of another project: not this association
+			}
+			if _, err := s.GetRoadmap(ref.Slug); err != nil {
+				diagnostics = append(diagnostics, fmt.Sprintf("ADR %s declares %s, which names no roadmap of this project", name, item))
+				continue
+			}
+			if ref.Slug == rm.Slug {
+				found[name] = true
 			}
 		}
 		for _, dest := range markdownLinkDestinations(adrBody) {

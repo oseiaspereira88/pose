@@ -2715,6 +2715,8 @@ func (s Store) getCloseoutState(ref string, includeFederated bool) (CloseoutStat
 		if err != nil {
 			return state, err
 		}
+		closeoutAdopted, adoptErr := s.closeoutReviewPolicyAdopted()
+		closeoutAdopted = closeoutAdopted || adoptErr != nil
 		var found bool
 		for _, milestone := range rm.Milestones {
 			if milestone.ID != scope.Milestone {
@@ -2738,8 +2740,11 @@ func (s Store) getCloseoutState(ref string, includeFederated bool) (CloseoutStat
 					return state, err
 				}
 				state.Children = append(state.Children, child)
-				// A roadmap may declare why a terminal member owes this milestone nothing.
-				if !child.Terminal && !(review.Approved && s.declaredUnreviewed(scope) != "") {
+				// A roadmap may declare why a terminal member owes this milestone
+				// nothing, under the legacy rule only: under an adopted closeout
+				// review policy a child that is not terminal always blocks
+				// (review round 12, N38).
+				if !child.Terminal && !(review.Approved && !closeoutAdopted && s.declaredUnreviewed(scope) != "") {
 					block(NewDiagnostic("child-scope-open", "child "+child.Scope+" is not closed", child.Scope))
 				}
 			}

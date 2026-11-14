@@ -1424,3 +1424,113 @@ func TestCloseoutReviewPolicyRoundTen(t *testing.T) {
 		}
 	})
 }
+
+// writeLegacyAttempt records a legacy review attempt of scope over its
+// current digest, answering every criterion of its plan.
+func writeLegacyAttempt(t *testing.T, s Store, root, scope, id, decision, at string) {
+	t.Helper()
+	plan, err := s.ReviewPlan(scope)
+	if err != nil {
+		t.Fatal(err)
+	}
+	digest, err := s.ScopeDigest(scope)
+	if err != nil {
+		t.Fatal(err)
+	}
+	criteria, classes := "", []string{}
+	for _, criterion := range plan.Criteria {
+		class := "legacy"
+		if len(criterion.EvidenceClasses) > 0 {
+			class = criterion.EvidenceClasses[0]
+		}
+		classes = append(classes, class+":legacy")
+		criteria += "- " + criterion.ID + " [passed] evidence:" + class + ":legacy\n"
+	}
+	federatedTestWrite(t, root, ".pose/reviews/"+id+".md", "---\nschema_version: 1\nreview_id: "+id+"\nscope: "+scope+"\nscope_digest: "+digest+"\nprofile: "+plan.BaseProfile+"\nreviewer: agent:test-review\ndecision: "+decision+"\nreviewed_at: "+at+"\nevidence_refs: ["+strings.Join(uniqueSorted(classes), ", ")+"]\n---\n\n## Criteria\n"+criteria+"\n## Findings\n")
+}
+
+func TestCloseoutReviewPolicyRoundTwelve(t *testing.T) {
+	t.Run("association declarations are read strictly", func(t *testing.T) {
+		cases := []struct {
+			name, roadmapFrontmatter, adr string
+			known, required           bool
+		}{
+			{"explicit empty list", "adrs: []\n", "# ADR\n", true, false},
+			{"key with no value", "adrs:\n", "# ADR\n", false, true},
+			{"empty item", "adrs: [,]\n", "# ADR\n", false, true},
+			{"duplicate key on the roadmap", "adrs: [adr:decision.md]\nadrs: []\n", "# ADR\n", false, true},
+			{"duplicate key on the ADR", "", "---\nroadmaps: [roadmap:pair]\nroadmaps: []\n---\n", false, true},
+			{"empty backward value", "", "---\nroadmaps:\n---\n", false, true},
+		}
+		for _, tc := range cases {
+			t.Run(tc.name, func(t *testing.T) {
+				root, s := closeoutMembersFixture(t, "when-justified", "when-justified")
+				os.WriteFile(filepath.Join(root, ".pose/roadmaps/pair.md"), []byte("---\nslug: pair\nstatus: active\n"+tc.roadmapFrontmatter+"---\n\n## Milestone: m1\n- specs: d\n\n## Milestone: m2\n- specs: e\n"), 0o644)
+				os.WriteFile(filepath.Join(root, ".pose/adr/decision.md"), []byte(tc.adr), 0o644)
+				d, err := s.EvaluateCloseoutReview("roadmap:pair")
+				if err != nil {
+					t.Fatal(err)
+				}
+				if d.Known != tc.known || d.Required != tc.required {
+					t.Fatalf("known=%v required=%v diagnostics=%v", d.Known, d.Required, d.Diagnostics)
+				}
+			})
+		}
+	})
+	t.Run("links shown as code or in comments are not associations", func(t *testing.T) {
+		for name, body := range map[string]string{
+			"fenced":  "```\n[example](../roadmaps/missing.md)\n```\n",
+			"tilde":   "~~~md\n[example](../roadmaps/missing.md)\n~~~\n",
+			"inline":  "Write `[example](../roadmaps/missing.md)` to link.\n",
+			"comment": "<!-- [example](../roadmaps/missing.md) -->\n",
+		} {
+			t.Run(name, func(t *testing.T) {
+				root, s := closeoutMembersFixture(t, "when-justified", "when-justified")
+				os.WriteFile(filepath.Join(root, ".pose/adr/decision.md"), []byte(body), 0o644)
+				if d := evaluate(t, s, "roadmap:pair"); !d.Known || d.Required {
+					t.Fatalf("a documented example link was read as an association: %+v", d)
+				}
+			})
+		}
+	})
+	t.Run("unreviewed_milestones does not hide a fallen child under adoption", func(t *testing.T) {
+		root, s := closeoutReviewedFixture(t, "always", "always")
+		editRoadmapFixture(t, root, "\n## Milestone: later\n- after: core\n- specs: pending\n", "")
+		editRoadmapFixture(t, root, "status: active\n", "status: active\nunreviewed_milestones: the members carry the review\n")
+		setPolicyField(t, root, "review_bundles", false)
+		setPolicyField(t, root, "component_aware", false)
+		writeLegacyAttempt(t, s, root, "spec:backend", "rvw-backend", "approved", "2026-09-26T18:30:00Z")
+		ref := "milestone:program/core"
+		writeLegacyAttempt(t, s, root, ref, "rvw-core", "approved", "2026-09-26T18:40:00Z")
+		commit := func(message string) {
+			t.Helper()
+			federatedTestGit(t, root, "add", "--all")
+			federatedTestGit(t, root, "commit", "-q", "-m", message)
+		}
+		commit("legacy attempts")
+		state, err := s.GetCloseoutState(ref)
+		if err != nil || state.Review.CloseoutReview == nil {
+			t.Skipf("the legacy-attempt fixture does not reach the adopted gate: %+v %v", state.Blockers, err)
+		}
+		receipt, err := s.NewCloseoutReceipt(ref, *state.Review.CloseoutReview, state.Review, state.ScopeDigest, reviewFixtureNow.Add(time.Hour))
+		if err != nil || s.PublishCloseoutReceipt(receipt) != nil {
+			t.Fatal(err)
+		}
+		commit("closeout receipt")
+		// The fixture's legacy index leaves the public read view unknown; the
+		// terminal projection reached, obligations, readiness and doctor ask
+		// is the verifier itself.
+		if closed, err := s.closedByReceipt(ref); err != nil || !closed {
+			state, _ := s.getCloseoutState(ref, true)
+			t.Skipf("the legacy-attempt milestone is not closed by its receipt: %v %v", state.Blockers, err)
+		}
+		writeLegacyAttempt(t, s, root, "spec:backend", "rvw-backend-2", "rejected", "2026-09-26T19:00:00Z")
+		commit("member rejected")
+		if child, err := s.getCloseoutState("spec:backend", false); err != nil || child.Terminal {
+			t.Skipf("the fixture's rejection left the member terminal: %v", err)
+		}
+		if closed, err := s.closedByReceipt(ref); err == nil && closed {
+			t.Fatal("unreviewed_milestones hid a fallen child of a receipt-closed milestone")
+		}
+	})
+}
