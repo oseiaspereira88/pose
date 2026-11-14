@@ -42,18 +42,6 @@ type governanceReadViewStreamObservation struct {
 	length      int64
 	errText     string
 	producers   map[string]bool
-	// config is the digest of the root's effective Git configuration when a
-	// pure object read was streamed: the output is then a function of the
-	// object and that configuration, and the final audit streams it again
-	// only when the configuration changed.
-	config string
-}
-
-// governanceStreamPureObjectRead reports a patch read of one commit named by
-// its full object id: `show --binary --no-ext-diff --format= <id> --`.
-func governanceStreamPureObjectRead(args []string) bool {
-	return len(args) == 6 && args[0] == "show" && args[1] == "--binary" && args[2] == "--no-ext-diff" &&
-		args[3] == "--format=" && governanceFullObjectID.MatchString(args[4]) && args[5] == "--"
 }
 
 // StreamGovernanceRawHistoryGitIn runs a raw-history Git read of an immutable
@@ -150,19 +138,9 @@ func (state *governanceReadViewGitState) stream(files Files, ctx context.Context
 		}
 		return runErr
 	}
-	state.mu.Unlock()
-	config := ""
-	if runErr == nil && governanceStreamPureObjectRead(args) {
-		config = state.effectiveGitConfig(ctx, files, root)
-	}
-	state.mu.Lock()
-	if state.streams[key] == nil {
-		state.streams[key] = &governanceReadViewStreamObservation{
-			root: root, args: append([]string(nil), args...), files: files, ctx: context.WithoutCancel(ctx), deadline: deadline, hasDeadline: hasDeadline,
-			maxBytes: maxBytes, digest: digest, length: length, errText: errorText(runErr), producers: map[string]bool{producer: true}, config: config,
-		}
-	} else {
-		state.streams[key].producers[producer] = true
+	state.streams[key] = &governanceReadViewStreamObservation{
+		root: root, args: append([]string(nil), args...), files: files, ctx: context.WithoutCancel(ctx), deadline: deadline, hasDeadline: hasDeadline,
+		maxBytes: maxBytes, digest: digest, length: length, errText: errorText(runErr), producers: map[string]bool{producer: true},
 	}
 	state.mu.Unlock()
 	return runErr
@@ -194,20 +172,10 @@ func (state *governanceReadViewGitState) auditStreams(result *governanceReadView
 		remaining -= size
 		return true
 	}
-	configs := map[string]string{}
+	// Every streamed read is streamed again: its rendering depends on Git
+	// configuration and attributes the operation does not capture, so no
+	// read is proven unchanged without it (review round 1, F1 and F3).
 	for _, item := range streams {
-		// A pure object read stands while the configuration it was read under
-		// does: the object cannot change, only how Git renders it.
-		if item.config != "" {
-			now, read := configs[item.root]
-			if !read {
-				now = freshGovernanceGitConfig(item.ctx, item.files, item.root)
-				configs[item.root] = now
-			}
-			if now == item.config {
-				continue
-			}
-		}
 		auditContext := item.ctx
 		cancel := func() {}
 		if item.hasDeadline {
@@ -321,18 +289,4 @@ func (w *limitedStderr) Write(data []byte) (int, error) {
 		}
 	}
 	return len(data), nil
-}
-
-// freshGovernanceGitConfig reads the digest of a root's effective Git
-// configuration again, outside the operation's cached reading.
-func freshGovernanceGitConfig(ctx context.Context, files Files, root string) string {
-	if ctx == nil {
-		ctx = context.Background()
-	}
-	out, _, err := runGovernanceGitCommandOutputContext(ctx, files, root, []string{"config", "--list", "-z", "--includes"}, 1<<20)
-	if err != nil {
-		return ""
-	}
-	sum := sha256.Sum256(out)
-	return hex.EncodeToString(sum[:8])
 }

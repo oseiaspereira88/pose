@@ -60,7 +60,7 @@ func TestAStreamedObjectReadRetainsOnlyItsDigest(t *testing.T) {
 		t.Fatalf("streams=%d", len(state.streams))
 	}
 	for _, item := range state.streams {
-		if item.length != int64(len(want)) || item.digest != digestBytes(want) || item.config == "" {
+		if item.length != int64(len(want)) || item.digest != digestBytes(want) {
 			t.Fatalf("streamed observation %+v", item)
 		}
 	}
@@ -142,10 +142,10 @@ type prefixed struct{ sink io.Writer }
 
 func (p *prefixed) Write(data []byte) (int, error) { return p.sink.Write(data) }
 
-// The final audit does not stream a pure object read again while the Git
-// configuration stands, streams it when the configuration changed, and
-// streams every other read and reports a change.
-func TestTheStreamedAuditSkipsPureReadsOnlyWhileTheConfigurationStands(t *testing.T) {
+// The final audit streams every read again (review round 1, F1 and F3): an
+// unchanged read passes, and a change of rendering that leaves the commit
+// and the configuration alone, an attribute, is found.
+func TestTheStreamedAuditStreamsEveryReadAgain(t *testing.T) {
 	root, id := streamTestRepo(t)
 	var reruns atomic.Int64
 	original := governanceAuditGitStream
@@ -154,30 +154,62 @@ func TestTheStreamedAuditSkipsPureReadsOnlyWhileTheConfigurationStands(t *testin
 		return original(ctx, files, r, args, limit, admit, sink)
 	}
 	defer func() { governanceAuditGitStream = original }()
-	read := func(args ...string) *governanceReadView {
+	read := func() *governanceReadView {
 		base, view := (Store{Root: root}).beginGovernanceReadView()
 		store := base.withGovernanceReadView(view, "stream-audit")
-		if err := StreamGovernanceRawHistoryGitIn(store.fsys(), context.Background(), root, "stream-audit", 1<<20, io.Discard, args...); err != nil {
+		if err := StreamGovernanceRawHistoryGitIn(store.fsys(), context.Background(), root, "stream-audit", 1<<20, io.Discard, streamArgs(id)...); err != nil {
 			t.Fatal(err)
 		}
 		return view
 	}
-	view := read(streamArgs(id)...)
-	if audit := view.audit(); reruns.Load() != 0 || audit.ChangedProducers["stream-audit"] {
-		t.Fatalf("a pure read was streamed again under the same configuration: reruns=%d %+v", reruns.Load(), audit)
+	if audit := read().audit(); reruns.Load() != 1 || audit.ChangedProducers["stream-audit"] {
+		t.Fatalf("an unchanged read was not streamed again or did not pass: reruns=%d %+v", reruns.Load(), audit)
 	}
-	view = read(streamArgs(id)...)
-	snapshotTestGit(t, root, "config", "diff.noprefix", "true")
-	if audit := view.audit(); reruns.Load() != 1 || !audit.ChangedProducers["stream-audit"] {
-		t.Fatalf("a configuration change did not stream the read again and find the change: reruns=%d %+v", reruns.Load(), audit)
-	}
-	snapshotTestGit(t, root, "config", "--unset", "diff.noprefix")
-	view = read("show", "--binary", "--no-ext-diff", "--format=", "HEAD", "--")
-	if err := os.WriteFile(filepath.Join(root, "a.md"), []byte("three\n"), 0o644); err != nil {
+	view := read()
+	if err := os.WriteFile(filepath.Join(root, ".git", "info", "attributes"), []byte("a.md -diff\n"), 0o644); err != nil {
 		t.Fatal(err)
 	}
-	snapshotTestGit(t, root, "commit", "-q", "-am", "third")
 	if audit := view.audit(); reruns.Load() != 2 || !audit.ChangedProducers["stream-audit"] {
-		t.Fatalf("a head-relative streamed read was not audited: reruns=%d %+v", reruns.Load(), audit)
+		t.Fatalf("an attribute that changed the rendered patch was not found: reruns=%d %+v", reruns.Load(), audit)
+	}
+}
+
+// Two first reads of the same command that run concurrently and differ
+// leave the producer unknown (review round 1, F2).
+func TestConcurrentFirstStreamedReadsAreCompared(t *testing.T) {
+	root, id := streamTestRepo(t)
+	base, view := (Store{Root: root}).beginGovernanceReadView()
+	store := base.withGovernanceReadView(view, "stream-race")
+	var calls atomic.Int64
+	started := make(chan struct{}, 2)
+	release := make(chan struct{})
+	original := governanceStreamRun
+	governanceStreamRun = func(ctx context.Context, files Files, r string, args []string, limit int64, admit func(int64) bool, sink io.Writer) (string, int64, []byte, error) {
+		n := calls.Add(1)
+		started <- struct{}{}
+		<-release
+		body := []byte("read " + string(rune('0'+n)))
+		_, _ = sink.Write(body)
+		return digestBytes(body), int64(len(body)), nil, nil
+	}
+	defer func() { governanceStreamRun = original }()
+	errs := make(chan error, 2)
+	for i := 0; i < 2; i++ {
+		go func() {
+			errs <- StreamGovernanceRawHistoryGitIn(store.fsys(), context.Background(), root, "stream-race", 1<<20, io.Discard, streamArgs(id)...)
+		}()
+	}
+	<-started
+	<-started
+	close(release)
+	failed := 0
+	for i := 0; i < 2; i++ {
+		if err := <-errs; err != nil {
+			failed++
+		}
+	}
+	metadata, _ := view.metadata(store.FederatedProjectID, "", "", view.audit())
+	if failed != 1 || !strings.Contains(strings.Join(metadata.Limitations, "\n"), "differed within the operation") {
+		t.Fatalf("concurrent differing first reads both succeeded: failed=%d limitations=%v", failed, metadata.Limitations)
 	}
 }

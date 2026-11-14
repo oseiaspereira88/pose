@@ -258,12 +258,16 @@ read whose bytes a producer only hashes (the `git show --binary` of each
 commit that feeds a change set's diff digest) is streamed into the producer:
 the read view retains its digest and length, never its bytes, and charges a
 separate streamed budget of 8 GiB per operation, and 8 GiB again for the
-final audit, with at most 256 MiB per read. The final audit does not stream a
-patch read of a commit named by its full id again while the root's effective
-Git configuration is the one it was read under. The same bytes enter the
+final audit, with at most 256 MiB per read. The final audit streams every
+streamed read again: a patch's rendering depends on Git configuration and
+attributes the operation does not capture, so no read is skipped on the
+strength of its object id. The same bytes enter the
 same hash, so every diff digest and change-set id is unchanged: on the
 pose-dist corpus the 567 change sets and the whole `delivery-integrity.json`
 were identical before and after. The captured-input budget returns to
-512 MiB. Streaming bounds memory, not I/O: the bytes read still grow with
-the attributed history.
+512 MiB. Measured on the pose-dist corpus, `pose index` runs two operations:
+the first retained 21.8 MB and streamed nothing, the second retained 32.2 MB
+and streamed 1.26 GB in 2,511 reads, then 523 MB again in its audit.
+Streaming bounds memory, not I/O: the bytes read still grow with the
+attributed history.
 

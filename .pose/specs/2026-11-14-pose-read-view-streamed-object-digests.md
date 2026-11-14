@@ -116,11 +116,11 @@ O alvo é composto em produção por `pose index`, que lê os change sets de tod
 
 ### Decision D2
 - Date: 2026-11-14
-- Context: a auditoria final refazia o stream de cada commit, o que triplicou o I/O medido (3,08 GB contra 985 MB).
-- Options considered: (a) refazer sempre o stream na auditoria; (b) tratar a leitura de patch de commit por id completo como pura e pulá-la na auditoria; (c) pular só enquanto a configuração efetiva do Git for a da captura.
-- Decision: (c).
-- Rationale: o objeto é imutável, mas a renderização do patch depende da configuração de diff do Git; (b) aceitaria uma mudança de configuração durante a operação sem vê-la, e (a) dobra o I/O sem ganho.
-- Consequences: a auditoria lê `git config --list` uma vez por raiz e refaz o stream só quando a configuração mudou.
+- Context: a auditoria final refaz o stream de cada leitura, o que dobra o I/O dessas leituras.
+- Options considered: (a) refazer sempre o stream na auditoria; (b) tratar a leitura de patch de commit por id completo como pura e pulá-la; (c) pular só enquanto a configuração efetiva do Git for a da captura.
+- Decision: (a), depois da revisão da rodada 1 (F1, F3, F4), que derrubou a decisão inicial por (c).
+- Rationale: a renderização do patch depende também de atributos do Git (`.git/info/attributes`) que a operação não captura, e a configuração lida depois do stream não prova a configuração sob a qual ele foi renderizado; pular a releitura certificaria bytes velhos. O caminho capturado anterior também reexecutava esse comando.
+- Consequences: o I/O da auditoria é o do motor anterior; a memória retida continua constante por leitura.
 
 ### Decision D1
 - Date: 2026-11-14
@@ -147,7 +147,7 @@ Testes de unidade do modo de streaming (fronteira exata do orçamento, estouro, 
 ### Execution log
 - Date: 2026-11-14
 - Environment: Linux, Go 1.26, corpus do pose-dist em `main` (567 change sets, 2.451 commits atribuídos).
-- Notes: com um shim de Git no PATH, o motor anterior lia 4.903 `git show --binary` (985 MB) por `pose index` e estourava 512 MiB. Com streaming, `pose index` do pose-dist publica sob 512 MiB em 128 s (o motor anterior levou 132 s com 1 GiB). O `delivery-integrity.json` gerado pelo motor anterior e pelo novo é idêntico byte a byte (567 change sets, mesmos IDs e digests). O shim altera o ambiente do Git que o read view observa e por isso faz a geração acusar entradas alteradas; a medição de sucesso foi feita sem ele.
+- Notes: com um shim de Git no PATH, o motor anterior lia 4.903 `git show --binary` (985 MB) por `pose index` e estourava 512 MiB. Com streaming, `pose index` do pose-dist publica sob 512 MiB. Medido com contadores temporários do read view (um `fprintf` por operação ligado por variável de ambiente, fora do commit): a primeira operação reteve 21.758.777 bytes e não fez streaming; a segunda reteve 32.163.095 bytes, fez streaming de 1.263.513.529 bytes em 2.511 leituras distintas e de novo 522.736.985 bytes na auditoria; 163 s no total. A diferença entre o streaming da operação e o da auditoria mostra que a mesma leitura é feita cerca de 2,4 vezes por operação (follow-up F1). O `delivery-integrity.json` gerado pelo motor anterior e pelo novo é idêntico byte a byte (567 change sets, mesmos IDs e digests). O shim altera o ambiente do Git que o read view observa e por isso faz a geração acusar entradas alteradas; a medição de sucesso foi feita sem ele.
 
 ### Results summary
 - Successes: os testes do modo de streaming e o de equivalência do digest; `pose index` sob 512 MiB; índices idênticos.
@@ -158,9 +158,9 @@ Testes de unidade do modo de streaming (fronteira exata do orçamento, estouro, 
 - R1 [satisfied] test:TestAStreamedObjectReadRetainsOnlyItsDigest check:read-view-streamed-object-digests-integration
 - R2 [satisfied] test:TestTheStreamedBudgetIsExactAndOverflowIsUnknown check:read-view-streamed-object-digests-integration
 - R3 [satisfied] test:TestAStreamedChangeSetKeepsItsDiffDigest check:read-view-streamed-object-digests-integration
-- R4 [satisfied] test:TestASecondStreamedReadIsReadAgainAndCompared test:TestTheStreamedAuditSkipsPureReadsOnlyWhileTheConfigurationStands
+- R4 [satisfied] test:TestASecondStreamedReadIsReadAgainAndCompared test:TestConcurrentFirstStreamedReadsAreCompared test:TestTheStreamedAuditStreamsEveryReadAgain
 - R5 [satisfied] test:TestGovernanceReadViewProbeAuditAndReplayShareInputByteCapacity check:read-view-streamed-object-digests-integration
-- R6 [satisfied] check:read-view-streamed-object-digests-integration
+- R6 [satisfied] check:read-view-streamed-object-digests-integration (medição no corpus no log de execução: 32.163.095 bytes retidos e 1.263.513.529 em streaming na operação maior)
 
 ### Known gaps
 - O tempo de `pose index` continua crescendo com o histórico atribuído; este spec limita a memória retida, não o I/O.
@@ -170,7 +170,7 @@ Testes de unidade do modo de streaming (fronteira exata do orçamento, estouro, 
 ## 7. Final Report
 
 ### Delivered scope
-Leituras puras de objetos Git cujos bytes só são hasheados passam pelo read view em streaming, retendo digest e tamanho, com orçamento próprio (8 GiB por operação e de novo na auditoria, 256 MiB por leitura). Os change sets usam esse modo, com digests e IDs idênticos. A auditoria pula a leitura pura enquanto a configuração do Git é a da captura. O orçamento de entrada retida voltou a 512 MiB (emenda D11, que supersede D10).
+Leituras puras de objetos Git cujos bytes só são hasheados passam pelo read view em streaming, retendo digest e tamanho, com orçamento próprio (8 GiB por operação e de novo na auditoria, 256 MiB por leitura). Os change sets usam esse modo, com digests e IDs idênticos. A auditoria refaz o stream de toda leitura. O orçamento de entrada retida voltou a 512 MiB (emenda D11, que supersede D10).
 
 ### Files and modules changed
 - Read view de governança (`governance_read_view_stream.go`, `governance_read_view_git.go`, `governance_read_view.go`), change sets (`cli/artifact_integrity.go`), ADR de leituras de governança (D11), POSE.md e cópias, matriz de validação.
@@ -184,4 +184,9 @@ Leituras puras de objetos Git cujos bytes só são hasheados passam pelo read vi
 
 ### Follow-ups
 
-- [open] F1: evitar que `pose index` leia o patch de cada commit atribuído duas vezes, uma na prova de fechamento das entradas e outra na construção, e medir se o I/O restante pede um registro imutável de digest por commit, versionado, em vez da releitura. (owner:@pose-maintainers crit:medium review:2026-12-13)
+- [open] F1: evitar que `pose index` leia o patch de cada commit atribuído várias vezes (medido: cerca de 2,4 leituras por commit dentro da operação de construção, além da prova de fechamento das entradas), e medir se o I/O restante pede um registro imutável de digest por commit, versionado, em vez da releitura. (owner:@pose-maintainers crit:medium review:2026-12-13)
+
+### Review
+
+Rodada 1 (run rrn-9f3099633e340afb, attestation rva-cc738d59d98c6236, changes-requested): 5 bloqueadores, todos tratados. F1 e F3 a auditoria pulava a leitura de patch quando `git config --list` não mudara, mas a renderização depende também de atributos que a operação não captura, e a configuração era lida depois do stream; a decisão D2 passou a refazer o stream de toda leitura. F4 a leitura de configuração da auditoria não tinha prazo; saiu junto com a otimização. F2 duas primeiras leituras concorrentes não se comparavam; consulta e inserção passaram a ocorrer sob uma só trava, depois da execução. F5 o R6 pedia os bytes medidos; o log de execução registra os contadores por operação.
+
