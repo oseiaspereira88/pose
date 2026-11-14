@@ -83,7 +83,7 @@ Composto por `pose delegate review`, cuja limpeza de execução chama esta remo�
 - [x] Remoção limitada dos `go-build*` de primeiro nível (R1, R2, R3).
 
 ### Validation
-- [x] Teste com um `go-build` de 200 MiB e 4.200 arquivos e um link com o mesmo padrão de nome.
+- [x] Teste com um `go-build` de 200 MiB e 4.200 arquivos e um link com o mesmo padrão de nome; teste sincronizado de troca e sumiço do diretório depois de aberto.
 
 ---
 
@@ -112,7 +112,7 @@ Teste de regressão sobre o fixture de limpeza de contenção existente; testes 
 ### Requirement trace
 - R1 [satisfied] test:TestAdapterCleanupRemovesGoBuildLeftovers check:review-cleanup-removes-go-build-leftovers-integration
 - R2 [satisfied] test:TestAdapterCleanupRemovesGoBuildLeftovers
-- R3 [satisfied] test:TestAdapterContainmentCleanupCapturedRootsRefuseReplacement
+- R3 [satisfied] test:TestAdapterCleanupRefusesAReplacedGoBuildDirectory test:TestAdapterContainmentCleanupCapturedRootsRefuseReplacement
 
 ### Known gaps
 - Nenhuma.
@@ -135,3 +135,8 @@ A limpeza de uma execução de revisão remove, com inventário limitado própri
 - Nenhum.
 
 ### Follow-ups
+
+### Review
+
+Rodada 1 (run rrn-11320f4eeb5bcde3, attestation rva-823ad7b9b9b0738b, changes-requested): 1 bloqueador, tratado. F1 a identidade do diretório de build só era conferida ao abri-lo: renomeado para fora e trocado por um vazio durante a limpeza, o substituto seria removido e a limpeza confirmada, e o sumiço era aceito em silêncio. Depois de esvaziá-lo, o nome tem de ligar ainda o mesmo diretório, ou a limpeza fica incompleta; um teste sincronizado cobre a troca e o sumiço. A ferramenta `validate` saiu reprovada só porque a reexecução no sandbox do revisor estourou 600 s; a evidência selada passou.
+

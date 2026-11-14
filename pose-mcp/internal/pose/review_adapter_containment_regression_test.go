@@ -372,3 +372,40 @@ func TestAdapterCleanupRemovesGoBuildLeftovers(t *testing.T) {
 		t.Fatalf("a go-build link was followed out of the runtime: %v %q", err, raw)
 	}
 }
+
+// Review round 1 (F1): a go-build directory renamed away and replaced after
+// it was opened leaves the cleanup incomplete, and the renamed directory is
+// not lost.
+func TestAdapterCleanupRefusesAReplacedGoBuildDirectory(t *testing.T) {
+	if runtime.GOOS != "linux" {
+		t.Skip("Linux descriptor and symlink qualification")
+	}
+	for _, change := range []string{"replaced", "removed"} {
+		t.Run(change, func(t *testing.T) {
+			f := makeContainmentCleanupFixture(t)
+			build := filepath.Join(f.tmp, "go-build7")
+			if err := os.MkdirAll(build, 0o700); err != nil {
+				t.Fatal(err)
+			}
+			away := filepath.Join(t.TempDir(), "away")
+			original := reviewGoBuildAfterContents
+			reviewGoBuildAfterContents = func(name string) {
+				if err := os.Rename(build, away); err != nil {
+					t.Error(err)
+				}
+				if change == "replaced" {
+					if err := os.Mkdir(build, 0o700); err != nil {
+						t.Error(err)
+					}
+				}
+			}
+			defer func() { reviewGoBuildAfterContents = original }()
+			if err := f.cleanup(); err == nil {
+				t.Fatal("cleanup was confirmed after the go-build directory changed")
+			}
+			if info, err := os.Stat(away); err != nil || !info.IsDir() {
+				t.Fatalf("the renamed directory was lost: %v", err)
+			}
+		})
+	}
+}

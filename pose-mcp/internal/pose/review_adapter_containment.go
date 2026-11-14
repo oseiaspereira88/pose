@@ -596,6 +596,10 @@ func (s Store) cleanupReviewResources(tmp string, owned os.FileInfo, worktree st
 // creates under the TMPDIR the engine gives a review run.
 var reviewGoBuildDir = regexp.MustCompile(`^go-build[0-9]+$`)
 
+// reviewGoBuildAfterContents runs after a go-build directory is emptied and
+// before its name is checked again; tests use it to change the name there.
+var reviewGoBuildAfterContents = func(string) {}
+
 // removeReviewGoBuildLeftovers removes the Go build directories a reviewer's
 // interrupted `go test` or `go build` left at the top of the run's runtime
 // directory, each under its own bounded inventory, before the runtime's own
@@ -629,7 +633,15 @@ func removeReviewGoBuildLeftovers(root *os.Root) error {
 		if err != nil {
 			return err
 		}
-		if err := root.Remove(entry.Name()); err != nil && !errors.Is(err, os.ErrNotExist) {
+		reviewGoBuildAfterContents(entry.Name())
+		// The name must still bind the directory just emptied: a directory
+		// renamed away and replaced, or gone, leaves what it held unaccounted
+		// for (review round 1, F1).
+		now, err := root.Lstat(entry.Name())
+		if err != nil || !os.SameFile(now, opened) {
+			return fmt.Errorf("runtime path changed during cleanup; replacement retained")
+		}
+		if err := root.Remove(entry.Name()); err != nil {
 			return fmt.Errorf("runtime cleanup incomplete; resources retained")
 		}
 	}
