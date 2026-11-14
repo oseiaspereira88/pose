@@ -420,7 +420,7 @@ func (s Store) obligationScopeSpecs(scope string) ([]Spec, error) {
 			}
 			found = true
 			for _, member := range milestone.Specs {
-				if local, external := s.milestoneMember(member); !external {
+				if local, external := s.canonicalMember(member); !external {
 					members[local] = true
 				}
 			}

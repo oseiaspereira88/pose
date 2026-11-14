@@ -366,6 +366,19 @@ func (s Store) AggregateDependencyClosed(resolver ArtifactResolver, localProject
 	return false, scope + " is reached but not closed: `pose close " + scope + "` publishes its closeout receipt"
 }
 
+// canonicalMember is milestoneMember after transfer redirects: a local member
+// a transfer moved is its canonical destination, local or external. A
+// redirect that cannot be followed reads as external, so no local consumer
+// judges the redirect stub and federated proof fails closed on it (review
+// round 9, N33).
+func (s Store) canonicalMember(raw string) (string, bool) {
+	slug, external, unresolved := s.CloseoutMemberTarget(raw)
+	if unresolved != "" {
+		return raw, true
+	}
+	return slug, external
+}
+
 // localScopeClosed reports a local milestone or roadmap a dependency edge
 // names as closed by the terminal projection, under an adopted closeout
 // review policy where status alone never closes it. A scope already asking
@@ -456,7 +469,7 @@ func (s Store) lastOpenMemberOf(roadmap string, milestone Milestone, slug string
 	}
 	member := false
 	for _, raw := range milestone.Specs {
-		other, external := s.milestoneMember(raw)
+		other, external := s.canonicalMember(raw)
 		if external {
 			return false
 		}

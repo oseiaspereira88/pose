@@ -579,7 +579,7 @@ func (s Store) reviewScopeSpecs(scope ScopeRef) ([]Spec, error) {
 		// Another project's member contributes no local components; its
 		// review lives in its own project and reaches this scope through the
 		// federated manifest.
-		slug, external := s.milestoneMember(raw)
+		slug, external := s.canonicalMember(raw)
 		if external {
 			continue
 		}

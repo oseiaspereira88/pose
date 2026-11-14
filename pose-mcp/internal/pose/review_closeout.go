@@ -1395,7 +1395,7 @@ func (s Store) ScopeDigest(ref string) (string, error) {
 		}
 		children := map[string]string{}
 		for _, raw := range target.Specs {
-			slug, external := s.milestoneMember(raw)
+			slug, external := s.canonicalMember(raw)
 			if external {
 				// Another project's member is sealed by the federated
 				// manifest; its identity is what this scope depends on.
@@ -2552,7 +2552,7 @@ func (s Store) scopeLifecycleDone(scope ScopeRef) (bool, error) {
 		for _, milestone := range rm.Milestones {
 			if milestone.ID == scope.Milestone {
 				for _, raw := range milestone.Specs {
-					slug, external := s.milestoneMember(raw)
+					slug, external := s.canonicalMember(raw)
 					if external {
 						if !s.externalMemberDone(raw) {
 							return false, nil

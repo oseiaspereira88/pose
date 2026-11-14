@@ -136,7 +136,7 @@ func (s Store) milestonesWithTerminalMembers(spec, scope string) ([]string, erro
 func (s Store) milestoneMembersTerminal(milestone Milestone, statuses map[string]string, spec string) bool {
 	member := spec == ""
 	for _, raw := range milestone.Specs {
-		slug, external := s.milestoneMember(raw)
+		slug, external := s.canonicalMember(raw)
 		if external && !s.externalMemberDone(raw) {
 			return false
 		}
@@ -164,7 +164,7 @@ func (s Store) soleMemberOf(scope ScopeRef) (string, bool) {
 		if milestone.ID != scope.Milestone || len(milestone.Specs) != 1 {
 			continue
 		}
-		if slug, external := s.milestoneMember(milestone.Specs[0]); !external {
+		if slug, external := s.canonicalMember(milestone.Specs[0]); !external {
 			return strings.TrimPrefix(slug, "spec:"), true
 		}
 	}
@@ -381,7 +381,7 @@ func (s Store) startWarnings(spec string) []string {
 		for _, milestone := range rm.Milestones {
 			member := false
 			for _, raw := range milestone.Specs {
-				slug, external := s.milestoneMember(raw)
+				slug, external := s.canonicalMember(raw)
 				member = member || !external && strings.TrimPrefix(slug, "spec:") == spec
 			}
 			if !member {

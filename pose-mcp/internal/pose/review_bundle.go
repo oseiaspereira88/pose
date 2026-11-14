@@ -3464,6 +3464,27 @@ func (s Store) verifyReviewBundle(scope string) (ReviewBundleVerification, error
 // declares. Every reader of an approval comes through here, so they give one answer (ADR
 // a-milestone-of-one-member-is-that-member). A negative review recorded on it stands.
 func (s Store) proportionalReviewVerification(scope string) (ReviewBundleVerification, error) {
+	verification, err := s.proportionalReviewVerificationOf(scope)
+	if err != nil || !verification.Approved || verification.State != "closed" {
+		return verification, err
+	}
+	// Under an adopted closeout review policy an aggregate scope is closed
+	// only by its explicit close: an approval, its own, inherited or an
+	// exemption, leaves it ready to close until its receipt stands. A scope
+	// closed before adoption keeps its sealed reading (review round 9, N31).
+	ref, parseErr := ParseScopeRef(scope)
+	if parseErr != nil || ref.Kind != "milestone" && ref.Kind != "roadmap" {
+		return verification, nil
+	}
+	if adopted, err := s.closeoutReviewPolicyAdopted(); err != nil || !adopted || s.closeoutScopeHistorical(ref) || s.milestoneClosedBeforeAdoption(ref) || s.receiptStandsFor(scope) {
+		return verification, nil
+	}
+	verification.State = "ready-to-close"
+	verification.NextAction = "apply the guarded lifecycle transition for " + scope + " (`pose close " + scope + "` publishes its closeout receipt)"
+	return verification, nil
+}
+
+func (s Store) proportionalReviewVerificationOf(scope string) (ReviewBundleVerification, error) {
 	own, err := s.computeReviewVerification(scope)
 	if err != nil || own.Approved {
 		return own, err
@@ -3513,18 +3534,27 @@ func (s Store) proportionalReviewVerification(scope string) (ReviewBundleVerific
 			Warnings:       []string{closeoutExemptionWarning(scope, *decision)},
 			ApprovalOrigin: closeoutApprovalOrigin(*decision), inherited: true,
 		}
-		if ref.Kind == "roadmap" {
-			if rm, err := s.GetRoadmap(ref.Slug); err == nil {
-				for _, milestone := range rm.Milestones {
-					child := ScopeRef{Kind: "milestone", Roadmap: rm.Slug, Milestone: milestone.ID}
-					if !s.receiptStandsFor(child.String()) && !s.milestoneClosedBeforeAdoption(child) {
-						verification.Blockers = append(verification.Blockers, "child "+child.String()+" is not closed")
-					}
-				}
+		// Each child must still stand, as an approved review requires of
+		// its children: a milestone's local members by their review, a
+		// roadmap's milestones by their own verification, which is closed
+		// only once their receipt stands. Neither recurses into this scope
+		// (review round 9, N32).
+		children, childErr := s.reviewBundleChildRefs(ref)
+		if childErr != nil {
+			verification.Blockers = append(verification.Blockers, childErr.Error())
+		}
+		for _, child := range children {
+			standing, err := s.verifyReviewBundle(child)
+			switch {
+			case err != nil:
+				verification.Blockers = append(verification.Blockers, "child "+child+" cannot be verified: "+err.Error())
+			case standing.State != "closed" || !standing.Approved || !standing.Fresh:
+				verification.Blockers = append(verification.Blockers, "child "+child+" does not stand: "+standing.State)
 			}
-			if len(verification.Blockers) > 0 {
-				verification.NextAction = "close the milestones of " + scope + " first: " + strings.Join(verification.Blockers, "; ")
-			}
+		}
+		if len(verification.Blockers) > 0 {
+			verification.State, verification.Approved = "needs-review", false
+			verification.NextAction = "restore or close the children of " + scope + " first: " + strings.Join(verification.Blockers, "; ")
 		}
 		if len(verification.Blockers) == 0 && s.receiptStandsFor(scope) {
 			verification.State, verification.NextAction = "closed", "scope is closed by its closeout receipt"
