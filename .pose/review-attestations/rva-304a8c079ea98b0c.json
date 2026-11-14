@@ -1,0 +1,233 @@
+{
+  "run": {
+    "run_id": "rrn-4a37964df583131c",
+    "proof_id": "rrp-18bea922f04b4b5276026cd7e40a711233fcedf5914bcdc9c858bf4edcbd0585"
+  },
+  "schema_version": 1,
+  "attestation_id": "rva-304a8c079ea98b0c",
+  "bundle_id": "rvb-6ded9ea5f6099b4c",
+  "bundle_digest": "sha256:6ded9ea5f6099b4c4f8fd9c49c62872da32ba691b3015a2b45e15dbb43bc7f79",
+  "reviewer": "agent:openai/gpt-6.1-sol",
+  "decision": "changes-requested",
+  "criteria": [
+    {
+      "id": "assumption-integrity",
+      "disposition": "passed",
+      "evidence": "integration:pose-mcp/go/closeout-review-policy-integration",
+      "rationale": "Verified schema/default/legacy behavior and prior-finding fixes against code and independently rerun tests. Full validation is sealed producer evidence, not a claimed local rerun. Distinguished the unresolved R3 defect N48 from the conservative, owned F6 risk N49. Remote backlink discovery and protection against nonparticipating external writers remain outside the accepted design."
+    },
+    {
+      "id": "backend-concurrency",
+      "disposition": "passed",
+      "evidence": "integration:pose-mcp/go/writer-coordination-and-atomic-publication-integration",
+      "rationale": "Inspected guarded close, repeated authorization checks, ExpectAbsent receipt publication and intent/status/receipt sequencing. Existing coordination bounds remain in use; failures leave an incomplete close rather than overwriting a receipt."
+    },
+    {
+      "id": "backend-contracts",
+      "disposition": "passed",
+      "evidence": "integration:pose-mcp/go/closeout-review-policy-integration",
+      "rationale": "Schema 5 explicitly migrates the aggregate policy contract while schemas 1-4 retain legacy semantics. CLI configuration requires the pair, MCP additions are projections, and receipt schema/path contracts are covered."
+    },
+    {
+      "id": "backend-input-errors",
+      "disposition": "finding",
+      "evidence": "N48"
+    },
+    {
+      "id": "backend-integration-impact",
+      "disposition": "passed",
+      "evidence": "integration:pose-mcp/go/closeout-review-policy-integration",
+      "rationale": "Traced CLI/MCP domain reuse, receipt-backed producer proof, canonical transfer destinations and aggregate dependency closure. The association defect is shared domain behavior, not transport divergence."
+    },
+    {
+      "id": "backend-observability",
+      "disposition": "finding",
+      "evidence": "N48"
+    },
+    {
+      "id": "compatibility",
+      "disposition": "passed",
+      "evidence": "integration:pose-mcp/go/review-policy-adoption-integration",
+      "rationale": "Reviewed explicit adoption, legacy cutoffs and sealed-plan handling, schema-5 preservation in reference/transfer toggles, and previous-release compatibility tests. Older engines intentionally refuse fresh schema-5 instances; update does not adopt the pair."
+    },
+    {
+      "id": "correctness",
+      "disposition": "finding",
+      "evidence": "N48"
+    },
+    {
+      "id": "design-causality",
+      "disposition": "passed",
+      "evidence": "structure:design-846b41e9a5123ab5",
+      "rationale": "D1 separates explicit aggregate closure from independent review using deterministic thresholds. D2 reuses the resolver, capability catalog and setup/adopt paths, adding receipts because milestone close previously had no persisted transition. Shared evaluation and receipt-backed terminal projection address inconsistent exemptions and closure claims; N48 identifies an implementation failure in association recognition.",
+      "mappings": [
+        {
+          "delta": "SD-3ce6ee69",
+          "basis": "R4",
+          "disposition": "mapped",
+          "rationale": "The explicit close delivery exposed the measured governance read-budget refusal. The spec's artifact reconciliation links the bounded 1-GiB amendment to completing close without truncating historical inputs."
+        },
+        {
+          "delta": "SD-c74440ab",
+          "basis": "R3",
+          "disposition": "mapped",
+          "rationale": "The roadmap template exposes adrs: [] for the explicit ADR associations used by when-justified."
+        },
+        {
+          "delta": "SD-ec2d86f4",
+          "basis": "R1",
+          "disposition": "mapped",
+          "rationale": "The accepted ADR records policy location, deterministic modes, defaults, historical compatibility and authority protections before implementation."
+        }
+      ]
+    },
+    {
+      "id": "documentation",
+      "disposition": "passed",
+      "evidence": "integration:pose-mcp/go/distributed-instructions-parity-integration",
+      "rationale": "Compared English/Portuguese manuals, scaffold copies and roadmap templates with runtime policy names, thresholds, adoption, explicit close and receipt behavior. The supported contract is documented consistently; N48 is its implementation defect, and F6 records conservative parser limitations."
+    },
+    {
+      "id": "operability",
+      "disposition": "finding",
+      "evidence": "N48"
+    },
+    {
+      "id": "requirements",
+      "disposition": "finding",
+      "evidence": "N48"
+    },
+    {
+      "id": "scope",
+      "disposition": "passed",
+      "evidence": "integration:pose-mcp/go/closeout-review-policy-integration",
+      "rationale": "Compared the declared artifacts and production changes with R1-R7 and D1/D2. Policy, receipt, reader, setup/doctor, schema and documentation changes support the approved aggregate closeout scope. No new MCP write tool or global ADR identity framework was introduced."
+    },
+    {
+      "id": "security",
+      "disposition": "finding",
+      "evidence": "N48"
+    },
+    {
+      "id": "solution-proportionality",
+      "disposition": "passed",
+      "evidence": "structure:design-846b41e9a5123ab5",
+      "rationale": "A shared evaluator plus a write-once terminal receipt is sufficient for distinct review/close semantics; reusing adopt/setup/resolver avoids another configuration framework or global ADR type. Metadata alone would lose existing explicit Markdown associations. A narrow parser is sufficient only if unsupported local forms return unknown; N48 shows that condition is currently violated and needs correction. Remote backlink inventory remains deliberately excluded."
+    }
+  ],
+  "tools": [
+    {
+      "id": "artifact-check",
+      "disposition": "passed",
+      "evidence": "command:pose artifact-check --spec pose-closeout-review-policy-by-cost-benefit --strict",
+      "rationale": "Ran the exact command; exit 0. Output included artifact.claims=46, artifact.observed=185 and artifact.findings=920 with provenance warnings. This is a successful gate exit, not a claim of warning-free global provenance."
+    },
+    {
+      "id": "assess-design",
+      "disposition": "not-used",
+      "rationale": "Did not rerun an assessment writer under the no-repository-changes boundary. Examined the design and structural mappings using sealed structure:design-846b41e9a5123ab5 and the current spec/ADR/code."
+    },
+    {
+      "id": "assess-discover",
+      "component": "pose-mcp",
+      "disposition": "not-used",
+      "rationale": "Did not regenerate component assessments. Inspected current component sources, validation registration and sealed pose-mcp evidence directly."
+    },
+    {
+      "id": "assess-integrate",
+      "disposition": "not-used",
+      "rationale": "Did not run the assessment writer. Traced CLI/MCP/federation integration in code and examined sealed integration:pose-mcp/go/closeout-review-policy-integration plus independently rerun three-package tests."
+    },
+    {
+      "id": "assess-tech-debt",
+      "disposition": "not-used",
+      "rationale": "Did not write assessment artifacts. Inspected changed production markers and the spec's explicit follow-ups, including the bounded-read capacity debt and F6 parser limitations."
+    },
+    {
+      "id": "closeout-check",
+      "disposition": "deferred",
+      "rationale": "Completion gate requires the recorded review conclusion; no attestation was recorded during this independent review."
+    },
+    {
+      "id": "review-check",
+      "disposition": "deferred",
+      "rationale": "Completion gate must follow POSE recording and verifying this review conclusion."
+    },
+    {
+      "id": "suggest-review",
+      "component": "pose-mcp",
+      "disposition": "passed",
+      "evidence": "command:pose suggest review --path pose-mcp",
+      "rationale": "Exit 0; selected backend-go, security and documentation-style under the review workflow. Also applied delivery-evidence and consulted knowledge governance for residual-risk handling."
+    },
+    {
+      "id": "surface-check",
+      "disposition": "passed",
+      "evidence": "integration:pose-mcp/go/closeout-review-policy-integration",
+      "rationale": "Ran pose surface-check --spec pose-closeout-review-policy-by-cost-benefit --strict; exit 0 with surface.targets=1, surface.results=213 and surface.findings=0. Composition evidence: integration:pose-mcp/go/closeout-review-policy-integration. Reachability evidence: reachability:pose-mcp/go/closeout-plan-reachability. A passing surface gate does not cover the missing encoded-destination negative case N48."
+    },
+    {
+      "id": "validate",
+      "disposition": "passed",
+      "evidence": "unit:pose-mcp/go/test",
+      "rationale": "Disposed from the sealed strict producer run, not rerun locally because validate writes repository results. Inspected delivery-validation.json: 213 checks, all pass. Independently reran the closeout-policy tests across pose, cli and mcpserver; all passed. go vet ./... also passed."
+    },
+    {
+      "id": "validate",
+      "component": "pose-mcp",
+      "disposition": "passed",
+      "evidence": "build:pose-mcp/go/build",
+      "rationale": "The sealed strict run includes the component's registered build, unit, integration and e2e checks. Current targeted domain/CLI/MCP tests and go vet passed independently; the uncovered R3 parser case remains N48."
+    }
+  ],
+  "evidence_refs": [
+    "N48",
+    "delegated-run:rrn-4a37964df583131c",
+    "integration:pose-mcp/go/closeout-review-policy-integration",
+    "integration:pose-mcp/go/distributed-instructions-parity-integration",
+    "integration:pose-mcp/go/review-policy-adoption-integration",
+    "integration:pose-mcp/go/writer-coordination-and-atomic-publication-integration",
+    "structure:design-846b41e9a5123ab5"
+  ],
+  "findings": [
+    {
+      "id": "N48",
+      "severity": "medium",
+      "evidence": "file:pose-mcp/internal/pose/closeout_adr_associations.go:50",
+      "action": "Decode Markdown destinations before testing the association namespace and extension, or report unsupported forms as unknown. The reader does not decode URL escapes or Markdown character references; it also truncates numeric character references at '#'. Thus '[decision](../adr/decision%2Emd)', '[decision](../adr/decision\u0026#46;md)' and '[decision](../%61dr/decision.md)' all name the canonical decision.md but are silently skipped at lines 174-175. Equivalent backlinks to pair.md are skipped at lines 245-246. A read-only reproduction using the extracted production regex and namespace predicates confirmed associations=[] and diagnostics=[] for all six forward/backward cases. With two resolved members and no other association, evaluateCloseoutReview therefore returns Known=true and Required=false, violating R3. Normalize supported destination escapes before containment checks, or fail closed, and cover both association directions.",
+      "disposition": "open"
+    },
+    {
+      "id": "N49",
+      "severity": "low",
+      "evidence": "file:pose-mcp/internal/pose/closeout_adr_associations.go:43",
+      "action": "Complete existing spec follow-up F6 with context-aware Markdown parsing while retaining fail-closed behavior for unsupported or unresolved local associations.",
+      "disposition": "accepted-risk",
+      "owner": "@pose-maintainers",
+      "rationale": "Existing spec follow-up F6 remains applicable: links shown in code or comments count as associations, and destinations containing parentheses return unknown even when a complete Markdown parser could resolve them. This can demand unnecessary review, but does not grant an exemption. Inspection and the passing TestCloseoutReviewPolicyRoundTwelve/RoundFourteen regressions confirm the conservative behavior; accept this limited over-enforcement risk.",
+      "review_by": "2026-12-13"
+    }
+  ],
+  "authority": {
+    "schema_version": 1,
+    "project": "proj.pose-dist",
+    "bundle_digest": "sha256:6ded9ea5f6099b4c4f8fd9c49c62872da32ba691b3015a2b45e15dbb43bc7f79",
+    "principal": "agent:openai/gpt-6.1-sol",
+    "role": "agent",
+    "review_execution": "rrn-4a37964df583131c",
+    "implementation_principal": "agent:anthropic/claude-opus-5-5",
+    "implementation_execution": "sha256:0eb880a4fc2ed87a379c949a567b1d3dfbd6b58b466f4755fcd363dd2b7fed98",
+    "issuer": "b34-local-executor",
+    "issued_at": "2026-11-14T05:38:24Z",
+    "audience": "proj.pose-dist"
+  },
+  "envelope": {
+    "issuer": "b34-local-executor",
+    "subject": "rvb-6ded9ea5f6099b4c",
+    "algorithm": "ed25519",
+    "public_key": "ck4sApdfePV2GT+hJyAYfJd2qLzeG55P8pevGR0bvZE=",
+    "signature": "Mtx6bntl76Am423x8xYbk+DJdiA4rxFWm1g3wpdfhT/yQroXRExHQgZdqeL7WA4p249pdIbKkYGd+4I4Jb/EAQ=="
+  },
+  "attested_at": "2026-11-14T05:38:24Z",
+  "path": ".pose/review-attestations/rva-304a8c079ea98b0c.json"
+}
