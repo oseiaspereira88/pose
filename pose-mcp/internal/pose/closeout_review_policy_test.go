@@ -1642,3 +1642,35 @@ func TestCloseoutReviewPolicyRoundFourteen(t *testing.T) {
 		})
 	})
 }
+
+func TestCloseoutReviewPolicyRoundFifteen(t *testing.T) {
+	for _, form := range []struct{ name, adr, roadmap string }{
+		{"percent-escaped dot", "../adr/decision%2Emd", "../roadmaps/pair%2Emd"},
+		{"numeric character reference", "../adr/decision&#46;md", "../roadmaps/pair&#46;md"},
+		{"escaped directory", "../%61dr/decision.md", "../%72oadmaps/pair.md"},
+		{"named character reference", "../adr/decision&period;md", "../roadmaps/pair&period;md"},
+		{"backslash escape", `../adr/decision\.md`, `../roadmaps/pair\.md`},
+	} {
+		t.Run("forward "+form.name, func(t *testing.T) {
+			root, s := closeoutMembersFixture(t, "when-justified", "when-justified")
+			editFile(t, filepath.Join(root, ".pose/roadmaps/pair.md"), "mentions decision.md in prose only.", "follows [decision]("+form.adr+").")
+			if d := evaluate(t, s, "roadmap:pair"); !d.Known || !d.Required || strings.Join(d.ADRs, ",") != "decision.md" {
+				t.Fatalf("an escaped forward link was dropped: %+v", d)
+			}
+		})
+		t.Run("backward "+form.name, func(t *testing.T) {
+			root, s := closeoutMembersFixture(t, "when-justified", "when-justified")
+			os.WriteFile(filepath.Join(root, ".pose/adr/decision.md"), []byte("Governs [the pair]("+form.roadmap+").\n"), 0o644)
+			if d := evaluate(t, s, "roadmap:pair"); !d.Known || !d.Required || strings.Join(d.ADRs, ",") != "decision.md" {
+				t.Fatalf("an escaped backward link was dropped: %+v", d)
+			}
+		})
+	}
+	t.Run("an escape that does not decode is unknown", func(t *testing.T) {
+		root, s := closeoutMembersFixture(t, "when-justified", "when-justified")
+		os.WriteFile(filepath.Join(root, ".pose/adr/decision.md"), []byte("Governs [the pair](../roadmaps/pair%zz.md).\n"), 0o644)
+		if d := evaluate(t, s, "roadmap:pair"); d.Known || !d.Required {
+			t.Fatalf("an undecodable destination proved absence: %+v", d)
+		}
+	})
+}

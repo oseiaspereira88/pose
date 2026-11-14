@@ -16,6 +16,8 @@ package pose
 
 import (
 	"fmt"
+	"html"
+	"net/url"
 	"os"
 	"path/filepath"
 	"regexp"
@@ -39,17 +41,28 @@ func (s Store) adrDir() string { return filepath.Join(s.Root, ".pose", "adr") }
 
 // markdownLinkDestinations lists the link destinations of a Markdown body,
 // angle brackets and fragments removed. External URLs are kept out.
-func markdownLinkDestinations(body string) []string {
+func markdownLinkDestinations(body string) ([]string, []string) {
 	// Code and comments are read like prose: a link shown as an example
 	// still counts, so the reader over-enforces rather than dropping a real
 	// link it misparsed (review round 14, N46; follow-up F6).
-	out := []string{}
-	add := func(dest string) {
-		dest = strings.TrimSpace(dest)
+	out, undecodable := []string{}, []string{}
+	add := func(raw string) {
+		dest := strings.TrimSpace(raw)
 		dest = strings.TrimSuffix(strings.TrimPrefix(dest, "<"), ">")
+		// The destination as Markdown resolves it: character references and
+		// backslash escapes first, then the fragment and query, then URL
+		// escapes. One that does not decode is reported, never skipped
+		// (review round 15, N48).
+		dest = markdownBackslashEscapeRE.ReplaceAllString(html.UnescapeString(dest), "$1")
 		if i := strings.IndexAny(dest, "#?"); i >= 0 {
 			dest = dest[:i]
 		}
+		decoded, err := url.PathUnescape(dest)
+		if err != nil {
+			undecodable = append(undecodable, strings.TrimSpace(raw))
+			return
+		}
+		dest = decoded
 		if dest == "" || strings.Contains(dest, "://") || strings.HasPrefix(dest, "mailto:") || strings.HasPrefix(dest, "/") {
 			return
 		}
@@ -61,8 +74,12 @@ func markdownLinkDestinations(body string) []string {
 	for _, m := range markdownReferenceLinkRE.FindAllStringSubmatch(body, -1) {
 		add(m[1])
 	}
-	return out
+	return out, undecodable
 }
+
+// markdownBackslashEscapeRE is a CommonMark backslash escape of ASCII
+// punctuation.
+var markdownBackslashEscapeRE = regexp.MustCompile(`\\([!-/:-@\[-` + "`" + `{-~])`)
 
 // associationList reads one association key (adrs: on a roadmap, roadmaps: on
 // an ADR) from the raw frontmatter of a governance file, strictly: a key
@@ -165,7 +182,11 @@ func (s Store) closeoutADRAssociations(rm *Roadmap, project string) ([]string, [
 		}
 	}
 	roadmapDir := filepath.Dir(rm.Path)
-	for _, dest := range markdownLinkDestinations(body) {
+	links, undecodable := markdownLinkDestinations(body)
+	for _, dest := range undecodable {
+		diagnostics = append(diagnostics, fmt.Sprintf("roadmap %s links to %s, whose escapes do not decode; the association reader cannot tell where it points", rm.Slug, dest))
+	}
+	for _, dest := range links {
 		target := filepath.Clean(filepath.Join(roadmapDir, filepath.FromSlash(dest)))
 		if filepath.Dir(target) == filepath.Clean(s.adrDir()) && strings.ContainsAny(dest, "()") {
 			diagnostics = append(diagnostics, fmt.Sprintf("roadmap %s links to %s, a destination with parentheses the association reader does not read whole; rename the ADR or the link", rm.Slug, dest))
@@ -234,7 +255,11 @@ func (s Store) closeoutADRAssociations(rm *Roadmap, project string) ([]string, [
 				found[name] = true
 			}
 		}
-		for _, dest := range markdownLinkDestinations(adrBody) {
+		backlinks, undecodableBacklinks := markdownLinkDestinations(adrBody)
+		for _, dest := range undecodableBacklinks {
+			diagnostics = append(diagnostics, "ADR "+name+" links to "+dest+", whose escapes do not decode; the association reader cannot tell where it points")
+		}
+		for _, dest := range backlinks {
 			target := filepath.Clean(filepath.Join(s.adrDir(), filepath.FromSlash(dest)))
 			// A destination the reader may have cut short is unknown, never an
 			// absent association (review round 14, N47).
