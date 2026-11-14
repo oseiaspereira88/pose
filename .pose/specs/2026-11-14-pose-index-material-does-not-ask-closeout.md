@@ -118,12 +118,12 @@ Teste da propriedade que quebra o ciclo: no cálculo do material, a aceitação 
 ### Execution log
 - Date: 2026-11-14
 - Environment: Linux, Go 1.26; harne8 com a política adotada e o gitlink em 5e143371.
-- Notes: dump de goroutines do `pose check --tolerant` travado: 16 goroutines em `chan receive` em `checkIndexInputs`, com a pilha `checkIndexInputs` → `indexInputBinding` → `BuildIndexFederatedMaterialIn` → `FederatedRoadmapAcceptance` → `localScopeClosed` → `closedByReceipt` → `getCloseoutState` → `ReviewCheck` → `ReadIndex` → `checkIndexInputs`.
+- Notes: dump de goroutines do `pose check --tolerant` travado: 16 goroutines em `chan receive` em `checkIndexInputs`, com a pilha `checkIndexInputs` → `indexInputBinding` → `BuildIndexFederatedMaterialIn` → `FederatedRoadmapAcceptance` → `localScopeClosed` → `closedByReceipt` → `getCloseoutState` → `ReviewCheck` → `ReadIndex` → `checkIndexInputs`. Com o binário corrigido, o mesmo `pose check --tolerant` do harne8, com a política adotada e as raízes que `scripts/pose-cli-local.sh` injeta, terminou em 71 s com sucesso, sem goroutine bloqueada; com o binário anterior, travava.
 
 ### Results summary
-- Successes:
-- Failures:
-- Warnings:
+- Successes: o teste da propriedade reprova sem a correção e passa com ela; o `pose check` do harne8 sob a política adotada termina.
+- Failures: nenhuma.
+- Warnings: nenhum.
 
 ### Requirement trace
 - R1 [satisfied] test:TestIndexMaterialDoesNotAskTheCloseoutOfALocalEdge
@@ -144,8 +144,8 @@ O cálculo do material federado de entrada do índice julga arestas locais de mi
 - `pose/spec.go`, `pose/index_federated_material.go`, `pose/federated_acceptance.go`, `pose/closeout_review_policy.go`, teste novo, matriz.
 
 ### Validation executed
-- Command: `go test ./internal/pose ./internal/cli ./internal/mcpserver ./internal/scaffold -count=1`
-- Result:
+- Command: `go test ./internal/pose ./internal/cli ./internal/mcpserver ./internal/scaffold -count=1`; `pose check --tolerant` no harne8 com a política adotada.
+- Result: verde; o check termina em 71 s.
 
 ### Residual risks
 - Outra leitura de estado derivado do índice dentro do cálculo do material reabriria o ciclo; o teste de regressão cobre o caminho conhecido.
