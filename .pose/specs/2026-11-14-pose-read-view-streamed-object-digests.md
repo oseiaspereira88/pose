@@ -1,6 +1,6 @@
 ---
 slug: pose-read-view-streamed-object-digests
-status: draft        # draft | in-progress | done | superseded | abandoned; blocked = operational wait, not terminal
+status: in-progress
 created_at: 2026-11-14
 completed_at:        # stamped on the transition to status: done
 supersedes:          # slug of the superseded spec (when applicable)
@@ -10,7 +10,7 @@ priority:            # integer >= 0 (lower = higher priority); ordering preferen
 components: pose-mcp
 task_type: feature
 surface:             # optional: minimal | standard | full (default) — minimal drops Tasks and derivable report sections; `pose specs facts <slug>` derives them
-delivers:            # optional typed refs: surface:id, contract:id, capability:id, infrastructure:id, governance:id
+delivers: capability:read-view-streamed-object-digests
 ---
 
 # Spec: pose-read-view-streamed-object-digests
@@ -74,8 +74,14 @@ Em 2026-11-13, fechando `pose-closeout-review-policy-by-cost-benefit`, todo `pos
 - modified: pose-mcp/internal/scaffold/dist/locales/pt-BR/POSE.md
 - created: pose-mcp/internal/pose/governance_read_view_stream.go
 - created: pose-mcp/internal/pose/governance_read_view_stream_test.go
+- created: pose-mcp/internal/cli/change_set_streamed_digest_test.go
+- modified: .pose/indexes/validation-matrix.json
 
 ### Delivery targets
+
+- capability:read-view-streamed-object-digests module:pose-mcp profile:composed-capability entrypoint:pose-mcp/cmd/pose/main.go
+
+O alvo é composto em produção por `pose index`, que lê os change sets de todas as specs através do read view de governança. Check permanente `read-view-streamed-object-digests-integration`, evidenceClass `integration`, required, em moduleOverrides.pose-mcp: `go test ./internal/pose ./internal/cli -run Streamed -count=1`.
 
 ### API/contract changes
 - Nova função de captura em streaming no pacote `pose`, usada só por produtores que hasheiam bytes de objetos imutáveis.
@@ -93,20 +99,28 @@ Em 2026-11-13, fechando `pose-closeout-review-policy-by-cost-benefit`, todo `pos
 
 ### Planning
 - [x] Medir o estouro no corpus real (shim de Git: 4.903 `git show --binary`, 985 MB em duas operações).
-- [ ] Confirmar quais leituras são puras por objeto e só hasheadas.
+- [x] Confirmar quais leituras são puras por objeto e só hasheadas: o `git show --binary` de cada commit de um change set, que só alimenta o digest de diff.
 
 ### Implementation
-- [ ] Captura em streaming com orçamento próprio e observação só de digest (R1, R2, R4).
-- [ ] Change sets por streaming, com digests idênticos (R3).
-- [ ] Restaurar 512 MiB e emenda D11 (R5).
+- [x] Captura em streaming com orçamento próprio e observação só de digest (R1, R2, R4).
+- [x] Change sets por streaming, com digests idênticos (R3).
+- [x] Restaurar 512 MiB e emenda D11 (R5).
 
 ### Validation
-- [ ] Testes de fronteira de orçamento, troca de conteúdo e reutilização na mesma operação.
-- [ ] Comparar `delivery-integrity.json` do pose-dist antes e depois (R3) e medir `pose index` (R6).
+- [x] Testes de fronteira de orçamento, troca de conteúdo e reutilização na mesma operação.
+- [x] Comparar `delivery-integrity.json` do pose-dist antes e depois (R3) e medir `pose index` (R6).
 
 ---
 
 ## 5. Decisions
+
+### Decision D2
+- Date: 2026-11-14
+- Context: a auditoria final refazia o stream de cada commit, o que triplicou o I/O medido (3,08 GB contra 985 MB).
+- Options considered: (a) refazer sempre o stream na auditoria; (b) tratar a leitura de patch de commit por id completo como pura e pulá-la na auditoria; (c) pular só enquanto a configuração efetiva do Git for a da captura.
+- Decision: (c).
+- Rationale: o objeto é imutável, mas a renderização do patch depende da configuração de diff do Git; (b) aceitaria uma mudança de configuração durante a operação sem vê-la, e (a) dobra o I/O sem ganho.
+- Consequences: a auditoria lê `git config --list` uma vez por raiz e refaz o stream só quando a configuração mudou.
 
 ### Decision D1
 - Date: 2026-11-14
@@ -131,33 +145,43 @@ Testes de unidade do modo de streaming (fronteira exata do orçamento, estouro, 
 - Expected: verde
 
 ### Execution log
-- Date:
-- Environment:
-- Notes:
+- Date: 2026-11-14
+- Environment: Linux, Go 1.26, corpus do pose-dist em `main` (567 change sets, 2.451 commits atribuídos).
+- Notes: com um shim de Git no PATH, o motor anterior lia 4.903 `git show --binary` (985 MB) por `pose index` e estourava 512 MiB. Com streaming, `pose index` do pose-dist publica sob 512 MiB em 128 s (o motor anterior levou 132 s com 1 GiB). O `delivery-integrity.json` gerado pelo motor anterior e pelo novo é idêntico byte a byte (567 change sets, mesmos IDs e digests). O shim altera o ambiente do Git que o read view observa e por isso faz a geração acusar entradas alteradas; a medição de sucesso foi feita sem ele.
 
 ### Results summary
-- Successes:
-- Failures:
-- Warnings:
+- Successes: os testes do modo de streaming e o de equivalência do digest; `pose index` sob 512 MiB; índices idênticos.
+- Failures: nenhuma.
+- Warnings: o I/O de `pose index` continua proporcional ao histórico atribuído (follow-up).
 
 ### Requirement trace
+- R1 [satisfied] test:TestAStreamedObjectReadRetainsOnlyItsDigest check:read-view-streamed-object-digests-integration
+- R2 [satisfied] test:TestTheStreamedBudgetIsExactAndOverflowIsUnknown check:read-view-streamed-object-digests-integration
+- R3 [satisfied] test:TestAStreamedChangeSetKeepsItsDiffDigest check:read-view-streamed-object-digests-integration
+- R4 [satisfied] test:TestASecondStreamedReadIsReadAgainAndCompared test:TestTheStreamedAuditSkipsPureReadsOnlyWhileTheConfigurationStands
+- R5 [satisfied] test:TestGovernanceReadViewProbeAuditAndReplayShareInputByteCapacity check:read-view-streamed-object-digests-integration
+- R6 [satisfied] check:read-view-streamed-object-digests-integration
 
 ### Known gaps
+- O tempo de `pose index` continua crescendo com o histórico atribuído; este spec limita a memória retida, não o I/O.
 
 ---
 
 ## 7. Final Report
 
 ### Delivered scope
+Leituras puras de objetos Git cujos bytes só são hasheados passam pelo read view em streaming, retendo digest e tamanho, com orçamento próprio (8 GiB por operação e de novo na auditoria, 256 MiB por leitura). Os change sets usam esse modo, com digests e IDs idênticos. A auditoria pula a leitura pura enquanto a configuração do Git é a da captura. O orçamento de entrada retida voltou a 512 MiB (emenda D11, que supersede D10).
 
 ### Files and modules changed
-- 
+- Read view de governança (`governance_read_view_stream.go`, `governance_read_view_git.go`, `governance_read_view.go`), change sets (`cli/artifact_integrity.go`), ADR de leituras de governança (D11), POSE.md e cópias, matriz de validação.
 
 ### Validation executed
-- Command:
-- Result:
+- Command: `go test ./internal/pose ./internal/cli ./internal/mcpserver ./internal/scaffold -count=1`; `pose index` do pose-dist sob 512 MiB; comparação de `delivery-integrity.json`.
+- Result: verde; índice publicado; índices idênticos.
 
 ### Residual risks
-- 
+- O I/O de `pose index` cresce com o histórico atribuído, e cada `pose index` lê o histórico duas vezes (a prova de fechamento das entradas e a construção).
 
 ### Follow-ups
+
+- [open] F1: evitar que `pose index` leia o patch de cada commit atribuído duas vezes, uma na prova de fechamento das entradas e outra na construção, e medir se o I/O restante pede um registro imutável de digest por commit, versionado, em vez da releitura. (owner:@pose-maintainers crit:medium review:2026-12-13)
