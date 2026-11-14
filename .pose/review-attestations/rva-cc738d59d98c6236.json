@@ -1,0 +1,248 @@
+{
+  "run": {
+    "run_id": "rrn-9f3099633e340afb",
+    "proof_id": "rrp-f87043521c65b31c0d6247dd704d8de097178ac26c48657a5d35b8f9ccc2c4ad"
+  },
+  "schema_version": 1,
+  "attestation_id": "rva-cc738d59d98c6236",
+  "bundle_id": "rvb-3f6bb2de81f702e1",
+  "bundle_digest": "sha256:3f6bb2de81f702e1b9b4178773dec77b64db4b6bf858cfab5274121051b4651a",
+  "reviewer": "agent:openai/gpt-6.1-sol",
+  "decision": "changes-requested",
+  "criteria": [
+    {
+      "id": "assumption-integrity",
+      "disposition": "finding",
+      "evidence": "F1",
+      "rationale": "Streaming and digest equivalence are covered by sealed tests. The assumption that commit ID plus effective configuration fixes patch output is false because attributes remain mutable. Corpus byte counters are unresolved under F5; proportional historical I/O is an explicitly documented residual limitation."
+    },
+    {
+      "id": "backend-concurrency",
+      "disposition": "finding",
+      "evidence": "F2",
+      "rationale": "Focused race-enabled tests passed, but their sequential stream coverage does not exercise the initialization interleaving at lines 143-165. F4 also identifies an audit lifecycle timeout gap."
+    },
+    {
+      "id": "backend-contracts",
+      "disposition": "passed",
+      "evidence": "integration:pose-mcp/go/read-view-streamed-object-digests-integration",
+      "rationale": "The producer retains the existing commit order, Git arguments and concatenated hash formula. No persisted schema or CLI/MCP signature changes."
+    },
+    {
+      "id": "backend-input-errors",
+      "disposition": "passed",
+      "evidence": "integration:pose-mcp/go/read-view-streamed-object-digests-integration",
+      "rationale": "Checked root authorization, per-read limit validation, shared streaming admission and overflow-to-unknown behavior. Stderr remains bounded and Git failures retain typed context."
+    },
+    {
+      "id": "backend-integration-impact",
+      "disposition": "passed",
+      "evidence": "integration:pose-mcp/go/read-view-streamed-object-digests-integration",
+      "rationale": "artifact_integrity.go routes attributed commit patches through the new stream API while parsed Git inputs retain the captured path. The surface check found one composed target and no findings."
+    },
+    {
+      "id": "backend-observability",
+      "disposition": "passed",
+      "evidence": "integration:pose-mcp/go/read-view-streamed-object-digests-integration",
+      "rationale": "Budget failures and repeated-read mismatches add producer limitations; audit changed-path identifiers hash roots and arguments. Stderr retention is capped at 64 KiB."
+    },
+    {
+      "id": "compatibility",
+      "disposition": "passed",
+      "evidence": "integration:pose-mcp/go/read-view-streamed-object-digests-integration",
+      "rationale": "Inspected the unchanged change-set hash formula and additive internal streaming API. The equivalence test includes binary content; no persisted format migration is introduced."
+    },
+    {
+      "id": "correctness",
+      "disposition": "finding",
+      "evidence": "F3",
+      "rationale": "The configuration recorded after streaming can describe a different rendering environment from the bytes consumed, allowing a stale result to pass final audit."
+    },
+    {
+      "id": "design-causality",
+      "disposition": "finding",
+      "evidence": "F1",
+      "rationale": "D1 directly addresses retained patch memory without changing digest bytes. D2 addresses repeated audit I/O, but its purity proof omits attributes and does not bind configuration to the stream.",
+      "mappings": [
+        {
+          "delta": "SD-f9f886d0",
+          "basis": "R5",
+          "disposition": "mapped",
+          "rationale": "The ADR D11 amendment restores the captured-input budget to 512 MiB and supersedes D10, as R5 requires; its separate streaming budgets implement R2."
+        }
+      ]
+    },
+    {
+      "id": "documentation",
+      "disposition": "passed",
+      "evidence": "integration:pose-mcp/go/distributed-instructions-parity-integration",
+      "rationale": "Reviewed the English and Portuguese operational changes and scaffold copies. They describe the restored retained budget and separate streaming budget consistently with runtime constants. The ADR documents the per-read and separate audit bounds."
+    },
+    {
+      "id": "operability",
+      "disposition": "finding",
+      "evidence": "F4",
+      "rationale": "The added configuration audit can lose the original timeout and block finalization without a bounded refusal."
+    },
+    {
+      "id": "requirements",
+      "disposition": "finding",
+      "evidence": "F5",
+      "rationale": "R1-R3 and R5 have relevant fixture or sealed evidence, subject to the code findings. R4 misses concurrent comparison, and R6 lacks its explicitly required captured/streamed byte measurements."
+    },
+    {
+      "id": "scope",
+      "disposition": "passed",
+      "evidence": "structure:design-680e3eedb1196130",
+      "rationale": "The implementation stays within operation-local digest streaming, change-set production, budget restoration, validation registration and corresponding documentation. No persistent cache, new digest formula or unrelated refactor was introduced."
+    },
+    {
+      "id": "security",
+      "disposition": "finding",
+      "evidence": "F1",
+      "rationale": "Raw-history command policy, root authorization and bounded stream admission are preserved, but the final proof omits mutable rendering inputs and can certify stale evidence."
+    },
+    {
+      "id": "solution-proportionality",
+      "disposition": "finding",
+      "evidence": "F1",
+      "rationale": "Streaming into the existing hash is a proportionate alternative to raising retention or introducing persistent caching. Always streaming again during audit is the smallest sufficient correctness baseline. D2's optimization is justified only when all rendering dependencies are bound; unchanged git config alone does not meet that condition."
+    }
+  ],
+  "tools": [
+    {
+      "id": "artifact-check",
+      "disposition": "passed",
+      "evidence": "command:pose artifact-check --spec pose-read-view-streamed-object-digests --strict",
+      "rationale": "Executed successfully. Reported repository-wide orphan warnings. Its all-ref attribution included later commit 5931e6f6, so this result is supplementary to inspection of the supplied sealed range."
+    },
+    {
+      "id": "assess-design",
+      "disposition": "passed",
+      "evidence": "structure:design-680e3eedb1196130",
+      "rationale": "Executed the read-only design assessment; its input digest matched the sealed structural evidence and identified the ADR amendment."
+    },
+    {
+      "id": "assess-discover",
+      "component": "pose-mcp",
+      "disposition": "not-used",
+      "rationale": "Component discovery writes assessment artifacts. The review expressly forbids repository changes; component source and sealed validation were inspected instead."
+    },
+    {
+      "id": "assess-integrate",
+      "disposition": "not-used",
+      "rationale": "The command writes integration assessment artifacts. Preserved the read-only boundary and inspected the producer-consumer integration directly with the sealed integration evidence."
+    },
+    {
+      "id": "assess-tech-debt",
+      "disposition": "not-used",
+      "rationale": "The command unconditionally saves its report. A direct marker scan of the changed production files found no TODO, FIXME, stub or panic markers; no assessment artifact was written."
+    },
+    {
+      "id": "closeout-check",
+      "disposition": "deferred",
+      "rationale": "Completion check requires the review conclusion to be recorded. This task prohibits recording an attestation, and blockers remain open."
+    },
+    {
+      "id": "review-check",
+      "disposition": "deferred",
+      "rationale": "Requires the completed recorded review; this execution returns only the requested draft."
+    },
+    {
+      "id": "suggest-review",
+      "component": "pose-mcp",
+      "disposition": "passed",
+      "evidence": "command:pose suggest review --path pose-mcp",
+      "rationale": "Executed; selected the review workflow and security, documentation-style and backend-go rules."
+    },
+    {
+      "id": "surface-check",
+      "disposition": "passed",
+      "evidence": "integration:pose-mcp/go/read-view-streamed-object-digests-integration",
+      "rationale": "Executed pose surface-check --spec pose-read-view-streamed-object-digests --strict: one target, 214 validation results, zero findings."
+    },
+    {
+      "id": "validate",
+      "disposition": "passed",
+      "evidence": "build:pose-mcp/go/build",
+      "rationale": "Uses the sealed pipeline execution rather than claiming a local rerun. The checked-in validation record reports 214 executed checks, all passing. This does not discharge the static findings."
+    },
+    {
+      "id": "validate",
+      "component": "pose-mcp",
+      "disposition": "passed",
+      "evidence": "integration:pose-mcp/go/read-view-streamed-object-digests-integration",
+      "rationale": "Uses sealed module validation. Independently reran the focused streaming tests normally and with -race; both passed. Full module validation was not rerun locally."
+    }
+  ],
+  "evidence_refs": [
+    "F1",
+    "F2",
+    "F3",
+    "F4",
+    "F5",
+    "delegated-run:rrn-9f3099633e340afb",
+    "integration:pose-mcp/go/distributed-instructions-parity-integration",
+    "integration:pose-mcp/go/read-view-streamed-object-digests-integration",
+    "structure:design-680e3eedb1196130"
+  ],
+  "findings": [
+    {
+      "id": "F1",
+      "severity": "high",
+      "evidence": "file:pose-mcp/internal/pose/governance_read_view_stream.go:207",
+      "action": "The audit skips a commit patch whenever git config --list is unchanged, but patch rendering also depends on mutable attributes. For example, changing .git/info/attributes to mark a changed text file -diff changes git show --binary output without changing the commit ID or effective configuration digest. This file is not captured by this stream path, so the final audit can certify stale patch bytes. The previous captured patch path reran this command. Audit all rendering dependencies or retain the streamed rerun until purity can be proved.",
+      "disposition": "open"
+    },
+    {
+      "id": "F2",
+      "severity": "medium",
+      "evidence": "file:pose-mcp/internal/pose/governance_read_view_stream.go:164",
+      "action": "Concurrent first reads can both find no observation at line 143, release state.mu, and enter effectiveGitConfig. After one inserts its observation, the other's final insertion branch only adds its producer and never compares digest, length or error. Different streams can therefore both return success without making the producer unknown, violating R4. Compare results in this final existing-observation branch as well, or serialize observation initialization.",
+      "disposition": "open"
+    },
+    {
+      "id": "F3",
+      "severity": "high",
+      "evidence": "file:pose-mcp/internal/pose/governance_read_view_stream.go:156",
+      "action": "The configuration attached to an observation is obtained after the patch finishes and may also come from an earlier operation-local cached reading. It is not established as the configuration under which this patch was rendered. On a first read, Git can render under configuration A, configuration can change to B before effectiveGitConfig runs, and the observation is then tagged B. The final audit sees B and skips the A-rendered patch, even though the change persists. Bind configuration around the stream and refuse or rerun when that binding cannot be established.",
+      "disposition": "open"
+    },
+    {
+      "id": "F4",
+      "severity": "medium",
+      "evidence": "file:pose-mcp/internal/pose/governance_read_view_stream.go:204",
+      "action": "The fresh configuration audit runs with item.ctx, which was stored using context.WithoutCancel and consequently has neither cancellation nor a deadline. The saved deadline is restored only later for the patch rerun. A blocked git config process, for example reading a configured include through a FIFO, can therefore hang final audit indefinitely despite the original read timeout. WaitDelay does not bound a still-running process. Apply the saved deadline or another explicit audit timeout to this configuration read.",
+      "disposition": "open"
+    },
+    {
+      "id": "F5",
+      "severity": "medium",
+      "evidence": "file:.pose/specs/2026-11-14-pose-read-view-streamed-object-digests.md:150",
+      "action": "R6 explicitly requires recording measured captured and streamed bytes for the successful pose-dist index run. The execution log records elapsed time, historical patch traffic and a statement that publication fits under 512 MiB, but gives neither measured captured bytes nor measured streamed bytes for the new operation. The integration check runs fixture tests rather than this corpus measurement. Record both counters with their operation boundaries and supporting measurement evidence before marking R6 satisfied.",
+      "disposition": "open"
+    }
+  ],
+  "authority": {
+    "schema_version": 1,
+    "project": "proj.pose-dist",
+    "bundle_digest": "sha256:3f6bb2de81f702e1b9b4178773dec77b64db4b6bf858cfab5274121051b4651a",
+    "principal": "agent:openai/gpt-6.1-sol",
+    "role": "agent",
+    "review_execution": "rrn-9f3099633e340afb",
+    "implementation_principal": "agent:anthropic/claude-opus-5-5",
+    "implementation_execution": "sha256:0eb880a4fc2ed87a379c949a567b1d3dfbd6b58b466f4755fcd363dd2b7fed98",
+    "issuer": "b34-local-executor",
+    "issued_at": "2026-11-14T08:31:10Z",
+    "audience": "proj.pose-dist"
+  },
+  "envelope": {
+    "issuer": "b34-local-executor",
+    "subject": "rvb-3f6bb2de81f702e1",
+    "algorithm": "ed25519",
+    "public_key": "ck4sApdfePV2GT+hJyAYfJd2qLzeG55P8pevGR0bvZE=",
+    "signature": "/PuxTZn1puF+ccnwEWBRY9Fk58KEturfWdZOkPc4FCQbMJfUtNvwZAyMUuLdwz/Z+SDmJmAP5Wn12gPaj+eIDQ=="
+  },
+  "attested_at": "2026-11-14T08:31:10Z",
+  "path": ".pose/review-attestations/rva-cc738d59d98c6236.json"
+}
