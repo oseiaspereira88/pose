@@ -1,7 +1,7 @@
 {
   "schema_version": 2,
-  "input_digest": "sha256:56f380823bcf254957c1329eb7451d564b0809bf8b4dda741aefb3d541e94f9f",
-  "provenance_digest": "sha256:583b39424aa3d4b6a659a276ea64ade31c8e2a4cb6afb4cf95a0bccf3eec2996",
+  "input_digest": "sha256:58d5cb4b3cf543e8aaf15b002832a112c0fcb6d828c9c859473116062811e8b3",
+  "provenance_digest": "sha256:d284e7eefdf347fb8276afdeb0cccb19a9847ec679f3fe58aced82b16aafc10f",
   "implied_edges": [
     "changes"
   ],
@@ -43727,14 +43727,6 @@
       }
     },
     {
-      "id": "change-set:cs-932ca21d5108",
-      "type": "change-set",
-      "attributes": {
-        "diff_digest": "sha256:7f4088d0e7f89983ba2356b493ae7ecbff715fc83fe1df93b2e8b81b03b9c567",
-        "selector": "trailers:pose-read-view-streamed-object-digests"
-      }
-    },
-    {
       "id": "change-set:cs-93b178c834b4",
       "type": "change-set",
       "attributes": {
@@ -44228,6 +44220,14 @@
       "attributes": {
         "diff_digest": "sha256:bf561eeac4de1f97a518e441677222bf78832a272d707920b6517b77233f6845",
         "selector": "trailers:pose-engine-package-stays-mirrorable"
+      }
+    },
+    {
+      "id": "change-set:cs-aeb5173062e8",
+      "type": "change-set",
+      "attributes": {
+        "diff_digest": "sha256:5b2ce38ac3d2c69779711471b3c127cb0767dc01fea969f96fa2e7700d526aaf",
+        "selector": "trailers:pose-read-view-streamed-object-digests"
       }
     },
     {
@@ -122184,7 +122184,7 @@
     },
     {
       "from": "spec:pose-read-view-streamed-object-digests",
-      "to": "change-set:cs-932ca21d5108",
+      "to": "change-set:cs-aeb5173062e8",
       "type": "observed-by"
     },
     {
@@ -236510,98 +236510,6 @@
       }
     },
     {
-      "id": "cs-932ca21d5108",
-      "spec": "pose-read-view-streamed-object-digests",
-      "selector": "trailers:pose-read-view-streamed-object-digests",
-      "base": "c8b6e975aa046b52e40aedcf13992e82d52f3347^",
-      "head": "2326f9c075610b2960dca5162aa9a71833c9910e",
-      "resolved_base": "d724738b53a8fe94ec9b2eb749a5242958f06d4a",
-      "resolved_head": "2326f9c075610b2960dca5162aa9a71833c9910e",
-      "commits": [
-        "c8b6e975aa046b52e40aedcf13992e82d52f3347",
-        "c1a6c9b7ee610865c6726973a51848c8fef61f6a",
-        "2326f9c075610b2960dca5162aa9a71833c9910e"
-      ],
-      "paths": [
-        {
-          "action": "created",
-          "path": ".pose/specs/2026-11-14-pose-read-view-streamed-object-digests.md"
-        },
-        {
-          "action": "created",
-          "path": ".pose/starts/pose-read-view-streamed-object-digests.json"
-        },
-        {
-          "action": "created",
-          "path": "pose-mcp/internal/cli/change_set_streamed_digest_test.go"
-        },
-        {
-          "action": "created",
-          "path": "pose-mcp/internal/pose/governance_read_view_stream.go"
-        },
-        {
-          "action": "created",
-          "path": "pose-mcp/internal/pose/governance_read_view_stream_test.go"
-        },
-        {
-          "action": "modified",
-          "path": ".pose/adr/2026-11-03-governance-reads-use-bounded-operation-scoped-views.md"
-        },
-        {
-          "action": "modified",
-          "path": ".pose/indexes/validation-matrix.json"
-        },
-        {
-          "action": "modified",
-          "path": "POSE.md"
-        },
-        {
-          "action": "modified",
-          "path": "locales/pt-BR/POSE.md"
-        },
-        {
-          "action": "modified",
-          "path": "pose-mcp/internal/cli/artifact_integrity.go"
-        },
-        {
-          "action": "modified",
-          "path": "pose-mcp/internal/pose/governance_read_view.go"
-        },
-        {
-          "action": "modified",
-          "path": "pose-mcp/internal/pose/governance_read_view_git.go"
-        },
-        {
-          "action": "modified",
-          "path": "pose-mcp/internal/scaffold/dist/POSE.md"
-        },
-        {
-          "action": "modified",
-          "path": "pose-mcp/internal/scaffold/dist/locales/pt-BR/POSE.md"
-        }
-      ],
-      "diff_digest": "sha256:7f4088d0e7f89983ba2356b493ae7ecbff715fc83fe1df93b2e8b81b03b9c567",
-      "material_digest": "sha256:09e6839176b05df818f8a2073e422140c7e1ce8566127ae1dbd557f330575d58",
-      "material_inputs": {
-        "names": [
-          ".pose/adr/2026-11-03-governance-reads-use-bounded-operation-scoped-views.md",
-          ".pose/indexes/validation-matrix.json",
-          ".pose/specs/2026-11-14-pose-read-view-streamed-object-digests.md",
-          ".pose/starts/pose-read-view-streamed-object-digests.json",
-          "POSE.md",
-          "locales/pt-BR/POSE.md",
-          "pose-mcp/internal/cli/artifact_integrity.go",
-          "pose-mcp/internal/cli/change_set_streamed_digest_test.go",
-          "pose-mcp/internal/pose/governance_read_view.go",
-          "pose-mcp/internal/pose/governance_read_view_git.go",
-          "pose-mcp/internal/pose/governance_read_view_stream.go",
-          "pose-mcp/internal/pose/governance_read_view_stream_test.go",
-          "pose-mcp/internal/scaffold/dist/POSE.md",
-          "pose-mcp/internal/scaffold/dist/locales/pt-BR/POSE.md"
-        ]
-      }
-    },
-    {
       "id": "cs-93b178c834b4",
       "spec": "pose-self-update-handoff-path",
       "selector": "trailers:pose-self-update-handoff-path",
@@ -249173,6 +249081,114 @@
           "pose-mcp/internal/mcpserver/server.go",
           "pose-mcp/internal/pose/assessment_freshness.go",
           "pose-mcp/internal/pose/package_boundary_test.go"
+        ]
+      }
+    },
+    {
+      "id": "cs-aeb5173062e8",
+      "spec": "pose-read-view-streamed-object-digests",
+      "selector": "trailers:pose-read-view-streamed-object-digests",
+      "base": "c8b6e975aa046b52e40aedcf13992e82d52f3347^",
+      "head": "ca632858c453eece927541b38afc3b9bd99faf23",
+      "resolved_base": "d724738b53a8fe94ec9b2eb749a5242958f06d4a",
+      "resolved_head": "ca632858c453eece927541b38afc3b9bd99faf23",
+      "commits": [
+        "c8b6e975aa046b52e40aedcf13992e82d52f3347",
+        "c1a6c9b7ee610865c6726973a51848c8fef61f6a",
+        "2326f9c075610b2960dca5162aa9a71833c9910e",
+        "ca632858c453eece927541b38afc3b9bd99faf23"
+      ],
+      "paths": [
+        {
+          "action": "created",
+          "path": ".pose/specs/2026-11-14-pose-read-view-streamed-object-digests.md"
+        },
+        {
+          "action": "created",
+          "path": ".pose/starts/pose-read-view-streamed-object-digests.json"
+        },
+        {
+          "action": "created",
+          "path": "pose-mcp/internal/cli/change_set_streamed_digest_test.go"
+        },
+        {
+          "action": "created",
+          "path": "pose-mcp/internal/pose/governance_read_view_stream.go"
+        },
+        {
+          "action": "created",
+          "path": "pose-mcp/internal/pose/governance_read_view_stream_test.go"
+        },
+        {
+          "action": "modified",
+          "path": ".pose/adr/2026-11-03-governance-reads-use-bounded-operation-scoped-views.md"
+        },
+        {
+          "action": "modified",
+          "path": ".pose/indexes/delivery-integrity.json"
+        },
+        {
+          "action": "modified",
+          "path": ".pose/indexes/generation.json"
+        },
+        {
+          "action": "modified",
+          "path": ".pose/indexes/spec-graph.json"
+        },
+        {
+          "action": "modified",
+          "path": ".pose/indexes/validation-matrix.json"
+        },
+        {
+          "action": "modified",
+          "path": "POSE.md"
+        },
+        {
+          "action": "modified",
+          "path": "locales/pt-BR/POSE.md"
+        },
+        {
+          "action": "modified",
+          "path": "pose-mcp/internal/cli/artifact_integrity.go"
+        },
+        {
+          "action": "modified",
+          "path": "pose-mcp/internal/pose/governance_read_view.go"
+        },
+        {
+          "action": "modified",
+          "path": "pose-mcp/internal/pose/governance_read_view_git.go"
+        },
+        {
+          "action": "modified",
+          "path": "pose-mcp/internal/scaffold/dist/POSE.md"
+        },
+        {
+          "action": "modified",
+          "path": "pose-mcp/internal/scaffold/dist/locales/pt-BR/POSE.md"
+        }
+      ],
+      "diff_digest": "sha256:5b2ce38ac3d2c69779711471b3c127cb0767dc01fea969f96fa2e7700d526aaf",
+      "material_digest": "sha256:09e6839176b05df818f8a2073e422140c7e1ce8566127ae1dbd557f330575d58",
+      "material_inputs": {
+        "names": [
+          ".pose/adr/2026-11-03-governance-reads-use-bounded-operation-scoped-views.md",
+          ".pose/indexes/delivery-integrity.json",
+          ".pose/indexes/generation.json",
+          ".pose/indexes/spec-graph.json",
+          ".pose/indexes/validation-matrix.json",
+          ".pose/specs/2026-11-14-pose-read-view-streamed-object-digests.md",
+          ".pose/starts/pose-read-view-streamed-object-digests.json",
+          "POSE.md",
+          "locales/pt-BR/POSE.md",
+          "pose-mcp/internal/cli/artifact_integrity.go",
+          "pose-mcp/internal/cli/change_set_streamed_digest_test.go",
+          "pose-mcp/internal/pose/governance_read_view.go",
+          "pose-mcp/internal/pose/governance_read_view_git.go",
+          "pose-mcp/internal/pose/governance_read_view_stream.go",
+          "pose-mcp/internal/pose/governance_read_view_stream_test.go",
+          "pose-mcp/internal/scaffold/dist/POSE.md",
+          "pose-mcp/internal/scaffold/dist/locales/pt-BR/POSE.md"
         ]
       }
     },
