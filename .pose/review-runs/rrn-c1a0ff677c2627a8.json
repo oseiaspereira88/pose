@@ -1,0 +1,137 @@
+{
+  "safety": {
+    "schema_version": 1,
+    "profile": "legacy-trusted",
+    "platform": "linux/amd64",
+    "capabilities": {
+      "automatic-expiry": "unavailable",
+      "bounded-capture": "available",
+      "cpu-limit": "unavailable",
+      "credential-filesystem-isolation": "unavailable",
+      "environment-allowlist": "available",
+      "escaped-descendant-termination": "unavailable",
+      "filesystem-isolation": "unavailable",
+      "memory-limit": "unavailable",
+      "network-isolation": "unavailable",
+      "origin-isolation": "unavailable",
+      "parent-termination": "available",
+      "process-group-termination": "available",
+      "shared-git-isolation": "unavailable"
+    },
+    "limitations": [
+      "trusted local executable required; worktree is not a sandbox",
+      "outside writes, transient writes, shared Git and credential files are not isolated",
+      "no memory/CPU quota or control of descendants escaping the process group",
+      "cleanup filesystem calls remain subject to operating-system I/O latency",
+      "legacy compatibility: HOME retained; other ambient credentials excluded"
+    ],
+    "stream_bytes": 8388608,
+    "output_bytes": 65536,
+    "retained_bytes": 16777216,
+    "timeout_ms": 3600000,
+    "max_runs_per_bundle": 3,
+    "retention": "retain-evidence; ttl=0; no automatic deletion",
+    "capture_complete": true,
+    "runtime_id": "pose-review-run-2583791210",
+    "operation": {
+      "schema_version": 1,
+      "operation": "review.dispatch.cleanup",
+      "scope": "spec:pose-index-material-does-not-ask-closeout",
+      "outcome": "completed",
+      "steps_run": [
+        {
+          "id": "cleanup",
+          "result": "done"
+        }
+      ],
+      "effects": [],
+      "resumable": false
+    }
+  },
+  "provenance": {
+    "execution_state": "started",
+    "planned_wire_digest": "sha256:bebca5dc2527f15b55fe037bc8ec714aad2d58257aaa3e43fa89cdf0d81cfff4",
+    "wire_bytes": 25248,
+    "wire_complete": true,
+    "schema_version": 1,
+    "project": "proj.pose-dist",
+    "audience": "proj.pose-dist",
+    "worktree_digest": "sha256:9c161dc895f6496d9f800581bef8673cc9123cda65951fa2d23b0cbdbc2bac41",
+    "trust": "executor-attested",
+    "implementation": {
+      "principal": "agent:anthropic/claude-opus-5-5",
+      "execution": "sha256:0eb880a4fc2ed87a379c949a567b1d3dfbd6b58b466f4755fcd363dd2b7fed98",
+      "vendor": "anthropic",
+      "model": "claude-opus-5-5"
+    },
+    "reviewer": {
+      "principal": "agent:openai/gpt-6.1-sol",
+      "vendor": "openai",
+      "model": "gpt-6.1-sol"
+    },
+    "config_digest": "sha256:637a9d88c40dbf75da8525db65c216ace591f828ef25c233358db1a99e70ee31",
+    "command_template_digest": "sha256:e3a23ff8a55e559e954d107a039277628bfc51faa58d523ad6101de7c375ad28",
+    "argv_digest": "sha256:cdb4ef21ec387959c0a28385916340f24ee509ce7b0bca65104105c1820de7a8",
+    "executable_digest": "sha256:e14fc83739c13c1074b12bd1acce4010c893c7f6fbfc1593b4a31d74cabb57af",
+    "template_version": "review-brief/7",
+    "wire_digest": "sha256:bebca5dc2527f15b55fe037bc8ec714aad2d58257aaa3e43fa89cdf0d81cfff4",
+    "notes_digest": "sha256:ffeebc0ae1ef4228d5949a3b79885620a3e010a8d208566bcdf598ba83e9970d",
+    "raw_transcript_digest": "sha256:230d734556efe7125166bae4d84c99ffcf5bfbb8e52c2e36b3dee981f79918cb",
+    "raw_output_digest": "sha256:9388c13ea8f163c8386a6b70f009141cca23cf52665f46baa2511c4710f1def3",
+    "output_source": "file",
+    "output_complete": true
+  },
+  "session_digest": "sha256:7cc185269e12a5a4035acb0f522f9af07237128e58be09f9b55ae2b87c928900",
+  "tree_digest": "sha256:9777ebf04bf006d2a89a887aa2fb5e2bfd91c03747a0822f34b469e4a48fb982",
+  "brief_notes": "Round 1 review of spec pose-index-material-does-not-ask-closeout (a bugfix of pose-closeout-review-policy-by-cost-benefit, review round 6 N22).\n\nWhat to judge: under an adopted closeout review policy, the index input check (`checkIndexInputs`) computed the federated material (`BuildIndexFederatedMaterialIn` → `FederatedRoadmapAcceptance`), whose acceptance of a local milestone or roadmap edge asked the terminal projection (`localScopeClosed` → `closedByReceipt` → `getCloseoutState` → `ReviewCheck`), which read the index (`ReadIndex` → `checkIndexInputs`) and waited on the check in progress: `pose check --tolerant` hung for hours in a harne8 pre-commit hook (goroutine dump in the spec's execution log). The fix marks the store that computes the index material (`Store.indexMaterial`) and, there only, judges local aggregate edges by source status, without asking closeout (federated acceptance and `AggregateDependencyClosed`). The closeout gate still requires the edge's scope closed outside the material.\n\nDo NOT run `pose assess`, `pose state`, `pose index` or anything else that writes under `.pose/`; dispose assess-* tools from the sealed evidence and the code. Leave the worktree as you found it. Dispose the `validate` tools from the sealed evidence: the pipeline ran `pose validate --strict` on a clean clone of the sealed commit with a GitHub token (`.pose/results/delivery-validation.json`); a rerun in your sandbox fails for environment reasons and is not evidence about the code. A finding object accepts exactly `id`, `severity`, `disposition`, `file`, `line`, `summary`, and for an accepted follow-up `action`, `owner`, `review_by`; put any rationale inside `summary`. This is round 1: `prior_findings` is empty. Sweep the whole surface and report every finding in one pass, classified blocker vs follow-up; look in particular for any other read of index-derived state inside the material computation, which would reopen the cycle.\n",
+  "ledger_version": 1,
+  "attempt_id": "rat-7fea7293b7a1ed78d6c418367384a43bf3e608ce517f094486fe971ef4f40a7e",
+  "schema_version": 1,
+  "run_id": "rrn-c1a0ff677c2627a8",
+  "scope": "spec:pose-index-material-does-not-ask-closeout",
+  "bundle_id": "rvb-5eacf44c46bbd08e",
+  "bundle_digest": "sha256:5eacf44c46bbd08e575e540a6fb3073b34ea024a05eab580613fa7233d4b69d9",
+  "sealed_commit": "ee960dffb9ba49a8ad255a31076cf3ca146fef92",
+  "kind": "review",
+  "brief_digest": "sha256:3b0154a4e6389aff603519abfde1fa93af9a2f5e66ed1df40adc2c64575e009f",
+  "adapter": "sol-medium",
+  "vendor": "openai",
+  "model": "gpt-6.1-sol",
+  "started_at": "2026-11-14T20:12:50.248556203Z",
+  "ended_at": "2026-11-14T20:19:55.60941618Z",
+  "exit_code": 0,
+  "status": "completed",
+  "transcript_digest": "sha256:1f846cbcbd36b0222fb37e790b06a9b1881384bcc3665f7cd1a115f79e367e9f",
+  "transcript_path": ".pose/review-runs/rrn-c1a0ff677c2627a8.transcript",
+  "output": "decision: approved\n\nNo defects found in the reviewed scope. Targeted tests and race-enabled regression tests passed. The exact-range artifact check passed with 952 non-blocking provenance warnings; surface-check passed with no findings.\n\nApplied the review workflow and Go, security, documentation, and delivery-evidence rules. Broader validation relies on sealed evidence. The harne8 reproduction was not independently repeated. The worktree remains unchanged; no attestation was recorded.\n\n```pose-draft\n{\n  \"schema\": \"pose.review.draft/v1\",\n  \"decision\": \"approved\",\n  \"findings\": [],\n  \"criteria\": [\n    {\n      \"id\": \"assumption-integrity\",\n      \"disposition\": \"passed\",\n      \"evidence\": \"integration:pose-mcp/go/index-material-does-not-ask-closeout-integration\",\n      \"rationale\": \"Verified the marker's containment and both guarded acceptance paths. Independently reran targeted tests and their race-enabled variants. The harne8 execution log remains implementer evidence, not an independently repeated reproduction.\"\n    },\n    {\n      \"id\": \"backend-concurrency\",\n      \"disposition\": \"passed\",\n      \"evidence\": \"integration:pose-mcp/go/index-material-does-not-ask-closeout-integration\",\n      \"rationale\": \"The marker is set on a value copy of Store, introducing no shared mutable synchronization state. Traced checkIndexInputs and the removed local closeout reentry. Targeted race-enabled tests passed.\"\n    },\n    {\n      \"id\": \"backend-contracts\",\n      \"disposition\": \"passed\",\n      \"evidence\": \"integration:pose-mcp/go/cli-mcp-operation-results-integration\",\n      \"rationale\": \"No exported signatures, serialized fields, CLI arguments or MCP schemas changed.\"\n    },\n    {\n      \"id\": \"backend-input-errors\",\n      \"disposition\": \"passed\",\n      \"evidence\": \"integration:pose-mcp/go/index-input-binding-integration\",\n      \"rationale\": \"Resolver authorization, identity validation, graph validation, source status and bounded error paths remain in place.\"\n    },\n    {\n      \"id\": \"backend-integration-impact\",\n      \"disposition\": \"passed\",\n      \"evidence\": \"integration:pose-mcp/go/federated-roadmap-acceptance-integration\",\n      \"rationale\": \"Traced material construction through roadmap acceptance and source resolution. External source proof and ordinary closeout acceptance retain their existing gates.\"\n    },\n    {\n      \"id\": \"backend-observability\",\n      \"disposition\": \"passed\",\n      \"evidence\": \"integration:pose-mcp/go/typed-diagnostics-integration\",\n      \"rationale\": \"Existing actionable resolver errors and closeout blockers remain available outside material computation; no sensitive logging was added.\"\n    },\n    {\n      \"id\": \"compatibility\",\n      \"disposition\": \"passed\",\n      \"evidence\": \"integration:pose-mcp/go/closeout-review-policy-integration\",\n      \"rationale\": \"Examined Store and acceptance changes. The private marker changes only material computation; without policy adoption the formerly conditional local closeout blocker was already absent. Public contracts remain compatible.\"\n    },\n    {\n      \"id\": \"correctness\",\n      \"disposition\": \"passed\",\n      \"evidence\": \"integration:pose-mcp/go/index-material-does-not-ask-closeout-integration\",\n      \"rationale\": \"The material path skips local terminal projection, while the ordinary path still rejects an unclosed predecessor. Independently executed the new regression, RoundSix and material tests successfully.\"\n    },\n    {\n      \"id\": \"design-causality\",\n      \"disposition\": \"passed\",\n      \"evidence\": \"structure:design-31ba3d16591d2b0e\",\n      \"rationale\": \"D1 removes the circular dependency rather than making input verification reentrant. BuildIndexFederatedMaterialIn marks its Store copy; federatedAcceptance and AggregateDependencyClosed suppress terminal projection only in that context, implementing R1 while preserving R2. No individual structural fact IDs were listed in the brief.\",\n      \"mappings\": []\n    },\n    {\n      \"id\": \"documentation\",\n      \"disposition\": \"passed\",\n      \"evidence\": \"structure:design-31ba3d16591d2b0e\",\n      \"rationale\": \"Compared the spec's requirements, D1, validation strategy and residual-risk statement with runtime behavior and the permanent validation-matrix command. No public operational contract requires a scaffold migration.\"\n    },\n    {\n      \"id\": \"operability\",\n      \"disposition\": \"passed\",\n      \"evidence\": \"integration:pose-mcp/go/closeout-review-policy-integration\",\n      \"rationale\": \"Ordinary closeout still reports closeout-not-terminal and retains explicit close remediation. Material computation avoids asking the local terminal projection responsible for the documented self-wait.\"\n    },\n    {\n      \"id\": \"requirements\",\n      \"disposition\": \"passed\",\n      \"evidence\": \"integration:pose-mcp/go/index-material-does-not-ask-closeout-integration\",\n      \"rationale\": \"R1 is supported by the guarded implementation and receipt-read regression; R2 by ordinary acceptance and RoundSix. R3 is supported by removing the documented reentry path and the spec's before/after execution log. The independent targeted and race runs passed.\"\n    },\n    {\n      \"id\": \"scope\",\n      \"disposition\": \"passed\",\n      \"evidence\": \"structure:design-31ba3d16591d2b0e\",\n      \"rationale\": \"Examined the complete requested diff, artifact declarations and start record. Implementation is confined to the material marker, its two consumers, regression coverage and validation registration.\"\n    },\n    {\n      \"id\": \"security\",\n      \"disposition\": \"passed\",\n      \"evidence\": \"integration:pose-mcp/go/federated-roadmap-negative-gates\",\n      \"rationale\": \"Reviewed authorization, canonical identity, path confinement, graph validity, source verification and external proof boundaries. The marker is private and cannot be supplied through public input; ordinary authority gates remain enforced.\"\n    },\n    {\n      \"id\": \"solution-proportionality\",\n      \"disposition\": \"passed\",\n      \"evidence\": \"structure:design-31ba3d16591d2b0e\",\n      \"rationale\": \"A private per-computation flag with two guards is a small cohesive correction. D1's reentrant-check alternative would replace the hang with unknown material. No new cache, framework or public mode was introduced. This choice must be revisited if another local material path begins reading index-derived terminal state.\"\n    }\n  ],\n  \"tools\": [\n    {\n      \"id\": \"artifact-check\",\n      \"disposition\": \"passed\",\n      \"evidence\": \"command:pose artifact-check --spec pose-index-material-does-not-ask-closeout --from 5e14337100be40d52508587fbc42a070c0b79c6e --to ee960dffb9ba49a8ad255a31076cf3ca146fef92 --strict --json\",\n      \"rationale\": \"Executed against the exact reviewed range with pipeline failure propagation. Exit 0; six claims, 952 warning findings, no error or critical findings. The initial default-range invocation selected additional recorded history and was interrupted.\"\n    },\n    {\n      \"id\": \"assess-design\",\n      \"disposition\": \"not-used\",\n      \"evidence\": \"structure:design-31ba3d16591d2b0e\",\n      \"rationale\": \"Used the sealed structural evidence and independently inspected the design; did not rerun the assessment in this read-only review.\"\n    },\n    {\n      \"id\": \"assess-discover\",\n      \"component\": \"pose-mcp\",\n      \"disposition\": \"not-used\",\n      \"evidence\": \"\",\n      \"rationale\": \"Did not refresh assessment artifacts. Reviewed the mapped component and sealed validation evidence directly.\"\n    },\n    {\n      \"id\": \"assess-integrate\",\n      \"disposition\": \"not-used\",\n      \"evidence\": \"\",\n      \"rationale\": \"No public inter-module contract changed. Inspected consumers and federation boundaries and used sealed integration evidence without refreshing assessment artifacts.\"\n    },\n    {\n      \"id\": \"assess-tech-debt\",\n      \"disposition\": \"not-used\",\n      \"evidence\": \"\",\n      \"rationale\": \"Inspected changed files and the existing debt report; no new TODO, FIXME or panic marker was introduced. Did not write a refreshed assessment.\"\n    },\n    {\n      \"id\": \"closeout-check\",\n      \"disposition\": \"deferred\",\n      \"evidence\": \"\",\n      \"rationale\": \"Requires the review conclusion to be recorded and verified first; this task explicitly forbids recording an attestation.\"\n    },\n    {\n      \"id\": \"review-check\",\n      \"disposition\": \"deferred\",\n      \"evidence\": \"\",\n      \"rationale\": \"Completion check must follow POSE's recording of this independent review.\"\n    },\n    {\n      \"id\": \"suggest-review\",\n      \"component\": \"pose-mcp\",\n      \"disposition\": \"passed\",\n      \"evidence\": \"command:pose suggest review --path pose-mcp\",\n      \"rationale\": \"Executed successfully and applied the selected backend-go, security and documentation-style rules.\"\n    },\n    {\n      \"id\": \"surface-check\",\n      \"disposition\": \"passed\",\n      \"evidence\": \"integration:pose-mcp/go/index-material-does-not-ask-closeout-integration\",\n      \"rationale\": \"Executed pose surface-check --spec pose-index-material-does-not-ask-closeout --strict. Exit 0; one delivery target, 216 results and zero findings.\"\n    },\n    {\n      \"id\": \"validate\",\n      \"disposition\": \"passed\",\n      \"evidence\": \"build:pose-mcp/go/build\",\n      \"rationale\": \"Disposed from the sealed strict-validation producer run and inspected its recorded results. Did not rerun the repository-writing validation pipeline during this read-only review.\"\n    },\n    {\n      \"id\": \"validate\",\n      \"component\": \"pose-mcp\",\n      \"disposition\": \"passed\",\n      \"evidence\": \"unit:pose-mcp/go/test\",\n      \"rationale\": \"Used the sealed module validation results. Additionally reran targeted regression and material tests, then the regression tests with -race; both independent runs passed.\"\n    }\n  ]\n}\n```",
+  "policy_digest": "sha256:90ca53a44c8202b7914e12baa143afac5707221147f71fe6fa30a74bb415f911",
+  "purpose": "review",
+  "env_removed": [
+    "CLAUDE_CODE_BRIDGE_SESSION_ID",
+    "CLAUDE_CODE_CHILD_SESSION",
+    "CLAUDE_CODE_ENTRYPOINT",
+    "CLAUDE_CODE_EXECPATH",
+    "CLAUDE_CODE_MESSAGING_SOCKET",
+    "CLAUDE_CODE_MESSAGING_TOKEN",
+    "CLAUDE_CODE_SESSION_ATTENDED",
+    "CLAUDE_CODE_SESSION_ID",
+    "CLAUDE_EFFORT",
+    "CLAUDE_PID"
+  ],
+  "events": "codex-jsonl",
+  "events_digest": "sha256:e85642b99d2557a37cabcfee54339ccfbe0e14df9c612c7fcedb39539828dea2",
+  "routing": {
+    "requested": "sol-medium",
+    "implementation": {
+      "principal": "agent:anthropic/claude-opus-5-5",
+      "vendor": "anthropic",
+      "model": "claude-opus-5-5",
+      "execution_digest": "sha256:0eb880a4fc2ed87a379c949a567b1d3dfbd6b58b466f4755fcd363dd2b7fed98",
+      "source": "declared"
+    },
+    "implementation_from": "bundle",
+    "step": "explicit"
+  },
+  "independence_achieved": "different-vendor",
+  "round": 1
+}
