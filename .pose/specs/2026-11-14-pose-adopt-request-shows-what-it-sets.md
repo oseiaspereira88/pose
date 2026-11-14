@@ -1,6 +1,6 @@
 ---
 slug: pose-adopt-request-shows-what-it-sets
-status: draft        # draft | in-progress | done | superseded | abandoned; blocked = operational wait, not terminal
+status: in-progress
 created_at: 2026-11-14
 completed_at:        # stamped on the transition to status: done
 supersedes:          # slug of the superseded spec (when applicable)
