@@ -1,0 +1,224 @@
+{
+  "run": {
+    "run_id": "rrn-c2966cb8e4ff258c",
+    "proof_id": "rrp-8dea3ca14496f634a54da48dd6e47ef82e299b6ff4ff5a3e6ed3ffc29fe2a7d9"
+  },
+  "schema_version": 1,
+  "attestation_id": "rva-1b6c58b4789579b9",
+  "bundle_id": "rvb-5364a11b6d7e041d",
+  "bundle_digest": "sha256:5364a11b6d7e041dcb42642925dba23411347dec8f6814cdb4d92bef865a451e",
+  "reviewer": "agent:openai/gpt-6.1-sol",
+  "decision": "changes-requested",
+  "criteria": [
+    {
+      "id": "assumption-integrity",
+      "disposition": "passed",
+      "evidence": "integration:pose-mcp/go/read-view-streamed-object-digests-integration",
+      "rationale": "Examined immutable-object versus mutable-rendering assumptions, concurrent observation initialization, budget separation and corpus measurements. Rendering stability is now checked by rerunning rather than assumed from configuration. Tests independently verified the corrected paths. Corpus byte-equivalence and counters remain documented implementer measurements rather than independently reproduced corpus results. Continued history-proportional I/O is explicitly scoped and tracked."
+    },
+    {
+      "id": "backend-concurrency",
+      "disposition": "passed",
+      "evidence": "integration:pose-mcp/go/read-view-streamed-object-digests-integration",
+      "rationale": "Inspected state.mu, budgetMu, target.begin/end and audit joining. Streamed tests and existing cancellation/shared-budget tests passed with the race detector; post-run comparison now covers concurrent first observations."
+    },
+    {
+      "id": "backend-contracts",
+      "disposition": "passed",
+      "evidence": "integration:pose-mcp/go/read-view-streamed-object-digests-integration",
+      "rationale": "The patch bytes and their ordering into SHA-256 remain unchanged. No persisted change-set, CLI or MCP schema is migrated."
+    },
+    {
+      "id": "backend-input-errors",
+      "disposition": "finding",
+      "evidence": "N1"
+    },
+    {
+      "id": "backend-integration-impact",
+      "disposition": "passed",
+      "evidence": "integration:pose-mcp/go/read-view-streamed-object-digests-integration",
+      "rationale": "Traced production change-set collection through the stream helper and operation-owned Git state; inspected native fallback and unchanged explicit-range behavior. Surface-check found one target and no findings."
+    },
+    {
+      "id": "backend-observability",
+      "disposition": "finding",
+      "evidence": "N1"
+    },
+    {
+      "id": "compatibility",
+      "disposition": "passed",
+      "evidence": "integration:pose-mcp/go/read-view-streamed-object-digests-integration",
+      "rationale": "Compared old and new digest construction and the equivalence fixture, including binary content. Public file, CLI and MCP schemas remain compatible; normal successful reads preserve change-set IDs."
+    },
+    {
+      "id": "correctness",
+      "disposition": "finding",
+      "evidence": "N2"
+    },
+    {
+      "id": "design-causality",
+      "disposition": "passed",
+      "evidence": "structure:design-338e543875a0589e",
+      "rationale": "D1 directly addresses retained commit-patch growth by hashing streamed bytes while retaining digest and length. D2 restores complete audit reruns because object identity does not establish rendering purity. This preserves digest compatibility without persistent caching or a new digest formula.",
+      "mappings": [
+        {
+          "delta": "SD-048277a6",
+          "basis": "R5",
+          "disposition": "mapped",
+          "rationale": "ADR amendment D11 supersedes D10 and restores the captured-input ceiling to 512 MiB, documenting separate stream budgets and measured retention as R5 requires."
+        }
+      ]
+    },
+    {
+      "id": "documentation",
+      "disposition": "finding",
+      "evidence": "N2",
+      "rationale": "English and Portuguese budget text matches its scaffold copies, and ADR D11 matches the intended implementation. The claimed retained limits are not enforced for stored warning text."
+    },
+    {
+      "id": "operability",
+      "disposition": "finding",
+      "evidence": "N1"
+    },
+    {
+      "id": "requirements",
+      "disposition": "finding",
+      "evidence": "N2",
+      "rationale": "R1/R3/R4 have relevant streamed and equivalence tests; R6 measurements are now recorded. The retained diagnostic allocation bypass undermines the budget separation and restoration required by R2/R5."
+    },
+    {
+      "id": "scope",
+      "disposition": "passed",
+      "evidence": "structure:design-338e543875a0589e",
+      "rationale": "Examined the declared artifacts and implementation diff. Changes remain confined to streamed hash-only Git reads, change-set integration, budget restoration, supporting tests, validation registration and synchronized documentation."
+    },
+    {
+      "id": "security",
+      "disposition": "finding",
+      "evidence": "N2",
+      "rationale": "Raw-history environment sanitization and authorized-root checks are preserved, but repository-controlled Git warnings can allocate retained strings outside the shared memory limits."
+    },
+    {
+      "id": "solution-proportionality",
+      "disposition": "passed",
+      "evidence": "structure:design-338e543875a0589e",
+      "rationale": "Compared streaming against raising capacity, changing digest identity and introducing persistent caching. Streaming is the smallest compatible structural solution; unconditional audit reruns preserve the prior correctness model without speculative dependency tracking. Persistent caching or versioned digest storage would need a separate decision if measured I/O becomes unacceptable. The implementation still needs the two reported corrections."
+    }
+  ],
+  "tools": [
+    {
+      "id": "artifact-check",
+      "disposition": "passed",
+      "evidence": "command:pose artifact-check --spec pose-read-view-streamed-object-digests --strict",
+      "rationale": "Executed independently; exit 0. Output included existing provenance warnings."
+    },
+    {
+      "id": "assess-design",
+      "disposition": "not-used",
+      "evidence": "structure:design-338e543875a0589e",
+      "rationale": "Inspected the sealed structural assessment and independently mapped the ADR delta; did not rerun an assessment producer in the read-only review."
+    },
+    {
+      "id": "assess-discover",
+      "component": "pose-mcp",
+      "disposition": "not-used",
+      "evidence": "command:pose suggest review --path pose-mcp",
+      "rationale": "Selected component rules and inspected the source directly. Discovery persists assessment artifacts, contrary to the no-repository-changes boundary."
+    },
+    {
+      "id": "assess-integrate",
+      "disposition": "not-used",
+      "evidence": "integration:pose-mcp/go/read-view-streamed-object-digests-integration",
+      "rationale": "Used sealed integration evidence plus direct producer/consumer inspection and local race-enabled tests; did not rerun the persisting assessment producer."
+    },
+    {
+      "id": "assess-tech-debt",
+      "disposition": "not-used",
+      "evidence": "command:git diff d724738b53a8fe94ec9b2eb749a5242958f06d4a c6ec137582ad69f001b47d9b2cbf36539b899441 -- pose-mcp/internal/pose/governance_read_view.go pose-mcp/internal/pose/governance_read_view_git.go pose-mcp/internal/pose/governance_read_view_stream.go pose-mcp/internal/cli/artifact_integrity.go",
+      "rationale": "Manually inspected the changed code and documented I/O follow-up. Did not run the assessment producer because repository writes are prohibited."
+    },
+    {
+      "id": "closeout-check",
+      "disposition": "deferred",
+      "evidence": "command:pose context --task spec:pose-read-view-streamed-object-digests --json",
+      "rationale": "Completion gate requires the review conclusion to be recorded first; this review only returns a draft and requests changes."
+    },
+    {
+      "id": "review-check",
+      "disposition": "deferred",
+      "evidence": "command:pose context --task spec:pose-read-view-streamed-object-digests --json",
+      "rationale": "Requires the resulting attestation; recording one is explicitly outside this review's boundary."
+    },
+    {
+      "id": "suggest-review",
+      "component": "pose-mcp",
+      "disposition": "passed",
+      "evidence": "command:pose suggest review --path pose-mcp",
+      "rationale": "Executed; selected backend-go, security and documentation-style rules."
+    },
+    {
+      "id": "surface-check",
+      "disposition": "passed",
+      "evidence": "integration:pose-mcp/go/read-view-streamed-object-digests-integration",
+      "rationale": "Independently ran pose surface-check --spec pose-read-view-streamed-object-digests --strict: exit 0, one target, 214 results, zero findings."
+    },
+    {
+      "id": "validate",
+      "disposition": "passed",
+      "evidence": "unit:pose-mcp/go/test",
+      "rationale": "Disposition uses the supplied sealed successful validation producer, not a claimed local full-suite rerun. Independently reran the relevant streamed tests with -race and the existing collection-gap regression."
+    },
+    {
+      "id": "validate",
+      "component": "pose-mcp",
+      "disposition": "passed",
+      "evidence": "integration:pose-mcp/go/read-view-streamed-object-digests-integration",
+      "rationale": "Uses the module's supplied sealed validation evidence. Local go test -race ./internal/pose ./internal/cli -run Streamed -count=1 passed; additional race-enabled cancellation and shared-budget tests also passed. Passing fixtures do not cover N1 or N2."
+    }
+  ],
+  "evidence_refs": [
+    "N1",
+    "N2",
+    "delegated-run:rrn-c2966cb8e4ff258c",
+    "integration:pose-mcp/go/read-view-streamed-object-digests-integration",
+    "structure:design-338e543875a0589e"
+  ],
+  "findings": [
+    {
+      "id": "N1",
+      "severity": "medium",
+      "evidence": "file:pose-mcp/internal/cli/artifact_integrity.go:246",
+      "action": "The governed streamed-patch path returns StreamGovernanceRawHistoryGitIn's error directly, removing the stderr enrichment previously supplied by gitOutputBoundedIn. runGovernanceGitStreamContext attaches stderr to exec.ExitError, but GitSnapshotError.Error formats only the exit error, so a failed git show becomes 'Git snapshot unavailable (show ...): exit status 128'. collectArtifactGraphInputsWithGapsIn stores only err.Error() at line 586, permanently losing the missing-object, permission or other forensic cause. Preserve bounded stderr in the reported collection-gap error while preserving ErrGitUnknown, and cover failure of the streamed show command. The existing collection-gaps regression passes but injects failure into diff-tree, so it does not cover this new path.",
+      "disposition": "open"
+    },
+    {
+      "id": "N2",
+      "severity": "medium",
+      "evidence": "file:pose-mcp/internal/pose/governance_read_view_stream.go:143",
+      "action": "A successful Git command with stderr becomes a GitSnapshotError containing up to 64 KiB of warning text at lines 243-248. stream then retains the entire error string in each observation's errText, while reserveRecord charges only root/key/producer plus 128 bytes and reserveStreamed charges only stdout. These retained strings therefore bypass both the 512 MiB retained-input budget and the 16 MiB metadata budget. Thousands of distinct warning-producing reads can retain hundreds of MiB beyond the declared limits while their counters remain below capacity. A read-only native-Git probe using core.attributesFile=/dev/stdin with invalid attribute entries exited 0 and emitted 258893 stderr bytes, establishing that this path does not require a fake Git executable. Charge retained diagnostics to the appropriate shared budget before storing them, or retain only an error digest with separately budgeted diagnostic context; add a regression for repeated warning-producing observations.",
+      "disposition": "open"
+    }
+  ],
+  "authority": {
+    "schema_version": 1,
+    "project": "proj.pose-dist",
+    "bundle_digest": "sha256:5364a11b6d7e041dcb42642925dba23411347dec8f6814cdb4d92bef865a451e",
+    "principal": "agent:openai/gpt-6.1-sol",
+    "role": "agent",
+    "review_execution": "rrn-c2966cb8e4ff258c",
+    "implementation_principal": "agent:anthropic/claude-opus-5-5",
+    "implementation_execution": "sha256:0eb880a4fc2ed87a379c949a567b1d3dfbd6b58b466f4755fcd363dd2b7fed98",
+    "issuer": "b34-local-executor",
+    "issued_at": "2026-11-14T09:19:50Z",
+    "audience": "proj.pose-dist"
+  },
+  "envelope": {
+    "issuer": "b34-local-executor",
+    "subject": "rvb-5364a11b6d7e041d",
+    "algorithm": "ed25519",
+    "public_key": "ck4sApdfePV2GT+hJyAYfJd2qLzeG55P8pevGR0bvZE=",
+    "signature": "dWaBbZD/sYem4/BL8TMh2ad1x/kjfeh/nUrZkSAm4ItX9xg4NEbSMXTgRbHQZbtq95FOgJvN6Yq4WfQpLSpUDQ=="
+  },
+  "attested_at": "2026-11-14T09:19:50Z",
+  "path": ".pose/review-attestations/rva-1b6c58b4789579b9.json"
+}
