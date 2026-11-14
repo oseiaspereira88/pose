@@ -1,7 +1,7 @@
 {
   "schema_version": 2,
-  "input_digest": "sha256:f496e4e911f9a79f5dfef103f06a1aaf0a38621e510050a7ccfac5c178f323bf",
-  "provenance_digest": "sha256:e33e1170020ed2e7e7864b9d5f968728f489679fc3076b2e424f2aaba9d724dc",
+  "input_digest": "sha256:91d64c5e6472609de891e112238cfe8faf1cd42a43826a89cc0311d8af3c3ac5",
+  "provenance_digest": "sha256:6d9eb4d339e97763acb429be886c45ff43505bc431cec54082bbe5d6a38e5014",
   "implied_edges": [
     "changes"
   ],
@@ -42154,14 +42154,6 @@
       }
     },
     {
-      "id": "change-set:cs-13deeb23a4ba",
-      "type": "change-set",
-      "attributes": {
-        "diff_digest": "sha256:ebbede13a3c352a60ba349281fa337e2924a860d5913daadd1c11ec53dd20e4c",
-        "selector": "trailers:pose-review-cleanup-removes-go-build-leftovers"
-      }
-    },
-    {
       "id": "change-set:cs-143081aac283",
       "type": "change-set",
       "attributes": {
@@ -42903,6 +42895,14 @@
       "attributes": {
         "diff_digest": "sha256:b232333315db4cd7c823df9c8059f48039cfb4d03d9f42959b3de6b33c1d8c16",
         "selector": "range:74d8067~1..74d8067"
+      }
+    },
+    {
+      "id": "change-set:cs-3a4c36181f7e",
+      "type": "change-set",
+      "attributes": {
+        "diff_digest": "sha256:13ed4992dddf573ec2fefceb4ae3639980ae29b6b727d84f503dbec701f22bbe",
+        "selector": "trailers:pose-review-cleanup-removes-go-build-leftovers"
       }
     },
     {
@@ -127071,7 +127071,7 @@
     },
     {
       "from": "spec:pose-review-cleanup-removes-go-build-leftovers",
-      "to": "change-set:cs-13deeb23a4ba",
+      "to": "change-set:cs-3a4c36181f7e",
       "type": "observed-by"
     },
     {
@@ -181299,73 +181299,6 @@
       }
     },
     {
-      "id": "cs-13deeb23a4ba",
-      "spec": "pose-review-cleanup-removes-go-build-leftovers",
-      "selector": "trailers:pose-review-cleanup-removes-go-build-leftovers",
-      "base": "9f3807058cda76811a58b6a57af2b04204e1e214^",
-      "head": "20b01e7109e6e0ef0f4b0f6283cbb11d052d1d86",
-      "resolved_base": "79157194e51e52aa471aedacc4c0e4b2d052b7ee",
-      "resolved_head": "20b01e7109e6e0ef0f4b0f6283cbb11d052d1d86",
-      "commits": [
-        "9f3807058cda76811a58b6a57af2b04204e1e214",
-        "b373bacabc9baf29b21b0f67f6fe0a628a314b55",
-        "20b01e7109e6e0ef0f4b0f6283cbb11d052d1d86"
-      ],
-      "paths": [
-        {
-          "action": "created",
-          "path": ".pose/specs/2026-11-14-pose-review-cleanup-removes-go-build-leftovers.md"
-        },
-        {
-          "action": "created",
-          "path": ".pose/starts/pose-review-cleanup-removes-go-build-leftovers.json"
-        },
-        {
-          "action": "modified",
-          "path": ".pose/indexes/delivery-integrity.json"
-        },
-        {
-          "action": "modified",
-          "path": ".pose/indexes/generation.json"
-        },
-        {
-          "action": "modified",
-          "path": ".pose/indexes/spec-graph.json"
-        },
-        {
-          "action": "modified",
-          "path": ".pose/indexes/validation-matrix.json"
-        },
-        {
-          "action": "modified",
-          "path": ".pose/results/delivery-validation.json"
-        },
-        {
-          "action": "modified",
-          "path": "pose-mcp/internal/pose/review_adapter_containment.go"
-        },
-        {
-          "action": "modified",
-          "path": "pose-mcp/internal/pose/review_adapter_containment_regression_test.go"
-        }
-      ],
-      "diff_digest": "sha256:ebbede13a3c352a60ba349281fa337e2924a860d5913daadd1c11ec53dd20e4c",
-      "material_digest": "sha256:d1e635ebccca5a408fd7914c4f15741cf914e55c32a80624cd7ee5ad9e3cd479",
-      "material_inputs": {
-        "names": [
-          ".pose/indexes/delivery-integrity.json",
-          ".pose/indexes/generation.json",
-          ".pose/indexes/spec-graph.json",
-          ".pose/indexes/validation-matrix.json",
-          ".pose/results/delivery-validation.json",
-          ".pose/specs/2026-11-14-pose-review-cleanup-removes-go-build-leftovers.md",
-          ".pose/starts/pose-review-cleanup-removes-go-build-leftovers.json",
-          "pose-mcp/internal/pose/review_adapter_containment.go",
-          "pose-mcp/internal/pose/review_adapter_containment_regression_test.go"
-        ]
-      }
-    },
-    {
       "id": "cs-143081aac283",
       "spec": "pose-verdict-readers-ask-the-sealed-question",
       "selector": "trailers:pose-verdict-readers-ask-the-sealed-question",
@@ -200980,6 +200913,74 @@
         }
       ],
       "diff_digest": "sha256:b232333315db4cd7c823df9c8059f48039cfb4d03d9f42959b3de6b33c1d8c16"
+    },
+    {
+      "id": "cs-3a4c36181f7e",
+      "spec": "pose-review-cleanup-removes-go-build-leftovers",
+      "selector": "trailers:pose-review-cleanup-removes-go-build-leftovers",
+      "base": "9f3807058cda76811a58b6a57af2b04204e1e214^",
+      "head": "93b002477300a41ea2d666a14cdd763b6e34e43f",
+      "resolved_base": "79157194e51e52aa471aedacc4c0e4b2d052b7ee",
+      "resolved_head": "93b002477300a41ea2d666a14cdd763b6e34e43f",
+      "commits": [
+        "9f3807058cda76811a58b6a57af2b04204e1e214",
+        "b373bacabc9baf29b21b0f67f6fe0a628a314b55",
+        "20b01e7109e6e0ef0f4b0f6283cbb11d052d1d86",
+        "93b002477300a41ea2d666a14cdd763b6e34e43f"
+      ],
+      "paths": [
+        {
+          "action": "created",
+          "path": ".pose/specs/2026-11-14-pose-review-cleanup-removes-go-build-leftovers.md"
+        },
+        {
+          "action": "created",
+          "path": ".pose/starts/pose-review-cleanup-removes-go-build-leftovers.json"
+        },
+        {
+          "action": "modified",
+          "path": ".pose/indexes/delivery-integrity.json"
+        },
+        {
+          "action": "modified",
+          "path": ".pose/indexes/generation.json"
+        },
+        {
+          "action": "modified",
+          "path": ".pose/indexes/spec-graph.json"
+        },
+        {
+          "action": "modified",
+          "path": ".pose/indexes/validation-matrix.json"
+        },
+        {
+          "action": "modified",
+          "path": ".pose/results/delivery-validation.json"
+        },
+        {
+          "action": "modified",
+          "path": "pose-mcp/internal/pose/review_adapter_containment.go"
+        },
+        {
+          "action": "modified",
+          "path": "pose-mcp/internal/pose/review_adapter_containment_regression_test.go"
+        }
+      ],
+      "diff_digest": "sha256:13ed4992dddf573ec2fefceb4ae3639980ae29b6b727d84f503dbec701f22bbe",
+      "material_digest": "sha256:d1e635ebccca5a408fd7914c4f15741cf914e55c32a80624cd7ee5ad9e3cd479",
+      "material_inputs": {
+        "names": [
+          ".pose/indexes/delivery-integrity.json",
+          ".pose/indexes/generation.json",
+          ".pose/indexes/spec-graph.json",
+          ".pose/indexes/validation-matrix.json",
+          ".pose/results/delivery-validation.json",
+          ".pose/specs/2026-11-14-pose-review-cleanup-removes-go-build-leftovers.md",
+          ".pose/starts/pose-review-cleanup-removes-go-build-leftovers.json",
+          "pose-mcp/internal/pose/review_adapter_containment.go",
+          "pose-mcp/internal/pose/review_adapter_containment_regression_test.go"
+        ]
+      }
     },
     {
       "id": "cs-3bd5c2cccc36",
