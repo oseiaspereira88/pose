@@ -1,8 +1,8 @@
 ---
 slug: pose-index-material-does-not-ask-closeout
-status: in-progress
+status: done
 created_at: 2026-11-14
-completed_at:        # stamped on the transition to status: done
+completed_at: 2026-11-14
 supersedes:          # slug of the superseded spec (when applicable)
 depends_on:          # prerequisites, inline list: other-spec, milestone:<roadmap>/<id>, roadmap:<slug>
 remediates: spec:pose-closeout-review-policy-by-cost-benefit@defect-fix
