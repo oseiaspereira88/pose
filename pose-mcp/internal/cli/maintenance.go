@@ -3,6 +3,7 @@ package cli
 import (
 	"archive/tar"
 	"archive/zip"
+	"bytes"
 	"compress/gzip"
 	"encoding/json"
 	"fmt"
@@ -1027,6 +1028,12 @@ func cmdHooks(root string, args []string, stdout, stderr io.Writer) int {
 		}
 		switch mode {
 		case "status":
+			if runner, declared, err := hookRunner(root); err != nil {
+				fmt.Fprintf(stdout, "[INVALID] %s runner: %v\n", hook, err)
+			} else if declared && managed {
+				fmt.Fprintf(stdout, "[INSTALLED] %s -> %s (delegates to %s)\n", hook, exe, runner)
+				continue
+			}
 			if managed {
 				fmt.Fprintf(stdout, "[INSTALLED] %s -> %s\n", hook, exe)
 			} else if _, e := os.Lstat(dst); e == nil {
@@ -1072,6 +1079,48 @@ func cmdHooks(root string, args []string, stdout, stderr io.Writer) int {
 	}
 	return 0
 }
+
+// hookRunner reads the runner an instance declares for its git hooks in
+// .pose/policy/hooks.json: a project-relative, regular, executable file
+// inside the root. An absent policy declares none.
+func hookRunner(root string) (string, bool, error) {
+	raw, err := os.ReadFile(filepath.Join(root, ".pose", "policy", "hooks.json"))
+	if errors.Is(err, os.ErrNotExist) {
+		return "", false, nil
+	}
+	if err != nil {
+		return "", false, err
+	}
+	var policy struct {
+		SchemaVersion int    `json:"schema_version"`
+		Runner        string `json:"runner"`
+	}
+	decoder := json.NewDecoder(bytes.NewReader(raw))
+	decoder.DisallowUnknownFields()
+	if err := decoder.Decode(&policy); err != nil {
+		return "", false, fmt.Errorf(".pose/policy/hooks.json: %v", err)
+	}
+	if policy.SchemaVersion != 1 {
+		return "", false, fmt.Errorf(".pose/policy/hooks.json: schema_version %d, want 1", policy.SchemaVersion)
+	}
+	rel := filepath.Clean(filepath.FromSlash(policy.Runner))
+	if policy.Runner == "" || filepath.IsAbs(rel) || rel == "." || rel == ".." || strings.HasPrefix(rel, ".."+string(filepath.Separator)) {
+		return "", false, fmt.Errorf(".pose/policy/hooks.json: runner %q must be a path inside the project", policy.Runner)
+	}
+	path := filepath.Join(root, rel)
+	if err := posemodel.ValidateArtifactPathIn(posemodel.NativeFiles(), root, filepath.ToSlash(rel), false); err != nil {
+		return "", false, fmt.Errorf(".pose/policy/hooks.json: runner %q: %v", policy.Runner, err)
+	}
+	info, err := os.Stat(path)
+	if err != nil {
+		return "", false, fmt.Errorf(".pose/policy/hooks.json: runner %q: %v", policy.Runner, err)
+	}
+	if !info.Mode().IsRegular() || info.Mode().Perm()&0o111 == 0 {
+		return "", false, fmt.Errorf(".pose/policy/hooks.json: runner %q is not an executable file", policy.Runner)
+	}
+	return path, true, nil
+}
+
 func sameFilePath(a, b string) bool {
 	aa, _ := filepath.Abs(a)
 	bb, _ := filepath.Abs(b)
@@ -1083,6 +1132,28 @@ func HookMain(name string, stdout, stderr io.Writer) int {
 	if e != nil {
 		fmt.Fprintln(stderr, e)
 		return 1
+	}
+	// An instance that runs POSE through its own revision-bound CLI declares
+	// the runner its hooks use; the engine's hook delegates to it, so a hook
+	// installed as a symlink to this binary never runs without the roots the
+	// instance binds (spec pose-hooks-delegate-to-the-instance-runner).
+	runner, declared, err := hookRunner(root)
+	if err != nil {
+		fmt.Fprintln(stderr, "pose: hooks policy: "+err.Error())
+		return 1
+	}
+	if declared {
+		cmd := exec.Command(runner, name)
+		cmd.Dir, cmd.Stdin, cmd.Stdout, cmd.Stderr = root, os.Stdin, stdout, stderr
+		if err := cmd.Run(); err != nil {
+			var exit *exec.ExitError
+			if errors.As(err, &exit) {
+				return exit.ExitCode()
+			}
+			fmt.Fprintln(stderr, "pose: hook runner: "+err.Error())
+			return 1
+		}
+		return 0
 	}
 	switch name {
 	case "pre-commit":

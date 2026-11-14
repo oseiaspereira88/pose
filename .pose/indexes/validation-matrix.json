@@ -2385,6 +2385,13 @@
           "evidenceClass": "integration"
         },
         {
+          "name": "hooks-delegate-to-the-instance-runner-integration",
+          "program": "go",
+          "args": ["test", "./internal/cli", "-run", "AHookDelegates|AnInvalidHookRunner|HookStatusNames", "-count=1"],
+          "severity": "required",
+          "evidenceClass": "integration"
+        },
+        {
           "name": "adopt-request-shows-what-it-sets-integration",
           "program": "go",
           "args": ["test", "./internal/cli", "-run", "TestAnAnsweredAdoptionPreviewNamesThePolicyItWrites|TestConfigurationReview|TestCloseoutReviewPolicyAdoptRequestRefusesThePair", "-count=1"],
