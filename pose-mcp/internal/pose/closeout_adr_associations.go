@@ -16,6 +16,9 @@ package pose
 
 import (
 	"fmt"
+	"github.com/yuin/goldmark"
+	"github.com/yuin/goldmark/ast"
+	"github.com/yuin/goldmark/text"
 	"html"
 	"net/url"
 	"os"
@@ -30,56 +33,112 @@ const (
 	closeoutADRSizeLimit      = 1 << 20
 )
 
-var (
-	// [text](dest "title") and [text](<dest>) inline links.
-	markdownInlineLinkRE = regexp.MustCompile(`\]\(\s*(<[^>\n]*>|[^)\s]+)(?:\s+(?:"[^"]*"|'[^']*'|\([^)]*\)))?\s*\)`)
-	// [label]: dest "title" reference definitions.
-	markdownReferenceLinkRE = regexp.MustCompile(`(?m)^\s{0,3}\[[^\]\n]+\]:\s*(<[^>\n]*>|\S+)`)
-)
-
 func (s Store) adrDir() string { return filepath.Join(s.Root, ".pose", "adr") }
 
-// markdownLinkDestinations lists the link destinations of a Markdown body,
-// angle brackets and fragments removed. External URLs are kept out.
+// markdownLinkDestinations lists the local link destinations of a Markdown
+// body as CommonMark reads them (ADR
+// governance-association-links-are-read-with-a-commonmark-parser): the links
+// and images of its syntax tree, reference definitions resolved, code and
+// comments excluded. Each destination is decoded in CommonMark precedence,
+// cut at its fragment and query, and percent-decoded. The second list holds
+// what the reader cannot speak for: a destination whose escapes do not
+// decode, and raw HTML carrying a link attribute.
 func markdownLinkDestinations(body string) ([]string, []string) {
-	// Code and comments are read like prose: a link shown as an example
-	// still counts, so the reader over-enforces rather than dropping a real
-	// link it misparsed (review round 14, N46; follow-up F6).
 	out, undecodable := []string{}, []string{}
+	source := []byte(body)
+	doc := goldmark.New().Parser().Parse(text.NewReader(source))
 	add := func(raw string) {
-		dest := strings.TrimSpace(raw)
-		dest = strings.TrimSuffix(strings.TrimPrefix(dest, "<"), ">")
-		// The destination as Markdown resolves it: character references and
-		// backslash escapes first, then the fragment and query, then URL
-		// escapes. One that does not decode is reported, never skipped
-		// (review round 15, N48).
-		dest = markdownBackslashEscapeRE.ReplaceAllString(html.UnescapeString(dest), "$1")
+		dest := decodeMarkdownDestination(raw)
 		if i := strings.IndexAny(dest, "#?"); i >= 0 {
 			dest = dest[:i]
 		}
 		decoded, err := url.PathUnescape(dest)
 		if err != nil {
-			undecodable = append(undecodable, strings.TrimSpace(raw))
+			undecodable = append(undecodable, raw)
 			return
 		}
-		dest = decoded
+		dest = strings.TrimSpace(decoded)
 		if dest == "" || strings.Contains(dest, "://") || strings.HasPrefix(dest, "mailto:") || strings.HasPrefix(dest, "/") {
 			return
 		}
 		out = append(out, dest)
 	}
-	for _, m := range markdownInlineLinkRE.FindAllStringSubmatch(body, -1) {
-		add(m[1])
+	htmlLink := func(raw string) {
+		if markdownHTMLLinkAttributeRE.MatchString(raw) {
+			undecodable = append(undecodable, "raw HTML "+strings.TrimSpace(raw))
+		}
 	}
-	for _, m := range markdownReferenceLinkRE.FindAllStringSubmatch(body, -1) {
-		add(m[1])
-	}
+	_ = ast.Walk(doc, func(node ast.Node, entering bool) (ast.WalkStatus, error) {
+		if !entering {
+			return ast.WalkContinue, nil
+		}
+		switch n := node.(type) {
+		case *ast.Link:
+			add(string(n.Destination))
+		case *ast.Image:
+			add(string(n.Destination))
+		case *ast.RawHTML:
+			var raw strings.Builder
+			for i := 0; i < n.Segments.Len(); i++ {
+				segment := n.Segments.At(i)
+				raw.Write(segment.Value(source))
+			}
+			htmlLink(raw.String())
+		case *ast.HTMLBlock:
+			var raw strings.Builder
+			for i := 0; i < n.Lines().Len(); i++ {
+				line := n.Lines().At(i)
+				raw.Write(line.Value(source))
+			}
+			if n.HasClosure() {
+				raw.Write(n.ClosureLine.Value(source))
+			}
+			htmlLink(raw.String())
+		}
+		return ast.WalkContinue, nil
+	})
 	return out, undecodable
 }
 
-// markdownBackslashEscapeRE is a CommonMark backslash escape of ASCII
-// punctuation.
-var markdownBackslashEscapeRE = regexp.MustCompile(`\\([!-/:-@\[-` + "`" + `{-~])`)
+var (
+	// markdownEntityRE is a CommonMark character reference at the start of a
+	// string: decimal, hexadecimal or named.
+	markdownEntityRE = regexp.MustCompile(`^&(#[0-9]{1,7}|#[xX][0-9a-fA-F]{1,6}|[A-Za-z][A-Za-z0-9]{1,31});`)
+	// markdownHTMLLinkAttributeRE finds an attribute through which raw HTML
+	// makes a link.
+	markdownHTMLLinkAttributeRE = regexp.MustCompile(`(?i)\b(href|src)\s*=`)
+)
+
+// decodeMarkdownDestination decodes a raw link destination in one
+// left-to-right pass, as CommonMark does: a backslash makes the next ASCII
+// punctuation literal, and only an unescaped & starts a character reference.
+func decodeMarkdownDestination(raw string) string {
+	var b strings.Builder
+	for i := 0; i < len(raw); {
+		c := raw[i]
+		if c == '\\' && i+1 < len(raw) && isASCIIPunctuation(raw[i+1]) {
+			b.WriteByte(raw[i+1])
+			i += 2
+			continue
+		}
+		if c == '&' {
+			if entity := markdownEntityRE.FindString(raw[i:]); entity != "" {
+				if decoded := html.UnescapeString(entity); decoded != entity {
+					b.WriteString(decoded)
+					i += len(entity)
+					continue
+				}
+			}
+		}
+		b.WriteByte(c)
+		i++
+	}
+	return b.String()
+}
+
+func isASCIIPunctuation(c byte) bool {
+	return c >= '!' && c <= '/' || c >= ':' && c <= '@' || c >= '[' && c <= '`' || c >= '{' && c <= '~'
+}
 
 // associationList reads one association key (adrs: on a roadmap, roadmaps: on
 // an ADR) from the raw frontmatter of a governance file, strictly: a key
@@ -184,14 +243,10 @@ func (s Store) closeoutADRAssociations(rm *Roadmap, project string) ([]string, [
 	roadmapDir := filepath.Dir(rm.Path)
 	links, undecodable := markdownLinkDestinations(body)
 	for _, dest := range undecodable {
-		diagnostics = append(diagnostics, fmt.Sprintf("roadmap %s links to %s, whose escapes do not decode; the association reader cannot tell where it points", rm.Slug, dest))
+		diagnostics = append(diagnostics, fmt.Sprintf("roadmap %s links to %s, which the association reader cannot resolve (an undecodable escape or raw HTML link)", rm.Slug, dest))
 	}
 	for _, dest := range links {
 		target := filepath.Clean(filepath.Join(roadmapDir, filepath.FromSlash(dest)))
-		if filepath.Dir(target) == filepath.Clean(s.adrDir()) && strings.ContainsAny(dest, "()") {
-			diagnostics = append(diagnostics, fmt.Sprintf("roadmap %s links to %s, a destination with parentheses the association reader does not read whole; rename the ADR or the link", rm.Slug, dest))
-			continue
-		}
 		if filepath.Dir(target) != filepath.Clean(s.adrDir()) || !strings.HasSuffix(target, ".md") {
 			continue
 		}
@@ -257,16 +312,10 @@ func (s Store) closeoutADRAssociations(rm *Roadmap, project string) ([]string, [
 		}
 		backlinks, undecodableBacklinks := markdownLinkDestinations(adrBody)
 		for _, dest := range undecodableBacklinks {
-			diagnostics = append(diagnostics, "ADR "+name+" links to "+dest+", whose escapes do not decode; the association reader cannot tell where it points")
+			diagnostics = append(diagnostics, "ADR "+name+" links to "+dest+", which the association reader cannot resolve (an undecodable escape or raw HTML link)")
 		}
 		for _, dest := range backlinks {
 			target := filepath.Clean(filepath.Join(s.adrDir(), filepath.FromSlash(dest)))
-			// A destination the reader may have cut short is unknown, never an
-			// absent association (review round 14, N47).
-			if filepath.Dir(target) == filepath.Clean(s.roadmapsDir()) && strings.ContainsAny(dest, "()") {
-				diagnostics = append(diagnostics, "ADR "+name+" links to "+dest+", a destination with parentheses the association reader does not read whole; rename the roadmap or the link")
-				continue
-			}
 			if filepath.Dir(target) != filepath.Clean(s.roadmapsDir()) || !strings.HasSuffix(target, ".md") {
 				continue
 			}

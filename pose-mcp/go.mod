@@ -5,6 +5,7 @@ go 1.26.0
 require (
 	github.com/harne8/mcp-enforce v0.0.0
 	github.com/redis/go-redis/v9 v9.22.0
+	github.com/yuin/goldmark v1.8.4
 	go.opentelemetry.io/otel v1.47.0
 	go.opentelemetry.io/otel/exporters/otlp/otlpmetric/otlpmetrichttp v1.47.0
 	go.opentelemetry.io/otel/exporters/otlp/otlptrace/otlptracehttp v1.47.0

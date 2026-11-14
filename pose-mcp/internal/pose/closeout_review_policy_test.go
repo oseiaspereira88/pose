@@ -1480,7 +1480,7 @@ func TestCloseoutReviewPolicyRoundTwelve(t *testing.T) {
 			})
 		}
 	})
-	t.Run("links shown as code or in comments still count, failing closed", func(t *testing.T) {
+	t.Run("links shown as code or in comments are not associations", func(t *testing.T) {
 		for name, body := range map[string]string{
 			"fenced":  "```\n[example](../roadmaps/missing.md)\n```\n",
 			"tilde":   "~~~md\n[example](../roadmaps/missing.md)\n~~~\n",
@@ -1490,11 +1490,11 @@ func TestCloseoutReviewPolicyRoundTwelve(t *testing.T) {
 			t.Run(name, func(t *testing.T) {
 				root, s := closeoutMembersFixture(t, "when-justified", "when-justified")
 				os.WriteFile(filepath.Join(root, ".pose/adr/decision.md"), []byte(body), 0o644)
-				// Round 14 (N46): the reader does not exclude code, so an
-				// example link to a missing roadmap leaves the answer unknown
-				// and never exempts.
-				if d := evaluate(t, s, "roadmap:pair"); d.Known || !d.Required {
-					t.Fatalf("a link shown as code was dropped: %+v", d)
+				// Round 16: the links are read as CommonMark reads them (ADR
+				// governance-association-links-are-read-with-a-commonmark-parser),
+				// so a link shown as code or inside a comment is no link.
+				if d := evaluate(t, s, "roadmap:pair"); !d.Known || d.Required {
+					t.Fatalf("a link shown as code was read as an association: %+v", d)
 				}
 			})
 		}
@@ -1624,13 +1624,13 @@ func TestCloseoutReviewPolicyRoundFourteen(t *testing.T) {
 			})
 		}
 	})
-	t.Run("a destination with parentheses is unknown, never an absence", func(t *testing.T) {
+	t.Run("a destination with balanced parentheses is read whole", func(t *testing.T) {
 		t.Run("forward", func(t *testing.T) {
 			root, s := closeoutMembersFixture(t, "when-justified", "when-justified")
 			os.WriteFile(filepath.Join(root, ".pose/adr/decision(extra).md"), []byte("# ADR\n"), 0o644)
 			editFile(t, filepath.Join(root, ".pose/roadmaps/pair.md"), "mentions decision.md in prose only.", "follows [decision](../adr/decision(extra).md).")
-			if d := evaluate(t, s, "roadmap:pair"); d.Known || !d.Required {
-				t.Fatalf("a link cut short at a parenthesis granted an exemption: %+v", d)
+			if d := evaluate(t, s, "roadmap:pair"); !d.Known || !d.Required || strings.Join(d.ADRs, ",") != "decision(extra).md" {
+				t.Fatalf("a link with parentheses was not read whole: %+v", d)
 			}
 		})
 		t.Run("backward", func(t *testing.T) {
@@ -1671,6 +1671,52 @@ func TestCloseoutReviewPolicyRoundFifteen(t *testing.T) {
 		os.WriteFile(filepath.Join(root, ".pose/adr/decision.md"), []byte("Governs [the pair](../roadmaps/pair%zz.md).\n"), 0o644)
 		if d := evaluate(t, s, "roadmap:pair"); d.Known || !d.Required {
 			t.Fatalf("an undecodable destination proved absence: %+v", d)
+		}
+	})
+}
+
+func TestCloseoutReviewPolicyRoundSixteen(t *testing.T) {
+	for _, form := range []struct{ name, forward, backward string }{
+		{"multi-line reference label", "[decision][decision label]\n\n[decision\nlabel]: ../adr/decision.md\n", "[pair][pair label]\n\n[pair\nlabel]: ../roadmaps/pair.md\n"},
+		{"reference in a block quote", "[decision][d]\n\n> [d]: ../adr/decision.md\n", "[pair][p]\n\n> [p]: ../roadmaps/pair.md\n"},
+		{"escaped bracket in a label", "[decision][a\\]b]\n\n[a\\]b]: ../adr/decision.md\n", "[pair][a\\]b]\n\n[a\\]b]: ../roadmaps/pair.md\n"},
+		{"escaped angle bracket", "[decision](<../adr/decision.md#f\\> with space>)\n", "[pair](<../roadmaps/pair.md#f\\> with space>)\n"},
+	} {
+		t.Run("forward "+form.name, func(t *testing.T) {
+			root, s := closeoutMembersFixture(t, "when-justified", "when-justified")
+			os.WriteFile(filepath.Join(root, ".pose/roadmaps/pair.md"), []byte("---\nslug: pair\nstatus: active\n---\n\n"+form.forward+"\n## Milestone: m1\n- specs: d\n\n## Milestone: m2\n- specs: e\n"), 0o644)
+			if d := evaluate(t, s, "roadmap:pair"); !d.Known || !d.Required || strings.Join(d.ADRs, ",") != "decision.md" {
+				t.Fatalf("a forward association was dropped: %+v", d)
+			}
+		})
+		t.Run("backward "+form.name, func(t *testing.T) {
+			root, s := closeoutMembersFixture(t, "when-justified", "when-justified")
+			os.WriteFile(filepath.Join(root, ".pose/adr/decision.md"), []byte(form.backward), 0o644)
+			if d := evaluate(t, s, "roadmap:pair"); !d.Known || !d.Required || strings.Join(d.ADRs, ",") != "decision.md" {
+				t.Fatalf("a backward association was dropped: %+v", d)
+			}
+		})
+	}
+	t.Run("an escaped ampersand is no character reference", func(t *testing.T) {
+		root, s := closeoutMembersFixture(t, "when-justified", "when-justified")
+		os.WriteFile(filepath.Join(root, ".pose/adr/decision&num;name.md"), []byte("# ADR\n"), 0o644)
+		editFile(t, filepath.Join(root, ".pose/roadmaps/pair.md"), "mentions decision.md in prose only.", "follows [decision](../adr/decision\\&num;name.md).")
+		if d := evaluate(t, s, "roadmap:pair"); !d.Known || !d.Required || strings.Join(d.ADRs, ",") != "decision&num;name.md" {
+			t.Fatalf("an escaped ampersand was decoded as a reference: %+v", d)
+		}
+	})
+	t.Run("raw HTML with a link attribute is unknown", func(t *testing.T) {
+		for name, body := range map[string]string{
+			"inline": "Governs <a href=\"../roadmaps/pair.md\">the pair</a>.\n",
+			"block":  "<div>\n<a href=\"../roadmaps/pair.md\">the pair</a>\n</div>\n",
+		} {
+			t.Run(name, func(t *testing.T) {
+				root, s := closeoutMembersFixture(t, "when-justified", "when-justified")
+				os.WriteFile(filepath.Join(root, ".pose/adr/decision.md"), []byte(body), 0o644)
+				if d := evaluate(t, s, "roadmap:pair"); d.Known || !d.Required {
+					t.Fatalf("a raw HTML link proved absence: %+v", d)
+				}
+			})
 		}
 	})
 }
