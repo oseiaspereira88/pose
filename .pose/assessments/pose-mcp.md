@@ -1,8 +1,8 @@
 # Component Assessment: pose-mcp (`pose-mcp`)
 
 > **Mapeamento de Módulo POSE**: `pose-mcp`
-> **Data de Avaliação**: 2026-11-14T20:34:14Z | **Baseline Commit**: 8c0407e5434c
-> **Métricas**: 117195 LOC Produção | 112069 LOC Testes | 880 Arquivos Totais
+> **Data de Avaliação**: 2026-11-14T22:59:21Z | **Baseline Commit**: 665c783139b6
+> **Métricas**: 117257 LOC Produção | 112149 LOC Testes | 880 Arquivos Totais
 > **Linguagens**: go
 > **Saúde de Código**: 1 TODOs | 0 FIXMEs | 1 Panics | 0 Stubs
 
