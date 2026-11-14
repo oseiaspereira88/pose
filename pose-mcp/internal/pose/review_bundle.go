@@ -1818,6 +1818,17 @@ func (s Store) reviewBundleChildren(scope ScopeRef) ([]ReviewBundleChild, []stri
 	children, blockers := []ReviewBundleChild{}, []string{}
 	for _, ref := range refs {
 		if verification, err := s.verifyReviewBundle(ref); err == nil && verification.inherited {
+			// An inherited or exempt child stands only while it is approved:
+			// one whose member fell is a live obligation of this scope, never
+			// skipped (review round 10, N36).
+			if !verification.Approved {
+				reason := verification.State
+				if len(verification.Blockers) > 0 {
+					reason += ": " + strings.Join(verification.Blockers, "; ")
+				}
+				blockers = append(blockers, "child "+ref+" does not stand: "+reason)
+				continue
+			}
 			// A declared milestone has no bundle to seal over: the reason is in the
 			// roadmap, which this bundle seals.
 			if verification.Bundle != nil {
@@ -3493,10 +3504,8 @@ func (s Store) proportionalReviewVerificationOf(scope string) (ReviewBundleVerif
 	if parseErr != nil || (ref.Kind != "milestone" && ref.Kind != "roadmap") {
 		return own, nil
 	}
-	// A policy without bundles answers through its review attempts alone, and has no
-	// bundle of the spec to stand on.
 	policy, err := s.GetReviewPolicy()
-	if err != nil || !policy.ReviewBundles {
+	if err != nil {
 		return own, nil
 	}
 	if s.milestoneReviewRefused(scope) {
@@ -3560,6 +3569,12 @@ func (s Store) proportionalReviewVerificationOf(scope string) (ReviewBundleVerif
 			verification.State, verification.NextAction = "closed", "scope is closed by its closeout receipt"
 		}
 		return verification, nil
+	}
+	// A policy without bundles answers through its review attempts alone, and has no
+	// bundle of the spec to stand on. An adopted exemption is projected above
+	// whether bundles are enabled or not (review round 10, N34).
+	if !policy.ReviewBundles {
+		return own, nil
 	}
 	if ref.Kind != "milestone" {
 		return own, nil

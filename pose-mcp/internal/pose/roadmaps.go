@@ -395,7 +395,14 @@ func (s Store) startWarnings(spec string) []string {
 				if err != nil || ref.Kind != "milestone" || ref.Project != "" {
 					continue
 				}
-				if approved, err := s.scopeApproved(after); err != nil {
+				approved, err := s.scopeApproved(after)
+				// Under an adopted closeout review policy a predecessor is
+				// closed by its explicit close, not by its approval or its
+				// exemption (review round 10, N35).
+				if adopted, adoptErr := s.closeoutReviewPolicyAdopted(); err == nil && adoptErr == nil && adopted {
+					approved, err = s.closedByReceipt(after)
+				}
+				if err != nil {
 					found[after] = after + " comes before this spec and its approval could not be read: " + err.Error()
 				} else if !approved {
 					found[after] = after + " comes before this spec and is not closed: pose close " + after

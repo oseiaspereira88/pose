@@ -1354,3 +1354,73 @@ func TestCloseoutReviewPolicyRoundNine(t *testing.T) {
 		}
 	})
 }
+
+func TestCloseoutReviewPolicyRoundTen(t *testing.T) {
+	t.Run("an exempt milestone without review bundles closes by its receipt", func(t *testing.T) {
+		root, s := closeoutReviewedFixture(t, "never", "never")
+		setPolicyField(t, root, "review_bundles", false)
+		setPolicyField(t, root, "component_aware", false)
+		plan, err := s.ReviewPlan("spec:backend")
+		if err != nil {
+			t.Fatal(err)
+		}
+		digest, err := s.ScopeDigest("spec:backend")
+		if err != nil {
+			t.Fatal(err)
+		}
+		criteria, classes := "", []string{}
+		for _, criterion := range plan.Criteria {
+			class := "legacy"
+			if len(criterion.EvidenceClasses) > 0 {
+				class = criterion.EvidenceClasses[0]
+			}
+			classes = append(classes, class+":legacy")
+			criteria += "- " + criterion.ID + " [passed] evidence:" + class + ":legacy\n"
+		}
+		federatedTestWrite(t, root, ".pose/reviews/rvw-backend.md", "---\nschema_version: 1\nreview_id: rvw-backend\nscope: spec:backend\nscope_digest: "+digest+"\nprofile: "+plan.BaseProfile+"\nreviewer: agent:test-review\ndecision: approved\nreviewed_at: 2026-09-26T18:30:00Z\nevidence_refs: ["+strings.Join(classes, ", ")+"]\n---\n\n## Criteria\n"+criteria+"\n## Findings\n")
+		if member, err := s.VerifyReviewBundle("spec:backend"); err != nil || !member.Approved {
+			t.Skipf("the fixture's legacy attempt does not approve the member: %+v %v", member, err)
+		}
+		ref := "milestone:program/core"
+		v, err := s.VerifyReviewBundle(ref)
+		if err != nil || !v.Approved || v.State != "ready-to-close" || !strings.HasPrefix(v.ApprovalOrigin, "not-required:") {
+			t.Fatalf("an exempt milestone without bundles is not projected as exempt: %+v %v", v, err)
+		}
+		closeCoreWithReceipt(t, s)
+		if v, err := s.VerifyReviewBundle(ref); err != nil || v.State != "closed" {
+			t.Fatalf("an exempt milestone without bundles is not closed by its receipt: %+v %v", v, err)
+		}
+	})
+	t.Run("a roadmap's own approval does not stand over a fallen exempt milestone", func(t *testing.T) {
+		root, s := closeoutReviewedFixture(t, "never", "always")
+		editRoadmapFixture(t, root, "\n## Milestone: later\n- after: core\n- specs: pending\n", "")
+		roadmap := "roadmap:program"
+		bundle, err := s.SealReviewBundle(roadmap, reviewFixtureNow.Add(2*time.Hour))
+		if err != nil {
+			t.Fatal(err, bundle.Blockers)
+		}
+		attestChildReview(t, s, bundle, reviewFixtureNow.Add(3*time.Hour), "approved")
+		if v, err := s.VerifyReviewBundle(roadmap); err != nil || !v.Approved {
+			t.Fatalf("the fixture's roadmap review is not approved: %+v %v", v, err)
+		}
+		member, err := s.SealReviewBundle("spec:backend", reviewFixtureNow.Add(4*time.Hour))
+		if err != nil {
+			t.Fatal(err, member.Blockers)
+		}
+		attestChildReview(t, s, member, reviewFixtureNow.Add(5*time.Hour), "rejected")
+		if v, err := s.VerifyReviewBundle(roadmap); err == nil && v.Approved {
+			t.Fatalf("a roadmap stood over an exempt milestone whose member was rejected: %+v", v)
+		}
+	})
+	t.Run("start warnings name an approved but unclosed predecessor", func(t *testing.T) {
+		_, s := closeoutReviewedFixture(t, "never", "never")
+		warnings := s.startWarnings("pending")
+		if !strings.Contains(strings.Join(warnings, "\n"), "milestone:program/core comes before this spec and is not closed") {
+			t.Fatalf("an exempt predecessor without its receipt read closed: %v", warnings)
+		}
+		closeCoreWithReceipt(t, s)
+		if warnings := s.startWarnings("pending"); len(warnings) != 0 {
+			t.Fatalf("a closed predecessor is still warned about: %v", warnings)
+		}
+	})
+}
