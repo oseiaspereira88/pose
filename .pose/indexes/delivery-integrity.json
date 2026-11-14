@@ -1,7 +1,7 @@
 {
   "schema_version": 2,
-  "input_digest": "sha256:1cdabb5dd48481ff63fb08193292d7f008ab1b691b804eee99c301be752e7c15",
-  "provenance_digest": "sha256:2468a46014c799d24bcfc0d2e0f44fe238f991390749dce5f3f76e4c770b167e",
+  "input_digest": "sha256:033546e9008675332804102c81b7a95059f7a8ab68499cc8ed52d3aa29dce084",
+  "provenance_digest": "sha256:6d0b162ca02bdc3e1b2d4e0437338b1a79c67b1413e35992e42dbe7d0b203a66",
   "implied_edges": [
     "changes"
   ],
@@ -43402,14 +43402,6 @@
       }
     },
     {
-      "id": "change-set:cs-66fbcd8ee4e8",
-      "type": "change-set",
-      "attributes": {
-        "diff_digest": "sha256:3938d0e2236b1801d7c6f1fbe93472393706ccf402467faf3ee6458b556288c0",
-        "selector": "trailers:pose-index-material-does-not-ask-closeout"
-      }
-    },
-    {
       "id": "change-set:cs-676ad763b351",
       "type": "change-set",
       "attributes": {
@@ -44479,6 +44471,14 @@
       "attributes": {
         "diff_digest": "sha256:674f20cb383cdd1c287eccbb903b552a941ccf4d794e27851889270f1d5b38f3",
         "selector": "trailers:pose-red-signal-clears-only-at-the-head"
+      }
+    },
+    {
+      "id": "change-set:cs-a94f662bd51d",
+      "type": "change-set",
+      "attributes": {
+        "diff_digest": "sha256:c341719ffc59204054e7105ea1cccb711352b3a468029f92fb0decf9d7681955",
+        "selector": "trailers:pose-index-material-does-not-ask-closeout"
       }
     },
     {
@@ -117853,7 +117853,7 @@
     },
     {
       "from": "spec:pose-index-material-does-not-ask-closeout",
-      "to": "change-set:cs-66fbcd8ee4e8",
+      "to": "change-set:cs-a94f662bd51d",
       "type": "observed-by"
     },
     {
@@ -221061,67 +221061,6 @@
       }
     },
     {
-      "id": "cs-66fbcd8ee4e8",
-      "spec": "pose-index-material-does-not-ask-closeout",
-      "selector": "trailers:pose-index-material-does-not-ask-closeout",
-      "base": "8a572c1dbbfd010b0388997be3c2a9226acb34b9^",
-      "head": "1e795406e3cf96fbdeea5cb3d8e26b8bcfa92d4b",
-      "resolved_base": "5e14337100be40d52508587fbc42a070c0b79c6e",
-      "resolved_head": "1e795406e3cf96fbdeea5cb3d8e26b8bcfa92d4b",
-      "commits": [
-        "8a572c1dbbfd010b0388997be3c2a9226acb34b9",
-        "1e795406e3cf96fbdeea5cb3d8e26b8bcfa92d4b"
-      ],
-      "paths": [
-        {
-          "action": "created",
-          "path": ".pose/specs/2026-11-14-pose-index-material-does-not-ask-closeout.md"
-        },
-        {
-          "action": "created",
-          "path": ".pose/starts/pose-index-material-does-not-ask-closeout.json"
-        },
-        {
-          "action": "modified",
-          "path": ".pose/indexes/validation-matrix.json"
-        },
-        {
-          "action": "modified",
-          "path": "pose-mcp/internal/pose/closeout_review_policy.go"
-        },
-        {
-          "action": "modified",
-          "path": "pose-mcp/internal/pose/closeout_review_policy_test.go"
-        },
-        {
-          "action": "modified",
-          "path": "pose-mcp/internal/pose/federated_acceptance.go"
-        },
-        {
-          "action": "modified",
-          "path": "pose-mcp/internal/pose/index_federated_material.go"
-        },
-        {
-          "action": "modified",
-          "path": "pose-mcp/internal/pose/spec.go"
-        }
-      ],
-      "diff_digest": "sha256:3938d0e2236b1801d7c6f1fbe93472393706ccf402467faf3ee6458b556288c0",
-      "material_digest": "sha256:9bcfdbd3c0568b3db915ace4fc56a3b0ff5144689c41e78447471f220173ea09",
-      "material_inputs": {
-        "names": [
-          ".pose/indexes/validation-matrix.json",
-          ".pose/specs/2026-11-14-pose-index-material-does-not-ask-closeout.md",
-          ".pose/starts/pose-index-material-does-not-ask-closeout.json",
-          "pose-mcp/internal/pose/closeout_review_policy.go",
-          "pose-mcp/internal/pose/closeout_review_policy_test.go",
-          "pose-mcp/internal/pose/federated_acceptance.go",
-          "pose-mcp/internal/pose/index_federated_material.go",
-          "pose-mcp/internal/pose/spec.go"
-        ]
-      }
-    },
-    {
       "id": "cs-676ad763b351",
       "spec": "pose-composition-contract",
       "selector": "range:aeec5e1..6b4eefb",
@@ -248272,6 +248211,83 @@
           ".pose/state/project-state.md",
           ".pose/state/refresh-log.jsonl",
           "pose-mcp/internal/version/failure_alert_test.go"
+        ]
+      }
+    },
+    {
+      "id": "cs-a94f662bd51d",
+      "spec": "pose-index-material-does-not-ask-closeout",
+      "selector": "trailers:pose-index-material-does-not-ask-closeout",
+      "base": "8a572c1dbbfd010b0388997be3c2a9226acb34b9^",
+      "head": "990182314eca3c99fe10b4f4ee1fc2d1e407187f",
+      "resolved_base": "5e14337100be40d52508587fbc42a070c0b79c6e",
+      "resolved_head": "990182314eca3c99fe10b4f4ee1fc2d1e407187f",
+      "commits": [
+        "8a572c1dbbfd010b0388997be3c2a9226acb34b9",
+        "1e795406e3cf96fbdeea5cb3d8e26b8bcfa92d4b",
+        "990182314eca3c99fe10b4f4ee1fc2d1e407187f"
+      ],
+      "paths": [
+        {
+          "action": "created",
+          "path": ".pose/specs/2026-11-14-pose-index-material-does-not-ask-closeout.md"
+        },
+        {
+          "action": "created",
+          "path": ".pose/starts/pose-index-material-does-not-ask-closeout.json"
+        },
+        {
+          "action": "modified",
+          "path": ".pose/indexes/delivery-integrity.json"
+        },
+        {
+          "action": "modified",
+          "path": ".pose/indexes/generation.json"
+        },
+        {
+          "action": "modified",
+          "path": ".pose/indexes/spec-graph.json"
+        },
+        {
+          "action": "modified",
+          "path": ".pose/indexes/validation-matrix.json"
+        },
+        {
+          "action": "modified",
+          "path": "pose-mcp/internal/pose/closeout_review_policy.go"
+        },
+        {
+          "action": "modified",
+          "path": "pose-mcp/internal/pose/closeout_review_policy_test.go"
+        },
+        {
+          "action": "modified",
+          "path": "pose-mcp/internal/pose/federated_acceptance.go"
+        },
+        {
+          "action": "modified",
+          "path": "pose-mcp/internal/pose/index_federated_material.go"
+        },
+        {
+          "action": "modified",
+          "path": "pose-mcp/internal/pose/spec.go"
+        }
+      ],
+      "diff_digest": "sha256:c341719ffc59204054e7105ea1cccb711352b3a468029f92fb0decf9d7681955",
+      "material_digest": "sha256:aee5eb0588e0b3a7514197354a56b20eadf064905b99a2ab3d59eb42ab042283",
+      "material_inputs": {
+        "names": [
+          ".pose/indexes/delivery-integrity.json",
+          ".pose/indexes/generation.json",
+          ".pose/indexes/spec-graph.json",
+          ".pose/indexes/validation-matrix.json",
+          ".pose/specs/2026-11-14-pose-index-material-does-not-ask-closeout.md",
+          ".pose/starts/pose-index-material-does-not-ask-closeout.json",
+          "pose-mcp/internal/pose/closeout_review_policy.go",
+          "pose-mcp/internal/pose/closeout_review_policy_test.go",
+          "pose-mcp/internal/pose/federated_acceptance.go",
+          "pose-mcp/internal/pose/index_federated_material.go",
+          "pose-mcp/internal/pose/spec.go"
         ]
       }
     },
