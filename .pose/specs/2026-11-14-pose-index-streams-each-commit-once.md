@@ -62,6 +62,7 @@ Medido no corpus do pose-dist com a spec `pose-read-view-streamed-object-digests
 - modified: pose-mcp/internal/cli/artifact_integrity.go
 - modified: pose-mcp/internal/pose/spec_trailers.go
 - created: pose-mcp/internal/cli/change_set_single_pass_test.go
+- modified: pose-mcp/internal/cli/governance_operation_performance_test.go
 - modified: .pose/indexes/validation-matrix.json
 
 ### Delivery targets
@@ -130,7 +131,7 @@ Teste de equivalência sobre um repositório com commit compartilhado e trailer 
 - Warnings: nenhum.
 
 ### Requirement trace
-- R1 [satisfied] test:TestAStreamedSinglePassKeepsEverySpecsDigest check:index-streams-each-commit-once-integration
+- R1 [satisfied] test:TestAStreamedSinglePassKeepsEverySpecsDigest test:TestGovernanceOperationPerformanceCapturesTrailersOnce check:index-streams-each-commit-once-integration
 - R2 [satisfied] test:TestAStreamedSinglePassKeepsEverySpecsDigest
 - R3 [satisfied] test:TestAStreamedSinglePassKeepsEverySpecsDigest
 - R4 [satisfied] test:TestAFailedStreamedPatchReadKeepsItsCause

@@ -66,7 +66,10 @@ func TestGovernanceOperationPerformanceCapturesTrailersOnce(t *testing.T) {
 			// Each change set reads its head tree once for the material digest and the root
 			// checks once whether the checkout is shallow (one more
 			// launch per spec); the full trailer log is still captured exactly once.
-			wantCalls := map[int]int{1: 13, 3: 27, 6: 48}[count]
+			// The one commit every spec shares is read for its patch once, not
+			// once per spec (spec pose-index-streams-each-commit-once): N-1
+			// fewer launches than before.
+			wantCalls := map[int]int{1: 13, 3: 25, 6: 43}[count]
 			if calls != wantCalls {
 				t.Fatalf("Git subprocesses=%d want%d", calls, wantCalls)
 			}
