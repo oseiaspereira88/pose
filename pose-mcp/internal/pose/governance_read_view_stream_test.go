@@ -213,3 +213,25 @@ func TestConcurrentFirstStreamedReadsAreCompared(t *testing.T) {
 		t.Fatalf("concurrent differing first reads both succeeded: failed=%d limitations=%v", failed, metadata.Limitations)
 	}
 }
+
+// Review round 2 (N2): a read whose stderr carries a long warning retains a
+// fixed-size digest of the error, not its text.
+func TestAStreamedReadWarningIsRetainedAsADigest(t *testing.T) {
+	root, id := streamTestRepo(t)
+	base, view := (Store{Root: root}).beginGovernanceReadView()
+	store := base.withGovernanceReadView(view, "stream-warning")
+	warning := strings.Repeat("w", governanceStreamStderrLimit)
+	original := governanceStreamRun
+	governanceStreamRun = func(ctx context.Context, files Files, r string, args []string, limit int64, admit func(int64) bool, sink io.Writer) (string, int64, []byte, error) {
+		return digestBytes(nil), 0, []byte(warning), &GitSnapshotError{Operation: strings.Join(args, " "), Cause: errors.New(warning)}
+	}
+	defer func() { governanceStreamRun = original }()
+	if err := StreamGovernanceRawHistoryGitIn(store.fsys(), context.Background(), root, "stream-warning", 1<<20, io.Discard, streamArgs(id)...); err == nil {
+		t.Fatal("a read with a warning succeeded")
+	}
+	for _, item := range view.operation.git.streams {
+		if len(item.errText) > 80 || item.errText == "" {
+			t.Fatalf("the warning was retained as %d bytes", len(item.errText))
+		}
+	}
+}

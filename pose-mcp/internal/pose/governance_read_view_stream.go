@@ -40,8 +40,11 @@ type governanceReadViewStreamObservation struct {
 	maxBytes    int64
 	digest      string
 	length      int64
-	errText     string
-	producers   map[string]bool
+	// errText is the digest of the read's error text, never the text: a
+	// warning on stderr can be up to the stderr bound, and a retained copy
+	// per read would escape every budget (review round 2, N2).
+	errText   string
+	producers map[string]bool
 }
 
 // StreamGovernanceRawHistoryGitIn runs a raw-history Git read of an immutable
@@ -130,7 +133,7 @@ func (state *governanceReadViewGitState) stream(files Files, ctx context.Context
 	state.mu.Lock()
 	if prior = state.streams[key]; prior != nil {
 		prior.producers[producer] = true
-		same := prior.digest == digest && prior.length == length && prior.errText == errorText(runErr)
+		same := prior.digest == digest && prior.length == length && prior.errText == streamErrorDigest(runErr)
 		state.mu.Unlock()
 		if !same {
 			state.markUnknownForRoot(root, producer, "a streamed Git object read differed within the operation")
@@ -140,7 +143,7 @@ func (state *governanceReadViewGitState) stream(files Files, ctx context.Context
 	}
 	state.streams[key] = &governanceReadViewStreamObservation{
 		root: root, args: append([]string(nil), args...), files: files, ctx: context.WithoutCancel(ctx), deadline: deadline, hasDeadline: hasDeadline,
-		maxBytes: maxBytes, digest: digest, length: length, errText: errorText(runErr), producers: map[string]bool{producer: true},
+		maxBytes: maxBytes, digest: digest, length: length, errText: streamErrorDigest(runErr), producers: map[string]bool{producer: true},
 	}
 	state.mu.Unlock()
 	return runErr
@@ -189,7 +192,7 @@ func (state *governanceReadViewGitState) auditStreams(result *governanceReadView
 			}
 			continue
 		}
-		if digest != item.digest || length != item.length || errorText(err) != item.errText {
+		if digest != item.digest || length != item.length || streamErrorDigest(err) != item.errText {
 			for producer := range item.producers {
 				result.ChangedProducers[producer] = true
 			}
@@ -289,4 +292,12 @@ func (w *limitedStderr) Write(data []byte) (int, error) {
 		}
 	}
 	return len(data), nil
+}
+
+// streamErrorDigest is the fixed-size identity of a streamed read's error.
+func streamErrorDigest(err error) string {
+	if err == nil {
+		return ""
+	}
+	return digestBytes([]byte(errorText(err)))
 }

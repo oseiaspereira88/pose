@@ -156,9 +156,9 @@ Testes de unidade do modo de streaming (fronteira exata do orçamento, estouro, 
 
 ### Requirement trace
 - R1 [satisfied] test:TestAStreamedObjectReadRetainsOnlyItsDigest check:read-view-streamed-object-digests-integration
-- R2 [satisfied] test:TestTheStreamedBudgetIsExactAndOverflowIsUnknown check:read-view-streamed-object-digests-integration
+- R2 [satisfied] test:TestTheStreamedBudgetIsExactAndOverflowIsUnknown test:TestAStreamedReadWarningIsRetainedAsADigest check:read-view-streamed-object-digests-integration
 - R3 [satisfied] test:TestAStreamedChangeSetKeepsItsDiffDigest check:read-view-streamed-object-digests-integration
-- R4 [satisfied] test:TestASecondStreamedReadIsReadAgainAndCompared test:TestConcurrentFirstStreamedReadsAreCompared test:TestTheStreamedAuditStreamsEveryReadAgain
+- R4 [satisfied] test:TestASecondStreamedReadIsReadAgainAndCompared test:TestConcurrentFirstStreamedReadsAreCompared test:TestTheStreamedAuditStreamsEveryReadAgain test:TestAFailedStreamedPatchReadKeepsItsCause
 - R5 [satisfied] test:TestGovernanceReadViewProbeAuditAndReplayShareInputByteCapacity check:read-view-streamed-object-digests-integration
 - R6 [satisfied] check:read-view-streamed-object-digests-integration (medição no corpus no log de execução: 32.163.095 bytes retidos e 1.263.513.529 em streaming na operação maior)
 
@@ -189,4 +189,6 @@ Leituras puras de objetos Git cujos bytes só são hasheados passam pelo read vi
 ### Review
 
 Rodada 1 (run rrn-9f3099633e340afb, attestation rva-cc738d59d98c6236, changes-requested): 5 bloqueadores, todos tratados. F1 e F3 a auditoria pulava a leitura de patch quando `git config --list` não mudara, mas a renderização depende também de atributos que a operação não captura, e a configuração era lida depois do stream; a decisão D2 passou a refazer o stream de toda leitura. F4 a leitura de configuração da auditoria não tinha prazo; saiu junto com a otimização. F2 duas primeiras leituras concorrentes não se comparavam; consulta e inserção passaram a ocorrer sob uma só trava, depois da execução. F5 o R6 pedia os bytes medidos; o log de execução registra os contadores por operação.
+
+Rodada 2 (run rrn-c2966cb8e4ff258c, attestation rva-1b6c58b4789579b9, changes-requested): os cinco achados da rodada 1 dados por corrigidos; 2 bloqueadores novos, ambos tratados. N1 o caminho em streaming devolvia o erro sem o stderr do Git, e a lacuna de coleta perdia a causa forense de um `show` que falha; o `gitStream` da CLI passou a acrescentar o stderr limitado, como o `gitOutputBoundedIn`, mantendo o erro tipado como desconhecido. N2 o texto de erro de uma leitura com aviso no stderr (até 64 KiB) era retido em cada observação, fora dos orçamentos; a observação passou a reter só o digest do texto de erro, de tamanho fixo.
 

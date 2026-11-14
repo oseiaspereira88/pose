@@ -243,7 +243,16 @@ func resolveGitChangeSetWithTrailersAndFiles(files posemodel.Files, root, spec, 
 		}
 		ctx, cancel := context.WithTimeout(context.Background(), 2*time.Minute)
 		defer cancel()
-		return posemodel.StreamGovernanceRawHistoryGitIn(files, ctx, root, "index.delivery-integrity", int64(limit), sink, args...)
+		err := posemodel.StreamGovernanceRawHistoryGitIn(files, ctx, root, "index.delivery-integrity", int64(limit), sink, args...)
+		// As gitOutputBoundedIn does: keep the bounded stderr as the
+		// forensic cause of a failed history read (review round 2, N1).
+		var exit *exec.ExitError
+		if errors.As(err, &exit) {
+			if detail := strings.TrimSpace(string(exit.Stderr)); detail != "" {
+				return fmt.Errorf("%w: %s", err, detail)
+			}
+		}
+		return err
 	}
 	resolveRevision := func(revision string) (string, error) {
 		return resolveGitRevisionWithFiles(files, root, revision)
