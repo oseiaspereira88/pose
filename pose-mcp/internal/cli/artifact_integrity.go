@@ -9,6 +9,7 @@ import (
 	"errors"
 	"fmt"
 	"github.com/harne8/pose-mcp/internal/cli/cliout"
+	"hash"
 	"io"
 	"os"
 	"os/exec"
@@ -230,14 +231,10 @@ func resolveGitChangeSetWithTrailersIn(files posemodel.Files, root, spec, base, 
 	return resolveGitChangeSetWithTrailersAndFiles(files, root, spec, base, head, captured)
 }
 
-func resolveGitChangeSetWithTrailersAndFiles(files posemodel.Files, root, spec, base, head string, captured []string) (posemodel.ChangeSet, error) {
-	gitOutput := func(limit int, args ...string) ([]byte, error) {
-		if files == nil {
-			return gitOutputBounded(root, limit, args...)
-		}
-		return gitOutputBoundedIn(files, root, limit, args...)
-	}
-	gitStream := func(limit int, sink io.Writer, args ...string) error {
+// changeSetGitStream streams a raw-history read of root into a sink, through
+// the operation's read view when files carries one.
+func changeSetGitStream(files posemodel.Files, root string) func(limit int, sink io.Writer, args ...string) error {
+	return func(limit int, sink io.Writer, args ...string) error {
 		if files == nil {
 			return gitStreamBounded(root, limit, sink, args...)
 		}
@@ -245,7 +242,7 @@ func resolveGitChangeSetWithTrailersAndFiles(files posemodel.Files, root, spec, 
 		defer cancel()
 		err := posemodel.StreamGovernanceRawHistoryGitIn(files, ctx, root, "index.delivery-integrity", int64(limit), sink, args...)
 		// As gitOutputBoundedIn does: keep the bounded stderr as the
-		// forensic cause of a failed history read (review round 2, N1).
+		// forensic cause of a failed history read.
 		var exit *exec.ExitError
 		if errors.As(err, &exit) {
 			if detail := strings.TrimSpace(string(exit.Stderr)); detail != "" {
@@ -254,6 +251,23 @@ func resolveGitChangeSetWithTrailersAndFiles(files posemodel.Files, root, spec, 
 		}
 		return err
 	}
+}
+
+func resolveGitChangeSetWithTrailersAndFiles(files posemodel.Files, root, spec, base, head string, captured []string) (posemodel.ChangeSet, error) {
+	return resolveGitChangeSetWithPatchDigest(files, root, spec, base, head, captured, nil)
+}
+
+// resolveGitChangeSetWithPatchDigest resolves a change set; a non-nil
+// patchDigest is the digest trailerPatchDigests already streamed for the
+// trailer commits of captured, which this resolution then does not read again.
+func resolveGitChangeSetWithPatchDigest(files posemodel.Files, root, spec, base, head string, captured []string, patchDigest []byte) (posemodel.ChangeSet, error) {
+	gitOutput := func(limit int, args ...string) ([]byte, error) {
+		if files == nil {
+			return gitOutputBounded(root, limit, args...)
+		}
+		return gitOutputBoundedIn(files, root, limit, args...)
+	}
+	gitStream := changeSetGitStream(files, root)
 	resolveRevision := func(revision string) (string, error) {
 		return resolveGitRevisionWithFiles(files, root, revision)
 	}
@@ -329,6 +343,9 @@ func resolveGitChangeSetWithTrailersAndFiles(files posemodel.Files, root, spec, 
 			// The commit's patch only feeds the digest: it is streamed into
 			// it, the same bytes in the same order, and the read view keeps
 			// its digest, not its bytes (spec pose-read-view-streamed-object-digests).
+			if patchDigest != nil {
+				continue
+			}
 			if err := gitStream(16*1024*1024, diffHash, "show", "--binary", "--no-ext-diff", "--format=", sha, "--"); err != nil {
 				return posemodel.ChangeSet{}, err
 			}
@@ -363,6 +380,9 @@ func resolveGitChangeSetWithTrailersAndFiles(files posemodel.Files, root, spec, 
 		}
 	}
 	digest := diffHash.Sum(nil)
+	if patchDigest != nil && len(trailerCommits) > 0 {
+		digest = patchDigest
+	}
 	idSum := sha256.Sum256([]byte(spec + "\x00" + resolvedBase + "\x00" + resolvedHead + "\x00" + hex.EncodeToString(digest[:])))
 	// A trailer set is judged against the checkout's own tree: a later commit
 	// without the trailer that changes an observed path or the matrix must move
@@ -392,11 +412,70 @@ func allCommitsWithSpecTrailers(root string) (map[string][]string, error) {
 }
 
 func allCommitsWithSpecTrailersIn(files posemodel.Files, root string) (map[string][]string, error) {
+	specs, _, err := allCommitsWithSpecTrailersOrderedIn(files, root)
+	return specs, err
+}
+
+// allCommitsWithSpecTrailersOrderedIn reads the trailer log once and returns
+// it both per spec and in log order.
+func allCommitsWithSpecTrailersOrderedIn(files posemodel.Files, root string) (map[string][]string, []posemodel.SpecTrailerLogEntry, error) {
 	out, err := gitOutputBoundedIn(files, root, 32*1024*1024, posemodel.SpecTrailerLogArgs...)
 	if err != nil {
-		return nil, err
+		return nil, nil, err
 	}
-	return posemodel.ParseSpecTrailerLog(out), nil
+	return posemodel.ParseSpecTrailerLog(out), posemodel.ParseSpecTrailerLogOrdered(out), nil
+}
+
+// trailerPatchDigests streams the patch of each attributed commit once, in
+// log order, into the digest of every spec that holds it, so a commit carrying
+// several specs' trailers is read once instead of once per spec (spec
+// pose-index-streams-each-commit-once). Each spec's digest is the SHA-256 of
+// its commits' patches concatenated in its own order, exactly as resolving
+// its change set alone computes it. A spec naming the same commit twice is
+// left to that per-spec path, since one stream cannot feed it twice in order.
+// A failed read fails every spec that holds the commit.
+func trailerPatchDigests(files posemodel.Files, root string, order []posemodel.SpecTrailerLogEntry, wanted map[string]bool) (map[string][]byte, map[string]error) {
+	repeated := map[string]bool{}
+	for _, entry := range order {
+		seen := map[string]bool{}
+		for _, spec := range entry.Specs {
+			if seen[spec] {
+				repeated[spec] = true
+			}
+			seen[spec] = true
+		}
+	}
+	hashes, failed := map[string]hash.Hash{}, map[string]error{}
+	stream := changeSetGitStream(files, root)
+	for _, entry := range order {
+		writers, specs := []io.Writer{}, []string{}
+		seen := map[string]bool{}
+		for _, spec := range entry.Specs {
+			if seen[spec] || !wanted[spec] || repeated[spec] || failed[spec] != nil {
+				continue
+			}
+			seen[spec] = true
+			if hashes[spec] == nil {
+				hashes[spec] = sha256.New()
+			}
+			writers, specs = append(writers, hashes[spec]), append(specs, spec)
+		}
+		if len(writers) == 0 {
+			continue
+		}
+		if err := stream(16*1024*1024, io.MultiWriter(writers...), "show", "--binary", "--no-ext-diff", "--format=", entry.SHA, "--"); err != nil {
+			for _, spec := range specs {
+				failed[spec] = err
+			}
+		}
+	}
+	digests := map[string][]byte{}
+	for spec, h := range hashes {
+		if failed[spec] == nil {
+			digests[spec] = h.Sum(nil)
+		}
+	}
+	return digests, failed
 }
 
 func commitsWithSpecTrailer(root, spec string) ([]string, error) {
@@ -576,7 +655,7 @@ func collectArtifactGraphInputsWithGapsIn(files posemodel.Files, root string) ([
 	for _, recorded := range recordedSets {
 		changeSetsMap[recorded.ID] = recorded
 	}
-	specTrailers, err := allCommitsWithSpecTrailersIn(files, root)
+	specTrailers, trailerOrder, err := allCommitsWithSpecTrailersOrderedIn(files, root)
 	if err != nil && gaps[""] == "" {
 		gaps[""] = "the commits carrying POSE-Spec trailers could not be read: " + err.Error()
 	}
@@ -587,9 +666,18 @@ func collectArtifactGraphInputsWithGapsIn(files posemodel.Files, root string) ([
 			gaps[""] = "the repository's history is shallow or its depth could not be read"
 		}
 	}
+	wanted := map[string]bool{}
+	for _, spec := range specs {
+		wanted[spec.Slug] = len(specTrailers[spec.Slug]) > 0
+	}
+	patchDigests, patchFailures := trailerPatchDigests(files, root, trailerOrder, wanted)
 	for _, spec := range specs {
 		if len(specTrailers[spec.Slug]) > 0 {
-			if set, err := resolveGitChangeSetWithTrailersIn(files, root, spec.Slug, "", "", specTrailers[spec.Slug]); err == nil {
+			if err := patchFailures[spec.Slug]; err != nil {
+				gaps[spec.Slug] = "its trailer change set could not be read: " + err.Error()
+				continue
+			}
+			if set, err := resolveGitChangeSetWithPatchDigest(files, root, spec.Slug, "", "", specTrailers[spec.Slug], patchDigests[spec.Slug]); err == nil {
 				changeSetsMap[set.ID] = set
 			} else {
 				gaps[spec.Slug] = "its trailer change set could not be read: " + err.Error()

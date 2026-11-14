@@ -18,6 +18,36 @@ var SpecTrailerLogArgs = []string{"log", "--all", "--reverse", "--grep=POSE-Spec
 // ParseSpecTrailerLog maps each spec slug to the commits that carry its trailer. A trailer is a
 // line of the body that starts with `POSE-Spec:` after trimming; the slug is the rest of the
 // line, trimmed. It does not use Git's trailer parser.
+// SpecTrailerLogEntry is one commit of the trailer log, in log order, with
+// the slug of each POSE-Spec line it carries (repeated if the line repeats).
+type SpecTrailerLogEntry struct {
+	SHA   string
+	Specs []string
+}
+
+// ParseSpecTrailerLogOrdered is ParseSpecTrailerLog keeping the log order:
+// every spec's commit list is the subsequence of these entries that names it
+// (spec pose-index-streams-each-commit-once).
+func ParseSpecTrailerLogOrdered(out []byte) []SpecTrailerLogEntry {
+	parts := bytes.Split(out, []byte{0})
+	entries := []SpecTrailerLogEntry{}
+	for i := 0; i+1 < len(parts); i += 2 {
+		entry := SpecTrailerLogEntry{SHA: strings.TrimSpace(string(parts[i]))}
+		for _, line := range strings.Split(string(parts[i+1]), "\n") {
+			line = strings.TrimSpace(line)
+			if strings.HasPrefix(line, "POSE-Spec:") {
+				if spec := strings.TrimSpace(strings.TrimPrefix(line, "POSE-Spec:")); spec != "" {
+					entry.Specs = append(entry.Specs, spec)
+				}
+			}
+		}
+		if len(entry.Specs) > 0 {
+			entries = append(entries, entry)
+		}
+	}
+	return entries
+}
+
 func ParseSpecTrailerLog(out []byte) map[string][]string {
 	parts := bytes.Split(out, []byte{0})
 	specCommits := map[string][]string{}
