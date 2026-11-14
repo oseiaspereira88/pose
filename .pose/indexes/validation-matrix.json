@@ -2385,6 +2385,13 @@
           "evidenceClass": "integration"
         },
         {
+          "name": "adopt-request-shows-what-it-sets-integration",
+          "program": "go",
+          "args": ["test", "./internal/cli", "-run", "TestAnAnsweredAdoptionPreviewNamesThePolicyItWrites|TestConfigurationReview|TestCloseoutReviewPolicyAdoptRequestRefusesThePair", "-count=1"],
+          "severity": "required",
+          "evidenceClass": "integration"
+        },
+        {
           "name": "index-material-does-not-ask-closeout-integration",
           "program": "go",
           "args": ["test", "./internal/pose", "-run", "TestIndexMaterialDoesNotAskTheCloseoutOfALocalEdge|TestCloseoutReviewPolicyRoundSix$", "-count=1"],

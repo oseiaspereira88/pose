@@ -120,6 +120,23 @@ func cmdAdopt(root string, args []string, stdout, stderr io.Writer) int {
 		// sealing included, as the direct path does (found in review by
 		// agent:gpt-6.1-sol).
 		if req.View.Answer == reviewAnswerAdopt {
+			// The policy changes the apply writes come first, as the direct
+			// path shows them: an answered request that sets values the
+			// preview does not name decides them unseen (spec
+			// pose-adopt-request-shows-what-it-sets).
+			docs, err := posemodel.LoadPolicyDocs(root)
+			if err != nil {
+				out.Failure("pose adopt: " + err.Error())
+				return 1
+			}
+			if entry, ok := posemodel.LookupCatalogEntry(req.Capability); ok && !entry.Adopted(docs) {
+				for _, change := range entry.Adopt(docs, date) {
+					out.Field("adopt.change", change)
+				}
+				if req.Capability == "closeout-review-policy" {
+					out.Field("adopt.values", "the request adopts the catalog default; choose other values with `pose adopt closeout-review-policy --milestone-review-required <never|when-justified|always> --roadmap-review-required <never|when-justified|always> --apply`")
+				}
+			}
 			effects, err := posemodel.PlanAdoptionEffects(root, req.Capability, issuer, time.Now())
 			if err != nil {
 				out.Failure("pose adopt: " + strings.TrimPrefix(err.Error(), "pose: "))

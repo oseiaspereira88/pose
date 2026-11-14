@@ -278,3 +278,39 @@ func TestUpdateNamesAnUnansweredMaintainerRole(t *testing.T) {
 		t.Fatalf("resolve does not name the empty role: %d %s", code, out)
 	}
 }
+
+// Spec pose-adopt-request-shows-what-it-sets: the preview of an answered
+// adoption names every policy change its apply writes, and the apply writes
+// them.
+func TestAnAnsweredAdoptionPreviewNamesThePolicyItWrites(t *testing.T) {
+	repo, requests := reviewedInstance(t)
+	req := requestFor(t, requests, "contract-nodes")
+	answerReview(t, repo, req, "adopt", "")
+	docs, err := posemodel.LoadPolicyDocs(repo)
+	if err != nil {
+		t.Fatal(err)
+	}
+	entry, ok := posemodel.LookupCatalogEntry("contract-nodes")
+	if !ok {
+		t.Fatal("contract-nodes is not in the catalog")
+	}
+	want := entry.Adopt(docs, "2026-11-14")
+	if len(want) == 0 {
+		t.Fatal("the fixture's adoption changes nothing")
+	}
+	code, out := runPose(t, repo, "adopt", "--request", req.View.Request.ID)
+	if code != 0 {
+		t.Fatalf("preview: %s", out)
+	}
+	for _, change := range want {
+		if !strings.Contains(out, "adopt.change="+change) {
+			t.Fatalf("the preview does not name %q, which the apply writes:\n%s", change, out)
+		}
+	}
+	if code, out := runPose(t, repo, "adopt", "--request", req.View.Request.ID, "--apply"); code != 0 {
+		t.Fatalf("apply: %s", out)
+	}
+	if states, _ := posemodel.CapabilityStates(repo); stateOf(states, "contract-nodes") == posemodel.CapabilityOff {
+		t.Fatal("the apply did not adopt what its preview named")
+	}
+}
