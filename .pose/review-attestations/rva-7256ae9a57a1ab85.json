@@ -1,0 +1,239 @@
+{
+  "run": {
+    "run_id": "rrn-348663b5b871bc42",
+    "proof_id": "rrp-abceb0383ce63193aa280f0a196ec6cdf9a4175b1d32973f73238104b8770d05"
+  },
+  "schema_version": 1,
+  "attestation_id": "rva-7256ae9a57a1ab85",
+  "bundle_id": "rvb-c2b012f2ae7d7278",
+  "bundle_digest": "sha256:c2b012f2ae7d7278f9ee5efde47d86f8626b5fc719c7bc43bbacbc8dad6e54e6",
+  "reviewer": "agent:openai/gpt-6.1-sol",
+  "decision": "changes-requested",
+  "criteria": [
+    {
+      "id": "assumption-integrity",
+      "disposition": "passed",
+      "evidence": "integration:pose-mcp/go/closeout-review-policy-integration",
+      "rationale": "Distinguished executable test results from implementer claims and source-level reproductions. Verified the five prior fixes. Full validation relies on sealed evidence; the artifact-check historical-range display and failed explicit-range attempt are disclosed. External writers ignoring governance locks remain outside the documented guarantee."
+    },
+    {
+      "id": "backend-concurrency",
+      "disposition": "passed",
+      "evidence": "integration:pose-mcp/go/writer-coordination-and-atomic-publication-integration",
+      "rationale": "Examined guarded reevaluation, publication expectations, receipt ExpectAbsent behavior and intent/status/receipt recovery. Focused publication tests passed; no new asynchronous lifecycle was introduced."
+    },
+    {
+      "id": "backend-contracts",
+      "disposition": "finding",
+      "evidence": "N47",
+      "rationale": "The declared local Markdown association contract silently loses a valid destination."
+    },
+    {
+      "id": "backend-input-errors",
+      "disposition": "finding",
+      "evidence": "N46",
+      "rationale": "Association inputs can silently become absence rather than a resolved association or actionable unknown."
+    },
+    {
+      "id": "backend-integration-impact",
+      "disposition": "passed",
+      "evidence": "integration:pose-mcp/go/closeout-review-policy-integration",
+      "rationale": "Traced shared evaluator and terminal projections through CLI, MCP, readiness, obligations and federation. The focused three-package integration prefix passed."
+    },
+    {
+      "id": "backend-observability",
+      "disposition": "passed",
+      "evidence": "integration:pose-mcp/go/typed-diagnostics-integration",
+      "rationale": "Examined receipt corruption/drift, unknown member and association diagnostics, incomplete close recovery and doctor remediation. Returned context identifies scope and required action; parser correctness exceptions are recorded separately."
+    },
+    {
+      "id": "compatibility",
+      "disposition": "finding",
+      "evidence": "N47",
+      "rationale": "Schema migration is explicit, but the new association reader does not honor the declared filename/link syntax."
+    },
+    {
+      "id": "correctness",
+      "disposition": "finding",
+      "evidence": "N46",
+      "rationale": "A real association can disappear and change the required-review result."
+    },
+    {
+      "id": "design-causality",
+      "disposition": "passed",
+      "evidence": "structure:design-18e1e39ad790a031",
+      "rationale": "D1 separates explicit aggregate close from deterministic review cost; D2 uses the existing capability catalog and resolver with separate receipts. Shared evaluation prevents independent threshold implementations, while receipts preserve the close decision. Parsing defects are implementation findings, not a rejection of the accepted decision.",
+      "mappings": [
+        {
+          "delta": "SD-3ce6ee69",
+          "basis": "D2",
+          "disposition": "mapped",
+          "rationale": "The bounded-read ADR amendment documents measured capacity needed to prepare and verify this delivery; the spec artifact reconciliation explicitly includes it and records the structural scaling follow-up."
+        },
+        {
+          "delta": "SD-c74440ab",
+          "basis": "R3",
+          "disposition": "mapped",
+          "rationale": "The roadmap template exposes the optional explicit ADR association consumed by when-justified evaluation."
+        },
+        {
+          "delta": "SD-ec2d86f4",
+          "basis": "R1",
+          "disposition": "mapped",
+          "rationale": "The accepted ADR establishes policy placement, thresholds, adoption, historical compatibility and retained veto authority before implementation."
+        }
+      ]
+    },
+    {
+      "id": "documentation",
+      "disposition": "passed",
+      "evidence": "integration:pose-mcp/go/distributed-instructions-parity-integration",
+      "rationale": "Compared root, localized and scaffold manual changes and both roadmap templates. They describe explicit adoption, never defaults, always singleton behavior, retained review vetoes, receipts and history consistently. Template defaults now parse."
+    },
+    {
+      "id": "operability",
+      "disposition": "finding",
+      "evidence": "N46",
+      "rationale": "The parser can present an exemption without diagnosing the association it discarded."
+    },
+    {
+      "id": "requirements",
+      "disposition": "finding",
+      "evidence": "N47",
+      "rationale": "R3 remains incomplete for valid explicit local Markdown associations."
+    },
+    {
+      "id": "scope",
+      "disposition": "passed",
+      "evidence": "integration:pose-mcp/go/closeout-review-policy-integration",
+      "rationale": "Implementation follows R1-R7 and the reconciled artifact scope: policy, configuration, evaluator, receipts, projections, compatibility and tests. The bounded-read capacity amendment is documented with a measured cause and owned follow-up."
+    },
+    {
+      "id": "security",
+      "disposition": "finding",
+      "evidence": "N46",
+      "rationale": "Incorrect association absence weakens the review authority required by when-justified."
+    },
+    {
+      "id": "solution-proportionality",
+      "disposition": "passed",
+      "evidence": "structure:design-18e1e39ad790a031",
+      "rationale": "Compared the implementation with two enum settings plus a shared predicate. Separate immutable receipts are necessary because milestone close previously persisted no terminal transition. Reusing catalog/adopt/setup and the existing resolver avoids a new settings framework or global ADR identity. Remote backlink crawling remains excluded. Demand for global discovery or continued captured-history growth would invalidate the current bounded approach and require reassessment."
+    }
+  ],
+  "tools": [
+    {
+      "id": "artifact-check",
+      "disposition": "passed",
+      "evidence": "command:pose artifact-check --spec pose-closeout-review-policy-by-cost-benefit --strict",
+      "rationale": "Ran the required command; exit 0. Output included artifact.claims=46, artifact.observed=175 and artifact.findings=920 with warning diagnostics. Its first displayed recorded change set ended at c6516c61531db2a0023eaffaf6b5d0cb12a5b343, beyond the sealed head; therefore I do not claim that displayed count reconciles the sealed range. A separate explicit-range attempt failed with 'git diff failed: signal: broken pipe'."
+    },
+    {
+      "id": "assess-design",
+      "disposition": "not-used",
+      "evidence": "structure:design-18e1e39ad790a031",
+      "rationale": "Did not rerun a writing assessment in the sealed worktree. Inspected the accepted decision, structural deltas and implementation using sealed design evidence."
+    },
+    {
+      "id": "assess-discover",
+      "component": "pose-mcp",
+      "disposition": "not-used",
+      "rationale": "Did not rerun discovery because the task prohibits repository changes. Inspected component source, registered validation coverage and sealed test evidence."
+    },
+    {
+      "id": "assess-integrate",
+      "disposition": "not-used",
+      "evidence": "integration:pose-mcp/go/closeout-review-policy-integration",
+      "rationale": "Did not run the writing assessment. Independently traced CLI/MCP/federation consumers and ran the focused three-package tests."
+    },
+    {
+      "id": "assess-tech-debt",
+      "disposition": "not-used",
+      "rationale": "Did not run the writing assessment. Inspected changed code, debt markers, recorded technical debt and spec follow-ups, including bounded-read capacity debt."
+    },
+    {
+      "id": "closeout-check",
+      "disposition": "deferred",
+      "rationale": "Completion-only check requires the recorded review conclusion; this review records no attestation."
+    },
+    {
+      "id": "review-check",
+      "disposition": "deferred",
+      "rationale": "Completion-only check cannot certify this independent conclusion before POSE records it."
+    },
+    {
+      "id": "suggest-review",
+      "component": "pose-mcp",
+      "disposition": "passed",
+      "evidence": "command:pose suggest review --path pose-mcp",
+      "rationale": "Exit 0; selected the review workflow and security, documentation-style and backend-go rules."
+    },
+    {
+      "id": "surface-check",
+      "disposition": "passed",
+      "evidence": "integration:pose-mcp/go/closeout-review-policy-integration",
+      "rationale": "Ran pose surface-check --spec pose-closeout-review-policy-by-cost-benefit --strict; exit 0, 'surface.targets=1', 'surface.results=213', 'surface.findings=0'. Composition evidence: integration:pose-mcp/go/closeout-review-policy-integration. Reachability evidence: reachability:pose-mcp/go/closeout-plan-reachability."
+    },
+    {
+      "id": "validate",
+      "disposition": "passed",
+      "evidence": "unit:pose-mcp/go/test",
+      "rationale": "Disposed from the sealed full validation evidence as requested: 213/213 passed. Independently ran go test ./internal/pose ./internal/cli ./internal/mcpserver -run '^TestCloseoutReviewPolicy' -count=1 successfully. Did not rerun the state-writing full validation."
+    },
+    {
+      "id": "validate",
+      "component": "pose-mcp",
+      "disposition": "passed",
+      "evidence": "integration:pose-mcp/go/closeout-review-policy-integration",
+      "rationale": "Used the sealed component validation and build/unit/integration results. Independent focused tests passed in all three affected packages; verbose round-twelve/thirteen regressions passed without skips."
+    }
+  ],
+  "evidence_refs": [
+    "N46",
+    "N47",
+    "delegated-run:rrn-348663b5b871bc42",
+    "integration:pose-mcp/go/closeout-review-policy-integration",
+    "integration:pose-mcp/go/distributed-instructions-parity-integration",
+    "integration:pose-mcp/go/typed-diagnostics-integration",
+    "integration:pose-mcp/go/writer-coordination-and-atomic-publication-integration",
+    "structure:design-18e1e39ad790a031"
+  ],
+  "findings": [
+    {
+      "id": "N46",
+      "severity": "medium",
+      "evidence": "file:pose-mcp/internal/pose/closeout_adr_associations.go:92",
+      "action": "Preserve Markdown block context before excluding code and comments. TrimSpace makes a four-space-indented literal fence delimiter into an opening fenced block: the valid Markdown body '    ~~~\\n\\nGoverns [the pair](../roadmaps/pair.md).\\n' loses its real association link. Separately, line 75 removes comments before recognizing code: '~~~\\n\u003c!--\\n~~~\\n\\n[real](../roadmaps/pair.md)\\n\\n\u003c!-- --\u003e\\n' loses the real link because the literal comment opener inside code consumes through the later comment. Read-only reproductions of the production filter logic confirmed both losses. With two canonical members and no other association, closeoutADRAssociations reports no diagnostic and the evaluator grants Known=true, Required=false, contrary to R3. Respect indented-code and fenced-code context, including comment precedence, and add evaluator regressions in both association directions.",
+      "disposition": "open"
+    },
+    {
+      "id": "N47",
+      "severity": "medium",
+      "evidence": "file:pose-mcp/internal/pose/closeout_adr_associations.go:33",
+      "action": "Parse balanced parentheses in inline Markdown destinations before resolving the association. The valid link '[decision](../adr/decision(extra).md)' to a regular canonical ADR file is matched as '../adr/decision(extra' by the production regex. The namespace filter then silently discards it because the truncated destination does not end in .md. I extracted and executed the exact production regex and confirmed that result. R3 permits basename .md ADR files without excluding parentheses and promises explicit local Markdown associations. A two-member roadmap whose sole association uses this link therefore receives an unjustified exemption. Parse the complete destination or return unknown for unsupported association syntax; cover forward and reverse links.",
+      "disposition": "open"
+    }
+  ],
+  "authority": {
+    "schema_version": 1,
+    "project": "proj.pose-dist",
+    "bundle_digest": "sha256:c2b012f2ae7d7278f9ee5efde47d86f8626b5fc719c7bc43bbacbc8dad6e54e6",
+    "principal": "agent:openai/gpt-6.1-sol",
+    "role": "agent",
+    "review_execution": "rrn-348663b5b871bc42",
+    "implementation_principal": "agent:anthropic/claude-opus-5-5",
+    "implementation_execution": "sha256:0eb880a4fc2ed87a379c949a567b1d3dfbd6b58b466f4755fcd363dd2b7fed98",
+    "issuer": "b34-local-executor",
+    "issued_at": "2026-11-14T04:51:11Z",
+    "audience": "proj.pose-dist"
+  },
+  "envelope": {
+    "issuer": "b34-local-executor",
+    "subject": "rvb-c2b012f2ae7d7278",
+    "algorithm": "ed25519",
+    "public_key": "ck4sApdfePV2GT+hJyAYfJd2qLzeG55P8pevGR0bvZE=",
+    "signature": "yaXglbK3JK3W7aeYhsG+LemEovd9q9d33adFgk+4TYZ33xjgIq4ag9urkSAuBGNcTk9OnHLZPmJvv8wNREgDCA=="
+  },
+  "attested_at": "2026-11-14T04:51:11Z",
+  "path": ".pose/review-attestations/rva-7256ae9a57a1ab85.json"
+}
