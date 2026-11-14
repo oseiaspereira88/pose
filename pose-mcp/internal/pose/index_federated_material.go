@@ -56,6 +56,7 @@ type IndexFederatedMaterial struct {
 // been established; it is reused unchanged except for the captured Files the
 // operation view supplies.
 func BuildIndexFederatedMaterialIn(store Store) (IndexFederatedMaterial, error) {
+	store.indexMaterial = true
 	resolver := ArtifactResolver{}
 	project := store.FederatedProjectID
 	if store.FederatedResolver != nil {

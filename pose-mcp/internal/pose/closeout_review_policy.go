@@ -333,7 +333,7 @@ func (s Store) AggregateDependencyClosed(resolver ArtifactResolver, localProject
 	if resolved.CanonicalIdentity != nil {
 		identity = *resolved.CanonicalIdentity
 	}
-	if identity.Kind != "milestone" && identity.Kind != "roadmap" {
+	if identity.Kind != "milestone" && identity.Kind != "roadmap" || s.indexMaterial {
 		return true, ""
 	}
 	if identity.Project == "" {

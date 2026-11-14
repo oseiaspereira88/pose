@@ -60,6 +60,11 @@ type Store struct {
 	// verification is asking for this one, through their dependency edges:
 	// a scope already in it is a cycle and is not proven closed.
 	closeoutChain []string
+	// indexMaterial marks the store computing an index's federated input
+	// material: an input of the index cannot depend on closeout state, which
+	// is derived from the index it binds (spec
+	// pose-index-material-does-not-ask-closeout).
+	indexMaterial bool
 	// specs, when set, is the spec listing of one operation, read once
 	// (spec pose-attention-within-a-second). Nil outside such an operation.
 	specs *specSnapshot

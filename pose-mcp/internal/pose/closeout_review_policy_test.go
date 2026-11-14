@@ -1720,3 +1720,47 @@ func TestCloseoutReviewPolicyRoundSixteen(t *testing.T) {
 		}
 	})
 }
+
+// Spec pose-index-material-does-not-ask-closeout: the federated material of an
+// index judges a local aggregate edge by its source status only; asking the
+// terminal projection there read the index whose inputs were being checked,
+// and the operation waited on itself. Outside the material the edge still
+// requires the close.
+func TestIndexMaterialDoesNotAskTheCloseoutOfALocalEdge(t *testing.T) {
+	_, s := closeoutReviewedFixture(t, "never", "never")
+	acceptance := func(store Store) []string {
+		t.Helper()
+		report, err := store.FederatedMilestoneAcceptance("coordinator", "program", "later", *store.FederatedResolver)
+		if err != nil {
+			t.Fatal(err)
+		}
+		return report.Blockers
+	}
+	if !strings.Contains(strings.Join(acceptance(s), "\n"), "milestone:program/core:closeout-not-terminal") {
+		t.Fatal("outside the index material an unclosed local predecessor was accepted")
+	}
+	material := s
+	material.indexMaterial = true
+	material.closeoutChain = nil
+	asked := false
+	material.FS = closeoutAskingFiles{Files: FilesOrNative(s.FS), asked: &asked}
+	if blockers := acceptance(material); strings.Contains(strings.Join(blockers, "\n"), "closeout-not-terminal") {
+		t.Fatalf("the index material asked the closeout of a local edge: %v", blockers)
+	}
+	if asked {
+		t.Fatal("the index material read a closeout receipt")
+	}
+}
+
+// closeoutAskingFiles records a read of a closeout receipt.
+type closeoutAskingFiles struct {
+	Files
+	asked *bool
+}
+
+func (f closeoutAskingFiles) ReadFile(path string) ([]byte, error) {
+	if strings.Contains(filepath.ToSlash(path), "/review-closeouts/") {
+		*f.asked = true
+	}
+	return f.Files.ReadFile(path)
+}
