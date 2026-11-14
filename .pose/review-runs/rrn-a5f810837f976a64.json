@@ -1,0 +1,147 @@
+{
+  "safety": {
+    "schema_version": 1,
+    "profile": "legacy-trusted",
+    "platform": "linux/amd64",
+    "capabilities": {
+      "automatic-expiry": "unavailable",
+      "bounded-capture": "available",
+      "cpu-limit": "unavailable",
+      "credential-filesystem-isolation": "unavailable",
+      "environment-allowlist": "available",
+      "escaped-descendant-termination": "unavailable",
+      "filesystem-isolation": "unavailable",
+      "memory-limit": "unavailable",
+      "network-isolation": "unavailable",
+      "origin-isolation": "unavailable",
+      "parent-termination": "available",
+      "process-group-termination": "available",
+      "shared-git-isolation": "unavailable"
+    },
+    "limitations": [
+      "trusted local executable required; worktree is not a sandbox",
+      "outside writes, transient writes, shared Git and credential files are not isolated",
+      "no memory/CPU quota or control of descendants escaping the process group",
+      "cleanup filesystem calls remain subject to operating-system I/O latency",
+      "legacy compatibility: HOME retained; other ambient credentials excluded"
+    ],
+    "stream_bytes": 8388608,
+    "output_bytes": 65536,
+    "retained_bytes": 16777216,
+    "timeout_ms": 3600000,
+    "max_runs_per_bundle": 3,
+    "retention": "retain-evidence; ttl=0; no automatic deletion",
+    "capture_complete": true,
+    "runtime_id": "pose-review-run-3867778955",
+    "operation": {
+      "schema_version": 1,
+      "operation": "review.dispatch.cleanup",
+      "scope": "spec:pose-adopt-request-shows-what-it-sets",
+      "outcome": "failed",
+      "step": "cleanup",
+      "steps_run": [
+        {
+          "id": "cleanup",
+          "result": "failed"
+        }
+      ],
+      "effects": [],
+      "unconfirmed": [
+        {
+          "step": "cleanup",
+          "reason": "owned resources may remain; no automatic respawn"
+        }
+      ],
+      "resumable": false,
+      "error": {
+        "cause": "cleanup-incomplete",
+        "message": "runtime cleanup inventory incomplete; resources retained"
+      }
+    }
+  },
+  "provenance": {
+    "execution_state": "started",
+    "planned_wire_digest": "sha256:f2951743825a90e0df7557c80edf06f25543a0c44918db540acd4a762b71cb8d",
+    "wire_bytes": 25002,
+    "wire_complete": true,
+    "schema_version": 1,
+    "project": "proj.pose-dist",
+    "audience": "proj.pose-dist",
+    "worktree_digest": "sha256:9c161dc895f6496d9f800581bef8673cc9123cda65951fa2d23b0cbdbc2bac41",
+    "trust": "executor-attested",
+    "implementation": {
+      "principal": "agent:anthropic/claude-opus-5-5",
+      "execution": "sha256:0eb880a4fc2ed87a379c949a567b1d3dfbd6b58b466f4755fcd363dd2b7fed98",
+      "vendor": "anthropic",
+      "model": "claude-opus-5-5"
+    },
+    "reviewer": {
+      "principal": "agent:openai/gpt-6.1-sol",
+      "vendor": "openai",
+      "model": "gpt-6.1-sol"
+    },
+    "config_digest": "sha256:637a9d88c40dbf75da8525db65c216ace591f828ef25c233358db1a99e70ee31",
+    "command_template_digest": "sha256:e3a23ff8a55e559e954d107a039277628bfc51faa58d523ad6101de7c375ad28",
+    "argv_digest": "sha256:5fec655fa0fde29209c803b9ba5923d339a6fcda70329244bdd1ef21de086334",
+    "executable_digest": "sha256:e14fc83739c13c1074b12bd1acce4010c893c7f6fbfc1593b4a31d74cabb57af",
+    "template_version": "review-brief/7",
+    "wire_digest": "sha256:f2951743825a90e0df7557c80edf06f25543a0c44918db540acd4a762b71cb8d",
+    "notes_digest": "sha256:0c958c4ccf4d946f720f9f676a4ee8c8d15ff4714e5851b8d5c5e3d7fce0b962",
+    "raw_transcript_digest": "sha256:ba25a677b34d78c3c504e38eece1ff8dc7df4cf1579df8be3fc771b66813a9ed",
+    "raw_output_digest": "sha256:12f12b03ba68a6569c83a02f583c66e0b788205ec4be61e3c8e912ead5e5c543",
+    "output_source": "file",
+    "output_complete": true
+  },
+  "session_digest": "sha256:64ec3c5bf0367cc4767e3d681e99d9bf1132d13ba0429502fce09a946a212d51",
+  "tree_digest": "sha256:52b777fc5dfba9c14fc89ad328bde5116321b55d27d9cbfa0d58740b2175f0da",
+  "brief_notes": "Round 1 review of spec pose-adopt-request-shows-what-it-sets (an engine consistency fix found adopting the closeout review policy in harne8).\n\nWhat to judge: the preview of `pose adopt --request \u003cact-id\u003e` for an answered adoption showed no change while its `--apply` wrote the catalog adoption (for closeout-review-policy, never and never); the preview now applies the catalog adoption to an in-memory copy of the policy and lists each change as `adopt.change`, and for closeout-review-policy adds `adopt.values` naming the direct command that chooses other values. The request path still refuses the pair flags (decision of pose-closeout-review-policy-by-cost-benefit, test TestCloseoutReviewPolicyAdoptRequestRefusesThePair). The distributed manual (four copies) now attributes the sandboxed Claude review profile to pose-dist instead of \"this repository\".\n\nDo NOT run `pose assess`, `pose state`, `pose index` or anything else that writes under `.pose/`; dispose assess-* tools from the sealed evidence and the code. Leave the worktree as you found it. Dispose the `validate` tools from the sealed evidence: the pipeline ran `pose validate --strict` on a clean clone of the sealed commit with a GitHub token (`.pose/results/delivery-validation.json`); a rerun in your sandbox fails for environment reasons and is not evidence about the code. A finding object accepts exactly `id`, `severity`, `disposition`, `file`, `line`, `summary`, and for an accepted follow-up `action`, `owner`, `review_by`; put any rationale inside `summary`. This is round 1: `prior_findings` is empty. Sweep the whole surface and report every finding in one pass, classified blocker vs follow-up.\n",
+  "ledger_version": 1,
+  "attempt_id": "rat-452e052faa54fe3f713439faecf7f1bc44f76869957f6707ffbdfc2d41cafe1a",
+  "schema_version": 1,
+  "run_id": "rrn-a5f810837f976a64",
+  "scope": "spec:pose-adopt-request-shows-what-it-sets",
+  "bundle_id": "rvb-be78a77eab773e4e",
+  "bundle_digest": "sha256:be78a77eab773e4e05e7bd9f219a169a70612ee02d8cdd585f697aab4efcd0c1",
+  "sealed_commit": "5c3c804541a1e5020bb41be2b284c61fe65227af",
+  "kind": "review",
+  "brief_digest": "sha256:36fe860fe7fbd260f2fd9ca48e3a0c1169c024af5e2a51df301d226b63cbba13",
+  "adapter": "sol-medium",
+  "vendor": "openai",
+  "model": "gpt-6.1-sol",
+  "started_at": "2026-11-14T21:09:22.857366745Z",
+  "ended_at": "2026-11-14T21:24:21.654343147Z",
+  "exit_code": 0,
+  "status": "completed",
+  "transcript_digest": "sha256:775e95e72843cf76576f1d1b2f6bacc335b8994563d0595d21dab1a9df2c4e1c",
+  "transcript_path": ".pose/review-runs/rrn-a5f810837f976a64.transcript",
+  "output": "decision: approved\n\nNo defects found. The targeted tests and strict artifact/surface checks passed. Both broad local validation runs failed, including a 600-second unit-test timeout; approval relies on the supplied sealed validation evidence, not those reruns. The worktree remains unchanged.\n\nRules applied: pose-review workflow, backend-go, security, documentation-style, and delivery-evidence. Knowledge governance was consulted; no knowledge artifacts were changed.\n\n```pose-draft\n{\n  \"schema\": \"pose.review.draft/v1\",\n  \"decision\": \"approved\",\n  \"findings\": [],\n  \"criteria\": [\n    {\n      \"id\": \"assumption-integrity\",\n      \"disposition\": \"passed\",\n      \"evidence\": \"structure:design-444c1b1b0cc8d340\",\n      \"rationale\": \"Compared R1-R3 with the diff and existing apply path. Verified that catalog adoption mutates freshly loaded in-memory policy maps. The spec explicitly acknowledges that adopt.values lacks a direct assertion; its behavior was inspected in code. Broad local validation failed, so full-suite assurance rests on the supplied sealed evidence.\"\n    },\n    {\n      \"id\": \"backend-concurrency\",\n      \"disposition\": \"passed\",\n      \"evidence\": \"integration:pose-mcp/go/writer-coordination-and-atomic-publication-integration\",\n      \"rationale\": \"The added preview performs synchronous reads and local map mutations; it adds no goroutines, lifecycle ownership or publication changes.\"\n    },\n    {\n      \"id\": \"backend-contracts\",\n      \"disposition\": \"passed\",\n      \"evidence\": \"integration:pose-mcp/go/adopt-request-shows-what-it-sets-integration\",\n      \"rationale\": \"The change adds the specified preview fields while preserving request arguments, pair-flag refusal and apply behavior.\"\n    },\n    {\n      \"id\": \"backend-input-errors\",\n      \"disposition\": \"passed\",\n      \"evidence\": \"integration:pose-mcp/go/configuration-review-integration\",\n      \"rationale\": \"Existing request validation remains intact. Policy-load failures return contextual errors and stop processing.\"\n    },\n    {\n      \"id\": \"backend-integration-impact\",\n      \"disposition\": \"passed\",\n      \"evidence\": \"integration:pose-mcp/go/adopt-request-shows-what-it-sets-integration\",\n      \"rationale\": \"Reviewed the configuration-review request, adoption CLI and setup composition. Targeted tests passed independently.\"\n    },\n    {\n      \"id\": \"backend-observability\",\n      \"disposition\": \"passed\",\n      \"evidence\": \"integration:pose-mcp/go/adopt-request-shows-what-it-sets-integration\",\n      \"rationale\": \"The preview now exposes catalog changes through adopt.change and provides actionable closeout-value guidance without adding sensitive output.\"\n    },\n    {\n      \"id\": \"compatibility\",\n      \"disposition\": \"passed\",\n      \"evidence\": \"integration:pose-mcp/go/configuration-review-integration\",\n      \"rationale\": \"Inspected CLI parsing and application. Existing arguments, persisted policy formats and MCP contracts remain unchanged; additional human-readable preview fields are declared by the spec.\"\n    },\n    {\n      \"id\": \"correctness\",\n      \"disposition\": \"passed\",\n      \"evidence\": \"integration:pose-mcp/go/adopt-request-shows-what-it-sets-integration\",\n      \"rationale\": \"The preview invokes the same catalog adoption function as apply, using the selected date. The focused regression, configuration-review and pair-refusal tests passed independently.\"\n    },\n    {\n      \"id\": \"design-causality\",\n      \"disposition\": \"passed\",\n      \"evidence\": \"structure:design-444c1b1b0cc8d340\",\n      \"rationale\": \"R1's cause was omission of catalog mutations from the request preview. Reusing entry.Adopt on freshly loaded maps exposes those mutations without changing persistence. The closeout-specific message addresses R2, and the four attribution edits address R3. No individual structural delta facts were listed in the supplied brief.\",\n      \"mappings\": []\n    },\n    {\n      \"id\": \"documentation\",\n      \"disposition\": \"passed\",\n      \"evidence\": \"integration:pose-mcp/go/distributed-instructions-parity-integration\",\n      \"rationale\": \"Inspected all four manual diffs. English and Portuguese source and scaffold copies consistently attribute the sandboxed profile to pose-dist.\"\n    },\n    {\n      \"id\": \"operability\",\n      \"disposition\": \"passed\",\n      \"evidence\": \"integration:pose-mcp/go/adopt-request-shows-what-it-sets-integration\",\n      \"rationale\": \"Inspected adopt.go: policy changes are printed before adopt.apply, and the closeout guidance names both value flags and their accepted alternatives.\"\n    },\n    {\n      \"id\": \"requirements\",\n      \"disposition\": \"passed\",\n      \"evidence\": \"integration:pose-mcp/go/adopt-request-shows-what-it-sets-integration\",\n      \"rationale\": \"R1 is covered by the focused regression and apply-path comparison. R2 was verified against the closeout catalog defaults and emitted guidance; its direct-test gap is disclosed in the spec. R3 was verified across all four manual changes.\"\n    },\n    {\n      \"id\": \"scope\",\n      \"disposition\": \"passed\",\n      \"evidence\": \"structure:design-444c1b1b0cc8d340\",\n      \"rationale\": \"Compared the requested range with the spec's artifacts and non-goals. The change is limited to preview reporting, its regression/check registration, manual attribution and governance records. It does not change what an answer applies.\"\n    },\n    {\n      \"id\": \"security\",\n      \"disposition\": \"passed\",\n      \"evidence\": \"integration:pose-mcp/go/configuration-review-integration\",\n      \"rationale\": \"Inspected the added reads, catalog lookup, output and existing answer validation. The change adds no command execution, caller-controlled path, credential handling or authority bypass.\"\n    },\n    {\n      \"id\": \"solution-proportionality\",\n      \"disposition\": \"passed\",\n      \"evidence\": \"structure:design-444c1b1b0cc8d340\",\n      \"rationale\": \"Reusing the existing catalog mutator is a small sufficient fix and avoids duplicating policy-key descriptions. The capability-specific guidance is bounded to the present requirement. This choice would need reconsideration if catalog adoption gained external side effects or stopped being safe on isolated in-memory maps.\"\n    }\n  ],\n  \"tools\": [\n    {\n      \"id\": \"artifact-check\",\n      \"disposition\": \"passed\",\n      \"evidence\": \"command:pose artifact-check --spec pose-adopt-request-shows-what-it-sets --strict --from 43099880d96a55d195811bf1f5269a9a3d14073d --to 5c3c804541a1e5020bb41be2b284c61fe65227af --json\",\n      \"rationale\": \"Ran verification bound to the requested range; exit 0, with no error or critical findings.\"\n    },\n    {\n      \"id\": \"assess-design\",\n      \"disposition\": \"not-used\",\n      \"evidence\": \"structure:design-444c1b1b0cc8d340\",\n      \"rationale\": \"Used the supplied sealed structure evidence and independently inspected the spec, diff and catalog/apply relationship. Did not regenerate assessment artifacts.\"\n    },\n    {\n      \"id\": \"assess-discover\",\n      \"component\": \"pose-mcp\",\n      \"disposition\": \"not-used\",\n      \"rationale\": \"A component-wide assessment refresh was unnecessary for this bounded review and could write repository assessment state.\"\n    },\n    {\n      \"id\": \"assess-integrate\",\n      \"disposition\": \"not-used\",\n      \"evidence\": \"integration:pose-mcp/go/adopt-request-shows-what-it-sets-integration\",\n      \"rationale\": \"Inspected the existing CLI/domain boundary and supplied integration evidence. No REST, event, Protobuf or MCP contract changed; did not regenerate assessment state.\"\n    },\n    {\n      \"id\": \"assess-tech-debt\",\n      \"disposition\": \"not-used\",\n      \"rationale\": \"Inspected the changed code directly. It adds no TODO, FIXME, stub or panic marker; did not regenerate assessment state.\"\n    },\n    {\n      \"id\": \"closeout-check\",\n      \"disposition\": \"deferred\",\n      \"rationale\": \"Requires the completed review conclusion to be recorded and verified by POSE.\"\n    },\n    {\n      \"id\": \"review-check\",\n      \"disposition\": \"deferred\",\n      \"rationale\": \"Requires the completed review conclusion to be recorded and verified by POSE.\"\n    },\n    {\n      \"id\": \"suggest-review\",\n      \"component\": \"pose-mcp\",\n      \"disposition\": \"passed\",\n      \"evidence\": \"command:pose suggest review --path pose-mcp\",\n      \"rationale\": \"Resolved the backend-go, security and documentation-style review trail.\"\n    },\n    {\n      \"id\": \"surface-check\",\n      \"disposition\": \"passed\",\n      \"evidence\": \"integration:pose-mcp/go/adopt-request-shows-what-it-sets-integration\",\n      \"rationale\": \"Ran pose surface-check --spec pose-adopt-request-shows-what-it-sets --strict; exit 0, one target and zero findings.\"\n    },\n    {\n      \"id\": \"validate\",\n      \"disposition\": \"passed\",\n      \"evidence\": \"unit:pose-mcp/go/test\",\n      \"rationale\": \"Disposition refers to the supplied sealed producer's passing validation evidence. Independently ran pose validate --strict; that local rerun exited 1, including a 600-second unit-test timeout, and is not represented as passing.\"\n    },\n    {\n      \"id\": \"validate\",\n      \"component\": \"pose-mcp\",\n      \"disposition\": \"passed\",\n      \"evidence\": \"integration:pose-mcp/go/adopt-request-shows-what-it-sets-integration\",\n      \"rationale\": \"Disposition refers to the supplied sealed producer's passing validation evidence. Independently ran pose validate --strict --module pose-mcp; that local rerun exited 1, including a 600-second unit-test timeout. The focused adoption/configuration-review tests passed independently.\"\n    }\n  ]\n}\n```",
+  "policy_digest": "sha256:90ca53a44c8202b7914e12baa143afac5707221147f71fe6fa30a74bb415f911",
+  "purpose": "review",
+  "env_removed": [
+    "CLAUDE_CODE_BRIDGE_SESSION_ID",
+    "CLAUDE_CODE_CHILD_SESSION",
+    "CLAUDE_CODE_EXECPATH",
+    "CLAUDE_CODE_MESSAGING_SOCKET",
+    "CLAUDE_CODE_MESSAGING_TOKEN",
+    "CLAUDE_CODE_SESSION_ATTENDED",
+    "CLAUDE_CODE_SESSION_ID",
+    "CLAUDE_EFFORT",
+    "CLAUDE_PID"
+  ],
+  "events": "codex-jsonl",
+  "events_digest": "sha256:ae98c4d5eaa55f71a3265164f785463b4aeb225fbc5f4b022582e894627ec1d0",
+  "routing": {
+    "requested": "sol-medium",
+    "implementation": {
+      "principal": "agent:anthropic/claude-opus-5-5",
+      "vendor": "anthropic",
+      "model": "claude-opus-5-5",
+      "execution_digest": "sha256:0eb880a4fc2ed87a379c949a567b1d3dfbd6b58b466f4755fcd363dd2b7fed98",
+      "source": "declared"
+    },
+    "implementation_from": "bundle",
+    "step": "explicit"
+  },
+  "independence_achieved": "different-vendor",
+  "round": 1
+}
