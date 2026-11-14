@@ -1,7 +1,7 @@
 {
   "schema_version": 2,
-  "input_digest": "sha256:e018e29c03af3198c4a202806d89bba475f868b68f5f1fe96bac3024d85b80a9",
-  "provenance_digest": "sha256:7ea26d9ed0bad7188aea82b71248ab0d9853a1bc40bf1085681fde9594444a06",
+  "input_digest": "sha256:47e81506bae99bd7f8d6d5ea4db0dda26cc484ef6053f8e689bcefae41c18421",
+  "provenance_digest": "sha256:631e40a241225d5e6b106b7cb3e9efe4b2da6c20bb8eb48651695787de09ccfb",
   "implied_edges": [
     "changes"
   ],
@@ -42732,6 +42732,14 @@
       }
     },
     {
+      "id": "change-set:cs-568a7ad07ae6",
+      "type": "change-set",
+      "attributes": {
+        "diff_digest": "sha256:03bf8753a0d57e949c8c9ed03fb663af6eeebde1324b2ee1f558bb0a0d506543",
+        "selector": "trailers:pose-closeout-review-policy-by-cost-benefit"
+      }
+    },
+    {
       "id": "change-set:cs-56f1f7cb644d",
       "type": "change-set",
       "attributes": {
@@ -42881,14 +42889,6 @@
       "attributes": {
         "diff_digest": "sha256:5493cccea4301553a4dd373135e6fd51496be126630f95d54edfed6c0e9820ea",
         "selector": "trailers:pose-validate-concurrent-steps"
-      }
-    },
-    {
-      "id": "change-set:cs-5e594ea9dc50",
-      "type": "change-set",
-      "attributes": {
-        "diff_digest": "sha256:8d83cf322a9f10a132096caab14992bd2b81c07c039f9d752c5b2eb85368a5db",
-        "selector": "trailers:pose-closeout-review-policy-by-cost-benefit"
       }
     },
     {
@@ -104116,7 +104116,7 @@
     },
     {
       "from": "spec:pose-closeout-review-policy-by-cost-benefit",
-      "to": "change-set:cs-5e594ea9dc50",
+      "to": "change-set:cs-568a7ad07ae6",
       "type": "observed-by"
     },
     {
@@ -212612,6 +212612,1241 @@
       }
     },
     {
+      "id": "cs-568a7ad07ae6",
+      "spec": "pose-closeout-review-policy-by-cost-benefit",
+      "selector": "trailers:pose-closeout-review-policy-by-cost-benefit",
+      "base": "f9425e2bc4152baa53d28a3804e720c305fa8398^",
+      "head": "29aa3791f22f058e1166677dd2fa09811cc0af38",
+      "resolved_base": "8e3009b2c7305cd94500009875ddc1b7880d8331",
+      "resolved_head": "29aa3791f22f058e1166677dd2fa09811cc0af38",
+      "commits": [
+        "f9425e2bc4152baa53d28a3804e720c305fa8398",
+        "f6fa91fee8aa7f2abbc314bb077bb0aa1d824a1b",
+        "ed0cdd44ab6d4a001e405e1f9adbdeffd5d66496",
+        "95b7eee855989187b6e07f355d06e459c8751157",
+        "9f2a9308b71d63e5e8b4363cb775ca0f6cf51701",
+        "a0a80270fd0d5001bffa09f8181587f30dd4a08e",
+        "baa8c5d9986052586ec3cc4b47eb312770c158ed",
+        "87d5abd5b9a2c9fa889ed8045169205e564bbb12",
+        "36fdc959efa6565edbbbfc84ebc15735dca8b36b",
+        "9713db4610848b158c289bc51ec05f3a041a3af8",
+        "8fc1e9a678d49add52c50bb7390b798cff5fbda5",
+        "dc67a8b783cce0c017cc4de6b5a0b2590a7752b6",
+        "97c8f1fdff425117cff16cc745b3c238121e3b52",
+        "25743a0904882d19d40da8b9994cee2e99e76329",
+        "7a41aec9833ea9a33d7c4214bb77af6b2bd79fe4",
+        "88ded5ef38a1717ec69f027993223cc418e30b4b",
+        "ebf842e5f5e142d02cce024fe32c7dfd1aed4f58",
+        "b977ef6cc0e48df75c09eb4f182b83ddd7d7ded0",
+        "9b5e186dd96eaf010029d4c75400912c3fcdeb02",
+        "9b7a245160ebc1f3bfdceb5e9bb9e4cec9247d82",
+        "9bbd9757ca4e506703bc75418c6a1d4e2d4c73d7",
+        "d6aa70f8f838b91aac8f8726bd9c9eb7b2c25fa3",
+        "e94ae458e95a950e832e446c653fd88778e073b1",
+        "a210e951cf60b911cee3b3f0e0a8db9a6b736781",
+        "aa5cbc3ba63ced0384a171ae701f3df4391236de",
+        "d3d181fcb82993110a37159e529dfb47c101846f",
+        "408e2e78676eb33c304ac94388e04fb7e1bebb8b",
+        "9d495d5024c94dfbd7d81f5943576fba20b8b290",
+        "ed1602c463f819818d32264993a607912c02183f",
+        "726f336db06d461932ba59d6638b504f949d26f1",
+        "da467d2ee7b06de9c8e9cc7ee0a5514c5c017df3",
+        "a57ad5e7adeabaeefea99de04472a0e1d1d41df0",
+        "af17d3c2af11c6dee0cd805a096b552c5def4d8e",
+        "2b53283836762ba6cf454968ca42ba71659623af",
+        "1158fa3b0545365eb0521cffe2111f72d7964c84",
+        "5690b25710615f5b0f9aba1f2642eaa6a917ccd9",
+        "44c4445f451abe31cb24fee4419feca60def1ad3",
+        "fe2013c78abc56e0ac251bcddb2d261aad12501a",
+        "ba6b9ad1b26de5e4620b6589ded99405a1d98275",
+        "8879dbe825f9c461868deee10187d6901165ddcb",
+        "36c7561c787a57e7d55b5d277526aeeb39506689",
+        "45d949ecf59c8d0c0a0af8b2eb42d96552713e2c",
+        "0cb9eaaf2dabdde8696d3ea702acc51f70416687",
+        "5111f0f175499644c6a2c6cc6c5af2f13f527989",
+        "0e54c85a0ce2cb1728c454c74c2b66e7ca95c49e",
+        "97550abd3c47041d6b803a890e22a9475215267d",
+        "38be282a82da3a7fb459de164104e24e95074f28",
+        "67f5b5a7d304492ab7bd9dfa0fda3ae6010911de",
+        "220baab3b9324c52925f0d088267ba2bc52782dc",
+        "b5cd93a9955e02adf923249313ae5975d8c029c3",
+        "8ce963376d5825e714df8f8ee94e92e629cf77a2",
+        "225b86b405802a43211d571648fcaf73b2dcc78e",
+        "195c3b534182ef6bdc4b2ff20a78f4e94e5325f4",
+        "b7725de3cb28c67d1fe1257983b12c968d4cd832",
+        "83d8f9b91e31c53150e25b5adc7d38f6086cf34e",
+        "fc999baf14f944a082db3a6b51760fe832813be9",
+        "8701368f06a261620098b7c2d1dc7c05d7d91558",
+        "22a03dceb3e85684503c6f3a3a2a51c5b579d1cf",
+        "21e95aa3e71183a2b20f71f89214beff33743648",
+        "30d21fd0e4a797e6295a267dc3fa620c84a9a012",
+        "86d45326fe4c28325122c27ed92f1374e61bd48e",
+        "712b2f06cc86d12edd65058c91bd010fbdb49911",
+        "2e5493d37c1a21c51c0af496bb6c7d4db4c63a80",
+        "7e88d895e74adf1d8027138425958eab81d8fa92",
+        "b563379869d06ceb12739ad8ca3192bfa1ee1eb7",
+        "f0b712bb44d4b024ea56b40d65cb5db0f1400ecc",
+        "4a38571164cd30785105815d8ea4972ed87bf50d",
+        "c1edb774cbb20c6179b5ee47ac3e7ab79b2da734",
+        "831900bdcfe7afa29f5410caffaed00c8d4f498e",
+        "4a9020787b46d9eeb6403ce5aab08986c67bea0a",
+        "14f4e0037b7201bf43c61980786fb2a5215e6fd8",
+        "ffbc2a0f4bafd8066137883a89c9ad224c96972f",
+        "9c620b494f04e576cde7526f92f911b003594167",
+        "69d48e3a575debfc5e95fbbd8966d4f4ad19e6f5",
+        "e3640aeb6fc7ef02884f08aa46d04887afb1e651",
+        "d804cac41245eab8c06eb07d799fbef4af937c10",
+        "7a5374b391b153b7c793136f6421c0b19df68645",
+        "159999aedbfb4d1ab7112f78bf68e7ffb3a57c22",
+        "5a416eae575649b44cdcc4278b3f27866a967ad4",
+        "10a3f2d3396130d6ee4ac1503e8093f43454f8dc",
+        "6400f11c054e2ee0470aed341e8eb39eec935446",
+        "195045dcf1878e2e28222ac49f9733bf406ad758",
+        "116f5b8b9b2bda08bc1e5766bc623e8c6d414f07",
+        "a319fd97a796eacd2e3fedaba4cc955922d1dcea",
+        "c650f40bfcf36112dd26a853bbef1794153bb3a4",
+        "b2fe0321259af5b212ec89320b80d225098e815d",
+        "e48e8b1664c75972f8f274d5c0fc624a84953c60",
+        "5e1ab9309a4084b18770c3abb933563272d455d1",
+        "817f54f7942808dafed584089a38d5ea33e1b614",
+        "84190d4c1ef342aedf8c2e681a0bb1d8abfba263",
+        "dd4dafadd6df3c51ef5559a051673e7be56e1064",
+        "29037ed85f2d41f9bae96e44ffe24a366d36f0ae",
+        "a64bbeae85c554e8d9bc05d4e273ace0512499a9",
+        "47c791bf5a6efa0ab601e2895625e884bd9d3338",
+        "a5d5f42a67efd3398a1a8acc0e077ed7d16097a1",
+        "71cd6aead372c2acb61b91bee36758c6fd82af80",
+        "48aab737620375d14e75f978adcb6fb76973dded",
+        "749535c3cd3d3025dc7a6e425fee049212681231",
+        "2053a3c7964741d971437a7dbe848c806fc0fbd8",
+        "9777a4b1dc798b69664209e5e3ac42e70ddbff65",
+        "03a7b92ffde7069d389657fd09cbdc2d540d0ae6",
+        "fe89fce99c92ed6ca42fbfce0a2693f2df8c135d",
+        "38e6d16ae90f6e8266c56d2e12b2465269fdb4ac",
+        "e3e56b1ed026974291e93215a3412e4d5feeb06a",
+        "db0b45fe453bc5461b3263dd1378aa548af2f367",
+        "ea5cbd81291549afaae8df6e40753d503d654634",
+        "43819e6c391bf5d837e578a3bfb22bba091513e0",
+        "d97ded4651adfa5a57528855edb362a72a021f16",
+        "aeca266e953d6e74ccc54e71261eff7d1da895f7",
+        "64400de7c7d8174a93ea17a0c89644759926a7df",
+        "4cd03ae9c945825eb9058f9f2798f6aad9cecbab",
+        "c6516c61531db2a0023eaffaf6b5d0cb12a5b343",
+        "708f1ebd442bd28c86ab865cb4499e65ae24f467",
+        "4e6da33c02f1e289cbbd75249cf82520c8328263",
+        "9906aedb1c3f4794fb30c5bafbaa4e84ede2a4b1",
+        "16232fa9ac76e156be49499b87433b36aae38328",
+        "47ec7b846d30f6e382a7f5e3625b167ce5c81785",
+        "2260c40d24cac89e579a4669c610f548f44f541c",
+        "e219cc0189f1f39069fe34b616fe8b22ec3a0cd6",
+        "5e62b51e2541a809352e0d58dfea0d6826b410f2",
+        "ff7ee21910b8c8683a3db6c1f454b4e49f20251e",
+        "3d4f94b859ef9874edfcb6d008db995ddc725c01",
+        "c35132b66776601b01eabc2cab7424e5900f51b6",
+        "a7c186aa3d43a481edf06b97a7a4ba26ecc4d75a",
+        "32417974a9cfd5392fabbd8d0ad50305e43ce99f",
+        "9b8eb4c011ffb26ef7a5649dcb191ec510ab343d",
+        "10c17d075e3a7965d0b7daf805c5de07a9f4f2d3",
+        "df26fdcd1c1eb820c8462437cc3b78eabd6ed7d8",
+        "befc95940b2e07c09b2becf4a97686641512f42e",
+        "5de713c806d2a8ec3b0ae68d7932ef26f60d2680",
+        "4cdedf93100155bb066f7ccd2880c59ffa84005a",
+        "c84c2b8f833e28e494256c1ef7414ad81bd3484c",
+        "01853b009c390046ce3489bc980860a13e7d4de5",
+        "9f543424199847ec4731c5431fafe0fa1dc009a6",
+        "29aa3791f22f058e1166677dd2fa09811cc0af38"
+      ],
+      "paths": [
+        {
+          "action": "created",
+          "path": ".pose/adr/2026-11-12-closeout-review-policy-by-cost-and-benefit.md"
+        },
+        {
+          "action": "created",
+          "path": ".pose/adr/2026-11-14-governance-association-links-are-read-with-a-commonmark-parser.md"
+        },
+        {
+          "action": "created",
+          "path": ".pose/changelogs/unreleased/pose-closeout-review-policy-by-cost-benefit.md"
+        },
+        {
+          "action": "created",
+          "path": ".pose/review-attempts/0631cafb8dd84c155b000dcd/000001.json"
+        },
+        {
+          "action": "created",
+          "path": ".pose/review-attempts/0631cafb8dd84c155b000dcd/000001.result.json"
+        },
+        {
+          "action": "created",
+          "path": ".pose/review-attempts/0a2367249025e3f86c75ed33/000001.json"
+        },
+        {
+          "action": "created",
+          "path": ".pose/review-attempts/0a2367249025e3f86c75ed33/000001.result.json"
+        },
+        {
+          "action": "created",
+          "path": ".pose/review-attempts/0aea335a6e20af17d864a4c0/000001.json"
+        },
+        {
+          "action": "created",
+          "path": ".pose/review-attempts/0aea335a6e20af17d864a4c0/000001.result.json"
+        },
+        {
+          "action": "created",
+          "path": ".pose/review-attempts/17e0d2df144b76a2be0c7cf3/000001.json"
+        },
+        {
+          "action": "created",
+          "path": ".pose/review-attempts/17e0d2df144b76a2be0c7cf3/000001.result.json"
+        },
+        {
+          "action": "created",
+          "path": ".pose/review-attempts/1a13cb5a815f1540ba921b52/000001.json"
+        },
+        {
+          "action": "created",
+          "path": ".pose/review-attempts/1a13cb5a815f1540ba921b52/000001.result.json"
+        },
+        {
+          "action": "created",
+          "path": ".pose/review-attempts/280c9185501219bd3f632f1e/000001.json"
+        },
+        {
+          "action": "created",
+          "path": ".pose/review-attempts/280c9185501219bd3f632f1e/000001.result.json"
+        },
+        {
+          "action": "created",
+          "path": ".pose/review-attempts/37c4058a83d6d814bfe161be/000001.json"
+        },
+        {
+          "action": "created",
+          "path": ".pose/review-attempts/37c4058a83d6d814bfe161be/000001.result.json"
+        },
+        {
+          "action": "created",
+          "path": ".pose/review-attempts/3959084ac52958150da2df5a/000001.json"
+        },
+        {
+          "action": "created",
+          "path": ".pose/review-attempts/3959084ac52958150da2df5a/000001.result.json"
+        },
+        {
+          "action": "created",
+          "path": ".pose/review-attempts/5266673259891594c6a583dc/000001.json"
+        },
+        {
+          "action": "created",
+          "path": ".pose/review-attempts/5266673259891594c6a583dc/000001.result.json"
+        },
+        {
+          "action": "created",
+          "path": ".pose/review-attempts/53bce693599504cab7a0bcc8/000001.json"
+        },
+        {
+          "action": "created",
+          "path": ".pose/review-attempts/53bce693599504cab7a0bcc8/000001.result.json"
+        },
+        {
+          "action": "created",
+          "path": ".pose/review-attempts/6b2e74e9742c54c07cf0afe5/000001.json"
+        },
+        {
+          "action": "created",
+          "path": ".pose/review-attempts/6b2e74e9742c54c07cf0afe5/000001.result.json"
+        },
+        {
+          "action": "created",
+          "path": ".pose/review-attempts/a11ae7fa14fc35026b7b7dc3/000001.json"
+        },
+        {
+          "action": "created",
+          "path": ".pose/review-attempts/a11ae7fa14fc35026b7b7dc3/000001.result.json"
+        },
+        {
+          "action": "created",
+          "path": ".pose/review-attempts/abf587150e0e35a8e5edc2c4/000001.json"
+        },
+        {
+          "action": "created",
+          "path": ".pose/review-attempts/abf587150e0e35a8e5edc2c4/000001.result.json"
+        },
+        {
+          "action": "created",
+          "path": ".pose/review-attempts/c5cd4c2c071afdccb81c175e/000001.json"
+        },
+        {
+          "action": "created",
+          "path": ".pose/review-attempts/c5cd4c2c071afdccb81c175e/000001.result.json"
+        },
+        {
+          "action": "created",
+          "path": ".pose/review-attempts/dd5248305d60ae44564f1a4d/000001.json"
+        },
+        {
+          "action": "created",
+          "path": ".pose/review-attempts/dd5248305d60ae44564f1a4d/000001.result.json"
+        },
+        {
+          "action": "created",
+          "path": ".pose/review-attempts/e06239ac4b111a496272a693/000001.json"
+        },
+        {
+          "action": "created",
+          "path": ".pose/review-attempts/e06239ac4b111a496272a693/000001.result.json"
+        },
+        {
+          "action": "created",
+          "path": ".pose/review-attempts/f2764b415043cf23de15d14d/000001.json"
+        },
+        {
+          "action": "created",
+          "path": ".pose/review-attempts/f2764b415043cf23de15d14d/000001.result.json"
+        },
+        {
+          "action": "created",
+          "path": ".pose/review-attestations/rva-058363c38778c498.json"
+        },
+        {
+          "action": "created",
+          "path": ".pose/review-attestations/rva-0dddfb26a0c88bfd.json"
+        },
+        {
+          "action": "created",
+          "path": ".pose/review-attestations/rva-15b77929c77babfe.json"
+        },
+        {
+          "action": "created",
+          "path": ".pose/review-attestations/rva-304a8c079ea98b0c.json"
+        },
+        {
+          "action": "created",
+          "path": ".pose/review-attestations/rva-4ce3b608c57b296e.json"
+        },
+        {
+          "action": "created",
+          "path": ".pose/review-attestations/rva-516f04df994dbb9b.json"
+        },
+        {
+          "action": "created",
+          "path": ".pose/review-attestations/rva-6098835b812211c0.json"
+        },
+        {
+          "action": "created",
+          "path": ".pose/review-attestations/rva-70e7e1ad913def93.json"
+        },
+        {
+          "action": "created",
+          "path": ".pose/review-attestations/rva-7256ae9a57a1ab85.json"
+        },
+        {
+          "action": "created",
+          "path": ".pose/review-attestations/rva-7cdb88e5a781e794.json"
+        },
+        {
+          "action": "created",
+          "path": ".pose/review-attestations/rva-8e7b6233929f72af.json"
+        },
+        {
+          "action": "created",
+          "path": ".pose/review-attestations/rva-bbcf5ebbc80abd1b.json"
+        },
+        {
+          "action": "created",
+          "path": ".pose/review-attestations/rva-f27e990acb2ad3be.json"
+        },
+        {
+          "action": "created",
+          "path": ".pose/review-bundles/rvb-085beccd6345ec57.json"
+        },
+        {
+          "action": "created",
+          "path": ".pose/review-bundles/rvb-08c2ad291964aeda.json"
+        },
+        {
+          "action": "created",
+          "path": ".pose/review-bundles/rvb-117f43b8f0ea1d91.json"
+        },
+        {
+          "action": "created",
+          "path": ".pose/review-bundles/rvb-1caf80158e489685.json"
+        },
+        {
+          "action": "created",
+          "path": ".pose/review-bundles/rvb-2be045e286308c9e.json"
+        },
+        {
+          "action": "created",
+          "path": ".pose/review-bundles/rvb-455844752bc5e83f.json"
+        },
+        {
+          "action": "created",
+          "path": ".pose/review-bundles/rvb-4732b51bcadc81d9.json"
+        },
+        {
+          "action": "created",
+          "path": ".pose/review-bundles/rvb-4bda426b22c3d512.json"
+        },
+        {
+          "action": "created",
+          "path": ".pose/review-bundles/rvb-5e4e23434f65d1a0.json"
+        },
+        {
+          "action": "created",
+          "path": ".pose/review-bundles/rvb-640cbe74ba3bab54.json"
+        },
+        {
+          "action": "created",
+          "path": ".pose/review-bundles/rvb-6ca161b26259e9d7.json"
+        },
+        {
+          "action": "created",
+          "path": ".pose/review-bundles/rvb-6ded9ea5f6099b4c.json"
+        },
+        {
+          "action": "created",
+          "path": ".pose/review-bundles/rvb-7716cbe72ee9c6df.json"
+        },
+        {
+          "action": "created",
+          "path": ".pose/review-bundles/rvb-b8d3d91f787510d7.json"
+        },
+        {
+          "action": "created",
+          "path": ".pose/review-bundles/rvb-c2b012f2ae7d7278.json"
+        },
+        {
+          "action": "created",
+          "path": ".pose/review-bundles/rvb-cffb60af3fb83f28.json"
+        },
+        {
+          "action": "created",
+          "path": ".pose/review-bundles/rvb-d5aa8a77c773b63e.json"
+        },
+        {
+          "action": "created",
+          "path": ".pose/review-conclusions/rrn-057e10b4445fd53d.json"
+        },
+        {
+          "action": "created",
+          "path": ".pose/review-conclusions/rrn-11714b4405974ee8.json"
+        },
+        {
+          "action": "created",
+          "path": ".pose/review-conclusions/rrn-14440942e94386b7.json"
+        },
+        {
+          "action": "created",
+          "path": ".pose/review-conclusions/rrn-1fdde85969d5ca37.json"
+        },
+        {
+          "action": "created",
+          "path": ".pose/review-conclusions/rrn-2ad3c228c124a4f4.json"
+        },
+        {
+          "action": "created",
+          "path": ".pose/review-conclusions/rrn-310cb38b6bc9840e.json"
+        },
+        {
+          "action": "created",
+          "path": ".pose/review-conclusions/rrn-348663b5b871bc42.json"
+        },
+        {
+          "action": "created",
+          "path": ".pose/review-conclusions/rrn-3e1184879382ed6c.json"
+        },
+        {
+          "action": "created",
+          "path": ".pose/review-conclusions/rrn-4a37964df583131c.json"
+        },
+        {
+          "action": "created",
+          "path": ".pose/review-conclusions/rrn-7c2315202e585212.json"
+        },
+        {
+          "action": "created",
+          "path": ".pose/review-conclusions/rrn-8b1997980713c10a.json"
+        },
+        {
+          "action": "created",
+          "path": ".pose/review-conclusions/rrn-90f21b5c8c9f9725.json"
+        },
+        {
+          "action": "created",
+          "path": ".pose/review-conclusions/rrn-93914466c27974f9.json"
+        },
+        {
+          "action": "created",
+          "path": ".pose/review-conclusions/rrn-9f528bb5bec8a10b.json"
+        },
+        {
+          "action": "created",
+          "path": ".pose/review-conclusions/rrn-d94a50c1b4d6e56f.json"
+        },
+        {
+          "action": "created",
+          "path": ".pose/review-conclusions/rrn-da6e5287b19f2087.json"
+        },
+        {
+          "action": "created",
+          "path": ".pose/review-conclusions/rrn-f6d364b52915979a.json"
+        },
+        {
+          "action": "created",
+          "path": ".pose/review-run-ledger/rrn-057e10b4445fd53d.json"
+        },
+        {
+          "action": "created",
+          "path": ".pose/review-run-ledger/rrn-11714b4405974ee8.json"
+        },
+        {
+          "action": "created",
+          "path": ".pose/review-run-ledger/rrn-14440942e94386b7.json"
+        },
+        {
+          "action": "created",
+          "path": ".pose/review-run-ledger/rrn-1fdde85969d5ca37.json"
+        },
+        {
+          "action": "created",
+          "path": ".pose/review-run-ledger/rrn-2ad3c228c124a4f4.json"
+        },
+        {
+          "action": "created",
+          "path": ".pose/review-run-ledger/rrn-310cb38b6bc9840e.json"
+        },
+        {
+          "action": "created",
+          "path": ".pose/review-run-ledger/rrn-348663b5b871bc42.json"
+        },
+        {
+          "action": "created",
+          "path": ".pose/review-run-ledger/rrn-3e1184879382ed6c.json"
+        },
+        {
+          "action": "created",
+          "path": ".pose/review-run-ledger/rrn-4a37964df583131c.json"
+        },
+        {
+          "action": "created",
+          "path": ".pose/review-run-ledger/rrn-7c2315202e585212.json"
+        },
+        {
+          "action": "created",
+          "path": ".pose/review-run-ledger/rrn-8b1997980713c10a.json"
+        },
+        {
+          "action": "created",
+          "path": ".pose/review-run-ledger/rrn-90f21b5c8c9f9725.json"
+        },
+        {
+          "action": "created",
+          "path": ".pose/review-run-ledger/rrn-93914466c27974f9.json"
+        },
+        {
+          "action": "created",
+          "path": ".pose/review-run-ledger/rrn-9f528bb5bec8a10b.json"
+        },
+        {
+          "action": "created",
+          "path": ".pose/review-run-ledger/rrn-d94a50c1b4d6e56f.json"
+        },
+        {
+          "action": "created",
+          "path": ".pose/review-run-ledger/rrn-da6e5287b19f2087.json"
+        },
+        {
+          "action": "created",
+          "path": ".pose/review-run-ledger/rrn-f6d364b52915979a.json"
+        },
+        {
+          "action": "created",
+          "path": ".pose/review-run-proofs/rrn-057e10b4445fd53d/rrp-a415ca974ade0be73926646dc7847fc5ce00d88fddf6720a14f8be22d0d6626e.json"
+        },
+        {
+          "action": "created",
+          "path": ".pose/review-run-proofs/rrn-11714b4405974ee8/rrp-c973f1a9c324ebbeddd236bf3853884f2502766f1cbca6a3e2c802bc994c05a6.json"
+        },
+        {
+          "action": "created",
+          "path": ".pose/review-run-proofs/rrn-14440942e94386b7/rrp-7e28a1adc1ccac866f8970132aa5af428b719e842064fda81cbae302bb9f4508.json"
+        },
+        {
+          "action": "created",
+          "path": ".pose/review-run-proofs/rrn-1fdde85969d5ca37/rrp-dc74878413b78eec05ed06281f60cf73c6e3ca37129f9c0b117dde0e8a695074.json"
+        },
+        {
+          "action": "created",
+          "path": ".pose/review-run-proofs/rrn-2ad3c228c124a4f4/rrp-65f4669afdd2a685ff6542b312cb96750d2fe5936a705e534e3596c806ac4fe0.json"
+        },
+        {
+          "action": "created",
+          "path": ".pose/review-run-proofs/rrn-310cb38b6bc9840e/rrp-0db9aa364b6570c3cc0e3c4f49cd9e95b2fb8b081406fae807845aed51c4c8be.json"
+        },
+        {
+          "action": "created",
+          "path": ".pose/review-run-proofs/rrn-348663b5b871bc42/rrp-abceb0383ce63193aa280f0a196ec6cdf9a4175b1d32973f73238104b8770d05.json"
+        },
+        {
+          "action": "created",
+          "path": ".pose/review-run-proofs/rrn-4a37964df583131c/rrp-18bea922f04b4b5276026cd7e40a711233fcedf5914bcdc9c858bf4edcbd0585.json"
+        },
+        {
+          "action": "created",
+          "path": ".pose/review-run-proofs/rrn-8b1997980713c10a/rrp-0da1a8119872395c6e9de57aa9bb94c87cd573712b3be6e64675d529da1e6de2.json"
+        },
+        {
+          "action": "created",
+          "path": ".pose/review-run-proofs/rrn-90f21b5c8c9f9725/rrp-e5f421240a7c2c0ae116a8051e3e3104e88e556a8119abb0eaeff1f4f4d9e65e.json"
+        },
+        {
+          "action": "created",
+          "path": ".pose/review-run-proofs/rrn-93914466c27974f9/rrp-5196480a5b85fe2c66751facfffbd78a2a42e46f0553e3ecd2a41404989fd6ad.json"
+        },
+        {
+          "action": "created",
+          "path": ".pose/review-run-proofs/rrn-9f528bb5bec8a10b/rrp-44601357ea2ae650b32f63ab313499e6ad1b70aab49e2765cf4447d441e05981.json"
+        },
+        {
+          "action": "created",
+          "path": ".pose/review-run-proofs/rrn-f6d364b52915979a/rrp-2f00939f6d2f24c2a6037f224cad47f495dafb5933b37c78b418452db331abfd.json"
+        },
+        {
+          "action": "created",
+          "path": ".pose/review-runs/rrn-057e10b4445fd53d.events.ndjson"
+        },
+        {
+          "action": "created",
+          "path": ".pose/review-runs/rrn-057e10b4445fd53d.json"
+        },
+        {
+          "action": "created",
+          "path": ".pose/review-runs/rrn-057e10b4445fd53d.transcript"
+        },
+        {
+          "action": "created",
+          "path": ".pose/review-runs/rrn-11714b4405974ee8.events.ndjson"
+        },
+        {
+          "action": "created",
+          "path": ".pose/review-runs/rrn-11714b4405974ee8.json"
+        },
+        {
+          "action": "created",
+          "path": ".pose/review-runs/rrn-11714b4405974ee8.transcript"
+        },
+        {
+          "action": "created",
+          "path": ".pose/review-runs/rrn-14440942e94386b7.events.ndjson"
+        },
+        {
+          "action": "created",
+          "path": ".pose/review-runs/rrn-14440942e94386b7.json"
+        },
+        {
+          "action": "created",
+          "path": ".pose/review-runs/rrn-14440942e94386b7.transcript"
+        },
+        {
+          "action": "created",
+          "path": ".pose/review-runs/rrn-1fdde85969d5ca37.events.ndjson"
+        },
+        {
+          "action": "created",
+          "path": ".pose/review-runs/rrn-1fdde85969d5ca37.json"
+        },
+        {
+          "action": "created",
+          "path": ".pose/review-runs/rrn-1fdde85969d5ca37.transcript"
+        },
+        {
+          "action": "created",
+          "path": ".pose/review-runs/rrn-2ad3c228c124a4f4.events.ndjson"
+        },
+        {
+          "action": "created",
+          "path": ".pose/review-runs/rrn-2ad3c228c124a4f4.json"
+        },
+        {
+          "action": "created",
+          "path": ".pose/review-runs/rrn-2ad3c228c124a4f4.transcript"
+        },
+        {
+          "action": "created",
+          "path": ".pose/review-runs/rrn-310cb38b6bc9840e.events.ndjson"
+        },
+        {
+          "action": "created",
+          "path": ".pose/review-runs/rrn-310cb38b6bc9840e.json"
+        },
+        {
+          "action": "created",
+          "path": ".pose/review-runs/rrn-310cb38b6bc9840e.transcript"
+        },
+        {
+          "action": "created",
+          "path": ".pose/review-runs/rrn-348663b5b871bc42.events.ndjson"
+        },
+        {
+          "action": "created",
+          "path": ".pose/review-runs/rrn-348663b5b871bc42.json"
+        },
+        {
+          "action": "created",
+          "path": ".pose/review-runs/rrn-348663b5b871bc42.transcript"
+        },
+        {
+          "action": "created",
+          "path": ".pose/review-runs/rrn-3e1184879382ed6c.events.ndjson"
+        },
+        {
+          "action": "created",
+          "path": ".pose/review-runs/rrn-3e1184879382ed6c.json"
+        },
+        {
+          "action": "created",
+          "path": ".pose/review-runs/rrn-3e1184879382ed6c.transcript"
+        },
+        {
+          "action": "created",
+          "path": ".pose/review-runs/rrn-4a37964df583131c.events.ndjson"
+        },
+        {
+          "action": "created",
+          "path": ".pose/review-runs/rrn-4a37964df583131c.json"
+        },
+        {
+          "action": "created",
+          "path": ".pose/review-runs/rrn-4a37964df583131c.transcript"
+        },
+        {
+          "action": "created",
+          "path": ".pose/review-runs/rrn-7c2315202e585212.events.ndjson"
+        },
+        {
+          "action": "created",
+          "path": ".pose/review-runs/rrn-7c2315202e585212.json"
+        },
+        {
+          "action": "created",
+          "path": ".pose/review-runs/rrn-7c2315202e585212.transcript"
+        },
+        {
+          "action": "created",
+          "path": ".pose/review-runs/rrn-8b1997980713c10a.events.ndjson"
+        },
+        {
+          "action": "created",
+          "path": ".pose/review-runs/rrn-8b1997980713c10a.json"
+        },
+        {
+          "action": "created",
+          "path": ".pose/review-runs/rrn-8b1997980713c10a.transcript"
+        },
+        {
+          "action": "created",
+          "path": ".pose/review-runs/rrn-90f21b5c8c9f9725.events.ndjson"
+        },
+        {
+          "action": "created",
+          "path": ".pose/review-runs/rrn-90f21b5c8c9f9725.json"
+        },
+        {
+          "action": "created",
+          "path": ".pose/review-runs/rrn-90f21b5c8c9f9725.transcript"
+        },
+        {
+          "action": "created",
+          "path": ".pose/review-runs/rrn-93914466c27974f9.events.ndjson"
+        },
+        {
+          "action": "created",
+          "path": ".pose/review-runs/rrn-93914466c27974f9.json"
+        },
+        {
+          "action": "created",
+          "path": ".pose/review-runs/rrn-93914466c27974f9.transcript"
+        },
+        {
+          "action": "created",
+          "path": ".pose/review-runs/rrn-9f528bb5bec8a10b.events.ndjson"
+        },
+        {
+          "action": "created",
+          "path": ".pose/review-runs/rrn-9f528bb5bec8a10b.json"
+        },
+        {
+          "action": "created",
+          "path": ".pose/review-runs/rrn-9f528bb5bec8a10b.transcript"
+        },
+        {
+          "action": "created",
+          "path": ".pose/review-runs/rrn-d94a50c1b4d6e56f.events.ndjson"
+        },
+        {
+          "action": "created",
+          "path": ".pose/review-runs/rrn-d94a50c1b4d6e56f.json"
+        },
+        {
+          "action": "created",
+          "path": ".pose/review-runs/rrn-d94a50c1b4d6e56f.transcript"
+        },
+        {
+          "action": "created",
+          "path": ".pose/review-runs/rrn-da6e5287b19f2087.events.ndjson"
+        },
+        {
+          "action": "created",
+          "path": ".pose/review-runs/rrn-da6e5287b19f2087.json"
+        },
+        {
+          "action": "created",
+          "path": ".pose/review-runs/rrn-da6e5287b19f2087.transcript"
+        },
+        {
+          "action": "created",
+          "path": ".pose/review-runs/rrn-f6d364b52915979a.events.ndjson"
+        },
+        {
+          "action": "created",
+          "path": ".pose/review-runs/rrn-f6d364b52915979a.json"
+        },
+        {
+          "action": "created",
+          "path": ".pose/review-runs/rrn-f6d364b52915979a.transcript"
+        },
+        {
+          "action": "created",
+          "path": ".pose/starts/pose-closeout-review-policy-by-cost-benefit.json"
+        },
+        {
+          "action": "created",
+          "path": "pose-mcp/internal/cli/closeout_review_policy_test.go"
+        },
+        {
+          "action": "created",
+          "path": "pose-mcp/internal/mcpserver/closeout_review_policy_test.go"
+        },
+        {
+          "action": "created",
+          "path": "pose-mcp/internal/pose/closeout_adr_associations.go"
+        },
+        {
+          "action": "created",
+          "path": "pose-mcp/internal/pose/closeout_receipt.go"
+        },
+        {
+          "action": "created",
+          "path": "pose-mcp/internal/pose/closeout_review_policy.go"
+        },
+        {
+          "action": "created",
+          "path": "pose-mcp/internal/pose/closeout_review_policy_test.go"
+        },
+        {
+          "action": "created",
+          "path": "pose-mcp/schemas/v1/closeout-receipt.schema.json"
+        },
+        {
+          "action": "modified",
+          "path": ".pose/adr/2026-11-03-governance-reads-use-bounded-operation-scoped-views.md"
+        },
+        {
+          "action": "modified",
+          "path": ".pose/indexes/delivery-integrity.json"
+        },
+        {
+          "action": "modified",
+          "path": ".pose/indexes/generation.json"
+        },
+        {
+          "action": "modified",
+          "path": ".pose/indexes/releases.json"
+        },
+        {
+          "action": "modified",
+          "path": ".pose/indexes/spec-graph.json"
+        },
+        {
+          "action": "modified",
+          "path": ".pose/indexes/validation-matrix.json"
+        },
+        {
+          "action": "modified",
+          "path": ".pose/results/delivery-validation.json"
+        },
+        {
+          "action": "modified",
+          "path": ".pose/specs/2026-11-11-pose-closeout-review-policy-by-cost-benefit.md"
+        },
+        {
+          "action": "modified",
+          "path": ".pose/templates/roadmap.md"
+        },
+        {
+          "action": "modified",
+          "path": "POSE.md"
+        },
+        {
+          "action": "modified",
+          "path": "locales/pt-BR/POSE.md"
+        },
+        {
+          "action": "modified",
+          "path": "pose-mcp/go.mod"
+        },
+        {
+          "action": "modified",
+          "path": "pose-mcp/go.sum"
+        },
+        {
+          "action": "modified",
+          "path": "pose-mcp/internal/cli/adopt.go"
+        },
+        {
+          "action": "modified",
+          "path": "pose-mcp/internal/cli/adopt_catalog_test.go"
+        },
+        {
+          "action": "modified",
+          "path": "pose-mcp/internal/cli/adopt_test.go"
+        },
+        {
+          "action": "modified",
+          "path": "pose-mcp/internal/cli/doctor.go"
+        },
+        {
+          "action": "modified",
+          "path": "pose-mcp/internal/cli/index_generation_build_test.go"
+        },
+        {
+          "action": "modified",
+          "path": "pose-mcp/internal/cli/portfolio_projection.go"
+        },
+        {
+          "action": "modified",
+          "path": "pose-mcp/internal/cli/progressive_review_test.go"
+        },
+        {
+          "action": "modified",
+          "path": "pose-mcp/internal/cli/release_compatibility_test.go"
+        },
+        {
+          "action": "modified",
+          "path": "pose-mcp/internal/cli/review_closeout.go"
+        },
+        {
+          "action": "modified",
+          "path": "pose-mcp/internal/cli/setup.go"
+        },
+        {
+          "action": "modified",
+          "path": "pose-mcp/internal/cli/surface_check.go"
+        },
+        {
+          "action": "modified",
+          "path": "pose-mcp/internal/pose/artifact_ref.go"
+        },
+        {
+          "action": "modified",
+          "path": "pose-mcp/internal/pose/capability_catalog.go"
+        },
+        {
+          "action": "modified",
+          "path": "pose-mcp/internal/pose/capability_catalog_test.go"
+        },
+        {
+          "action": "modified",
+          "path": "pose-mcp/internal/pose/diagnostic_codes.go"
+        },
+        {
+          "action": "modified",
+          "path": "pose-mcp/internal/pose/federated_acceptance.go"
+        },
+        {
+          "action": "modified",
+          "path": "pose-mcp/internal/pose/governance_read_view.go"
+        },
+        {
+          "action": "modified",
+          "path": "pose-mcp/internal/pose/governance_read_view_probe_test.go"
+        },
+        {
+          "action": "modified",
+          "path": "pose-mcp/internal/pose/obligation_projection.go"
+        },
+        {
+          "action": "modified",
+          "path": "pose-mcp/internal/pose/readiness.go"
+        },
+        {
+          "action": "modified",
+          "path": "pose-mcp/internal/pose/review_bundle.go"
+        },
+        {
+          "action": "modified",
+          "path": "pose-mcp/internal/pose/review_closeout.go"
+        },
+        {
+          "action": "modified",
+          "path": "pose-mcp/internal/pose/review_plan.go"
+        },
+        {
+          "action": "modified",
+          "path": "pose-mcp/internal/pose/roadmaps.go"
+        },
+        {
+          "action": "modified",
+          "path": "pose-mcp/internal/pose/spec.go"
+        },
+        {
+          "action": "modified",
+          "path": "pose-mcp/internal/pose/spec_transfer.go"
+        },
+        {
+          "action": "modified",
+          "path": "pose-mcp/internal/scaffold/dist/.pose/templates/roadmap.md"
+        },
+        {
+          "action": "modified",
+          "path": "pose-mcp/internal/scaffold/dist/POSE.md"
+        },
+        {
+          "action": "modified",
+          "path": "pose-mcp/internal/scaffold/dist/locales/pt-BR/POSE.md"
+        },
+        {
+          "action": "modified",
+          "path": "pose-mcp/schemas/v1/review-plan.schema.json"
+        }
+      ],
+      "diff_digest": "sha256:03bf8753a0d57e949c8c9ed03fb663af6eeebde1324b2ee1f558bb0a0d506543",
+      "material_digest": "sha256:09838ae88368e77e6fa75bb85e212691dbc18946a618bbfac7e40e437b12f79b",
+      "material_inputs": {
+        "names": [
+          ".pose/adr/2026-11-03-governance-reads-use-bounded-operation-scoped-views.md",
+          ".pose/adr/2026-11-12-closeout-review-policy-by-cost-and-benefit.md",
+          ".pose/adr/2026-11-14-governance-association-links-are-read-with-a-commonmark-parser.md",
+          ".pose/changelogs/unreleased/pose-closeout-review-policy-by-cost-benefit.md",
+          ".pose/closeout-plans/spec-pose-closeout-review-policy-by-cost-benefit.json",
+          ".pose/indexes/delivery-integrity.json",
+          ".pose/indexes/generation.json",
+          ".pose/indexes/releases.json",
+          ".pose/indexes/spec-graph.json",
+          ".pose/indexes/validation-matrix.json",
+          ".pose/results/delivery-validation.json",
+          ".pose/review-attempts/0631cafb8dd84c155b000dcd/000001.json",
+          ".pose/review-attempts/0631cafb8dd84c155b000dcd/000001.result.json",
+          ".pose/review-attempts/0a2367249025e3f86c75ed33/000001.json",
+          ".pose/review-attempts/0a2367249025e3f86c75ed33/000001.result.json",
+          ".pose/review-attempts/0aea335a6e20af17d864a4c0/000001.json",
+          ".pose/review-attempts/0aea335a6e20af17d864a4c0/000001.result.json",
+          ".pose/review-attempts/17e0d2df144b76a2be0c7cf3/000001.json",
+          ".pose/review-attempts/17e0d2df144b76a2be0c7cf3/000001.result.json",
+          ".pose/review-attempts/1a13cb5a815f1540ba921b52/000001.json",
+          ".pose/review-attempts/1a13cb5a815f1540ba921b52/000001.result.json",
+          ".pose/review-attempts/280c9185501219bd3f632f1e/000001.json",
+          ".pose/review-attempts/280c9185501219bd3f632f1e/000001.result.json",
+          ".pose/review-attempts/37c4058a83d6d814bfe161be/000001.json",
+          ".pose/review-attempts/37c4058a83d6d814bfe161be/000001.result.json",
+          ".pose/review-attempts/3959084ac52958150da2df5a/000001.json",
+          ".pose/review-attempts/3959084ac52958150da2df5a/000001.result.json",
+          ".pose/review-attempts/5266673259891594c6a583dc/000001.json",
+          ".pose/review-attempts/5266673259891594c6a583dc/000001.result.json",
+          ".pose/review-attempts/53bce693599504cab7a0bcc8/000001.json",
+          ".pose/review-attempts/53bce693599504cab7a0bcc8/000001.result.json",
+          ".pose/review-attempts/6b2e74e9742c54c07cf0afe5/000001.json",
+          ".pose/review-attempts/6b2e74e9742c54c07cf0afe5/000001.result.json",
+          ".pose/review-attempts/a11ae7fa14fc35026b7b7dc3/000001.json",
+          ".pose/review-attempts/a11ae7fa14fc35026b7b7dc3/000001.result.json",
+          ".pose/review-attempts/abf587150e0e35a8e5edc2c4/000001.json",
+          ".pose/review-attempts/abf587150e0e35a8e5edc2c4/000001.result.json",
+          ".pose/review-attempts/c5cd4c2c071afdccb81c175e/000001.json",
+          ".pose/review-attempts/c5cd4c2c071afdccb81c175e/000001.result.json",
+          ".pose/review-attempts/dd5248305d60ae44564f1a4d/000001.json",
+          ".pose/review-attempts/dd5248305d60ae44564f1a4d/000001.result.json",
+          ".pose/review-attempts/e06239ac4b111a496272a693/000001.json",
+          ".pose/review-attempts/e06239ac4b111a496272a693/000001.result.json",
+          ".pose/review-attempts/f2764b415043cf23de15d14d/000001.json",
+          ".pose/review-attempts/f2764b415043cf23de15d14d/000001.result.json",
+          ".pose/review-attestations/rva-058363c38778c498.json",
+          ".pose/review-attestations/rva-0dddfb26a0c88bfd.json",
+          ".pose/review-attestations/rva-15b77929c77babfe.json",
+          ".pose/review-attestations/rva-304a8c079ea98b0c.json",
+          ".pose/review-attestations/rva-4ce3b608c57b296e.json",
+          ".pose/review-attestations/rva-516f04df994dbb9b.json",
+          ".pose/review-attestations/rva-6098835b812211c0.json",
+          ".pose/review-attestations/rva-70e7e1ad913def93.json",
+          ".pose/review-attestations/rva-7256ae9a57a1ab85.json",
+          ".pose/review-attestations/rva-7cdb88e5a781e794.json",
+          ".pose/review-attestations/rva-8e7b6233929f72af.json",
+          ".pose/review-attestations/rva-bbcf5ebbc80abd1b.json",
+          ".pose/review-attestations/rva-f27e990acb2ad3be.json",
+          ".pose/review-bundles/rvb-085beccd6345ec57.json",
+          ".pose/review-bundles/rvb-08c2ad291964aeda.json",
+          ".pose/review-bundles/rvb-117f43b8f0ea1d91.json",
+          ".pose/review-bundles/rvb-1caf80158e489685.json",
+          ".pose/review-bundles/rvb-2be045e286308c9e.json",
+          ".pose/review-bundles/rvb-455844752bc5e83f.json",
+          ".pose/review-bundles/rvb-4732b51bcadc81d9.json",
+          ".pose/review-bundles/rvb-4bda426b22c3d512.json",
+          ".pose/review-bundles/rvb-5e4e23434f65d1a0.json",
+          ".pose/review-bundles/rvb-640cbe74ba3bab54.json",
+          ".pose/review-bundles/rvb-6ca161b26259e9d7.json",
+          ".pose/review-bundles/rvb-6ded9ea5f6099b4c.json",
+          ".pose/review-bundles/rvb-7716cbe72ee9c6df.json",
+          ".pose/review-bundles/rvb-b8d3d91f787510d7.json",
+          ".pose/review-bundles/rvb-c2b012f2ae7d7278.json",
+          ".pose/review-bundles/rvb-cffb60af3fb83f28.json",
+          ".pose/review-bundles/rvb-d5aa8a77c773b63e.json",
+          ".pose/review-conclusions/rrn-057e10b4445fd53d.json",
+          ".pose/review-conclusions/rrn-11714b4405974ee8.json",
+          ".pose/review-conclusions/rrn-14440942e94386b7.json",
+          ".pose/review-conclusions/rrn-1fdde85969d5ca37.json",
+          ".pose/review-conclusions/rrn-2ad3c228c124a4f4.json",
+          ".pose/review-conclusions/rrn-310cb38b6bc9840e.json",
+          ".pose/review-conclusions/rrn-348663b5b871bc42.json",
+          ".pose/review-conclusions/rrn-3e1184879382ed6c.json",
+          ".pose/review-conclusions/rrn-4a37964df583131c.json",
+          ".pose/review-conclusions/rrn-7c2315202e585212.json",
+          ".pose/review-conclusions/rrn-8b1997980713c10a.json",
+          ".pose/review-conclusions/rrn-90f21b5c8c9f9725.json",
+          ".pose/review-conclusions/rrn-93914466c27974f9.json",
+          ".pose/review-conclusions/rrn-9f528bb5bec8a10b.json",
+          ".pose/review-conclusions/rrn-d94a50c1b4d6e56f.json",
+          ".pose/review-conclusions/rrn-da6e5287b19f2087.json",
+          ".pose/review-conclusions/rrn-f6d364b52915979a.json",
+          ".pose/review-run-ledger/rrn-057e10b4445fd53d.json",
+          ".pose/review-run-ledger/rrn-11714b4405974ee8.json",
+          ".pose/review-run-ledger/rrn-14440942e94386b7.json",
+          ".pose/review-run-ledger/rrn-1fdde85969d5ca37.json",
+          ".pose/review-run-ledger/rrn-2ad3c228c124a4f4.json",
+          ".pose/review-run-ledger/rrn-310cb38b6bc9840e.json",
+          ".pose/review-run-ledger/rrn-348663b5b871bc42.json",
+          ".pose/review-run-ledger/rrn-3e1184879382ed6c.json",
+          ".pose/review-run-ledger/rrn-4a37964df583131c.json",
+          ".pose/review-run-ledger/rrn-7c2315202e585212.json",
+          ".pose/review-run-ledger/rrn-8b1997980713c10a.json",
+          ".pose/review-run-ledger/rrn-90f21b5c8c9f9725.json",
+          ".pose/review-run-ledger/rrn-93914466c27974f9.json",
+          ".pose/review-run-ledger/rrn-9f528bb5bec8a10b.json",
+          ".pose/review-run-ledger/rrn-d94a50c1b4d6e56f.json",
+          ".pose/review-run-ledger/rrn-da6e5287b19f2087.json",
+          ".pose/review-run-ledger/rrn-f6d364b52915979a.json",
+          ".pose/review-run-proofs/rrn-057e10b4445fd53d/rrp-a415ca974ade0be73926646dc7847fc5ce00d88fddf6720a14f8be22d0d6626e.json",
+          ".pose/review-run-proofs/rrn-11714b4405974ee8/rrp-c973f1a9c324ebbeddd236bf3853884f2502766f1cbca6a3e2c802bc994c05a6.json",
+          ".pose/review-run-proofs/rrn-14440942e94386b7/rrp-7e28a1adc1ccac866f8970132aa5af428b719e842064fda81cbae302bb9f4508.json",
+          ".pose/review-run-proofs/rrn-1fdde85969d5ca37/rrp-dc74878413b78eec05ed06281f60cf73c6e3ca37129f9c0b117dde0e8a695074.json",
+          ".pose/review-run-proofs/rrn-2ad3c228c124a4f4/rrp-65f4669afdd2a685ff6542b312cb96750d2fe5936a705e534e3596c806ac4fe0.json",
+          ".pose/review-run-proofs/rrn-310cb38b6bc9840e/rrp-0db9aa364b6570c3cc0e3c4f49cd9e95b2fb8b081406fae807845aed51c4c8be.json",
+          ".pose/review-run-proofs/rrn-348663b5b871bc42/rrp-abceb0383ce63193aa280f0a196ec6cdf9a4175b1d32973f73238104b8770d05.json",
+          ".pose/review-run-proofs/rrn-4a37964df583131c/rrp-18bea922f04b4b5276026cd7e40a711233fcedf5914bcdc9c858bf4edcbd0585.json",
+          ".pose/review-run-proofs/rrn-8b1997980713c10a/rrp-0da1a8119872395c6e9de57aa9bb94c87cd573712b3be6e64675d529da1e6de2.json",
+          ".pose/review-run-proofs/rrn-90f21b5c8c9f9725/rrp-e5f421240a7c2c0ae116a8051e3e3104e88e556a8119abb0eaeff1f4f4d9e65e.json",
+          ".pose/review-run-proofs/rrn-93914466c27974f9/rrp-5196480a5b85fe2c66751facfffbd78a2a42e46f0553e3ecd2a41404989fd6ad.json",
+          ".pose/review-run-proofs/rrn-9f528bb5bec8a10b/rrp-44601357ea2ae650b32f63ab313499e6ad1b70aab49e2765cf4447d441e05981.json",
+          ".pose/review-run-proofs/rrn-f6d364b52915979a/rrp-2f00939f6d2f24c2a6037f224cad47f495dafb5933b37c78b418452db331abfd.json",
+          ".pose/review-runs/rrn-057e10b4445fd53d.events.ndjson",
+          ".pose/review-runs/rrn-057e10b4445fd53d.json",
+          ".pose/review-runs/rrn-057e10b4445fd53d.transcript",
+          ".pose/review-runs/rrn-11714b4405974ee8.events.ndjson",
+          ".pose/review-runs/rrn-11714b4405974ee8.json",
+          ".pose/review-runs/rrn-11714b4405974ee8.transcript",
+          ".pose/review-runs/rrn-14440942e94386b7.events.ndjson",
+          ".pose/review-runs/rrn-14440942e94386b7.json",
+          ".pose/review-runs/rrn-14440942e94386b7.transcript",
+          ".pose/review-runs/rrn-1fdde85969d5ca37.events.ndjson",
+          ".pose/review-runs/rrn-1fdde85969d5ca37.json",
+          ".pose/review-runs/rrn-1fdde85969d5ca37.transcript",
+          ".pose/review-runs/rrn-2ad3c228c124a4f4.events.ndjson",
+          ".pose/review-runs/rrn-2ad3c228c124a4f4.json",
+          ".pose/review-runs/rrn-2ad3c228c124a4f4.transcript",
+          ".pose/review-runs/rrn-310cb38b6bc9840e.events.ndjson",
+          ".pose/review-runs/rrn-310cb38b6bc9840e.json",
+          ".pose/review-runs/rrn-310cb38b6bc9840e.transcript",
+          ".pose/review-runs/rrn-348663b5b871bc42.events.ndjson",
+          ".pose/review-runs/rrn-348663b5b871bc42.json",
+          ".pose/review-runs/rrn-348663b5b871bc42.transcript",
+          ".pose/review-runs/rrn-3e1184879382ed6c.events.ndjson",
+          ".pose/review-runs/rrn-3e1184879382ed6c.json",
+          ".pose/review-runs/rrn-3e1184879382ed6c.transcript",
+          ".pose/review-runs/rrn-4a37964df583131c.events.ndjson",
+          ".pose/review-runs/rrn-4a37964df583131c.json",
+          ".pose/review-runs/rrn-4a37964df583131c.transcript",
+          ".pose/review-runs/rrn-7c2315202e585212.events.ndjson",
+          ".pose/review-runs/rrn-7c2315202e585212.json",
+          ".pose/review-runs/rrn-7c2315202e585212.transcript",
+          ".pose/review-runs/rrn-8b1997980713c10a.events.ndjson",
+          ".pose/review-runs/rrn-8b1997980713c10a.json",
+          ".pose/review-runs/rrn-8b1997980713c10a.transcript",
+          ".pose/review-runs/rrn-90f21b5c8c9f9725.events.ndjson",
+          ".pose/review-runs/rrn-90f21b5c8c9f9725.json",
+          ".pose/review-runs/rrn-90f21b5c8c9f9725.transcript",
+          ".pose/review-runs/rrn-93914466c27974f9.events.ndjson",
+          ".pose/review-runs/rrn-93914466c27974f9.json",
+          ".pose/review-runs/rrn-93914466c27974f9.transcript",
+          ".pose/review-runs/rrn-9f528bb5bec8a10b.events.ndjson",
+          ".pose/review-runs/rrn-9f528bb5bec8a10b.json",
+          ".pose/review-runs/rrn-9f528bb5bec8a10b.transcript",
+          ".pose/review-runs/rrn-d94a50c1b4d6e56f.events.ndjson",
+          ".pose/review-runs/rrn-d94a50c1b4d6e56f.json",
+          ".pose/review-runs/rrn-d94a50c1b4d6e56f.transcript",
+          ".pose/review-runs/rrn-da6e5287b19f2087.events.ndjson",
+          ".pose/review-runs/rrn-da6e5287b19f2087.json",
+          ".pose/review-runs/rrn-da6e5287b19f2087.transcript",
+          ".pose/review-runs/rrn-f6d364b52915979a.events.ndjson",
+          ".pose/review-runs/rrn-f6d364b52915979a.json",
+          ".pose/review-runs/rrn-f6d364b52915979a.transcript",
+          ".pose/specs/2026-11-11-pose-closeout-review-policy-by-cost-benefit.md",
+          ".pose/starts/pose-closeout-review-policy-by-cost-benefit.json",
+          ".pose/templates/roadmap.md",
+          "POSE.md",
+          "locales/pt-BR/POSE.md",
+          "pose-mcp/go.mod",
+          "pose-mcp/go.sum",
+          "pose-mcp/internal/cli/adopt.go",
+          "pose-mcp/internal/cli/adopt_catalog_test.go",
+          "pose-mcp/internal/cli/adopt_test.go",
+          "pose-mcp/internal/cli/closeout_review_policy_test.go",
+          "pose-mcp/internal/cli/doctor.go",
+          "pose-mcp/internal/cli/index_generation_build_test.go",
+          "pose-mcp/internal/cli/portfolio_projection.go",
+          "pose-mcp/internal/cli/progressive_review_test.go",
+          "pose-mcp/internal/cli/release_compatibility_test.go",
+          "pose-mcp/internal/cli/review_closeout.go",
+          "pose-mcp/internal/cli/setup.go",
+          "pose-mcp/internal/cli/surface_check.go",
+          "pose-mcp/internal/mcpserver/closeout_review_policy_test.go",
+          "pose-mcp/internal/pose/artifact_ref.go",
+          "pose-mcp/internal/pose/capability_catalog.go",
+          "pose-mcp/internal/pose/capability_catalog_test.go",
+          "pose-mcp/internal/pose/closeout_adr_associations.go",
+          "pose-mcp/internal/pose/closeout_receipt.go",
+          "pose-mcp/internal/pose/closeout_review_policy.go",
+          "pose-mcp/internal/pose/closeout_review_policy_test.go",
+          "pose-mcp/internal/pose/diagnostic_codes.go",
+          "pose-mcp/internal/pose/federated_acceptance.go",
+          "pose-mcp/internal/pose/governance_read_view.go",
+          "pose-mcp/internal/pose/governance_read_view_probe_test.go",
+          "pose-mcp/internal/pose/obligation_projection.go",
+          "pose-mcp/internal/pose/readiness.go",
+          "pose-mcp/internal/pose/review_bundle.go",
+          "pose-mcp/internal/pose/review_closeout.go",
+          "pose-mcp/internal/pose/review_plan.go",
+          "pose-mcp/internal/pose/roadmaps.go",
+          "pose-mcp/internal/pose/spec.go",
+          "pose-mcp/internal/pose/spec_transfer.go",
+          "pose-mcp/internal/scaffold/dist/.pose/templates/roadmap.md",
+          "pose-mcp/internal/scaffold/dist/POSE.md",
+          "pose-mcp/internal/scaffold/dist/locales/pt-BR/POSE.md",
+          "pose-mcp/schemas/v1/closeout-receipt.schema.json",
+          "pose-mcp/schemas/v1/review-plan.schema.json"
+        ]
+      }
+    },
+    {
       "id": "cs-56f1f7cb644d",
       "spec": "pose-container-build-gate",
       "selector": "range:04bf682..838c2fd",
@@ -215930,1240 +217165,6 @@
           "pose-mcp/internal/cli/validate_root_and_nodemodules_test.go",
           "pose-mcp/internal/scaffold/dist/POSE.md",
           "pose-mcp/internal/scaffold/dist/locales/pt-BR/POSE.md"
-        ]
-      }
-    },
-    {
-      "id": "cs-5e594ea9dc50",
-      "spec": "pose-closeout-review-policy-by-cost-benefit",
-      "selector": "trailers:pose-closeout-review-policy-by-cost-benefit",
-      "base": "f9425e2bc4152baa53d28a3804e720c305fa8398^",
-      "head": "9f543424199847ec4731c5431fafe0fa1dc009a6",
-      "resolved_base": "8e3009b2c7305cd94500009875ddc1b7880d8331",
-      "resolved_head": "9f543424199847ec4731c5431fafe0fa1dc009a6",
-      "commits": [
-        "f9425e2bc4152baa53d28a3804e720c305fa8398",
-        "f6fa91fee8aa7f2abbc314bb077bb0aa1d824a1b",
-        "ed0cdd44ab6d4a001e405e1f9adbdeffd5d66496",
-        "95b7eee855989187b6e07f355d06e459c8751157",
-        "9f2a9308b71d63e5e8b4363cb775ca0f6cf51701",
-        "a0a80270fd0d5001bffa09f8181587f30dd4a08e",
-        "baa8c5d9986052586ec3cc4b47eb312770c158ed",
-        "87d5abd5b9a2c9fa889ed8045169205e564bbb12",
-        "36fdc959efa6565edbbbfc84ebc15735dca8b36b",
-        "9713db4610848b158c289bc51ec05f3a041a3af8",
-        "8fc1e9a678d49add52c50bb7390b798cff5fbda5",
-        "dc67a8b783cce0c017cc4de6b5a0b2590a7752b6",
-        "97c8f1fdff425117cff16cc745b3c238121e3b52",
-        "25743a0904882d19d40da8b9994cee2e99e76329",
-        "7a41aec9833ea9a33d7c4214bb77af6b2bd79fe4",
-        "88ded5ef38a1717ec69f027993223cc418e30b4b",
-        "ebf842e5f5e142d02cce024fe32c7dfd1aed4f58",
-        "b977ef6cc0e48df75c09eb4f182b83ddd7d7ded0",
-        "9b5e186dd96eaf010029d4c75400912c3fcdeb02",
-        "9b7a245160ebc1f3bfdceb5e9bb9e4cec9247d82",
-        "9bbd9757ca4e506703bc75418c6a1d4e2d4c73d7",
-        "d6aa70f8f838b91aac8f8726bd9c9eb7b2c25fa3",
-        "e94ae458e95a950e832e446c653fd88778e073b1",
-        "a210e951cf60b911cee3b3f0e0a8db9a6b736781",
-        "aa5cbc3ba63ced0384a171ae701f3df4391236de",
-        "d3d181fcb82993110a37159e529dfb47c101846f",
-        "408e2e78676eb33c304ac94388e04fb7e1bebb8b",
-        "9d495d5024c94dfbd7d81f5943576fba20b8b290",
-        "ed1602c463f819818d32264993a607912c02183f",
-        "726f336db06d461932ba59d6638b504f949d26f1",
-        "da467d2ee7b06de9c8e9cc7ee0a5514c5c017df3",
-        "a57ad5e7adeabaeefea99de04472a0e1d1d41df0",
-        "af17d3c2af11c6dee0cd805a096b552c5def4d8e",
-        "2b53283836762ba6cf454968ca42ba71659623af",
-        "1158fa3b0545365eb0521cffe2111f72d7964c84",
-        "5690b25710615f5b0f9aba1f2642eaa6a917ccd9",
-        "44c4445f451abe31cb24fee4419feca60def1ad3",
-        "fe2013c78abc56e0ac251bcddb2d261aad12501a",
-        "ba6b9ad1b26de5e4620b6589ded99405a1d98275",
-        "8879dbe825f9c461868deee10187d6901165ddcb",
-        "36c7561c787a57e7d55b5d277526aeeb39506689",
-        "45d949ecf59c8d0c0a0af8b2eb42d96552713e2c",
-        "0cb9eaaf2dabdde8696d3ea702acc51f70416687",
-        "5111f0f175499644c6a2c6cc6c5af2f13f527989",
-        "0e54c85a0ce2cb1728c454c74c2b66e7ca95c49e",
-        "97550abd3c47041d6b803a890e22a9475215267d",
-        "38be282a82da3a7fb459de164104e24e95074f28",
-        "67f5b5a7d304492ab7bd9dfa0fda3ae6010911de",
-        "220baab3b9324c52925f0d088267ba2bc52782dc",
-        "b5cd93a9955e02adf923249313ae5975d8c029c3",
-        "8ce963376d5825e714df8f8ee94e92e629cf77a2",
-        "225b86b405802a43211d571648fcaf73b2dcc78e",
-        "195c3b534182ef6bdc4b2ff20a78f4e94e5325f4",
-        "b7725de3cb28c67d1fe1257983b12c968d4cd832",
-        "83d8f9b91e31c53150e25b5adc7d38f6086cf34e",
-        "fc999baf14f944a082db3a6b51760fe832813be9",
-        "8701368f06a261620098b7c2d1dc7c05d7d91558",
-        "22a03dceb3e85684503c6f3a3a2a51c5b579d1cf",
-        "21e95aa3e71183a2b20f71f89214beff33743648",
-        "30d21fd0e4a797e6295a267dc3fa620c84a9a012",
-        "86d45326fe4c28325122c27ed92f1374e61bd48e",
-        "712b2f06cc86d12edd65058c91bd010fbdb49911",
-        "2e5493d37c1a21c51c0af496bb6c7d4db4c63a80",
-        "7e88d895e74adf1d8027138425958eab81d8fa92",
-        "b563379869d06ceb12739ad8ca3192bfa1ee1eb7",
-        "f0b712bb44d4b024ea56b40d65cb5db0f1400ecc",
-        "4a38571164cd30785105815d8ea4972ed87bf50d",
-        "c1edb774cbb20c6179b5ee47ac3e7ab79b2da734",
-        "831900bdcfe7afa29f5410caffaed00c8d4f498e",
-        "4a9020787b46d9eeb6403ce5aab08986c67bea0a",
-        "14f4e0037b7201bf43c61980786fb2a5215e6fd8",
-        "ffbc2a0f4bafd8066137883a89c9ad224c96972f",
-        "9c620b494f04e576cde7526f92f911b003594167",
-        "69d48e3a575debfc5e95fbbd8966d4f4ad19e6f5",
-        "e3640aeb6fc7ef02884f08aa46d04887afb1e651",
-        "d804cac41245eab8c06eb07d799fbef4af937c10",
-        "7a5374b391b153b7c793136f6421c0b19df68645",
-        "159999aedbfb4d1ab7112f78bf68e7ffb3a57c22",
-        "5a416eae575649b44cdcc4278b3f27866a967ad4",
-        "10a3f2d3396130d6ee4ac1503e8093f43454f8dc",
-        "6400f11c054e2ee0470aed341e8eb39eec935446",
-        "195045dcf1878e2e28222ac49f9733bf406ad758",
-        "116f5b8b9b2bda08bc1e5766bc623e8c6d414f07",
-        "a319fd97a796eacd2e3fedaba4cc955922d1dcea",
-        "c650f40bfcf36112dd26a853bbef1794153bb3a4",
-        "b2fe0321259af5b212ec89320b80d225098e815d",
-        "e48e8b1664c75972f8f274d5c0fc624a84953c60",
-        "5e1ab9309a4084b18770c3abb933563272d455d1",
-        "817f54f7942808dafed584089a38d5ea33e1b614",
-        "84190d4c1ef342aedf8c2e681a0bb1d8abfba263",
-        "dd4dafadd6df3c51ef5559a051673e7be56e1064",
-        "29037ed85f2d41f9bae96e44ffe24a366d36f0ae",
-        "a64bbeae85c554e8d9bc05d4e273ace0512499a9",
-        "47c791bf5a6efa0ab601e2895625e884bd9d3338",
-        "a5d5f42a67efd3398a1a8acc0e077ed7d16097a1",
-        "71cd6aead372c2acb61b91bee36758c6fd82af80",
-        "48aab737620375d14e75f978adcb6fb76973dded",
-        "749535c3cd3d3025dc7a6e425fee049212681231",
-        "2053a3c7964741d971437a7dbe848c806fc0fbd8",
-        "9777a4b1dc798b69664209e5e3ac42e70ddbff65",
-        "03a7b92ffde7069d389657fd09cbdc2d540d0ae6",
-        "fe89fce99c92ed6ca42fbfce0a2693f2df8c135d",
-        "38e6d16ae90f6e8266c56d2e12b2465269fdb4ac",
-        "e3e56b1ed026974291e93215a3412e4d5feeb06a",
-        "db0b45fe453bc5461b3263dd1378aa548af2f367",
-        "ea5cbd81291549afaae8df6e40753d503d654634",
-        "43819e6c391bf5d837e578a3bfb22bba091513e0",
-        "d97ded4651adfa5a57528855edb362a72a021f16",
-        "aeca266e953d6e74ccc54e71261eff7d1da895f7",
-        "64400de7c7d8174a93ea17a0c89644759926a7df",
-        "4cd03ae9c945825eb9058f9f2798f6aad9cecbab",
-        "c6516c61531db2a0023eaffaf6b5d0cb12a5b343",
-        "708f1ebd442bd28c86ab865cb4499e65ae24f467",
-        "4e6da33c02f1e289cbbd75249cf82520c8328263",
-        "9906aedb1c3f4794fb30c5bafbaa4e84ede2a4b1",
-        "16232fa9ac76e156be49499b87433b36aae38328",
-        "47ec7b846d30f6e382a7f5e3625b167ce5c81785",
-        "2260c40d24cac89e579a4669c610f548f44f541c",
-        "e219cc0189f1f39069fe34b616fe8b22ec3a0cd6",
-        "5e62b51e2541a809352e0d58dfea0d6826b410f2",
-        "ff7ee21910b8c8683a3db6c1f454b4e49f20251e",
-        "3d4f94b859ef9874edfcb6d008db995ddc725c01",
-        "c35132b66776601b01eabc2cab7424e5900f51b6",
-        "a7c186aa3d43a481edf06b97a7a4ba26ecc4d75a",
-        "32417974a9cfd5392fabbd8d0ad50305e43ce99f",
-        "9b8eb4c011ffb26ef7a5649dcb191ec510ab343d",
-        "10c17d075e3a7965d0b7daf805c5de07a9f4f2d3",
-        "df26fdcd1c1eb820c8462437cc3b78eabd6ed7d8",
-        "befc95940b2e07c09b2becf4a97686641512f42e",
-        "5de713c806d2a8ec3b0ae68d7932ef26f60d2680",
-        "4cdedf93100155bb066f7ccd2880c59ffa84005a",
-        "c84c2b8f833e28e494256c1ef7414ad81bd3484c",
-        "01853b009c390046ce3489bc980860a13e7d4de5",
-        "9f543424199847ec4731c5431fafe0fa1dc009a6"
-      ],
-      "paths": [
-        {
-          "action": "created",
-          "path": ".pose/adr/2026-11-12-closeout-review-policy-by-cost-and-benefit.md"
-        },
-        {
-          "action": "created",
-          "path": ".pose/adr/2026-11-14-governance-association-links-are-read-with-a-commonmark-parser.md"
-        },
-        {
-          "action": "created",
-          "path": ".pose/changelogs/unreleased/pose-closeout-review-policy-by-cost-benefit.md"
-        },
-        {
-          "action": "created",
-          "path": ".pose/review-attempts/0631cafb8dd84c155b000dcd/000001.json"
-        },
-        {
-          "action": "created",
-          "path": ".pose/review-attempts/0631cafb8dd84c155b000dcd/000001.result.json"
-        },
-        {
-          "action": "created",
-          "path": ".pose/review-attempts/0a2367249025e3f86c75ed33/000001.json"
-        },
-        {
-          "action": "created",
-          "path": ".pose/review-attempts/0a2367249025e3f86c75ed33/000001.result.json"
-        },
-        {
-          "action": "created",
-          "path": ".pose/review-attempts/0aea335a6e20af17d864a4c0/000001.json"
-        },
-        {
-          "action": "created",
-          "path": ".pose/review-attempts/0aea335a6e20af17d864a4c0/000001.result.json"
-        },
-        {
-          "action": "created",
-          "path": ".pose/review-attempts/17e0d2df144b76a2be0c7cf3/000001.json"
-        },
-        {
-          "action": "created",
-          "path": ".pose/review-attempts/17e0d2df144b76a2be0c7cf3/000001.result.json"
-        },
-        {
-          "action": "created",
-          "path": ".pose/review-attempts/1a13cb5a815f1540ba921b52/000001.json"
-        },
-        {
-          "action": "created",
-          "path": ".pose/review-attempts/1a13cb5a815f1540ba921b52/000001.result.json"
-        },
-        {
-          "action": "created",
-          "path": ".pose/review-attempts/280c9185501219bd3f632f1e/000001.json"
-        },
-        {
-          "action": "created",
-          "path": ".pose/review-attempts/280c9185501219bd3f632f1e/000001.result.json"
-        },
-        {
-          "action": "created",
-          "path": ".pose/review-attempts/37c4058a83d6d814bfe161be/000001.json"
-        },
-        {
-          "action": "created",
-          "path": ".pose/review-attempts/37c4058a83d6d814bfe161be/000001.result.json"
-        },
-        {
-          "action": "created",
-          "path": ".pose/review-attempts/3959084ac52958150da2df5a/000001.json"
-        },
-        {
-          "action": "created",
-          "path": ".pose/review-attempts/3959084ac52958150da2df5a/000001.result.json"
-        },
-        {
-          "action": "created",
-          "path": ".pose/review-attempts/5266673259891594c6a583dc/000001.json"
-        },
-        {
-          "action": "created",
-          "path": ".pose/review-attempts/5266673259891594c6a583dc/000001.result.json"
-        },
-        {
-          "action": "created",
-          "path": ".pose/review-attempts/53bce693599504cab7a0bcc8/000001.json"
-        },
-        {
-          "action": "created",
-          "path": ".pose/review-attempts/53bce693599504cab7a0bcc8/000001.result.json"
-        },
-        {
-          "action": "created",
-          "path": ".pose/review-attempts/6b2e74e9742c54c07cf0afe5/000001.json"
-        },
-        {
-          "action": "created",
-          "path": ".pose/review-attempts/6b2e74e9742c54c07cf0afe5/000001.result.json"
-        },
-        {
-          "action": "created",
-          "path": ".pose/review-attempts/a11ae7fa14fc35026b7b7dc3/000001.json"
-        },
-        {
-          "action": "created",
-          "path": ".pose/review-attempts/a11ae7fa14fc35026b7b7dc3/000001.result.json"
-        },
-        {
-          "action": "created",
-          "path": ".pose/review-attempts/abf587150e0e35a8e5edc2c4/000001.json"
-        },
-        {
-          "action": "created",
-          "path": ".pose/review-attempts/abf587150e0e35a8e5edc2c4/000001.result.json"
-        },
-        {
-          "action": "created",
-          "path": ".pose/review-attempts/c5cd4c2c071afdccb81c175e/000001.json"
-        },
-        {
-          "action": "created",
-          "path": ".pose/review-attempts/c5cd4c2c071afdccb81c175e/000001.result.json"
-        },
-        {
-          "action": "created",
-          "path": ".pose/review-attempts/dd5248305d60ae44564f1a4d/000001.json"
-        },
-        {
-          "action": "created",
-          "path": ".pose/review-attempts/dd5248305d60ae44564f1a4d/000001.result.json"
-        },
-        {
-          "action": "created",
-          "path": ".pose/review-attempts/e06239ac4b111a496272a693/000001.json"
-        },
-        {
-          "action": "created",
-          "path": ".pose/review-attempts/e06239ac4b111a496272a693/000001.result.json"
-        },
-        {
-          "action": "created",
-          "path": ".pose/review-attempts/f2764b415043cf23de15d14d/000001.json"
-        },
-        {
-          "action": "created",
-          "path": ".pose/review-attempts/f2764b415043cf23de15d14d/000001.result.json"
-        },
-        {
-          "action": "created",
-          "path": ".pose/review-attestations/rva-058363c38778c498.json"
-        },
-        {
-          "action": "created",
-          "path": ".pose/review-attestations/rva-0dddfb26a0c88bfd.json"
-        },
-        {
-          "action": "created",
-          "path": ".pose/review-attestations/rva-15b77929c77babfe.json"
-        },
-        {
-          "action": "created",
-          "path": ".pose/review-attestations/rva-304a8c079ea98b0c.json"
-        },
-        {
-          "action": "created",
-          "path": ".pose/review-attestations/rva-4ce3b608c57b296e.json"
-        },
-        {
-          "action": "created",
-          "path": ".pose/review-attestations/rva-516f04df994dbb9b.json"
-        },
-        {
-          "action": "created",
-          "path": ".pose/review-attestations/rva-6098835b812211c0.json"
-        },
-        {
-          "action": "created",
-          "path": ".pose/review-attestations/rva-70e7e1ad913def93.json"
-        },
-        {
-          "action": "created",
-          "path": ".pose/review-attestations/rva-7256ae9a57a1ab85.json"
-        },
-        {
-          "action": "created",
-          "path": ".pose/review-attestations/rva-7cdb88e5a781e794.json"
-        },
-        {
-          "action": "created",
-          "path": ".pose/review-attestations/rva-8e7b6233929f72af.json"
-        },
-        {
-          "action": "created",
-          "path": ".pose/review-attestations/rva-bbcf5ebbc80abd1b.json"
-        },
-        {
-          "action": "created",
-          "path": ".pose/review-attestations/rva-f27e990acb2ad3be.json"
-        },
-        {
-          "action": "created",
-          "path": ".pose/review-bundles/rvb-085beccd6345ec57.json"
-        },
-        {
-          "action": "created",
-          "path": ".pose/review-bundles/rvb-08c2ad291964aeda.json"
-        },
-        {
-          "action": "created",
-          "path": ".pose/review-bundles/rvb-117f43b8f0ea1d91.json"
-        },
-        {
-          "action": "created",
-          "path": ".pose/review-bundles/rvb-1caf80158e489685.json"
-        },
-        {
-          "action": "created",
-          "path": ".pose/review-bundles/rvb-2be045e286308c9e.json"
-        },
-        {
-          "action": "created",
-          "path": ".pose/review-bundles/rvb-455844752bc5e83f.json"
-        },
-        {
-          "action": "created",
-          "path": ".pose/review-bundles/rvb-4732b51bcadc81d9.json"
-        },
-        {
-          "action": "created",
-          "path": ".pose/review-bundles/rvb-4bda426b22c3d512.json"
-        },
-        {
-          "action": "created",
-          "path": ".pose/review-bundles/rvb-5e4e23434f65d1a0.json"
-        },
-        {
-          "action": "created",
-          "path": ".pose/review-bundles/rvb-640cbe74ba3bab54.json"
-        },
-        {
-          "action": "created",
-          "path": ".pose/review-bundles/rvb-6ca161b26259e9d7.json"
-        },
-        {
-          "action": "created",
-          "path": ".pose/review-bundles/rvb-6ded9ea5f6099b4c.json"
-        },
-        {
-          "action": "created",
-          "path": ".pose/review-bundles/rvb-7716cbe72ee9c6df.json"
-        },
-        {
-          "action": "created",
-          "path": ".pose/review-bundles/rvb-b8d3d91f787510d7.json"
-        },
-        {
-          "action": "created",
-          "path": ".pose/review-bundles/rvb-c2b012f2ae7d7278.json"
-        },
-        {
-          "action": "created",
-          "path": ".pose/review-bundles/rvb-cffb60af3fb83f28.json"
-        },
-        {
-          "action": "created",
-          "path": ".pose/review-bundles/rvb-d5aa8a77c773b63e.json"
-        },
-        {
-          "action": "created",
-          "path": ".pose/review-conclusions/rrn-057e10b4445fd53d.json"
-        },
-        {
-          "action": "created",
-          "path": ".pose/review-conclusions/rrn-11714b4405974ee8.json"
-        },
-        {
-          "action": "created",
-          "path": ".pose/review-conclusions/rrn-14440942e94386b7.json"
-        },
-        {
-          "action": "created",
-          "path": ".pose/review-conclusions/rrn-1fdde85969d5ca37.json"
-        },
-        {
-          "action": "created",
-          "path": ".pose/review-conclusions/rrn-2ad3c228c124a4f4.json"
-        },
-        {
-          "action": "created",
-          "path": ".pose/review-conclusions/rrn-310cb38b6bc9840e.json"
-        },
-        {
-          "action": "created",
-          "path": ".pose/review-conclusions/rrn-348663b5b871bc42.json"
-        },
-        {
-          "action": "created",
-          "path": ".pose/review-conclusions/rrn-3e1184879382ed6c.json"
-        },
-        {
-          "action": "created",
-          "path": ".pose/review-conclusions/rrn-4a37964df583131c.json"
-        },
-        {
-          "action": "created",
-          "path": ".pose/review-conclusions/rrn-7c2315202e585212.json"
-        },
-        {
-          "action": "created",
-          "path": ".pose/review-conclusions/rrn-8b1997980713c10a.json"
-        },
-        {
-          "action": "created",
-          "path": ".pose/review-conclusions/rrn-90f21b5c8c9f9725.json"
-        },
-        {
-          "action": "created",
-          "path": ".pose/review-conclusions/rrn-93914466c27974f9.json"
-        },
-        {
-          "action": "created",
-          "path": ".pose/review-conclusions/rrn-9f528bb5bec8a10b.json"
-        },
-        {
-          "action": "created",
-          "path": ".pose/review-conclusions/rrn-d94a50c1b4d6e56f.json"
-        },
-        {
-          "action": "created",
-          "path": ".pose/review-conclusions/rrn-da6e5287b19f2087.json"
-        },
-        {
-          "action": "created",
-          "path": ".pose/review-conclusions/rrn-f6d364b52915979a.json"
-        },
-        {
-          "action": "created",
-          "path": ".pose/review-run-ledger/rrn-057e10b4445fd53d.json"
-        },
-        {
-          "action": "created",
-          "path": ".pose/review-run-ledger/rrn-11714b4405974ee8.json"
-        },
-        {
-          "action": "created",
-          "path": ".pose/review-run-ledger/rrn-14440942e94386b7.json"
-        },
-        {
-          "action": "created",
-          "path": ".pose/review-run-ledger/rrn-1fdde85969d5ca37.json"
-        },
-        {
-          "action": "created",
-          "path": ".pose/review-run-ledger/rrn-2ad3c228c124a4f4.json"
-        },
-        {
-          "action": "created",
-          "path": ".pose/review-run-ledger/rrn-310cb38b6bc9840e.json"
-        },
-        {
-          "action": "created",
-          "path": ".pose/review-run-ledger/rrn-348663b5b871bc42.json"
-        },
-        {
-          "action": "created",
-          "path": ".pose/review-run-ledger/rrn-3e1184879382ed6c.json"
-        },
-        {
-          "action": "created",
-          "path": ".pose/review-run-ledger/rrn-4a37964df583131c.json"
-        },
-        {
-          "action": "created",
-          "path": ".pose/review-run-ledger/rrn-7c2315202e585212.json"
-        },
-        {
-          "action": "created",
-          "path": ".pose/review-run-ledger/rrn-8b1997980713c10a.json"
-        },
-        {
-          "action": "created",
-          "path": ".pose/review-run-ledger/rrn-90f21b5c8c9f9725.json"
-        },
-        {
-          "action": "created",
-          "path": ".pose/review-run-ledger/rrn-93914466c27974f9.json"
-        },
-        {
-          "action": "created",
-          "path": ".pose/review-run-ledger/rrn-9f528bb5bec8a10b.json"
-        },
-        {
-          "action": "created",
-          "path": ".pose/review-run-ledger/rrn-d94a50c1b4d6e56f.json"
-        },
-        {
-          "action": "created",
-          "path": ".pose/review-run-ledger/rrn-da6e5287b19f2087.json"
-        },
-        {
-          "action": "created",
-          "path": ".pose/review-run-ledger/rrn-f6d364b52915979a.json"
-        },
-        {
-          "action": "created",
-          "path": ".pose/review-run-proofs/rrn-057e10b4445fd53d/rrp-a415ca974ade0be73926646dc7847fc5ce00d88fddf6720a14f8be22d0d6626e.json"
-        },
-        {
-          "action": "created",
-          "path": ".pose/review-run-proofs/rrn-11714b4405974ee8/rrp-c973f1a9c324ebbeddd236bf3853884f2502766f1cbca6a3e2c802bc994c05a6.json"
-        },
-        {
-          "action": "created",
-          "path": ".pose/review-run-proofs/rrn-14440942e94386b7/rrp-7e28a1adc1ccac866f8970132aa5af428b719e842064fda81cbae302bb9f4508.json"
-        },
-        {
-          "action": "created",
-          "path": ".pose/review-run-proofs/rrn-1fdde85969d5ca37/rrp-dc74878413b78eec05ed06281f60cf73c6e3ca37129f9c0b117dde0e8a695074.json"
-        },
-        {
-          "action": "created",
-          "path": ".pose/review-run-proofs/rrn-2ad3c228c124a4f4/rrp-65f4669afdd2a685ff6542b312cb96750d2fe5936a705e534e3596c806ac4fe0.json"
-        },
-        {
-          "action": "created",
-          "path": ".pose/review-run-proofs/rrn-310cb38b6bc9840e/rrp-0db9aa364b6570c3cc0e3c4f49cd9e95b2fb8b081406fae807845aed51c4c8be.json"
-        },
-        {
-          "action": "created",
-          "path": ".pose/review-run-proofs/rrn-348663b5b871bc42/rrp-abceb0383ce63193aa280f0a196ec6cdf9a4175b1d32973f73238104b8770d05.json"
-        },
-        {
-          "action": "created",
-          "path": ".pose/review-run-proofs/rrn-4a37964df583131c/rrp-18bea922f04b4b5276026cd7e40a711233fcedf5914bcdc9c858bf4edcbd0585.json"
-        },
-        {
-          "action": "created",
-          "path": ".pose/review-run-proofs/rrn-8b1997980713c10a/rrp-0da1a8119872395c6e9de57aa9bb94c87cd573712b3be6e64675d529da1e6de2.json"
-        },
-        {
-          "action": "created",
-          "path": ".pose/review-run-proofs/rrn-90f21b5c8c9f9725/rrp-e5f421240a7c2c0ae116a8051e3e3104e88e556a8119abb0eaeff1f4f4d9e65e.json"
-        },
-        {
-          "action": "created",
-          "path": ".pose/review-run-proofs/rrn-93914466c27974f9/rrp-5196480a5b85fe2c66751facfffbd78a2a42e46f0553e3ecd2a41404989fd6ad.json"
-        },
-        {
-          "action": "created",
-          "path": ".pose/review-run-proofs/rrn-9f528bb5bec8a10b/rrp-44601357ea2ae650b32f63ab313499e6ad1b70aab49e2765cf4447d441e05981.json"
-        },
-        {
-          "action": "created",
-          "path": ".pose/review-run-proofs/rrn-f6d364b52915979a/rrp-2f00939f6d2f24c2a6037f224cad47f495dafb5933b37c78b418452db331abfd.json"
-        },
-        {
-          "action": "created",
-          "path": ".pose/review-runs/rrn-057e10b4445fd53d.events.ndjson"
-        },
-        {
-          "action": "created",
-          "path": ".pose/review-runs/rrn-057e10b4445fd53d.json"
-        },
-        {
-          "action": "created",
-          "path": ".pose/review-runs/rrn-057e10b4445fd53d.transcript"
-        },
-        {
-          "action": "created",
-          "path": ".pose/review-runs/rrn-11714b4405974ee8.events.ndjson"
-        },
-        {
-          "action": "created",
-          "path": ".pose/review-runs/rrn-11714b4405974ee8.json"
-        },
-        {
-          "action": "created",
-          "path": ".pose/review-runs/rrn-11714b4405974ee8.transcript"
-        },
-        {
-          "action": "created",
-          "path": ".pose/review-runs/rrn-14440942e94386b7.events.ndjson"
-        },
-        {
-          "action": "created",
-          "path": ".pose/review-runs/rrn-14440942e94386b7.json"
-        },
-        {
-          "action": "created",
-          "path": ".pose/review-runs/rrn-14440942e94386b7.transcript"
-        },
-        {
-          "action": "created",
-          "path": ".pose/review-runs/rrn-1fdde85969d5ca37.events.ndjson"
-        },
-        {
-          "action": "created",
-          "path": ".pose/review-runs/rrn-1fdde85969d5ca37.json"
-        },
-        {
-          "action": "created",
-          "path": ".pose/review-runs/rrn-1fdde85969d5ca37.transcript"
-        },
-        {
-          "action": "created",
-          "path": ".pose/review-runs/rrn-2ad3c228c124a4f4.events.ndjson"
-        },
-        {
-          "action": "created",
-          "path": ".pose/review-runs/rrn-2ad3c228c124a4f4.json"
-        },
-        {
-          "action": "created",
-          "path": ".pose/review-runs/rrn-2ad3c228c124a4f4.transcript"
-        },
-        {
-          "action": "created",
-          "path": ".pose/review-runs/rrn-310cb38b6bc9840e.events.ndjson"
-        },
-        {
-          "action": "created",
-          "path": ".pose/review-runs/rrn-310cb38b6bc9840e.json"
-        },
-        {
-          "action": "created",
-          "path": ".pose/review-runs/rrn-310cb38b6bc9840e.transcript"
-        },
-        {
-          "action": "created",
-          "path": ".pose/review-runs/rrn-348663b5b871bc42.events.ndjson"
-        },
-        {
-          "action": "created",
-          "path": ".pose/review-runs/rrn-348663b5b871bc42.json"
-        },
-        {
-          "action": "created",
-          "path": ".pose/review-runs/rrn-348663b5b871bc42.transcript"
-        },
-        {
-          "action": "created",
-          "path": ".pose/review-runs/rrn-3e1184879382ed6c.events.ndjson"
-        },
-        {
-          "action": "created",
-          "path": ".pose/review-runs/rrn-3e1184879382ed6c.json"
-        },
-        {
-          "action": "created",
-          "path": ".pose/review-runs/rrn-3e1184879382ed6c.transcript"
-        },
-        {
-          "action": "created",
-          "path": ".pose/review-runs/rrn-4a37964df583131c.events.ndjson"
-        },
-        {
-          "action": "created",
-          "path": ".pose/review-runs/rrn-4a37964df583131c.json"
-        },
-        {
-          "action": "created",
-          "path": ".pose/review-runs/rrn-4a37964df583131c.transcript"
-        },
-        {
-          "action": "created",
-          "path": ".pose/review-runs/rrn-7c2315202e585212.events.ndjson"
-        },
-        {
-          "action": "created",
-          "path": ".pose/review-runs/rrn-7c2315202e585212.json"
-        },
-        {
-          "action": "created",
-          "path": ".pose/review-runs/rrn-7c2315202e585212.transcript"
-        },
-        {
-          "action": "created",
-          "path": ".pose/review-runs/rrn-8b1997980713c10a.events.ndjson"
-        },
-        {
-          "action": "created",
-          "path": ".pose/review-runs/rrn-8b1997980713c10a.json"
-        },
-        {
-          "action": "created",
-          "path": ".pose/review-runs/rrn-8b1997980713c10a.transcript"
-        },
-        {
-          "action": "created",
-          "path": ".pose/review-runs/rrn-90f21b5c8c9f9725.events.ndjson"
-        },
-        {
-          "action": "created",
-          "path": ".pose/review-runs/rrn-90f21b5c8c9f9725.json"
-        },
-        {
-          "action": "created",
-          "path": ".pose/review-runs/rrn-90f21b5c8c9f9725.transcript"
-        },
-        {
-          "action": "created",
-          "path": ".pose/review-runs/rrn-93914466c27974f9.events.ndjson"
-        },
-        {
-          "action": "created",
-          "path": ".pose/review-runs/rrn-93914466c27974f9.json"
-        },
-        {
-          "action": "created",
-          "path": ".pose/review-runs/rrn-93914466c27974f9.transcript"
-        },
-        {
-          "action": "created",
-          "path": ".pose/review-runs/rrn-9f528bb5bec8a10b.events.ndjson"
-        },
-        {
-          "action": "created",
-          "path": ".pose/review-runs/rrn-9f528bb5bec8a10b.json"
-        },
-        {
-          "action": "created",
-          "path": ".pose/review-runs/rrn-9f528bb5bec8a10b.transcript"
-        },
-        {
-          "action": "created",
-          "path": ".pose/review-runs/rrn-d94a50c1b4d6e56f.events.ndjson"
-        },
-        {
-          "action": "created",
-          "path": ".pose/review-runs/rrn-d94a50c1b4d6e56f.json"
-        },
-        {
-          "action": "created",
-          "path": ".pose/review-runs/rrn-d94a50c1b4d6e56f.transcript"
-        },
-        {
-          "action": "created",
-          "path": ".pose/review-runs/rrn-da6e5287b19f2087.events.ndjson"
-        },
-        {
-          "action": "created",
-          "path": ".pose/review-runs/rrn-da6e5287b19f2087.json"
-        },
-        {
-          "action": "created",
-          "path": ".pose/review-runs/rrn-da6e5287b19f2087.transcript"
-        },
-        {
-          "action": "created",
-          "path": ".pose/review-runs/rrn-f6d364b52915979a.events.ndjson"
-        },
-        {
-          "action": "created",
-          "path": ".pose/review-runs/rrn-f6d364b52915979a.json"
-        },
-        {
-          "action": "created",
-          "path": ".pose/review-runs/rrn-f6d364b52915979a.transcript"
-        },
-        {
-          "action": "created",
-          "path": ".pose/starts/pose-closeout-review-policy-by-cost-benefit.json"
-        },
-        {
-          "action": "created",
-          "path": "pose-mcp/internal/cli/closeout_review_policy_test.go"
-        },
-        {
-          "action": "created",
-          "path": "pose-mcp/internal/mcpserver/closeout_review_policy_test.go"
-        },
-        {
-          "action": "created",
-          "path": "pose-mcp/internal/pose/closeout_adr_associations.go"
-        },
-        {
-          "action": "created",
-          "path": "pose-mcp/internal/pose/closeout_receipt.go"
-        },
-        {
-          "action": "created",
-          "path": "pose-mcp/internal/pose/closeout_review_policy.go"
-        },
-        {
-          "action": "created",
-          "path": "pose-mcp/internal/pose/closeout_review_policy_test.go"
-        },
-        {
-          "action": "created",
-          "path": "pose-mcp/schemas/v1/closeout-receipt.schema.json"
-        },
-        {
-          "action": "modified",
-          "path": ".pose/adr/2026-11-03-governance-reads-use-bounded-operation-scoped-views.md"
-        },
-        {
-          "action": "modified",
-          "path": ".pose/indexes/delivery-integrity.json"
-        },
-        {
-          "action": "modified",
-          "path": ".pose/indexes/generation.json"
-        },
-        {
-          "action": "modified",
-          "path": ".pose/indexes/releases.json"
-        },
-        {
-          "action": "modified",
-          "path": ".pose/indexes/spec-graph.json"
-        },
-        {
-          "action": "modified",
-          "path": ".pose/indexes/validation-matrix.json"
-        },
-        {
-          "action": "modified",
-          "path": ".pose/results/delivery-validation.json"
-        },
-        {
-          "action": "modified",
-          "path": ".pose/specs/2026-11-11-pose-closeout-review-policy-by-cost-benefit.md"
-        },
-        {
-          "action": "modified",
-          "path": ".pose/templates/roadmap.md"
-        },
-        {
-          "action": "modified",
-          "path": "POSE.md"
-        },
-        {
-          "action": "modified",
-          "path": "locales/pt-BR/POSE.md"
-        },
-        {
-          "action": "modified",
-          "path": "pose-mcp/go.mod"
-        },
-        {
-          "action": "modified",
-          "path": "pose-mcp/go.sum"
-        },
-        {
-          "action": "modified",
-          "path": "pose-mcp/internal/cli/adopt.go"
-        },
-        {
-          "action": "modified",
-          "path": "pose-mcp/internal/cli/adopt_catalog_test.go"
-        },
-        {
-          "action": "modified",
-          "path": "pose-mcp/internal/cli/adopt_test.go"
-        },
-        {
-          "action": "modified",
-          "path": "pose-mcp/internal/cli/doctor.go"
-        },
-        {
-          "action": "modified",
-          "path": "pose-mcp/internal/cli/index_generation_build_test.go"
-        },
-        {
-          "action": "modified",
-          "path": "pose-mcp/internal/cli/portfolio_projection.go"
-        },
-        {
-          "action": "modified",
-          "path": "pose-mcp/internal/cli/progressive_review_test.go"
-        },
-        {
-          "action": "modified",
-          "path": "pose-mcp/internal/cli/release_compatibility_test.go"
-        },
-        {
-          "action": "modified",
-          "path": "pose-mcp/internal/cli/review_closeout.go"
-        },
-        {
-          "action": "modified",
-          "path": "pose-mcp/internal/cli/setup.go"
-        },
-        {
-          "action": "modified",
-          "path": "pose-mcp/internal/cli/surface_check.go"
-        },
-        {
-          "action": "modified",
-          "path": "pose-mcp/internal/pose/artifact_ref.go"
-        },
-        {
-          "action": "modified",
-          "path": "pose-mcp/internal/pose/capability_catalog.go"
-        },
-        {
-          "action": "modified",
-          "path": "pose-mcp/internal/pose/capability_catalog_test.go"
-        },
-        {
-          "action": "modified",
-          "path": "pose-mcp/internal/pose/diagnostic_codes.go"
-        },
-        {
-          "action": "modified",
-          "path": "pose-mcp/internal/pose/federated_acceptance.go"
-        },
-        {
-          "action": "modified",
-          "path": "pose-mcp/internal/pose/governance_read_view.go"
-        },
-        {
-          "action": "modified",
-          "path": "pose-mcp/internal/pose/governance_read_view_probe_test.go"
-        },
-        {
-          "action": "modified",
-          "path": "pose-mcp/internal/pose/obligation_projection.go"
-        },
-        {
-          "action": "modified",
-          "path": "pose-mcp/internal/pose/readiness.go"
-        },
-        {
-          "action": "modified",
-          "path": "pose-mcp/internal/pose/review_bundle.go"
-        },
-        {
-          "action": "modified",
-          "path": "pose-mcp/internal/pose/review_closeout.go"
-        },
-        {
-          "action": "modified",
-          "path": "pose-mcp/internal/pose/review_plan.go"
-        },
-        {
-          "action": "modified",
-          "path": "pose-mcp/internal/pose/roadmaps.go"
-        },
-        {
-          "action": "modified",
-          "path": "pose-mcp/internal/pose/spec.go"
-        },
-        {
-          "action": "modified",
-          "path": "pose-mcp/internal/pose/spec_transfer.go"
-        },
-        {
-          "action": "modified",
-          "path": "pose-mcp/internal/scaffold/dist/.pose/templates/roadmap.md"
-        },
-        {
-          "action": "modified",
-          "path": "pose-mcp/internal/scaffold/dist/POSE.md"
-        },
-        {
-          "action": "modified",
-          "path": "pose-mcp/internal/scaffold/dist/locales/pt-BR/POSE.md"
-        },
-        {
-          "action": "modified",
-          "path": "pose-mcp/schemas/v1/review-plan.schema.json"
-        }
-      ],
-      "diff_digest": "sha256:8d83cf322a9f10a132096caab14992bd2b81c07c039f9d752c5b2eb85368a5db",
-      "material_digest": "sha256:09838ae88368e77e6fa75bb85e212691dbc18946a618bbfac7e40e437b12f79b",
-      "material_inputs": {
-        "names": [
-          ".pose/adr/2026-11-03-governance-reads-use-bounded-operation-scoped-views.md",
-          ".pose/adr/2026-11-12-closeout-review-policy-by-cost-and-benefit.md",
-          ".pose/adr/2026-11-14-governance-association-links-are-read-with-a-commonmark-parser.md",
-          ".pose/changelogs/unreleased/pose-closeout-review-policy-by-cost-benefit.md",
-          ".pose/closeout-plans/spec-pose-closeout-review-policy-by-cost-benefit.json",
-          ".pose/indexes/delivery-integrity.json",
-          ".pose/indexes/generation.json",
-          ".pose/indexes/releases.json",
-          ".pose/indexes/spec-graph.json",
-          ".pose/indexes/validation-matrix.json",
-          ".pose/results/delivery-validation.json",
-          ".pose/review-attempts/0631cafb8dd84c155b000dcd/000001.json",
-          ".pose/review-attempts/0631cafb8dd84c155b000dcd/000001.result.json",
-          ".pose/review-attempts/0a2367249025e3f86c75ed33/000001.json",
-          ".pose/review-attempts/0a2367249025e3f86c75ed33/000001.result.json",
-          ".pose/review-attempts/0aea335a6e20af17d864a4c0/000001.json",
-          ".pose/review-attempts/0aea335a6e20af17d864a4c0/000001.result.json",
-          ".pose/review-attempts/17e0d2df144b76a2be0c7cf3/000001.json",
-          ".pose/review-attempts/17e0d2df144b76a2be0c7cf3/000001.result.json",
-          ".pose/review-attempts/1a13cb5a815f1540ba921b52/000001.json",
-          ".pose/review-attempts/1a13cb5a815f1540ba921b52/000001.result.json",
-          ".pose/review-attempts/280c9185501219bd3f632f1e/000001.json",
-          ".pose/review-attempts/280c9185501219bd3f632f1e/000001.result.json",
-          ".pose/review-attempts/37c4058a83d6d814bfe161be/000001.json",
-          ".pose/review-attempts/37c4058a83d6d814bfe161be/000001.result.json",
-          ".pose/review-attempts/3959084ac52958150da2df5a/000001.json",
-          ".pose/review-attempts/3959084ac52958150da2df5a/000001.result.json",
-          ".pose/review-attempts/5266673259891594c6a583dc/000001.json",
-          ".pose/review-attempts/5266673259891594c6a583dc/000001.result.json",
-          ".pose/review-attempts/53bce693599504cab7a0bcc8/000001.json",
-          ".pose/review-attempts/53bce693599504cab7a0bcc8/000001.result.json",
-          ".pose/review-attempts/6b2e74e9742c54c07cf0afe5/000001.json",
-          ".pose/review-attempts/6b2e74e9742c54c07cf0afe5/000001.result.json",
-          ".pose/review-attempts/a11ae7fa14fc35026b7b7dc3/000001.json",
-          ".pose/review-attempts/a11ae7fa14fc35026b7b7dc3/000001.result.json",
-          ".pose/review-attempts/abf587150e0e35a8e5edc2c4/000001.json",
-          ".pose/review-attempts/abf587150e0e35a8e5edc2c4/000001.result.json",
-          ".pose/review-attempts/c5cd4c2c071afdccb81c175e/000001.json",
-          ".pose/review-attempts/c5cd4c2c071afdccb81c175e/000001.result.json",
-          ".pose/review-attempts/dd5248305d60ae44564f1a4d/000001.json",
-          ".pose/review-attempts/dd5248305d60ae44564f1a4d/000001.result.json",
-          ".pose/review-attempts/e06239ac4b111a496272a693/000001.json",
-          ".pose/review-attempts/e06239ac4b111a496272a693/000001.result.json",
-          ".pose/review-attempts/f2764b415043cf23de15d14d/000001.json",
-          ".pose/review-attempts/f2764b415043cf23de15d14d/000001.result.json",
-          ".pose/review-attestations/rva-058363c38778c498.json",
-          ".pose/review-attestations/rva-0dddfb26a0c88bfd.json",
-          ".pose/review-attestations/rva-15b77929c77babfe.json",
-          ".pose/review-attestations/rva-304a8c079ea98b0c.json",
-          ".pose/review-attestations/rva-4ce3b608c57b296e.json",
-          ".pose/review-attestations/rva-516f04df994dbb9b.json",
-          ".pose/review-attestations/rva-6098835b812211c0.json",
-          ".pose/review-attestations/rva-70e7e1ad913def93.json",
-          ".pose/review-attestations/rva-7256ae9a57a1ab85.json",
-          ".pose/review-attestations/rva-7cdb88e5a781e794.json",
-          ".pose/review-attestations/rva-8e7b6233929f72af.json",
-          ".pose/review-attestations/rva-bbcf5ebbc80abd1b.json",
-          ".pose/review-attestations/rva-f27e990acb2ad3be.json",
-          ".pose/review-bundles/rvb-085beccd6345ec57.json",
-          ".pose/review-bundles/rvb-08c2ad291964aeda.json",
-          ".pose/review-bundles/rvb-117f43b8f0ea1d91.json",
-          ".pose/review-bundles/rvb-1caf80158e489685.json",
-          ".pose/review-bundles/rvb-2be045e286308c9e.json",
-          ".pose/review-bundles/rvb-455844752bc5e83f.json",
-          ".pose/review-bundles/rvb-4732b51bcadc81d9.json",
-          ".pose/review-bundles/rvb-4bda426b22c3d512.json",
-          ".pose/review-bundles/rvb-5e4e23434f65d1a0.json",
-          ".pose/review-bundles/rvb-640cbe74ba3bab54.json",
-          ".pose/review-bundles/rvb-6ca161b26259e9d7.json",
-          ".pose/review-bundles/rvb-6ded9ea5f6099b4c.json",
-          ".pose/review-bundles/rvb-7716cbe72ee9c6df.json",
-          ".pose/review-bundles/rvb-b8d3d91f787510d7.json",
-          ".pose/review-bundles/rvb-c2b012f2ae7d7278.json",
-          ".pose/review-bundles/rvb-cffb60af3fb83f28.json",
-          ".pose/review-bundles/rvb-d5aa8a77c773b63e.json",
-          ".pose/review-conclusions/rrn-057e10b4445fd53d.json",
-          ".pose/review-conclusions/rrn-11714b4405974ee8.json",
-          ".pose/review-conclusions/rrn-14440942e94386b7.json",
-          ".pose/review-conclusions/rrn-1fdde85969d5ca37.json",
-          ".pose/review-conclusions/rrn-2ad3c228c124a4f4.json",
-          ".pose/review-conclusions/rrn-310cb38b6bc9840e.json",
-          ".pose/review-conclusions/rrn-348663b5b871bc42.json",
-          ".pose/review-conclusions/rrn-3e1184879382ed6c.json",
-          ".pose/review-conclusions/rrn-4a37964df583131c.json",
-          ".pose/review-conclusions/rrn-7c2315202e585212.json",
-          ".pose/review-conclusions/rrn-8b1997980713c10a.json",
-          ".pose/review-conclusions/rrn-90f21b5c8c9f9725.json",
-          ".pose/review-conclusions/rrn-93914466c27974f9.json",
-          ".pose/review-conclusions/rrn-9f528bb5bec8a10b.json",
-          ".pose/review-conclusions/rrn-d94a50c1b4d6e56f.json",
-          ".pose/review-conclusions/rrn-da6e5287b19f2087.json",
-          ".pose/review-conclusions/rrn-f6d364b52915979a.json",
-          ".pose/review-run-ledger/rrn-057e10b4445fd53d.json",
-          ".pose/review-run-ledger/rrn-11714b4405974ee8.json",
-          ".pose/review-run-ledger/rrn-14440942e94386b7.json",
-          ".pose/review-run-ledger/rrn-1fdde85969d5ca37.json",
-          ".pose/review-run-ledger/rrn-2ad3c228c124a4f4.json",
-          ".pose/review-run-ledger/rrn-310cb38b6bc9840e.json",
-          ".pose/review-run-ledger/rrn-348663b5b871bc42.json",
-          ".pose/review-run-ledger/rrn-3e1184879382ed6c.json",
-          ".pose/review-run-ledger/rrn-4a37964df583131c.json",
-          ".pose/review-run-ledger/rrn-7c2315202e585212.json",
-          ".pose/review-run-ledger/rrn-8b1997980713c10a.json",
-          ".pose/review-run-ledger/rrn-90f21b5c8c9f9725.json",
-          ".pose/review-run-ledger/rrn-93914466c27974f9.json",
-          ".pose/review-run-ledger/rrn-9f528bb5bec8a10b.json",
-          ".pose/review-run-ledger/rrn-d94a50c1b4d6e56f.json",
-          ".pose/review-run-ledger/rrn-da6e5287b19f2087.json",
-          ".pose/review-run-ledger/rrn-f6d364b52915979a.json",
-          ".pose/review-run-proofs/rrn-057e10b4445fd53d/rrp-a415ca974ade0be73926646dc7847fc5ce00d88fddf6720a14f8be22d0d6626e.json",
-          ".pose/review-run-proofs/rrn-11714b4405974ee8/rrp-c973f1a9c324ebbeddd236bf3853884f2502766f1cbca6a3e2c802bc994c05a6.json",
-          ".pose/review-run-proofs/rrn-14440942e94386b7/rrp-7e28a1adc1ccac866f8970132aa5af428b719e842064fda81cbae302bb9f4508.json",
-          ".pose/review-run-proofs/rrn-1fdde85969d5ca37/rrp-dc74878413b78eec05ed06281f60cf73c6e3ca37129f9c0b117dde0e8a695074.json",
-          ".pose/review-run-proofs/rrn-2ad3c228c124a4f4/rrp-65f4669afdd2a685ff6542b312cb96750d2fe5936a705e534e3596c806ac4fe0.json",
-          ".pose/review-run-proofs/rrn-310cb38b6bc9840e/rrp-0db9aa364b6570c3cc0e3c4f49cd9e95b2fb8b081406fae807845aed51c4c8be.json",
-          ".pose/review-run-proofs/rrn-348663b5b871bc42/rrp-abceb0383ce63193aa280f0a196ec6cdf9a4175b1d32973f73238104b8770d05.json",
-          ".pose/review-run-proofs/rrn-4a37964df583131c/rrp-18bea922f04b4b5276026cd7e40a711233fcedf5914bcdc9c858bf4edcbd0585.json",
-          ".pose/review-run-proofs/rrn-8b1997980713c10a/rrp-0da1a8119872395c6e9de57aa9bb94c87cd573712b3be6e64675d529da1e6de2.json",
-          ".pose/review-run-proofs/rrn-90f21b5c8c9f9725/rrp-e5f421240a7c2c0ae116a8051e3e3104e88e556a8119abb0eaeff1f4f4d9e65e.json",
-          ".pose/review-run-proofs/rrn-93914466c27974f9/rrp-5196480a5b85fe2c66751facfffbd78a2a42e46f0553e3ecd2a41404989fd6ad.json",
-          ".pose/review-run-proofs/rrn-9f528bb5bec8a10b/rrp-44601357ea2ae650b32f63ab313499e6ad1b70aab49e2765cf4447d441e05981.json",
-          ".pose/review-run-proofs/rrn-f6d364b52915979a/rrp-2f00939f6d2f24c2a6037f224cad47f495dafb5933b37c78b418452db331abfd.json",
-          ".pose/review-runs/rrn-057e10b4445fd53d.events.ndjson",
-          ".pose/review-runs/rrn-057e10b4445fd53d.json",
-          ".pose/review-runs/rrn-057e10b4445fd53d.transcript",
-          ".pose/review-runs/rrn-11714b4405974ee8.events.ndjson",
-          ".pose/review-runs/rrn-11714b4405974ee8.json",
-          ".pose/review-runs/rrn-11714b4405974ee8.transcript",
-          ".pose/review-runs/rrn-14440942e94386b7.events.ndjson",
-          ".pose/review-runs/rrn-14440942e94386b7.json",
-          ".pose/review-runs/rrn-14440942e94386b7.transcript",
-          ".pose/review-runs/rrn-1fdde85969d5ca37.events.ndjson",
-          ".pose/review-runs/rrn-1fdde85969d5ca37.json",
-          ".pose/review-runs/rrn-1fdde85969d5ca37.transcript",
-          ".pose/review-runs/rrn-2ad3c228c124a4f4.events.ndjson",
-          ".pose/review-runs/rrn-2ad3c228c124a4f4.json",
-          ".pose/review-runs/rrn-2ad3c228c124a4f4.transcript",
-          ".pose/review-runs/rrn-310cb38b6bc9840e.events.ndjson",
-          ".pose/review-runs/rrn-310cb38b6bc9840e.json",
-          ".pose/review-runs/rrn-310cb38b6bc9840e.transcript",
-          ".pose/review-runs/rrn-348663b5b871bc42.events.ndjson",
-          ".pose/review-runs/rrn-348663b5b871bc42.json",
-          ".pose/review-runs/rrn-348663b5b871bc42.transcript",
-          ".pose/review-runs/rrn-3e1184879382ed6c.events.ndjson",
-          ".pose/review-runs/rrn-3e1184879382ed6c.json",
-          ".pose/review-runs/rrn-3e1184879382ed6c.transcript",
-          ".pose/review-runs/rrn-4a37964df583131c.events.ndjson",
-          ".pose/review-runs/rrn-4a37964df583131c.json",
-          ".pose/review-runs/rrn-4a37964df583131c.transcript",
-          ".pose/review-runs/rrn-7c2315202e585212.events.ndjson",
-          ".pose/review-runs/rrn-7c2315202e585212.json",
-          ".pose/review-runs/rrn-7c2315202e585212.transcript",
-          ".pose/review-runs/rrn-8b1997980713c10a.events.ndjson",
-          ".pose/review-runs/rrn-8b1997980713c10a.json",
-          ".pose/review-runs/rrn-8b1997980713c10a.transcript",
-          ".pose/review-runs/rrn-90f21b5c8c9f9725.events.ndjson",
-          ".pose/review-runs/rrn-90f21b5c8c9f9725.json",
-          ".pose/review-runs/rrn-90f21b5c8c9f9725.transcript",
-          ".pose/review-runs/rrn-93914466c27974f9.events.ndjson",
-          ".pose/review-runs/rrn-93914466c27974f9.json",
-          ".pose/review-runs/rrn-93914466c27974f9.transcript",
-          ".pose/review-runs/rrn-9f528bb5bec8a10b.events.ndjson",
-          ".pose/review-runs/rrn-9f528bb5bec8a10b.json",
-          ".pose/review-runs/rrn-9f528bb5bec8a10b.transcript",
-          ".pose/review-runs/rrn-d94a50c1b4d6e56f.events.ndjson",
-          ".pose/review-runs/rrn-d94a50c1b4d6e56f.json",
-          ".pose/review-runs/rrn-d94a50c1b4d6e56f.transcript",
-          ".pose/review-runs/rrn-da6e5287b19f2087.events.ndjson",
-          ".pose/review-runs/rrn-da6e5287b19f2087.json",
-          ".pose/review-runs/rrn-da6e5287b19f2087.transcript",
-          ".pose/review-runs/rrn-f6d364b52915979a.events.ndjson",
-          ".pose/review-runs/rrn-f6d364b52915979a.json",
-          ".pose/review-runs/rrn-f6d364b52915979a.transcript",
-          ".pose/specs/2026-11-11-pose-closeout-review-policy-by-cost-benefit.md",
-          ".pose/starts/pose-closeout-review-policy-by-cost-benefit.json",
-          ".pose/templates/roadmap.md",
-          "POSE.md",
-          "locales/pt-BR/POSE.md",
-          "pose-mcp/go.mod",
-          "pose-mcp/go.sum",
-          "pose-mcp/internal/cli/adopt.go",
-          "pose-mcp/internal/cli/adopt_catalog_test.go",
-          "pose-mcp/internal/cli/adopt_test.go",
-          "pose-mcp/internal/cli/closeout_review_policy_test.go",
-          "pose-mcp/internal/cli/doctor.go",
-          "pose-mcp/internal/cli/index_generation_build_test.go",
-          "pose-mcp/internal/cli/portfolio_projection.go",
-          "pose-mcp/internal/cli/progressive_review_test.go",
-          "pose-mcp/internal/cli/release_compatibility_test.go",
-          "pose-mcp/internal/cli/review_closeout.go",
-          "pose-mcp/internal/cli/setup.go",
-          "pose-mcp/internal/cli/surface_check.go",
-          "pose-mcp/internal/mcpserver/closeout_review_policy_test.go",
-          "pose-mcp/internal/pose/artifact_ref.go",
-          "pose-mcp/internal/pose/capability_catalog.go",
-          "pose-mcp/internal/pose/capability_catalog_test.go",
-          "pose-mcp/internal/pose/closeout_adr_associations.go",
-          "pose-mcp/internal/pose/closeout_receipt.go",
-          "pose-mcp/internal/pose/closeout_review_policy.go",
-          "pose-mcp/internal/pose/closeout_review_policy_test.go",
-          "pose-mcp/internal/pose/diagnostic_codes.go",
-          "pose-mcp/internal/pose/federated_acceptance.go",
-          "pose-mcp/internal/pose/governance_read_view.go",
-          "pose-mcp/internal/pose/governance_read_view_probe_test.go",
-          "pose-mcp/internal/pose/obligation_projection.go",
-          "pose-mcp/internal/pose/readiness.go",
-          "pose-mcp/internal/pose/review_bundle.go",
-          "pose-mcp/internal/pose/review_closeout.go",
-          "pose-mcp/internal/pose/review_plan.go",
-          "pose-mcp/internal/pose/roadmaps.go",
-          "pose-mcp/internal/pose/spec.go",
-          "pose-mcp/internal/pose/spec_transfer.go",
-          "pose-mcp/internal/scaffold/dist/.pose/templates/roadmap.md",
-          "pose-mcp/internal/scaffold/dist/POSE.md",
-          "pose-mcp/internal/scaffold/dist/locales/pt-BR/POSE.md",
-          "pose-mcp/schemas/v1/closeout-receipt.schema.json",
-          "pose-mcp/schemas/v1/review-plan.schema.json"
         ]
       }
     },
