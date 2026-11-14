@@ -1,0 +1,257 @@
+{
+  "run": {
+    "run_id": "rrn-310cb38b6bc9840e",
+    "proof_id": "rrp-0db9aa364b6570c3cc0e3c4f49cd9e95b2fb8b081406fae807845aed51c4c8be"
+  },
+  "schema_version": 1,
+  "attestation_id": "rva-70e7e1ad913def93",
+  "bundle_id": "rvb-6ca161b26259e9d7",
+  "bundle_digest": "sha256:6ca161b26259e9d72a3a618d73967fe45ec651659f92a5f6a454f402025ac230",
+  "reviewer": "agent:openai/gpt-6.1-sol",
+  "decision": "changes-requested",
+  "criteria": [
+    {
+      "id": "assumption-integrity",
+      "disposition": "passed",
+      "evidence": "structure:design-41a20ef8e08d77e3",
+      "rationale": "Compared implementer claims with the spec, accepted ADR, source and executed checks. Distinguished sealed successful validation from the failed fresh reruns and source-established defects from the blocked extra probes. Historical classification is an implementation defect in N42, not an accepted assumption; no new residual risk is accepted."
+    },
+    {
+      "id": "backend-concurrency",
+      "disposition": "passed",
+      "evidence": "integration:pose-mcp/go/writer-coordination-and-atomic-publication-integration",
+      "rationale": "Inspected copied operation-local traversal state, root guards, publication revalidation, ExpectAbsent receipt publication and intent/status/receipt ordering. Found no new concurrent-access or overwrite defect within the participating-writer contract."
+    },
+    {
+      "id": "backend-contracts",
+      "disposition": "finding",
+      "evidence": "N43",
+      "rationale": "The shipped roadmap producer emits an optional field that the new runtime rejects."
+    },
+    {
+      "id": "backend-input-errors",
+      "disposition": "finding",
+      "evidence": "N45",
+      "rationale": "Recognized association-key spellings can disappear without an unknown-input diagnostic."
+    },
+    {
+      "id": "backend-integration-impact",
+      "disposition": "finding",
+      "evidence": "N42",
+      "rationale": "The incorrect historical classification propagates through closeout, reached/dependency projections and CLI close."
+    },
+    {
+      "id": "backend-observability",
+      "disposition": "finding",
+      "evidence": "N45",
+      "rationale": "The association declaration is silently treated as absent, so consumers receive a known exemption instead of actionable missing-knowledge context."
+    },
+    {
+      "id": "compatibility",
+      "disposition": "finding",
+      "evidence": "N42",
+      "rationale": "The historical compatibility exception also admits closures made after adoption and can re-enable legacy shortcuts."
+    },
+    {
+      "id": "correctness",
+      "disposition": "finding",
+      "evidence": "N42",
+      "rationale": "An adopted roadmap can become terminal without its required explicit-close receipt."
+    },
+    {
+      "id": "design-causality",
+      "disposition": "passed",
+      "evidence": "structure:design-41a20ef8e08d77e3",
+      "rationale": "The accepted design separates lifecycle close from aggregate review, uses deterministic canonical-member/ADR thresholds, and centralizes policy decisions while preserving member review and vetoes. Schema 5 makes adoption explicit and receipts provide a distinct terminal marker. The findings concern implementation gaps in these decisions.",
+      "mappings": [
+        {
+          "delta": "SD-3ce6ee69",
+          "basis": "D2",
+          "disposition": "mapped",
+          "rationale": "The technical-plan reconciliation explicitly includes the measured D10 read-view capacity adjustment needed by governance reads supporting closeout. The amendment retains a finite bound and records the digest-only scaling follow-up."
+        },
+        {
+          "delta": "SD-607ff681",
+          "basis": "R3",
+          "disposition": "mapped",
+          "rationale": "The roadmap template adds the explicit ADR association metadata consumed by when-justified. Its invalid empty default is N43."
+        },
+        {
+          "delta": "SD-ec2d86f4",
+          "basis": "R1",
+          "disposition": "mapped",
+          "rationale": "The new accepted ADR records policy location, defaults, deterministic modes, explicit close, veto preservation and historical compatibility."
+        }
+      ]
+    },
+    {
+      "id": "documentation",
+      "disposition": "finding",
+      "evidence": "N43",
+      "rationale": "The installed and distributed roadmap templates disagree with the strict runtime declaration grammar."
+    },
+    {
+      "id": "operability",
+      "disposition": "finding",
+      "evidence": "N43",
+      "rationale": "Leaving the documented optional association field untouched blocks a normally populated generated roadmap."
+    },
+    {
+      "id": "requirements",
+      "disposition": "finding",
+      "evidence": "N44",
+      "rationale": "R3 is not satisfied for valid Markdown containing longer fences; N42 also violates the explicit-close and prospective-history requirements."
+    },
+    {
+      "id": "scope",
+      "disposition": "passed",
+      "evidence": "integration:pose-mcp/go/closeout-review-policy-integration",
+      "rationale": "The reviewed artifacts implement the approved schema/evaluator/receipt/configuration/projection scope. The budget adjustment is explicitly reconciled in the technical plan and measured ADR amendment. No unrelated refactor or new global ADR identity/configuration framework was introduced."
+    },
+    {
+      "id": "security",
+      "disposition": "finding",
+      "evidence": "N45",
+      "rationale": "Association-input normalization can lower an aggregate's review obligation without reporting unknown authority inputs. N42 supplies another route around the adopted gate."
+    },
+    {
+      "id": "solution-proportionality",
+      "disposition": "passed",
+      "evidence": "structure:design-41a20ef8e08d77e3",
+      "rationale": "Compared the implementation with a boolean toggle or projection-only exemption. Neither supplies the required middle mode, explicit-close marker and historical semantics. Reusing the capability catalog, resolver and publication guards is proportionate; owner-local ADR inventory avoids speculative global discovery. Remote backlink requirements would invalidate that boundary. The 1 GiB adjustment buys measured headroom rather than scalability, as the ADR and spec follow-up explicitly disclose."
+    }
+  ],
+  "tools": [
+    {
+      "id": "artifact-check",
+      "disposition": "passed",
+      "evidence": "command:pose artifact-check --spec pose-closeout-review-policy-by-cost-benefit --strict",
+      "rationale": "Ran the required command; exit 0. It emitted warning orphan diagnostics for governed tracked paths without provenance claims, rather than failing the gate."
+    },
+    {
+      "id": "assess-design",
+      "disposition": "not-used",
+      "evidence": "structure:design-41a20ef8e08d77e3",
+      "rationale": "Used sealed structural evidence and direct spec/ADR/source inspection without regenerating assessment artifacts."
+    },
+    {
+      "id": "assess-discover",
+      "component": "pose-mcp",
+      "disposition": "not-used",
+      "evidence": "integration:pose-mcp/go/closeout-review-policy-integration",
+      "rationale": "Used the supplied component scope, sealed evidence and direct source inspection; did not refresh writing assessment state."
+    },
+    {
+      "id": "assess-integrate",
+      "disposition": "not-used",
+      "evidence": "integration:pose-mcp/go/closeout-review-policy-integration",
+      "rationale": "Avoided the writing assessment under the immutable-checkout boundary. Traced CLI, Store, MCP, dependency and federation consumers directly."
+    },
+    {
+      "id": "assess-tech-debt",
+      "disposition": "not-used",
+      "evidence": "integration:pose-mcp/go/closeout-review-policy-integration",
+      "rationale": "Inspected changed code, marker search results and the spec's recorded follow-ups without writing debt reports."
+    },
+    {
+      "id": "closeout-check",
+      "disposition": "deferred",
+      "evidence": "integration:pose-mcp/go/closeout-terminal-verification-integration",
+      "rationale": "Completion gate requires POSE to verify and record this review conclusion first."
+    },
+    {
+      "id": "review-check",
+      "disposition": "deferred",
+      "evidence": "integration:pose-mcp/go/review-brief-conclusion-rules-integration",
+      "rationale": "Deferred until POSE records the verified review conclusion; this reviewer must not attest."
+    },
+    {
+      "id": "suggest-review",
+      "component": "pose-mcp",
+      "disposition": "passed",
+      "evidence": "command:pose suggest review --path pose-mcp",
+      "rationale": "Exit 0; selected the review workflow and backend-go, security and documentation-style rules."
+    },
+    {
+      "id": "surface-check",
+      "disposition": "passed",
+      "evidence": "integration:pose-mcp/go/closeout-review-policy-integration",
+      "rationale": "Ran pose surface-check --spec pose-closeout-review-policy-by-cost-benefit --strict; exit 0: surface.targets=1, surface.results=213, surface.findings=0. Sealed composition evidence: integration:pose-mcp/go/closeout-review-policy-integration. Sealed reachability evidence: reachability:pose-mcp/go/closeout-plan-reachability."
+    },
+    {
+      "id": "validate",
+      "disposition": "failed",
+      "evidence": "command:pose validate --strict",
+      "rationale": "Fresh invocation exited 1: 213 steps, 211 pass, 1 fail, 1 error. The pose-mcp unit check timed out after 600 seconds. This is not reported as a successful rerun; the bundle's sealed successful validation remains separate historical evidence."
+    },
+    {
+      "id": "validate",
+      "component": "pose-mcp",
+      "disposition": "failed",
+      "evidence": "command:pose validate --strict --module pose-mcp",
+      "rationale": "Fresh invocation exited 1: 210 steps, 209 pass, 1 fail. Unit tests, build, vet and closeout-review-policy integration passed. install-and-upgrade-journeys-integration failed at TestJourneysInstallAndUpgradeFromThePublishedRelease because curl received HTTP 403 while listing published releases. That external prerequisite prevents claiming a successful fresh component validation; it does not establish another scoped code defect."
+    }
+  ],
+  "evidence_refs": [
+    "N42",
+    "N43",
+    "N44",
+    "N45",
+    "delegated-run:rrn-310cb38b6bc9840e",
+    "integration:pose-mcp/go/closeout-review-policy-integration",
+    "integration:pose-mcp/go/writer-coordination-and-atomic-publication-integration",
+    "structure:design-41a20ef8e08d77e3"
+  ],
+  "findings": [
+    {
+      "id": "N42",
+      "severity": "medium",
+      "evidence": "file:pose-mcp/internal/pose/closeout_review_policy.go:720",
+      "action": "Require evidence that a roadmap actually closed before adoption before classifying it as historical. closeoutScopeHistorical accepts the current legacy enabled/cutoff shortcut or any recorded bundle approval, without checking whether that bundle sealed CloseoutReview. A roadmap approved under schema 5 and subsequently marked done without a receipt therefore becomes historical: closeoutReviewGate returns nil, getCloseoutState does not require a receipt, and CLI close can report already-satisfied. The enabled=false branch can also suppress adopted always and recorded negative reviews on a done roadmap. This violates R2/R4/R5 and the prospective-history contract. Apply the sealed pre-adoption-plan distinction used by milestoneClosedBeforeAdoption and cover both post-adoption approval and disabled-policy cases.",
+      "disposition": "open"
+    },
+    {
+      "id": "N43",
+      "severity": "medium",
+      "evidence": "file:.pose/templates/roadmap.md:6",
+      "action": "Emit a valid optional association default. The new template writes adrs: followed only by an inline explanatory comment; the distributed scaffold has the same line. cmdNewRoadmap preserves it, but associationList reads the raw comment as the value and rejects it as outside a list. Filling the required roadmap fields while leaving this optional field untouched consequently makes when-justified evaluation unknown and prevents close. Omit the optional declaration or emit a parseable empty list with its explanation on a separate comment line, and exercise the generated template through the evaluator.",
+      "disposition": "open"
+    },
+    {
+      "id": "N44",
+      "severity": "medium",
+      "evidence": "file:pose-mcp/internal/pose/closeout_adr_associations.go:88",
+      "action": "Preserve the complete Markdown fence delimiter and validate its closing syntax. markdownWithoutCode truncates every opener to three characters. For valid Markdown consisting of an opening four-backtick fence, a literal three-backtick line inside it, example text, the closing four-backtick fence, and then a real ADR link, the three-backtick line prematurely closes this filter's fence and the real closing delimiter opens another one. The actual association is discarded without a diagnostic. A two-member roadmap whose sole ADR association is that link consequently receives Known=true and Required=false under when-justified, violating R3. Cover longer fences and real links following them.",
+      "disposition": "open"
+    },
+    {
+      "id": "N45",
+      "severity": "medium",
+      "evidence": "file:pose-mcp/internal/pose/closeout_adr_associations.go:112",
+      "action": "Normalize association keys consistently with SplitFrontmatter before tracking their presence and duplicates. SplitFrontmatter splits at the colon and trims the key, whereas associationList recognizes only a literal unindented key followed immediately by a colon. Thus adrs : [adr:decision.md], or the equivalent roadmaps declaration, is silently absent here despite being recognized by the repository's frontmatter reader. With two canonical members and no other association, when-justified grants an exemption without a diagnostic. Differently spaced duplicate keys also escape duplicate detection. This is the remaining R11-N39 gap: recognize normalized keys and reject ambiguity before proving association absence.",
+      "disposition": "open"
+    }
+  ],
+  "authority": {
+    "schema_version": 1,
+    "project": "proj.pose-dist",
+    "bundle_digest": "sha256:6ca161b26259e9d72a3a618d73967fe45ec651659f92a5f6a454f402025ac230",
+    "principal": "agent:openai/gpt-6.1-sol",
+    "role": "agent",
+    "review_execution": "rrn-310cb38b6bc9840e",
+    "implementation_principal": "agent:anthropic/claude-opus-5-5",
+    "implementation_execution": "sha256:0eb880a4fc2ed87a379c949a567b1d3dfbd6b58b466f4755fcd363dd2b7fed98",
+    "issuer": "b34-local-executor",
+    "issued_at": "2026-11-14T04:02:01Z",
+    "audience": "proj.pose-dist"
+  },
+  "envelope": {
+    "issuer": "b34-local-executor",
+    "subject": "rvb-6ca161b26259e9d7",
+    "algorithm": "ed25519",
+    "public_key": "ck4sApdfePV2GT+hJyAYfJd2qLzeG55P8pevGR0bvZE=",
+    "signature": "cjVtK/6NnYj8VENnjCrYywrsNFTR+X7gz/VMeH2hsMkfBO6G1mvjcq8zxoj0W9bYXHvnzez4YI5SS8qk+GjQDQ=="
+  },
+  "attested_at": "2026-11-14T04:02:01Z",
+  "path": ".pose/review-attestations/rva-70e7e1ad913def93.json"
+}
