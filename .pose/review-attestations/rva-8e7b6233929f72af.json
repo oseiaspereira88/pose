@@ -1,0 +1,247 @@
+{
+  "run": {
+    "run_id": "rrn-93914466c27974f9",
+    "proof_id": "rrp-5196480a5b85fe2c66751facfffbd78a2a42e46f0553e3ecd2a41404989fd6ad"
+  },
+  "schema_version": 1,
+  "attestation_id": "rva-8e7b6233929f72af",
+  "bundle_id": "rvb-5e4e23434f65d1a0",
+  "bundle_digest": "sha256:5e4e23434f65d1a008ce34dc1639a33bb036f1c6660fb7225727431ccd7f9d66",
+  "reviewer": "agent:openai/gpt-6.1-sol",
+  "decision": "approved",
+  "criteria": [
+    {
+      "id": "assumption-integrity",
+      "disposition": "passed",
+      "evidence": "integration:pose-mcp/go/closeout-review-policy-integration",
+      "rationale": "Distinguished verified thresholds, canonical resolution and fail-closed diagnostics from recorded historical validation claims. Prior-policy comparison remains explicitly unknown without a snapshot. N54 accepts only conservative over-enforcement. Local govulncheck was unavailable; no fresh vulnerability-scan claim is made."
+    },
+    {
+      "id": "backend-concurrency",
+      "disposition": "passed",
+      "evidence": "integration:pose-mcp/go/writer-coordination-and-atomic-publication-integration",
+      "rationale": "Inspected writer guards, protected publication rechecks, ExpectAbsent receipts and intent-before-status ordering. Independently reran the CLI publication regression under the race detector successfully."
+    },
+    {
+      "id": "backend-contracts",
+      "disposition": "passed",
+      "evidence": "integration:pose-mcp/go/closeout-review-policy-integration",
+      "rationale": "Schema 5 explicitly fences older engines; schemas 1-4 retain legacy behavior. Reviewed additive projections, receipt/plan schemas and CLI/MCP parity."
+    },
+    {
+      "id": "backend-input-errors",
+      "disposition": "passed",
+      "evidence": "integration:pose-mcp/go/closeout-review-policy-integration",
+      "rationale": "Checked invalid policy pairs, duplicates, unsupported enums, member/association failures, containment and inventory limits. Unknown inputs and corrupt receipts refuse closure."
+    },
+    {
+      "id": "backend-integration-impact",
+      "disposition": "passed",
+      "evidence": "integration:pose-mcp/go/closeout-review-policy-integration",
+      "rationale": "Traced CLI/MCP consumers, dependency readiness, portfolio, doctor and federation to the shared decision or terminal projection; producer authority governs federated exemptions."
+    },
+    {
+      "id": "backend-observability",
+      "disposition": "passed",
+      "evidence": "integration:pose-mcp/go/typed-diagnostics-integration",
+      "rationale": "Decisions expose policy, reason, counts and resolution diagnostics. Incomplete publication and invalid receipts provide remediation; doctor discloses unknown historical comparisons."
+    },
+    {
+      "id": "compatibility",
+      "disposition": "passed",
+      "evidence": "integration:pose-mcp/go/install-and-upgrade-journeys-integration",
+      "rationale": "Reviewed explicit adoption, update preservation, schema-5 retention by other capability toggles, old-engine refusal and verification of pre-adoption sealed scopes without fabricated receipts."
+    },
+    {
+      "id": "correctness",
+      "disposition": "finding",
+      "evidence": "N54"
+    },
+    {
+      "id": "design-causality",
+      "disposition": "passed",
+      "evidence": "structure:design-7ae84774f012464a",
+      "rationale": "The shared deterministic evaluator implements the selected cost/benefit thresholds; receipts separate review eligibility from explicit closure. Goldmark addresses repeated grammar-driven silent drops. The bounded-read capacity amendment supports the existing governance operations without changing their fail-closed limits.",
+      "mappings": [
+        {
+          "delta": "SD-04999039",
+          "basis": "D3",
+          "disposition": "mapped",
+          "rationale": "Goldmark replaces the hand-written CommonMark approximation that repeatedly lost real associations. Cached module metadata confirms MIT licensing and no transitive module requirements."
+        },
+        {
+          "delta": "SD-3ce6ee69",
+          "basis": "D2",
+          "disposition": "mapped",
+          "rationale": "The existing read-view ADR records the measured capacity adjustment needed by governance operations supporting the receipt/evaluator design; capture and audit retain a common bounded budget. Its memory cost and later optimization are documented."
+        },
+        {
+          "delta": "SD-c74440ab",
+          "basis": "D2",
+          "disposition": "mapped",
+          "rationale": "The roadmap template exposes the selected flat adrs association contract with an explicit empty list."
+        },
+        {
+          "delta": "SD-e01b22c0",
+          "basis": "D3",
+          "disposition": "mapped",
+          "rationale": "The parser ADR records grammar coverage, decoding precedence, conservative HTML handling and dependency trade-offs."
+        },
+        {
+          "delta": "SD-ec2d86f4",
+          "basis": "D1",
+          "disposition": "mapped",
+          "rationale": "The policy ADR defines the three modes, thresholds, explicit close, prospective adoption, historical compatibility and veto protections required by R1-R7."
+        }
+      ]
+    },
+    {
+      "id": "documentation",
+      "disposition": "finding",
+      "evidence": "N54"
+    },
+    {
+      "id": "operability",
+      "disposition": "passed",
+      "evidence": "integration:pose-mcp/go/closeout-review-policy-integration",
+      "rationale": "Reviewed preview/setup settings, doctor explanations, explicit-close next actions and recovery instructions. Receipt corruption is actionable and cannot be cleared by overwriting; N54 is a bounded conservative residual."
+    },
+    {
+      "id": "requirements",
+      "disposition": "finding",
+      "evidence": "N54"
+    },
+    {
+      "id": "scope",
+      "disposition": "passed",
+      "evidence": "integration:pose-mcp/go/closeout-review-policy-integration",
+      "rationale": "The implementation covers R1-R7 and the approved D1-D3 choices. It reuses adopt/setup and existing authority machinery, introduces no MCP configuration writer, and does not adopt policy in this instance."
+    },
+    {
+      "id": "security",
+      "disposition": "passed",
+      "evidence": "integration:pose-mcp/go/closeout-review-policy-integration",
+      "rationale": "Inspected path containment, regular-file checks, bounded association inventory, canonical authority, recorded-review veto, baseline protection and immutable publication. The cheapest attempted bypass is a never exemption despite negative or unknown evidence; the policy Protection/Veto/Unavailable and round regressions exercise those refusals. The generic adversarial corpus is supplemental, not claimed as a dedicated case for this gate. Confirmed goldmark licence and dependency metadata locally; its recorded vulnerability scan was not independently repeated because govulncheck is unavailable."
+    },
+    {
+      "id": "solution-proportionality",
+      "disposition": "passed",
+      "evidence": "structure:design-7ae84774f012464a",
+      "rationale": "Compared the selected design with two booleans, agent judgment and continued regex repair. Three enums and one shared evaluator are sufficient for the approved middle mode; receipts are necessary because milestone close previously persisted no transition. A pure-Go CommonMark parser addresses the demonstrated repeated failures without adding rendering or global backlink search. Reconsider if remote backlink discovery or a different Markdown dialect becomes a requirement; N54 remains conservative follow-up work."
+    }
+  ],
+  "tools": [
+    {
+      "id": "artifact-check",
+      "disposition": "passed",
+      "evidence": "command:pose artifact-check --spec pose-closeout-review-policy-by-cost-benefit --strict",
+      "rationale": "Executed successfully, exit 0: artifact.claims=49, artifact.observed=208, artifact.findings=920. A second JSON invocation confirmed zero error findings and 920 warnings. The default output includes recorded historical change sets, so these counts are not the sealed range's file count. An additional explicit-range diagnostic failed with git diff signal: broken pipe; it is not counted as passing evidence."
+    },
+    {
+      "id": "assess-design",
+      "disposition": "not-used",
+      "evidence": "structure:design-7ae84774f012464a",
+      "rationale": "Did not rerun a writing assessment in the sealed checkout. Examined the sealed structural result, implementation, D1-D3 and their ADRs directly."
+    },
+    {
+      "id": "assess-discover",
+      "component": "pose-mcp",
+      "disposition": "not-used",
+      "evidence": "command:pose context --task spec:pose-closeout-review-policy-by-cost-benefit --json",
+      "rationale": "Discovery writes assessment artifacts and was excluded by the review boundary. Confirmed local authority and sealed revision through the read-only context command and inspected the component directly."
+    },
+    {
+      "id": "assess-integrate",
+      "disposition": "not-used",
+      "evidence": "integration:pose-mcp/go/closeout-review-policy-integration",
+      "rationale": "Avoided assessment writes. Used sealed integration evidence, independently reran the policy integration prefix across domain/CLI/MCP and traced provider/consumer paths."
+    },
+    {
+      "id": "assess-tech-debt",
+      "disposition": "not-used",
+      "evidence": "command:pose suggest review --path pose-mcp",
+      "rationale": "Avoided assessment writes. Inspected changed code and spec follow-ups and searched the new closeout files for TODO, FIXME, stub and panic markers; no new unresolved implementation marker was established."
+    },
+    {
+      "id": "closeout-check",
+      "disposition": "deferred",
+      "evidence": "command:pose context --task spec:pose-closeout-review-policy-by-cost-benefit --json",
+      "rationale": "Completion check depends on the review conclusion being recorded by POSE; this independent run must not record an attestation."
+    },
+    {
+      "id": "review-check",
+      "disposition": "deferred",
+      "evidence": "command:pose context --task spec:pose-closeout-review-policy-by-cost-benefit --json",
+      "rationale": "The review's own completion check cannot pass before POSE records its conclusion."
+    },
+    {
+      "id": "suggest-review",
+      "component": "pose-mcp",
+      "disposition": "passed",
+      "evidence": "command:pose suggest review --path pose-mcp",
+      "rationale": "Executed successfully; selected the review workflow and security, documentation-style and backend-go rules."
+    },
+    {
+      "id": "surface-check",
+      "disposition": "passed",
+      "evidence": "integration:pose-mcp/go/closeout-review-policy-integration",
+      "rationale": "Executed pose surface-check --spec pose-closeout-review-policy-by-cost-benefit --strict, exit 0: surface.targets=1, surface.results=213, surface.findings=0. Composition is supported by integration:pose-mcp/go/closeout-review-policy-integration and reachability:pose-mcp/go/closeout-plan-reachability."
+    },
+    {
+      "id": "validate",
+      "disposition": "passed",
+      "evidence": "unit:pose-mcp/go/test",
+      "rationale": "Disposed from the sealed strict pipeline run as directed. delivery-validation.json records 213 executed, 213 passed, zero failed/errored/skipped; the sealed evidence includes build, unit, integration and e2e results. Did not rerun the writing full-validation workflow."
+    },
+    {
+      "id": "validate",
+      "component": "pose-mcp",
+      "disposition": "passed",
+      "evidence": "integration:pose-mcp/go/closeout-review-policy-integration",
+      "rationale": "Used the component's sealed passing validation results, including build:pose-mcp/go/build and unit:pose-mcp/go/test. Independently reran all TestCloseoutReviewPolicy tests across domain/CLI/MCP, the CLI publication race regression and go vet successfully."
+    }
+  ],
+  "evidence_refs": [
+    "N54",
+    "delegated-run:rrn-93914466c27974f9",
+    "integration:pose-mcp/go/closeout-review-policy-integration",
+    "integration:pose-mcp/go/install-and-upgrade-journeys-integration",
+    "integration:pose-mcp/go/typed-diagnostics-integration",
+    "integration:pose-mcp/go/writer-coordination-and-atomic-publication-integration",
+    "structure:design-7ae84774f012464a"
+  ],
+  "findings": [
+    {
+      "id": "N54",
+      "severity": "low",
+      "evidence": "file:pose-mcp/internal/pose/closeout_adr_associations.go:87",
+      "action": "Exclude CommonMark comment nodes from the HTML attribute fallback and add inline/block comment regressions in both association directions while retaining unknown for actual raw HTML links.",
+      "disposition": "accepted-risk",
+      "owner": "@pose-maintainers",
+      "rationale": "The HTML fallback also examines CommonMark comments. For example, \u003c!-- example: \u003ca href=\"../adr/decision.md\"\u003ex\u003c/a\u003e --\u003e becomes a goldmark HTMLBlockType2, whose complete text reaches htmlLink at line 96; href= therefore produces an unknown association. Inline comments take the analogous RawHTML path. A comment in any inventoried ADR can consequently block an otherwise valid when-justified exemption. This is conservative over-enforcement, not an exemption bypass. Source evidence: the AST dispatch at lines 80-96, the attribute expression at line 109, and goldmark parser/html_block.go's comment classification.",
+      "review_by": "2026-12-13"
+    }
+  ],
+  "authority": {
+    "schema_version": 1,
+    "project": "proj.pose-dist",
+    "bundle_digest": "sha256:5e4e23434f65d1a008ce34dc1639a33bb036f1c6660fb7225727431ccd7f9d66",
+    "principal": "agent:openai/gpt-6.1-sol",
+    "role": "agent",
+    "review_execution": "rrn-93914466c27974f9",
+    "implementation_principal": "agent:anthropic/claude-opus-5-5",
+    "implementation_execution": "sha256:0eb880a4fc2ed87a379c949a567b1d3dfbd6b58b466f4755fcd363dd2b7fed98",
+    "issuer": "b34-local-executor",
+    "issued_at": "2026-11-14T07:25:16Z",
+    "audience": "proj.pose-dist"
+  },
+  "envelope": {
+    "issuer": "b34-local-executor",
+    "subject": "rvb-5e4e23434f65d1a0",
+    "algorithm": "ed25519",
+    "public_key": "ck4sApdfePV2GT+hJyAYfJd2qLzeG55P8pevGR0bvZE=",
+    "signature": "uQ1CiMyVFs5oZFBa5v2cnF9RHjsi4L/OyNt+W/gzgdGvwOGvWpEhY/Hp54SdBlz+ufESDwbTI7aVEdjSNuTWCw=="
+  },
+  "attested_at": "2026-11-14T07:25:16Z",
+  "path": ".pose/review-attestations/rva-8e7b6233929f72af.json"
+}
