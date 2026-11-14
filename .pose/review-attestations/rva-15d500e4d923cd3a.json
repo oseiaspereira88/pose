@@ -1,0 +1,213 @@
+{
+  "run": {
+    "run_id": "rrn-6759adb4e79c387b",
+    "proof_id": "rrp-44b6aac62ace5756951de0922bd56a387a879c8de0de2a32e7492c06f832224a"
+  },
+  "schema_version": 1,
+  "attestation_id": "rva-15d500e4d923cd3a",
+  "bundle_id": "rvb-3bc3836818140841",
+  "bundle_digest": "sha256:3bc3836818140841ad5a46a3a60681ae19ca45372e175a024c50b61454e377fe",
+  "reviewer": "agent:openai/gpt-6.1-sol",
+  "decision": "approved",
+  "criteria": [
+    {
+      "id": "assumption-integrity",
+      "disposition": "passed",
+      "evidence": "integration:pose-mcp/go/index-streams-each-commit-once-integration",
+      "rationale": "Compared both trailer parsers and verified the shared-order subsequence premise in spec_trailers.go:31-66. Independently ran digest-equivalence, read-count, and failed-stream tests. Corpus byte-identity and timing remain implementer-reported measurements, not independently repeated benchmarks. Duplicate trailers deliberately retain per-spec reads. The local broader-test failure is the pre-existing rendering assertion recorded as F1."
+    },
+    {
+      "id": "backend-concurrency",
+      "disposition": "passed",
+      "evidence": "unit:pose-mcp/go/test",
+      "rationale": "The new hash maps and writers are local to a synchronous collection call. No goroutines or shared mutable state were introduced. changeSetGitStream preserves the timeout, cancellation cleanup, and existing read-view lifecycle."
+    },
+    {
+      "id": "backend-contracts",
+      "disposition": "passed",
+      "evidence": "integration:pose-mcp/go/index-streams-each-commit-once-integration",
+      "rationale": "Digest computation and change-set construction retain their existing formulas and fields; only internal patch acquisition changes."
+    },
+    {
+      "id": "backend-input-errors",
+      "disposition": "passed",
+      "evidence": "integration:pose-mcp/go/read-view-streamed-object-digests-integration",
+      "rationale": "Reviewed existing slug and revision validation, bounded history and patch reads, and error wrapping. artifact_integrity.go:466-478 excludes failed digests; lines 676-678 preserve the cause as a collection gap. The failed-stream regression passed locally."
+    },
+    {
+      "id": "backend-integration-impact",
+      "disposition": "passed",
+      "evidence": "integration:pose-mcp/go/governance-operation-performance-integration",
+      "rationale": "The production collector invokes the shared pass at artifact_integrity.go:673 and consumes its digests at line 680. The collector performance test exercises this composition for multiple specs and passed locally."
+    },
+    {
+      "id": "backend-observability",
+      "disposition": "passed",
+      "evidence": "integration:pose-mcp/go/read-view-streamed-object-digests-integration",
+      "rationale": "The extracted stream helper retains bounded stderr and wrapped forensic causes. Collection errors retain spec context, and failed partial hashes are not published."
+    },
+    {
+      "id": "compatibility",
+      "disposition": "passed",
+      "evidence": "integration:pose-mcp/go/index-streams-each-commit-once-integration",
+      "rationale": "Examined parser semantics, Git arguments, digest substitution, and returned ChangeSet fields. Public CLI, MCP, and serialized file contracts remain unchanged; duplicate trailer semantics are preserved through fallback."
+    },
+    {
+      "id": "correctness",
+      "disposition": "finding",
+      "evidence": "F1"
+    },
+    {
+      "id": "design-causality",
+      "disposition": "passed",
+      "evidence": "structure:design-3948ef79d5b82523",
+      "rationale": "D1 selects ordered fan-out because repeated patch reads arise from per-spec collection. artifact_integrity.go:437-478 streams each eligible commit into all owning hashes, addressing R1 without retaining patch bytes. Duplicate detection implements R3; the resolver consumes the precomputed digest for R2; failure fan-out and collection gaps implement R4. No individual structural-fact deltas were supplied in the brief."
+    },
+    {
+      "id": "documentation",
+      "disposition": "passed",
+      "evidence": "integration:pose-mcp/go/validation-matrix-run-patterns-integration",
+      "rationale": "Compared the spec, implementation comments, and validation-matrix addition. The SinglePass selector matches the new test. Documentation accurately describes duplicate-trailer fallback, unchanged final audit, and absence of persistent caching."
+    },
+    {
+      "id": "operability",
+      "disposition": "passed",
+      "evidence": "integration:pose-mcp/go/read-view-streamed-object-digests-integration",
+      "rationale": "Reviewed cause preservation and spec-specific collection gaps. Existing actionable revision and history errors remain available; the optimization introduces no configuration, migration, or recovery procedure."
+    },
+    {
+      "id": "requirements",
+      "disposition": "passed",
+      "evidence": "unit:pose-mcp/go/test",
+      "rationale": "R1/R2 have shared-commit count and digest-equivalence coverage; R3 has duplicate-trailer exclusion and unchanged per-spec fallback; R4 has failed-stream regression coverage and explicit fan-out inspection at artifact_integrity.go:466-478,676-678. Focused tests passed locally. The corpus comparison is recorded in the spec execution log."
+    },
+    {
+      "id": "scope",
+      "disposition": "passed",
+      "evidence": "integration:pose-mcp/go/index-streams-each-commit-once-integration",
+      "rationale": "Compared the requested range and declared artifacts against R1-R4. Implementation changes remain confined to ordered trailer parsing, shared digest collection, resolver integration, and regression/performance checks. No unrelated production refactor or public contract change was introduced."
+    },
+    {
+      "id": "security",
+      "disposition": "passed",
+      "evidence": "integration:pose-mcp/go/engine-reads-raw-history-integration",
+      "rationale": "Reviewed changed Git invocations and stream plumbing. Raw-history protections, argument-based process execution, byte bounds, timeout, read-view binding, and final audit remain intact. No new authority boundary, dependency, persistent cache, or sensitive logging was introduced."
+    },
+    {
+      "id": "solution-proportionality",
+      "disposition": "passed",
+      "evidence": "structure:design-3948ef79d5b82523",
+      "rationale": "Compared D1's alternatives. Ordered MultiWriter fan-out is sufficient because every spec's commit sequence derives from the same log; retaining patch bytes or persisting digests would add unnecessary storage and invalidation concerns. The duplicate-trailer fallback avoids a more complex replay mechanism. Revisit this choice if attribution sequences cease to be subsequences of one shared log."
+    }
+  ],
+  "tools": [
+    {
+      "id": "artifact-check",
+      "disposition": "passed",
+      "evidence": "command:pose artifact-check --spec pose-index-streams-each-commit-once --strict",
+      "rationale": "Ran successfully with exit code 0. A second JSON run confirmed no error or critical findings. Existing provenance warnings and later refs visible through --all were distinguished from the sealed implementation range."
+    },
+    {
+      "id": "assess-design",
+      "disposition": "not-used",
+      "rationale": "Reviewed D1, implementation structure, and sealed structure:design-3948ef79d5b82523. Did not rerun the assessment because repository writes are prohibited."
+    },
+    {
+      "id": "assess-discover",
+      "component": "pose-mcp",
+      "disposition": "not-used",
+      "rationale": "Component discovery was unnecessary to resolve the explicitly supplied component and implementation paths. Did not run an assessment that writes repository state."
+    },
+    {
+      "id": "assess-integrate",
+      "disposition": "not-used",
+      "rationale": "No public API, event, schema, or MCP contract changes were found. Reviewed production collector composition, read-view integration, and sealed integration evidence without writing assessment artifacts."
+    },
+    {
+      "id": "assess-tech-debt",
+      "disposition": "not-used",
+      "rationale": "Did not run the state-writing assessment. Inspected the changed code and searched the affected implementation files for TODO, FIXME, stub, and panic markers; none were found there."
+    },
+    {
+      "id": "closeout-check",
+      "disposition": "deferred",
+      "rationale": "Requires the completed review attestation. Recording an attestation is explicitly outside this independent review."
+    },
+    {
+      "id": "review-check",
+      "disposition": "deferred",
+      "rationale": "Requires POSE to record this review conclusion first; no attestation was recorded."
+    },
+    {
+      "id": "suggest-review",
+      "component": "pose-mcp",
+      "disposition": "passed",
+      "evidence": "command:pose suggest review --path pose-mcp",
+      "rationale": "Selected backend-go, security, and documentation-style rules; also applied delivery-evidence to delivery claims."
+    },
+    {
+      "id": "surface-check",
+      "disposition": "passed",
+      "evidence": "integration:pose-mcp/go/index-streams-each-commit-once-integration",
+      "rationale": "Ran pose surface-check --spec pose-index-streams-each-commit-once --strict: exit 0, one target, zero findings."
+    },
+    {
+      "id": "validate",
+      "disposition": "passed",
+      "evidence": "unit:pose-mcp/go/test",
+      "rationale": "Accepted the sealed producer execution of strict validation. Inspected delivery-validation.json: 215 executed, 215 passed, zero failures. Did not rerun the repository-writing validation command. Independent broader tests exposed the pre-existing locale-sensitive assertion recorded as F1."
+    },
+    {
+      "id": "validate",
+      "component": "pose-mcp",
+      "disposition": "passed",
+      "evidence": "unit:pose-mcp/go/test",
+      "rationale": "Reviewed sealed pose-mcp build, unit, and integration results from strict validation. Component coverage is supplied by that containing validation run. Independently reran focused single-pass, failed-stream, and collector-performance tests successfully; the broader local CLI failure is recorded as F1."
+    }
+  ],
+  "evidence_refs": [
+    "F1",
+    "delegated-run:rrn-6759adb4e79c387b",
+    "integration:pose-mcp/go/engine-reads-raw-history-integration",
+    "integration:pose-mcp/go/governance-operation-performance-integration",
+    "integration:pose-mcp/go/index-streams-each-commit-once-integration",
+    "integration:pose-mcp/go/read-view-streamed-object-digests-integration",
+    "integration:pose-mcp/go/validation-matrix-run-patterns-integration",
+    "structure:design-3948ef79d5b82523",
+    "unit:pose-mcp/go/test"
+  ],
+  "findings": [
+    {
+      "id": "F1",
+      "severity": "low",
+      "evidence": "file:pose-mcp/internal/cli/check_index_generation_test.go:85",
+      "action": "Make the warning assertion independent of rendering profile, or explicitly select a deterministic profile and cover the Unicode form.",
+      "disposition": "accepted-risk",
+      "owner": "POSE maintainers",
+      "rationale": "Pre-existing test portability defect: findingIsAWarning accepts only ASCII warning prefixes. Under a UTF-8 locale, cmdCheck correctly emits '⚠ warning', but TestCheckRefusesAnIndexSetThatItsDescriptorDoesNotDescribe fails at line 47. Reproduced both in the broader test run and in isolation; git show of the base commit confirms the helper is unchanged. This does not invalidate the single-pass implementation or the sealed validation results.",
+      "review_by": "2026-12-14"
+    }
+  ],
+  "authority": {
+    "schema_version": 1,
+    "project": "proj.pose-dist",
+    "bundle_digest": "sha256:3bc3836818140841ad5a46a3a60681ae19ca45372e175a024c50b61454e377fe",
+    "principal": "agent:openai/gpt-6.1-sol",
+    "role": "agent",
+    "review_execution": "rrn-6759adb4e79c387b",
+    "implementation_principal": "agent:anthropic/claude-opus-5-5",
+    "implementation_execution": "sha256:0eb880a4fc2ed87a379c949a567b1d3dfbd6b58b466f4755fcd363dd2b7fed98",
+    "issuer": "b34-local-executor",
+    "issued_at": "2026-11-14T11:14:19Z",
+    "audience": "proj.pose-dist"
+  },
+  "envelope": {
+    "issuer": "b34-local-executor",
+    "subject": "rvb-3bc3836818140841",
+    "algorithm": "ed25519",
+    "public_key": "ck4sApdfePV2GT+hJyAYfJd2qLzeG55P8pevGR0bvZE=",
+    "signature": "h2KO52f+yI843AbEMjxjz5F3WQgjIrYsJLcmw7qBlt8rtNc+EZgBD7Iysiht+qd9ropfCJiP1/BVRijIA7XqCQ=="
+  },
+  "attested_at": "2026-11-14T11:14:19Z",
+  "path": ".pose/review-attestations/rva-15d500e4d923cd3a.json"
+}
