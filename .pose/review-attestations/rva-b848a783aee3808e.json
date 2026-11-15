@@ -1,0 +1,237 @@
+{
+  "run": {
+    "run_id": "rrn-8668302a9e51465d",
+    "proof_id": "rrp-358b9ad430e8c1f35a4bd75511667c4431ba86876cfa985af565b09429cd77bd"
+  },
+  "schema_version": 1,
+  "attestation_id": "rva-b848a783aee3808e",
+  "bundle_id": "rvb-c08e22744774efdd",
+  "bundle_digest": "sha256:c08e22744774efdd5cce4f31bf5b9802119fc2d38eb74c90a2d6fd716ac24e1d",
+  "reviewer": "agent:openai/gpt-6.1-sol",
+  "decision": "approved",
+  "criteria": [
+    {
+      "id": "assumption-integrity",
+      "disposition": "passed",
+      "evidence": "integration:pose-mcp/go/check-shares-the-federated-material-integration",
+      "rationale": "Verified sharing and mutation detection with targeted normal and race tests. Inspected binding checks and final CLI audit propagation. The precise harne8 memory bound and production-path regression coverage remain unresolved evidence assumptions, explicitly accepted as low follow-up N4. Existing ADR limits on external change-and-restore transitions remain applicable."
+    },
+    {
+      "id": "backend-concurrency",
+      "disposition": "passed",
+      "evidence": "integration:pose-mcp/go/check-shares-the-federated-material-integration",
+      "rationale": "Targeted race tests passed, including parallel scope isolation and binding rejection. Delegation fields are initialized before callback publication; the existing mutex and ready-channel memo publishes completed results safely. The CLI joins scopes before coordinator auditing."
+    },
+    {
+      "id": "backend-contracts",
+      "disposition": "passed",
+      "evidence": "integration:pose-mcp/go/cli-mcp-operation-results-integration",
+      "rationale": "No public signature, serialized schema, CLI argument or MCP tool contract changes were introduced."
+    },
+    {
+      "id": "backend-input-errors",
+      "disposition": "passed",
+      "evidence": "integration:pose-mcp/go/governance-read-view-integration",
+      "rationale": "Existing missing-binding, unbounded-input and mismatch reasons remain intact. Scope binding rejection, audit unknowns and mutation errors remain fail-closed."
+    },
+    {
+      "id": "backend-integration-impact",
+      "disposition": "passed",
+      "evidence": "integration:pose-mcp/go/check-shares-the-federated-material-integration",
+      "rationale": "Inspected check.go:295-375, scope construction, index consumption and foreign-root routing. Existing coordinator and closeout integrations remain sealed as passing; the narrower coverage gap is accepted under N4."
+    },
+    {
+      "id": "backend-observability",
+      "disposition": "passed",
+      "evidence": "integration:pose-mcp/go/typed-diagnostics-integration",
+      "rationale": "Binding failures retain named input and generation context; coordinator audit errors propagate to check findings. No new sensitive logging is added."
+    },
+    {
+      "id": "compatibility",
+      "disposition": "passed",
+      "evidence": "integration:pose-mcp/go/cli-mcp-operation-results-integration",
+      "rationale": "Examined exported methods, file formats and CLI composition. The change relocates internal input verification while preserving aggregate gate failure and existing public contracts."
+    },
+    {
+      "id": "correctness",
+      "disposition": "passed",
+      "evidence": "integration:pose-mcp/go/check-shares-the-federated-material-integration",
+      "rationale": "Targeted normal and race runs passed. Memo keys still distinguish root, generation and producer; delegation uses coordinator Files; mutation detection is covered by the coordinator audit."
+    },
+    {
+      "id": "design-causality",
+      "disposition": "passed",
+      "evidence": "structure:design-8b97be1d37d0b5a6",
+      "rationale": "D1 explicitly declares Basis R1, R2. Reusing the existing operation memo removes repeated binding computation, while moving its reads into the coordinator closure preserves final mutation detection. The design assessment reproduced the sealed structural digest.",
+      "mappings": [
+        {
+          "delta": "SD-e0fdbb6a",
+          "basis": "D1",
+          "disposition": "mapped",
+          "rationale": "ADR amendment D12 records D1's selected coordinator delegation and final-audit ownership, implementing R1 and R2."
+        }
+      ]
+    },
+    {
+      "id": "documentation",
+      "disposition": "finding",
+      "evidence": "N3",
+      "rationale": "ADR D12 and the validation registration match runtime behavior; two public method comments omit the shared-audit exception."
+    },
+    {
+      "id": "operability",
+      "disposition": "passed",
+      "evidence": "integration:pose-mcp/go/governance-read-view-integration",
+      "rationale": "Inspected mismatch reasons, audit error wrapping and CLI reporting. Operators still receive bounded input-change or unknown-closure context, and coordinator failure prevents a green gate."
+    },
+    {
+      "id": "requirements",
+      "disposition": "finding",
+      "evidence": "N4",
+      "rationale": "R1 and R2 have passing focused evidence and supporting production wiring. The exact non-functional resource bound lacks independently reviewable sealed measurement evidence."
+    },
+    {
+      "id": "scope",
+      "disposition": "passed",
+      "evidence": "structure:design-8b97be1d37d0b5a6",
+      "rationale": "The six subject paths implement the declared delegation, tests, ADR amendment, validation registration and start record. No unrelated implementation changes or public contract expansion were found."
+    },
+    {
+      "id": "security",
+      "disposition": "passed",
+      "evidence": "integration:pose-mcp/go/governance-read-view-integration",
+      "rationale": "Inspected root, project, resolver and Files identity checks before scope creation, authorized-root vector equality, bounded read routing and retirement checks. Delegation retains the coordinator's authorized Files and budgets. No new authority bypass, dependency or secret exposure was found."
+    },
+    {
+      "id": "solution-proportionality",
+      "disposition": "passed",
+      "evidence": "structure:design-8b97be1d37d0b5a6",
+      "rationale": "The implementation reuses the existing operation memo and final audit with two internal fields and a delegation branch. A process-wide cache would require a broader validity key and lifecycle. No watcher, persistent cache or snapshot abstraction was added. This choice would need reassessment if scopes acquired different authorization contexts or results were consumed before coordinator completion."
+    }
+  ],
+  "tools": [
+    {
+      "id": "artifact-check",
+      "disposition": "passed",
+      "evidence": "command:pose artifact-check --spec pose-check-shares-the-federated-material --strict",
+      "rationale": "Executed. Existing repository-wide provenance warnings were reported; no blocking artifact error was reported. The sealed checkout suppresses index refresh."
+    },
+    {
+      "id": "assess-design",
+      "disposition": "passed",
+      "evidence": "structure:design-8b97be1d37d0b5a6",
+      "rationale": "Executed the read-only assessment; all six subject files were observed and its input digest matches the sealed structural evidence."
+    },
+    {
+      "id": "assess-discover",
+      "component": "pose-mcp",
+      "disposition": "not-used",
+      "evidence": "command:pose suggest review --path pose-mcp",
+      "rationale": "The discovery command saves assessment and state artifacts. Skipped to obey the explicit no-repository-changes boundary; component and rule selection were inspected read-only."
+    },
+    {
+      "id": "assess-integrate",
+      "disposition": "not-used",
+      "evidence": "integration:pose-mcp/go/check-shares-the-federated-material-integration",
+      "rationale": "The command unconditionally saves its integration matrix. Used code inspection, sealed integrations and targeted tests within the no-write boundary."
+    },
+    {
+      "id": "assess-tech-debt",
+      "disposition": "not-used",
+      "evidence": "command:rg -n 'TODO|FIXME|stub|panic' pose-mcp/internal/pose/review_scope_index_inputs_test.go pose-mcp/internal/pose/review_operation_view.go pose-mcp/internal/pose/governance_read_view.go",
+      "rationale": "The assessment command unconditionally saves its report. The read-only marker scan found no matching markers in the affected implementation files."
+    },
+    {
+      "id": "closeout-check",
+      "disposition": "deferred",
+      "evidence": "command:pose review bundle spec:pose-check-shares-the-federated-material --explain",
+      "rationale": "Completion requires the recorded, verified review conclusion. This task explicitly prohibits recording an attestation."
+    },
+    {
+      "id": "review-check",
+      "disposition": "deferred",
+      "evidence": "command:pose review bundle spec:pose-check-shares-the-federated-material --explain",
+      "rationale": "Deferred until POSE records and verifies this review; a pre-attestation run cannot certify this conclusion."
+    },
+    {
+      "id": "suggest-review",
+      "component": "pose-mcp",
+      "disposition": "passed",
+      "evidence": "command:pose suggest review --path pose-mcp",
+      "rationale": "Executed; selected backend-go, security and documentation-style."
+    },
+    {
+      "id": "surface-check",
+      "disposition": "passed",
+      "evidence": "integration:pose-mcp/go/check-shares-the-federated-material-integration",
+      "rationale": "Executed pose surface-check --spec pose-check-shares-the-federated-material --strict: one target, 226 results and zero findings."
+    },
+    {
+      "id": "validate",
+      "disposition": "passed",
+      "evidence": "unit:pose-mcp/go/test",
+      "rationale": "Reused the sealed strict validation producer evidence. Inspected delivery-validation.json: outcome pass, 226 executed and passed, zero failed or skipped. Did not rerun the repository-writing validation publisher."
+    },
+    {
+      "id": "validate",
+      "component": "pose-mcp",
+      "disposition": "passed",
+      "evidence": "integration:pose-mcp/go/check-shares-the-federated-material-integration",
+      "rationale": "Reused sealed component validation evidence and inspected its registered command and passing result. Independently reran the focused command normally and an expanded selection with -race; both passed."
+    }
+  ],
+  "evidence_refs": [
+    "N3",
+    "N4",
+    "delegated-run:rrn-8668302a9e51465d",
+    "integration:pose-mcp/go/check-shares-the-federated-material-integration",
+    "integration:pose-mcp/go/cli-mcp-operation-results-integration",
+    "integration:pose-mcp/go/governance-read-view-integration",
+    "integration:pose-mcp/go/typed-diagnostics-integration",
+    "structure:design-8b97be1d37d0b5a6"
+  ],
+  "findings": [
+    {
+      "id": "N3",
+      "severity": "low",
+      "evidence": "file:pose-mcp/internal/pose/review_operation_view.go:581",
+      "action": "Update both public method comments to describe coordinator certification of shared index-input reads and require consumers to await the coordinator result.",
+      "disposition": "accepted-risk",
+      "owner": "@pose-maintainers",
+      "rationale": "Continuation of R2-N1: comments here and at line 636 describe independent scope certification without explaining that consumed-index input checks now belong to the coordinator closure. The D12 comment at lines 652-655 is accurate, and check.go propagates coordinator audit failure, so this is documentation drift rather than a runtime defect.",
+      "review_by": "2026-12-15"
+    },
+    {
+      "id": "N4",
+      "severity": "low",
+      "evidence": "file:pose-mcp/internal/pose/review_scope_index_inputs_test.go:47",
+      "action": "Add a regression through GetCloseoutState or pose check using a valid current generation, assert binding reuse and mutation rejection, and retain a reproducible resource-measurement receipt for the specified harne8 configuration.",
+      "disposition": "accepted-risk",
+      "owner": "@pose-maintainers",
+      "rationale": "Continuation of R2-N2: both new tests invoke checkIndexInputs directly, using a synthetic pin and discarding returned mismatch reasons. They prove memo sharing and coordinator mutation detection, but do not assert those properties through a real current-index consumer. Production wiring is supported by code inspection and broader sealed integrations. The specific harne8 requirement of 16 workers below 4 GB remains supported only by the implementer's reported measurement, without a sealed resource-measurement artifact.",
+      "review_by": "2026-12-15"
+    }
+  ],
+  "authority": {
+    "schema_version": 1,
+    "project": "proj.pose-dist",
+    "bundle_digest": "sha256:c08e22744774efdd5cce4f31bf5b9802119fc2d38eb74c90a2d6fd716ac24e1d",
+    "principal": "agent:openai/gpt-6.1-sol",
+    "role": "agent",
+    "review_execution": "rrn-8668302a9e51465d",
+    "implementation_principal": "agent:anthropic/claude-opus-5-5",
+    "implementation_execution": "sha256:0eb880a4fc2ed87a379c949a567b1d3dfbd6b58b466f4755fcd363dd2b7fed98",
+    "issuer": "b34-local-executor",
+    "issued_at": "2026-11-15T19:44:51Z",
+    "audience": "proj.pose-dist"
+  },
+  "envelope": {
+    "issuer": "b34-local-executor",
+    "subject": "rvb-c08e22744774efdd",
+    "algorithm": "ed25519",
+    "public_key": "ck4sApdfePV2GT+hJyAYfJd2qLzeG55P8pevGR0bvZE=",
+    "signature": "uav5OGBP1NCkTMAiHIxYfVCg2+j1uaicVoZMCqxRcN+13V3LSTAIuc0S7cq/F3aX0dnagAOUSVjnedYsTkpfCQ=="
+  },
+  "attested_at": "2026-11-15T19:44:51Z",
+  "path": ".pose/review-attestations/rva-b848a783aee3808e.json"
+}
