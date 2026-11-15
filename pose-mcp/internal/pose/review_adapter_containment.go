@@ -615,39 +615,37 @@ var (
 // a directory, so a link, a FIFO or any other entry stays for the runtime
 // inventory to judge.
 func removeReviewGoBuildLeftovers(root *os.Root) error {
-	// The top level is read in bounded batches: more entries than the
-	// runtime inventory admits cannot be confirmed anyway (review round 5,
-	// N6).
+	// The top level is read in bounded batches and each go-build directory
+	// is removed as it is read, so nothing accumulates; only the other
+	// entries, which the runtime inventory will judge, count against its
+	// bound (review rounds 5 and 6, N6 and N10).
 	dir, err := root.Open(".")
 	if err != nil {
 		return fmt.Errorf("runtime cleanup inventory incomplete; resources retained")
 	}
-	names := []string{}
+	defer dir.Close()
+	others := 0
 	for {
 		batch, err := dir.Readdirnames(256)
-		names = append(names, batch...)
-		if len(names) > reviewRuntimeMaxEntries {
-			dir.Close()
-			return fmt.Errorf("runtime cleanup inventory incomplete; resources retained")
+		for _, name := range batch {
+			if !reviewGoBuildDir.MatchString(name) {
+				others++
+				if others > reviewRuntimeMaxEntries {
+					return fmt.Errorf("runtime cleanup inventory incomplete; resources retained")
+				}
+				continue
+			}
+			if err := removeReviewGoBuildDir(root, name); err != nil {
+				return err
+			}
 		}
-		if errors.Is(err, io.EOF) || (err == nil && len(batch) == 0) {
-			break
-		}
-		if err != nil {
-			dir.Close()
+		if len(batch) == 0 {
+			if err == nil || errors.Is(err, io.EOF) {
+				return nil
+			}
 			return fmt.Errorf("runtime cleanup inventory incomplete; resources retained")
 		}
 	}
-	dir.Close()
-	for _, name := range names {
-		if !reviewGoBuildDir.MatchString(name) {
-			continue
-		}
-		if err := removeReviewGoBuildDir(root, name); err != nil {
-			return err
-		}
-	}
-	return nil
 }
 
 // reviewRuntimeMaxEntries is the runtime inventory's own entry bound.

@@ -25,6 +25,10 @@ var reviewGoBuildEnumerating = func(int) {}
 // use it to see that enumeration stops at the budget.
 var reviewGoBuildRead = func(int) {}
 
+// reviewGoBuildNestedBeforeRemove runs between the last check of a nested
+// directory's name and its removal; tests use it to change the name there.
+var reviewGoBuildNestedBeforeRemove = func(string) {}
+
 var errReviewGoBuildChanged = errors.New("runtime path changed during cleanup; replacement retained")
 
 // removeReviewGoBuildDir removes one go-build directory of the runtime root
@@ -71,11 +75,20 @@ func removeReviewGoBuildDir(root *os.Root, name string) error {
 		return err
 	}
 	reviewGoBuildAfterContents(name)
+	return unlinkReviewGoBuildBound(pfd, name, dfd, &opened, reviewGoBuildBeforeRemove)
+}
+
+// unlinkReviewGoBuildBound removes the emptied directory open as dfd by its
+// name in the directory open as pfd, and confirms the removal through dfd:
+// the name must still bind it before the removal, and afterwards it must be
+// unlinked. Every level of a go-build tree goes through it (review rounds 2
+// and 6, N1 and N9).
+func unlinkReviewGoBuildBound(pfd int, name string, dfd int, opened *unix.Stat_t, beforeRemove func(string)) error {
 	var bound unix.Stat_t
 	if err := unix.Fstatat(pfd, name, &bound, unix.AT_SYMLINK_NOFOLLOW); err != nil || bound.Dev != opened.Dev || bound.Ino != opened.Ino {
 		return errReviewGoBuildChanged
 	}
-	reviewGoBuildBeforeRemove(name)
+	beforeRemove(name)
 	if err := unix.Unlinkat(pfd, name, unix.AT_REMOVEDIR); err != nil {
 		return fmt.Errorf("runtime cleanup incomplete; resources retained")
 	}
@@ -158,12 +171,12 @@ func removeReviewGoBuildEntries(dfd, depth int, names []string, budget *reviewGo
 			return errReviewGoBuildChanged
 		}
 		err = removeReviewGoBuildContents(child, depth+1, budget)
+		if err == nil {
+			err = unlinkReviewGoBuildBound(dfd, name, child, &opened, reviewGoBuildNestedBeforeRemove)
+		}
 		unix.Close(child)
 		if err != nil {
 			return err
-		}
-		if err := unix.Unlinkat(dfd, name, unix.AT_REMOVEDIR); err != nil {
-			return fmt.Errorf("runtime cleanup incomplete; resources retained")
 		}
 	}
 	return nil
