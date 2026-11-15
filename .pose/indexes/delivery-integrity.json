@@ -1,7 +1,7 @@
 {
   "schema_version": 2,
-  "input_digest": "sha256:cafc8e14d3c9e3d4a663cdd1f4c10854cbfcfa82b379c055f34b899cac34c8da",
-  "provenance_digest": "sha256:a8d909e5a83b092ac6eb1f64d1b6be0c6f5d6ed2009ec9acbd44d2430301ac27",
+  "input_digest": "sha256:4acf1f52a25dee552b6f6cd9af9b1797224735ab3fe482ba1c722efb2d23d4c9",
+  "provenance_digest": "sha256:299cc372fe7d548f28490b0175915cb99bcf0af30921898cceb8754e2bb4352f",
   "implied_edges": [
     "changes"
   ],
@@ -42997,14 +42997,6 @@
       }
     },
     {
-      "id": "change-set:cs-0fead8eebe9c",
-      "type": "change-set",
-      "attributes": {
-        "diff_digest": "sha256:7c61be87b39927a72ec81595a30543c79b497f622cdd6f79f6dde0227c665b31",
-        "selector": "trailers:pose-federated-proof-reads-each-input-once"
-      }
-    },
-    {
       "id": "change-set:cs-103ed9bf32af",
       "type": "change-set",
       "attributes": {
@@ -43466,6 +43458,14 @@
       "attributes": {
         "diff_digest": "sha256:179ce4b5f87613b682986f6da4fc359486f757ebf926a3e46b1332db1a72e813",
         "selector": "trailers:pose-review-policy-v2-migration-and-verify-compat"
+      }
+    },
+    {
+      "id": "change-set:cs-2913e4f4e03e",
+      "type": "change-set",
+      "attributes": {
+        "diff_digest": "sha256:99fe636c752bc11004f817517326cbeb886eaae2cc0ee87db711223f1a5d217e",
+        "selector": "trailers:pose-federated-proof-reads-each-input-once"
       }
     },
     {
@@ -115959,7 +115959,7 @@
     },
     {
       "from": "spec:pose-federated-proof-reads-each-input-once",
-      "to": "change-set:cs-0fead8eebe9c",
+      "to": "change-set:cs-2913e4f4e03e",
       "type": "observed-by"
     },
     {
@@ -181089,105 +181089,6 @@
       "diff_digest": "sha256:b296ec489b9f786a84be19ac95f62739271a82e98fcfb1fa90f83697aaf2c592"
     },
     {
-      "id": "cs-0fead8eebe9c",
-      "spec": "pose-federated-proof-reads-each-input-once",
-      "selector": "trailers:pose-federated-proof-reads-each-input-once",
-      "base": "cb8088db7661d6318ff9d25c9e6fce0b0f96bb73^",
-      "head": "4c2368995e40e40fbdf899f6fe8a2a616e4cb38d",
-      "resolved_base": "bf2ff02c31752a3343b0200fa62b27c220ce2453",
-      "resolved_head": "4c2368995e40e40fbdf899f6fe8a2a616e4cb38d",
-      "commits": [
-        "cb8088db7661d6318ff9d25c9e6fce0b0f96bb73",
-        "0a264a037b4d15e7bafc65c73b06313ce395a812",
-        "eafb46dd1624f8a724894ccf547fe765256eb3ed",
-        "1987ae5db65b18b0a64d74c2c43fc344b023b13c",
-        "4c2368995e40e40fbdf899f6fe8a2a616e4cb38d"
-      ],
-      "paths": [
-        {
-          "action": "created",
-          "path": ".pose/specs/2026-11-15-pose-federated-proof-reads-each-input-once.md"
-        },
-        {
-          "action": "created",
-          "path": ".pose/starts/pose-federated-proof-reads-each-input-once.json"
-        },
-        {
-          "action": "created",
-          "path": "pose-mcp/internal/pose/current_material_cache_test.go"
-        },
-        {
-          "action": "created",
-          "path": "pose-mcp/internal/pose/release_snapshot_cache_test.go"
-        },
-        {
-          "action": "created",
-          "path": "pose-mcp/internal/pose/review_bundle_header_cache_test.go"
-        },
-        {
-          "action": "modified",
-          "path": ".pose/indexes/delivery-integrity.json"
-        },
-        {
-          "action": "modified",
-          "path": ".pose/indexes/generation.json"
-        },
-        {
-          "action": "modified",
-          "path": ".pose/indexes/spec-graph.json"
-        },
-        {
-          "action": "modified",
-          "path": ".pose/indexes/validation-matrix.json"
-        },
-        {
-          "action": "modified",
-          "path": ".pose/results/delivery-validation.json"
-        },
-        {
-          "action": "modified",
-          "path": "pose-mcp/internal/cli/material_engine.go"
-        },
-        {
-          "action": "modified",
-          "path": "pose-mcp/internal/pose/material_binding.go"
-        },
-        {
-          "action": "modified",
-          "path": "pose-mcp/internal/pose/release_archive.go"
-        },
-        {
-          "action": "modified",
-          "path": "pose-mcp/internal/pose/release_manifest_integrity.go"
-        },
-        {
-          "action": "modified",
-          "path": "pose-mcp/internal/pose/review_operation_view.go"
-        }
-      ],
-      "diff_digest": "sha256:7c61be87b39927a72ec81595a30543c79b497f622cdd6f79f6dde0227c665b31",
-      "material_digest": "sha256:71f5a0ae29e3b357bcac7c67210c1010e1b360df2d2b47e44a7e01291f0d0f62",
-      "material_inputs": {
-        "names": [
-          ".pose/indexes/delivery-integrity.json",
-          ".pose/indexes/generation.json",
-          ".pose/indexes/spec-graph.json",
-          ".pose/indexes/validation-matrix.json",
-          ".pose/results/delivery-validation.json",
-          ".pose/specs/2026-11-15-pose-federated-proof-reads-each-input-once.md",
-          ".pose/starts/pose-federated-proof-reads-each-input-once.json",
-          "pose-mcp/internal/cli/material_engine.go",
-          "pose-mcp/internal/pose/current_material_cache_test.go",
-          "pose-mcp/internal/pose/material_binding.go",
-          "pose-mcp/internal/pose/release_archive.go",
-          "pose-mcp/internal/pose/release_manifest_integrity.go",
-          "pose-mcp/internal/pose/release_snapshot_cache_test.go",
-          "pose-mcp/internal/pose/review_bundle_header_cache_test.go",
-          "pose-mcp/internal/pose/review_operation_view.go"
-        ]
-      }
-    },
-    {
       "id": "cs-103ed9bf32af",
       "spec": "pose-scaffold-self-referential-policy-fix",
       "selector": "range:996aefb..06c5fa1",
@@ -192622,6 +192523,106 @@
           "pose-mcp/internal/cli/review_closeout_test.go",
           "pose-mcp/internal/cli/stack_seed.go",
           "pose-mcp/internal/pose/review_bundle.go"
+        ]
+      }
+    },
+    {
+      "id": "cs-2913e4f4e03e",
+      "spec": "pose-federated-proof-reads-each-input-once",
+      "selector": "trailers:pose-federated-proof-reads-each-input-once",
+      "base": "cb8088db7661d6318ff9d25c9e6fce0b0f96bb73^",
+      "head": "d5bfc2dc9dba631071c88fd097a47bcc9d9809bb",
+      "resolved_base": "bf2ff02c31752a3343b0200fa62b27c220ce2453",
+      "resolved_head": "d5bfc2dc9dba631071c88fd097a47bcc9d9809bb",
+      "commits": [
+        "cb8088db7661d6318ff9d25c9e6fce0b0f96bb73",
+        "0a264a037b4d15e7bafc65c73b06313ce395a812",
+        "eafb46dd1624f8a724894ccf547fe765256eb3ed",
+        "1987ae5db65b18b0a64d74c2c43fc344b023b13c",
+        "4c2368995e40e40fbdf899f6fe8a2a616e4cb38d",
+        "d5bfc2dc9dba631071c88fd097a47bcc9d9809bb"
+      ],
+      "paths": [
+        {
+          "action": "created",
+          "path": ".pose/specs/2026-11-15-pose-federated-proof-reads-each-input-once.md"
+        },
+        {
+          "action": "created",
+          "path": ".pose/starts/pose-federated-proof-reads-each-input-once.json"
+        },
+        {
+          "action": "created",
+          "path": "pose-mcp/internal/pose/current_material_cache_test.go"
+        },
+        {
+          "action": "created",
+          "path": "pose-mcp/internal/pose/release_snapshot_cache_test.go"
+        },
+        {
+          "action": "created",
+          "path": "pose-mcp/internal/pose/review_bundle_header_cache_test.go"
+        },
+        {
+          "action": "modified",
+          "path": ".pose/indexes/delivery-integrity.json"
+        },
+        {
+          "action": "modified",
+          "path": ".pose/indexes/generation.json"
+        },
+        {
+          "action": "modified",
+          "path": ".pose/indexes/spec-graph.json"
+        },
+        {
+          "action": "modified",
+          "path": ".pose/indexes/validation-matrix.json"
+        },
+        {
+          "action": "modified",
+          "path": ".pose/results/delivery-validation.json"
+        },
+        {
+          "action": "modified",
+          "path": "pose-mcp/internal/cli/material_engine.go"
+        },
+        {
+          "action": "modified",
+          "path": "pose-mcp/internal/pose/material_binding.go"
+        },
+        {
+          "action": "modified",
+          "path": "pose-mcp/internal/pose/release_archive.go"
+        },
+        {
+          "action": "modified",
+          "path": "pose-mcp/internal/pose/release_manifest_integrity.go"
+        },
+        {
+          "action": "modified",
+          "path": "pose-mcp/internal/pose/review_operation_view.go"
+        }
+      ],
+      "diff_digest": "sha256:99fe636c752bc11004f817517326cbeb886eaae2cc0ee87db711223f1a5d217e",
+      "material_digest": "sha256:71f5a0ae29e3b357bcac7c67210c1010e1b360df2d2b47e44a7e01291f0d0f62",
+      "material_inputs": {
+        "names": [
+          ".pose/indexes/delivery-integrity.json",
+          ".pose/indexes/generation.json",
+          ".pose/indexes/spec-graph.json",
+          ".pose/indexes/validation-matrix.json",
+          ".pose/results/delivery-validation.json",
+          ".pose/specs/2026-11-15-pose-federated-proof-reads-each-input-once.md",
+          ".pose/starts/pose-federated-proof-reads-each-input-once.json",
+          "pose-mcp/internal/cli/material_engine.go",
+          "pose-mcp/internal/pose/current_material_cache_test.go",
+          "pose-mcp/internal/pose/material_binding.go",
+          "pose-mcp/internal/pose/release_archive.go",
+          "pose-mcp/internal/pose/release_manifest_integrity.go",
+          "pose-mcp/internal/pose/release_snapshot_cache_test.go",
+          "pose-mcp/internal/pose/review_bundle_header_cache_test.go",
+          "pose-mcp/internal/pose/review_operation_view.go"
         ]
       }
     },
