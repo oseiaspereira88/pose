@@ -77,7 +77,7 @@ Ao fixar o pose-dist em `bf2ff02` com o pin de federação certo, o `pose index`
 
 - capability:federated-proof-reads-each-input-once module:pose-mcp profile:composed-capability entrypoint:pose-mcp/cmd/pose/main.go
 
-Composto em produção por `pose index`, `pose check` e por toda verificação de bundle federado. Check permanente `federated-proof-reads-each-input-once-integration`, evidenceClass `integration`, required: `go test ./internal/pose -run 'TestCurrentMaterialIsReadOncePerCommit|TestCurrentMaterialFollowsAMovedHead|TestCurrentMaterialWithoutAHeadIsNotKept|TestCurrentMaterialKeptDigestsAreBounded|TestEvidenceIsJudgedAgainstTheCurrentMaterial|TestAReleaseSnapshotIsReadOncePerCommit|TestAKeptReleaseSnapshotIsCopiedToEachReader|TestAMovedReleaseTagIsReadAtItsNewCommit|TestAFailedReleaseSnapshotReadIsNotKept|TestAReleaseTagPeelIsKeptPerObject|TestAListedReleaseTagResolvesAsAloneOne|TestABundleHeaderIsParsedOncePerContent|TestAKeptValueIsComputedOnceForConcurrentMisses|TestADeclinedKeptValueIsComputedAgain|TestAnUnreadableMaterialIsAskedAgain|TestASnapshotWithGapsIsReadAgain|TestAFailedReleaseTagPeelIsAskedAgain' -count=1`.
+Composto em produção por `pose index`, `pose check` e por toda verificação de bundle federado. Check permanente `federated-proof-reads-each-input-once-integration`, evidenceClass `integration`, required: `go test ./internal/pose -run 'TestCurrentMaterialIsReadOncePerCommit|TestCurrentMaterialFollowsAMovedHead|TestCurrentMaterialWithoutAHeadIsNotKept|TestCurrentMaterialKeptDigestsAreBounded|TestEvidenceIsJudgedAgainstTheCurrentMaterial|TestAReleaseSnapshotIsReadOncePerCommit|TestAKeptReleaseSnapshotIsCopiedToEachReader|TestAMovedReleaseTagIsReadAtItsNewCommit|TestAFailedReleaseSnapshotReadIsNotKept|TestAReleaseTagPeelIsKeptPerObject|TestAListedReleaseTagResolvesAsAloneOne|TestABundleHeaderIsParsedOncePerContent|TestAKeptValueIsComputedOnceForConcurrentMisses|TestADeclinedKeptValueIsComputedAgain|TestAnUnreadableMaterialIsAskedAgain|TestASnapshotWithGapsIsReadAgain|TestAFailedReleaseTagPeelIsAskedAgain|TestARecoveredReadIsComputedOnceAndKept|TestABoundCrossingKeepsAPendingKey' -count=1`.
 
 ### API/contract changes
 - Nenhuma.
@@ -139,7 +139,7 @@ Teste de cada cache com prova de reprovação; os índices do harne8 gerados por
 - R2 [satisfied] test:TestAReleaseSnapshotIsReadOncePerCommit test:TestAKeptReleaseSnapshotIsCopiedToEachReader test:TestAMovedReleaseTagIsReadAtItsNewCommit test:TestAFailedReleaseSnapshotReadIsNotKept
 - R3 [satisfied] test:TestAReleaseTagPeelIsKeptPerObject test:TestAListedReleaseTagResolvesAsAloneOne
 - R4 [satisfied] test:TestABundleHeaderIsParsedOncePerContent
-- R6 [satisfied] test:TestAKeptValueIsComputedOnceForConcurrentMisses test:TestADeclinedKeptValueIsComputedAgain test:TestAnUnreadableMaterialIsAskedAgain test:TestASnapshotWithGapsIsReadAgain test:TestAFailedReleaseTagPeelIsAskedAgain
+- R6 [satisfied] test:TestAKeptValueIsComputedOnceForConcurrentMisses test:TestADeclinedKeptValueIsComputedAgain test:TestARecoveredReadIsComputedOnceAndKept test:TestABoundCrossingKeepsAPendingKey test:TestAnUnreadableMaterialIsAskedAgain test:TestASnapshotWithGapsIsReadAgain test:TestAFailedReleaseTagPeelIsAskedAgain
 - R5 [satisfied] test:TestCurrentMaterialKeptDigestsAreBounded check:federated-proof-reads-each-input-once-integration
 
 ### Known gaps
@@ -162,4 +162,6 @@ Não concluída.
 ### Review
 
 Rodada 1 (run rrn-4a532feec7405caf, attestation rva-923a9017fb572ebd, changes-requested): 4 bloqueadores, tratados. F1 o cache de material guardava o marcador `unreadable` e não conferia o clone raso: o estado de clone raso passou a ser conferido a cada resolução do HEAD (um repositório raso lê sem cache), e um material ilegível não é guardado. F2 o cache de snapshots guardava snapshots com gaps, que podem registrar uma leitura do git que falhou: só um snapshot íntegro, ou um commit sem manifesto, é guardado. F3 uma resolução de tag que falhou era guardada como "não é commit": só uma resolução que chegou a um commit é guardada. F4 duas chamadas que perdiam a mesma chave calculavam as duas: os quatro caches passaram a um `keptCache` que coordena o trabalho em andamento por chave (quem chega espera o primeiro), e um resultado que não é guardado é recalculado por quem esperava. Um teste por achado, cada um reprova com o comportamento anterior.
+
+Rodada 2 (run rrn-a37f896b2e3bf62f, attestation rva-87d5bfabc01ff84e, changes-requested): F1 a F3 corrigidos, F4 parcial, e 2 bloqueadores, tratados. N1 quem esperava um resultado não guardado calculava por fora, sem publicar um sucesso depois da recuperação: volta a adquirir a chave pelo cache, e a leitura recuperada é calculada uma vez e guardada. N2 o despejo por capacidade trocava o mapa inteiro, inclusive chaves ainda em cálculo: só os valores concluídos saem, e uma chave em cálculo mantém a entrada. Um teste para cada, e os dois reprovam com o helper da rodada 1.
 

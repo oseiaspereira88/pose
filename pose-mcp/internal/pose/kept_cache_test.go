@@ -80,3 +80,69 @@ func TestAnUnreadableMaterialIsAskedAgain(t *testing.T) {
 		t.Fatalf("the unreadable answer was kept: %q after %d reads", got, reads)
 	}
 }
+
+// Review round 2 (N1): callers that waited for a failed read retry through
+// the cache: the recovered read is computed once and kept.
+func TestARecoveredReadIsComputedOnceAndKept(t *testing.T) {
+	cache := newKeptCache[int](10)
+	var calls atomic.Int32
+	release := make(chan struct{})
+	first := make(chan struct{})
+	compute := func() (int, bool) {
+		n := calls.Add(1)
+		if n == 1 {
+			close(first)
+			<-release
+			return 0, false
+		}
+		return 7, true
+	}
+	var wg sync.WaitGroup
+	results := make([]int, 6)
+	wg.Add(1)
+	go func() { defer wg.Done(); results[0] = cache.get("k", compute) }()
+	<-first
+	for i := 1; i < len(results); i++ {
+		wg.Add(1)
+		go func() { defer wg.Done(); results[i] = cache.get("k", compute) }()
+	}
+	close(release)
+	wg.Wait()
+	if calls.Load() != 2 {
+		t.Fatalf("a failure and its recovery computed %d times, want 2", calls.Load())
+	}
+	if v := cache.get("k", compute); v != 7 || calls.Load() != 2 {
+		t.Fatalf("the recovered read was not kept: %d after %d calls", v, calls.Load())
+	}
+}
+
+// N2: crossing the bound while a key is computed keeps that key's entry, so
+// a later caller of the same key waits for it instead of computing again.
+func TestABoundCrossingKeepsAPendingKey(t *testing.T) {
+	cache := newKeptCache[int](1)
+	var calls atomic.Int32
+	release := make(chan struct{})
+	started := make(chan struct{})
+	done := make(chan int)
+	go func() {
+		done <- cache.get("a", func() (int, bool) {
+			calls.Add(1)
+			close(started)
+			<-release
+			return 1, true
+		})
+	}()
+	<-started
+	cache.get("b", func() (int, bool) { return 2, true })
+	second := make(chan int)
+	go func() {
+		second <- cache.get("a", func() (int, bool) { calls.Add(1); return 3, true })
+	}()
+	close(release)
+	if v := <-done; v != 1 {
+		t.Fatalf("first a %d", v)
+	}
+	if v := <-second; v != 1 || calls.Load() != 1 {
+		t.Fatalf("the pending key was computed again across the bound: %d after %d calls", v, calls.Load())
+	}
+}
