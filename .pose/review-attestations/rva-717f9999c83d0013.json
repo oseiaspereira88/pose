@@ -1,0 +1,214 @@
+{
+  "run": {
+    "run_id": "rrn-d6a9f64a55d3094f",
+    "proof_id": "rrp-dfbaf095e15725a23d562c107b3486c9fbaafe7b3ffe1a9ef36f320c8dcf5074"
+  },
+  "schema_version": 1,
+  "attestation_id": "rva-717f9999c83d0013",
+  "bundle_id": "rvb-8046822783e24b2e",
+  "bundle_digest": "sha256:8046822783e24b2e0ef3f12c21a0578c885ff484e4eceb3295b5d14d9c61ae44",
+  "reviewer": "agent:openai/gpt-6.1-sol",
+  "decision": "changes-requested",
+  "criteria": [
+    {
+      "id": "assumption-integrity",
+      "disposition": "passed",
+      "evidence": "integration:pose-mcp/go/strict-json-readers-require-the-end-integration",
+      "rationale": "Verified the three callers reject malformed input before recording or execution. Distinguished the documented same-function Unmarshal approximation and transport-parsed MCP exception from N1's unresolved EOF-check assumption. Full validation uses sealed producer evidence; additional probes could not compile in this sandbox."
+    },
+    {
+      "id": "backend-concurrency",
+      "disposition": "passed",
+      "evidence": "unit:pose-mcp/go/test",
+      "rationale": "The helper creates a local decoder and introduces no shared mutable state, goroutines, locks or cancellation lifecycle changes."
+    },
+    {
+      "id": "backend-contracts",
+      "disposition": "passed",
+      "evidence": "integration:pose-mcp/go/strict-json-readers-require-the-end-integration",
+      "rationale": "Valid JSON shapes and CLI arguments remain compatible; refusing trailing content is the explicit R1 contract correction."
+    },
+    {
+      "id": "backend-input-errors",
+      "disposition": "passed",
+      "evidence": "integration:pose-mcp/go/strict-json-readers-require-the-end-integration",
+      "rationale": "Inspected helper rejection paths and caller diagnostics. Trailing content produces a bounded error and cannot reach recording or hook execution."
+    },
+    {
+      "id": "backend-integration-impact",
+      "disposition": "passed",
+      "evidence": "integration:pose-mcp/go/strict-json-readers-require-the-end-integration",
+      "rationale": "Release evidence, action envelopes and hooks policy use the shared helper through their production CLI paths; focused integration tests passed."
+    },
+    {
+      "id": "backend-observability",
+      "disposition": "passed",
+      "evidence": "integration:pose-mcp/go/strict-json-readers-require-the-end-integration",
+      "rationale": "Trailing-content errors omit input payloads. Hooks preserve policy-path context, release record returns the parse error, and action fulfil preserves its existing invalid-envelope diagnostic."
+    },
+    {
+      "id": "compatibility",
+      "disposition": "passed",
+      "evidence": "integration:pose-mcp/go/strict-json-readers-require-the-end-integration",
+      "rationale": "Inspected unchanged schemas and command parsing. Valid values and surrounding whitespace remain accepted; trailing content is intentionally refused under R1."
+    },
+    {
+      "id": "correctness",
+      "disposition": "finding",
+      "evidence": "N1"
+    },
+    {
+      "id": "design-causality",
+      "disposition": "passed",
+      "evidence": "structure:design-5022029a0039a4bc",
+      "rationale": "D1 selects a shared helper to remove the repeated partial-decode cause and a source guard to prevent recurrence. The helper correctly enforces EOF after decoding. The guard's implementation weakness is separately blocked by N1.",
+      "mappings": [
+        {
+          "delta": "sd-48afe5c50d09c715f8a0c5640351ab9d",
+          "basis": "R2",
+          "disposition": "mapped",
+          "rationale": "The added required integration check runs the engine reader guard and its predicate fixtures, alongside the R1 runtime regressions."
+        }
+      ]
+    },
+    {
+      "id": "documentation",
+      "disposition": "passed",
+      "evidence": "structure:design-5022029a0039a4bc",
+      "rationale": "Reviewed the spec, helper comments and validation registration. They describe the intended trailing-content rejection and unchanged valid-input contracts. No operational flags, schemas or scaffold instructions require migration."
+    },
+    {
+      "id": "operability",
+      "disposition": "passed",
+      "evidence": "integration:pose-mcp/go/strict-json-readers-require-the-end-integration",
+      "rationale": "Malformed evidence, envelopes and policy fail before side effects with existing nonzero command behavior and bounded diagnostics that identify invalid JSON or the affected policy."
+    },
+    {
+      "id": "requirements",
+      "disposition": "finding",
+      "evidence": "N1"
+    },
+    {
+      "id": "scope",
+      "disposition": "passed",
+      "evidence": "structure:design-5022029a0039a4bc",
+      "rationale": "Changes are confined to the declared helper, three readers, regression tests and governance registration. Existing correct readers and deliberately permissive policy behavior remain unchanged."
+    },
+    {
+      "id": "security",
+      "disposition": "passed",
+      "evidence": "integration:pose-mcp/go/strict-json-readers-require-the-end-integration",
+      "rationale": "Inspected parsing before release/action writes and hook execution. Existing path and authority checks remain intact; new trailing-content diagnostics do not disclose payloads or key material."
+    },
+    {
+      "id": "solution-proportionality",
+      "disposition": "passed",
+      "evidence": "structure:design-5022029a0039a4bc",
+      "rationale": "A small local helper is proportionate to three repeated readers and preserves existing correct implementations. No new dependencies or speculative runtime abstractions are introduced. The guard remains suitable only if its accepted forms establish an enforced end check; N1 identifies where that condition currently fails."
+    }
+  ],
+  "tools": [
+    {
+      "id": "artifact-check",
+      "disposition": "passed",
+      "evidence": "command:pose artifact-check --spec pose-strict-json-readers-require-the-end --strict",
+      "rationale": "Command completed successfully with repository provenance warnings. Also ran with explicit --from 6ea5394b3788f84b67a51fab99f5ed45719b77ed --to 36d3ab90c0dcb3ecba3507ecb5487d09d5eb5cb5 --strict --json to constrain the observation to the requested range."
+    },
+    {
+      "id": "assess-design",
+      "disposition": "passed",
+      "evidence": "structure:design-5022029a0039a4bc",
+      "rationale": "Ran the read-only design assessment, inspected its validation-check delta and mapped it to R2."
+    },
+    {
+      "id": "assess-discover",
+      "component": "pose-mcp",
+      "disposition": "not-used",
+      "rationale": "Discovery writes assessment artifacts, conflicting with the no-change boundary. Reviewed the sealed component evidence and source directly."
+    },
+    {
+      "id": "assess-integrate",
+      "disposition": "not-used",
+      "rationale": "The command saves integration assessment files. Preserved the read-only boundary and reviewed all affected consumer paths using source inspection and sealed integration evidence."
+    },
+    {
+      "id": "assess-tech-debt",
+      "disposition": "not-used",
+      "rationale": "The command saves assessment files. Searched the changed implementation paths directly for TODO, FIXME, stub and panic markers; no new debt marker was found."
+    },
+    {
+      "id": "closeout-check",
+      "disposition": "deferred",
+      "rationale": "Requires the completed review attestation; POSE records and verifies that after this draft."
+    },
+    {
+      "id": "review-check",
+      "disposition": "deferred",
+      "rationale": "Requires the completed review attestation; it cannot pass before this conclusion is recorded."
+    },
+    {
+      "id": "suggest-review",
+      "component": "pose-mcp",
+      "disposition": "passed",
+      "evidence": "command:pose suggest review --path pose-mcp",
+      "rationale": "Selected backend-go, security and documentation-style rules and consulted the review workflow."
+    },
+    {
+      "id": "surface-check",
+      "disposition": "passed",
+      "evidence": "integration:pose-mcp/go/strict-json-readers-require-the-end-integration",
+      "rationale": "Ran pose surface-check --spec pose-strict-json-readers-require-the-end --strict: one target, 224 results and zero findings."
+    },
+    {
+      "id": "validate",
+      "disposition": "passed",
+      "evidence": "build:pose-mcp/go/build",
+      "rationale": "Credited the sealed producer validation run. Did not rerun the artifact-writing validation pipeline under the no-repository-change boundary; independently ran the focused integration command."
+    },
+    {
+      "id": "validate",
+      "component": "pose-mcp",
+      "disposition": "passed",
+      "evidence": "integration:pose-mcp/go/strict-json-readers-require-the-end-integration",
+      "rationale": "Credited sealed module validation evidence and independently ran its strict-JSON regression command: internal/pose and internal/cli passed. Additional overlay probes were refused before compilation by the read-only temporary filesystem."
+    }
+  ],
+  "evidence_refs": [
+    "N1",
+    "delegated-run:rrn-d6a9f64a55d3094f",
+    "integration:pose-mcp/go/strict-json-readers-require-the-end-integration",
+    "structure:design-5022029a0039a4bc",
+    "unit:pose-mcp/go/test"
+  ],
+  "findings": [
+    {
+      "id": "N1",
+      "severity": "medium",
+      "evidence": "file:pose-mcp/internal/pose/strict_json_test.go:111",
+      "action": "R2's guard still accepts a reader without an end-of-input check. Lines 111-112 accept any comparison with io.EOF, including a first-decode error check: dec.DisallowUnknownFields(); var v Config; if err := dec.Decode(\u0026v); err != nil \u0026\u0026 err != io.EOF { return err }; return nil. That reader accepts a valid object followed by garbage or a second value, but strictJSONReaderEnds returns strict=true, ends=true. Lines 125-126 also accept errors.Is(err, io.EOF) even when its result is discarded. These are additional unlisted approximations beyond the spec's documented json.Unmarshal approximation. Associate the end condition with a read after the first value and require its non-EOF result to reject the input; add negative fixtures for first-decode EOF comparisons and ignored errors.Is results.",
+      "disposition": "open"
+    }
+  ],
+  "authority": {
+    "schema_version": 1,
+    "project": "proj.pose-dist",
+    "bundle_digest": "sha256:8046822783e24b2e0ef3f12c21a0578c885ff484e4eceb3295b5d14d9c61ae44",
+    "principal": "agent:openai/gpt-6.1-sol",
+    "role": "agent",
+    "review_execution": "rrn-d6a9f64a55d3094f",
+    "implementation_principal": "agent:anthropic/claude-opus-5-5",
+    "implementation_execution": "sha256:0eb880a4fc2ed87a379c949a567b1d3dfbd6b58b466f4755fcd363dd2b7fed98",
+    "issuer": "b34-local-executor",
+    "issued_at": "2026-11-15T07:38:25Z",
+    "audience": "proj.pose-dist"
+  },
+  "envelope": {
+    "issuer": "b34-local-executor",
+    "subject": "rvb-8046822783e24b2e",
+    "algorithm": "ed25519",
+    "public_key": "ck4sApdfePV2GT+hJyAYfJd2qLzeG55P8pevGR0bvZE=",
+    "signature": "Ih42Pn5L4+eTx3d/tmSRtos/+iyJWcQY+fIhi//rn/qQm+j36w8u5KqUK+R+mHAYWQ+POVhNYXgCII7GDw2LAA=="
+  },
+  "attested_at": "2026-11-15T07:38:25Z",
+  "path": ".pose/review-attestations/rva-717f9999c83d0013.json"
+}
