@@ -57,6 +57,7 @@ Em 2026-11-14 os hooks `pre-commit` e `post-merge` do harne8 eram symlinks para 
 
 ### Artifacts
 - modified: pose-mcp/internal/cli/maintenance.go
+- modified: pose-mcp/internal/pose/engine_reads_raw_history_test.go
 - created: pose-mcp/internal/cli/hook_runner_test.go
 - modified: POSE.md
 - modified: locales/pt-BR/POSE.md

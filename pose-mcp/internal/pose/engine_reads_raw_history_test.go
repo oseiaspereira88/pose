@@ -48,6 +48,7 @@ var dynamicLaunches = map[string]string{
 	"internal/cli/delegate_wait.go#detachDelegateRun":                      "this binary",
 	"internal/cli/delegate_watch.go#pickAttempt":                           "fzf",
 	"internal/cli/init_delegation.go#":                                     "the lookup of an agent CLI, as a value tests replace",
+	"internal/cli/maintenance.go#runHookRunner":                            "the hook runner an instance declares in its hooks policy",
 	"internal/cli/maintenance.go#runSelfUpdatedBinary":                     "this binary",
 	"internal/cli/stack_catalog.go#detectStackProfiles":                    "looks a tool of the stack up, and starts nothing",
 	"internal/cli/validate.go#execute":                                     "a declared check of the validation matrix, an external tool of the instance",

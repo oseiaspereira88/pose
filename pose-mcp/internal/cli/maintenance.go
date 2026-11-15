@@ -1028,14 +1028,16 @@ func cmdHooks(root string, args []string, stdout, stderr io.Writer) int {
 		}
 		switch mode {
 		case "status":
+			// A managed hook names the runner it delegates to, or why the
+			// declared one is refused (R3).
+			delegation := ""
 			if runner, declared, err := hookRunner(root); err != nil {
-				fmt.Fprintf(stdout, "[INVALID] %s runner: %v\n", hook, err)
-			} else if declared && managed {
-				fmt.Fprintf(stdout, "[INSTALLED] %s -> %s (delegates to %s)\n", hook, exe, runner)
-				continue
+				delegation = fmt.Sprintf(" (runner refused: %v)", err)
+			} else if declared {
+				delegation = " (delegates to " + runner + ")"
 			}
 			if managed {
-				fmt.Fprintf(stdout, "[INSTALLED] %s -> %s\n", hook, exe)
+				fmt.Fprintf(stdout, "[INSTALLED] %s -> %s%s\n", hook, exe, delegation)
 			} else if _, e := os.Lstat(dst); e == nil {
 				fmt.Fprintf(stdout, "[CONFLICT] %s\n", hook)
 			} else {
@@ -1128,32 +1130,17 @@ func sameFilePath(a, b string) bool {
 }
 
 func HookMain(name string, stdout, stderr io.Writer) int {
-	root, e := projectRoot()
-	if e != nil {
-		fmt.Fprintln(stderr, e)
-		return 1
-	}
-	// An instance that runs POSE through its own revision-bound CLI declares
-	// the runner its hooks use; the engine's hook delegates to it, so a hook
-	// installed as a symlink to this binary never runs without the roots the
-	// instance binds (spec pose-hooks-delegate-to-the-instance-runner).
-	runner, declared, err := hookRunner(root)
-	if err != nil {
-		fmt.Fprintln(stderr, "pose: hooks policy: "+err.Error())
-		return 1
-	}
-	if declared {
-		cmd := exec.Command(runner, name)
-		cmd.Dir, cmd.Stdin, cmd.Stdout, cmd.Stderr = root, os.Stdin, stdout, stderr
-		if err := cmd.Run(); err != nil {
-			var exit *exec.ExitError
-			if errors.As(err, &exit) {
-				return exit.ExitCode()
-			}
-			fmt.Fprintln(stderr, "pose: hook runner: "+err.Error())
-			return 1
+	root, err := projectRoot()
+	if err == nil {
+		var code int
+		var delegated bool
+		if code, delegated, err = runHookRunner(root, name, stdout, stderr); err == nil && delegated {
+			return code
 		}
-		return 0
+	}
+	if err != nil {
+		fmt.Fprintln(stderr, err)
+		return 1
 	}
 	switch name {
 	case "pre-commit":
@@ -1162,6 +1149,32 @@ func HookMain(name string, stdout, stderr io.Writer) int {
 		return cmdIndex(root, nil, stdout, stderr)
 	}
 	return 2
+}
+
+// runHookRunner runs the runner an instance declares for its hooks, if it
+// declares one. An instance that runs POSE through its own revision-bound
+// CLI declares the runner its hooks use; the engine's hook delegates to it,
+// so a hook installed as a symlink to this binary never runs without the
+// roots the instance binds (spec pose-hooks-delegate-to-the-instance-runner).
+func runHookRunner(root, name string, stdout, stderr io.Writer) (int, bool, error) {
+	runner, declared, err := hookRunner(root)
+	if err != nil {
+		return 1, false, fmt.Errorf("pose: hooks policy: %v", err)
+	}
+	if !declared {
+		return 0, false, nil
+	}
+	cmd := exec.Command(runner, name)
+	cmd.Dir, cmd.Stdin, cmd.Stdout, cmd.Stderr = root, os.Stdin, stdout, stderr
+	err = cmd.Run()
+	var exit *exec.ExitError
+	if errors.As(err, &exit) {
+		return exit.ExitCode(), true, nil
+	}
+	if err != nil {
+		return 1, true, fmt.Errorf("pose: hook runner: %v", err)
+	}
+	return 0, true, nil
 }
 
 // writeAtomic publishes a derived artifact whole through a staging file only
