@@ -13,6 +13,8 @@ type keptCache[V any] struct {
 	mu      sync.Mutex
 	entries map[string]*keptEntry[V]
 	bound   int
+	// kept counts the completed, kept entries, which the bound limits.
+	kept int
 }
 
 type keptEntry[V any] struct {
@@ -41,7 +43,6 @@ func (c *keptCache[V]) get(key string, compute func() (V, bool)) V {
 			}
 			continue
 		}
-		c.evictLocked()
 		entry := &keptEntry[V]{ready: make(chan struct{})}
 		c.entries[key] = entry
 		c.mu.Unlock()
@@ -51,22 +52,28 @@ func (c *keptCache[V]) get(key string, compute func() (V, bool)) V {
 		if !keep && c.entries[key] == entry {
 			delete(c.entries, key)
 		}
+		if keep && c.entries[key] == entry {
+			c.kept++
+			c.evictLocked(key)
+		}
 		c.mu.Unlock()
 		close(entry.ready)
 		return value
 	}
 }
 
-// evictLocked drops the kept values once the bound is reached; a key still
-// being computed keeps its entry, so its waiters and a later caller never
-// compute it twice (review round 2, N2).
-func (c *keptCache[V]) evictLocked() {
-	if len(c.entries) < c.bound {
+// evictLocked enforces the bound when a value is kept: past it, every other
+// completed value is dropped. A key still being computed keeps its entry,
+// so its waiters and a later caller never compute it twice (review rounds 2
+// and 3, N2 and N3).
+func (c *keptCache[V]) evictLocked(except string) {
+	if c.kept <= c.bound {
 		return
 	}
 	for key, entry := range c.entries {
-		if entry.done {
+		if entry.done && key != except {
 			delete(c.entries, key)
+			c.kept--
 		}
 	}
 }
@@ -74,6 +81,7 @@ func (c *keptCache[V]) evictLocked() {
 func (c *keptCache[V]) clear() {
 	c.mu.Lock()
 	c.entries = map[string]*keptEntry[V]{}
+	c.kept = 0
 	c.mu.Unlock()
 }
 

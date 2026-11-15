@@ -146,3 +146,33 @@ func TestABoundCrossingKeepsAPendingKey(t *testing.T) {
 		t.Fatalf("the pending key was computed again across the bound: %d after %d calls", v, calls.Load())
 	}
 }
+
+// Review round 3 (N3): a burst of distinct keys computed together keeps no
+// more completed values than the bound once they all finish.
+func TestAConcurrentBurstKeepsNoMoreThanTheBound(t *testing.T) {
+	cache := newKeptCache[int](1)
+	release := make(chan struct{})
+	var started, wg sync.WaitGroup
+	const burst = 5
+	started.Add(burst)
+	for i := 0; i < burst; i++ {
+		wg.Add(1)
+		go func() {
+			defer wg.Done()
+			cache.get(string(rune('a'+i)), func() (int, bool) {
+				started.Done()
+				<-release
+				return i, true
+			})
+		}()
+	}
+	started.Wait()
+	close(release)
+	wg.Wait()
+	cache.mu.Lock()
+	retained, kept := len(cache.entries), cache.kept
+	cache.mu.Unlock()
+	if retained > 1 || kept > 1 {
+		t.Fatalf("%d entries (%d counted) kept past a bound of 1", retained, kept)
+	}
+}
