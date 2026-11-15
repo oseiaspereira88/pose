@@ -1,7 +1,7 @@
 {
   "schema_version": 2,
-  "input_digest": "sha256:27a366e7c99699a7eb73f53438dbfc3fe17f2b03334df9ed18b61379684a2516",
-  "provenance_digest": "sha256:665dd3e89d133020a8d0006e360f7db1a53f1a63aa08cb57466845c8feb07754",
+  "input_digest": "sha256:0f0efb8c51b1a3421d0456b49aa2e25c21b767f9357270d488974a29461bceb2",
+  "provenance_digest": "sha256:d63b421f02aa344b6f78a3990bd63d46d6053668b5df61bb649712dda9dd550a",
   "implied_edges": [
     "changes"
   ],
@@ -44021,14 +44021,6 @@
       }
     },
     {
-      "id": "change-set:cs-2b709bd081ba",
-      "type": "change-set",
-      "attributes": {
-        "diff_digest": "sha256:38260f99dfcbff071e43fba19dfb6c315eec3ae0645b59a7444fc881513ed3d5",
-        "selector": "trailers:pose-check-shares-the-federated-material"
-      }
-    },
-    {
       "id": "change-set:cs-2b78f174644f",
       "type": "change-set",
       "attributes": {
@@ -47706,6 +47698,14 @@
       "attributes": {
         "diff_digest": "sha256:c7cf5cda92c07ebf5dddc1a705e0dc3190c9de8d95d28e04d7a583593da45f29",
         "selector": "trailers:pose-v7-3-0-version-alignment"
+      }
+    },
+    {
+      "id": "change-set:cs-f9e1d5128325",
+      "type": "change-set",
+      "attributes": {
+        "diff_digest": "sha256:5af5baceada3ded0f270c396df976693bcd81c08a53ff12912b5f8694b08896f",
+        "selector": "trailers:pose-check-shares-the-federated-material"
       }
     },
     {
@@ -52163,7 +52163,7 @@
       "id": "roadmap-criterion:delivery-integrity/C1",
       "type": "roadmap-criterion",
       "attributes": {
-        "passed": "true"
+        "passed": "false"
       }
     },
     {
@@ -52177,7 +52177,7 @@
       "id": "roadmap-criterion:delivery-integrity/C2",
       "type": "roadmap-criterion",
       "attributes": {
-        "passed": "true"
+        "passed": "false"
       }
     },
     {
@@ -52191,14 +52191,14 @@
       "id": "roadmap-criterion:delivery-integrity/C4",
       "type": "roadmap-criterion",
       "attributes": {
-        "passed": "true"
+        "passed": "false"
       }
     },
     {
       "id": "roadmap-criterion:delivery-integrity/C5",
       "type": "roadmap-criterion",
       "attributes": {
-        "passed": "true"
+        "passed": "false"
       }
     },
     {
@@ -52226,21 +52226,21 @@
       "id": "roadmap-criterion:delivery-integrity/C9",
       "type": "roadmap-criterion",
       "attributes": {
-        "passed": "true"
+        "passed": "false"
       }
     },
     {
       "id": "roadmap-criterion:pose-multirepo-foundation/C1",
       "type": "roadmap-criterion",
       "attributes": {
-        "passed": "true"
+        "passed": "false"
       }
     },
     {
       "id": "roadmap-criterion:pose-multirepo-foundation/C2",
       "type": "roadmap-criterion",
       "attributes": {
-        "passed": "true"
+        "passed": "false"
       }
     },
     {
@@ -94024,11 +94024,6 @@
       "type": "composes"
     },
     {
-      "from": "delivery:capability:condition-response-and-work-metrics",
-      "to": "validation-set:b93a6826eb79e7d9",
-      "type": "validated-by"
-    },
-    {
       "from": "delivery:capability:configuration-review",
       "to": "entrypoint:pose-mcp/cmd/pose/main.go",
       "type": "composes"
@@ -94594,11 +94589,6 @@
       "type": "composes"
     },
     {
-      "from": "delivery:capability:followup-metadata-and-routing-integrity",
-      "to": "validation-set:b93a6826eb79e7d9",
-      "type": "validated-by"
-    },
-    {
       "from": "delivery:capability:fresh-install-health",
       "to": "entrypoint:pose-mcp/cmd/pose/main.go",
       "type": "composes"
@@ -94822,11 +94812,6 @@
       "from": "delivery:capability:integrated-agency-and-runtime-pilot",
       "to": "entrypoint:pose-mcp/cmd/pose/main.go",
       "type": "composes"
-    },
-    {
-      "from": "delivery:capability:integrated-agency-and-runtime-pilot",
-      "to": "validation-set:b93a6826eb79e7d9",
-      "type": "validated-by"
     },
     {
       "from": "delivery:capability:java-rule-extension",
@@ -95144,11 +95129,6 @@
       "type": "composes"
     },
     {
-      "from": "delivery:capability:proportional-next-action",
-      "to": "validation-set:b93a6826eb79e7d9",
-      "type": "validated-by"
-    },
-    {
       "from": "delivery:capability:python-rule-extension",
       "to": "entrypoint:pose-mcp/cmd/pose/main.go",
       "type": "composes"
@@ -95254,19 +95234,9 @@
       "type": "composes"
     },
     {
-      "from": "delivery:capability:release-prepare-record-recovery",
-      "to": "validation-set:b93a6826eb79e7d9",
-      "type": "validated-by"
-    },
-    {
       "from": "delivery:capability:release-publication-evidence-replay",
       "to": "entrypoint:pose-mcp/internal/pose/release_lifecycle.go",
       "type": "composes"
-    },
-    {
-      "from": "delivery:capability:release-publication-evidence-replay",
-      "to": "validation-set:b93a6826eb79e7d9",
-      "type": "validated-by"
     },
     {
       "from": "delivery:capability:release-scope-selection-and-exclusivity",
@@ -95274,19 +95244,9 @@
       "type": "composes"
     },
     {
-      "from": "delivery:capability:release-scope-selection-and-exclusivity",
-      "to": "validation-set:b93a6826eb79e7d9",
-      "type": "validated-by"
-    },
-    {
       "from": "delivery:capability:release-shared-sufficiency-contract",
       "to": "entrypoint:pose-mcp/internal/pose/release_lifecycle.go",
       "type": "composes"
-    },
-    {
-      "from": "delivery:capability:release-shared-sufficiency-contract",
-      "to": "validation-set:b93a6826eb79e7d9",
-      "type": "validated-by"
     },
     {
       "from": "delivery:capability:release-stability",
@@ -95344,29 +95304,14 @@
       "type": "composes"
     },
     {
-      "from": "delivery:capability:residual-material-coverage-and-identity",
-      "to": "validation-set:b93a6826eb79e7d9",
-      "type": "validated-by"
-    },
-    {
       "from": "delivery:capability:residual-nature-commitment-and-effect",
       "to": "entrypoint:pose-mcp/internal/pose/obligation_projection.go",
       "type": "composes"
     },
     {
-      "from": "delivery:capability:residual-nature-commitment-and-effect",
-      "to": "validation-set:b93a6826eb79e7d9",
-      "type": "validated-by"
-    },
-    {
       "from": "delivery:capability:residual-triage-and-risk-acceptance",
       "to": "entrypoint:pose-mcp/internal/pose/followup_candidates.go",
       "type": "composes"
-    },
-    {
-      "from": "delivery:capability:residual-triage-and-risk-acceptance",
-      "to": "validation-set:b93a6826eb79e7d9",
-      "type": "validated-by"
     },
     {
       "from": "delivery:capability:reuse-is-sealed-signing-stays-live",
@@ -97044,11 +96989,6 @@
       "type": "composes"
     },
     {
-      "from": "delivery:governance:release-publication-evidence-replay",
-      "to": "validation-set:b93a6826eb79e7d9",
-      "type": "validated-by"
-    },
-    {
       "from": "delivery:governance:release-recovery-verification",
       "to": "entrypoint:.github/workflows/verify-release.yml",
       "type": "composes"
@@ -98294,11 +98234,6 @@
       "type": "validated-by"
     },
     {
-      "from": "entrypoint:pose-mcp/internal/cli/release_lifecycle.go",
-      "to": "validation-set:b93a6826eb79e7d9",
-      "type": "validated-by"
-    },
-    {
       "from": "entrypoint:pose-mcp/internal/cli/review_closeout.go",
       "to": "validation-set:b93a6826eb79e7d9",
       "type": "validated-by"
@@ -98330,11 +98265,6 @@
     },
     {
       "from": "entrypoint:pose-mcp/internal/mcpserver/server.go",
-      "to": "validation-set:b93a6826eb79e7d9",
-      "type": "validated-by"
-    },
-    {
-      "from": "entrypoint:pose-mcp/internal/pose/action_presentation.go",
       "to": "validation-set:b93a6826eb79e7d9",
       "type": "validated-by"
     },
@@ -98375,16 +98305,6 @@
     },
     {
       "from": "entrypoint:pose-mcp/internal/pose/delivery_surface.go",
-      "to": "validation-set:b93a6826eb79e7d9",
-      "type": "validated-by"
-    },
-    {
-      "from": "entrypoint:pose-mcp/internal/pose/followup_candidates.go",
-      "to": "validation-set:b93a6826eb79e7d9",
-      "type": "validated-by"
-    },
-    {
-      "from": "entrypoint:pose-mcp/internal/pose/governance_waits.go",
       "to": "validation-set:b93a6826eb79e7d9",
       "type": "validated-by"
     },
@@ -98430,11 +98350,6 @@
     },
     {
       "from": "entrypoint:pose-mcp/internal/pose/spec_facts.go",
-      "to": "validation-set:b93a6826eb79e7d9",
-      "type": "validated-by"
-    },
-    {
-      "from": "entrypoint:pose-mcp/internal/pose/techdebt.go",
       "to": "validation-set:b93a6826eb79e7d9",
       "type": "validated-by"
     },
@@ -105440,7 +105355,7 @@
     },
     {
       "from": "spec:pose-check-shares-the-federated-material",
-      "to": "change-set:cs-2b709bd081ba",
+      "to": "change-set:cs-f9e1d5128325",
       "type": "observed-by"
     },
     {
@@ -194501,239 +194416,6 @@
           "pose-mcp/internal/cli/validate.go",
           "pose-mcp/internal/pose/discovery.go",
           "pose-mcp/internal/pose/discovery_test.go"
-        ]
-      }
-    },
-    {
-      "id": "cs-2b709bd081ba",
-      "spec": "pose-check-shares-the-federated-material",
-      "selector": "trailers:pose-check-shares-the-federated-material",
-      "base": "6b574ed26dfbc32da5a89e42b442404409383f8a^",
-      "head": "7a986207b09b573be7be088bec21c8ef16ceb138",
-      "resolved_base": "729501a0b91a4ff6ca5c0aebc46eb0b82ba10128",
-      "resolved_head": "7a986207b09b573be7be088bec21c8ef16ceb138",
-      "commits": [
-        "6b574ed26dfbc32da5a89e42b442404409383f8a",
-        "7cf57237a2533b3466ee41adba09415e526c8237",
-        "efc4be615a589b71f4604eb8a6f109e6e440a5a4",
-        "26fb8749f1647ec3c8dd27f367c445f67afe5ba7",
-        "54be85bc8389fff32faacf9110dd9ec89d93a02c",
-        "3ab01deb38df5edf8aa073c9c0302b9607ef91a0",
-        "d790d3960bb6cafb96d1b3f98491ad66bf65a35c",
-        "7e94611e7003100a7fa89b0e63877d69533fc207",
-        "d09284b1ab722575eab15348e95bcff09aa96557",
-        "7093d9fe69f5b1ed54ca50097a30c60e0a4ec144",
-        "764b0c07391aa000a294833539fe789008b879de",
-        "56515fdee779ec8b52730c7b1bfeb2450d08b44f",
-        "5c14369cf579b1667897d2e298cd1a209b8bfd39",
-        "30111652c050e94581885ed6e892b495a522e7a3",
-        "ae04ca16c9a5ba117f3ccab9379e92d82894cf6f",
-        "97eaeee565c49af0dcb96026cd8cfe6e11774858",
-        "37c0eb8be2c8dc5ec3feb2e17d658dbdc26d85e2",
-        "5e86d0e5687443fd3bdf1cd0b991370aff95a303",
-        "925673756e8de5889b6d8cd496f3081d5502798b",
-        "de32ef0db65bcaf3988ff8e9cc425475b3a433e0",
-        "f563ec1d15bad29748a54ffe4ffbfb4519cfd402",
-        "aa9a262823c55c17fd77517c90ab3bb4959a33b1",
-        "84d21b79a390561b84a7ec0bf77722b719a27f07",
-        "7a986207b09b573be7be088bec21c8ef16ceb138"
-      ],
-      "paths": [
-        {
-          "action": "created",
-          "path": ".pose/closeout-plans/spec-pose-check-shares-the-federated-material.json"
-        },
-        {
-          "action": "created",
-          "path": ".pose/review-attempts/169adc5e03d5deb2eedbaa8f/000001.json"
-        },
-        {
-          "action": "created",
-          "path": ".pose/review-attempts/169adc5e03d5deb2eedbaa8f/000001.result.json"
-        },
-        {
-          "action": "created",
-          "path": ".pose/review-attempts/5e3640f6e6fe099236d85716/000001.json"
-        },
-        {
-          "action": "created",
-          "path": ".pose/review-attempts/5e3640f6e6fe099236d85716/000001.result.json"
-        },
-        {
-          "action": "created",
-          "path": ".pose/review-attempts/8b20dd065af7bf47565dc65e/000001.json"
-        },
-        {
-          "action": "created",
-          "path": ".pose/review-attempts/8b20dd065af7bf47565dc65e/000001.result.json"
-        },
-        {
-          "action": "created",
-          "path": ".pose/review-bundles/rvb-2a8d48ba00986e84.json"
-        },
-        {
-          "action": "created",
-          "path": ".pose/review-bundles/rvb-78be33e360123bad.json"
-        },
-        {
-          "action": "created",
-          "path": ".pose/review-bundles/rvb-c9382591ca2fc247.json"
-        },
-        {
-          "action": "created",
-          "path": ".pose/review-conclusions/rrn-0daadd04cd76735f.json"
-        },
-        {
-          "action": "created",
-          "path": ".pose/review-conclusions/rrn-162a4fb077dc7c41.json"
-        },
-        {
-          "action": "created",
-          "path": ".pose/review-conclusions/rrn-d5d871d0c275983e.json"
-        },
-        {
-          "action": "created",
-          "path": ".pose/review-run-ledger/rrn-0daadd04cd76735f.json"
-        },
-        {
-          "action": "created",
-          "path": ".pose/review-run-ledger/rrn-162a4fb077dc7c41.json"
-        },
-        {
-          "action": "created",
-          "path": ".pose/review-run-ledger/rrn-d5d871d0c275983e.json"
-        },
-        {
-          "action": "created",
-          "path": ".pose/review-run-proofs/rrn-162a4fb077dc7c41/rrp-6788c463414af72d41e59bfd2d83b85c6f80ca88f5b9ecfb855f3f3432c2d11c.json"
-        },
-        {
-          "action": "created",
-          "path": ".pose/review-run-proofs/rrn-d5d871d0c275983e/rrp-6b6df3f6dea3645787d14f9f6b5e02e145182105c68fe1883aae2fe3a5e16b0a.json"
-        },
-        {
-          "action": "created",
-          "path": ".pose/review-runs/rrn-0daadd04cd76735f.events.ndjson"
-        },
-        {
-          "action": "created",
-          "path": ".pose/review-runs/rrn-0daadd04cd76735f.json"
-        },
-        {
-          "action": "created",
-          "path": ".pose/review-runs/rrn-0daadd04cd76735f.transcript"
-        },
-        {
-          "action": "created",
-          "path": ".pose/review-runs/rrn-162a4fb077dc7c41.events.ndjson"
-        },
-        {
-          "action": "created",
-          "path": ".pose/review-runs/rrn-162a4fb077dc7c41.json"
-        },
-        {
-          "action": "created",
-          "path": ".pose/review-runs/rrn-162a4fb077dc7c41.transcript"
-        },
-        {
-          "action": "created",
-          "path": ".pose/review-runs/rrn-d5d871d0c275983e.events.ndjson"
-        },
-        {
-          "action": "created",
-          "path": ".pose/review-runs/rrn-d5d871d0c275983e.json"
-        },
-        {
-          "action": "created",
-          "path": ".pose/review-runs/rrn-d5d871d0c275983e.transcript"
-        },
-        {
-          "action": "created",
-          "path": ".pose/specs/2026-11-15-pose-check-shares-the-federated-material.md"
-        },
-        {
-          "action": "created",
-          "path": ".pose/starts/pose-check-shares-the-federated-material.json"
-        },
-        {
-          "action": "created",
-          "path": "pose-mcp/internal/pose/review_scope_index_inputs_test.go"
-        },
-        {
-          "action": "modified",
-          "path": ".pose/adr/2026-11-03-governance-reads-use-bounded-operation-scoped-views.md"
-        },
-        {
-          "action": "modified",
-          "path": ".pose/indexes/delivery-integrity.json"
-        },
-        {
-          "action": "modified",
-          "path": ".pose/indexes/generation.json"
-        },
-        {
-          "action": "modified",
-          "path": ".pose/indexes/spec-graph.json"
-        },
-        {
-          "action": "modified",
-          "path": ".pose/indexes/validation-matrix.json"
-        },
-        {
-          "action": "modified",
-          "path": ".pose/results/delivery-validation.json"
-        },
-        {
-          "action": "modified",
-          "path": "pose-mcp/internal/pose/governance_read_view.go"
-        },
-        {
-          "action": "modified",
-          "path": "pose-mcp/internal/pose/review_operation_view.go"
-        }
-      ],
-      "diff_digest": "sha256:38260f99dfcbff071e43fba19dfb6c315eec3ae0645b59a7444fc881513ed3d5",
-      "material_digest": "sha256:a672b4ce5383fb304650b72bd6c9e6101a5b7c7dc1ea82d03bcdf584873f39b2",
-      "material_inputs": {
-        "names": [
-          ".pose/adr/2026-11-03-governance-reads-use-bounded-operation-scoped-views.md",
-          ".pose/closeout-plans/spec-pose-check-shares-the-federated-material.json",
-          ".pose/indexes/delivery-integrity.json",
-          ".pose/indexes/generation.json",
-          ".pose/indexes/spec-graph.json",
-          ".pose/indexes/validation-matrix.json",
-          ".pose/results/delivery-validation.json",
-          ".pose/review-attempts/169adc5e03d5deb2eedbaa8f/000001.json",
-          ".pose/review-attempts/169adc5e03d5deb2eedbaa8f/000001.result.json",
-          ".pose/review-attempts/5e3640f6e6fe099236d85716/000001.json",
-          ".pose/review-attempts/5e3640f6e6fe099236d85716/000001.result.json",
-          ".pose/review-attempts/8b20dd065af7bf47565dc65e/000001.json",
-          ".pose/review-attempts/8b20dd065af7bf47565dc65e/000001.result.json",
-          ".pose/review-bundles/rvb-2a8d48ba00986e84.json",
-          ".pose/review-bundles/rvb-78be33e360123bad.json",
-          ".pose/review-bundles/rvb-c9382591ca2fc247.json",
-          ".pose/review-conclusions/rrn-0daadd04cd76735f.json",
-          ".pose/review-conclusions/rrn-162a4fb077dc7c41.json",
-          ".pose/review-conclusions/rrn-d5d871d0c275983e.json",
-          ".pose/review-run-ledger/rrn-0daadd04cd76735f.json",
-          ".pose/review-run-ledger/rrn-162a4fb077dc7c41.json",
-          ".pose/review-run-ledger/rrn-d5d871d0c275983e.json",
-          ".pose/review-run-proofs/rrn-162a4fb077dc7c41/rrp-6788c463414af72d41e59bfd2d83b85c6f80ca88f5b9ecfb855f3f3432c2d11c.json",
-          ".pose/review-run-proofs/rrn-d5d871d0c275983e/rrp-6b6df3f6dea3645787d14f9f6b5e02e145182105c68fe1883aae2fe3a5e16b0a.json",
-          ".pose/review-runs/rrn-0daadd04cd76735f.events.ndjson",
-          ".pose/review-runs/rrn-0daadd04cd76735f.json",
-          ".pose/review-runs/rrn-0daadd04cd76735f.transcript",
-          ".pose/review-runs/rrn-162a4fb077dc7c41.events.ndjson",
-          ".pose/review-runs/rrn-162a4fb077dc7c41.json",
-          ".pose/review-runs/rrn-162a4fb077dc7c41.transcript",
-          ".pose/review-runs/rrn-d5d871d0c275983e.events.ndjson",
-          ".pose/review-runs/rrn-d5d871d0c275983e.json",
-          ".pose/review-runs/rrn-d5d871d0c275983e.transcript",
-          ".pose/specs/2026-11-15-pose-check-shares-the-federated-material.md",
-          ".pose/starts/pose-check-shares-the-federated-material.json",
-          "pose-mcp/internal/pose/governance_read_view.go",
-          "pose-mcp/internal/pose/review_operation_view.go",
-          "pose-mcp/internal/pose/review_scope_index_inputs_test.go"
         ]
       }
     },
@@ -289504,6 +289186,240 @@
       }
     },
     {
+      "id": "cs-f9e1d5128325",
+      "spec": "pose-check-shares-the-federated-material",
+      "selector": "trailers:pose-check-shares-the-federated-material",
+      "base": "6b574ed26dfbc32da5a89e42b442404409383f8a^",
+      "head": "99118e7106c6494fd4afca05c35d26922813c14b",
+      "resolved_base": "729501a0b91a4ff6ca5c0aebc46eb0b82ba10128",
+      "resolved_head": "99118e7106c6494fd4afca05c35d26922813c14b",
+      "commits": [
+        "6b574ed26dfbc32da5a89e42b442404409383f8a",
+        "7cf57237a2533b3466ee41adba09415e526c8237",
+        "efc4be615a589b71f4604eb8a6f109e6e440a5a4",
+        "26fb8749f1647ec3c8dd27f367c445f67afe5ba7",
+        "54be85bc8389fff32faacf9110dd9ec89d93a02c",
+        "3ab01deb38df5edf8aa073c9c0302b9607ef91a0",
+        "d790d3960bb6cafb96d1b3f98491ad66bf65a35c",
+        "7e94611e7003100a7fa89b0e63877d69533fc207",
+        "d09284b1ab722575eab15348e95bcff09aa96557",
+        "7093d9fe69f5b1ed54ca50097a30c60e0a4ec144",
+        "764b0c07391aa000a294833539fe789008b879de",
+        "56515fdee779ec8b52730c7b1bfeb2450d08b44f",
+        "5c14369cf579b1667897d2e298cd1a209b8bfd39",
+        "30111652c050e94581885ed6e892b495a522e7a3",
+        "ae04ca16c9a5ba117f3ccab9379e92d82894cf6f",
+        "97eaeee565c49af0dcb96026cd8cfe6e11774858",
+        "37c0eb8be2c8dc5ec3feb2e17d658dbdc26d85e2",
+        "5e86d0e5687443fd3bdf1cd0b991370aff95a303",
+        "925673756e8de5889b6d8cd496f3081d5502798b",
+        "de32ef0db65bcaf3988ff8e9cc425475b3a433e0",
+        "f563ec1d15bad29748a54ffe4ffbfb4519cfd402",
+        "aa9a262823c55c17fd77517c90ab3bb4959a33b1",
+        "84d21b79a390561b84a7ec0bf77722b719a27f07",
+        "7a986207b09b573be7be088bec21c8ef16ceb138",
+        "99118e7106c6494fd4afca05c35d26922813c14b"
+      ],
+      "paths": [
+        {
+          "action": "created",
+          "path": ".pose/closeout-plans/spec-pose-check-shares-the-federated-material.json"
+        },
+        {
+          "action": "created",
+          "path": ".pose/review-attempts/169adc5e03d5deb2eedbaa8f/000001.json"
+        },
+        {
+          "action": "created",
+          "path": ".pose/review-attempts/169adc5e03d5deb2eedbaa8f/000001.result.json"
+        },
+        {
+          "action": "created",
+          "path": ".pose/review-attempts/5e3640f6e6fe099236d85716/000001.json"
+        },
+        {
+          "action": "created",
+          "path": ".pose/review-attempts/5e3640f6e6fe099236d85716/000001.result.json"
+        },
+        {
+          "action": "created",
+          "path": ".pose/review-attempts/8b20dd065af7bf47565dc65e/000001.json"
+        },
+        {
+          "action": "created",
+          "path": ".pose/review-attempts/8b20dd065af7bf47565dc65e/000001.result.json"
+        },
+        {
+          "action": "created",
+          "path": ".pose/review-bundles/rvb-2a8d48ba00986e84.json"
+        },
+        {
+          "action": "created",
+          "path": ".pose/review-bundles/rvb-78be33e360123bad.json"
+        },
+        {
+          "action": "created",
+          "path": ".pose/review-bundles/rvb-c9382591ca2fc247.json"
+        },
+        {
+          "action": "created",
+          "path": ".pose/review-conclusions/rrn-0daadd04cd76735f.json"
+        },
+        {
+          "action": "created",
+          "path": ".pose/review-conclusions/rrn-162a4fb077dc7c41.json"
+        },
+        {
+          "action": "created",
+          "path": ".pose/review-conclusions/rrn-d5d871d0c275983e.json"
+        },
+        {
+          "action": "created",
+          "path": ".pose/review-run-ledger/rrn-0daadd04cd76735f.json"
+        },
+        {
+          "action": "created",
+          "path": ".pose/review-run-ledger/rrn-162a4fb077dc7c41.json"
+        },
+        {
+          "action": "created",
+          "path": ".pose/review-run-ledger/rrn-d5d871d0c275983e.json"
+        },
+        {
+          "action": "created",
+          "path": ".pose/review-run-proofs/rrn-162a4fb077dc7c41/rrp-6788c463414af72d41e59bfd2d83b85c6f80ca88f5b9ecfb855f3f3432c2d11c.json"
+        },
+        {
+          "action": "created",
+          "path": ".pose/review-run-proofs/rrn-d5d871d0c275983e/rrp-6b6df3f6dea3645787d14f9f6b5e02e145182105c68fe1883aae2fe3a5e16b0a.json"
+        },
+        {
+          "action": "created",
+          "path": ".pose/review-runs/rrn-0daadd04cd76735f.events.ndjson"
+        },
+        {
+          "action": "created",
+          "path": ".pose/review-runs/rrn-0daadd04cd76735f.json"
+        },
+        {
+          "action": "created",
+          "path": ".pose/review-runs/rrn-0daadd04cd76735f.transcript"
+        },
+        {
+          "action": "created",
+          "path": ".pose/review-runs/rrn-162a4fb077dc7c41.events.ndjson"
+        },
+        {
+          "action": "created",
+          "path": ".pose/review-runs/rrn-162a4fb077dc7c41.json"
+        },
+        {
+          "action": "created",
+          "path": ".pose/review-runs/rrn-162a4fb077dc7c41.transcript"
+        },
+        {
+          "action": "created",
+          "path": ".pose/review-runs/rrn-d5d871d0c275983e.events.ndjson"
+        },
+        {
+          "action": "created",
+          "path": ".pose/review-runs/rrn-d5d871d0c275983e.json"
+        },
+        {
+          "action": "created",
+          "path": ".pose/review-runs/rrn-d5d871d0c275983e.transcript"
+        },
+        {
+          "action": "created",
+          "path": ".pose/specs/2026-11-15-pose-check-shares-the-federated-material.md"
+        },
+        {
+          "action": "created",
+          "path": ".pose/starts/pose-check-shares-the-federated-material.json"
+        },
+        {
+          "action": "created",
+          "path": "pose-mcp/internal/pose/review_scope_index_inputs_test.go"
+        },
+        {
+          "action": "modified",
+          "path": ".pose/adr/2026-11-03-governance-reads-use-bounded-operation-scoped-views.md"
+        },
+        {
+          "action": "modified",
+          "path": ".pose/indexes/delivery-integrity.json"
+        },
+        {
+          "action": "modified",
+          "path": ".pose/indexes/generation.json"
+        },
+        {
+          "action": "modified",
+          "path": ".pose/indexes/spec-graph.json"
+        },
+        {
+          "action": "modified",
+          "path": ".pose/indexes/validation-matrix.json"
+        },
+        {
+          "action": "modified",
+          "path": ".pose/results/delivery-validation.json"
+        },
+        {
+          "action": "modified",
+          "path": "pose-mcp/internal/pose/governance_read_view.go"
+        },
+        {
+          "action": "modified",
+          "path": "pose-mcp/internal/pose/review_operation_view.go"
+        }
+      ],
+      "diff_digest": "sha256:5af5baceada3ded0f270c396df976693bcd81c08a53ff12912b5f8694b08896f",
+      "material_digest": "sha256:a672b4ce5383fb304650b72bd6c9e6101a5b7c7dc1ea82d03bcdf584873f39b2",
+      "material_inputs": {
+        "names": [
+          ".pose/adr/2026-11-03-governance-reads-use-bounded-operation-scoped-views.md",
+          ".pose/closeout-plans/spec-pose-check-shares-the-federated-material.json",
+          ".pose/indexes/delivery-integrity.json",
+          ".pose/indexes/generation.json",
+          ".pose/indexes/spec-graph.json",
+          ".pose/indexes/validation-matrix.json",
+          ".pose/results/delivery-validation.json",
+          ".pose/review-attempts/169adc5e03d5deb2eedbaa8f/000001.json",
+          ".pose/review-attempts/169adc5e03d5deb2eedbaa8f/000001.result.json",
+          ".pose/review-attempts/5e3640f6e6fe099236d85716/000001.json",
+          ".pose/review-attempts/5e3640f6e6fe099236d85716/000001.result.json",
+          ".pose/review-attempts/8b20dd065af7bf47565dc65e/000001.json",
+          ".pose/review-attempts/8b20dd065af7bf47565dc65e/000001.result.json",
+          ".pose/review-bundles/rvb-2a8d48ba00986e84.json",
+          ".pose/review-bundles/rvb-78be33e360123bad.json",
+          ".pose/review-bundles/rvb-c9382591ca2fc247.json",
+          ".pose/review-conclusions/rrn-0daadd04cd76735f.json",
+          ".pose/review-conclusions/rrn-162a4fb077dc7c41.json",
+          ".pose/review-conclusions/rrn-d5d871d0c275983e.json",
+          ".pose/review-run-ledger/rrn-0daadd04cd76735f.json",
+          ".pose/review-run-ledger/rrn-162a4fb077dc7c41.json",
+          ".pose/review-run-ledger/rrn-d5d871d0c275983e.json",
+          ".pose/review-run-proofs/rrn-162a4fb077dc7c41/rrp-6788c463414af72d41e59bfd2d83b85c6f80ca88f5b9ecfb855f3f3432c2d11c.json",
+          ".pose/review-run-proofs/rrn-d5d871d0c275983e/rrp-6b6df3f6dea3645787d14f9f6b5e02e145182105c68fe1883aae2fe3a5e16b0a.json",
+          ".pose/review-runs/rrn-0daadd04cd76735f.events.ndjson",
+          ".pose/review-runs/rrn-0daadd04cd76735f.json",
+          ".pose/review-runs/rrn-0daadd04cd76735f.transcript",
+          ".pose/review-runs/rrn-162a4fb077dc7c41.events.ndjson",
+          ".pose/review-runs/rrn-162a4fb077dc7c41.json",
+          ".pose/review-runs/rrn-162a4fb077dc7c41.transcript",
+          ".pose/review-runs/rrn-d5d871d0c275983e.events.ndjson",
+          ".pose/review-runs/rrn-d5d871d0c275983e.json",
+          ".pose/review-runs/rrn-d5d871d0c275983e.transcript",
+          ".pose/specs/2026-11-15-pose-check-shares-the-federated-material.md",
+          ".pose/starts/pose-check-shares-the-federated-material.json",
+          "pose-mcp/internal/pose/governance_read_view.go",
+          "pose-mcp/internal/pose/review_operation_view.go",
+          "pose-mcp/internal/pose/review_scope_index_inputs_test.go"
+        ]
+      }
+    },
+    {
       "id": "cs-f9edd9b1f14a",
       "spec": "pose-closeout-delivery-assurance-convergence",
       "selector": "trailers:pose-closeout-delivery-assurance-convergence",
@@ -303308,6 +303224,16 @@
       "remediation": "correct the exact path or commit the artifact before closeout"
     },
     {
+      "id": "dif-165be8217251",
+      "code": "stale-evidence",
+      "severity": "error",
+      "spec": "pose-followup-metadata-and-routing-integrity",
+      "path": "capability:followup-metadata-and-routing-integrity",
+      "change_set": "pose-mcp/go/abm-atomic-start-integration",
+      "message": "passed integration evidence is bound to a different scoped provenance digest",
+      "remediation": "rerun the registered validation check for this delivery scope"
+    },
+    {
       "id": "dif-16d7751f8a88",
       "code": "action-mismatch",
       "severity": "error",
@@ -303396,6 +303322,16 @@
       "remediation": "no Git change sets are attributed to spec pose-condition-response-and-work-metrics (ensure commits carry 'POSE-Spec: pose-condition-response-and-work-metrics' trailer or generate report with pose report)"
     },
     {
+      "id": "dif-1b2e260574e5",
+      "code": "stale-evidence",
+      "severity": "error",
+      "spec": "pose-residual-nature-commitment-and-effect",
+      "path": "capability:residual-nature-commitment-and-effect",
+      "change_set": "pose-mcp/go/abm-atomic-start-integration",
+      "message": "passed integration evidence is bound to a different scoped provenance digest",
+      "remediation": "rerun the registered validation check for this delivery scope"
+    },
+    {
       "id": "dif-1b7cab6c2ed6",
       "code": "action-mismatch",
       "severity": "error",
@@ -303438,6 +303374,15 @@
       "path": "pose-mcp/internal/mcpserver/residual_triage_test.go",
       "message": "declared artifact action is absent from the attributed Git change sets",
       "remediation": "no Git change sets are attributed to spec pose-residual-triage-and-risk-acceptance (ensure commits carry 'POSE-Spec: pose-residual-triage-and-risk-acceptance' trailer or generate report with pose report)"
+    },
+    {
+      "id": "dif-1e9ee391c2a2",
+      "code": "unconsumed-capability",
+      "severity": "error",
+      "spec": "pose-condition-response-and-work-metrics",
+      "path": "capability:condition-response-and-work-metrics",
+      "message": "required current evidence is missing: integration",
+      "remediation": "run registered checks with the required evidenceClass against the current provenance digest"
     },
     {
       "id": "dif-1eda4887a98c",
@@ -304091,6 +304036,16 @@
       "remediation": "no Git change sets are attributed to spec pose-planning-and-release-narrative-reconciliation (ensure commits carry 'POSE-Spec: pose-planning-and-release-narrative-reconciliation' trailer or generate report with pose report)"
     },
     {
+      "id": "dif-4c382934127e",
+      "code": "stale-evidence",
+      "severity": "error",
+      "spec": "pose-condition-response-and-work-metrics",
+      "path": "capability:condition-response-and-work-metrics",
+      "change_set": "pose-mcp/go/abm-atomic-start-integration",
+      "message": "passed integration evidence is bound to a different scoped provenance digest",
+      "remediation": "rerun the registered validation check for this delivery scope"
+    },
+    {
       "id": "dif-4ce441a9b798",
       "code": "undeclared-delivery",
       "severity": "warning",
@@ -304523,6 +304478,15 @@
       "remediation": "no Git change sets are attributed to spec pose-release-publication-evidence-replay (ensure commits carry 'POSE-Spec: pose-release-publication-evidence-replay' trailer or generate report with pose report)"
     },
     {
+      "id": "dif-695e8ee650d8",
+      "code": "unconsumed-capability",
+      "severity": "error",
+      "spec": "pose-release-scope-selection-and-exclusivity",
+      "path": "capability:release-scope-selection-and-exclusivity",
+      "message": "required current evidence is missing: integration",
+      "remediation": "run registered checks with the required evidenceClass against the current provenance digest"
+    },
+    {
       "id": "dif-69de20cd788a",
       "code": "legacy-narrative",
       "severity": "info",
@@ -304645,6 +304609,15 @@
       "remediation": "backfill an explicit claim or add an exact reviewed exclusion"
     },
     {
+      "id": "dif-6e501a4fba10",
+      "code": "unconsumed-capability",
+      "severity": "error",
+      "spec": "pose-integrated-agency-and-runtime-pilot",
+      "path": "capability:integrated-agency-and-runtime-pilot",
+      "message": "required current evidence is missing: integration",
+      "remediation": "run registered checks with the required evidenceClass against the current provenance digest"
+    },
+    {
       "id": "dif-6e5665d9cc93",
       "code": "undeclared",
       "severity": "error",
@@ -304752,6 +304725,15 @@
       "remediation": "no Git change sets are attributed to spec pose-release-prepare-record-recovery (ensure commits carry 'POSE-Spec: pose-release-prepare-record-recovery' trailer or generate report with pose report)"
     },
     {
+      "id": "dif-735f316a7d8d",
+      "code": "unconsumed-capability",
+      "severity": "error",
+      "spec": "pose-residual-triage-and-risk-acceptance",
+      "path": "capability:residual-triage-and-risk-acceptance",
+      "message": "required current evidence is missing: integration",
+      "remediation": "run registered checks with the required evidenceClass against the current provenance digest"
+    },
+    {
       "id": "dif-74799ab7ceaf",
       "code": "existence",
       "severity": "error",
@@ -304792,6 +304774,15 @@
       "spec": "pose-stack-catalog-expansion",
       "message": "spec has no structured Artifacts section",
       "remediation": "add a machine-parseable ### Artifacts section"
+    },
+    {
+      "id": "dif-790549df0a60",
+      "code": "unconsumed-capability",
+      "severity": "error",
+      "spec": "pose-proportional-next-action",
+      "path": "capability:proportional-next-action",
+      "message": "required current evidence is missing: integration",
+      "remediation": "run registered checks with the required evidenceClass against the current provenance digest"
     },
     {
       "id": "dif-79471c44e05d",
@@ -304853,6 +304844,15 @@
       "path": "pose-mcp/internal/pose/extensions_test.go",
       "message": "governed tracked path has no spec provenance claim",
       "remediation": "backfill an explicit claim or add an exact reviewed exclusion"
+    },
+    {
+      "id": "dif-7c0e9540c32f",
+      "code": "unconsumed-capability",
+      "severity": "error",
+      "spec": "pose-release-publication-evidence-replay",
+      "path": "governance:release-publication-evidence-replay",
+      "message": "required current evidence is missing: integration",
+      "remediation": "run registered checks with the required evidenceClass against the current provenance digest"
     },
     {
       "id": "dif-7c9ffe745bd7",
@@ -304970,6 +304970,15 @@
       "change_set": "cs-f3421d84f8c6",
       "message": "Git observed a governed path not declared by the spec",
       "remediation": "declare the exact action or narrow the attributed change set"
+    },
+    {
+      "id": "dif-846816722220",
+      "code": "unconsumed-capability",
+      "severity": "error",
+      "spec": "pose-residual-material-coverage-and-identity",
+      "path": "capability:residual-material-coverage-and-identity",
+      "message": "required current evidence is missing: integration",
+      "remediation": "run registered checks with the required evidenceClass against the current provenance digest"
     },
     {
       "id": "dif-859b8d7fdef6",
@@ -305470,6 +305479,16 @@
       "remediation": "backfill an explicit claim or add an exact reviewed exclusion"
     },
     {
+      "id": "dif-a2ac8e8172ae",
+      "code": "stale-evidence",
+      "severity": "error",
+      "spec": "pose-release-shared-sufficiency-contract",
+      "path": "capability:release-shared-sufficiency-contract",
+      "change_set": "pose-mcp/go/abm-atomic-start-integration",
+      "message": "passed integration evidence is bound to a different scoped provenance digest",
+      "remediation": "rerun the registered validation check for this delivery scope"
+    },
+    {
       "id": "dif-a2f320b0c145",
       "code": "action-mismatch",
       "severity": "error",
@@ -305477,6 +305496,15 @@
       "path": ".github/workflows/verify-release.yml",
       "message": "declared artifact action is absent from the attributed Git change sets",
       "remediation": "no Git change sets are attributed to spec pose-release-publication-evidence-replay (ensure commits carry 'POSE-Spec: pose-release-publication-evidence-replay' trailer or generate report with pose report)"
+    },
+    {
+      "id": "dif-a383b13b50ae",
+      "code": "unconsumed-capability",
+      "severity": "error",
+      "spec": "pose-release-prepare-record-recovery",
+      "path": "capability:release-prepare-record-recovery",
+      "message": "required current evidence is missing: integration",
+      "remediation": "run registered checks with the required evidenceClass against the current provenance digest"
     },
     {
       "id": "dif-a4c9cb78f7b2",
@@ -305688,6 +305716,16 @@
       "remediation": "no Git change sets are attributed to spec pose-debt-marker-lexical-precision (ensure commits carry 'POSE-Spec: pose-debt-marker-lexical-precision' trailer or generate report with pose report)"
     },
     {
+      "id": "dif-afce58c6042c",
+      "code": "stale-evidence",
+      "severity": "error",
+      "spec": "pose-residual-triage-and-risk-acceptance",
+      "path": "capability:residual-triage-and-risk-acceptance",
+      "change_set": "pose-mcp/go/abm-atomic-start-integration",
+      "message": "passed integration evidence is bound to a different scoped provenance digest",
+      "remediation": "rerun the registered validation check for this delivery scope"
+    },
+    {
       "id": "dif-b071bcc0ab26",
       "code": "undeclared-delivery",
       "severity": "warning",
@@ -305788,6 +305826,15 @@
       "remediation": "backfill an explicit claim or add an exact reviewed exclusion"
     },
     {
+      "id": "dif-b525a7159445",
+      "code": "unconsumed-capability",
+      "severity": "error",
+      "spec": "pose-release-shared-sufficiency-contract",
+      "path": "capability:release-shared-sufficiency-contract",
+      "message": "required current evidence is missing: integration",
+      "remediation": "run registered checks with the required evidenceClass against the current provenance digest"
+    },
+    {
       "id": "dif-b5a98739a772",
       "code": "orphan",
       "severity": "warning",
@@ -305855,6 +305902,15 @@
       "spec": "pose-mcp-protocol-completeness",
       "message": "spec has no structured Artifacts section",
       "remediation": "add a machine-parseable ### Artifacts section"
+    },
+    {
+      "id": "dif-b86c6b772a2a",
+      "code": "unconsumed-capability",
+      "severity": "error",
+      "spec": "pose-release-publication-evidence-replay",
+      "path": "capability:release-publication-evidence-replay",
+      "message": "required current evidence is missing: integration",
+      "remediation": "run registered checks with the required evidenceClass against the current provenance digest"
     },
     {
       "id": "dif-ba026d734596",
@@ -305957,6 +306013,16 @@
       "remediation": "backfill an explicit claim or add an exact reviewed exclusion"
     },
     {
+      "id": "dif-c08e2d7fca25",
+      "code": "stale-evidence",
+      "severity": "error",
+      "spec": "pose-release-scope-selection-and-exclusivity",
+      "path": "capability:release-scope-selection-and-exclusivity",
+      "change_set": "pose-mcp/go/abm-atomic-start-integration",
+      "message": "passed integration evidence is bound to a different scoped provenance digest",
+      "remediation": "rerun the registered validation check for this delivery scope"
+    },
+    {
       "id": "dif-c1b4ad02d503",
       "code": "undeclared",
       "severity": "error",
@@ -306012,6 +306078,16 @@
       "remediation": "declare the exact action or narrow the attributed change set"
     },
     {
+      "id": "dif-c727af456ea5",
+      "code": "stale-evidence",
+      "severity": "error",
+      "spec": "pose-release-publication-evidence-replay",
+      "path": "capability:release-publication-evidence-replay",
+      "change_set": "pose-mcp/go/abm-atomic-start-integration",
+      "message": "passed integration evidence is bound to a different scoped provenance digest",
+      "remediation": "rerun the registered validation check for this delivery scope"
+    },
+    {
       "id": "dif-c78f484a6092",
       "code": "undeclared",
       "severity": "error",
@@ -306050,12 +306126,32 @@
       "remediation": "correct the exact path or commit the artifact before closeout"
     },
     {
+      "id": "dif-c9c75ce27dba",
+      "code": "stale-evidence",
+      "severity": "error",
+      "spec": "pose-residual-material-coverage-and-identity",
+      "path": "capability:residual-material-coverage-and-identity",
+      "change_set": "pose-mcp/go/abm-atomic-start-integration",
+      "message": "passed integration evidence is bound to a different scoped provenance digest",
+      "remediation": "rerun the registered validation check for this delivery scope"
+    },
+    {
       "id": "dif-c9cf415039c4",
       "code": "legacy-narrative",
       "severity": "info",
       "spec": "pose-runtime-windows-named-pipe",
       "message": "spec has no structured Artifacts section",
       "remediation": "add a machine-parseable ### Artifacts section"
+    },
+    {
+      "id": "dif-ca7024ebaaaa",
+      "code": "stale-evidence",
+      "severity": "error",
+      "spec": "pose-proportional-next-action",
+      "path": "capability:proportional-next-action",
+      "change_set": "pose-mcp/go/abm-atomic-start-integration",
+      "message": "passed integration evidence is bound to a different scoped provenance digest",
+      "remediation": "rerun the registered validation check for this delivery scope"
     },
     {
       "id": "dif-ca74de63dc2a",
@@ -306102,6 +306198,15 @@
       "remediation": "backfill an explicit claim or add an exact reviewed exclusion"
     },
     {
+      "id": "dif-cb26c00a2122",
+      "code": "unconsumed-capability",
+      "severity": "error",
+      "spec": "pose-residual-nature-commitment-and-effect",
+      "path": "capability:residual-nature-commitment-and-effect",
+      "message": "required current evidence is missing: integration",
+      "remediation": "run registered checks with the required evidenceClass against the current provenance digest"
+    },
+    {
       "id": "dif-cba603e65d71",
       "code": "undeclared-delivery",
       "severity": "warning",
@@ -306146,6 +306251,16 @@
       "path": ".pose/specs/2026-10-13-pose-followup-metadata-and-routing-integrity.md",
       "message": "declared artifact action is absent from the attributed Git change sets",
       "remediation": "no Git change sets are attributed to spec pose-followup-metadata-and-routing-integrity (ensure commits carry 'POSE-Spec: pose-followup-metadata-and-routing-integrity' trailer or generate report with pose report)"
+    },
+    {
+      "id": "dif-cf72ba3fafcd",
+      "code": "stale-evidence",
+      "severity": "error",
+      "spec": "pose-release-publication-evidence-replay",
+      "path": "governance:release-publication-evidence-replay",
+      "change_set": "pose-mcp/go/abm-atomic-start-integration",
+      "message": "passed integration evidence is bound to a different scoped provenance digest",
+      "remediation": "rerun the registered validation check for this delivery scope"
     },
     {
       "id": "dif-cfa5cd892805",
@@ -306271,6 +306386,16 @@
       "path": "pose-mcp/schemas/v1/obligation.schema.json",
       "message": "declared artifact action is absent from the attributed Git change sets",
       "remediation": "no Git change sets are attributed to spec pose-residual-nature-commitment-and-effect (ensure commits carry 'POSE-Spec: pose-residual-nature-commitment-and-effect' trailer or generate report with pose report)"
+    },
+    {
+      "id": "dif-d8767e86fdf9",
+      "code": "stale-evidence",
+      "severity": "error",
+      "spec": "pose-integrated-agency-and-runtime-pilot",
+      "path": "capability:integrated-agency-and-runtime-pilot",
+      "change_set": "pose-mcp/go/abm-atomic-start-integration",
+      "message": "passed integration evidence is bound to a different scoped provenance digest",
+      "remediation": "rerun the registered validation check for this delivery scope"
     },
     {
       "id": "dif-d9363fc1d874",
@@ -306425,6 +306550,15 @@
       "remediation": "declare the exact action or narrow the attributed change set"
     },
     {
+      "id": "dif-e6182f61ea80",
+      "code": "unconsumed-capability",
+      "severity": "error",
+      "spec": "pose-followup-metadata-and-routing-integrity",
+      "path": "capability:followup-metadata-and-routing-integrity",
+      "message": "required current evidence is missing: integration",
+      "remediation": "run registered checks with the required evidenceClass against the current provenance digest"
+    },
+    {
       "id": "dif-e65bb29b3cb2",
       "code": "undeclared-delivery",
       "severity": "warning",
@@ -306451,6 +306585,16 @@
       "path": ".pose/knowledge/2026-08-03-decision-log-project-agnostic-assessment-evidence.md",
       "message": "declared current artifact is not tracked at the selected head",
       "remediation": "correct the exact path or commit the artifact before closeout"
+    },
+    {
+      "id": "dif-e6b701ca7717",
+      "code": "stale-evidence",
+      "severity": "error",
+      "spec": "pose-release-prepare-record-recovery",
+      "path": "capability:release-prepare-record-recovery",
+      "change_set": "pose-mcp/go/abm-atomic-start-integration",
+      "message": "passed integration evidence is bound to a different scoped provenance digest",
+      "remediation": "rerun the registered validation check for this delivery scope"
     },
     {
       "id": "dif-e6f0fcdaa2e8",
@@ -314298,7 +314442,10 @@
         "manual-review:.pose/reports/2026-08-03-delivery-integrity-roadmap-review.md"
       ],
       "raw": "check:test manual-review:.pose/reports/2026-08-03-delivery-integrity-roadmap-review.md",
-      "passed": true
+      "passed": false,
+      "reasons": [
+        "check is missing, failing or stale: test"
+      ]
     },
     {
       "roadmap": "delivery-integrity",
@@ -314319,7 +314466,12 @@
         "check:delivery-reachability"
       ],
       "raw": "check:test check:delivery-integration check:delivery-reachability",
-      "passed": true
+      "passed": false,
+      "reasons": [
+        "check is missing, failing or stale: test",
+        "check is missing, failing or stale: delivery-integration",
+        "check is missing, failing or stale: delivery-reachability"
+      ]
     },
     {
       "roadmap": "delivery-integrity",
@@ -314339,7 +314491,10 @@
         "check:delivery-reachability"
       ],
       "raw": "surface:delivery-integrity-cli check:delivery-reachability",
-      "passed": true
+      "passed": false,
+      "reasons": [
+        "check is missing, failing or stale: delivery-reachability"
+      ]
     },
     {
       "roadmap": "delivery-integrity",
@@ -314350,7 +314505,10 @@
         "check:delivery-integration"
       ],
       "raw": "surface:delivery-integrity-cli capability:delivery-integrity-graph check:delivery-integration",
-      "passed": true
+      "passed": false,
+      "reasons": [
+        "check is missing, failing or stale: delivery-integration"
+      ]
     },
     {
       "roadmap": "delivery-integrity",
@@ -314388,7 +314546,10 @@
         "check:delivery-integration"
       ],
       "raw": "governance:release-integrity check:delivery-integration",
-      "passed": true
+      "passed": false,
+      "reasons": [
+        "check is missing, failing or stale: delivery-integration"
+      ]
     },
     {
       "roadmap": "pose-multirepo-foundation",
@@ -314398,7 +314559,10 @@
         "check:federated-roadmap-acceptance-integration"
       ],
       "raw": "governance:federated-roadmap-acceptance check:federated-roadmap-acceptance-integration",
-      "passed": true
+      "passed": false,
+      "reasons": [
+        "check is missing, failing or stale: federated-roadmap-acceptance-integration"
+      ]
     },
     {
       "roadmap": "pose-multirepo-foundation",
@@ -314407,7 +314571,10 @@
         "check:federated-roadmap-negative-gates"
       ],
       "raw": "check:federated-roadmap-negative-gates",
-      "passed": true
+      "passed": false,
+      "reasons": [
+        "check is missing, failing or stale: federated-roadmap-negative-gates"
+      ]
     }
   ],
   "paths": {
@@ -315468,8 +315635,7 @@
     "capability:condition-response-and-work-metrics": [
       "spec:pose-condition-response-and-work-metrics",
       "delivery:capability:condition-response-and-work-metrics",
-      "entrypoint:pose-mcp/internal/pose/governance_waits.go",
-      "validation-set:b93a6826eb79e7d9"
+      "entrypoint:pose-mcp/internal/pose/governance_waits.go"
     ],
     "capability:configuration-review": [
       "spec:pose-update-configuration-review",
@@ -316811,8 +316977,7 @@
     "capability:followup-metadata-and-routing-integrity": [
       "spec:pose-followup-metadata-and-routing-integrity",
       "delivery:capability:followup-metadata-and-routing-integrity",
-      "entrypoint:pose-mcp/internal/pose/followup_candidates.go",
-      "validation-set:b93a6826eb79e7d9"
+      "entrypoint:pose-mcp/internal/pose/followup_candidates.go"
     ],
     "capability:fresh-install-health": [
       "spec:pose-fresh-install-doctor-is-clean",
@@ -317524,8 +317689,7 @@
     "capability:integrated-agency-and-runtime-pilot": [
       "spec:pose-integrated-agency-and-runtime-pilot",
       "delivery:capability:integrated-agency-and-runtime-pilot",
-      "entrypoint:pose-mcp/cmd/pose/main.go",
-      "validation-set:b93a6826eb79e7d9"
+      "entrypoint:pose-mcp/cmd/pose/main.go"
     ],
     "capability:java-rule-extension": [
       "spec:pose-stack-rule-extensions-expansion",
@@ -318204,8 +318368,7 @@
     "capability:proportional-next-action": [
       "spec:pose-proportional-next-action",
       "delivery:capability:proportional-next-action",
-      "entrypoint:pose-mcp/internal/pose/action_presentation.go",
-      "validation-set:b93a6826eb79e7d9"
+      "entrypoint:pose-mcp/internal/pose/action_presentation.go"
     ],
     "capability:python-rule-extension": [
       "spec:pose-stack-rule-extensions-expansion",
@@ -318432,26 +318595,22 @@
     "capability:release-prepare-record-recovery": [
       "spec:pose-release-prepare-record-recovery",
       "delivery:capability:release-prepare-record-recovery",
-      "entrypoint:pose-mcp/internal/cli/release_lifecycle.go",
-      "validation-set:b93a6826eb79e7d9"
+      "entrypoint:pose-mcp/internal/cli/release_lifecycle.go"
     ],
     "capability:release-publication-evidence-replay": [
       "spec:pose-release-publication-evidence-replay",
       "delivery:capability:release-publication-evidence-replay",
-      "entrypoint:pose-mcp/internal/pose/release_lifecycle.go",
-      "validation-set:b93a6826eb79e7d9"
+      "entrypoint:pose-mcp/internal/pose/release_lifecycle.go"
     ],
     "capability:release-scope-selection-and-exclusivity": [
       "spec:pose-release-scope-selection-and-exclusivity",
       "delivery:capability:release-scope-selection-and-exclusivity",
-      "entrypoint:pose-mcp/internal/cli/release_lifecycle.go",
-      "validation-set:b93a6826eb79e7d9"
+      "entrypoint:pose-mcp/internal/cli/release_lifecycle.go"
     ],
     "capability:release-shared-sufficiency-contract": [
       "spec:pose-release-shared-sufficiency-contract",
       "delivery:capability:release-shared-sufficiency-contract",
-      "entrypoint:pose-mcp/internal/pose/release_lifecycle.go",
-      "validation-set:b93a6826eb79e7d9"
+      "entrypoint:pose-mcp/internal/pose/release_lifecycle.go"
     ],
     "capability:release-stability": [
       "spec:pose-v6-2-0-release-stability",
@@ -318564,20 +318723,17 @@
     "capability:residual-material-coverage-and-identity": [
       "spec:pose-residual-material-coverage-and-identity",
       "delivery:capability:residual-material-coverage-and-identity",
-      "entrypoint:pose-mcp/internal/pose/techdebt.go",
-      "validation-set:b93a6826eb79e7d9"
+      "entrypoint:pose-mcp/internal/pose/techdebt.go"
     ],
     "capability:residual-nature-commitment-and-effect": [
       "spec:pose-residual-nature-commitment-and-effect",
       "delivery:capability:residual-nature-commitment-and-effect",
-      "entrypoint:pose-mcp/internal/pose/obligation_projection.go",
-      "validation-set:b93a6826eb79e7d9"
+      "entrypoint:pose-mcp/internal/pose/obligation_projection.go"
     ],
     "capability:residual-triage-and-risk-acceptance": [
       "spec:pose-residual-triage-and-risk-acceptance",
       "delivery:capability:residual-triage-and-risk-acceptance",
-      "entrypoint:pose-mcp/internal/pose/followup_candidates.go",
-      "validation-set:b93a6826eb79e7d9"
+      "entrypoint:pose-mcp/internal/pose/followup_candidates.go"
     ],
     "capability:reuse-is-sealed-signing-stays-live": [
       "spec:pose-reuse-is-sealed-signing-stays-live",
@@ -321848,8 +322004,7 @@
     "governance:release-publication-evidence-replay": [
       "spec:pose-release-publication-evidence-replay",
       "delivery:governance:release-publication-evidence-replay",
-      "entrypoint:.github/workflows/verify-release.yml",
-      "validation-set:b93a6826eb79e7d9"
+      "entrypoint:.github/workflows/verify-release.yml"
     ],
     "governance:release-recovery-verification": [
       "spec:pose-release-recovery-verification",
