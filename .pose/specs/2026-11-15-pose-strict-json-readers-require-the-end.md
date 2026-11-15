@@ -69,7 +69,7 @@ A revisão da spec `pose-hooks-delegate-to-the-instance-runner` (rodada 1, F1) a
 
 - capability:strict-json-readers-require-the-end module:pose-mcp profile:composed-capability entrypoint:pose-mcp/cmd/pose/main.go
 
-Composto em produção por `pose release record`, `pose action fulfil` e pelos git hooks do motor. Check permanente `strict-json-readers-require-the-end-integration`, evidenceClass `integration`, required: `go test ./internal/pose ./internal/cli -run 'TestDecodeStrictJSON|TestStrictJSONReadersRequireTheEnd|TestReviewRequestIsFulfilledOverTheCLI|TestF05RecordRefusesATagWhoseTreeIsNotIntact|TestAnInvalidHookRunnerIsRefused' -count=1`.
+Composto em produção por `pose release record`, `pose action fulfil` e pelos git hooks do motor. Check permanente `strict-json-readers-require-the-end-integration`, evidenceClass `integration`, required: `go test ./internal/pose ./internal/cli -run 'TestDecodeStrictJSON|TestStrictJSONReadersRequireTheEnd|TestStrictJSONReaderEndsJudgesTheCheckNotItsShape|TestReviewRequestIsFulfilledOverTheCLI|TestF05RecordRefusesATagWhoseTreeIsNotIntact|TestAnInvalidHookRunnerIsRefused' -count=1`.
 
 ### API/contract changes
 - Nenhuma: entradas válidas são lidas como antes.
@@ -130,7 +130,7 @@ Regressão pela CLI de cada leitor corrigido, com lixo e com um segundo valor de
 
 ### Requirement trace
 - R1 [satisfied] test:TestReviewRequestIsFulfilledOverTheCLI test:TestF05RecordRefusesATagWhoseTreeIsNotIntact test:TestAnInvalidHookRunnerIsRefused test:TestDecodeStrictJSONReadsOneValueAndNothingElse
-- R2 [satisfied] test:TestStrictJSONReadersRequireTheEnd check:strict-json-readers-require-the-end-integration
+- R2 [satisfied] test:TestStrictJSONReadersRequireTheEnd test:TestStrictJSONReaderEndsJudgesTheCheckNotItsShape check:strict-json-readers-require-the-end-integration
 
 ### Known gaps
 - O guard reconhece `json.Unmarshal` na mesma função como conferência do fim, sem provar que é o mesmo conteúdo; nos dois casos atuais é.
@@ -146,3 +146,8 @@ Não concluída.
 ### Residual risks
 
 ### Follow-ups
+
+### Review
+
+Rodada 1 (run rrn-964929504dce2647, attestation rva-0757736fb2ddb7e1, changes-requested): 1 bloqueador, tratado. F1 o predicado do guard aceitava formas que não conferem o fim: `Decode(new(T))` sozinho e `More()`, que devolve falso diante de um `}` ou `]` sobrando. O predicado passou a exigir uma condição de fim de fato conferida (comparação com `io.EOF` por `==`, `!=` ou `errors.Is`, `DecodeStrictJSON`, ou `json.Unmarshal` da entrada), e fixtures positivas e negativas o provam; as negativas reprovam com os atalhos de volta.
+
