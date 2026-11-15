@@ -135,3 +135,48 @@ func TestAListedReleaseTagResolvesAsAloneOne(t *testing.T) {
 		}
 	}
 }
+
+// Review round 1 (F3): a peel that failed is asked again once the object it
+// needs is available.
+func TestAFailedReleaseTagPeelIsAskedAgain(t *testing.T) {
+	r := newReleaseRepo(t, "v1.0.0")
+	relGit(t, r.root, "tag", "v1.0.0")
+	object := relGit(t, r.root, "rev-parse", "refs/tags/v1.0.0")
+	git := filepath.Join(r.root, ".git")
+	if err := os.Rename(git, git+".away"); err != nil {
+		t.Fatal(err)
+	}
+	if _, _, err := peelReleaseTagObject(r.root, "v1.0.0", object); err == nil {
+		t.Fatal("a peel without the repository succeeded")
+	}
+	if err := os.Rename(git+".away", git); err != nil {
+		t.Fatal(err)
+	}
+	if commit, _, err := peelReleaseTagObject(r.root, "v1.0.0", object); err != nil || commit != object {
+		t.Fatalf("the failed peel was kept: %q %v", commit, err)
+	}
+}
+
+// Review round 1 (F2): a snapshot with gaps is read again, not kept.
+func TestASnapshotWithGapsIsReadAgain(t *testing.T) {
+	r := newReleaseRepo(t, "v1.0.0")
+	relWrite(t, r.root, ".pose/policy/release.json", "{}\n")
+	r.commit(t, "a release policy that does not satisfy its contract")
+	relGit(t, r.root, "tag", "v1.0.0")
+	commit, annotated, err := ResolveReleaseTag(r.root, "v1.0.0")
+	if err != nil {
+		t.Fatal(err)
+	}
+	first, _ := readReleaseSnapshotAtCommit(r.root, "v1.0.0", commit, annotated)
+	if len(first.Gaps) == 0 {
+		t.Fatalf("the fixture has no gap: %+v", first)
+	}
+	git := filepath.Join(r.root, ".git")
+	if err := os.Rename(git, git+".away"); err != nil {
+		t.Fatal(err)
+	}
+	defer os.Rename(git+".away", git)
+	if _, err := readReleaseSnapshotAtCommit(r.root, "v1.0.0", commit, annotated); err == nil {
+		t.Fatal("a snapshot with gaps was answered from the cache")
+	}
+}

@@ -8,8 +8,6 @@ import (
 	"path/filepath"
 	"sort"
 	"strings"
-	"sync"
-	"sync/atomic"
 )
 
 // Validation evidence binds to the material it validated (spec
@@ -244,13 +242,10 @@ func SetCurrentMaterialDigests(f func(root string, inputs MaterialInputs) string
 var (
 	currentMaterialHead func(root string) string
 	currentMaterialAt   func(root, head string, inputs MaterialInputs) string
-	currentMaterialKept sync.Map
-	// currentMaterialCount bounds the kept digests of a long-running process
+	// currentMaterialKept bounds the kept digests of a long-running process
 	// (the MCP server sees HEAD move): past the bound, they are dropped.
-	currentMaterialCount atomic.Int64
+	currentMaterialKept = newKeptCache[string](20000)
 )
-
-var currentMaterialBound int64 = 20000
 
 // SetCurrentMaterialAt registers the commit-bound recomputation.
 func SetCurrentMaterialAt(head func(root string) string, at func(root, head string, inputs MaterialInputs) string) {
@@ -290,14 +285,10 @@ func currentMaterialDigest(root, head string, inputs MaterialInputs) string {
 		return currentMaterialAt(root, head, inputs)
 	}
 	key := filepath.Clean(root) + "\x00" + head + "\x00" + string(encoded)
-	if kept, ok := currentMaterialKept.Load(key); ok {
-		return kept.(string)
-	}
-	digest := currentMaterialAt(root, head, inputs)
-	if currentMaterialCount.Add(1) > currentMaterialBound {
-		currentMaterialKept.Clear()
-		currentMaterialCount.Store(1)
-	}
-	currentMaterialKept.Store(key, digest)
-	return digest
+	// An unreadable tree is not the commit's answer: it is asked again
+	// (review round 1, F1).
+	return currentMaterialKept.get(key, func() (string, bool) {
+		digest := currentMaterialAt(root, head, inputs)
+		return digest, digest != "" && digest != MaterialDigestUnreadable
+	})
 }

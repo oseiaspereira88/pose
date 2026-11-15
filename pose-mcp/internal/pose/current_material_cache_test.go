@@ -10,12 +10,10 @@ func withMaterialHooks(t *testing.T, head func(string) string, at func(string, s
 	oldDigests, oldHead, oldAt := CurrentMaterialDigests, currentMaterialHead, currentMaterialAt
 	CurrentMaterialDigests = nil
 	SetCurrentMaterialAt(head, at)
-	currentMaterialKept.Clear()
-	currentMaterialCount.Store(0)
+	currentMaterialKept.clear()
 	t.Cleanup(func() {
 		CurrentMaterialDigests, currentMaterialHead, currentMaterialAt = oldDigests, oldHead, oldAt
-		currentMaterialKept.Clear()
-		currentMaterialCount.Store(0)
+		currentMaterialKept.clear()
 	})
 }
 
@@ -86,14 +84,13 @@ func TestCurrentMaterialWithoutAHeadIsNotKept(t *testing.T) {
 func TestCurrentMaterialKeptDigestsAreBounded(t *testing.T) {
 	head := 0
 	withMaterialHooks(t, func(string) string { head++; return strings.Repeat(string(rune('a'+head%6)), 40) }, func(string, string, MaterialInputs) string { return "sha256:x" })
-	old := currentMaterialBound
-	currentMaterialBound = 3
-	t.Cleanup(func() { currentMaterialBound = old })
+	old := currentMaterialKept.bound
+	currentMaterialKept.bound = 3
+	t.Cleanup(func() { currentMaterialKept.bound = old })
 	for i := 0; i < 10; i++ {
 		withCurrentMaterial("/r", materialSets(1))
 	}
-	kept := 0
-	currentMaterialKept.Range(func(any, any) bool { kept++; return true })
+	kept := currentMaterialKept.len()
 	if kept > 3 {
 		t.Fatalf("%d digests kept past a bound of 3", kept)
 	}

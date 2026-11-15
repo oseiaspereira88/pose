@@ -39,7 +39,8 @@ Ao fixar o pose-dist em `bf2ff02` com o pin de federação certo, o `pose index`
 - R2: The snapshot of a release tag at a commit shall be read from git once per process; each reader shall receive its own copy, and a failing git read shall not be kept.
 - R3: The commit a tag object peels to, and whether it is annotated, shall be kept per object, while the tag's ref is read every time; the archived releases shall list the tags' refs in one git process and read each snapshot at the commit already resolved, answering as `ResolveReleaseTag` answers each tag alone.
 - R4: What a review bundle's bytes declare about their scope shall be parsed once per content digest, each file keeping its own artifact path in a loss.
-- R5: The kept entries of R1 and R4 shall be bounded for a long-running process.
+- R5: The kept entries of every cache shall be bounded for a long-running process.
+- R6: A key missed by several callers together shall be computed once; a result that records a failing read (an unreadable material, a snapshot with gaps, a failed peel) shall not be kept, and a shallow checkout shall read its material uncached.
 
 ### Non-functional
 - O `pose index` do harne8 com o pose-dist em `bf2ff02` cai de 1.383 s para no máximo 300 s, com índices idênticos.
@@ -68,13 +69,15 @@ Ao fixar o pose-dist em `bf2ff02` com o pin de federação certo, o `pose index`
 - created: pose-mcp/internal/pose/current_material_cache_test.go
 - created: pose-mcp/internal/pose/release_snapshot_cache_test.go
 - created: pose-mcp/internal/pose/review_bundle_header_cache_test.go
+- created: pose-mcp/internal/pose/kept_cache.go
+- created: pose-mcp/internal/pose/kept_cache_test.go
 - modified: .pose/indexes/validation-matrix.json
 
 ### Delivery targets
 
 - capability:federated-proof-reads-each-input-once module:pose-mcp profile:composed-capability entrypoint:pose-mcp/cmd/pose/main.go
 
-Composto em produção por `pose index`, `pose check` e por toda verificação de bundle federado. Check permanente `federated-proof-reads-each-input-once-integration`, evidenceClass `integration`, required: `go test ./internal/pose -run 'TestCurrentMaterialIsReadOncePerCommit|TestCurrentMaterialFollowsAMovedHead|TestCurrentMaterialWithoutAHeadIsNotKept|TestCurrentMaterialKeptDigestsAreBounded|TestEvidenceIsJudgedAgainstTheCurrentMaterial|TestAReleaseSnapshotIsReadOncePerCommit|TestAKeptReleaseSnapshotIsCopiedToEachReader|TestAMovedReleaseTagIsReadAtItsNewCommit|TestAFailedReleaseSnapshotReadIsNotKept|TestAReleaseTagPeelIsKeptPerObject|TestAListedReleaseTagResolvesAsAloneOne|TestABundleHeaderIsParsedOncePerContent' -count=1`.
+Composto em produção por `pose index`, `pose check` e por toda verificação de bundle federado. Check permanente `federated-proof-reads-each-input-once-integration`, evidenceClass `integration`, required: `go test ./internal/pose -run 'TestCurrentMaterialIsReadOncePerCommit|TestCurrentMaterialFollowsAMovedHead|TestCurrentMaterialWithoutAHeadIsNotKept|TestCurrentMaterialKeptDigestsAreBounded|TestEvidenceIsJudgedAgainstTheCurrentMaterial|TestAReleaseSnapshotIsReadOncePerCommit|TestAKeptReleaseSnapshotIsCopiedToEachReader|TestAMovedReleaseTagIsReadAtItsNewCommit|TestAFailedReleaseSnapshotReadIsNotKept|TestAReleaseTagPeelIsKeptPerObject|TestAListedReleaseTagResolvesAsAloneOne|TestABundleHeaderIsParsedOncePerContent|TestAKeptValueIsComputedOnceForConcurrentMisses|TestADeclinedKeptValueIsComputedAgain|TestAnUnreadableMaterialIsAskedAgain|TestASnapshotWithGapsIsReadAgain|TestAFailedReleaseTagPeelIsAskedAgain' -count=1`.
 
 ### API/contract changes
 - Nenhuma.
@@ -136,6 +139,7 @@ Teste de cada cache com prova de reprovação; os índices do harne8 gerados por
 - R2 [satisfied] test:TestAReleaseSnapshotIsReadOncePerCommit test:TestAKeptReleaseSnapshotIsCopiedToEachReader test:TestAMovedReleaseTagIsReadAtItsNewCommit test:TestAFailedReleaseSnapshotReadIsNotKept
 - R3 [satisfied] test:TestAReleaseTagPeelIsKeptPerObject test:TestAListedReleaseTagResolvesAsAloneOne
 - R4 [satisfied] test:TestABundleHeaderIsParsedOncePerContent
+- R6 [satisfied] test:TestAKeptValueIsComputedOnceForConcurrentMisses test:TestADeclinedKeptValueIsComputedAgain test:TestAnUnreadableMaterialIsAskedAgain test:TestASnapshotWithGapsIsReadAgain test:TestAFailedReleaseTagPeelIsAskedAgain
 - R5 [satisfied] test:TestCurrentMaterialKeptDigestsAreBounded check:federated-proof-reads-each-input-once-integration
 
 ### Known gaps
@@ -154,3 +158,8 @@ Não concluída.
 ### Follow-ups
 
 - [open] F1: o `check` recalcula o material federado inteiro para cada escopo (`checkReviewCloseout` → `ReadIndex` → `checkIndexInputs` → `BuildIndexFederatedMaterialIn`), e cada worker retém a própria read view: no harne8, 37 min com 4 workers e mais de 11 GB com 16. Calcular o material uma vez por processo, com chave no fechamento de entradas da read view, e limitar a memória por worker. (owner:@pose-maintainers crit:high review:2026-11-22)
+
+### Review
+
+Rodada 1 (run rrn-4a532feec7405caf, attestation rva-923a9017fb572ebd, changes-requested): 4 bloqueadores, tratados. F1 o cache de material guardava o marcador `unreadable` e não conferia o clone raso: o estado de clone raso passou a ser conferido a cada resolução do HEAD (um repositório raso lê sem cache), e um material ilegível não é guardado. F2 o cache de snapshots guardava snapshots com gaps, que podem registrar uma leitura do git que falhou: só um snapshot íntegro, ou um commit sem manifesto, é guardado. F3 uma resolução de tag que falhou era guardada como "não é commit": só uma resolução que chegou a um commit é guardada. F4 duas chamadas que perdiam a mesma chave calculavam as duas: os quatro caches passaram a um `keptCache` que coordena o trabalho em andamento por chave (quem chega espera o primeiro), e um resultado que não é guardado é recalculado por quem esperava. Um teste por achado, cada um reprova com o comportamento anterior.
+

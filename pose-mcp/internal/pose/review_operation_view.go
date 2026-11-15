@@ -32,31 +32,24 @@ func readReviewBundleHeader(files Files, dir, name string) reviewHeaderObservati
 	}
 	result := reviewHeaderObservation{digest: sha256.Sum256(raw), inputBytes: len(raw)}
 	// What a bundle's bytes say about their scope is a function of the
-	// bytes: it is kept per content digest, so a governance check that reads
-	// every bundle for every scope parses each content once (spec
-	// pose-federated-proof-reads-each-input-once).
-	if kept, ok := reviewBundleHeaderParses.Load(result.digest); ok {
-		parsed := kept.(reviewBundleHeaderParse)
-		result.owner = parsed.owner
-		if parsed.loss != nil {
-			loss := *parsed.loss
-			loss.Artifact = rel
-			result.loss = &loss
-		}
-		return result
+	// bytes: it is parsed once per content digest, so a governance check
+	// that reads every bundle for every scope parses each content once
+	// (spec pose-federated-proof-reads-each-input-once).
+	parsed := reviewBundleHeaderParses.get(string(result.digest[:]), func() (reviewBundleHeaderParse, bool) {
+		return parseReviewBundleHeader(raw, rel), true
+	})
+	result.owner = parsed.owner
+	if parsed.loss != nil {
+		loss := *parsed.loss
+		loss.Artifact = rel
+		result.loss = &loss
 	}
-	defer func() {
-		parsed := reviewBundleHeaderParse{owner: result.owner}
-		if result.loss != nil {
-			loss := *result.loss
-			parsed.loss = &loss
-		}
-		if reviewBundleHeaderParseCount.Add(1) > reviewBundleHeaderParseBound {
-			reviewBundleHeaderParses.Clear()
-			reviewBundleHeaderParseCount.Store(1)
-		}
-		reviewBundleHeaderParses.Store(result.digest, parsed)
-	}()
+	return result
+}
+
+// parseReviewBundleHeader reads the scope a bundle's bytes declare, or why
+// they declare none.
+func parseReviewBundleHeader(raw []byte, rel string) reviewBundleHeaderParse {
 	var header struct {
 		Payload struct {
 			Scope struct {
@@ -64,29 +57,23 @@ func readReviewBundleHeader(files Files, dir, name string) reviewHeaderObservati
 			} `json:"scope"`
 		} `json:"payload"`
 	}
-	if err := json.Unmarshal(raw, &header); err != nil {
-		loss := attributeLoss(SourceLoss{Producer: "review-bundles", Artifact: rel, Kind: LossParseError, Detail: "the record is not valid JSON"}, raw, "payload", "scope", "ref")
-		result.loss = &loss
-	} else if _, _, ambiguous := sniffJSONString(raw, "payload", "scope", "ref"); ambiguous {
-		loss := SourceLoss{Producer: "review-bundles", Artifact: rel, Kind: LossInvalid, Detail: "the record names its scope more than once"}
-		result.loss = &loss
-	} else if header.Payload.Scope.Ref == "" {
-		loss := SourceLoss{Producer: "review-bundles", Artifact: rel, Kind: LossParseError, Detail: "the record names no scope"}
-		result.loss = &loss
-	} else {
-		result.owner = header.Payload.Scope.Ref
+	var loss SourceLoss
+	switch {
+	case json.Unmarshal(raw, &header) != nil:
+		loss = attributeLoss(SourceLoss{Producer: "review-bundles", Artifact: rel, Kind: LossParseError, Detail: "the record is not valid JSON"}, raw, "payload", "scope", "ref")
+	case func() bool { _, _, ambiguous := sniffJSONString(raw, "payload", "scope", "ref"); return ambiguous }():
+		loss = SourceLoss{Producer: "review-bundles", Artifact: rel, Kind: LossInvalid, Detail: "the record names its scope more than once"}
+	case header.Payload.Scope.Ref == "":
+		loss = SourceLoss{Producer: "review-bundles", Artifact: rel, Kind: LossParseError, Detail: "the record names no scope"}
+	default:
+		return reviewBundleHeaderParse{owner: header.Payload.Scope.Ref}
 	}
-	return result
+	return reviewBundleHeaderParse{loss: &loss}
 }
 
 // reviewBundleHeaderParses keeps, per content digest, the scope a bundle
 // names or why it names none; bounded for a long-running process.
-var (
-	reviewBundleHeaderParses     sync.Map
-	reviewBundleHeaderParseCount atomic.Int64
-)
-
-const reviewBundleHeaderParseBound = 50000
+var reviewBundleHeaderParses = newKeptCache[reviewBundleHeaderParse](50000)
 
 type reviewBundleHeaderParse struct {
 	owner string

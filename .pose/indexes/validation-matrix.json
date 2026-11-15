@@ -2401,7 +2401,7 @@
         {
           "name": "federated-proof-reads-each-input-once-integration",
           "program": "go",
-          "args": ["test", "./internal/pose", "-run", "TestCurrentMaterialIsReadOncePerCommit|TestCurrentMaterialFollowsAMovedHead|TestCurrentMaterialWithoutAHeadIsNotKept|TestCurrentMaterialKeptDigestsAreBounded|TestEvidenceIsJudgedAgainstTheCurrentMaterial|TestAReleaseSnapshotIsReadOncePerCommit|TestAKeptReleaseSnapshotIsCopiedToEachReader|TestAMovedReleaseTagIsReadAtItsNewCommit|TestAFailedReleaseSnapshotReadIsNotKept|TestAReleaseTagPeelIsKeptPerObject|TestAListedReleaseTagResolvesAsAloneOne|TestABundleHeaderIsParsedOncePerContent", "-count=1"],
+          "args": ["test", "./internal/pose", "-run", "TestCurrentMaterialIsReadOncePerCommit|TestCurrentMaterialFollowsAMovedHead|TestCurrentMaterialWithoutAHeadIsNotKept|TestCurrentMaterialKeptDigestsAreBounded|TestEvidenceIsJudgedAgainstTheCurrentMaterial|TestAReleaseSnapshotIsReadOncePerCommit|TestAKeptReleaseSnapshotIsCopiedToEachReader|TestAMovedReleaseTagIsReadAtItsNewCommit|TestAFailedReleaseSnapshotReadIsNotKept|TestAReleaseTagPeelIsKeptPerObject|TestAListedReleaseTagResolvesAsAloneOne|TestABundleHeaderIsParsedOncePerContent|TestAKeptValueIsComputedOnceForConcurrentMisses|TestADeclinedKeptValueIsComputedAgain|TestAnUnreadableMaterialIsAskedAgain|TestASnapshotWithGapsIsReadAgain|TestAFailedReleaseTagPeelIsAskedAgain", "-count=1"],
           "severity": "required",
           "evidenceClass": "integration"
         },

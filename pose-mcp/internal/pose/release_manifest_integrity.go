@@ -13,7 +13,6 @@ import (
 	"regexp"
 	"sort"
 	"strings"
-	"sync"
 	"time"
 	"unicode"
 )
@@ -377,30 +376,21 @@ func ResolveReleaseTag(root, tag string) (commit string, annotated bool, err err
 // peelReleaseTagObject resolves the object a release tag's ref names to the
 // commit it peels to, and whether it is an annotated tag.
 func peelReleaseTagObject(root, tag, object string) (commit string, annotated bool, err error) {
-	key := filepath.Clean(root) + "\x00" + object
-	if peeled, ok := releaseTagObjects.Load(key); ok {
-		p := peeled.(releaseTagObject)
-		if p.commit == "" {
-			return "", false, fmt.Errorf("%w: %s", ErrReleaseTagNotCommit, tag)
+	// Only a peel that reached a commit is kept: a failed inspection or peel
+	// may be an object not fetched yet, or a failing git, and is asked again
+	// (review round 1, F3).
+	peeled := releaseTagObjects.get(filepath.Clean(root)+"\x00"+object, func() (releaseTagObject, bool) {
+		kind, err := gitOutput(root, "cat-file", "-t", object)
+		if err != nil {
+			return releaseTagObject{err: fmt.Errorf("pose: the tag %s could not be inspected: %w", tag, err)}, false
 		}
-		return p.commit, p.annotated, nil
-	}
-	kind, err := gitOutput(root, "cat-file", "-t", object)
-	if err != nil {
-		return "", false, fmt.Errorf("pose: the tag %s could not be inspected: %w", tag, err)
-	}
-	out, err := gitOutput(root, "rev-parse", "--verify", object+"^{commit}")
-	if err != nil {
-		if isGitRevision(object) {
-			releaseTagObjects.Store(key, releaseTagObject{})
+		out, err := gitOutput(root, "rev-parse", "--verify", object+"^{commit}")
+		if err != nil {
+			return releaseTagObject{err: fmt.Errorf("%w: %s", ErrReleaseTagNotCommit, tag)}, false
 		}
-		return "", false, fmt.Errorf("%w: %s", ErrReleaseTagNotCommit, tag)
-	}
-	commit, annotated = strings.TrimSpace(out), strings.TrimSpace(kind) == "tag"
-	if isGitRevision(object) {
-		releaseTagObjects.Store(key, releaseTagObject{commit: commit, annotated: annotated})
-	}
-	return commit, annotated, nil
+		return releaseTagObject{commit: strings.TrimSpace(out), annotated: strings.TrimSpace(kind) == "tag"}, isGitRevision(object)
+	})
+	return peeled.commit, peeled.annotated, peeled.err
 }
 
 // releaseTagRefs lists, in one git process, the object every tag's ref
@@ -438,11 +428,12 @@ func resolveListedReleaseTag(root, tag string, refs map[string]string) (string, 
 // releaseTagObjects keeps, per repository and tag object, the commit the
 // object peels to (empty when it is not a commit) and whether it is an
 // annotated tag: both are fixed by the object's content.
-var releaseTagObjects sync.Map
+var releaseTagObjects = newKeptCache[releaseTagObject](10000)
 
 type releaseTagObject struct {
 	commit    string
 	annotated bool
+	err       error
 }
 
 func gitOutput(root string, args ...string) (string, error) {
@@ -631,7 +622,7 @@ func ReadReleaseSnapshot(root, tag string) (ReleaseSnapshot, error) {
 // pose-federated-proof-reads-each-input-once). Only a snapshot read whole,
 // or one the commit lacks, is kept: a failing git read is asked again. Each
 // reader receives its own copy.
-var releaseSnapshots sync.Map
+var releaseSnapshots = newKeptCache[releaseSnapshotEntry](10000)
 
 type releaseSnapshotEntry struct {
 	encoded []byte
@@ -640,20 +631,25 @@ type releaseSnapshotEntry struct {
 
 func readReleaseSnapshotAtCommit(root, tag, commit string, annotated bool) (ReleaseSnapshot, error) {
 	key := fmt.Sprintf("%s\x00%s\x00%s\x00%t", filepath.Clean(root), tag, commit, annotated)
-	if cached, ok := releaseSnapshots.Load(key); ok {
-		entry := cached.(releaseSnapshotEntry)
-		var snap ReleaseSnapshot
-		if err := json.Unmarshal(entry.encoded, &snap); err == nil {
-			return snap, entry.err
-		}
+	var fresh *ReleaseSnapshot
+	entry := releaseSnapshots.get(key, func() (releaseSnapshotEntry, bool) {
+		snap, err := readReleaseSnapshotAtCommitUncached(root, tag, commit, annotated)
+		fresh = &snap
+		encoded, merr := json.Marshal(snap)
+		// Kept only when the read was whole: an intact snapshot, or a commit
+		// that holds no manifest. A snapshot with gaps may record a failing
+		// git read, and is read again (review round 1, F2).
+		keep := merr == nil && commit != "" && (err == nil && snap.Intact() || errors.Is(err, ErrReleaseSnapshotMissing))
+		return releaseSnapshotEntry{encoded: encoded, err: err}, keep
+	})
+	if fresh != nil {
+		return *fresh, entry.err
 	}
-	snap, err := readReleaseSnapshotAtCommitUncached(root, tag, commit, annotated)
-	if commit != "" && (err == nil || errors.Is(err, ErrReleaseSnapshotMissing)) {
-		if encoded, merr := json.Marshal(snap); merr == nil {
-			releaseSnapshots.Store(key, releaseSnapshotEntry{encoded: encoded, err: err})
-		}
+	var snap ReleaseSnapshot
+	if err := json.Unmarshal(entry.encoded, &snap); err != nil {
+		return readReleaseSnapshotAtCommitUncached(root, tag, commit, annotated)
 	}
-	return snap, err
+	return snap, entry.err
 }
 
 func readReleaseSnapshotAtCommitUncached(root, tag, commit string, annotated bool) (ReleaseSnapshot, error) {
