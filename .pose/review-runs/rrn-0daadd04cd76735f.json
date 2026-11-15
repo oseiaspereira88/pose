@@ -1,0 +1,149 @@
+{
+  "safety": {
+    "schema_version": 1,
+    "profile": "legacy-trusted",
+    "platform": "linux/amd64",
+    "capabilities": {
+      "automatic-expiry": "unavailable",
+      "bounded-capture": "available",
+      "cpu-limit": "unavailable",
+      "credential-filesystem-isolation": "unavailable",
+      "environment-allowlist": "available",
+      "escaped-descendant-termination": "unavailable",
+      "filesystem-isolation": "unavailable",
+      "memory-limit": "unavailable",
+      "network-isolation": "unavailable",
+      "origin-isolation": "unavailable",
+      "parent-termination": "available",
+      "process-group-termination": "available",
+      "shared-git-isolation": "unavailable"
+    },
+    "limitations": [
+      "trusted local executable required; worktree is not a sandbox",
+      "outside writes, transient writes, shared Git and credential files are not isolated",
+      "no memory/CPU quota or control of descendants escaping the process group",
+      "cleanup filesystem calls remain subject to operating-system I/O latency",
+      "legacy compatibility: HOME retained; other ambient credentials excluded"
+    ],
+    "stream_bytes": 8388608,
+    "output_bytes": 65536,
+    "retained_bytes": 16777216,
+    "timeout_ms": 3600000,
+    "max_runs_per_bundle": 3,
+    "retention": "retain-evidence; ttl=0; no automatic deletion",
+    "capture_complete": true,
+    "runtime_id": "pose-review-run-3554418018",
+    "operation": {
+      "schema_version": 1,
+      "operation": "review.dispatch.cleanup",
+      "scope": "spec:pose-check-shares-the-federated-material",
+      "outcome": "completed",
+      "steps_run": [
+        {
+          "id": "cleanup",
+          "result": "done"
+        }
+      ],
+      "effects": [],
+      "resumable": false
+    }
+  },
+  "provenance": {
+    "execution_state": "started",
+    "planned_wire_digest": "sha256:65b036730ea7a133b67ccf008318a0531af9b13f931c7b4331912babd1cf2194",
+    "wire_bytes": 28329,
+    "wire_complete": true,
+    "schema_version": 1,
+    "project": "proj.pose-dist",
+    "audience": "proj.pose-dist",
+    "worktree_digest": "sha256:9c161dc895f6496d9f800581bef8673cc9123cda65951fa2d23b0cbdbc2bac41",
+    "trust": "executor-attested",
+    "implementation": {
+      "principal": "agent:anthropic/claude-opus-5-5",
+      "execution": "sha256:0eb880a4fc2ed87a379c949a567b1d3dfbd6b58b466f4755fcd363dd2b7fed98",
+      "vendor": "anthropic",
+      "model": "claude-opus-5-5"
+    },
+    "reviewer": {
+      "principal": "agent:openai/gpt-6.1-sol",
+      "vendor": "openai",
+      "model": "gpt-6.1-sol"
+    },
+    "config_digest": "sha256:637a9d88c40dbf75da8525db65c216ace591f828ef25c233358db1a99e70ee31",
+    "command_template_digest": "sha256:e3a23ff8a55e559e954d107a039277628bfc51faa58d523ad6101de7c375ad28",
+    "argv_digest": "sha256:c68395600dd771785eb7741b6300a6b601e872ab119b661085e79dd985ed8876",
+    "executable_digest": "sha256:e14fc83739c13c1074b12bd1acce4010c893c7f6fbfc1593b4a31d74cabb57af",
+    "template_version": "review-brief/7",
+    "wire_digest": "sha256:65b036730ea7a133b67ccf008318a0531af9b13f931c7b4331912babd1cf2194",
+    "notes_digest": "sha256:02b827ebe71e6c6a80e7fd69a3fc6d09587fc4f2f893ae3efba50b941ed2abdf",
+    "raw_transcript_digest": "sha256:378f5474deaf780d3621b4059b8bafb9e5856cbc4c5884e929e6ffa008c22b83",
+    "raw_output_digest": "sha256:f3d622acb69436edaa079a17675f962791cf004fc479698267236c9bef901442",
+    "output_source": "stream-final",
+    "output_complete": true
+  },
+  "interruption": {
+    "cause": "usage-limit",
+    "resumable": true
+  },
+  "session_digest": "sha256:303e8d914ab349e0c796667882110fb5e2c1fd5925896a3348ebd05cbc23d8c5",
+  "tree_digest": "sha256:fa1b0257fcf2676d20d155a8052de54dd9b6816f59c094be27b9f0166b29ef8f",
+  "brief_notes": "Round 1 review of spec pose-check-shares-the-federated-material (an engine consistency and capacity fix, follow-up F1 of pose-federated-proof-reads-each-input-once, with ADR amendment D12 of governance-reads-use-bounded-operation-scoped-views).\n\nWhat to judge: a scope operation created by `WithReviewScopeOperationView` under a review coordinator gets `indexInputsFrom` (the coordinator's governance read view operation) and `indexInputsFiles` (the coordinator's Files); `checkIndexInputs` then delegates to the coordinator operation, whose memo (per root, generation and producer, with ready channels) computes each index input binding once for all scopes, reads through the coordinator's view, and is covered by the coordinator's final audit that D7 already runs after all scopes join. Judge whether the delegation keeps every binding check of D7 (root, project, resolver, Files identity, authorized root vector), whether an input changed during the run can still pass, whether a scope's own closure loses a read it needs to certify its verdict, and whether ADR D12 states the change accurately. Measured on harne8 with pose-dist at bf2ff02 and a current index: 16 workers, without the change an abort past 10.3 GB at 66 s; with it 248 s at a 2.5 GB peak.\n\nDo NOT run `pose assess`, `pose state`, `pose index` or anything else that writes under `.pose/`; dispose assess-* tools from the sealed evidence and the code. Leave the worktree as you found it. If you build or test Go code, let every `go test` finish (do not interrupt it) so the toolchain removes its own build directories. Dispose the `validate` tools from the sealed evidence: the pipeline ran `pose validate --strict` on a clean clone of the sealed commit with a GitHub token (`.pose/results/delivery-validation.json`); a rerun in your sandbox fails for environment reasons and is not evidence about the code. A finding object accepts exactly `id`, `severity`, `disposition`, `file`, `line`, `summary`, and for an accepted follow-up `action`, `owner`, `review_by`; put any rationale inside `summary`. A new finding's id carries no round prefix (F1, F2, ...). This is round 1: `prior_findings` is empty. Sweep the whole surface and report every finding in one pass, classified blocker vs follow-up.\n\n\nRound 2. Your round-1 run rrn-162a4fb077dc7c41 approved, and the engine refused the conclusion at the attestation preflight: criterion design-causality mapped the ADR change to decision D1, which declared no basis reaching a requirement. D1 now declares `Basis: R1, R2`; nothing else changed. `prior_findings` is empty unless the brief lists open findings. Map the ADR change to D1 again. New finding ids carry no round prefix; report every finding in one pass.\n",
+  "partial_digest": "sha256:f3d622acb69436edaa079a17675f962791cf004fc479698267236c9bef901442",
+  "ledger_version": 1,
+  "attempt_id": "rat-d85b0e45fdcd5c7e9e4b95816a9f12acaab6b4ee6d1186339e586be93b257133",
+  "schema_version": 1,
+  "run_id": "rrn-0daadd04cd76735f",
+  "scope": "spec:pose-check-shares-the-federated-material",
+  "bundle_id": "rvb-78be33e360123bad",
+  "bundle_digest": "sha256:78be33e360123bad11a69807dc7fc21e49c40b081e390eec20e64d09c38078bb",
+  "sealed_commit": "30111652c050e94581885ed6e892b495a522e7a3",
+  "kind": "review",
+  "brief_digest": "sha256:0e98d13ccf20d319f6e3ae8d7edb80834c3506037d6c49ad72b9e9435e4b9988",
+  "adapter": "sol-medium",
+  "vendor": "openai",
+  "model": "gpt-6.1-sol",
+  "started_at": "2026-11-15T18:04:14.933485674Z",
+  "ended_at": "2026-11-15T18:08:58.687303857Z",
+  "exit_code": 1,
+  "status": "interrupted",
+  "failure": "review interrupted: usage-limit (supervisor: usage-limit)",
+  "transcript_digest": "sha256:baab6cd15699356770f7a708a68fe0ad490077d0fedfaf0ceb517ce0a97475ea",
+  "transcript_path": ".pose/review-runs/rrn-0daadd04cd76735f.transcript",
+  "output": "The surface check passed with one delivery target and no findings. The recurrence check found no recurring or flapping failures, and the worktree is still clean. I’m getting an explicit exit code for the artifact check because its large warning output was truncated; the code and test review is complete.",
+  "policy_digest": "sha256:90ca53a44c8202b7914e12baa143afac5707221147f71fe6fa30a74bb415f911",
+  "purpose": "review",
+  "env_removed": [
+    "CLAUDE_CODE_BRIDGE_SESSION_ID",
+    "CLAUDE_CODE_CHILD_SESSION",
+    "CLAUDE_CODE_ENTRYPOINT",
+    "CLAUDE_CODE_EXECPATH",
+    "CLAUDE_CODE_MESSAGING_SOCKET",
+    "CLAUDE_CODE_MESSAGING_TOKEN",
+    "CLAUDE_CODE_SESSION_ATTENDED",
+    "CLAUDE_CODE_SESSION_ID",
+    "CLAUDE_EFFORT",
+    "CLAUDE_PID"
+  ],
+  "events": "codex-jsonl",
+  "events_digest": "sha256:14c3757264c98964128c962599fe2abbf67481185c116b52fe13e90c3f18df4b",
+  "routing": {
+    "requested": "sol-medium",
+    "implementation": {
+      "principal": "agent:anthropic/claude-opus-5-5",
+      "vendor": "anthropic",
+      "model": "claude-opus-5-5",
+      "execution_digest": "sha256:0eb880a4fc2ed87a379c949a567b1d3dfbd6b58b466f4755fcd363dd2b7fed98",
+      "source": "declared"
+    },
+    "implementation_from": "bundle",
+    "step": "explicit"
+  },
+  "independence_achieved": "different-vendor",
+  "round": 2,
+  "thread": {
+    "round": 2,
+    "mode": "new",
+    "from": "rrn-162a4fb077dc7c41",
+    "reason": "the previous round's session cannot be resumed: lstat /var/tmp/closeout/pose-dist/.pose/review-private: no such file or directory"
+  }
+}
