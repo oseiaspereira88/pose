@@ -1,0 +1,209 @@
+{
+  "run": {
+    "run_id": "rrn-c5171f8ff89f3ebb",
+    "proof_id": "rrp-6c8e5051ada0f7758f8b5faf3c0f948ad4b771d1a51bf0214f4e464adeda0f52"
+  },
+  "schema_version": 1,
+  "attestation_id": "rva-f215ab03914d85c5",
+  "bundle_id": "rvb-e2837d870a9dbb3a",
+  "bundle_digest": "sha256:e2837d870a9dbb3a2570e54da818ca81f3a07a942416514fc4a781649dded3ae",
+  "reviewer": "agent:openai/gpt-6.1-sol",
+  "decision": "changes-requested",
+  "criteria": [
+    {
+      "id": "assumption-integrity",
+      "disposition": "passed",
+      "evidence": "integration:pose-mcp/go/governance-git-reads-untranslated-integration",
+      "rationale": "Examined R1, D1, environment construction, both governance runners and the locale probe. The appended overrides work for captured reads, and the pt_BR test passed without skipping locally. The assumption that the changed runner covers every governance command is disproved by F1. The documented skip on machines without Git translations remains an explicit coverage limitation."
+    },
+    {
+      "id": "backend-concurrency",
+      "disposition": "passed",
+      "evidence": "integration:pose-mcp/go/read-view-streamed-object-digests-integration",
+      "rationale": "The change modifies per-command environment slices, not process-global state. Context cancellation, WaitDelay, synchronized output admission and lifecycle handling remain intact. Local coordinator and concurrent streaming tests passed."
+    },
+    {
+      "id": "backend-contracts",
+      "disposition": "passed",
+      "evidence": "integration:pose-mcp/go/cli-mcp-operation-results-integration",
+      "rationale": "No public API, event, file schema or MCP signature changes. Existing error wrappers and output bounds are preserved."
+    },
+    {
+      "id": "backend-input-errors",
+      "disposition": "passed",
+      "evidence": "integration:pose-mcp/go/governance-read-view-integration",
+      "rationale": "Inspected the captured runner's byte admission, ExitError stderr propagation, GitSnapshotError wrapping and nonempty-stderr handling. The locale override preserves these bounded error paths."
+    },
+    {
+      "id": "backend-integration-impact",
+      "disposition": "passed",
+      "evidence": "integration:pose-mcp/go/check-shares-the-federated-material-integration",
+      "rationale": "Module discovery still consumes the same captured Git interface. The coordinator test passed locally under pt_BR and under the ordinary environment."
+    },
+    {
+      "id": "backend-observability",
+      "disposition": "passed",
+      "evidence": "integration:pose-mcp/go/typed-diagnostics-integration",
+      "rationale": "Returned operation context, bounded stderr and typed error propagation remain intact. No new logging or sensitive environment disclosure is introduced."
+    },
+    {
+      "id": "compatibility",
+      "disposition": "passed",
+      "evidence": "integration:pose-mcp/go/cli-mcp-operation-results-integration",
+      "rationale": "Examined the complete implementation diff and callers. Public CLI, MCP and persisted contracts are unchanged; the intended behavioral change is internal Git diagnostic normalization."
+    },
+    {
+      "id": "correctness",
+      "disposition": "finding",
+      "evidence": "F1"
+    },
+    {
+      "id": "design-causality",
+      "disposition": "passed",
+      "evidence": "structure:design-58391a9fb0946b4e",
+      "rationale": "D1 selects locale normalization rather than enumerating Git translations. The captured runner's appended C overrides directly address module_discovery.go:402's English stderr classification and follow the existing untranslated-reader design. The design is causally appropriate, but its implementation omits the streaming path as reported in F1. No structural fact IDs were supplied in the brief."
+    },
+    {
+      "id": "documentation",
+      "disposition": "passed",
+      "evidence": "integration:pose-mcp/go/governance-git-reads-untranslated-integration",
+      "rationale": "Examined the scope spec, runtime comment and validation-matrix entry. The declared command matches the regression tests, and the spec explicitly documents skipping where Git lacks pt_BR translations. No operational command or scaffold contract changes require migration."
+    },
+    {
+      "id": "operability",
+      "disposition": "passed",
+      "evidence": "integration:pose-mcp/go/typed-diagnostics-integration",
+      "rationale": "Examined module discovery's unknown-context diagnostic and the runner's bounded GitSnapshotError handling. Diagnostic context remains available and the captured non-repository failure is now recognized under pt_BR."
+    },
+    {
+      "id": "requirements",
+      "disposition": "finding",
+      "evidence": "F1"
+    },
+    {
+      "id": "scope",
+      "disposition": "finding",
+      "evidence": "F1"
+    },
+    {
+      "id": "security",
+      "disposition": "passed",
+      "evidence": "integration:pose-mcp/go/governance-read-view-integration",
+      "rationale": "Examined changed code and adjacent execution boundaries. Fixed locale values introduce no shell interpolation, dependencies or new authority. Raw-history protections, optional-lock suppression and output budgets remain intact. No secrets were found in the changed artifacts."
+    },
+    {
+      "id": "solution-proportionality",
+      "disposition": "passed",
+      "evidence": "structure:design-58391a9fb0946b4e",
+      "rationale": "A local environment override is the smallest sufficient mechanism and avoids maintaining translated diagnostic dictionaries or changing unrelated Git commands. No speculative abstraction is added. Completing the same override in the streaming runner is sufficient for F1. This choice would need reconsideration if governance intentionally consumed locale-dependent presentation output."
+    }
+  ],
+  "tools": [
+    {
+      "id": "artifact-check",
+      "disposition": "failed",
+      "evidence": "command:pose artifact-check --spec pose-governance-git-reads-untranslated --strict",
+      "rationale": "Executed, but the installed binary reported change-set head 967cb9415e461a277a6de7bfea58a56110110d83 rather than the supplied acb136cbfdcfbdb8e424f0f709418dea0d187937 subject. It therefore did not establish artifact assurance for this review."
+    },
+    {
+      "id": "assess-design",
+      "disposition": "not-used",
+      "evidence": "structure:design-58391a9fb0946b4e",
+      "rationale": "Reviewed the sealed design evidence and inspected both execution paths directly. Did not rerun assessments that could write repository state."
+    },
+    {
+      "id": "assess-discover",
+      "component": "pose-mcp",
+      "disposition": "not-used",
+      "rationale": "No component rediscovery was needed for the bounded environment change; avoided assessment writes under the read-only review boundary."
+    },
+    {
+      "id": "assess-integrate",
+      "disposition": "not-used",
+      "evidence": "integration:pose-mcp/go/governance-read-view-integration",
+      "rationale": "No public inter-module contract changed. Inspected provider-consumer paths and sealed integration evidence instead of running a state-writing assessment."
+    },
+    {
+      "id": "assess-tech-debt",
+      "disposition": "not-used",
+      "rationale": "Inspected the changed code and adjacent paths for debt markers; the patch adds none. Did not run an assessment that writes repository state."
+    },
+    {
+      "id": "closeout-check",
+      "disposition": "deferred",
+      "rationale": "Completion check requires the recorded review conclusion and subsequent closeout state; no attestation was recorded during this review."
+    },
+    {
+      "id": "review-check",
+      "disposition": "deferred",
+      "rationale": "Requires POSE to record this review conclusion first. Recording an attestation is outside the authorized review."
+    },
+    {
+      "id": "suggest-review",
+      "component": "pose-mcp",
+      "disposition": "passed",
+      "evidence": "command:pose suggest review --path pose-mcp",
+      "rationale": "Executed and applied the selected backend-go, security and documentation-style rules."
+    },
+    {
+      "id": "surface-check",
+      "disposition": "deferred",
+      "rationale": "Started pose surface-check --spec pose-governance-git-reads-untranslated --strict, but no completed usable result was available. The installed gate's preceding artifact result selected an unexpected subject, so surface assurance cannot be claimed."
+    },
+    {
+      "id": "validate",
+      "disposition": "passed",
+      "evidence": "integration:pose-mcp/go/governance-git-reads-untranslated-integration",
+      "rationale": "Disposed from the supplied sealed strict-validation producer and its listed passing results. No full local rerun was attempted under the read-only review environment. Independently reran the locale regression, coordinator and streaming tests successfully."
+    },
+    {
+      "id": "validate",
+      "component": "pose-mcp",
+      "disposition": "passed",
+      "evidence": "unit:pose-mcp/go/test",
+      "rationale": "Disposed from the sealed pose-mcp validation results, including unit, build and integration evidence. Local targeted Go test runs finished successfully without interruption."
+    }
+  ],
+  "evidence_refs": [
+    "F1",
+    "delegated-run:rrn-c5171f8ff89f3ebb",
+    "integration:pose-mcp/go/check-shares-the-federated-material-integration",
+    "integration:pose-mcp/go/cli-mcp-operation-results-integration",
+    "integration:pose-mcp/go/governance-git-reads-untranslated-integration",
+    "integration:pose-mcp/go/governance-read-view-integration",
+    "integration:pose-mcp/go/read-view-streamed-object-digests-integration",
+    "integration:pose-mcp/go/typed-diagnostics-integration",
+    "structure:design-58391a9fb0946b4e"
+  ],
+  "findings": [
+    {
+      "id": "F1",
+      "severity": "medium",
+      "evidence": "file:pose-mcp/internal/pose/governance_read_view_stream.go:230",
+      "action": "R1 requires every Git command run by the governance read view to set LC_ALL=C and LANGUAGE=C, but runGovernanceGitStreamContext appends only GIT_OPTIONAL_LOCKS=0. gitCommandContext preserves inherited locale variables. StreamGovernanceRawHistoryGitIn reaches this runner for both streamed observations and their final audits, and internal/cli/artifact_integrity.go:243 uses it in production. Thus streamed governance failures remain translated under pt_BR even though captured reads are now untranslated. Add both locale overrides to the streaming runner and regression coverage for both runner paths; the new coordinator test exercises only the captured path.",
+      "disposition": "open"
+    }
+  ],
+  "authority": {
+    "schema_version": 1,
+    "project": "proj.pose-dist",
+    "bundle_digest": "sha256:e2837d870a9dbb3a2570e54da818ca81f3a07a942416514fc4a781649dded3ae",
+    "principal": "agent:openai/gpt-6.1-sol",
+    "role": "agent",
+    "review_execution": "rrn-c5171f8ff89f3ebb",
+    "implementation_principal": "agent:anthropic/claude-opus-5-5",
+    "implementation_execution": "sha256:0eb880a4fc2ed87a379c949a567b1d3dfbd6b58b466f4755fcd363dd2b7fed98",
+    "issuer": "b34-local-executor",
+    "issued_at": "2026-11-15T21:07:37Z",
+    "audience": "proj.pose-dist"
+  },
+  "envelope": {
+    "issuer": "b34-local-executor",
+    "subject": "rvb-e2837d870a9dbb3a",
+    "algorithm": "ed25519",
+    "public_key": "ck4sApdfePV2GT+hJyAYfJd2qLzeG55P8pevGR0bvZE=",
+    "signature": "v++TW14vZ5/qTDUA+AfSYiKIVfPsVGTB/q7pdQX9ploLV5jULmkesVUSc60a+r7wqOyB5TaHkno4WoDutlmJCw=="
+  },
+  "attested_at": "2026-11-15T21:07:37Z",
+  "path": ".pose/review-attestations/rva-f215ab03914d85c5.json"
+}
