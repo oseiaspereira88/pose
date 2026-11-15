@@ -2406,6 +2406,13 @@
           "evidenceClass": "integration"
         },
         {
+          "name": "governance-git-reads-untranslated-integration",
+          "program": "go",
+          "args": ["test", "./internal/pose", "-run", "TestGovernanceGitIsReadUntranslated|TestScopeIndexInputsAreCheckedOncePerCoordinator", "-count=1"],
+          "severity": "required",
+          "evidenceClass": "integration"
+        },
+        {
           "name": "federated-proof-reads-each-input-once-integration",
           "program": "go",
           "args": ["test", "./internal/pose", "-run", "TestCurrentMaterialIsReadOncePerCommit|TestCurrentMaterialFollowsAMovedHead|TestCurrentMaterialWithoutAHeadIsNotKept|TestCurrentMaterialKeptDigestsAreBounded|TestEvidenceIsJudgedAgainstTheCurrentMaterial|TestAReleaseSnapshotIsReadOncePerCommit|TestAKeptReleaseSnapshotIsCopiedToEachReader|TestAMovedReleaseTagIsReadAtItsNewCommit|TestAFailedReleaseSnapshotReadIsNotKept|TestAReleaseTagPeelIsKeptPerObject|TestAListedReleaseTagResolvesAsAloneOne|TestABundleHeaderIsParsedOncePerContent|TestAKeptValueIsComputedOnceForConcurrentMisses|TestADeclinedKeptValueIsComputedAgain|TestAnUnreadableMaterialIsAskedAgain|TestASnapshotWithGapsIsReadAgain|TestAFailedReleaseTagPeelIsAskedAgain|TestARecoveredReadIsComputedOnceAndKept|TestABoundCrossingKeepsAPendingKey|TestAConcurrentBurstKeepsNoMoreThanTheBound", "-count=1"],

@@ -639,7 +639,11 @@ func runGovernanceGitCommandOutputAdmittedContext(ctx context.Context, files Fil
 	}
 	cmd := gitCommandContext(ctx, append([]string{"--no-replace-objects", "-C", root}, args...)...)
 	cmd.WaitDelay = 2 * time.Second
-	cmd.Env = append(cmd.Env, "GIT_OPTIONAL_LOCKS=0")
+	// Governance classifies Git's failures by what Git writes to stderr, so
+	// Git writes it untranslated: a translated "not a git repository" left a
+	// directory outside any repository unknown under pt_BR (spec
+	// pose-governance-git-reads-untranslated).
+	cmd.Env = append(cmd.Env, "GIT_OPTIONAL_LOCKS=0", "LC_ALL=C", "LANGUAGE=C")
 	output := &boundedGovernanceGitOutput{limit: limit, admit: admit}
 	cmd.Stdout = governanceGitStream{output: output, stderr: false}
 	cmd.Stderr = governanceGitStream{output: output, stderr: true}
