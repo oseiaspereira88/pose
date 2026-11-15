@@ -1,0 +1,142 @@
+{
+  "safety": {
+    "schema_version": 1,
+    "profile": "legacy-trusted",
+    "platform": "linux/amd64",
+    "capabilities": {
+      "automatic-expiry": "unavailable",
+      "bounded-capture": "available",
+      "cpu-limit": "unavailable",
+      "credential-filesystem-isolation": "unavailable",
+      "environment-allowlist": "available",
+      "escaped-descendant-termination": "unavailable",
+      "filesystem-isolation": "unavailable",
+      "memory-limit": "unavailable",
+      "network-isolation": "unavailable",
+      "origin-isolation": "unavailable",
+      "parent-termination": "available",
+      "process-group-termination": "available",
+      "shared-git-isolation": "unavailable"
+    },
+    "limitations": [
+      "trusted local executable required; worktree is not a sandbox",
+      "outside writes, transient writes, shared Git and credential files are not isolated",
+      "no memory/CPU quota or control of descendants escaping the process group",
+      "cleanup filesystem calls remain subject to operating-system I/O latency",
+      "legacy compatibility: HOME retained; other ambient credentials excluded"
+    ],
+    "stream_bytes": 8388608,
+    "output_bytes": 65536,
+    "retained_bytes": 16777216,
+    "timeout_ms": 3600000,
+    "max_runs_per_bundle": 3,
+    "retention": "retain-evidence; ttl=0; no automatic deletion",
+    "capture_complete": true,
+    "runtime_id": "pose-review-run-2391876345",
+    "operation": {
+      "schema_version": 1,
+      "operation": "review.dispatch.cleanup",
+      "scope": "spec:pose-review-cleanup-removes-go-build-leftovers",
+      "outcome": "completed",
+      "steps_run": [
+        {
+          "id": "cleanup",
+          "result": "done"
+        }
+      ],
+      "effects": [],
+      "resumable": false
+    }
+  },
+  "provenance": {
+    "execution_state": "started",
+    "planned_wire_digest": "sha256:6b972d5e8175f3829fd0fc20f55bde049a11ca27eb8133c36100d743f8e05130",
+    "wire_bytes": 27972,
+    "wire_complete": true,
+    "schema_version": 1,
+    "project": "proj.pose-dist",
+    "audience": "proj.pose-dist",
+    "worktree_digest": "sha256:9c161dc895f6496d9f800581bef8673cc9123cda65951fa2d23b0cbdbc2bac41",
+    "trust": "executor-attested",
+    "implementation": {
+      "principal": "agent:anthropic/claude-opus-5-5",
+      "execution": "sha256:0eb880a4fc2ed87a379c949a567b1d3dfbd6b58b466f4755fcd363dd2b7fed98",
+      "vendor": "anthropic",
+      "model": "claude-opus-5-5"
+    },
+    "reviewer": {
+      "principal": "agent:openai/gpt-6.1-sol",
+      "vendor": "openai",
+      "model": "gpt-6.1-sol"
+    },
+    "config_digest": "sha256:637a9d88c40dbf75da8525db65c216ace591f828ef25c233358db1a99e70ee31",
+    "command_template_digest": "sha256:e3a23ff8a55e559e954d107a039277628bfc51faa58d523ad6101de7c375ad28",
+    "argv_digest": "sha256:573c9b36089da962e4becea7fce271dc7734524079b5c1fb7c6918bbbda21431",
+    "executable_digest": "sha256:e14fc83739c13c1074b12bd1acce4010c893c7f6fbfc1593b4a31d74cabb57af",
+    "template_version": "review-brief/7",
+    "wire_digest": "sha256:6b972d5e8175f3829fd0fc20f55bde049a11ca27eb8133c36100d743f8e05130",
+    "notes_digest": "sha256:22a5eaaf747129fe05fc42bd703decd01a9c0b963b4197315296943d9766a531",
+    "raw_transcript_digest": "sha256:92ce7dbafda327df23646a29aab549a4825ca36b68e26198af637590a42456eb",
+    "raw_output_digest": "sha256:1ca820403a7dfcfd2c1ad4a5f6394a48d89370bf31346e298288ee1112d3b95b",
+    "output_source": "file",
+    "output_complete": true
+  },
+  "session_digest": "sha256:101b9a65e29b41e0947da36ea59af007ba53afb8ab4fcf57dd52ceda48cf6ea4",
+  "tree_digest": "sha256:96c0cf0425e1ee4257828e8d2d743af3251a5cbab27c20c4e788b7050144a399",
+  "brief_notes": "Round 1 review of spec pose-review-cleanup-removes-go-build-leftovers (an engine consistency fix: two approving Codex reviews were refused because a 151 MB go-build directory left by an interrupted reviewer `go test` exceeded the runtime directory's 128 MiB cleanup inventory).\n\nWhat to judge: before the runtime directory's bounded inventory, `removeReviewGoBuildLeftovers` removes every real directory named `go-build\u003cdigits\u003e` at the top of the runtime directory under its own bounded inventory (200,000 entries, 8 GiB), after checking the opened directory's identity; a link or non-directory with that name is left to the runtime inventory and its target is never touched; an overflow or identity change keeps the cleanup incomplete.\n\nDo NOT run `pose assess`, `pose state`, `pose index` or anything else that writes under `.pose/`; dispose assess-* tools from the sealed evidence and the code. Leave the worktree as you found it. If you build or test Go code, let every `go test` finish (do not interrupt it) so the toolchain removes its own build directories. Dispose the `validate` tools from the sealed evidence: the pipeline ran `pose validate --strict` on a clean clone of the sealed commit with a GitHub token (`.pose/results/delivery-validation.json`); a rerun in your sandbox fails for environment reasons and is not evidence about the code. A finding object accepts exactly `id`, `severity`, `disposition`, `file`, `line`, `summary`, and for an accepted follow-up `action`, `owner`, `review_by`; put any rationale inside `summary`. This is round 1: `prior_findings` is empty. Sweep the whole surface and report every finding in one pass, classified blocker vs follow-up.\n\n\nRound 2. Account in `prior_findings` exactly for the findings the brief lists as open for this scope (your round-1 run rrn-11320f4eeb5bcde3: F1), with whether it stands; the spec's \"### Review\" says how it was handled (after a go-build directory is emptied, its name must still bind the same directory or the cleanup is incomplete; a synchronized regression replaces and removes it after it was opened). On `validate`: your round-1 rerun timed out in your sandbox's 600 s step limit, which is an environment limit, not evidence about the code. Dispose both `validate` tools as `passed` citing the sealed unit and integration evidence ids of this bundle; do not rerun the full matrix. Report every remaining finding in one pass.",
+  "ledger_version": 1,
+  "attempt_id": "rat-d6e84e9e5f2c10640290821f243bc701097bb0352773aecfcedf9c96bb90e03f",
+  "schema_version": 1,
+  "run_id": "rrn-78b11adc9ff36dd0",
+  "scope": "spec:pose-review-cleanup-removes-go-build-leftovers",
+  "bundle_id": "rvb-51bc00008810f282",
+  "bundle_digest": "sha256:51bc00008810f28207576e220f15185024bd099e584396cdaa484340f7d00f33",
+  "sealed_commit": "55b1ca906a721a6f2523d154ecacd3b13edb2c95",
+  "kind": "review",
+  "brief_digest": "sha256:62149b4b996c007bd3877a4899f89be69c07801f5271cc40901e054d4fdcc2ee",
+  "adapter": "sol-medium",
+  "vendor": "openai",
+  "model": "gpt-6.1-sol",
+  "started_at": "2026-11-15T00:08:52.940416211Z",
+  "ended_at": "2026-11-15T00:15:17.134524435Z",
+  "exit_code": 0,
+  "status": "completed",
+  "transcript_digest": "sha256:95cc5d10a43d0692299f4ac4a76f38e866fa677818933104261460de538fbc0d",
+  "transcript_path": ".pose/review-runs/rrn-78b11adc9ff36dd0.transcript",
+  "output": "decision: changes-requested\n\nR1-F1 is **partially fixed**. One medium blocker remains:\n\n- **N1 — medium, blocker:** [review_adapter_containment.go:644](pose-mcp/internal/pose/review_adapter_containment.go:644). Replacement between the identity check at line 640 and pathname removal at line 644 can still yield successful cleanup while the original directory remains elsewhere. Keep the original descriptor open and verify that removal actually unlinked that directory; add a synchronized regression covering this window.\n\nFocused cleanup tests passed, including with `-race`. Artifact, design, and surface checks passed. The sealed validation record reports 218 passing checks. Repository status remains clean.\n\nReviewed as a Go bugfix under the POSE review workflow, backend-go, security, documentation-style, and delivery-evidence rules. No attestation was recorded.\n\n```pose-draft\n{\n  \"schema\": \"pose.review.draft/v1\",\n  \"decision\": \"changes-requested\",\n  \"findings\": [\n    {\n      \"id\": \"N1\",\n      \"severity\": \"medium\",\n      \"disposition\": \"blocker\",\n      \"file\": \"pose-mcp/internal/pose/review_adapter_containment.go\",\n      \"line\": 644,\n      \"summary\": \"R3 still has a check/remove race. After root.Lstat at line 640 verifies the original directory, another actor can rename that directory outside the runtime root and install an empty directory at the same name before root.Remove at line 644. Remove then deletes the replacement, and the outer runtime cleanup can succeed while the original directory remains outside its inventory. The original descriptor was already closed at line 632, so there is no subsequent confirmation that the directory actually emptied was unlinked. The new regression changes the name before Lstat and therefore misses this remaining window. Retain the original descriptor through removal, verify that the original directory was actually unlinked, and add a synchronized regression for replacement after the final identity check.\"\n    }\n  ],\n  \"prior_findings\": [\n    {\n      \"id\": \"R1-F1\",\n      \"status\": \"partial\",\n      \"evidence\": \"review_adapter_containment.go:640-645 now detects replacement or disappearance before the final Lstat. TestAdapterCleanupRefusesAReplacedGoBuildDirectory passed in the focused normal and race-enabled runs. However, the separate Lstat and Remove operations still permit replacement between them; the original descriptor is closed at line 632. The remaining case is reported as N1.\"\n    }\n  ],\n  \"sweep\": \"Reviewed the complete declared implementation and governance diff against R1-R3, the per-directory entry and byte budgets, exact name matching, symlink and non-directory handling, descriptor ownership, initial and final identity checks, cleanup error propagation, cancellation and termination ordering, shared adapter dispatch path, regression fixtures, validation-matrix selection, and start record. Inspected relevant workflow, rules, knowledge references, design assessment, and validation results. Ran focused cleanup tests normally and with the race detector, artifact reconciliation including the explicit supplied range, surface-check, suggest-review, and recurrence-check. No other established defects found. Final git status and git diff confirmed no repository changes.\",\n  \"criteria\": [\n    {\n      \"id\": \"assumption-integrity\",\n      \"disposition\": \"finding\",\n      \"evidence\": \"N1\",\n      \"rationale\": \"Verified the runtime-root ownership and budget assumptions in source and focused tests. The assumption that a successful pathname removal confirms removal of the previously checked directory remains unresolved; no risk acceptance is inferred.\"\n    },\n    {\n      \"id\": \"backend-concurrency\",\n      \"disposition\": \"finding\",\n      \"evidence\": \"N1\"\n    },\n    {\n      \"id\": \"backend-contracts\",\n      \"disposition\": \"passed\",\n      \"evidence\": \"integration:pose-mcp/go/cli-mcp-operation-results-integration\"\n    },\n    {\n      \"id\": \"backend-input-errors\",\n      \"disposition\": \"passed\",\n      \"evidence\": \"unit:pose-mcp/go/test\",\n      \"rationale\": \"Inspected exact name filtering, directory qualification, bounded recursive inventory, and error propagation into the typed cleanup operation result. The separate identity race is recorded as N1.\"\n    },\n    {\n      \"id\": \"backend-integration-impact\",\n      \"disposition\": \"passed\",\n      \"evidence\": \"integration:pose-mcp/go/delegated-adapter-containment-integration\"\n    },\n    {\n      \"id\": \"backend-observability\",\n      \"disposition\": \"finding\",\n      \"evidence\": \"N1\"\n    },\n    {\n      \"id\": \"compatibility\",\n      \"disposition\": \"passed\",\n      \"evidence\": \"integration:pose-mcp/go/cli-mcp-operation-results-integration\",\n      \"rationale\": \"Examined the implementation and matrix changes. They introduce no CLI, MCP, serialized-file, or public API format changes; cleanup failures retain the existing operation-result contract.\"\n    },\n    {\n      \"id\": \"correctness\",\n      \"disposition\": \"finding\",\n      \"evidence\": \"N1\"\n    },\n    {\n      \"id\": \"design-causality\",\n      \"disposition\": \"passed\",\n      \"evidence\": \"structure:design-b6eb09c429eb8e5b\",\n      \"rationale\": \"The shared cleanup path removes matching top-level Go build directories with separate 200000-entry and 8-GiB inventories before applying the unchanged runtime inventory. This directly addresses the oversized Go test binary cause for every adapter. N1 identifies the remaining identity-confirmation defect.\",\n      \"mappings\": [\n        {\n          \"delta\": \"sd-cde6353c2ed8514e84169472354acff1\",\n          \"basis\": \"R1\",\n          \"disposition\": \"mapped\",\n          \"rationale\": \"The added required integration check exercises oversized Go build leftovers through the shared containment cleanup fixture.\"\n        }\n      ]\n    },\n    {\n      \"id\": \"documentation\",\n      \"disposition\": \"passed\",\n      \"evidence\": \"structure:design-b6eb09c429eb8e5b\",\n      \"rationale\": \"Examined the spec, implementation comments, delivery entrypoint, and validation declaration. The documented naming rule, separate budgets, preserved runtime budget, and absence of format migration match the implementation. R3 correctness remains blocked by N1.\"\n    },\n    {\n      \"id\": \"operability\",\n      \"disposition\": \"finding\",\n      \"evidence\": \"N1\",\n      \"rationale\": \"The remaining race can report successful cleanup despite a retained original directory.\"\n    },\n    {\n      \"id\": \"requirements\",\n      \"disposition\": \"finding\",\n      \"evidence\": \"N1\"\n    },\n    {\n      \"id\": \"scope\",\n      \"disposition\": \"passed\",\n      \"evidence\": \"structure:design-b6eb09c429eb8e5b\",\n      \"rationale\": \"Compared the declared artifacts and R1-R3 with the diff. Changes are confined to shared review cleanup, its regression coverage, validation registration, and the governed start record; no unrelated implementation expansion was found.\"\n    },\n    {\n      \"id\": \"security\",\n      \"disposition\": \"finding\",\n      \"evidence\": \"N1\"\n    },\n    {\n      \"id\": \"solution-proportionality\",\n      \"disposition\": \"passed\",\n      \"evidence\": \"structure:design-b6eb09c429eb8e5b\",\n      \"rationale\": \"A shared pre-inventory cleanup helper is a small sufficient approach to the oversized-leftover problem and avoids adapter-specific duplication or raising the general runtime budget. It adds no dependency or speculative framework. Its suitability depends on confirming removal of the owned directory, which N1 requires correcting.\"\n    }\n  ],\n  \"tools\": [\n    {\n      \"id\": \"artifact-check\",\n      \"disposition\": \"passed\",\n      \"evidence\": \"command:pose artifact-check --spec pose-review-cleanup-removes-go-build-leftovers --from 79157194e51e52aa471aedacc4c0e4b2d052b7ee --to 55b1ca906a721a6f2523d154ecacd3b13edb2c95 --strict --json\",\n      \"rationale\": \"Ran the requested default check and an explicit-range reconciliation. The explicit-range command returned exit code 0.\"\n    },\n    {\n      \"id\": \"assess-design\",\n      \"disposition\": \"passed\",\n      \"evidence\": \"structure:design-b6eb09c429eb8e5b\",\n      \"rationale\": \"Ran the design assessment. It observed all four subject files and the added validation-check delta; its digest matches the sealed structure evidence.\"\n    },\n    {\n      \"id\": \"assess-discover\",\n      \"component\": \"pose-mcp\",\n      \"disposition\": \"not-used\",\n      \"evidence\": \"command:pose suggest review --path pose-mcp\",\n      \"rationale\": \"Discovery persists repository state, conflicting with the explicit unchanged-repository boundary. Inspected the affected component directly.\"\n    },\n    {\n      \"id\": \"assess-integrate\",\n      \"disposition\": \"not-used\",\n      \"evidence\": \"command:pose suggest review --path pose-mcp\",\n      \"rationale\": \"Avoided assessment-state writes under the review boundary. No public inter-module contract changed; inspected shared dispatch composition and the sealed integration evidence.\"\n    },\n    {\n      \"id\": \"assess-tech-debt\",\n      \"disposition\": \"not-used\",\n      \"evidence\": \"command:pose suggest review --path pose-mcp\",\n      \"rationale\": \"The assessment persists repository artifacts. Reviewed the full changed source for debt markers and incomplete implementation directly; no new unresolved marker was found.\"\n    },\n    {\n      \"id\": \"closeout-check\",\n      \"disposition\": \"deferred\",\n      \"evidence\": \"command:pose review bundle spec:pose-review-cleanup-removes-go-build-leftovers --explain\",\n      \"rationale\": \"Completion check requires the recorded review conclusion. This review does not record an attestation, and N1 blocks approval.\"\n    },\n    {\n      \"id\": \"review-check\",\n      \"disposition\": \"deferred\",\n      \"evidence\": \"command:pose review bundle spec:pose-review-cleanup-removes-go-build-leftovers --explain\",\n      \"rationale\": \"Must evaluate the conclusion after POSE records it; cannot pass before this draft is processed.\"\n    },\n    {\n      \"id\": \"suggest-review\",\n      \"component\": \"pose-mcp\",\n      \"disposition\": \"passed\",\n      \"evidence\": \"command:pose suggest review --path pose-mcp\",\n      \"rationale\": \"Resolved the backend-go review trail and applied its security, documentation-style, and backend-go rules.\"\n    },\n    {\n      \"id\": \"surface-check\",\n      \"disposition\": \"passed\",\n      \"evidence\": \"integration:pose-mcp/go/review-cleanup-removes-go-build-leftovers-integration\",\n      \"rationale\": \"Ran pose surface-check --spec pose-review-cleanup-removes-go-build-leftovers --strict: one target, 218 results, zero findings. Independently inspected the CLI-to-shared-cleanup call path.\"\n    },\n    {\n      \"id\": \"validate\",\n      \"disposition\": \"passed\",\n      \"evidence\": \"unit:pose-mcp/go/test\",\n      \"rationale\": \"Reviewed the sealed full validation evidence and delivery-validation.json: 218 executed checks passed with no failures, errors, or skips, including module build, unit, and cleanup integration checks. Did not rerun the full matrix. Independently ran focused cleanup tests normally and with -race; both passed.\"\n    },\n    {\n      \"id\": \"validate\",\n      \"component\": \"pose-mcp\",\n      \"disposition\": \"passed\",\n      \"evidence\": \"integration:pose-mcp/go/review-cleanup-removes-go-build-leftovers-integration\",\n      \"rationale\": \"Accepted the sealed module validation execution after inspecting its passing unit and integration results. Independently ran the cleanup tests including TestAdapterCleanupRefusesAReplacedGoBuildDirectory, normally and with -race. These tests pass but do not exercise N1's final check/remove window.\"\n    }\n  ]\n}\n```",
+  "policy_digest": "sha256:90ca53a44c8202b7914e12baa143afac5707221147f71fe6fa30a74bb415f911",
+  "purpose": "review",
+  "env_removed": [
+    "CLAUDE_CODE_BRIDGE_SESSION_ID",
+    "CLAUDE_CODE_CHILD_SESSION",
+    "CLAUDE_CODE_EXECPATH",
+    "CLAUDE_CODE_MESSAGING_SOCKET",
+    "CLAUDE_CODE_MESSAGING_TOKEN",
+    "CLAUDE_CODE_SESSION_ATTENDED",
+    "CLAUDE_CODE_SESSION_ID",
+    "CLAUDE_EFFORT",
+    "CLAUDE_PID"
+  ],
+  "events": "codex-jsonl",
+  "events_digest": "sha256:0fe1d64f0c2f9542744007228db68085e77d9ab178eb48b794480cc75a6756d8",
+  "routing": {
+    "requested": "sol-medium",
+    "implementation": {
+      "principal": "agent:anthropic/claude-opus-5-5",
+      "vendor": "anthropic",
+      "model": "claude-opus-5-5",
+      "execution_digest": "sha256:0eb880a4fc2ed87a379c949a567b1d3dfbd6b58b466f4755fcd363dd2b7fed98",
+      "source": "declared"
+    },
+    "implementation_from": "bundle",
+    "step": "explicit"
+  },
+  "independence_achieved": "different-vendor",
+  "round": 2,
+  "thread": {
+    "round": 2,
+    "mode": "new",
+    "from": "rrn-11320f4eeb5bcde3",
+    "reason": "the previous round's session cannot be resumed: lstat /var/tmp/closeout/pose-dist/.pose/review-private: no such file or directory"
+  }
+}
