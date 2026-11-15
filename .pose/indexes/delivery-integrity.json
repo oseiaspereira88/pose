@@ -1,7 +1,7 @@
 {
   "schema_version": 2,
-  "input_digest": "sha256:a5d18fb3c36dc96fc1713a0f61968a7473fb86fed55f4ecbbdc0a848846ce305",
-  "provenance_digest": "sha256:3847b8391be50f20661f6d9f321d7a4f60fc7caaff582a0807f6820637d1233e",
+  "input_digest": "sha256:def294c3aab783c5edaca4409b7fcb9e6434644244af9a67d3a4df0030fdd175",
+  "provenance_digest": "sha256:e3e0ab0ba7c000cab23545214dcbd4f33c4eba2f1601a668c0b810cccb1db552",
   "implied_edges": [
     "changes"
   ],
@@ -45406,6 +45406,14 @@
       }
     },
     {
+      "id": "change-set:cs-b6aed4a4de3d",
+      "type": "change-set",
+      "attributes": {
+        "diff_digest": "sha256:7a4012689a46ca559a825cc6321c81b82c5678752eb2e9f18701f422dafd6a26",
+        "selector": "trailers:pose-review-cleanup-removes-go-build-leftovers"
+      }
+    },
+    {
       "id": "change-set:cs-b7ad61eb2b48",
       "type": "change-set",
       "attributes": {
@@ -45723,14 +45731,6 @@
       "attributes": {
         "diff_digest": "sha256:753d0fde7dd0f569c3a2001e873302e4069db2ec3142a1b30fb0eb96dc10ea0b",
         "selector": "trailers:pose-delegation-routing"
-      }
-    },
-    {
-      "id": "change-set:cs-c84f6d77d2bb",
-      "type": "change-set",
-      "attributes": {
-        "diff_digest": "sha256:5f64cc04a2a3da65a93a7172f672903a255bade1aa50bafb8e969a3748757127",
-        "selector": "trailers:pose-review-cleanup-removes-go-build-leftovers"
       }
     },
     {
@@ -127496,7 +127496,7 @@
     },
     {
       "from": "spec:pose-review-cleanup-removes-go-build-leftovers",
-      "to": "change-set:cs-c84f6d77d2bb",
+      "to": "change-set:cs-b6aed4a4de3d",
       "type": "observed-by"
     },
     {
@@ -255210,6 +255210,371 @@
       }
     },
     {
+      "id": "cs-b6aed4a4de3d",
+      "spec": "pose-review-cleanup-removes-go-build-leftovers",
+      "selector": "trailers:pose-review-cleanup-removes-go-build-leftovers",
+      "base": "9f3807058cda76811a58b6a57af2b04204e1e214^",
+      "head": "cd19bcb3fc4098fadd2d758cfb0b1a44d7d2ce24",
+      "resolved_base": "79157194e51e52aa471aedacc4c0e4b2d052b7ee",
+      "resolved_head": "cd19bcb3fc4098fadd2d758cfb0b1a44d7d2ce24",
+      "commits": [
+        "9f3807058cda76811a58b6a57af2b04204e1e214",
+        "b373bacabc9baf29b21b0f67f6fe0a628a314b55",
+        "20b01e7109e6e0ef0f4b0f6283cbb11d052d1d86",
+        "93b002477300a41ea2d666a14cdd763b6e34e43f",
+        "d11157fc6fb8653288e2f888ebaef71a8553cf80",
+        "ce3d8350a9095b1ba833796d09bf5c52af916e8c",
+        "4238c1df09e8b9a47810f30072f20b0f61e1c5f9",
+        "d5bcfaba73b733abeb61b1309eb6851519b22f71",
+        "cd97b827b4335d218feb30a7dd701289b2a06a44",
+        "52c04fd87c3eda14c2496585b97d96af8cf0c061",
+        "2b46da235965797de8f4a8ebab193dd287ef0b91",
+        "55b1ca906a721a6f2523d154ecacd3b13edb2c95",
+        "c135c8f06656c8a6b6cc55a812b101f5c0ac1eb5",
+        "fe1812eda8925b91a0859250cdbeac8213fcf93f",
+        "89690f45b5df0e7774b6ef7619b5a6cd8bd7e3d6",
+        "e95cda6bc229f90dc2b085d77883a362c0620142",
+        "9104e2f585a5afc43af609376b4bdec61ce45ede",
+        "70e3845d6d4fe16447d85bb75eab7bb8e48fdcec",
+        "a733c000a5b3ab546d955e767457a44c217bcd4e",
+        "827df6b185b29dbea48fb920ad577612cc1f06ef",
+        "8d71a73ee13ed1f415a4b14709eeb5db36c852a2",
+        "6fe641908fee0605dc7a923c8c0aa9a963cd7547",
+        "7e4b72d27d3551a192e90e350669ec23bf90a2fa",
+        "de0db4aec2a1d0a4caff891b3ce253697876d2e0",
+        "c36493690556fdb07484509c21bb67d2786d1e77",
+        "5582ce2e3f05848f7076efc2eb464bf1cb90ed8b",
+        "8e1e4b3f5e44df00253718429712f4bfdd604a1e",
+        "842b7a76e90f24fd547192a1c2f26bdc98e195e2",
+        "8f639f86db544d0c421ae744a854a9987d1876c8",
+        "dfcd2fe3e69f561aeb7cb7e7bbdb4607f9e2e1af",
+        "f0f3c2804047e7fe11f28f9147e24d12b9e80012",
+        "828240d692a87aaff9cd0de7626e909e4a9416be",
+        "5861c08b336a9fc7545ed7aaa6f1d86286b40078",
+        "c8035af7b6a3453a7911cc9c90835b90434aca07",
+        "3dcdbfb0f45117f9dbb9d2ba21b82ad02ca6b7a8",
+        "5021783d8df2e0ee39964c5cf4f499e034f555ad",
+        "9c32d29f002110e62d8e723be14557a651435a16",
+        "f511942dbcd7da09dc89140e8efac3658889310e",
+        "cd19bcb3fc4098fadd2d758cfb0b1a44d7d2ce24"
+      ],
+      "paths": [
+        {
+          "action": "created",
+          "path": ".pose/closeout-plans/spec-pose-review-cleanup-removes-go-build-leftovers.json"
+        },
+        {
+          "action": "created",
+          "path": ".pose/review-attempts/389681b692ad1143a31dc523/000001.json"
+        },
+        {
+          "action": "created",
+          "path": ".pose/review-attempts/389681b692ad1143a31dc523/000001.result.json"
+        },
+        {
+          "action": "created",
+          "path": ".pose/review-attempts/6531d33e974979e7dc9c26be/000001.json"
+        },
+        {
+          "action": "created",
+          "path": ".pose/review-attempts/6531d33e974979e7dc9c26be/000001.result.json"
+        },
+        {
+          "action": "created",
+          "path": ".pose/review-attempts/6bdfed551425f80ab5215dcd/000001.json"
+        },
+        {
+          "action": "created",
+          "path": ".pose/review-attempts/6bdfed551425f80ab5215dcd/000001.result.json"
+        },
+        {
+          "action": "created",
+          "path": ".pose/review-attempts/a4686d0388696eab8280c538/000001.json"
+        },
+        {
+          "action": "created",
+          "path": ".pose/review-attempts/a4686d0388696eab8280c538/000001.result.json"
+        },
+        {
+          "action": "created",
+          "path": ".pose/review-attempts/bad100bcb38f16d702406b8b/000001.json"
+        },
+        {
+          "action": "created",
+          "path": ".pose/review-attempts/bad100bcb38f16d702406b8b/000001.result.json"
+        },
+        {
+          "action": "created",
+          "path": ".pose/review-attestations/rva-4ef3d3f9821cfeb3.json"
+        },
+        {
+          "action": "created",
+          "path": ".pose/review-attestations/rva-823ad7b9b9b0738b.json"
+        },
+        {
+          "action": "created",
+          "path": ".pose/review-attestations/rva-b65df389f4e7a242.json"
+        },
+        {
+          "action": "created",
+          "path": ".pose/review-attestations/rva-fed978aec59d28de.json"
+        },
+        {
+          "action": "created",
+          "path": ".pose/review-bundles/rvb-249f4597d714e0f4.json"
+        },
+        {
+          "action": "created",
+          "path": ".pose/review-bundles/rvb-36a60dc7aca0483b.json"
+        },
+        {
+          "action": "created",
+          "path": ".pose/review-bundles/rvb-49b2a53ea1ec99f1.json"
+        },
+        {
+          "action": "created",
+          "path": ".pose/review-bundles/rvb-51bc00008810f282.json"
+        },
+        {
+          "action": "created",
+          "path": ".pose/review-bundles/rvb-d39366a45595ae42.json"
+        },
+        {
+          "action": "created",
+          "path": ".pose/review-conclusions/rrn-11320f4eeb5bcde3.json"
+        },
+        {
+          "action": "created",
+          "path": ".pose/review-conclusions/rrn-1a96cee8e24eb008.json"
+        },
+        {
+          "action": "created",
+          "path": ".pose/review-conclusions/rrn-67a184e6a36ce92e.json"
+        },
+        {
+          "action": "created",
+          "path": ".pose/review-conclusions/rrn-78b11adc9ff36dd0.json"
+        },
+        {
+          "action": "created",
+          "path": ".pose/review-conclusions/rrn-dfbb00c5cb708475.json"
+        },
+        {
+          "action": "created",
+          "path": ".pose/review-run-ledger/rrn-11320f4eeb5bcde3.json"
+        },
+        {
+          "action": "created",
+          "path": ".pose/review-run-ledger/rrn-1a96cee8e24eb008.json"
+        },
+        {
+          "action": "created",
+          "path": ".pose/review-run-ledger/rrn-67a184e6a36ce92e.json"
+        },
+        {
+          "action": "created",
+          "path": ".pose/review-run-ledger/rrn-78b11adc9ff36dd0.json"
+        },
+        {
+          "action": "created",
+          "path": ".pose/review-run-ledger/rrn-dfbb00c5cb708475.json"
+        },
+        {
+          "action": "created",
+          "path": ".pose/review-run-proofs/rrn-11320f4eeb5bcde3/rrp-0caea9cc0cebacf01020fbe6332532ffc265fa994e7185026d1058865fca6398.json"
+        },
+        {
+          "action": "created",
+          "path": ".pose/review-run-proofs/rrn-67a184e6a36ce92e/rrp-47c0d95b57d48d142405713be8e808a38ed0e94953b2c077aa9d668f3836d935.json"
+        },
+        {
+          "action": "created",
+          "path": ".pose/review-run-proofs/rrn-78b11adc9ff36dd0/rrp-aede8c48a833373d545a76537d1330a8e5cfbf3aed32df93dc22f4de5540cf52.json"
+        },
+        {
+          "action": "created",
+          "path": ".pose/review-run-proofs/rrn-dfbb00c5cb708475/rrp-9a5763c693e9ff8b3e5c243b0653ddb27dc78af4c5ef6be0d11bcd1975e7c058.json"
+        },
+        {
+          "action": "created",
+          "path": ".pose/review-runs/rrn-11320f4eeb5bcde3.events.ndjson"
+        },
+        {
+          "action": "created",
+          "path": ".pose/review-runs/rrn-11320f4eeb5bcde3.json"
+        },
+        {
+          "action": "created",
+          "path": ".pose/review-runs/rrn-11320f4eeb5bcde3.transcript"
+        },
+        {
+          "action": "created",
+          "path": ".pose/review-runs/rrn-1a96cee8e24eb008.events.ndjson"
+        },
+        {
+          "action": "created",
+          "path": ".pose/review-runs/rrn-1a96cee8e24eb008.json"
+        },
+        {
+          "action": "created",
+          "path": ".pose/review-runs/rrn-1a96cee8e24eb008.transcript"
+        },
+        {
+          "action": "created",
+          "path": ".pose/review-runs/rrn-67a184e6a36ce92e.events.ndjson"
+        },
+        {
+          "action": "created",
+          "path": ".pose/review-runs/rrn-67a184e6a36ce92e.json"
+        },
+        {
+          "action": "created",
+          "path": ".pose/review-runs/rrn-67a184e6a36ce92e.transcript"
+        },
+        {
+          "action": "created",
+          "path": ".pose/review-runs/rrn-78b11adc9ff36dd0.events.ndjson"
+        },
+        {
+          "action": "created",
+          "path": ".pose/review-runs/rrn-78b11adc9ff36dd0.json"
+        },
+        {
+          "action": "created",
+          "path": ".pose/review-runs/rrn-78b11adc9ff36dd0.transcript"
+        },
+        {
+          "action": "created",
+          "path": ".pose/review-runs/rrn-dfbb00c5cb708475.events.ndjson"
+        },
+        {
+          "action": "created",
+          "path": ".pose/review-runs/rrn-dfbb00c5cb708475.json"
+        },
+        {
+          "action": "created",
+          "path": ".pose/review-runs/rrn-dfbb00c5cb708475.transcript"
+        },
+        {
+          "action": "created",
+          "path": ".pose/specs/2026-11-14-pose-review-cleanup-removes-go-build-leftovers.md"
+        },
+        {
+          "action": "created",
+          "path": ".pose/starts/pose-review-cleanup-removes-go-build-leftovers.json"
+        },
+        {
+          "action": "created",
+          "path": "pose-mcp/internal/pose/review_go_build_cleanup_other.go"
+        },
+        {
+          "action": "created",
+          "path": "pose-mcp/internal/pose/review_go_build_cleanup_unix.go"
+        },
+        {
+          "action": "created",
+          "path": "pose-mcp/internal/pose/review_go_build_cleanup_unix_test.go"
+        },
+        {
+          "action": "modified",
+          "path": ".pose/indexes/delivery-integrity.json"
+        },
+        {
+          "action": "modified",
+          "path": ".pose/indexes/generation.json"
+        },
+        {
+          "action": "modified",
+          "path": ".pose/indexes/spec-graph.json"
+        },
+        {
+          "action": "modified",
+          "path": ".pose/indexes/validation-matrix.json"
+        },
+        {
+          "action": "modified",
+          "path": ".pose/results/delivery-validation.json"
+        },
+        {
+          "action": "modified",
+          "path": "pose-mcp/internal/pose/review_adapter_containment.go"
+        },
+        {
+          "action": "modified",
+          "path": "pose-mcp/internal/pose/review_adapter_containment_regression_test.go"
+        }
+      ],
+      "diff_digest": "sha256:7a4012689a46ca559a825cc6321c81b82c5678752eb2e9f18701f422dafd6a26",
+      "material_digest": "sha256:00e76699cb861502e5f1685e48a50de6fc7c26bed0d98daec84c3ef02cb54afa",
+      "material_inputs": {
+        "names": [
+          ".pose/closeout-plans/spec-pose-review-cleanup-removes-go-build-leftovers.json",
+          ".pose/indexes/delivery-integrity.json",
+          ".pose/indexes/generation.json",
+          ".pose/indexes/spec-graph.json",
+          ".pose/indexes/validation-matrix.json",
+          ".pose/results/delivery-validation.json",
+          ".pose/review-attempts/389681b692ad1143a31dc523/000001.json",
+          ".pose/review-attempts/389681b692ad1143a31dc523/000001.result.json",
+          ".pose/review-attempts/6531d33e974979e7dc9c26be/000001.json",
+          ".pose/review-attempts/6531d33e974979e7dc9c26be/000001.result.json",
+          ".pose/review-attempts/6bdfed551425f80ab5215dcd/000001.json",
+          ".pose/review-attempts/6bdfed551425f80ab5215dcd/000001.result.json",
+          ".pose/review-attempts/a4686d0388696eab8280c538/000001.json",
+          ".pose/review-attempts/a4686d0388696eab8280c538/000001.result.json",
+          ".pose/review-attempts/bad100bcb38f16d702406b8b/000001.json",
+          ".pose/review-attempts/bad100bcb38f16d702406b8b/000001.result.json",
+          ".pose/review-attestations/rva-4ef3d3f9821cfeb3.json",
+          ".pose/review-attestations/rva-823ad7b9b9b0738b.json",
+          ".pose/review-attestations/rva-b65df389f4e7a242.json",
+          ".pose/review-attestations/rva-fed978aec59d28de.json",
+          ".pose/review-bundles/rvb-249f4597d714e0f4.json",
+          ".pose/review-bundles/rvb-36a60dc7aca0483b.json",
+          ".pose/review-bundles/rvb-49b2a53ea1ec99f1.json",
+          ".pose/review-bundles/rvb-51bc00008810f282.json",
+          ".pose/review-bundles/rvb-d39366a45595ae42.json",
+          ".pose/review-conclusions/rrn-11320f4eeb5bcde3.json",
+          ".pose/review-conclusions/rrn-1a96cee8e24eb008.json",
+          ".pose/review-conclusions/rrn-67a184e6a36ce92e.json",
+          ".pose/review-conclusions/rrn-78b11adc9ff36dd0.json",
+          ".pose/review-conclusions/rrn-dfbb00c5cb708475.json",
+          ".pose/review-run-ledger/rrn-11320f4eeb5bcde3.json",
+          ".pose/review-run-ledger/rrn-1a96cee8e24eb008.json",
+          ".pose/review-run-ledger/rrn-67a184e6a36ce92e.json",
+          ".pose/review-run-ledger/rrn-78b11adc9ff36dd0.json",
+          ".pose/review-run-ledger/rrn-dfbb00c5cb708475.json",
+          ".pose/review-run-proofs/rrn-11320f4eeb5bcde3/rrp-0caea9cc0cebacf01020fbe6332532ffc265fa994e7185026d1058865fca6398.json",
+          ".pose/review-run-proofs/rrn-67a184e6a36ce92e/rrp-47c0d95b57d48d142405713be8e808a38ed0e94953b2c077aa9d668f3836d935.json",
+          ".pose/review-run-proofs/rrn-78b11adc9ff36dd0/rrp-aede8c48a833373d545a76537d1330a8e5cfbf3aed32df93dc22f4de5540cf52.json",
+          ".pose/review-run-proofs/rrn-dfbb00c5cb708475/rrp-9a5763c693e9ff8b3e5c243b0653ddb27dc78af4c5ef6be0d11bcd1975e7c058.json",
+          ".pose/review-runs/rrn-11320f4eeb5bcde3.events.ndjson",
+          ".pose/review-runs/rrn-11320f4eeb5bcde3.json",
+          ".pose/review-runs/rrn-11320f4eeb5bcde3.transcript",
+          ".pose/review-runs/rrn-1a96cee8e24eb008.events.ndjson",
+          ".pose/review-runs/rrn-1a96cee8e24eb008.json",
+          ".pose/review-runs/rrn-1a96cee8e24eb008.transcript",
+          ".pose/review-runs/rrn-67a184e6a36ce92e.events.ndjson",
+          ".pose/review-runs/rrn-67a184e6a36ce92e.json",
+          ".pose/review-runs/rrn-67a184e6a36ce92e.transcript",
+          ".pose/review-runs/rrn-78b11adc9ff36dd0.events.ndjson",
+          ".pose/review-runs/rrn-78b11adc9ff36dd0.json",
+          ".pose/review-runs/rrn-78b11adc9ff36dd0.transcript",
+          ".pose/review-runs/rrn-dfbb00c5cb708475.events.ndjson",
+          ".pose/review-runs/rrn-dfbb00c5cb708475.json",
+          ".pose/review-runs/rrn-dfbb00c5cb708475.transcript",
+          ".pose/specs/2026-11-14-pose-review-cleanup-removes-go-build-leftovers.md",
+          ".pose/starts/pose-review-cleanup-removes-go-build-leftovers.json",
+          "pose-mcp/internal/pose/review_adapter_containment.go",
+          "pose-mcp/internal/pose/review_adapter_containment_regression_test.go",
+          "pose-mcp/internal/pose/review_directory_unlinked_other.go",
+          "pose-mcp/internal/pose/review_directory_unlinked_unix.go",
+          "pose-mcp/internal/pose/review_go_build_cleanup_other.go",
+          "pose-mcp/internal/pose/review_go_build_cleanup_unix.go",
+          "pose-mcp/internal/pose/review_go_build_cleanup_unix_test.go"
+        ]
+      }
+    },
+    {
       "id": "cs-b7ad61eb2b48",
       "spec": "pose-derived-index-self-referential-leak",
       "selector": "range:321b04ebbba77c7a16c22f03af85757eb51f6330..71bcf42",
@@ -262340,370 +262705,6 @@
           "pose-mcp/internal/pose/review_run_provenance_test.go",
           "pose-mcp/internal/scaffold/dist/POSE.md",
           "pose-mcp/internal/scaffold/dist/locales/pt-BR/POSE.md"
-        ]
-      }
-    },
-    {
-      "id": "cs-c84f6d77d2bb",
-      "spec": "pose-review-cleanup-removes-go-build-leftovers",
-      "selector": "trailers:pose-review-cleanup-removes-go-build-leftovers",
-      "base": "9f3807058cda76811a58b6a57af2b04204e1e214^",
-      "head": "f511942dbcd7da09dc89140e8efac3658889310e",
-      "resolved_base": "79157194e51e52aa471aedacc4c0e4b2d052b7ee",
-      "resolved_head": "f511942dbcd7da09dc89140e8efac3658889310e",
-      "commits": [
-        "9f3807058cda76811a58b6a57af2b04204e1e214",
-        "b373bacabc9baf29b21b0f67f6fe0a628a314b55",
-        "20b01e7109e6e0ef0f4b0f6283cbb11d052d1d86",
-        "93b002477300a41ea2d666a14cdd763b6e34e43f",
-        "d11157fc6fb8653288e2f888ebaef71a8553cf80",
-        "ce3d8350a9095b1ba833796d09bf5c52af916e8c",
-        "4238c1df09e8b9a47810f30072f20b0f61e1c5f9",
-        "d5bcfaba73b733abeb61b1309eb6851519b22f71",
-        "cd97b827b4335d218feb30a7dd701289b2a06a44",
-        "52c04fd87c3eda14c2496585b97d96af8cf0c061",
-        "2b46da235965797de8f4a8ebab193dd287ef0b91",
-        "55b1ca906a721a6f2523d154ecacd3b13edb2c95",
-        "c135c8f06656c8a6b6cc55a812b101f5c0ac1eb5",
-        "fe1812eda8925b91a0859250cdbeac8213fcf93f",
-        "89690f45b5df0e7774b6ef7619b5a6cd8bd7e3d6",
-        "e95cda6bc229f90dc2b085d77883a362c0620142",
-        "9104e2f585a5afc43af609376b4bdec61ce45ede",
-        "70e3845d6d4fe16447d85bb75eab7bb8e48fdcec",
-        "a733c000a5b3ab546d955e767457a44c217bcd4e",
-        "827df6b185b29dbea48fb920ad577612cc1f06ef",
-        "8d71a73ee13ed1f415a4b14709eeb5db36c852a2",
-        "6fe641908fee0605dc7a923c8c0aa9a963cd7547",
-        "7e4b72d27d3551a192e90e350669ec23bf90a2fa",
-        "de0db4aec2a1d0a4caff891b3ce253697876d2e0",
-        "c36493690556fdb07484509c21bb67d2786d1e77",
-        "5582ce2e3f05848f7076efc2eb464bf1cb90ed8b",
-        "8e1e4b3f5e44df00253718429712f4bfdd604a1e",
-        "842b7a76e90f24fd547192a1c2f26bdc98e195e2",
-        "8f639f86db544d0c421ae744a854a9987d1876c8",
-        "dfcd2fe3e69f561aeb7cb7e7bbdb4607f9e2e1af",
-        "f0f3c2804047e7fe11f28f9147e24d12b9e80012",
-        "828240d692a87aaff9cd0de7626e909e4a9416be",
-        "5861c08b336a9fc7545ed7aaa6f1d86286b40078",
-        "c8035af7b6a3453a7911cc9c90835b90434aca07",
-        "3dcdbfb0f45117f9dbb9d2ba21b82ad02ca6b7a8",
-        "5021783d8df2e0ee39964c5cf4f499e034f555ad",
-        "9c32d29f002110e62d8e723be14557a651435a16",
-        "f511942dbcd7da09dc89140e8efac3658889310e"
-      ],
-      "paths": [
-        {
-          "action": "created",
-          "path": ".pose/closeout-plans/spec-pose-review-cleanup-removes-go-build-leftovers.json"
-        },
-        {
-          "action": "created",
-          "path": ".pose/review-attempts/389681b692ad1143a31dc523/000001.json"
-        },
-        {
-          "action": "created",
-          "path": ".pose/review-attempts/389681b692ad1143a31dc523/000001.result.json"
-        },
-        {
-          "action": "created",
-          "path": ".pose/review-attempts/6531d33e974979e7dc9c26be/000001.json"
-        },
-        {
-          "action": "created",
-          "path": ".pose/review-attempts/6531d33e974979e7dc9c26be/000001.result.json"
-        },
-        {
-          "action": "created",
-          "path": ".pose/review-attempts/6bdfed551425f80ab5215dcd/000001.json"
-        },
-        {
-          "action": "created",
-          "path": ".pose/review-attempts/6bdfed551425f80ab5215dcd/000001.result.json"
-        },
-        {
-          "action": "created",
-          "path": ".pose/review-attempts/a4686d0388696eab8280c538/000001.json"
-        },
-        {
-          "action": "created",
-          "path": ".pose/review-attempts/a4686d0388696eab8280c538/000001.result.json"
-        },
-        {
-          "action": "created",
-          "path": ".pose/review-attempts/bad100bcb38f16d702406b8b/000001.json"
-        },
-        {
-          "action": "created",
-          "path": ".pose/review-attempts/bad100bcb38f16d702406b8b/000001.result.json"
-        },
-        {
-          "action": "created",
-          "path": ".pose/review-attestations/rva-4ef3d3f9821cfeb3.json"
-        },
-        {
-          "action": "created",
-          "path": ".pose/review-attestations/rva-823ad7b9b9b0738b.json"
-        },
-        {
-          "action": "created",
-          "path": ".pose/review-attestations/rva-b65df389f4e7a242.json"
-        },
-        {
-          "action": "created",
-          "path": ".pose/review-attestations/rva-fed978aec59d28de.json"
-        },
-        {
-          "action": "created",
-          "path": ".pose/review-bundles/rvb-249f4597d714e0f4.json"
-        },
-        {
-          "action": "created",
-          "path": ".pose/review-bundles/rvb-36a60dc7aca0483b.json"
-        },
-        {
-          "action": "created",
-          "path": ".pose/review-bundles/rvb-49b2a53ea1ec99f1.json"
-        },
-        {
-          "action": "created",
-          "path": ".pose/review-bundles/rvb-51bc00008810f282.json"
-        },
-        {
-          "action": "created",
-          "path": ".pose/review-bundles/rvb-d39366a45595ae42.json"
-        },
-        {
-          "action": "created",
-          "path": ".pose/review-conclusions/rrn-11320f4eeb5bcde3.json"
-        },
-        {
-          "action": "created",
-          "path": ".pose/review-conclusions/rrn-1a96cee8e24eb008.json"
-        },
-        {
-          "action": "created",
-          "path": ".pose/review-conclusions/rrn-67a184e6a36ce92e.json"
-        },
-        {
-          "action": "created",
-          "path": ".pose/review-conclusions/rrn-78b11adc9ff36dd0.json"
-        },
-        {
-          "action": "created",
-          "path": ".pose/review-conclusions/rrn-dfbb00c5cb708475.json"
-        },
-        {
-          "action": "created",
-          "path": ".pose/review-run-ledger/rrn-11320f4eeb5bcde3.json"
-        },
-        {
-          "action": "created",
-          "path": ".pose/review-run-ledger/rrn-1a96cee8e24eb008.json"
-        },
-        {
-          "action": "created",
-          "path": ".pose/review-run-ledger/rrn-67a184e6a36ce92e.json"
-        },
-        {
-          "action": "created",
-          "path": ".pose/review-run-ledger/rrn-78b11adc9ff36dd0.json"
-        },
-        {
-          "action": "created",
-          "path": ".pose/review-run-ledger/rrn-dfbb00c5cb708475.json"
-        },
-        {
-          "action": "created",
-          "path": ".pose/review-run-proofs/rrn-11320f4eeb5bcde3/rrp-0caea9cc0cebacf01020fbe6332532ffc265fa994e7185026d1058865fca6398.json"
-        },
-        {
-          "action": "created",
-          "path": ".pose/review-run-proofs/rrn-67a184e6a36ce92e/rrp-47c0d95b57d48d142405713be8e808a38ed0e94953b2c077aa9d668f3836d935.json"
-        },
-        {
-          "action": "created",
-          "path": ".pose/review-run-proofs/rrn-78b11adc9ff36dd0/rrp-aede8c48a833373d545a76537d1330a8e5cfbf3aed32df93dc22f4de5540cf52.json"
-        },
-        {
-          "action": "created",
-          "path": ".pose/review-run-proofs/rrn-dfbb00c5cb708475/rrp-9a5763c693e9ff8b3e5c243b0653ddb27dc78af4c5ef6be0d11bcd1975e7c058.json"
-        },
-        {
-          "action": "created",
-          "path": ".pose/review-runs/rrn-11320f4eeb5bcde3.events.ndjson"
-        },
-        {
-          "action": "created",
-          "path": ".pose/review-runs/rrn-11320f4eeb5bcde3.json"
-        },
-        {
-          "action": "created",
-          "path": ".pose/review-runs/rrn-11320f4eeb5bcde3.transcript"
-        },
-        {
-          "action": "created",
-          "path": ".pose/review-runs/rrn-1a96cee8e24eb008.events.ndjson"
-        },
-        {
-          "action": "created",
-          "path": ".pose/review-runs/rrn-1a96cee8e24eb008.json"
-        },
-        {
-          "action": "created",
-          "path": ".pose/review-runs/rrn-1a96cee8e24eb008.transcript"
-        },
-        {
-          "action": "created",
-          "path": ".pose/review-runs/rrn-67a184e6a36ce92e.events.ndjson"
-        },
-        {
-          "action": "created",
-          "path": ".pose/review-runs/rrn-67a184e6a36ce92e.json"
-        },
-        {
-          "action": "created",
-          "path": ".pose/review-runs/rrn-67a184e6a36ce92e.transcript"
-        },
-        {
-          "action": "created",
-          "path": ".pose/review-runs/rrn-78b11adc9ff36dd0.events.ndjson"
-        },
-        {
-          "action": "created",
-          "path": ".pose/review-runs/rrn-78b11adc9ff36dd0.json"
-        },
-        {
-          "action": "created",
-          "path": ".pose/review-runs/rrn-78b11adc9ff36dd0.transcript"
-        },
-        {
-          "action": "created",
-          "path": ".pose/review-runs/rrn-dfbb00c5cb708475.events.ndjson"
-        },
-        {
-          "action": "created",
-          "path": ".pose/review-runs/rrn-dfbb00c5cb708475.json"
-        },
-        {
-          "action": "created",
-          "path": ".pose/review-runs/rrn-dfbb00c5cb708475.transcript"
-        },
-        {
-          "action": "created",
-          "path": ".pose/specs/2026-11-14-pose-review-cleanup-removes-go-build-leftovers.md"
-        },
-        {
-          "action": "created",
-          "path": ".pose/starts/pose-review-cleanup-removes-go-build-leftovers.json"
-        },
-        {
-          "action": "created",
-          "path": "pose-mcp/internal/pose/review_go_build_cleanup_other.go"
-        },
-        {
-          "action": "created",
-          "path": "pose-mcp/internal/pose/review_go_build_cleanup_unix.go"
-        },
-        {
-          "action": "created",
-          "path": "pose-mcp/internal/pose/review_go_build_cleanup_unix_test.go"
-        },
-        {
-          "action": "modified",
-          "path": ".pose/indexes/delivery-integrity.json"
-        },
-        {
-          "action": "modified",
-          "path": ".pose/indexes/generation.json"
-        },
-        {
-          "action": "modified",
-          "path": ".pose/indexes/spec-graph.json"
-        },
-        {
-          "action": "modified",
-          "path": ".pose/indexes/validation-matrix.json"
-        },
-        {
-          "action": "modified",
-          "path": ".pose/results/delivery-validation.json"
-        },
-        {
-          "action": "modified",
-          "path": "pose-mcp/internal/pose/review_adapter_containment.go"
-        },
-        {
-          "action": "modified",
-          "path": "pose-mcp/internal/pose/review_adapter_containment_regression_test.go"
-        }
-      ],
-      "diff_digest": "sha256:5f64cc04a2a3da65a93a7172f672903a255bade1aa50bafb8e969a3748757127",
-      "material_digest": "sha256:00e76699cb861502e5f1685e48a50de6fc7c26bed0d98daec84c3ef02cb54afa",
-      "material_inputs": {
-        "names": [
-          ".pose/closeout-plans/spec-pose-review-cleanup-removes-go-build-leftovers.json",
-          ".pose/indexes/delivery-integrity.json",
-          ".pose/indexes/generation.json",
-          ".pose/indexes/spec-graph.json",
-          ".pose/indexes/validation-matrix.json",
-          ".pose/results/delivery-validation.json",
-          ".pose/review-attempts/389681b692ad1143a31dc523/000001.json",
-          ".pose/review-attempts/389681b692ad1143a31dc523/000001.result.json",
-          ".pose/review-attempts/6531d33e974979e7dc9c26be/000001.json",
-          ".pose/review-attempts/6531d33e974979e7dc9c26be/000001.result.json",
-          ".pose/review-attempts/6bdfed551425f80ab5215dcd/000001.json",
-          ".pose/review-attempts/6bdfed551425f80ab5215dcd/000001.result.json",
-          ".pose/review-attempts/a4686d0388696eab8280c538/000001.json",
-          ".pose/review-attempts/a4686d0388696eab8280c538/000001.result.json",
-          ".pose/review-attempts/bad100bcb38f16d702406b8b/000001.json",
-          ".pose/review-attempts/bad100bcb38f16d702406b8b/000001.result.json",
-          ".pose/review-attestations/rva-4ef3d3f9821cfeb3.json",
-          ".pose/review-attestations/rva-823ad7b9b9b0738b.json",
-          ".pose/review-attestations/rva-b65df389f4e7a242.json",
-          ".pose/review-attestations/rva-fed978aec59d28de.json",
-          ".pose/review-bundles/rvb-249f4597d714e0f4.json",
-          ".pose/review-bundles/rvb-36a60dc7aca0483b.json",
-          ".pose/review-bundles/rvb-49b2a53ea1ec99f1.json",
-          ".pose/review-bundles/rvb-51bc00008810f282.json",
-          ".pose/review-bundles/rvb-d39366a45595ae42.json",
-          ".pose/review-conclusions/rrn-11320f4eeb5bcde3.json",
-          ".pose/review-conclusions/rrn-1a96cee8e24eb008.json",
-          ".pose/review-conclusions/rrn-67a184e6a36ce92e.json",
-          ".pose/review-conclusions/rrn-78b11adc9ff36dd0.json",
-          ".pose/review-conclusions/rrn-dfbb00c5cb708475.json",
-          ".pose/review-run-ledger/rrn-11320f4eeb5bcde3.json",
-          ".pose/review-run-ledger/rrn-1a96cee8e24eb008.json",
-          ".pose/review-run-ledger/rrn-67a184e6a36ce92e.json",
-          ".pose/review-run-ledger/rrn-78b11adc9ff36dd0.json",
-          ".pose/review-run-ledger/rrn-dfbb00c5cb708475.json",
-          ".pose/review-run-proofs/rrn-11320f4eeb5bcde3/rrp-0caea9cc0cebacf01020fbe6332532ffc265fa994e7185026d1058865fca6398.json",
-          ".pose/review-run-proofs/rrn-67a184e6a36ce92e/rrp-47c0d95b57d48d142405713be8e808a38ed0e94953b2c077aa9d668f3836d935.json",
-          ".pose/review-run-proofs/rrn-78b11adc9ff36dd0/rrp-aede8c48a833373d545a76537d1330a8e5cfbf3aed32df93dc22f4de5540cf52.json",
-          ".pose/review-run-proofs/rrn-dfbb00c5cb708475/rrp-9a5763c693e9ff8b3e5c243b0653ddb27dc78af4c5ef6be0d11bcd1975e7c058.json",
-          ".pose/review-runs/rrn-11320f4eeb5bcde3.events.ndjson",
-          ".pose/review-runs/rrn-11320f4eeb5bcde3.json",
-          ".pose/review-runs/rrn-11320f4eeb5bcde3.transcript",
-          ".pose/review-runs/rrn-1a96cee8e24eb008.events.ndjson",
-          ".pose/review-runs/rrn-1a96cee8e24eb008.json",
-          ".pose/review-runs/rrn-1a96cee8e24eb008.transcript",
-          ".pose/review-runs/rrn-67a184e6a36ce92e.events.ndjson",
-          ".pose/review-runs/rrn-67a184e6a36ce92e.json",
-          ".pose/review-runs/rrn-67a184e6a36ce92e.transcript",
-          ".pose/review-runs/rrn-78b11adc9ff36dd0.events.ndjson",
-          ".pose/review-runs/rrn-78b11adc9ff36dd0.json",
-          ".pose/review-runs/rrn-78b11adc9ff36dd0.transcript",
-          ".pose/review-runs/rrn-dfbb00c5cb708475.events.ndjson",
-          ".pose/review-runs/rrn-dfbb00c5cb708475.json",
-          ".pose/review-runs/rrn-dfbb00c5cb708475.transcript",
-          ".pose/specs/2026-11-14-pose-review-cleanup-removes-go-build-leftovers.md",
-          ".pose/starts/pose-review-cleanup-removes-go-build-leftovers.json",
-          "pose-mcp/internal/pose/review_adapter_containment.go",
-          "pose-mcp/internal/pose/review_adapter_containment_regression_test.go",
-          "pose-mcp/internal/pose/review_directory_unlinked_other.go",
-          "pose-mcp/internal/pose/review_directory_unlinked_unix.go",
-          "pose-mcp/internal/pose/review_go_build_cleanup_other.go",
-          "pose-mcp/internal/pose/review_go_build_cleanup_unix.go",
-          "pose-mcp/internal/pose/review_go_build_cleanup_unix_test.go"
         ]
       }
     },
