@@ -35,7 +35,7 @@ Em 2026-11-14 duas revisões seguidas da spec `pose-adopt-request-shows-what-it-
 ## 2. Requirements
 
 ### Functional
-- R1: When a review run is cleaned up, every real directory named `go-build<digits>` at the top of its runtime directory shall be removed under its own bounded inventory before the runtime directory's inventory, for every adapter.
+- R1: On Unix platforms, when a review run is cleaned up, every real directory named `go-build<digits>` at the top of its runtime directory shall be removed under its own bounded inventory before the runtime directory's inventory, for every adapter. On other platforms the go-build directory is left to the runtime inventory, unchanged from before this spec (follow-up F3).
 - R2: An entry named like one that is a link or not a directory shall be left to the runtime inventory, and its target shall never be touched.
 - R3: A go-build directory that exceeds its own bounded inventory, or that changes identity during cleanup, shall leave the cleanup incomplete, as any other unconfirmed cleanup.
 
@@ -113,7 +113,7 @@ Teste de regressão sobre o fixture de limpeza de contenção existente; testes 
 - Warnings: nenhum.
 
 ### Requirement trace
-- R1 [satisfied] test:TestAdapterCleanupRemovesGoBuildLeftovers check:review-cleanup-removes-go-build-leftovers-integration
+- R1 [satisfied] test:TestAdapterCleanupRemovesGoBuildLeftovers test:TestReviewGoBuildEnumerationStopsAtTheBudget test:TestReviewGoBuildEnumerationDescriptorIsCloseOnExec check:review-cleanup-removes-go-build-leftovers-integration
 - R2 [satisfied] test:TestAdapterCleanupRemovesGoBuildLeftovers
 - R3 [satisfied] test:TestAdapterCleanupRefusesAReplacedGoBuildDirectory test:TestAdapterCleanupRefusesAGoBuildReplacedBeforeRemoval test:TestAdapterCleanupDoesNotBlockOnAFIFOReplacement test:TestAdapterCleanupDoesNotBlockOnAFIFOBeforeTheFirstOpen check:release-cross-build-windows check:release-cross-build-darwin check:release-test-compile-windows check:release-test-compile-darwin
 
@@ -141,6 +141,7 @@ A limpeza de uma execução de revisão remove, com inventário limitado própri
 
 - [open] F1: abrir a raiz da execução e a worktree na limpeza de contenção de forma não bloqueante e exigindo diretório; `os.Root.OpenRoot` bloqueia se o nome for trocado por um FIFO entre a conferência e a abertura. Os diretórios `go-build` desta spec já não têm essa janela. (owner:@pose-maintainers crit:medium review:2026-12-13)
 - [open] F2: os testes de `internal/cli` não compilam para Windows (`syscall.Kill` em `delegate_mcp_test.go`, e o `go vet` para no primeiro erro de cada pacote); estender `release-test-compile-windows` ao módulo inteiro quando compilarem. (owner:@pose-maintainers crit:low review:2026-12-13)
+- [open] F3: remover os diretórios `go-build` da limpeza também no Windows, com abertura relativa a handle e sem seguir reparse points; hoje ficam para o inventário da execução, como antes desta spec, e uma execução de revisão no Windows com um binário de teste grande continua com a limpeza incompleta. (owner:@pose-maintainers crit:low review:2026-12-13)
 
 ### Review
 
@@ -151,4 +152,6 @@ Rodada 2 (run rrn-78b11adc9ff36dd0, attestation rva-b65df389f4e7a242, changes-re
 Rodada 3 (run rrn-1a96cee8e24eb008): o motor recusou a conclusão porque o rascunho deu aos achados novos ids com prefixo de rodada (`R3-N1`); os dois achados foram tratados mesmo assim. N1 (alto) `syscall.Stat_t` num arquivo sem build tag não compila no Windows, alvo do release: a contagem de links passou para arquivos por plataforma (`unix` e o resto, que recusa), e a matriz ganhou os checks `release-cross-build-windows` e `release-cross-build-darwin`, cuja ausência deixou a rodada 2 passar a validação completa sem compilar para Windows. N2 a reabertura pelo nome (`root.Open`) bloqueava se o diretório fosse trocado por um FIFO: o diretório verificado fica aberto, sem reabertura, até a confirmação da remoção por ele; um teste sincronizado troca por um FIFO e exige o fim sem bloqueio. A janela entre a primeira conferência e a abertura é a da limpeza inteira (follow-up F1).
 
 Rodada 4 (run rrn-67a184e6a36ce92e, attestation rva-fed978aec59d28de, changes-requested): os achados das rodadas anteriores estão corrigidos, e vieram 2 bloqueadores, tratados. N3 o teste do FIFO usava `syscall.Mkfifo` num arquivo de teste compilado também no Windows: os testes de FIFO foram para `review_go_build_cleanup_unix_test.go`, e a matriz ganhou `release-test-compile-windows` e `release-test-compile-darwin` (`go vet`, que compila os testes). N4 a primeira abertura (`OpenRoot`) ainda bloqueava num FIFO posto entre a listagem e a abertura: no Unix a remoção do `go-build` passou a ser toda feita por descritores (`openat` com `O_DIRECTORY|O_NOFOLLOW|O_NONBLOCK` relativo ao descritor da raiz, `unlinkat` relativo ao descritor que contém a entrada, com inventário limitado), e o que não abre como diretório fica para o inventário da execução. Nas outras plataformas o `go-build` fica para esse inventário, que mantém a limpeza incompleta se exceder os limites. Um teste sincronizado troca por um FIFO antes da primeira abertura e exige o fim sem bloqueio.
+
+Rodada 5 (run rrn-dfbb00c5cb708475, attestation rva-4ef3d3f9821cfeb3, changes-requested): N3 e N4 corrigidos, e vieram 4 bloqueadores, tratados. N5 a implementação fora do Unix não faz nada, e o R1 prometia a remoção em toda plataforma: o R1 foi restringido ao Unix, e o Windows ficou como follow-up F3, sem afirmar entrega que não há. N6 `Readdirnames(-1)` lia todas as entradas antes de consultar o limite: a leitura passou a ser em lotes de 256, cobrados do limite ao serem lidos, e o topo do diretório da execução também é lido em lotes, até o limite de 4.096 do inventário. N7 um diretório trocado ou sumido entre a listagem e a abertura era entregue ao inventário: a identidade lida antes da abertura liga o nome, e a troca deixa a limpeza incompleta; o teste agora exige esse erro. N8 `unix.Dup` tira o close-on-exec: a duplicação passou a ser `F_DUPFD_CLOEXEC`, atômica. Cada correção tem teste que reprova sem ela.
 

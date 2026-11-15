@@ -5,6 +5,7 @@ package pose
 import (
 	"errors"
 	"fmt"
+	"io"
 	"os"
 
 	"golang.org/x/sys/unix"
@@ -15,6 +16,14 @@ const (
 	reviewGoBuildMaxBytes   = int64(8 << 30)
 	reviewGoBuildMaxDepth   = 128
 )
+
+// reviewGoBuildEnumerating receives the descriptor that enumerates a
+// go-build directory; tests use it to read its flags.
+var reviewGoBuildEnumerating = func(int) {}
+
+// reviewGoBuildRead receives the size of each batch of entries read; tests
+// use it to see that enumeration stops at the budget.
+var reviewGoBuildRead = func(int) {}
 
 var errReviewGoBuildChanged = errors.New("runtime path changed during cleanup; replacement retained")
 
@@ -32,17 +41,29 @@ func removeReviewGoBuildDir(root *os.Root, name string) error {
 	}
 	defer parent.Close()
 	pfd := int(parent.Fd())
+	// The identity seen before the open binds the name: a directory moved
+	// away and replaced, or gone, before the open leaves the cleanup
+	// incomplete instead of handing the replacement to the runtime
+	// inventory (review round 5, N7). Anything else than a real directory
+	// at the listing is left to that inventory.
+	var listed unix.Stat_t
+	if err := unix.Fstatat(pfd, name, &listed, unix.AT_SYMLINK_NOFOLLOW); err != nil {
+		if errors.Is(err, unix.ENOENT) {
+			return nil
+		}
+		return fmt.Errorf("runtime cleanup inventory incomplete; resources retained")
+	}
+	if listed.Mode&unix.S_IFMT != unix.S_IFDIR {
+		return nil
+	}
 	reviewGoBuildBeforeOpen(name)
 	dfd, err := unix.Openat(pfd, name, unix.O_RDONLY|unix.O_DIRECTORY|unix.O_NOFOLLOW|unix.O_NONBLOCK|unix.O_CLOEXEC, 0)
-	if errors.Is(err, unix.ENOTDIR) || errors.Is(err, unix.ELOOP) || errors.Is(err, unix.ENOENT) {
-		return nil // not a directory now: the runtime inventory judges it
-	}
 	if err != nil {
-		return fmt.Errorf("runtime cleanup inventory incomplete; resources retained")
+		return errReviewGoBuildChanged
 	}
 	defer unix.Close(dfd)
 	var opened unix.Stat_t
-	if err := unix.Fstat(dfd, &opened); err != nil || opened.Mode&unix.S_IFMT != unix.S_IFDIR {
+	if err := unix.Fstat(dfd, &opened); err != nil || opened.Dev != listed.Dev || opened.Ino != listed.Ino {
 		return errReviewGoBuildChanged
 	}
 	budget := reviewGoBuildBudget{entries: reviewGoBuildMaxEntries, bytes: reviewGoBuildMaxBytes}
@@ -78,16 +99,34 @@ func removeReviewGoBuildContents(dfd, depth int, budget *reviewGoBuildBudget) er
 	if depth > reviewGoBuildMaxDepth {
 		return fmt.Errorf("runtime cleanup inventory incomplete; resources retained")
 	}
-	dup, err := unix.Dup(dfd)
+	// The enumeration descriptor is duplicated close-on-exec atomically, so
+	// a concurrent exec never inherits it (review round 5, N8), and entries
+	// are read in batches charged to the budget as they are read (N6).
+	dup, err := unix.FcntlInt(uintptr(dfd), unix.F_DUPFD_CLOEXEC, 0)
 	if err != nil {
 		return fmt.Errorf("runtime cleanup inventory incomplete; resources retained")
 	}
 	dir := os.NewFile(uintptr(dup), "go-build")
-	names, err := dir.Readdirnames(-1)
-	dir.Close()
-	if err != nil {
-		return fmt.Errorf("runtime cleanup inventory incomplete; resources retained")
+	defer dir.Close()
+	reviewGoBuildEnumerating(dup)
+	for {
+		names, err := dir.Readdirnames(256)
+		reviewGoBuildRead(len(names))
+		if len(names) == 0 {
+			if err == nil || errors.Is(err, io.EOF) {
+				return nil
+			}
+			return fmt.Errorf("runtime cleanup inventory incomplete; resources retained")
+		}
+		if err := removeReviewGoBuildEntries(dfd, depth, names, budget); err != nil {
+			return err
+		}
 	}
+}
+
+// removeReviewGoBuildEntries removes one batch of entries of the directory
+// open as dfd.
+func removeReviewGoBuildEntries(dfd, depth int, names []string, budget *reviewGoBuildBudget) error {
 	for _, name := range names {
 		budget.entries--
 		if budget.entries < 0 {

@@ -576,7 +576,7 @@ func (s Store) cleanupReviewResources(tmp string, owned os.FileInfo, worktree st
 	if err := removeReviewGoBuildLeftovers(root); err != nil {
 		return err
 	}
-	if err := removeReviewOwnedContents(root, 4096, 128<<20); err != nil {
+	if err := removeReviewOwnedContents(root, reviewRuntimeMaxEntries, 128<<20); err != nil {
 		return err
 	}
 	current, err = os.Lstat(tmp)
@@ -615,20 +615,43 @@ var (
 // a directory, so a link, a FIFO or any other entry stays for the runtime
 // inventory to judge.
 func removeReviewGoBuildLeftovers(root *os.Root) error {
-	entries, err := fs.ReadDir(root.FS(), ".")
+	// The top level is read in bounded batches: more entries than the
+	// runtime inventory admits cannot be confirmed anyway (review round 5,
+	// N6).
+	dir, err := root.Open(".")
 	if err != nil {
 		return fmt.Errorf("runtime cleanup inventory incomplete; resources retained")
 	}
-	for _, entry := range entries {
-		if !reviewGoBuildDir.MatchString(entry.Name()) {
+	names := []string{}
+	for {
+		batch, err := dir.Readdirnames(256)
+		names = append(names, batch...)
+		if len(names) > reviewRuntimeMaxEntries {
+			dir.Close()
+			return fmt.Errorf("runtime cleanup inventory incomplete; resources retained")
+		}
+		if errors.Is(err, io.EOF) || (err == nil && len(batch) == 0) {
+			break
+		}
+		if err != nil {
+			dir.Close()
+			return fmt.Errorf("runtime cleanup inventory incomplete; resources retained")
+		}
+	}
+	dir.Close()
+	for _, name := range names {
+		if !reviewGoBuildDir.MatchString(name) {
 			continue
 		}
-		if err := removeReviewGoBuildDir(root, entry.Name()); err != nil {
+		if err := removeReviewGoBuildDir(root, name); err != nil {
 			return err
 		}
 	}
 	return nil
 }
+
+// reviewRuntimeMaxEntries is the runtime inventory's own entry bound.
+const reviewRuntimeMaxEntries = 4096
 
 func removeReviewOwnedContents(root *os.Root, maxFiles int, maxBytes int64) error {
 	paths := []string{}
