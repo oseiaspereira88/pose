@@ -596,10 +596,12 @@ func (s Store) cleanupReviewResources(tmp string, owned os.FileInfo, worktree st
 // creates under the TMPDIR the engine gives a review run.
 var reviewGoBuildDir = regexp.MustCompile(`^go-build[0-9]+$`)
 
-// reviewGoBuildAfterContents runs after a go-build directory is emptied and
-// before its name is checked again, and reviewGoBuildBeforeRemove between
-// that check and the removal; tests use them to change the name there.
+// reviewGoBuildBeforeOpen runs after a go-build name is listed and before it
+// is opened, reviewGoBuildAfterContents after the directory is emptied and
+// before its name is checked again, and reviewGoBuildBeforeRemove between that
+// check and the removal; tests use them to change the name there.
 var (
+	reviewGoBuildBeforeOpen    = func(string) {}
 	reviewGoBuildAfterContents = func(string) {}
 	reviewGoBuildBeforeRemove  = func(string) {}
 )
@@ -607,9 +609,11 @@ var (
 // removeReviewGoBuildLeftovers removes the Go build directories a reviewer's
 // interrupted `go test` or `go build` left at the top of the run's runtime
 // directory, each under its own bounded inventory, before the runtime's own
-// inventory, which a single test binary can exceed. Only a real directory is
-// removed; a link or any other entry stays for the runtime inventory to judge
-// (spec pose-review-cleanup-removes-go-build-leftovers).
+// inventory, which a single test binary can exceed (spec
+// pose-review-cleanup-removes-go-build-leftovers). Only a real directory is
+// removed; the platform implementation opens it without blocking and only as
+// a directory, so a link, a FIFO or any other entry stays for the runtime
+// inventory to judge.
 func removeReviewGoBuildLeftovers(root *os.Root) error {
 	entries, err := fs.ReadDir(root.FS(), ".")
 	if err != nil {
@@ -619,43 +623,8 @@ func removeReviewGoBuildLeftovers(root *os.Root) error {
 		if !reviewGoBuildDir.MatchString(entry.Name()) {
 			continue
 		}
-		info, err := root.Lstat(entry.Name())
-		if err != nil || !info.IsDir() || info.Mode()&os.ModeSymlink != 0 {
-			continue
-		}
-		build, err := root.OpenRoot(entry.Name())
-		if err != nil {
-			return fmt.Errorf("runtime cleanup inventory incomplete; resources retained")
-		}
-		opened, err := build.Stat(".")
-		if err != nil || !os.SameFile(info, opened) {
-			build.Close()
-			return fmt.Errorf("runtime path changed during cleanup; replacement retained")
-		}
-		// The verified directory stays open, never reopened by its mutable
-		// name, until its removal is confirmed through it: the name must
-		// still bind it, and after the removal it must be unlinked (review
-		// rounds 1 to 3: F1, N1, N2).
-		err = removeReviewOwnedContents(build, 200000, 8<<30)
-		if err != nil {
-			build.Close()
+		if err := removeReviewGoBuildDir(root, entry.Name()); err != nil {
 			return err
-		}
-		reviewGoBuildAfterContents(entry.Name())
-		now, err := root.Lstat(entry.Name())
-		if err != nil || !os.SameFile(now, opened) {
-			build.Close()
-			return fmt.Errorf("runtime path changed during cleanup; replacement retained")
-		}
-		reviewGoBuildBeforeRemove(entry.Name())
-		removeErr := root.Remove(entry.Name())
-		after, statErr := build.Stat(".")
-		build.Close()
-		if removeErr != nil {
-			return fmt.Errorf("runtime cleanup incomplete; resources retained")
-		}
-		if statErr != nil || !os.SameFile(after, opened) || !reviewDirectoryUnlinked(after) {
-			return fmt.Errorf("runtime path changed during cleanup; replacement retained")
 		}
 	}
 	return nil

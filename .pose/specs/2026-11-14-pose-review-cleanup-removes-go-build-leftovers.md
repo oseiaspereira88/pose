@@ -58,8 +58,9 @@ Em 2026-11-14 duas revisões seguidas da spec `pose-adopt-request-shows-what-it-
 ### Artifacts
 - modified: pose-mcp/internal/pose/review_adapter_containment.go
 - modified: pose-mcp/internal/pose/review_adapter_containment_regression_test.go
-- created: pose-mcp/internal/pose/review_directory_unlinked_unix.go
-- created: pose-mcp/internal/pose/review_directory_unlinked_other.go
+- created: pose-mcp/internal/pose/review_go_build_cleanup_unix.go
+- created: pose-mcp/internal/pose/review_go_build_cleanup_other.go
+- created: pose-mcp/internal/pose/review_go_build_cleanup_unix_test.go
 - modified: .pose/indexes/validation-matrix.json
 
 ### Delivery targets
@@ -114,7 +115,7 @@ Teste de regressão sobre o fixture de limpeza de contenção existente; testes 
 ### Requirement trace
 - R1 [satisfied] test:TestAdapterCleanupRemovesGoBuildLeftovers check:review-cleanup-removes-go-build-leftovers-integration
 - R2 [satisfied] test:TestAdapterCleanupRemovesGoBuildLeftovers
-- R3 [satisfied] test:TestAdapterCleanupRefusesAReplacedGoBuildDirectory test:TestAdapterCleanupRefusesAGoBuildReplacedBeforeRemoval test:TestAdapterCleanupDoesNotBlockOnAFIFOReplacement check:release-cross-build-windows check:release-cross-build-darwin
+- R3 [satisfied] test:TestAdapterCleanupRefusesAReplacedGoBuildDirectory test:TestAdapterCleanupRefusesAGoBuildReplacedBeforeRemoval test:TestAdapterCleanupDoesNotBlockOnAFIFOReplacement test:TestAdapterCleanupDoesNotBlockOnAFIFOBeforeTheFirstOpen check:release-cross-build-windows check:release-cross-build-darwin check:release-test-compile-windows check:release-test-compile-darwin
 
 ### Known gaps
 - Nenhuma.
@@ -138,7 +139,8 @@ A limpeza de uma execução de revisão remove, com inventário limitado própri
 
 ### Follow-ups
 
-- [open] F1: abrir os diretórios da limpeza de contenção (raiz da execução, worktree, diretórios de build) de forma não bloqueante e exigindo diretório; `os.Root.OpenRoot` bloqueia se o nome for trocado por um FIFO entre a conferência e a abertura, a mesma janela em toda a limpeza, que esta spec não introduziu. (owner:@pose-maintainers crit:medium review:2026-12-13)
+- [open] F1: abrir a raiz da execução e a worktree na limpeza de contenção de forma não bloqueante e exigindo diretório; `os.Root.OpenRoot` bloqueia se o nome for trocado por um FIFO entre a conferência e a abertura. Os diretórios `go-build` desta spec já não têm essa janela. (owner:@pose-maintainers crit:medium review:2026-12-13)
+- [open] F2: os testes de `internal/cli` não compilam para Windows (`syscall.Kill` em `delegate_mcp_test.go`, e o `go vet` para no primeiro erro de cada pacote); estender `release-test-compile-windows` ao módulo inteiro quando compilarem. (owner:@pose-maintainers crit:low review:2026-12-13)
 
 ### Review
 
@@ -147,4 +149,6 @@ Rodada 1 (run rrn-11320f4eeb5bcde3, attestation rva-823ad7b9b9b0738b, changes-re
 Rodada 2 (run rrn-78b11adc9ff36dd0, attestation rva-b65df389f4e7a242, changes-requested): o F1 ficou parcial e veio 1 bloqueador, tratado. N1 entre a última conferência do nome e a remoção, o diretório ainda podia ser trocado e a remoção do substituto confirmaria a limpeza. O diretório agora fica aberto durante a remoção, e só a confirmação, pelo descritor, de que ele ficou sem nenhum link (o original removido) confirma a limpeza; uma plataforma sem contagem de links não prova e recusa. Um teste sincronizado troca o diretório entre a conferência e a remoção.
 
 Rodada 3 (run rrn-1a96cee8e24eb008): o motor recusou a conclusão porque o rascunho deu aos achados novos ids com prefixo de rodada (`R3-N1`); os dois achados foram tratados mesmo assim. N1 (alto) `syscall.Stat_t` num arquivo sem build tag não compila no Windows, alvo do release: a contagem de links passou para arquivos por plataforma (`unix` e o resto, que recusa), e a matriz ganhou os checks `release-cross-build-windows` e `release-cross-build-darwin`, cuja ausência deixou a rodada 2 passar a validação completa sem compilar para Windows. N2 a reabertura pelo nome (`root.Open`) bloqueava se o diretório fosse trocado por um FIFO: o diretório verificado fica aberto, sem reabertura, até a confirmação da remoção por ele; um teste sincronizado troca por um FIFO e exige o fim sem bloqueio. A janela entre a primeira conferência e a abertura é a da limpeza inteira (follow-up F1).
+
+Rodada 4 (run rrn-67a184e6a36ce92e, attestation rva-fed978aec59d28de, changes-requested): os achados das rodadas anteriores estão corrigidos, e vieram 2 bloqueadores, tratados. N3 o teste do FIFO usava `syscall.Mkfifo` num arquivo de teste compilado também no Windows: os testes de FIFO foram para `review_go_build_cleanup_unix_test.go`, e a matriz ganhou `release-test-compile-windows` e `release-test-compile-darwin` (`go vet`, que compila os testes). N4 a primeira abertura (`OpenRoot`) ainda bloqueava num FIFO posto entre a listagem e a abertura: no Unix a remoção do `go-build` passou a ser toda feita por descritores (`openat` com `O_DIRECTORY|O_NOFOLLOW|O_NONBLOCK` relativo ao descritor da raiz, `unlinkat` relativo ao descritor que contém a entrada, com inventário limitado), e o que não abre como diretório fica para o inventário da execução. Nas outras plataformas o `go-build` fica para esse inventário, que mantém a limpeza incompleta se exceder os limites. Um teste sincronizado troca por um FIFO antes da primeira abertura e exige o fim sem bloqueio.
 
