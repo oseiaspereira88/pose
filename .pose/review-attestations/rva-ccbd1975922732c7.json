@@ -1,0 +1,202 @@
+{
+  "run": {
+    "run_id": "rrn-af4020db38f49b20",
+    "proof_id": "rrp-17f1305550a28a343e3969ae2e19609ed28b6f78966366922039f27df50f1c2b"
+  },
+  "schema_version": 1,
+  "attestation_id": "rva-ccbd1975922732c7",
+  "bundle_id": "rvb-9c95162e7f64620f",
+  "bundle_digest": "sha256:9c95162e7f64620f7fe540aa217acd19a46634843d6eae9ea96b38ac0a140e48",
+  "reviewer": "agent:openai/gpt-6.1-sol",
+  "decision": "changes-requested",
+  "criteria": [
+    {
+      "id": "assumption-integrity",
+      "disposition": "passed",
+      "evidence": "structure:design-eb66bb51f3a30156",
+      "rationale": "Examined R1-R3, D1, HookMain and runHookRunner. Verified that root resolution is unchanged and delegation supplies the hook name and project working directory. Actual root bindings and non-recursive dispatch remain responsibilities of the instance-owned runner; the fixture does not establish those properties for a real instance. No new authority is inferred from the policy."
+    },
+    {
+      "id": "backend-concurrency",
+      "disposition": "passed",
+      "evidence": "integration:pose-mcp/go/hooks-delegate-to-the-instance-runner-integration",
+      "rationale": "The new execution path waits synchronously for one runner and introduces no shared mutable state or background goroutines. No separate cancellation interface is introduced."
+    },
+    {
+      "id": "backend-contracts",
+      "disposition": "finding",
+      "evidence": "F1"
+    },
+    {
+      "id": "backend-input-errors",
+      "disposition": "finding",
+      "evidence": "F1"
+    },
+    {
+      "id": "backend-integration-impact",
+      "disposition": "passed",
+      "evidence": "integration:pose-mcp/go/hooks-delegate-to-the-instance-runner-integration",
+      "rationale": "Reviewed invocation-name dispatch through cmd/pose/main.go, HookMain, runner execution and status reporting. Independently ran the three targeted tests and the broader hook test selection successfully."
+    },
+    {
+      "id": "backend-observability",
+      "disposition": "passed",
+      "evidence": "integration:pose-mcp/go/hooks-delegate-to-the-instance-runner-integration",
+      "rationale": "Policy errors identify the policy and offending runner or schema; launch errors identify the hook runner. Runner output is forwarded and managed-hook status identifies the delegated executable or refusal reason."
+    },
+    {
+      "id": "compatibility",
+      "disposition": "passed",
+      "evidence": "integration:pose-mcp/go/hooks-delegate-to-the-instance-runner-integration",
+      "rationale": "Examined the old and new HookMain branches. An absent policy reaches the same pre-commit check and post-merge index commands. The new policy is opt-in; no CLI verb or MCP tool was removed or migrated."
+    },
+    {
+      "id": "correctness",
+      "disposition": "finding",
+      "evidence": "F1"
+    },
+    {
+      "id": "design-causality",
+      "disposition": "passed",
+      "evidence": "structure:design-eb66bb51f3a30156",
+      "rationale": "D1 chooses an instance-owned runner because reading roots from instance configuration would alter who grants write authority. HookMain delegates before the default commands, while existing root-resolution code remains unchanged. This addresses the missing-bound-roots cause without adding root-discovery authority. The brief supplies no individual structural fact IDs requiring mappings."
+    },
+    {
+      "id": "documentation",
+      "disposition": "passed",
+      "evidence": "integration:pose-mcp/go/distributed-instructions-parity-integration",
+      "rationale": "Compared the changed hooks paragraphs in both locales and both scaffold copies. They consistently describe the optional policy, relative executable, hook-name argument, exit-code propagation and status output."
+    },
+    {
+      "id": "operability",
+      "disposition": "passed",
+      "evidence": "integration:pose-mcp/go/hooks-delegate-to-the-instance-runner-integration",
+      "rationale": "Reviewed policy refusal messages, executable validation, launch errors and managed-hook status. Reported failures provide the configuration path and actionable cause; runner failures preserve their output and exit status."
+    },
+    {
+      "id": "requirements",
+      "disposition": "finding",
+      "evidence": "F1"
+    },
+    {
+      "id": "scope",
+      "disposition": "passed",
+      "evidence": "structure:design-eb66bb51f3a30156",
+      "rationale": "Compared the supplied range with the spec artifact declarations. Runtime changes are limited to hook delegation and status, with associated tests, launch-scan registration, validation-matrix registration and documentation. No unrelated refactor or root-authority change was introduced."
+    },
+    {
+      "id": "security",
+      "disposition": "finding",
+      "evidence": "F1"
+    },
+    {
+      "id": "solution-proportionality",
+      "disposition": "passed",
+      "evidence": "structure:design-eb66bb51f3a30156",
+      "rationale": "A single optional runner path and direct argv execution are a small sufficient alternative to teaching the engine instance-specific root discovery. The implementation adds no adapter registry, shell interpolation or speculative provider abstraction. This choice would need reconsideration if the engine were required to establish the runner's root bindings itself rather than trust an instance-owned executable."
+    }
+  ],
+  "tools": [
+    {
+      "id": "artifact-check",
+      "disposition": "passed",
+      "evidence": "command:pose artifact-check --spec pose-hooks-delegate-to-the-instance-runner --strict --from aac69d14903ff1a72565d5d860a1c32fbaec489e --to d72ae83c384c9af69aeed945b48d8cac5a76daf7 --json",
+      "rationale": "Exact supplied range returned exit 0 with no non-warning findings. The unqualified invocation resolved a broader trailer-derived range, so its output was not substituted for the supplied review subject."
+    },
+    {
+      "id": "assess-design",
+      "disposition": "not-used",
+      "rationale": "Examined sealed design evidence and independently inspected D1 and the implementation. Did not rerun an assessment that may write repository state."
+    },
+    {
+      "id": "assess-discover",
+      "component": "pose-mcp",
+      "disposition": "not-used",
+      "rationale": "Repository mutation is prohibited. Reviewed the mapped component and affected paths directly without refreshing assessment state."
+    },
+    {
+      "id": "assess-integrate",
+      "disposition": "not-used",
+      "rationale": "Did not write assessment state. Reviewed the production dispatch boundary directly and used the sealed hook integration evidence plus independent targeted tests; no REST, event or MCP tool signature changed."
+    },
+    {
+      "id": "assess-tech-debt",
+      "disposition": "not-used",
+      "rationale": "Did not write assessment state. Inspected the complete changed surface; the implementation adds no TODO, FIXME, stub or panic marker."
+    },
+    {
+      "id": "closeout-check",
+      "disposition": "deferred",
+      "rationale": "Requires the completed review attestation. This task explicitly prohibits recording one, and F1 remains open."
+    },
+    {
+      "id": "review-check",
+      "disposition": "deferred",
+      "rationale": "Requires the completed review attestation, which POSE records after consuming this draft."
+    },
+    {
+      "id": "suggest-review",
+      "component": "pose-mcp",
+      "disposition": "passed",
+      "evidence": "command:pose suggest review --path pose-mcp",
+      "rationale": "Returned the review workflow and security, documentation-style and backend-go rules, which were read and applied."
+    },
+    {
+      "id": "surface-check",
+      "disposition": "passed",
+      "evidence": "integration:pose-mcp/go/hooks-delegate-to-the-instance-runner-integration",
+      "rationale": "Ran pose surface-check --spec pose-hooks-delegate-to-the-instance-runner --strict successfully: one target and zero findings. Independently inspected cmd/pose/main.go reachability through invocation-name dispatch."
+    },
+    {
+      "id": "validate",
+      "disposition": "passed",
+      "evidence": "unit:pose-mcp/go/test",
+      "rationale": "This disposition uses the sealed passing validation producer. Independently attempted pose validate --strict; the local invocation exited 1 because the read-only sandbox prevented creating Go build directories. That infrastructure failure does not constitute a successful local validation or invalidate the sealed result."
+    },
+    {
+      "id": "validate",
+      "component": "pose-mcp",
+      "disposition": "passed",
+      "evidence": "integration:pose-mcp/go/hooks-delegate-to-the-instance-runner-integration",
+      "rationale": "This disposition uses the sealed passing component validation producer. Independently attempted pose validate --strict --module pose-mcp; it exited 1 because Go could not create build directories on the read-only filesystem. The direct targeted hook tests, broader hook tests and raw-history launch tests separately passed."
+    }
+  ],
+  "evidence_refs": [
+    "F1",
+    "delegated-run:rrn-af4020db38f49b20",
+    "integration:pose-mcp/go/distributed-instructions-parity-integration",
+    "integration:pose-mcp/go/hooks-delegate-to-the-instance-runner-integration",
+    "structure:design-eb66bb51f3a30156"
+  ],
+  "findings": [
+    {
+      "id": "F1",
+      "severity": "medium",
+      "evidence": "file:pose-mcp/internal/cli/maintenance.go:1102",
+      "action": "The strict hooks-policy reader decodes one JSON value without requiring EOF. For an existing executable runner, a policy containing {\"schema_version\":1,\"runner\":\"scripts/hook.sh\"} followed by garbage or another JSON object is accepted and executes the runner. This violates the strict-policy contract and fails open on malformed configuration. Require EOF after the object and cover trailing garbage and concatenated objects with tests asserting hook failure and no runner execution. The current invalid-policy tests do not exercise these inputs.",
+      "disposition": "open"
+    }
+  ],
+  "authority": {
+    "schema_version": 1,
+    "project": "proj.pose-dist",
+    "bundle_digest": "sha256:9c95162e7f64620f7fe540aa217acd19a46634843d6eae9ea96b38ac0a140e48",
+    "principal": "agent:openai/gpt-6.1-sol",
+    "role": "agent",
+    "review_execution": "rrn-af4020db38f49b20",
+    "implementation_principal": "agent:anthropic/claude-opus-5-5",
+    "implementation_execution": "sha256:0eb880a4fc2ed87a379c949a567b1d3dfbd6b58b466f4755fcd363dd2b7fed98",
+    "issuer": "b34-local-executor",
+    "issued_at": "2026-11-15T04:55:18Z",
+    "audience": "proj.pose-dist"
+  },
+  "envelope": {
+    "issuer": "b34-local-executor",
+    "subject": "rvb-9c95162e7f64620f",
+    "algorithm": "ed25519",
+    "public_key": "ck4sApdfePV2GT+hJyAYfJd2qLzeG55P8pevGR0bvZE=",
+    "signature": "c07SFRoVyCwMC6eUxRehOO7r9Jx3uIidl4tnefY/v80NmMs/AEGHMLn0+WEcBIvQPUaTRakEgx9JeULrLvSnAg=="
+  },
+  "attested_at": "2026-11-15T04:55:18Z",
+  "path": ".pose/review-attestations/rva-ccbd1975922732c7.json"
+}
