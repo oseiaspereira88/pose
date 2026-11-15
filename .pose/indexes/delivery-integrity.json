@@ -1,7 +1,7 @@
 {
   "schema_version": 2,
-  "input_digest": "sha256:27a4afd736da21e91c4a0eaa781ae7eee93586831c927f8927674ef512cf3f2c",
-  "provenance_digest": "sha256:4838600e0c61c07f88ecade44d3ffd15d40bc965de67423d44438fa9b06c7bcc",
+  "input_digest": "sha256:90ef5e7aa2e6a4525428b57abbeb4bf791b0d217cda9bbec225f104722756f9c",
+  "provenance_digest": "sha256:2b9d288c19570c508fc2a3a33730f42d66ba29a37864cc863f11792cab79510d",
   "implied_edges": [
     "changes"
   ],
@@ -43253,6 +43253,14 @@
       }
     },
     {
+      "id": "change-set:cs-260e8824960d",
+      "type": "change-set",
+      "attributes": {
+        "diff_digest": "sha256:060ac31ea0a3fbe2f16436d5b63cc54e3e97204782532e7639c7462590a81a57",
+        "selector": "trailers:pose-strict-json-readers-require-the-end"
+      }
+    },
+    {
       "id": "change-set:cs-262180ce23d8",
       "type": "change-set",
       "attributes": {
@@ -44066,14 +44074,6 @@
       "attributes": {
         "diff_digest": "sha256:e378a0f966fa70c88a19167a830ff30079c7d567b16e80aef897c064ba3d06e6",
         "selector": "range:e3cc340..d92deaa"
-      }
-    },
-    {
-      "id": "change-set:cs-5177b518e921",
-      "type": "change-set",
-      "attributes": {
-        "diff_digest": "sha256:b61eb7a258ea172f5b520a89b35972a08cc237742ec524377ee0546d58c41643",
-        "selector": "trailers:pose-strict-json-readers-require-the-end"
       }
     },
     {
@@ -131644,7 +131644,7 @@
     },
     {
       "from": "spec:pose-strict-json-readers-require-the-end",
-      "to": "change-set:cs-5177b518e921",
+      "to": "change-set:cs-260e8824960d",
       "type": "observed-by"
     },
     {
@@ -190878,6 +190878,161 @@
       }
     },
     {
+      "id": "cs-260e8824960d",
+      "spec": "pose-strict-json-readers-require-the-end",
+      "selector": "trailers:pose-strict-json-readers-require-the-end",
+      "base": "2bc5012225a91d09dddad38a01f03af79381976f^",
+      "head": "7f14be4f49316e34a5f19e6d50ba1c5a130a3d92",
+      "resolved_base": "6ea5394b3788f84b67a51fab99f5ed45719b77ed",
+      "resolved_head": "7f14be4f49316e34a5f19e6d50ba1c5a130a3d92",
+      "commits": [
+        "2bc5012225a91d09dddad38a01f03af79381976f",
+        "6ff0b5203aafd8587ae5c9722e2b859786bd36de",
+        "e2f9ccabe7b85a3706efa2eb92c913b6ec0f8e86",
+        "faadf40c5606d3f27d8146cf9939469de34d215b",
+        "9f2878a7ebbf19751dfe7a802f398312e12528fe",
+        "bcf51113728e99ff87971b18e5bf0eebf8c1ecd8",
+        "db332ba17e7497f42abb2d847c2a3c3963fec6ee",
+        "e73b2404954cf32aae45a734819c6c3d2a2cc5b1",
+        "f1f35036e2a982288a0e3f024fe241fbd5eb5274",
+        "ebc5d0dfa5536980e994a624ae4588a8580353f2",
+        "7f14be4f49316e34a5f19e6d50ba1c5a130a3d92"
+      ],
+      "paths": [
+        {
+          "action": "created",
+          "path": ".pose/closeout-plans/spec-pose-strict-json-readers-require-the-end.json"
+        },
+        {
+          "action": "created",
+          "path": ".pose/review-attempts/6a2b6bb1a3d74d3cae368289/000001.json"
+        },
+        {
+          "action": "created",
+          "path": ".pose/review-attempts/6a2b6bb1a3d74d3cae368289/000001.result.json"
+        },
+        {
+          "action": "created",
+          "path": ".pose/review-attestations/rva-0757736fb2ddb7e1.json"
+        },
+        {
+          "action": "created",
+          "path": ".pose/review-bundles/rvb-86557565efa7bcaf.json"
+        },
+        {
+          "action": "created",
+          "path": ".pose/review-conclusions/rrn-964929504dce2647.json"
+        },
+        {
+          "action": "created",
+          "path": ".pose/review-run-ledger/rrn-964929504dce2647.json"
+        },
+        {
+          "action": "created",
+          "path": ".pose/review-run-proofs/rrn-964929504dce2647/rrp-42176e21f93169563f41fb6992e04405e795324cc23b512897704b4a41761d77.json"
+        },
+        {
+          "action": "created",
+          "path": ".pose/review-runs/rrn-964929504dce2647.events.ndjson"
+        },
+        {
+          "action": "created",
+          "path": ".pose/review-runs/rrn-964929504dce2647.json"
+        },
+        {
+          "action": "created",
+          "path": ".pose/review-runs/rrn-964929504dce2647.transcript"
+        },
+        {
+          "action": "created",
+          "path": ".pose/specs/2026-11-15-pose-strict-json-readers-require-the-end.md"
+        },
+        {
+          "action": "created",
+          "path": ".pose/starts/pose-strict-json-readers-require-the-end.json"
+        },
+        {
+          "action": "created",
+          "path": "pose-mcp/internal/pose/strict_json.go"
+        },
+        {
+          "action": "created",
+          "path": "pose-mcp/internal/pose/strict_json_test.go"
+        },
+        {
+          "action": "modified",
+          "path": ".pose/indexes/delivery-integrity.json"
+        },
+        {
+          "action": "modified",
+          "path": ".pose/indexes/generation.json"
+        },
+        {
+          "action": "modified",
+          "path": ".pose/indexes/spec-graph.json"
+        },
+        {
+          "action": "modified",
+          "path": ".pose/indexes/validation-matrix.json"
+        },
+        {
+          "action": "modified",
+          "path": ".pose/results/delivery-validation.json"
+        },
+        {
+          "action": "modified",
+          "path": "pose-mcp/internal/cli/delegated_review_request_test.go"
+        },
+        {
+          "action": "modified",
+          "path": "pose-mcp/internal/cli/maintenance.go"
+        },
+        {
+          "action": "modified",
+          "path": "pose-mcp/internal/cli/release_lifecycle.go"
+        },
+        {
+          "action": "modified",
+          "path": "pose-mcp/internal/cli/release_review_regression_test.go"
+        },
+        {
+          "action": "modified",
+          "path": "pose-mcp/internal/cli/review_request.go"
+        }
+      ],
+      "diff_digest": "sha256:060ac31ea0a3fbe2f16436d5b63cc54e3e97204782532e7639c7462590a81a57",
+      "material_digest": "sha256:8de352bc6f77f886bdd1b426d344fb3e9d18af2a48d92fe399599cee716bd2dd",
+      "material_inputs": {
+        "names": [
+          ".pose/closeout-plans/spec-pose-strict-json-readers-require-the-end.json",
+          ".pose/indexes/delivery-integrity.json",
+          ".pose/indexes/generation.json",
+          ".pose/indexes/spec-graph.json",
+          ".pose/indexes/validation-matrix.json",
+          ".pose/results/delivery-validation.json",
+          ".pose/review-attempts/6a2b6bb1a3d74d3cae368289/000001.json",
+          ".pose/review-attempts/6a2b6bb1a3d74d3cae368289/000001.result.json",
+          ".pose/review-attestations/rva-0757736fb2ddb7e1.json",
+          ".pose/review-bundles/rvb-86557565efa7bcaf.json",
+          ".pose/review-conclusions/rrn-964929504dce2647.json",
+          ".pose/review-run-ledger/rrn-964929504dce2647.json",
+          ".pose/review-run-proofs/rrn-964929504dce2647/rrp-42176e21f93169563f41fb6992e04405e795324cc23b512897704b4a41761d77.json",
+          ".pose/review-runs/rrn-964929504dce2647.events.ndjson",
+          ".pose/review-runs/rrn-964929504dce2647.json",
+          ".pose/review-runs/rrn-964929504dce2647.transcript",
+          ".pose/specs/2026-11-15-pose-strict-json-readers-require-the-end.md",
+          ".pose/starts/pose-strict-json-readers-require-the-end.json",
+          "pose-mcp/internal/cli/delegated_review_request_test.go",
+          "pose-mcp/internal/cli/maintenance.go",
+          "pose-mcp/internal/cli/release_lifecycle.go",
+          "pose-mcp/internal/cli/release_review_regression_test.go",
+          "pose-mcp/internal/cli/review_request.go",
+          "pose-mcp/internal/pose/strict_json.go",
+          "pose-mcp/internal/pose/strict_json_test.go"
+        ]
+      }
+    },
+    {
       "id": "cs-262180ce23d8",
       "spec": "pose-validation-check-additions-are-not-material",
       "selector": "trailers:pose-validation-check-additions-are-not-material",
@@ -213614,160 +213769,6 @@
         }
       ],
       "diff_digest": "sha256:e378a0f966fa70c88a19167a830ff30079c7d567b16e80aef897c064ba3d06e6"
-    },
-    {
-      "id": "cs-5177b518e921",
-      "spec": "pose-strict-json-readers-require-the-end",
-      "selector": "trailers:pose-strict-json-readers-require-the-end",
-      "base": "2bc5012225a91d09dddad38a01f03af79381976f^",
-      "head": "ebc5d0dfa5536980e994a624ae4588a8580353f2",
-      "resolved_base": "6ea5394b3788f84b67a51fab99f5ed45719b77ed",
-      "resolved_head": "ebc5d0dfa5536980e994a624ae4588a8580353f2",
-      "commits": [
-        "2bc5012225a91d09dddad38a01f03af79381976f",
-        "6ff0b5203aafd8587ae5c9722e2b859786bd36de",
-        "e2f9ccabe7b85a3706efa2eb92c913b6ec0f8e86",
-        "faadf40c5606d3f27d8146cf9939469de34d215b",
-        "9f2878a7ebbf19751dfe7a802f398312e12528fe",
-        "bcf51113728e99ff87971b18e5bf0eebf8c1ecd8",
-        "db332ba17e7497f42abb2d847c2a3c3963fec6ee",
-        "e73b2404954cf32aae45a734819c6c3d2a2cc5b1",
-        "f1f35036e2a982288a0e3f024fe241fbd5eb5274",
-        "ebc5d0dfa5536980e994a624ae4588a8580353f2"
-      ],
-      "paths": [
-        {
-          "action": "created",
-          "path": ".pose/closeout-plans/spec-pose-strict-json-readers-require-the-end.json"
-        },
-        {
-          "action": "created",
-          "path": ".pose/review-attempts/6a2b6bb1a3d74d3cae368289/000001.json"
-        },
-        {
-          "action": "created",
-          "path": ".pose/review-attempts/6a2b6bb1a3d74d3cae368289/000001.result.json"
-        },
-        {
-          "action": "created",
-          "path": ".pose/review-attestations/rva-0757736fb2ddb7e1.json"
-        },
-        {
-          "action": "created",
-          "path": ".pose/review-bundles/rvb-86557565efa7bcaf.json"
-        },
-        {
-          "action": "created",
-          "path": ".pose/review-conclusions/rrn-964929504dce2647.json"
-        },
-        {
-          "action": "created",
-          "path": ".pose/review-run-ledger/rrn-964929504dce2647.json"
-        },
-        {
-          "action": "created",
-          "path": ".pose/review-run-proofs/rrn-964929504dce2647/rrp-42176e21f93169563f41fb6992e04405e795324cc23b512897704b4a41761d77.json"
-        },
-        {
-          "action": "created",
-          "path": ".pose/review-runs/rrn-964929504dce2647.events.ndjson"
-        },
-        {
-          "action": "created",
-          "path": ".pose/review-runs/rrn-964929504dce2647.json"
-        },
-        {
-          "action": "created",
-          "path": ".pose/review-runs/rrn-964929504dce2647.transcript"
-        },
-        {
-          "action": "created",
-          "path": ".pose/specs/2026-11-15-pose-strict-json-readers-require-the-end.md"
-        },
-        {
-          "action": "created",
-          "path": ".pose/starts/pose-strict-json-readers-require-the-end.json"
-        },
-        {
-          "action": "created",
-          "path": "pose-mcp/internal/pose/strict_json.go"
-        },
-        {
-          "action": "created",
-          "path": "pose-mcp/internal/pose/strict_json_test.go"
-        },
-        {
-          "action": "modified",
-          "path": ".pose/indexes/delivery-integrity.json"
-        },
-        {
-          "action": "modified",
-          "path": ".pose/indexes/generation.json"
-        },
-        {
-          "action": "modified",
-          "path": ".pose/indexes/spec-graph.json"
-        },
-        {
-          "action": "modified",
-          "path": ".pose/indexes/validation-matrix.json"
-        },
-        {
-          "action": "modified",
-          "path": ".pose/results/delivery-validation.json"
-        },
-        {
-          "action": "modified",
-          "path": "pose-mcp/internal/cli/delegated_review_request_test.go"
-        },
-        {
-          "action": "modified",
-          "path": "pose-mcp/internal/cli/maintenance.go"
-        },
-        {
-          "action": "modified",
-          "path": "pose-mcp/internal/cli/release_lifecycle.go"
-        },
-        {
-          "action": "modified",
-          "path": "pose-mcp/internal/cli/release_review_regression_test.go"
-        },
-        {
-          "action": "modified",
-          "path": "pose-mcp/internal/cli/review_request.go"
-        }
-      ],
-      "diff_digest": "sha256:b61eb7a258ea172f5b520a89b35972a08cc237742ec524377ee0546d58c41643",
-      "material_digest": "sha256:8de352bc6f77f886bdd1b426d344fb3e9d18af2a48d92fe399599cee716bd2dd",
-      "material_inputs": {
-        "names": [
-          ".pose/closeout-plans/spec-pose-strict-json-readers-require-the-end.json",
-          ".pose/indexes/delivery-integrity.json",
-          ".pose/indexes/generation.json",
-          ".pose/indexes/spec-graph.json",
-          ".pose/indexes/validation-matrix.json",
-          ".pose/results/delivery-validation.json",
-          ".pose/review-attempts/6a2b6bb1a3d74d3cae368289/000001.json",
-          ".pose/review-attempts/6a2b6bb1a3d74d3cae368289/000001.result.json",
-          ".pose/review-attestations/rva-0757736fb2ddb7e1.json",
-          ".pose/review-bundles/rvb-86557565efa7bcaf.json",
-          ".pose/review-conclusions/rrn-964929504dce2647.json",
-          ".pose/review-run-ledger/rrn-964929504dce2647.json",
-          ".pose/review-run-proofs/rrn-964929504dce2647/rrp-42176e21f93169563f41fb6992e04405e795324cc23b512897704b4a41761d77.json",
-          ".pose/review-runs/rrn-964929504dce2647.events.ndjson",
-          ".pose/review-runs/rrn-964929504dce2647.json",
-          ".pose/review-runs/rrn-964929504dce2647.transcript",
-          ".pose/specs/2026-11-15-pose-strict-json-readers-require-the-end.md",
-          ".pose/starts/pose-strict-json-readers-require-the-end.json",
-          "pose-mcp/internal/cli/delegated_review_request_test.go",
-          "pose-mcp/internal/cli/maintenance.go",
-          "pose-mcp/internal/cli/release_lifecycle.go",
-          "pose-mcp/internal/cli/release_review_regression_test.go",
-          "pose-mcp/internal/cli/review_request.go",
-          "pose-mcp/internal/pose/strict_json.go",
-          "pose-mcp/internal/pose/strict_json_test.go"
-        ]
-      }
     },
     {
       "id": "cs-52335c30cc79",
