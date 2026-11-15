@@ -1,7 +1,7 @@
 {
   "schema_version": 2,
-  "input_digest": "sha256:bd4df77766e773882c7cf1fcd7810153d5b8394fd28c92683b8c5dd85e95b192",
-  "provenance_digest": "sha256:18ecfd99df6688f988645613290ce45e78c1a519edd7c1b7ea07eabff076576f",
+  "input_digest": "sha256:35a7ce7146ed7c80cde6e69332621ef3aae0c8ecc728d00fe57963eeafffc4b7",
+  "provenance_digest": "sha256:f95ae962039dcb4ba05fbecc7bb3063f7764df75f03a441feaa9803e224632f7",
   "implied_edges": [
     "changes"
   ],
@@ -44485,6 +44485,14 @@
       }
     },
     {
+      "id": "change-set:cs-5e956ac22eed",
+      "type": "change-set",
+      "attributes": {
+        "diff_digest": "sha256:30805292336d1f2ec58d590212ad68c91e5a260fb90767d2e10e12215798f498",
+        "selector": "trailers:pose-federated-proof-reads-each-input-once"
+      }
+    },
+    {
       "id": "change-set:cs-5edd71de4dea",
       "type": "change-set",
       "attributes": {
@@ -46138,14 +46146,6 @@
       "attributes": {
         "diff_digest": "sha256:b52fb2a8de700f112398bccbaf3059be03a1bcd6b5db4436ba7c7ef4f550d2f7",
         "selector": "trailers:pose-delegated-review-contract"
-      }
-    },
-    {
-      "id": "change-set:cs-bd8a4a2984ba",
-      "type": "change-set",
-      "attributes": {
-        "diff_digest": "sha256:a23caf5253ef36840f773ed0fb097869197ed72a2e832bfc6e81f61dc66d04cb",
-        "selector": "trailers:pose-federated-proof-reads-each-input-once"
       }
     },
     {
@@ -115945,7 +115945,7 @@
     },
     {
       "from": "spec:pose-federated-proof-reads-each-input-once",
-      "to": "change-set:cs-bd8a4a2984ba",
+      "to": "change-set:cs-5e956ac22eed",
       "type": "observed-by"
     },
     {
@@ -220232,6 +220232,98 @@
       }
     },
     {
+      "id": "cs-5e956ac22eed",
+      "spec": "pose-federated-proof-reads-each-input-once",
+      "selector": "trailers:pose-federated-proof-reads-each-input-once",
+      "base": "cb8088db7661d6318ff9d25c9e6fce0b0f96bb73^",
+      "head": "eafb46dd1624f8a724894ccf547fe765256eb3ed",
+      "resolved_base": "bf2ff02c31752a3343b0200fa62b27c220ce2453",
+      "resolved_head": "eafb46dd1624f8a724894ccf547fe765256eb3ed",
+      "commits": [
+        "cb8088db7661d6318ff9d25c9e6fce0b0f96bb73",
+        "0a264a037b4d15e7bafc65c73b06313ce395a812",
+        "eafb46dd1624f8a724894ccf547fe765256eb3ed"
+      ],
+      "paths": [
+        {
+          "action": "created",
+          "path": ".pose/specs/2026-11-15-pose-federated-proof-reads-each-input-once.md"
+        },
+        {
+          "action": "created",
+          "path": ".pose/starts/pose-federated-proof-reads-each-input-once.json"
+        },
+        {
+          "action": "created",
+          "path": "pose-mcp/internal/pose/current_material_cache_test.go"
+        },
+        {
+          "action": "created",
+          "path": "pose-mcp/internal/pose/release_snapshot_cache_test.go"
+        },
+        {
+          "action": "created",
+          "path": "pose-mcp/internal/pose/review_bundle_header_cache_test.go"
+        },
+        {
+          "action": "modified",
+          "path": ".pose/indexes/delivery-integrity.json"
+        },
+        {
+          "action": "modified",
+          "path": ".pose/indexes/generation.json"
+        },
+        {
+          "action": "modified",
+          "path": ".pose/indexes/spec-graph.json"
+        },
+        {
+          "action": "modified",
+          "path": ".pose/indexes/validation-matrix.json"
+        },
+        {
+          "action": "modified",
+          "path": "pose-mcp/internal/cli/material_engine.go"
+        },
+        {
+          "action": "modified",
+          "path": "pose-mcp/internal/pose/material_binding.go"
+        },
+        {
+          "action": "modified",
+          "path": "pose-mcp/internal/pose/release_archive.go"
+        },
+        {
+          "action": "modified",
+          "path": "pose-mcp/internal/pose/release_manifest_integrity.go"
+        },
+        {
+          "action": "modified",
+          "path": "pose-mcp/internal/pose/review_operation_view.go"
+        }
+      ],
+      "diff_digest": "sha256:30805292336d1f2ec58d590212ad68c91e5a260fb90767d2e10e12215798f498",
+      "material_digest": "sha256:71f5a0ae29e3b357bcac7c67210c1010e1b360df2d2b47e44a7e01291f0d0f62",
+      "material_inputs": {
+        "names": [
+          ".pose/indexes/delivery-integrity.json",
+          ".pose/indexes/generation.json",
+          ".pose/indexes/spec-graph.json",
+          ".pose/indexes/validation-matrix.json",
+          ".pose/specs/2026-11-15-pose-federated-proof-reads-each-input-once.md",
+          ".pose/starts/pose-federated-proof-reads-each-input-once.json",
+          "pose-mcp/internal/cli/material_engine.go",
+          "pose-mcp/internal/pose/current_material_cache_test.go",
+          "pose-mcp/internal/pose/material_binding.go",
+          "pose-mcp/internal/pose/release_archive.go",
+          "pose-mcp/internal/pose/release_manifest_integrity.go",
+          "pose-mcp/internal/pose/release_snapshot_cache_test.go",
+          "pose-mcp/internal/pose/review_bundle_header_cache_test.go",
+          "pose-mcp/internal/pose/review_operation_view.go"
+        ]
+      }
+    },
+    {
       "id": "cs-5edd71de4dea",
       "spec": "pose-sbom-negative-coverage",
       "selector": "trailers:pose-sbom-negative-coverage",
@@ -260195,82 +260287,6 @@
           ".pose/specs/2026-10-09-pose-delegated-review-contract.md",
           ".pose/specs/2026-10-09-pose-delegated-review-dispatch.md",
           ".pose/starts/pose-delegated-review-contract.json"
-        ]
-      }
-    },
-    {
-      "id": "cs-bd8a4a2984ba",
-      "spec": "pose-federated-proof-reads-each-input-once",
-      "selector": "trailers:pose-federated-proof-reads-each-input-once",
-      "base": "cb8088db7661d6318ff9d25c9e6fce0b0f96bb73^",
-      "head": "0a264a037b4d15e7bafc65c73b06313ce395a812",
-      "resolved_base": "bf2ff02c31752a3343b0200fa62b27c220ce2453",
-      "resolved_head": "0a264a037b4d15e7bafc65c73b06313ce395a812",
-      "commits": [
-        "cb8088db7661d6318ff9d25c9e6fce0b0f96bb73",
-        "0a264a037b4d15e7bafc65c73b06313ce395a812"
-      ],
-      "paths": [
-        {
-          "action": "created",
-          "path": ".pose/specs/2026-11-15-pose-federated-proof-reads-each-input-once.md"
-        },
-        {
-          "action": "created",
-          "path": ".pose/starts/pose-federated-proof-reads-each-input-once.json"
-        },
-        {
-          "action": "created",
-          "path": "pose-mcp/internal/pose/current_material_cache_test.go"
-        },
-        {
-          "action": "created",
-          "path": "pose-mcp/internal/pose/release_snapshot_cache_test.go"
-        },
-        {
-          "action": "created",
-          "path": "pose-mcp/internal/pose/review_bundle_header_cache_test.go"
-        },
-        {
-          "action": "modified",
-          "path": ".pose/indexes/validation-matrix.json"
-        },
-        {
-          "action": "modified",
-          "path": "pose-mcp/internal/cli/material_engine.go"
-        },
-        {
-          "action": "modified",
-          "path": "pose-mcp/internal/pose/material_binding.go"
-        },
-        {
-          "action": "modified",
-          "path": "pose-mcp/internal/pose/release_archive.go"
-        },
-        {
-          "action": "modified",
-          "path": "pose-mcp/internal/pose/release_manifest_integrity.go"
-        },
-        {
-          "action": "modified",
-          "path": "pose-mcp/internal/pose/review_operation_view.go"
-        }
-      ],
-      "diff_digest": "sha256:a23caf5253ef36840f773ed0fb097869197ed72a2e832bfc6e81f61dc66d04cb",
-      "material_digest": "sha256:71f5a0ae29e3b357bcac7c67210c1010e1b360df2d2b47e44a7e01291f0d0f62",
-      "material_inputs": {
-        "names": [
-          ".pose/indexes/validation-matrix.json",
-          ".pose/specs/2026-11-15-pose-federated-proof-reads-each-input-once.md",
-          ".pose/starts/pose-federated-proof-reads-each-input-once.json",
-          "pose-mcp/internal/cli/material_engine.go",
-          "pose-mcp/internal/pose/current_material_cache_test.go",
-          "pose-mcp/internal/pose/material_binding.go",
-          "pose-mcp/internal/pose/release_archive.go",
-          "pose-mcp/internal/pose/release_manifest_integrity.go",
-          "pose-mcp/internal/pose/release_snapshot_cache_test.go",
-          "pose-mcp/internal/pose/review_bundle_header_cache_test.go",
-          "pose-mcp/internal/pose/review_operation_view.go"
         ]
       }
     },
