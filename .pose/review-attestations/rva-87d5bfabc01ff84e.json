@@ -1,0 +1,220 @@
+{
+  "run": {
+    "run_id": "rrn-a37f896b2e3bf62f",
+    "proof_id": "rrp-15a31b0938b1da206309045b9ddf3e9da649991599285ad776626885bc14ecde"
+  },
+  "schema_version": 1,
+  "attestation_id": "rva-87d5bfabc01ff84e",
+  "bundle_id": "rvb-f53880462209d2b9",
+  "bundle_digest": "sha256:f53880462209d2b9d1d2f7a62f6cf69dd298376f06d447994c1c5f9a73271064",
+  "reviewer": "agent:openai/gpt-6.1-sol",
+  "decision": "changes-requested",
+  "criteria": [
+    {
+      "id": "assumption-integrity",
+      "disposition": "passed",
+      "evidence": "integration:pose-mcp/go/federated-proof-reads-each-input-once-integration",
+      "rationale": "Examined content-addressed keys, fresh ref resolution, shallow eligibility, copy ownership, and retry assumptions. Verified ordinary reuse and failure rejection with code and targeted tests. The harne8 timing and byte equality remain implementer measurements, not independently repeated facts. Remaining coordination assumptions are explicitly rejected in N1 and N2; the spec's separate check-performance follow-up remains outside this scope."
+    },
+    {
+      "id": "backend-concurrency",
+      "disposition": "finding",
+      "evidence": "N2"
+    },
+    {
+      "id": "backend-contracts",
+      "disposition": "passed",
+      "evidence": "integration:pose-mcp/go/cli-mcp-operation-results-integration",
+      "rationale": "Inspected unchanged public CLI, MCP, and persisted schemas. Cache changes remain internal; returned snapshot data is copied and error contracts are preserved."
+    },
+    {
+      "id": "backend-input-errors",
+      "disposition": "passed",
+      "evidence": "integration:pose-mcp/go/federated-proof-reads-each-input-once-integration",
+      "rationale": "Invalid tags, missing manifests, unreadable material, snapshot gaps, and failed peels remain rejected or retryable. Targeted negative tests passed."
+    },
+    {
+      "id": "backend-integration-impact",
+      "disposition": "passed",
+      "evidence": "integration:pose-mcp/go/federated-proof-reads-each-input-once-integration",
+      "rationale": "Inspected CLI hook registration, graph material recomputation, archive loading, release snapshot consumers, and review-header consumers. Production composition remains connected."
+    },
+    {
+      "id": "backend-observability",
+      "disposition": "passed",
+      "evidence": "integration:pose-mcp/go/typed-diagnostics-integration",
+      "rationale": "Inspected retained error context and source-loss attribution. Git failures and snapshot gaps remain diagnosable, and cached bundle losses receive the current file's artifact path."
+    },
+    {
+      "id": "compatibility",
+      "disposition": "passed",
+      "evidence": "integration:pose-mcp/go/federated-proof-reads-each-input-once-integration",
+      "rationale": "Compared changed readers and their callers. No public schema or command migration is introduced; fresh refs, tag annotation state, snapshot copies, and per-file losses preserve observable result contracts."
+    },
+    {
+      "id": "correctness",
+      "disposition": "finding",
+      "evidence": "N1"
+    },
+    {
+      "id": "design-causality",
+      "disposition": "passed",
+      "evidence": "structure:design-076c47327a9b352c",
+      "rationale": "Mapped the four caches to R1-R4 and the measured bottlenecks documented in D1. Reading mutable refs afresh while retaining content-derived work addresses repeated Git reads and JSON parsing. Bounds address R5 and a shared coordination helper targets R6, with its remaining implementation defects reported separately. The brief lists no individual structural delta facts requiring mappings."
+    },
+    {
+      "id": "documentation",
+      "disposition": "passed",
+      "evidence": "integration:pose-mcp/go/federated-proof-reads-each-input-once-integration",
+      "rationale": "Compared the spec, review remediation notes, runtime comments, and validation-matrix command. Scope and non-goals are explicit, the spec remains in-progress, and the required regression command includes the new tests."
+    },
+    {
+      "id": "operability",
+      "disposition": "passed",
+      "evidence": "integration:pose-mcp/go/typed-diagnostics-integration",
+      "rationale": "Examined failed-read behavior and returned context. Failures remain actionable and retryable rather than becoming permanent cached failures. No new configuration or operational migration is required."
+    },
+    {
+      "id": "requirements",
+      "disposition": "finding",
+      "evidence": "N1"
+    },
+    {
+      "id": "scope",
+      "disposition": "passed",
+      "evidence": "integration:pose-mcp/go/federated-proof-reads-each-input-once-integration",
+      "rationale": "Compared the complete implementation diff with declared artifacts and R1-R6. The helper, cache changes, regression tests, and validation registration serve the approved scope; deferred per-scope federated recomputation was not introduced."
+    },
+    {
+      "id": "security",
+      "disposition": "passed",
+      "evidence": "integration:pose-mcp/go/history-readers-read-raw-integration",
+      "rationale": "Inspected cache identity, fresh ref reads, raw-history Git execution, path validation, snapshot ownership, and loss copying. No new authority source, command interpolation, credential handling, or shared mutable reader result was introduced."
+    },
+    {
+      "id": "solution-proportionality",
+      "disposition": "passed",
+      "evidence": "structure:design-076c47327a9b352c",
+      "rationale": "Compared bounded process-local caches with repeated reads and a broader persistent cache. The selected design avoids persistence and invalidation machinery, reuses one small helper, and leaves per-scope check recomputation outside scope. Its suitability depends on immutable content inputs and fresh refs; mutable inputs or required cross-process reuse would invalidate that choice. N1 and N2 require local helper corrections."
+    }
+  ],
+  "tools": [
+    {
+      "id": "artifact-check",
+      "disposition": "passed",
+      "evidence": "command:pose artifact-check --spec pose-federated-proof-reads-each-input-once --strict",
+      "rationale": "Completed with exit 0. Reported orphan warnings and a trailer-derived range ending at c7102e271de7b2e59fe9cabcc950bb87ac5df001, wider than the sealed subject. Scope conclusions therefore also use direct inspection of the brief's exact range."
+    },
+    {
+      "id": "assess-design",
+      "disposition": "not-used",
+      "evidence": "structure:design-076c47327a9b352c",
+      "rationale": "Used the supplied sealed design evidence and inspected the structure directly; did not regenerate assessment artifacts in the read-only review."
+    },
+    {
+      "id": "assess-discover",
+      "component": "pose-mcp",
+      "disposition": "not-used",
+      "evidence": "command:pose suggest review --path pose-mcp",
+      "rationale": "Did not run discovery because assessment regeneration can write repository artifacts; reviewed the affected component directly."
+    },
+    {
+      "id": "assess-integrate",
+      "disposition": "not-used",
+      "evidence": "integration:pose-mcp/go/federated-proof-reads-each-input-once-integration",
+      "rationale": "Used sealed integration evidence and inspected producer-consumer call sites without regenerating assessment state."
+    },
+    {
+      "id": "assess-tech-debt",
+      "disposition": "not-used",
+      "evidence": "command:rg -n 'TODO|FIXME|stub|panic\\(' pose-mcp/internal/pose/{kept_cache.go,material_binding.go,release_manifest_integrity.go,release_archive.go,review_operation_view.go} pose-mcp/internal/cli/material_engine.go",
+      "rationale": "Did not regenerate assessment state. Direct marker search found no matches in the changed runtime files; inspected the spec's existing follow-up separately."
+    },
+    {
+      "id": "closeout-check",
+      "disposition": "deferred",
+      "evidence": "command:pose closeout-check spec:pose-federated-proof-reads-each-input-once",
+      "rationale": "Completion check is deferred until POSE records and verifies the review conclusion; this review requests changes."
+    },
+    {
+      "id": "review-check",
+      "disposition": "deferred",
+      "evidence": "command:pose review-check spec:pose-federated-proof-reads-each-input-once",
+      "rationale": "Deferred until POSE records the conclusion. No attestation was written by this reviewer."
+    },
+    {
+      "id": "suggest-review",
+      "component": "pose-mcp",
+      "disposition": "passed",
+      "evidence": "command:pose suggest review --path pose-mcp",
+      "rationale": "Resolved the backend-go review trail and applied its security, documentation-style, and backend-go rules."
+    },
+    {
+      "id": "surface-check",
+      "disposition": "passed",
+      "evidence": "integration:pose-mcp/go/federated-proof-reads-each-input-once-integration",
+      "rationale": "Ran pose surface-check --spec pose-federated-proof-reads-each-input-once --strict: exit 0, one target, 225 results, zero findings. Inspected production composition directly."
+    },
+    {
+      "id": "validate",
+      "disposition": "passed",
+      "evidence": "unit:pose-mcp/go/test",
+      "rationale": "Disposition uses the supplied sealed strict-validation producer, not a local rerun. Local targeted cache tests and their race run also passed; full validation was not regenerated in the read-only sandbox."
+    },
+    {
+      "id": "validate",
+      "component": "pose-mcp",
+      "disposition": "passed",
+      "evidence": "integration:pose-mcp/go/federated-proof-reads-each-input-once-integration",
+      "rationale": "Disposition uses the supplied sealed component validation. Independently ran the targeted cache regression suite, its -race variant, and shallow-checkout CLI tests successfully. These tests do not cover N1 or N2."
+    }
+  ],
+  "evidence_refs": [
+    "N1",
+    "N2",
+    "delegated-run:rrn-a37f896b2e3bf62f",
+    "integration:pose-mcp/go/cli-mcp-operation-results-integration",
+    "integration:pose-mcp/go/federated-proof-reads-each-input-once-integration",
+    "integration:pose-mcp/go/history-readers-read-raw-integration",
+    "integration:pose-mcp/go/typed-diagnostics-integration",
+    "structure:design-076c47327a9b352c"
+  ],
+  "findings": [
+    {
+      "id": "N1",
+      "severity": "medium",
+      "evidence": "file:pose-mcp/internal/pose/kept_cache.go:37",
+      "action": "After an initial computation declines retention, every waiting caller invokes compute directly and discards its keep flag. If the read recovers, these callers can duplicate successful work concurrently, none publishes its success, and the next caller computes the same successful input again without any eviction. This leaves R1/R2/R3 and R6 unsatisfied. Retry through coordinated cache acquisition so a recovered success is published and shared; cover concurrent failure followed by recovery.",
+      "disposition": "open"
+    },
+    {
+      "id": "N2",
+      "severity": "medium",
+      "evidence": "file:pose-mcp/internal/pose/kept_cache.go:41",
+      "action": "Capacity eviction replaces the entire entries map, including computations whose ready channels have not closed. For example, with bound 1, block computation A, request B to clear the map, then request A again: the second A computes while the original A is still running. All four production caches inherit this violation of R6 at capacity. Preserve in-flight coordination independently of retained-value eviction and cover a capacity crossing while a key is pending.",
+      "disposition": "open"
+    }
+  ],
+  "authority": {
+    "schema_version": 1,
+    "project": "proj.pose-dist",
+    "bundle_digest": "sha256:f53880462209d2b9d1d2f7a62f6cf69dd298376f06d447994c1c5f9a73271064",
+    "principal": "agent:openai/gpt-6.1-sol",
+    "role": "agent",
+    "review_execution": "rrn-a37f896b2e3bf62f",
+    "implementation_principal": "agent:anthropic/claude-opus-5-5",
+    "implementation_execution": "sha256:0eb880a4fc2ed87a379c949a567b1d3dfbd6b58b466f4755fcd363dd2b7fed98",
+    "issuer": "b34-local-executor",
+    "issued_at": "2026-11-15T15:31:26Z",
+    "audience": "proj.pose-dist"
+  },
+  "envelope": {
+    "issuer": "b34-local-executor",
+    "subject": "rvb-f53880462209d2b9",
+    "algorithm": "ed25519",
+    "public_key": "ck4sApdfePV2GT+hJyAYfJd2qLzeG55P8pevGR0bvZE=",
+    "signature": "tXCHvKMs6m9x5Nf5N/hAut5ki0FPSm5KbsPuH5LZAPKImPgdQw2hcJHhX1px0qpiV0g/W53PKotQe612FAUCDQ=="
+  },
+  "attested_at": "2026-11-15T15:31:26Z",
+  "path": ".pose/review-attestations/rva-87d5bfabc01ff84e.json"
+}

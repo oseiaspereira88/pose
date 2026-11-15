@@ -1,0 +1,142 @@
+{
+  "safety": {
+    "schema_version": 1,
+    "profile": "legacy-trusted",
+    "platform": "linux/amd64",
+    "capabilities": {
+      "automatic-expiry": "unavailable",
+      "bounded-capture": "available",
+      "cpu-limit": "unavailable",
+      "credential-filesystem-isolation": "unavailable",
+      "environment-allowlist": "available",
+      "escaped-descendant-termination": "unavailable",
+      "filesystem-isolation": "unavailable",
+      "memory-limit": "unavailable",
+      "network-isolation": "unavailable",
+      "origin-isolation": "unavailable",
+      "parent-termination": "available",
+      "process-group-termination": "available",
+      "shared-git-isolation": "unavailable"
+    },
+    "limitations": [
+      "trusted local executable required; worktree is not a sandbox",
+      "outside writes, transient writes, shared Git and credential files are not isolated",
+      "no memory/CPU quota or control of descendants escaping the process group",
+      "cleanup filesystem calls remain subject to operating-system I/O latency",
+      "legacy compatibility: HOME retained; other ambient credentials excluded"
+    ],
+    "stream_bytes": 8388608,
+    "output_bytes": 65536,
+    "retained_bytes": 16777216,
+    "timeout_ms": 3600000,
+    "max_runs_per_bundle": 3,
+    "retention": "retain-evidence; ttl=0; no automatic deletion",
+    "capture_complete": true,
+    "runtime_id": "pose-review-run-2289309520",
+    "operation": {
+      "schema_version": 1,
+      "operation": "review.dispatch.cleanup",
+      "scope": "spec:pose-federated-proof-reads-each-input-once",
+      "outcome": "completed",
+      "steps_run": [
+        {
+          "id": "cleanup",
+          "result": "done"
+        }
+      ],
+      "effects": [],
+      "resumable": false
+    }
+  },
+  "provenance": {
+    "execution_state": "started",
+    "planned_wire_digest": "sha256:80ab5cff2a2af61220b2e13764eca7c1f22e2ee13af09aa980a8c0c2e9a94357",
+    "wire_bytes": 31851,
+    "wire_complete": true,
+    "schema_version": 1,
+    "project": "proj.pose-dist",
+    "audience": "proj.pose-dist",
+    "worktree_digest": "sha256:9c161dc895f6496d9f800581bef8673cc9123cda65951fa2d23b0cbdbc2bac41",
+    "trust": "executor-attested",
+    "implementation": {
+      "principal": "agent:anthropic/claude-opus-5-5",
+      "execution": "sha256:0eb880a4fc2ed87a379c949a567b1d3dfbd6b58b466f4755fcd363dd2b7fed98",
+      "vendor": "anthropic",
+      "model": "claude-opus-5-5"
+    },
+    "reviewer": {
+      "principal": "agent:openai/gpt-6.1-sol",
+      "vendor": "openai",
+      "model": "gpt-6.1-sol"
+    },
+    "config_digest": "sha256:637a9d88c40dbf75da8525db65c216ace591f828ef25c233358db1a99e70ee31",
+    "command_template_digest": "sha256:e3a23ff8a55e559e954d107a039277628bfc51faa58d523ad6101de7c375ad28",
+    "argv_digest": "sha256:4472fbcfb6a3bff190d9629766829807859c1e08886cf7818506ed9b518253b5",
+    "executable_digest": "sha256:e14fc83739c13c1074b12bd1acce4010c893c7f6fbfc1593b4a31d74cabb57af",
+    "template_version": "review-brief/7",
+    "wire_digest": "sha256:80ab5cff2a2af61220b2e13764eca7c1f22e2ee13af09aa980a8c0c2e9a94357",
+    "notes_digest": "sha256:ecbf025b48b2518682d87175062e11ef353da7b071f22bf810e72b263c8e3ddb",
+    "raw_transcript_digest": "sha256:27c487864552c4735f8446c122f267208de54d9fe6320da0c092826bee9bc1b1",
+    "raw_output_digest": "sha256:a0c6a83ba401517b8ede29ca5bb1993456d68b101b89a0d6a2f6ed4899324735",
+    "output_source": "file",
+    "output_complete": true
+  },
+  "session_digest": "sha256:b150b50783bb0fac61dd75d3247da80de02e0f8a826b71ee5425d34ca1926530",
+  "tree_digest": "sha256:49177d15b659e3d3be108e12478df6e8096cb64bb761d6eb4c168cfeb8744317",
+  "brief_notes": "Round 1 review of spec pose-federated-proof-reads-each-input-once (an engine performance and consistency fix: with a current trust pin, the federated proof of a dependent instance made `pose index` take 23 minutes).\n\nWhat to judge: four process-level caches, each keyed by content-addressed input, with refs read every time: (1) `withCurrentMaterial` resolves HEAD once per graph and keeps a change set's material digest per (root, commit, inputs), falling back uncached when HEAD cannot be resolved, bounded at 20,000 entries; (2) `readReleaseSnapshotAtCommit` keeps a snapshot per (root, tag, commit, annotated), copying it to each reader through JSON and never keeping a failing git read; (3) `ResolveReleaseTag` reads the tag's ref every time and keeps per tag object the commit it peels to and whether it is annotated, and `LoadArchivedFragmentsIn` lists all tag refs in one `for-each-ref` and reads each snapshot at the commit already resolved; (4) `readReviewBundleHeader` keeps per content digest the scope a bundle declares or its whole loss, with the artifact path set per file, bounded at 50,000. Judge whether any key misses an input the result depends on, whether any cached value can be mutated by a reader, and whether the listed-tag resolution answers as `ResolveReleaseTag` answers each tag alone. The spec records the measurements: identical harne8 indexes in every variant, 1,383 s to 249 s. The per-scope recomputation inside `pose check` is follow-up F1, not in this scope.\n\nDo NOT run `pose assess`, `pose state`, `pose index` or anything else that writes under `.pose/`; dispose assess-* tools from the sealed evidence and the code. Leave the worktree as you found it. If you build or test Go code, let every `go test` finish (do not interrupt it) so the toolchain removes its own build directories. Dispose the `validate` tools from the sealed evidence: the pipeline ran `pose validate --strict` on a clean clone of the sealed commit with a GitHub token (`.pose/results/delivery-validation.json`); a rerun in your sandbox fails for environment reasons and is not evidence about the code. A finding object accepts exactly `id`, `severity`, `disposition`, `file`, `line`, `summary`, and for an accepted follow-up `action`, `owner`, `review_by`; put any rationale inside `summary`. A new finding's id carries no round prefix (F1, F2, ...). This is round 1: `prior_findings` is empty. Sweep the whole surface and report every finding in one pass, classified blocker vs follow-up.\n\n\nRound 2. Account in `prior_findings` exactly for the findings the brief lists as open for this scope (your round-1 run rrn-4a532feec7405caf: F1 to F4), with whether each stands; the spec's \"### Review\" says how each was handled (shallowness rechecked with every HEAD resolution and unreadable material not kept; only intact snapshots or a commit without a manifest kept; only peels that reached a commit kept; a `keptCache` helper coordinating in-flight work per key for all four caches, declined results recomputed by waiters). New finding ids carry no round prefix. Report every remaining finding in one pass; classify as blocker only what breaks a requirement as written.\n",
+  "ledger_version": 1,
+  "attempt_id": "rat-aa15dcda645e6ad41d4ddc868fbfe57689aa356c170dfe47664a8097cf5e0b89",
+  "schema_version": 1,
+  "run_id": "rrn-a37f896b2e3bf62f",
+  "scope": "spec:pose-federated-proof-reads-each-input-once",
+  "bundle_id": "rvb-f53880462209d2b9",
+  "bundle_digest": "sha256:f53880462209d2b9d1d2f7a62f6cf69dd298376f06d447994c1c5f9a73271064",
+  "sealed_commit": "597cbd9a8ad1a668d04fb5196707ca195c2da84c",
+  "kind": "review",
+  "brief_digest": "sha256:035ed26abee1100ac624d18f346a53f8fe13342575f5d69b67091a046c70c8c7",
+  "adapter": "sol-medium",
+  "vendor": "openai",
+  "model": "gpt-6.1-sol",
+  "started_at": "2026-11-15T15:26:54.923231208Z",
+  "ended_at": "2026-11-15T15:31:25.622194079Z",
+  "exit_code": 0,
+  "status": "completed",
+  "transcript_digest": "sha256:fdd82eb6d269ec2b286c1f48eeac0d3efcb202602fb2c886214bb242582cdf98",
+  "transcript_path": ".pose/review-runs/rrn-a37f896b2e3bf62f.transcript",
+  "output": "decision: changes-requested\n\nTwo medium blockers remain:\n\n- **N1 — successful retries are discarded**, [kept_cache.go:37](/var/tmp/pose-work-go/pose-review-run-2289309520/worktree/pose-mcp/internal/pose/kept_cache.go:37). After the first computation fails, waiting callers recompute outside cache coordination. Their successful results are never retained, so concurrent recovery duplicates work and later callers recompute again.\n- **N2 — eviction removes in-flight coordination**, [kept_cache.go:41](/var/tmp/pose-work-go/pose-review-run-2289309520/worktree/pose-mcp/internal/pose/kept_cache.go:41). Reaching capacity clears pending entries too. Another caller can then compute a key whose original computation is still running, violating R6.\n\nR1-F1 through R1-F3 are fixed. R1-F4 is partially fixed.\n\nTargeted cache tests, their race run, and shallow-checkout tests passed. Additional probes could not compile because the sandbox refused a new Go build directory; the findings above rest on source inspection. The worktree remains unchanged.\n\nRules applied: bugfix review workflow; backend-go, security, documentation-style, and delivery-evidence rules. Full validation conclusions below use the supplied sealed evidence. The reported performance measurement was not independently repeated.\n\n```pose-draft\n{\n  \"schema\": \"pose.review.draft/v1\",\n  \"decision\": \"changes-requested\",\n  \"findings\": [\n    {\n      \"id\": \"N1\",\n      \"severity\": \"medium\",\n      \"disposition\": \"blocker\",\n      \"file\": \"pose-mcp/internal/pose/kept_cache.go\",\n      \"line\": 37,\n      \"summary\": \"After an initial computation declines retention, every waiting caller invokes compute directly and discards its keep flag. If the read recovers, these callers can duplicate successful work concurrently, none publishes its success, and the next caller computes the same successful input again without any eviction. This leaves R1/R2/R3 and R6 unsatisfied. Retry through coordinated cache acquisition so a recovered success is published and shared; cover concurrent failure followed by recovery.\"\n    },\n    {\n      \"id\": \"N2\",\n      \"severity\": \"medium\",\n      \"disposition\": \"blocker\",\n      \"file\": \"pose-mcp/internal/pose/kept_cache.go\",\n      \"line\": 41,\n      \"summary\": \"Capacity eviction replaces the entire entries map, including computations whose ready channels have not closed. For example, with bound 1, block computation A, request B to clear the map, then request A again: the second A computes while the original A is still running. All four production caches inherit this violation of R6 at capacity. Preserve in-flight coordination independently of retained-value eviction and cover a capacity crossing while a key is pending.\"\n    }\n  ],\n  \"prior_findings\": [\n    {\n      \"id\": \"R1-F1\",\n      \"status\": \"fixed\",\n      \"evidence\": \"pose-mcp/internal/cli/material_engine.go:16 checks shallow eligibility on each graph HEAD resolution; material_binding.go rejects empty and unreadable digests from retention. Targeted current-material tests passed, as did go test ./internal/cli -run 'TestChangeSetMaterialDigestIsUnreadableInAShallowCheckout|TestShallowAnswerFollowsTheCheckout' -count=1.\"\n    },\n    {\n      \"id\": \"R1-F2\",\n      \"status\": \"fixed\",\n      \"evidence\": \"pose-mcp/internal/pose/release_manifest_integrity.go:642 retains only intact snapshots or proven manifest absence. Git read failures represented by gaps fail Intact(). TestASnapshotWithGapsIsReadAgain and TestAFailedReleaseSnapshotReadIsNotKept passed in the targeted test run and race run.\"\n    },\n    {\n      \"id\": \"R1-F3\",\n      \"status\": \"fixed\",\n      \"evidence\": \"pose-mcp/internal/pose/release_manifest_integrity.go:383-391 declines retention after either inspection or commit-peel failure. TestAFailedReleaseTagPeelIsAskedAgain passed in the targeted test run and race run.\"\n    },\n    {\n      \"id\": \"R1-F4\",\n      \"status\": \"partial\",\n      \"evidence\": \"All four caches now use keptCache; successful concurrent misses wait on ready and TestAKeptValueIsComputedOnceForConcurrentMisses passed, including under -race. However, kept_cache.go:37 bypasses coordination after a declined computation and :41 drops pending entries at capacity. Remaining cases are N1 and N2.\"\n    }\n  ],\n  \"sweep\": \"Reviewed the sealed bf2ff02c31752a3343b0200fa62b27c220ce2453..597cbd9a8ad1a668d04fb5196707ca195c2da84c implementation and governance changes against spec R1-R6 and D1. Swept all four cache keys, shared-value mutation, failed-read retention and recovery, concurrent misses, bounds and eviction, shallow-state eligibility, moved HEAD and tag refs, listed-versus-individual tag resolution, snapshot copies, bundle loss attribution, production call sites, regression tests, and validation-matrix registration. Consulted applicable rules and relevant cache/runtime knowledge. Ran targeted cache tests, targeted race tests, shallow-checkout tests, artifact-check, surface-check, suggest-review, recurrence-check, and diff whitespace checks. Repository status remained clean. Additional in-memory-overlay probes were blocked before compilation by the read-only Go temporary directory; they are not claimed as executed evidence.\",\n  \"criteria\": [\n    {\n      \"id\": \"assumption-integrity\",\n      \"disposition\": \"passed\",\n      \"evidence\": \"integration:pose-mcp/go/federated-proof-reads-each-input-once-integration\",\n      \"rationale\": \"Examined content-addressed keys, fresh ref resolution, shallow eligibility, copy ownership, and retry assumptions. Verified ordinary reuse and failure rejection with code and targeted tests. The harne8 timing and byte equality remain implementer measurements, not independently repeated facts. Remaining coordination assumptions are explicitly rejected in N1 and N2; the spec's separate check-performance follow-up remains outside this scope.\"\n    },\n    {\n      \"id\": \"backend-concurrency\",\n      \"disposition\": \"finding\",\n      \"evidence\": \"N2\"\n    },\n    {\n      \"id\": \"backend-contracts\",\n      \"disposition\": \"passed\",\n      \"evidence\": \"integration:pose-mcp/go/cli-mcp-operation-results-integration\",\n      \"rationale\": \"Inspected unchanged public CLI, MCP, and persisted schemas. Cache changes remain internal; returned snapshot data is copied and error contracts are preserved.\"\n    },\n    {\n      \"id\": \"backend-input-errors\",\n      \"disposition\": \"passed\",\n      \"evidence\": \"integration:pose-mcp/go/federated-proof-reads-each-input-once-integration\",\n      \"rationale\": \"Invalid tags, missing manifests, unreadable material, snapshot gaps, and failed peels remain rejected or retryable. Targeted negative tests passed.\"\n    },\n    {\n      \"id\": \"backend-integration-impact\",\n      \"disposition\": \"passed\",\n      \"evidence\": \"integration:pose-mcp/go/federated-proof-reads-each-input-once-integration\",\n      \"rationale\": \"Inspected CLI hook registration, graph material recomputation, archive loading, release snapshot consumers, and review-header consumers. Production composition remains connected.\"\n    },\n    {\n      \"id\": \"backend-observability\",\n      \"disposition\": \"passed\",\n      \"evidence\": \"integration:pose-mcp/go/typed-diagnostics-integration\",\n      \"rationale\": \"Inspected retained error context and source-loss attribution. Git failures and snapshot gaps remain diagnosable, and cached bundle losses receive the current file's artifact path.\"\n    },\n    {\n      \"id\": \"compatibility\",\n      \"disposition\": \"passed\",\n      \"evidence\": \"integration:pose-mcp/go/federated-proof-reads-each-input-once-integration\",\n      \"rationale\": \"Compared changed readers and their callers. No public schema or command migration is introduced; fresh refs, tag annotation state, snapshot copies, and per-file losses preserve observable result contracts.\"\n    },\n    {\n      \"id\": \"correctness\",\n      \"disposition\": \"finding\",\n      \"evidence\": \"N1\"\n    },\n    {\n      \"id\": \"design-causality\",\n      \"disposition\": \"passed\",\n      \"evidence\": \"structure:design-076c47327a9b352c\",\n      \"rationale\": \"Mapped the four caches to R1-R4 and the measured bottlenecks documented in D1. Reading mutable refs afresh while retaining content-derived work addresses repeated Git reads and JSON parsing. Bounds address R5 and a shared coordination helper targets R6, with its remaining implementation defects reported separately. The brief lists no individual structural delta facts requiring mappings.\",\n      \"mappings\": []\n    },\n    {\n      \"id\": \"documentation\",\n      \"disposition\": \"passed\",\n      \"evidence\": \"integration:pose-mcp/go/federated-proof-reads-each-input-once-integration\",\n      \"rationale\": \"Compared the spec, review remediation notes, runtime comments, and validation-matrix command. Scope and non-goals are explicit, the spec remains in-progress, and the required regression command includes the new tests.\"\n    },\n    {\n      \"id\": \"operability\",\n      \"disposition\": \"passed\",\n      \"evidence\": \"integration:pose-mcp/go/typed-diagnostics-integration\",\n      \"rationale\": \"Examined failed-read behavior and returned context. Failures remain actionable and retryable rather than becoming permanent cached failures. No new configuration or operational migration is required.\"\n    },\n    {\n      \"id\": \"requirements\",\n      \"disposition\": \"finding\",\n      \"evidence\": \"N1\"\n    },\n    {\n      \"id\": \"scope\",\n      \"disposition\": \"passed\",\n      \"evidence\": \"integration:pose-mcp/go/federated-proof-reads-each-input-once-integration\",\n      \"rationale\": \"Compared the complete implementation diff with declared artifacts and R1-R6. The helper, cache changes, regression tests, and validation registration serve the approved scope; deferred per-scope federated recomputation was not introduced.\"\n    },\n    {\n      \"id\": \"security\",\n      \"disposition\": \"passed\",\n      \"evidence\": \"integration:pose-mcp/go/history-readers-read-raw-integration\",\n      \"rationale\": \"Inspected cache identity, fresh ref reads, raw-history Git execution, path validation, snapshot ownership, and loss copying. No new authority source, command interpolation, credential handling, or shared mutable reader result was introduced.\"\n    },\n    {\n      \"id\": \"solution-proportionality\",\n      \"disposition\": \"passed\",\n      \"evidence\": \"structure:design-076c47327a9b352c\",\n      \"rationale\": \"Compared bounded process-local caches with repeated reads and a broader persistent cache. The selected design avoids persistence and invalidation machinery, reuses one small helper, and leaves per-scope check recomputation outside scope. Its suitability depends on immutable content inputs and fresh refs; mutable inputs or required cross-process reuse would invalidate that choice. N1 and N2 require local helper corrections.\"\n    }\n  ],\n  \"tools\": [\n    {\n      \"id\": \"artifact-check\",\n      \"disposition\": \"passed\",\n      \"evidence\": \"command:pose artifact-check --spec pose-federated-proof-reads-each-input-once --strict\",\n      \"rationale\": \"Completed with exit 0. Reported orphan warnings and a trailer-derived range ending at c7102e271de7b2e59fe9cabcc950bb87ac5df001, wider than the sealed subject. Scope conclusions therefore also use direct inspection of the brief's exact range.\"\n    },\n    {\n      \"id\": \"assess-design\",\n      \"disposition\": \"not-used\",\n      \"evidence\": \"structure:design-076c47327a9b352c\",\n      \"rationale\": \"Used the supplied sealed design evidence and inspected the structure directly; did not regenerate assessment artifacts in the read-only review.\"\n    },\n    {\n      \"id\": \"assess-discover\",\n      \"component\": \"pose-mcp\",\n      \"disposition\": \"not-used\",\n      \"evidence\": \"command:pose suggest review --path pose-mcp\",\n      \"rationale\": \"Did not run discovery because assessment regeneration can write repository artifacts; reviewed the affected component directly.\"\n    },\n    {\n      \"id\": \"assess-integrate\",\n      \"disposition\": \"not-used\",\n      \"evidence\": \"integration:pose-mcp/go/federated-proof-reads-each-input-once-integration\",\n      \"rationale\": \"Used sealed integration evidence and inspected producer-consumer call sites without regenerating assessment state.\"\n    },\n    {\n      \"id\": \"assess-tech-debt\",\n      \"disposition\": \"not-used\",\n      \"evidence\": \"command:rg -n 'TODO|FIXME|stub|panic\\\\(' pose-mcp/internal/pose/{kept_cache.go,material_binding.go,release_manifest_integrity.go,release_archive.go,review_operation_view.go} pose-mcp/internal/cli/material_engine.go\",\n      \"rationale\": \"Did not regenerate assessment state. Direct marker search found no matches in the changed runtime files; inspected the spec's existing follow-up separately.\"\n    },\n    {\n      \"id\": \"closeout-check\",\n      \"disposition\": \"deferred\",\n      \"evidence\": \"command:pose closeout-check spec:pose-federated-proof-reads-each-input-once\",\n      \"rationale\": \"Completion check is deferred until POSE records and verifies the review conclusion; this review requests changes.\"\n    },\n    {\n      \"id\": \"review-check\",\n      \"disposition\": \"deferred\",\n      \"evidence\": \"command:pose review-check spec:pose-federated-proof-reads-each-input-once\",\n      \"rationale\": \"Deferred until POSE records the conclusion. No attestation was written by this reviewer.\"\n    },\n    {\n      \"id\": \"suggest-review\",\n      \"component\": \"pose-mcp\",\n      \"disposition\": \"passed\",\n      \"evidence\": \"command:pose suggest review --path pose-mcp\",\n      \"rationale\": \"Resolved the backend-go review trail and applied its security, documentation-style, and backend-go rules.\"\n    },\n    {\n      \"id\": \"surface-check\",\n      \"disposition\": \"passed\",\n      \"evidence\": \"integration:pose-mcp/go/federated-proof-reads-each-input-once-integration\",\n      \"rationale\": \"Ran pose surface-check --spec pose-federated-proof-reads-each-input-once --strict: exit 0, one target, 225 results, zero findings. Inspected production composition directly.\"\n    },\n    {\n      \"id\": \"validate\",\n      \"disposition\": \"passed\",\n      \"evidence\": \"unit:pose-mcp/go/test\",\n      \"rationale\": \"Disposition uses the supplied sealed strict-validation producer, not a local rerun. Local targeted cache tests and their race run also passed; full validation was not regenerated in the read-only sandbox.\"\n    },\n    {\n      \"id\": \"validate\",\n      \"component\": \"pose-mcp\",\n      \"disposition\": \"passed\",\n      \"evidence\": \"integration:pose-mcp/go/federated-proof-reads-each-input-once-integration\",\n      \"rationale\": \"Disposition uses the supplied sealed component validation. Independently ran the targeted cache regression suite, its -race variant, and shallow-checkout CLI tests successfully. These tests do not cover N1 or N2.\"\n    }\n  ]\n}\n```",
+  "policy_digest": "sha256:90ca53a44c8202b7914e12baa143afac5707221147f71fe6fa30a74bb415f911",
+  "purpose": "review",
+  "env_removed": [
+    "CLAUDE_CODE_BRIDGE_SESSION_ID",
+    "CLAUDE_CODE_CHILD_SESSION",
+    "CLAUDE_CODE_EXECPATH",
+    "CLAUDE_CODE_MESSAGING_SOCKET",
+    "CLAUDE_CODE_MESSAGING_TOKEN",
+    "CLAUDE_CODE_SESSION_ATTENDED",
+    "CLAUDE_CODE_SESSION_ID",
+    "CLAUDE_EFFORT",
+    "CLAUDE_PID"
+  ],
+  "events": "codex-jsonl",
+  "events_digest": "sha256:99f8286762ec5efd12810fdabe61e06b232ed684405e2a6aa0a2db286db3b768",
+  "routing": {
+    "requested": "sol-medium",
+    "implementation": {
+      "principal": "agent:anthropic/claude-opus-5-5",
+      "vendor": "anthropic",
+      "model": "claude-opus-5-5",
+      "execution_digest": "sha256:0eb880a4fc2ed87a379c949a567b1d3dfbd6b58b466f4755fcd363dd2b7fed98",
+      "source": "declared"
+    },
+    "implementation_from": "bundle",
+    "step": "explicit"
+  },
+  "independence_achieved": "different-vendor",
+  "round": 2,
+  "thread": {
+    "round": 2,
+    "mode": "new",
+    "from": "rrn-4a532feec7405caf",
+    "reason": "the previous round's session cannot be resumed: lstat /var/tmp/closeout/pose-dist/.pose/review-private: no such file or directory"
+  }
+}
