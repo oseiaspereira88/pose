@@ -3,7 +3,6 @@ package cli
 import (
 	"archive/tar"
 	"archive/zip"
-	"bytes"
 	"compress/gzip"
 	"encoding/json"
 	"fmt"
@@ -1097,15 +1096,8 @@ func hookRunner(root string) (string, bool, error) {
 		SchemaVersion int    `json:"schema_version"`
 		Runner        string `json:"runner"`
 	}
-	decoder := json.NewDecoder(bytes.NewReader(raw))
-	decoder.DisallowUnknownFields()
-	if err := decoder.Decode(&policy); err != nil {
+	if err := posemodel.DecodeStrictJSON(raw, &policy); err != nil {
 		return "", false, fmt.Errorf(".pose/policy/hooks.json: %v", err)
-	}
-	// One object and nothing after it: trailing bytes or a second value
-	// make the policy malformed, not ignored (review round 1, F1).
-	if _, err := decoder.Token(); !errors.Is(err, io.EOF) {
-		return "", false, fmt.Errorf(".pose/policy/hooks.json: content after the policy object")
 	}
 	if policy.SchemaVersion != 1 {
 		return "", false, fmt.Errorf(".pose/policy/hooks.json: schema_version %d, want 1", policy.SchemaVersion)

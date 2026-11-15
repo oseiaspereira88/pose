@@ -1,7 +1,6 @@
 package cli
 
 import (
-	"bytes"
 	"encoding/json"
 	"fmt"
 	"io"
@@ -300,9 +299,7 @@ func cmdActionFulfil(root string, args []string, stdout, stderr io.Writer) int {
 	}
 	if envelopeFile != "" {
 		raw, err := os.ReadFile(envelopeFile)
-		dec := json.NewDecoder(bytes.NewReader(raw))
-		dec.DisallowUnknownFields()
-		if err != nil || dec.Decode(&env) != nil {
+		if err != nil || posemodel.DecodeStrictJSON(raw, &env) != nil {
 			return usageError(stderr, "pose action fulfil: the envelope is not a fulfilment envelope")
 		}
 	}

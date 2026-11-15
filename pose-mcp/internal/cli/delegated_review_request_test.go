@@ -44,6 +44,17 @@ func TestReviewRequestIsFulfilledOverTheCLI(t *testing.T) {
 	if err := os.WriteFile(path, raw, 0o600); err != nil {
 		t.Fatal(err)
 	}
+	// Spec pose-strict-json-readers-require-the-end: an envelope followed by
+	// anything is not an envelope.
+	for name, tail := range map[string]string{"garbage": " garbage", "second value": string(raw)} {
+		trailing := filepath.Join(t.TempDir(), "envelope.json")
+		if err := os.WriteFile(trailing, append(append([]byte{}, raw...), tail...), 0o600); err != nil {
+			t.Fatal(err)
+		}
+		if code, out := runPose(t, root, "action", "fulfil", "--envelope", trailing); code == 0 || !strings.Contains(out, "not a fulfilment envelope") {
+			t.Fatalf("an envelope followed by %s was read: %d %s", name, code, out)
+		}
+	}
 	if code, out := runPose(t, root, "action", "fulfil", "--envelope", path); code != 0 || !strings.Contains(out, "action.fulfil.decision=approved") {
 		t.Fatalf("preview: %d %s", code, out)
 	}

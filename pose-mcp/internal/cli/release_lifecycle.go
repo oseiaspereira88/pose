@@ -1,7 +1,6 @@
 package cli
 
 import (
-	"bytes"
 	"encoding/json"
 	"errors"
 	"fmt"
@@ -594,9 +593,7 @@ func cmdReleaseRecord(root string, args []string, stdout, stderr io.Writer) int 
 		return 1
 	}
 	var evidence posemodel.ReleaseEvidence
-	decoder := json.NewDecoder(bytes.NewReader(raw))
-	decoder.DisallowUnknownFields()
-	if err := decoder.Decode(&evidence); err != nil {
+	if err := posemodel.DecodeStrictJSON(raw, &evidence); err != nil {
 		fmt.Fprintln(stderr, err)
 		return 1
 	}

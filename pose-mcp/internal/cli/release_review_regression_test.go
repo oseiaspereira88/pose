@@ -79,7 +79,19 @@ func TestF05RecordRefusesATagWhoseTreeIsNotIntact(t *testing.T) {
 	good := cliReleaseRepo(t)
 	relGitCLI(t, good, "tag", "v1.0.0")
 	goodHead := strings.TrimSpace(gitOut(t, good, "rev-parse", "HEAD"))
-	writeCloseoutCLIFile(t, good, "evidence.json", `{"schema_version":1,"provider":"github","repository":"o/r","version":"v1.0.0","tag":"v1.0.0","commit":"`+goodHead+`"}`)
+	goodEvidence := `{"schema_version":1,"provider":"github","repository":"o/r","version":"v1.0.0","tag":"v1.0.0","commit":"` + goodHead + `"}`
+	// Spec pose-strict-json-readers-require-the-end: evidence followed by
+	// anything is refused, and nothing is recorded.
+	for name, tail := range map[string]string{"garbage": " garbage", "second value": goodEvidence} {
+		writeCloseoutCLIFile(t, good, "evidence.json", goodEvidence+tail)
+		if code, out := runPose(t, good, "release", "record", "--version", "v1.0.0", "--event", "tagged", "--evidence", "evidence.json"); code == 0 {
+			t.Fatalf("evidence followed by %s was recorded: %s", name, out)
+		}
+		if _, err := os.Stat(good + "/.pose/releases/v1.0.0/events.jsonl"); err == nil {
+			t.Fatalf("evidence followed by %s wrote an event", name)
+		}
+	}
+	writeCloseoutCLIFile(t, good, "evidence.json", goodEvidence)
 	if code, out := runPose(t, good, "release", "record", "--version", "v1.0.0", "--event", "tagged", "--evidence", "evidence.json"); code != 0 {
 		t.Fatalf("the control record was refused: %s", out)
 	}
