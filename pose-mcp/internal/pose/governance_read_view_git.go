@@ -629,6 +629,13 @@ func runGovernanceGitCommandOutputAdmitted(files Files, root string, args []stri
 
 // runGovernanceGitCommandOutputAdmittedContext admits each stream chunk before
 // the bounded output buffer retains it and executes Git under ctx.
+// governanceGitEnv is added to every Git command the governance read view
+// runs, captured or streamed. Governance classifies Git's failures by what
+// Git writes to stderr, so Git writes it untranslated: a translated "not a
+// git repository" left a directory outside any repository unknown under
+// pt_BR (spec pose-governance-git-reads-untranslated).
+var governanceGitEnv = []string{"GIT_OPTIONAL_LOCKS=0", "LC_ALL=C", "LANGUAGE=C"}
+
 func runGovernanceGitCommandOutputAdmittedContext(ctx context.Context, files Files, root string, args []string, limit int64, admit func(int64) bool) ([]byte, []byte, error) {
 	if limit < 0 {
 		return nil, nil, errGovernanceReadViewBudget
@@ -639,11 +646,7 @@ func runGovernanceGitCommandOutputAdmittedContext(ctx context.Context, files Fil
 	}
 	cmd := gitCommandContext(ctx, append([]string{"--no-replace-objects", "-C", root}, args...)...)
 	cmd.WaitDelay = 2 * time.Second
-	// Governance classifies Git's failures by what Git writes to stderr, so
-	// Git writes it untranslated: a translated "not a git repository" left a
-	// directory outside any repository unknown under pt_BR (spec
-	// pose-governance-git-reads-untranslated).
-	cmd.Env = append(cmd.Env, "GIT_OPTIONAL_LOCKS=0", "LC_ALL=C", "LANGUAGE=C")
+	cmd.Env = append(cmd.Env, governanceGitEnv...)
 	output := &boundedGovernanceGitOutput{limit: limit, admit: admit}
 	cmd.Stdout = governanceGitStream{output: output, stderr: false}
 	cmd.Stderr = governanceGitStream{output: output, stderr: true}

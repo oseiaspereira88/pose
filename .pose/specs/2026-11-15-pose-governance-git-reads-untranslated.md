@@ -50,10 +50,11 @@ A checagem de paridade do espelho do Harness, que o harne8 roda também numa ses
 ## 3. Technical Plan
 
 ### Affected areas
-- `pose/governance_read_view_git.go`: o ambiente do executor dos comandos de governança.
+- `pose/governance_read_view_git.go` e `pose/governance_read_view_stream.go`: o ambiente comum dos dois executores dos comandos de governança, o que captura e o que transmite.
 
 ### Artifacts
 - modified: pose-mcp/internal/pose/governance_read_view_git.go
+- modified: pose-mcp/internal/pose/governance_read_view_stream.go
 - created: pose-mcp/internal/pose/governance_git_untranslated_test.go
 - modified: .pose/indexes/validation-matrix.json
 
@@ -61,7 +62,7 @@ A checagem de paridade do espelho do Harness, que o harne8 roda também numa ses
 
 - capability:governance-git-reads-untranslated module:pose-mcp profile:composed-capability entrypoint:pose-mcp/cmd/pose/main.go
 
-Composto em produção por toda leitura de governança que roda Git (`pose check`, `pose index`, revisões). Check permanente `governance-git-reads-untranslated-integration`, evidenceClass `integration`, required: `go test ./internal/pose -run 'TestGovernanceGitIsReadUntranslated|TestScopeIndexInputsAreCheckedOncePerCoordinator' -count=1`.
+Composto em produção por toda leitura de governança que roda Git (`pose check`, `pose index`, revisões). Check permanente `governance-git-reads-untranslated-integration`, evidenceClass `integration`, required: `go test ./internal/pose -run 'TestGovernanceGitIsReadUntranslated|TestEveryGovernanceGitRunnerIsUntranslated|TestScopeIndexInputsAreCheckedOncePerCoordinator' -count=1`.
 
 ### API/contract changes
 - Nenhuma.
@@ -120,7 +121,7 @@ O teste do coordenador, sob `LC_ALL=pt_BR.UTF-8`, `LANGUAGE=pt_BR`; pulado onde 
 - Warnings: nenhum.
 
 ### Requirement trace
-- R1 [satisfied] test:TestGovernanceGitIsReadUntranslated check:governance-git-reads-untranslated-integration
+- R1 [satisfied] test:TestGovernanceGitIsReadUntranslated test:TestEveryGovernanceGitRunnerIsUntranslated check:governance-git-reads-untranslated-integration
 
 ### Known gaps
 - O teste é pulado numa máquina sem a tradução do Git para pt_BR.
@@ -136,3 +137,8 @@ Não concluída.
 ### Residual risks
 
 ### Follow-ups
+
+### Review
+
+Rodada 1 (run rrn-c5171f8ff89f3ebb, attestation rva-f215ab03914d85c5, changes-requested): 1 bloqueador, tratado. F1 o executor que transmite a saída do Git (`runGovernanceGitStreamContext`) não recebia o ambiente sem tradução: os dois executores passaram a usar o mesmo `governanceGitEnv`, e um teste com um `git` falso no PATH registra o locale de cada um sob uma sessão pt_BR; reprova com o executor de streaming antigo. Os outros executores de Git do motor (`snapshotGit`, `previewGit`, `gitCheckIgnore`) não classificam texto do stderr e ficam como estão. As ferramentas `artifact-check` e `surface-check` da rodada 1 saíram sem resultado porque o revisor usou um `pose` instalado no PATH, de outra revisão, que leu outro change set.
+

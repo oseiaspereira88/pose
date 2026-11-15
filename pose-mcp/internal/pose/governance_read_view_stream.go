@@ -227,7 +227,7 @@ func runGovernanceGitStreamContext(ctx context.Context, files Files, root string
 	}
 	cmd := gitCommandContext(ctx, append([]string{"--no-replace-objects", "-C", root}, args...)...)
 	cmd.WaitDelay = 2 * time.Second
-	cmd.Env = append(cmd.Env, "GIT_OPTIONAL_LOCKS=0")
+	cmd.Env = append(cmd.Env, governanceGitEnv...)
 	out := &governanceStreamWriter{limit: limit, admit: admit, sink: sink, hash: sha256.New()}
 	var stderr bytes.Buffer
 	cmd.Stdout = out
