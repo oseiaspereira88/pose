@@ -49,6 +49,9 @@ func TestAnInvalidHookRunnerIsRefused(t *testing.T) {
 		"missing":        `{"schema_version":1,"runner":"scripts/absent.sh"}`,
 		"unknown schema": `{"schema_version":2,"runner":"scripts/hook.sh"}`,
 		"unknown field":  `{"schema_version":1,"runner":"scripts/hook.sh","shell":true}`,
+		"trailing bytes": `{"schema_version":1,"runner":"scripts/hook.sh"} garbage`,
+		"two objects":    `{"schema_version":1,"runner":"scripts/hook.sh"}{"schema_version":1,"runner":"scripts/hook.sh"}`,
+		"not an object":  `[{"schema_version":1,"runner":"scripts/hook.sh"}]`,
 	} {
 		t.Run(name, func(t *testing.T) {
 			_, marker := hookRunnerRepo(t, policy)

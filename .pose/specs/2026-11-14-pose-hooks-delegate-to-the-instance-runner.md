@@ -152,3 +152,10 @@ Uma instância declara o executor dos hooks em `.pose/policy/hooks.json`; os hoo
 - Nenhum.
 
 ### Follow-ups
+
+- [open] F1: exigir fim do arquivo depois do objeto nos outros leitores estritos que decodificam um único valor JSON sem conferi-lo: a evidência de release (`release_lifecycle.go`) e o envelope de `action fulfil` (`review_request.go`) aceitam conteúdo depois do objeto, como a policy de hooks aceitava. (owner:@pose-maintainers crit:medium review:2026-11-29)
+
+### Review
+
+Rodada 1 (run rrn-af4020db38f49b20, attestation rva-ccbd1975922732c7, changes-requested): 1 bloqueador, tratado. F1 o leitor da policy de hooks decodificava um valor sem exigir o fim: um objeto válido seguido de lixo ou de outro objeto era aceito e o executor rodava. Depois do objeto o leitor exige o fim do arquivo; testes cobrem lixo final, dois objetos e um valor que não é objeto, e reprovam sem a exigência. Os outros leitores estritos com a mesma forma ficaram como follow-up F1.
+
