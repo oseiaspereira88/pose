@@ -97,6 +97,7 @@ Composto em produção por `pose check`, que avalia o fechamento de cada escopo 
 - Context: a conferência das entradas do índice é a mesma para todos os escopos de um coordenador.
 - Options considered: (a) memo de processo do material federado, com chave nas entradas; (b) delegar a conferência ao coordenador, cujo D7 já audita as entradas compartilhadas depois que todos os escopos terminam.
 - Decision: (b), registrada como D12 do ADR.
+- Basis: R1, R2
 - Rationale: (a) precisaria de uma chave que capturasse todas as leituras do material, que não existe hoje; (b) reaproveita a auditoria do coordenador e a interface ciente do vínculo que o D7 exige.
 - Consequences: um check cuja entrada muda durante a execução reprova pela auditoria do coordenador.
 
@@ -142,3 +143,8 @@ Não concluída.
 ### Residual risks
 
 ### Follow-ups
+
+### Review
+
+Rodada 1 (run rrn-162a4fb077dc7c41): o revisor aprovou, e o motor recusou a conclusão no preflight da atestação: o critério `design-causality` mapeava a mudança do ADR para a decisão D1, que não declarava o requisito que a justifica. A D1 passou a declarar `Basis: R1, R2`; nada mais mudou.
+
