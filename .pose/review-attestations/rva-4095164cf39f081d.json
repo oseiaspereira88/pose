@@ -1,0 +1,209 @@
+{
+  "run": {
+    "run_id": "rrn-06a1e0155a43be30",
+    "proof_id": "rrp-53459ab05adca4c77f55ce45d9f0c72782c3d40fe16420754c4e787f78b6e319"
+  },
+  "schema_version": 1,
+  "attestation_id": "rva-4095164cf39f081d",
+  "bundle_id": "rvb-9e1b6b5408b50c17",
+  "bundle_digest": "sha256:9e1b6b5408b50c1751d1f511e8d11264eec94801c46c73c149e54740747f7f4b",
+  "reviewer": "agent:openai/gpt-6.1-sol",
+  "decision": "changes-requested",
+  "criteria": [
+    {
+      "id": "assumption-integrity",
+      "disposition": "passed",
+      "evidence": "integration:pose-mcp/go/federated-proof-reads-each-input-once-integration",
+      "rationale": "Examined the content-addressed-key assumption against all four producers and verified live HEAD/tag resolution and failed-read retry paths. The reported 249-second external benchmark and byte-identical indexes were not independently reproduced here; they remain documented measurement evidence. Per-scope check recomputation is explicitly excluded as spec follow-up F1. Retention capacity is separately reported as N3."
+    },
+    {
+      "id": "backend-concurrency",
+      "disposition": "finding",
+      "evidence": "N3"
+    },
+    {
+      "id": "backend-contracts",
+      "disposition": "passed",
+      "evidence": "integration:pose-mcp/go/federated-proof-reads-each-input-once-integration",
+      "rationale": "Compared exported entrypoints, return values, error sentinels, tag-resolution behavior and snapshot representation. No public CLI, MCP or persisted-file migration is introduced."
+    },
+    {
+      "id": "backend-input-errors",
+      "disposition": "passed",
+      "evidence": "integration:pose-mcp/go/federated-proof-reads-each-input-once-integration",
+      "rationale": "Examined unreadable material, failed peels, incomplete snapshots, missing manifests and malformed bundle headers. Failed reads remain retryable and losses retain the requesting artifact path."
+    },
+    {
+      "id": "backend-integration-impact",
+      "disposition": "passed",
+      "evidence": "integration:pose-mcp/go/federated-proof-reads-each-input-once-integration",
+      "rationale": "Checked CLI hook registration, archived-release consumers and review-header consumers. Surface-check found one delivery target and zero findings."
+    },
+    {
+      "id": "backend-observability",
+      "disposition": "passed",
+      "evidence": "integration:pose-mcp/go/typed-diagnostics-integration",
+      "rationale": "Compared existing error and SourceLoss propagation with the cached paths. Diagnostics preserve scope and per-file attribution without adding sensitive logging."
+    },
+    {
+      "id": "compatibility",
+      "disposition": "passed",
+      "evidence": "integration:pose-mcp/go/federated-proof-reads-each-input-once-integration",
+      "rationale": "Examined moved refs, annotated and lightweight tags, missing/non-commit tags, snapshot copies and malformed-header losses. No incompatible public contract change was established."
+    },
+    {
+      "id": "correctness",
+      "disposition": "finding",
+      "evidence": "N3"
+    },
+    {
+      "id": "design-causality",
+      "disposition": "passed",
+      "evidence": "structure:design-6e2fc54195f29f23",
+      "rationale": "Compared D1 and R1-R6 with the production structure. The four caches directly remove repeated material computation, snapshot reads, tag-object peeling and header parsing; live refs remain outside retained keys. The shared helper addresses duplicate concurrent production and recovery. Its retained-value capacity defect is N3."
+    },
+    {
+      "id": "documentation",
+      "disposition": "passed",
+      "evidence": "structure:design-6e2fc54195f29f23",
+      "rationale": "Examined the spec, review-round history, requirement trace, known gaps and validation-matrix command. They describe the intended runtime paths and retain an explicit non-goal for per-scope check recomputation. No operational interface or scaffold change requires new user instructions."
+    },
+    {
+      "id": "operability",
+      "disposition": "passed",
+      "evidence": "integration:pose-mcp/go/typed-diagnostics-integration",
+      "rationale": "Examined retry behavior, missing-tag classification, snapshot gaps and artifact-specific header losses. Existing returned diagnostics and remediation context remain available."
+    },
+    {
+      "id": "requirements",
+      "disposition": "finding",
+      "evidence": "N3"
+    },
+    {
+      "id": "scope",
+      "disposition": "passed",
+      "evidence": "structure:design-6e2fc54195f29f23",
+      "rationale": "Compared the sealed implementation paths and validation registration with the spec artifacts and affected areas. Changes remain confined to the four cache paths, shared coordination helper and regression coverage; no unrelated refactor or contract expansion was established."
+    },
+    {
+      "id": "security",
+      "disposition": "passed",
+      "evidence": "integration:pose-mcp/go/adversarial-corpus-integration",
+      "rationale": "Examined cache identity, Git argument construction, live authority references, snapshot copying and SourceLoss copying. Cached data does not introduce a new authority source, path escape or secret-bearing output. N3 concerns retention capacity."
+    },
+    {
+      "id": "solution-proportionality",
+      "disposition": "passed",
+      "evidence": "structure:design-6e2fc54195f29f23",
+      "rationale": "Compared the small shared coordination helper and four targeted caches with independent caches and a broader runtime-cache redesign. D1 supplies measured reasons for all four caches; the implementation avoids speculative persistence, new APIs and unrelated per-scope recomputation work. Mutable dependencies outside the keys would invalidate the content-addressed design; retained capacity still requires the N3 correction."
+    }
+  ],
+  "tools": [
+    {
+      "id": "artifact-check",
+      "disposition": "passed",
+      "evidence": "command:pose artifact-check --spec pose-federated-proof-reads-each-input-once --strict",
+      "rationale": "Completed with repository-wide orphan warnings. Also completed an explicit --from bf2ff02c31752a3343b0200fa62b27c220ce2453 --to 8cb6cf3e9224962eaf1970d3ae618b5d72b6bfab --strict --json check to distinguish the sealed range from recorded provenance. The sealed-checkout guard prevented index publication."
+    },
+    {
+      "id": "assess-design",
+      "disposition": "passed",
+      "evidence": "structure:design-6e2fc54195f29f23",
+      "rationale": "Reused the sealed design assessment and independently examined its design basis against R1-R6 and D1; did not refresh assessment artifacts."
+    },
+    {
+      "id": "assess-discover",
+      "component": "pose-mcp",
+      "disposition": "not-used",
+      "evidence": "command:pose context --task spec:pose-federated-proof-reads-each-input-once --json",
+      "rationale": "Resolved canonical authority and inspected the mapped component directly. Skipped assessment refresh to preserve the read-only review boundary."
+    },
+    {
+      "id": "assess-integrate",
+      "disposition": "not-used",
+      "evidence": "integration:pose-mcp/go/federated-proof-reads-each-input-once-integration",
+      "rationale": "Reused sealed integration evidence and independently inspected producer/consumer composition. No REST, event, Protobuf or MCP contract changed; did not refresh assessment artifacts."
+    },
+    {
+      "id": "assess-tech-debt",
+      "disposition": "not-used",
+      "evidence": "command:rg -n 'TODO|FIXME|stub|panic\\(' pose-mcp/internal/pose/kept_cache.go pose-mcp/internal/pose/material_binding.go pose-mcp/internal/pose/release_manifest_integrity.go pose-mcp/internal/pose/release_archive.go pose-mcp/internal/pose/review_operation_view.go pose-mcp/internal/cli/material_engine.go",
+      "rationale": "Direct marker scan found no matches in the changed production files. Examined the spec's existing F1 follow-up; skipped generated assessment refresh."
+    },
+    {
+      "id": "closeout-check",
+      "disposition": "deferred",
+      "rationale": "Completion check follows the recorded review conclusion; this review requests changes and does not record an attestation."
+    },
+    {
+      "id": "review-check",
+      "disposition": "deferred",
+      "rationale": "Requires the recorded review conclusion. POSE must record and verify it after consuming this draft."
+    },
+    {
+      "id": "suggest-review",
+      "component": "pose-mcp",
+      "disposition": "passed",
+      "evidence": "command:pose suggest review --path pose-mcp",
+      "rationale": "Selected the review workflow and backend-go, security and documentation-style rules."
+    },
+    {
+      "id": "surface-check",
+      "disposition": "passed",
+      "evidence": "integration:pose-mcp/go/federated-proof-reads-each-input-once-integration",
+      "rationale": "Ran pose surface-check --spec pose-federated-proof-reads-each-input-once --strict: one target, 225 results and zero findings."
+    },
+    {
+      "id": "validate",
+      "disposition": "passed",
+      "evidence": "unit:pose-mcp/go/test",
+      "rationale": "Reused the sealed strict pipeline execution and its build, integration, e2e and unit evidence; delivery-validation records 225 passed and zero failed. Did not rerun the repository-writing validation producer. Independently ran focused race tests and go vet."
+    },
+    {
+      "id": "validate",
+      "component": "pose-mcp",
+      "disposition": "passed",
+      "evidence": "integration:pose-mcp/go/federated-proof-reads-each-input-once-integration",
+      "rationale": "Reused the sealed component validation. Independently ran the cache/material regression selection with -race -count=1, repeated the three concurrency tests with -race -count=100, and ran go vet ./internal/pose ./internal/cli; all passed."
+    }
+  ],
+  "evidence_refs": [
+    "N3",
+    "delegated-run:rrn-06a1e0155a43be30",
+    "integration:pose-mcp/go/adversarial-corpus-integration",
+    "integration:pose-mcp/go/federated-proof-reads-each-input-once-integration",
+    "integration:pose-mcp/go/typed-diagnostics-integration",
+    "structure:design-6e2fc54195f29f23"
+  ],
+  "findings": [
+    {
+      "id": "N3",
+      "severity": "medium",
+      "evidence": "file:pose-mcp/internal/pose/kept_cache.go:50",
+      "action": "R5 remains violated after concurrent distinct-key misses. Eviction runs only before admission and preserves every pending entry; completion then retains every successful value without checking capacity. Start N distinct blocked computations with bound 1, then release them: all N completed values remain in entries, and subsequent hits never trigger eviction. The existing TestABoundCrossingKeepsAPendingKey already exercises the two-key case but does not assert retained size. This affects all four production caches and permits retention determined by an arbitrarily large concurrency burst rather than the configured bound. Enforce the retained-value bound when computations complete while preserving pending-key coordination, and add a barrier-controlled test that checks retained size after all producers finish.",
+      "disposition": "open"
+    }
+  ],
+  "authority": {
+    "schema_version": 1,
+    "project": "proj.pose-dist",
+    "bundle_digest": "sha256:9e1b6b5408b50c1751d1f511e8d11264eec94801c46c73c149e54740747f7f4b",
+    "principal": "agent:openai/gpt-6.1-sol",
+    "role": "agent",
+    "review_execution": "rrn-06a1e0155a43be30",
+    "implementation_principal": "agent:anthropic/claude-opus-5-5",
+    "implementation_execution": "sha256:0eb880a4fc2ed87a379c949a567b1d3dfbd6b58b466f4755fcd363dd2b7fed98",
+    "issuer": "b34-local-executor",
+    "issued_at": "2026-11-15T16:11:49Z",
+    "audience": "proj.pose-dist"
+  },
+  "envelope": {
+    "issuer": "b34-local-executor",
+    "subject": "rvb-9e1b6b5408b50c17",
+    "algorithm": "ed25519",
+    "public_key": "ck4sApdfePV2GT+hJyAYfJd2qLzeG55P8pevGR0bvZE=",
+    "signature": "yS58UabnxzcHYYSfta7KfIFhrsplLAegH2NRn34Nt+pM/+ACize3oBdy0W8DAnigekGhOTXhmFpeyAhc5/cGBQ=="
+  },
+  "attested_at": "2026-11-15T16:11:49Z",
+  "path": ".pose/review-attestations/rva-4095164cf39f081d.json"
+}
