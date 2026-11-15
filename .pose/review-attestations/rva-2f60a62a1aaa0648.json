@@ -1,0 +1,223 @@
+{
+  "run": {
+    "run_id": "rrn-18325d957ae046e0",
+    "proof_id": "rrp-0ee2e669427112738565dd0cc84a8fd8b5864aa59d01dc39a57f560410f44d35"
+  },
+  "schema_version": 1,
+  "attestation_id": "rva-2f60a62a1aaa0648",
+  "bundle_id": "rvb-f2cd2bce484ded51",
+  "bundle_digest": "sha256:f2cd2bce484ded51401b318eb7858991a0315ab9ba6767caa772cf4d075d6ef4",
+  "reviewer": "agent:openai/gpt-6.1-sol",
+  "decision": "changes-requested",
+  "criteria": [
+    {
+      "id": "assumption-integrity",
+      "disposition": "finding",
+      "evidence": "N10",
+      "rationale": "The assertion that a top level exceeding 4096 entries cannot be cleaned is false when go-build removal would reduce it below that limit. Unix-only delivery and unchanged Windows behavior are explicit scope assumptions; platform compilation evidence does not establish Windows functionality."
+    },
+    {
+      "id": "backend-concurrency",
+      "disposition": "finding",
+      "evidence": "N9",
+      "rationale": "Top-level replacement windows are guarded, but recursive child removal closes the identity-bearing descriptor before removal and lacks unlink confirmation."
+    },
+    {
+      "id": "backend-contracts",
+      "disposition": "passed",
+      "evidence": "integration:pose-mcp/go/delegated-adapter-containment-integration",
+      "rationale": "Inspected cleanup entrypoints and returned error handling; no CLI, MCP, event or persisted schema changes were introduced."
+    },
+    {
+      "id": "backend-input-errors",
+      "disposition": "passed",
+      "evidence": "unit:pose-mcp/go/test",
+      "rationale": "Inspected numeric name matching, non-directory handling, bounded batch sizes, entry/byte/depth overflow paths and nonblocking directory opens. Failures return cleanup-incomplete context rather than exposing arbitrary underlying data."
+    },
+    {
+      "id": "backend-integration-impact",
+      "disposition": "passed",
+      "evidence": "integration:pose-mcp/go/review-cleanup-removes-go-build-leftovers-integration",
+      "rationale": "The shared cleanup path invokes go-build cleanup before ordinary runtime inventory, so the behavior is composed independently of adapter selection."
+    },
+    {
+      "id": "backend-observability",
+      "disposition": "passed",
+      "evidence": "integration:pose-mcp/go/delegated-adapter-containment-integration",
+      "rationale": "Inspected propagation of inventory, identity-change and incomplete-removal errors into containment cleanup results. Messages are bounded and do not include file contents or credentials."
+    },
+    {
+      "id": "compatibility",
+      "disposition": "passed",
+      "evidence": "integration:pose-mcp/go/cli-mcp-operation-results-integration",
+      "rationale": "The change preserves public CLI and MCP signatures, file formats and operation-result contracts. The non-Unix implementation preserves prior behavior, as amended R1 explicitly states."
+    },
+    {
+      "id": "correctness",
+      "disposition": "finding",
+      "evidence": "N10",
+      "rationale": "Focused existing regressions pass, but the new preliminary inventory rejects a runtime that becomes valid after required go-build cleanup. N9 additionally identifies a recursive removal race."
+    },
+    {
+      "id": "design-causality",
+      "disposition": "passed",
+      "evidence": "structure:design-0c045c9203b90db4",
+      "rationale": "Compared R1-R3 with the shared cleanup call and platform implementations. A separate 200000-entry, 8 GiB inventory directly addresses large interrupted Go builds without raising the ordinary runtime allowance. Descriptor-relative no-follow opens address replacement and link hazards. No structural facts requiring individual mappings were listed in the brief."
+    },
+    {
+      "id": "documentation",
+      "disposition": "passed",
+      "evidence": "integration:pose-mcp/go/review-cleanup-removes-go-build-leftovers-integration",
+      "rationale": "Reviewed the scope spec, requirement trace, platform qualification, recorded review history and validation matrix. R1 explicitly excludes non-Unix delivery, and F1-F3 identify existing platform and containment follow-ups."
+    },
+    {
+      "id": "operability",
+      "disposition": "finding",
+      "evidence": "N10",
+      "rationale": "A runtime that should become admissible after go-build removal is retained with an inventory-incomplete error, preserving an avoidable cleanup refusal."
+    },
+    {
+      "id": "requirements",
+      "disposition": "finding",
+      "evidence": "N10",
+      "rationale": "R1's independent cleanup ordering is not honored for a top-level inventory exceeding 4096 entries before go-build removal. Existing regression evidence does not cover this boundary. N9 identifies an additional unconfirmed subtree removal."
+    },
+    {
+      "id": "scope",
+      "disposition": "passed",
+      "evidence": "structure:design-0c045c9203b90db4",
+      "rationale": "Compared all changed implementation and governance artifacts against the spec. The change remains a focused cleanup bugfix; platform compilation checks support the new platform split. Windows cleanup is explicitly deferred by amended R1."
+    },
+    {
+      "id": "security",
+      "disposition": "finding",
+      "evidence": "N9",
+      "rationale": "Inspected descriptor-relative traversal, symlink exclusion, ownership checks and removal confirmation. Recursive child identity is not retained through unlink confirmation, allowing successful cleanup to conceal a moved owned subtree."
+    },
+    {
+      "id": "solution-proportionality",
+      "disposition": "passed",
+      "evidence": "structure:design-0c045c9203b90db4",
+      "rationale": "A narrowly named, separately budgeted cleanup is proportionate to the observed large Go-build leftover. Raising the whole runtime allowance would weaken unrelated inventory limits. The platform helper avoids speculative abstraction, while Windows remains explicit deferred work. This choice would need reconsideration if additional build-tool leftovers require equivalent exceptions."
+    }
+  ],
+  "tools": [
+    {
+      "id": "artifact-check",
+      "disposition": "passed",
+      "evidence": "command:pose artifact-check --spec pose-review-cleanup-removes-go-build-leftovers --from 79157194e51e52aa471aedacc4c0e4b2d052b7ee --to 33702ed23d4cdc11a9e94e0ee01f9d6279f2ebaf --strict --json",
+      "rationale": "Ran the requested command and then the explicit sealed range to avoid unrelated commits sharing the slug. The explicit-range strict check exited 0; repository-wide orphan warnings were not treated as defects in this change."
+    },
+    {
+      "id": "assess-design",
+      "disposition": "not-used",
+      "evidence": "structure:design-0c045c9203b90db4",
+      "rationale": "Used the sealed design evidence and independently inspected structure; did not run an assessment that could write repository state."
+    },
+    {
+      "id": "assess-discover",
+      "component": "pose-mcp",
+      "disposition": "not-used",
+      "evidence": "command:git diff 79157194e51e52aa471aedacc4c0e4b2d052b7ee 33702ed23d4cdc11a9e94e0ee01f9d6279f2ebaf -- pose-mcp/internal/pose/review_adapter_containment.go .pose/indexes/validation-matrix.json",
+      "rationale": "Skipped the state-writing assessment under the no-repository-changes boundary; inspected affected component code and validation changes directly."
+    },
+    {
+      "id": "assess-integrate",
+      "disposition": "not-used",
+      "evidence": "integration:pose-mcp/go/review-cleanup-removes-go-build-leftovers-integration",
+      "rationale": "No public inter-module contract changed. Used sealed integration evidence and independently inspected cleanup composition without writing assessment state."
+    },
+    {
+      "id": "assess-tech-debt",
+      "disposition": "not-used",
+      "evidence": "command:git diff 79157194e51e52aa471aedacc4c0e4b2d052b7ee 33702ed23d4cdc11a9e94e0ee01f9d6279f2ebaf -- pose-mcp/internal/pose/review_adapter_containment.go .pose/indexes/validation-matrix.json",
+      "rationale": "Skipped the state-writing assessment. Inspected changed code and the spec's F1-F3 follow-ups directly; no new TODO, FIXME, stub or panic marker was introduced in the reviewed implementation."
+    },
+    {
+      "id": "closeout-check",
+      "disposition": "deferred",
+      "evidence": "command:pose context --task spec:pose-review-cleanup-removes-go-build-leftovers --json",
+      "rationale": "Completion gate requires the recorded review conclusion; this independent run must not record an attestation."
+    },
+    {
+      "id": "review-check",
+      "disposition": "deferred",
+      "evidence": "command:pose context --task spec:pose-review-cleanup-removes-go-build-leftovers --json",
+      "rationale": "Completion gate requires the recorded review conclusion; POSE records and verifies this draft after the independent run."
+    },
+    {
+      "id": "suggest-review",
+      "component": "pose-mcp",
+      "disposition": "passed",
+      "evidence": "command:pose suggest review --path pose-mcp",
+      "rationale": "Selected backend-go, security and documentation-style rules and the review workflow."
+    },
+    {
+      "id": "surface-check",
+      "disposition": "passed",
+      "evidence": "integration:pose-mcp/go/review-cleanup-removes-go-build-leftovers-integration",
+      "rationale": "Ran pose surface-check --spec pose-review-cleanup-removes-go-build-leftovers --strict: one target, 222 validation results, zero findings. Composition evidence does not cover the newly identified edge cases."
+    },
+    {
+      "id": "validate",
+      "disposition": "passed",
+      "evidence": "unit:pose-mcp/go/test",
+      "rationale": "Used the bundle's sealed passing full-validation evidence, including unit:pose-mcp/go/test and integration:pose-mcp/go/review-cleanup-removes-go-build-leftovers-integration. Did not rerun the full matrix. Independently ran focused cleanup tests successfully."
+    },
+    {
+      "id": "validate",
+      "component": "pose-mcp",
+      "disposition": "passed",
+      "evidence": "integration:pose-mcp/go/review-cleanup-removes-go-build-leftovers-integration",
+      "rationale": "Used sealed module validation, including unit:pose-mcp/go/test, build:pose-mcp/go/build and the targeted integration evidence. Independently ran go test ./internal/pose -run 'TestAdapterCleanup|TestAdapterContainmentCleanup|TestReviewGoBuild' -count=1 successfully."
+    }
+  ],
+  "evidence_refs": [
+    "N10",
+    "N9",
+    "delegated-run:rrn-18325d957ae046e0",
+    "integration:pose-mcp/go/cli-mcp-operation-results-integration",
+    "integration:pose-mcp/go/delegated-adapter-containment-integration",
+    "integration:pose-mcp/go/review-cleanup-removes-go-build-leftovers-integration",
+    "structure:design-0c045c9203b90db4",
+    "unit:pose-mcp/go/test"
+  ],
+  "findings": [
+    {
+      "id": "N9",
+      "severity": "medium",
+      "evidence": "file:pose-mcp/internal/pose/review_go_build_cleanup_unix.go:161",
+      "action": "Recursive directory removal closes the verified child descriptor before unlinking its name at line 165, without checking the name again or confirming the original child's unlink through its descriptor. If an emptied child is renamed outside the runtime and replaced with an empty directory between recursion and unlinkat, the replacement is removed, the top-level go-build directory can then be removed and confirmed, and cleanup succeeds while the original owned subtree remains elsewhere. This leaves the recursive removal with the same unconfirmed-removal race already guarded against at the top level by lines 74-84. Keep the child descriptor open across removal and verify the binding and original unlink; add a synchronized nested-directory replacement regression.",
+      "disposition": "open"
+    },
+    {
+      "id": "N10",
+      "severity": "medium",
+      "evidence": "file:pose-mcp/internal/pose/review_adapter_containment.go:629",
+      "action": "The preliminary scan applies the runtime's 4096-entry bound before removing go-build directories, although R1 requires their separate cleanup before the ordinary runtime inventory. For example, 4096 small ordinary files plus one small go-build directory immediately returns incomplete, even though removing that directory first leaves exactly 4096 entries and satisfies the existing runtime inventory. More than 4096 small go-build directories likewise cannot reach their individual bounded cleanups. Bound enumeration without counting removable go-build directories against the post-cleanup runtime inventory, and cover this boundary with a regression.",
+      "disposition": "open"
+    }
+  ],
+  "authority": {
+    "schema_version": 1,
+    "project": "proj.pose-dist",
+    "bundle_digest": "sha256:f2cd2bce484ded51401b318eb7858991a0315ab9ba6767caa772cf4d075d6ef4",
+    "principal": "agent:openai/gpt-6.1-sol",
+    "role": "agent",
+    "review_execution": "rrn-18325d957ae046e0",
+    "implementation_principal": "agent:anthropic/claude-opus-5-5",
+    "implementation_execution": "sha256:0eb880a4fc2ed87a379c949a567b1d3dfbd6b58b466f4755fcd363dd2b7fed98",
+    "issuer": "b34-local-executor",
+    "issued_at": "2026-11-15T03:10:14Z",
+    "audience": "proj.pose-dist"
+  },
+  "envelope": {
+    "issuer": "b34-local-executor",
+    "subject": "rvb-f2cd2bce484ded51",
+    "algorithm": "ed25519",
+    "public_key": "ck4sApdfePV2GT+hJyAYfJd2qLzeG55P8pevGR0bvZE=",
+    "signature": "iOQmqPhZyxONwQs1wV7BY51GHlnnpjUZsIfFWI+NC9wf8VL85eLYwWXDbuQBMz6qyXbXRqOe9SC7QP4xH/5TDQ=="
+  },
+  "attested_at": "2026-11-15T03:10:14Z",
+  "path": ".pose/review-attestations/rva-2f60a62a1aaa0648.json"
+}
