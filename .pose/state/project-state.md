@@ -88,10 +88,10 @@ capacidade.
   - report:2026-11-06-pose-b34-global-review-view-budget.md
 
 ## Arquitetura
-<!-- state:derived hash:8438266fa5d2 status:active -->
+<!-- state:derived hash:165150d0c649 status:active -->
 
 - componentes: total=3 verificados=3 completude=99.2%
-- linhas_de_codigo: producao=118127 testes=113178 total=231305
+- linhas_de_codigo: producao=118323 testes=113442 total=231765
 - linguagens: go
 - saude_de_codigo: TODOs=1 FIXMEs=0 panics=1 stubs=0
 - integracoes: contratos=70 ativos=6 gaps=64
