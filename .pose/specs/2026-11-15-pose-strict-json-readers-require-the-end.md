@@ -1,8 +1,8 @@
 ---
 slug: pose-strict-json-readers-require-the-end
-status: in-progress
+status: done
 created_at: 2026-11-15
-completed_at:        # stamped on the transition to status: done
+completed_at: 2026-11-15
 supersedes:          # slug of the superseded spec (when applicable)
 depends_on:          # prerequisites, inline list: other-spec, milestone:<roadmap>/<id>, roadmap:<slug>
 remediates: spec:pose-hooks-delegate-to-the-instance-runner@defect-fix
