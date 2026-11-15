@@ -1,7 +1,7 @@
 {
   "schema_version": 2,
-  "input_digest": "sha256:fd1502b02f549b1a25e387b07a2f10691f273b544e68d232ff02413bae671f13",
-  "provenance_digest": "sha256:f1175fc17c5c9e33c99cffe405b47ed5ab200ea0e90abf9bd87a7c339cca2243",
+  "input_digest": "sha256:c73e481c8c3161fd20b64175d319c03654ed75f450d47e9a8416f80363b790d4",
+  "provenance_digest": "sha256:efada3cd40a0e38275cc9d438f16eb49dbfd896ea73bf1a0abfad6166989e4cc",
   "implied_edges": [
     "changes"
   ],
@@ -44561,14 +44561,6 @@
       }
     },
     {
-      "id": "change-set:cs-42fd78561ab2",
-      "type": "change-set",
-      "attributes": {
-        "diff_digest": "sha256:8d3a8c2807a24c1c897c407469c82acd7684506acd24e4aa544a8d4f3b0714d2",
-        "selector": "trailers:pose-governance-git-reads-untranslated"
-      }
-    },
-    {
       "id": "change-set:cs-4344f871fac4",
       "type": "change-set",
       "attributes": {
@@ -46462,6 +46454,14 @@
       "attributes": {
         "diff_digest": "sha256:85fd6a28113db23bb2c4f080fae42c93b7f21aee56a76ffbaa99c923b4326e75",
         "selector": "trailers:pose-upgrade-journey-starts-below-the-newest-capability"
+      }
+    },
+    {
+      "id": "change-set:cs-b1255028b843",
+      "type": "change-set",
+      "attributes": {
+        "diff_digest": "sha256:502903d7070f7118a342bbe88e07d7426a12007b36804a3d158ee7813433bf07",
+        "selector": "trailers:pose-governance-git-reads-untranslated"
       }
     },
     {
@@ -118202,7 +118202,7 @@
     },
     {
       "from": "spec:pose-governance-git-reads-untranslated",
-      "to": "change-set:cs-42fd78561ab2",
+      "to": "change-set:cs-b1255028b843",
       "type": "observed-by"
     },
     {
@@ -209072,52 +209072,6 @@
       }
     },
     {
-      "id": "cs-42fd78561ab2",
-      "spec": "pose-governance-git-reads-untranslated",
-      "selector": "trailers:pose-governance-git-reads-untranslated",
-      "base": "89664ddedec4de20649067a24208fef4336a8b13^",
-      "head": "87534746c33463a7ab35a67025711f1d985ff119",
-      "resolved_base": "26b011d774c6fcab4bf6cb03f75a01e2f197921e",
-      "resolved_head": "87534746c33463a7ab35a67025711f1d985ff119",
-      "commits": [
-        "89664ddedec4de20649067a24208fef4336a8b13",
-        "87534746c33463a7ab35a67025711f1d985ff119"
-      ],
-      "paths": [
-        {
-          "action": "created",
-          "path": ".pose/specs/2026-11-15-pose-governance-git-reads-untranslated.md"
-        },
-        {
-          "action": "created",
-          "path": ".pose/starts/pose-governance-git-reads-untranslated.json"
-        },
-        {
-          "action": "created",
-          "path": "pose-mcp/internal/pose/governance_git_untranslated_test.go"
-        },
-        {
-          "action": "modified",
-          "path": ".pose/indexes/validation-matrix.json"
-        },
-        {
-          "action": "modified",
-          "path": "pose-mcp/internal/pose/governance_read_view_git.go"
-        }
-      ],
-      "diff_digest": "sha256:8d3a8c2807a24c1c897c407469c82acd7684506acd24e4aa544a8d4f3b0714d2",
-      "material_digest": "sha256:cfff81cd4302e4a4c25b90b74356e25710d64e30890e492760f9a37263e8e7ee",
-      "material_inputs": {
-        "names": [
-          ".pose/indexes/validation-matrix.json",
-          ".pose/specs/2026-11-15-pose-governance-git-reads-untranslated.md",
-          ".pose/starts/pose-governance-git-reads-untranslated.json",
-          "pose-mcp/internal/pose/governance_git_untranslated_test.go",
-          "pose-mcp/internal/pose/governance_read_view_git.go"
-        ]
-      }
-    },
-    {
       "id": "cs-4344f871fac4",
       "spec": "pose-onboarding-context-extraction",
       "selector": "trailers:pose-onboarding-context-extraction",
@@ -256028,6 +255982,68 @@
           ".pose/state/project-state.md",
           ".pose/state/refresh-log.jsonl",
           "tests/journeys/install-and-upgrade.sh"
+        ]
+      }
+    },
+    {
+      "id": "cs-b1255028b843",
+      "spec": "pose-governance-git-reads-untranslated",
+      "selector": "trailers:pose-governance-git-reads-untranslated",
+      "base": "89664ddedec4de20649067a24208fef4336a8b13^",
+      "head": "d6e275d4f6cac69518e6ee1e973ce1b812a150ef",
+      "resolved_base": "26b011d774c6fcab4bf6cb03f75a01e2f197921e",
+      "resolved_head": "d6e275d4f6cac69518e6ee1e973ce1b812a150ef",
+      "commits": [
+        "89664ddedec4de20649067a24208fef4336a8b13",
+        "87534746c33463a7ab35a67025711f1d985ff119",
+        "d6e275d4f6cac69518e6ee1e973ce1b812a150ef"
+      ],
+      "paths": [
+        {
+          "action": "created",
+          "path": ".pose/specs/2026-11-15-pose-governance-git-reads-untranslated.md"
+        },
+        {
+          "action": "created",
+          "path": ".pose/starts/pose-governance-git-reads-untranslated.json"
+        },
+        {
+          "action": "created",
+          "path": "pose-mcp/internal/pose/governance_git_untranslated_test.go"
+        },
+        {
+          "action": "modified",
+          "path": ".pose/indexes/delivery-integrity.json"
+        },
+        {
+          "action": "modified",
+          "path": ".pose/indexes/generation.json"
+        },
+        {
+          "action": "modified",
+          "path": ".pose/indexes/spec-graph.json"
+        },
+        {
+          "action": "modified",
+          "path": ".pose/indexes/validation-matrix.json"
+        },
+        {
+          "action": "modified",
+          "path": "pose-mcp/internal/pose/governance_read_view_git.go"
+        }
+      ],
+      "diff_digest": "sha256:502903d7070f7118a342bbe88e07d7426a12007b36804a3d158ee7813433bf07",
+      "material_digest": "sha256:cfff81cd4302e4a4c25b90b74356e25710d64e30890e492760f9a37263e8e7ee",
+      "material_inputs": {
+        "names": [
+          ".pose/indexes/delivery-integrity.json",
+          ".pose/indexes/generation.json",
+          ".pose/indexes/spec-graph.json",
+          ".pose/indexes/validation-matrix.json",
+          ".pose/specs/2026-11-15-pose-governance-git-reads-untranslated.md",
+          ".pose/starts/pose-governance-git-reads-untranslated.json",
+          "pose-mcp/internal/pose/governance_git_untranslated_test.go",
+          "pose-mcp/internal/pose/governance_read_view_git.go"
         ]
       }
     },
