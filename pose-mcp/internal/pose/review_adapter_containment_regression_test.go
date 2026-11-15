@@ -409,3 +409,34 @@ func TestAdapterCleanupRefusesAReplacedGoBuildDirectory(t *testing.T) {
 		})
 	}
 }
+
+// Review round 2 (N1): a go-build directory renamed away and replaced after
+// the last check of its name, just before its removal, leaves the cleanup
+// incomplete; the removal of the replacement does not confirm it.
+func TestAdapterCleanupRefusesAGoBuildReplacedBeforeRemoval(t *testing.T) {
+	if runtime.GOOS != "linux" {
+		t.Skip("Linux descriptor and symlink qualification")
+	}
+	f := makeContainmentCleanupFixture(t)
+	build := filepath.Join(f.tmp, "go-build9")
+	if err := os.MkdirAll(build, 0o700); err != nil {
+		t.Fatal(err)
+	}
+	away := filepath.Join(t.TempDir(), "away")
+	original := reviewGoBuildBeforeRemove
+	reviewGoBuildBeforeRemove = func(string) {
+		if err := os.Rename(build, away); err != nil {
+			t.Error(err)
+		}
+		if err := os.Mkdir(build, 0o700); err != nil {
+			t.Error(err)
+		}
+	}
+	defer func() { reviewGoBuildBeforeRemove = original }()
+	if err := f.cleanup(); err == nil {
+		t.Fatal("removing a replacement confirmed the go-build cleanup")
+	}
+	if info, err := os.Stat(away); err != nil || !info.IsDir() {
+		t.Fatalf("the renamed directory was lost: %v", err)
+	}
+}

@@ -112,7 +112,7 @@ Teste de regressão sobre o fixture de limpeza de contenção existente; testes 
 ### Requirement trace
 - R1 [satisfied] test:TestAdapterCleanupRemovesGoBuildLeftovers check:review-cleanup-removes-go-build-leftovers-integration
 - R2 [satisfied] test:TestAdapterCleanupRemovesGoBuildLeftovers
-- R3 [satisfied] test:TestAdapterCleanupRefusesAReplacedGoBuildDirectory test:TestAdapterContainmentCleanupCapturedRootsRefuseReplacement
+- R3 [satisfied] test:TestAdapterCleanupRefusesAReplacedGoBuildDirectory test:TestAdapterCleanupRefusesAGoBuildReplacedBeforeRemoval test:TestAdapterContainmentCleanupCapturedRootsRefuseReplacement
 
 ### Known gaps
 - Nenhuma.
@@ -139,4 +139,6 @@ A limpeza de uma execução de revisão remove, com inventário limitado própri
 ### Review
 
 Rodada 1 (run rrn-11320f4eeb5bcde3, attestation rva-823ad7b9b9b0738b, changes-requested): 1 bloqueador, tratado. F1 a identidade do diretório de build só era conferida ao abri-lo: renomeado para fora e trocado por um vazio durante a limpeza, o substituto seria removido e a limpeza confirmada, e o sumiço era aceito em silêncio. Depois de esvaziá-lo, o nome tem de ligar ainda o mesmo diretório, ou a limpeza fica incompleta; um teste sincronizado cobre a troca e o sumiço. A ferramenta `validate` saiu reprovada só porque a reexecução no sandbox do revisor estourou 600 s; a evidência selada passou.
+
+Rodada 2 (run rrn-78b11adc9ff36dd0, attestation rva-b65df389f4e7a242, changes-requested): o F1 ficou parcial e veio 1 bloqueador, tratado. N1 entre a última conferência do nome e a remoção, o diretório ainda podia ser trocado e a remoção do substituto confirmaria a limpeza. O diretório agora fica aberto durante a remoção, e só a confirmação, pelo descritor, de que ele ficou sem nenhum link (o original removido) confirma a limpeza; uma plataforma sem contagem de links não prova e recusa. Um teste sincronizado troca o diretório entre a conferência e a remoção.
 

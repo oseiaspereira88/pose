@@ -17,6 +17,7 @@ import (
 	"sort"
 	"strings"
 	"sync"
+	"syscall"
 	"time"
 	"unicode/utf8"
 )
@@ -597,8 +598,20 @@ func (s Store) cleanupReviewResources(tmp string, owned os.FileInfo, worktree st
 var reviewGoBuildDir = regexp.MustCompile(`^go-build[0-9]+$`)
 
 // reviewGoBuildAfterContents runs after a go-build directory is emptied and
-// before its name is checked again; tests use it to change the name there.
-var reviewGoBuildAfterContents = func(string) {}
+// before its name is checked again, and reviewGoBuildBeforeRemove between
+// that check and the removal; tests use them to change the name there.
+var (
+	reviewGoBuildAfterContents = func(string) {}
+	reviewGoBuildBeforeRemove  = func(string) {}
+)
+
+// reviewDirectoryUnlinked reports a directory, read through a descriptor
+// held across its removal, that is no longer linked anywhere. A platform
+// whose stat carries no link count cannot prove it and is refused.
+func reviewDirectoryUnlinked(info os.FileInfo) bool {
+	st, ok := info.Sys().(*syscall.Stat_t)
+	return ok && st.Nlink == 0
+}
 
 // removeReviewGoBuildLeftovers removes the Go build directories a reviewer's
 // interrupted `go test` or `go build` left at the top of the run's runtime
@@ -634,15 +647,28 @@ func removeReviewGoBuildLeftovers(root *os.Root) error {
 			return err
 		}
 		reviewGoBuildAfterContents(entry.Name())
-		// The name must still bind the directory just emptied: a directory
-		// renamed away and replaced, or gone, leaves what it held unaccounted
-		// for (review round 1, F1).
-		now, err := root.Lstat(entry.Name())
-		if err != nil || !os.SameFile(now, opened) {
+		// The name must still bind the directory just emptied, and the
+		// directory removed must be that one: it stays open through the
+		// removal, and only an unlinked original confirms it (review rounds
+		// 1 and 2, F1 and N1).
+		held, err := root.Open(entry.Name())
+		if err != nil {
 			return fmt.Errorf("runtime path changed during cleanup; replacement retained")
 		}
-		if err := root.Remove(entry.Name()); err != nil {
+		heldInfo, err := held.Stat()
+		if err != nil || !os.SameFile(heldInfo, opened) {
+			held.Close()
+			return fmt.Errorf("runtime path changed during cleanup; replacement retained")
+		}
+		reviewGoBuildBeforeRemove(entry.Name())
+		removeErr := root.Remove(entry.Name())
+		after, statErr := held.Stat()
+		held.Close()
+		if removeErr != nil {
 			return fmt.Errorf("runtime cleanup incomplete; resources retained")
+		}
+		if statErr != nil || !reviewDirectoryUnlinked(after) {
+			return fmt.Errorf("runtime path changed during cleanup; replacement retained")
 		}
 	}
 	return nil
