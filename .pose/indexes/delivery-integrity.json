@@ -1,7 +1,7 @@
 {
   "schema_version": 2,
-  "input_digest": "sha256:cf9ec1b87fe501075d5888333913db738a259649b618ee1b471510c07f3d54b3",
-  "provenance_digest": "sha256:19791909535773323c25555788a02c8322eed34782c90271401427cbe9c1a810",
+  "input_digest": "sha256:18018cffcca9a389c1e0a75549f4b599cd89c8ae32658717acd0e59d25782cdc",
+  "provenance_digest": "sha256:fdb265a8e9a01158592b8a64028533267760df65625b9649f32005318cc3fbc2",
   "implied_edges": [
     "changes"
   ],
@@ -43368,14 +43368,6 @@
       }
     },
     {
-      "id": "change-set:cs-12ad34d399af",
-      "type": "change-set",
-      "attributes": {
-        "diff_digest": "sha256:0e6b39d966273bfc6bd42170030f1793df9c7d58ba835f1c510a5c40a00af01d",
-        "selector": "trailers:pose-check-shares-the-federated-material"
-      }
-    },
-    {
       "id": "change-set:cs-131b7e889d37",
       "type": "change-set",
       "attributes": {
@@ -47485,6 +47477,14 @@
       "attributes": {
         "diff_digest": "sha256:ff405ad73bdc41d6830cb6e0b24264add441f5152f986e4f26c0a97ef9eb8d1a",
         "selector": "range:52630b6..b21dec8"
+      }
+    },
+    {
+      "id": "change-set:cs-f82c6586cb3e",
+      "type": "change-set",
+      "attributes": {
+        "diff_digest": "sha256:8c740c3f6649af6a5a851c85f72c5f110d99bbc78b49c03bf08bbce7be87446c",
+        "selector": "trailers:pose-check-shares-the-federated-material"
       }
     },
     {
@@ -105166,7 +105166,7 @@
     },
     {
       "from": "spec:pose-check-shares-the-federated-material",
-      "to": "change-set:cs-12ad34d399af",
+      "to": "change-set:cs-f82c6586cb3e",
       "type": "observed-by"
     },
     {
@@ -182454,85 +182454,6 @@
           ".pose/state/components/pose-mcp.json",
           ".pose/state/machinery-manifest.json",
           ".pose/state/project-state.md"
-        ]
-      }
-    },
-    {
-      "id": "cs-12ad34d399af",
-      "spec": "pose-check-shares-the-federated-material",
-      "selector": "trailers:pose-check-shares-the-federated-material",
-      "base": "6b574ed26dfbc32da5a89e42b442404409383f8a^",
-      "head": "54be85bc8389fff32faacf9110dd9ec89d93a02c",
-      "resolved_base": "729501a0b91a4ff6ca5c0aebc46eb0b82ba10128",
-      "resolved_head": "54be85bc8389fff32faacf9110dd9ec89d93a02c",
-      "commits": [
-        "6b574ed26dfbc32da5a89e42b442404409383f8a",
-        "7cf57237a2533b3466ee41adba09415e526c8237",
-        "efc4be615a589b71f4604eb8a6f109e6e440a5a4",
-        "26fb8749f1647ec3c8dd27f367c445f67afe5ba7",
-        "54be85bc8389fff32faacf9110dd9ec89d93a02c"
-      ],
-      "paths": [
-        {
-          "action": "created",
-          "path": ".pose/specs/2026-11-15-pose-check-shares-the-federated-material.md"
-        },
-        {
-          "action": "created",
-          "path": ".pose/starts/pose-check-shares-the-federated-material.json"
-        },
-        {
-          "action": "created",
-          "path": "pose-mcp/internal/pose/review_scope_index_inputs_test.go"
-        },
-        {
-          "action": "modified",
-          "path": ".pose/adr/2026-11-03-governance-reads-use-bounded-operation-scoped-views.md"
-        },
-        {
-          "action": "modified",
-          "path": ".pose/indexes/delivery-integrity.json"
-        },
-        {
-          "action": "modified",
-          "path": ".pose/indexes/generation.json"
-        },
-        {
-          "action": "modified",
-          "path": ".pose/indexes/spec-graph.json"
-        },
-        {
-          "action": "modified",
-          "path": ".pose/indexes/validation-matrix.json"
-        },
-        {
-          "action": "modified",
-          "path": ".pose/results/delivery-validation.json"
-        },
-        {
-          "action": "modified",
-          "path": "pose-mcp/internal/pose/governance_read_view.go"
-        },
-        {
-          "action": "modified",
-          "path": "pose-mcp/internal/pose/review_operation_view.go"
-        }
-      ],
-      "diff_digest": "sha256:0e6b39d966273bfc6bd42170030f1793df9c7d58ba835f1c510a5c40a00af01d",
-      "material_digest": "sha256:5caaa851d95c9210e7a0525b867b61b7972594deb11bfe0bdfb28618a0f9393c",
-      "material_inputs": {
-        "names": [
-          ".pose/adr/2026-11-03-governance-reads-use-bounded-operation-scoped-views.md",
-          ".pose/indexes/delivery-integrity.json",
-          ".pose/indexes/generation.json",
-          ".pose/indexes/spec-graph.json",
-          ".pose/indexes/validation-matrix.json",
-          ".pose/results/delivery-validation.json",
-          ".pose/specs/2026-11-15-pose-check-shares-the-federated-material.md",
-          ".pose/starts/pose-check-shares-the-federated-material.json",
-          "pose-mcp/internal/pose/governance_read_view.go",
-          "pose-mcp/internal/pose/review_operation_view.go",
-          "pose-mcp/internal/pose/review_scope_index_inputs_test.go"
         ]
       }
     },
@@ -288133,6 +288054,86 @@
         }
       ],
       "diff_digest": "sha256:ff405ad73bdc41d6830cb6e0b24264add441f5152f986e4f26c0a97ef9eb8d1a"
+    },
+    {
+      "id": "cs-f82c6586cb3e",
+      "spec": "pose-check-shares-the-federated-material",
+      "selector": "trailers:pose-check-shares-the-federated-material",
+      "base": "6b574ed26dfbc32da5a89e42b442404409383f8a^",
+      "head": "3ab01deb38df5edf8aa073c9c0302b9607ef91a0",
+      "resolved_base": "729501a0b91a4ff6ca5c0aebc46eb0b82ba10128",
+      "resolved_head": "3ab01deb38df5edf8aa073c9c0302b9607ef91a0",
+      "commits": [
+        "6b574ed26dfbc32da5a89e42b442404409383f8a",
+        "7cf57237a2533b3466ee41adba09415e526c8237",
+        "efc4be615a589b71f4604eb8a6f109e6e440a5a4",
+        "26fb8749f1647ec3c8dd27f367c445f67afe5ba7",
+        "54be85bc8389fff32faacf9110dd9ec89d93a02c",
+        "3ab01deb38df5edf8aa073c9c0302b9607ef91a0"
+      ],
+      "paths": [
+        {
+          "action": "created",
+          "path": ".pose/specs/2026-11-15-pose-check-shares-the-federated-material.md"
+        },
+        {
+          "action": "created",
+          "path": ".pose/starts/pose-check-shares-the-federated-material.json"
+        },
+        {
+          "action": "created",
+          "path": "pose-mcp/internal/pose/review_scope_index_inputs_test.go"
+        },
+        {
+          "action": "modified",
+          "path": ".pose/adr/2026-11-03-governance-reads-use-bounded-operation-scoped-views.md"
+        },
+        {
+          "action": "modified",
+          "path": ".pose/indexes/delivery-integrity.json"
+        },
+        {
+          "action": "modified",
+          "path": ".pose/indexes/generation.json"
+        },
+        {
+          "action": "modified",
+          "path": ".pose/indexes/spec-graph.json"
+        },
+        {
+          "action": "modified",
+          "path": ".pose/indexes/validation-matrix.json"
+        },
+        {
+          "action": "modified",
+          "path": ".pose/results/delivery-validation.json"
+        },
+        {
+          "action": "modified",
+          "path": "pose-mcp/internal/pose/governance_read_view.go"
+        },
+        {
+          "action": "modified",
+          "path": "pose-mcp/internal/pose/review_operation_view.go"
+        }
+      ],
+      "diff_digest": "sha256:8c740c3f6649af6a5a851c85f72c5f110d99bbc78b49c03bf08bbce7be87446c",
+      "material_digest": "sha256:5caaa851d95c9210e7a0525b867b61b7972594deb11bfe0bdfb28618a0f9393c",
+      "material_inputs": {
+        "names": [
+          ".pose/adr/2026-11-03-governance-reads-use-bounded-operation-scoped-views.md",
+          ".pose/indexes/delivery-integrity.json",
+          ".pose/indexes/generation.json",
+          ".pose/indexes/spec-graph.json",
+          ".pose/indexes/validation-matrix.json",
+          ".pose/results/delivery-validation.json",
+          ".pose/specs/2026-11-15-pose-check-shares-the-federated-material.md",
+          ".pose/starts/pose-check-shares-the-federated-material.json",
+          "pose-mcp/internal/pose/governance_read_view.go",
+          "pose-mcp/internal/pose/review_operation_view.go",
+          "pose-mcp/internal/pose/review_scope_index_inputs_test.go"
+        ]
+      }
     },
     {
       "id": "cs-f89079a217f0",
