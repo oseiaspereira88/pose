@@ -2399,6 +2399,13 @@
           "evidenceClass": "integration"
         },
         {
+          "name": "check-shares-the-federated-material-integration",
+          "program": "go",
+          "args": ["test", "./internal/pose", "-run", "TestScopeIndexInputsAreCheckedOncePerCoordinator|TestAScopeIndexInputChangedDuringTheCoordinatorFailsItsAudit|TestGovernanceReadViewScopeCoordinator|TestGovernanceReadViewD7Probe", "-count=1"],
+          "severity": "required",
+          "evidenceClass": "integration"
+        },
+        {
           "name": "federated-proof-reads-each-input-once-integration",
           "program": "go",
           "args": ["test", "./internal/pose", "-run", "TestCurrentMaterialIsReadOncePerCommit|TestCurrentMaterialFollowsAMovedHead|TestCurrentMaterialWithoutAHeadIsNotKept|TestCurrentMaterialKeptDigestsAreBounded|TestEvidenceIsJudgedAgainstTheCurrentMaterial|TestAReleaseSnapshotIsReadOncePerCommit|TestAKeptReleaseSnapshotIsCopiedToEachReader|TestAMovedReleaseTagIsReadAtItsNewCommit|TestAFailedReleaseSnapshotReadIsNotKept|TestAReleaseTagPeelIsKeptPerObject|TestAListedReleaseTagResolvesAsAloneOne|TestABundleHeaderIsParsedOncePerContent|TestAKeptValueIsComputedOnceForConcurrentMisses|TestADeclinedKeptValueIsComputedAgain|TestAnUnreadableMaterialIsAskedAgain|TestASnapshotWithGapsIsReadAgain|TestAFailedReleaseTagPeelIsAskedAgain|TestARecoveredReadIsComputedOnceAndKept|TestABoundCrossingKeepsAPendingKey|TestAConcurrentBurstKeepsNoMoreThanTheBound", "-count=1"],

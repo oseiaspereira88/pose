@@ -271,3 +271,30 @@ and streamed 1.26 GB in 2,511 reads, then 523 MB again in its audit.
 Streaming bounds memory, not I/O: the bytes read still grow with the
 attributed history.
 
+
+## A coordinator checks the consumed index's inputs for its scopes (D12) — 2026-11-15
+
+Spec `pose-check-shares-the-federated-material` refines D7. Under one
+coordinator, every scope consumes the same pinned index generation, and its
+inputs (the federated material among them) are the same for every scope.
+D7 made each scope recompute them inside its own capture. With the
+pose-dist corpus as a federated dependency, the federated material of one
+harne8 check costs about 150 s and several hundred MiB of retained reads.
+Each of 16 workers recomputed and retained it: `pose check --tolerant`
+passed 10 GB within a minute, and four workers took 37 minutes.
+
+A scope operation created by a coordinator delegates its check of the
+consumed index's inputs to the coordinator operation. The bindings are
+computed once per (root, generation, producer), through the coordinator's
+Files and charged to its budget. The coordinator's final audit, which D7
+already runs after every scope joins, covers those reads. A scope's own
+closure keeps everything else it reads. An input that changes while the
+scopes run fails the coordinator's audit, so the gate fails: no scope is
+judged against a freshness check its closure does not cover. Measured on
+harne8: 248 s at a 2.5 GB peak with 16 workers, against an abort past
+10 GB.
+
+This shares one immutable answer (whether the consumed generation's inputs
+are current) in the binding-aware way D7 requires: scopes already prove the
+coordinator's authorized root vector before a capture. It does not make the
+scopes one snapshot.

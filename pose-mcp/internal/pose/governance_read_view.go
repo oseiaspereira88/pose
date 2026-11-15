@@ -90,6 +90,13 @@ type governanceReadViewRoot struct {
 }
 
 type governanceReadViewOperation struct {
+	// indexInputsFrom, when set, is the coordinator operation a scope
+	// operation was created under: the scope's check of the consumed index's
+	// inputs is the coordinator's, read through the coordinator's Files and
+	// audited when every scope has joined (ADR
+	// governance-reads-use-bounded-operation-scoped-views D12).
+	indexInputsFrom                   *governanceReadViewOperation
+	indexInputsFiles                  Files
 	primary                           *governanceReadView
 	roots                             []*governanceReadViewRoot
 	initialRoots                      map[string]string
@@ -634,6 +641,9 @@ func (op *governanceReadViewOperation) checkIndexInputs(files Files, root, produ
 	if op == nil || pin == nil || pin.Status != IndexGenerationCurrent {
 		return nil
 	}
+	if from := op.indexInputsFrom; from != nil && from != op {
+		return from.checkIndexInputs(op.indexInputsFiles, root, producer, pin)
+	}
 	abs, err := filepath.Abs(root)
 	if err != nil {
 		return []string{"index input root could not be resolved"}
@@ -677,9 +687,14 @@ func (op *governanceReadViewOperation) checkIndexInputs(files Files, root, produ
 	return reasons
 }
 
+// governanceIndexInputBindingObserved sees each computation of an index
+// input's binding; tests count them.
+var governanceIndexInputBindingObserved = func(root, name string) {}
+
 // Revalidation must use the same captured project/resolver context as the
 // generation consumer, including when that consumer is a foreign Store.
 func (op *governanceReadViewOperation) indexInputBinding(files Files, root, producer, name string) (string, bool) {
+	governanceIndexInputBindingObserved(root, name)
 	if name != "federated-material" {
 		return IndexInputBindingIn(files, root, name)
 	}

@@ -649,6 +649,14 @@ func (s Store) WithReviewScopeOperationView(run func(Store) error) error {
 		readView.markUnknown("review-operation", "scope authorized root vector differs from coordinator")
 		return errors.Join(errGovernanceReadViewOutsideRoot, reviewOperationGovernanceAuditError(readView.audit(), readView, nil))
 	}
+	// The consumed index's inputs, the federated material among them, are the
+	// same for every scope of the coordinator: they are checked once, under
+	// the coordinator's view, whose audit runs after every scope joins (ADR
+	// governance-reads-use-bounded-operation-scoped-views D12).
+	if coordinatorView, _ := governanceReadViewFromFiles(parent.coordinatorStore.fsys()); coordinatorView != nil && coordinatorView.operation != nil {
+		readView.operation.indexInputsFrom = coordinatorView.operation
+		readView.operation.indexInputsFiles = parent.coordinatorStore.fsys()
+	}
 	view := &reviewOperationView{root: filepath.Clean(shared.Root), files: shared.fsys(), project: shared.FederatedProjectID, resolver: shared.FederatedResolver,
 		coordinator: parent, specUsed: parent.specUsed, specErr: parent.specErr, specFallback: parent.specFallback, specEntries: parent.specEntries, specBySlug: parent.specBySlug,
 		specBodySeen: make([]bool, len(parent.specEntries)), specBodyDigests: make([][32]byte, len(parent.specEntries)),
