@@ -1,0 +1,136 @@
+{
+  "safety": {
+    "schema_version": 1,
+    "profile": "legacy-trusted",
+    "platform": "linux/amd64",
+    "capabilities": {
+      "automatic-expiry": "unavailable",
+      "bounded-capture": "available",
+      "cpu-limit": "unavailable",
+      "credential-filesystem-isolation": "unavailable",
+      "environment-allowlist": "available",
+      "escaped-descendant-termination": "unavailable",
+      "filesystem-isolation": "unavailable",
+      "memory-limit": "unavailable",
+      "network-isolation": "unavailable",
+      "origin-isolation": "unavailable",
+      "parent-termination": "available",
+      "process-group-termination": "available",
+      "shared-git-isolation": "unavailable"
+    },
+    "limitations": [
+      "trusted local executable required; worktree is not a sandbox",
+      "outside writes, transient writes, shared Git and credential files are not isolated",
+      "no memory/CPU quota or control of descendants escaping the process group",
+      "cleanup filesystem calls remain subject to operating-system I/O latency",
+      "legacy compatibility: HOME retained; other ambient credentials excluded"
+    ],
+    "stream_bytes": 8388608,
+    "output_bytes": 65536,
+    "retained_bytes": 16777216,
+    "timeout_ms": 3600000,
+    "max_runs_per_bundle": 3,
+    "retention": "retain-evidence; ttl=0; no automatic deletion",
+    "capture_complete": true,
+    "runtime_id": "pose-review-run-4068910024",
+    "operation": {
+      "schema_version": 1,
+      "operation": "review.dispatch.cleanup",
+      "scope": "spec:pose-check-shares-the-federated-material",
+      "outcome": "completed",
+      "steps_run": [
+        {
+          "id": "cleanup",
+          "result": "done"
+        }
+      ],
+      "effects": [],
+      "resumable": false
+    }
+  },
+  "provenance": {
+    "execution_state": "started",
+    "planned_wire_digest": "sha256:ff601e9f4b99d9c3f019568a8a1fc0c194c10b8f7e16f482f1d777283bf3e5ae",
+    "wire_bytes": 26507,
+    "wire_complete": true,
+    "schema_version": 1,
+    "project": "proj.pose-dist",
+    "audience": "proj.pose-dist",
+    "worktree_digest": "sha256:9c161dc895f6496d9f800581bef8673cc9123cda65951fa2d23b0cbdbc2bac41",
+    "trust": "executor-attested",
+    "implementation": {
+      "principal": "agent:anthropic/claude-opus-5-5",
+      "execution": "sha256:0eb880a4fc2ed87a379c949a567b1d3dfbd6b58b466f4755fcd363dd2b7fed98",
+      "vendor": "anthropic",
+      "model": "claude-opus-5-5"
+    },
+    "reviewer": {
+      "principal": "agent:openai/gpt-6.1-sol",
+      "vendor": "openai",
+      "model": "gpt-6.1-sol"
+    },
+    "config_digest": "sha256:637a9d88c40dbf75da8525db65c216ace591f828ef25c233358db1a99e70ee31",
+    "command_template_digest": "sha256:e3a23ff8a55e559e954d107a039277628bfc51faa58d523ad6101de7c375ad28",
+    "argv_digest": "sha256:1e42d84a9775c6fa5870c5f82b4c4acf25617b7e81cae2fedfeda60f0d44a1a3",
+    "executable_digest": "sha256:e14fc83739c13c1074b12bd1acce4010c893c7f6fbfc1593b4a31d74cabb57af",
+    "template_version": "review-brief/7",
+    "wire_digest": "sha256:ff601e9f4b99d9c3f019568a8a1fc0c194c10b8f7e16f482f1d777283bf3e5ae",
+    "notes_digest": "sha256:498aa0b95a449c541eacceebe09089015a3c10b6ae8e81aabd52f72a0a57e6df",
+    "raw_transcript_digest": "sha256:719d3a9d2f7a2b8de8c2c9af79874673f4177503d4776ff496ef2fe2c392d98b",
+    "raw_output_digest": "sha256:ba7007524412adafc967306d8ee793f616075eb804f6f5d88f445b7ef73ce70b",
+    "output_source": "file",
+    "output_complete": true
+  },
+  "session_digest": "sha256:fdcd4ce53b15cc3f660c2b9b0e98c571305643081f74109004db9d49f8599498",
+  "tree_digest": "sha256:9e2b064eb08dcc50b5469f17d0444bbfc95e966423503a0e1b5ac79eef4ab99e",
+  "brief_notes": "Round 1 review of spec pose-check-shares-the-federated-material (an engine consistency and capacity fix, follow-up F1 of pose-federated-proof-reads-each-input-once, with ADR amendment D12 of governance-reads-use-bounded-operation-scoped-views).\n\nWhat to judge: a scope operation created by `WithReviewScopeOperationView` under a review coordinator gets `indexInputsFrom` (the coordinator's governance read view operation) and `indexInputsFiles` (the coordinator's Files); `checkIndexInputs` then delegates to the coordinator operation, whose memo (per root, generation and producer, with ready channels) computes each index input binding once for all scopes, reads through the coordinator's view, and is covered by the coordinator's final audit that D7 already runs after all scopes join. Judge whether the delegation keeps every binding check of D7 (root, project, resolver, Files identity, authorized root vector), whether an input changed during the run can still pass, whether a scope's own closure loses a read it needs to certify its verdict, and whether ADR D12 states the change accurately. Measured on harne8 with pose-dist at bf2ff02 and a current index: 16 workers, without the change an abort past 10.3 GB at 66 s; with it 248 s at a 2.5 GB peak.\n\nDo NOT run `pose assess`, `pose state`, `pose index` or anything else that writes under `.pose/`; dispose assess-* tools from the sealed evidence and the code. Leave the worktree as you found it. If you build or test Go code, let every `go test` finish (do not interrupt it) so the toolchain removes its own build directories. Dispose the `validate` tools from the sealed evidence: the pipeline ran `pose validate --strict` on a clean clone of the sealed commit with a GitHub token (`.pose/results/delivery-validation.json`); a rerun in your sandbox fails for environment reasons and is not evidence about the code. A finding object accepts exactly `id`, `severity`, `disposition`, `file`, `line`, `summary`, and for an accepted follow-up `action`, `owner`, `review_by`; put any rationale inside `summary`. A new finding's id carries no round prefix (F1, F2, ...). This is round 1: `prior_findings` is empty. Sweep the whole surface and report every finding in one pass, classified blocker vs follow-up.\n",
+  "ledger_version": 1,
+  "attempt_id": "rat-815c80358a9a9dddf15eb14358e5d75bf354b9c16915b70d174bd91bf2c8037f",
+  "schema_version": 1,
+  "run_id": "rrn-162a4fb077dc7c41",
+  "scope": "spec:pose-check-shares-the-federated-material",
+  "bundle_id": "rvb-2a8d48ba00986e84",
+  "bundle_digest": "sha256:2a8d48ba00986e843d5085064d3955cba750ecce03852a11c97cb57e100f41d4",
+  "sealed_commit": "3ab01deb38df5edf8aa073c9c0302b9607ef91a0",
+  "kind": "review",
+  "brief_digest": "sha256:0f3c8ff8b8db1fbc1fc7111869c9da905aedfedfc51310d3e14db93a9fc5eeb8",
+  "adapter": "sol-medium",
+  "vendor": "openai",
+  "model": "gpt-6.1-sol",
+  "started_at": "2026-11-15T17:33:16.419664363Z",
+  "ended_at": "2026-11-15T17:38:40.993950697Z",
+  "exit_code": 0,
+  "status": "completed",
+  "transcript_digest": "sha256:195b301ded0218e67157f2e62bda815bf115ab8209bd86d0eb7c53547b2cda55",
+  "transcript_path": ".pose/review-runs/rrn-162a4fb077dc7c41.transcript",
+  "output": "decision: approved\n\nNo defects found. The delegation preserves binding checks, shares computation through the coordinator’s synchronized memo, and leaves other scope reads independently audited.\n\nFocused race tests and additional index/registry tests passed. The exact-range artifact check found no errors; surface-check reported zero findings. Full validation uses the sealed pipeline evidence. The reported 2.5 GB corpus measurement was not independently reproduced.\n\nApplied pose-review, backend-go, security, documentation-style, and delivery-evidence rules. Repository unchanged; no attestation recorded.\n\n```pose-draft\n{\n  \"schema\": \"pose.review.draft/v1\",\n  \"decision\": \"approved\",\n  \"findings\": [],\n  \"criteria\": [\n    {\n      \"id\": \"assumption-integrity\",\n      \"disposition\": \"passed\",\n      \"evidence\": \"integration:pose-mcp/go/check-shares-the-federated-material-integration\",\n      \"rationale\": \"Verified exact Store binding checks, authorized-root-vector comparison, synchronized memo publication, and production worker joining before coordinator audit. Scope callbacks must finish their workers before returning; check.go satisfies this lifecycle contract. The corpus memory measurement remains reported evidence rather than an independently reproduced benchmark. Atomic snapshots and external ABA detection remain outside the existing contract.\"\n    },\n    {\n      \"id\": \"backend-concurrency\",\n      \"disposition\": \"passed\",\n      \"evidence\": \"integration:pose-mcp/go/check-shares-the-federated-material-integration\",\n      \"rationale\": \"Independently ran the focused integration selection with -race: passed. Delegation pointers are initialized before callback execution; existing mutex and ready-channel synchronization publishes the shared result safely. Production workers join before the coordinator audit. No new asynchronous lifecycle or cancellation contract is introduced.\"\n    },\n    {\n      \"id\": \"backend-contracts\",\n      \"disposition\": \"passed\",\n      \"evidence\": \"integration:pose-mcp/go/governance-read-view-integration\",\n      \"rationale\": \"The change adds internal operation fields and delegation only. CLI, MCP, persisted schemas, and public signatures remain unchanged.\"\n    },\n    {\n      \"id\": \"backend-input-errors\",\n      \"disposition\": \"passed\",\n      \"evidence\": \"integration:pose-mcp/go/check-shares-the-federated-material-integration\",\n      \"rationale\": \"Existing missing-binding, stale-binding, root-resolution, bounded-read, and audit errors remain in the path. Returned shared reasons are copied and applied to each consuming scope. Focused binding-refusal and exhaustion tests passed.\"\n    },\n    {\n      \"id\": \"backend-integration-impact\",\n      \"disposition\": \"passed\",\n      \"evidence\": \"integration:pose-mcp/go/check-shares-the-federated-material-integration\",\n      \"rationale\": \"Inspected production composition in check.go: scope results remain buffered until the coordinator returns, and coordinator audit errors prevent a green gate. Federated binding computation uses the coordinator resolver and authorized root routing.\"\n    },\n    {\n      \"id\": \"backend-observability\",\n      \"disposition\": \"passed\",\n      \"evidence\": \"integration:pose-mcp/go/check-shares-the-federated-material-integration\",\n      \"rationale\": \"Shared checks retain input-specific reasons; coordinator failures preserve changed/unknown typed causes and bounded path context. No new logging or sensitive output is introduced.\"\n    },\n    {\n      \"id\": \"compatibility\",\n      \"disposition\": \"passed\",\n      \"evidence\": \"integration:pose-mcp/go/governance-read-view-integration\",\n      \"rationale\": \"Examined the complete implementation diff and existing callers. Public CLI, file, and MCP contracts are unchanged. Historical approval, later rejection, retired binding, and independent closure tests continue to pass.\"\n    },\n    {\n      \"id\": \"correctness\",\n      \"disposition\": \"passed\",\n      \"evidence\": \"integration:pose-mcp/go/check-shares-the-federated-material-integration\",\n      \"rationale\": \"Focused race tests passed, proving one computation per input across concurrent scopes and coordinator rejection of changed shared inputs. Additional index-consumption, roadmap-child, and registry-final-audit tests passed.\"\n    },\n    {\n      \"id\": \"design-causality\",\n      \"disposition\": \"passed\",\n      \"evidence\": \"structure:design-8b97be1d37d0b5a6\",\n      \"rationale\": \"R1 addresses duplicated computation and retained reads by delegating only index-input checks to the existing coordinator memo. R2 keeps those reads under its final audit. review_operation_view.go:648 preserves root-vector authorization before delegation at line 656; governance_read_view.go:644 delegates through coordinator Files. Production composition waits for scopes and propagates coordinator audit errors.\",\n      \"mappings\": [\n        {\n          \"delta\": \"SD-e0fdbb6a\",\n          \"basis\": \"D1\",\n          \"disposition\": \"mapped\",\n          \"rationale\": \"The ADR D12 amendment records D1's choice to reuse the coordinator closure instead of introducing a process-wide material cache, implementing R1 and R2 while preserving independent scope captures.\"\n        }\n      ]\n    },\n    {\n      \"id\": \"documentation\",\n      \"disposition\": \"passed\",\n      \"evidence\": \"structure:design-8b97be1d37d0b5a6\",\n      \"rationale\": \"Compared ADR D12, spec R1/R2, implementation comments, and validation-matrix selection. They consistently describe coordinator-owned checks, coordinator final auditing, unchanged scope captures, and no simultaneous snapshot guarantee.\"\n    },\n    {\n      \"id\": \"operability\",\n      \"disposition\": \"passed\",\n      \"evidence\": \"integration:pose-mcp/go/check-shares-the-federated-material-integration\",\n      \"rationale\": \"Examined error propagation through scope and coordinator wrappers into check.go. Input changes, unavailable bindings, and budget exhaustion remain actionable failures with input/path context; callback and audit causes remain joined.\"\n    },\n    {\n      \"id\": \"requirements\",\n      \"disposition\": \"passed\",\n      \"evidence\": \"integration:pose-mcp/go/check-shares-the-federated-material-integration\",\n      \"rationale\": \"R1 is covered by the concurrent computation-count test and R2 by the changed-input coordinator-audit test; both passed independently under -race. The spec records the configured 16-worker corpus run completing at 2.5 GB, below its 4 GB target; that benchmark was not independently repeated.\"\n    },\n    {\n      \"id\": \"scope\",\n      \"disposition\": \"passed\",\n      \"evidence\": \"structure:design-8b97be1d37d0b5a6\",\n      \"rationale\": \"Compared the sealed range with the five declared artifacts. Implementation is confined to coordinator delegation and a test observation hook; regression tests, matrix registration, and ADR amendment support R1/R2. Generated governance artifacts do not expand runtime scope.\"\n    },\n    {\n      \"id\": \"security\",\n      \"disposition\": \"passed\",\n      \"evidence\": \"integration:pose-mcp/go/check-shares-the-federated-material-integration\",\n      \"rationale\": \"Verified scopeCatalogue still enforces root, project, resolver, Files identity, and active lifecycle before delegation. Authorized root vectors must match. Shared reads use captured coordinator Files and bounded routing; no new authority, credentials, dependencies, or external execution is introduced.\"\n    },\n    {\n      \"id\": \"solution-proportionality\",\n      \"disposition\": \"passed\",\n      \"evidence\": \"structure:design-8b97be1d37d0b5a6\",\n      \"rationale\": \"Compared delegation with D1's process-cache alternative. Reusing the existing operation memo and final audit is the smallest sufficient change and avoids inventing a complete process-cache invalidation key. It adds no speculative public abstraction. The choice would need reassessment if scopes acquired different authorized bindings or results were published before coordinator audit.\"\n    }\n  ],\n  \"tools\": [\n    {\n      \"id\": \"artifact-check\",\n      \"disposition\": \"passed\",\n      \"evidence\": \"command:pose artifact-check --spec pose-check-shares-the-federated-material --strict --from 729501a0b91a4ff6ca5c0aebc46eb0b82ba10128 --to 3ab01deb38df5edf8aa073c9c0302b9607ef91a0 --json\",\n      \"rationale\": \"Ran the required default command, then explicitly constrained the range because default trailer resolution included a commit beyond the sealed head. Exact-range reconciliation matched all five claims and returned no non-warning findings.\"\n    },\n    {\n      \"id\": \"assess-design\",\n      \"disposition\": \"not-used\",\n      \"rationale\": \"Used sealed structure:design-8b97be1d37d0b5a6 and independently inspected the spec, ADR, implementation, and production composition. Avoided assessment writes.\"\n    },\n    {\n      \"id\": \"assess-discover\",\n      \"component\": \"pose-mcp\",\n      \"disposition\": \"not-used\",\n      \"rationale\": \"Component discovery adds no necessary evidence for this internal delegation change. Inspected component code and sealed validation evidence without refreshing assessment artifacts.\"\n    },\n    {\n      \"id\": \"assess-integrate\",\n      \"disposition\": \"not-used\",\n      \"rationale\": \"No public API, event, Protobuf, or MCP contract changed. Independently inspected coordinator/scope and federated-root boundaries and used sealed integration evidence without assessment writes.\"\n    },\n    {\n      \"id\": \"assess-tech-debt\",\n      \"disposition\": \"not-used\",\n      \"rationale\": \"Manually inspected the complete implementation diff and searched changed code for TODO, FIXME, stub, and panic markers; none were introduced. Avoided assessment writes.\"\n    },\n    {\n      \"id\": \"closeout-check\",\n      \"disposition\": \"deferred\",\n      \"rationale\": \"Requires the completed review attestation. This independent review does not record attestations or perform closeout.\"\n    },\n    {\n      \"id\": \"review-check\",\n      \"disposition\": \"deferred\",\n      \"rationale\": \"Requires the completed review attestation; POSE must run it after recording this conclusion.\"\n    },\n    {\n      \"id\": \"suggest-review\",\n      \"component\": \"pose-mcp\",\n      \"disposition\": \"passed\",\n      \"evidence\": \"command:pose suggest review --path pose-mcp\",\n      \"rationale\": \"Selected backend-go, security, and documentation-style rules and consulted the review workflow.\"\n    },\n    {\n      \"id\": \"surface-check\",\n      \"disposition\": \"passed\",\n      \"evidence\": \"integration:pose-mcp/go/check-shares-the-federated-material-integration\",\n      \"rationale\": \"Ran pose surface-check --spec pose-check-shares-the-federated-material --strict: one target, 226 results, zero findings. Inspected production reachability through check.go.\"\n    },\n    {\n      \"id\": \"validate\",\n      \"disposition\": \"passed\",\n      \"evidence\": \"unit:pose-mcp/go/test\",\n      \"rationale\": \"Disposed from the sealed strict pipeline run and inspected delivery-validation.json: 226 executed, 226 passed, zero failures or errors. Did not rerun the environment-dependent full pipeline.\"\n    },\n    {\n      \"id\": \"validate\",\n      \"component\": \"pose-mcp\",\n      \"disposition\": \"passed\",\n      \"evidence\": \"integration:pose-mcp/go/check-shares-the-federated-material-integration\",\n      \"rationale\": \"Used the sealed strict validation covering pose-mcp build, unit, integration, and e2e checks. Independently reran the focused integration selection with -race and additional index/registry tests; all passed.\"\n    }\n  ]\n}\n```",
+  "policy_digest": "sha256:90ca53a44c8202b7914e12baa143afac5707221147f71fe6fa30a74bb415f911",
+  "purpose": "review",
+  "env_removed": [
+    "CLAUDE_CODE_BRIDGE_SESSION_ID",
+    "CLAUDE_CODE_CHILD_SESSION",
+    "CLAUDE_CODE_EXECPATH",
+    "CLAUDE_CODE_MESSAGING_SOCKET",
+    "CLAUDE_CODE_MESSAGING_TOKEN",
+    "CLAUDE_CODE_SESSION_ATTENDED",
+    "CLAUDE_CODE_SESSION_ID",
+    "CLAUDE_EFFORT",
+    "CLAUDE_PID"
+  ],
+  "events": "codex-jsonl",
+  "events_digest": "sha256:0a6e84d770cfc0bf2d246527bb7f639fc017ca3fea10436e1c98ed6754245912",
+  "routing": {
+    "requested": "sol-medium",
+    "implementation": {
+      "principal": "agent:anthropic/claude-opus-5-5",
+      "vendor": "anthropic",
+      "model": "claude-opus-5-5",
+      "execution_digest": "sha256:0eb880a4fc2ed87a379c949a567b1d3dfbd6b58b466f4755fcd363dd2b7fed98",
+      "source": "declared"
+    },
+    "implementation_from": "bundle",
+    "step": "explicit"
+  },
+  "independence_achieved": "different-vendor",
+  "round": 1
+}
