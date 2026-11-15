@@ -1,7 +1,7 @@
 {
   "schema_version": 2,
-  "input_digest": "sha256:96b6f0428bfba62da2f18de54c8d7ef7705db5a200fe252db2d67fd46aca4436",
-  "provenance_digest": "sha256:62bff8fbd6b3a3008b68be01174ac9e0efd36afe34282f93f5c5dc00aeedeebc",
+  "input_digest": "sha256:05d8afa2c737d5812f78759d7f4c2ed0800d1da53fdae05eef3031869a3a011c",
+  "provenance_digest": "sha256:c2f76d0f907f8c3fe38342040719b7991338360f414ea908f7a0dddeebda14fd",
   "implied_edges": [
     "changes"
   ],
@@ -43545,6 +43545,14 @@
       }
     },
     {
+      "id": "change-set:cs-0dc0ff3f3e25",
+      "type": "change-set",
+      "attributes": {
+        "diff_digest": "sha256:edcfe9e344e92a586a701765b354d88eec8b7c2505ec90ed9297c3f5831b0d94",
+        "selector": "trailers:pose-governance-git-reads-untranslated"
+      }
+    },
+    {
       "id": "change-set:cs-0e939f2f7b4a",
       "type": "change-set",
       "attributes": {
@@ -46022,14 +46030,6 @@
       "attributes": {
         "diff_digest": "sha256:8e747e9d834d236a0e5f4416ffd38d0410801dc7ccd67646a966d6f2b65c3400",
         "selector": "trailers:pose-package-channels-deferred-native-verification"
-      }
-    },
-    {
-      "id": "change-set:cs-9c052fce4b13",
-      "type": "change-set",
-      "attributes": {
-        "diff_digest": "sha256:ea10118fd3c1f31c05f07b8648d2368590534ed6f0f303e32104f2e4df0be6a0",
-        "selector": "trailers:pose-governance-git-reads-untranslated"
       }
     },
     {
@@ -118216,7 +118216,7 @@
     },
     {
       "from": "spec:pose-governance-git-reads-untranslated",
-      "to": "change-set:cs-9c052fce4b13",
+      "to": "change-set:cs-0dc0ff3f3e25",
       "type": "observed-by"
     },
     {
@@ -181034,6 +181034,76 @@
           ".pose/state/history.jsonl",
           ".pose/state/project-state.md",
           ".pose/state/refresh-log.jsonl"
+        ]
+      }
+    },
+    {
+      "id": "cs-0dc0ff3f3e25",
+      "spec": "pose-governance-git-reads-untranslated",
+      "selector": "trailers:pose-governance-git-reads-untranslated",
+      "base": "89664ddedec4de20649067a24208fef4336a8b13^",
+      "head": "acb136cbfdcfbdb8e424f0f709418dea0d187937",
+      "resolved_base": "26b011d774c6fcab4bf6cb03f75a01e2f197921e",
+      "resolved_head": "acb136cbfdcfbdb8e424f0f709418dea0d187937",
+      "commits": [
+        "89664ddedec4de20649067a24208fef4336a8b13",
+        "87534746c33463a7ab35a67025711f1d985ff119",
+        "d6e275d4f6cac69518e6ee1e973ce1b812a150ef",
+        "ea3d5d5246f2e5a6e4d8b90bb4724aaa3a7e68a8",
+        "ace92c63d9782f59bc0b9267daa9499302a9059e",
+        "acb136cbfdcfbdb8e424f0f709418dea0d187937"
+      ],
+      "paths": [
+        {
+          "action": "created",
+          "path": ".pose/specs/2026-11-15-pose-governance-git-reads-untranslated.md"
+        },
+        {
+          "action": "created",
+          "path": ".pose/starts/pose-governance-git-reads-untranslated.json"
+        },
+        {
+          "action": "created",
+          "path": "pose-mcp/internal/pose/governance_git_untranslated_test.go"
+        },
+        {
+          "action": "modified",
+          "path": ".pose/indexes/delivery-integrity.json"
+        },
+        {
+          "action": "modified",
+          "path": ".pose/indexes/generation.json"
+        },
+        {
+          "action": "modified",
+          "path": ".pose/indexes/spec-graph.json"
+        },
+        {
+          "action": "modified",
+          "path": ".pose/indexes/validation-matrix.json"
+        },
+        {
+          "action": "modified",
+          "path": ".pose/results/delivery-validation.json"
+        },
+        {
+          "action": "modified",
+          "path": "pose-mcp/internal/pose/governance_read_view_git.go"
+        }
+      ],
+      "diff_digest": "sha256:edcfe9e344e92a586a701765b354d88eec8b7c2505ec90ed9297c3f5831b0d94",
+      "material_digest": "sha256:cfff81cd4302e4a4c25b90b74356e25710d64e30890e492760f9a37263e8e7ee",
+      "material_inputs": {
+        "names": [
+          ".pose/indexes/delivery-integrity.json",
+          ".pose/indexes/generation.json",
+          ".pose/indexes/spec-graph.json",
+          ".pose/indexes/validation-matrix.json",
+          ".pose/results/delivery-validation.json",
+          ".pose/specs/2026-11-15-pose-governance-git-reads-untranslated.md",
+          ".pose/starts/pose-governance-git-reads-untranslated.json",
+          "pose-mcp/internal/pose/governance_git_untranslated_test.go",
+          "pose-mcp/internal/pose/governance_read_view_git.go"
         ]
       }
     },
@@ -245536,75 +245606,6 @@
           ".pose/state/refresh-log.jsonl",
           "docs-site/docs/package-channels.md",
           "pose-mcp/internal/version/package_channel_smoke_test.go"
-        ]
-      }
-    },
-    {
-      "id": "cs-9c052fce4b13",
-      "spec": "pose-governance-git-reads-untranslated",
-      "selector": "trailers:pose-governance-git-reads-untranslated",
-      "base": "89664ddedec4de20649067a24208fef4336a8b13^",
-      "head": "ace92c63d9782f59bc0b9267daa9499302a9059e",
-      "resolved_base": "26b011d774c6fcab4bf6cb03f75a01e2f197921e",
-      "resolved_head": "ace92c63d9782f59bc0b9267daa9499302a9059e",
-      "commits": [
-        "89664ddedec4de20649067a24208fef4336a8b13",
-        "87534746c33463a7ab35a67025711f1d985ff119",
-        "d6e275d4f6cac69518e6ee1e973ce1b812a150ef",
-        "ea3d5d5246f2e5a6e4d8b90bb4724aaa3a7e68a8",
-        "ace92c63d9782f59bc0b9267daa9499302a9059e"
-      ],
-      "paths": [
-        {
-          "action": "created",
-          "path": ".pose/specs/2026-11-15-pose-governance-git-reads-untranslated.md"
-        },
-        {
-          "action": "created",
-          "path": ".pose/starts/pose-governance-git-reads-untranslated.json"
-        },
-        {
-          "action": "created",
-          "path": "pose-mcp/internal/pose/governance_git_untranslated_test.go"
-        },
-        {
-          "action": "modified",
-          "path": ".pose/indexes/delivery-integrity.json"
-        },
-        {
-          "action": "modified",
-          "path": ".pose/indexes/generation.json"
-        },
-        {
-          "action": "modified",
-          "path": ".pose/indexes/spec-graph.json"
-        },
-        {
-          "action": "modified",
-          "path": ".pose/indexes/validation-matrix.json"
-        },
-        {
-          "action": "modified",
-          "path": ".pose/results/delivery-validation.json"
-        },
-        {
-          "action": "modified",
-          "path": "pose-mcp/internal/pose/governance_read_view_git.go"
-        }
-      ],
-      "diff_digest": "sha256:ea10118fd3c1f31c05f07b8648d2368590534ed6f0f303e32104f2e4df0be6a0",
-      "material_digest": "sha256:cfff81cd4302e4a4c25b90b74356e25710d64e30890e492760f9a37263e8e7ee",
-      "material_inputs": {
-        "names": [
-          ".pose/indexes/delivery-integrity.json",
-          ".pose/indexes/generation.json",
-          ".pose/indexes/spec-graph.json",
-          ".pose/indexes/validation-matrix.json",
-          ".pose/results/delivery-validation.json",
-          ".pose/specs/2026-11-15-pose-governance-git-reads-untranslated.md",
-          ".pose/starts/pose-governance-git-reads-untranslated.json",
-          "pose-mcp/internal/pose/governance_git_untranslated_test.go",
-          "pose-mcp/internal/pose/governance_read_view_git.go"
         ]
       }
     },
