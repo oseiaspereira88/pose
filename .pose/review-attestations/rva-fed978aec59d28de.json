@@ -1,0 +1,212 @@
+{
+  "run": {
+    "run_id": "rrn-67a184e6a36ce92e",
+    "proof_id": "rrp-47c0d95b57d48d142405713be8e808a38ed0e94953b2c077aa9d668f3836d935"
+  },
+  "schema_version": 1,
+  "attestation_id": "rva-fed978aec59d28de",
+  "bundle_id": "rvb-49b2a53ea1ec99f1",
+  "bundle_digest": "sha256:49b2a53ea1ec99f175fdacc8597ce68fe9cb4b5c5758a057167bb46a8a5f4e63",
+  "reviewer": "agent:openai/gpt-6.1-sol",
+  "decision": "changes-requested",
+  "criteria": [
+    {
+      "id": "assumption-integrity",
+      "disposition": "finding",
+      "evidence": "N4",
+      "rationale": "The claim that the first-open race may safely remain an inherited follow-up does not establish safe behavior for the newly introduced call. Linux regressions are verified; Windows test compilation was assessed statically because the filesystem blocked cross-compilation."
+    },
+    {
+      "id": "backend-concurrency",
+      "disposition": "finding",
+      "evidence": "N4"
+    },
+    {
+      "id": "backend-contracts",
+      "disposition": "passed",
+      "evidence": "integration:pose-mcp/go/delegated-adapter-containment-integration",
+      "rationale": "Reviewed common dispatch wiring and cleanup result propagation; no public API, event, file schema or MCP contract changes."
+    },
+    {
+      "id": "backend-input-errors",
+      "disposition": "finding",
+      "evidence": "N4"
+    },
+    {
+      "id": "backend-integration-impact",
+      "disposition": "passed",
+      "evidence": "integration:pose-mcp/go/review-cleanup-removes-go-build-leftovers-integration",
+      "rationale": "The helper is called from shared cleanup before the unchanged runtime inventory, covering all adapters."
+    },
+    {
+      "id": "backend-observability",
+      "disposition": "finding",
+      "evidence": "N4"
+    },
+    {
+      "id": "compatibility",
+      "disposition": "passed",
+      "evidence": "integration:pose-mcp/go/delegated-adapter-containment-integration",
+      "rationale": "Examined CLI/MCP integration and persisted cleanup reporting. Public formats and contracts remain unchanged; the separate Windows test-build regression is N3."
+    },
+    {
+      "id": "correctness",
+      "disposition": "finding",
+      "evidence": "N3"
+    },
+    {
+      "id": "design-causality",
+      "disposition": "passed",
+      "evidence": "structure:design-fb696759797ac707",
+      "rationale": "Mapped the selected design to R1-R3: a separate 200000-entry/8-GiB inventory addresses oversized Go leftovers without enlarging the ordinary runtime budget; Lstat and opened identity checks distinguish directory ownership; retaining the descriptor and checking unlink addresses the two prior removal races. The first-open defect remains separately reported as N4."
+    },
+    {
+      "id": "documentation",
+      "disposition": "passed",
+      "evidence": "structure:design-fb696759797ac707",
+      "rationale": "Examined the spec, requirement trace, review history, helper comments and matrix. They describe the selected budgets, unlink confirmation and platform fallback. The spec explicitly records the first-open limitation, which this review does not accept as a resolved risk."
+    },
+    {
+      "id": "operability",
+      "disposition": "finding",
+      "evidence": "N4"
+    },
+    {
+      "id": "requirements",
+      "disposition": "finding",
+      "evidence": "N4"
+    },
+    {
+      "id": "scope",
+      "disposition": "passed",
+      "evidence": "integration:pose-mcp/go/review-cleanup-removes-go-build-leftovers-integration",
+      "rationale": "The controlled implementation is a cleanup bugfix confined to the shared helper, unlink proof, regressions and validation checks; it preserves the ordinary inventory budget and public formats."
+    },
+    {
+      "id": "security",
+      "disposition": "finding",
+      "evidence": "N4"
+    },
+    {
+      "id": "solution-proportionality",
+      "disposition": "passed",
+      "evidence": "structure:design-fb696759797ac707",
+      "rationale": "Compared the per-directory exception with increasing the global runtime limit or adding adapter-specific cleanup. Reusing the existing bounded remover in shared cleanup is proportionate; platform helpers isolate unlink-proof differences without speculative infrastructure. This choice requires a safe first open, whose current implementation is blocked by N4."
+    }
+  ],
+  "tools": [
+    {
+      "id": "artifact-check",
+      "disposition": "passed",
+      "evidence": "command:pose artifact-check --spec pose-review-cleanup-removes-go-build-leftovers --from 79157194e51e52aa471aedacc4c0e4b2d052b7ee --to 8e1e4b3f5e44df00253718429712f4bfdd604a1e --strict --json",
+      "rationale": "Ran the requested default command and an explicit sealed-range check. The explicit-range strict command exited successfully; parsed findings contained 955 warnings and no error or critical findings. The default command attributed a wider trailer-derived range, so the explicit range was used for this subject."
+    },
+    {
+      "id": "assess-design",
+      "disposition": "not-used",
+      "evidence": "structure:design-fb696759797ac707",
+      "rationale": "Used sealed structural evidence and independently inspected the design; did not generate assessment artifacts."
+    },
+    {
+      "id": "assess-discover",
+      "component": "pose-mcp",
+      "disposition": "not-used",
+      "evidence": "structure:design-fb696759797ac707",
+      "rationale": "Avoided assessment writes under the review's no-change boundary. Reviewed the affected component and sealed evidence directly."
+    },
+    {
+      "id": "assess-integrate",
+      "disposition": "not-used",
+      "evidence": "integration:pose-mcp/go/delegated-adapter-containment-integration",
+      "rationale": "No public inter-module contract changed. Inspected shared dispatch integration and sealed integration evidence without generating assessment artifacts."
+    },
+    {
+      "id": "assess-tech-debt",
+      "disposition": "not-used",
+      "evidence": "command:git diff 79157194e51e52aa471aedacc4c0e4b2d052b7ee..8e1e4b3f5e44df00253718429712f4bfdd604a1e -- pose-mcp/internal/pose/review_adapter_containment.go pose-mcp/internal/pose/review_adapter_containment_regression_test.go pose-mcp/internal/pose/review_directory_unlinked_other.go pose-mcp/internal/pose/review_directory_unlinked_unix.go .pose/indexes/validation-matrix.json",
+      "rationale": "Inspected changed code and the spec's existing follow-up directly; did not run an assessment that generates repository artifacts."
+    },
+    {
+      "id": "closeout-check",
+      "disposition": "deferred",
+      "rationale": "Requires the completed review conclusion and subsequent closeout state; no attestation was recorded during this independent review."
+    },
+    {
+      "id": "review-check",
+      "disposition": "deferred",
+      "rationale": "Requires the completed review attestation, which POSE records after validating this draft."
+    },
+    {
+      "id": "suggest-review",
+      "component": "pose-mcp",
+      "disposition": "passed",
+      "evidence": "command:pose suggest review --path pose-mcp",
+      "rationale": "Selected the review workflow and backend-go, security and documentation-style rules."
+    },
+    {
+      "id": "surface-check",
+      "disposition": "passed",
+      "evidence": "integration:pose-mcp/go/review-cleanup-removes-go-build-leftovers-integration",
+      "rationale": "Ran pose surface-check --spec pose-review-cleanup-removes-go-build-leftovers --strict: one target, 220 results and zero findings. Independently traced the common cleanup call."
+    },
+    {
+      "id": "validate",
+      "disposition": "passed",
+      "evidence": "unit:pose-mcp/go/test",
+      "rationale": "Assessed the sealed full-validation evidence, including unit, integration and cross-build results. Did not rerun the full matrix. Those checks do not cover the first-open FIFO window or Windows test compilation."
+    },
+    {
+      "id": "validate",
+      "component": "pose-mcp",
+      "disposition": "passed",
+      "evidence": "integration:pose-mcp/go/review-cleanup-removes-go-build-leftovers-integration",
+      "rationale": "Assessed sealed component validation and independently ran go test ./internal/pose -run 'TestAdapterCleanup|TestAdapterContainmentCleanup' -count=1 successfully. Findings identify gaps beyond that passing evidence."
+    }
+  ],
+  "evidence_refs": [
+    "N3",
+    "N4",
+    "delegated-run:rrn-67a184e6a36ce92e",
+    "integration:pose-mcp/go/delegated-adapter-containment-integration",
+    "integration:pose-mcp/go/review-cleanup-removes-go-build-leftovers-integration",
+    "structure:design-fb696759797ac707"
+  ],
+  "findings": [
+    {
+      "id": "N3",
+      "severity": "medium",
+      "evidence": "file:pose-mcp/internal/pose/review_adapter_containment_regression_test.go:463",
+      "action": "The new FIFO regression calls syscall.Mkfifo from a test file compiled on Windows, where syscall.Mkfifo does not exist. The runtime.GOOS skip cannot prevent type checking. GOOS=windows GOARCH=amd64 go list confirms this file is selected, and target-aware go doc syscall.Mkfifo reports no symbol. The sealed Windows check builds only cmd/pose and therefore misses this test-compilation regression. Move the FIFO-specific test into a platform-constrained file and add test-compilation coverage. The attempted Windows test cross-compilation was blocked by the read-only temporary directory, so this finding rests on source and symbol inspection.",
+      "disposition": "open"
+    },
+    {
+      "id": "N4",
+      "severity": "medium",
+      "evidence": "file:pose-mcp/internal/pose/review_adapter_containment.go:626",
+      "action": "A directory can be replaced with a FIFO after Lstat at line 622 and before OpenRoot at line 626. On the installed Go implementation, Root.OpenRoot opens the final component with O_NOFOLLOW|O_CLOEXEC, without O_NONBLOCK or O_DIRECTORY (/usr/lib/go/src/os/root_unix.go:64-78), so cleanup blocks before reaching its identity check or returning an incomplete result. The new FIFO regression swaps only after contents removal and misses this first-open window. Although analogous existing calls share the problem and the spec records follow-up F1, this change introduces another reachable instance and does not satisfy R3 for that identity change. Use a nonblocking directory-only open that preserves confinement and add a synchronized regression before the first open.",
+      "disposition": "open"
+    }
+  ],
+  "authority": {
+    "schema_version": 1,
+    "project": "proj.pose-dist",
+    "bundle_digest": "sha256:49b2a53ea1ec99f175fdacc8597ce68fe9cb4b5c5758a057167bb46a8a5f4e63",
+    "principal": "agent:openai/gpt-6.1-sol",
+    "role": "agent",
+    "review_execution": "rrn-67a184e6a36ce92e",
+    "implementation_principal": "agent:anthropic/claude-opus-5-5",
+    "implementation_execution": "sha256:0eb880a4fc2ed87a379c949a567b1d3dfbd6b58b466f4755fcd363dd2b7fed98",
+    "issuer": "b34-local-executor",
+    "issued_at": "2026-11-15T01:39:35Z",
+    "audience": "proj.pose-dist"
+  },
+  "envelope": {
+    "issuer": "b34-local-executor",
+    "subject": "rvb-49b2a53ea1ec99f1",
+    "algorithm": "ed25519",
+    "public_key": "ck4sApdfePV2GT+hJyAYfJd2qLzeG55P8pevGR0bvZE=",
+    "signature": "bTUhwEg5P4MX8b6CzPq0fzTw8JaeX8kiWwV8R0TATqZvIJCjagP4knFDzQWOrKQQl+yHV2zLKpl905eGIUcdAw=="
+  },
+  "attested_at": "2026-11-15T01:39:35Z",
+  "path": ".pose/review-attestations/rva-fed978aec59d28de.json"
+}
