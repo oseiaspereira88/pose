@@ -1,0 +1,232 @@
+{
+  "run": {
+    "run_id": "rrn-4a532feec7405caf",
+    "proof_id": "rrp-fda3eda46204f7daf8c9b2b81ad8b6307b0baf015953bc0986b6a2fcc4ddd23a"
+  },
+  "schema_version": 1,
+  "attestation_id": "rva-923a9017fb572ebd",
+  "bundle_id": "rvb-e8538ee1e24ad7ef",
+  "bundle_digest": "sha256:e8538ee1e24ad7ef556b5165aa682261e1c72a64174543508d2aefd899252e99",
+  "reviewer": "agent:openai/gpt-6.1-sol",
+  "decision": "changes-requested",
+  "criteria": [
+    {
+      "id": "assumption-integrity",
+      "disposition": "finding",
+      "evidence": "F1",
+      "rationale": "Inspected every cache key and its producer. Snapshot copies and live ref reads are supported by code and focused tests, but material computation also depends on shallow state and read success. The external timing and byte-equivalence measurements were not independently reproduced. The spec's existing per-scope check recomputation follow-up remains outside this review's implementation scope."
+    },
+    {
+      "id": "backend-concurrency",
+      "disposition": "finding",
+      "evidence": "F4",
+      "rationale": "Focused race-instrumented cache tests passed, but source inspection shows no coordination of simultaneous misses. The full race-enabled package run timed out after ten minutes and is not claimed as passing."
+    },
+    {
+      "id": "backend-contracts",
+      "disposition": "passed",
+      "evidence": "integration:pose-mcp/go/cli-mcp-operation-results-integration",
+      "rationale": "No public CLI options, MCP tool schemas or persisted file formats changed. Cache-related semantic compatibility failures are recorded separately."
+    },
+    {
+      "id": "backend-input-errors",
+      "disposition": "finding",
+      "evidence": "F2",
+      "rationale": "Operational read failures embedded in snapshot gaps are incorrectly treated as cacheable completed reads."
+    },
+    {
+      "id": "backend-integration-impact",
+      "disposition": "passed",
+      "evidence": "integration:pose-mcp/go/federated-proof-reads-each-input-once-integration",
+      "rationale": "Inspected CLI hook registration, review-bundle material consumers and archived-release snapshot consumers. The normal production composition remains connected; recovery defects are recorded separately."
+    },
+    {
+      "id": "backend-observability",
+      "disposition": "passed",
+      "evidence": "integration:pose-mcp/go/typed-diagnostics-integration",
+      "rationale": "Existing returned diagnostic structures remain intact. Cached header losses are copied and receive the current artifact path; no new logging or sensitive output was introduced."
+    },
+    {
+      "id": "compatibility",
+      "disposition": "finding",
+      "evidence": "F1",
+      "rationale": "At unchanged HEAD, shallow-state transitions and recovered read failures can now produce different answers from uncached execution, violating the unchanged-results constraint."
+    },
+    {
+      "id": "correctness",
+      "disposition": "finding",
+      "evidence": "F2",
+      "rationale": "Focused tests pass but omit operational failures after the snapshot manifest has been read. Such failures are retained despite R2."
+    },
+    {
+      "id": "design-causality",
+      "disposition": "passed",
+      "evidence": "structure:design-68edf10e7b5b388c",
+      "rationale": "Examined D1, the recorded Git-process and CPU measurements, and all four cache sites. The design directly targets repeated material-tree reads, release-blob reads, tag peeling and bundle parsing. D1 explains why individual caches merely shifted the bottleneck. F1-F4 identify implementation conditions that still prevent approval."
+    },
+    {
+      "id": "documentation",
+      "disposition": "passed",
+      "evidence": "structure:design-68edf10e7b5b388c",
+      "rationale": "Compared the spec, requirement trace, validation-matrix command and runtime entrypoints. Documentation describes the intended cache scope, discloses the missing dedicated header-bound test and retains the expensive per-scope check work as an explicit follow-up. No public operational syntax changed."
+    },
+    {
+      "id": "operability",
+      "disposition": "finding",
+      "evidence": "F3",
+      "rationale": "Repairing an unavailable tag target does not restore service in the same process because a failed peel remains negatively cached."
+    },
+    {
+      "id": "requirements",
+      "disposition": "finding",
+      "evidence": "F4",
+      "rationale": "Concurrent misses violate the once-per-process requirements. F2 also violates R2's explicit prohibition on retaining failing Git reads; F1 violates the unchanged-results constraint."
+    },
+    {
+      "id": "scope",
+      "disposition": "passed",
+      "evidence": "structure:design-68edf10e7b5b388c",
+      "rationale": "Compared the supplied range with declared artifacts and affected areas. Changes remain confined to the four cache paths, focused tests and governance registration. No unrelated refactor or public-contract expansion was introduced. Strict artifact reconciliation passed."
+    },
+    {
+      "id": "security",
+      "disposition": "finding",
+      "evidence": "F1",
+      "rationale": "Material-cache hits bypass the existing shallow-checkout safeguard used to determine whether validation evidence can bind. Other inspected boundaries retain raw-history Git reads, live ref resolution and reader-owned snapshot copies."
+    },
+    {
+      "id": "solution-proportionality",
+      "disposition": "passed",
+      "evidence": "structure:design-68edf10e7b5b388c",
+      "rationale": "Compared the implementation with smaller single-cache alternatives documented in D1. Measurements justify addressing all four repeated-work sites. Process-local maps avoid a new persistence or authority layer, and broader graph recomputation remains excluded. The choice depends on cacheable results being immutable and misses being coordinated; F1-F4 require corrections within this same small design."
+    }
+  ],
+  "tools": [
+    {
+      "id": "artifact-check",
+      "disposition": "passed",
+      "evidence": "command:pose artifact-check --spec pose-federated-proof-reads-each-input-once --strict --json",
+      "rationale": "Executed independently: exit 0, nine claims, 958 warning findings and no error findings."
+    },
+    {
+      "id": "assess-design",
+      "disposition": "not-used",
+      "rationale": "Used sealed structure:design-68edf10e7b5b388c, D1 and independent source inspection. Did not generate assessment artifacts in the read-only worktree."
+    },
+    {
+      "id": "assess-discover",
+      "component": "pose-mcp",
+      "disposition": "not-used",
+      "rationale": "Inspected the affected component directly and used sealed component evidence. Did not run an assessment that writes under .pose."
+    },
+    {
+      "id": "assess-integrate",
+      "disposition": "not-used",
+      "rationale": "Inspected provider-consumer wiring and used sealed integration evidence. No public inter-module interface changed; no assessment artifacts were written."
+    },
+    {
+      "id": "assess-tech-debt",
+      "disposition": "not-used",
+      "rationale": "Inspected the changed code and the spec's explicit follow-up. Did not generate a repository-wide assessment report under .pose."
+    },
+    {
+      "id": "closeout-check",
+      "disposition": "deferred",
+      "rationale": "Requires the completed review and recorded attestation. Recording that attestation is explicitly outside this review's authorization."
+    },
+    {
+      "id": "review-check",
+      "disposition": "deferred",
+      "rationale": "Requires POSE to record this run's conclusion first; it cannot pass before that attestation exists."
+    },
+    {
+      "id": "suggest-review",
+      "component": "pose-mcp",
+      "disposition": "passed",
+      "evidence": "command:pose suggest review --path pose-mcp",
+      "rationale": "Executed and applied the selected backend-go, security and documentation-style rules."
+    },
+    {
+      "id": "surface-check",
+      "disposition": "passed",
+      "evidence": "integration:pose-mcp/go/federated-proof-reads-each-input-once-integration",
+      "rationale": "Executed pose surface-check --spec pose-federated-proof-reads-each-input-once --strict: one target, 225 validation results and zero findings."
+    },
+    {
+      "id": "validate",
+      "disposition": "passed",
+      "evidence": "unit:pose-mcp/go/test",
+      "rationale": "Disposed from the sealed producer's strict validation run, as requested. Did not rerun the state-writing validation pipeline. Independent focused tests passed; the additional full race run timed out and is not represented as passing."
+    },
+    {
+      "id": "validate",
+      "component": "pose-mcp",
+      "disposition": "passed",
+      "evidence": "integration:pose-mcp/go/federated-proof-reads-each-input-once-integration",
+      "rationale": "The sealed strict validation producer includes the affected module and required cache integration check. Independently reran the focused cache tests normally and with race instrumentation; both passed."
+    }
+  ],
+  "evidence_refs": [
+    "F1",
+    "F2",
+    "F3",
+    "F4",
+    "delegated-run:rrn-4a532feec7405caf",
+    "integration:pose-mcp/go/cli-mcp-operation-results-integration",
+    "integration:pose-mcp/go/federated-proof-reads-each-input-once-integration",
+    "integration:pose-mcp/go/typed-diagnostics-integration",
+    "structure:design-68edf10e7b5b388c"
+  ],
+  "findings": [
+    {
+      "id": "F1",
+      "severity": "medium",
+      "evidence": "file:pose-mcp/internal/pose/material_binding.go:292",
+      "action": "The material-cache key omits repository shallowness and caches unreadable results. materialSetDigestAt first checks repositoryIsShallow and also returns MaterialDigestUnreadable on Git failures, so its result is not solely a function of root, commit and inputs. After a shallow checkout is unshallowed without moving HEAD, the cached unreadable marker persists; conversely, a cached successful digest bypasses the shallow-checkout rejection if the repository becomes shallow at the same HEAD. Transient read failures also persist until eviction or process restart. Recheck repository eligibility before cache reuse, avoid retaining failed reads, and cover fixed-HEAD shallow-state transitions and recovery.",
+      "disposition": "open"
+    },
+    {
+      "id": "F2",
+      "severity": "medium",
+      "evidence": "file:pose-mcp/internal/pose/release_manifest_integrity.go:651",
+      "action": "The snapshot cache retains incomplete snapshots after failing Git reads, contrary to R2. readReleaseSnapshotAtCommitUncached converts policy, fragment, directory-listing, notes and version-source read failures into snapshot gaps and ultimately returns nil error at line 784. Therefore this err == nil condition caches those failures indefinitely. For example, a transient fragment cat-file failure at lines 717-724 remains a gap after Git recovers. The new failure test removes the repository before the manifest read and does not cover these later failures. Track whether every required read completed and retry snapshots containing operational read failures while retaining genuinely content-derived invalidity.",
+      "disposition": "open"
+    },
+    {
+      "id": "F3",
+      "severity": "medium",
+      "evidence": "file:pose-mcp/internal/pose/release_manifest_integrity.go:395",
+      "action": "Every failed commit peel is cached permanently as proof that the object is not a commit. A successful cat-file -t followed by a failed rev-parse does not establish that conclusion: an annotated tag can temporarily have an unavailable target object, or the peel command can fail operationally. Once the target is fetched or the failure repaired, resolving the unchanged tag still returns ErrReleaseTagNotCommit from the cached empty entry without retrying. Cache a negative result only when object inspection proves a non-commit target; leave failed or incomplete peels retryable and add recovery coverage.",
+      "disposition": "open"
+    },
+    {
+      "id": "F4",
+      "severity": "medium",
+      "evidence": "file:pose-mcp/internal/pose/material_binding.go:296",
+      "action": "Concurrent cache misses duplicate the work that R1, R2 and R4 require to occur once per process. The Load/compute/Store sequence has no per-key coordination: two graph workers can both miss line 293 and both invoke currentMaterialAt. The snapshot cache at release_manifest_integrity.go:643-653, tag-object cache at :381-401 and header cache at review_operation_view.go:37-58 use the same pattern. sync.Map protects the map but does not deduplicate computation. Coordinate in-flight work per key while preserving retry behavior for failures, and add barrier-controlled concurrent-miss tests; the added tests currently exercise sequential reuse only.",
+      "disposition": "open"
+    }
+  ],
+  "authority": {
+    "schema_version": 1,
+    "project": "proj.pose-dist",
+    "bundle_digest": "sha256:e8538ee1e24ad7ef556b5165aa682261e1c72a64174543508d2aefd899252e99",
+    "principal": "agent:openai/gpt-6.1-sol",
+    "role": "agent",
+    "review_execution": "rrn-4a532feec7405caf",
+    "implementation_principal": "agent:anthropic/claude-opus-5-5",
+    "implementation_execution": "sha256:0eb880a4fc2ed87a379c949a567b1d3dfbd6b58b466f4755fcd363dd2b7fed98",
+    "issuer": "b34-local-executor",
+    "issued_at": "2026-11-15T14:51:26Z",
+    "audience": "proj.pose-dist"
+  },
+  "envelope": {
+    "issuer": "b34-local-executor",
+    "subject": "rvb-e8538ee1e24ad7ef",
+    "algorithm": "ed25519",
+    "public_key": "ck4sApdfePV2GT+hJyAYfJd2qLzeG55P8pevGR0bvZE=",
+    "signature": "qnfYlMHbqCYP/ceEH7/C7CPAaKjZhEIpCUZ0TeaMcP2p+DusAmNqsrhLpRvUCSelaE7LEDe5+ODkDuVeGg69Ag=="
+  },
+  "attested_at": "2026-11-15T14:51:26Z",
+  "path": ".pose/review-attestations/rva-923a9017fb572ebd.json"
+}
