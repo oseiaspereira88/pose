@@ -1,7 +1,7 @@
 {
   "schema_version": 2,
-  "input_digest": "sha256:cb69a686d706eb07876d82a6f81f41d87f8682bb6294c942e524bbb52e5e2142",
-  "provenance_digest": "sha256:8c2431a3e14d1e318cfd32e361c0e6d0b921f45b7521154a0f65473a9590e04e",
+  "input_digest": "sha256:e737012007c20bd9c531c839d91c4d2685ea3740a05b138e4ca86eb7ad940716",
+  "provenance_digest": "sha256:383442b4a794980231aecb838f69b0b9d919e6738187489adc97c7aacf66a698",
   "implied_edges": [
     "changes"
   ],
@@ -46000,14 +46000,6 @@
       }
     },
     {
-      "id": "change-set:cs-d3aca43d37eb",
-      "type": "change-set",
-      "attributes": {
-        "diff_digest": "sha256:17bc90dfd2d3138ef8f4b77719032350b9515ef5eb85abeb55b3ff354e54f4c3",
-        "selector": "trailers:pose-hooks-delegate-to-the-instance-runner"
-      }
-    },
-    {
       "id": "change-set:cs-d4314c6d5936",
       "type": "change-set",
       "attributes": {
@@ -46845,6 +46837,14 @@
       "attributes": {
         "diff_digest": "sha256:7cfdd061e1126947907f6cc85576261b283b42dd493f0ebe1237859073395198",
         "selector": "trailers:pose-dependabot-runtime-repair"
+      }
+    },
+    {
+      "id": "change-set:cs-ff67bbe7332c",
+      "type": "change-set",
+      "attributes": {
+        "diff_digest": "sha256:d03317f9f3740e206e1d5d72ad0b511ecf5b5f9ac5a7bdd1b24a24a6b7e6f06a",
+        "selector": "trailers:pose-hooks-delegate-to-the-instance-runner"
       }
     },
     {
@@ -118737,7 +118737,7 @@
     },
     {
       "from": "spec:pose-hooks-delegate-to-the-instance-runner",
-      "to": "change-set:cs-d3aca43d37eb",
+      "to": "change-set:cs-ff67bbe7332c",
       "type": "observed-by"
     },
     {
@@ -266255,101 +266255,6 @@
       "diff_digest": "sha256:b265ba3e9fb4729c5c7818a7bdafebcd8a7d2d23f5af5cbc065bcfff8243c3c7"
     },
     {
-      "id": "cs-d3aca43d37eb",
-      "spec": "pose-hooks-delegate-to-the-instance-runner",
-      "selector": "trailers:pose-hooks-delegate-to-the-instance-runner",
-      "base": "31f6b1478a80edb6734c4056421d332b23231b8e^",
-      "head": "1e5f3df384fca818465751615b4dd6b4a1037bbd",
-      "resolved_base": "aac69d14903ff1a72565d5d860a1c32fbaec489e",
-      "resolved_head": "1e5f3df384fca818465751615b4dd6b4a1037bbd",
-      "commits": [
-        "31f6b1478a80edb6734c4056421d332b23231b8e",
-        "f63ca36d31de79b1c428a6a4af80a0e772ebfff0",
-        "c732a8308bf3d417f38bbb1ff3779de320904a2a",
-        "50c57f03f17dc4fa4b4373cc8b9347ac3fb6da6d",
-        "3c0ec5f2345e56abf48a7beed374099d6e807d7e",
-        "1e5f3df384fca818465751615b4dd6b4a1037bbd"
-      ],
-      "paths": [
-        {
-          "action": "created",
-          "path": ".pose/specs/2026-11-14-pose-hooks-delegate-to-the-instance-runner.md"
-        },
-        {
-          "action": "created",
-          "path": ".pose/starts/pose-hooks-delegate-to-the-instance-runner.json"
-        },
-        {
-          "action": "created",
-          "path": "pose-mcp/internal/cli/hook_runner_test.go"
-        },
-        {
-          "action": "modified",
-          "path": ".pose/indexes/delivery-integrity.json"
-        },
-        {
-          "action": "modified",
-          "path": ".pose/indexes/generation.json"
-        },
-        {
-          "action": "modified",
-          "path": ".pose/indexes/spec-graph.json"
-        },
-        {
-          "action": "modified",
-          "path": ".pose/indexes/validation-matrix.json"
-        },
-        {
-          "action": "modified",
-          "path": ".pose/results/delivery-validation.json"
-        },
-        {
-          "action": "modified",
-          "path": "POSE.md"
-        },
-        {
-          "action": "modified",
-          "path": "locales/pt-BR/POSE.md"
-        },
-        {
-          "action": "modified",
-          "path": "pose-mcp/internal/cli/maintenance.go"
-        },
-        {
-          "action": "modified",
-          "path": "pose-mcp/internal/pose/engine_reads_raw_history_test.go"
-        },
-        {
-          "action": "modified",
-          "path": "pose-mcp/internal/scaffold/dist/POSE.md"
-        },
-        {
-          "action": "modified",
-          "path": "pose-mcp/internal/scaffold/dist/locales/pt-BR/POSE.md"
-        }
-      ],
-      "diff_digest": "sha256:17bc90dfd2d3138ef8f4b77719032350b9515ef5eb85abeb55b3ff354e54f4c3",
-      "material_digest": "sha256:ec02fa1c41ae2fd7141abe1b7439436ebeabd4318d7553f6d7d2806da0b93c4b",
-      "material_inputs": {
-        "names": [
-          ".pose/indexes/delivery-integrity.json",
-          ".pose/indexes/generation.json",
-          ".pose/indexes/spec-graph.json",
-          ".pose/indexes/validation-matrix.json",
-          ".pose/results/delivery-validation.json",
-          ".pose/specs/2026-11-14-pose-hooks-delegate-to-the-instance-runner.md",
-          ".pose/starts/pose-hooks-delegate-to-the-instance-runner.json",
-          "POSE.md",
-          "locales/pt-BR/POSE.md",
-          "pose-mcp/internal/cli/hook_runner_test.go",
-          "pose-mcp/internal/cli/maintenance.go",
-          "pose-mcp/internal/pose/engine_reads_raw_history_test.go",
-          "pose-mcp/internal/scaffold/dist/POSE.md",
-          "pose-mcp/internal/scaffold/dist/locales/pt-BR/POSE.md"
-        ]
-      }
-    },
-    {
       "id": "cs-d4314c6d5936",
       "spec": "pose-shipped-review-profiles-are-schema-v2",
       "selector": "trailers:pose-shipped-review-profiles-are-schema-v2",
@@ -288319,6 +288224,102 @@
           "pose-mcp/internal/version/contract_test.go",
           "scripts/repair-dependabot-runtimes.py",
           "tests/release/repair-dependabot-runtimes.py"
+        ]
+      }
+    },
+    {
+      "id": "cs-ff67bbe7332c",
+      "spec": "pose-hooks-delegate-to-the-instance-runner",
+      "selector": "trailers:pose-hooks-delegate-to-the-instance-runner",
+      "base": "31f6b1478a80edb6734c4056421d332b23231b8e^",
+      "head": "d72ae83c384c9af69aeed945b48d8cac5a76daf7",
+      "resolved_base": "aac69d14903ff1a72565d5d860a1c32fbaec489e",
+      "resolved_head": "d72ae83c384c9af69aeed945b48d8cac5a76daf7",
+      "commits": [
+        "31f6b1478a80edb6734c4056421d332b23231b8e",
+        "f63ca36d31de79b1c428a6a4af80a0e772ebfff0",
+        "c732a8308bf3d417f38bbb1ff3779de320904a2a",
+        "50c57f03f17dc4fa4b4373cc8b9347ac3fb6da6d",
+        "3c0ec5f2345e56abf48a7beed374099d6e807d7e",
+        "1e5f3df384fca818465751615b4dd6b4a1037bbd",
+        "d72ae83c384c9af69aeed945b48d8cac5a76daf7"
+      ],
+      "paths": [
+        {
+          "action": "created",
+          "path": ".pose/specs/2026-11-14-pose-hooks-delegate-to-the-instance-runner.md"
+        },
+        {
+          "action": "created",
+          "path": ".pose/starts/pose-hooks-delegate-to-the-instance-runner.json"
+        },
+        {
+          "action": "created",
+          "path": "pose-mcp/internal/cli/hook_runner_test.go"
+        },
+        {
+          "action": "modified",
+          "path": ".pose/indexes/delivery-integrity.json"
+        },
+        {
+          "action": "modified",
+          "path": ".pose/indexes/generation.json"
+        },
+        {
+          "action": "modified",
+          "path": ".pose/indexes/spec-graph.json"
+        },
+        {
+          "action": "modified",
+          "path": ".pose/indexes/validation-matrix.json"
+        },
+        {
+          "action": "modified",
+          "path": ".pose/results/delivery-validation.json"
+        },
+        {
+          "action": "modified",
+          "path": "POSE.md"
+        },
+        {
+          "action": "modified",
+          "path": "locales/pt-BR/POSE.md"
+        },
+        {
+          "action": "modified",
+          "path": "pose-mcp/internal/cli/maintenance.go"
+        },
+        {
+          "action": "modified",
+          "path": "pose-mcp/internal/pose/engine_reads_raw_history_test.go"
+        },
+        {
+          "action": "modified",
+          "path": "pose-mcp/internal/scaffold/dist/POSE.md"
+        },
+        {
+          "action": "modified",
+          "path": "pose-mcp/internal/scaffold/dist/locales/pt-BR/POSE.md"
+        }
+      ],
+      "diff_digest": "sha256:d03317f9f3740e206e1d5d72ad0b511ecf5b5f9ac5a7bdd1b24a24a6b7e6f06a",
+      "material_digest": "sha256:ec02fa1c41ae2fd7141abe1b7439436ebeabd4318d7553f6d7d2806da0b93c4b",
+      "material_inputs": {
+        "names": [
+          ".pose/indexes/delivery-integrity.json",
+          ".pose/indexes/generation.json",
+          ".pose/indexes/spec-graph.json",
+          ".pose/indexes/validation-matrix.json",
+          ".pose/results/delivery-validation.json",
+          ".pose/specs/2026-11-14-pose-hooks-delegate-to-the-instance-runner.md",
+          ".pose/starts/pose-hooks-delegate-to-the-instance-runner.json",
+          "POSE.md",
+          "locales/pt-BR/POSE.md",
+          "pose-mcp/internal/cli/hook_runner_test.go",
+          "pose-mcp/internal/cli/maintenance.go",
+          "pose-mcp/internal/pose/engine_reads_raw_history_test.go",
+          "pose-mcp/internal/scaffold/dist/POSE.md",
+          "pose-mcp/internal/scaffold/dist/locales/pt-BR/POSE.md"
         ]
       }
     },
