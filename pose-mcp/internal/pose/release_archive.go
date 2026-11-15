@@ -59,6 +59,7 @@ func LoadArchivedFragmentsIn(files Files, root string) []ArchivedFragment {
 		return nil
 	}
 	archived := []ArchivedFragment{}
+	refs, listed := releaseTagRefs(root)
 	for _, entry := range entries {
 		if !entry.IsDir() || ValidateReleaseVersion(entry.Name()) != nil {
 			continue
@@ -76,8 +77,19 @@ func LoadArchivedFragmentsIn(files Files, root string) []ArchivedFragment {
 		// A release that has a tag is the cut the tag holds: a manifest of the working tree that is
 		// not that cut attests nothing.
 		boundToTag := true
-		if _, _, tagErr := ResolveReleaseTag(root, entry.Name()); tagErr == nil {
-			if snap, snapErr := ReadReleaseSnapshot(root, entry.Name()); snapErr != nil || ReleaseDigest(string(manifestRaw)) != snap.ManifestDigest {
+		// The tags' refs are listed once for all releases, and the snapshot is
+		// read at the commit the tag was resolved to (spec
+		// pose-federated-proof-reads-each-input-once).
+		var commit string
+		var annotated bool
+		var tagErr error
+		if listed {
+			commit, annotated, tagErr = resolveListedReleaseTag(root, entry.Name(), refs)
+		} else {
+			commit, annotated, tagErr = ResolveReleaseTag(root, entry.Name())
+		}
+		if tagErr == nil {
+			if snap, snapErr := readReleaseSnapshotAtCommit(root, entry.Name(), commit, annotated); snapErr != nil || ReleaseDigest(string(manifestRaw)) != snap.ManifestDigest {
 				boundToTag = false
 			}
 		} else if !errors.Is(tagErr, ErrReleaseTagMissing) {

@@ -13,6 +13,7 @@ import (
 	"regexp"
 	"sort"
 	"strings"
+	"sync"
 	"time"
 	"unicode"
 )
@@ -351,7 +352,8 @@ func ResolveReleaseTag(root, tag string) (commit string, annotated bool, err err
 	if ValidateReleaseVersion(tag) != nil {
 		return "", false, fmt.Errorf("pose: %q is not a release tag", tag)
 	}
-	if _, verr := gitOutput(root, "rev-parse", "--verify", "--quiet", "refs/tags/"+tag); verr != nil {
+	object, verr := gitOutput(root, "rev-parse", "--verify", "--quiet", "refs/tags/"+tag)
+	if verr != nil {
 		if gitNotARepository(root) {
 			// No repository: there is no tag, which is a different thing from a tag Git could not read.
 			return "", false, fmt.Errorf("%w: %s (not a git repository)", ErrReleaseTagMissing, tag)
@@ -366,15 +368,81 @@ func ResolveReleaseTag(root, tag string) (commit string, annotated bool, err err
 		}
 		return "", false, fmt.Errorf("pose: the tag %s could not be resolved: %w", tag, verr)
 	}
-	kind, err := gitOutput(root, "cat-file", "-t", "refs/tags/"+tag)
+	// The ref is read every time, since a tag can move; what the object it
+	// names is, and the commit it peels to, never change, and are kept per
+	// object (spec pose-federated-proof-reads-each-input-once).
+	return peelReleaseTagObject(root, tag, strings.TrimSpace(object))
+}
+
+// peelReleaseTagObject resolves the object a release tag's ref names to the
+// commit it peels to, and whether it is an annotated tag.
+func peelReleaseTagObject(root, tag, object string) (commit string, annotated bool, err error) {
+	key := filepath.Clean(root) + "\x00" + object
+	if peeled, ok := releaseTagObjects.Load(key); ok {
+		p := peeled.(releaseTagObject)
+		if p.commit == "" {
+			return "", false, fmt.Errorf("%w: %s", ErrReleaseTagNotCommit, tag)
+		}
+		return p.commit, p.annotated, nil
+	}
+	kind, err := gitOutput(root, "cat-file", "-t", object)
 	if err != nil {
 		return "", false, fmt.Errorf("pose: the tag %s could not be inspected: %w", tag, err)
 	}
-	out, err := gitOutput(root, "rev-parse", "--verify", "refs/tags/"+tag+"^{commit}")
+	out, err := gitOutput(root, "rev-parse", "--verify", object+"^{commit}")
 	if err != nil {
+		if isGitRevision(object) {
+			releaseTagObjects.Store(key, releaseTagObject{})
+		}
 		return "", false, fmt.Errorf("%w: %s", ErrReleaseTagNotCommit, tag)
 	}
-	return strings.TrimSpace(out), strings.TrimSpace(kind) == "tag", nil
+	commit, annotated = strings.TrimSpace(out), strings.TrimSpace(kind) == "tag"
+	if isGitRevision(object) {
+		releaseTagObjects.Store(key, releaseTagObject{commit: commit, annotated: annotated})
+	}
+	return commit, annotated, nil
+}
+
+// releaseTagRefs lists, in one git process, the object every tag's ref
+// names. ok is false when git cannot answer; the caller then reads each tag
+// on its own.
+func releaseTagRefs(root string) (map[string]string, bool) {
+	out, err := gitOutput(root, "for-each-ref", "--format=%(refname)%00%(objectname)", "refs/tags/")
+	if err != nil {
+		return nil, false
+	}
+	refs := map[string]string{}
+	for _, line := range strings.Split(out, "\n") {
+		name, object, found := strings.Cut(line, "\x00")
+		if !found {
+			continue
+		}
+		if tag, isTag := strings.CutPrefix(name, "refs/tags/"); isTag && isGitRevision(object) {
+			refs[tag] = object
+		}
+	}
+	return refs, true
+}
+
+// resolveListedReleaseTag resolves a tag from a listing of the tags' refs,
+// as ResolveReleaseTag reads it alone: a tag absent from the listing is
+// missing.
+func resolveListedReleaseTag(root, tag string, refs map[string]string) (string, bool, error) {
+	object, ok := refs[tag]
+	if !ok {
+		return "", false, fmt.Errorf("%w: %s", ErrReleaseTagMissing, tag)
+	}
+	return peelReleaseTagObject(root, tag, object)
+}
+
+// releaseTagObjects keeps, per repository and tag object, the commit the
+// object peels to (empty when it is not a commit) and whether it is an
+// annotated tag: both are fixed by the object's content.
+var releaseTagObjects sync.Map
+
+type releaseTagObject struct {
+	commit    string
+	annotated bool
 }
 
 func gitOutput(root string, args ...string) (string, error) {
@@ -556,7 +624,39 @@ func ReadReleaseSnapshot(root, tag string) (ReleaseSnapshot, error) {
 	return readReleaseSnapshotAtCommit(root, tag, commit, annotated)
 }
 
+// releaseSnapshots holds, per process, the snapshot read for a tag at a
+// commit: a commit names its tree by content, so the snapshot read from it
+// never changes. Every review bundle a governance check prepares reads every
+// archived release through here, one git process per blob (spec
+// pose-federated-proof-reads-each-input-once). Only a snapshot read whole,
+// or one the commit lacks, is kept: a failing git read is asked again. Each
+// reader receives its own copy.
+var releaseSnapshots sync.Map
+
+type releaseSnapshotEntry struct {
+	encoded []byte
+	err     error
+}
+
 func readReleaseSnapshotAtCommit(root, tag, commit string, annotated bool) (ReleaseSnapshot, error) {
+	key := fmt.Sprintf("%s\x00%s\x00%s\x00%t", filepath.Clean(root), tag, commit, annotated)
+	if cached, ok := releaseSnapshots.Load(key); ok {
+		entry := cached.(releaseSnapshotEntry)
+		var snap ReleaseSnapshot
+		if err := json.Unmarshal(entry.encoded, &snap); err == nil {
+			return snap, entry.err
+		}
+	}
+	snap, err := readReleaseSnapshotAtCommitUncached(root, tag, commit, annotated)
+	if commit != "" && (err == nil || errors.Is(err, ErrReleaseSnapshotMissing)) {
+		if encoded, merr := json.Marshal(snap); merr == nil {
+			releaseSnapshots.Store(key, releaseSnapshotEntry{encoded: encoded, err: err})
+		}
+	}
+	return snap, err
+}
+
+func readReleaseSnapshotAtCommitUncached(root, tag, commit string, annotated bool) (ReleaseSnapshot, error) {
 	if commit == "" {
 		return ReleaseSnapshot{Tag: tag}, fmt.Errorf("pose: release tag %s has no captured commit", tag)
 	}

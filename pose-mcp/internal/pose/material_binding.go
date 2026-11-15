@@ -5,8 +5,11 @@ import (
 	"encoding/hex"
 	"encoding/json"
 	"path"
+	"path/filepath"
 	"sort"
 	"strings"
+	"sync"
+	"sync/atomic"
 )
 
 // Validation evidence binds to the material it validated (spec
@@ -231,16 +234,70 @@ func SetCurrentMaterialDigests(f func(root string, inputs MaterialInputs) string
 	CurrentMaterialDigests = f
 }
 
+// currentMaterialHead resolves a repository's HEAD to its commit, and
+// currentMaterialAt digests a set's inputs in that commit's tree; the binary
+// registers both. A commit names its tree by content, so the digest of the
+// same inputs at the same commit is kept for the process: a review bundle
+// recomputes the material of every change set of the graph for every spec it
+// prepares, and a governance check prepares bundles for every scope (spec
+// pose-federated-proof-reads-each-input-once).
+var (
+	currentMaterialHead func(root string) string
+	currentMaterialAt   func(root, head string, inputs MaterialInputs) string
+	currentMaterialKept sync.Map
+	// currentMaterialCount bounds the kept digests of a long-running process
+	// (the MCP server sees HEAD move): past the bound, they are dropped.
+	currentMaterialCount atomic.Int64
+)
+
+var currentMaterialBound int64 = 20000
+
+// SetCurrentMaterialAt registers the commit-bound recomputation.
+func SetCurrentMaterialAt(head func(root string) string, at func(root, head string, inputs MaterialInputs) string) {
+	currentMaterialHead, currentMaterialAt = head, at
+}
+
 func withCurrentMaterial(root string, sets []ChangeSet) []ChangeSet {
-	if CurrentMaterialDigests == nil {
+	if CurrentMaterialDigests == nil && currentMaterialAt == nil {
 		return sets
+	}
+	// HEAD is resolved once for the whole graph; a set's digest is then the
+	// digest at that commit. Unresolvable HEAD falls back to reading the tree
+	// of HEAD per set, uncached.
+	head := ""
+	if CurrentMaterialDigests == nil && currentMaterialHead != nil {
+		head = currentMaterialHead(root)
 	}
 	out := make([]ChangeSet, len(sets))
 	for i, set := range sets {
 		if set.MaterialInputs != nil && set.MaterialDigest != "" && set.MaterialDigest != MaterialDigestUnreadable {
-			set.MaterialDigest = CurrentMaterialDigests(root, *set.MaterialInputs)
+			set.MaterialDigest = currentMaterialDigest(root, head, *set.MaterialInputs)
 		}
 		out[i] = set
 	}
 	return out
+}
+
+func currentMaterialDigest(root, head string, inputs MaterialInputs) string {
+	if CurrentMaterialDigests != nil {
+		return CurrentMaterialDigests(root, inputs)
+	}
+	if !isGitRevision(head) {
+		return currentMaterialAt(root, "HEAD", inputs)
+	}
+	encoded, err := json.Marshal(inputs)
+	if err != nil {
+		return currentMaterialAt(root, head, inputs)
+	}
+	key := filepath.Clean(root) + "\x00" + head + "\x00" + string(encoded)
+	if kept, ok := currentMaterialKept.Load(key); ok {
+		return kept.(string)
+	}
+	digest := currentMaterialAt(root, head, inputs)
+	if currentMaterialCount.Add(1) > currentMaterialBound {
+		currentMaterialKept.Clear()
+		currentMaterialCount.Store(1)
+	}
+	currentMaterialKept.Store(key, digest)
+	return digest
 }
