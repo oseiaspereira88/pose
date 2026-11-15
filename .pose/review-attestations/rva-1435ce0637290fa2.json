@@ -1,0 +1,200 @@
+{
+  "run": {
+    "run_id": "rrn-c904db5a26d63b93",
+    "proof_id": "rrp-5db41e1864e2cdf315c3037304f1f082ede5a938a6ac4248dbb97f3fcfb5d28a"
+  },
+  "schema_version": 1,
+  "attestation_id": "rva-1435ce0637290fa2",
+  "bundle_id": "rvb-7f6c2f6adbb4ee37",
+  "bundle_digest": "sha256:7f6c2f6adbb4ee3759243ad5a4d6f5fa2b35c081faed9d2c96bafec19aa08a7d",
+  "reviewer": "agent:openai/gpt-6.1-sol",
+  "decision": "approved",
+  "criteria": [
+    {
+      "id": "assumption-integrity",
+      "disposition": "passed",
+      "evidence": "integration:pose-mcp/go/federated-proof-reads-each-input-once-integration",
+      "rationale": "Verified content-based keys, fresh ref resolution, raw-history Git reads, failure non-retention and copy isolation. The spec records the performance measurement; its external benchmark was not independently reproduced. Per-scope check recomputation remains explicitly outside scope."
+    },
+    {
+      "id": "backend-concurrency",
+      "disposition": "passed",
+      "evidence": "integration:pose-mcp/go/federated-proof-reads-each-input-once-integration",
+      "rationale": "Inspected mutex and channel publication, coordinated retries and pending-entry preservation. Targeted race tests and 100 repetitions of coordination regressions passed. The helper introduces no background worker lifecycle."
+    },
+    {
+      "id": "backend-contracts",
+      "disposition": "passed",
+      "evidence": "integration:pose-mcp/go/federated-proof-reads-each-input-once-integration",
+      "rationale": "Standalone and listed tag resolution retain equivalent outcomes; snapshot and material callers retain their existing result contracts."
+    },
+    {
+      "id": "backend-input-errors",
+      "disposition": "passed",
+      "evidence": "integration:pose-mcp/go/federated-proof-reads-each-input-once-integration",
+      "rationale": "Unreadable material, failed peels and incomplete snapshots are retried. Missing snapshots preserve typed errors, and invalid bundle content preserves its loss classification."
+    },
+    {
+      "id": "backend-integration-impact",
+      "disposition": "passed",
+      "evidence": "integration:pose-mcp/go/federated-proof-reads-each-input-once-integration",
+      "rationale": "Inspected CLI hook registration, graph material recomputation, archived-fragment loading and review-header consumers. Surface-check reported one target and zero findings."
+    },
+    {
+      "id": "backend-observability",
+      "disposition": "passed",
+      "evidence": "integration:pose-mcp/go/typed-diagnostics-integration",
+      "rationale": "Existing returned diagnostics remain intact; cached header losses receive the current file's artifact path. No new logging or sensitive diagnostic payload was introduced."
+    },
+    {
+      "id": "compatibility",
+      "disposition": "passed",
+      "evidence": "integration:pose-mcp/go/federated-proof-reads-each-input-once-integration",
+      "rationale": "Examined CLI registration, file results, tag errors and snapshot serialization. Changes are internal memoization with no public schema or command migration."
+    },
+    {
+      "id": "correctness",
+      "disposition": "passed",
+      "evidence": "integration:pose-mcp/go/federated-proof-reads-each-input-once-integration",
+      "rationale": "Reviewed positive and negative cache paths and independently ran the targeted tests under the race detector."
+    },
+    {
+      "id": "design-causality",
+      "disposition": "passed",
+      "evidence": "structure:design-45ebef919f284a6d",
+      "rationale": "D1 identifies repeated material, snapshot, tag-peel and JSON work. The four caches address those measured sources directly; fresh ref reads preserve currency, and the shared helper supplies R5 bounds and R6 coordination. No structural delta facts were listed in the brief."
+    },
+    {
+      "id": "documentation",
+      "disposition": "passed",
+      "evidence": "structure:design-45ebef919f284a6d",
+      "rationale": "The spec's requirements, implementation plan, review remediation history and permanent validation command match runtime behavior. No operational command or public contract changed."
+    },
+    {
+      "id": "operability",
+      "disposition": "passed",
+      "evidence": "integration:pose-mcp/go/federated-proof-reads-each-input-once-integration",
+      "rationale": "Failed reads remain recoverable rather than poisoning process caches; existing actionable errors remain available. Retained values are bounded and incomplete computations remain coordinated."
+    },
+    {
+      "id": "requirements",
+      "disposition": "passed",
+      "evidence": "integration:pose-mcp/go/federated-proof-reads-each-input-once-integration",
+      "rationale": "Mapped R1-R4 to their material, snapshot, tag and header regressions; R5 to completion-time eviction and burst coverage; R6 to concurrent-miss, recovery and failing-read regressions. The external performance result is recorded in the spec."
+    },
+    {
+      "id": "scope",
+      "disposition": "passed",
+      "evidence": "structure:design-45ebef919f284a6d",
+      "rationale": "The implementation stays within the four planned caches and their shared coordination helper. Exact-range artifact-check passed with no non-warning findings. The documented per-scope recomputation follow-up was not expanded into this change."
+    },
+    {
+      "id": "security",
+      "disposition": "passed",
+      "evidence": "integration:pose-mcp/go/federated-proof-reads-each-input-once-integration",
+      "rationale": "Examined input-derived keys, Git argument construction, raw-history policy, fresh refs, snapshot isolation and loss attribution. No new authority source, dependency, secret handling or persistent storage was introduced."
+    },
+    {
+      "id": "solution-proportionality",
+      "disposition": "passed",
+      "evidence": "structure:design-45ebef919f284a6d",
+      "rationale": "A small shared memoization helper is sufficient for the four repeated operations and avoids persistent invalidation machinery. D1 explains why fewer caches did not meet the measured target. The design would need reconsideration if results gained mutable inputs not represented in their keys."
+    }
+  ],
+  "tools": [
+    {
+      "id": "artifact-check",
+      "disposition": "passed",
+      "evidence": "command:pose artifact-check --spec pose-federated-proof-reads-each-input-once --from bf2ff02c31752a3343b0200fa62b27c220ce2453 --to 0bc412bc507b2c91f2bf98ad51494ecb2bed0313 --strict --json",
+      "rationale": "Exit 0; all 958 reported findings were warnings. Repeated with the exact supplied range after the default selector included a later sealing commit."
+    },
+    {
+      "id": "assess-design",
+      "disposition": "not-used",
+      "evidence": "structure:design-45ebef919f284a6d",
+      "rationale": "Consulted sealed design evidence and inspected D1 and the implementation directly; did not regenerate assessment artifacts."
+    },
+    {
+      "id": "assess-discover",
+      "component": "pose-mcp",
+      "disposition": "not-used",
+      "rationale": "Preserved the read-only review boundary; inspected the mapped component and sealed build, unit and integration evidence."
+    },
+    {
+      "id": "assess-integrate",
+      "disposition": "not-used",
+      "evidence": "integration:pose-mcp/go/federated-proof-reads-each-input-once-integration",
+      "rationale": "Reviewed production callers and sealed integration evidence directly. No public inter-module contract changed; assessment files were not regenerated."
+    },
+    {
+      "id": "assess-tech-debt",
+      "disposition": "not-used",
+      "rationale": "Did not regenerate assessment artifacts. Searched affected production files for TODO, FIXME, stub and panic markers and inspected the spec's existing follow-up."
+    },
+    {
+      "id": "closeout-check",
+      "disposition": "deferred",
+      "rationale": "Requires the completed review attestation; this review returns a draft and does not record one."
+    },
+    {
+      "id": "review-check",
+      "disposition": "deferred",
+      "rationale": "Requires the completed review attestation; POSE must record and verify the conclusion first."
+    },
+    {
+      "id": "suggest-review",
+      "component": "pose-mcp",
+      "disposition": "passed",
+      "evidence": "command:pose suggest review --path pose-mcp",
+      "rationale": "Selected the review workflow and security, documentation-style and backend-go rules."
+    },
+    {
+      "id": "surface-check",
+      "disposition": "passed",
+      "evidence": "integration:pose-mcp/go/federated-proof-reads-each-input-once-integration",
+      "rationale": "Ran pose surface-check --spec pose-federated-proof-reads-each-input-once --strict; reported one target, 225 results and zero findings."
+    },
+    {
+      "id": "validate",
+      "disposition": "passed",
+      "evidence": "unit:pose-mcp/go/test",
+      "rationale": "Reused the sealed successful strict-validation run rather than rewriting repository validation artifacts. Independently supplemented it with targeted race tests and go vet."
+    },
+    {
+      "id": "validate",
+      "component": "pose-mcp",
+      "disposition": "passed",
+      "evidence": "integration:pose-mcp/go/federated-proof-reads-each-input-once-integration",
+      "rationale": "Reused the sealed module validation evidence, including the permanent cache integration check and sealed build and unit results. Independent targeted race tests and go vet passed."
+    }
+  ],
+  "evidence_refs": [
+    "delegated-run:rrn-c904db5a26d63b93",
+    "integration:pose-mcp/go/federated-proof-reads-each-input-once-integration",
+    "integration:pose-mcp/go/typed-diagnostics-integration",
+    "structure:design-45ebef919f284a6d"
+  ],
+  "findings": null,
+  "authority": {
+    "schema_version": 1,
+    "project": "proj.pose-dist",
+    "bundle_digest": "sha256:7f6c2f6adbb4ee3759243ad5a4d6f5fa2b35c081faed9d2c96bafec19aa08a7d",
+    "principal": "agent:openai/gpt-6.1-sol",
+    "role": "agent",
+    "review_execution": "rrn-c904db5a26d63b93",
+    "implementation_principal": "agent:anthropic/claude-opus-5-5",
+    "implementation_execution": "sha256:0eb880a4fc2ed87a379c949a567b1d3dfbd6b58b466f4755fcd363dd2b7fed98",
+    "issuer": "b34-local-executor",
+    "issued_at": "2026-11-15T16:51:26Z",
+    "audience": "proj.pose-dist"
+  },
+  "envelope": {
+    "issuer": "b34-local-executor",
+    "subject": "rvb-7f6c2f6adbb4ee37",
+    "algorithm": "ed25519",
+    "public_key": "ck4sApdfePV2GT+hJyAYfJd2qLzeG55P8pevGR0bvZE=",
+    "signature": "vFUtUGVwDteifT1Wzex0h2baK1cZMAW44pXzDD72fXmbMRy7rFor4dO0ZwyRhZnpLiFRcEZ9D9nKO/X54NUYAw=="
+  },
+  "attested_at": "2026-11-15T16:51:26Z",
+  "path": ".pose/review-attestations/rva-1435ce0637290fa2.json"
+}
