@@ -1,0 +1,146 @@
+{
+  "safety": {
+    "schema_version": 1,
+    "profile": "legacy-trusted",
+    "platform": "linux/amd64",
+    "capabilities": {
+      "automatic-expiry": "unavailable",
+      "bounded-capture": "available",
+      "cpu-limit": "unavailable",
+      "credential-filesystem-isolation": "unavailable",
+      "environment-allowlist": "available",
+      "escaped-descendant-termination": "unavailable",
+      "filesystem-isolation": "unavailable",
+      "memory-limit": "unavailable",
+      "network-isolation": "unavailable",
+      "origin-isolation": "unavailable",
+      "parent-termination": "available",
+      "process-group-termination": "available",
+      "shared-git-isolation": "unavailable"
+    },
+    "limitations": [
+      "trusted local executable required; worktree is not a sandbox",
+      "outside writes, transient writes, shared Git and credential files are not isolated",
+      "no memory/CPU quota or control of descendants escaping the process group",
+      "cleanup filesystem calls remain subject to operating-system I/O latency",
+      "legacy compatibility: HOME retained; other ambient credentials excluded"
+    ],
+    "stream_bytes": 8388608,
+    "output_bytes": 65536,
+    "retained_bytes": 16777216,
+    "timeout_ms": 3600000,
+    "max_runs_per_bundle": 3,
+    "retention": "retain-evidence; ttl=0; no automatic deletion",
+    "capture_complete": true,
+    "runtime_id": "pose-review-run-232798653",
+    "operation": {
+      "schema_version": 1,
+      "operation": "review.dispatch.cleanup",
+      "scope": "spec:pose-index-material-is-kept-per-repository-state",
+      "outcome": "completed",
+      "steps_run": [
+        {
+          "id": "cleanup",
+          "result": "done"
+        }
+      ],
+      "effects": [],
+      "resumable": false
+    }
+  },
+  "provenance": {
+    "execution_state": "started",
+    "planned_wire_digest": "sha256:a89c6fc45bdc418ac2258f4239073024dbe6d4cf87e8d3097528bc23123ec511",
+    "wire_bytes": 32439,
+    "wire_complete": true,
+    "schema_version": 1,
+    "project": "proj.pose-dist",
+    "audience": "proj.pose-dist",
+    "worktree_digest": "sha256:9c161dc895f6496d9f800581bef8673cc9123cda65951fa2d23b0cbdbc2bac41",
+    "trust": "executor-attested",
+    "implementation": {
+      "principal": "agent:anthropic/claude-opus-5-5",
+      "execution": "sha256:0eb880a4fc2ed87a379c949a567b1d3dfbd6b58b466f4755fcd363dd2b7fed98",
+      "vendor": "anthropic",
+      "model": "claude-opus-5-5"
+    },
+    "reviewer": {
+      "principal": "agent:openai/gpt-6.1-sol",
+      "vendor": "openai",
+      "model": "gpt-6.1-sol"
+    },
+    "config_digest": "sha256:637a9d88c40dbf75da8525db65c216ace591f828ef25c233358db1a99e70ee31",
+    "command_template_digest": "sha256:e3a23ff8a55e559e954d107a039277628bfc51faa58d523ad6101de7c375ad28",
+    "argv_digest": "sha256:a987e114a0dc18fd0b325648f064eb9738ab9df574badb1bb04d41118a032dc4",
+    "executable_digest": "sha256:e14fc83739c13c1074b12bd1acce4010c893c7f6fbfc1593b4a31d74cabb57af",
+    "template_version": "review-brief/7",
+    "wire_digest": "sha256:a89c6fc45bdc418ac2258f4239073024dbe6d4cf87e8d3097528bc23123ec511",
+    "notes_digest": "sha256:9d66ab2ada171f4555a22ec3ee3725bf7beb15e199ff6bd52459c2161cddf3db",
+    "raw_transcript_digest": "sha256:2bebce57f38138043782375ac42d91826683fef7900949fcb8439f97164058ff",
+    "raw_output_digest": "sha256:49065306edc3debeb26199564be592d50877b1c69939ac58de4581b5154b0346",
+    "output_source": "file",
+    "output_complete": true
+  },
+  "session_digest": "sha256:920f2a7fca54d90de7f15e6337d2575b406f64c1d4883a253f4916aeb47a90e4",
+  "tree_digest": "sha256:d1b277fb0d675c2b8df510e6c3f59a2a33e9552e8c593985931bcef3720a793b",
+  "brief_notes": "Round 2 review of spec pose-index-material-is-kept-per-repository-state (an engine performance and consistency fix with amendment D13 of ADR governance-reads-use-bounded-operation-scoped-views).\n\nRound 1 (run rrn-8479af60445e994b, changes-requested) raised five blockers against a cache keyed by repository state: F1 nested repositories and submodules were only a dir marker; F2 a hit bypassed the read view's closure and audit and the key was read outside the view; F3 ignored files were not covered; F4 FIFOs and large files were read unbounded; F5 the 4,096-path limit was applied after all the work. The maintainer chose to redo the design by input closure instead of patching the key. The state key is gone.\n\nWhat to judge now (commit 21e9293e, `pose-mcp/internal/pose/index_material_kept.go`): inside a read-view operation with an explicit resolver, `keptIndexMaterialDigest` builds the material in an isolated read-view operation over the current operation's base binding (`buildIsolatedMaterial`). Everything that isolated operation recorded (file bytes, stat/lstat, directory listings, direntry-info, readlink and eval-symlinks values, captured Git commands with their output limit) is the closure; it is kept with the digest only when the isolated operation recorded nothing unknown, streamed nothing, and its final audit found no change. Every later operation, including the one that built it, replays each read of the closure through its own read view (`replayMaterialClosure`) and reuses the digest only when every replayed read gives the same digest; otherwise it rebuilds. Judge: whether the closure can miss an input the material reads (reads the build makes outside the read view, inputs streamed, roots added by route), whether the replay goes through the same budget, closure and final-audit paths as a normal read, whether a replay mismatch or a non-keepable build always falls back to the operation's own build, whether concurrent operations can race on the map, and whether the comparison of each read kind is strict enough (stat compares mode, size and mtime; Git compares stdout and error text). Prior findings F1-F5: state in `prior_findings` whether each is resolved by this design. Measured on harne8 (clean clone at cc7780b1, pose-dist at 7e46b1e), two `pose_closeout_state` calls on one MCP server: without the cache 138 s and 136 s; with the closure 144 s and 43 s, terminal in all four.\n\nBuilding: your sandbox root is read-only. Before any `go build` or `go test`, `export TMPDIR=$(mktemp -d -p \"$PWD/..\")` or another directory you can write, and `export GOTMPDIR=$TMPDIR GOCACHE=$TMPDIR/gocache`. Do not let TMPDIR contain an empty `.git`.\n\nDo NOT run `pose assess`, `pose state`, `pose index` or anything else that writes under `.pose/`; dispose assess-* tools from the sealed evidence and the code. Leave the worktree as you found it. If you build or test Go code, let every `go test` finish (do not interrupt it) so the toolchain removes its own build directories. Dispose the `validate` tools from the sealed evidence: the pipeline ran `pose validate --strict` on a clean clone of the sealed commit with a GitHub token (`.pose/results/delivery-validation.json`); a rerun in your sandbox fails for environment reasons and is not evidence about the code. For `artifact-check` and `surface-check`, build the engine of this subject (`go -C pose-mcp build -o \"$TMPDIR/pose\" ./cmd/pose`) and run that binary, not a `pose` from PATH. A finding object accepts exactly `id`, `severity`, `disposition`, `file`, `line`, `summary`, and for an accepted follow-up `action`, `owner`, `review_by`; put any rationale inside `summary`. A new finding's id carries no round prefix (continue at F6). Sweep the whole surface and report every finding in one pass, classified blocker vs follow-up.\n",
+  "ledger_version": 1,
+  "attempt_id": "rat-63c2c88deba02dc248ab6b4219d94c7c2bf034e8e21b6dc311a36792908e6e4c",
+  "schema_version": 1,
+  "run_id": "rrn-3f0fc8ba917344df",
+  "scope": "spec:pose-index-material-is-kept-per-repository-state",
+  "bundle_id": "rvb-ab380f2ba784ee1f",
+  "bundle_digest": "sha256:ab380f2ba784ee1fe4b5c18fce6a9abf7dd3a9b27ce05b3e54ab9d4dad995c04",
+  "sealed_commit": "23b965900dbe60f6b99c879887fd9b9e52c2a3c4",
+  "kind": "review",
+  "brief_digest": "sha256:d9db724b099e87c6c2d38d165d8bc126ace727bb2683685d66d210ba659e9c73",
+  "adapter": "sol-medium",
+  "vendor": "openai",
+  "model": "gpt-6.1-sol",
+  "started_at": "2026-11-16T08:51:27.673396336Z",
+  "ended_at": "2026-11-16T08:52:27.586470765Z",
+  "exit_code": 0,
+  "status": "completed",
+  "transcript_digest": "sha256:a537ab94eb34aebe020c0928b48c144aab94a334e32b65a9bf30a8eda45ccd91",
+  "transcript_path": ".pose/review-runs/rrn-3f0fc8ba917344df.transcript",
+  "output": "Review stopped: the required writable build directory is unavailable.\n\n`mktemp -d -p /var/tmp/pose-work-go/pose-review-run-232798653` failed with `Read-only file system`. Without writable scratch space, I cannot build the subject engine or run the required checks.\n\nThe repository is unchanged. No attestation or review decision was recorded. Please provide writable temporary storage to complete the review.",
+  "policy_digest": "sha256:90ca53a44c8202b7914e12baa143afac5707221147f71fe6fa30a74bb415f911",
+  "purpose": "review",
+  "env_removed": [
+    "CLAUDE_CODE_BRIDGE_SESSION_ID",
+    "CLAUDE_CODE_CHILD_SESSION",
+    "CLAUDE_CODE_ENTRYPOINT",
+    "CLAUDE_CODE_EXECPATH",
+    "CLAUDE_CODE_MESSAGING_SOCKET",
+    "CLAUDE_CODE_MESSAGING_TOKEN",
+    "CLAUDE_CODE_SESSION_ATTENDED",
+    "CLAUDE_CODE_SESSION_ID",
+    "CLAUDE_EFFORT",
+    "CLAUDE_PID"
+  ],
+  "events": "codex-jsonl",
+  "events_digest": "sha256:c19fa200b84a37bf6732478730cebcb1a4f91c63df6a0afdfac5746442defb05",
+  "routing": {
+    "requested": "sol-medium",
+    "implementation": {
+      "principal": "agent:anthropic/claude-opus-5-5",
+      "vendor": "anthropic",
+      "model": "claude-opus-5-5",
+      "execution_digest": "sha256:0eb880a4fc2ed87a379c949a567b1d3dfbd6b58b466f4755fcd363dd2b7fed98",
+      "source": "declared"
+    },
+    "implementation_from": "bundle",
+    "step": "explicit"
+  },
+  "independence_achieved": "different-vendor",
+  "round": 2,
+  "draft_problems": [
+    "a draft of round 2 needs a pose-draft block"
+  ],
+  "thread": {
+    "round": 2,
+    "mode": "new",
+    "from": "rrn-8479af60445e994b",
+    "reason": "the previous round's session cannot be resumed: lstat /var/tmp/closeout/pose-dist/.pose/review-private: no such file or directory"
+  }
+}
