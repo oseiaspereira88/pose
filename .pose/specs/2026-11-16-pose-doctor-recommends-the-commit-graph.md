@@ -37,13 +37,13 @@ A spec `pose-review-ledger-is-read-once-per-operation` mediu, na primeira chamad
 ## 2. Requirements
 
 ### Functional
-- R1: When the project root is a Git repository whose HEAD has at least 500 commits, and its commit-graph is missing or any layer of it lacks changed-path Bloom filters, `pose doctor` shall report the check `git.commit-graph` at level `next`, with the command that writes it.
+- R1: When the project root is a Git repository whose HEAD has at least 500 commits, and Git's own trace of a last-commit lookup by path shows no changed-path Bloom filter consulted, `pose doctor` shall report the check `git.commit-graph` at level `next`, with the command that writes it; the judgement follows whichever commit-graph Git loads (its own object directory or an alternate, a single file or a chain).
 - R2: `pose doctor --fix --yes` shall remediate `git.commit-graph` by running `git commit-graph write --reachable --changed-paths` in the project root, after which the check shall report `ok`.
-- R3: A repository with fewer than 500 commits on HEAD, or a commit-graph whose every layer carries the filters, shall report `ok`; a project root that is not a Git repository shall not report the check.
+- R3: A repository with fewer than 500 commits on HEAD, or one whose last-commit lookup Git answers from the filters, shall report `ok`; a project root that is not a Git repository, or has no commit on HEAD, shall not report the check; any other failure to read the state shall report `warn` with a bounded description of the failure.
 - R4: The pose-dist CI jobs that check out the full history shall write the commit-graph with changed paths before their gates.
 
 ### Non-functional
-- A verificação lê só o cabeçalho e a tabela de chunks de cada camada do commit-graph.
+- A verificação roda três comandos Git de leitura e uma busca do último commit de um arquivo com o trace2 ligado.
 
 ### Security
 - A correção roda o Git com argumentos fixos no root do projeto; nenhuma entrada do usuário entra no comando.
@@ -57,7 +57,7 @@ A spec `pose-review-ledger-is-read-once-per-operation` mediu, na primeira chamad
 
 ### Affected areas
 - `cli/doctor.go`: o check `git.commit-graph` e a entrada no registro de correções.
-- `cli/doctor_commit_graph.go`: a leitura do commit-graph e de suas camadas.
+- `cli/doctor_commit_graph.go`: a contagem do histórico e a pergunta ao Git, pelo trace2, se ele usa os filtros.
 - `.github/workflows/ci.yml`: o passo que escreve o commit-graph.
 
 ### Artifacts
@@ -71,7 +71,7 @@ A spec `pose-review-ledger-is-read-once-per-operation` mediu, na primeira chamad
 
 - capability:doctor-recommends-the-commit-graph module:pose-mcp profile:composed-capability entrypoint:pose-mcp/cmd/pose/main.go
 
-Composto em produção pelo `pose doctor` e pelo `pose doctor --fix`. Check permanente `doctor-recommends-the-commit-graph-integration`, evidenceClass `integration`, required: `go test ./internal/cli -run 'TestDoctorRecommendsTheCommitGraph' -count=1`.
+Composto em produção pelo `pose doctor` e pelo `pose doctor --fix`. Check permanente `doctor-recommends-the-commit-graph-integration`, evidenceClass `integration`, required: `go test ./internal/cli -run 'TestDoctorRecommendsTheCommitGraph|TestDoctorCommitGraphReportsAnUnreadableHistory' -count=1`.
 
 ### API/contract changes
 - Nenhuma.
@@ -80,7 +80,7 @@ Composto em produção pelo `pose doctor` e pelo `pose doctor --fix`. Check perm
 - Nenhuma no `.pose/`; a correção escreve o commit-graph sob `.git/objects/info/`.
 
 ### Technical risks
-- Um formato futuro do commit-graph com outra assinatura é lido como sem filtros e recomendado de novo; a correção do Git o reescreve no formato atual.
+- O evento `bloom` do trace2 é saída de diagnóstico do Git; uma versão que o renomeie faria o check recomendar a correção sempre. A correção é inofensiva, e o teste de integração com o Git real reprova se o evento sumir.
 
 ---
 
@@ -133,11 +133,11 @@ Testes do `doctor` com repositórios Git reais; medição já registrada na spec
 ### Requirement trace
 - R1 [satisfied] test:TestDoctorRecommendsTheCommitGraph check:doctor-recommends-the-commit-graph-integration
 - R2 [satisfied] test:TestDoctorRecommendsTheCommitGraph
-- R3 [satisfied] test:TestDoctorRecommendsTheCommitGraph
+- R3 [satisfied] test:TestDoctorRecommendsTheCommitGraph test:TestDoctorCommitGraphReportsAnUnreadableHistory
 - R4 [satisfied] O passo `Write the Git commit-graph with changed-path filters` nos dois jobs de `.github/workflows/ci.yml` que fazem checkout do histórico inteiro.
 
 ### Known gaps
-- R3 no caso de um root que não é repositório Git é coberto pelo código (a leitura do estado falha e o check não é emitido), sem teste próprio.
+- Nenhuma.
 
 ---
 
@@ -152,3 +152,8 @@ Não concluída.
 ### Follow-ups
 
 - [open] F1: medir e reduzir o `pose doctor` no harne8, que passa de 900 s em Go, sem processo Git filho, já com o binário anterior a esta spec. (owner:@pose-maintainers crit:medium review:2026-11-23)
+
+### Review
+
+Rodada 1 (run rrn-237e7d9be5f0c4f5, changes-requested): 4 bloqueadores, corrigidos. F2 a leitura ignorava diretórios de objetos alternativos; F3 preferia a cadeia de camadas ao arquivo único, ao contrário do Git; F4 aceitava cabeçalhos de versão não suportada e arquivos truncados. Os três vinham de reimplementar a leitura do commit-graph; o `doctor` deixou de ler os arquivos e passou a perguntar ao próprio Git: roda `git log -1 -- <path>` com `GIT_TRACE2_EVENT` e procura o evento `bloom`/`statistics` com algum filtro consultado, de modo que vale o grafo que o Git carrega, com as regras dele. O teste cobre um grafo só no alternate (`clone --shared`) e o arquivo único sem filtros ao lado de uma cadeia com filtros (`next`, porque o Git carrega o arquivo único). F5 qualquer erro de leitura suprimia o check; agora só a falta de repositório ou de commit em HEAD o suprime, e as demais falhas viram `warn` com a descrição limitada (`TestDoctorCommitGraphReportsAnUnreadableHistory`, com um commit pai apagado).
+

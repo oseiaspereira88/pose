@@ -6,6 +6,7 @@ package cli
 // --yes to actually apply — never silently.
 
 import (
+	"errors"
 	"bytes"
 	"context"
 	"encoding/json"
@@ -363,15 +364,17 @@ func runDoctorDiagnostics(locale cliLocale) (root string, findings []doctorFindi
 	// touched each artifact; on a long history each lookup walks it, and a
 	// commit-graph with changed-path filters answers it from the filters
 	// (spec pose-doctor-recommends-the-commit-graph).
-	if graph, err := readCommitGraphState(root); err == nil {
-		switch {
-		case graph.commits < commitGraphHistoryThreshold:
-			add("git.commit-graph", "ok", text(fmt.Sprintf("history of %d commits does not need a commit-graph", graph.commits), fmt.Sprintf("histórico de %d commits não precisa de commit-graph", graph.commits)), "")
-		case graph.present && graph.changedPaths:
-			add("git.commit-graph", "ok", text("Git commit-graph carries changed-path filters", "commit-graph do Git tem filtros de caminhos alterados"), "")
-		default:
-			add("git.commit-graph", "next", text(fmt.Sprintf("history of %d commits has no commit-graph with changed-path filters; last-commit lookups walk the whole history", graph.commits), fmt.Sprintf("histórico de %d commits sem commit-graph com filtros de caminhos alterados; a busca do último commit percorre o histórico inteiro", graph.commits)), text("run 'git commit-graph write --reachable --changed-paths' (or 'pose doctor --fix --yes')", "rode 'git commit-graph write --reachable --changed-paths' (ou 'pose doctor --fix --yes')"))
-		}
+	graph, graphErr := readCommitGraphState(root)
+	switch {
+	case errors.Is(graphErr, errCommitGraphNotApplicable):
+	case graphErr != nil:
+		add("git.commit-graph", "warn", text("Git commit-graph state could not be read: "+graphErr.Error(), "estado do commit-graph do Git não pôde ser lido: "+graphErr.Error()), text("check that the repository and its object directory are readable", "confira se o repositório e o diretório de objetos podem ser lidos"))
+	case graph.commits < commitGraphHistoryThreshold:
+		add("git.commit-graph", "ok", text(fmt.Sprintf("history of %d commits does not need a commit-graph", graph.commits), fmt.Sprintf("histórico de %d commits não precisa de commit-graph", graph.commits)), "")
+	case graph.filtersUsed:
+		add("git.commit-graph", "ok", text("Git answers last-commit lookups from changed-path filters", "o Git responde a busca do último commit pelos filtros de caminhos alterados"), "")
+	default:
+		add("git.commit-graph", "next", text(fmt.Sprintf("history of %d commits is walked whole by each last-commit lookup: Git has no commit-graph with changed-path filters", graph.commits), fmt.Sprintf("histórico de %d commits percorrido inteiro a cada busca do último commit: o Git não tem commit-graph com filtros de caminhos alterados", graph.commits)), text("run 'git commit-graph write --reachable --changed-paths' (or 'pose doctor --fix --yes')", "rode 'git commit-graph write --reachable --changed-paths' (ou 'pose doctor --fix --yes')"))
 	}
 
 	// 8. Delivery-integrity / artifact-contract policy roots (issue #17): a
