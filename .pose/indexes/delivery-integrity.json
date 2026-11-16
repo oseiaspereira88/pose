@@ -1,7 +1,7 @@
 {
   "schema_version": 2,
-  "input_digest": "sha256:375c48c568414b70a14e6d0fcd55f311c364894d64298cc73b2a9e48abb0ecee",
-  "provenance_digest": "sha256:8a00f40763c86194648315e85a56bce9349cbb6f66cdc2620eb7f74a33d9ba29",
+  "input_digest": "sha256:661adb87993cda1190f8c01fa16f372672803b99fb0e2c594ffa25669fed09b7",
+  "provenance_digest": "sha256:891ade6296711ea05a7f1d63ebcef43162ac8703125be5b5529d583207cfee26",
   "implied_edges": [
     "changes"
   ],
@@ -45596,6 +45596,14 @@
       }
     },
     {
+      "id": "change-set:cs-44a19acf2fe0",
+      "type": "change-set",
+      "attributes": {
+        "diff_digest": "sha256:62899eecbff266844be4f9dcd1271df3e8656f15fed946f6cd4b1d58a8042045",
+        "selector": "trailers:pose-doctor-recommends-the-commit-graph"
+      }
+    },
+    {
       "id": "change-set:cs-4534ad623d1f",
       "type": "change-set",
       "attributes": {
@@ -48889,14 +48897,6 @@
       "attributes": {
         "diff_digest": "sha256:7cfdd061e1126947907f6cc85576261b283b42dd493f0ebe1237859073395198",
         "selector": "trailers:pose-dependabot-runtime-repair"
-      }
-    },
-    {
-      "id": "change-set:cs-fe8d54f76e1d",
-      "type": "change-set",
-      "attributes": {
-        "diff_digest": "sha256:e5e01f70d38e992640c1c1c8b9a3f6279b7ba9c37bc6c9e6ddfa6eddf54d6b9b",
-        "selector": "trailers:pose-doctor-recommends-the-commit-graph"
       }
     },
     {
@@ -116326,7 +116326,7 @@
     },
     {
       "from": "spec:pose-doctor-recommends-the-commit-graph",
-      "to": "change-set:cs-fe8d54f76e1d",
+      "to": "change-set:cs-44a19acf2fe0",
       "type": "observed-by"
     },
     {
@@ -211637,6 +211637,146 @@
       }
     },
     {
+      "id": "cs-44a19acf2fe0",
+      "spec": "pose-doctor-recommends-the-commit-graph",
+      "selector": "trailers:pose-doctor-recommends-the-commit-graph",
+      "base": "b1010e95635fec15dcbce88065111a78e7df6bcf^",
+      "head": "c12c45e0eb9c2351b5aac9c53296242c0f1238a4",
+      "resolved_base": "2bf2adf147bda0b7d8396e025d8f543d08ed2747",
+      "resolved_head": "c12c45e0eb9c2351b5aac9c53296242c0f1238a4",
+      "commits": [
+        "b1010e95635fec15dcbce88065111a78e7df6bcf",
+        "335358f18a0f771721a3b991b95d64ec732e0a57",
+        "34dd49f61d1e338df7f2d5e57d88e5efa4d9af72",
+        "8f96ff06e0d2cd4cbace82937ef293aa973bba36",
+        "d1866fab61387eee369a5a3dd88371a1218fb537",
+        "728762ab064dcae8a0dda6047a17bd4de940e6a1",
+        "ef0f7fce43fdac326e5c7e1aaf199a292aac076f",
+        "0b5ba16f158842e92d98aafe383b326da165c4b5",
+        "5c1c5658becae1f03fcbfc20fff15af65cfc8879",
+        "ff917ef0ed45c2fe8d6689ef29eef161be3d3f0b",
+        "c12c45e0eb9c2351b5aac9c53296242c0f1238a4"
+      ],
+      "paths": [
+        {
+          "action": "created",
+          "path": ".pose/closeout-plans/spec-pose-doctor-recommends-the-commit-graph.json"
+        },
+        {
+          "action": "created",
+          "path": ".pose/review-attempts/9ae03042ebc23753dfe28f0d/000001.json"
+        },
+        {
+          "action": "created",
+          "path": ".pose/review-attempts/9ae03042ebc23753dfe28f0d/000001.result.json"
+        },
+        {
+          "action": "created",
+          "path": ".pose/review-attestations/rva-7eeed0b579ea2302.json"
+        },
+        {
+          "action": "created",
+          "path": ".pose/review-bundles/rvb-72a03e6f783555fb.json"
+        },
+        {
+          "action": "created",
+          "path": ".pose/review-conclusions/rrn-237e7d9be5f0c4f5.json"
+        },
+        {
+          "action": "created",
+          "path": ".pose/review-run-ledger/rrn-237e7d9be5f0c4f5.json"
+        },
+        {
+          "action": "created",
+          "path": ".pose/review-run-proofs/rrn-237e7d9be5f0c4f5/rrp-5da4e472877b12deb6cc883876378af3250c04fc681024f7dc335e686edcb658.json"
+        },
+        {
+          "action": "created",
+          "path": ".pose/review-runs/rrn-237e7d9be5f0c4f5.events.ndjson"
+        },
+        {
+          "action": "created",
+          "path": ".pose/review-runs/rrn-237e7d9be5f0c4f5.json"
+        },
+        {
+          "action": "created",
+          "path": ".pose/review-runs/rrn-237e7d9be5f0c4f5.transcript"
+        },
+        {
+          "action": "created",
+          "path": ".pose/specs/2026-11-16-pose-doctor-recommends-the-commit-graph.md"
+        },
+        {
+          "action": "created",
+          "path": ".pose/starts/pose-doctor-recommends-the-commit-graph.json"
+        },
+        {
+          "action": "created",
+          "path": "pose-mcp/internal/cli/doctor_commit_graph.go"
+        },
+        {
+          "action": "created",
+          "path": "pose-mcp/internal/cli/doctor_commit_graph_test.go"
+        },
+        {
+          "action": "modified",
+          "path": ".github/workflows/ci.yml"
+        },
+        {
+          "action": "modified",
+          "path": ".pose/indexes/delivery-integrity.json"
+        },
+        {
+          "action": "modified",
+          "path": ".pose/indexes/generation.json"
+        },
+        {
+          "action": "modified",
+          "path": ".pose/indexes/spec-graph.json"
+        },
+        {
+          "action": "modified",
+          "path": ".pose/indexes/validation-matrix.json"
+        },
+        {
+          "action": "modified",
+          "path": ".pose/results/delivery-validation.json"
+        },
+        {
+          "action": "modified",
+          "path": "pose-mcp/internal/cli/doctor.go"
+        }
+      ],
+      "diff_digest": "sha256:62899eecbff266844be4f9dcd1271df3e8656f15fed946f6cd4b1d58a8042045",
+      "material_digest": "sha256:cf2be2e7f25e85f7739bf18d659658bbf9a2b35f2b8b6aadf66abfca566326e3",
+      "material_inputs": {
+        "names": [
+          ".github/workflows/ci.yml",
+          ".pose/closeout-plans/spec-pose-doctor-recommends-the-commit-graph.json",
+          ".pose/indexes/delivery-integrity.json",
+          ".pose/indexes/generation.json",
+          ".pose/indexes/spec-graph.json",
+          ".pose/indexes/validation-matrix.json",
+          ".pose/results/delivery-validation.json",
+          ".pose/review-attempts/9ae03042ebc23753dfe28f0d/000001.json",
+          ".pose/review-attempts/9ae03042ebc23753dfe28f0d/000001.result.json",
+          ".pose/review-attestations/rva-7eeed0b579ea2302.json",
+          ".pose/review-bundles/rvb-72a03e6f783555fb.json",
+          ".pose/review-conclusions/rrn-237e7d9be5f0c4f5.json",
+          ".pose/review-run-ledger/rrn-237e7d9be5f0c4f5.json",
+          ".pose/review-run-proofs/rrn-237e7d9be5f0c4f5/rrp-5da4e472877b12deb6cc883876378af3250c04fc681024f7dc335e686edcb658.json",
+          ".pose/review-runs/rrn-237e7d9be5f0c4f5.events.ndjson",
+          ".pose/review-runs/rrn-237e7d9be5f0c4f5.json",
+          ".pose/review-runs/rrn-237e7d9be5f0c4f5.transcript",
+          ".pose/specs/2026-11-16-pose-doctor-recommends-the-commit-graph.md",
+          ".pose/starts/pose-doctor-recommends-the-commit-graph.json",
+          "pose-mcp/internal/cli/doctor.go",
+          "pose-mcp/internal/cli/doctor_commit_graph.go",
+          "pose-mcp/internal/cli/doctor_commit_graph_test.go"
+        ]
+      }
+    },
+    {
       "id": "cs-4534ad623d1f",
       "spec": "pose-progressive-spec-surface",
       "selector": "trailers:pose-progressive-spec-surface",
@@ -293861,145 +294001,6 @@
           "pose-mcp/internal/version/contract_test.go",
           "scripts/repair-dependabot-runtimes.py",
           "tests/release/repair-dependabot-runtimes.py"
-        ]
-      }
-    },
-    {
-      "id": "cs-fe8d54f76e1d",
-      "spec": "pose-doctor-recommends-the-commit-graph",
-      "selector": "trailers:pose-doctor-recommends-the-commit-graph",
-      "base": "b1010e95635fec15dcbce88065111a78e7df6bcf^",
-      "head": "ff917ef0ed45c2fe8d6689ef29eef161be3d3f0b",
-      "resolved_base": "2bf2adf147bda0b7d8396e025d8f543d08ed2747",
-      "resolved_head": "ff917ef0ed45c2fe8d6689ef29eef161be3d3f0b",
-      "commits": [
-        "b1010e95635fec15dcbce88065111a78e7df6bcf",
-        "335358f18a0f771721a3b991b95d64ec732e0a57",
-        "34dd49f61d1e338df7f2d5e57d88e5efa4d9af72",
-        "8f96ff06e0d2cd4cbace82937ef293aa973bba36",
-        "d1866fab61387eee369a5a3dd88371a1218fb537",
-        "728762ab064dcae8a0dda6047a17bd4de940e6a1",
-        "ef0f7fce43fdac326e5c7e1aaf199a292aac076f",
-        "0b5ba16f158842e92d98aafe383b326da165c4b5",
-        "5c1c5658becae1f03fcbfc20fff15af65cfc8879",
-        "ff917ef0ed45c2fe8d6689ef29eef161be3d3f0b"
-      ],
-      "paths": [
-        {
-          "action": "created",
-          "path": ".pose/closeout-plans/spec-pose-doctor-recommends-the-commit-graph.json"
-        },
-        {
-          "action": "created",
-          "path": ".pose/review-attempts/9ae03042ebc23753dfe28f0d/000001.json"
-        },
-        {
-          "action": "created",
-          "path": ".pose/review-attempts/9ae03042ebc23753dfe28f0d/000001.result.json"
-        },
-        {
-          "action": "created",
-          "path": ".pose/review-attestations/rva-7eeed0b579ea2302.json"
-        },
-        {
-          "action": "created",
-          "path": ".pose/review-bundles/rvb-72a03e6f783555fb.json"
-        },
-        {
-          "action": "created",
-          "path": ".pose/review-conclusions/rrn-237e7d9be5f0c4f5.json"
-        },
-        {
-          "action": "created",
-          "path": ".pose/review-run-ledger/rrn-237e7d9be5f0c4f5.json"
-        },
-        {
-          "action": "created",
-          "path": ".pose/review-run-proofs/rrn-237e7d9be5f0c4f5/rrp-5da4e472877b12deb6cc883876378af3250c04fc681024f7dc335e686edcb658.json"
-        },
-        {
-          "action": "created",
-          "path": ".pose/review-runs/rrn-237e7d9be5f0c4f5.events.ndjson"
-        },
-        {
-          "action": "created",
-          "path": ".pose/review-runs/rrn-237e7d9be5f0c4f5.json"
-        },
-        {
-          "action": "created",
-          "path": ".pose/review-runs/rrn-237e7d9be5f0c4f5.transcript"
-        },
-        {
-          "action": "created",
-          "path": ".pose/specs/2026-11-16-pose-doctor-recommends-the-commit-graph.md"
-        },
-        {
-          "action": "created",
-          "path": ".pose/starts/pose-doctor-recommends-the-commit-graph.json"
-        },
-        {
-          "action": "created",
-          "path": "pose-mcp/internal/cli/doctor_commit_graph.go"
-        },
-        {
-          "action": "created",
-          "path": "pose-mcp/internal/cli/doctor_commit_graph_test.go"
-        },
-        {
-          "action": "modified",
-          "path": ".github/workflows/ci.yml"
-        },
-        {
-          "action": "modified",
-          "path": ".pose/indexes/delivery-integrity.json"
-        },
-        {
-          "action": "modified",
-          "path": ".pose/indexes/generation.json"
-        },
-        {
-          "action": "modified",
-          "path": ".pose/indexes/spec-graph.json"
-        },
-        {
-          "action": "modified",
-          "path": ".pose/indexes/validation-matrix.json"
-        },
-        {
-          "action": "modified",
-          "path": ".pose/results/delivery-validation.json"
-        },
-        {
-          "action": "modified",
-          "path": "pose-mcp/internal/cli/doctor.go"
-        }
-      ],
-      "diff_digest": "sha256:e5e01f70d38e992640c1c1c8b9a3f6279b7ba9c37bc6c9e6ddfa6eddf54d6b9b",
-      "material_digest": "sha256:cf2be2e7f25e85f7739bf18d659658bbf9a2b35f2b8b6aadf66abfca566326e3",
-      "material_inputs": {
-        "names": [
-          ".github/workflows/ci.yml",
-          ".pose/closeout-plans/spec-pose-doctor-recommends-the-commit-graph.json",
-          ".pose/indexes/delivery-integrity.json",
-          ".pose/indexes/generation.json",
-          ".pose/indexes/spec-graph.json",
-          ".pose/indexes/validation-matrix.json",
-          ".pose/results/delivery-validation.json",
-          ".pose/review-attempts/9ae03042ebc23753dfe28f0d/000001.json",
-          ".pose/review-attempts/9ae03042ebc23753dfe28f0d/000001.result.json",
-          ".pose/review-attestations/rva-7eeed0b579ea2302.json",
-          ".pose/review-bundles/rvb-72a03e6f783555fb.json",
-          ".pose/review-conclusions/rrn-237e7d9be5f0c4f5.json",
-          ".pose/review-run-ledger/rrn-237e7d9be5f0c4f5.json",
-          ".pose/review-run-proofs/rrn-237e7d9be5f0c4f5/rrp-5da4e472877b12deb6cc883876378af3250c04fc681024f7dc335e686edcb658.json",
-          ".pose/review-runs/rrn-237e7d9be5f0c4f5.events.ndjson",
-          ".pose/review-runs/rrn-237e7d9be5f0c4f5.json",
-          ".pose/review-runs/rrn-237e7d9be5f0c4f5.transcript",
-          ".pose/specs/2026-11-16-pose-doctor-recommends-the-commit-graph.md",
-          ".pose/starts/pose-doctor-recommends-the-commit-graph.json",
-          "pose-mcp/internal/cli/doctor.go",
-          "pose-mcp/internal/cli/doctor_commit_graph.go",
-          "pose-mcp/internal/cli/doctor_commit_graph_test.go"
         ]
       }
     },
