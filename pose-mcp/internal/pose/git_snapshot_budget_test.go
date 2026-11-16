@@ -155,3 +155,29 @@ func TestReviewWorktreeCleanupStillBoundsGrowth(t *testing.T) {
 		t.Fatalf("a refused cleanup removed the worktree's contents: %v", err)
 	}
 }
+
+// Review N2: a tree listing past its bound is not retained; the comparison
+// fails, and the disk snapshot and the cleanup fall back to the margin alone,
+// which a tree past the margin exceeds, so all three fail closed.
+func TestGitTreeListingIsBounded(t *testing.T) {
+	original := gitTreeListingMaxBytes
+	t.Cleanup(func() { gitTreeListingMaxBytes = original })
+	root, head := snapshotBudgetRepo(t)
+	gitTreeListingMaxBytes = 64
+	if _, err := listCommittedTree(root, head); err == nil {
+		t.Fatal("a listing past its bound was returned")
+	}
+	if _, err := gitMaterializedChanges(root, head); err == nil {
+		t.Fatal("the comparison accepted a listing past its bound")
+	}
+	if _, err := dispatchDiskSnapshot(root); err == nil {
+		t.Fatal("the disk snapshot of a tree past the margin succeeded without its listing")
+	}
+	store, tmp, owned, worktree, worktreeOwned, marker, ownership := cleanupBudgetFixture(t, 0)
+	if ownership.inventoryBytes != gitSnapshotMarginBytes {
+		t.Fatalf("the cleanup budget was computed from a listing past its bound: %d", ownership.inventoryBytes)
+	}
+	if err := store.cleanupReviewResources(tmp, owned, worktree, worktreeOwned, marker, ownership); err == nil {
+		t.Fatal("the cleanup of a worktree past the margin succeeded without its listing")
+	}
+}

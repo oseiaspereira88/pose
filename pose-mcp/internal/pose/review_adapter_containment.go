@@ -471,7 +471,7 @@ func (s Store) captureReviewCleanupOwnership(runtime *os.Root, worktree string, 
 	o := &reviewCleanupOwnership{runtime: runtime, registry: registry, registration: name, registrationInfo: info, backlink: filepath.Join(worktree, ".git"), inventoryBytes: gitSnapshotMarginBytes}
 	if head, err := registry.ReadFile(filepath.Join(name, "HEAD")); err == nil {
 		if commit := strings.TrimSpace(string(head)); !strings.HasPrefix(commit, "ref:") && commit != "" {
-			if listing, err := snapshotGit(s.Root, "ls-tree", "-r", "-l", "-z", commit); err == nil {
+			if listing, err := listCommittedTree(s.Root, commit); err == nil {
 				o.inventoryBytes = gitSnapshotBudget(gitCommittedTreeBytes(listing))
 			}
 		}

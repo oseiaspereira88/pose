@@ -19,6 +19,7 @@ import (
 	"sort"
 	"strconv"
 	"strings"
+	"time"
 )
 
 // The bytes a snapshot reads are bounded by the committed tree it compares
@@ -38,6 +39,21 @@ func gitSnapshotBudget(committedBytes int64) int64 {
 		return gitSnapshotCeilingBytes
 	}
 	return committedBytes + gitSnapshotMarginBytes
+}
+
+// A committed tree listing is read through a bounded buffer under a
+// deadline: 100,000 entries of ordinary paths fit well inside it, and a
+// listing past it fails closed before it is retained (review N2).
+var (
+	gitTreeListingMaxBytes int64 = 64 << 20
+	gitTreeListingTimeout        = 2 * time.Minute
+)
+
+// listCommittedTree returns `ls-tree -r -l -z commit` of root, bounded.
+func listCommittedTree(root, commit string) ([]byte, error) {
+	ctx, cancel := context.WithTimeout(context.Background(), gitTreeListingTimeout)
+	defer cancel()
+	return runGovernanceGitCommandContext(ctx, NativeFiles(), root, []string{"ls-tree", "-r", "-l", "-z", commit}, gitTreeListingMaxBytes)
 }
 
 // gitCommittedTreeBytes sums the blob sizes of an `ls-tree -r -l -z` listing.
@@ -64,7 +80,7 @@ func dispatchDiskSnapshot(root string) (map[string]string, error) {
 	entries := map[string]string{}
 	var total int64
 	committed := int64(0)
-	if listing, err := gitCommand("-C", root, "ls-tree", "-r", "-l", "-z", "HEAD").Output(); err == nil {
+	if listing, err := listCommittedTree(root, "HEAD"); err == nil {
 		committed = gitCommittedTreeBytes(listing)
 	}
 	budget := gitSnapshotBudget(committed)
@@ -219,7 +235,12 @@ func gitMaterializedChangesForIn(files Files, root, commit string, matters func(
 	if producer != "" {
 		producer = governanceProducerFromFiles(files, producer)
 	}
-	runGit := snapshotGit
+	runGit := func(root string, args ...string) ([]byte, error) {
+		if len(args) == 5 && args[0] == "ls-tree" {
+			return listCommittedTree(root, args[4])
+		}
+		return snapshotGit(root, args...)
+	}
 	worktreeIdentity := dispatchWorktreeIdentity
 	if producer != "" {
 		runGit = func(root string, args ...string) ([]byte, error) {
