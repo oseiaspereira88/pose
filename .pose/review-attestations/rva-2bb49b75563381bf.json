@@ -1,0 +1,261 @@
+{
+  "run": {
+    "run_id": "rrn-6d639d1e28201081",
+    "proof_id": "rrp-20441457a9ac56e76d3cbdb3ab37852069dd35b7a23c01f7cb1f7611ff697e6a"
+  },
+  "schema_version": 1,
+  "attestation_id": "rva-2bb49b75563381bf",
+  "bundle_id": "rvb-47afa168dcbc1bec",
+  "bundle_digest": "sha256:47afa168dcbc1bec227102e2cc4d70f8e9af3a07090ff65b1d6e3821b6345974",
+  "reviewer": "agent:openai/gpt-6.1-sol",
+  "decision": "changes-requested",
+  "criteria": [
+    {
+      "id": "assumption-integrity",
+      "disposition": "finding",
+      "evidence": "F15",
+      "rationale": "Verified ordinary filtered-history behavior through sealed integration evidence and read-only probes. The assumption that every eligible history supports the proposed repair is false for shallow repositories. Filter limits, probeable paths and locally available partial-clone objects are also unresolved assumptions; no acceptance of these risks is documented."
+    },
+    {
+      "id": "backend-concurrency",
+      "disposition": "passed",
+      "evidence": "unit:pose-mcp/go/test",
+      "rationale": "Inspected synchronous subprocess execution and unique temporary trace creation with deferred removal. No new goroutines or shared runtime mutation are introduced; the mutable threshold is changed only by nonparallel tests."
+    },
+    {
+      "id": "backend-contracts",
+      "disposition": "passed",
+      "evidence": "integration:pose-mcp/go/doctor-recommends-the-commit-graph-integration",
+      "rationale": "The doctor report schema and existing command arguments remain compatible; the change adds check codes and a registered repair."
+    },
+    {
+      "id": "backend-input-errors",
+      "disposition": "finding",
+      "evidence": "F20",
+      "rationale": "Nonzero Git failures gain bounded context, but successful fallback can discard operational graph-read failures."
+    },
+    {
+      "id": "backend-integration-impact",
+      "disposition": "finding",
+      "evidence": "F18",
+      "rationale": "The Git configuration consumer does not follow the provider's effective-setting precedence."
+    },
+    {
+      "id": "backend-observability",
+      "disposition": "finding",
+      "evidence": "F20",
+      "rationale": "Operational graph-read diagnostics can disappear despite R3 requiring actionable warning context."
+    },
+    {
+      "id": "compatibility",
+      "disposition": "passed",
+      "evidence": "integration:pose-mcp/go/doctor-recommends-the-commit-graph-integration",
+      "rationale": "Examined doctor.go's JSON/report construction, remediation registry and CLI parsing. Existing fields and invocations remain compatible; new check identifiers are additive. No MCP schema or persistent POSE file contract changes."
+    },
+    {
+      "id": "correctness",
+      "disposition": "finding",
+      "evidence": "F16",
+      "rationale": "The explicit repair does not guarantee R2's post-fix ok when Git limits new filter generation; shallow and empty-tree cases also remain unresolved."
+    },
+    {
+      "id": "design-causality",
+      "disposition": "passed",
+      "evidence": "structure:design-7244db860f5ce598",
+      "rationale": "D1 correctly places optional repository maintenance in doctor remediation, addressing repeated path-history walks without adding writes to governance reads. Asking Git's trace which filters it actually consulted avoids duplicating graph-format and alternate-selection rules. Implementation failures are reported separately.",
+      "mappings": [
+        {
+          "delta": "SD-9fc0fe4e",
+          "basis": "R3",
+          "disposition": "mapped",
+          "rationale": "Commit 5c1c5658 extends the permanent integration command with TestDoctorCommitGraphReportsAnUnreadableHistory, exercising R3's operational-error warning requirement."
+        },
+        {
+          "delta": "SD-d29398e6",
+          "basis": "R3",
+          "disposition": "mapped",
+          "rationale": "Commit 2e30bb53 adds unborn/broken HEAD, literal-path and disabled-read tests to the permanent integration command, supporting R3's exclusion and read-configuration behavior."
+        }
+      ]
+    },
+    {
+      "id": "documentation",
+      "disposition": "finding",
+      "evidence": "F17",
+      "rationale": "The spec promises post-repair ok without an empty-tree exclusion and reports no known gaps, while runtime behavior can recommend the same repair indefinitely."
+    },
+    {
+      "id": "operability",
+      "disposition": "finding",
+      "evidence": "F18",
+      "rationale": "The configuration warning can identify an ineffective setting and withhold the repair that is actually needed."
+    },
+    {
+      "id": "requirements",
+      "disposition": "finding",
+      "evidence": "F15",
+      "rationale": "R4 is implemented in both full-history CI jobs, and ordinary R1-R3 cases have sealed integration evidence. R2 and R3 remain unfulfilled for the reported negative cases."
+    },
+    {
+      "id": "scope",
+      "disposition": "passed",
+      "evidence": "structure:design-7244db860f5ce598",
+      "rationale": "Examined scoped artifacts against the technical plan: one diagnostic helper, doctor wiring, focused tests, CI preparation and validation registration. These implement the approved doctor capability without a broader architecture or public contract change."
+    },
+    {
+      "id": "security",
+      "disposition": "finding",
+      "evidence": "F19",
+      "rationale": "Fixed Git arguments and RawHistoryGit preserve command/path authority, but diagnostic lazy fetching violates the promised repository read-only boundary."
+    },
+    {
+      "id": "solution-proportionality",
+      "disposition": "passed",
+      "evidence": "structure:design-7244db860f5ce598",
+      "rationale": "Compared the implementation with D1's documentation-only and automatic-governance-write alternatives. A small registered doctor repair and CI command are proportionate, and Git trace reuse avoids a custom graph parser. No daemon, persistent cache or speculative abstraction is added. The choice requires revision if supported Git versions stop exposing reliable Bloom statistics; the spec identifies that dependency and integration tests cover the ordinary path."
+    }
+  ],
+  "tools": [
+    {
+      "id": "artifact-check",
+      "disposition": "passed",
+      "evidence": "command:pose artifact-check --spec pose-doctor-recommends-the-commit-graph --strict",
+      "rationale": "Executed read-only and exited zero. The rerun resolved a later shared-reference range; exact sealed-subject reconciliation was additionally inspected in /var/tmp/closeout/ac-dc.out, which names cs-8b67b46a10e4 and the requested base/head. Existing orphan warnings are not scoped implementation defects."
+    },
+    {
+      "id": "assess-design",
+      "disposition": "not-used",
+      "rationale": "Did not run an assessment that may write repository state. Independently inspected D1 and both structural deltas, using sealed structure:design-7244db860f5ce598 as supporting evidence."
+    },
+    {
+      "id": "assess-discover",
+      "component": "pose-mcp",
+      "disposition": "not-used",
+      "rationale": "Assessment execution would write under .pose and is outside the read-only review boundary; inspected the mapped component and sealed evidence directly."
+    },
+    {
+      "id": "assess-integrate",
+      "disposition": "not-used",
+      "rationale": "Did not run a state-writing assessment. Inspected doctor/Git integration and sealed integration evidence directly; no REST, Protobuf, Kafka or MCP tool contract changed."
+    },
+    {
+      "id": "assess-tech-debt",
+      "disposition": "not-used",
+      "rationale": "Did not run a state-writing assessment. Manually inspected the changed implementation and tests for debt markers and unresolved behavior."
+    },
+    {
+      "id": "closeout-check",
+      "disposition": "deferred",
+      "rationale": "Requires the completed recorded review; this task expressly prohibits recording an attestation."
+    },
+    {
+      "id": "review-check",
+      "disposition": "deferred",
+      "rationale": "Requires the completed recorded review; POSE must run it after processing this draft."
+    },
+    {
+      "id": "suggest-review",
+      "component": "pose-mcp",
+      "disposition": "passed",
+      "evidence": "command:pose suggest review --path pose-mcp",
+      "rationale": "Executed and applied the returned review workflow and Go, security and documentation rules."
+    },
+    {
+      "id": "surface-check",
+      "disposition": "passed",
+      "evidence": "integration:pose-mcp/go/doctor-recommends-the-commit-graph-integration",
+      "rationale": "Executed pose surface-check --spec pose-doctor-recommends-the-commit-graph --strict; exited zero with one target, 232 results and zero findings. Also inspected /var/tmp/closeout/sc-dc.out. Reachability does not resolve the reported behavioral defects."
+    },
+    {
+      "id": "validate",
+      "disposition": "passed",
+      "evidence": "build:pose-mcp/go/build",
+      "rationale": "Disposed from the supplied sealed strict-validation run and inspected delivery-validation.json. Build/test reruns require prohibited writes, so none were attempted."
+    },
+    {
+      "id": "validate",
+      "component": "pose-mcp",
+      "disposition": "passed",
+      "evidence": "unit:pose-mcp/go/test",
+      "rationale": "Sealed validation includes package tests, build and integration results for pose-mcp. Independently read the focused regression tests; they omit the six unresolved negative cases."
+    }
+  ],
+  "evidence_refs": [
+    "F15",
+    "F16",
+    "F17",
+    "F18",
+    "F19",
+    "F20",
+    "delegated-run:rrn-6d639d1e28201081",
+    "integration:pose-mcp/go/doctor-recommends-the-commit-graph-integration",
+    "structure:design-7244db860f5ce598",
+    "unit:pose-mcp/go/test"
+  ],
+  "findings": [
+    {
+      "id": "F15",
+      "severity": "medium",
+      "evidence": "file:pose-mcp/internal/cli/doctor_commit_graph.go:100",
+      "action": "Unresolved R3-F9: shallow histories can meet the 500-commit threshold and consult no Bloom filters, producing a fixable rewrite recommendation, although Git cannot use or write commit-graphs across shallow boundaries. The repair can succeed without resolving the finding, violating R2. Read-only probes confirmed count=500, shallow=true and no Bloom events. Detect shallow history, provide actionable remediation or reconcile the requirement, and add a regression.",
+      "disposition": "open"
+    },
+    {
+      "id": "F16",
+      "severity": "medium",
+      "evidence": "file:pose-mcp/internal/cli/doctor_commit_graph.go:154",
+      "action": "Unresolved R3-F10: the repair inherits commitGraph.maxNewFilters. With zero, no new filters are generated; restrictive limits can also leave the probe unaccelerated. Git can return success while doctor remains next, violating R2. Diagnose the effective limit or explicitly override it for this repair, and cover zero and restrictive limits.",
+      "disposition": "open"
+    },
+    {
+      "id": "F17",
+      "severity": "low",
+      "evidence": "file:pose-mcp/internal/cli/doctor_commit_graph.go:80",
+      "action": "Unresolved R3-F11: an empty HEAD tree returns a successful state with filtersUsed=false before probing or checking disabled reads. Above the threshold, doctor therefore recommends rewriting indefinitely, including after a successful repair, and omits disabled-read diagnostics. R2 has no nonempty-tree exclusion. Handle the absence of a probeable path explicitly and add regression coverage.",
+      "disposition": "open"
+    },
+    {
+      "id": "F18",
+      "severity": "medium",
+      "evidence": "file:pose-mcp/internal/cli/doctor_commit_graph.go:118",
+      "action": "Unresolved R3-F12: disabled-read detection ignores Git configuration precedence. changedPathsVersion overrides deprecated readChangedPaths, but readChangedPaths=false is checked first. With changedPathsVersion=1 and a missing graph, doctor incorrectly removes the repair and names an ineffective setting as the cause. A read-only probe confirmed filters remain readable under these conflicting settings. Resolve the effective version first and test the missing-graph case.",
+      "disposition": "open"
+    },
+    {
+      "id": "F19",
+      "severity": "medium",
+      "evidence": "file:pose-mcp/internal/cli/doctor_commit_graph.go:161",
+      "action": "Unresolved R3-F13: diagnostic Git commands do not disable lazy fetching. In a partial clone, recursive ls-tree or path-history lookup can fetch promised trees and write objects during plain doctor or a fix preview. This violates the read-only constraint and D1's authority boundary. Disable lazy fetching for diagnostics, report unavailable local objects, and test that no remote contact occurs.",
+      "disposition": "open"
+    },
+    {
+      "id": "F20",
+      "severity": "medium",
+      "evidence": "file:pose-mcp/internal/cli/doctor_commit_graph.go:166",
+      "action": "Unresolved R3-F14 and remaining R1-F5: stderr is discarded whenever Git exits successfully. Git can report an unreadable or malformed commit-graph, fall back to ordinary traversal and exit zero. Doctor then reports next, or ok below the threshold, instead of R3's bounded operational warning. Preserve and classify graph-read diagnostics on successful commands and add corrupt-graph regression coverage.",
+      "disposition": "open"
+    }
+  ],
+  "authority": {
+    "schema_version": 1,
+    "project": "proj.pose-dist",
+    "bundle_digest": "sha256:47afa168dcbc1bec227102e2cc4d70f8e9af3a07090ff65b1d6e3821b6345974",
+    "principal": "agent:openai/gpt-6.1-sol",
+    "role": "agent",
+    "review_execution": "rrn-6d639d1e28201081",
+    "implementation_principal": "agent:anthropic/claude-opus-5-5",
+    "implementation_execution": "sha256:0eb880a4fc2ed87a379c949a567b1d3dfbd6b58b466f4755fcd363dd2b7fed98",
+    "issuer": "b34-local-executor",
+    "issued_at": "2026-11-16T20:43:14Z",
+    "audience": "proj.pose-dist"
+  },
+  "envelope": {
+    "issuer": "b34-local-executor",
+    "subject": "rvb-47afa168dcbc1bec",
+    "algorithm": "ed25519",
+    "public_key": "ck4sApdfePV2GT+hJyAYfJd2qLzeG55P8pevGR0bvZE=",
+    "signature": "KVx9MhyToaOgOhuPblSitM1Lp798EzM9u5u9Zzl9gps4Urso590O5Vu/VWuUuVcKogzPZThBtc1qJFcFWMRpDA=="
+  },
+  "attested_at": "2026-11-16T20:43:14Z",
+  "path": ".pose/review-attestations/rva-2bb49b75563381bf.json"
+}
