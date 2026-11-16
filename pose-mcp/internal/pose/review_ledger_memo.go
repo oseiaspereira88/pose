@@ -39,6 +39,13 @@ func memoizedLedgerRead[V any](files Files, key string, compute func() (V, error
 		value, err := compute()
 		return value, false, err
 	}
+	// A kept value is served only while the view is open, as a read is: a
+	// finalized view rejects it (review F4).
+	if err := view.begin(); err != nil {
+		var zero V
+		return zero, false, err
+	}
+	defer view.end()
 	kept, _ := view.operation.ledgerMemo.LoadOrStore(key, &ledgerMemoCell[V]{})
 	cell := kept.(*ledgerMemoCell[V])
 	computed := false

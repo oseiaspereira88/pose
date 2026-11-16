@@ -2429,7 +2429,7 @@
         {
           "name": "review-ledger-is-read-once-per-operation-integration",
           "program": "go",
-          "args": ["test", "./internal/pose", "-run", "TestReviewLedgerIsReadOncePerOperation|TestReviewLedgerWithoutAnOperationIsReadEveryTime|TestReviewLedgerMemoAnswersAsAFreshRead|TestReviewLedgerMemoComputesOnceForConcurrentMisses|TestReviewLedgerMemoGivesIsolatedCopies|TestCopyReviewRunsCoversEveryUnexportedField", "-count=1"],
+          "args": ["test", "./internal/pose", "-run", "TestReviewLedgerIsReadOncePerOperation|TestReviewLedgerWithoutAnOperationIsReadEveryTime|TestReviewLedgerMemoAnswersAsAFreshRead|TestReviewLedgerMemoComputesOnceForConcurrentMisses|TestReviewLedgerMemoGivesIsolatedCopies|TestCopyReviewRunsCoversEveryUnexportedField|TestReviewLedgerMemoIsNotServedAfterTheOperationEnds", "-count=1"],
           "severity": "required",
           "evidenceClass": "integration"
         },

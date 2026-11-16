@@ -1,6 +1,7 @@
 package pose
 
 import (
+	"errors"
 	"os"
 	"path/filepath"
 	"reflect"
@@ -214,5 +215,26 @@ func TestCopyReviewRunsCoversEveryUnexportedField(t *testing.T) {
 		if !field.IsExported() && !want[field.Name] {
 			t.Errorf("ReviewRun.%s is unexported and not copied by copyReviewRuns", field.Name)
 		}
+	}
+}
+
+// Review F4: a kept value is not served once the operation's view is
+// finalized; the reader fails as a read through a finalized view does.
+func TestReviewLedgerMemoIsNotServedAfterTheOperationEnds(t *testing.T) {
+	f, run := approvedByARunThenDone(t)
+	scoped := ledgerOperation(t, f.store)
+	if _, _, err := scoped.ReadReviewRuns(run.BundleID); err != nil {
+		t.Fatal(err)
+	}
+	if _, err := scoped.ReadReviewAttestations(run.BundleID); err != nil {
+		t.Fatal(err)
+	}
+	view, _ := governanceReadViewFromFiles(scoped.fsys())
+	view.audit()
+	if _, _, err := scoped.ReadReviewRuns(run.BundleID); !errors.Is(err, errGovernanceReadViewFinalized) {
+		t.Fatalf("kept runs served after the operation ended: %v", err)
+	}
+	if _, err := scoped.ReadReviewAttestations(run.BundleID); !errors.Is(err, errGovernanceReadViewFinalized) {
+		t.Fatalf("kept attestations served after the operation ended: %v", err)
 	}
 }

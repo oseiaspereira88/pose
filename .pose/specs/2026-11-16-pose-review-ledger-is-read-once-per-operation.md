@@ -75,7 +75,7 @@ A primeira chamada `pose_closeout_state` de um servidor MCP no harne8 ainda leva
 
 - capability:review-ledger-is-read-once-per-operation module:pose-mcp profile:composed-capability entrypoint:pose-mcp/cmd/pose/main.go
 
-Composto em produção por toda operação de revisão, fechamento e aceitação federada que verifica bundles. Check permanente `review-ledger-is-read-once-per-operation-integration`, evidenceClass `integration`, required: `go test ./internal/pose -run 'TestReviewLedgerIsReadOncePerOperation|TestReviewLedgerWithoutAnOperationIsReadEveryTime|TestReviewLedgerMemoAnswersAsAFreshRead|TestReviewLedgerMemoComputesOnceForConcurrentMisses|TestReviewLedgerMemoGivesIsolatedCopies|TestCopyReviewRunsCoversEveryUnexportedField' -count=1`.
+Composto em produção por toda operação de revisão, fechamento e aceitação federada que verifica bundles. Check permanente `review-ledger-is-read-once-per-operation-integration`, evidenceClass `integration`, required: `go test ./internal/pose -run 'TestReviewLedgerIsReadOncePerOperation|TestReviewLedgerWithoutAnOperationIsReadEveryTime|TestReviewLedgerMemoAnswersAsAFreshRead|TestReviewLedgerMemoComputesOnceForConcurrentMisses|TestReviewLedgerMemoGivesIsolatedCopies|TestCopyReviewRunsCoversEveryUnexportedField|TestReviewLedgerMemoIsNotServedAfterTheOperationEnds' -count=1`.
 
 ### API/contract changes
 - Nenhuma.
@@ -138,7 +138,7 @@ Testes que contam leituras e conferências numa operação e comparam as respost
 - R1 [satisfied] test:TestReviewLedgerIsReadOncePerOperation test:TestReviewLedgerMemoComputesOnceForConcurrentMisses check:review-ledger-is-read-once-per-operation-integration
 - R2 [satisfied] test:TestReviewLedgerIsReadOncePerOperation
 - R3 [satisfied] test:TestReviewLedgerWithoutAnOperationIsReadEveryTime
-- R4 [satisfied] test:TestReviewLedgerMemoAnswersAsAFreshRead test:TestReviewLedgerMemoGivesIsolatedCopies test:TestCopyReviewRunsCoversEveryUnexportedField
+- R4 [satisfied] test:TestReviewLedgerMemoAnswersAsAFreshRead test:TestReviewLedgerMemoIsNotServedAfterTheOperationEnds test:TestReviewLedgerMemoGivesIsolatedCopies test:TestCopyReviewRunsCoversEveryUnexportedField
 
 ### Known gaps
 - O ganho de parede da primeira chamada depende do commit-graph do Git, que é manutenção do repositório e não do motor (follow-up F1).
@@ -161,4 +161,6 @@ Não concluída.
 ### Review
 
 Rodada 1 (run rrn-7dfb663ed1e8ebbb, changes-requested; a mensagem final não trouxe bloco `pose-draft`): 3 achados, corrigidos com teste que reprova sem a correção. F1 duas faltas concorrentes da mesma chave computavam as duas antes de publicar; agora cada chave tem uma célula com `sync.Once` (`TestReviewLedgerMemoComputesOnceForConcurrentMisses`). F2 as cópias eram rasas, e mudar `Criteria[0].Disposition` de uma attestation devolvida mudava a guardada; agora `deepCopyValue` copia tudo o que é exportado, e `copyReviewRuns` copia os três campos não exportados de `ReviewRun` por nome (`TestReviewLedgerMemoGivesIsolatedCopies`, `TestCopyReviewRunsCoversEveryUnexportedField`). F3 copiar sobre `nil` trocava um slice vazio por `nil`, e o JSON de `[]` por `null`; a cópia profunda preserva nil e vazio, e o teste compara uma resposta vazia com a de uma leitura nova.
+
+Rodada 2 (run rrn-8531130b0d7334cb, recusada: o rascunho citou os achados da rodada 1 como `R1-F1` a `R1-F3`, que o motor não tinha registrado, porque a rodada 1 terminou sem bloco `pose-draft`). O rascunho declarou F1 a F3 corrigidos e trouxe um achado novo, corrigido com teste que reprova sem a correção: F4 um acerto do memo não passava pela verificação de ciclo de vida da view, e um leitor que guardasse a store depois de a operação terminar recebia registros guardados, mesmo com o ledger mudado; agora o memo chama `begin()` da view antes de servir ou calcular, e uma view finalizada recusa como uma leitura recusaria (`TestReviewLedgerMemoIsNotServedAfterTheOperationEnds`).
 
