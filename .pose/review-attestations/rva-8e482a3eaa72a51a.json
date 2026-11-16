@@ -1,0 +1,220 @@
+{
+  "run": {
+    "run_id": "rrn-756eaba8977c78a6",
+    "proof_id": "rrp-15630879180a02389427d2ad68517ee5abf15ec1bf1717d0264bc6c786d0b5e9"
+  },
+  "schema_version": 1,
+  "attestation_id": "rva-8e482a3eaa72a51a",
+  "bundle_id": "rvb-1db5ec272f8ec5a5",
+  "bundle_digest": "sha256:1db5ec272f8ec5a5ff697287ef4f89031bc40d7d03feb9e09722180710f299af",
+  "reviewer": "agent:openai/gpt-6.1-sol",
+  "decision": "approved",
+  "criteria": [
+    {
+      "id": "assumption-integrity",
+      "disposition": "passed",
+      "evidence": "integration:pose-mcp/go/review-ledger-is-read-once-per-operation-integration",
+      "rationale": "Verified the material premise that memo computations consume operation-view reads and retain producer attribution. Tests cover equivalence, isolation, finalization and changed-input attribution. The harne8 timing improvement is recorded measurement, not independently repeated here. Remaining Git latency is explicitly tracked by the spec's F1/F2 rather than treated as solved."
+    },
+    {
+      "id": "backend-concurrency",
+      "disposition": "passed",
+      "evidence": "integration:pose-mcp/go/review-ledger-is-read-once-per-operation-integration",
+      "rationale": "sync.Map publishes typed cells and sync.Once serializes each key's computation. The concurrent-miss test requires one computation for 16 callers. begin/end guards memo access and joins the existing audit lifecycle; finalized views refuse. No new background worker or cancellation API is introduced."
+    },
+    {
+      "id": "backend-contracts",
+      "disposition": "passed",
+      "evidence": "integration:pose-mcp/go/review-ledger-is-read-once-per-operation-integration",
+      "rationale": "Public signatures and persisted formats remain unchanged. Filtering, loss reporting, ordering, caller isolation and nil/empty response shapes are preserved."
+    },
+    {
+      "id": "backend-input-errors",
+      "disposition": "passed",
+      "evidence": "integration:pose-mcp/go/review-ledger-is-read-once-per-operation-integration",
+      "rationale": "Existing validation and bounded readers remain in the computation paths. Malformed records retain coverage loss; finalized-view transcript and header refusals remain visible and fail closed."
+    },
+    {
+      "id": "backend-integration-impact",
+      "disposition": "passed",
+      "evidence": "integration:pose-mcp/go/federated-proof-reads-each-input-once-integration",
+      "rationale": "Reviewed integration through review verification, operation views and federated consumers. The memo remains owned by the existing governance operation and computes through its Files boundary."
+    },
+    {
+      "id": "backend-observability",
+      "disposition": "passed",
+      "evidence": "integration:pose-mcp/go/review-ledger-is-read-once-per-operation-integration",
+      "rationale": "Memo errors preserve returned inspection diagnostics and SourceLoss context. Producer-specific keys preserve final-audit attribution. No new sensitive logging is introduced."
+    },
+    {
+      "id": "compatibility",
+      "disposition": "passed",
+      "evidence": "integration:pose-mcp/go/review-ledger-is-read-once-per-operation-integration",
+      "rationale": "Examined CLI/MCP-facing consumers and persisted review types. The change is internal derived-value reuse; no command, tool schema, ledger format or authorization contract changes. Regression coverage checks response equivalence and empty-value shape."
+    },
+    {
+      "id": "correctness",
+      "disposition": "passed",
+      "evidence": "integration:pose-mcp/go/review-ledger-is-read-once-per-operation-integration",
+      "rationale": "The targeted check covers repeated reads, non-operation reads, malformed records, concurrent misses, isolated copies, lifecycle refusal and attribution. The full sealed module suite and build also passed."
+    },
+    {
+      "id": "design-causality",
+      "disposition": "passed",
+      "evidence": "structure:design-5471fde61abf05ed",
+      "rationale": "D1 addresses repeated interpretation and hashing of bytes already fixed by the operation view. Operation-owned cells remove repeated computation without adding cross-operation invalidation. Producer/project keys preserve the existing audit dependency contract.",
+      "mappings": [
+        {
+          "delta": "SD-16da51ec",
+          "basis": "R4",
+          "disposition": "mapped",
+          "rationale": "Commit 1995df71 adds TestReviewLedgerMemoIsNotServedAfterTheOperationEnds to the required integration check, enforcing lifecycle equivalence."
+        },
+        {
+          "delta": "SD-55df3a37",
+          "basis": "D1",
+          "disposition": "mapped",
+          "rationale": "ADR amendment D14 documents the selected operation-scoped derived-value memo, its causal measurements and its exclusion of cross-operation caching."
+        },
+        {
+          "delta": "SD-7d460311",
+          "basis": "R4",
+          "disposition": "mapped",
+          "rationale": "Commit 604a6363 adds refusal-visibility and every-consuming-producer regression tests to the required integration check."
+        }
+      ]
+    },
+    {
+      "id": "documentation",
+      "disposition": "passed",
+      "evidence": "structure:design-5471fde61abf05ed",
+      "rationale": "Checked the spec, requirement trace, ADR D14 and validation-matrix command against implementation. They describe operation-local reuse, unchanged contracts, fresh reads without an operation and the remaining Git latency. R1 explicitly qualifies reuse by producer."
+    },
+    {
+      "id": "operability",
+      "disposition": "passed",
+      "evidence": "integration:pose-mcp/go/review-ledger-is-read-once-per-operation-integration",
+      "rationale": "Lifecycle refusals remain actionable transcript problems or source-coverage losses. Existing integrity and final-audit diagnostics remain available; no new operational configuration is required."
+    },
+    {
+      "id": "requirements",
+      "disposition": "passed",
+      "evidence": "integration:pose-mcp/go/review-ledger-is-read-once-per-operation-integration",
+      "rationale": "R1/R2 have computation-count coverage; R3 has repeated reads without an operation; R4 has equivalence, malformed-record, isolation, lifecycle and attribution coverage. Recorded harne8 CPU falls from 130 to 53 seconds; that measurement was not repeated in this sandbox."
+    },
+    {
+      "id": "scope",
+      "disposition": "passed",
+      "evidence": "structure:design-5471fde61abf05ed",
+      "rationale": "The eight declared source/governance artifacts implement the approved memo and regression coverage. Separately attributed doctor/commit-graph work in the enclosing Git range is distinct from this scoped delivery. No ledger migration, public contract change or resident cache was added."
+    },
+    {
+      "id": "security",
+      "disposition": "passed",
+      "evidence": "integration:pose-mcp/go/review-ledger-is-read-once-per-operation-integration",
+      "rationale": "Reviewed root and producer identity, finalized-view refusal, input bounds and caller isolation. Computations retain existing Files authorization and validation paths. Changed inputs remain attributable to every consuming producer, and no new authority or governance gate is introduced."
+    },
+    {
+      "id": "solution-proportionality",
+      "disposition": "passed",
+      "evidence": "structure:design-5471fde61abf05ed",
+      "rationale": "A small operation-owned memo is sufficient for repeated deterministic ledger computations. Cross-operation storage would require additional invalidation and parallel verification would not eliminate duplicate work. The implementation avoids both. This choice would need revision if computed results began depending on mutable inputs outside the operation view or omitted identity dimensions."
+    }
+  ],
+  "tools": [
+    {
+      "id": "artifact-check",
+      "disposition": "passed",
+      "evidence": "command:pose artifact-check --spec pose-review-ledger-is-read-once-per-operation --strict",
+      "rationale": "Rerun completed successfully but selected a later same-slug commit range. For this sealed subject, inspected /var/tmp/closeout/ac-rl.out: cs-67616aa7e838, exact requested base/head, eight claims and no errors. Existing orphan diagnostics are warnings."
+    },
+    {
+      "id": "assess-design",
+      "disposition": "not-used",
+      "evidence": "structure:design-5471fde61abf05ed",
+      "rationale": "Consumed the sealed design assessment and independently examined D1/D14 and all three structural mappings. Did not rerun an assessment that writes repository state."
+    },
+    {
+      "id": "assess-discover",
+      "component": "pose-mcp",
+      "disposition": "not-used",
+      "rationale": "Read-only review; no component assessment state was regenerated. Scope was established from the spec, diff and sealed component evidence."
+    },
+    {
+      "id": "assess-integrate",
+      "disposition": "not-used",
+      "evidence": "integration:pose-mcp/go/federated-proof-reads-each-input-once-integration",
+      "rationale": "Did not regenerate assessment state. Examined provider/consumer paths and consumed sealed integration evidence; no public inter-module contract changes."
+    },
+    {
+      "id": "assess-tech-debt",
+      "disposition": "not-used",
+      "rationale": "Did not regenerate assessment state. Inspected the scoped diff for debt markers and reviewed the spec's explicit Git-performance follow-ups. No new untracked debt established."
+    },
+    {
+      "id": "closeout-check",
+      "disposition": "deferred",
+      "rationale": "Completion gate requires the recorded review conclusion; this review must not record an attestation."
+    },
+    {
+      "id": "review-check",
+      "disposition": "deferred",
+      "rationale": "Completion gate requires the recorded review conclusion; POSE performs it after recording this draft."
+    },
+    {
+      "id": "suggest-review",
+      "component": "pose-mcp",
+      "disposition": "passed",
+      "evidence": "command:pose suggest review --path pose-mcp",
+      "rationale": "Ran successfully and applied its selected Go backend, security and documentation rules."
+    },
+    {
+      "id": "surface-check",
+      "disposition": "passed",
+      "evidence": "integration:pose-mcp/go/review-ledger-is-read-once-per-operation-integration",
+      "rationale": "Ran pose surface-check --spec pose-review-ledger-is-read-once-per-operation --strict successfully: one target, 231 results, zero findings. Also inspected the supplied sealed-subject output."
+    },
+    {
+      "id": "validate",
+      "disposition": "passed",
+      "evidence": "build:pose-mcp/go/build",
+      "rationale": "Consumed sealed strict-validation evidence and inspected delivery-validation.json: 231 executed, 231 passed, no failures or skips. Its recorded commit has no pose-mcp or validation-matrix differences from the reviewed head. No build or test writes were attempted."
+    },
+    {
+      "id": "validate",
+      "component": "pose-mcp",
+      "disposition": "passed",
+      "evidence": "integration:pose-mcp/go/review-ledger-is-read-once-per-operation-integration",
+      "rationale": "Consumed the sealed module build, unit and integration results, including the exact required nine-test memo pattern. Read the tests independently. Execution was not repeated in the read-only sandbox."
+    }
+  ],
+  "evidence_refs": [
+    "delegated-run:rrn-756eaba8977c78a6",
+    "integration:pose-mcp/go/federated-proof-reads-each-input-once-integration",
+    "integration:pose-mcp/go/review-ledger-is-read-once-per-operation-integration",
+    "structure:design-5471fde61abf05ed"
+  ],
+  "findings": null,
+  "authority": {
+    "schema_version": 1,
+    "project": "proj.pose-dist",
+    "bundle_digest": "sha256:1db5ec272f8ec5a5ff697287ef4f89031bc40d7d03feb9e09722180710f299af",
+    "principal": "agent:openai/gpt-6.1-sol",
+    "role": "agent",
+    "review_execution": "rrn-756eaba8977c78a6",
+    "implementation_principal": "agent:anthropic/claude-opus-5-5",
+    "implementation_execution": "sha256:0eb880a4fc2ed87a379c949a567b1d3dfbd6b58b466f4755fcd363dd2b7fed98",
+    "issuer": "b34-local-executor",
+    "issued_at": "2026-11-16T17:34:37Z",
+    "audience": "proj.pose-dist"
+  },
+  "envelope": {
+    "issuer": "b34-local-executor",
+    "subject": "rvb-1db5ec272f8ec5a5",
+    "algorithm": "ed25519",
+    "public_key": "ck4sApdfePV2GT+hJyAYfJd2qLzeG55P8pevGR0bvZE=",
+    "signature": "WnhOpjEylcBh/xZ3djk1DiTv5OAaU0H+Gw9y+Uxx32MMK8F58etYXNH1r94M2R9h5S+Ct8oFNcTqeh0TP27sCA=="
+  },
+  "attested_at": "2026-11-16T17:34:37Z",
+  "path": ".pose/review-attestations/rva-8e482a3eaa72a51a.json"
+}
