@@ -1,0 +1,242 @@
+{
+  "run": {
+    "run_id": "rrn-f159474ba8bf6bc9",
+    "proof_id": "rrp-e8a858806d35066bcafdb2288568e4ab53ca13ed55a63e831faf747bae441b39"
+  },
+  "schema_version": 1,
+  "attestation_id": "rva-f5ef0038e34ca543",
+  "bundle_id": "rvb-629ea8d310ca6c99",
+  "bundle_digest": "sha256:629ea8d310ca6c99da60cd99291963f37030f897ccb3a5f1c23ea425c84163b7",
+  "reviewer": "agent:openai/gpt-6.1-sol",
+  "decision": "changes-requested",
+  "criteria": [
+    {
+      "id": "assumption-integrity",
+      "disposition": "passed",
+      "evidence": "integration:pose-mcp/go/doctor-recommends-the-commit-graph-integration",
+      "rationale": "Examined the actual Git-based fixtures and implementation rather than relying on implementer claims. Local read-only probes verified Git 2.56 trace statistics and graph readability. Sealed tests support alternate and split graphs, disabled reads and partial clones. Trace event stability across future Git versions remains the explicitly documented technical risk; no new risk is accepted by this review."
+    },
+    {
+      "id": "backend-concurrency",
+      "disposition": "passed",
+      "evidence": "integration:pose-mcp/go/doctor-recommends-the-commit-graph-integration",
+      "rationale": "The new diagnostic runs sequential subprocesses, introduces no concurrent production mutation, uses a unique trace file per invocation and defers its removal after creation. Repair remains inside the existing explicit doctor repair lifecycle."
+    },
+    {
+      "id": "backend-contracts",
+      "disposition": "passed",
+      "evidence": "integration:pose-mcp/go/doctor-recommends-the-commit-graph-integration",
+      "rationale": "The existing doctor report shape and repair registry are preserved. Added check names use the existing finding and remediation contracts; no MCP, REST or event schema changes were introduced."
+    },
+    {
+      "id": "backend-input-errors",
+      "disposition": "finding",
+      "evidence": "F21"
+    },
+    {
+      "id": "backend-integration-impact",
+      "disposition": "passed",
+      "evidence": "integration:pose-mcp/go/doctor-recommends-the-commit-graph-integration",
+      "rationale": "The integration test invokes the production doctor command and explicit repair path. Both full-history CI jobs write their graph before gates, and the validation matrix registers the real-Git integration suite."
+    },
+    {
+      "id": "backend-observability",
+      "disposition": "finding",
+      "evidence": "F21"
+    },
+    {
+      "id": "compatibility",
+      "disposition": "passed",
+      "evidence": "integration:pose-mcp/go/doctor-recommends-the-commit-graph-integration",
+      "rationale": "Examined doctor finding serialization, registry composition and raw-history Git execution. The CLI adds findings within the existing format and preserves existing file and MCP contracts. No migration is required."
+    },
+    {
+      "id": "correctness",
+      "disposition": "finding",
+      "evidence": "F22"
+    },
+    {
+      "id": "design-causality",
+      "disposition": "passed",
+      "evidence": "structure:design-7bc4e45827de3581",
+      "rationale": "D1 places repository maintenance behind an explicit doctor repair rather than governance reads. Delegating graph selection and filter-use judgment to Git avoids reimplementing alternate-directory, graph-chain and format precedence. The required integration check supplies evidence for R1-R3. The matrix path also contains adjacent specs' checks; those neighboring edits have no independent requirement in this scope.",
+      "mappings": [
+        {
+          "delta": "SD-28db7861",
+          "basis": "R1",
+          "disposition": "mapped",
+          "rationale": "The changed validation-matrix path registers the permanent doctor integration check declared by the scope's delivery plan, exercising recommendation and repair behavior."
+        },
+        {
+          "delta": "SD-9fc0fe4e",
+          "basis": "R2",
+          "disposition": "mapped",
+          "rationale": "The changed validation-matrix path runs the doctor integration suite, including production repair and post-repair verification. Neighboring checks in this co-owned file belong to adjacent scopes."
+        },
+        {
+          "delta": "SD-d29398e6",
+          "basis": "R3",
+          "disposition": "mapped",
+          "rationale": "The changed validation-matrix path selects all TestDoctorCommitGraph regressions, providing durable negative-path coverage for exclusions, configuration and diagnostic failures."
+        }
+      ]
+    },
+    {
+      "id": "documentation",
+      "disposition": "finding",
+      "evidence": "F23"
+    },
+    {
+      "id": "operability",
+      "disposition": "finding",
+      "evidence": "F23"
+    },
+    {
+      "id": "requirements",
+      "disposition": "finding",
+      "evidence": "F21"
+    },
+    {
+      "id": "scope",
+      "disposition": "passed",
+      "evidence": "structure:design-7bc4e45827de3581",
+      "rationale": "The semantic implementation is confined to the doctor check and repair, its tests, CI setup and declared validation metadata. The start record is governance metadata. Other commits in the range explain adjacent co-owned matrix edits and are not treated as new doctor functionality."
+    },
+    {
+      "id": "security",
+      "disposition": "passed",
+      "evidence": "integration:pose-mcp/go/doctor-recommends-the-commit-graph-integration",
+      "rationale": "Examined fixed repair arguments, raw-history execution, literal path handling, bounded returned stderr and GIT_NO_LAZY_FETCH. The partial-clone regression verifies no added objects during diagnosis. No new credentials, remote authority or dependency was introduced."
+    },
+    {
+      "id": "solution-proportionality",
+      "disposition": "passed",
+      "evidence": "structure:design-7bc4e45827de3581",
+      "rationale": "Compared the implementation with documentation-only advice and direct commit-graph parsing. Existing doctor repair composition plus Git's own trace is a proportionate solution that avoids a new graph-format parser, daemon or maintenance scheduler. A stable Git API for reporting effective filter availability would justify replacing trace parsing; a trace-format change would invalidate the present probe and should fail the real-Git integration test."
+    }
+  ],
+  "tools": [
+    {
+      "id": "artifact-check",
+      "disposition": "passed",
+      "evidence": "command:pose artifact-check --spec pose-doctor-recommends-the-commit-graph --strict",
+      "rationale": "Inspected the pipeline output at /var/tmp/closeout/ac-dc.out: it identifies the requested sealed range and reports warning-level provenance findings. A live rerun was invoked, but its different selected change-set head makes the supplied sealed-subject output authoritative for this review."
+    },
+    {
+      "id": "assess-design",
+      "disposition": "not-used",
+      "evidence": "structure:design-7bc4e45827de3581",
+      "rationale": "Did not rerun the assessment producer under the no-write boundary. Reviewed the sealed structural evidence and independently inspected the design and metadata changes."
+    },
+    {
+      "id": "assess-discover",
+      "component": "pose-mcp",
+      "disposition": "not-used",
+      "evidence": "command:pose suggest review --path pose-mcp",
+      "rationale": "Discovery writes assessment artifacts and was not rerun. The scope and component were resolved read-only; implementation and sealed component evidence were inspected directly."
+    },
+    {
+      "id": "assess-integrate",
+      "disposition": "not-used",
+      "evidence": "integration:pose-mcp/go/doctor-recommends-the-commit-graph-integration",
+      "rationale": "Did not invoke the assessment producer under the no-write boundary. No public inter-module schema changed; production command composition and integration tests were inspected."
+    },
+    {
+      "id": "assess-tech-debt",
+      "disposition": "not-used",
+      "evidence": "command:pose suggest review --path pose-mcp",
+      "rationale": "Did not run the assessment producer because it writes governed artifacts. Inspected the complete new implementation and tests for debt markers and reviewed the spec's existing performance follow-up."
+    },
+    {
+      "id": "closeout-check",
+      "disposition": "deferred",
+      "evidence": "command:pose context --task spec:pose-doctor-recommends-the-commit-graph --json",
+      "rationale": "Completion-only gate is deferred until POSE records and verifies this review conclusion. This review does not record an attestation."
+    },
+    {
+      "id": "review-check",
+      "disposition": "deferred",
+      "evidence": "command:pose context --task spec:pose-doctor-recommends-the-commit-graph --json",
+      "rationale": "Deferred until the review conclusion is recorded; it cannot establish approval before that prerequisite."
+    },
+    {
+      "id": "suggest-review",
+      "component": "pose-mcp",
+      "disposition": "passed",
+      "evidence": "command:pose suggest review --path pose-mcp",
+      "rationale": "Executed successfully and applied its selected backend-go, security and documentation-style rules."
+    },
+    {
+      "id": "surface-check",
+      "disposition": "passed",
+      "evidence": "integration:pose-mcp/go/doctor-recommends-the-commit-graph-integration",
+      "rationale": "Inspected /var/tmp/closeout/sc-dc.out for the sealed subject: one target, 232 results and zero findings. The live read-only rerun also exited zero with zero findings; sealed evidence remains the subject-bound basis."
+    },
+    {
+      "id": "validate",
+      "disposition": "passed",
+      "evidence": "integration:pose-mcp/go/doctor-recommends-the-commit-graph-integration",
+      "rationale": "Used the sealed strict pipeline execution as required by the sandbox boundary. The delivery validation report records 232 passed checks and zero failures. No fresh build or test execution was attempted."
+    },
+    {
+      "id": "validate",
+      "component": "pose-mcp",
+      "disposition": "passed",
+      "evidence": "unit:pose-mcp/go/test",
+      "rationale": "Used sealed pose-mcp validation evidence and inspected the package-test output and new regression tests. The sealed module build and doctor integration check also passed; those passing tests do not cover F21-F23."
+    }
+  ],
+  "evidence_refs": [
+    "F21",
+    "F22",
+    "F23",
+    "delegated-run:rrn-f159474ba8bf6bc9",
+    "integration:pose-mcp/go/doctor-recommends-the-commit-graph-integration",
+    "structure:design-7bc4e45827de3581"
+  ],
+  "findings": [
+    {
+      "id": "F21",
+      "severity": "medium",
+      "evidence": "file:pose-mcp/internal/cli/doctor_commit_graph.go:72",
+      "action": "Successful rev-list stderr is discarded, and lines 81-82 return before the successful-lookup warning handling at lines 105-108. Consequently, a repository below 500 commits whose malformed commit-graph causes Git to warn and fall back to ordinary traversal reports ok. This leaves R3 and the below-threshold portion of R1-F5/R3-F14/R4-F20 unresolved. Preserve operational diagnostics before the threshold return and extend the corrupt-graph regression to a history below the threshold.",
+      "disposition": "open"
+    },
+    {
+      "id": "F22",
+      "severity": "low",
+      "evidence": "file:pose-mcp/internal/cli/doctor_commit_graph.go:81",
+      "action": "The short-history return precedes the empty-tree detection at lines 84-90. A committed empty HEAD tree with fewer than 500 commits therefore emits git.commit-graph at ok, although R3 explicitly excludes roots with no file in HEAD. The new empty-tree test lowers the threshold through longHistoryRepo and misses this branch. Apply the exclusion independently of the threshold and cover a short empty-tree history.",
+      "disposition": "open"
+    },
+    {
+      "id": "F23",
+      "severity": "low",
+      "evidence": "file:pose-mcp/internal/cli/doctor.go:379",
+      "action": "The recommended manual command omits --max-new-filters=-1, as does the repair preview at line 94. With commitGraph.maxNewFilters=0 and no existing filters, following that command succeeds without producing the filters and leaves the check at next. The automatic repair correctly overrides the limit at doctor_commit_graph.go:175. Git's installed git-config and git-commit-graph manuals confirm the inherited default and override semantics. Make the displayed commands match the effective repair and test the displayed remediation under the restrictive configuration.",
+      "disposition": "open"
+    }
+  ],
+  "authority": {
+    "schema_version": 1,
+    "project": "proj.pose-dist",
+    "bundle_digest": "sha256:629ea8d310ca6c99da60cd99291963f37030f897ccb3a5f1c23ea425c84163b7",
+    "principal": "agent:openai/gpt-6.1-sol",
+    "role": "agent",
+    "review_execution": "rrn-f159474ba8bf6bc9",
+    "implementation_principal": "agent:anthropic/claude-opus-5-5",
+    "implementation_execution": "sha256:0eb880a4fc2ed87a379c949a567b1d3dfbd6b58b466f4755fcd363dd2b7fed98",
+    "issuer": "b34-local-executor",
+    "issued_at": "2026-11-16T22:44:47Z",
+    "audience": "proj.pose-dist"
+  },
+  "envelope": {
+    "issuer": "b34-local-executor",
+    "subject": "rvb-629ea8d310ca6c99",
+    "algorithm": "ed25519",
+    "public_key": "ck4sApdfePV2GT+hJyAYfJd2qLzeG55P8pevGR0bvZE=",
+    "signature": "+/ct3pOx5y0MyIAe/wBCGqvXNw92dlWUdF5ly7anU2BdTWLhnFDp+E/VJUiUC88uYp7ak1/mAcgSQOGwEOMsDg=="
+  },
+  "attested_at": "2026-11-16T22:44:47Z",
+  "path": ".pose/review-attestations/rva-f5ef0038e34ca543.json"
+}

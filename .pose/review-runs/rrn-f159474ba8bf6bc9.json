@@ -1,0 +1,143 @@
+{
+  "safety": {
+    "schema_version": 1,
+    "profile": "legacy-trusted",
+    "platform": "linux/amd64",
+    "capabilities": {
+      "automatic-expiry": "unavailable",
+      "bounded-capture": "available",
+      "cpu-limit": "unavailable",
+      "credential-filesystem-isolation": "unavailable",
+      "environment-allowlist": "available",
+      "escaped-descendant-termination": "unavailable",
+      "filesystem-isolation": "unavailable",
+      "memory-limit": "unavailable",
+      "network-isolation": "unavailable",
+      "origin-isolation": "unavailable",
+      "parent-termination": "available",
+      "process-group-termination": "available",
+      "shared-git-isolation": "unavailable"
+    },
+    "limitations": [
+      "trusted local executable required; worktree is not a sandbox",
+      "outside writes, transient writes, shared Git and credential files are not isolated",
+      "no memory/CPU quota or control of descendants escaping the process group",
+      "cleanup filesystem calls remain subject to operating-system I/O latency",
+      "legacy compatibility: HOME retained; other ambient credentials excluded"
+    ],
+    "stream_bytes": 8388608,
+    "output_bytes": 65536,
+    "retained_bytes": 16777216,
+    "timeout_ms": 3600000,
+    "max_runs_per_bundle": 3,
+    "retention": "retain-evidence; ttl=0; no automatic deletion",
+    "capture_complete": true,
+    "runtime_id": "pose-review-run-3779387591",
+    "operation": {
+      "schema_version": 1,
+      "operation": "review.dispatch.cleanup",
+      "scope": "spec:pose-doctor-recommends-the-commit-graph",
+      "outcome": "completed",
+      "steps_run": [
+        {
+          "id": "cleanup",
+          "result": "done"
+        }
+      ],
+      "effects": [],
+      "resumable": false
+    }
+  },
+  "provenance": {
+    "execution_state": "started",
+    "planned_wire_digest": "sha256:b824eee39e1ed96223dcb59c991b5ebc263dcdabce2b4a2a461e22ed5cbe6dca",
+    "wire_bytes": 37449,
+    "wire_complete": true,
+    "schema_version": 1,
+    "project": "proj.pose-dist",
+    "audience": "proj.pose-dist",
+    "worktree_digest": "sha256:9c161dc895f6496d9f800581bef8673cc9123cda65951fa2d23b0cbdbc2bac41",
+    "trust": "executor-attested",
+    "implementation": {
+      "principal": "agent:anthropic/claude-opus-5-5",
+      "execution": "sha256:0eb880a4fc2ed87a379c949a567b1d3dfbd6b58b466f4755fcd363dd2b7fed98",
+      "vendor": "anthropic",
+      "model": "claude-opus-5-5"
+    },
+    "reviewer": {
+      "principal": "agent:openai/gpt-6.1-sol",
+      "vendor": "openai",
+      "model": "gpt-6.1-sol"
+    },
+    "config_digest": "sha256:637a9d88c40dbf75da8525db65c216ace591f828ef25c233358db1a99e70ee31",
+    "command_template_digest": "sha256:e3a23ff8a55e559e954d107a039277628bfc51faa58d523ad6101de7c375ad28",
+    "argv_digest": "sha256:a0173771eda510b579d594fd88ec80bc1072ca0e657eb0c51261dfdb0084580b",
+    "executable_digest": "sha256:e14fc83739c13c1074b12bd1acce4010c893c7f6fbfc1593b4a31d74cabb57af",
+    "template_version": "review-brief/7",
+    "wire_digest": "sha256:b824eee39e1ed96223dcb59c991b5ebc263dcdabce2b4a2a461e22ed5cbe6dca",
+    "notes_digest": "sha256:9170ad69cf9f10f6a2b03dae6b8e744f27647d6634e65311410b8366ada5cc25",
+    "raw_transcript_digest": "sha256:009c0b0726b4eada1d881d059e4948efd3e7bcdc0517d6a8dc5a79959c1cda51",
+    "raw_output_digest": "sha256:f1d62fd08a112483e7d2c4d8b89437d59803752cc44244aab53a6a93f66bce90",
+    "output_source": "file",
+    "output_complete": true
+  },
+  "session_digest": "sha256:c2c85d1a38c1e206131fda28856353f432ae38453f4c4a9e14971c4bb014ffe4",
+  "tree_digest": "sha256:7c9d861e065e7e2bbdb7ddad53d2e5bc9649a47b88ff5ba0aabbca5b331db8c6",
+  "brief_notes": "Review round 6 of spec pose-doctor-recommends-the-commit-graph (a `pose doctor` check and fix, plus a CI step).\n\nRound 5 (run rrn-6d639d1e28201081, recorded, changes-requested) raised F15-F20, which reopen F9-F14 of round 3, and kept R1-F5 partial; account for each in `prior_findings` with the ids the engine's brief lists. Commit for this round answers all of them, each with a test that fails without the fix. F15: `rev-parse --is-shallow-repository` true is not applicable (`TestDoctorCommitGraphSkipsAShallowClone`). F16: the fix runs `git commit-graph write --reachable --changed-paths --max-new-filters=-1`, which the manual says overrides commitGraph.maxNewFilters (`TestDoctorCommitGraphFixIgnoresMaxNewFilters`, with maxNewFilters=0). F17: a HEAD tree without files is not applicable (`TestDoctorCommitGraphSkipsAnEmptyTree`). F18: commitGraph.changedPathsVersion, when set, decides before readChangedPaths (`TestDoctorCommitGraphFollowsConfigurationPrecedence`, missing graph under changedPathsVersion=1 and readChangedPaths=false reports the fixable `next`). F19: every diagnostic Git command runs with GIT_NO_LAZY_FETCH=1 (`TestDoctorCommitGraphNeverFetches`, a `--filter=tree:0` partial clone reports a failure and `count-objects -v` is unchanged). F20 and the rest of R1-F5: `commitGraphGit` returns stderr also on success, and a probe that succeeds with stderr is a `warn` carrying Git's message (`TestDoctorCommitGraphReportsAnUnreadableGraph`, a corrupt commit-graph file). Number new findings from F21, without any round prefix. End your final message with a `pose-draft` block.\n\nBuilding: this review runs under a read-only sandbox, so nothing can be built or written, not even a TMPDIR; do not try, and do not stop the review over it. The pipeline built the engine of the sealed commit and installed it as `pose` on PATH (`~/.local/bin/pose`); use that binary for read-only commands. It also ran `pose artifact-check --strict` and `pose surface-check --strict` against the sealed commit; their outputs are `/var/tmp/closeout/ac-dc.out` and `/var/tmp/closeout/sc-dc.out`. Dispose those tools from that evidence and from the code when a rerun fails for environment reasons. The package tests (`go test ./internal/pose ./internal/cli`) passed on the sealed code; judge the tests by reading them.\n\nDo NOT run `pose assess`, `pose state`, `pose index`, `pose doctor --fix` or anything else that writes under `.pose/` or `.git/`; dispose assess-* tools from the sealed evidence and the code. Leave the worktree as you found it. Dispose the `validate` tools from the sealed evidence: the pipeline ran `pose validate --strict` on a clean clone of the sealed commit with a GitHub token (`.pose/results/delivery-validation.json`); a rerun in your sandbox fails for environment reasons and is not evidence about the code. End your final message with a `pose-draft` block. A finding object accepts exactly `id`, `severity`, `disposition`, `file`, `line`, `summary`, and for an accepted follow-up `action`, `owner`, `review_by`; put any rationale inside `summary`. Number new findings from F21, without any round prefix. Sweep the whole surface and report every finding in one pass, classified blocker vs follow-up.\n",
+  "ledger_version": 1,
+  "attempt_id": "rat-ffacde844bb275e0813f94358991c2bb4219b184b76d6fb6dcf93fd540355b51",
+  "schema_version": 1,
+  "run_id": "rrn-f159474ba8bf6bc9",
+  "scope": "spec:pose-doctor-recommends-the-commit-graph",
+  "bundle_id": "rvb-629ea8d310ca6c99",
+  "bundle_digest": "sha256:629ea8d310ca6c99da60cd99291963f37030f897ccb3a5f1c23ea425c84163b7",
+  "sealed_commit": "8cb269059310020b7e6c2605398238546c07b884",
+  "kind": "review",
+  "brief_digest": "sha256:3a4a2e6bf2699983d85978671085e52961f98886f5e7b2c5710f10ff76df577f",
+  "adapter": "sol-medium",
+  "vendor": "openai",
+  "model": "gpt-6.1-sol",
+  "started_at": "2026-11-16T22:38:08.295701752Z",
+  "ended_at": "2026-11-16T22:44:46.695729886Z",
+  "exit_code": 0,
+  "status": "completed",
+  "transcript_digest": "sha256:146a2517826719f7d142f8bddf1d65dea092af57b87afe8bf3daaeb08580da5c",
+  "transcript_path": ".pose/review-runs/rrn-f159474ba8bf6bc9.transcript",
+  "output": "decision: changes-requested\n\nThree defects remain:\n\n- **F21 — medium:** Successful Git warnings are discarded below the history threshold, allowing unreadable graph metadata to report `ok`.\n- **F22 — low:** Empty HEAD trees below the threshold report a check instead of being excluded.\n- **F23 — low:** The displayed manual repair omits `--max-new-filters=-1`, so it can leave the recommendation unresolved.\n\nRules applied: feature review workflow, backend-go, security, documentation-style and delivery-evidence. I inspected the implementation, tests, CI, validation metadata and prior findings. I used sealed test evidence; no builds, repairs, repository edits or attestations were performed.\n\n```pose-draft\n{\n  \"schema\": \"pose.review.draft/v1\",\n  \"decision\": \"changes-requested\",\n  \"findings\": [\n    {\n      \"id\": \"F21\",\n      \"severity\": \"medium\",\n      \"disposition\": \"blocker\",\n      \"file\": \"pose-mcp/internal/cli/doctor_commit_graph.go\",\n      \"line\": 72,\n      \"summary\": \"Successful rev-list stderr is discarded, and lines 81-82 return before the successful-lookup warning handling at lines 105-108. Consequently, a repository below 500 commits whose malformed commit-graph causes Git to warn and fall back to ordinary traversal reports ok. This leaves R3 and the below-threshold portion of R1-F5/R3-F14/R4-F20 unresolved. Preserve operational diagnostics before the threshold return and extend the corrupt-graph regression to a history below the threshold.\"\n    },\n    {\n      \"id\": \"F22\",\n      \"severity\": \"low\",\n      \"disposition\": \"blocker\",\n      \"file\": \"pose-mcp/internal/cli/doctor_commit_graph.go\",\n      \"line\": 81,\n      \"summary\": \"The short-history return precedes the empty-tree detection at lines 84-90. A committed empty HEAD tree with fewer than 500 commits therefore emits git.commit-graph at ok, although R3 explicitly excludes roots with no file in HEAD. The new empty-tree test lowers the threshold through longHistoryRepo and misses this branch. Apply the exclusion independently of the threshold and cover a short empty-tree history.\"\n    },\n    {\n      \"id\": \"F23\",\n      \"severity\": \"low\",\n      \"disposition\": \"blocker\",\n      \"file\": \"pose-mcp/internal/cli/doctor.go\",\n      \"line\": 379,\n      \"summary\": \"The recommended manual command omits --max-new-filters=-1, as does the repair preview at line 94. With commitGraph.maxNewFilters=0 and no existing filters, following that command succeeds without producing the filters and leaves the check at next. The automatic repair correctly overrides the limit at doctor_commit_graph.go:175. Git's installed git-config and git-commit-graph manuals confirm the inherited default and override semantics. Make the displayed commands match the effective repair and test the displayed remediation under the restrictive configuration.\"\n    }\n  ],\n  \"prior_findings\": [\n    {\n      \"id\": \"R1-F5\",\n      \"status\": \"partial\",\n      \"evidence\": \"doctor_commit_graph.go:47-78 distinguishes expected exclusions from command failures, and doctor.go:370-371 reports failures. Successful-command stderr is handled at doctor_commit_graph.go:107 only after the threshold return; F21 remains.\"\n    },\n    {\n      \"id\": \"R3-F9\",\n      \"status\": \"fixed\",\n      \"evidence\": \"doctor_commit_graph.go:65-70 excludes shallow repositories. doctor_commit_graph_test.go:252-260 covers a shallow clone above the reduced threshold; sealed integration:pose-mcp/go/doctor-recommends-the-commit-graph-integration passed.\"\n    },\n    {\n      \"id\": \"R3-F10\",\n      \"status\": \"fixed\",\n      \"evidence\": \"doctor_commit_graph.go:175 explicitly supplies --max-new-filters=-1. doctor_commit_graph_test.go:265-275 verifies filter use after repair with maxNewFilters=0; sealed integration:pose-mcp/go/doctor-recommends-the-commit-graph-integration passed. F23 concerns the separately displayed manual command.\"\n    },\n    {\n      \"id\": \"R3-F11\",\n      \"status\": \"partial\",\n      \"evidence\": \"doctor_commit_graph.go:88-90 now excludes an empty tree above the threshold, covered by doctor_commit_graph_test.go:280-286. The earlier return at lines 81-82 bypasses this exclusion for short histories; see F22.\"\n    },\n    {\n      \"id\": \"R3-F12\",\n      \"status\": \"fixed\",\n      \"evidence\": \"doctor_commit_graph.go:159-166 resolves changedPathsVersion before deprecated readChangedPaths. doctor_commit_graph_test.go:291-298 covers conflicting settings with a missing graph; sealed integration:pose-mcp/go/doctor-recommends-the-commit-graph-integration passed.\"\n    },\n    {\n      \"id\": \"R3-F13\",\n      \"status\": \"fixed\",\n      \"evidence\": \"doctor_commit_graph.go:186 supplies GIT_NO_LAZY_FETCH=1 to every diagnostic Git invocation. doctor_commit_graph_test.go:303-326 checks failure without object-count changes in a tree-filtered partial clone; sealed integration:pose-mcp/go/doctor-recommends-the-commit-graph-integration passed.\"\n    },\n    {\n      \"id\": \"R3-F14\",\n      \"status\": \"partial\",\n      \"evidence\": \"doctor_commit_graph.go:190-197 preserves bounded stderr on success, and lines 107-108 classify lookup stderr as a warning. doctor_commit_graph_test.go:331-340 covers a corrupt graph above the reduced threshold. The short-history branch still discards diagnostics; F21 remains.\"\n    },\n    {\n      \"id\": \"R4-F15\",\n      \"status\": \"fixed\",\n      \"evidence\": \"doctor_commit_graph.go:65-70 and TestDoctorCommitGraphSkipsAShallowClone at doctor_commit_graph_test.go:252 establish the shallow exclusion; sealed integration:pose-mcp/go/doctor-recommends-the-commit-graph-integration passed.\"\n    },\n    {\n      \"id\": \"R4-F16\",\n      \"status\": \"fixed\",\n      \"evidence\": \"doctor_commit_graph.go:175 overrides every configured generation limit with --max-new-filters=-1. TestDoctorCommitGraphFixIgnoresMaxNewFilters at doctor_commit_graph_test.go:265 covers zero; sealed integration:pose-mcp/go/doctor-recommends-the-commit-graph-integration passed.\"\n    },\n    {\n      \"id\": \"R4-F17\",\n      \"status\": \"partial\",\n      \"evidence\": \"doctor_commit_graph.go:88-90 fixes the long-history empty-tree recommendation, with regression coverage at doctor_commit_graph_test.go:280. The threshold return at lines 81-82 still bypasses the spec's empty-tree exclusion; F22 remains.\"\n    },\n    {\n      \"id\": \"R4-F18\",\n      \"status\": \"fixed\",\n      \"evidence\": \"doctor_commit_graph.go:159-166 follows configuration precedence. TestDoctorCommitGraphFollowsConfigurationPrecedence at doctor_commit_graph_test.go:291 verifies a fixable recommendation with changedPathsVersion=1 and readChangedPaths=false; sealed integration:pose-mcp/go/doctor-recommends-the-commit-graph-integration passed.\"\n    },\n    {\n      \"id\": \"R4-F19\",\n      \"status\": \"fixed\",\n      \"evidence\": \"doctor_commit_graph.go:186 disables lazy fetching. TestDoctorCommitGraphNeverFetches at doctor_commit_graph_test.go:303 verifies that missing promised trees produce a failure without adding objects; sealed integration:pose-mcp/go/doctor-recommends-the-commit-graph-integration passed.\"\n    },\n    {\n      \"id\": \"R4-F20\",\n      \"status\": \"partial\",\n      \"evidence\": \"doctor_commit_graph.go:190-197 retains successful-command stderr and lines 107-108 warn on lookup diagnostics. The corrupt-graph test at doctor_commit_graph_test.go:331 exercises only the above-threshold path. F21 identifies the remaining below-threshold loss.\"\n    }\n  ],\n  \"sweep\": \"Reviewed all six subject paths, the scope's requirements and D1, the complete commit-graph implementation and tests, doctor reporting and repair registration, both full-history CI jobs, validation-matrix additions and edits, and start metadata. Checked prior findings, raw-history environment handling, literal pathspecs, partial-clone authority, shallow and empty histories, configuration precedence, successful and failing stderr paths, trace cleanup, manual remediation and sealed validation. Ran read-only context, suggestion, bundle inspection, recurrence, artifact and surface commands plus Git trace probes. Fresh builds and tests were not attempted in the read-only sandbox. Live gate recomputation selected a different change-set head, so the supplied sealed-subject gate outputs remain the relevant evidence. No repository changes or attestation were made.\",\n  \"criteria\": [\n    {\n      \"id\": \"assumption-integrity\",\n      \"disposition\": \"passed\",\n      \"evidence\": \"integration:pose-mcp/go/doctor-recommends-the-commit-graph-integration\",\n      \"rationale\": \"Examined the actual Git-based fixtures and implementation rather than relying on implementer claims. Local read-only probes verified Git 2.56 trace statistics and graph readability. Sealed tests support alternate and split graphs, disabled reads and partial clones. Trace event stability across future Git versions remains the explicitly documented technical risk; no new risk is accepted by this review.\"\n    },\n    {\n      \"id\": \"backend-concurrency\",\n      \"disposition\": \"passed\",\n      \"evidence\": \"integration:pose-mcp/go/doctor-recommends-the-commit-graph-integration\",\n      \"rationale\": \"The new diagnostic runs sequential subprocesses, introduces no concurrent production mutation, uses a unique trace file per invocation and defers its removal after creation. Repair remains inside the existing explicit doctor repair lifecycle.\"\n    },\n    {\n      \"id\": \"backend-contracts\",\n      \"disposition\": \"passed\",\n      \"evidence\": \"integration:pose-mcp/go/doctor-recommends-the-commit-graph-integration\",\n      \"rationale\": \"The existing doctor report shape and repair registry are preserved. Added check names use the existing finding and remediation contracts; no MCP, REST or event schema changes were introduced.\"\n    },\n    {\n      \"id\": \"backend-input-errors\",\n      \"disposition\": \"finding\",\n      \"evidence\": \"F21\"\n    },\n    {\n      \"id\": \"backend-integration-impact\",\n      \"disposition\": \"passed\",\n      \"evidence\": \"integration:pose-mcp/go/doctor-recommends-the-commit-graph-integration\",\n      \"rationale\": \"The integration test invokes the production doctor command and explicit repair path. Both full-history CI jobs write their graph before gates, and the validation matrix registers the real-Git integration suite.\"\n    },\n    {\n      \"id\": \"backend-observability\",\n      \"disposition\": \"finding\",\n      \"evidence\": \"F21\"\n    },\n    {\n      \"id\": \"compatibility\",\n      \"disposition\": \"passed\",\n      \"evidence\": \"integration:pose-mcp/go/doctor-recommends-the-commit-graph-integration\",\n      \"rationale\": \"Examined doctor finding serialization, registry composition and raw-history Git execution. The CLI adds findings within the existing format and preserves existing file and MCP contracts. No migration is required.\"\n    },\n    {\n      \"id\": \"correctness\",\n      \"disposition\": \"finding\",\n      \"evidence\": \"F22\"\n    },\n    {\n      \"id\": \"design-causality\",\n      \"disposition\": \"passed\",\n      \"evidence\": \"structure:design-7bc4e45827de3581\",\n      \"rationale\": \"D1 places repository maintenance behind an explicit doctor repair rather than governance reads. Delegating graph selection and filter-use judgment to Git avoids reimplementing alternate-directory, graph-chain and format precedence. The required integration check supplies evidence for R1-R3. The matrix path also contains adjacent specs' checks; those neighboring edits have no independent requirement in this scope.\",\n      \"mappings\": [\n        {\n          \"delta\": \"SD-28db7861\",\n          \"basis\": \"R1\",\n          \"disposition\": \"mapped\",\n          \"rationale\": \"The changed validation-matrix path registers the permanent doctor integration check declared by the scope's delivery plan, exercising recommendation and repair behavior.\"\n        },\n        {\n          \"delta\": \"SD-9fc0fe4e\",\n          \"basis\": \"R2\",\n          \"disposition\": \"mapped\",\n          \"rationale\": \"The changed validation-matrix path runs the doctor integration suite, including production repair and post-repair verification. Neighboring checks in this co-owned file belong to adjacent scopes.\"\n        },\n        {\n          \"delta\": \"SD-d29398e6\",\n          \"basis\": \"R3\",\n          \"disposition\": \"mapped\",\n          \"rationale\": \"The changed validation-matrix path selects all TestDoctorCommitGraph regressions, providing durable negative-path coverage for exclusions, configuration and diagnostic failures.\"\n        }\n      ]\n    },\n    {\n      \"id\": \"documentation\",\n      \"disposition\": \"finding\",\n      \"evidence\": \"F23\"\n    },\n    {\n      \"id\": \"operability\",\n      \"disposition\": \"finding\",\n      \"evidence\": \"F23\"\n    },\n    {\n      \"id\": \"requirements\",\n      \"disposition\": \"finding\",\n      \"evidence\": \"F21\"\n    },\n    {\n      \"id\": \"scope\",\n      \"disposition\": \"passed\",\n      \"evidence\": \"structure:design-7bc4e45827de3581\",\n      \"rationale\": \"The semantic implementation is confined to the doctor check and repair, its tests, CI setup and declared validation metadata. The start record is governance metadata. Other commits in the range explain adjacent co-owned matrix edits and are not treated as new doctor functionality.\"\n    },\n    {\n      \"id\": \"security\",\n      \"disposition\": \"passed\",\n      \"evidence\": \"integration:pose-mcp/go/doctor-recommends-the-commit-graph-integration\",\n      \"rationale\": \"Examined fixed repair arguments, raw-history execution, literal path handling, bounded returned stderr and GIT_NO_LAZY_FETCH. The partial-clone regression verifies no added objects during diagnosis. No new credentials, remote authority or dependency was introduced.\"\n    },\n    {\n      \"id\": \"solution-proportionality\",\n      \"disposition\": \"passed\",\n      \"evidence\": \"structure:design-7bc4e45827de3581\",\n      \"rationale\": \"Compared the implementation with documentation-only advice and direct commit-graph parsing. Existing doctor repair composition plus Git's own trace is a proportionate solution that avoids a new graph-format parser, daemon or maintenance scheduler. A stable Git API for reporting effective filter availability would justify replacing trace parsing; a trace-format change would invalidate the present probe and should fail the real-Git integration test.\"\n    }\n  ],\n  \"tools\": [\n    {\n      \"id\": \"artifact-check\",\n      \"disposition\": \"passed\",\n      \"evidence\": \"command:pose artifact-check --spec pose-doctor-recommends-the-commit-graph --strict\",\n      \"rationale\": \"Inspected the pipeline output at /var/tmp/closeout/ac-dc.out: it identifies the requested sealed range and reports warning-level provenance findings. A live rerun was invoked, but its different selected change-set head makes the supplied sealed-subject output authoritative for this review.\"\n    },\n    {\n      \"id\": \"assess-design\",\n      \"disposition\": \"not-used\",\n      \"evidence\": \"structure:design-7bc4e45827de3581\",\n      \"rationale\": \"Did not rerun the assessment producer under the no-write boundary. Reviewed the sealed structural evidence and independently inspected the design and metadata changes.\"\n    },\n    {\n      \"id\": \"assess-discover\",\n      \"component\": \"pose-mcp\",\n      \"disposition\": \"not-used\",\n      \"evidence\": \"command:pose suggest review --path pose-mcp\",\n      \"rationale\": \"Discovery writes assessment artifacts and was not rerun. The scope and component were resolved read-only; implementation and sealed component evidence were inspected directly.\"\n    },\n    {\n      \"id\": \"assess-integrate\",\n      \"disposition\": \"not-used\",\n      \"evidence\": \"integration:pose-mcp/go/doctor-recommends-the-commit-graph-integration\",\n      \"rationale\": \"Did not invoke the assessment producer under the no-write boundary. No public inter-module schema changed; production command composition and integration tests were inspected.\"\n    },\n    {\n      \"id\": \"assess-tech-debt\",\n      \"disposition\": \"not-used\",\n      \"evidence\": \"command:pose suggest review --path pose-mcp\",\n      \"rationale\": \"Did not run the assessment producer because it writes governed artifacts. Inspected the complete new implementation and tests for debt markers and reviewed the spec's existing performance follow-up.\"\n    },\n    {\n      \"id\": \"closeout-check\",\n      \"disposition\": \"deferred\",\n      \"evidence\": \"command:pose context --task spec:pose-doctor-recommends-the-commit-graph --json\",\n      \"rationale\": \"Completion-only gate is deferred until POSE records and verifies this review conclusion. This review does not record an attestation.\"\n    },\n    {\n      \"id\": \"review-check\",\n      \"disposition\": \"deferred\",\n      \"evidence\": \"command:pose context --task spec:pose-doctor-recommends-the-commit-graph --json\",\n      \"rationale\": \"Deferred until the review conclusion is recorded; it cannot establish approval before that prerequisite.\"\n    },\n    {\n      \"id\": \"suggest-review\",\n      \"component\": \"pose-mcp\",\n      \"disposition\": \"passed\",\n      \"evidence\": \"command:pose suggest review --path pose-mcp\",\n      \"rationale\": \"Executed successfully and applied its selected backend-go, security and documentation-style rules.\"\n    },\n    {\n      \"id\": \"surface-check\",\n      \"disposition\": \"passed\",\n      \"evidence\": \"integration:pose-mcp/go/doctor-recommends-the-commit-graph-integration\",\n      \"rationale\": \"Inspected /var/tmp/closeout/sc-dc.out for the sealed subject: one target, 232 results and zero findings. The live read-only rerun also exited zero with zero findings; sealed evidence remains the subject-bound basis.\"\n    },\n    {\n      \"id\": \"validate\",\n      \"disposition\": \"passed\",\n      \"evidence\": \"integration:pose-mcp/go/doctor-recommends-the-commit-graph-integration\",\n      \"rationale\": \"Used the sealed strict pipeline execution as required by the sandbox boundary. The delivery validation report records 232 passed checks and zero failures. No fresh build or test execution was attempted.\"\n    },\n    {\n      \"id\": \"validate\",\n      \"component\": \"pose-mcp\",\n      \"disposition\": \"passed\",\n      \"evidence\": \"unit:pose-mcp/go/test\",\n      \"rationale\": \"Used sealed pose-mcp validation evidence and inspected the package-test output and new regression tests. The sealed module build and doctor integration check also passed; those passing tests do not cover F21-F23.\"\n    }\n  ]\n}\n```",
+  "policy_digest": "sha256:90ca53a44c8202b7914e12baa143afac5707221147f71fe6fa30a74bb415f911",
+  "purpose": "review",
+  "env_removed": [
+    "CLAUDE_CODE_BRIDGE_SESSION_ID",
+    "CLAUDE_CODE_CHILD_SESSION",
+    "CLAUDE_CODE_ENTRYPOINT",
+    "CLAUDE_CODE_EXECPATH",
+    "CLAUDE_CODE_MESSAGING_SOCKET",
+    "CLAUDE_CODE_MESSAGING_TOKEN",
+    "CLAUDE_CODE_SESSION_ATTENDED",
+    "CLAUDE_CODE_SESSION_ID",
+    "CLAUDE_EFFORT",
+    "CLAUDE_PID"
+  ],
+  "events": "codex-jsonl",
+  "events_digest": "sha256:cb9b1dd697e5103a9e9012722c748ee26f1bd09397854941210fbc0a0a9e8b6d",
+  "routing": {
+    "requested": "sol-medium",
+    "implementation": {
+      "principal": "agent:anthropic/claude-opus-5-5",
+      "vendor": "anthropic",
+      "model": "claude-opus-5-5",
+      "execution_digest": "sha256:0eb880a4fc2ed87a379c949a567b1d3dfbd6b58b466f4755fcd363dd2b7fed98",
+      "source": "declared"
+    },
+    "implementation_from": "bundle",
+    "step": "explicit"
+  },
+  "independence_achieved": "different-vendor",
+  "round": 5,
+  "thread": {
+    "round": 5,
+    "mode": "new",
+    "from": "rrn-6d639d1e28201081",
+    "reason": "the chain of rounds is broken: the draft of round 2 (rrn-c7c3feb56ea14783) cannot be read: finding id \"R2-F6\" is not a unique identifier without a round prefix"
+  }
+}
