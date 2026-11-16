@@ -147,3 +147,102 @@ func TestDoctorCommitGraphReportsAnUnreadableHistory(t *testing.T) {
 		t.Fatalf("an unreadable history: %+v", f)
 	}
 }
+
+// longHistoryRepo is an installed repository with commits that each change a
+// file of their own, the threshold lowered under them, and its commit-graph
+// written with changed-path filters.
+func longHistoryRepo(t *testing.T, extra func(repo string)) string {
+	t.Helper()
+	repo := doctorFixture(t)
+	original := commitGraphHistoryThreshold
+	t.Cleanup(func() { commitGraphHistoryThreshold = original })
+	commitGraphHistoryThreshold = 3
+	if extra != nil {
+		extra(repo)
+	}
+	for i := 0; i < 4; i++ {
+		if err := os.WriteFile(filepath.Join(repo, "zz-history.txt"), []byte(strings.Repeat("x", i+1)), 0o644); err != nil {
+			t.Fatal(err)
+		}
+		gitInRepo(t, repo, "add", "zz-history.txt")
+		gitInRepo(t, repo, "-c", "user.name=fixture", "-c", "user.email=fixture@example.invalid", "-c", "commit.gpgsign=false", "commit", "-q", "-m", "history")
+	}
+	removeCommitGraph(t, repo)
+	gitInRepo(t, repo, "commit-graph", "write", "--reachable", "--changed-paths")
+	return repo
+}
+
+// Review F6: an unborn HEAD is not applicable, but a repository Git cannot
+// open is reported.
+func TestDoctorCommitGraphTellsUnbornFromBroken(t *testing.T) {
+	unborn := t.TempDir()
+	gitInRepo(t, unborn, "init", "-q")
+	if _, err := readCommitGraphState(unborn); !errors.Is(err, errCommitGraphNotApplicable) {
+		t.Fatalf("an unborn HEAD: %v, want not applicable", err)
+	}
+	broken := longHistoryRepo(t, nil)
+	gitInRepo(t, broken, "config", "core.bare", "invalid")
+	if _, err := readCommitGraphState(broken); err == nil || errors.Is(err, errCommitGraphNotApplicable) {
+		t.Fatalf("a repository with an invalid configuration: %v, want a reported failure", err)
+	}
+	headless := longHistoryRepo(t, nil)
+	out, err := exec.Command("git", "-C", headless, "rev-parse", "HEAD").Output()
+	if err != nil {
+		t.Fatal(err)
+	}
+	head := strings.TrimSpace(string(out))
+	if err := os.Remove(filepath.Join(headless, ".git", "objects", head[:2], head[2:])); err != nil {
+		t.Fatalf("the HEAD commit is not a loose object: %v", err)
+	}
+	removeCommitGraph(t, headless)
+	if _, err := readCommitGraphState(headless); err == nil || errors.Is(err, errCommitGraphNotApplicable) {
+		t.Fatalf("a HEAD whose commit is missing: %v, want a reported failure", err)
+	}
+}
+
+// Review F7: a first file whose name is pathspec syntax is looked up as the
+// literal name, so the filters still answer.
+func TestDoctorCommitGraphProbesALiteralPath(t *testing.T) {
+	repo := longHistoryRepo(t, func(repo string) {
+		if err := os.WriteFile(filepath.Join(repo, "*"), []byte("star\n"), 0o644); err != nil {
+			t.Fatal(err)
+		}
+		gitInRepo(t, repo, "add", "--", "*")
+		gitInRepo(t, repo, "-c", "user.name=fixture", "-c", "user.email=fixture@example.invalid", "-c", "commit.gpgsign=false", "commit", "-q", "-m", "star")
+	})
+	out, err := exec.Command("git", "-C", repo, "ls-tree", "-r", "--name-only", "HEAD").Output()
+	if err != nil || !strings.HasPrefix(string(out), "*\n") {
+		t.Fatalf("the fixture's first path is not '*': %q %v", out, err)
+	}
+	state, err := readCommitGraphState(repo)
+	if err != nil || !state.filtersUsed {
+		t.Fatalf("a filtered graph probed through a pathspec-like name: %+v %v", state, err)
+	}
+}
+
+// Review F8: configuration that keeps Git from reading the filters is a
+// warning that names it, not a graph rewrite that cannot help.
+func TestDoctorCommitGraphNamesDisabledReads(t *testing.T) {
+	repo := longHistoryRepo(t, nil)
+	gitInRepo(t, repo, "config", "commitGraph.changedPathsVersion", "0")
+	var reads doctorFinding
+	inDir(t, repo, func() {
+		var out, errB bytes.Buffer
+		Main([]string{"doctor", "--json"}, &out, &errB)
+		var report doctorJSON
+		if err := json.Unmarshal(out.Bytes(), &report); err != nil {
+			t.Fatalf("invalid JSON: %v", err)
+		}
+		for _, f := range report.Findings {
+			if f.Check == "git.commit-graph" {
+				t.Errorf("the graph rewrite is recommended although configuration disables reading it: %+v", f)
+			}
+			if f.Check == "git.commit-graph-reads" {
+				reads = f
+			}
+		}
+	})
+	if reads.Level != "warn" || !strings.Contains(reads.Message, "commitGraph.changedPathsVersion=0") || reads.FixCode != "" {
+		t.Fatalf("disabled filter reads: %+v", reads)
+	}
+}

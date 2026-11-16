@@ -6,10 +6,10 @@ package cli
 // --yes to actually apply — never silently.
 
 import (
-	"errors"
 	"bytes"
 	"context"
 	"encoding/json"
+	"errors"
 	"fmt"
 	"io"
 	"io/fs"
@@ -371,6 +371,8 @@ func runDoctorDiagnostics(locale cliLocale) (root string, findings []doctorFindi
 		add("git.commit-graph", "warn", text("Git commit-graph state could not be read: "+graphErr.Error(), "estado do commit-graph do Git não pôde ser lido: "+graphErr.Error()), text("check that the repository and its object directory are readable", "confira se o repositório e o diretório de objetos podem ser lidos"))
 	case graph.commits < commitGraphHistoryThreshold:
 		add("git.commit-graph", "ok", text(fmt.Sprintf("history of %d commits does not need a commit-graph", graph.commits), fmt.Sprintf("histórico de %d commits não precisa de commit-graph", graph.commits)), "")
+	case graph.readsDisabledBy != "":
+		add("git.commit-graph-reads", "warn", text(fmt.Sprintf("Git configuration %s keeps last-commit lookups over a history of %d commits from reading changed-path filters", graph.readsDisabledBy, graph.commits), fmt.Sprintf("a configuração %s do Git impede que a busca do último commit, num histórico de %d commits, leia os filtros de caminhos alterados", graph.readsDisabledBy, graph.commits)), text("unset that setting (git config --unset), then run 'git commit-graph write --reachable --changed-paths'", "remova essa configuração (git config --unset) e rode 'git commit-graph write --reachable --changed-paths'"))
 	case graph.filtersUsed:
 		add("git.commit-graph", "ok", text("Git answers last-commit lookups from changed-path filters", "o Git responde a busca do último commit pelos filtros de caminhos alterados"), "")
 	default:

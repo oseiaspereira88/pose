@@ -7,6 +7,7 @@ import (
 	"errors"
 	"fmt"
 	"os"
+	"os/exec"
 	"strconv"
 	"strings"
 
@@ -28,6 +29,9 @@ type commitGraphState struct {
 	// filtersUsed is Git's own answer: a last-commit lookup by path read
 	// changed-path Bloom filters from the commit-graph it loaded.
 	filtersUsed bool
+	// readsDisabledBy names the configuration that keeps Git from reading
+	// the filters, when the lookup used none.
+	readsDisabledBy string
 }
 
 // readCommitGraphState counts HEAD's history and asks Git whether a
@@ -36,8 +40,25 @@ type commitGraphState struct {
 // loads (the object directory's or an alternate's, a single file or a chain,
 // of any version it accepts) is judged as Git itself uses it. It only reads.
 func readCommitGraphState(root string) (commitGraphState, error) {
-	if _, err := commitGraphGit(root, nil, "rev-parse", "--verify", "--quiet", "HEAD^{commit}"); err != nil {
-		return commitGraphState{}, errCommitGraphNotApplicable
+	// Not a repository and an unborn HEAD are the only roots the check does
+	// not apply to; any other failure is reported (review F6).
+	if _, err := commitGraphGit(root, nil, "rev-parse", "--git-dir"); err != nil {
+		if strings.Contains(err.Error(), "not a git repository") {
+			return commitGraphState{}, errCommitGraphNotApplicable
+		}
+		return commitGraphState{}, fmt.Errorf("repository could not be opened: %w", err)
+	}
+	// An unborn HEAD names a branch that does not resolve; a HEAD that
+	// resolves to a commit Git cannot read is a failure.
+	if _, err := commitGraphGit(root, nil, "rev-parse", "--verify", "--quiet", "HEAD"); err != nil {
+		var exit *exec.ExitError
+		if errors.As(err, &exit) && exit.ExitCode() == 1 {
+			return commitGraphState{}, errCommitGraphNotApplicable
+		}
+		return commitGraphState{}, fmt.Errorf("HEAD could not be read: %w", err)
+	}
+	if _, err := commitGraphGit(root, nil, "rev-parse", "--verify", "HEAD^{commit}"); err != nil {
+		return commitGraphState{}, fmt.Errorf("HEAD could not be read: %w", err)
 	}
 	count, err := commitGraphGit(root, nil, "rev-list", "--count", "HEAD")
 	if err != nil {
@@ -66,7 +87,9 @@ func readCommitGraphState(root string) (commitGraphState, error) {
 	tracePath := trace.Name()
 	trace.Close()
 	defer os.Remove(tracePath)
-	if _, err := commitGraphGit(root, []string{"GIT_TRACE2_EVENT=" + tracePath}, "log", "-1", "--format=%H", "--", path); err != nil {
+	// The path is literal: a name with pathspec magic must not change what
+	// Git looks up (review F7).
+	if _, err := commitGraphGit(root, []string{"GIT_TRACE2_EVENT=" + tracePath, "GIT_LITERAL_PATHSPECS=1"}, "log", "-1", "--format=%H", "--", path); err != nil {
 		return state, fmt.Errorf("last commit of a file could not be read: %w", err)
 	}
 	raw, err := os.ReadFile(tracePath)
@@ -74,7 +97,31 @@ func readCommitGraphState(root string) (commitGraphState, error) {
 		return state, fmt.Errorf("Git trace could not be read: %w", err)
 	}
 	state.filtersUsed = traceUsedBloomFilters(raw)
+	if !state.filtersUsed {
+		state.readsDisabledBy = commitGraphReadsDisabledBy(root)
+	}
 	return state, nil
+}
+
+// commitGraphReadsDisabledBy names the configuration that keeps Git from
+// reading a commit-graph or its changed-path filters, or "" when none does:
+// with it set, writing the graph cannot change the answer (review F8).
+func commitGraphReadsDisabledBy(root string) string {
+	get := func(kind, key string) (string, bool) {
+		out, err := commitGraphGit(root, nil, "config", "--type="+kind, "--get", key)
+		value := strings.TrimSpace(out)
+		return value, err == nil && value != ""
+	}
+	if value, ok := get("bool", "core.commitGraph"); ok && value == "false" {
+		return "core.commitGraph=false"
+	}
+	if value, ok := get("bool", "commitGraph.readChangedPaths"); ok && value == "false" {
+		return "commitGraph.readChangedPaths=false"
+	}
+	if value, ok := get("int", "commitGraph.changedPathsVersion"); ok && value == "0" {
+		return "commitGraph.changedPathsVersion=0"
+	}
+	return ""
 }
 
 // traceUsedBloomFilters reports whether a trace2 event stream carries a
@@ -112,7 +159,8 @@ func writeCommitGraph(root string) error {
 // output; a failure carries Git's stderr, bounded.
 func commitGraphGit(root string, env []string, args ...string) (string, error) {
 	cmd := posemodel.RawHistoryGit(root, args...)
-	cmd.Env = append(cmd.Env, env...)
+	// Git's messages are read below; they are read in the C locale.
+	cmd.Env = append(append(cmd.Env, "LC_ALL=C", "LANGUAGE=C"), env...)
 	var stderr bytes.Buffer
 	cmd.Stderr = &stderr
 	out, err := cmd.Output()
@@ -121,7 +169,24 @@ func commitGraphGit(root string, env []string, args ...string) (string, error) {
 		if len(detail) > 200 {
 			detail = detail[:200] + "…"
 		}
-		return string(out), fmt.Errorf("git %s: %v %s", args[0], err, detail)
+		return string(out), &commitGraphGitError{args: args[0], err: err, detail: detail}
 	}
 	return string(out), nil
 }
+
+// commitGraphGitError is a failed Git command with its stderr, bounded; it
+// unwraps to the command's error, an *exec.ExitError when Git ran.
+type commitGraphGitError struct {
+	args   string
+	err    error
+	detail string
+}
+
+func (e *commitGraphGitError) Error() string {
+	if e.detail == "" {
+		return "git " + e.args + " " + e.err.Error()
+	}
+	return "git " + e.args + ": " + e.err.Error() + " " + e.detail
+}
+
+func (e *commitGraphGitError) Unwrap() error { return e.err }
