@@ -313,8 +313,9 @@ reads (nested repositories, ignored files), its reads ran outside the read
 view, and a hit left the material's inputs out of the operation's closure
 and final audit.
 
-The material is now built in an isolated read-view operation over the same
-base binding and roots. Everything that operation observes is the material's
+The material is now built in an isolated read-view operation over the
+requested store's root, the same base binding and roots, with the resolver
+bound to that operation, so a dependency's reads are in it too. Everything that operation observes is the material's
 closure: file bytes, metadata, listings, links and captured Git commands.
 The closure is kept with the digest only when that operation recorded
 nothing unknown, streamed nothing, and passed its own final audit. Any later
@@ -322,7 +323,12 @@ operation of the process replays every read of the closure through its own
 read view before reusing the digest. The replay records each read, so the
 operation's closure and final audit cover every input of the material, and
 any read that returns other bytes rebuilds the material. A build that cannot
-be kept is followed by the operation's own build.
+be kept is followed by the operation's own build. The kept entry is named by
+the engine, the project, the store root and the resolver's registry (its
+configuration, each project's root or lookup error, its conflicts), which
+decide outcomes no file read shows. Authorization is per-call policy: the
+build records every decision it consulted, and a hit asks each one again
+before reuse.
 
 Measured on harne8: the second closeout call of one MCP server falls from
 136 s to 43 s, with the same terminal verdict. The replay, not a rebuild,

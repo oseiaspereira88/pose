@@ -34,6 +34,8 @@ const keptIndexMaterialBound = 64
 type keptMaterialEntry struct {
 	digest  string
 	closure []materialRead
+	// authorized holds each authorization decision the build consulted.
+	authorized map[string]bool
 }
 
 // materialRead is one read the material's build made: a file's bytes, a
@@ -78,15 +80,18 @@ func keptIndexMaterialDigest(store Store) (string, bool) {
 		return build(store)
 	}
 	op := view.operation
-	key := keptMaterialKey(store)
+	key, keyable := keptMaterialKey(store)
+	if !keyable {
+		return build(store)
+	}
 	keptIndexMaterial.Lock()
 	entry, found := keptIndexMaterial.entries[key]
 	keptIndexMaterial.Unlock()
-	if found && replayMaterialClosure(op, store.fsys(), entry.closure) {
+	if found && sameAuthorization(store.FederatedResolver, entry.authorized) && replayMaterialClosure(op, store.fsys(), entry.closure) {
 		return entry.digest, true
 	}
-	digest, closure, ok := buildIsolatedMaterial(op, store, build)
-	if !ok || !replayMaterialClosure(op, store.fsys(), closure) {
+	digest, closure, authorized, ok := buildIsolatedMaterial(op, store, build)
+	if !ok || !sameAuthorization(store.FederatedResolver, authorized) || !replayMaterialClosure(op, store.fsys(), closure) {
 		// The isolated build could not be proved, or its inputs moved before
 		// the replay: the current operation answers on its own reads.
 		return build(store)
@@ -95,7 +100,7 @@ func keptIndexMaterialDigest(store Store) (string, bool) {
 	if len(keptIndexMaterial.entries) >= keptIndexMaterialBound {
 		keptIndexMaterial.entries = map[string]keptMaterialEntry{}
 	}
-	keptIndexMaterial.entries[key] = keptMaterialEntry{digest: digest, closure: closure}
+	keptIndexMaterial.entries[key] = keptMaterialEntry{digest: digest, closure: closure, authorized: authorized}
 	keptIndexMaterial.Unlock()
 	return digest, true
 }
@@ -103,39 +108,66 @@ func keptIndexMaterialDigest(store Store) (string, bool) {
 // buildIsolatedMaterial builds the material in a fresh read-view operation
 // over the current operation's base binding, and returns its digest and the
 // closure of everything that operation read.
-func buildIsolatedMaterial(op *governanceReadViewOperation, store Store, build func(Store) (string, bool)) (string, []materialRead, bool) {
+func buildIsolatedMaterial(op *governanceReadViewOperation, store Store, build func(Store) (string, bool)) (string, []materialRead, map[string]bool, bool) {
+	// The isolated operation reads the requested store's root through the
+	// coordinator's base binding; withGovernanceReadView binds the resolver's
+	// files and roots to the isolated operation, so every read the material
+	// makes, a dependency's included, is in its closure.
 	base := op.baseStore
-	base.FederatedResolver, base.FederatedProjectID = store.FederatedResolver, store.FederatedProjectID
+	base.Root = store.Root
+	resolver, authorized := recordingAuthorization(*store.FederatedResolver)
+	base.FederatedResolver, base.FederatedProjectID = &resolver, store.FederatedProjectID
 	isolatedBase, isolated := base.beginGovernanceReadView()
 	scoped := isolatedBase.withGovernanceReadView(isolated, keptMaterialProducer)
-	scoped.FederatedResolver, scoped.FederatedProjectID = store.FederatedResolver, store.FederatedProjectID
+	scoped.FederatedProjectID = store.FederatedProjectID
 	digest, known := build(scoped)
 	if !known || isolated.operation == nil {
-		return "", nil, false
+		return "", nil, nil, false
 	}
 	closure, ok := materialReadsSince(isolated.operation, materialReadSnapshot{})
 	if !ok || len(closure) == 0 {
-		return "", nil, false
+		return "", nil, nil, false
 	}
 	if audit := isolated.audit(); len(audit.ChangedPaths) > 0 || len(audit.UnknownProducers) > 0 {
-		return "", nil, false
+		return "", nil, nil, false
 	}
-	return digest, closure, true
+	return digest, closure, authorized.decisions(), true
 }
 
-// keptMaterialKey names the material's question: the engine, the project, the
-// operation's root and the roots the resolver authorizes.
-func keptMaterialKey(store Store) string {
-	roots := []string{"=" + filepath.Clean(store.Root)}
-	if store.FederatedResolver != nil && store.FederatedResolver.Roots != nil {
-		for _, project := range store.FederatedResolver.Roots.Projects() {
-			if source, err := store.FederatedResolver.Roots.StoreFor(project); err == nil {
-				roots = append(roots, project+"="+filepath.Clean(source.Root))
+// keptMaterialKey names the material's question: the engine, the project,
+// the store's root, and the resolver's whole registry: its configuration, each
+// project's root or lookup error, and its conflicting bindings. Those decide
+// how the material resolves a reference without reading a file, so they are
+// part of the question, not of the closure. Authorization decisions are
+// per-call policy: they are recorded with the entry and asked again on a hit.
+func keptMaterialKey(store Store) (string, bool) {
+	resolver := store.FederatedResolver
+	if resolver == nil {
+		return "", false
+	}
+	parts := []string{engineVersion, store.FederatedProjectID, filepath.Clean(store.Root), fmt.Sprintf("authorize=%v", resolver.Authorize != nil)}
+	if roots := resolver.Roots; roots != nil {
+		context := roots.Context()
+		parts = append(parts, fmt.Sprintf("default=%s configured=%v strict=%v", context.DefaultProjectID, context.DefaultConfigured, context.StrictSelection))
+		for _, project := range context.ProjectIDs {
+			if source, err := roots.StoreFor(project); err == nil {
+				parts = append(parts, "root:"+project+"="+filepath.Clean(source.Root))
+			} else {
+				parts = append(parts, "error:"+project+"="+err.Error())
 			}
 		}
+		roots.mu.RLock()
+		conflicts := make([]string, 0, len(roots.conflicts))
+		for project, conflict := range roots.conflicts {
+			if conflict {
+				conflicts = append(conflicts, "conflict:"+project)
+			}
+		}
+		roots.mu.RUnlock()
+		sort.Strings(conflicts)
+		parts = append(parts, conflicts...)
 	}
-	sort.Strings(roots)
-	return engineVersion + "\x00" + store.FederatedProjectID + "\x00" + strings.Join(roots, "\x00")
+	return strings.Join(parts, "\x00"), true
 }
 
 // materialReadSnapshot is what an operation had observed before a build.
@@ -253,10 +285,6 @@ func materialReadsSince(op *governanceReadViewOperation, before materialReadSnap
 // current operation, which records it for the final audit, and reports
 // whether each returned what the build read.
 func replayMaterialClosure(op *governanceReadViewOperation, files Files, closure []materialRead) bool {
-	views := map[string]*governanceReadView{}
-	for _, v := range operationViews(op) {
-		views[filepath.Clean(v.root)] = v
-	}
 	for _, read := range closure {
 		if read.kind == "git" {
 			out, err := op.captureFilesBoundedContext(files, context.Background(), read.root, keptMaterialProducer, read.limit, read.args...)
@@ -265,8 +293,11 @@ func replayMaterialClosure(op *governanceReadViewOperation, files Files, closure
 			}
 			continue
 		}
-		v := views[filepath.Clean(read.root)]
-		if v == nil {
+		// A read is routed as the build's was: the operation opens the view of
+		// an authorized root on its first read, and the read must land in the
+		// root it was made in.
+		v := op.route(read.path, keptMaterialProducer, "")
+		if v == nil || filepath.Clean(v.root) != filepath.Clean(read.root) {
 			return false
 		}
 		var digest string
@@ -346,4 +377,59 @@ func replayDirEntryInfo(v *governanceReadView, path string) string {
 		}
 	}
 	return observationDigest("direntry-info", nil, nil, "", "missing")
+}
+
+// authorizationRecord collects the decisions of a resolver's authorization
+// function during one build.
+type authorizationRecord struct {
+	mu        sync.Mutex
+	byProject map[string]bool
+}
+
+func (r *authorizationRecord) decisions() map[string]bool {
+	r.mu.Lock()
+	defer r.mu.Unlock()
+	out := make(map[string]bool, len(r.byProject))
+	for project, allowed := range r.byProject {
+		out[project] = allowed
+	}
+	return out
+}
+
+// recordingAuthorization returns a copy of resolver whose authorization
+// function records every decision it makes.
+func recordingAuthorization(resolver ArtifactResolver) (ArtifactResolver, *authorizationRecord) {
+	record := &authorizationRecord{byProject: map[string]bool{}}
+	if authorize := resolver.Authorize; authorize != nil {
+		resolver.Authorize = func(project string) bool {
+			allowed := authorize(project)
+			record.mu.Lock()
+			record.byProject[project] = allowed
+			record.mu.Unlock()
+			return allowed
+		}
+	}
+	return resolver, record
+}
+
+// sameAuthorization asks the current resolver again for each decision a kept
+// build consulted; the material is reused only when every answer is the same.
+func sameAuthorization(resolver *ArtifactResolver, decisions map[string]bool) bool {
+	if len(decisions) == 0 {
+		return true
+	}
+	if resolver == nil || resolver.Authorize == nil {
+		return false
+	}
+	projects := make([]string, 0, len(decisions))
+	for project := range decisions {
+		projects = append(projects, project)
+	}
+	sort.Strings(projects)
+	for _, project := range projects {
+		if resolver.Authorize(project) != decisions[project] {
+			return false
+		}
+	}
+	return true
 }
