@@ -1,0 +1,141 @@
+{
+  "safety": {
+    "schema_version": 1,
+    "profile": "legacy-trusted",
+    "platform": "linux/amd64",
+    "capabilities": {
+      "automatic-expiry": "unavailable",
+      "bounded-capture": "available",
+      "cpu-limit": "unavailable",
+      "credential-filesystem-isolation": "unavailable",
+      "environment-allowlist": "available",
+      "escaped-descendant-termination": "unavailable",
+      "filesystem-isolation": "unavailable",
+      "memory-limit": "unavailable",
+      "network-isolation": "unavailable",
+      "origin-isolation": "unavailable",
+      "parent-termination": "available",
+      "process-group-termination": "available",
+      "shared-git-isolation": "unavailable"
+    },
+    "limitations": [
+      "trusted local executable required; worktree is not a sandbox",
+      "outside writes, transient writes, shared Git and credential files are not isolated",
+      "no memory/CPU quota or control of descendants escaping the process group",
+      "cleanup filesystem calls remain subject to operating-system I/O latency",
+      "legacy compatibility: HOME retained; other ambient credentials excluded"
+    ],
+    "stream_bytes": 8388608,
+    "output_bytes": 65536,
+    "retained_bytes": 16777216,
+    "timeout_ms": 3600000,
+    "max_runs_per_bundle": 3,
+    "retention": "retain-evidence; ttl=0; no automatic deletion",
+    "capture_complete": false,
+    "runtime_id": "pose-review-run-3051088805",
+    "operation": {
+      "schema_version": 1,
+      "operation": "review.dispatch.cleanup",
+      "scope": "spec:pose-doctor-recommends-the-commit-graph",
+      "outcome": "failed",
+      "step": "cleanup",
+      "steps_run": [
+        {
+          "id": "cleanup",
+          "result": "failed"
+        }
+      ],
+      "effects": [],
+      "unconfirmed": [
+        {
+          "step": "cleanup",
+          "reason": "owned resources may remain; no automatic respawn"
+        }
+      ],
+      "resumable": false,
+      "error": {
+        "cause": "cleanup-incomplete",
+        "message": "runtime cleanup inventory incomplete; resources retained"
+      }
+    }
+  },
+  "provenance": {
+    "execution_state": "not-started",
+    "planned_wire_digest": "sha256:f014c06423f7221e5b51a026d77dfd0f2ea5ae0a729ed06e6cf454dfef6a26ae",
+    "wire_bytes": 0,
+    "wire_complete": false,
+    "schema_version": 1,
+    "project": "proj.pose-dist",
+    "audience": "proj.pose-dist",
+    "worktree_digest": "sha256:9c161dc895f6496d9f800581bef8673cc9123cda65951fa2d23b0cbdbc2bac41",
+    "trust": "executor-attested",
+    "implementation": {
+      "principal": "agent:anthropic/claude-opus-5-5",
+      "execution": "sha256:0eb880a4fc2ed87a379c949a567b1d3dfbd6b58b466f4755fcd363dd2b7fed98",
+      "vendor": "anthropic",
+      "model": "claude-opus-5-5"
+    },
+    "reviewer": {
+      "principal": "agent:openai/gpt-6.1-sol",
+      "vendor": "openai",
+      "model": "gpt-6.1-sol"
+    },
+    "config_digest": "sha256:637a9d88c40dbf75da8525db65c216ace591f828ef25c233358db1a99e70ee31",
+    "command_template_digest": "sha256:e3a23ff8a55e559e954d107a039277628bfc51faa58d523ad6101de7c375ad28",
+    "argv_digest": "",
+    "executable_digest": "",
+    "template_version": "review-brief/7",
+    "wire_digest": "",
+    "notes_digest": "sha256:8d59e2427f4bb9a70ffef2a69a78fcfa94413be9cc33cddcf2fe4590bddfbfcb",
+    "raw_transcript_digest": "",
+    "raw_output_digest": "",
+    "output_source": "",
+    "output_complete": false
+  },
+  "brief_notes": "Review round 3 of spec pose-doctor-recommends-the-commit-graph (a `pose doctor` check and fix, plus a CI step).\n\nRound 1 (run rrn-237e7d9be5f0c4f5, recorded) raised F2-F5; account for each in `prior_findings` with the ids the engine's brief lists. Round 2 (run rrn-c7c3feb56ea14783) was refused because its new finding ids carried a round prefix (`R2-F6`): a finding id is plain (F9, F10, ...), never prefixed. Its findings were not recorded; commit 2e30bb53 answers them anyway, each with a test that fails without the fix, so judge them as part of this sweep. F6 (the rest of F5): only `rev-parse --git-dir` failing with Git's \"not a git repository\" (read in the C locale) and an unborn HEAD (`rev-parse --verify --quiet HEAD` exiting 1) skip the check; a HEAD whose commit cannot be read, or a repository Git cannot open, is `warn` (`TestDoctorCommitGraphTellsUnbornFromBroken`, with core.bare=invalid and with the HEAD commit object deleted). F7: the probe runs with `GIT_LITERAL_PATHSPECS=1` (`TestDoctorCommitGraphProbesALiteralPath`, first file named `*`). F8: when `core.commitGraph=false`, `commitGraph.readChangedPaths=false` or `commitGraph.changedPathsVersion=0` and the probe used no filter, doctor reports `git.commit-graph-reads` at `warn` without a fix, naming the setting, and does not report `git.commit-graph` (`TestDoctorCommitGraphNamesDisabledReads`).\n\nBuilding: this review runs under a read-only sandbox, so nothing can be built or written, not even a TMPDIR; do not try, and do not stop the review over it. The pipeline built the engine of the sealed commit and installed it as `pose` on PATH (`~/.local/bin/pose`); use that binary for read-only commands. It also ran `pose artifact-check --strict` and `pose surface-check --strict` against the sealed commit; their outputs are `/var/tmp/closeout/ac-dc.out` and `/var/tmp/closeout/sc-dc.out`. Dispose those tools from that evidence and from the code when a rerun fails for environment reasons. The package tests (`go test ./internal/pose ./internal/cli`) passed on the sealed code; judge the tests by reading them.\n\nDo NOT run `pose assess`, `pose state`, `pose index`, `pose doctor --fix` or anything else that writes under `.pose/` or `.git/`; dispose assess-* tools from the sealed evidence and the code. Leave the worktree as you found it. Dispose the `validate` tools from the sealed evidence: the pipeline ran `pose validate --strict` on a clean clone of the sealed commit with a GitHub token (`.pose/results/delivery-validation.json`); a rerun in your sandbox fails for environment reasons and is not evidence about the code. End your final message with a `pose-draft` block. A finding object accepts exactly `id`, `severity`, `disposition`, `file`, `line`, `summary`, and for an accepted follow-up `action`, `owner`, `review_by`; put any rationale inside `summary`. Number new findings from F9, without any round prefix. Sweep the whole surface and report every finding in one pass, classified blocker vs follow-up.\n",
+  "ledger_version": 1,
+  "attempt_id": "rat-b9ad04c694b79c911daf459b8be4cc2c50d8e08156dff34bf93a7c7ae51af1e7",
+  "schema_version": 1,
+  "run_id": "rrn-e11a20e3bc85b4c9",
+  "scope": "spec:pose-doctor-recommends-the-commit-graph",
+  "bundle_id": "rvb-82a87889d85ce8dd",
+  "bundle_digest": "sha256:82a87889d85ce8dd3112cbf434d808518ce2c5589bf519a5ca4488fa2b3e907a",
+  "sealed_commit": "8573d6806d639a684a7689edb1b49dca5ac1e61f",
+  "kind": "review",
+  "brief_digest": "sha256:7fb5a2e170e53d0670f979aaff7c935c7a2a1c792c59c802f8a6cd840a7020da",
+  "adapter": "sol-medium",
+  "vendor": "openai",
+  "model": "gpt-6.1-sol",
+  "started_at": "2026-11-16T17:51:39.35102713Z",
+  "ended_at": "2026-11-16T17:51:49.258406469Z",
+  "exit_code": -1,
+  "status": "failed",
+  "failure": "pose: Git snapshot unavailable (read pose-mcp/internal/scaffold/dist/locales/pt-BR/.pose/templates/spec.md): snapshot exceeds 256 MiB",
+  "transcript_digest": "sha256:e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+  "transcript_path": ".pose/review-runs/rrn-e11a20e3bc85b4c9.transcript",
+  "output": "",
+  "policy_digest": "sha256:90ca53a44c8202b7914e12baa143afac5707221147f71fe6fa30a74bb415f911",
+  "purpose": "review",
+  "events": "codex-jsonl",
+  "events_digest": "sha256:e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+  "routing": {
+    "requested": "sol-medium",
+    "implementation": {
+      "principal": "agent:anthropic/claude-opus-5-5",
+      "vendor": "anthropic",
+      "model": "claude-opus-5-5",
+      "execution_digest": "sha256:0eb880a4fc2ed87a379c949a567b1d3dfbd6b58b466f4755fcd363dd2b7fed98",
+      "source": "declared"
+    },
+    "implementation_from": "bundle",
+    "step": "explicit"
+  },
+  "independence_achieved": "different-vendor",
+  "round": 3,
+  "thread": {
+    "round": 3,
+    "mode": "new",
+    "from": "rrn-c7c3feb56ea14783",
+    "reason": "the chain of rounds is broken: the draft of round 2 (rrn-c7c3feb56ea14783) cannot be read: finding id \"R2-F6\" is not a unique identifier without a round prefix"
+  }
+}
