@@ -1,0 +1,212 @@
+{
+  "run": {
+    "run_id": "rrn-074a31f1786a6b7b",
+    "proof_id": "rrp-a00cbf9fc2f70e63bc92a61b12333aeb91d10b19df8959b2207c2b86c1f5db6f"
+  },
+  "schema_version": 1,
+  "attestation_id": "rva-9c97e8ac1f226a10",
+  "bundle_id": "rvb-3da303b58981822f",
+  "bundle_digest": "sha256:3da303b58981822f1b008a5b038783c6e331f977ec994879b2745290b627f4b3",
+  "reviewer": "agent:openai/gpt-6.1-sol",
+  "decision": "changes-requested",
+  "criteria": [
+    {
+      "id": "assumption-integrity",
+      "disposition": "finding",
+      "evidence": "F1"
+    },
+    {
+      "id": "backend-concurrency",
+      "disposition": "passed",
+      "evidence": "integration:pose-mcp/go/federated-proof-reads-each-input-once-integration",
+      "rationale": "The new comparison copies the dependency slice before replacing entries, introduces no goroutines or shared mutable state, and retains the existing bounded acceptance snapshot."
+    },
+    {
+      "id": "backend-contracts",
+      "disposition": "passed",
+      "evidence": "integration:pose-mcp/go/federated-spec-acceptance-integration",
+      "rationale": "No public CLI, MCP or serialized schema fields change. The retained-approval behavior change is explicitly documented by R1-R3 and D1."
+    },
+    {
+      "id": "backend-input-errors",
+      "disposition": "passed",
+      "evidence": "integration:pose-mcp/go/closed-scope-stands-over-a-moved-federated-pin-integration",
+      "rationale": "Inspected nil and dependency-count guards and rejection of changed identity, relationships, resolution, status, plan, contracts, missing review and current blockers. Focused tests passed independently."
+    },
+    {
+      "id": "backend-integration-impact",
+      "disposition": "passed",
+      "evidence": "integration:pose-mcp/go/federated-spec-acceptance-integration",
+      "rationale": "Traced the comparison through retainedApprovalStands and federated acceptance. Current source trust, gitlink matching, terminal closeout and source review checks remain connected. Broader federated and manifest tests passed independently."
+    },
+    {
+      "id": "backend-observability",
+      "disposition": "passed",
+      "evidence": "integration:pose-mcp/go/closeout-judges-manifest-integration",
+      "rationale": "Existing bounded retained-manifest refusal context and federated blocker reporting remain intact; the change adds no logs or sensitive output."
+    },
+    {
+      "id": "compatibility",
+      "disposition": "passed",
+      "evidence": "integration:pose-mcp/go/federated-roadmap-acceptance-integration",
+      "rationale": "Examined the diff and same-project branch. Public file, CLI and MCP shapes are unchanged, and D1 explicitly authorizes the external-dependency retention change. The semantic safety defect is recorded separately as F1."
+    },
+    {
+      "id": "correctness",
+      "disposition": "finding",
+      "evidence": "F1"
+    },
+    {
+      "id": "design-causality",
+      "disposition": "finding",
+      "evidence": "F1",
+      "mappings": [
+        {
+          "delta": "SD-854e5641",
+          "basis": "D1",
+          "disposition": "mapped",
+          "rationale": "The ADR amendment records D1's choice to retain closed consumer approvals across qualifying external repins instead of requiring another consumer review for every pin movement. R1-R3 specify its comparisons, but F1 shows that their selected digest does not establish the stated unchanged commitment."
+        }
+      ]
+    },
+    {
+      "id": "documentation",
+      "disposition": "passed",
+      "evidence": "structure:design-db8c39b40e751012",
+      "rationale": "Compared the ADR amendment, spec R1-R3, implementation and validation-matrix entry. They consistently describe and register the implemented field-based retention rule. Its underlying assumption is challenged in F1."
+    },
+    {
+      "id": "operability",
+      "disposition": "passed",
+      "evidence": "integration:pose-mcp/go/closeout-judges-manifest-integration",
+      "rationale": "The existing refusal identifies the affected scope and retained bundle; current federated trust, source review and resolution failures retain their existing actionable blockers."
+    },
+    {
+      "id": "requirements",
+      "disposition": "finding",
+      "evidence": "F1"
+    },
+    {
+      "id": "scope",
+      "disposition": "passed",
+      "evidence": "structure:design-db8c39b40e751012",
+      "rationale": "Compared the sealed range with the spec's affected areas and artifacts. The production change is localized to manifest comparison, with focused tests, the ADR amendment and validation registration. No unrelated implementation expansion was found."
+    },
+    {
+      "id": "security",
+      "disposition": "finding",
+      "evidence": "F1"
+    },
+    {
+      "id": "solution-proportionality",
+      "disposition": "finding",
+      "evidence": "F1"
+    }
+  ],
+  "tools": [
+    {
+      "id": "artifact-check",
+      "disposition": "passed",
+      "evidence": "command:/tmp/pose-review-581662681 artifact-check --spec pose-closed-scope-stands-over-a-moved-federated-pin --strict",
+      "rationale": "Built the subject engine and ran the required command; exit 0. Output contained orphan provenance warnings."
+    },
+    {
+      "id": "assess-design",
+      "disposition": "not-used",
+      "rationale": "Did not run an assessment producer under the read-only boundary. Independently inspected the spec, ADR amendment, structural delta and digest construction; sealed structure evidence is available."
+    },
+    {
+      "id": "assess-discover",
+      "component": "pose-mcp",
+      "disposition": "not-used",
+      "rationale": "Skipped assessment generation to preserve the repository. Component scope and behavior were examined directly."
+    },
+    {
+      "id": "assess-integrate",
+      "disposition": "not-used",
+      "rationale": "Skipped assessment generation to preserve the repository. Traced provider-consumer acceptance and retained approval directly and independently ran broader federated regression tests."
+    },
+    {
+      "id": "assess-tech-debt",
+      "disposition": "not-used",
+      "rationale": "Skipped assessment generation to preserve the repository. Inspected the full production diff; no new TODO, FIXME, stub or panic markers were introduced."
+    },
+    {
+      "id": "closeout-check",
+      "disposition": "deferred",
+      "rationale": "Requires the completed review and recorded attestation. This review records neither an attestation nor closeout."
+    },
+    {
+      "id": "review-check",
+      "disposition": "deferred",
+      "rationale": "Requires the completed review and recorded attestation; deferred to POSE after conclusion processing."
+    },
+    {
+      "id": "suggest-review",
+      "component": "pose-mcp",
+      "disposition": "passed",
+      "evidence": "command:/tmp/pose-review-581662681 suggest review --path pose-mcp",
+      "rationale": "Ran successfully; selected backend Go, security and documentation-style rules and consulted them."
+    },
+    {
+      "id": "surface-check",
+      "disposition": "passed",
+      "evidence": "integration:pose-mcp/go/closed-scope-stands-over-a-moved-federated-pin-integration",
+      "rationale": "Ran the subject binary with surface-check --spec pose-closed-scope-stands-over-a-moved-federated-pin --strict; exit 0, one target, 228 results and zero findings."
+    },
+    {
+      "id": "validate",
+      "disposition": "passed",
+      "evidence": "unit:pose-mcp/go/test",
+      "rationale": "Accepted the sealed strict validation execution and inspected .pose/results/delivery-validation.json: outcome pass, 228 executed and passed, no failures, errors or skips. This is sealed pipeline evidence, not a local validate rerun; a rerun would conflict with the repository-preservation boundary."
+    },
+    {
+      "id": "validate",
+      "component": "pose-mcp",
+      "disposition": "passed",
+      "evidence": "integration:pose-mcp/go/closed-scope-stands-over-a-moved-federated-pin-integration",
+      "rationale": "Accepted sealed module validation evidence and checked the registered check and its passing report entry. Independently built the subject engine and ran the focused and broader federated, manifest and retained-child tests to completion. No local validate producer was rerun."
+    }
+  ],
+  "evidence_refs": [
+    "F1",
+    "delegated-run:rrn-074a31f1786a6b7b",
+    "integration:pose-mcp/go/closed-scope-stands-over-a-moved-federated-pin-integration",
+    "integration:pose-mcp/go/closeout-judges-manifest-integration",
+    "integration:pose-mcp/go/federated-proof-reads-each-input-once-integration",
+    "integration:pose-mcp/go/federated-roadmap-acceptance-integration",
+    "integration:pose-mcp/go/federated-spec-acceptance-integration",
+    "structure:design-db8c39b40e751012"
+  ],
+  "findings": [
+    {
+      "id": "F1",
+      "severity": "high",
+      "evidence": "file:pose-mcp/internal/pose/review_bundle.go:4719",
+      "action": "The unchanged PlanDigest does not establish an unchanged dependency commitment. reviewBundlePlanDigest (lines 1956-1970) hashes the review procedure and excludes the semantic scope, whose requirements and decisions are separately projected at lines 632-638. A dependency can change those requirements, obtain a new approved source review, and retain its plan digest and governing-contract IDs. externalDependencyStands accepts it, and manifestStandsOver replaces the sealed dependency with the current one, retaining the consumer's approval over a commitment its reviewer never assessed. Current trust and source approval establish current source acceptance, not compatibility with the consumer's reviewed commitment. Preserve and compare a semantic commitment digest that excludes operational follow-up dispositions, and add a regression covering changed requirements followed by source reapproval. This invalidates the same-commitment assumption behind D1; the existing passing synthetic tests do not exercise it.",
+      "disposition": "open"
+    }
+  ],
+  "authority": {
+    "schema_version": 1,
+    "project": "proj.pose-dist",
+    "bundle_digest": "sha256:3da303b58981822f1b008a5b038783c6e331f977ec994879b2745290b627f4b3",
+    "principal": "agent:openai/gpt-6.1-sol",
+    "role": "agent",
+    "review_execution": "rrn-074a31f1786a6b7b",
+    "implementation_principal": "agent:anthropic/claude-opus-5-5",
+    "implementation_execution": "sha256:0eb880a4fc2ed87a379c949a567b1d3dfbd6b58b466f4755fcd363dd2b7fed98",
+    "issuer": "b34-local-executor",
+    "issued_at": "2026-11-16T02:19:48Z",
+    "audience": "proj.pose-dist"
+  },
+  "envelope": {
+    "issuer": "b34-local-executor",
+    "subject": "rvb-3da303b58981822f",
+    "algorithm": "ed25519",
+    "public_key": "ck4sApdfePV2GT+hJyAYfJd2qLzeG55P8pevGR0bvZE=",
+    "signature": "xD8MaZ7SEiBL0TftZIntkBx6syWrg9EM4qARMVkQP2iWh1OMI2fhNE2qrIhkzGbPsQongeawFi+KQYu2xLl5Cg=="
+  },
+  "attested_at": "2026-11-16T02:19:48Z",
+  "path": ".pose/review-attestations/rva-9c97e8ac1f226a10.json"
+}
