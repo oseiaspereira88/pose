@@ -257,7 +257,7 @@ func (s Store) ReadReviewRuns(bundleID string) ([]ReviewRun, []string, error) {
 	if err != nil {
 		return nil, nil, err
 	}
-	out := append([]ReviewRun(nil), all.runs...)
+	out := copyReviewRuns(all.runs)
 	if bundleID != "" {
 		filtered := []ReviewRun{}
 		for _, run := range out {
@@ -267,7 +267,7 @@ func (s Store) ReadReviewRuns(bundleID string) ([]ReviewRun, []string, error) {
 		}
 		out = filtered
 	}
-	return out, append([]string(nil), all.lost...), nil
+	return out, deepCopyValue(all.lost), nil
 }
 
 // readAllReviewRuns reads, checks and orders every review run of the store.

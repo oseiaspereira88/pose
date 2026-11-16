@@ -1,5 +1,7 @@
 package pose
 
+import "sync"
+
 // The review ledger of a project is read by every bundle verification an
 // operation makes: a closeout that verifies 64 federated dependencies read
 // pose-dist's ledger 280 times and checked transcript digests 29,680 times.
@@ -16,7 +18,10 @@ type reviewRunsRead struct {
 	lost []string
 }
 
-type ledgerMemoEntry[V any] struct {
+// ledgerMemoCell computes its value once: concurrent requests for the same
+// key wait for the one computation.
+type ledgerMemoCell[V any] struct {
+	once  sync.Once
 	value V
 	err   error
 }
@@ -34,14 +39,32 @@ func memoizedLedgerRead[V any](files Files, key string, compute func() (V, error
 		value, err := compute()
 		return value, false, err
 	}
-	op := view.operation
-	if kept, ok := op.ledgerMemo.Load(key); ok {
-		entry := kept.(ledgerMemoEntry[V])
-		return entry.value, true, entry.err
+	kept, _ := view.operation.ledgerMemo.LoadOrStore(key, &ledgerMemoCell[V]{})
+	cell := kept.(*ledgerMemoCell[V])
+	computed := false
+	cell.once.Do(func() {
+		computed = true
+		ledgerMemoComputed(key)
+		cell.value, cell.err = compute()
+	})
+	return cell.value, !computed, cell.err
+}
+
+// copyReviewRuns gives a caller runs that share nothing with the kept ones:
+// deepCopyValue copies every exported field, and the unexported ones are
+// copied here (a reflection test holds this list to ReviewRun's fields).
+func copyReviewRuns(runs []ReviewRun) []ReviewRun {
+	if runs == nil {
+		return nil
 	}
-	ledgerMemoComputed(key)
-	value, err := compute()
-	kept, _ := op.ledgerMemo.LoadOrStore(key, ledgerMemoEntry[V]{value: value, err: err})
-	entry := kept.(ledgerMemoEntry[V])
-	return entry.value, false, entry.err
+	out := make([]ReviewRun, len(runs))
+	for i, run := range runs {
+		out[i] = deepCopyValue(run)
+		out[i].sessionForRedaction = run.sessionForRedaction
+		out[i].eventsDir = run.eventsDir
+		if run.eventsBytes != nil {
+			out[i].eventsBytes = append(make([]byte, 0, len(run.eventsBytes)), run.eventsBytes...)
+		}
+	}
+	return out
 }

@@ -3343,9 +3343,7 @@ func (s Store) ReadReviewAttestations(bundleID string) (ReviewAttestationsRead, 
 	if err != nil {
 		return ReviewAttestationsRead{}, err
 	}
-	read.Attestations = append([]ReviewAttestation(nil), read.Attestations...)
-	read.Coverage.Losses = append([]SourceLoss(nil), read.Coverage.Losses...)
-	return read, nil
+	return deepCopyValue(read), nil
 }
 
 // readReviewAttestations reads the store's review attestations, those of

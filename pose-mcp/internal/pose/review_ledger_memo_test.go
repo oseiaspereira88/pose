@@ -134,3 +134,85 @@ func TestReviewLedgerMemoAnswersAsAFreshRead(t *testing.T) {
 		t.Fatal("the unreadable run was not reported as lost")
 	}
 }
+
+// Review F1: concurrent misses of one key in one operation compute once.
+func TestReviewLedgerMemoComputesOnceForConcurrentMisses(t *testing.T) {
+	f, _ := approvedByARunThenDone(t)
+	scoped := ledgerOperation(t, f.store)
+	var mu sync.Mutex
+	computed := 0
+	release := make(chan struct{})
+	var wg sync.WaitGroup
+	for i := 0; i < 16; i++ {
+		wg.Add(1)
+		go func() {
+			defer wg.Done()
+			value, _, _ := memoizedLedgerRead(scoped.fsys(), "concurrent", func() (int, error) {
+				mu.Lock()
+				computed++
+				mu.Unlock()
+				<-release
+				return 7, nil
+			})
+			if value != 7 {
+				t.Errorf("a waiter got %d", value)
+			}
+		}()
+	}
+	close(release)
+	wg.Wait()
+	if computed != 1 {
+		t.Fatalf("16 concurrent misses computed %d times, want 1", computed)
+	}
+}
+
+// Review F2 and F3: a caller that changes a nested field of what it was
+// given does not change a later answer, and an empty answer keeps its shape.
+func TestReviewLedgerMemoGivesIsolatedCopies(t *testing.T) {
+	f, run := approvedByARunThenDone(t)
+	freshAtt, _ := f.store.ReadReviewAttestations(run.BundleID)
+	freshNone, _ := f.store.ReadReviewAttestations("rvb-0000000000000000")
+	freshRuns, _, _ := f.store.ReadReviewRuns("")
+	scoped := ledgerOperation(t, f.store)
+	for i := 0; i < 2; i++ {
+		att, _ := scoped.ReadReviewAttestations(run.BundleID)
+		if !reflect.DeepEqual(att, freshAtt) {
+			t.Fatalf("read %d: attestations differ from a fresh read", i)
+		}
+		if len(att.Attestations) == 0 || len(att.Attestations[0].Criteria) == 0 {
+			t.Fatal("the fixture's attestation has no criteria")
+		}
+		att.Attestations[0].Criteria[0].Disposition = "changed by the caller"
+		none, _ := scoped.ReadReviewAttestations("rvb-0000000000000000")
+		if !reflect.DeepEqual(none, freshNone) || (none.Attestations == nil) != (freshNone.Attestations == nil) {
+			t.Fatalf("read %d: an empty answer changed shape: %#v, want %#v", i, none.Attestations, freshNone.Attestations)
+		}
+		runs, _, _ := scoped.ReadReviewRuns("")
+		if !reflect.DeepEqual(runs, freshRuns) {
+			t.Fatalf("read %d: runs differ from a fresh read", i)
+		}
+		if len(runs) > 0 {
+			runs[0].eventsBytes = append(runs[0].eventsBytes[:0:0], 'x')
+			runs[0].Argv = append(runs[0].Argv[:0:0], "changed by the caller")
+			if len(runs[0].EnvRemoved) > 0 {
+				runs[0].EnvRemoved[0] = "changed by the caller"
+			}
+			if runs[0].Provenance != nil {
+				runs[0].Provenance.Project = "changed by the caller"
+			}
+		}
+	}
+}
+
+// copyReviewRuns copies ReviewRun's unexported fields by name; a field added
+// later must be added there too.
+func TestCopyReviewRunsCoversEveryUnexportedField(t *testing.T) {
+	want := map[string]bool{"sessionForRedaction": true, "eventsBytes": true, "eventsDir": true}
+	runType := reflect.TypeOf(ReviewRun{})
+	for i := 0; i < runType.NumField(); i++ {
+		field := runType.Field(i)
+		if !field.IsExported() && !want[field.Name] {
+			t.Errorf("ReviewRun.%s is unexported and not copied by copyReviewRuns", field.Name)
+		}
+	}
+}

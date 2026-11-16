@@ -75,7 +75,7 @@ A primeira chamada `pose_closeout_state` de um servidor MCP no harne8 ainda leva
 
 - capability:review-ledger-is-read-once-per-operation module:pose-mcp profile:composed-capability entrypoint:pose-mcp/cmd/pose/main.go
 
-Composto em produção por toda operação de revisão, fechamento e aceitação federada que verifica bundles. Check permanente `review-ledger-is-read-once-per-operation-integration`, evidenceClass `integration`, required: `go test ./internal/pose -run 'TestReviewLedgerIsReadOncePerOperation|TestReviewLedgerWithoutAnOperationIsReadEveryTime|TestReviewLedgerMemoAnswersAsAFreshRead' -count=1`.
+Composto em produção por toda operação de revisão, fechamento e aceitação federada que verifica bundles. Check permanente `review-ledger-is-read-once-per-operation-integration`, evidenceClass `integration`, required: `go test ./internal/pose -run 'TestReviewLedgerIsReadOncePerOperation|TestReviewLedgerWithoutAnOperationIsReadEveryTime|TestReviewLedgerMemoAnswersAsAFreshRead|TestReviewLedgerMemoComputesOnceForConcurrentMisses|TestReviewLedgerMemoGivesIsolatedCopies|TestCopyReviewRunsCoversEveryUnexportedField' -count=1`.
 
 ### API/contract changes
 - Nenhuma.
@@ -84,7 +84,7 @@ Composto em produção por toda operação de revisão, fechamento e aceitação
 - Nenhuma.
 
 ### Technical risks
-- Um chamador que altere o slice devolvido mudaria a resposta de chamadas seguintes; o memo devolve cópias.
+- Um chamador que altere o que recebeu mudaria a resposta de chamadas seguintes; o memo devolve cópias profundas, e os campos não exportados de `ReviewRun` são copiados por nome, com um teste que reprova se surgir um novo.
 
 ---
 
@@ -135,10 +135,10 @@ Testes que contam leituras e conferências numa operação e comparam as respost
 - Warnings: sem o commit-graph, a parede da primeira chamada continua em cerca de 136 s, dominada por `git log -1 -- <path>`.
 
 ### Requirement trace
-- R1 [satisfied] test:TestReviewLedgerIsReadOncePerOperation check:review-ledger-is-read-once-per-operation-integration
+- R1 [satisfied] test:TestReviewLedgerIsReadOncePerOperation test:TestReviewLedgerMemoComputesOnceForConcurrentMisses check:review-ledger-is-read-once-per-operation-integration
 - R2 [satisfied] test:TestReviewLedgerIsReadOncePerOperation
 - R3 [satisfied] test:TestReviewLedgerWithoutAnOperationIsReadEveryTime
-- R4 [satisfied] test:TestReviewLedgerMemoAnswersAsAFreshRead
+- R4 [satisfied] test:TestReviewLedgerMemoAnswersAsAFreshRead test:TestReviewLedgerMemoGivesIsolatedCopies test:TestCopyReviewRunsCoversEveryUnexportedField
 
 ### Known gaps
 - O ganho de parede da primeira chamada depende do commit-graph do Git, que é manutenção do repositório e não do motor (follow-up F1).
@@ -157,3 +157,8 @@ Não concluída.
 
 - [open] F1: tornar o commit-graph com caminhos alterados parte da instalação e do CI: `pose update`/`pose doctor` reportam a falta dele e o comando que o escreve, e os workflows do harne8 e do pose-dist o escrevem antes dos gates; com ele, `git log -1 -- <path>` cai de 47 ms para 2 ms. (owner:@pose-maintainers crit:high review:2026-11-23)
 - [open] F2: guardar entre operações as leituras Git puras do servidor MCP (o memo residente que o runtime de worktree já liga), para que os 1.116 `git log -1 -- <path>` de uma chamada, sobre 436 caminhos, não se repitam entre operações. (owner:@pose-maintainers crit:medium review:2026-11-23)
+
+### Review
+
+Rodada 1 (run rrn-7dfb663ed1e8ebbb, changes-requested; a mensagem final não trouxe bloco `pose-draft`): 3 achados, corrigidos com teste que reprova sem a correção. F1 duas faltas concorrentes da mesma chave computavam as duas antes de publicar; agora cada chave tem uma célula com `sync.Once` (`TestReviewLedgerMemoComputesOnceForConcurrentMisses`). F2 as cópias eram rasas, e mudar `Criteria[0].Disposition` de uma attestation devolvida mudava a guardada; agora `deepCopyValue` copia tudo o que é exportado, e `copyReviewRuns` copia os três campos não exportados de `ReviewRun` por nome (`TestReviewLedgerMemoGivesIsolatedCopies`, `TestCopyReviewRunsCoversEveryUnexportedField`). F3 copiar sobre `nil` trocava um slice vazio por `nil`, e o JSON de `[]` por `null`; a cópia profunda preserva nil e vazio, e o teste compara uma resposta vazia com a de uma leitura nova.
+
