@@ -66,7 +66,7 @@ Uma dependência de outro projeto é aceita na revisão do repositório inteiro 
 
 - capability:closed-scope-stands-over-a-moved-federated-pin module:pose-mcp profile:composed-capability entrypoint:pose-mcp/cmd/pose/main.go
 
-Composto em produção por `pose review verify` e pelo fechamento, que julgam a aprovação retida de um escopo fechado pela mesma função. Check permanente `closed-scope-stands-over-a-moved-federated-pin-integration`, evidenceClass `integration`, required: `go test ./internal/pose -run 'TestAClosedScopeStandsOverAMovedFederatedPin|TestAMovedFederatedPinThatChangesTheCommitmentStales|TestATrustPolicyChangeAloneStales|TestAMovedFederatedPinWithChangedRequirementsStales' -count=1`.
+Composto em produção por `pose review verify` e pelo fechamento, que julgam a aprovação retida de um escopo fechado pela mesma função. Check permanente `closed-scope-stands-over-a-moved-federated-pin-integration`, evidenceClass `integration`, required: `go test ./internal/pose -run 'TestAClosedScopeStandsOverAMovedFederatedPin|TestAMovedFederatedPinThatChangesTheCommitmentStales|TestATrustPolicyChangeAloneStales|TestAMovedFederatedPinWithChangedRequirementsStales|TestASpecCommitmentEndsAtItsRealFinalReport|TestASplitSpecDependencyIsComparedBySection' -count=1`.
 
 ### API/contract changes
 - Nenhuma.
@@ -129,7 +129,7 @@ Testes unitários de `manifestStandsOver` para o caso aceito, cada campo mantido
 - R1 [satisfied] test:TestAClosedScopeStandsOverAMovedFederatedPin check:closed-scope-stands-over-a-moved-federated-pin-integration
 - R2 [satisfied] test:TestAMovedFederatedPinThatChangesTheCommitmentStales
 - R3 [satisfied] test:TestATrustPolicyChangeAloneStales
-- R4 [satisfied] test:TestAMovedFederatedPinWithChangedRequirementsStales
+- R4 [satisfied] test:TestAMovedFederatedPinWithChangedRequirementsStales test:TestASpecCommitmentEndsAtItsRealFinalReport test:TestASplitSpecDependencyIsComparedBySection
 
 ### Known gaps
 - Nenhuma.
@@ -149,4 +149,6 @@ Não concluída.
 ### Review
 
 Rodada 1 (run rrn-074a31f1786a6b7b, attestation rva-9c97e8ac1f226a10, changes-requested): 1 bloqueador, tratado. F1 o `plan_digest` cobre o procedimento de revisão, não os requisitos e as decisões, então uma dependência com requisitos mudados e aprovada de novo manteria o digest e seria aceita. A regra passou a ler a spec da dependência na revisão selada e na atual, no repositório do projeto dela, e a exigir o mesmo texto antes do Final Report (intenção, requisitos, plano, decisões, validação); só o Final Report, onde os follow-ups são dispostos, pode mudar, e uma revisão que não se lê conta como mudança. Um teste com repositório git real cobre um follow-up disposto (mantém) e um requisito mudado com o mesmo plano (desaprova), e reprova sem a comparação. No harne8 com o pose-dist em edcf5f2 e o índice em dia: `harne8-abm-governed-execution` e `harne8-adopt-pose-v7-4-0` voltam a ser terminais; `harne8-attention-surface` continua desaprovada por uma edição da própria spec depois do fechamento, que não depende do pin.
+
+Rodada 2 (run rrn-616fb83a95c19b5b, attestation rva-0b3da16d0dc4f91f, changes-requested): F1 parcial e 3 bloqueadores, tratados. N1 um cabeçalho de Final Report num exemplo em bloco de código cortava o compromisso antes dos requisitos, e N2 um cabeçalho com CRLF não era reconhecido: o corte passou a ser feito na estrutura CommonMark do documento (goldmark, o parser que o motor já adota pelo ADR das associações), no primeiro cabeçalho de nível 2 de Final Report. N3 uma spec dividida em seções é um diretório, e o `git show` lia a listagem da árvore: ela passou a ser comparada seção a seção, com todas as seções menos `final-report.md`, e uma seção presente numa revisão e ausente na outra é mudança. Testes para os três, que reprovam com a implementação da rodada 1.
 

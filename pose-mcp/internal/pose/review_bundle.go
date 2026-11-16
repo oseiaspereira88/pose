@@ -14,6 +14,9 @@ import (
 	"encoding/json"
 	"errors"
 	"fmt"
+	"github.com/yuin/goldmark"
+	"github.com/yuin/goldmark/ast"
+	"github.com/yuin/goldmark/text"
 	"io"
 	"os"
 	"os/exec"
@@ -4729,25 +4732,62 @@ func (s Store) externalCommitmentUnchanged(then, now FederatedDependency) bool {
 	}
 	rel = filepath.ToSlash(rel)
 	files := s.fsys()
-	before, err := captureFederatedGit(files, source.Root, "show", then.SourceRevision+":"+rel)
-	if err != nil {
+	// read returns a path's bytes at a revision, whether the path is there,
+	// and whether Git answered.
+	read := func(revision, path string) ([]byte, bool, bool) {
+		if _, err := captureFederatedGit(files, source.Root, "cat-file", "-e", revision+":"+path); err != nil {
+			return nil, false, true
+		}
+		raw, err := captureFederatedGit(files, source.Root, "show", revision+":"+path)
+		return raw, true, err == nil
+	}
+	if info, err := source.fsys().Stat(spec.Path); err == nil && info.IsDir() {
+		// A section-split spec: every section but the Final Report is its
+		// commitment, read file by file (review round 2, N3).
+		for _, name := range splitSpecSectionFiles {
+			if name == "final-report.md" {
+				continue
+			}
+			path := rel + "/" + name
+			before, presentBefore, okBefore := read(then.SourceRevision, path)
+			after, presentAfter, okAfter := read(now.SourceRevision, path)
+			if !okBefore || !okAfter || presentBefore != presentAfter || !bytes.Equal(before, after) {
+				return false
+			}
+		}
+		return true
+	}
+	before, present, ok := read(then.SourceRevision, rel)
+	if !present || !ok {
 		return false
 	}
-	after, err := captureFederatedGit(files, source.Root, "show", now.SourceRevision+":"+rel)
-	if err != nil {
+	after, present, ok := read(now.SourceRevision, rel)
+	if !present || !ok {
 		return false
 	}
 	return bytes.Equal(specCommitment(before), specCommitment(after))
 }
 
-// specFinalReportHeading opens a spec's Final Report, in either locale.
-var specFinalReportHeading = regexp.MustCompile(`(?im)^##[ \t]+(?:\d+\.[ \t]+)?(?:final report|relat[óo]rio final)[ \t]*$`)
+// specFinalReportTitle names a spec's Final Report heading, in either locale.
+var specFinalReportTitle = regexp.MustCompile(`(?i)^(?:\d+\.\s+)?(?:final report|relat[óo]rio final)$`)
 
 // specCommitment is a spec's text before its Final Report, or the whole text
-// when it has none.
+// when it has none. The section is found in the document's CommonMark
+// structure, so a heading shown in a code block is not a section, and a
+// heading with CRLF line ends is one (review round 2, N1, N2).
 func specCommitment(raw []byte) []byte {
-	if loc := specFinalReportHeading.FindIndex(raw); loc != nil {
-		return raw[:loc[0]]
+	doc := goldmark.New().Parser().Parse(text.NewReader(raw))
+	for node := doc.FirstChild(); node != nil; node = node.NextSibling() {
+		heading, ok := node.(*ast.Heading)
+		if !ok || heading.Level != 2 || heading.Lines().Len() == 0 {
+			continue
+		}
+		title := strings.TrimSpace(string(heading.Lines().Value(raw)))
+		if !specFinalReportTitle.MatchString(title) {
+			continue
+		}
+		start := heading.Lines().At(0).Start
+		return raw[:bytes.LastIndexByte(raw[:start], '\n')+1]
 	}
 	return raw
 }

@@ -123,3 +123,69 @@ func TestATrustPolicyChangeAloneStales(t *testing.T) {
 		t.Fatal("a changed trust policy with no moved dependency kept the closed scope approved")
 	}
 }
+
+// Review round 2 (N1, N2): the Final Report is found in the document's
+// structure: a heading shown in a fenced example is not the boundary, and a
+// heading with CRLF line ends is.
+func TestASpecCommitmentEndsAtItsRealFinalReport(t *testing.T) {
+	fenced := func(requirement string) []byte {
+		return []byte("# Spec\n\n## 1. Intent\n\n```markdown\n## 7. Final Report\n```\n\n## 2. Requirements\n\n- R1: " + requirement + "\n\n## 7. Final Report\n\n- follow-up\n")
+	}
+	if string(specCommitment(fenced("one"))) == string(specCommitment(fenced("two"))) {
+		t.Fatal("a heading inside a fenced example ended the commitment before the requirements")
+	}
+	crlf := func(followup string) []byte {
+		return []byte("# Spec\r\n\r\n## 2. Requirements\r\n\r\n- R1: same\r\n\r\n## 7. Final Report\r\n\r\n- " + followup + "\r\n")
+	}
+	if string(specCommitment(crlf("open"))) != string(specCommitment(crlf("covered"))) {
+		t.Fatal("a CRLF Final Report heading was not the boundary")
+	}
+	if !strings.Contains(string(specCommitment(crlf("open"))), "R1: same") {
+		t.Fatal("the commitment lost the requirements")
+	}
+}
+
+// Review round 2 (N3): a section-split spec is compared section by section:
+// a change only in its final-report.md stands, a changed requirements.md
+// does not.
+func TestASplitSpecDependencyIsComparedBySection(t *testing.T) {
+	root := t.TempDir()
+	git := func(args ...string) string {
+		t.Helper()
+		out, err := exec.Command("git", append([]string{"-C", root, "-c", "user.name=fixture", "-c", "user.email=fixture@example.invalid", "-c", "commit.gpgsign=false"}, args...)...).CombinedOutput()
+		if err != nil {
+			t.Fatalf("git %v: %v %s", args, err, out)
+		}
+		return strings.TrimSpace(string(out))
+	}
+	dir := filepath.Join(root, ".pose", "specs", "2026-01-01-alpha")
+	write := func(requirement, report string) string {
+		t.Helper()
+		if err := os.MkdirAll(dir, 0o700); err != nil {
+			t.Fatal(err)
+		}
+		for name, body := range map[string]string{
+			"intent.md": "# Spec: alpha\n\nIntent.\n", "requirements.md": "## Requirements\n\n- R1: " + requirement + "\n",
+			"final-report.md": "## Final Report\n\n" + report + "\n", "STATUS.md": "done\n",
+		} {
+			if err := os.WriteFile(filepath.Join(dir, name), []byte(body), 0o600); err != nil {
+				t.Fatal(err)
+			}
+		}
+		git("add", "-A")
+		git("commit", "-qm", "alpha")
+		return git("rev-parse", "HEAD")
+	}
+	git("init", "-q")
+	r1 := write("one thing", "- [open] F1")
+	r2 := write("one thing", "- [covered: other] F1")
+	r3 := write("two things", "- [covered: other] F1")
+	resolver := ArtifactResolver{Roots: NewRoots(RootsConfig{Explicit: map[string]string{"proj.engine": root}})}
+	store := Store{Root: t.TempDir(), FederatedResolver: &resolver}
+	if !store.manifestStandsOver(pinMoveManifest("t1", pinMoveDependency(r1, "d1")), pinMoveManifest("t2", pinMoveDependency(r2, "d2"))) {
+		t.Fatal("a split spec whose Final Report alone changed unapproved the closed scope")
+	}
+	if store.manifestStandsOver(pinMoveManifest("t1", pinMoveDependency(r1, "d1")), pinMoveManifest("t2", pinMoveDependency(r3, "d3"))) {
+		t.Fatal("a split spec with a changed requirement kept the closed scope approved")
+	}
+}

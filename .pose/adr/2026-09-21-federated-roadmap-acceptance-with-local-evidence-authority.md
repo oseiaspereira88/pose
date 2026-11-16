@@ -99,7 +99,7 @@ the commitment the reviewer accepted:
 - the same reference, identity and relationships;
 - resolved and done, then and now;
 - the same plan digest and governing contracts;
-- its spec, read in its own project at the sealed and the current revision, is the same before its Final Report (intent, requirements, plan, decisions, validation): a plan digest covers the review procedure, not the requirements;
+- its spec, read in its own project at the sealed and the current revision, is the same before its Final Report (intent, requirements, plan, decisions, validation), found in its CommonMark structure, or, for a section-split spec, in every section but `final-report.md`: a plan digest covers the review procedure, not the requirements;
 - a current review bundle;
 - no blocker of the current manifest naming it.
 
