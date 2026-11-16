@@ -1,0 +1,220 @@
+{
+  "run": {
+    "run_id": "rrn-93ce7f7f0467fa87",
+    "proof_id": "rrp-e2bf3e18a45b2e113ec84ba93ecf3f5a91c8be9573b7a38add826a462a184e86"
+  },
+  "schema_version": 1,
+  "attestation_id": "rva-d856065b8d27ef0c",
+  "bundle_id": "rvb-c143ae4dd949818f",
+  "bundle_digest": "sha256:c143ae4dd949818faa3e52cf8a04acb8f39639d752411487088aabdce944e821",
+  "reviewer": "agent:openai/gpt-6.1-sol",
+  "decision": "changes-requested",
+  "criteria": [
+    {
+      "id": "assumption-integrity",
+      "disposition": "finding",
+      "evidence": "N1"
+    },
+    {
+      "id": "backend-concurrency",
+      "disposition": "finding",
+      "evidence": "N2"
+    },
+    {
+      "id": "backend-contracts",
+      "disposition": "passed",
+      "evidence": "integration:pose-mcp/go/cli-mcp-operation-results-integration",
+      "rationale": "Examined the changed internal helpers and their callers. No public signature, persisted schema, CLI option or MCP contract changes; snapshot failures retain the existing typed error boundary."
+    },
+    {
+      "id": "backend-input-errors",
+      "disposition": "finding",
+      "evidence": "N2"
+    },
+    {
+      "id": "backend-integration-impact",
+      "disposition": "passed",
+      "evidence": "integration:pose-mcp/go/git-snapshot-budget-scales-with-the-tree-integration",
+      "rationale": "Inspected closeout comparison, dispatch snapshots and cleanup integration. Cleanup captures its budget from the coordinator registration before the reviewer starts and preserves confined ownership checks."
+    },
+    {
+      "id": "backend-observability",
+      "disposition": "passed",
+      "evidence": "unit:pose-mcp/go/test",
+      "rationale": "Snapshot budget errors include the numeric budget and retain GitSnapshotError context. Cleanup retains its bounded, non-sensitive operational failure message. Listing failure falls back to the margin as R3 specifies."
+    },
+    {
+      "id": "compatibility",
+      "disposition": "passed",
+      "evidence": "integration:pose-mcp/go/git-dispatch-snapshot-integrity-integration",
+      "rationale": "Examined four-field ls-tree parsing, gitlink '-' sizes, symlink handling and callers. Existing public contracts remain intact, and the byte allowance never drops below the previous margin."
+    },
+    {
+      "id": "correctness",
+      "disposition": "finding",
+      "evidence": "N2"
+    },
+    {
+      "id": "design-causality",
+      "disposition": "passed",
+      "evidence": "structure:design-8abb5c2c6ab55a2a",
+      "rationale": "R1-R4 and D1 connect the observed fixed-cap failure to the minimum work required to read a committed checkout. The shared budget helper scales that allowance and preserves a ceiling; cleanup captures the corresponding initial commit budget before reviewer execution. No individual structural delta facts were listed in the brief."
+    },
+    {
+      "id": "documentation",
+      "disposition": "finding",
+      "evidence": "N3"
+    },
+    {
+      "id": "operability",
+      "disposition": "passed",
+      "evidence": "integration:pose-mcp/go/delegated-adapter-containment-integration",
+      "rationale": "Examined budget-exhaustion errors, fallback behavior and cleanup retention. Snapshot errors identify the byte budget, uncertain cleanup retains resources, and existing ownership diagnostics remain available."
+    },
+    {
+      "id": "requirements",
+      "disposition": "finding",
+      "evidence": "N1"
+    },
+    {
+      "id": "scope",
+      "disposition": "passed",
+      "evidence": "integration:pose-mcp/go/git-snapshot-budget-scales-with-the-tree-integration",
+      "rationale": "The scoped implementation changes the two snapshot budgets and delegated-worktree cleanup budget required by R1-R4. It preserves entry limits and does not introduce retention, new public APIs or unrelated refactoring."
+    },
+    {
+      "id": "security",
+      "disposition": "finding",
+      "evidence": "N2"
+    },
+    {
+      "id": "solution-proportionality",
+      "disposition": "passed",
+      "evidence": "structure:design-8abb5c2c6ab55a2a",
+      "rationale": "Compared D1's alternatives. A fixed 1 GiB cap postpones the same failure; retention changes governed data and exceeds this repair's scope. A shared clamped budget and captured cleanup allowance are proportionate. The choice requires revisiting when materialization expansion exceeds the margin or the committed tree reaches the ceiling; unbounded listing capture remains separately blocking in N2."
+    }
+  ],
+  "tools": [
+    {
+      "id": "artifact-check",
+      "disposition": "passed",
+      "evidence": "command:pose artifact-check --spec pose-git-snapshot-budget-scales-with-the-tree --strict",
+      "rationale": "Disposition uses the supplied pipeline execution output /var/tmp/closeout/ac-bg.out: 4 claims, 19 observations, 975 warnings and no error markers. The local read-only rerun was interrupted without a result and is not claimed as a passing rerun."
+    },
+    {
+      "id": "assess-design",
+      "disposition": "not-used",
+      "evidence": "structure:design-8abb5c2c6ab55a2a",
+      "rationale": "Did not rerun a writing assessment in the read-only review. Examined the sealed design evidence, spec decision D1 and implementation directly."
+    },
+    {
+      "id": "assess-discover",
+      "component": "pose-mcp",
+      "disposition": "not-used",
+      "rationale": "Assessment reruns write repository artifacts. Used sealed module validation and direct code inspection."
+    },
+    {
+      "id": "assess-integrate",
+      "disposition": "not-used",
+      "rationale": "Avoided assessment writes. Inspected internal callers and sealed contract/integration evidence; no public inter-module contract changed."
+    },
+    {
+      "id": "assess-tech-debt",
+      "disposition": "not-used",
+      "rationale": "Avoided assessment writes. Inspected the changed code and tests for unfinished implementation; no new TODO, FIXME, stub or panic marker was introduced."
+    },
+    {
+      "id": "closeout-check",
+      "disposition": "deferred",
+      "rationale": "Requires completion and recording of the review; this request prohibits recording an attestation."
+    },
+    {
+      "id": "review-check",
+      "disposition": "deferred",
+      "rationale": "Requires the completed recorded conclusion; POSE must execute it after processing this draft."
+    },
+    {
+      "id": "suggest-review",
+      "component": "pose-mcp",
+      "disposition": "passed",
+      "evidence": "command:pose suggest review --path pose-mcp",
+      "rationale": "Executed successfully and applied the selected backend-go, security and documentation rules."
+    },
+    {
+      "id": "surface-check",
+      "disposition": "passed",
+      "evidence": "integration:pose-mcp/go/git-snapshot-budget-scales-with-the-tree-integration",
+      "rationale": "Executed pose surface-check --spec pose-git-snapshot-budget-scales-with-the-tree --strict successfully: one target, 232 results and zero findings."
+    },
+    {
+      "id": "validate",
+      "disposition": "passed",
+      "evidence": "unit:pose-mcp/go/test",
+      "rationale": "Used the sealed pipeline execution and inspected .pose/results/delivery-validation.json: strict validation reports 232 executed checks, all passing. The reviewed implementation files have no diff between that report's Git head and the sealed head. Did not rerun build-producing validation in the read-only sandbox."
+    },
+    {
+      "id": "validate",
+      "component": "pose-mcp",
+      "disposition": "passed",
+      "evidence": "integration:pose-mcp/go/git-snapshot-budget-scales-with-the-tree-integration",
+      "rationale": "Used sealed module validation and inspected the focused check selecting TestGitSnapshotBudget and TestReviewWorktreeCleanup. Read all five new tests; they cover clean oversized trees, growth rejection and budget clamps, but not excessive listing output."
+    }
+  ],
+  "evidence_refs": [
+    "N1",
+    "N2",
+    "N3",
+    "delegated-run:rrn-93ce7f7f0467fa87",
+    "integration:pose-mcp/go/cli-mcp-operation-results-integration",
+    "integration:pose-mcp/go/delegated-adapter-containment-integration",
+    "integration:pose-mcp/go/git-dispatch-snapshot-integrity-integration",
+    "integration:pose-mcp/go/git-snapshot-budget-scales-with-the-tree-integration",
+    "structure:design-8abb5c2c6ab55a2a",
+    "unit:pose-mcp/go/test"
+  ],
+  "findings": [
+    {
+      "id": "N1",
+      "severity": "low",
+      "evidence": "file:.pose/specs/2026-11-16-pose-git-snapshot-budget-scales-with-the-tree.md:40",
+      "action": "R1 still promises complete coverage for every clean tree below the ceiling, but the formula measures stored blob bytes while snapshots and cleanup consume materialized bytes. CRLF or smudge expansion beyond the margin, populated submodules, and ignored files can exhaust the budget. This fails closed, but the coverage promise needs qualification. Qualify R1 and the corresponding cleanup coverage assumptions without weakening fail-closed behavior.",
+      "disposition": "open"
+    },
+    {
+      "id": "N2",
+      "severity": "medium",
+      "evidence": "file:pose-mcp/internal/pose/git_snapshot_integrity.go:67",
+      "action": "dispatchDiskSnapshot still calls exec.Cmd.Output for the entire recursive tree listing before its 100000-entry guard. gitCommittedTreeBytes then splits the entire retained listing. Arbitrarily many empty files or sufficiently large path metadata can therefore consume unbounded memory despite a near-margin content budget. The new cleanup-budget capture also uses unbounded snapshotGit at review_adapter_containment.go:474, before the bounded cleanup inventory. These commands use a background context, so cancellation does not bound this new work either. Bound or stream listing output before retaining it, reject excessive metadata or entries, and add a negative regression covering both snapshot and cleanup-budget capture.",
+      "disposition": "open"
+    },
+    {
+      "id": "N3",
+      "severity": "low",
+      "evidence": "file:POSE.md:1023",
+      "action": "The operational manual still states that workspace cleanup has a fixed 256 MiB inventory cap, although cleanup now uses committed blob bytes plus the margin, capped at 4 GiB. The shipped English scaffold manual at pose-mcp/internal/scaffold/dist/POSE.md:1010 and Portuguese scaffold manual at pose-mcp/internal/scaffold/dist/locales/pt-BR/POSE.md:1020 repeat the stale limit. Update all three descriptions while preserving the separate registration and runtime limits.",
+      "disposition": "open"
+    }
+  ],
+  "authority": {
+    "schema_version": 1,
+    "project": "proj.pose-dist",
+    "bundle_digest": "sha256:c143ae4dd949818faa3e52cf8a04acb8f39639d752411487088aabdce944e821",
+    "principal": "agent:openai/gpt-6.1-sol",
+    "role": "agent",
+    "review_execution": "rrn-93ce7f7f0467fa87",
+    "implementation_principal": "agent:anthropic/claude-opus-5-5",
+    "implementation_execution": "sha256:0eb880a4fc2ed87a379c949a567b1d3dfbd6b58b466f4755fcd363dd2b7fed98",
+    "issuer": "b34-local-executor",
+    "issued_at": "2026-11-16T21:22:15Z",
+    "audience": "proj.pose-dist"
+  },
+  "envelope": {
+    "issuer": "b34-local-executor",
+    "subject": "rvb-c143ae4dd949818f",
+    "algorithm": "ed25519",
+    "public_key": "ck4sApdfePV2GT+hJyAYfJd2qLzeG55P8pevGR0bvZE=",
+    "signature": "i5nXf9sAjU2TEmhZ67TNly9bMkxZIr5oTPXWrtR49sdtSgGHvUJeU4mmCzLFs92bgdQwpGbA1uL5LU+43IL8Aw=="
+  },
+  "attested_at": "2026-11-16T21:22:15Z",
+  "path": ".pose/review-attestations/rva-d856065b8d27ef0c.json"
+}
