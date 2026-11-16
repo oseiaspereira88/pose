@@ -33,8 +33,10 @@ var ledgerMemoComputed = func(key string) {}
 // read-view operation of files; without an operation it computes every
 // time. The bool reports whether the value came from the memo.
 func memoizedLedgerRead[V any](files Files, key string, compute func() (V, error)) (V, bool, error) {
-	view, _ := governanceReadViewFromFiles(files)
-	if view == nil || view.operation == nil {
+	view, viewFiles := governanceReadViewFromFiles(files)
+	if view == nil || view.operation == nil || viewFiles == nil {
+		// Without an operation, or without the producer the reads are
+		// attributed to, every request computes and reads for itself.
 		ledgerMemoComputed(key)
 		value, err := compute()
 		return value, false, err
@@ -46,6 +48,10 @@ func memoizedLedgerRead[V any](files Files, key string, compute func() (V, error
 		return zero, false, err
 	}
 	defer view.end()
+	// A kept value is the producer's own: each producer reads once through
+	// the view, so the final audit attributes a changed input to every
+	// producer that consumed it (review N3).
+	key += "\x00producer=" + viewFiles.producer + "\x00project=" + viewFiles.project
 	kept, _ := view.operation.ledgerMemo.LoadOrStore(key, &ledgerMemoCell[V]{})
 	cell := kept.(*ledgerMemoCell[V])
 	computed := false

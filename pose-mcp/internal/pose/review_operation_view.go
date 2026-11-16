@@ -27,9 +27,15 @@ func readReviewBundleHeader(files Files, dir, name string) reviewHeaderObservati
 	// A bundle's header is read, hashed and classified once per operation:
 	// a closeout lists every bundle for every scope it verifies (spec
 	// pose-review-ledger-is-read-once-per-operation).
-	observation, _, _ := memoizedLedgerRead(files, "bundle-header\x00"+filepath.Clean(dir)+"\x00"+name, func() (reviewHeaderObservation, error) {
+	observation, _, err := memoizedLedgerRead(files, "bundle-header\x00"+filepath.Clean(dir)+"\x00"+name, func() (reviewHeaderObservation, error) {
 		return observeReviewBundleHeader(files, dir, name), nil
 	})
+	if err != nil {
+		// A refused read is a read error of the record, as before (review N2).
+		rel := filepath.ToSlash(filepath.Join(".pose", "review-bundles", name))
+		loss := SourceLoss{Producer: "review-bundles", Artifact: rel, Kind: LossReadError, Detail: err.Error()}
+		return reviewHeaderObservation{loss: &loss, readError: err.Error()}
+	}
 	if observation.loss != nil {
 		loss := *observation.loss
 		observation.loss = &loss

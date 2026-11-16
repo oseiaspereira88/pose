@@ -1658,9 +1658,13 @@ func validateReviewRunRecord(name string, run ReviewRun) error {
 const reviewTranscriptMaxBytes = 256 << 20
 
 func (s Store) reviewRunTranscriptIntact(run ReviewRun) string {
-	problem, _, _ := memoizedLedgerRead(s.fsys(), "transcript\x00"+filepath.Clean(s.Root)+"\x00"+run.TranscriptPath+"\x00"+run.TranscriptDigest, func() (string, error) {
+	problem, _, err := memoizedLedgerRead(s.fsys(), "transcript\x00"+filepath.Clean(s.Root)+"\x00"+run.TranscriptPath+"\x00"+run.TranscriptDigest, func() (string, error) {
 		return s.checkReviewRunTranscript(run), nil
 	})
+	if err != nil {
+		// A refused read is not an intact transcript (review N1).
+		return "the transcript of the run cannot be inspected: " + err.Error()
+	}
 	return problem
 }
 

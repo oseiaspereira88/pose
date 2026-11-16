@@ -37,7 +37,7 @@ A primeira chamada `pose_closeout_state` de um servidor MCP no harne8 ainda leva
 ## 2. Requirements
 
 ### Functional
-- R1: Within a read-view operation, the engine shall read and parse a project's review runs, its review attestations per bundle filter, and each review bundle's header at most once, and shall answer every later request of that operation for them from the parsed result, filtered as before.
+- R1: Within a read-view operation, the engine shall, for each producer, read and parse a project's review runs, its review attestations per bundle filter, and each review bundle's header at most once, and shall answer every later request of that operation for them from the parsed result, filtered as before.
 - R2: Within a read-view operation, the engine shall check a transcript's digest at most once per transcript path, size and expected digest, and shall reuse the outcome.
 - R3: A store with no read-view operation shall read, parse and check as before, on every call.
 - R4: The answers of every review verification, closeout state and federated acceptance shall be the same with and without the memo, including when a record is lost, out of bound or unreadable.
@@ -75,7 +75,7 @@ A primeira chamada `pose_closeout_state` de um servidor MCP no harne8 ainda leva
 
 - capability:review-ledger-is-read-once-per-operation module:pose-mcp profile:composed-capability entrypoint:pose-mcp/cmd/pose/main.go
 
-Composto em produção por toda operação de revisão, fechamento e aceitação federada que verifica bundles. Check permanente `review-ledger-is-read-once-per-operation-integration`, evidenceClass `integration`, required: `go test ./internal/pose -run 'TestReviewLedgerIsReadOncePerOperation|TestReviewLedgerWithoutAnOperationIsReadEveryTime|TestReviewLedgerMemoAnswersAsAFreshRead|TestReviewLedgerMemoComputesOnceForConcurrentMisses|TestReviewLedgerMemoGivesIsolatedCopies|TestCopyReviewRunsCoversEveryUnexportedField|TestReviewLedgerMemoIsNotServedAfterTheOperationEnds' -count=1`.
+Composto em produção por toda operação de revisão, fechamento e aceitação federada que verifica bundles. Check permanente `review-ledger-is-read-once-per-operation-integration`, evidenceClass `integration`, required: `go test ./internal/pose -run 'TestReviewLedgerIsReadOncePerOperation|TestReviewLedgerWithoutAnOperationIsReadEveryTime|TestReviewLedgerMemoAnswersAsAFreshRead|TestReviewLedgerMemoComputesOnceForConcurrentMisses|TestReviewLedgerMemoGivesIsolatedCopies|TestCopyReviewRunsCoversEveryUnexportedField|TestReviewLedgerMemoIsNotServedAfterTheOperationEnds|TestReviewLedgerMemoRefusalsStayVisible|TestReviewLedgerMemoAttributesEveryConsumingProducer' -count=1`.
 
 ### API/contract changes
 - Nenhuma.
@@ -138,7 +138,7 @@ Testes que contam leituras e conferências numa operação e comparam as respost
 - R1 [satisfied] test:TestReviewLedgerIsReadOncePerOperation test:TestReviewLedgerMemoComputesOnceForConcurrentMisses check:review-ledger-is-read-once-per-operation-integration
 - R2 [satisfied] test:TestReviewLedgerIsReadOncePerOperation
 - R3 [satisfied] test:TestReviewLedgerWithoutAnOperationIsReadEveryTime
-- R4 [satisfied] test:TestReviewLedgerMemoAnswersAsAFreshRead test:TestReviewLedgerMemoIsNotServedAfterTheOperationEnds test:TestReviewLedgerMemoGivesIsolatedCopies test:TestCopyReviewRunsCoversEveryUnexportedField
+- R4 [satisfied] test:TestReviewLedgerMemoAnswersAsAFreshRead test:TestReviewLedgerMemoIsNotServedAfterTheOperationEnds test:TestReviewLedgerMemoRefusalsStayVisible test:TestReviewLedgerMemoAttributesEveryConsumingProducer test:TestReviewLedgerMemoGivesIsolatedCopies test:TestCopyReviewRunsCoversEveryUnexportedField
 
 ### Known gaps
 - O ganho de parede da primeira chamada depende do commit-graph do Git, que é manutenção do repositório e não do motor (follow-up F1).
@@ -163,4 +163,6 @@ Não concluída.
 Rodada 1 (run rrn-7dfb663ed1e8ebbb, changes-requested; a mensagem final não trouxe bloco `pose-draft`): 3 achados, corrigidos com teste que reprova sem a correção. F1 duas faltas concorrentes da mesma chave computavam as duas antes de publicar; agora cada chave tem uma célula com `sync.Once` (`TestReviewLedgerMemoComputesOnceForConcurrentMisses`). F2 as cópias eram rasas, e mudar `Criteria[0].Disposition` de uma attestation devolvida mudava a guardada; agora `deepCopyValue` copia tudo o que é exportado, e `copyReviewRuns` copia os três campos não exportados de `ReviewRun` por nome (`TestReviewLedgerMemoGivesIsolatedCopies`, `TestCopyReviewRunsCoversEveryUnexportedField`). F3 copiar sobre `nil` trocava um slice vazio por `nil`, e o JSON de `[]` por `null`; a cópia profunda preserva nil e vazio, e o teste compara uma resposta vazia com a de uma leitura nova.
 
 Rodada 2 (run rrn-8531130b0d7334cb, recusada: o rascunho citou os achados da rodada 1 como `R1-F1` a `R1-F3`, que o motor não tinha registrado, porque a rodada 1 terminou sem bloco `pose-draft`). O rascunho declarou F1 a F3 corrigidos e trouxe um achado novo, corrigido com teste que reprova sem a correção: F4 um acerto do memo não passava pela verificação de ciclo de vida da view, e um leitor que guardasse a store depois de a operação terminar recebia registros guardados, mesmo com o ledger mudado; agora o memo chama `begin()` da view antes de servir ou calcular, e uma view finalizada recusa como uma leitura recusaria (`TestReviewLedgerMemoIsNotServedAfterTheOperationEnds`).
+
+Rodada 3 (run rrn-9b810c44750e6d93, changes-requested): 3 bloqueadores, corrigidos com teste que reprova sem a correção. N1 depois de a operação terminar, a recusa do memo virava uma conferência de transcript sem problema, que os chamadores leem como transcript íntegro; agora a recusa vira o problema "cannot be inspected". N2 a mesma recusa virava uma observação de cabeçalho vazia, e o bundle sumia sem perda registrada; agora vira a perda de leitura de antes (`TestReviewLedgerMemoRefusalsStayVisible`). N3 o valor guardado era de quem o calculou primeiro, e a auditoria final atribuía uma mudança do ledger só a esse produtor; agora a chave inclui o produtor e o projeto da `Files`, cada produtor lê uma vez pela view e é atribuído, e uma `Files` sem produtor conhecido não usa o memo (`TestReviewLedgerMemoAttributesEveryConsumingProducer`).
 

@@ -238,3 +238,63 @@ func TestReviewLedgerMemoIsNotServedAfterTheOperationEnds(t *testing.T) {
 		t.Fatalf("kept attestations served after the operation ended: %v", err)
 	}
 }
+
+// Review N1 and N2: after the operation ends, a transcript check reports a
+// problem and a bundle header reports a read error, as reads would, instead
+// of an intact transcript or an unreported omission.
+func TestReviewLedgerMemoRefusalsStayVisible(t *testing.T) {
+	f, run := approvedByARunThenDone(t)
+	scoped := ledgerOperation(t, f.store)
+	runs, _, err := scoped.ReadReviewRuns(run.BundleID)
+	if err != nil || len(runs) == 0 {
+		t.Fatalf("runs: %d %v", len(runs), err)
+	}
+	if problem := scoped.reviewRunTranscriptIntact(runs[0]); problem != "" {
+		t.Fatalf("the fixture's transcript is not intact: %s", problem)
+	}
+	dir := filepath.Join(f.store.Root, ".pose", "review-bundles")
+	entries, err := os.ReadDir(dir)
+	if err != nil || len(entries) == 0 {
+		t.Fatalf("bundles: %v", err)
+	}
+	if observation := readReviewBundleHeader(scoped.fsys(), dir, entries[0].Name()); observation.loss != nil {
+		t.Fatalf("the fixture's bundle header has a loss: %+v", observation.loss)
+	}
+	view, _ := governanceReadViewFromFiles(scoped.fsys())
+	view.audit()
+	if problem := scoped.reviewRunTranscriptIntact(runs[0]); problem == "" {
+		t.Fatal("a transcript check after the operation ended reports an intact transcript")
+	}
+	observation := readReviewBundleHeader(scoped.fsys(), dir, entries[0].Name())
+	if observation.loss == nil || observation.loss.Kind != LossReadError {
+		t.Fatalf("a header read after the operation ended reports no read error: %+v", observation)
+	}
+}
+
+// Review N3: two producers that consume the ledger in one operation are both
+// attributed a change of it by the final audit.
+func TestReviewLedgerMemoAttributesEveryConsumingProducer(t *testing.T) {
+	f, run := approvedByARunThenDone(t)
+	base, view := f.store.beginGovernanceReadView()
+	first := base.withGovernanceReadView(view, "producer-a")
+	second := base.withGovernanceReadView(view, "producer-b")
+	for _, s := range []Store{first, second} {
+		if _, _, err := s.ReadReviewRuns(run.BundleID); err != nil {
+			t.Fatal(err)
+		}
+	}
+	record := filepath.Join(f.store.Root, filepath.FromSlash(run.Path))
+	raw, err := os.ReadFile(record)
+	if err != nil {
+		t.Fatal(err)
+	}
+	if err := os.WriteFile(record, append(raw, ' '), 0o600); err != nil {
+		t.Fatal(err)
+	}
+	audit := view.audit()
+	for _, producer := range []string{"producer-a", "producer-b"} {
+		if !audit.ChangedProducers[producer] {
+			t.Errorf("the audit does not attribute the changed ledger to %s: %v", producer, audit.ChangedProducers)
+		}
+	}
+}
