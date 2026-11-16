@@ -1,7 +1,7 @@
 {
   "schema_version": 2,
-  "input_digest": "sha256:aa3dd378d78c05b99197afc61a95564f621e829cd947de92ddff5584739a96f0",
-  "provenance_digest": "sha256:83d95fe4f67bf975131552309b54adbffd83a2a2d5c2194e9c6871fb8a8a0328",
+  "input_digest": "sha256:dcafc27198eba8dc102e3ea8a0f424aab9a9a06cb1e5d7e6f07160e12ed510c4",
+  "provenance_digest": "sha256:e471dc0eb2f358364368f4d89f2f659c8cb3228df1d1737848085b1261f6630e",
   "implied_edges": [
     "changes"
   ],
@@ -43658,14 +43658,6 @@
       }
     },
     {
-      "id": "change-set:cs-0b3ecb521b8d",
-      "type": "change-set",
-      "attributes": {
-        "diff_digest": "sha256:841c9ea6d6182072445333abf4e99f0507beb21b3ae2688e287fba8058580888",
-        "selector": "trailers:pose-closed-scope-stands-over-a-moved-federated-pin"
-      }
-    },
-    {
       "id": "change-set:cs-0b96b0dd2ae0",
       "type": "change-set",
       "attributes": {
@@ -44159,6 +44151,14 @@
       "attributes": {
         "diff_digest": "sha256:e6a2dff7cc649b6fc62af1d0db11d23692f796dcbf13b3073f8deaf3d2706df1",
         "selector": "trailers:pose-dist-records-its-own-contract-adoption"
+      }
+    },
+    {
+      "id": "change-set:cs-2486cfa0f946",
+      "type": "change-set",
+      "attributes": {
+        "diff_digest": "sha256:ba37bfdc517eee0f7a02a68ba982e17682c5f220f53e956b887d6da0828dece8",
+        "selector": "trailers:pose-closed-scope-stands-over-a-moved-federated-pin"
       }
     },
     {
@@ -106970,7 +106970,7 @@
     },
     {
       "from": "spec:pose-closed-scope-stands-over-a-moved-federated-pin",
-      "to": "change-set:cs-0b3ecb521b8d",
+      "to": "change-set:cs-2486cfa0f946",
       "type": "observed-by"
     },
     {
@@ -179697,57 +179697,6 @@
       }
     },
     {
-      "id": "cs-0b3ecb521b8d",
-      "spec": "pose-closed-scope-stands-over-a-moved-federated-pin",
-      "selector": "trailers:pose-closed-scope-stands-over-a-moved-federated-pin",
-      "base": "9e8e2d3422db725f05862ee20ae19608428bff51^",
-      "head": "e8cd88de6722047b14bc53e1dc8b0b573b4f9e5a",
-      "resolved_base": "edcf5f28ca775b32d3ec1ee3dc078ad27ba86887",
-      "resolved_head": "e8cd88de6722047b14bc53e1dc8b0b573b4f9e5a",
-      "commits": [
-        "9e8e2d3422db725f05862ee20ae19608428bff51",
-        "e8cd88de6722047b14bc53e1dc8b0b573b4f9e5a"
-      ],
-      "paths": [
-        {
-          "action": "created",
-          "path": ".pose/specs/2026-11-16-pose-closed-scope-stands-over-a-moved-federated-pin.md"
-        },
-        {
-          "action": "created",
-          "path": ".pose/starts/pose-closed-scope-stands-over-a-moved-federated-pin.json"
-        },
-        {
-          "action": "created",
-          "path": "pose-mcp/internal/pose/federated_pin_move_test.go"
-        },
-        {
-          "action": "modified",
-          "path": ".pose/adr/2026-09-21-federated-roadmap-acceptance-with-local-evidence-authority.md"
-        },
-        {
-          "action": "modified",
-          "path": ".pose/indexes/validation-matrix.json"
-        },
-        {
-          "action": "modified",
-          "path": "pose-mcp/internal/pose/review_bundle.go"
-        }
-      ],
-      "diff_digest": "sha256:841c9ea6d6182072445333abf4e99f0507beb21b3ae2688e287fba8058580888",
-      "material_digest": "sha256:883514102de57c8188042bfca7513d71f7b684cc3b9da5c82237a26ee73ef2fd",
-      "material_inputs": {
-        "names": [
-          ".pose/adr/2026-09-21-federated-roadmap-acceptance-with-local-evidence-authority.md",
-          ".pose/indexes/validation-matrix.json",
-          ".pose/specs/2026-11-16-pose-closed-scope-stands-over-a-moved-federated-pin.md",
-          ".pose/starts/pose-closed-scope-stands-over-a-moved-federated-pin.json",
-          "pose-mcp/internal/pose/federated_pin_move_test.go",
-          "pose-mcp/internal/pose/review_bundle.go"
-        ]
-      }
-    },
-    {
       "id": "cs-0b96b0dd2ae0",
       "spec": "pose-consolidation-batch-6-authoring",
       "selector": "trailers:pose-consolidation-batch-6-authoring",
@@ -191709,6 +191658,73 @@
           ".pose/state/project-state.md",
           ".pose/state/refresh-log.jsonl",
           "pose-mcp/internal/scaffold/dist/.pose/policy/review.json"
+        ]
+      }
+    },
+    {
+      "id": "cs-2486cfa0f946",
+      "spec": "pose-closed-scope-stands-over-a-moved-federated-pin",
+      "selector": "trailers:pose-closed-scope-stands-over-a-moved-federated-pin",
+      "base": "9e8e2d3422db725f05862ee20ae19608428bff51^",
+      "head": "f160b195c2abae4d445389e6a5a1e235f83fb6a4",
+      "resolved_base": "edcf5f28ca775b32d3ec1ee3dc078ad27ba86887",
+      "resolved_head": "f160b195c2abae4d445389e6a5a1e235f83fb6a4",
+      "commits": [
+        "9e8e2d3422db725f05862ee20ae19608428bff51",
+        "e8cd88de6722047b14bc53e1dc8b0b573b4f9e5a",
+        "f160b195c2abae4d445389e6a5a1e235f83fb6a4"
+      ],
+      "paths": [
+        {
+          "action": "created",
+          "path": ".pose/specs/2026-11-16-pose-closed-scope-stands-over-a-moved-federated-pin.md"
+        },
+        {
+          "action": "created",
+          "path": ".pose/starts/pose-closed-scope-stands-over-a-moved-federated-pin.json"
+        },
+        {
+          "action": "created",
+          "path": "pose-mcp/internal/pose/federated_pin_move_test.go"
+        },
+        {
+          "action": "modified",
+          "path": ".pose/adr/2026-09-21-federated-roadmap-acceptance-with-local-evidence-authority.md"
+        },
+        {
+          "action": "modified",
+          "path": ".pose/indexes/delivery-integrity.json"
+        },
+        {
+          "action": "modified",
+          "path": ".pose/indexes/generation.json"
+        },
+        {
+          "action": "modified",
+          "path": ".pose/indexes/spec-graph.json"
+        },
+        {
+          "action": "modified",
+          "path": ".pose/indexes/validation-matrix.json"
+        },
+        {
+          "action": "modified",
+          "path": "pose-mcp/internal/pose/review_bundle.go"
+        }
+      ],
+      "diff_digest": "sha256:ba37bfdc517eee0f7a02a68ba982e17682c5f220f53e956b887d6da0828dece8",
+      "material_digest": "sha256:883514102de57c8188042bfca7513d71f7b684cc3b9da5c82237a26ee73ef2fd",
+      "material_inputs": {
+        "names": [
+          ".pose/adr/2026-09-21-federated-roadmap-acceptance-with-local-evidence-authority.md",
+          ".pose/indexes/delivery-integrity.json",
+          ".pose/indexes/generation.json",
+          ".pose/indexes/spec-graph.json",
+          ".pose/indexes/validation-matrix.json",
+          ".pose/specs/2026-11-16-pose-closed-scope-stands-over-a-moved-federated-pin.md",
+          ".pose/starts/pose-closed-scope-stands-over-a-moved-federated-pin.json",
+          "pose-mcp/internal/pose/federated_pin_move_test.go",
+          "pose-mcp/internal/pose/review_bundle.go"
         ]
       }
     },
