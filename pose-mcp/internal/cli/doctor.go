@@ -91,7 +91,7 @@ var doctorFixRegistry = map[string]doctorFix{
 		},
 	},
 	"git.commit-graph": {
-		describe: "write the Git commit-graph with changed-path filters (git commit-graph write --reachable --changed-paths)",
+		describe: "write the Git commit-graph with changed-path filters (git commit-graph write --reachable --changed-paths --max-new-filters=-1)",
 		apply:    writeCommitGraph,
 	},
 	"skills.symlinks": {
@@ -372,11 +372,11 @@ func runDoctorDiagnostics(locale cliLocale) (root string, findings []doctorFindi
 	case graph.commits < commitGraphHistoryThreshold:
 		add("git.commit-graph", "ok", text(fmt.Sprintf("history of %d commits does not need a commit-graph", graph.commits), fmt.Sprintf("histórico de %d commits não precisa de commit-graph", graph.commits)), "")
 	case graph.readsDisabledBy != "":
-		add("git.commit-graph-reads", "warn", text(fmt.Sprintf("Git configuration %s keeps last-commit lookups over a history of %d commits from reading changed-path filters", graph.readsDisabledBy, graph.commits), fmt.Sprintf("a configuração %s do Git impede que a busca do último commit, num histórico de %d commits, leia os filtros de caminhos alterados", graph.readsDisabledBy, graph.commits)), text("unset that setting (git config --unset), then run 'git commit-graph write --reachable --changed-paths'", "remova essa configuração (git config --unset) e rode 'git commit-graph write --reachable --changed-paths'"))
+		add("git.commit-graph-reads", "warn", text(fmt.Sprintf("Git configuration %s keeps last-commit lookups over a history of %d commits from reading changed-path filters", graph.readsDisabledBy, graph.commits), fmt.Sprintf("a configuração %s do Git impede que a busca do último commit, num histórico de %d commits, leia os filtros de caminhos alterados", graph.readsDisabledBy, graph.commits)), text("unset that setting (git config --unset), then run 'git commit-graph write --reachable --changed-paths --max-new-filters=-1'", "remova essa configuração (git config --unset) e rode 'git commit-graph write --reachable --changed-paths --max-new-filters=-1'"))
 	case graph.filtersUsed:
 		add("git.commit-graph", "ok", text("Git answers last-commit lookups from changed-path filters", "o Git responde a busca do último commit pelos filtros de caminhos alterados"), "")
 	default:
-		add("git.commit-graph", "next", text(fmt.Sprintf("history of %d commits is walked whole by each last-commit lookup: Git has no commit-graph with changed-path filters", graph.commits), fmt.Sprintf("histórico de %d commits percorrido inteiro a cada busca do último commit: o Git não tem commit-graph com filtros de caminhos alterados", graph.commits)), text("run 'git commit-graph write --reachable --changed-paths' (or 'pose doctor --fix --yes')", "rode 'git commit-graph write --reachable --changed-paths' (ou 'pose doctor --fix --yes')"))
+		add("git.commit-graph", "next", text(fmt.Sprintf("history of %d commits is walked whole by each last-commit lookup: Git has no commit-graph with changed-path filters", graph.commits), fmt.Sprintf("histórico de %d commits percorrido inteiro a cada busca do último commit: o Git não tem commit-graph com filtros de caminhos alterados", graph.commits)), text("run 'git commit-graph write --reachable --changed-paths --max-new-filters=-1' (or 'pose doctor --fix --yes')", "rode 'git commit-graph write --reachable --changed-paths --max-new-filters=-1' (ou 'pose doctor --fix --yes')"))
 	}
 
 	// 8. Delivery-integrity / artifact-contract policy roots (issue #17): a

@@ -69,9 +69,25 @@ func readCommitGraphState(root string) (commitGraphState, error) {
 	if strings.TrimSpace(shallow) == "true" {
 		return commitGraphState{}, errCommitGraphNotApplicable
 	}
-	count, _, err := commitGraphGit(root, nil, "rev-list", "--count", "HEAD")
+	// A HEAD without files has nothing to look up, whatever its history
+	// (review F22).
+	listing, _, err := commitGraphGit(root, nil, "ls-tree", "-r", "--name-only", "-z", "HEAD")
+	if err != nil {
+		return commitGraphState{}, fmt.Errorf("files of HEAD could not be listed: %w", err)
+	}
+	path, _, _ := strings.Cut(listing, "\x00")
+	if path == "" {
+		return commitGraphState{}, errCommitGraphNotApplicable
+	}
+	count, countStderr, err := commitGraphGit(root, nil, "rev-list", "--count", "HEAD")
 	if err != nil {
 		return commitGraphState{}, fmt.Errorf("history of HEAD could not be counted: %w", err)
+	}
+	// Git falls back to a plain walk when its commit-graph cannot be read,
+	// and says so on stderr while it succeeds, at any history size (review
+	// F21).
+	if countStderr != "" {
+		return commitGraphState{}, fmt.Errorf("Git reported a problem while reading history: %s", countStderr)
 	}
 	commits, err := strconv.Atoi(strings.TrimSpace(count))
 	if err != nil {
@@ -80,14 +96,6 @@ func readCommitGraphState(root string) (commitGraphState, error) {
 	state := commitGraphState{commits: commits}
 	if commits < commitGraphHistoryThreshold {
 		return state, nil
-	}
-	listing, _, err := commitGraphGit(root, nil, "ls-tree", "-r", "--name-only", "-z", "HEAD")
-	if err != nil {
-		return state, fmt.Errorf("files of HEAD could not be listed: %w", err)
-	}
-	path, _, _ := strings.Cut(listing, "\x00")
-	if path == "" {
-		return commitGraphState{}, errCommitGraphNotApplicable
 	}
 	trace, err := os.CreateTemp("", "pose-doctor-trace2-*.json")
 	if err != nil {
@@ -168,11 +176,15 @@ func commitGraphReadsDisabledBy(root string) string {
 	return ""
 }
 
+// commitGraphWriteCommand is the command doctor shows and runs: filters for
+// every commit, whatever commitGraph.maxNewFilters says.
+const commitGraphWriteCommand = "git commit-graph write --reachable --changed-paths --max-new-filters=-1"
+
 // writeCommitGraph writes the repository's commit-graph with changed-path
 // Bloom filters for every commit, whatever commitGraph.maxNewFilters says;
 // it only writes under the Git object directory.
 func writeCommitGraph(root string) error {
-	_, _, err := commitGraphGit(root, nil, "commit-graph", "write", "--reachable", "--changed-paths", "--max-new-filters=-1")
+	_, _, err := commitGraphGit(root, nil, strings.Fields(strings.TrimPrefix(commitGraphWriteCommand, "git "))...)
 	return err
 }
 

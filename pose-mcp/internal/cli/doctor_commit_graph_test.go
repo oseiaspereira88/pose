@@ -130,11 +130,14 @@ func TestDoctorCommitGraphReportsAnUnreadableHistory(t *testing.T) {
 	original := commitGraphHistoryThreshold
 	t.Cleanup(func() { commitGraphHistoryThreshold = original })
 	commitGraphHistoryThreshold = 1
-	commit := func() {
-		gitInRepo(t, repo, "-c", "user.name=fixture", "-c", "user.email=fixture@example.invalid", "-c", "commit.gpgsign=false", "commit", "-q", "--allow-empty", "-m", "history")
+	// Each commit records a file, so HEAD has one to look up.
+	for i := 0; i < 2; i++ {
+		if err := os.WriteFile(filepath.Join(repo, "zz-history.txt"), []byte(strings.Repeat("x", i+1)), 0o644); err != nil {
+			t.Fatal(err)
+		}
+		gitInRepo(t, repo, "add", "zz-history.txt")
+		gitInRepo(t, repo, "-c", "user.name=fixture", "-c", "user.email=fixture@example.invalid", "-c", "commit.gpgsign=false", "commit", "-q", "-m", "history")
 	}
-	commit()
-	commit()
 	out, err := exec.Command("git", "-C", repo, "rev-parse", "HEAD~1").Output()
 	if err != nil {
 		t.Fatal(err)
@@ -337,5 +340,63 @@ func TestDoctorCommitGraphReportsAnUnreadableGraph(t *testing.T) {
 	}
 	if f := doctorCommitGraphFinding(t, repo); f.Level != "warn" {
 		t.Fatalf("an unreadable commit-graph: %+v", f)
+	}
+}
+
+// shortHistoryRepo is an installed repository with a few commits that each
+// change a file, under the default threshold.
+func shortHistoryRepo(t *testing.T) string {
+	t.Helper()
+	repo := doctorFixture(t)
+	for i := 0; i < 3; i++ {
+		if err := os.WriteFile(filepath.Join(repo, "zz-history.txt"), []byte(strings.Repeat("x", i+1)), 0o644); err != nil {
+			t.Fatal(err)
+		}
+		gitInRepo(t, repo, "add", "zz-history.txt")
+		gitInRepo(t, repo, "-c", "user.name=fixture", "-c", "user.email=fixture@example.invalid", "-c", "commit.gpgsign=false", "commit", "-q", "-m", "history")
+	}
+	return repo
+}
+
+// Review F21: below the threshold too, a commit-graph Git cannot read is a
+// warning.
+func TestDoctorCommitGraphWarnsBelowTheThreshold(t *testing.T) {
+	repo := shortHistoryRepo(t)
+	removeCommitGraph(t, repo)
+	graph := filepath.Join(repo, ".git", "objects", "info", "commit-graph")
+	if err := os.WriteFile(graph, []byte("CGPH\x01\x01\x05\x00garbage"), 0o444); err != nil {
+		t.Fatal(err)
+	}
+	if f := doctorCommitGraphFinding(t, repo); f.Level != "warn" {
+		t.Fatalf("an unreadable commit-graph under a short history: %+v", f)
+	}
+}
+
+// Review F22: a HEAD without files is not applicable under a short history
+// too.
+func TestDoctorCommitGraphSkipsAShortEmptyTree(t *testing.T) {
+	repo := shortHistoryRepo(t)
+	gitInRepo(t, repo, "rm", "-q", "-r", "--", ".")
+	gitInRepo(t, repo, "-c", "user.name=fixture", "-c", "user.email=fixture@example.invalid", "-c", "commit.gpgsign=false", "commit", "-q", "-m", "empty")
+	if _, err := readCommitGraphState(repo); !errors.Is(err, errCommitGraphNotApplicable) {
+		t.Fatalf("a short history with an empty HEAD tree: %v, want not applicable", err)
+	}
+}
+
+// Review F23: the command doctor shows is the one its fix runs, and
+// following it by hand writes the filters under commitGraph.maxNewFilters=0.
+func TestDoctorCommitGraphShowsTheEffectiveCommand(t *testing.T) {
+	repo := longHistoryRepo(t, nil)
+	gitInRepo(t, repo, "config", "commitGraph.maxNewFilters", "0")
+	removeCommitGraph(t, repo)
+	f := doctorCommitGraphFinding(t, repo)
+	if f.Level != "next" || !strings.Contains(f.Hint, "'"+commitGraphWriteCommand+"'") {
+		t.Fatalf("the shown command is not the fix's: %+v", f)
+	}
+	args := strings.Fields(strings.TrimPrefix(commitGraphWriteCommand, "git "))
+	gitInRepo(t, repo, args...)
+	state, err := readCommitGraphState(repo)
+	if err != nil || !state.filtersUsed {
+		t.Fatalf("following the shown command under maxNewFilters=0: %+v %v", state, err)
 	}
 }
