@@ -1,7 +1,7 @@
 {
   "schema_version": 2,
-  "input_digest": "sha256:75e418380f224d195a0b2d14642129e5f3f3c6af2e8d32be92528b01c86e7a8f",
-  "provenance_digest": "sha256:1075659d9760850bcebc6fb88dd9bce2ae3953fdd63a9b8b7313422e6a670300",
+  "input_digest": "sha256:840ba850afbe8079524d4ff7df63ab527d583e11545a66ea8e18ade45d14c79d",
+  "provenance_digest": "sha256:c28bc2259eba2963c157bf1bc9e21978585c14c4fcb329c0d2d284ac7104bace",
   "implied_edges": [
     "changes"
   ],
@@ -46081,14 +46081,6 @@
       }
     },
     {
-      "id": "change-set:cs-6885fb76a3d6",
-      "type": "change-set",
-      "attributes": {
-        "diff_digest": "sha256:4d274f783a1c5e1d8179dc80082106e6332baaf68a22ca792acb73145afd7229",
-        "selector": "trailers:pose-review-ledger-is-read-once-per-operation"
-      }
-    },
-    {
       "id": "change-set:cs-69752f1b8e5d",
       "type": "change-set",
       "attributes": {
@@ -46646,6 +46638,14 @@
       "attributes": {
         "diff_digest": "sha256:723417d6bbd4549d3069ee53040986475a73885617470f12dfe580c3075a85f5",
         "selector": "trailers:pose-validate-refuses-empty-go-checks"
+      }
+    },
+    {
+      "id": "change-set:cs-8bce2a382769",
+      "type": "change-set",
+      "attributes": {
+        "diff_digest": "sha256:6b936a02112ed7fde682cb6881e108748051d69e5c1c353d2fb4239510891532",
+        "selector": "trailers:pose-review-ledger-is-read-once-per-operation"
       }
     },
     {
@@ -130604,7 +130604,7 @@
     },
     {
       "from": "spec:pose-review-ledger-is-read-once-per-operation",
-      "to": "change-set:cs-6885fb76a3d6",
+      "to": "change-set:cs-8bce2a382769",
       "type": "observed-by"
     },
     {
@@ -227531,151 +227531,6 @@
       }
     },
     {
-      "id": "cs-6885fb76a3d6",
-      "spec": "pose-review-ledger-is-read-once-per-operation",
-      "selector": "trailers:pose-review-ledger-is-read-once-per-operation",
-      "base": "f7a3b739b30fc5a69212d5982b0f5f609b41c580^",
-      "head": "2bf2adf147bda0b7d8396e025d8f543d08ed2747",
-      "resolved_base": "319bfd9c99ae17e6db4945ab348b5a4cf4f51551",
-      "resolved_head": "2bf2adf147bda0b7d8396e025d8f543d08ed2747",
-      "commits": [
-        "f7a3b739b30fc5a69212d5982b0f5f609b41c580",
-        "374e5a6d815e7a6aa8eaa27f81f1113ccf9fd49d",
-        "2fd7c35fd94bb5cda9cda8b55ebdf40343ca2e8e",
-        "89979258508f8b9fb6392f7894e9046d287d79c4",
-        "eeb61cb8d56301058d7fc0de9cd549c8f3146bcd",
-        "b11b9e5a53b8108ab9f97d25a3d89d760bd32cca",
-        "d1641533c4b419fbb01ab0c630a677f89171426f",
-        "e1cac3c500fbacd8085b33261ffc4ce938546b19",
-        "297152be880111f4568db45b064365dae55bd122",
-        "692c8690af16ccbbc754de5f13976da426adb5d3",
-        "2bf2adf147bda0b7d8396e025d8f543d08ed2747"
-      ],
-      "paths": [
-        {
-          "action": "created",
-          "path": ".pose/closeout-plans/spec-pose-review-ledger-is-read-once-per-operation.json"
-        },
-        {
-          "action": "created",
-          "path": ".pose/review-attempts/435ed2f19bdec7cc00585bf9/000001.json"
-        },
-        {
-          "action": "created",
-          "path": ".pose/review-attempts/435ed2f19bdec7cc00585bf9/000001.result.json"
-        },
-        {
-          "action": "created",
-          "path": ".pose/review-bundles/rvb-fcdbee3d8ac391e9.json"
-        },
-        {
-          "action": "created",
-          "path": ".pose/review-conclusions/rrn-7dfb663ed1e8ebbb.json"
-        },
-        {
-          "action": "created",
-          "path": ".pose/review-run-ledger/rrn-7dfb663ed1e8ebbb.json"
-        },
-        {
-          "action": "created",
-          "path": ".pose/review-runs/rrn-7dfb663ed1e8ebbb.events.ndjson"
-        },
-        {
-          "action": "created",
-          "path": ".pose/review-runs/rrn-7dfb663ed1e8ebbb.json"
-        },
-        {
-          "action": "created",
-          "path": ".pose/review-runs/rrn-7dfb663ed1e8ebbb.transcript"
-        },
-        {
-          "action": "created",
-          "path": ".pose/specs/2026-11-16-pose-review-ledger-is-read-once-per-operation.md"
-        },
-        {
-          "action": "created",
-          "path": ".pose/starts/pose-review-ledger-is-read-once-per-operation.json"
-        },
-        {
-          "action": "created",
-          "path": "pose-mcp/internal/pose/review_ledger_memo.go"
-        },
-        {
-          "action": "created",
-          "path": "pose-mcp/internal/pose/review_ledger_memo_test.go"
-        },
-        {
-          "action": "modified",
-          "path": ".pose/adr/2026-11-03-governance-reads-use-bounded-operation-scoped-views.md"
-        },
-        {
-          "action": "modified",
-          "path": ".pose/indexes/delivery-integrity.json"
-        },
-        {
-          "action": "modified",
-          "path": ".pose/indexes/generation.json"
-        },
-        {
-          "action": "modified",
-          "path": ".pose/indexes/spec-graph.json"
-        },
-        {
-          "action": "modified",
-          "path": ".pose/indexes/validation-matrix.json"
-        },
-        {
-          "action": "modified",
-          "path": ".pose/results/delivery-validation.json"
-        },
-        {
-          "action": "modified",
-          "path": "pose-mcp/internal/pose/governance_read_view.go"
-        },
-        {
-          "action": "modified",
-          "path": "pose-mcp/internal/pose/review_bundle.go"
-        },
-        {
-          "action": "modified",
-          "path": "pose-mcp/internal/pose/review_dispatch.go"
-        },
-        {
-          "action": "modified",
-          "path": "pose-mcp/internal/pose/review_operation_view.go"
-        }
-      ],
-      "diff_digest": "sha256:4d274f783a1c5e1d8179dc80082106e6332baaf68a22ca792acb73145afd7229",
-      "material_digest": "sha256:156322a49cf2e571162acd9ffcfd52626fb5bb43df3efa41d143f3318ac786fc",
-      "material_inputs": {
-        "names": [
-          ".pose/adr/2026-11-03-governance-reads-use-bounded-operation-scoped-views.md",
-          ".pose/closeout-plans/spec-pose-review-ledger-is-read-once-per-operation.json",
-          ".pose/indexes/delivery-integrity.json",
-          ".pose/indexes/generation.json",
-          ".pose/indexes/spec-graph.json",
-          ".pose/indexes/validation-matrix.json",
-          ".pose/results/delivery-validation.json",
-          ".pose/review-attempts/435ed2f19bdec7cc00585bf9/000001.json",
-          ".pose/review-attempts/435ed2f19bdec7cc00585bf9/000001.result.json",
-          ".pose/review-bundles/rvb-fcdbee3d8ac391e9.json",
-          ".pose/review-conclusions/rrn-7dfb663ed1e8ebbb.json",
-          ".pose/review-run-ledger/rrn-7dfb663ed1e8ebbb.json",
-          ".pose/review-runs/rrn-7dfb663ed1e8ebbb.events.ndjson",
-          ".pose/review-runs/rrn-7dfb663ed1e8ebbb.json",
-          ".pose/review-runs/rrn-7dfb663ed1e8ebbb.transcript",
-          ".pose/specs/2026-11-16-pose-review-ledger-is-read-once-per-operation.md",
-          ".pose/starts/pose-review-ledger-is-read-once-per-operation.json",
-          "pose-mcp/internal/pose/governance_read_view.go",
-          "pose-mcp/internal/pose/review_bundle.go",
-          "pose-mcp/internal/pose/review_dispatch.go",
-          "pose-mcp/internal/pose/review_ledger_memo.go",
-          "pose-mcp/internal/pose/review_ledger_memo_test.go",
-          "pose-mcp/internal/pose/review_operation_view.go"
-        ]
-      }
-    },
-    {
       "id": "cs-69752f1b8e5d",
       "spec": "pose-onboarding-context-extraction",
       "selector": "range:37642ec..f8f8f0a",
@@ -243052,6 +242907,152 @@
           "pose-mcp/internal/cli/validation_matrix_patterns_test.go",
           "pose-mcp/internal/scaffold/dist/POSE.md",
           "pose-mcp/internal/scaffold/dist/locales/pt-BR/POSE.md"
+        ]
+      }
+    },
+    {
+      "id": "cs-8bce2a382769",
+      "spec": "pose-review-ledger-is-read-once-per-operation",
+      "selector": "trailers:pose-review-ledger-is-read-once-per-operation",
+      "base": "f7a3b739b30fc5a69212d5982b0f5f609b41c580^",
+      "head": "d4f76b630def0e33bad1f8ba5d74e0bc0143f838",
+      "resolved_base": "319bfd9c99ae17e6db4945ab348b5a4cf4f51551",
+      "resolved_head": "d4f76b630def0e33bad1f8ba5d74e0bc0143f838",
+      "commits": [
+        "f7a3b739b30fc5a69212d5982b0f5f609b41c580",
+        "374e5a6d815e7a6aa8eaa27f81f1113ccf9fd49d",
+        "2fd7c35fd94bb5cda9cda8b55ebdf40343ca2e8e",
+        "89979258508f8b9fb6392f7894e9046d287d79c4",
+        "eeb61cb8d56301058d7fc0de9cd549c8f3146bcd",
+        "b11b9e5a53b8108ab9f97d25a3d89d760bd32cca",
+        "d1641533c4b419fbb01ab0c630a677f89171426f",
+        "e1cac3c500fbacd8085b33261ffc4ce938546b19",
+        "297152be880111f4568db45b064365dae55bd122",
+        "692c8690af16ccbbc754de5f13976da426adb5d3",
+        "2bf2adf147bda0b7d8396e025d8f543d08ed2747",
+        "d4f76b630def0e33bad1f8ba5d74e0bc0143f838"
+      ],
+      "paths": [
+        {
+          "action": "created",
+          "path": ".pose/closeout-plans/spec-pose-review-ledger-is-read-once-per-operation.json"
+        },
+        {
+          "action": "created",
+          "path": ".pose/review-attempts/435ed2f19bdec7cc00585bf9/000001.json"
+        },
+        {
+          "action": "created",
+          "path": ".pose/review-attempts/435ed2f19bdec7cc00585bf9/000001.result.json"
+        },
+        {
+          "action": "created",
+          "path": ".pose/review-bundles/rvb-fcdbee3d8ac391e9.json"
+        },
+        {
+          "action": "created",
+          "path": ".pose/review-conclusions/rrn-7dfb663ed1e8ebbb.json"
+        },
+        {
+          "action": "created",
+          "path": ".pose/review-run-ledger/rrn-7dfb663ed1e8ebbb.json"
+        },
+        {
+          "action": "created",
+          "path": ".pose/review-runs/rrn-7dfb663ed1e8ebbb.events.ndjson"
+        },
+        {
+          "action": "created",
+          "path": ".pose/review-runs/rrn-7dfb663ed1e8ebbb.json"
+        },
+        {
+          "action": "created",
+          "path": ".pose/review-runs/rrn-7dfb663ed1e8ebbb.transcript"
+        },
+        {
+          "action": "created",
+          "path": ".pose/specs/2026-11-16-pose-review-ledger-is-read-once-per-operation.md"
+        },
+        {
+          "action": "created",
+          "path": ".pose/starts/pose-review-ledger-is-read-once-per-operation.json"
+        },
+        {
+          "action": "created",
+          "path": "pose-mcp/internal/pose/review_ledger_memo.go"
+        },
+        {
+          "action": "created",
+          "path": "pose-mcp/internal/pose/review_ledger_memo_test.go"
+        },
+        {
+          "action": "modified",
+          "path": ".pose/adr/2026-11-03-governance-reads-use-bounded-operation-scoped-views.md"
+        },
+        {
+          "action": "modified",
+          "path": ".pose/indexes/delivery-integrity.json"
+        },
+        {
+          "action": "modified",
+          "path": ".pose/indexes/generation.json"
+        },
+        {
+          "action": "modified",
+          "path": ".pose/indexes/spec-graph.json"
+        },
+        {
+          "action": "modified",
+          "path": ".pose/indexes/validation-matrix.json"
+        },
+        {
+          "action": "modified",
+          "path": ".pose/results/delivery-validation.json"
+        },
+        {
+          "action": "modified",
+          "path": "pose-mcp/internal/pose/governance_read_view.go"
+        },
+        {
+          "action": "modified",
+          "path": "pose-mcp/internal/pose/review_bundle.go"
+        },
+        {
+          "action": "modified",
+          "path": "pose-mcp/internal/pose/review_dispatch.go"
+        },
+        {
+          "action": "modified",
+          "path": "pose-mcp/internal/pose/review_operation_view.go"
+        }
+      ],
+      "diff_digest": "sha256:6b936a02112ed7fde682cb6881e108748051d69e5c1c353d2fb4239510891532",
+      "material_digest": "sha256:156322a49cf2e571162acd9ffcfd52626fb5bb43df3efa41d143f3318ac786fc",
+      "material_inputs": {
+        "names": [
+          ".pose/adr/2026-11-03-governance-reads-use-bounded-operation-scoped-views.md",
+          ".pose/closeout-plans/spec-pose-review-ledger-is-read-once-per-operation.json",
+          ".pose/indexes/delivery-integrity.json",
+          ".pose/indexes/generation.json",
+          ".pose/indexes/spec-graph.json",
+          ".pose/indexes/validation-matrix.json",
+          ".pose/results/delivery-validation.json",
+          ".pose/review-attempts/435ed2f19bdec7cc00585bf9/000001.json",
+          ".pose/review-attempts/435ed2f19bdec7cc00585bf9/000001.result.json",
+          ".pose/review-bundles/rvb-fcdbee3d8ac391e9.json",
+          ".pose/review-conclusions/rrn-7dfb663ed1e8ebbb.json",
+          ".pose/review-run-ledger/rrn-7dfb663ed1e8ebbb.json",
+          ".pose/review-runs/rrn-7dfb663ed1e8ebbb.events.ndjson",
+          ".pose/review-runs/rrn-7dfb663ed1e8ebbb.json",
+          ".pose/review-runs/rrn-7dfb663ed1e8ebbb.transcript",
+          ".pose/specs/2026-11-16-pose-review-ledger-is-read-once-per-operation.md",
+          ".pose/starts/pose-review-ledger-is-read-once-per-operation.json",
+          "pose-mcp/internal/pose/governance_read_view.go",
+          "pose-mcp/internal/pose/review_bundle.go",
+          "pose-mcp/internal/pose/review_dispatch.go",
+          "pose-mcp/internal/pose/review_ledger_memo.go",
+          "pose-mcp/internal/pose/review_ledger_memo_test.go",
+          "pose-mcp/internal/pose/review_operation_view.go"
         ]
       }
     },
