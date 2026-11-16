@@ -1,7 +1,7 @@
 {
   "schema_version": 2,
-  "input_digest": "sha256:6e2284763c3a9bdd210f2194420eb6e3dd4ad80898c7173d642be7f7dfafdbde",
-  "provenance_digest": "sha256:fb921559ac43b12130b303721ce5dbb18598dae5a0c8501ffcd583efdf2be4d2",
+  "input_digest": "sha256:82ff69fc65f87594480fd4fc9bd07b3e931bc3a92005feeacc5951cac20b6aaf",
+  "provenance_digest": "sha256:2998505b728a3bd83128f3dbf531a3bd9b3b3fe1920ed2e9dacfdfa9e8ecadd8",
   "implied_edges": [
     "changes"
   ],
@@ -45695,14 +45695,6 @@
       }
     },
     {
-      "id": "change-set:cs-3e7474cdaf7c",
-      "type": "change-set",
-      "attributes": {
-        "diff_digest": "sha256:52412c5f77b703c931310356bd411dfea56d274d6a402e036a1777fa633e0794",
-        "selector": "trailers:pose-git-snapshot-budget-scales-with-the-tree"
-      }
-    },
-    {
       "id": "change-set:cs-3ea03d5178f3",
       "type": "change-set",
       "attributes": {
@@ -47684,6 +47676,14 @@
       "attributes": {
         "diff_digest": "sha256:85fd6a28113db23bb2c4f080fae42c93b7f21aee56a76ffbaa99c923b4326e75",
         "selector": "trailers:pose-upgrade-journey-starts-below-the-newest-capability"
+      }
+    },
+    {
+      "id": "change-set:cs-b1dd2f00e2a4",
+      "type": "change-set",
+      "attributes": {
+        "diff_digest": "sha256:78aa132f8a1311817236029acf4f0d240c81d97c2fea20f2a8e37e03c3dc19b4",
+        "selector": "trailers:pose-git-snapshot-budget-scales-with-the-tree"
       }
     },
     {
@@ -119636,7 +119636,7 @@
     },
     {
       "from": "spec:pose-git-snapshot-budget-scales-with-the-tree",
-      "to": "change-set:cs-3e7474cdaf7c",
+      "to": "change-set:cs-b1dd2f00e2a4",
       "type": "observed-by"
     },
     {
@@ -208316,76 +208316,6 @@
       "diff_digest": "sha256:daeb921f66742fee408f89d38e4dc127fca83789d497f9105fba56606fefc464"
     },
     {
-      "id": "cs-3e7474cdaf7c",
-      "spec": "pose-git-snapshot-budget-scales-with-the-tree",
-      "selector": "trailers:pose-git-snapshot-budget-scales-with-the-tree",
-      "base": "81d10a8a0754fadfc99c34b7909a1981e44417f7^",
-      "head": "bd4d70ccb1ef7da1c97e487e5e8a303b6dfcc1f5",
-      "resolved_base": "ca66b779b3c83932c3273427ad1cd8c3c7a40a98",
-      "resolved_head": "bd4d70ccb1ef7da1c97e487e5e8a303b6dfcc1f5",
-      "commits": [
-        "81d10a8a0754fadfc99c34b7909a1981e44417f7",
-        "7cf37b21742a6e6e942f857196936d636992f980",
-        "c6d15284e4e9beb78b1397a6e79de1f17aa31edf",
-        "9fdb3607acc3beb8f9d02c193c89f5e8c09e3077",
-        "cb4d512bc7eeed4e9a1328b4ffe574c311467af1",
-        "bd4d70ccb1ef7da1c97e487e5e8a303b6dfcc1f5"
-      ],
-      "paths": [
-        {
-          "action": "created",
-          "path": ".pose/specs/2026-11-16-pose-git-snapshot-budget-scales-with-the-tree.md"
-        },
-        {
-          "action": "created",
-          "path": ".pose/starts/pose-git-snapshot-budget-scales-with-the-tree.json"
-        },
-        {
-          "action": "created",
-          "path": "pose-mcp/internal/pose/git_snapshot_budget_test.go"
-        },
-        {
-          "action": "modified",
-          "path": ".pose/indexes/delivery-integrity.json"
-        },
-        {
-          "action": "modified",
-          "path": ".pose/indexes/generation.json"
-        },
-        {
-          "action": "modified",
-          "path": ".pose/indexes/spec-graph.json"
-        },
-        {
-          "action": "modified",
-          "path": ".pose/indexes/validation-matrix.json"
-        },
-        {
-          "action": "modified",
-          "path": ".pose/results/delivery-validation.json"
-        },
-        {
-          "action": "modified",
-          "path": "pose-mcp/internal/pose/git_snapshot_integrity.go"
-        }
-      ],
-      "diff_digest": "sha256:52412c5f77b703c931310356bd411dfea56d274d6a402e036a1777fa633e0794",
-      "material_digest": "sha256:971b412ae7117d90dab05566af53a26d858865b333247246ef24f40a4e588ee6",
-      "material_inputs": {
-        "names": [
-          ".pose/indexes/delivery-integrity.json",
-          ".pose/indexes/generation.json",
-          ".pose/indexes/spec-graph.json",
-          ".pose/indexes/validation-matrix.json",
-          ".pose/results/delivery-validation.json",
-          ".pose/specs/2026-11-16-pose-git-snapshot-budget-scales-with-the-tree.md",
-          ".pose/starts/pose-git-snapshot-budget-scales-with-the-tree.json",
-          "pose-mcp/internal/pose/git_snapshot_budget_test.go",
-          "pose-mcp/internal/pose/git_snapshot_integrity.go"
-        ]
-      }
-    },
-    {
       "id": "cs-3ea03d5178f3",
       "spec": "pose-causality-closeout-adoption-cutoff",
       "selector": "trailers:pose-causality-closeout-adoption-cutoff",
@@ -259239,6 +259169,77 @@
           ".pose/state/project-state.md",
           ".pose/state/refresh-log.jsonl",
           "tests/journeys/install-and-upgrade.sh"
+        ]
+      }
+    },
+    {
+      "id": "cs-b1dd2f00e2a4",
+      "spec": "pose-git-snapshot-budget-scales-with-the-tree",
+      "selector": "trailers:pose-git-snapshot-budget-scales-with-the-tree",
+      "base": "81d10a8a0754fadfc99c34b7909a1981e44417f7^",
+      "head": "8aec6924317827bb51e67aaae0a21365dba46e65",
+      "resolved_base": "ca66b779b3c83932c3273427ad1cd8c3c7a40a98",
+      "resolved_head": "8aec6924317827bb51e67aaae0a21365dba46e65",
+      "commits": [
+        "81d10a8a0754fadfc99c34b7909a1981e44417f7",
+        "7cf37b21742a6e6e942f857196936d636992f980",
+        "c6d15284e4e9beb78b1397a6e79de1f17aa31edf",
+        "9fdb3607acc3beb8f9d02c193c89f5e8c09e3077",
+        "cb4d512bc7eeed4e9a1328b4ffe574c311467af1",
+        "bd4d70ccb1ef7da1c97e487e5e8a303b6dfcc1f5",
+        "8aec6924317827bb51e67aaae0a21365dba46e65"
+      ],
+      "paths": [
+        {
+          "action": "created",
+          "path": ".pose/specs/2026-11-16-pose-git-snapshot-budget-scales-with-the-tree.md"
+        },
+        {
+          "action": "created",
+          "path": ".pose/starts/pose-git-snapshot-budget-scales-with-the-tree.json"
+        },
+        {
+          "action": "created",
+          "path": "pose-mcp/internal/pose/git_snapshot_budget_test.go"
+        },
+        {
+          "action": "modified",
+          "path": ".pose/indexes/delivery-integrity.json"
+        },
+        {
+          "action": "modified",
+          "path": ".pose/indexes/generation.json"
+        },
+        {
+          "action": "modified",
+          "path": ".pose/indexes/spec-graph.json"
+        },
+        {
+          "action": "modified",
+          "path": ".pose/indexes/validation-matrix.json"
+        },
+        {
+          "action": "modified",
+          "path": ".pose/results/delivery-validation.json"
+        },
+        {
+          "action": "modified",
+          "path": "pose-mcp/internal/pose/git_snapshot_integrity.go"
+        }
+      ],
+      "diff_digest": "sha256:78aa132f8a1311817236029acf4f0d240c81d97c2fea20f2a8e37e03c3dc19b4",
+      "material_digest": "sha256:971b412ae7117d90dab05566af53a26d858865b333247246ef24f40a4e588ee6",
+      "material_inputs": {
+        "names": [
+          ".pose/indexes/delivery-integrity.json",
+          ".pose/indexes/generation.json",
+          ".pose/indexes/spec-graph.json",
+          ".pose/indexes/validation-matrix.json",
+          ".pose/results/delivery-validation.json",
+          ".pose/specs/2026-11-16-pose-git-snapshot-budget-scales-with-the-tree.md",
+          ".pose/starts/pose-git-snapshot-budget-scales-with-the-tree.json",
+          "pose-mcp/internal/pose/git_snapshot_budget_test.go",
+          "pose-mcp/internal/pose/git_snapshot_integrity.go"
         ]
       }
     },
