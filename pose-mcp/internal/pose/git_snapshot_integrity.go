@@ -17,14 +17,57 @@ import (
 	"path/filepath"
 	"runtime"
 	"sort"
+	"strconv"
 	"strings"
 )
+
+// The bytes a snapshot reads are bounded by the committed tree it compares
+// against plus a margin, never less than the margin alone and never more than
+// the ceiling: a fixed bound stopped every closeout once a repository's
+// committed tree outgrew it (spec pose-git-snapshot-budget-scales-with-the-tree).
+var (
+	gitSnapshotMarginBytes  int64 = 256 << 20
+	gitSnapshotCeilingBytes int64 = 4 << 30
+)
+
+func gitSnapshotBudget(committedBytes int64) int64 {
+	if committedBytes < 0 {
+		committedBytes = 0
+	}
+	if committedBytes > gitSnapshotCeilingBytes-gitSnapshotMarginBytes {
+		return gitSnapshotCeilingBytes
+	}
+	return committedBytes + gitSnapshotMarginBytes
+}
+
+// gitCommittedTreeBytes sums the blob sizes of an `ls-tree -r -l -z` listing.
+func gitCommittedTreeBytes(listing []byte) int64 {
+	var total int64
+	for _, record := range bytes.Split(listing, []byte{0}) {
+		i := bytes.IndexByte(record, '\t')
+		if i < 0 {
+			continue
+		}
+		fields := strings.Fields(string(record[:i]))
+		if len(fields) == 4 {
+			if size, err := strconv.ParseInt(fields[3], 10, 64); err == nil && size > 0 {
+				total += size
+			}
+		}
+	}
+	return total
+}
 
 // Snapshot disk, including ignored files. Git status alone cannot witness
 // creation of an ignored output. WalkDir never follows a directory symlink.
 func dispatchDiskSnapshot(root string) (map[string]string, error) {
 	entries := map[string]string{}
 	var total int64
+	committed := int64(0)
+	if listing, err := gitCommand("-C", root, "ls-tree", "-r", "-l", "-z", "HEAD").Output(); err == nil {
+		committed = gitCommittedTreeBytes(listing)
+	}
+	budget := gitSnapshotBudget(committed)
 	err := filepath.WalkDir(root, func(path string, entry fs.DirEntry, err error) error {
 		if err != nil {
 			return err
@@ -63,7 +106,7 @@ func dispatchDiskSnapshot(root string) (map[string]string, error) {
 			if err != nil {
 				return err
 			}
-			n, readErr := io.Copy(hash, io.LimitReader(file, (256<<20)-total+1))
+			n, readErr := io.Copy(hash, io.LimitReader(file, budget-total+1))
 			closeErr := file.Close()
 			total += n
 			if readErr != nil {
@@ -72,8 +115,8 @@ func dispatchDiskSnapshot(root string) (map[string]string, error) {
 			if closeErr != nil {
 				return closeErr
 			}
-			if total > 256<<20 {
-				return fmt.Errorf("disk snapshot exceeds 256 MiB")
+			if total > budget {
+				return fmt.Errorf("disk snapshot exceeds its budget of %d bytes", budget)
 			}
 		case info.Mode()&os.ModeSymlink != 0:
 			target, err := os.Readlink(path)
@@ -194,10 +237,11 @@ func gitMaterializedChangesForIn(files Files, root, commit string, matters func(
 	if _, err := worktreeIdentity(root); err != nil {
 		return nil, err
 	}
-	out, err := runGit(root, "ls-tree", "-r", "-z", commit)
+	out, err := runGit(root, "ls-tree", "-r", "-l", "-z", commit)
 	if err != nil {
 		return nil, err
 	}
+	budget := gitSnapshotBudget(gitCommittedTreeBytes(out))
 	var changed []string
 	var total int64
 	count := 0
@@ -214,9 +258,10 @@ func gitMaterializedChangesForIn(files Files, root, commit string, matters func(
 			return nil, &GitSnapshotError{"tree protocol", fmt.Errorf("missing path")}
 		}
 		fields := strings.Fields(string(record[:i]))
-		if len(fields) != 3 {
+		if len(fields) != 4 {
 			return nil, &GitSnapshotError{"tree protocol", fmt.Errorf("invalid entry")}
 		}
+		fields = fields[:3]
 		path := string(record[i+1:])
 		if fields[0] == "160000" && matters != nil && !matters(path) {
 			continue
@@ -316,20 +361,20 @@ func gitMaterializedChangesForIn(files Files, root, commit string, matters func(
 			if runtime.GOOS != "windows" && (info.Mode().Perm()&0111 != 0) != (fields[0] == "100755") {
 				changed = append(changed, path)
 			}
-			if info.Size() > (256<<20)-total {
-				return nil, &GitSnapshotError{"read " + path, fmt.Errorf("snapshot exceeds 256 MiB")}
+			if info.Size() > budget-total {
+				return nil, &GitSnapshotError{"read " + path, fmt.Errorf("snapshot exceeds its budget of %d bytes", budget)}
 			}
 			var file *os.File
 			file, e = os.Open(full)
 			if e == nil {
-				raw, e = io.ReadAll(io.LimitReader(file, (256<<20)-total+1))
+				raw, e = io.ReadAll(io.LimitReader(file, budget-total+1))
 				closeErr := file.Close()
 				if e == nil {
 					e = closeErr
 				}
 				total += int64(len(raw))
-				if total > 256<<20 {
-					return nil, &GitSnapshotError{"read " + path, fmt.Errorf("snapshot exceeds 256 MiB")}
+				if total > budget {
+					return nil, &GitSnapshotError{"read " + path, fmt.Errorf("snapshot exceeds its budget of %d bytes", budget)}
 				}
 			}
 		}
