@@ -1,0 +1,226 @@
+{
+  "run": {
+    "run_id": "rrn-64db9216088f9cb1",
+    "proof_id": "rrp-4b633ef56dad3787a720e1ead0c1fbed457326fbe3761595c67d6eaa8dca958e"
+  },
+  "schema_version": 1,
+  "attestation_id": "rva-2af05cffb8d0e879",
+  "bundle_id": "rvb-32eb7afff6692572",
+  "bundle_digest": "sha256:32eb7afff669257280531ec13fa0f520cc470fa1bf4064d3de2cb5498369927d",
+  "reviewer": "agent:openai/gpt-6.1-sol",
+  "decision": "approved",
+  "criteria": [
+    {
+      "id": "assumption-integrity",
+      "disposition": "passed",
+      "evidence": "structure:design-be5d2b4b24fe77c3",
+      "rationale": "Verified the same-commitment assumption against spec bytes, identity, relationships, done/resolved status, plan and governing contracts. Current trust and approved source review are established by federated_acceptance.go:478-525 and 723-733. The reported harne8 measurement was not independently repeated. F2 explicitly records the remaining low-risk test weakness."
+    },
+    {
+      "id": "backend-concurrency",
+      "disposition": "passed",
+      "evidence": "integration:pose-mcp/go/bounded-isolated-graph-caches-integration",
+      "rationale": "The change adds operation-local comparisons and bounded Git reads without new shared mutable state or goroutine lifecycle. Existing governance Git infrastructure supplies the read and cancellation behavior."
+    },
+    {
+      "id": "backend-contracts",
+      "disposition": "passed",
+      "evidence": "integration:pose-mcp/go/federated-spec-acceptance-integration",
+      "rationale": "No public schema, CLI argument, MCP tool, or persisted field changes. Retention semantics are explicitly governed by R1-R4 and the ADR amendment."
+    },
+    {
+      "id": "backend-input-errors",
+      "disposition": "passed",
+      "evidence": "integration:pose-mcp/go/closed-scope-stands-over-a-moved-federated-pin-integration",
+      "rationale": "Invalid identities, revisions, unavailable roots/specs, changed sections, missing reviews and dependency blockers reject retention. Git output uses the existing bounded capture."
+    },
+    {
+      "id": "backend-integration-impact",
+      "disposition": "passed",
+      "evidence": "integration:pose-mcp/go/federated-spec-acceptance-integration",
+      "rationale": "Traced the current manifest through consumer trust and source proof verification into the shared retention predicate used by review and closeout. Broader federated and lifecycle tests also passed locally."
+    },
+    {
+      "id": "backend-observability",
+      "disposition": "passed",
+      "evidence": "integration:pose-mcp/go/closeout-judges-manifest-integration",
+      "rationale": "Rejected retention continues to return the bounded bundle/scope-specific federated-manifest authority diagnostic at review_bundle.go:4611-4612. No sensitive logging was added."
+    },
+    {
+      "id": "compatibility",
+      "disposition": "passed",
+      "evidence": "integration:pose-mcp/go/federated-roadmap-acceptance-integration",
+      "rationale": "Inspected same-project and no-external-dependency paths, existing serialized manifests, and review/closeout callers. Existing contracts remain intact; only the specified external dependency retention exception is added."
+    },
+    {
+      "id": "correctness",
+      "disposition": "passed",
+      "evidence": "integration:pose-mcp/go/closed-scope-stands-over-a-moved-federated-pin-integration",
+      "rationale": "The six targeted regressions passed locally, including changed requirements, fenced headings, CRLF and split specs. Broader federated and manifest/lifecycle tests passed. Production R2 predicates were independently inspected; F2 covers their weak negative fixtures."
+    },
+    {
+      "id": "design-causality",
+      "disposition": "passed",
+      "evidence": "structure:design-be5d2b4b24fe77c3",
+      "rationale": "D1 addresses unnecessary consumer rereviews after repinning by replacing only an external dependency proven to preserve its reviewed commitment. R4 supplies the semantic comparison missing from PlanDigest. The cheapest shortcut, source reapproval with unchanged PlanDigest but changed requirements, is rejected by the real-Git regression; fenced-heading and split-spec variants are also covered.",
+      "mappings": [
+        {
+          "delta": "SD-3650a9c4",
+          "basis": "D1",
+          "disposition": "mapped",
+          "rationale": "The ADR amendment documents D1's exception for an unchanged external commitment, with R1/R2/R4 guards and R3's conditional trust-digest normalization."
+        }
+      ]
+    },
+    {
+      "id": "documentation",
+      "disposition": "passed",
+      "evidence": "structure:design-be5d2b4b24fe77c3",
+      "rationale": "Compared the spec, ADR amendment, runtime implementation and permanent validation registration. They agree on preserved fields, semantic comparison, Final Report exclusion, split-spec handling and trust-only rejection."
+    },
+    {
+      "id": "operability",
+      "disposition": "passed",
+      "evidence": "integration:pose-mcp/go/closeout-judges-manifest-integration",
+      "rationale": "Failed retention preserves existing actionable scope/bundle diagnostics. Missing historical material conservatively prevents flat-spec retention, and review and closeout share the authority judgment."
+    },
+    {
+      "id": "requirements",
+      "disposition": "finding",
+      "evidence": "F2",
+      "rationale": "R1, R3 and R4 have passing direct regressions. R2's production guards are present and were inspected, but its negative table does not independently exercise each guard. This low-severity coverage risk is accepted with an owned follow-up."
+    },
+    {
+      "id": "scope",
+      "disposition": "passed",
+      "evidence": "structure:design-be5d2b4b24fe77c3",
+      "rationale": "The implementation is confined to manifest retention, semantic commitment comparison, regression coverage and the declared governance artifacts. No unrelated production refactor or contract expansion was found."
+    },
+    {
+      "id": "security",
+      "disposition": "passed",
+      "evidence": "integration:pose-mcp/go/federated-roadmap-negative-gates",
+      "rationale": "Verified that current trust and source approval precede acceptance, unchanged authority-bearing fields are required, dependency blockers reject retention, revisions are validated, paths are confined, and raw Git reads are bounded. The exception does not manufacture source approval."
+    },
+    {
+      "id": "solution-proportionality",
+      "disposition": "passed",
+      "evidence": "structure:design-be5d2b4b24fe77c3",
+      "rationale": "Compared the focused exception with D1's alternative of rereviewing every closed consumer. Existing Goldmark parsing and the existing split-section catalog avoid a new semantic schema or migration. The choice ceases to hold when the commitment, kept fields or current source acceptance changes; those paths reject retention."
+    }
+  ],
+  "tools": [
+    {
+      "id": "artifact-check",
+      "disposition": "passed",
+      "evidence": "command:/tmp/pose-review-r3-32eb7aff artifact-check --spec pose-closed-scope-stands-over-a-moved-federated-pin --strict",
+      "rationale": "Built from the subject commit and exited 0. Also ran an explicit --from edcf5f28ca775b32d3ec1ee3dc078ad27ba86887 --to 8bce6b7f0d70f415cf2634dbf03521600457acdd --strict --json check, which exited 0. Repository-wide provenance warnings were distinguished from defects in this scope."
+    },
+    {
+      "id": "assess-design",
+      "disposition": "not-used",
+      "evidence": "structure:design-be5d2b4b24fe77c3",
+      "rationale": "Used the sealed structural evidence and independently inspected D1 and the implementation. Did not run the mutating assessor, as requested."
+    },
+    {
+      "id": "assess-discover",
+      "component": "pose-mcp",
+      "disposition": "not-used",
+      "evidence": "command:cat .pose/specs/2026-11-16-pose-closed-scope-stands-over-a-moved-federated-pin.md",
+      "rationale": "Component and scope were supplied by the sealed brief and confirmed from source. Discovery was not rerun because assessments may write repository state."
+    },
+    {
+      "id": "assess-integrate",
+      "disposition": "not-used",
+      "evidence": "integration:pose-mcp/go/federated-spec-acceptance-integration",
+      "rationale": "Used sealed integration evidence, locally reran federated tests, and traced provider/consumer boundaries. Did not run the mutating assessment."
+    },
+    {
+      "id": "assess-tech-debt",
+      "disposition": "not-used",
+      "evidence": "command:git diff edcf5f28ca775b32d3ec1ee3dc078ad27ba86887 8bce6b7f0d70f415cf2634dbf03521600457acdd -- pose-mcp/internal/pose/review_bundle.go",
+      "rationale": "Inspected changed implementation and tests for debt markers; none were added. Did not run the mutating assessment."
+    },
+    {
+      "id": "closeout-check",
+      "disposition": "deferred",
+      "rationale": "Completion requires the recorded review conclusion. This independent review must not record an attestation."
+    },
+    {
+      "id": "review-check",
+      "disposition": "deferred",
+      "rationale": "Completion requires the recorded review conclusion. POSE must run it after recording this verified run."
+    },
+    {
+      "id": "suggest-review",
+      "component": "pose-mcp",
+      "disposition": "passed",
+      "evidence": "command:/tmp/pose-review-r3-32eb7aff suggest review --path pose-mcp",
+      "rationale": "Confirmed backend-go mapping and selected security, documentation-style and backend-go rules."
+    },
+    {
+      "id": "surface-check",
+      "disposition": "passed",
+      "evidence": "integration:pose-mcp/go/closed-scope-stands-over-a-moved-federated-pin-integration",
+      "rationale": "Ran the subject-built binary with surface-check --spec pose-closed-scope-stands-over-a-moved-federated-pin --strict. Exit 0; one target, 228 results, zero findings."
+    },
+    {
+      "id": "validate",
+      "disposition": "passed",
+      "evidence": "unit:pose-mcp/go/test",
+      "rationale": "Accepted the sealed strict-validation producer results as instructed: 228 passed and zero failed. Did not rerun the environment-dependent full pipeline."
+    },
+    {
+      "id": "validate",
+      "component": "pose-mcp",
+      "disposition": "passed",
+      "evidence": "integration:pose-mcp/go/closed-scope-stands-over-a-moved-federated-pin-integration",
+      "rationale": "Used the sealed strict module evidence and independently reran the six scope regressions plus broader federated/manifest/lifecycle tests successfully."
+    }
+  ],
+  "evidence_refs": [
+    "F2",
+    "delegated-run:rrn-64db9216088f9cb1",
+    "integration:pose-mcp/go/bounded-isolated-graph-caches-integration",
+    "integration:pose-mcp/go/closed-scope-stands-over-a-moved-federated-pin-integration",
+    "integration:pose-mcp/go/closeout-judges-manifest-integration",
+    "integration:pose-mcp/go/federated-roadmap-acceptance-integration",
+    "integration:pose-mcp/go/federated-roadmap-negative-gates",
+    "integration:pose-mcp/go/federated-spec-acceptance-integration",
+    "structure:design-be5d2b4b24fe77c3"
+  ],
+  "findings": [
+    {
+      "id": "F2",
+      "severity": "low",
+      "evidence": "file:pose-mcp/internal/pose/federated_pin_move_test.go:110",
+      "action": "Use pinMoveRepository and valid revisions for the negative table, and assert that the otherwise identical unmodified fixture stands before applying each mutation.",
+      "disposition": "accepted-risk",
+      "owner": "@pose-maintainers",
+      "rationale": "The R2 negative table uses Store{} and non-Git revisions r1/r2. externalCommitmentUnchanged therefore rejects every case independently of the field being tested. Removing an individual externalDependencyStands guard would still leave these tests green. The production predicates were inspected and are correct, so this is an accepted regression-coverage risk rather than a demonstrated runtime defect.",
+      "review_by": "2026-12-16"
+    }
+  ],
+  "authority": {
+    "schema_version": 1,
+    "project": "proj.pose-dist",
+    "bundle_digest": "sha256:32eb7afff669257280531ec13fa0f520cc470fa1bf4064d3de2cb5498369927d",
+    "principal": "agent:openai/gpt-6.1-sol",
+    "role": "agent",
+    "review_execution": "rrn-64db9216088f9cb1",
+    "implementation_principal": "agent:anthropic/claude-opus-5-5",
+    "implementation_execution": "sha256:0eb880a4fc2ed87a379c949a567b1d3dfbd6b58b466f4755fcd363dd2b7fed98",
+    "issuer": "b34-local-executor",
+    "issued_at": "2026-11-16T04:09:45Z",
+    "audience": "proj.pose-dist"
+  },
+  "envelope": {
+    "issuer": "b34-local-executor",
+    "subject": "rvb-32eb7afff6692572",
+    "algorithm": "ed25519",
+    "public_key": "ck4sApdfePV2GT+hJyAYfJd2qLzeG55P8pevGR0bvZE=",
+    "signature": "0wr47H0w4xg/b6+9/hGiUwAhmZQMQc7GuFsJ4LfmP6GJl77Szqq4ElZu73GGo9uPHTd25UDhmdA2SgUdyE6pDQ=="
+  },
+  "attested_at": "2026-11-16T04:09:45Z",
+  "path": ".pose/review-attestations/rva-2af05cffb8d0e879.json"
+}
