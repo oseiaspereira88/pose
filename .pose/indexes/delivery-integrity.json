@@ -1,7 +1,7 @@
 {
   "schema_version": 2,
-  "input_digest": "sha256:db12da3b3474d275b8116770684dec4e3123ed8c5148ef9e44594f12ad06e158",
-  "provenance_digest": "sha256:c48a7204e8284129639cf2ea9604d213cef8ee5d614225bb418740dd0379e074",
+  "input_digest": "sha256:42b0a1071df3ac148304692b4ba690626447383682cc7bc85878eafed76c1f68",
+  "provenance_digest": "sha256:c7f459be7499a07fcd465be2e1b028a9f317245c50f2dd978560434b4c0320fb",
   "implied_edges": [
     "changes"
   ],
@@ -44112,6 +44112,14 @@
       }
     },
     {
+      "id": "change-set:cs-161743a82ebd",
+      "type": "change-set",
+      "attributes": {
+        "diff_digest": "sha256:27023ce2c8680c139ed176a08e32957ba2143080296b0e7a82ab53c6e33274cd",
+        "selector": "trailers:pose-index-material-is-kept-per-repository-state"
+      }
+    },
+    {
       "id": "change-set:cs-1717c2ba11ad",
       "type": "change-set",
       "attributes": {
@@ -47437,14 +47445,6 @@
       "attributes": {
         "diff_digest": "sha256:af0695d5bf614fa0a99f72aa7be309ae9700f3c99871027f613f8d9a4b91b786",
         "selector": "trailers:pose-cli-profile-parity"
-      }
-    },
-    {
-      "id": "change-set:cs-d17bd515e704",
-      "type": "change-set",
-      "attributes": {
-        "diff_digest": "sha256:435f2ffec3ac10bf346ace609861790f7a86ceacea7bc7aebb82e7b6d38d81f9",
-        "selector": "trailers:pose-index-material-is-kept-per-repository-state"
       }
     },
     {
@@ -121045,7 +121045,7 @@
     },
     {
       "from": "spec:pose-index-material-is-kept-per-repository-state",
-      "to": "change-set:cs-d17bd515e704",
+      "to": "change-set:cs-161743a82ebd",
       "type": "observed-by"
     },
     {
@@ -185216,6 +185216,78 @@
           "pose-mcp/internal/cli/release_compatibility_test.go",
           "pose-mcp/internal/cli/self_update_release_test.go",
           "pose-mcp/internal/version/workflow_history_depth_test.go"
+        ]
+      }
+    },
+    {
+      "id": "cs-161743a82ebd",
+      "spec": "pose-index-material-is-kept-per-repository-state",
+      "selector": "trailers:pose-index-material-is-kept-per-repository-state",
+      "base": "b7306bbd9971a182ff240a98247a9cc5a5ee7c70^",
+      "head": "35b236b583bd5218003ac12764cba8387ec14375",
+      "resolved_base": "7e46b1e52f28700d4a86f95157e96271b8d9cb13",
+      "resolved_head": "35b236b583bd5218003ac12764cba8387ec14375",
+      "commits": [
+        "b7306bbd9971a182ff240a98247a9cc5a5ee7c70",
+        "65916808b940b009719aecbcb8a65a7866219c42",
+        "35b236b583bd5218003ac12764cba8387ec14375"
+      ],
+      "paths": [
+        {
+          "action": "created",
+          "path": ".pose/specs/2026-11-16-pose-index-material-is-kept-per-repository-state.md"
+        },
+        {
+          "action": "created",
+          "path": ".pose/starts/pose-index-material-is-kept-per-repository-state.json"
+        },
+        {
+          "action": "created",
+          "path": "pose-mcp/internal/pose/index_material_kept.go"
+        },
+        {
+          "action": "created",
+          "path": "pose-mcp/internal/pose/index_material_kept_test.go"
+        },
+        {
+          "action": "modified",
+          "path": ".pose/adr/2026-11-03-governance-reads-use-bounded-operation-scoped-views.md"
+        },
+        {
+          "action": "modified",
+          "path": ".pose/indexes/delivery-integrity.json"
+        },
+        {
+          "action": "modified",
+          "path": ".pose/indexes/generation.json"
+        },
+        {
+          "action": "modified",
+          "path": ".pose/indexes/spec-graph.json"
+        },
+        {
+          "action": "modified",
+          "path": ".pose/indexes/validation-matrix.json"
+        },
+        {
+          "action": "modified",
+          "path": "pose-mcp/internal/pose/index_generation.go"
+        }
+      ],
+      "diff_digest": "sha256:27023ce2c8680c139ed176a08e32957ba2143080296b0e7a82ab53c6e33274cd",
+      "material_digest": "sha256:c18b4363cef98298620c572b19e3ad6b49167bf0c742c7c3541a335e45db8eef",
+      "material_inputs": {
+        "names": [
+          ".pose/adr/2026-11-03-governance-reads-use-bounded-operation-scoped-views.md",
+          ".pose/indexes/delivery-integrity.json",
+          ".pose/indexes/generation.json",
+          ".pose/indexes/spec-graph.json",
+          ".pose/indexes/validation-matrix.json",
+          ".pose/specs/2026-11-16-pose-index-material-is-kept-per-repository-state.md",
+          ".pose/starts/pose-index-material-is-kept-per-repository-state.json",
+          "pose-mcp/internal/pose/index_generation.go",
+          "pose-mcp/internal/pose/index_material_kept.go",
+          "pose-mcp/internal/pose/index_material_kept_test.go"
         ]
       }
     },
@@ -269896,62 +269968,6 @@
           "pose-mcp/internal/cli/cliout/profile_contract_test.go",
           "pose-mcp/internal/cli/cliout/render.go",
           "pose-mcp/internal/cli/cliout/testdata/profile-contract.json"
-        ]
-      }
-    },
-    {
-      "id": "cs-d17bd515e704",
-      "spec": "pose-index-material-is-kept-per-repository-state",
-      "selector": "trailers:pose-index-material-is-kept-per-repository-state",
-      "base": "b7306bbd9971a182ff240a98247a9cc5a5ee7c70^",
-      "head": "65916808b940b009719aecbcb8a65a7866219c42",
-      "resolved_base": "7e46b1e52f28700d4a86f95157e96271b8d9cb13",
-      "resolved_head": "65916808b940b009719aecbcb8a65a7866219c42",
-      "commits": [
-        "b7306bbd9971a182ff240a98247a9cc5a5ee7c70",
-        "65916808b940b009719aecbcb8a65a7866219c42"
-      ],
-      "paths": [
-        {
-          "action": "created",
-          "path": ".pose/specs/2026-11-16-pose-index-material-is-kept-per-repository-state.md"
-        },
-        {
-          "action": "created",
-          "path": ".pose/starts/pose-index-material-is-kept-per-repository-state.json"
-        },
-        {
-          "action": "created",
-          "path": "pose-mcp/internal/pose/index_material_kept.go"
-        },
-        {
-          "action": "created",
-          "path": "pose-mcp/internal/pose/index_material_kept_test.go"
-        },
-        {
-          "action": "modified",
-          "path": ".pose/adr/2026-11-03-governance-reads-use-bounded-operation-scoped-views.md"
-        },
-        {
-          "action": "modified",
-          "path": ".pose/indexes/validation-matrix.json"
-        },
-        {
-          "action": "modified",
-          "path": "pose-mcp/internal/pose/index_generation.go"
-        }
-      ],
-      "diff_digest": "sha256:435f2ffec3ac10bf346ace609861790f7a86ceacea7bc7aebb82e7b6d38d81f9",
-      "material_digest": "sha256:c18b4363cef98298620c572b19e3ad6b49167bf0c742c7c3541a335e45db8eef",
-      "material_inputs": {
-        "names": [
-          ".pose/adr/2026-11-03-governance-reads-use-bounded-operation-scoped-views.md",
-          ".pose/indexes/validation-matrix.json",
-          ".pose/specs/2026-11-16-pose-index-material-is-kept-per-repository-state.md",
-          ".pose/starts/pose-index-material-is-kept-per-repository-state.json",
-          "pose-mcp/internal/pose/index_generation.go",
-          "pose-mcp/internal/pose/index_material_kept.go",
-          "pose-mcp/internal/pose/index_material_kept_test.go"
         ]
       }
     },
