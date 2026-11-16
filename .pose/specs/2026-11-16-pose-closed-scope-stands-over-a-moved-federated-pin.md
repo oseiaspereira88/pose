@@ -1,8 +1,8 @@
 ---
 slug: pose-closed-scope-stands-over-a-moved-federated-pin
-status: in-progress
+status: done
 created_at: 2026-11-16
-completed_at:        # stamped on the transition to status: done
+completed_at: 2026-11-16
 supersedes:          # slug of the superseded spec (when applicable)
 depends_on:          # prerequisites, inline list: other-spec, milestone:<roadmap>/<id>, roadmap:<slug>
 remediates: spec:pose-closeout-judges-the-manifest@defect-fix
