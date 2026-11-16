@@ -244,6 +244,13 @@ func gitMaterializedChangesForIn(files Files, root, commit string, matters func(
 	worktreeIdentity := dispatchWorktreeIdentity
 	if producer != "" {
 		runGit = func(root string, args ...string) ([]byte, error) {
+			if len(args) == 5 && args[0] == "ls-tree" {
+				// The governed listing keeps its read-view provenance under the
+				// listing's own bound and deadline (review N4).
+				ctx, cancel := context.WithTimeout(context.Background(), gitTreeListingTimeout)
+				defer cancel()
+				return CaptureGovernanceGitContextIn(files, ctx, root, producer, gitTreeListingMaxBytes, args...)
+			}
 			return captureGovernanceGit(files, root, producer, args...)
 		}
 		worktreeIdentity = func(root string) (string, error) {

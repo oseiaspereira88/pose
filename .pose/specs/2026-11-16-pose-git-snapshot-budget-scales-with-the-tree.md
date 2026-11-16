@@ -39,7 +39,7 @@ A árvore commitada do pose-dist passou de 256 MiB (256,8 MiB; 88 MiB de review 
 ### Functional
 - R1: `gitMaterializedChangesForIn` and `dispatchDiskSnapshot` shall bound the bytes they read by the committed tree's blob sizes plus a 256 MiB margin, so a clean tree whose checked-out bytes stay within its stored blob bytes plus the margin is compared and snapshotted whole; materialized expansion past that (smudge or CRLF filters, populated submodules, ignored files) fails closed.
 - R2: When the bytes read exceed that budget, both shall fail closed with an error that names the budget.
-- R5: Every committed tree listing these budgets read shall be bounded in bytes (64 MiB) and time (2 minutes) before it is retained; a listing past either fails closed.
+- R5: Every committed tree listing these budgets read, with or without a read-view producer, shall be bounded in bytes (64 MiB) and time (2 minutes) before it is retained; a listing past either fails closed.
 - R4: The cleanup of a delegated review's worktree shall bound the bytes it removes by the same budget, computed from the coordinator repository for the worktree's checked-out commit when the worktree is registered, so a clean worktree of a tree past the margin is removed and a worktree grown past the budget is retained.
 - R3: The budget shall never be less than the 256 MiB margin and never more than a 4 GiB ceiling; when the committed tree cannot be listed, the disk snapshot shall use the margin alone.
 
@@ -74,7 +74,7 @@ A árvore commitada do pose-dist passou de 256 MiB (256,8 MiB; 88 MiB de review 
 
 - capability:git-snapshot-budget-scales-with-the-tree module:pose-mcp profile:composed-capability entrypoint:pose-mcp/cmd/pose/main.go
 
-Composto em produção pelo `pose close` (passo do plano de fechamento que procura mudanças escondidas) e pela limpeza de toda revisão delegada. Check permanente `git-snapshot-budget-scales-with-the-tree-integration`, evidenceClass `integration`, required: `go test ./internal/pose -run 'TestGitSnapshotBudget|TestReviewWorktreeCleanup|TestGitTreeListingIsBounded' -count=1`.
+Composto em produção pelo `pose close` (passo do plano de fechamento que procura mudanças escondidas) e pela limpeza de toda revisão delegada. Check permanente `git-snapshot-budget-scales-with-the-tree-integration`, evidenceClass `integration`, required: `go test ./internal/pose -run 'TestGitSnapshotBudget|TestReviewWorktreeCleanup|TestGitTreeListingIsBounded|TestGovernedTreeListingIsBounded' -count=1`.
 
 ### API/contract changes
 - Nenhuma.
@@ -138,7 +138,7 @@ Testes com um repositório real de quatro arquivos de 4 KiB e a margem reduzida 
 - R2 [satisfied] test:TestGitSnapshotBudgetStillBoundsGrowth
 - R3 [satisfied] test:TestGitSnapshotBudgetIsBounded
 - R4 [satisfied] test:TestReviewWorktreeCleanupCoversTheCommittedTree test:TestReviewWorktreeCleanupStillBoundsGrowth
-- R5 [satisfied] test:TestGitTreeListingIsBounded
+- R5 [satisfied] test:TestGitTreeListingIsBounded test:TestGovernedTreeListingIsBounded
 
 ### Known gaps
 - O caso de a listagem da árvore falhar na captura de disco usa só a margem, sem teste próprio.
@@ -162,4 +162,6 @@ Não concluída.
 Rodada 1 (run rrn-06ad526d19316762, recusada): a revisão terminou, mas a limpeza do worktree descartável falhou com "runtime cleanup inventory incomplete; resources retained", e a conclusão foi recusada, como a da rodada 4 do doctor (rrn-f0d738ef7de4226e). A causa era um terceiro teto fixo de 256 MiB, o do inventário que `removeReviewOwnedContents` remove do worktree, um checkout da árvore de 256,8 MiB. Ele passou a usar o mesmo orçamento: ao registrar o worktree, o motor lê o commit destacado do registro e soma a árvore dele no repositório coordenador, sem rodar Git dentro do worktree do revisor (R4). Com o teto fixo, `TestReviewWorktreeCleanupCoversTheCommittedTree` reproduz a mesma mensagem; um worktree que cresce 64 KiB além do orçamento continua retido (`TestReviewWorktreeCleanupStillBoundsGrowth`).
 
 Rodada 2 (run rrn-93ce7f7f0467fa87, changes-requested): um bloqueador e dois follow-ups, tratados. N2 as listagens de árvore (`ls-tree -r -l -z`) da captura de disco e do orçamento da limpeza eram retidas inteiras, sem prazo, antes do limite de entradas; agora as três passam por `listCommittedTree`, com 64 MiB e 2 minutos, e uma listagem acima disso reprova fechada nas três (R5, `TestGitTreeListingIsBounded`, que reprova com a listagem sem limite). N1 o R1 prometia cobertura de toda árvore limpa até o teto, mas o orçamento mede bytes armazenados; o R1 passou a dizer que a expansão materializada além da margem reprova fechada. N3 o POSE.md e os dois manuais do scaffold descreviam o inventário do workspace com 256 MiB fixos; agora descrevem os bytes da árvore do commit mais 256 MiB, entre 256 MiB e 4 GiB.
+
+Rodada 3 (run rrn-f64458878e6490e0, changes-requested): N1 e N3 corrigidos, N2 parcial, e um bloqueador, N4, corrigido com teste que reprova sem a correção. O fechamento real compara a árvore sob o produtor `closeout-plan`, e esse caminho listava por `captureGovernanceGit`, com o limite de 512 MiB da read view e sem prazo; agora a listagem governada passa por `CaptureGovernanceGitContextIn` com os 64 MiB e os 2 minutos do R5, mantendo a proveniência na read view (`TestGovernedTreeListingIsBounded`, que cobre o limite de bytes e o prazo pelo caminho com produtor, e o prazo pelo caminho sem produtor).
 

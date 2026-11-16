@@ -6,6 +6,7 @@ import (
 	"path/filepath"
 	"strings"
 	"testing"
+	"time"
 )
 
 // snapshotBudgetRepo is a committed repository of four 4 KiB files, with the
@@ -179,5 +180,37 @@ func TestGitTreeListingIsBounded(t *testing.T) {
 	}
 	if err := store.cleanupReviewResources(tmp, owned, worktree, worktreeOwned, marker, ownership); err == nil {
 		t.Fatal("the cleanup of a worktree past the margin succeeded without its listing")
+	}
+}
+
+// Review N4: the governed comparison a closeout runs under its producer
+// bounds the listing by the same bytes and deadline, and keeps working
+// within them.
+func TestGovernedTreeListingIsBounded(t *testing.T) {
+	root, head := snapshotBudgetRepo(t)
+	governed := func() error {
+		_, view := Store{Root: root}.beginGovernanceReadView()
+		if view == nil {
+			t.Fatal("no read view")
+		}
+		_, err := gitMaterializedChangesForIn(view.filesFor("closeout-plan"), root, head, nil, "closeout-plan")
+		return err
+	}
+	if err := governed(); err != nil {
+		t.Fatalf("the governed comparison within its bounds: %v", err)
+	}
+	maxBytes, timeout := gitTreeListingMaxBytes, gitTreeListingTimeout
+	t.Cleanup(func() { gitTreeListingMaxBytes, gitTreeListingTimeout = maxBytes, timeout })
+	gitTreeListingMaxBytes = 64
+	if err := governed(); err == nil {
+		t.Fatal("the governed comparison accepted a listing past its byte bound")
+	}
+	gitTreeListingMaxBytes = maxBytes
+	gitTreeListingTimeout = time.Nanosecond
+	if err := governed(); err == nil {
+		t.Fatal("the governed comparison accepted a listing past its deadline")
+	}
+	if _, err := listCommittedTree(root, head); err == nil {
+		t.Fatal("a listing past its deadline was returned")
 	}
 }
