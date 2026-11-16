@@ -247,6 +247,31 @@ func (s Store) ListReviewRuns(bundleID string) ([]ReviewRun, error) {
 }
 
 func (s Store) ReadReviewRuns(bundleID string) ([]ReviewRun, []string, error) {
+	// Within a read-view operation the ledger is read and checked once per
+	// root; every request of the operation is answered from that read,
+	// filtered by bundle as below (spec pose-review-ledger-is-read-once-per-operation).
+	all, _, err := memoizedLedgerRead(s.fsys(), "review-runs\x00"+filepath.Clean(s.Root), func() (reviewRunsRead, error) {
+		runs, lost, err := s.readAllReviewRuns()
+		return reviewRunsRead{runs: runs, lost: lost}, err
+	})
+	if err != nil {
+		return nil, nil, err
+	}
+	out := append([]ReviewRun(nil), all.runs...)
+	if bundleID != "" {
+		filtered := []ReviewRun{}
+		for _, run := range out {
+			if run.BundleID == bundleID {
+				filtered = append(filtered, run)
+			}
+		}
+		out = filtered
+	}
+	return out, append([]string(nil), all.lost...), nil
+}
+
+// readAllReviewRuns reads, checks and orders every review run of the store.
+func (s Store) readAllReviewRuns() ([]ReviewRun, []string, error) {
 	files := s.fsys()
 	dir := filepath.Join(s.Root, filepath.FromSlash(reviewRunsDir))
 	// The storage is read where the writer writes it: a link in its place is another place.
@@ -361,15 +386,6 @@ func (s Store) ReadReviewRuns(bundleID string) ([]ReviewRun, []string, error) {
 	}
 	lost = append(lost, findings...)
 	lost = append(lost, s.reviewContinuationFindings(out)...)
-	if bundleID != "" {
-		filtered := []ReviewRun{}
-		for _, run := range out {
-			if run.BundleID == bundleID {
-				filtered = append(filtered, run)
-			}
-		}
-		out = filtered
-	}
 	return out, uniqueSorted(lost), nil
 }
 
@@ -1642,6 +1658,15 @@ func validateReviewRunRecord(name string, run ReviewRun) error {
 const reviewTranscriptMaxBytes = 256 << 20
 
 func (s Store) reviewRunTranscriptIntact(run ReviewRun) string {
+	problem, _, _ := memoizedLedgerRead(s.fsys(), "transcript\x00"+filepath.Clean(s.Root)+"\x00"+run.TranscriptPath+"\x00"+run.TranscriptDigest, func() (string, error) {
+		return s.checkReviewRunTranscript(run), nil
+	})
+	return problem
+}
+
+// checkReviewRunTranscript reads a run's transcript and checks it against
+// the digest the run names; it returns the problem, or "".
+func (s Store) checkReviewRunTranscript(run ReviewRun) string {
 	full := filepath.Join(s.Root, filepath.FromSlash(run.TranscriptPath))
 	files := s.fsys()
 	info, err := files.Lstat(full)

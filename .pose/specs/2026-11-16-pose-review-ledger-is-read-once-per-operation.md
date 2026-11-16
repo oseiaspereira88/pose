@@ -37,13 +37,13 @@ A primeira chamada `pose_closeout_state` de um servidor MCP no harne8 ainda leva
 ## 2. Requirements
 
 ### Functional
-- R1: Within a read-view operation, the engine shall read and parse a project's review runs and review attestations at most once, and shall answer every later request of that operation for them from the parsed result, filtered as before.
+- R1: Within a read-view operation, the engine shall read and parse a project's review runs, its review attestations per bundle filter, and each review bundle's header at most once, and shall answer every later request of that operation for them from the parsed result, filtered as before.
 - R2: Within a read-view operation, the engine shall check a transcript's digest at most once per transcript path, size and expected digest, and shall reuse the outcome.
 - R3: A store with no read-view operation shall read, parse and check as before, on every call.
 - R4: The answers of every review verification, closeout state and federated acceptance shall be the same with and without the memo, including when a record is lost, out of bound or unreadable.
 
 ### Non-functional
-- No harne8, a primeira chamada `pose_closeout_state` de um servidor MCP cai para menos da metade do tempo atual, com o mesmo veredito; as conferências de transcript caem de 29.680 para no máximo o número de transcripts do ledger.
+- No harne8, a CPU da primeira chamada `pose_closeout_state` de um servidor MCP cai para menos da metade, com o mesmo veredito; as conferências de transcript caem de 29.680 para no máximo o número de transcripts do ledger.
 
 ### Security
 - Nenhuma mudança de autorização ou de limite: o memo guarda o que a operação já leu pelas raízes que ela autoriza.
@@ -58,6 +58,7 @@ A primeira chamada `pose_closeout_state` de um servidor MCP no harne8 ainda leva
 ### Affected areas
 - `pose/review_dispatch.go`: `ReadReviewRuns` e `reviewRunTranscriptIntact` passam pelo memo da operação.
 - `pose/review_bundle.go`: `ReadReviewAttestations` passa pelo memo da operação.
+- `pose/review_operation_view.go`: `readReviewBundleHeader` passa pelo memo da operação.
 - `pose/governance_read_view.go`: a operação carrega o memo, descartado com ela.
 
 ### Artifacts
@@ -65,6 +66,7 @@ A primeira chamada `pose_closeout_state` de um servidor MCP no harne8 ainda leva
 - created: pose-mcp/internal/pose/review_ledger_memo_test.go
 - modified: pose-mcp/internal/pose/review_dispatch.go
 - modified: pose-mcp/internal/pose/review_bundle.go
+- modified: pose-mcp/internal/pose/review_operation_view.go
 - modified: pose-mcp/internal/pose/governance_read_view.go
 - modified: .pose/adr/2026-11-03-governance-reads-use-bounded-operation-scoped-views.md
 - modified: .pose/indexes/validation-matrix.json
@@ -73,7 +75,7 @@ A primeira chamada `pose_closeout_state` de um servidor MCP no harne8 ainda leva
 
 - capability:review-ledger-is-read-once-per-operation module:pose-mcp profile:composed-capability entrypoint:pose-mcp/cmd/pose/main.go
 
-Composto em produção por toda operação de revisão, fechamento e aceitação federada que verifica bundles. Check permanente `review-ledger-is-read-once-per-operation-integration`, evidenceClass `integration`, required.
+Composto em produção por toda operação de revisão, fechamento e aceitação federada que verifica bundles. Check permanente `review-ledger-is-read-once-per-operation-integration`, evidenceClass `integration`, required: `go test ./internal/pose -run 'TestReviewLedgerIsReadOncePerOperation|TestReviewLedgerWithoutAnOperationIsReadEveryTime|TestReviewLedgerMemoAnswersAsAFreshRead' -count=1`.
 
 ### API/contract changes
 - Nenhuma.
@@ -89,11 +91,11 @@ Composto em produção por toda operação de revisão, fechamento e aceitação
 ## 4. Tasks
 
 ### Implementation
-- [ ] Memo de runs, attestations e conferência de transcript por operação (R1, R2, R3).
-- [ ] Emenda do ADR das leituras de governança.
+- [x] Memo de runs, attestations, cabeçalhos de bundle e conferência de transcript por operação (R1, R2, R3).
+- [x] Emenda D14 do ADR das leituras de governança.
 
 ### Validation
-- [ ] Testes de contagem e de equivalência das respostas, com prova de reprovação; medição no harne8.
+- [x] Testes de contagem e de equivalência das respostas, com prova de reprovação; medição no harne8.
 
 ---
 
@@ -123,12 +125,23 @@ Testes que contam leituras e conferências numa operação e comparam as respost
 - Expected: verde
 
 ### Execution log
+- Date: 2026-11-16
+- Environment: Linux, Go 1.26; clone limpo do harne8 em cc7780b1 com o pose-dist em 7e46b1e; `closeout-check spec:harne8-abm-governed-execution`, que equivale à primeira chamada de um servidor MCP.
+- Notes: sem o memo, 197 s de parede e 130 s de CPU; o ledger do pose-dist lido 280 vezes, attestations 304, 29.680 conferências de transcript. Com o memo de runs, attestations e transcripts, 3 leituras de runs, 46 de attestations, 212 conferências, 164 s e 92 s de CPU; o perfil passou a mostrar `ReadReviewBundles` lendo e hasheando os 1.724 bundles (104 MB) a cada chamada. Com o memo de cabeçalhos de bundle, 136 s e 53 s de CPU. O resto é Git: 8.960 comandos somando 94 s, dos quais 1.116 `git log -1 --format=%H -- <path>` (81 s) sobre 436 caminhos distintos. Com o commit-graph com filtros de Bloom de caminhos alterados (`git commit-graph write --reachable --changed-paths`) nos dois repositórios, cada uma dessas consultas cai de 47 ms para 2 ms, e duas chamadas MCP seguidas levam 59 s e 10 s, terminais. Sem o memo, o teste de contagem reprova (22 leituras de runs e 28 de cabeçalhos numa verificação da fixture); sem as cópias, o de equivalência reprova.
 
 ### Results summary
+- Successes: a CPU da primeira chamada cai de 130 s para 53 s, com o mesmo veredito; com o commit-graph do Git, a primeira chamada leva 59 s.
+- Failures: nenhuma.
+- Warnings: sem o commit-graph, a parede da primeira chamada continua em cerca de 136 s, dominada por `git log -1 -- <path>`.
 
 ### Requirement trace
+- R1 [satisfied] test:TestReviewLedgerIsReadOncePerOperation check:review-ledger-is-read-once-per-operation-integration
+- R2 [satisfied] test:TestReviewLedgerIsReadOncePerOperation
+- R3 [satisfied] test:TestReviewLedgerWithoutAnOperationIsReadEveryTime
+- R4 [satisfied] test:TestReviewLedgerMemoAnswersAsAFreshRead
 
 ### Known gaps
+- O ganho de parede da primeira chamada depende do commit-graph do Git, que é manutenção do repositório e não do motor (follow-up F1).
 
 ---
 
@@ -141,3 +154,6 @@ Não concluída.
 ### Residual risks
 
 ### Follow-ups
+
+- [open] F1: tornar o commit-graph com caminhos alterados parte da instalação e do CI: `pose update`/`pose doctor` reportam a falta dele e o comando que o escreve, e os workflows do harne8 e do pose-dist o escrevem antes dos gates; com ele, `git log -1 -- <path>` cai de 47 ms para 2 ms. (owner:@pose-maintainers crit:high review:2026-11-23)
+- [open] F2: guardar entre operações as leituras Git puras do servidor MCP (o memo residente que o runtime de worktree já liga), para que os 1.116 `git log -1 -- <path>` de uma chamada, sobre 436 caminhos, não se repitam entre operações. (owner:@pose-maintainers crit:medium review:2026-11-23)

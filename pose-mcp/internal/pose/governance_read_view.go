@@ -90,6 +90,9 @@ type governanceReadViewRoot struct {
 }
 
 type governanceReadViewOperation struct {
+	// ledgerMemo keeps values derived from the review ledger for the life of
+	// the operation (spec pose-review-ledger-is-read-once-per-operation).
+	ledgerMemo sync.Map
 	// indexInputsFrom, when set, is the coordinator operation a scope
 	// operation was created under: the scope's check of the consumed index's
 	// inputs is the coordinator's, read through the coordinator's Files and

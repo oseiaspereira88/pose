@@ -24,6 +24,22 @@ type reviewHeaderObservation struct {
 // readReviewBundleHeader is the same classification for cached and live reads.
 // A known different owner is skippable only after whole-JSON and ambiguity checks.
 func readReviewBundleHeader(files Files, dir, name string) reviewHeaderObservation {
+	// A bundle's header is read, hashed and classified once per operation:
+	// a closeout lists every bundle for every scope it verifies (spec
+	// pose-review-ledger-is-read-once-per-operation).
+	observation, _, _ := memoizedLedgerRead(files, "bundle-header\x00"+filepath.Clean(dir)+"\x00"+name, func() (reviewHeaderObservation, error) {
+		return observeReviewBundleHeader(files, dir, name), nil
+	})
+	if observation.loss != nil {
+		loss := *observation.loss
+		observation.loss = &loss
+	}
+	return observation
+}
+
+// observeReviewBundleHeader reads one bundle's bytes and classifies the scope
+// they declare.
+func observeReviewBundleHeader(files Files, dir, name string) reviewHeaderObservation {
 	rel := filepath.ToSlash(filepath.Join(".pose", "review-bundles", name))
 	raw, err := files.ReadFile(filepath.Join(dir, name))
 	if err != nil {

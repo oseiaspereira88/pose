@@ -2420,6 +2420,13 @@
           "evidenceClass": "integration"
         },
         {
+          "name": "review-ledger-is-read-once-per-operation-integration",
+          "program": "go",
+          "args": ["test", "./internal/pose", "-run", "TestReviewLedgerIsReadOncePerOperation|TestReviewLedgerWithoutAnOperationIsReadEveryTime|TestReviewLedgerMemoAnswersAsAFreshRead", "-count=1"],
+          "severity": "required",
+          "evidenceClass": "integration"
+        },
+        {
           "name": "index-material-is-kept-per-repository-state-integration",
           "program": "go",
           "args": ["test", "./internal/pose", "-run", "TestIndexMaterialIsReusedWhenItsClosureReadsTheSame|TestIndexMaterialIsBuiltAgainWhenItsClosureChanged|TestIndexMaterialWithAnUnknownClosureIsNotKept|TestIndexMaterialClosureCoversTheForeignDependency|TestIndexMaterialOfAForeignRootIsKeptForThatRoot|TestIndexMaterialIsNotKeptAcrossAuthorizationOrRegistry", "-count=1"],

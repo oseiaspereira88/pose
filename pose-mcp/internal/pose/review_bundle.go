@@ -3337,6 +3337,20 @@ type ReviewAttestationsRead struct {
 // names another bundle is not a loss for this one; one that names none is, because it may
 // be a rejection of this bundle.
 func (s Store) ReadReviewAttestations(bundleID string) (ReviewAttestationsRead, error) {
+	read, _, err := memoizedLedgerRead(s.fsys(), "review-attestations\x00"+filepath.Clean(s.Root)+"\x00"+bundleID, func() (ReviewAttestationsRead, error) {
+		return s.readReviewAttestations(bundleID)
+	})
+	if err != nil {
+		return ReviewAttestationsRead{}, err
+	}
+	read.Attestations = append([]ReviewAttestation(nil), read.Attestations...)
+	read.Coverage.Losses = append([]SourceLoss(nil), read.Coverage.Losses...)
+	return read, nil
+}
+
+// readReviewAttestations reads the store's review attestations, those of
+// bundleID when it is set, with the coverage of what could not be read.
+func (s Store) readReviewAttestations(bundleID string) (ReviewAttestationsRead, error) {
 	coverage := SourceCoverage{Losses: []SourceLoss{}}
 	dir, err := ensureReviewArtifactDirIn(s.fsys(), s.Root, filepath.ToSlash(filepath.Join(".pose", "review-attestations")), false)
 	if os.IsNotExist(err) {

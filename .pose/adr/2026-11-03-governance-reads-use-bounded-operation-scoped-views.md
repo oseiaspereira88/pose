@@ -333,3 +333,31 @@ before reuse.
 Measured on harne8: the second closeout call of one MCP server falls from
 136 s to 43 s, with the same terminal verdict. The replay, not a rebuild,
 is the remaining cost.
+
+## The review ledger is read once per operation (D14) — 2026-11-16
+
+Spec `pose-review-ledger-is-read-once-per-operation`. After D13, the first
+closeout call of an MCP server on harne8 still took 140 to 200 s. Its CPU
+profile put about 98 s in verifying the review bundles of federated
+dependencies. Counted in one call, pose-dist's review ledger (318 runs,
+80 MB of transcripts) was read 280 times, its attestations 304 times, and
+transcript digests were checked 29,680 times, because every bundle
+verification read and checked the whole ledger again.
+
+Within one operation the read view already returns the same bytes for the
+same read. A value derived only from those reads is therefore the same on
+every request of the operation. The operation now keeps, for its own life,
+each project's parsed review runs, its review attestations per bundle filter,
+each review bundle's header, and each transcript check per path and expected
+digest. The first
+computation reads through the view, so the closure and the final audit cover
+every input as before. Callers receive copies of the kept slices. A store
+without an operation reads and checks on every call. Nothing is kept across
+operations.
+
+Measured on harne8: the first call's CPU falls from 130 s to 53 s, and its
+wall time from about 197 s to 136 s. The rest is Git: 1,116
+`git log -1 -- <path>` commands, 81 s. A commit-graph with changed-path Bloom
+filters takes each from 47 ms to 2 ms and the first call to 59 s; it is
+repository maintenance, not part of this decision.
+
