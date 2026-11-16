@@ -246,3 +246,96 @@ func TestDoctorCommitGraphNamesDisabledReads(t *testing.T) {
 		t.Fatalf("disabled filter reads: %+v", reads)
 	}
 }
+
+// Review F15: a shallow clone, whose history Git cannot put in a
+// commit-graph, gets no recommendation it cannot satisfy.
+func TestDoctorCommitGraphSkipsAShallowClone(t *testing.T) {
+	repo := longHistoryRepo(t, nil)
+	shallow := filepath.Join(t.TempDir(), "shallow")
+	if out, err := exec.Command("git", "clone", "-q", "--depth", "4", "file://"+repo, shallow).CombinedOutput(); err != nil {
+		t.Fatalf("shallow clone: %v %s", err, out)
+	}
+	if _, err := readCommitGraphState(shallow); !errors.Is(err, errCommitGraphNotApplicable) {
+		t.Fatalf("a shallow clone: %v, want not applicable", err)
+	}
+}
+
+// Review F16: the fix writes filters for every commit even when
+// commitGraph.maxNewFilters would allow none.
+func TestDoctorCommitGraphFixIgnoresMaxNewFilters(t *testing.T) {
+	repo := longHistoryRepo(t, nil)
+	gitInRepo(t, repo, "config", "commitGraph.maxNewFilters", "0")
+	removeCommitGraph(t, repo)
+	if err := writeCommitGraph(repo); err != nil {
+		t.Fatal(err)
+	}
+	state, err := readCommitGraphState(repo)
+	if err != nil || !state.filtersUsed {
+		t.Fatalf("the fix under maxNewFilters=0: %+v %v", state, err)
+	}
+}
+
+// Review F17: a HEAD with no file to look up is not applicable, not a
+// rewrite recommended forever.
+func TestDoctorCommitGraphSkipsAnEmptyTree(t *testing.T) {
+	repo := longHistoryRepo(t, nil)
+	gitInRepo(t, repo, "rm", "-q", "-r", "--", ".")
+	gitInRepo(t, repo, "-c", "user.name=fixture", "-c", "user.email=fixture@example.invalid", "-c", "commit.gpgsign=false", "commit", "-q", "-m", "empty")
+	if _, err := readCommitGraphState(repo); !errors.Is(err, errCommitGraphNotApplicable) {
+		t.Fatalf("an empty HEAD tree: %v, want not applicable", err)
+	}
+}
+
+// Review F18: commitGraph.changedPathsVersion overrides the deprecated
+// readChangedPaths, so a missing graph is still a fixable recommendation.
+func TestDoctorCommitGraphFollowsConfigurationPrecedence(t *testing.T) {
+	repo := longHistoryRepo(t, nil)
+	gitInRepo(t, repo, "config", "commitGraph.readChangedPaths", "false")
+	gitInRepo(t, repo, "config", "commitGraph.changedPathsVersion", "1")
+	removeCommitGraph(t, repo)
+	if f := doctorCommitGraphFinding(t, repo); f.Level != "next" || f.FixCode != "git.commit-graph" {
+		t.Fatalf("a missing graph under changedPathsVersion=1 and readChangedPaths=false: %+v", f)
+	}
+}
+
+// Review F19: in a partial clone that lacks trees, the diagnosis fails
+// without fetching anything from the remote.
+func TestDoctorCommitGraphNeverFetches(t *testing.T) {
+	repo := longHistoryRepo(t, nil)
+	gitInRepo(t, repo, "config", "uploadpack.allowFilter", "true")
+	partial := filepath.Join(t.TempDir(), "partial")
+	if out, err := exec.Command("git", "clone", "-q", "--no-checkout", "--filter=tree:0", "file://"+repo, partial).CombinedOutput(); err != nil {
+		t.Fatalf("partial clone: %v %s", err, out)
+	}
+	objects := func() string {
+		out, err := exec.Command("git", "-C", partial, "count-objects", "-v").Output()
+		if err != nil {
+			t.Fatal(err)
+		}
+		return string(out)
+	}
+	before := objects()
+	original := commitGraphHistoryThreshold
+	commitGraphHistoryThreshold = 1
+	t.Cleanup(func() { commitGraphHistoryThreshold = original })
+	if _, err := readCommitGraphState(partial); err == nil || errors.Is(err, errCommitGraphNotApplicable) {
+		t.Fatalf("a partial clone without its trees: %v, want a reported failure", err)
+	}
+	if after := objects(); after != before {
+		t.Fatalf("the diagnosis fetched objects:\nbefore %s\nafter %s", before, after)
+	}
+}
+
+// Review F20: a commit-graph Git cannot read, which it reports on stderr
+// while falling back to a plain walk, is a warning, not a rewrite.
+func TestDoctorCommitGraphReportsAnUnreadableGraph(t *testing.T) {
+	repo := longHistoryRepo(t, nil)
+	graph := filepath.Join(repo, ".git", "objects", "info", "commit-graph")
+	removeCommitGraph(t, repo)
+	if err := os.WriteFile(graph, []byte("CGPH\x01\x01\x05\x00garbage"), 0o444); err != nil {
+		t.Fatal(err)
+	}
+	if f := doctorCommitGraphFinding(t, repo); f.Level != "warn" {
+		t.Fatalf("an unreadable commit-graph: %+v", f)
+	}
+}
