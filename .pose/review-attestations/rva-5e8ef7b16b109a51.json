@@ -1,0 +1,213 @@
+{
+  "run": {
+    "run_id": "rrn-b1e95d5486d32347",
+    "proof_id": "rrp-8fc3892fcc0cd0decb5244391a23448c26de72ef874bab51cde3c3bbc0e91837"
+  },
+  "schema_version": 1,
+  "attestation_id": "rva-5e8ef7b16b109a51",
+  "bundle_id": "rvb-9a62b66317bf4b6f",
+  "bundle_digest": "sha256:9a62b66317bf4b6f8b44e59d619d99cc0a2768f481ddd0c3ddfa13028fa0b1e2",
+  "reviewer": "agent:openai/gpt-6.1-sol",
+  "decision": "approved",
+  "criteria": [
+    {
+      "id": "assumption-integrity",
+      "disposition": "passed",
+      "evidence": "integration:pose-mcp/go/index-material-is-kept-per-repository-state-integration",
+      "rationale": "Examined the prior versioned-input assumption, resolver semantics and performance claims. Actual observations now cover ignored and nested inputs; registry outcomes and authorization decisions cover non-file resolution inputs. The harne8 latency measurement is documented execution evidence, not independently reproduced in this sandbox. First-build cost remains an explicit non-goal."
+    },
+    {
+      "id": "backend-concurrency",
+      "disposition": "passed",
+      "evidence": "unit:pose-mcp/go/test",
+      "rationale": "Reviewed map locking at index_material_kept.go:87-104, observation locks and authorization-record copying at :384-410. Published closures and decision maps are not subsequently mutated. No background worker or new asynchronous lifecycle is introduced; existing bounded read-view execution remains in use."
+    },
+    {
+      "id": "backend-contracts",
+      "disposition": "passed",
+      "evidence": "integration:pose-mcp/go/index-input-binding-integration",
+      "rationale": "IndexInputBindingForStoreIn retains its digest/bool contract and uses the same projection digest producer. No public CLI, MCP or persisted schema is changed."
+    },
+    {
+      "id": "backend-input-errors",
+      "disposition": "passed",
+      "evidence": "integration:pose-mcp/go/index-material-is-kept-per-repository-state-integration",
+      "rationale": "Unknown observations, changed replay inputs, failed isolated audit and unavailable retention fall back to the current operation's build. Existing bounded filesystem and Git readers remain the input boundary."
+    },
+    {
+      "id": "backend-integration-impact",
+      "disposition": "passed",
+      "evidence": "integration:pose-mcp/go/index-material-is-kept-per-repository-state-integration",
+      "rationale": "Real-builder tests exercise coordinator and foreign-root bindings, foreign dependency changes, authorization changes and registry narrowing through the production binding path."
+    },
+    {
+      "id": "backend-observability",
+      "disposition": "passed",
+      "evidence": "integration:pose-mcp/go/typed-diagnostics-integration",
+      "rationale": "Replay observations enter the current read view under index-material and remain visible to its final audit. Cache fallback preserves existing unknown-input and changed-input diagnostics without adding sensitive logging."
+    },
+    {
+      "id": "compatibility",
+      "disposition": "passed",
+      "evidence": "integration:pose-mcp/go/index-input-binding-integration",
+      "rationale": "Examined index_generation.go:959-965 and the existing material projection/digest producer. The change retains public signatures, digest representation, persisted formats and uncached behavior when no explicit resolver or read-view operation exists."
+    },
+    {
+      "id": "correctness",
+      "disposition": "passed",
+      "evidence": "integration:pose-mcp/go/index-material-is-kept-per-repository-state-integration",
+      "rationale": "Read all focused tests and traced collection, audit, replay, mismatch rebuilding and fallback. The sealed focused check passes; sealed build and package-test results also pass."
+    },
+    {
+      "id": "design-causality",
+      "disposition": "passed",
+      "evidence": "structure:design-44c9ab9dd7222898",
+      "rationale": "D1 replaces an incomplete repository-status approximation with the isolated builder's actual input closure. Replay avoids semantic reconstruction while preserving current-operation observation and audit. Registry identity and replayed authorization decisions address resolver outcomes with no file read.",
+      "mappings": [
+        {
+          "delta": "SD-7b060a43",
+          "basis": "D1",
+          "disposition": "mapped",
+          "rationale": "The ADR D13 amendment records D1's selected closure-retention design and its consequences for R1-R4, including isolated resolver binding, requested-root selection, replay and authorization checks."
+        }
+      ]
+    },
+    {
+      "id": "documentation",
+      "disposition": "passed",
+      "evidence": "structure:design-44c9ab9dd7222898",
+      "rationale": "Compared spec R1-R4, D1, ADR D13 and the validation-matrix command with runtime behavior and test names. They describe the implemented closure design, fallback behavior and remaining first-build cost."
+    },
+    {
+      "id": "operability",
+      "disposition": "passed",
+      "evidence": "integration:pose-mcp/go/governance-read-view-integration",
+      "rationale": "Examined retention refusal and replay mismatch paths. They preserve normal rebuilding and existing audited unknown/changed-input reporting; no new cache administration or recovery step is required."
+    },
+    {
+      "id": "requirements",
+      "disposition": "passed",
+      "evidence": "integration:pose-mcp/go/index-material-is-kept-per-repository-state-integration",
+      "rationale": "R1 is covered by isolated construction and audit, R2 by observation replay assertions, R3 by changed-input and unknown-closure tests, and R4 by authorization, registry and foreign-root tests. The spec execution log records a 45-second second harne8 call after the fixes, below the 60-second target."
+    },
+    {
+      "id": "scope",
+      "disposition": "passed",
+      "evidence": "structure:design-44c9ab9dd7222898",
+      "rationale": "The implementation changes the federated-material binding and adds its retained closure, focused tests, ADR amendment and required validation check. Generated governance records are separate from the five declared source artifacts. No unrelated public behavior or dependency was introduced."
+    },
+    {
+      "id": "security",
+      "disposition": "passed",
+      "evidence": "integration:pose-mcp/go/index-material-is-kept-per-repository-state-integration",
+      "rationale": "Examined authorization before reuse, registry/conflict binding, root routing and bounded reader reuse. The current resolver reevaluates recorded authorization decisions, including unregistered projects, and replay must land in the original owning root. No secret-bearing output or new authority path was introduced."
+    },
+    {
+      "id": "solution-proportionality",
+      "disposition": "passed",
+      "evidence": "structure:design-44c9ab9dd7222898",
+      "rationale": "Compared retention with rebuilding every operation and with the rejected HEAD/status key. Closure retention uses existing observation machinery and a 64-entry process-local bound, without persistence, background refresh or public cache controls. Its sufficiency would be invalidated by a new semantic input outside the closure, registry key or recorded authorization decisions."
+    }
+  ],
+  "tools": [
+    {
+      "id": "artifact-check",
+      "disposition": "passed",
+      "evidence": "command:pose artifact-check --spec pose-index-material-is-kept-per-repository-state --strict",
+      "rationale": "Executed successfully with exit 0 and existing provenance warnings. The rerun's automatic change-set head differed from the sealed subject; also inspected /var/tmp/closeout/ac-mk.out, which identifies the exact requested base, ec14aae5 head and cs-c016c0442837."
+    },
+    {
+      "id": "assess-design",
+      "disposition": "not-used",
+      "evidence": "structure:design-44c9ab9dd7222898",
+      "rationale": "Used the sealed passing design assessment and independently inspected the spec, ADR and structural change. Did not invoke the assessment writer in the read-only checkout."
+    },
+    {
+      "id": "assess-discover",
+      "component": "pose-mcp",
+      "disposition": "not-used",
+      "evidence": "command:pose suggest review --path pose-mcp",
+      "rationale": "Did not run a write-producing component assessment. Component scope was supplied by the sealed brief and checked against the implementation and validation matrix."
+    },
+    {
+      "id": "assess-integrate",
+      "disposition": "not-used",
+      "evidence": "integration:pose-mcp/go/index-material-is-kept-per-repository-state-integration",
+      "rationale": "Did not run the assessment writer. Used sealed integration evidence and independently traced producer, resolver, coordinator and foreign-root boundaries."
+    },
+    {
+      "id": "assess-tech-debt",
+      "disposition": "not-used",
+      "evidence": "command:git diff --check 7e46b1e ec14aae5 -- pose-mcp/internal/pose/index_material_kept.go pose-mcp/internal/pose/index_material_kept_test.go pose-mcp/internal/pose/index_generation.go .pose/indexes/validation-matrix.json .pose/adr/2026-11-03-governance-reads-use-bounded-operation-scoped-views.md",
+      "rationale": "Did not invoke the write-producing assessment. Read the complete changed implementation and its documented first-build-cost follow-up; no new unresolved TODO, FIXME, stub or panic marker was introduced."
+    },
+    {
+      "id": "closeout-check",
+      "disposition": "deferred",
+      "rationale": "Completion check requires the recorded review conclusion. This review does not record an attestation."
+    },
+    {
+      "id": "review-check",
+      "disposition": "deferred",
+      "rationale": "Completion check requires the recorded review conclusion. POSE performs recording and subsequent verification."
+    },
+    {
+      "id": "suggest-review",
+      "component": "pose-mcp",
+      "disposition": "passed",
+      "evidence": "command:pose suggest review --path pose-mcp",
+      "rationale": "Executed and applied the selected Go, security and documentation rules."
+    },
+    {
+      "id": "surface-check",
+      "disposition": "passed",
+      "evidence": "integration:pose-mcp/go/index-material-is-kept-per-repository-state-integration",
+      "rationale": "Executed pose surface-check --spec pose-index-material-is-kept-per-repository-state --strict with exit 0: one target, 229 results, zero findings. Also inspected the supplied sealed-range surface output."
+    },
+    {
+      "id": "validate",
+      "disposition": "passed",
+      "evidence": "build:pose-mcp/go/build",
+      "rationale": "Disposed from the sealed strict validation run as required by the read-only environment. Inspected delivery-validation.json: strict outcome pass, 229 checks. No implementation or validation-matrix change exists between its recorded 6b8e3e98 revision and ec14aae5."
+    },
+    {
+      "id": "validate",
+      "component": "pose-mcp",
+      "disposition": "passed",
+      "evidence": "integration:pose-mcp/go/index-material-is-kept-per-repository-state-integration",
+      "rationale": "The sealed strict validation includes the required pose-mcp build, package tests and focused integration check, all passing. Read the focused tests rather than attempting writes through a Go test rerun."
+    }
+  ],
+  "evidence_refs": [
+    "delegated-run:rrn-b1e95d5486d32347",
+    "integration:pose-mcp/go/governance-read-view-integration",
+    "integration:pose-mcp/go/index-input-binding-integration",
+    "integration:pose-mcp/go/index-material-is-kept-per-repository-state-integration",
+    "integration:pose-mcp/go/typed-diagnostics-integration",
+    "structure:design-44c9ab9dd7222898",
+    "unit:pose-mcp/go/test"
+  ],
+  "findings": null,
+  "authority": {
+    "schema_version": 1,
+    "project": "proj.pose-dist",
+    "bundle_digest": "sha256:9a62b66317bf4b6f8b44e59d619d99cc0a2768f481ddd0c3ddfa13028fa0b1e2",
+    "principal": "agent:openai/gpt-6.1-sol",
+    "role": "agent",
+    "review_execution": "rrn-b1e95d5486d32347",
+    "implementation_principal": "agent:anthropic/claude-opus-5-5",
+    "implementation_execution": "sha256:0eb880a4fc2ed87a379c949a567b1d3dfbd6b58b466f4755fcd363dd2b7fed98",
+    "issuer": "b34-local-executor",
+    "issued_at": "2026-11-16T10:15:30Z",
+    "audience": "proj.pose-dist"
+  },
+  "envelope": {
+    "issuer": "b34-local-executor",
+    "subject": "rvb-9a62b66317bf4b6f",
+    "algorithm": "ed25519",
+    "public_key": "ck4sApdfePV2GT+hJyAYfJd2qLzeG55P8pevGR0bvZE=",
+    "signature": "6ewvl6F7za+xDBchReZOGd58xa3ATdv8ezmuzdh/1qMqGQmp7/tHDgphAKPRZJtHN5EtJ4CUbKOaSb8QSsapBg=="
+  },
+  "attested_at": "2026-11-16T10:15:30Z",
+  "path": ".pose/review-attestations/rva-5e8ef7b16b109a51.json"
+}
