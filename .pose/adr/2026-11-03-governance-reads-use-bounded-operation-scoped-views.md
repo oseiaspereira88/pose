@@ -299,7 +299,7 @@ are current) in the binding-aware way D7 requires: scopes already prove the
 coordinator's authorized root vector before a capture. It does not make the
 scopes one snapshot.
 
-## The index's federated material is kept per repository state (D13) — 2026-11-16
+## The index's federated material is kept with its read closure (D13) — 2026-11-16
 
 Spec `pose-index-material-is-kept-per-repository-state` extends D12 across
 operations. Every review operation checks that the index it reads is
@@ -307,22 +307,23 @@ current, and the federated material is one of the index's inputs. On harne8,
 with pose-dist as a dependency, computing that material took about 90 s of a
 140 s closeout, and a long-running MCP server paid it on every call.
 
-When the operation carries an explicit resolver, a process now keeps the
-material's digest for one state of every repository the resolver
-authorizes. The key covers:
+A first design keyed a kept digest by each repository's HEAD, status and
+dirty bytes. Its review refused it: the key missed what the material really
+reads (nested repositories, ignored files), its reads ran outside the read
+view, and a hit left the material's inputs out of the operation's closure
+and final audit.
 
-- the engine version and the project;
-- for the operation's root and each authorized root: its HEAD, its full
-  `git status` (tracked, untracked and submodule entries), and the bytes of
-  every path that status lists.
+The material is now built in an isolated read-view operation over the same
+base binding and roots. Everything that operation observes is the material's
+closure: file bytes, metadata, listings, links and captured Git commands.
+The closure is kept with the digest only when that operation recorded
+nothing unknown, streamed nothing, and passed its own final audit. Any later
+operation of the process replays every read of the closure through its own
+read view before reusing the digest. The replay records each read, so the
+operation's closure and final audit cover every input of the material, and
+any read that returns other bytes rebuilds the material. A build that cannot
+be kept is followed by the operation's own build.
 
-The bytes are in the key because a file edited twice keeps the same status
-line. A state with more than 4,096 such paths, or a store without an
-explicit resolver, is not kept. The state is read without optional locks, so
-reading it does not rewrite the index file the read view observes.
-
-The kept digest stands for the material only while the repositories stay in
-that state. Like D12, it answers whether the consumed generation's inputs
-are current; it does not certify a snapshot across operations. Measured on
-harne8: the second closeout call of one MCP server falls from 136 s to 11 s,
-with the same terminal verdict.
+Measured on harne8: the second closeout call of one MCP server falls from
+136 s to 43 s, with the same terminal verdict. The replay, not a rebuild,
+is the remaining cost.

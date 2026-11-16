@@ -2422,7 +2422,7 @@
         {
           "name": "index-material-is-kept-per-repository-state-integration",
           "program": "go",
-          "args": ["test", "./internal/pose", "-run", "TestIndexMaterialIsBuiltOncePerRepositoryState|TestIndexMaterialFollowsEveryRepositoryState|TestIndexMaterialWithoutAResolverIsNotKept", "-count=1"],
+          "args": ["test", "./internal/pose", "-run", "TestIndexMaterialIsReusedWhenItsClosureReadsTheSame|TestIndexMaterialIsBuiltAgainWhenItsClosureChanged|TestIndexMaterialWithAnUnknownClosureIsNotKept", "-count=1"],
           "severity": "required",
           "evidenceClass": "integration"
         },
