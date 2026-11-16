@@ -1,6 +1,6 @@
 ---
 slug: pose-index-material-is-kept-per-repository-state
-status: draft        # draft | in-progress | done | superseded | abandoned; blocked = operational wait, not terminal
+status: in-progress
 created_at: 2026-11-16
 completed_at:        # stamped on the transition to status: done
 supersedes:          # slug of the superseded spec (when applicable)
