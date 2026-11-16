@@ -959,11 +959,7 @@ func IndexInputBindingIn(files Files, root, name string) (string, bool) {
 // rooted in the same Files carried by the Store.
 func IndexInputBindingForStoreIn(store Store, name string) (string, bool) {
 	if name == "federated-material" {
-		material, err := BuildIndexFederatedMaterialIn(store)
-		if err != nil {
-			return "", false
-		}
-		return IndexFederatedMaterialDigest(material.Projection)
+		return keptIndexMaterialDigest(store)
 	}
 	return IndexInputBindingIn(store.fsys(), store.Root, name)
 }
