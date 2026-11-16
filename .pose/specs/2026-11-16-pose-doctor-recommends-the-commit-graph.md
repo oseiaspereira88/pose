@@ -87,11 +87,11 @@ Composto em produção pelo `pose doctor` e pelo `pose doctor --fix`. Check perm
 ## 4. Tasks
 
 ### Implementation
-- [ ] Check e correção `git.commit-graph` no `doctor` (R1, R2, R3).
-- [ ] Passo do CI (R4).
+- [x] Check e correção `git.commit-graph` no `doctor` (R1, R2, R3).
+- [x] Passo do CI (R4).
 
 ### Validation
-- [ ] Testes com repositórios reais acima e abaixo do limite, com e sem filtros, com prova de reprovação.
+- [x] Testes com repositórios reais acima e abaixo do limite, com e sem filtros, com prova de reprovação.
 
 ---
 
@@ -121,12 +121,23 @@ Testes do `doctor` com repositórios Git reais; medição já registrada na spec
 - Expected: verde
 
 ### Execution log
+- Date: 2026-11-16
+- Environment: Linux, Go 1.26, Git 2.56.
+- Notes: o teste monta uma instalação real, cria histórico acima de um limite reduzido e confere o check sem commit-graph (`next`, corrigível), depois da correção (`ok`), com um commit-graph sem filtros (`next`) e com um commit-graph dividido em camadas com filtros (`ok`); abaixo do limite, `ok`. Reprova quando a leitura ignora os chunks BIDX/BDAT, quando ignora a cadeia de camadas e quando a correção não está registrada. O guarda `TestEngineStartsGitOnlyThroughTheRawReader` reprovou a primeira versão, que chamava o Git direto; ela passou a usar `RawHistoryGit`. No checkout do pose-dist do maintainer, com o commit-graph escrito, o check dá `ok`. O `pose doctor` no harne8 passa de 900 s com o binário instalado antes desta spec, e por isso não foi medido lá.
 
 ### Results summary
+- Successes: o `doctor` recomenda e escreve o commit-graph; o CI o escreve antes dos gates.
+- Failures: nenhuma.
+- Warnings: o `pose doctor` no harne8 leva mais de 900 s, já antes desta spec (follow-up F1).
 
 ### Requirement trace
+- R1 [satisfied] test:TestDoctorRecommendsTheCommitGraph check:doctor-recommends-the-commit-graph-integration
+- R2 [satisfied] test:TestDoctorRecommendsTheCommitGraph
+- R3 [satisfied] test:TestDoctorRecommendsTheCommitGraph
+- R4 [satisfied] O passo `Write the Git commit-graph with changed-path filters` nos dois jobs de `.github/workflows/ci.yml` que fazem checkout do histórico inteiro.
 
 ### Known gaps
+- R3 no caso de um root que não é repositório Git é coberto pelo código (a leitura do estado falha e o check não é emitido), sem teste próprio.
 
 ---
 
@@ -139,3 +150,5 @@ Não concluída.
 ### Residual risks
 
 ### Follow-ups
+
+- [open] F1: medir e reduzir o `pose doctor` no harne8, que passa de 900 s em Go, sem processo Git filho, já com o binário anterior a esta spec. (owner:@pose-maintainers crit:medium review:2026-11-23)

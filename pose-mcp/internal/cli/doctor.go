@@ -89,6 +89,10 @@ var doctorFixRegistry = map[string]doctorFix{
 			return err
 		},
 	},
+	"git.commit-graph": {
+		describe: "write the Git commit-graph with changed-path filters (git commit-graph write --reachable --changed-paths)",
+		apply:    writeCommitGraph,
+	},
 	"skills.symlinks": {
 		describe: "recreate .claude/skills symlinks",
 		apply: func(root string) error {
@@ -353,6 +357,21 @@ func runDoctorDiagnostics(locale cliLocale) (root string, findings []doctorFindi
 		add("hooks.pre-commit", "next", text("pre-commit hook not installed", "pre-commit não instalado"), text("run 'pose hooks install' (or 'pose doctor --fix --yes') for an automatic commit gate", "rode 'pose hooks install' (ou 'pose doctor --fix --yes') para gate automático no commit"))
 	} else {
 		add("hooks.pre-commit", "ok", text("pre-commit hook installed", "pre-commit instalado"), "")
+	}
+
+	// 7b. Git commit-graph. Governance reads ask Git for the last commit that
+	// touched each artifact; on a long history each lookup walks it, and a
+	// commit-graph with changed-path filters answers it from the filters
+	// (spec pose-doctor-recommends-the-commit-graph).
+	if graph, err := readCommitGraphState(root); err == nil {
+		switch {
+		case graph.commits < commitGraphHistoryThreshold:
+			add("git.commit-graph", "ok", text(fmt.Sprintf("history of %d commits does not need a commit-graph", graph.commits), fmt.Sprintf("histórico de %d commits não precisa de commit-graph", graph.commits)), "")
+		case graph.present && graph.changedPaths:
+			add("git.commit-graph", "ok", text("Git commit-graph carries changed-path filters", "commit-graph do Git tem filtros de caminhos alterados"), "")
+		default:
+			add("git.commit-graph", "next", text(fmt.Sprintf("history of %d commits has no commit-graph with changed-path filters; last-commit lookups walk the whole history", graph.commits), fmt.Sprintf("histórico de %d commits sem commit-graph com filtros de caminhos alterados; a busca do último commit percorre o histórico inteiro", graph.commits)), text("run 'git commit-graph write --reachable --changed-paths' (or 'pose doctor --fix --yes')", "rode 'git commit-graph write --reachable --changed-paths' (ou 'pose doctor --fix --yes')"))
+		}
 	}
 
 	// 8. Delivery-integrity / artifact-contract policy roots (issue #17): a
