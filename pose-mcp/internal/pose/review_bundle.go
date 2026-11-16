@@ -18,6 +18,7 @@ import (
 	"os"
 	"os/exec"
 	"path/filepath"
+	"regexp"
 	"slices"
 	"sort"
 	"strconv"
@@ -4669,7 +4670,7 @@ func (s Store) manifestStandsOver(sealed, current *FederatedRoadmapManifest) boo
 		// current approved review of it (spec
 		// pose-closed-scope-stands-over-a-moved-federated-pin).
 		if now.Identity.Project != was.Coordinator.Project {
-			if !externalDependencyStands(*then, now, current.Blockers) {
+			if !externalDependencyStands(*then, now, current.Blockers) || !s.externalCommitmentUnchanged(*then, now) {
 				return false
 			}
 			*then = now
@@ -4701,6 +4702,54 @@ func (s Store) manifestStandsOver(sealed, current *FederatedRoadmapManifest) boo
 	}
 	was.Blockers, was.Ready, was.Digest = blockers, current.Ready, current.Digest
 	return sameFederatedManifest(&was, current)
+}
+
+// externalCommitmentUnchanged reads a spec dependency of another project at
+// the sealed and the current revision, in that project's repository, and
+// reports whether everything before its Final Report is the same: intent,
+// requirements, plan, decisions and validation. Only the Final Report, where
+// follow-ups are disposed, may differ. A plan digest covers the review
+// procedure, not the requirements, so it cannot prove this (review round 1,
+// F1). Anything that cannot be read is a change.
+func (s Store) externalCommitmentUnchanged(then, now FederatedDependency) bool {
+	if now.Identity.Kind != "spec" || s.FederatedResolver == nil || s.FederatedResolver.Roots == nil || !isGitRevision(then.SourceRevision) || !isGitRevision(now.SourceRevision) {
+		return false
+	}
+	source, err := s.FederatedResolver.Roots.StoreFor(now.Identity.Project)
+	if err != nil {
+		return false
+	}
+	spec, err := source.GetSpec(now.Identity.Slug)
+	if err != nil {
+		return false
+	}
+	rel, err := filepath.Rel(source.Root, spec.Path)
+	if err != nil || rel == ".." || strings.HasPrefix(rel, ".."+string(filepath.Separator)) {
+		return false
+	}
+	rel = filepath.ToSlash(rel)
+	files := s.fsys()
+	before, err := captureFederatedGit(files, source.Root, "show", then.SourceRevision+":"+rel)
+	if err != nil {
+		return false
+	}
+	after, err := captureFederatedGit(files, source.Root, "show", now.SourceRevision+":"+rel)
+	if err != nil {
+		return false
+	}
+	return bytes.Equal(specCommitment(before), specCommitment(after))
+}
+
+// specFinalReportHeading opens a spec's Final Report, in either locale.
+var specFinalReportHeading = regexp.MustCompile(`(?im)^##[ \t]+(?:\d+\.[ \t]+)?(?:final report|relat[óo]rio final)[ \t]*$`)
+
+// specCommitment is a spec's text before its Final Report, or the whole text
+// when it has none.
+func specCommitment(raw []byte) []byte {
+	if loc := specFinalReportHeading.FindIndex(raw); loc != nil {
+		return raw[:loc[0]]
+	}
+	return raw
 }
 
 // externalDependencyStands reports whether a dependency of another project,

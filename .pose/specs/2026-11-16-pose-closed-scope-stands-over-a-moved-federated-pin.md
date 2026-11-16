@@ -35,8 +35,9 @@ Uma dependência de outro projeto é aceita na revisão do repositório inteiro 
 ## 2. Requirements
 
 ### Functional
-- R1: A closed scope's sealed manifest shall stand over a dependency of another project whose revision, content, evidence, implementation digest and review moved with the trust pin, when the dependency keeps its reference, identity and relationships, is resolved and done then and now, keeps its plan digest and governing contracts, has a current review bundle, and no blocker of the current manifest names it.
+- R1: A closed scope's sealed manifest shall stand over a dependency of another project whose revision, content, evidence, implementation digest and review moved with the trust pin, when the dependency keeps its reference, identity and relationships, is resolved and done then and now, keeps its plan digest and governing contracts, has a current review bundle, no blocker of the current manifest names it, and, read in its own project at the sealed and the current revision, its spec is the same before its Final Report.
 - R2: Any change to those kept fields, or a current blocker naming the dependency, shall still unapprove the closed scope.
+- R4: A dependency whose spec changed before its Final Report (intent, requirements, plan, decisions or validation), even when approved again with the same plan digest, shall still unapprove the closed scope; a revision that cannot be read counts as a change.
 - R3: The trust policy digest shall follow the current one only when at least one dependency of another project moved and was judged under R1; a trust policy change alone shall still unapprove.
 
 ### Non-functional
@@ -53,7 +54,7 @@ Uma dependência de outro projeto é aceita na revisão do repositório inteiro 
 ## 3. Technical Plan
 
 ### Affected areas
-- `pose/review_bundle.go`: `manifestStandsOver` e `externalDependencyStands`.
+- `pose/review_bundle.go`: `manifestStandsOver`, `externalDependencyStands` e `externalCommitmentUnchanged`, que lê a spec da dependência nas duas revisões, no repositório do projeto dela.
 
 ### Artifacts
 - modified: pose-mcp/internal/pose/review_bundle.go
@@ -65,7 +66,7 @@ Uma dependência de outro projeto é aceita na revisão do repositório inteiro 
 
 - capability:closed-scope-stands-over-a-moved-federated-pin module:pose-mcp profile:composed-capability entrypoint:pose-mcp/cmd/pose/main.go
 
-Composto em produção por `pose review verify` e pelo fechamento, que julgam a aprovação retida de um escopo fechado pela mesma função. Check permanente `closed-scope-stands-over-a-moved-federated-pin-integration`, evidenceClass `integration`, required: `go test ./internal/pose -run 'TestAClosedScopeStandsOverAMovedFederatedPin|TestAMovedFederatedPinThatChangesTheCommitmentStales|TestATrustPolicyChangeAloneStales' -count=1`.
+Composto em produção por `pose review verify` e pelo fechamento, que julgam a aprovação retida de um escopo fechado pela mesma função. Check permanente `closed-scope-stands-over-a-moved-federated-pin-integration`, evidenceClass `integration`, required: `go test ./internal/pose -run 'TestAClosedScopeStandsOverAMovedFederatedPin|TestAMovedFederatedPinThatChangesTheCommitmentStales|TestATrustPolicyChangeAloneStales|TestAMovedFederatedPinWithChangedRequirementsStales' -count=1`.
 
 ### API/contract changes
 - Nenhuma.
@@ -128,6 +129,7 @@ Testes unitários de `manifestStandsOver` para o caso aceito, cada campo mantido
 - R1 [satisfied] test:TestAClosedScopeStandsOverAMovedFederatedPin check:closed-scope-stands-over-a-moved-federated-pin-integration
 - R2 [satisfied] test:TestAMovedFederatedPinThatChangesTheCommitmentStales
 - R3 [satisfied] test:TestATrustPolicyChangeAloneStales
+- R4 [satisfied] test:TestAMovedFederatedPinWithChangedRequirementsStales
 
 ### Known gaps
 - Nenhuma.
@@ -143,3 +145,8 @@ Não concluída.
 ### Residual risks
 
 ### Follow-ups
+
+### Review
+
+Rodada 1 (run rrn-074a31f1786a6b7b, attestation rva-9c97e8ac1f226a10, changes-requested): 1 bloqueador, tratado. F1 o `plan_digest` cobre o procedimento de revisão, não os requisitos e as decisões, então uma dependência com requisitos mudados e aprovada de novo manteria o digest e seria aceita. A regra passou a ler a spec da dependência na revisão selada e na atual, no repositório do projeto dela, e a exigir o mesmo texto antes do Final Report (intenção, requisitos, plano, decisões, validação); só o Final Report, onde os follow-ups são dispostos, pode mudar, e uma revisão que não se lê conta como mudança. Um teste com repositório git real cobre um follow-up disposto (mantém) e um requisito mudado com o mesmo plano (desaprova), e reprova sem a comparação. No harne8 com o pose-dist em edcf5f2 e o índice em dia: `harne8-abm-governed-execution` e `harne8-adopt-pose-v7-4-0` voltam a ser terminais; `harne8-attention-surface` continua desaprovada por uma edição da própria spec depois do fechamento, que não depende do pin.
+

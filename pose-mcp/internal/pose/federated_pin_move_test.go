@@ -1,6 +1,12 @@
 package pose
 
-import "testing"
+import (
+	"os"
+	"os/exec"
+	"path/filepath"
+	"strings"
+	"testing"
+)
 
 func pinMoveDependency(revision, digest string) FederatedDependency {
 	return FederatedDependency{
@@ -17,14 +23,65 @@ func pinMoveManifest(trust string, deps ...FederatedDependency) *FederatedRoadma
 		CoordinatorRevision: "c1", TrustPolicyDigest: trust, Dependencies: deps, Ready: true, Blockers: []string{}, Digest: "sha256:" + trust}
 }
 
+// pinMoveRepository is a dependency project whose spec alpha is committed
+// three times: sealed, with only a follow-up disposed, and with a changed
+// requirement. It returns the store that judges, and the three revisions.
+func pinMoveRepository(t *testing.T) (Store, [3]string) {
+	t.Helper()
+	root := t.TempDir()
+	git := func(args ...string) string {
+		t.Helper()
+		out, err := exec.Command("git", append([]string{"-C", root, "-c", "user.name=fixture", "-c", "user.email=fixture@example.invalid", "-c", "commit.gpgsign=false"}, args...)...).CombinedOutput()
+		if err != nil {
+			t.Fatalf("git %v: %v %s", args, err, out)
+		}
+		return strings.TrimSpace(string(out))
+	}
+	spec := filepath.Join(root, ".pose", "specs", "2026-01-01-alpha.md")
+	write := func(requirement, followup string) string {
+		t.Helper()
+		body := "---\nslug: alpha\nstatus: done\n---\n# Spec: alpha\n\n## 2. Requirements\n\n- R1: " + requirement + "\n\n## 7. Final Report\n\n### Follow-ups\n\n- " + followup + "\n"
+		if err := os.MkdirAll(filepath.Dir(spec), 0o700); err != nil {
+			t.Fatal(err)
+		}
+		if err := os.WriteFile(spec, []byte(body), 0o600); err != nil {
+			t.Fatal(err)
+		}
+		git("add", "-A")
+		git("commit", "-qm", "alpha")
+		return git("rev-parse", "HEAD")
+	}
+	git("init", "-q")
+	revs := [3]string{
+		write("The engine shall do one thing.", "[open] F1: later"),
+		write("The engine shall do one thing.", "[covered: other] F1: done elsewhere"),
+		write("The engine shall do two things.", "[covered: other] F1: done elsewhere"),
+	}
+	resolver := ArtifactResolver{Roots: NewRoots(RootsConfig{Explicit: map[string]string{"proj.engine": root}})}
+	return Store{Root: t.TempDir(), FederatedResolver: &resolver}, revs
+}
+
 // Spec pose-closed-scope-stands-over-a-moved-federated-pin, R1: a closed
 // scope's sealed manifest stands over a dependency of another project that
-// moved with the trust pin and is still the same commitment.
+// moved with the trust pin and whose spec changed only in its Final Report.
 func TestAClosedScopeStandsOverAMovedFederatedPin(t *testing.T) {
-	sealed := pinMoveManifest("t1", pinMoveDependency("r1", "d1"))
-	current := pinMoveManifest("t2", pinMoveDependency("r2", "d2"))
-	if !(Store{}).manifestStandsOver(sealed, current) {
+	store, revs := pinMoveRepository(t)
+	sealed := pinMoveManifest("t1", pinMoveDependency(revs[0], "d1"))
+	current := pinMoveManifest("t2", pinMoveDependency(revs[1], "d2"))
+	if !store.manifestStandsOver(sealed, current) {
 		t.Fatal("a dependency that moved only with the pin unapproved the closed scope")
+	}
+}
+
+// Review round 1 (F1): a dependency whose requirements changed and that was
+// approved again, with the same plan digest, still unapproves the closed
+// scope.
+func TestAMovedFederatedPinWithChangedRequirementsStales(t *testing.T) {
+	store, revs := pinMoveRepository(t)
+	sealed := pinMoveManifest("t1", pinMoveDependency(revs[0], "d1"))
+	current := pinMoveManifest("t2", pinMoveDependency(revs[2], "d3"))
+	if store.manifestStandsOver(sealed, current) {
+		t.Fatal("a dependency with changed requirements kept the closed scope approved")
 	}
 }
 
