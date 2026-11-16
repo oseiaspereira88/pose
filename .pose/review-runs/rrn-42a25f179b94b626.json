@@ -1,0 +1,143 @@
+{
+  "safety": {
+    "schema_version": 1,
+    "profile": "legacy-trusted",
+    "platform": "linux/amd64",
+    "capabilities": {
+      "automatic-expiry": "unavailable",
+      "bounded-capture": "available",
+      "cpu-limit": "unavailable",
+      "credential-filesystem-isolation": "unavailable",
+      "environment-allowlist": "available",
+      "escaped-descendant-termination": "unavailable",
+      "filesystem-isolation": "unavailable",
+      "memory-limit": "unavailable",
+      "network-isolation": "unavailable",
+      "origin-isolation": "unavailable",
+      "parent-termination": "available",
+      "process-group-termination": "available",
+      "shared-git-isolation": "unavailable"
+    },
+    "limitations": [
+      "trusted local executable required; worktree is not a sandbox",
+      "outside writes, transient writes, shared Git and credential files are not isolated",
+      "no memory/CPU quota or control of descendants escaping the process group",
+      "cleanup filesystem calls remain subject to operating-system I/O latency",
+      "legacy compatibility: HOME retained; other ambient credentials excluded"
+    ],
+    "stream_bytes": 8388608,
+    "output_bytes": 65536,
+    "retained_bytes": 16777216,
+    "timeout_ms": 3600000,
+    "max_runs_per_bundle": 3,
+    "retention": "retain-evidence; ttl=0; no automatic deletion",
+    "capture_complete": true,
+    "runtime_id": "pose-review-run-2335123442",
+    "operation": {
+      "schema_version": 1,
+      "operation": "review.dispatch.cleanup",
+      "scope": "spec:pose-index-material-is-kept-per-repository-state",
+      "outcome": "completed",
+      "steps_run": [
+        {
+          "id": "cleanup",
+          "result": "done"
+        }
+      ],
+      "effects": [],
+      "resumable": false
+    }
+  },
+  "provenance": {
+    "execution_state": "started",
+    "planned_wire_digest": "sha256:20aea9ec283f20ebc4d4f71b7fe34dcff343756436982ac937ddd44dedc16810",
+    "wire_bytes": 33063,
+    "wire_complete": true,
+    "schema_version": 1,
+    "project": "proj.pose-dist",
+    "audience": "proj.pose-dist",
+    "worktree_digest": "sha256:9c161dc895f6496d9f800581bef8673cc9123cda65951fa2d23b0cbdbc2bac41",
+    "trust": "executor-attested",
+    "implementation": {
+      "principal": "agent:anthropic/claude-opus-5-5",
+      "execution": "sha256:0eb880a4fc2ed87a379c949a567b1d3dfbd6b58b466f4755fcd363dd2b7fed98",
+      "vendor": "anthropic",
+      "model": "claude-opus-5-5"
+    },
+    "reviewer": {
+      "principal": "agent:openai/gpt-6.1-sol",
+      "vendor": "openai",
+      "model": "gpt-6.1-sol"
+    },
+    "config_digest": "sha256:637a9d88c40dbf75da8525db65c216ace591f828ef25c233358db1a99e70ee31",
+    "command_template_digest": "sha256:e3a23ff8a55e559e954d107a039277628bfc51faa58d523ad6101de7c375ad28",
+    "argv_digest": "sha256:2450cc42d9969d93a26a47c3295bad34a75112c8a4b37d451ce546d20b0365b6",
+    "executable_digest": "sha256:e14fc83739c13c1074b12bd1acce4010c893c7f6fbfc1593b4a31d74cabb57af",
+    "template_version": "review-brief/7",
+    "wire_digest": "sha256:20aea9ec283f20ebc4d4f71b7fe34dcff343756436982ac937ddd44dedc16810",
+    "notes_digest": "sha256:5fd9c0fd1db7df1361f40eed6b9fb47249bb4cafecba54c31a37007f633eae87",
+    "raw_transcript_digest": "sha256:03751d70752e35fd5847e959350698aa673bc5f9a90979ecb56ca12cd2bf157e",
+    "raw_output_digest": "sha256:52b1cb442c4bcd22bdecf2acd43738af3ac79514436bfb7c6905040ad855b837",
+    "output_source": "file",
+    "output_complete": true
+  },
+  "session_digest": "sha256:4b5640aa066be43d19aa6d84f506db56423019b98192985c4bafdbeeb8df0354",
+  "tree_digest": "sha256:dbbb65a638eda77ce7050dd781fb905550771f658981d8e351d323813dcfcbbe",
+  "brief_notes": "Review round (the previous run rrn-3f0fc8ba917344df was refused: it stopped without a draft because it could not write a TMPDIR) of spec pose-index-material-is-kept-per-repository-state (an engine performance and consistency fix with amendment D13 of ADR governance-reads-use-bounded-operation-scoped-views).\n\nRound 1 (run rrn-8479af60445e994b, changes-requested) raised five blockers against a cache keyed by repository state: F1 nested repositories and submodules were only a dir marker; F2 a hit bypassed the read view's closure and audit and the key was read outside the view; F3 ignored files were not covered; F4 FIFOs and large files were read unbounded; F5 the 4,096-path limit was applied after all the work. The maintainer chose to redo the design by input closure instead of patching the key. The state key is gone.\n\nWhat to judge now (commit 21e9293e, `pose-mcp/internal/pose/index_material_kept.go`): inside a read-view operation with an explicit resolver, `keptIndexMaterialDigest` builds the material in an isolated read-view operation over the current operation's base binding (`buildIsolatedMaterial`). Everything that isolated operation recorded (file bytes, stat/lstat, directory listings, direntry-info, readlink and eval-symlinks values, captured Git commands with their output limit) is the closure; it is kept with the digest only when the isolated operation recorded nothing unknown, streamed nothing, and its final audit found no change. Every later operation, including the one that built it, replays each read of the closure through its own read view (`replayMaterialClosure`) and reuses the digest only when every replayed read gives the same digest; otherwise it rebuilds. Judge: whether the closure can miss an input the material reads (reads the build makes outside the read view, inputs streamed, roots added by route), whether the replay goes through the same budget, closure and final-audit paths as a normal read, whether a replay mismatch or a non-keepable build always falls back to the operation's own build, whether concurrent operations can race on the map, and whether the comparison of each read kind is strict enough (stat compares mode, size and mtime; Git compares stdout and error text). Prior findings F1-F5: state in `prior_findings` whether each is resolved by this design. Measured on harne8 (clean clone at cc7780b1, pose-dist at 7e46b1e), two `pose_closeout_state` calls on one MCP server: without the cache 138 s and 136 s; with the closure 144 s and 43 s, terminal in all four.\n\nBuilding: this review runs under a read-only sandbox, so nothing can be built or written, not even a TMPDIR; do not try, and do not stop the review over it. The pipeline built the engine of the sealed commit and installed it as `pose` on PATH (`~/.local/bin/pose`); use that binary for read-only commands. It also ran `pose artifact-check --strict` and `pose surface-check --strict` against the sealed commit; their outputs are `/var/tmp/closeout/ac-mk.out` and `/var/tmp/closeout/sc-mk.out`. Dispose those tools from that evidence and from the code when a rerun fails for environment reasons. The package tests (`go test ./internal/pose ./internal/cli ./internal/mcpserver ./internal/scaffold`) passed on the sealed code; judge the tests by reading them.\n\nDo NOT run `pose assess`, `pose state`, `pose index` or anything else that writes under `.pose/`; dispose assess-* tools from the sealed evidence and the code. Leave the worktree as you found it. If you build or test Go code, let every `go test` finish (do not interrupt it) so the toolchain removes its own build directories. Dispose the `validate` tools from the sealed evidence: the pipeline ran `pose validate --strict` on a clean clone of the sealed commit with a GitHub token (`.pose/results/delivery-validation.json`); a rerun in your sandbox fails for environment reasons and is not evidence about the code. A finding object accepts exactly `id`, `severity`, `disposition`, `file`, `line`, `summary`, and for an accepted follow-up `action`, `owner`, `review_by`; put any rationale inside `summary`. A new finding's id carries no round prefix (continue at F6). Sweep the whole surface and report every finding in one pass, classified blocker vs follow-up.\n",
+  "ledger_version": 1,
+  "attempt_id": "rat-2e893d288457e3d6ea789ada3de0b6b3d35eb4cb3fa575651c6dac9b26387d5b",
+  "schema_version": 1,
+  "run_id": "rrn-42a25f179b94b626",
+  "scope": "spec:pose-index-material-is-kept-per-repository-state",
+  "bundle_id": "rvb-c779251f97b707de",
+  "bundle_digest": "sha256:c779251f97b707de7f8211593c300169caba2c740ebc114b68f322edd7024089",
+  "sealed_commit": "456e025085c0cfaa8c7f2b301b1fd27ab2f01ddc",
+  "kind": "review",
+  "brief_digest": "sha256:f074711557e2c149b3dcfe87bb2047339bb8d6f1cdb79e65da834b83e6c785a2",
+  "adapter": "sol-medium",
+  "vendor": "openai",
+  "model": "gpt-6.1-sol",
+  "started_at": "2026-11-16T09:13:30.123382301Z",
+  "ended_at": "2026-11-16T09:18:38.473076691Z",
+  "exit_code": 0,
+  "status": "completed",
+  "transcript_digest": "sha256:4aa82b2b5f52b914720f1a49a04d70396962a3cf14690f6c77c4c67bcf7f1fd7",
+  "transcript_path": ".pose/review-runs/rrn-42a25f179b94b626.transcript",
+  "output": "decision: changes-requested\n\nThree blockers remain:\n\n- **F6 — high**, `index_material_kept.go:111`: replacing the isolated resolver routes dependency reads through the caller’s operation. Those reads are absent from the retained closure, allowing stale digest reuse.\n- **F7 — medium**, `index_material_kept.go:107`: foreign-root validation builds at the coordinator root. The resulting binding conflict forces fallback after unnecessary work.\n- **F8 — medium**, `index_material_kept.go:138`: the cache identity omits authorization outcomes and failed root bindings, although these affect the material projection.\n\nReviewed bundle `rvb-c779251f97b707de`, digest `sha256:c779251f97b707de7f8211593c300169caba2c740ebc114b68f322edd7024089`. Applied the review workflow and Go, security, documentation-style, and delivery-evidence rules.\n\nRead-only artifact and surface checks exited successfully. Go tests and validation were assessed from sealed evidence and test source; none were rerun under the read-only sandbox. The focused tests substitute a local-file-only builder, leaving dependency resolution untested. The worktree remains unchanged; no attestation was recorded.\n\n```pose-draft\n{\n  \"schema\": \"pose.review.draft/v1\",\n  \"decision\": \"changes-requested\",\n  \"findings\": [\n    {\n      \"id\": \"F6\",\n      \"severity\": \"high\",\n      \"disposition\": \"blocker\",\n      \"file\": \"pose-mcp/internal/pose/index_material_kept.go\",\n      \"line\": 111,\n      \"summary\": \"The assignment replaces the resolver just rebound by withGovernanceReadView with store.FederatedResolver. In production, governance_read_view.go:708-713 supplies a resolver whose FS and Roots belong to the caller's operation. BuildIndexFederatedMaterialIn copies that resolver, and ArtifactResolver.resolve uses its FS and Roots for dependency policies, specs, transfers and revisions. Those observations therefore enter the caller's operation rather than isolated.operation. materialReadsSince collects only isolated.operation, and isolated.audit cannot prove the omitted dependency inputs. A later operation with unchanged local inputs and roots can reuse the old digest after a foreign dependency changes, without replaying or auditing that dependency. This violates R1-R3 and the retained-input integrity boundary. Preserve the isolated resolver binding and add a real federated-builder regression covering a changed foreign dependency and its presence in the replayed closure. The current tests replace the builder with a single local-file read and cannot detect this.\"\n    },\n    {\n      \"id\": \"F7\",\n      \"severity\": \"medium\",\n      \"disposition\": \"blocker\",\n      \"file\": \"pose-mcp/internal/pose/index_material_kept.go\",\n      \"line\": 107,\n      \"summary\": \"The isolated build inherits op.baseStore.Root, which is the coordinator root, rather than store.Root. governanceReadViewOperation.indexInputBinding explicitly invokes this path for foreign stores at governance_read_view.go:695-713. For such a call, the following assignment installs the foreign project ID while leaving the coordinator root selected. beginGovernanceReadView detects that project/root conflict, but build(scoped) still runs against the coordinator before the audit rejects retention and the caller performs its own build. Every foreign-root validation consequently performs a discarded build and cannot retain its own material. Select the requested store root while preserving the base filesystem binding, and test foreign-root validation within a coordinator operation.\"\n    },\n    {\n      \"id\": \"F8\",\n      \"severity\": \"medium\",\n      \"disposition\": \"blocker\",\n      \"file\": \"pose-mcp/internal/pose/index_material_kept.go\",\n      \"line\": 138,\n      \"summary\": \"The key identifies only successful project-to-root lookups, the local project and engine version. Material also depends on resolver outcomes that require no filesystem read. ArtifactResolver.resolve checks Authorize before lookup and emits unauthorized-project versus unknown-project for a referenced but unregistered project. Two operations with identical registered roots but different authorization of that unregistered project therefore have identical keys and replayable file closures, yet different material projections. Likewise, StoreFor errors are omitted at lines 131-134, losing conflicting-binding state. A hit can return the earlier projection digest without reevaluating these outcomes. Bind the retained entry to the relevant authorization and registry outcomes, or decline reuse when those semantic inputs cannot be replayed.\"\n    }\n  ],\n  \"prior_findings\": [\n    {\n      \"id\": \"R1-F1\",\n      \"status\": \"partial\",\n      \"evidence\": \"index_material_kept.go:106-123 replaces directory status markers with observed reads, so nested inputs read through the isolated filesystem can be covered. However, line 111 sends resolver dependency reads outside that isolated closure; nested foreign dependencies remain uncovered as described in F6.\"\n    },\n    {\n      \"id\": \"R1-F2\",\n      \"status\": \"partial\",\n      \"evidence\": \"index_material_kept.go:82-90 and 259-318 replay retained observations through the current view, fixing the former unconditional hit. But lines 110-116 omit resolver reads from the retained closure, so a hit still bypasses material-only dependency observations and their current final audit; see F6.\"\n    },\n    {\n      \"id\": \"R1-F3\",\n      \"status\": \"partial\",\n      \"evidence\": \"index_material_kept.go:213-255 collects actual file observations without Git ignore filtering. Local ignored inputs are therefore covered, but ignored foreign dependency files read through the overwritten resolver at line 111 are omitted; see F6.\"\n    },\n    {\n      \"id\": \"R1-F4\",\n      \"status\": \"fixed\",\n      \"evidence\": \"index_material_kept.go:128-139 no longer enumerates Git status or reads arbitrary status-listed objects. File replay at lines 281-289 uses governanceReadView.readFile and its existing bounded regular-file reader in governance_read_view.go:1795 onward. The unrelated FIFO and large-file key-reading path was removed.\"\n    },\n    {\n      \"id\": \"R1-F5\",\n      \"status\": \"fixed\",\n      \"evidence\": \"index_material_kept.go:128-139 removes the status-processing algorithm and its late 4096-path check entirely. Retention uses observations admitted through the existing read-view record, metadata and input budgets; replay uses those same bounded observation methods at lines 259-318.\"\n    }\n  ],\n  \"sweep\": \"Examined the complete implementation and governance diff, spec R1-R3, D1 and ADR D13, production index-binding consumers, foreign-store routing, resolver filesystem/root propagation, closure collection, every replay kind, audit and budget paths, cache synchronization and retention bound, fallback behavior, validation-matrix registration, all new tests, relevant read-view knowledge, and prior findings R1-F1 through R1-F5. Checked authorization and failed-registry outcomes in addition to filesystem inputs. Ran context resolution, suggest-review, recurrence-check, artifact-check and surface-check read-only. Recurrence-check reported no recurrent failure. Inspected supplied artifact/surface outputs and sealed validation evidence. No source edits, builds, test fixture writes or attestations were performed.\",\n  \"criteria\": [\n    {\n      \"id\": \"assumption-integrity\",\n      \"disposition\": \"finding\",\n      \"evidence\": \"F6\",\n      \"rationale\": \"The essential assumption that all material inputs are observed by the isolated operation is contradicted by resolver propagation. Local-only mocked tests establish local replay, not closure completeness. The reported timing measurement was not independently repeated.\"\n    },\n    {\n      \"id\": \"backend-concurrency\",\n      \"disposition\": \"passed\",\n      \"evidence\": \"unit:pose-mcp/go/test\",\n      \"rationale\": \"Inspected cache lookup/publication locking, immutable retained entries, operation/view locking and existing bounded capture lifecycle. Concurrent misses may duplicate work but do not mutate a published closure. No new unsynchronized production map access was found.\"\n    },\n    {\n      \"id\": \"backend-contracts\",\n      \"disposition\": \"finding\",\n      \"evidence\": \"F6\",\n      \"rationale\": \"Public shapes are unchanged, but the index input freshness contract can return an obsolete federated-material digest.\"\n    },\n    {\n      \"id\": \"backend-input-errors\",\n      \"disposition\": \"passed\",\n      \"evidence\": \"integration:pose-mcp/go/typed-diagnostics-integration\",\n      \"rationale\": \"Inspected unknown, build-failure, budget-failure and replay-mismatch fallback paths. Existing read-view errors remain bounded and no new external input format or unbounded status-file reader is introduced.\"\n    },\n    {\n      \"id\": \"backend-integration-impact\",\n      \"disposition\": \"finding\",\n      \"evidence\": \"F6\",\n      \"rationale\": \"The production resolver consumer crosses the isolated-operation boundary, while the focused tests replace that consumer.\"\n    },\n    {\n      \"id\": \"backend-observability\",\n      \"disposition\": \"finding\",\n      \"evidence\": \"F8\",\n      \"rationale\": \"Reusing a projection across changed authorization or failed-binding outcomes preserves obsolete resolution context.\"\n    },\n    {\n      \"id\": \"compatibility\",\n      \"disposition\": \"finding\",\n      \"evidence\": \"F6\",\n      \"rationale\": \"CLI, MCP and persisted schemas are unchanged, but freshness behavior regresses when dependency inputs change between operations.\"\n    },\n    {\n      \"id\": \"correctness\",\n      \"disposition\": \"finding\",\n      \"evidence\": \"F6\"\n    },\n    {\n      \"id\": \"design-causality\",\n      \"disposition\": \"finding\",\n      \"evidence\": \"F6\",\n      \"rationale\": \"D1 selects read-closure replay to address the incompleteness of repository-state keys. The design addresses that cause only if resolver reads belong to the isolated operation; the implementation breaks that condition.\",\n      \"mappings\": [\n        {\n          \"delta\": \"SD-dae4c7da\",\n          \"basis\": \"D1\",\n          \"disposition\": \"mapped\",\n          \"rationale\": \"The ADR D13 amendment records D1's selection of isolated material construction and per-operation closure replay to satisfy R1-R3.\"\n        }\n      ]\n    },\n    {\n      \"id\": \"documentation\",\n      \"disposition\": \"finding\",\n      \"evidence\": \"F6\",\n      \"rationale\": \"ADR D13 and the spec claim that every material input is retained and replayed. Resolver dependency inputs currently contradict that operational claim.\"\n    },\n    {\n      \"id\": \"operability\",\n      \"disposition\": \"finding\",\n      \"evidence\": \"F8\",\n      \"rationale\": \"Changed resolver authorization and binding failures must produce current resolution states rather than a cached earlier projection.\"\n    },\n    {\n      \"id\": \"requirements\",\n      \"disposition\": \"finding\",\n      \"evidence\": \"F6\",\n      \"rationale\": \"R1 closure completeness, R2 current-operation replay coverage and R3 invalidation on changed dependency input are not established and are contradicted by the production call graph.\"\n    },\n    {\n      \"id\": \"scope\",\n      \"disposition\": \"passed\",\n      \"evidence\": \"structure:design-a2f1185e992eb841\",\n      \"rationale\": \"The implementation remains confined to federated-material binding retention, its tests, validation registration and the governing decision amendment. No unrelated product functionality or public schema migration was introduced.\"\n    },\n    {\n      \"id\": \"security\",\n      \"disposition\": \"finding\",\n      \"evidence\": \"F6\",\n      \"rationale\": \"The defect weakens the governance evidence integrity boundary: a digest may be reused without current observation and audit of its foreign inputs.\"\n    },\n    {\n      \"id\": \"solution-proportionality\",\n      \"disposition\": \"finding\",\n      \"evidence\": \"F7\",\n      \"rationale\": \"A bounded digest-and-closure cache is proportionate to D1 and avoids speculative persistence or watcher infrastructure. However, building the coordinator material during foreign-root validation adds avoidable work and prevents reuse there. The smallest sufficient implementation must retain the requested material target and its actual closure.\"\n    }\n  ],\n  \"tools\": [\n    {\n      \"id\": \"artifact-check\",\n      \"disposition\": \"passed\",\n      \"evidence\": \"command:pose artifact-check --spec pose-index-material-is-kept-per-repository-state --strict --json\",\n      \"rationale\": \"Executed read-only and exited 0. Also inspected the supplied ac-mk.out: five claims, thirty observed paths and repository-wide orphan warnings. A successful attribution gate does not establish functional correctness.\"\n    },\n    {\n      \"id\": \"assess-design\",\n      \"disposition\": \"not-used\",\n      \"evidence\": \"structure:design-a2f1185e992eb841\",\n      \"rationale\": \"Did not rerun assessment commands under the no-write boundary. Inspected the sealed structure result, spec D1 and ADR D13 directly.\"\n    },\n    {\n      \"id\": \"assess-discover\",\n      \"component\": \"pose-mcp\",\n      \"disposition\": \"not-used\",\n      \"evidence\": \"command:pose suggest review --path pose-mcp\",\n      \"rationale\": \"Assessment writes were prohibited. Component scope was established from the brief, resolved context and source inspection.\"\n    },\n    {\n      \"id\": \"assess-integrate\",\n      \"disposition\": \"not-used\",\n      \"evidence\": \"integration:pose-mcp/go/index-material-is-kept-per-repository-state-integration\",\n      \"rationale\": \"Assessment writes were prohibited. Inspected sealed integration evidence and traced the production resolver and foreign-store boundaries directly; F6-F8 remain despite green checks.\"\n    },\n    {\n      \"id\": \"assess-tech-debt\",\n      \"disposition\": \"not-used\",\n      \"evidence\": \"command:pose suggest review --path pose-mcp\",\n      \"rationale\": \"Assessment writes were prohibited. Inspected the changed implementation and tests directly for incomplete paths and debt markers; no separate assessment was generated.\"\n    },\n    {\n      \"id\": \"closeout-check\",\n      \"disposition\": \"deferred\",\n      \"rationale\": \"Requires completion and recording of this review's attestation. No attestation was recorded, as instructed, and blockers remain.\"\n    },\n    {\n      \"id\": \"review-check\",\n      \"disposition\": \"deferred\",\n      \"rationale\": \"Requires this review's recorded attestation; POSE must record and verify the conclusion after this draft.\"\n    },\n    {\n      \"id\": \"suggest-review\",\n      \"component\": \"pose-mcp\",\n      \"disposition\": \"passed\",\n      \"evidence\": \"command:pose suggest review --path pose-mcp\",\n      \"rationale\": \"Executed successfully; selected backend-go, security and documentation-style rules.\"\n    },\n    {\n      \"id\": \"surface-check\",\n      \"disposition\": \"passed\",\n      \"evidence\": \"integration:pose-mcp/go/index-material-is-kept-per-repository-state-integration\",\n      \"rationale\": \"Executed pose surface-check --spec pose-index-material-is-kept-per-repository-state --strict --json read-only; exited 0. Supplied sc-mk.out also reports one target and zero findings. The registered check substitutes the real builder and does not establish resolver closure completeness.\"\n    },\n    {\n      \"id\": \"validate\",\n      \"disposition\": \"passed\",\n      \"evidence\": \"unit:pose-mcp/go/test\",\n      \"rationale\": \"Disposed from the sealed passing validation evidence as instructed. No write-producing validation rerun was attempted. Green tests do not cover the production paths identified in F6-F8.\"\n    },\n    {\n      \"id\": \"validate\",\n      \"component\": \"pose-mcp\",\n      \"disposition\": \"passed\",\n      \"evidence\": \"integration:pose-mcp/go/index-material-is-kept-per-repository-state-integration\",\n      \"rationale\": \"Disposed from the sealed module validation evidence and inspection of the registered focused tests. No Go build or test run was attempted in the read-only sandbox.\"\n    }\n  ]\n}\n```",
+  "policy_digest": "sha256:90ca53a44c8202b7914e12baa143afac5707221147f71fe6fa30a74bb415f911",
+  "purpose": "review",
+  "env_removed": [
+    "CLAUDE_CODE_BRIDGE_SESSION_ID",
+    "CLAUDE_CODE_CHILD_SESSION",
+    "CLAUDE_CODE_ENTRYPOINT",
+    "CLAUDE_CODE_EXECPATH",
+    "CLAUDE_CODE_MESSAGING_SOCKET",
+    "CLAUDE_CODE_MESSAGING_TOKEN",
+    "CLAUDE_CODE_SESSION_ATTENDED",
+    "CLAUDE_CODE_SESSION_ID",
+    "CLAUDE_EFFORT",
+    "CLAUDE_PID"
+  ],
+  "events": "codex-jsonl",
+  "events_digest": "sha256:28c84ace22c8325ba5a26cc3f89f88dcfdc4d39eb7a62494bf25e209ea619df5",
+  "routing": {
+    "requested": "sol-medium",
+    "implementation": {
+      "principal": "agent:anthropic/claude-opus-5-5",
+      "vendor": "anthropic",
+      "model": "claude-opus-5-5",
+      "execution_digest": "sha256:0eb880a4fc2ed87a379c949a567b1d3dfbd6b58b466f4755fcd363dd2b7fed98",
+      "source": "declared"
+    },
+    "implementation_from": "bundle",
+    "step": "explicit"
+  },
+  "independence_achieved": "different-vendor",
+  "round": 3,
+  "thread": {
+    "round": 3,
+    "mode": "new",
+    "from": "rrn-3f0fc8ba917344df",
+    "reason": "the chain of rounds is broken: the draft of round 2 (rrn-3f0fc8ba917344df) cannot be read: it carries no pose-draft block"
+  }
+}
