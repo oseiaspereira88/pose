@@ -1,0 +1,237 @@
+{
+  "run": {
+    "run_id": "rrn-616fb83a95c19b5b",
+    "proof_id": "rrp-bfd45a53a2968dbd6ba5db9a609c3522ad922a16bb46fc1b2bff0f1e9969a43d"
+  },
+  "schema_version": 1,
+  "attestation_id": "rva-0b3da16d0dc4f91f",
+  "bundle_id": "rvb-225025f3114dbcae",
+  "bundle_digest": "sha256:225025f3114dbcae76181d7b7a06aec2c06b80e17e04f7855a7dabc5f89ac445",
+  "reviewer": "agent:openai/gpt-6.1-sol",
+  "decision": "changes-requested",
+  "criteria": [
+    {
+      "id": "assumption-integrity",
+      "disposition": "finding",
+      "evidence": "N1",
+      "rationale": "Current source trust and approval are checked upstream, but the assumption that the prefix comparison preserves the reviewed commitment fails for fenced headings."
+    },
+    {
+      "id": "backend-concurrency",
+      "disposition": "passed",
+      "evidence": "integration:pose-mcp/go/federated-proof-reads-each-input-once-integration",
+      "rationale": "Examined the added read-only comparison and existing bounded Git capture. No shared mutation, new goroutine, or lifecycle ownership is introduced."
+    },
+    {
+      "id": "backend-contracts",
+      "disposition": "finding",
+      "evidence": "N3",
+      "rationale": "The new retention behavior does not handle the existing supported section-split spec file contract."
+    },
+    {
+      "id": "backend-input-errors",
+      "disposition": "finding",
+      "evidence": "N2",
+      "rationale": "Unreadable revisions fail closed, but valid CRLF input incorrectly rejects a Final Report-only change."
+    },
+    {
+      "id": "backend-integration-impact",
+      "disposition": "finding",
+      "evidence": "N3",
+      "rationale": "The new Git reader assumes a file path while the existing spec reader also supplies directory paths."
+    },
+    {
+      "id": "backend-observability",
+      "disposition": "passed",
+      "evidence": "integration:pose-mcp/go/typed-diagnostics-integration",
+      "rationale": "Retention failures continue through the existing bounded retainedManifestChanged diagnostic; the change introduces no sensitive logging."
+    },
+    {
+      "id": "compatibility",
+      "disposition": "finding",
+      "evidence": "N3",
+      "rationale": "CLI and MCP schemas are unchanged, but the promised behavior excludes an existing supported spec layout."
+    },
+    {
+      "id": "correctness",
+      "disposition": "finding",
+      "evidence": "N1",
+      "rationale": "The semantic guard can accept changed requirements. N2 and N3 also reject qualifying commitments."
+    },
+    {
+      "id": "design-causality",
+      "disposition": "finding",
+      "evidence": "N1",
+      "rationale": "D1 addresses whole-repository pin churn by retaining an unchanged commitment under current source acceptance. Comparing committed semantic text is causally appropriate, but the boundary implementation does not establish that invariant.",
+      "mappings": [
+        {
+          "delta": "SD-e5d1ca9d",
+          "basis": "D1",
+          "disposition": "mapped",
+          "rationale": "The ADR amendment records D1's choice to retain approval over qualifying pin movement, including the R1-R4 commitment conditions."
+        }
+      ]
+    },
+    {
+      "id": "documentation",
+      "disposition": "finding",
+      "evidence": "N3",
+      "rationale": "The spec and ADR describe comparison of the dependency spec without a layout restriction, while runtime reads a tree listing for supported split specs."
+    },
+    {
+      "id": "operability",
+      "disposition": "finding",
+      "evidence": "N2",
+      "rationale": "A routine Final Report disposition on a CRLF spec still unapproves consumers and defeats the intended reduction in review churn."
+    },
+    {
+      "id": "requirements",
+      "disposition": "finding",
+      "evidence": "N1",
+      "rationale": "R4 is bypassable; N2 and N3 establish additional R1 failures. Focused passing tests omit these boundary cases."
+    },
+    {
+      "id": "scope",
+      "disposition": "passed",
+      "evidence": "structure:design-271dab0f4f727bda",
+      "rationale": "The implementation, regression file, validation registration, and ADR amendment directly serve the approved retention change. No unrelated implementation expansion was found."
+    },
+    {
+      "id": "security",
+      "disposition": "finding",
+      "evidence": "N1",
+      "rationale": "The fenced-heading shortcut satisfies the new commitment gate without preserving its authority value. No adversarial corpus case covers this shortcut."
+    },
+    {
+      "id": "solution-proportionality",
+      "disposition": "passed",
+      "evidence": "structure:design-271dab0f4f727bda",
+      "rationale": "A local comparison in the existing retention judgment is proportionate to D1 and smaller than renewing every consumer review or adding a new persisted digest contract. It adds no speculative framework. This choice requires a reliable comparison across supported spec syntax and layouts; the findings identify where that condition currently fails."
+    }
+  ],
+  "tools": [
+    {
+      "id": "artifact-check",
+      "disposition": "passed",
+      "evidence": "command:/tmp/pose-independent-review-225025 artifact-check --spec pose-closed-scope-stands-over-a-moved-federated-pin --strict",
+      "rationale": "Built the subject engine and ran the required command to completion with exit 0. It reported broad provenance warnings; also inspected an explicit supplied-range run rather than treating expanded registry scope as a defect in this change."
+    },
+    {
+      "id": "assess-design",
+      "disposition": "not-used",
+      "evidence": "structure:design-271dab0f4f727bda",
+      "rationale": "Used sealed structural evidence and inspected the spec, D1, ADR delta, and implementation directly; did not rerun a repository-writing assessment."
+    },
+    {
+      "id": "assess-discover",
+      "component": "pose-mcp",
+      "disposition": "not-used",
+      "evidence": "structure:design-271dab0f4f727bda",
+      "rationale": "Did not run a repository-writing discovery assessment. Reviewed the mapped component and production call chain directly."
+    },
+    {
+      "id": "assess-integrate",
+      "disposition": "not-used",
+      "evidence": "integration:pose-mcp/go/federated-roadmap-acceptance-integration",
+      "rationale": "Used sealed integration evidence and inspected federated manifest construction, trust validation, source approval, retention callers, and spec readers without writing assessment state."
+    },
+    {
+      "id": "assess-tech-debt",
+      "disposition": "not-used",
+      "evidence": "command:rg -n 'TODO|FIXME|stub|panic' pose-mcp/internal/pose/federated_pin_move_test.go",
+      "rationale": "Did not run a repository-writing assessment. Inspected the full changed implementation and test for debt markers; no new TODO, FIXME, stub, or panic marker was found."
+    },
+    {
+      "id": "closeout-check",
+      "disposition": "deferred",
+      "evidence": "structure:design-271dab0f4f727bda",
+      "rationale": "Completion gate depends on the recorded conclusion. This review requests changes and records no attestation."
+    },
+    {
+      "id": "review-check",
+      "disposition": "deferred",
+      "evidence": "structure:design-271dab0f4f727bda",
+      "rationale": "Completion gate must follow recording and verification of the review conclusion."
+    },
+    {
+      "id": "suggest-review",
+      "component": "pose-mcp",
+      "disposition": "passed",
+      "evidence": "command:/tmp/pose-independent-review-225025 suggest review --path pose-mcp",
+      "rationale": "Selected and applied the backend-go, security, and documentation-style rules."
+    },
+    {
+      "id": "surface-check",
+      "disposition": "passed",
+      "evidence": "integration:pose-mcp/go/closed-scope-stands-over-a-moved-federated-pin-integration",
+      "rationale": "Ran the subject-built engine's strict surface-check: one target, 228 results, zero findings, exit 0. This proves registered surface evidence, not coverage of the newly identified boundary cases."
+    },
+    {
+      "id": "validate",
+      "disposition": "passed",
+      "evidence": "unit:pose-mcp/go/test",
+      "rationale": "Disposed from the sealed strict validation producer as requested. Independently built the subject and ran focused and broader relevant Go tests to completion; did not rerun repository-writing validation."
+    },
+    {
+      "id": "validate",
+      "component": "pose-mcp",
+      "disposition": "passed",
+      "evidence": "integration:pose-mcp/go/closed-scope-stands-over-a-moved-federated-pin-integration",
+      "rationale": "Used sealed module validation evidence and independently reran all four registered focused tests, followed by Test.*(Federated|Retained|RoadmapClose|DoneSpecKeeps); both commands passed."
+    }
+  ],
+  "evidence_refs": [
+    "N1",
+    "N2",
+    "N3",
+    "delegated-run:rrn-616fb83a95c19b5b",
+    "integration:pose-mcp/go/federated-proof-reads-each-input-once-integration",
+    "integration:pose-mcp/go/typed-diagnostics-integration",
+    "structure:design-271dab0f4f727bda"
+  ],
+  "findings": [
+    {
+      "id": "N1",
+      "severity": "high",
+      "evidence": "file:pose-mcp/internal/pose/review_bundle.go:4749",
+      "action": "specCommitment treats a Final Report heading inside a fenced Markdown example as the actual section boundary. Put an unchanged fenced example containing '## 7. Final Report' in Intent, then change a subsequent R1 requirement between the sealed and current revisions: the extracted commitments remain equal. externalDependencyStands permits source reapproval and manifestStandsOver then substitutes the current dependency, preserving consumer approval over changed requirements. This violates R4 and leaves the semantic protection requested by R1-F1 incomplete. Identify the actual Markdown section outside fenced examples and add this negative regression.",
+      "disposition": "open"
+    },
+    {
+      "id": "N2",
+      "severity": "medium",
+      "evidence": "file:pose-mcp/internal/pose/review_bundle.go:4744",
+      "action": "The heading expression excludes carriage returns before its multiline end anchor. With CRLF content, '## 7. Final Report\\r\\n' does not match, so specCommitment compares the entire file. A follow-up disposition change alone therefore rejects a moved dependency despite identical commitment text before the Final Report, violating R1. An in-memory probe using the expression extracted from this source matched the LF heading and failed the CRLF heading. Recognize CRLF boundaries while preserving comparison of commitment content.",
+      "disposition": "open"
+    },
+    {
+      "id": "N3",
+      "severity": "medium",
+      "evidence": "file:pose-mcp/internal/pose/review_bundle.go:4732",
+      "action": "GetSpec supports section-split specs, whose Path is their directory (spec.go:487-501). These git show calls consequently read a tree listing rather than the spec's section contents. Observed 'git show 6cd8e2361b4c54b60f9bdbc5d18edbdd593b92ed:.pose/specs' begins with 'tree 6cd8e2361b4c54b60f9bdbc5d18edbdd593b92ed:.pose/specs'; a different revision changes that header, and no Final Report heading exists in the listing. Thus a split dependency cannot retain approval over a moved revision even when only final-report.md changed, contrary to R1. Read and compare the supported split-spec commitment sections at both revisions and cover Final Report-only and requirement changes.",
+      "disposition": "open"
+    }
+  ],
+  "authority": {
+    "schema_version": 1,
+    "project": "proj.pose-dist",
+    "bundle_digest": "sha256:225025f3114dbcae76181d7b7a06aec2c06b80e17e04f7855a7dabc5f89ac445",
+    "principal": "agent:openai/gpt-6.1-sol",
+    "role": "agent",
+    "review_execution": "rrn-616fb83a95c19b5b",
+    "implementation_principal": "agent:anthropic/claude-opus-5-5",
+    "implementation_execution": "sha256:0eb880a4fc2ed87a379c949a567b1d3dfbd6b58b466f4755fcd363dd2b7fed98",
+    "issuer": "b34-local-executor",
+    "issued_at": "2026-11-16T03:28:02Z",
+    "audience": "proj.pose-dist"
+  },
+  "envelope": {
+    "issuer": "b34-local-executor",
+    "subject": "rvb-225025f3114dbcae",
+    "algorithm": "ed25519",
+    "public_key": "ck4sApdfePV2GT+hJyAYfJd2qLzeG55P8pevGR0bvZE=",
+    "signature": "X4ood7DpdfIfC7PIaBVTexajo48i/7/O1dYi8f6cnqIMwkWzY2CQQkLycgOutvQQtsreyPnoaPvJBgLMINdmAw=="
+  },
+  "attested_at": "2026-11-16T03:28:02Z",
+  "path": ".pose/review-attestations/rva-0b3da16d0dc4f91f.json"
+}
