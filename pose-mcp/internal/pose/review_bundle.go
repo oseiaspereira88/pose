@@ -18,6 +18,7 @@ import (
 	"os"
 	"os/exec"
 	"path/filepath"
+	"slices"
 	"sort"
 	"strconv"
 	"strings"
@@ -4653,12 +4654,29 @@ func (s Store) manifestStandsOver(sealed, current *FederatedRoadmapManifest) boo
 	}
 	was.Dependencies = append([]FederatedDependency{}, sealed.Dependencies...)
 	met := map[string]bool{}
+	pinMoved := false
 	for i := range was.Dependencies {
 		then, now := &was.Dependencies[i], current.Dependencies[i]
 		if then.SourceRevision == now.SourceRevision && then.SourceDigest == now.SourceDigest && then.Status == now.Status {
 			continue
 		}
-		if now.Identity.Project != was.Coordinator.Project || then.Status != now.Status && now.Status != "done" {
+		// A dependency of another project is accepted at the revision the
+		// trust pin names, so moving the pin moves every such dependency. It
+		// stands when it is still the commitment the reviewer accepted: the
+		// same artifact and relationship, done, with the same plan and
+		// governing contracts, and accepted by the current manifest with no
+		// blocker naming it, which already requires current trust and a
+		// current approved review of it (spec
+		// pose-closed-scope-stands-over-a-moved-federated-pin).
+		if now.Identity.Project != was.Coordinator.Project {
+			if !externalDependencyStands(*then, now, current.Blockers) {
+				return false
+			}
+			*then = now
+			pinMoved = true
+			continue
+		}
+		if then.Status != now.Status && now.Status != "done" {
 			return false
 		}
 		if !s.sameRoadmapApartFromLifecycle(now.Identity, then.SourceRevision, now.SourceRevision) {
@@ -4675,8 +4693,41 @@ func (s Store) manifestStandsOver(sealed, current *FederatedRoadmapManifest) boo
 			blockers = append(blockers, blocker)
 		}
 	}
+	if pinMoved {
+		// The trust policy holds the pins; a moved pin changes its digest.
+		// Every dependency of another project was judged above under the
+		// current policy, so its digest follows them.
+		was.TrustPolicyDigest = current.TrustPolicyDigest
+	}
 	was.Blockers, was.Ready, was.Digest = blockers, current.Ready, current.Digest
 	return sameFederatedManifest(&was, current)
+}
+
+// externalDependencyStands reports whether a dependency of another project,
+// accepted at a moved pin, is still the commitment a closed scope's reviewer
+// accepted. Its revision, content, evidence and review may have moved with
+// the pin; its identity, relationship, resolution, done status, plan and
+// governing contracts may not, and the current manifest names no blocker of
+// it.
+func externalDependencyStands(then, now FederatedDependency, currentBlockers []string) bool {
+	if then.Ref != now.Ref || then.Identity != now.Identity || then.Relationship != now.Relationship || !slices.Equal(then.Relationships, now.Relationships) {
+		return false
+	}
+	if then.ResolutionState != "resolved" || now.ResolutionState != "resolved" || then.Status != "done" || now.Status != "done" {
+		return false
+	}
+	if then.PlanDigest == "" || then.PlanDigest != now.PlanDigest || !slices.Equal(then.GoverningContracts, now.GoverningContracts) {
+		return false
+	}
+	if now.ReviewBundleID == "" || now.ReviewBundleDigest == "" {
+		return false
+	}
+	for _, blocker := range currentBlockers {
+		if blocker == now.Ref || strings.HasPrefix(blocker, now.Ref+":") {
+			return false
+		}
+	}
+	return true
 }
 
 // sameRoadmapApartFromLifecycle reports whether a roadmap's committed file holds

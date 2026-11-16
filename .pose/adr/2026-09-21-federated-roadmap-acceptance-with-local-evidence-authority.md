@@ -80,3 +80,31 @@ Version and explicitly adopt new semantics. Historic bundles keep their sealed
 contract. Preview migration without rewriting evidence. A program may remain
 blocked after implementations finish; diagnostics must name the unmet criterion
 and its owner. Engine acceptance uses generic fixtures, not consumer adoption.
+
+## Amendment — 2026-11-16: a closed scope stands over a moved trust pin
+
+Spec `pose-closed-scope-stands-over-a-moved-federated-pin`. A dependency of
+another project is accepted at the whole-repository revision the consumer's
+trust pin names. Spec `pose-closeout-judges-the-manifest` (2026-11-01) made
+closeout agree with `review verify`: any difference between a closed scope's
+sealed manifest and the current one unapproves it. So every move of a pin
+unapproved every closed scope that depends on that project. After harne8
+pinned pose-dist at `edcf5f2`, 18 of its closed specs lost their approval.
+The three dependencies of one of them had only had follow-up dispositions
+recorded and been reviewed again.
+
+A closed scope's approval now stands over such a dependency when it is still
+the commitment the reviewer accepted:
+
+- the same reference, identity and relationships;
+- resolved and done, then and now;
+- the same plan digest and governing contracts;
+- a current review bundle;
+- no blocker of the current manifest naming it.
+
+The current acceptance already requires current trust and an approved
+review of the dependency. Its revision, content, evidence, implementation
+digest and review may move with the pin. The trust policy digest, which holds
+the pins, follows only when at least one dependency of another project moved
+and was judged this way; a trust policy change alone still unapproves. A
+same-project dependency keeps the rule it had.
