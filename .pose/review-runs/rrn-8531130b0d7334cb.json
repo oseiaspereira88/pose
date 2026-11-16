@@ -1,0 +1,142 @@
+{
+  "safety": {
+    "schema_version": 1,
+    "profile": "legacy-trusted",
+    "platform": "linux/amd64",
+    "capabilities": {
+      "automatic-expiry": "unavailable",
+      "bounded-capture": "available",
+      "cpu-limit": "unavailable",
+      "credential-filesystem-isolation": "unavailable",
+      "environment-allowlist": "available",
+      "escaped-descendant-termination": "unavailable",
+      "filesystem-isolation": "unavailable",
+      "memory-limit": "unavailable",
+      "network-isolation": "unavailable",
+      "origin-isolation": "unavailable",
+      "parent-termination": "available",
+      "process-group-termination": "available",
+      "shared-git-isolation": "unavailable"
+    },
+    "limitations": [
+      "trusted local executable required; worktree is not a sandbox",
+      "outside writes, transient writes, shared Git and credential files are not isolated",
+      "no memory/CPU quota or control of descendants escaping the process group",
+      "cleanup filesystem calls remain subject to operating-system I/O latency",
+      "legacy compatibility: HOME retained; other ambient credentials excluded"
+    ],
+    "stream_bytes": 8388608,
+    "output_bytes": 65536,
+    "retained_bytes": 16777216,
+    "timeout_ms": 3600000,
+    "max_runs_per_bundle": 3,
+    "retention": "retain-evidence; ttl=0; no automatic deletion",
+    "capture_complete": true,
+    "runtime_id": "pose-review-run-2226005046",
+    "operation": {
+      "schema_version": 1,
+      "operation": "review.dispatch.cleanup",
+      "scope": "spec:pose-review-ledger-is-read-once-per-operation",
+      "outcome": "completed",
+      "steps_run": [
+        {
+          "id": "cleanup",
+          "result": "done"
+        }
+      ],
+      "effects": [],
+      "resumable": false
+    }
+  },
+  "provenance": {
+    "execution_state": "started",
+    "planned_wire_digest": "sha256:d0e8d9afd76f7dc19e44f842304c469f3a40a9c66c9b206d51489ccf44186118",
+    "wire_bytes": 28497,
+    "wire_complete": true,
+    "schema_version": 1,
+    "project": "proj.pose-dist",
+    "audience": "proj.pose-dist",
+    "worktree_digest": "sha256:9c161dc895f6496d9f800581bef8673cc9123cda65951fa2d23b0cbdbc2bac41",
+    "trust": "executor-attested",
+    "implementation": {
+      "principal": "agent:anthropic/claude-opus-5-5",
+      "execution": "sha256:0eb880a4fc2ed87a379c949a567b1d3dfbd6b58b466f4755fcd363dd2b7fed98",
+      "vendor": "anthropic",
+      "model": "claude-opus-5-5"
+    },
+    "reviewer": {
+      "principal": "agent:openai/gpt-6.1-sol",
+      "vendor": "openai",
+      "model": "gpt-6.1-sol"
+    },
+    "config_digest": "sha256:637a9d88c40dbf75da8525db65c216ace591f828ef25c233358db1a99e70ee31",
+    "command_template_digest": "sha256:e3a23ff8a55e559e954d107a039277628bfc51faa58d523ad6101de7c375ad28",
+    "argv_digest": "sha256:2b7927c037eb78cfd4138876c828611e9b6262c06d1170642318ee56700b3c95",
+    "executable_digest": "sha256:e14fc83739c13c1074b12bd1acce4010c893c7f6fbfc1593b4a31d74cabb57af",
+    "template_version": "review-brief/7",
+    "wire_digest": "sha256:d0e8d9afd76f7dc19e44f842304c469f3a40a9c66c9b206d51489ccf44186118",
+    "notes_digest": "sha256:8cdd4ad84fce3e2c20ed2a1a87536a48ac00e403525ceba857594fcd3559975c",
+    "raw_transcript_digest": "sha256:1ff0910dd25bca40c38d0888db86fb2b8458b2eb691a48df79f951003942da73",
+    "raw_output_digest": "sha256:d73abea99f7213401a4f7a31bc6086afbbdd43f86c47c2ee52d6fb396e9cdb1f",
+    "output_source": "file",
+    "output_complete": true
+  },
+  "session_digest": "sha256:1d6f9094ae154c522fbcd81fb3cb1ec21a183600c2306e6983586711d7d8b00e",
+  "tree_digest": "sha256:b8952b6e663f76688bc4c5f053fd24cc47ad521cf8ecf86ef1446df41560a2db",
+  "brief_notes": "Review round 2 of spec pose-review-ledger-is-read-once-per-operation (an engine performance change with amendment D14 of ADR governance-reads-use-bounded-operation-scoped-views).\n\nThe previous run (rrn-7dfb663ed1e8ebbb) requested changes in prose; its final message carried no `pose-draft` block, so end this run with one. Its findings, all fixed in commit 2bf2adf1 with a test that fails without the fix: F1 concurrent misses of one key both computed (now a cell per key under `sync.Once`; `TestReviewLedgerMemoComputesOnceForConcurrentMisses`); F2 callers got shallow copies sharing nested slices and pointers, so changing a returned attestation's `Criteria[0].Disposition` changed the kept one (now `deepCopyValue` for exported fields, and `copyReviewRuns` copies `ReviewRun`'s three unexported fields by name under `TestCopyReviewRunsCoversEveryUnexportedField`; `TestReviewLedgerMemoGivesIsolatedCopies` mutates nested fields of runs and attestations); F3 copying onto nil turned empty slices into nil (the deep copy keeps nil and empty apart; the same test compares an empty answer with a fresh read using reflect.DeepEqual, which tells them apart). Account for F1-F3 in `prior_findings` as the engine's brief lists them.\n\nWhat else to judge, unchanged from round 1: `memoizedLedgerRead` keeps per key, in the read-view operation, the parsed runs per root (`readAllReviewRuns`, filtered per request), the attestations per (root, bundle filter), each transcript check per (root, path, expected digest), and each bundle header per (dir, name); without an operation it computes every time. The basis is that within one operation the read view returns the same bytes for the same read; the first computation reads through the view, so the closure and final audit cover every input. Measured on harne8: first call CPU 130 s -\u003e 53 s, wall 197 s -\u003e 136 s; the remaining wall time is Git (follow-ups F1 and F2 of the spec; the spec's own follow-up ids are F1 and F2, so number new review findings from F4).\n\nBuilding: this review runs under a read-only sandbox, so nothing can be built or written, not even a TMPDIR; do not try, and do not stop the review over it. The pipeline built the engine of the sealed commit and installed it as `pose` on PATH (`~/.local/bin/pose`); use that binary for read-only commands. It also ran `pose artifact-check --strict` and `pose surface-check --strict` against the sealed commit; their outputs are `/var/tmp/closeout/ac-rl.out` and `/var/tmp/closeout/sc-rl.out`. Dispose those tools from that evidence and from the code when a rerun fails for environment reasons. The package tests (`go test ./internal/pose ./internal/cli ./internal/mcpserver ./internal/scaffold`) passed on the sealed code; judge the tests by reading them.\n\nDo NOT run `pose assess`, `pose state`, `pose index` or anything else that writes under `.pose/`; dispose assess-* tools from the sealed evidence and the code. Leave the worktree as you found it. Dispose the `validate` tools from the sealed evidence: the pipeline ran `pose validate --strict` on a clean clone of the sealed commit with a GitHub token (`.pose/results/delivery-validation.json`); a rerun in your sandbox fails for environment reasons and is not evidence about the code. A finding object accepts exactly `id`, `severity`, `disposition`, `file`, `line`, `summary`, and for an accepted follow-up `action`, `owner`, `review_by`; put any rationale inside `summary`. A new finding's id carries no round prefix (continue at F4). Sweep the whole surface and report every finding in one pass, classified blocker vs follow-up.\n",
+  "ledger_version": 1,
+  "attempt_id": "rat-a4e0a40eff40e4cc9537054e38ac08364b873b26c0ead9d39ec15d6ef09193b6",
+  "schema_version": 1,
+  "run_id": "rrn-8531130b0d7334cb",
+  "scope": "spec:pose-review-ledger-is-read-once-per-operation",
+  "bundle_id": "rvb-aa61bb656377ad01",
+  "bundle_digest": "sha256:aa61bb656377ad01d0e6a641809e3067ae0d609e9f6cd67eac17e863dbc333d1",
+  "sealed_commit": "d46107185ca0748d750ae9c93b63c1eea71ca483",
+  "kind": "review",
+  "brief_digest": "sha256:b05ae8c2c1f02b00a41d5e9da20197eba7db03ac439312d8f456ebdde29c7480",
+  "adapter": "sol-medium",
+  "vendor": "openai",
+  "model": "gpt-6.1-sol",
+  "started_at": "2026-11-16T15:32:03.039063848Z",
+  "ended_at": "2026-11-16T15:35:56.698437368Z",
+  "exit_code": 0,
+  "status": "completed",
+  "transcript_digest": "sha256:44c7f55c7e302ccf0747a82ed6e94b022e01fa1a614a37b68422bcfc318fdd94",
+  "transcript_path": ".pose/review-runs/rrn-8531130b0d7334cb.transcript",
+  "output": "decision: changes-requested\n\n**F4 — medium, blocker:** [review_ledger_memo.go:42](/var/tmp/pose-work-go/pose-review-run-2226005046/worktree/pose-mcp/internal/pose/review_ledger_memo.go:42) returns cached values after the read view has finalized. Retain a callback’s `Store`, warm its runs or attestations, finish the operation, then call the same reader: it returns the old records successfully. Previously, filesystem reads called `governanceReadView.begin()` and returned the finalized-view error. Check lifecycle eligibility before memo lookup and add an escaped-store regression test.\n\nPrior F1–F3 are fixed. Repository unchanged; no attestation recorded. Tests were inspected against sealed passing evidence; this read-only sandbox could not execute builds. The surface check passed with zero findings.\n\nApplied the review workflow and Go, security, documentation, and delivery-evidence rules. The design is appropriately scoped, but its operation-lifetime assumption fails at finalization.\n\n```pose-draft\n{\n  \"schema\": \"pose.review.draft/v1\",\n  \"decision\": \"changes-requested\",\n  \"findings\": [\n    {\n      \"id\": \"F4\",\n      \"severity\": \"medium\",\n      \"disposition\": \"blocker\",\n      \"file\": \"pose-mcp/internal/pose/review_ledger_memo.go\",\n      \"line\": 42,\n      \"summary\": \"Memo hits bypass finalized-view enforcement. Retain the Store supplied by WithReviewOperationView, warm ReadReviewRuns or ReadReviewAttestations, finish the operation, and invoke the same reader again: the kept cell returns stale records successfully, even after the underlying ledger changes. Previously the read passed through governanceReadView.begin(), which rejects finalized views (governance_read_view.go:1221); final audit sets closed at governance_read_view.go:2093. This violates the operation-lifetime constraint and R4 error compatibility. Check lifecycle eligibility before serving a memo hit and cover warmed runs and attestations accessed after finalization.\"\n    }\n  ],\n  \"prior_findings\": [\n    {\n      \"id\": \"R1-F1\",\n      \"status\": \"fixed\",\n      \"evidence\": \"review_ledger_memo.go:42-49 uses a shared sync.Once cell; TestReviewLedgerMemoComputesOnceForConcurrentMisses covers concurrent misses.\"\n    },\n    {\n      \"id\": \"R1-F2\",\n      \"status\": \"fixed\",\n      \"evidence\": \"review_ledger_memo.go:55-69 and review_bundle.go:3347 return deep copies; TestReviewLedgerMemoGivesIsolatedCopies covers nested mutations.\"\n    },\n    {\n      \"id\": \"R1-F3\",\n      \"status\": \"fixed\",\n      \"evidence\": \"cache_size.go:118-129 preserves nil versus allocated empty slices; TestReviewLedgerMemoGivesIsolatedCopies compares empty results with fresh reads.\"\n    }\n  ],\n  \"sweep\": \"Reviewed all scoped implementation and governance diffs, spec R1-R4 and D1, ADR D14, memo key dependencies, concurrent computation, returned-value isolation, nil/empty compatibility, ledger losses and bounds, transcript verification, authorized-root routing, final audit and escaped-store lifecycle. Inspected regression tests, pipeline artifact/surface outputs and strict validation results. No repository changes or attestation.\",\n  \"criteria\": [\n    {\n      \"id\": \"assumption-integrity\",\n      \"disposition\": \"finding\",\n      \"evidence\": \"F4\"\n    },\n    {\n      \"id\": \"backend-concurrency\",\n      \"disposition\": \"finding\",\n      \"evidence\": \"F4\"\n    },\n    {\n      \"id\": \"backend-contracts\",\n      \"disposition\": \"finding\",\n      \"evidence\": \"F4\"\n    },\n    {\n      \"id\": \"backend-input-errors\",\n      \"disposition\": \"finding\",\n      \"evidence\": \"F4\"\n    },\n    {\n      \"id\": \"backend-integration-impact\",\n      \"disposition\": \"passed\",\n      \"evidence\": \"integration:pose-mcp/go/review-ledger-is-read-once-per-operation-integration\",\n      \"rationale\": \"Production consumers retain the existing Store readers and Files abstraction; the approved-run fixture exercises bundle verification through the memo.\"\n    },\n    {\n      \"id\": \"backend-observability\",\n      \"disposition\": \"passed\",\n      \"evidence\": \"integration:pose-mcp/go/review-ledger-is-read-once-per-operation-integration\",\n      \"rationale\": \"Within active operations, existing loss records and returned diagnostic context are preserved; the equivalence test includes a malformed run.\"\n    },\n    {\n      \"id\": \"compatibility\",\n      \"disposition\": \"finding\",\n      \"evidence\": \"F4\"\n    },\n    {\n      \"id\": \"correctness\",\n      \"disposition\": \"finding\",\n      \"evidence\": \"F4\"\n    },\n    {\n      \"id\": \"design-causality\",\n      \"disposition\": \"passed\",\n      \"evidence\": \"structure:design-89b66aa1460a300d\",\n      \"rationale\": \"Spec D1 selects operation-scoped reuse because repeated verification reparses and hashes the same captured inputs. Four memo families address that cause directly, while first computations retain Files reads and final auditing. F4 identifies the missing lifetime enforcement.\",\n      \"mappings\": [\n        {\n          \"delta\": \"SD-55df3a37\",\n          \"basis\": \"D1\",\n          \"disposition\": \"mapped\",\n          \"rationale\": \"ADR amendment D14 records D1's operation-scoped derived-ledger memo, supporting R1 and R2 while requiring R4 equivalence and unchanged auditing.\"\n        }\n      ]\n    },\n    {\n      \"id\": \"documentation\",\n      \"disposition\": \"passed\",\n      \"evidence\": \"structure:design-89b66aa1460a300d\",\n      \"rationale\": \"The spec, ADR D14, comments and validation-matrix entry consistently describe the four memo families, fresh reads without an operation, deep-copy isolation and deferred Git optimizations. No public format or scaffold change is introduced.\"\n    },\n    {\n      \"id\": \"operability\",\n      \"disposition\": \"finding\",\n      \"evidence\": \"F4\"\n    },\n    {\n      \"id\": \"requirements\",\n      \"disposition\": \"finding\",\n      \"evidence\": \"F4\"\n    },\n    {\n      \"id\": \"scope\",\n      \"disposition\": \"passed\",\n      \"evidence\": \"structure:design-89b66aa1460a300d\",\n      \"rationale\": \"The scoped implementation changes only ledger-derived reuse, result copying and associated tests. ADR and validation registration support those changes; cross-operation caching and Git maintenance remain separate work.\"\n    },\n    {\n      \"id\": \"security\",\n      \"disposition\": \"passed\",\n      \"evidence\": \"integration:pose-mcp/go/governance-read-view-integration\",\n      \"rationale\": \"Inspected root-qualified keys, first-computation Files reads, transcript bounds and identity checks, and retained final auditing. The change adds no credentials, authority grants or new external inputs. The finalized-store correctness regression is reported separately as F4.\"\n    },\n    {\n      \"id\": \"solution-proportionality\",\n      \"disposition\": \"passed\",\n      \"evidence\": \"structure:design-89b66aa1460a300d\",\n      \"rationale\": \"A generic operation-owned map with per-key sync.Once cells is a small sufficient mechanism for the four repeated computations. It avoids persistent invalidation and parallel verification machinery. Reuse is valid only while captured inputs and operation lifecycle remain valid; F4 requires enforcing that condition.\"\n    }\n  ],\n  \"tools\": [\n    {\n      \"id\": \"artifact-check\",\n      \"disposition\": \"passed\",\n      \"evidence\": \"command:pose artifact-check --spec pose-review-ledger-is-read-once-per-operation --strict\",\n      \"rationale\": \"Inspected the supplied pipeline output at /var/tmp/closeout/ac-rl.out and reran with --json. Output contains provenance-orphan warnings, with no error-severity finding observed.\"\n    },\n    {\n      \"id\": \"assess-design\",\n      \"disposition\": \"not-used\",\n      \"rationale\": \"Avoided assessment writes in the read-only review. Inspected spec D1, ADR D14 and scoped structure; sealed structure:design-89b66aa1460a300d passes.\"\n    },\n    {\n      \"id\": \"assess-discover\",\n      \"component\": \"pose-mcp\",\n      \"disposition\": \"not-used\",\n      \"rationale\": \"Assessment writes are outside this review's read-only boundary; inspected component implementation and sealed validation evidence directly.\"\n    },\n    {\n      \"id\": \"assess-integrate\",\n      \"disposition\": \"not-used\",\n      \"rationale\": \"Avoided assessment writes. No CLI, MCP schema or persisted format changes; inspected Store consumers and sealed integration evidence.\"\n    },\n    {\n      \"id\": \"assess-tech-debt\",\n      \"disposition\": \"not-used\",\n      \"rationale\": \"Avoided assessment writes. Inspected the scoped diff for unfinished implementation and reviewed the spec's explicitly owned Git-performance follow-ups.\"\n    },\n    {\n      \"id\": \"closeout-check\",\n      \"disposition\": \"deferred\",\n      \"rationale\": \"Completion requires the recorded review conclusion; this review records no attestation.\"\n    },\n    {\n      \"id\": \"review-check\",\n      \"disposition\": \"deferred\",\n      \"rationale\": \"Completion requires the recorded review conclusion; this review records no attestation.\"\n    },\n    {\n      \"id\": \"suggest-review\",\n      \"component\": \"pose-mcp\",\n      \"disposition\": \"passed\",\n      \"evidence\": \"command:pose suggest review --path pose-mcp\",\n      \"rationale\": \"Ran successfully and applied the selected Go, security and documentation rules.\"\n    },\n    {\n      \"id\": \"surface-check\",\n      \"disposition\": \"passed\",\n      \"evidence\": \"integration:pose-mcp/go/review-ledger-is-read-once-per-operation-integration\",\n      \"rationale\": \"Ran pose surface-check --spec pose-review-ledger-is-read-once-per-operation --strict: one target, 231 results, zero findings.\"\n    },\n    {\n      \"id\": \"validate\",\n      \"disposition\": \"passed\",\n      \"evidence\": \"unit:pose-mcp/go/test\",\n      \"rationale\": \"Disposed from sealed pipeline execution of pose validate --strict. The delivery-validation report records 231 executed and passing checks. Builds cannot run in this read-only sandbox.\"\n    },\n    {\n      \"id\": \"validate\",\n      \"component\": \"pose-mcp\",\n      \"disposition\": \"passed\",\n      \"evidence\": \"integration:pose-mcp/go/review-ledger-is-read-once-per-operation-integration\",\n      \"rationale\": \"Disposed from sealed strict validation covering pose-mcp, including the six registered memo regression tests; inspected their source. The report's validation head differs from the sealed head only through subsequent generated indexes and validation-record changes.\"\n    }\n  ]\n}\n```",
+  "policy_digest": "sha256:90ca53a44c8202b7914e12baa143afac5707221147f71fe6fa30a74bb415f911",
+  "purpose": "review",
+  "env_removed": [
+    "CLAUDE_CODE_BRIDGE_SESSION_ID",
+    "CLAUDE_CODE_CHILD_SESSION",
+    "CLAUDE_CODE_ENTRYPOINT",
+    "CLAUDE_CODE_EXECPATH",
+    "CLAUDE_CODE_MESSAGING_SOCKET",
+    "CLAUDE_CODE_MESSAGING_TOKEN",
+    "CLAUDE_CODE_SESSION_ATTENDED",
+    "CLAUDE_CODE_SESSION_ID",
+    "CLAUDE_EFFORT",
+    "CLAUDE_PID"
+  ],
+  "events": "codex-jsonl",
+  "events_digest": "sha256:6cc5b741372a362411bbaf532bd923468dc554ee7d2d98401f41ccd869dd4458",
+  "routing": {
+    "requested": "sol-medium",
+    "implementation": {
+      "principal": "agent:anthropic/claude-opus-5-5",
+      "vendor": "anthropic",
+      "model": "claude-opus-5-5",
+      "execution_digest": "sha256:0eb880a4fc2ed87a379c949a567b1d3dfbd6b58b466f4755fcd363dd2b7fed98",
+      "source": "declared"
+    },
+    "implementation_from": "bundle",
+    "step": "explicit"
+  },
+  "independence_achieved": "different-vendor",
+  "round": 1,
+  "draft_problems": [
+    "prior finding R1-F1 is not an open finding of the scope's rounds",
+    "prior finding R1-F2 is not an open finding of the scope's rounds",
+    "prior finding R1-F3 is not an open finding of the scope's rounds"
+  ]
+}
