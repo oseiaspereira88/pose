@@ -1,7 +1,7 @@
 {
   "schema_version": 2,
-  "input_digest": "sha256:88b27136c012151f978bd658b10a652de2d0aea6effaa513e63f0dd056840d7b",
-  "provenance_digest": "sha256:950d0c709d1fd076f9e99d6f3d2272b1af482fefaebf543ee194874370988ed9",
+  "input_digest": "sha256:90401b94c8dacf4e3cc9556e691e8996af0bd151725080525452ac7c1e845e5c",
+  "provenance_digest": "sha256:a5d90126cfe145414edd33fda70239ef457e3aec357cc344e7c9ee26b2be8a8c",
   "implied_edges": [
     "changes"
   ],
@@ -46526,14 +46526,6 @@
       }
     },
     {
-      "id": "change-set:cs-8aec036369b7",
-      "type": "change-set",
-      "attributes": {
-        "diff_digest": "sha256:64105f0d6cfa3b67f99915761832e162429bf3195963087d84754c3caf62a142",
-        "selector": "trailers:pose-review-ledger-is-read-once-per-operation"
-      }
-    },
-    {
       "id": "change-set:cs-8b8041f8d954",
       "type": "change-set",
       "attributes": {
@@ -47883,6 +47875,14 @@
       "attributes": {
         "diff_digest": "sha256:8afbba8fa3cc025d1bd068b6f752bb7119683b42047ecfe8cdc7f422a4b12d08",
         "selector": "trailers:pose-command-reference-parity"
+      }
+    },
+    {
+      "id": "change-set:cs-dbe73eab2569",
+      "type": "change-set",
+      "attributes": {
+        "diff_digest": "sha256:002b58f9b5cd2dfdfd104c517f7b7c459413ad169c49bce0f1c48597e24afea3",
+        "selector": "trailers:pose-review-ledger-is-read-once-per-operation"
       }
     },
     {
@@ -130430,7 +130430,7 @@
     },
     {
       "from": "spec:pose-review-ledger-is-read-once-per-operation",
-      "to": "change-set:cs-8aec036369b7",
+      "to": "change-set:cs-dbe73eab2569",
       "type": "observed-by"
     },
     {
@@ -242397,101 +242397,6 @@
       }
     },
     {
-      "id": "cs-8aec036369b7",
-      "spec": "pose-review-ledger-is-read-once-per-operation",
-      "selector": "trailers:pose-review-ledger-is-read-once-per-operation",
-      "base": "f7a3b739b30fc5a69212d5982b0f5f609b41c580^",
-      "head": "b11b9e5a53b8108ab9f97d25a3d89d760bd32cca",
-      "resolved_base": "319bfd9c99ae17e6db4945ab348b5a4cf4f51551",
-      "resolved_head": "b11b9e5a53b8108ab9f97d25a3d89d760bd32cca",
-      "commits": [
-        "f7a3b739b30fc5a69212d5982b0f5f609b41c580",
-        "374e5a6d815e7a6aa8eaa27f81f1113ccf9fd49d",
-        "2fd7c35fd94bb5cda9cda8b55ebdf40343ca2e8e",
-        "89979258508f8b9fb6392f7894e9046d287d79c4",
-        "eeb61cb8d56301058d7fc0de9cd549c8f3146bcd",
-        "b11b9e5a53b8108ab9f97d25a3d89d760bd32cca"
-      ],
-      "paths": [
-        {
-          "action": "created",
-          "path": ".pose/specs/2026-11-16-pose-review-ledger-is-read-once-per-operation.md"
-        },
-        {
-          "action": "created",
-          "path": ".pose/starts/pose-review-ledger-is-read-once-per-operation.json"
-        },
-        {
-          "action": "created",
-          "path": "pose-mcp/internal/pose/review_ledger_memo.go"
-        },
-        {
-          "action": "created",
-          "path": "pose-mcp/internal/pose/review_ledger_memo_test.go"
-        },
-        {
-          "action": "modified",
-          "path": ".pose/adr/2026-11-03-governance-reads-use-bounded-operation-scoped-views.md"
-        },
-        {
-          "action": "modified",
-          "path": ".pose/indexes/delivery-integrity.json"
-        },
-        {
-          "action": "modified",
-          "path": ".pose/indexes/generation.json"
-        },
-        {
-          "action": "modified",
-          "path": ".pose/indexes/spec-graph.json"
-        },
-        {
-          "action": "modified",
-          "path": ".pose/indexes/validation-matrix.json"
-        },
-        {
-          "action": "modified",
-          "path": ".pose/results/delivery-validation.json"
-        },
-        {
-          "action": "modified",
-          "path": "pose-mcp/internal/pose/governance_read_view.go"
-        },
-        {
-          "action": "modified",
-          "path": "pose-mcp/internal/pose/review_bundle.go"
-        },
-        {
-          "action": "modified",
-          "path": "pose-mcp/internal/pose/review_dispatch.go"
-        },
-        {
-          "action": "modified",
-          "path": "pose-mcp/internal/pose/review_operation_view.go"
-        }
-      ],
-      "diff_digest": "sha256:64105f0d6cfa3b67f99915761832e162429bf3195963087d84754c3caf62a142",
-      "material_digest": "sha256:464fe46e3640513305f5999f7b6ce4dbd24ee620e8202080fccf3c21d975dc5b",
-      "material_inputs": {
-        "names": [
-          ".pose/adr/2026-11-03-governance-reads-use-bounded-operation-scoped-views.md",
-          ".pose/indexes/delivery-integrity.json",
-          ".pose/indexes/generation.json",
-          ".pose/indexes/spec-graph.json",
-          ".pose/indexes/validation-matrix.json",
-          ".pose/results/delivery-validation.json",
-          ".pose/specs/2026-11-16-pose-review-ledger-is-read-once-per-operation.md",
-          ".pose/starts/pose-review-ledger-is-read-once-per-operation.json",
-          "pose-mcp/internal/pose/governance_read_view.go",
-          "pose-mcp/internal/pose/review_bundle.go",
-          "pose-mcp/internal/pose/review_dispatch.go",
-          "pose-mcp/internal/pose/review_ledger_memo.go",
-          "pose-mcp/internal/pose/review_ledger_memo_test.go",
-          "pose-mcp/internal/pose/review_operation_view.go"
-        ]
-      }
-    },
-    {
       "id": "cs-8b8041f8d954",
       "spec": "pose-v1-2-2-changelog-review",
       "selector": "trailers:pose-v1-2-2-changelog-review",
@@ -275211,6 +275116,102 @@
           "pose-mcp/internal/scaffold/dist/.pose/specs/pose-manual-distribution-merge/spec.md",
           "pose-mcp/internal/scaffold/dist/POSE.md",
           "pose-mcp/internal/scaffold/dist/locales/pt-BR/POSE.md"
+        ]
+      }
+    },
+    {
+      "id": "cs-dbe73eab2569",
+      "spec": "pose-review-ledger-is-read-once-per-operation",
+      "selector": "trailers:pose-review-ledger-is-read-once-per-operation",
+      "base": "f7a3b739b30fc5a69212d5982b0f5f609b41c580^",
+      "head": "d1641533c4b419fbb01ab0c630a677f89171426f",
+      "resolved_base": "319bfd9c99ae17e6db4945ab348b5a4cf4f51551",
+      "resolved_head": "d1641533c4b419fbb01ab0c630a677f89171426f",
+      "commits": [
+        "f7a3b739b30fc5a69212d5982b0f5f609b41c580",
+        "374e5a6d815e7a6aa8eaa27f81f1113ccf9fd49d",
+        "2fd7c35fd94bb5cda9cda8b55ebdf40343ca2e8e",
+        "89979258508f8b9fb6392f7894e9046d287d79c4",
+        "eeb61cb8d56301058d7fc0de9cd549c8f3146bcd",
+        "b11b9e5a53b8108ab9f97d25a3d89d760bd32cca",
+        "d1641533c4b419fbb01ab0c630a677f89171426f"
+      ],
+      "paths": [
+        {
+          "action": "created",
+          "path": ".pose/specs/2026-11-16-pose-review-ledger-is-read-once-per-operation.md"
+        },
+        {
+          "action": "created",
+          "path": ".pose/starts/pose-review-ledger-is-read-once-per-operation.json"
+        },
+        {
+          "action": "created",
+          "path": "pose-mcp/internal/pose/review_ledger_memo.go"
+        },
+        {
+          "action": "created",
+          "path": "pose-mcp/internal/pose/review_ledger_memo_test.go"
+        },
+        {
+          "action": "modified",
+          "path": ".pose/adr/2026-11-03-governance-reads-use-bounded-operation-scoped-views.md"
+        },
+        {
+          "action": "modified",
+          "path": ".pose/indexes/delivery-integrity.json"
+        },
+        {
+          "action": "modified",
+          "path": ".pose/indexes/generation.json"
+        },
+        {
+          "action": "modified",
+          "path": ".pose/indexes/spec-graph.json"
+        },
+        {
+          "action": "modified",
+          "path": ".pose/indexes/validation-matrix.json"
+        },
+        {
+          "action": "modified",
+          "path": ".pose/results/delivery-validation.json"
+        },
+        {
+          "action": "modified",
+          "path": "pose-mcp/internal/pose/governance_read_view.go"
+        },
+        {
+          "action": "modified",
+          "path": "pose-mcp/internal/pose/review_bundle.go"
+        },
+        {
+          "action": "modified",
+          "path": "pose-mcp/internal/pose/review_dispatch.go"
+        },
+        {
+          "action": "modified",
+          "path": "pose-mcp/internal/pose/review_operation_view.go"
+        }
+      ],
+      "diff_digest": "sha256:002b58f9b5cd2dfdfd104c517f7b7c459413ad169c49bce0f1c48597e24afea3",
+      "material_digest": "sha256:464fe46e3640513305f5999f7b6ce4dbd24ee620e8202080fccf3c21d975dc5b",
+      "material_inputs": {
+        "names": [
+          ".pose/adr/2026-11-03-governance-reads-use-bounded-operation-scoped-views.md",
+          ".pose/indexes/delivery-integrity.json",
+          ".pose/indexes/generation.json",
+          ".pose/indexes/spec-graph.json",
+          ".pose/indexes/validation-matrix.json",
+          ".pose/results/delivery-validation.json",
+          ".pose/specs/2026-11-16-pose-review-ledger-is-read-once-per-operation.md",
+          ".pose/starts/pose-review-ledger-is-read-once-per-operation.json",
+          "pose-mcp/internal/pose/governance_read_view.go",
+          "pose-mcp/internal/pose/review_bundle.go",
+          "pose-mcp/internal/pose/review_dispatch.go",
+          "pose-mcp/internal/pose/review_ledger_memo.go",
+          "pose-mcp/internal/pose/review_ledger_memo_test.go",
+          "pose-mcp/internal/pose/review_operation_view.go"
         ]
       }
     },
