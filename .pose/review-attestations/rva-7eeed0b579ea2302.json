@@ -1,0 +1,229 @@
+{
+  "run": {
+    "run_id": "rrn-237e7d9be5f0c4f5",
+    "proof_id": "rrp-5da4e472877b12deb6cc883876378af3250c04fc681024f7dc335e686edcb658"
+  },
+  "schema_version": 1,
+  "attestation_id": "rva-7eeed0b579ea2302",
+  "bundle_id": "rvb-72a03e6f783555fb",
+  "bundle_digest": "sha256:72a03e6f783555fbfd3117bccfcfc1d92e9a3afe757578e2bf649d9960440a58",
+  "reviewer": "agent:openai/gpt-6.1-sol",
+  "decision": "changes-requested",
+  "criteria": [
+    {
+      "id": "assumption-integrity",
+      "disposition": "finding",
+      "evidence": "F2",
+      "rationale": "The tests verify ordinary local graphs, but the assumption that every graph layer resides beside the primary chain is false for alternates. The 500-commit threshold is an explicit D1 policy choice, not a benchmark independently reproduced here."
+    },
+    {
+      "id": "backend-concurrency",
+      "disposition": "passed",
+      "evidence": "unit:pose-mcp/go/test",
+      "rationale": "Production changes introduce no shared mutable state or goroutines. Files are closed, and graph publication remains Git's responsibility. No new cancellation contract is introduced."
+    },
+    {
+      "id": "backend-contracts",
+      "disposition": "passed",
+      "evidence": "integration:pose-mcp/go/doctor-recommends-the-commit-graph-integration",
+      "rationale": "The new check uses existing finding and fix-registry contracts without changing report fields, MCP interfaces, or governance storage."
+    },
+    {
+      "id": "backend-input-errors",
+      "disposition": "finding",
+      "evidence": "F4"
+    },
+    {
+      "id": "backend-integration-impact",
+      "disposition": "finding",
+      "evidence": "F2"
+    },
+    {
+      "id": "backend-observability",
+      "disposition": "finding",
+      "evidence": "F5"
+    },
+    {
+      "id": "compatibility",
+      "disposition": "passed",
+      "evidence": "integration:pose-mcp/go/doctor-recommends-the-commit-graph-integration",
+      "rationale": "doctor.go adds an existing-schema check and registry action. CLI flags, report schema, existing fix behavior, and MCP contracts remain compatible."
+    },
+    {
+      "id": "correctness",
+      "disposition": "finding",
+      "evidence": "F3"
+    },
+    {
+      "id": "design-causality",
+      "disposition": "passed",
+      "evidence": "structure:design-f924e66acd10cc41",
+      "rationale": "D1 links the measured path-history traversal cost to R1-R3. Explicit doctor remediation writes changed-path filters while governance reads remain read-only; R4 prepares full-history CI checkouts before gates. This addresses the stated cause, subject to the graph-discovery defects."
+    },
+    {
+      "id": "documentation",
+      "disposition": "passed",
+      "evidence": "integration:pose-mcp/go/doctor-recommends-the-commit-graph-integration",
+      "rationale": "The spec and runtime hints name the implemented Git command, threshold, explicit-fix behavior, and two CI placements. The pre-existing doctor performance issue remains explicitly tracked as spec follow-up F1."
+    },
+    {
+      "id": "operability",
+      "disposition": "finding",
+      "evidence": "F5"
+    },
+    {
+      "id": "requirements",
+      "disposition": "finding",
+      "evidence": "F2",
+      "rationale": "The sealed test supports the ordinary R1-R3 path and CI inspection supports R4, but R3 fails for valid alternate-backed graphs. Coexisting graphs also expose the R1 failure in F3."
+    },
+    {
+      "id": "scope",
+      "disposition": "passed",
+      "evidence": "structure:design-f924e66acd10cc41",
+      "rationale": "The implementation is confined to doctor diagnosis/remediation, CI preparation, and registered validation. It introduces neither automatic governance maintenance nor per-commit graph updates."
+    },
+    {
+      "id": "security",
+      "disposition": "passed",
+      "evidence": "integration:pose-mcp/go/git-and-dispatch-snapshot-integrity-integration",
+      "rationale": "The fix invokes RawHistoryGit with fixed arguments and the selected project root. Its shared wrapper removes ambient Git redirection variables. Error output passes through existing doctor redaction; no new credentials, network access, or authority mechanism is introduced."
+    },
+    {
+      "id": "solution-proportionality",
+      "disposition": "passed",
+      "evidence": "structure:design-f924e66acd10cc41",
+      "rationale": "Reusing the existing fix registry and reading small graph headers is a proportionate implementation of D1. Documentation alone would not provide the required diagnostic; automatic writes would violate the read-only constraint. The approach remains sufficient only if its graph selection matches Git, requiring F2 and F3."
+    }
+  ],
+  "tools": [
+    {
+      "id": "artifact-check",
+      "disposition": "passed",
+      "evidence": "command:pose artifact-check --spec pose-doctor-recommends-the-commit-graph --strict",
+      "rationale": "Reviewed supplied /var/tmp/closeout/ac-dc.out for the sealed base/head: five claims, with governance observations and orphan warnings. Rerun invoked, but selected a later origin head; that rerun is not used as sealed-range attribution evidence."
+    },
+    {
+      "id": "assess-design",
+      "disposition": "not-used",
+      "evidence": "structure:design-f924e66acd10cc41",
+      "rationale": "Used the sealed structure evidence and independently inspected D1 and implementation. Did not invoke assessment commands under the no-write boundary."
+    },
+    {
+      "id": "assess-discover",
+      "component": "pose-mcp",
+      "disposition": "not-used",
+      "rationale": "Assessment commands can persist repository state and were excluded by the review's no-write boundary."
+    },
+    {
+      "id": "assess-integrate",
+      "disposition": "not-used",
+      "evidence": "integration:pose-mcp/go/doctor-recommends-the-commit-graph-integration",
+      "rationale": "Used sealed integration evidence and inspected Git and doctor boundaries; did not run a state-writing assessment."
+    },
+    {
+      "id": "assess-tech-debt",
+      "disposition": "not-used",
+      "rationale": "Did not run a state-writing assessment. Inspected changed implementation for debt markers and reviewed the spec's existing F1."
+    },
+    {
+      "id": "closeout-check",
+      "disposition": "deferred",
+      "rationale": "Completion gate requires the recorded review conclusion; this review must not record an attestation."
+    },
+    {
+      "id": "review-check",
+      "disposition": "deferred",
+      "rationale": "Requires POSE to record this review's conclusion first."
+    },
+    {
+      "id": "suggest-review",
+      "component": "pose-mcp",
+      "disposition": "passed",
+      "evidence": "command:pose suggest review --path pose-mcp",
+      "rationale": "Ran successfully and applied the selected backend-go, security, and documentation-style rules."
+    },
+    {
+      "id": "surface-check",
+      "disposition": "passed",
+      "evidence": "integration:pose-mcp/go/doctor-recommends-the-commit-graph-integration",
+      "rationale": "Ran pose surface-check --spec pose-doctor-recommends-the-commit-graph --strict successfully: one target, 231 results, zero findings. Also inspected supplied sealed-range sc-dc.out."
+    },
+    {
+      "id": "validate",
+      "disposition": "passed",
+      "evidence": "unit:pose-mcp/go/test",
+      "rationale": "Disposed from sealed pipeline evidence and delivery-validation.json as authorized by the brief. No builds or writes attempted in the read-only sandbox."
+    },
+    {
+      "id": "validate",
+      "component": "pose-mcp",
+      "disposition": "passed",
+      "evidence": "integration:pose-mcp/go/doctor-recommends-the-commit-graph-integration",
+      "rationale": "Inspected the registered integration command, passing sealed result, and test source. Sealed module build and unit evidence also pass; uncovered negative cases are reported separately."
+    }
+  ],
+  "evidence_refs": [
+    "F2",
+    "F3",
+    "F4",
+    "F5",
+    "delegated-run:rrn-237e7d9be5f0c4f5",
+    "integration:pose-mcp/go/doctor-recommends-the-commit-graph-integration",
+    "integration:pose-mcp/go/git-and-dispatch-snapshot-integrity-integration",
+    "structure:design-f924e66acd10cc41",
+    "unit:pose-mcp/go/test"
+  ],
+  "findings": [
+    {
+      "id": "F2",
+      "severity": "medium",
+      "evidence": "file:pose-mcp/internal/cli/doctor_commit_graph.go:58",
+      "action": "Graph discovery ignores alternate object directories. Git can load a filtered graph entirely from an alternate, or resolve a split chain's base layers there, but this reader searches only the primary object directory and constructs every layer beside its chain file. A valid filtered repository therefore reports next instead of ok, violating R3. Follow Git's alternate lookup semantics and cover both alternate-only graphs and chains with alternate base layers.",
+      "disposition": "open"
+    },
+    {
+      "id": "F3",
+      "severity": "medium",
+      "evidence": "file:pose-mcp/internal/cli/doctor_commit_graph.go:53",
+      "action": "The reader prefers a nonempty split chain over the monolithic commit-graph, whereas Git loads the monolithic graph first. When both exist, doctor can inspect an unused graph: an unfiltered monolithic graph plus a filtered chain reports ok although Git lacks active filters; the reverse reports an unnecessary remediation. Match Git's precedence and test coexistence.",
+      "disposition": "open"
+    },
+    {
+      "id": "F4",
+      "severity": "low",
+      "evidence": "file:pose-mcp/internal/cli/doctor_commit_graph.go:99",
+      "action": "The parser validates only the signature and nonzero chunk offsets before accepting BIDX and BDAT identifiers. Unsupported format/hash versions and a file truncated immediately after its chunk table can therefore report changedPaths=true even though Git rejects the graph. Validate supported header fields and chunk-table bounds against file size without reading chunk payloads; cover malformed headers and truncated files.",
+      "disposition": "open"
+    },
+    {
+      "id": "F5",
+      "severity": "medium",
+      "evidence": "file:pose-mcp/internal/cli/doctor.go:366",
+      "action": "Every readCommitGraphState error suppresses the check. This conflates the intended non-repository/unborn-HEAD exclusions with permission failures, corrupt history, and unreadable graph metadata. For example, an inaccessible commit-graphs directory makes a long-history repository lose the finding and remediation entirely. Distinguish expected exclusions from operational failures and emit bounded actionable diagnostic context for the latter.",
+      "disposition": "open"
+    }
+  ],
+  "authority": {
+    "schema_version": 1,
+    "project": "proj.pose-dist",
+    "bundle_digest": "sha256:72a03e6f783555fbfd3117bccfcfc1d92e9a3afe757578e2bf649d9960440a58",
+    "principal": "agent:openai/gpt-6.1-sol",
+    "role": "agent",
+    "review_execution": "rrn-237e7d9be5f0c4f5",
+    "implementation_principal": "agent:anthropic/claude-opus-5-5",
+    "implementation_execution": "sha256:0eb880a4fc2ed87a379c949a567b1d3dfbd6b58b466f4755fcd363dd2b7fed98",
+    "issuer": "b34-local-executor",
+    "issued_at": "2026-11-16T15:56:33Z",
+    "audience": "proj.pose-dist"
+  },
+  "envelope": {
+    "issuer": "b34-local-executor",
+    "subject": "rvb-72a03e6f783555fb",
+    "algorithm": "ed25519",
+    "public_key": "ck4sApdfePV2GT+hJyAYfJd2qLzeG55P8pevGR0bvZE=",
+    "signature": "3f6ySN7fOHZo+dBCgqchh9h2rVhEk0Cg2d5Q4W2XmYwT6M+rdeNjESUrs1xJTPH2eFCukvvPMqOm0CjMNjgsBQ=="
+  },
+  "attested_at": "2026-11-16T15:56:33Z",
+  "path": ".pose/review-attestations/rva-7eeed0b579ea2302.json"
+}
