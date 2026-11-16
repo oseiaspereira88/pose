@@ -1,6 +1,6 @@
 ---
 slug: pose-review-ledger-is-read-once-per-operation
-status: draft
+status: in-progress
 created_at: 2026-11-16
 completed_at:        # stamped on the transition to status: done
 supersedes:          # slug of the superseded spec (when applicable)
