@@ -1,0 +1,215 @@
+{
+  "run": {
+    "run_id": "rrn-f64458878e6490e0",
+    "proof_id": "rrp-f82382e887f6a087e8540533977b8c9e076ffb24b3ad011a438fb2fd8a2c11b8"
+  },
+  "schema_version": 1,
+  "attestation_id": "rva-a6d7ed1d51e25e24",
+  "bundle_id": "rvb-4e58450677eb5e6a",
+  "bundle_digest": "sha256:4e58450677eb5e6a675f3a9c85e589b6dd4e58f18292fad6a57efbae8614ccae",
+  "reviewer": "agent:openai/gpt-6.1-sol",
+  "decision": "changes-requested",
+  "criteria": [
+    {
+      "id": "assumption-integrity",
+      "disposition": "passed",
+      "evidence": "structure:design-0637e028bd14425d",
+      "rationale": "Examined R1-R5, D1, byte accounting and reduced-margin fixtures. Stored blob bytes are the verified budget basis; materialized expansion and the absolute ceiling are explicit coverage limits. Retention remains spec follow-up F1. Dynamic timeout behavior was not independently executed; the producer-path omission is recorded as N4."
+    },
+    {
+      "id": "backend-concurrency",
+      "disposition": "finding",
+      "evidence": "N4"
+    },
+    {
+      "id": "backend-contracts",
+      "disposition": "passed",
+      "evidence": "integration:pose-mcp/go/git-and-dispatch-snapshot-integrity-integration",
+      "rationale": "Public CLI, MCP and persisted schemas are unchanged. Internal ls-tree parsing was updated consistently for the size column."
+    },
+    {
+      "id": "backend-input-errors",
+      "disposition": "finding",
+      "evidence": "N4"
+    },
+    {
+      "id": "backend-integration-impact",
+      "disposition": "passed",
+      "evidence": "integration:pose-mcp/go/git-snapshot-budget-scales-with-the-tree-integration",
+      "rationale": "Inspected production closeout and delegated cleanup callers. The shared budget reaches both snapshot readers and captured cleanup ownership; N4 separately records the governed listing-bound gap."
+    },
+    {
+      "id": "backend-observability",
+      "disposition": "passed",
+      "evidence": "integration:pose-mcp/go/git-snapshot-budget-scales-with-the-tree-integration",
+      "rationale": "Snapshot growth errors include the effective byte budget; listing errors propagate through existing bounded Git diagnostics. Cleanup preserves its existing retained-resource error behavior."
+    },
+    {
+      "id": "compatibility",
+      "disposition": "passed",
+      "evidence": "integration:pose-mcp/go/git-and-dispatch-snapshot-integrity-integration",
+      "rationale": "Examined public entrypoints, persisted cleanup representation and raw-history Git configuration. No public signature or schema migration is introduced; small-repository content budgets retain their existing floor."
+    },
+    {
+      "id": "correctness",
+      "disposition": "finding",
+      "evidence": "N4"
+    },
+    {
+      "id": "design-causality",
+      "disposition": "passed",
+      "evidence": "structure:design-0637e028bd14425d",
+      "rationale": "D1 ties the budget to the committed bytes the readers must inspect, removing the fixed-cap failure while preserving a growth margin and absolute ceiling. Capturing the cleanup budget from the coordinator before adapter execution preserves its authority boundary. The permanent integration check provides regression evidence for R1-R5.",
+      "mappings": [
+        {
+          "delta": "SD-29e3919f",
+          "basis": "R5",
+          "disposition": "mapped",
+          "rationale": "The validation matrix registers the required snapshot-budget integration check, including TestGitTreeListingIsBounded, to retain regression coverage for bounded tree listings alongside R1-R4 budget behavior."
+        }
+      ]
+    },
+    {
+      "id": "documentation",
+      "disposition": "passed",
+      "evidence": "integration:pose-mcp/go/distributed-instructions-parity-integration",
+      "rationale": "Compared English and Portuguese operational manuals and both scaffold copies. All state the scaled workspace budget and preserve the separate entry, registration, runtime and depth limits. R1 now states materialization assumptions explicitly."
+    },
+    {
+      "id": "operability",
+      "disposition": "passed",
+      "evidence": "integration:pose-mcp/go/git-snapshot-budget-scales-with-the-tree-integration",
+      "rationale": "Inspected budget errors, fail-closed fallback, retained-resource behavior and operational instructions. Growth remains diagnosable and uncertain cleanup resources remain available for inspection."
+    },
+    {
+      "id": "requirements",
+      "disposition": "finding",
+      "evidence": "N4"
+    },
+    {
+      "id": "scope",
+      "disposition": "passed",
+      "evidence": "structure:design-0637e028bd14425d",
+      "rationale": "The scoped changes implement R1-R5 and D1 through shared budgeting, bounded listings, cleanup capture, regression registration and matching manuals. No retention mechanism, entry-limit change or public API expansion was added."
+    },
+    {
+      "id": "security",
+      "disposition": "finding",
+      "evidence": "N4"
+    },
+    {
+      "id": "solution-proportionality",
+      "disposition": "passed",
+      "evidence": "structure:design-0637e028bd14425d",
+      "rationale": "Compared D1's scaled budget with raising a constant and retaining fewer records. Reusing ls-tree sizes and the existing bounded runner is a small sufficient design without new configuration or abstractions. Trees or materialized expansion beyond the documented limits invalidate coverage and remain a separate retention concern. N4 is an implementation omission within this design."
+    }
+  ],
+  "tools": [
+    {
+      "id": "artifact-check",
+      "disposition": "passed",
+      "evidence": "command:cat /var/tmp/closeout/ac-bg.out /var/tmp/closeout/sc-bg.out",
+      "rationale": "Inspected supplied pipeline output for the exact sealed head 8cbf1620 and change set cs-669ad20935c7. It reports eight claims and repository-wide orphan warnings. The independent rerun reported a different head and was excluded from sealed-subject evidence."
+    },
+    {
+      "id": "assess-design",
+      "disposition": "not-used",
+      "evidence": "structure:design-0637e028bd14425d",
+      "rationale": "Used the sealed design evidence and independently inspected D1 and structural changes; did not rerun an assessment that can write repository state."
+    },
+    {
+      "id": "assess-discover",
+      "component": "pose-mcp",
+      "disposition": "not-used",
+      "evidence": "structure:design-0637e028bd14425d",
+      "rationale": "Read-only review boundary prohibits assessment-state writes. Inspected component implementation and sealed validation evidence instead."
+    },
+    {
+      "id": "assess-integrate",
+      "disposition": "not-used",
+      "evidence": "integration:pose-mcp/go/git-snapshot-budget-scales-with-the-tree-integration",
+      "rationale": "Did not rerun state-writing assessments. Traced production integration directly and inspected sealed integration results."
+    },
+    {
+      "id": "assess-tech-debt",
+      "disposition": "not-used",
+      "evidence": "command:rg -n 'TODO|FIXME|stub|panic' pose-mcp/internal/pose/git_snapshot_integrity.go pose-mcp/internal/pose/git_snapshot_budget_test.go pose-mcp/internal/pose/review_adapter_containment.go",
+      "rationale": "Did not run a state-writing assessment. Direct marker scan found no markers in the scoped Go files; inspected the spec's existing retention follow-up F1."
+    },
+    {
+      "id": "closeout-check",
+      "disposition": "deferred",
+      "rationale": "Requires the recorded review conclusion; this review neither records an attestation nor closes the spec."
+    },
+    {
+      "id": "review-check",
+      "disposition": "deferred",
+      "rationale": "Requires POSE to record and verify this review's conclusion first."
+    },
+    {
+      "id": "suggest-review",
+      "component": "pose-mcp",
+      "disposition": "passed",
+      "evidence": "command:pose suggest review --path pose-mcp",
+      "rationale": "Selected the review workflow and security, documentation-style and backend-go rules."
+    },
+    {
+      "id": "surface-check",
+      "disposition": "passed",
+      "evidence": "integration:pose-mcp/go/git-snapshot-budget-scales-with-the-tree-integration",
+      "rationale": "Inspected the supplied sealed-head surface report: one target, 232 results, zero findings. Also executed the requested command; it returned zero findings. Used sealed integration evidence for the conclusion."
+    },
+    {
+      "id": "validate",
+      "disposition": "passed",
+      "evidence": "build:pose-mcp/go/build",
+      "rationale": "Disposed from the supplied sealed strict-validation run and inspected delivery-validation.json and relevant test source. No local build or test writes were attempted."
+    },
+    {
+      "id": "validate",
+      "component": "pose-mcp",
+      "disposition": "passed",
+      "evidence": "integration:pose-mcp/go/git-snapshot-budget-scales-with-the-tree-integration",
+      "rationale": "Sealed module validation passes the focused real-Git regression suite and broader module checks. Inspection establishes that the focused listing regression omits the producer branch, reported as N4."
+    }
+  ],
+  "evidence_refs": [
+    "N4",
+    "delegated-run:rrn-f64458878e6490e0",
+    "integration:pose-mcp/go/distributed-instructions-parity-integration",
+    "integration:pose-mcp/go/git-and-dispatch-snapshot-integrity-integration",
+    "integration:pose-mcp/go/git-snapshot-budget-scales-with-the-tree-integration",
+    "structure:design-0637e028bd14425d"
+  ],
+  "findings": [
+    {
+      "id": "N4",
+      "severity": "medium",
+      "evidence": "file:pose-mcp/internal/pose/git_snapshot_integrity.go:247",
+      "action": "The producer branch replaces the bounded listing runner with captureGovernanceGit. Production closeout supplies a producer at closeout_plan.go:303-308. captureGovernanceGit uses the 512 MiB governanceReadViewMaxInputBytes limit (governance_read_view_git.go:78-79 and governance_read_view.go:25) and context.Background (governance_read_view_git.go:114-115), so its recursive listing has neither R5's 64 MiB limit nor its two-minute deadline. It can retain oversized metadata before the entry guard and wait indefinitely for Git. TestGitTreeListingIsBounded exercises only calls without a producer and misses this production route. Apply the listing-specific limit and deadline through the governed context capture API while preserving read-view provenance, and add producer-path byte-limit and deadline regressions.",
+      "disposition": "open"
+    }
+  ],
+  "authority": {
+    "schema_version": 1,
+    "project": "proj.pose-dist",
+    "bundle_digest": "sha256:4e58450677eb5e6a675f3a9c85e589b6dd4e58f18292fad6a57efbae8614ccae",
+    "principal": "agent:openai/gpt-6.1-sol",
+    "role": "agent",
+    "review_execution": "rrn-f64458878e6490e0",
+    "implementation_principal": "agent:anthropic/claude-opus-5-5",
+    "implementation_execution": "sha256:0eb880a4fc2ed87a379c949a567b1d3dfbd6b58b466f4755fcd363dd2b7fed98",
+    "issuer": "b34-local-executor",
+    "issued_at": "2026-11-16T22:15:54Z",
+    "audience": "proj.pose-dist"
+  },
+  "envelope": {
+    "issuer": "b34-local-executor",
+    "subject": "rvb-4e58450677eb5e6a",
+    "algorithm": "ed25519",
+    "public_key": "ck4sApdfePV2GT+hJyAYfJd2qLzeG55P8pevGR0bvZE=",
+    "signature": "07kxjNTAOhjpNE7WEEOlEFqygZ2XTR2JiFjKMZJiFk/lAE3S8dsGkrCcE7NdOXv3SBdt+XornQMLcPvsgnp7Bw=="
+  },
+  "attested_at": "2026-11-16T22:15:54Z",
+  "path": ".pose/review-attestations/rva-a6d7ed1d51e25e24.json"
+}
