@@ -1,0 +1,238 @@
+{
+  "run": {
+    "run_id": "rrn-9b810c44750e6d93",
+    "proof_id": "rrp-efc9342af2626bc7cd987cb44a530ecdc2b1cbfa53bbe80effc0d965ce82f0a5"
+  },
+  "schema_version": 1,
+  "attestation_id": "rva-2b5ed8730abb8c5f",
+  "bundle_id": "rvb-7dfa88290fed19a5",
+  "bundle_digest": "sha256:7dfa88290fed19a55c8eed2897ddd207f3929609a9a8cf53aee6106b4c46b808",
+  "reviewer": "agent:openai/gpt-6.1-sol",
+  "decision": "changes-requested",
+  "criteria": [
+    {
+      "id": "assumption-integrity",
+      "disposition": "finding",
+      "evidence": "N3",
+      "rationale": "Immutable captured bytes justify value reuse, but do not justify dropping each consumer's dependency attribution. The deployment-specific timing remains an implementer measurement."
+    },
+    {
+      "id": "backend-concurrency",
+      "disposition": "finding",
+      "evidence": "N1",
+      "rationale": "sync.Once serializes concurrent misses, but lifecycle refusal is converted into transcript success."
+    },
+    {
+      "id": "backend-contracts",
+      "disposition": "finding",
+      "evidence": "N2",
+      "rationale": "The existing SourceLoss contract is not preserved for memo lifecycle errors."
+    },
+    {
+      "id": "backend-input-errors",
+      "disposition": "finding",
+      "evidence": "N1"
+    },
+    {
+      "id": "backend-integration-impact",
+      "disposition": "finding",
+      "evidence": "N3",
+      "rationale": "Operation-wide reuse is not integrated with per-producer final-audit attribution."
+    },
+    {
+      "id": "backend-observability",
+      "disposition": "finding",
+      "evidence": "N2"
+    },
+    {
+      "id": "compatibility",
+      "disposition": "finding",
+      "evidence": "N1",
+      "rationale": "Public signatures and serialized formats remain unchanged, but finalized-view error behavior changes."
+    },
+    {
+      "id": "correctness",
+      "disposition": "finding",
+      "evidence": "N1"
+    },
+    {
+      "id": "design-causality",
+      "disposition": "passed",
+      "evidence": "structure:design-c0693406841990a9",
+      "rationale": "D1 addresses repeated parsing and hashing directly by retaining derived ledger values inside the existing operation. The implementation uses one sync.Once cell per key, preserves native recomputation without an operation, and copies returned records. Its lifecycle and attribution defects are reported separately.",
+      "mappings": [
+        {
+          "delta": "SD-16da51ec",
+          "basis": "R1",
+          "disposition": "mapped",
+          "rationale": "The validation matrix registers the permanent integration check for read-once behavior, fallback, equivalence, concurrent misses, copy isolation and finalization. The adjacent doctor check belongs to the separately governed companion scope."
+        },
+        {
+          "delta": "SD-55df3a37",
+          "basis": "D1",
+          "disposition": "mapped",
+          "rationale": "ADR amendment D14 records operation-scoped derived-value reuse, first-read closure coverage, copies and no cross-operation retention."
+        }
+      ]
+    },
+    {
+      "id": "documentation",
+      "disposition": "passed",
+      "evidence": "structure:design-c0693406841990a9",
+      "rationale": "The spec, ADR D14 and registered validation command describe the selected optimization and its boundaries consistently. Git latency is explicitly separated into follow-ups; no public format migration is claimed."
+    },
+    {
+      "id": "operability",
+      "disposition": "finding",
+      "evidence": "N2",
+      "rationale": "Discarding the lifecycle error removes the existing actionable read-error diagnostic."
+    },
+    {
+      "id": "requirements",
+      "disposition": "finding",
+      "evidence": "N1",
+      "rationale": "Sealed tests cover the principal R1-R3 behavior, but R4 is violated by the discarded error."
+    },
+    {
+      "id": "scope",
+      "disposition": "passed",
+      "evidence": "structure:design-c0693406841990a9",
+      "rationale": "The selected artifacts implement the approved operation-local ledger optimization and its governance evidence. No cross-operation cache, ledger-format change or new authorization mechanism is introduced."
+    },
+    {
+      "id": "security",
+      "disposition": "finding",
+      "evidence": "N1",
+      "rationale": "A refused integrity check must not return the success sentinel. Root authorization and existing size bounds otherwise remain in the underlying readers."
+    },
+    {
+      "id": "solution-proportionality",
+      "disposition": "passed",
+      "evidence": "structure:design-c0693406841990a9",
+      "rationale": "An operation-owned map with per-key sync.Once is a small sufficient mechanism for the measured repeated work. It avoids persistent invalidation machinery, background workers and speculative cross-operation reuse. D1 would need reconsideration if inputs ceased to be immutable within an operation or memory retention exceeded the existing operation budgets."
+    }
+  ],
+  "tools": [
+    {
+      "id": "artifact-check",
+      "disposition": "passed",
+      "evidence": "command:pose artifact-check --spec pose-review-ledger-is-read-once-per-operation --strict",
+      "rationale": "Executed and exited zero. For the exact sealed subject, also inspected /var/tmp/closeout/ac-rl.out, which names cs-653e8a9bf9e7 and head e37b673ef02fa7b0b7c6789712dd1ce570613983. The rerun resolved a different head, so its scope identity was not substituted for the sealed report."
+    },
+    {
+      "id": "assess-design",
+      "disposition": "not-used",
+      "evidence": "structure:design-c0693406841990a9",
+      "rationale": "Used the sealed structural assessment and independently inspected its mapped changes; did not rerun assessments that write repository state."
+    },
+    {
+      "id": "assess-discover",
+      "component": "pose-mcp",
+      "disposition": "not-used",
+      "evidence": "structure:design-c0693406841990a9",
+      "rationale": "Did not run the state-writing discovery assessment in this read-only review; inspected the component implementation and sealed evidence directly."
+    },
+    {
+      "id": "assess-integrate",
+      "disposition": "not-used",
+      "evidence": "integration:pose-mcp/go/review-ledger-is-read-once-per-operation-integration",
+      "rationale": "Did not run the state-writing assessment. Inspected sealed integration results and downstream consumers; N3 records the uncovered attribution integration defect."
+    },
+    {
+      "id": "assess-tech-debt",
+      "disposition": "not-used",
+      "evidence": "command:git diff 319bfd9c99ae17e6db4945ab348b5a4cf4f51551..e37b673ef02fa7b0b7c6789712dd1ce570613983 -- pose-mcp/internal/pose/governance_read_view.go pose-mcp/internal/pose/review_bundle.go pose-mcp/internal/pose/review_dispatch.go pose-mcp/internal/pose/review_ledger_memo.go pose-mcp/internal/pose/review_operation_view.go",
+      "rationale": "Did not run the state-writing assessment. Inspected the implementation diff, searched the new memo files for debt markers, and reviewed the spec's explicit Git-performance follow-ups."
+    },
+    {
+      "id": "closeout-check",
+      "disposition": "deferred",
+      "evidence": "command:pose context --task spec:pose-review-ledger-is-read-once-per-operation --json",
+      "rationale": "Completion check depends on the recorded review conclusion and is deferred to POSE; this review requests changes."
+    },
+    {
+      "id": "review-check",
+      "disposition": "deferred",
+      "evidence": "command:pose context --task spec:pose-review-ledger-is-read-once-per-operation --json",
+      "rationale": "Cannot verify this attestation before POSE records it. No attestation was written."
+    },
+    {
+      "id": "suggest-review",
+      "component": "pose-mcp",
+      "disposition": "passed",
+      "evidence": "command:pose suggest review --path pose-mcp",
+      "rationale": "Executed; selected backend-Go, security and documentation rules and the review workflow."
+    },
+    {
+      "id": "surface-check",
+      "disposition": "passed",
+      "evidence": "integration:pose-mcp/go/review-ledger-is-read-once-per-operation-integration",
+      "rationale": "Executed strict surface-check: exited zero with one target, 231 results and zero findings. Also inspected the supplied sealed-subject report /var/tmp/closeout/sc-rl.out. This establishes composition coverage, not absence of the reported defects."
+    },
+    {
+      "id": "validate",
+      "disposition": "passed",
+      "evidence": "unit:pose-mcp/go/test",
+      "rationale": "Used the sealed pipeline execution of pose validate --strict and inspected delivery-validation.json, including the passing ledger integration result. Did not rerun build-producing validation in the read-only sandbox."
+    },
+    {
+      "id": "validate",
+      "component": "pose-mcp",
+      "disposition": "passed",
+      "evidence": "integration:pose-mcp/go/review-ledger-is-read-once-per-operation-integration",
+      "rationale": "Used sealed component validation, including the registered seven-test ledger suite. Read those tests independently; they do not cover N1-N3. No local test execution is claimed."
+    }
+  ],
+  "evidence_refs": [
+    "N1",
+    "N2",
+    "N3",
+    "delegated-run:rrn-9b810c44750e6d93",
+    "structure:design-c0693406841990a9"
+  ],
+  "findings": [
+    {
+      "id": "N1",
+      "severity": "medium",
+      "evidence": "file:pose-mcp/internal/pose/review_dispatch.go:1661",
+      "action": "Propagate memo lifecycle failures as transcript verification problems. After view.audit(), memoizedLedgerRead returns the zero string and errGovernanceReadViewFinalized without invoking the computation, but reviewRunTranscriptIntact discards the error and returns an empty string, which its callers interpret as an intact transcript. This affects both warmed and cold keys. Previously checkReviewRunTranscript reached Files.Lstat and returned a nonempty inspection failure. R4 error compatibility and the fail-closed integrity contract are therefore violated. Preserve the failure in the returned problem string and cover transcript checks after finalization.",
+      "disposition": "open"
+    },
+    {
+      "id": "N2",
+      "severity": "medium",
+      "evidence": "file:pose-mcp/internal/pose/review_operation_view.go:30",
+      "action": "Preserve SourceLoss when the memo refuses a header read. A finalized view makes memoizedLedgerRead return an error and a zero reviewHeaderObservation; this wrapper discards the error and returns owner empty, loss nil and readError empty. Previously observeReviewBundleHeader returned LossReadError and the underlying diagnostic. Consumers such as ReadReviewBundles skip an observation whose owner differs from the requested scope, so a lifecycle refusal can become an unreported omission instead of coverage loss. Convert memo errors into the existing read-error observation and cover finalized-view header reads.",
+      "disposition": "open"
+    },
+    {
+      "id": "N3",
+      "severity": "medium",
+      "evidence": "file:pose-mcp/internal/pose/review_ledger_memo.go:49",
+      "action": "Preserve dependency attribution for every producer consuming a memo cell. The operation-wide key excludes the Files producer, governanceReadViewFromFiles discards its wrapper, and a hit only calls begin/end before returning the first producer's result. Thus producer A can read a ledger, producer B can consume the same cached result, and a subsequent mutation or unreadable-input audit is attributed only to A. governance_read_view.go:2180 marks changed producers from the recorded file attribution, while obligation_projection.go:259-285 uses those names to downgrade individual producer coverage. B can consequently retain current coverage despite consuming the affected ledger. This violates R4 and the ADR's explicit producer-attribution contract. Retain and replay the derived value's input dependencies for each consumer, with a two-producer audit regression test.",
+      "disposition": "open"
+    }
+  ],
+  "authority": {
+    "schema_version": 1,
+    "project": "proj.pose-dist",
+    "bundle_digest": "sha256:7dfa88290fed19a55c8eed2897ddd207f3929609a9a8cf53aee6106b4c46b808",
+    "principal": "agent:openai/gpt-6.1-sol",
+    "role": "agent",
+    "review_execution": "rrn-9b810c44750e6d93",
+    "implementation_principal": "agent:anthropic/claude-opus-5-5",
+    "implementation_execution": "sha256:0eb880a4fc2ed87a379c949a567b1d3dfbd6b58b466f4755fcd363dd2b7fed98",
+    "issuer": "b34-local-executor",
+    "issued_at": "2026-11-16T16:33:57Z",
+    "audience": "proj.pose-dist"
+  },
+  "envelope": {
+    "issuer": "b34-local-executor",
+    "subject": "rvb-7dfa88290fed19a5",
+    "algorithm": "ed25519",
+    "public_key": "ck4sApdfePV2GT+hJyAYfJd2qLzeG55P8pevGR0bvZE=",
+    "signature": "boh/VHbAFHMgMDoc5x6HpjghBzpZKFBcM9TuzBKTHmA+yLyFZGZOzJXFdTQFyihbkSDjxkrpjDuHsfkQ7eNhCw=="
+  },
+  "attested_at": "2026-11-16T16:33:57Z",
+  "path": ".pose/review-attestations/rva-2b5ed8730abb8c5f.json"
+}
