@@ -1,0 +1,243 @@
+{
+  "run": {
+    "run_id": "rrn-8479af60445e994b",
+    "proof_id": "rrp-ea68b7f2e818a0aec59bd946b643357c6fcc0a232cc4d4d5a1b7040d47f9fe71"
+  },
+  "schema_version": 1,
+  "attestation_id": "rva-9a082cb52b517543",
+  "bundle_id": "rvb-d44b7272a9b52f24",
+  "bundle_digest": "sha256:d44b7272a9b52f24569c44106e4fa4f8e74911ba7799e32313b45455d3b62a9e",
+  "reviewer": "agent:openai/gpt-6.1-sol",
+  "decision": "changes-requested",
+  "criteria": [
+    {
+      "id": "assumption-integrity",
+      "disposition": "finding",
+      "evidence": "F3",
+      "rationale": "The assumption that all material inputs are represented by Git status is unresolved and is false for ignored inputs. The reported harne8 timings are implementer observations, not independently reproduced measurements."
+    },
+    {
+      "id": "backend-concurrency",
+      "disposition": "finding",
+      "evidence": "F2",
+      "rationale": "The existing keptCache coordinates concurrent misses, but operation lifecycle and audit observations are not preserved by this new reuse boundary."
+    },
+    {
+      "id": "backend-contracts",
+      "disposition": "finding",
+      "evidence": "F1",
+      "rationale": "Public signatures and file schemas remain unchanged, but index freshness semantics can return stale material."
+    },
+    {
+      "id": "backend-input-errors",
+      "disposition": "finding",
+      "evidence": "F4",
+      "rationale": "Status-listed special files and oversized files do not have bounded processing."
+    },
+    {
+      "id": "backend-integration-impact",
+      "disposition": "finding",
+      "evidence": "F2",
+      "rationale": "The integration with governance read-view capture and final audit is incomplete on cache hits."
+    },
+    {
+      "id": "backend-observability",
+      "disposition": "finding",
+      "evidence": "F2",
+      "rationale": "An unobserved material change can leave the consumer without a changed or unknown diagnostic."
+    },
+    {
+      "id": "compatibility",
+      "disposition": "finding",
+      "evidence": "F1",
+      "rationale": "The external formats are preserved, but the prior recomputation behavior detected material changes that the new directory fingerprint can miss."
+    },
+    {
+      "id": "correctness",
+      "disposition": "finding",
+      "evidence": "F1",
+      "rationale": "The state key is not a complete discriminator for material read from directory entries."
+    },
+    {
+      "id": "design-causality",
+      "disposition": "finding",
+      "evidence": "F2",
+      "rationale": "D1 directly addresses repeated construction by extending reuse across operations, but does not preserve the observed input closure needed for safe reuse.",
+      "mappings": [
+        {
+          "delta": "SD-5f4aed7e",
+          "basis": "D1",
+          "disposition": "mapped",
+          "rationale": "The ADR D13 amendment records D1's repository-state cache choice and its R1-R4 basis, extending the earlier operation-local reuse design across operations."
+        }
+      ]
+    },
+    {
+      "id": "documentation",
+      "disposition": "finding",
+      "evidence": "F3",
+      "rationale": "The documented claim that repository state covers material inputs depends on an unenforced versioning assumption; directory contents also invalidate the claimed coverage."
+    },
+    {
+      "id": "operability",
+      "disposition": "finding",
+      "evidence": "F4",
+      "rationale": "A FIFO can hang a review operation without an actionable bounded failure."
+    },
+    {
+      "id": "requirements",
+      "disposition": "finding",
+      "evidence": "F1",
+      "rationale": "R2's invalidation guarantee is not met for directory entries. The focused tests cover only ordinary commit, untracked-file and dirty-file changes."
+    },
+    {
+      "id": "scope",
+      "disposition": "passed",
+      "evidence": "structure:design-5bcc128c47179f22",
+      "rationale": "The implementation hook, new cache helper, focused tests, validation-matrix entry and ADR amendment match the spec's affected areas and D1. No unrelated implementation expansion was identified."
+    },
+    {
+      "id": "security",
+      "disposition": "finding",
+      "evidence": "F4",
+      "rationale": "Native reads of arbitrary status-listed objects introduce an unbounded resource-consumption boundary. No new secret output or shell interpolation was identified in the changed code."
+    },
+    {
+      "id": "solution-proportionality",
+      "disposition": "finding",
+      "evidence": "F5",
+      "rationale": "A small bounded cache is proportionate to the measured repeated computation, but the chosen fingerprint scans unrelated contents without enforcing its stated work limit. Reuse must fall back when input completeness or boundedness cannot be established."
+    }
+  ],
+  "tools": [
+    {
+      "id": "artifact-check",
+      "disposition": "failed",
+      "evidence": "command:go -C pose-mcp build -o \"$TMPDIR/pose\" ./cmd/pose",
+      "rationale": "The required subject binary could not be built because creation of the Go work directory was denied by the read-only filesystem. The earlier pre-existing binary invocation selected another checkout and is excluded."
+    },
+    {
+      "id": "assess-design",
+      "disposition": "not-used",
+      "rationale": "No assessment writes were performed. Examined the source, spec D1 and ADR D13 alongside sealed structure:design-5bcc128c47179f22."
+    },
+    {
+      "id": "assess-discover",
+      "component": "pose-mcp",
+      "disposition": "not-used",
+      "rationale": "Assessment commands can write repository state and were excluded by the review's read-only boundary."
+    },
+    {
+      "id": "assess-integrate",
+      "disposition": "not-used",
+      "rationale": "No assessment writes were performed. Integration was examined through the material builder, index binding hook, governance read view and sealed integration evidence."
+    },
+    {
+      "id": "assess-tech-debt",
+      "disposition": "not-used",
+      "rationale": "No assessment writes were performed. Inspected the changed implementation directly; no new TODO, FIXME, stub or panic marker was introduced."
+    },
+    {
+      "id": "closeout-check",
+      "disposition": "deferred",
+      "rationale": "Completion-only tool; must follow a recorded, verified review conclusion."
+    },
+    {
+      "id": "review-check",
+      "disposition": "deferred",
+      "rationale": "Completion-only tool; no attestation was recorded by this review."
+    },
+    {
+      "id": "suggest-review",
+      "component": "pose-mcp",
+      "disposition": "not-used",
+      "rationale": "A reliable subject-root invocation was not completed before the required build blocker. Applied the repository's Go backend, security, documentation and delivery-evidence rules directly."
+    },
+    {
+      "id": "surface-check",
+      "disposition": "failed",
+      "rationale": "The required subject binary could not be built in the read-only environment. The earlier invocation selected another checkout and cannot establish this subject's surface result."
+    },
+    {
+      "id": "validate",
+      "disposition": "passed",
+      "evidence": "integration:pose-mcp/go/index-material-is-kept-per-repository-state-integration",
+      "rationale": "Disposed from the supplied sealed strict-validation evidence as directed by the brief; no local strict-validation rerun is claimed. Passing focused coverage does not cover the reported edge cases."
+    },
+    {
+      "id": "validate",
+      "component": "pose-mcp",
+      "disposition": "passed",
+      "evidence": "unit:pose-mcp/go/test",
+      "rationale": "Disposed from the supplied sealed module-validation evidence. The local focused TestIndexMaterial and TestKeptCache run also completed successfully; no new reproduction tests could be created in the read-only environment."
+    }
+  ],
+  "evidence_refs": [
+    "F1",
+    "F2",
+    "F3",
+    "F4",
+    "F5",
+    "delegated-run:rrn-8479af60445e994b",
+    "structure:design-5bcc128c47179f22"
+  ],
+  "findings": [
+    {
+      "id": "F1",
+      "severity": "high",
+      "evidence": "file:pose-mcp/internal/pose/index_material_kept.go:130",
+      "action": "Directory status entries are hashed only as a constant dir marker. A nested repository or submodule can remain dirty with the same parent porcelain status across edits or child commits, while files read by BuildIndexFederatedMaterialIn change. Unless that child is separately enumerated as an authorized root, the key remains unchanged and the old material digest is reused. Recurse through relevant repository state or decline retention for directory entries whose contents are not covered.",
+      "disposition": "open"
+    },
+    {
+      "id": "F2",
+      "severity": "high",
+      "evidence": "file:pose-mcp/internal/pose/index_material_kept.go:46",
+      "action": "A cache hit returns a digest without replaying the material's input observations into the current governance read view. The replacement key uses gitOutputIn and native os reads outside that view. Consequently, material-only dependencies are absent from the current operation's observation closure and final audit; changes after the lookup can escape detection. A miss can also retain a digest built from previously captured Files under a key read from newer native state. Preserve and validate the input closure when reusing material, and retain only a digest proven to correspond to its key.",
+      "disposition": "open"
+    },
+    {
+      "id": "F3",
+      "severity": "medium",
+      "evidence": "file:pose-mcp/internal/pose/index_material_kept.go:107",
+      "action": "The status command omits ignored files, but ListSpecs and the other material readers do not exclude them. Editing an ignored dependency spec can change the actual material without changing HEAD, status or the key. The spec's technical-risk assumption that material inputs are versioned is neither enforced nor established by the focused tests. Cover these inputs or refuse retention when their completeness cannot be proven.",
+      "disposition": "open"
+    },
+    {
+      "id": "F4",
+      "severity": "medium",
+      "evidence": "file:pose-mcp/internal/pose/index_material_kept.go:136",
+      "action": "The default branch reads any status-listed filesystem object that is neither a directory nor a symlink, with no regular-file check, byte budget or cancellation. An untracked FIFO blocks os.ReadFile awaiting a writer, and a large unrelated file can exhaust memory. These objects need not be inputs to the material itself. Decline caching for special files and bound reads of regular files.",
+      "disposition": "open"
+    },
+    {
+      "id": "F5",
+      "severity": "medium",
+      "evidence": "file:pose-mcp/internal/pose/index_material_kept.go:88",
+      "action": "The 4096-path limit is checked only after repositoryState has captured the complete status, split it, and read and hashed every listed file. An over-limit repository therefore incurs all supposedly bounded key work before falling back to another material build. Enforce the remaining path budget during status processing before reading file contents, and bound retained status output.",
+      "disposition": "open"
+    }
+  ],
+  "authority": {
+    "schema_version": 1,
+    "project": "proj.pose-dist",
+    "bundle_digest": "sha256:d44b7272a9b52f24569c44106e4fa4f8e74911ba7799e32313b45455d3b62a9e",
+    "principal": "agent:openai/gpt-6.1-sol",
+    "role": "agent",
+    "review_execution": "rrn-8479af60445e994b",
+    "implementation_principal": "agent:anthropic/claude-opus-5-5",
+    "implementation_execution": "sha256:0eb880a4fc2ed87a379c949a567b1d3dfbd6b58b466f4755fcd363dd2b7fed98",
+    "issuer": "b34-local-executor",
+    "issued_at": "2026-11-16T08:03:50Z",
+    "audience": "proj.pose-dist"
+  },
+  "envelope": {
+    "issuer": "b34-local-executor",
+    "subject": "rvb-d44b7272a9b52f24",
+    "algorithm": "ed25519",
+    "public_key": "ck4sApdfePV2GT+hJyAYfJd2qLzeG55P8pevGR0bvZE=",
+    "signature": "h3VsLsRb7UgeZd3sFbt3iGI32v2Xq2oy0OTIEhm8KI/0yvhuxejbkN6RciDmehBJnoBoz8xHN0D/BjVXNxaeBg=="
+  },
+  "attested_at": "2026-11-16T08:03:50Z",
+  "path": ".pose/review-attestations/rva-9a082cb52b517543.json"
+}
