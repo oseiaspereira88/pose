@@ -441,6 +441,11 @@ type reviewCleanupOwnership struct {
 	registration     string
 	registrationInfo os.FileInfo
 	backlink         string
+	// inventoryBytes bounds the bytes the worktree's cleanup may remove: the
+	// checked-out commit's tree plus the snapshot margin, read from the
+	// coordinator repository when the worktree is registered (spec
+	// pose-git-snapshot-budget-scales-with-the-tree).
+	inventoryBytes int64
 }
 
 func (s Store) captureReviewCleanupOwnership(runtime *os.Root, worktree string, marker []byte) (*reviewCleanupOwnership, error) {
@@ -463,7 +468,14 @@ func (s Store) captureReviewCleanupOwnership(runtime *os.Root, worktree string, 
 		registry.Close()
 		return nil, fmt.Errorf("worktree registration unavailable")
 	}
-	o := &reviewCleanupOwnership{runtime: runtime, registry: registry, registration: name, registrationInfo: info, backlink: filepath.Join(worktree, ".git")}
+	o := &reviewCleanupOwnership{runtime: runtime, registry: registry, registration: name, registrationInfo: info, backlink: filepath.Join(worktree, ".git"), inventoryBytes: gitSnapshotMarginBytes}
+	if head, err := registry.ReadFile(filepath.Join(name, "HEAD")); err == nil {
+		if commit := strings.TrimSpace(string(head)); !strings.HasPrefix(commit, "ref:") && commit != "" {
+			if listing, err := snapshotGit(s.Root, "ls-tree", "-r", "-l", "-z", commit); err == nil {
+				o.inventoryBytes = gitSnapshotBudget(gitCommittedTreeBytes(listing))
+			}
+		}
+	}
 	child, err := registry.OpenRoot(name)
 	if err != nil {
 		registry.Close()
@@ -554,7 +566,11 @@ func (s Store) cleanupReviewResources(tmp string, owned os.FileInfo, worktree st
 				tree.Close()
 				return fmt.Errorf("worktree cleanup identity changed")
 			}
-			e = removeReviewOwnedContents(tree, 100000, 256<<20)
+			limit := gitSnapshotMarginBytes
+			if o.inventoryBytes > limit {
+				limit = o.inventoryBytes
+			}
+			e = removeReviewOwnedContents(tree, 100000, limit)
 			tree.Close()
 			if e != nil {
 				return e

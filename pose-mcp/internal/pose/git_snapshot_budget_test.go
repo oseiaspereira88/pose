@@ -77,3 +77,81 @@ func TestGitSnapshotBudgetIsBounded(t *testing.T) {
 		t.Fatalf("a negative size: %d", got)
 	}
 }
+
+// cleanupBudgetFixture registers a detached review worktree of a commit
+// whose tree is 4 KiB, with the snapshot margin lowered to 1 KiB, as
+// dispatch does, and captures its cleanup ownership.
+func cleanupBudgetFixture(t *testing.T, extra int) (Store, string, os.FileInfo, string, os.FileInfo, []byte, *reviewCleanupOwnership) {
+	t.Helper()
+	original := gitSnapshotMarginBytes
+	t.Cleanup(func() { gitSnapshotMarginBytes = original })
+	gitSnapshotMarginBytes = 1 << 10
+	repo := t.TempDir()
+	federatedTestGit(t, repo, "init", "-q")
+	for _, kv := range [][]string{{"user.name", "fixture"}, {"user.email", "fixture@example.invalid"}, {"commit.gpgsign", "false"}} {
+		federatedTestGit(t, repo, "config", kv[0], kv[1])
+	}
+	if err := os.WriteFile(filepath.Join(repo, "tracked"), bytes.Repeat([]byte{'x'}, 4<<10), 0o600); err != nil {
+		t.Fatal(err)
+	}
+	federatedTestGit(t, repo, "add", "-A")
+	federatedTestGit(t, repo, "commit", "-qm", "fixture")
+	tmp := filepath.Join(t.TempDir(), "operation")
+	if err := os.Mkdir(tmp, 0o700); err != nil {
+		t.Fatal(err)
+	}
+	owned, err := os.Lstat(tmp)
+	if err != nil {
+		t.Fatal(err)
+	}
+	root, err := os.OpenRoot(tmp)
+	if err != nil {
+		t.Fatal(err)
+	}
+	t.Cleanup(func() { root.Close() })
+	worktree := filepath.Join(tmp, "worktree")
+	federatedTestGit(t, repo, "worktree", "add", "-q", "--detach", worktree, "HEAD")
+	if extra > 0 {
+		if err := os.WriteFile(filepath.Join(worktree, "grown"), bytes.Repeat([]byte{'y'}, extra), 0o600); err != nil {
+			t.Fatal(err)
+		}
+	}
+	worktreeOwned, err := os.Lstat(worktree)
+	if err != nil {
+		t.Fatal(err)
+	}
+	marker, err := os.ReadFile(filepath.Join(worktree, ".git"))
+	if err != nil {
+		t.Fatal(err)
+	}
+	store := Store{Root: repo}
+	ownership, err := store.captureReviewCleanupOwnership(root, worktree, marker)
+	if err != nil {
+		t.Fatal(err)
+	}
+	return store, tmp, owned, worktree, worktreeOwned, marker, ownership
+}
+
+// R1: a review worktree whose checked-out tree is past the margin is
+// removed whole by its cleanup.
+func TestReviewWorktreeCleanupCoversTheCommittedTree(t *testing.T) {
+	store, tmp, owned, worktree, worktreeOwned, marker, ownership := cleanupBudgetFixture(t, 0)
+	if err := store.cleanupReviewResources(tmp, owned, worktree, worktreeOwned, marker, ownership); err != nil {
+		t.Fatalf("cleanup of a worktree past the margin: %v", err)
+	}
+	if _, err := os.Lstat(worktree); !os.IsNotExist(err) {
+		t.Fatalf("the worktree was not removed: %v", err)
+	}
+}
+
+// R2: a worktree that grew past its committed tree by more than the margin
+// keeps failing closed.
+func TestReviewWorktreeCleanupStillBoundsGrowth(t *testing.T) {
+	store, tmp, owned, worktree, worktreeOwned, marker, ownership := cleanupBudgetFixture(t, 64<<10)
+	if err := store.cleanupReviewResources(tmp, owned, worktree, worktreeOwned, marker, ownership); err == nil {
+		t.Fatal("cleanup of a worktree grown past its budget succeeded")
+	}
+	if _, err := os.Lstat(filepath.Join(worktree, "grown")); err != nil {
+		t.Fatalf("a refused cleanup removed the worktree's contents: %v", err)
+	}
+}

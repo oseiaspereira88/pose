@@ -39,6 +39,7 @@ A árvore commitada do pose-dist passou de 256 MiB (256,8 MiB; 88 MiB de review 
 ### Functional
 - R1: `gitMaterializedChangesForIn` and `dispatchDiskSnapshot` shall bound the bytes they read by the committed tree's blob sizes plus a 256 MiB margin, so a clean tree of any size up to the ceiling is compared and snapshotted whole.
 - R2: When the bytes read exceed that budget, both shall fail closed with an error that names the budget.
+- R4: The cleanup of a delegated review's worktree shall bound the bytes it removes by the same budget, computed from the coordinator repository for the worktree's checked-out commit when the worktree is registered, so a clean worktree of a tree past the margin is removed and a worktree grown past the budget is retained.
 - R3: The budget shall never be less than the 256 MiB margin and never more than a 4 GiB ceiling; when the committed tree cannot be listed, the disk snapshot shall use the margin alone.
 
 ### Non-functional
@@ -56,17 +57,19 @@ A árvore commitada do pose-dist passou de 256 MiB (256,8 MiB; 88 MiB de review 
 
 ### Affected areas
 - `pose/git_snapshot_integrity.go`: o orçamento das duas capturas.
+- `pose/review_adapter_containment.go`: o inventário da limpeza do worktree da revisão delegada usa o mesmo orçamento.
 
 ### Artifacts
 - created: pose-mcp/internal/pose/git_snapshot_budget_test.go
 - modified: pose-mcp/internal/pose/git_snapshot_integrity.go
+- modified: pose-mcp/internal/pose/review_adapter_containment.go
 - modified: .pose/indexes/validation-matrix.json
 
 ### Delivery targets
 
 - capability:git-snapshot-budget-scales-with-the-tree module:pose-mcp profile:composed-capability entrypoint:pose-mcp/cmd/pose/main.go
 
-Composto em produção pelo `pose close` (passo do plano de fechamento que procura mudanças escondidas) e pela limpeza de toda revisão delegada. Check permanente `git-snapshot-budget-scales-with-the-tree-integration`, evidenceClass `integration`, required: `go test ./internal/pose -run 'TestGitSnapshotBudget' -count=1`.
+Composto em produção pelo `pose close` (passo do plano de fechamento que procura mudanças escondidas) e pela limpeza de toda revisão delegada. Check permanente `git-snapshot-budget-scales-with-the-tree-integration`, evidenceClass `integration`, required: `go test ./internal/pose -run 'TestGitSnapshotBudget|TestReviewWorktreeCleanup' -count=1`.
 
 ### API/contract changes
 - Nenhuma.
@@ -83,6 +86,7 @@ Composto em produção pelo `pose close` (passo do plano de fechamento que procu
 
 ### Implementation
 - [x] Orçamento escalonado nas duas capturas (R1, R2, R3).
+- [x] Inventário da limpeza do worktree da revisão delegada com o mesmo orçamento (R4).
 
 ### Validation
 - [x] Testes com margem reduzida, árvore maior que ela e disco crescido, com prova de reprovação.
@@ -128,6 +132,7 @@ Testes com um repositório real de quatro arquivos de 4 KiB e a margem reduzida 
 - R1 [satisfied] test:TestGitSnapshotBudgetCoversTheCommittedTree check:git-snapshot-budget-scales-with-the-tree-integration
 - R2 [satisfied] test:TestGitSnapshotBudgetStillBoundsGrowth
 - R3 [satisfied] test:TestGitSnapshotBudgetIsBounded
+- R4 [satisfied] test:TestReviewWorktreeCleanupCoversTheCommittedTree test:TestReviewWorktreeCleanupStillBoundsGrowth
 
 ### Known gaps
 - O caso de a listagem da árvore falhar na captura de disco usa só a margem, sem teste próprio.
@@ -145,3 +150,8 @@ Não concluída.
 ### Follow-ups
 
 - [open] F1: decidir a retenção dos registros de revisão, que somam 190 MiB dos 256,8 MiB da árvore do pose-dist e crescem a cada rodada. (owner:@pose-maintainers crit:medium review:2026-11-30)
+
+### Review
+
+Rodada 1 (run rrn-06ad526d19316762, recusada): a revisão terminou, mas a limpeza do worktree descartável falhou com "runtime cleanup inventory incomplete; resources retained", e a conclusão foi recusada, como a da rodada 4 do doctor (rrn-f0d738ef7de4226e). A causa era um terceiro teto fixo de 256 MiB, o do inventário que `removeReviewOwnedContents` remove do worktree, um checkout da árvore de 256,8 MiB. Ele passou a usar o mesmo orçamento: ao registrar o worktree, o motor lê o commit destacado do registro e soma a árvore dele no repositório coordenador, sem rodar Git dentro do worktree do revisor (R4). Com o teto fixo, `TestReviewWorktreeCleanupCoversTheCommittedTree` reproduz a mesma mensagem; um worktree que cresce 64 KiB além do orçamento continua retido (`TestReviewWorktreeCleanupStillBoundsGrowth`).
+
