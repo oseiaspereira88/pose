@@ -1,7 +1,7 @@
 {
   "schema_version": 2,
-  "input_digest": "sha256:115ac5d3b64dc3b46ddd974f243d15497d77a6d55f470307abcbbade50610a1d",
-  "provenance_digest": "sha256:ee48c3d3084b74ee9826e4dd6ecb59c6e1392ff9b4e4b2cadbe2a4bbdd32867b",
+  "input_digest": "sha256:84655b0f8f87dc6ab4604be1b3d8bc577d279bf79a1c562793821fc653cbaf61",
+  "provenance_digest": "sha256:5e4b7ca917e331eac777a62d39f06da342c96ac68e7cefdd29e8c23e7c2587b4",
   "implied_edges": [
     "changes"
   ],
@@ -46567,14 +46567,6 @@
       }
     },
     {
-      "id": "change-set:cs-410a8f425e77",
-      "type": "change-set",
-      "attributes": {
-        "diff_digest": "sha256:468039fa5245a84698fe432c6e696f1a2eacdbc91a542648c12726d458fa2acf",
-        "selector": "trailers:pose-federated-source-proof-is-computed-once-per-operation"
-      }
-    },
-    {
       "id": "change-set:cs-4158b84f69a1",
       "type": "change-set",
       "attributes": {
@@ -48132,6 +48124,14 @@
       "attributes": {
         "diff_digest": "sha256:88696d7d2eb504ba98b74f2b7cbced93f05b304bdc3b29042c3d296600c03d39",
         "selector": "trailers:pose-authority-claim-project-is-not-the-audience"
+      }
+    },
+    {
+      "id": "change-set:cs-9d9b98695eaf",
+      "type": "change-set",
+      "attributes": {
+        "diff_digest": "sha256:2b6cf1b3145944865ebaa5a9c36d75873f10495d576cd045052f1a5fd5b6e2e9",
+        "selector": "trailers:pose-federated-source-proof-is-computed-once-per-operation"
       }
     },
     {
@@ -119471,7 +119471,7 @@
     },
     {
       "from": "spec:pose-federated-source-proof-is-computed-once-per-operation",
-      "to": "change-set:cs-410a8f425e77",
+      "to": "change-set:cs-9d9b98695eaf",
       "type": "observed-by"
     },
     {
@@ -210993,68 +210993,6 @@
       }
     },
     {
-      "id": "cs-410a8f425e77",
-      "spec": "pose-federated-source-proof-is-computed-once-per-operation",
-      "selector": "trailers:pose-federated-source-proof-is-computed-once-per-operation",
-      "base": "2e619074c06ec5b0447b4fe3e8afb9b153b04cbd^",
-      "head": "23924b3b9fc72f60eeedee1b87679cffa4a069b8",
-      "resolved_base": "1d235badaf52611ae609146c26a7fb212ae3a2e8",
-      "resolved_head": "23924b3b9fc72f60eeedee1b87679cffa4a069b8",
-      "commits": [
-        "2e619074c06ec5b0447b4fe3e8afb9b153b04cbd",
-        "35d1bc173c67aece49aad57e236a15de270b5756",
-        "23924b3b9fc72f60eeedee1b87679cffa4a069b8"
-      ],
-      "paths": [
-        {
-          "action": "created",
-          "path": ".pose/specs/2026-11-17-pose-federated-source-proof-is-computed-once-per-operation.md"
-        },
-        {
-          "action": "created",
-          "path": ".pose/starts/pose-federated-source-proof-is-computed-once-per-operation.json"
-        },
-        {
-          "action": "created",
-          "path": "pose-mcp/internal/pose/federated_source_proof_memo_test.go"
-        },
-        {
-          "action": "modified",
-          "path": ".pose/adr/2026-11-03-governance-reads-use-bounded-operation-scoped-views.md"
-        },
-        {
-          "action": "modified",
-          "path": ".pose/indexes/generation.json"
-        },
-        {
-          "action": "modified",
-          "path": ".pose/indexes/spec-graph.json"
-        },
-        {
-          "action": "modified",
-          "path": ".pose/indexes/validation-matrix.json"
-        },
-        {
-          "action": "modified",
-          "path": "pose-mcp/internal/pose/federated_acceptance.go"
-        }
-      ],
-      "diff_digest": "sha256:468039fa5245a84698fe432c6e696f1a2eacdbc91a542648c12726d458fa2acf",
-      "material_digest": "sha256:bfb4a42e99207cac26dd53efc0cac00b2a2801b58901b44c0eb3e2f7996bf782",
-      "material_inputs": {
-        "names": [
-          ".pose/adr/2026-11-03-governance-reads-use-bounded-operation-scoped-views.md",
-          ".pose/indexes/generation.json",
-          ".pose/indexes/spec-graph.json",
-          ".pose/indexes/validation-matrix.json",
-          ".pose/specs/2026-11-17-pose-federated-source-proof-is-computed-once-per-operation.md",
-          ".pose/starts/pose-federated-source-proof-is-computed-once-per-operation.json",
-          "pose-mcp/internal/pose/federated_acceptance.go",
-          "pose-mcp/internal/pose/federated_source_proof_memo_test.go"
-        ]
-      }
-    },
-    {
       "id": "cs-4158b84f69a1",
       "spec": "pose-obligation-projection",
       "selector": "trailers:pose-obligation-projection",
@@ -251147,6 +251085,74 @@
           ".pose/changelogs/v7.0.0/pose-update-configuration-review.md",
           ".pose/changelogs/v7.0.0/pose-v7-legacy-cleanup-plan.md",
           ".pose/changelogs/v7.0.0/pose-validation-check-additions-are-not-material.md"
+        ]
+      }
+    },
+    {
+      "id": "cs-9d9b98695eaf",
+      "spec": "pose-federated-source-proof-is-computed-once-per-operation",
+      "selector": "trailers:pose-federated-source-proof-is-computed-once-per-operation",
+      "base": "2e619074c06ec5b0447b4fe3e8afb9b153b04cbd^",
+      "head": "28f3e78b44a22aebaf4c2f288705462dd326f73d",
+      "resolved_base": "1d235badaf52611ae609146c26a7fb212ae3a2e8",
+      "resolved_head": "28f3e78b44a22aebaf4c2f288705462dd326f73d",
+      "commits": [
+        "2e619074c06ec5b0447b4fe3e8afb9b153b04cbd",
+        "35d1bc173c67aece49aad57e236a15de270b5756",
+        "23924b3b9fc72f60eeedee1b87679cffa4a069b8",
+        "28f3e78b44a22aebaf4c2f288705462dd326f73d"
+      ],
+      "paths": [
+        {
+          "action": "created",
+          "path": ".pose/specs/2026-11-17-pose-federated-source-proof-is-computed-once-per-operation.md"
+        },
+        {
+          "action": "created",
+          "path": ".pose/starts/pose-federated-source-proof-is-computed-once-per-operation.json"
+        },
+        {
+          "action": "created",
+          "path": "pose-mcp/internal/pose/federated_source_proof_memo_test.go"
+        },
+        {
+          "action": "modified",
+          "path": ".pose/adr/2026-11-03-governance-reads-use-bounded-operation-scoped-views.md"
+        },
+        {
+          "action": "modified",
+          "path": ".pose/indexes/delivery-integrity.json"
+        },
+        {
+          "action": "modified",
+          "path": ".pose/indexes/generation.json"
+        },
+        {
+          "action": "modified",
+          "path": ".pose/indexes/spec-graph.json"
+        },
+        {
+          "action": "modified",
+          "path": ".pose/indexes/validation-matrix.json"
+        },
+        {
+          "action": "modified",
+          "path": "pose-mcp/internal/pose/federated_acceptance.go"
+        }
+      ],
+      "diff_digest": "sha256:2b6cf1b3145944865ebaa5a9c36d75873f10495d576cd045052f1a5fd5b6e2e9",
+      "material_digest": "sha256:bfb4a42e99207cac26dd53efc0cac00b2a2801b58901b44c0eb3e2f7996bf782",
+      "material_inputs": {
+        "names": [
+          ".pose/adr/2026-11-03-governance-reads-use-bounded-operation-scoped-views.md",
+          ".pose/indexes/delivery-integrity.json",
+          ".pose/indexes/generation.json",
+          ".pose/indexes/spec-graph.json",
+          ".pose/indexes/validation-matrix.json",
+          ".pose/specs/2026-11-17-pose-federated-source-proof-is-computed-once-per-operation.md",
+          ".pose/starts/pose-federated-source-proof-is-computed-once-per-operation.json",
+          "pose-mcp/internal/pose/federated_acceptance.go",
+          "pose-mcp/internal/pose/federated_source_proof_memo_test.go"
         ]
       }
     },
