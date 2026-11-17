@@ -1,6 +1,6 @@
 ---
 slug: pose-commit-hook-runs-with-explicit-roots
-status: draft
+status: abandoned
 created_at: 2026-11-11
 completed_at:
 supersedes:
@@ -48,13 +48,30 @@ Os artefatos e os alvos de entrega são fixados antes do start.
 - [ ] Implementar e testar
 - [ ] Revisão independente e fechamento
 
+## 5. Decisions
+
+### Decision D1
+- Date: 2026-11-17
+- Context: o rascunho foi escrito em 2026-11-11, antes da spec `pose-hooks-delegate-to-the-instance-runner` (done em 2026-11-15). Ela deixa a instância declarar em `.pose/policy/hooks.json` o executor dos seus hooks, e faz o `pre-commit` e o `post-merge` do motor delegarem a ele; o harne8 declara `scripts/pose-hook.sh`, que chama o motor pelo wrapper com os dois roots explícitos. O motor não instala `commit-msg`: os hooks gerenciados são `pre-commit` e `post-merge`, os dois que a delegação cobre.
+- Decision: abandonar o rascunho, coberto por `pose-hooks-delegate-to-the-instance-runner`.
+- Rationale: R2 e R3 estão entregues pela delegação: os hooks do harne8 rodam o motor com os roots que a instância declara, e em 2026-11-17 cada pre-commit do harne8 terminou com `Result: SUCCESS (tolerant mode)` e só os dois avisos de assessment de capabilities, sem `unknown-project` nem `federated-material changed`. R1 e R4 só eram necessários se a instância passasse a tratar roots como autorizados por descoberta; a delegação mantém os roots explícitos no executor da instância e não concede autoridade nova, então não há decisão de ADR a tomar.
+- Consequences: nada a implementar; o maintainer escolheu este encaminhamento em 2026-11-17.
+
 ## 6. Validation
 
-A estratégia e o rastreio dos requisitos são escritos antes do start.
+Sem validação própria: a cobertura é verificada pelos testes de `pose-hooks-delegate-to-the-instance-runner` (`TestAHookDelegatesToTheDeclaredRunner`, `TestAnInvalidHookRunnerIsRefused`, `TestHookStatusNamesTheRunner`) e pelo pre-commit do harne8 em 2026-11-17.
 
 ---
 
 ## 7. Final Report
 
 ### Delivered scope
-Rascunho: nada entregue ainda.
+Nada a entregar: coberto por `pose-hooks-delegate-to-the-instance-runner` (D1).
+
+### Residual risks
+
+Nenhum.
+
+### Follow-ups
+
+Nenhum.
