@@ -66,7 +66,7 @@ O `pose index` do pose-dist passou a reprovar sempre com "index inputs changed d
 
 - capability:read-view-audit-repeats-a-read-under-its-own-time module:pose-mcp profile:composed-capability entrypoint:pose-mcp/cmd/pose/main.go
 
-Composto em produção por toda operação de read view que audita leituras de Git com prazo: `pose index`, fechamentos e revisões. Check permanente `read-view-audit-repeats-a-read-under-its-own-time-integration`, evidenceClass `integration`, required: `go test ./internal/pose -run 'TestReadViewAuditRepeatsAReadUnderItsOwnTime|TestAuditTimeoutIsTheTimeTheReadHad' -count=1`.
+Composto em produção por toda operação de read view que audita leituras de Git com prazo: `pose index`, fechamentos e revisões. Check permanente `read-view-audit-repeats-a-read-under-its-own-time-integration`, evidenceClass `integration`, required: `go test ./internal/pose -run 'TestReadViewAudit|TestAuditTimeoutIsTheTimeTheReadHad' -count=1`.
 
 ### API/contract changes
 - Nenhuma.
@@ -117,7 +117,7 @@ Teste com uma read view real: um comando e um stream capturados sob prazo de 2 s
 ### Execution log
 - Date: 2026-11-17
 - Environment: Linux, Go 1.26, Git 2.56; clone do pose-dist em d49d3aeb.
-- Notes: o `pose index` do clone reprovou três vezes seguidas; a auditoria instrumentada mostrou `git show --binary` repetidos com "context deadline exceeded" depois do prazo absoluto de 2 minutos. Com a correção o índice foi escrito em 135 s. O teste reprova com o prazo absoluto (as duas leituras aparecem como mudadas) e passa com o tempo da leitura.
+- Notes: o `pose index` do clone reprovou três vezes seguidas; a auditoria instrumentada mostrou `git show --binary` repetidos com "context deadline exceeded" depois do prazo absoluto de 2 minutos. Com a correção o índice foi escrito em 135 s. Os testes do comando (`ls-tree -r -z HEAD`, que não é leitura pura e a auditoria repete) e do stream reprovam cada um quando só a sua correção é revertida, e um terceiro mostra que um HEAD movido depois do prazo continua reportado como mudança.
 
 ### Results summary
 - Successes: o `pose index` do pose-dist volta a escrever; leituras inalteradas não viram mudança depois do prazo.
@@ -125,8 +125,8 @@ Teste com uma read view real: um comando e um stream capturados sob prazo de 2 s
 - Warnings: nenhum.
 
 ### Requirement trace
-- R1 [satisfied] test:TestReadViewAuditRepeatsAReadUnderItsOwnTime check:read-view-audit-repeats-a-read-under-its-own-time-integration
-- R2 [satisfied] test:TestReadViewAuditRepeatsAReadUnderItsOwnTime
+- R1 [satisfied] test:TestReadViewAuditRepeatsACommandUnderItsOwnTime test:TestReadViewAuditRepeatsAStreamUnderItsOwnTime test:TestReadViewAuditStillSeesAChangeAfterTheDeadline check:read-view-audit-repeats-a-read-under-its-own-time-integration
+- R2 [satisfied] test:TestReadViewAuditRepeatsACommandUnderItsOwnTime test:TestReadViewAuditRepeatsAStreamUnderItsOwnTime
 - R3 [satisfied] test:TestAuditTimeoutIsTheTimeTheReadHad
 
 ### Known gaps
@@ -143,3 +143,8 @@ Não concluída.
 ### Residual risks
 
 ### Follow-ups
+
+### Review
+
+Rodada 1 (run rrn-8ff5d2cdc744047e, changes-requested): F1 o teste capturava `ls-tree -r -z <id completo>`, que o motor classifica como leitura pura e a auditoria não repete; ele passava mesmo com a correção dos comandos revertida. Agora há um teste por tipo de leitura, com `ls-tree -r -z HEAD` (repetido pela auditoria) e um stream, cada um reprovando quando só a sua correção é revertida, e um teste que move o HEAD depois do prazo para provar que a repetição acontece.
+
