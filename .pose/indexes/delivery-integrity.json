@@ -1,7 +1,7 @@
 {
   "schema_version": 2,
-  "input_digest": "sha256:d920fc169dc5637a27575cd83c9d2a3749721d44461cdb3c42b19ea009b09207",
-  "provenance_digest": "sha256:6ca59e7d6e491e204e541f97892246358655169250c8cd44efbda6e8fa68aed7",
+  "input_digest": "sha256:806c34dc6bb0dd304312f86a4f8ac08d5f113af59135a2d1152a6276fa296e5b",
+  "provenance_digest": "sha256:ce92ea42c69aed27a1dc742de1ba177b50cb9af4ae5bc279672a2311cce90240",
   "implied_edges": [
     "changes"
   ],
@@ -46551,6 +46551,14 @@
       }
     },
     {
+      "id": "change-set:cs-3ef840ea436e",
+      "type": "change-set",
+      "attributes": {
+        "diff_digest": "sha256:79adb077f86c7591d513f17861b3eb3b9534abade41c2a6d9be791f8b81add0d",
+        "selector": "trailers:pose-federated-source-proof-is-computed-once-per-operation"
+      }
+    },
+    {
       "id": "change-set:cs-3fdbf373e6ca",
       "type": "change-set",
       "attributes": {
@@ -47404,14 +47412,6 @@
       "attributes": {
         "diff_digest": "sha256:87604d43c193a5203d9b3369bb0cb17a8f423c51fa6e36cf1fe7932a9f417db6",
         "selector": "trailers:pose-workflow-event-ref-contract"
-      }
-    },
-    {
-      "id": "change-set:cs-6f15b4e1ade5",
-      "type": "change-set",
-      "attributes": {
-        "diff_digest": "sha256:9f8d283726d7b76be7e02021d20599dc6ed18bb8cf16966ad0f2cbaf3fee26a8",
-        "selector": "trailers:pose-federated-source-proof-is-computed-once-per-operation"
       }
     },
     {
@@ -119485,7 +119485,7 @@
     },
     {
       "from": "spec:pose-federated-source-proof-is-computed-once-per-operation",
-      "to": "change-set:cs-6f15b4e1ade5",
+      "to": "change-set:cs-3ef840ea436e",
       "type": "observed-by"
     },
     {
@@ -210364,6 +210364,82 @@
       }
     },
     {
+      "id": "cs-3ef840ea436e",
+      "spec": "pose-federated-source-proof-is-computed-once-per-operation",
+      "selector": "trailers:pose-federated-source-proof-is-computed-once-per-operation",
+      "base": "2e619074c06ec5b0447b4fe3e8afb9b153b04cbd^",
+      "head": "24c7ad9ab4e86457dad72b2ca6372e2b2ef64be0",
+      "resolved_base": "1d235badaf52611ae609146c26a7fb212ae3a2e8",
+      "resolved_head": "24c7ad9ab4e86457dad72b2ca6372e2b2ef64be0",
+      "commits": [
+        "2e619074c06ec5b0447b4fe3e8afb9b153b04cbd",
+        "35d1bc173c67aece49aad57e236a15de270b5756",
+        "23924b3b9fc72f60eeedee1b87679cffa4a069b8",
+        "28f3e78b44a22aebaf4c2f288705462dd326f73d",
+        "728fa45ce8629b4df572fc76b71633301dbcb540",
+        "1f6ca8a5ffb159978c22d3390f808fd604eb8f92",
+        "24c7ad9ab4e86457dad72b2ca6372e2b2ef64be0"
+      ],
+      "paths": [
+        {
+          "action": "created",
+          "path": ".pose/specs/2026-11-17-pose-federated-source-proof-is-computed-once-per-operation.md"
+        },
+        {
+          "action": "created",
+          "path": ".pose/starts/pose-federated-source-proof-is-computed-once-per-operation.json"
+        },
+        {
+          "action": "created",
+          "path": "pose-mcp/internal/pose/federated_source_proof_memo_test.go"
+        },
+        {
+          "action": "modified",
+          "path": ".pose/adr/2026-11-03-governance-reads-use-bounded-operation-scoped-views.md"
+        },
+        {
+          "action": "modified",
+          "path": ".pose/indexes/delivery-integrity.json"
+        },
+        {
+          "action": "modified",
+          "path": ".pose/indexes/generation.json"
+        },
+        {
+          "action": "modified",
+          "path": ".pose/indexes/spec-graph.json"
+        },
+        {
+          "action": "modified",
+          "path": ".pose/indexes/validation-matrix.json"
+        },
+        {
+          "action": "modified",
+          "path": ".pose/results/delivery-validation.json"
+        },
+        {
+          "action": "modified",
+          "path": "pose-mcp/internal/pose/federated_acceptance.go"
+        }
+      ],
+      "diff_digest": "sha256:79adb077f86c7591d513f17861b3eb3b9534abade41c2a6d9be791f8b81add0d",
+      "material_digest": "sha256:bfb4a42e99207cac26dd53efc0cac00b2a2801b58901b44c0eb3e2f7996bf782",
+      "material_inputs": {
+        "names": [
+          ".pose/adr/2026-11-03-governance-reads-use-bounded-operation-scoped-views.md",
+          ".pose/indexes/delivery-integrity.json",
+          ".pose/indexes/generation.json",
+          ".pose/indexes/spec-graph.json",
+          ".pose/indexes/validation-matrix.json",
+          ".pose/results/delivery-validation.json",
+          ".pose/specs/2026-11-17-pose-federated-source-proof-is-computed-once-per-operation.md",
+          ".pose/starts/pose-federated-source-proof-is-computed-once-per-operation.json",
+          "pose-mcp/internal/pose/federated_acceptance.go",
+          "pose-mcp/internal/pose/federated_source_proof_memo_test.go"
+        ]
+      }
+    },
+    {
       "id": "cs-3fdbf373e6ca",
       "spec": "pose-atomic-start-adoption-cutoff",
       "selector": "trailers:pose-atomic-start-adoption-cutoff",
@@ -231055,81 +231131,6 @@
           "pose-mcp/internal/scaffold/dist/.pose/changelogs/unreleased/pose-workflow-event-ref-contract.md",
           "pose-mcp/internal/scaffold/dist/.pose/specs/pose-workflow-event-ref-contract/spec.md",
           "pose-mcp/internal/version/workflow_event_ref_test.go"
-        ]
-      }
-    },
-    {
-      "id": "cs-6f15b4e1ade5",
-      "spec": "pose-federated-source-proof-is-computed-once-per-operation",
-      "selector": "trailers:pose-federated-source-proof-is-computed-once-per-operation",
-      "base": "2e619074c06ec5b0447b4fe3e8afb9b153b04cbd^",
-      "head": "1f6ca8a5ffb159978c22d3390f808fd604eb8f92",
-      "resolved_base": "1d235badaf52611ae609146c26a7fb212ae3a2e8",
-      "resolved_head": "1f6ca8a5ffb159978c22d3390f808fd604eb8f92",
-      "commits": [
-        "2e619074c06ec5b0447b4fe3e8afb9b153b04cbd",
-        "35d1bc173c67aece49aad57e236a15de270b5756",
-        "23924b3b9fc72f60eeedee1b87679cffa4a069b8",
-        "28f3e78b44a22aebaf4c2f288705462dd326f73d",
-        "728fa45ce8629b4df572fc76b71633301dbcb540",
-        "1f6ca8a5ffb159978c22d3390f808fd604eb8f92"
-      ],
-      "paths": [
-        {
-          "action": "created",
-          "path": ".pose/specs/2026-11-17-pose-federated-source-proof-is-computed-once-per-operation.md"
-        },
-        {
-          "action": "created",
-          "path": ".pose/starts/pose-federated-source-proof-is-computed-once-per-operation.json"
-        },
-        {
-          "action": "created",
-          "path": "pose-mcp/internal/pose/federated_source_proof_memo_test.go"
-        },
-        {
-          "action": "modified",
-          "path": ".pose/adr/2026-11-03-governance-reads-use-bounded-operation-scoped-views.md"
-        },
-        {
-          "action": "modified",
-          "path": ".pose/indexes/delivery-integrity.json"
-        },
-        {
-          "action": "modified",
-          "path": ".pose/indexes/generation.json"
-        },
-        {
-          "action": "modified",
-          "path": ".pose/indexes/spec-graph.json"
-        },
-        {
-          "action": "modified",
-          "path": ".pose/indexes/validation-matrix.json"
-        },
-        {
-          "action": "modified",
-          "path": ".pose/results/delivery-validation.json"
-        },
-        {
-          "action": "modified",
-          "path": "pose-mcp/internal/pose/federated_acceptance.go"
-        }
-      ],
-      "diff_digest": "sha256:9f8d283726d7b76be7e02021d20599dc6ed18bb8cf16966ad0f2cbaf3fee26a8",
-      "material_digest": "sha256:bfb4a42e99207cac26dd53efc0cac00b2a2801b58901b44c0eb3e2f7996bf782",
-      "material_inputs": {
-        "names": [
-          ".pose/adr/2026-11-03-governance-reads-use-bounded-operation-scoped-views.md",
-          ".pose/indexes/delivery-integrity.json",
-          ".pose/indexes/generation.json",
-          ".pose/indexes/spec-graph.json",
-          ".pose/indexes/validation-matrix.json",
-          ".pose/results/delivery-validation.json",
-          ".pose/specs/2026-11-17-pose-federated-source-proof-is-computed-once-per-operation.md",
-          ".pose/starts/pose-federated-source-proof-is-computed-once-per-operation.json",
-          "pose-mcp/internal/pose/federated_acceptance.go",
-          "pose-mcp/internal/pose/federated_source_proof_memo_test.go"
         ]
       }
     },
