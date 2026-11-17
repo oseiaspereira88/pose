@@ -1,8 +1,8 @@
 ---
 slug: pose-review-guard-reads-the-integrity-graph-in-place
-status: in-progress
+status: done
 created_at: 2026-11-17
-completed_at:        # stamped on the transition to status: done
+completed_at: 2026-11-17
 supersedes:          # slug of the superseded spec (when applicable)
 depends_on: pose-federated-source-proof-is-computed-once-per-operation
 remediates:          # optional explicit links: spec:slug@defect-fix, finding:rva-<16hex>/F1@revert (never inferred from depends_on)
