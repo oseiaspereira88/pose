@@ -1,7 +1,7 @@
 {
   "schema_version": 2,
-  "input_digest": "sha256:ecb4424fd0365749ca582799fd00e7b97790b6578193e2b2ea4bc27a3c4c8f6c",
-  "provenance_digest": "sha256:4b366c58809bc0053a7be6cbc780e64e46e53cc1af51c808952bd3ba4a22b2e7",
+  "input_digest": "sha256:04359fd66f9141753b6c90d69c148ac0ff8593812947751fa9f1f4df8b222d7e",
+  "provenance_digest": "sha256:8616ec852a87b3936a209e46698244675bb8cf6c7fa99a06e19d9f0ab4150e42",
   "implied_edges": [
     "changes"
   ],
@@ -46150,14 +46150,6 @@
       }
     },
     {
-      "id": "change-set:cs-1d6ffba91e2e",
-      "type": "change-set",
-      "attributes": {
-        "diff_digest": "sha256:2a44cc60f63bae8287b8b7156706fe1cdd6de34800ec0c013a4033173e9b7143",
-        "selector": "trailers:pose-review-guard-reads-the-integrity-graph-in-place"
-      }
-    },
-    {
       "id": "change-set:cs-1d8befda8092",
       "type": "change-set",
       "attributes": {
@@ -46859,6 +46851,14 @@
       "attributes": {
         "diff_digest": "sha256:29a76f910d4175183a850296767b9d0e22b2ceb2fd6434ff92988b7fed7428a3",
         "selector": "trailers:pose-atomic-start-adoption-cutoff"
+      }
+    },
+    {
+      "id": "change-set:cs-40e448960a6e",
+      "type": "change-set",
+      "attributes": {
+        "diff_digest": "sha256:3cdb265a9147ed95e8d33bdfab31ae772a5c58af80c50715e4f7d1611776019e",
+        "selector": "trailers:pose-review-guard-reads-the-integrity-graph-in-place"
       }
     },
     {
@@ -132529,7 +132529,7 @@
     },
     {
       "from": "spec:pose-review-guard-reads-the-integrity-graph-in-place",
-      "to": "change-set:cs-1d6ffba91e2e",
+      "to": "change-set:cs-40e448960a6e",
       "type": "observed-by"
     },
     {
@@ -191958,144 +191958,6 @@
       }
     },
     {
-      "id": "cs-1d6ffba91e2e",
-      "spec": "pose-review-guard-reads-the-integrity-graph-in-place",
-      "selector": "trailers:pose-review-guard-reads-the-integrity-graph-in-place",
-      "base": "e3e97e76ee1fea8cd270054698a4525c66e082be^",
-      "head": "e6a0db90d57dac1512bce57a8f511efe0b237265",
-      "resolved_base": "680799274ea014a44cb54808669ddf9ebcea0971",
-      "resolved_head": "e6a0db90d57dac1512bce57a8f511efe0b237265",
-      "commits": [
-        "e3e97e76ee1fea8cd270054698a4525c66e082be",
-        "2ad3f7bbae8aeea17c747221e5d7ff95e114c154",
-        "bea4b58d974ac532ded104831e26f9b083b1dbc2",
-        "c3b295b23b3dff11e1fcb8c43d1d3b764e25c320",
-        "123c26a029375ada3c6de9ed0d8d3e23acb39447",
-        "1414b98dd1ad8772cff5732a7a2984f5fd851bb4",
-        "fd75d410082a0db44f3a856dab906c251f5840f2",
-        "ae9d3a9db91ffee2decbbc4fa23fdb938695e856",
-        "6282ffcec7b3a7cebc57b49a2f44ef4d54f7df09",
-        "4e77589037bff10a20d223d7882a3c9d85bee533",
-        "f3f3b731edc0a77fe7ea1df46de5bb45e5b814f7",
-        "f0569d7e8371bb8ec1fa237c18b05ae5a44f3632",
-        "e6a0db90d57dac1512bce57a8f511efe0b237265"
-      ],
-      "paths": [
-        {
-          "action": "created",
-          "path": ".pose/closeout-plans/spec-pose-review-guard-reads-the-integrity-graph-in-place.json"
-        },
-        {
-          "action": "created",
-          "path": ".pose/review-attempts/ecd57641ffc05db66644952c/000001.json"
-        },
-        {
-          "action": "created",
-          "path": ".pose/review-attempts/ecd57641ffc05db66644952c/000001.result.json"
-        },
-        {
-          "action": "created",
-          "path": ".pose/review-bundles/rvb-18aeaa6c0a46a548.json"
-        },
-        {
-          "action": "created",
-          "path": ".pose/review-conclusions/rrn-311777f99bcc4f70.json"
-        },
-        {
-          "action": "created",
-          "path": ".pose/review-run-ledger/rrn-311777f99bcc4f70.json"
-        },
-        {
-          "action": "created",
-          "path": ".pose/review-runs/rrn-311777f99bcc4f70.events.ndjson"
-        },
-        {
-          "action": "created",
-          "path": ".pose/review-runs/rrn-311777f99bcc4f70.json"
-        },
-        {
-          "action": "created",
-          "path": ".pose/review-runs/rrn-311777f99bcc4f70.transcript"
-        },
-        {
-          "action": "created",
-          "path": ".pose/specs/2026-11-17-pose-review-guard-reads-the-integrity-graph-in-place.md"
-        },
-        {
-          "action": "created",
-          "path": ".pose/starts/pose-review-guard-reads-the-integrity-graph-in-place.json"
-        },
-        {
-          "action": "created",
-          "path": "pose-mcp/internal/pose/review_guard_in_place_test.go"
-        },
-        {
-          "action": "created",
-          "path": "pose-mcp/internal/pose/review_guard_probe_unix_test.go"
-        },
-        {
-          "action": "modified",
-          "path": ".pose/indexes/delivery-integrity.json"
-        },
-        {
-          "action": "modified",
-          "path": ".pose/indexes/generation.json"
-        },
-        {
-          "action": "modified",
-          "path": ".pose/indexes/spec-graph.json"
-        },
-        {
-          "action": "modified",
-          "path": ".pose/indexes/validation-matrix.json"
-        },
-        {
-          "action": "modified",
-          "path": ".pose/results/delivery-validation.json"
-        },
-        {
-          "action": "modified",
-          "path": "pose-mcp/internal/pose/delivery_integrity.go"
-        },
-        {
-          "action": "modified",
-          "path": "pose-mcp/internal/pose/review_dispatch_unix.go"
-        },
-        {
-          "action": "modified",
-          "path": "pose-mcp/internal/pose/review_policy_baseline.go"
-        }
-      ],
-      "diff_digest": "sha256:2a44cc60f63bae8287b8b7156706fe1cdd6de34800ec0c013a4033173e9b7143",
-      "material_digest": "sha256:ae77251c4652f4de5ac6c12433a2ce682bb974306a6a3d78b4f88115fe86b833",
-      "material_inputs": {
-        "names": [
-          ".pose/closeout-plans/spec-pose-review-guard-reads-the-integrity-graph-in-place.json",
-          ".pose/indexes/delivery-integrity.json",
-          ".pose/indexes/generation.json",
-          ".pose/indexes/spec-graph.json",
-          ".pose/indexes/validation-matrix.json",
-          ".pose/results/delivery-validation.json",
-          ".pose/review-attempts/ecd57641ffc05db66644952c/000001.json",
-          ".pose/review-attempts/ecd57641ffc05db66644952c/000001.result.json",
-          ".pose/review-bundles/rvb-18aeaa6c0a46a548.json",
-          ".pose/review-conclusions/rrn-311777f99bcc4f70.json",
-          ".pose/review-run-ledger/rrn-311777f99bcc4f70.json",
-          ".pose/review-runs/rrn-311777f99bcc4f70.events.ndjson",
-          ".pose/review-runs/rrn-311777f99bcc4f70.json",
-          ".pose/review-runs/rrn-311777f99bcc4f70.transcript",
-          ".pose/specs/2026-11-17-pose-review-guard-reads-the-integrity-graph-in-place.md",
-          ".pose/starts/pose-review-guard-reads-the-integrity-graph-in-place.json",
-          "pose-mcp/internal/pose/delivery_integrity.go",
-          "pose-mcp/internal/pose/review_dispatch_unix.go",
-          "pose-mcp/internal/pose/review_guard_in_place_test.go",
-          "pose-mcp/internal/pose/review_guard_probe_fixture_test.go",
-          "pose-mcp/internal/pose/review_guard_probe_unix_test.go",
-          "pose-mcp/internal/pose/review_policy_baseline.go"
-        ]
-      }
-    },
-    {
       "id": "cs-1d8befda8092",
       "spec": "pose-verifier-assets-variable-fix",
       "selector": "range:01d4568..HEAD",
@@ -211585,6 +211447,145 @@
           ".pose/changelogs/v7.0.0/pose-update-configuration-review.md",
           ".pose/changelogs/v7.0.0/pose-v7-legacy-cleanup-plan.md",
           ".pose/changelogs/v7.0.0/pose-validation-check-additions-are-not-material.md"
+        ]
+      }
+    },
+    {
+      "id": "cs-40e448960a6e",
+      "spec": "pose-review-guard-reads-the-integrity-graph-in-place",
+      "selector": "trailers:pose-review-guard-reads-the-integrity-graph-in-place",
+      "base": "e3e97e76ee1fea8cd270054698a4525c66e082be^",
+      "head": "b4d70e697274eba1fa6e400399991c124678c83a",
+      "resolved_base": "680799274ea014a44cb54808669ddf9ebcea0971",
+      "resolved_head": "b4d70e697274eba1fa6e400399991c124678c83a",
+      "commits": [
+        "e3e97e76ee1fea8cd270054698a4525c66e082be",
+        "2ad3f7bbae8aeea17c747221e5d7ff95e114c154",
+        "bea4b58d974ac532ded104831e26f9b083b1dbc2",
+        "c3b295b23b3dff11e1fcb8c43d1d3b764e25c320",
+        "123c26a029375ada3c6de9ed0d8d3e23acb39447",
+        "1414b98dd1ad8772cff5732a7a2984f5fd851bb4",
+        "fd75d410082a0db44f3a856dab906c251f5840f2",
+        "ae9d3a9db91ffee2decbbc4fa23fdb938695e856",
+        "6282ffcec7b3a7cebc57b49a2f44ef4d54f7df09",
+        "4e77589037bff10a20d223d7882a3c9d85bee533",
+        "f3f3b731edc0a77fe7ea1df46de5bb45e5b814f7",
+        "f0569d7e8371bb8ec1fa237c18b05ae5a44f3632",
+        "e6a0db90d57dac1512bce57a8f511efe0b237265",
+        "b4d70e697274eba1fa6e400399991c124678c83a"
+      ],
+      "paths": [
+        {
+          "action": "created",
+          "path": ".pose/closeout-plans/spec-pose-review-guard-reads-the-integrity-graph-in-place.json"
+        },
+        {
+          "action": "created",
+          "path": ".pose/review-attempts/ecd57641ffc05db66644952c/000001.json"
+        },
+        {
+          "action": "created",
+          "path": ".pose/review-attempts/ecd57641ffc05db66644952c/000001.result.json"
+        },
+        {
+          "action": "created",
+          "path": ".pose/review-bundles/rvb-18aeaa6c0a46a548.json"
+        },
+        {
+          "action": "created",
+          "path": ".pose/review-conclusions/rrn-311777f99bcc4f70.json"
+        },
+        {
+          "action": "created",
+          "path": ".pose/review-run-ledger/rrn-311777f99bcc4f70.json"
+        },
+        {
+          "action": "created",
+          "path": ".pose/review-runs/rrn-311777f99bcc4f70.events.ndjson"
+        },
+        {
+          "action": "created",
+          "path": ".pose/review-runs/rrn-311777f99bcc4f70.json"
+        },
+        {
+          "action": "created",
+          "path": ".pose/review-runs/rrn-311777f99bcc4f70.transcript"
+        },
+        {
+          "action": "created",
+          "path": ".pose/specs/2026-11-17-pose-review-guard-reads-the-integrity-graph-in-place.md"
+        },
+        {
+          "action": "created",
+          "path": ".pose/starts/pose-review-guard-reads-the-integrity-graph-in-place.json"
+        },
+        {
+          "action": "created",
+          "path": "pose-mcp/internal/pose/review_guard_in_place_test.go"
+        },
+        {
+          "action": "created",
+          "path": "pose-mcp/internal/pose/review_guard_probe_unix_test.go"
+        },
+        {
+          "action": "modified",
+          "path": ".pose/indexes/delivery-integrity.json"
+        },
+        {
+          "action": "modified",
+          "path": ".pose/indexes/generation.json"
+        },
+        {
+          "action": "modified",
+          "path": ".pose/indexes/spec-graph.json"
+        },
+        {
+          "action": "modified",
+          "path": ".pose/indexes/validation-matrix.json"
+        },
+        {
+          "action": "modified",
+          "path": ".pose/results/delivery-validation.json"
+        },
+        {
+          "action": "modified",
+          "path": "pose-mcp/internal/pose/delivery_integrity.go"
+        },
+        {
+          "action": "modified",
+          "path": "pose-mcp/internal/pose/review_dispatch_unix.go"
+        },
+        {
+          "action": "modified",
+          "path": "pose-mcp/internal/pose/review_policy_baseline.go"
+        }
+      ],
+      "diff_digest": "sha256:3cdb265a9147ed95e8d33bdfab31ae772a5c58af80c50715e4f7d1611776019e",
+      "material_digest": "sha256:ae77251c4652f4de5ac6c12433a2ce682bb974306a6a3d78b4f88115fe86b833",
+      "material_inputs": {
+        "names": [
+          ".pose/closeout-plans/spec-pose-review-guard-reads-the-integrity-graph-in-place.json",
+          ".pose/indexes/delivery-integrity.json",
+          ".pose/indexes/generation.json",
+          ".pose/indexes/spec-graph.json",
+          ".pose/indexes/validation-matrix.json",
+          ".pose/results/delivery-validation.json",
+          ".pose/review-attempts/ecd57641ffc05db66644952c/000001.json",
+          ".pose/review-attempts/ecd57641ffc05db66644952c/000001.result.json",
+          ".pose/review-bundles/rvb-18aeaa6c0a46a548.json",
+          ".pose/review-conclusions/rrn-311777f99bcc4f70.json",
+          ".pose/review-run-ledger/rrn-311777f99bcc4f70.json",
+          ".pose/review-runs/rrn-311777f99bcc4f70.events.ndjson",
+          ".pose/review-runs/rrn-311777f99bcc4f70.json",
+          ".pose/review-runs/rrn-311777f99bcc4f70.transcript",
+          ".pose/specs/2026-11-17-pose-review-guard-reads-the-integrity-graph-in-place.md",
+          ".pose/starts/pose-review-guard-reads-the-integrity-graph-in-place.json",
+          "pose-mcp/internal/pose/delivery_integrity.go",
+          "pose-mcp/internal/pose/review_dispatch_unix.go",
+          "pose-mcp/internal/pose/review_guard_in_place_test.go",
+          "pose-mcp/internal/pose/review_guard_probe_fixture_test.go",
+          "pose-mcp/internal/pose/review_guard_probe_unix_test.go",
+          "pose-mcp/internal/pose/review_policy_baseline.go"
         ]
       }
     },
