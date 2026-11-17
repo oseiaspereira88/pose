@@ -37,9 +37,11 @@ type governanceReadViewStreamObservation struct {
 	ctx         context.Context
 	deadline    time.Time
 	hasDeadline bool
-	maxBytes    int64
-	digest      string
-	length      int64
+	// timeout is the time the read had: its deadline less its start.
+	timeout  time.Duration
+	maxBytes int64
+	digest   string
+	length   int64
 	// errText is the digest of the read's error text, never the text: a
 	// warning on stderr can be up to the stderr bound, and a retained copy
 	// per read would escape every budget (review round 2, N2).
@@ -109,6 +111,7 @@ func (op *governanceReadViewOperation) reserveStreamed(size int64) bool {
 
 func (state *governanceReadViewGitState) stream(files Files, ctx context.Context, root, producer string, maxBytes int64, sink io.Writer, args ...string) error {
 	deadline, hasDeadline := ctx.Deadline()
+	timeout := auditTimeout(deadline, time.Now())
 	key := governanceGitObservationKey(root, args, maxBytes)
 	state.mu.Lock()
 	if state.streams == nil {
@@ -142,7 +145,7 @@ func (state *governanceReadViewGitState) stream(files Files, ctx context.Context
 		return runErr
 	}
 	state.streams[key] = &governanceReadViewStreamObservation{
-		root: root, args: append([]string(nil), args...), files: files, ctx: context.WithoutCancel(ctx), deadline: deadline, hasDeadline: hasDeadline,
+		root: root, args: append([]string(nil), args...), files: files, ctx: context.WithoutCancel(ctx), deadline: deadline, hasDeadline: hasDeadline, timeout: timeout,
 		maxBytes: maxBytes, digest: digest, length: length, errText: streamErrorDigest(runErr), producers: map[string]bool{producer: true},
 	}
 	state.mu.Unlock()
@@ -182,7 +185,7 @@ func (state *governanceReadViewGitState) auditStreams(result *governanceReadView
 		auditContext := item.ctx
 		cancel := func() {}
 		if item.hasDeadline {
-			auditContext, cancel = context.WithDeadline(auditContext, item.deadline)
+			auditContext, cancel = context.WithTimeout(auditContext, item.timeout)
 		}
 		digest, length, _, err := governanceAuditGitStream(auditContext, item.files, item.root, item.args, item.maxBytes, admit, io.Discard)
 		cancel()

@@ -19,12 +19,14 @@ import (
 const governanceReadViewGitParserVersion = "pose-governance-git-inputs-v1"
 
 type governanceReadViewGitObservation struct {
-	root           string
-	args           []string
-	files          Files
-	ctx            context.Context
-	deadline       time.Time
-	hasDeadline    bool
+	root        string
+	args        []string
+	files       Files
+	ctx         context.Context
+	deadline    time.Time
+	hasDeadline bool
+	// timeout is the time the read had: its deadline less its start.
+	timeout        time.Duration
 	maxOutputBytes int64
 	stdout         []byte
 	stderr         []byte
@@ -327,6 +329,18 @@ func (op *governanceReadViewOperation) gitRoot(root, producer string) (string, *
 	return absolute, target, state, nil
 }
 
+// A read's deadline bounds how long that read may take, not when the final
+// audit may repeat it: the audit gives the repeated read the same time the
+// read had, counted from when the audit runs. An absolute deadline expired
+// before the audit of any operation longer than it, and every such read was
+// reported as changed (spec pose-read-view-audit-repeats-a-read-under-its-own-time).
+func auditTimeout(deadline time.Time, captured time.Time) time.Duration {
+	if timeout := deadline.Sub(captured); timeout > 0 {
+		return timeout
+	}
+	return time.Millisecond
+}
+
 func (state *governanceReadViewGitState) capture(files Files, ctx context.Context, root, producer string, maxOutputBytes int64, args ...string) ([]byte, error) {
 	if state == nil || state.op == nil {
 		return runGovernanceGitCommandContext(ctx, files, root, args, maxOutputBytes)
@@ -335,6 +349,7 @@ func (state *governanceReadViewGitState) capture(files Files, ctx context.Contex
 		ctx = context.Background()
 	}
 	deadline, hasDeadline := ctx.Deadline()
+	timeout := auditTimeout(deadline, time.Now())
 	auditContext := context.WithoutCancel(ctx)
 	key := governanceGitObservationKey(root, args, maxOutputBytes)
 	state.mu.Lock()
@@ -392,7 +407,7 @@ func (state *governanceReadViewGitState) capture(files Files, ctx context.Contex
 		return nil, errGovernanceReadViewBudget
 	}
 	observation := &governanceReadViewGitObservation{
-		root: root, args: append([]string(nil), args...), files: files, ctx: auditContext, deadline: deadline, hasDeadline: hasDeadline, maxOutputBytes: maxOutputBytes,
+		root: root, args: append([]string(nil), args...), files: files, ctx: auditContext, deadline: deadline, hasDeadline: hasDeadline, timeout: timeout, maxOutputBytes: maxOutputBytes,
 		stdout: append([]byte(nil), stdout...), stderr: append([]byte(nil), stderr...), err: runErr, errText: errorText(runErr),
 		producers: map[string]bool{producer: true},
 	}
@@ -523,7 +538,7 @@ func (state *governanceReadViewGitState) audit() governanceReadViewAudit {
 		auditContext := item.ctx
 		cancelAuditContext := func() {}
 		if item.hasDeadline {
-			auditContext, cancelAuditContext = context.WithDeadline(auditContext, item.deadline)
+			auditContext, cancelAuditContext = context.WithTimeout(auditContext, item.timeout)
 		}
 		stdout, stderr, err := governanceAuditGit(auditContext, item.files, item.root, item.args, limit)
 		cancelAuditContext()

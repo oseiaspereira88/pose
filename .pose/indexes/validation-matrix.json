@@ -2420,6 +2420,13 @@
           "evidenceClass": "integration"
         },
         {
+          "name": "read-view-audit-repeats-a-read-under-its-own-time-integration",
+          "program": "go",
+          "args": ["test", "./internal/pose", "-run", "TestReadViewAuditRepeatsAReadUnderItsOwnTime|TestAuditTimeoutIsTheTimeTheReadHad", "-count=1"],
+          "severity": "required",
+          "evidenceClass": "integration"
+        },
+        {
           "name": "git-snapshot-budget-scales-with-the-tree-integration",
           "program": "go",
           "args": ["test", "./internal/pose", "-run", "TestGitSnapshotBudget|TestReviewWorktreeCleanup|TestGitTreeListingIsBounded|TestGovernedTreeListingIsBounded", "-count=1"],
