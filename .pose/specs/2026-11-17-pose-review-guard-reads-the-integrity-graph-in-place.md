@@ -59,7 +59,7 @@ Tirar duas despesas fixas de cada verificação de bundle: a cópia profunda do 
 
 ### Artifacts
 - created: pose-mcp/internal/pose/review_guard_in_place_test.go
-- created: pose-mcp/internal/pose/review_guard_probe_fixture_test.go
+- created: pose-mcp/internal/pose/review_guard_probe_unix_test.go
 - modified: pose-mcp/internal/pose/delivery_integrity.go
 - modified: pose-mcp/internal/pose/review_policy_baseline.go
 - modified: pose-mcp/internal/pose/review_dispatch_unix.go
@@ -147,3 +147,8 @@ Não concluída.
 ### Residual risks
 
 ### Follow-ups
+
+### Review
+
+A primeira tentativa da rodada 1 não chegou ao revisor: o `pose validate --strict` reprovou em `release-test-compile-windows` (`GOOS=windows go vet ./internal/pose`), porque o teste da sonda usava `processGroupVerify` e `processGroupProbe`, que só existem em `review_dispatch_unix.go`. O teste da sonda foi para `review_guard_probe_unix_test.go`, sob a mesma restrição `//go:build !windows`.
+
