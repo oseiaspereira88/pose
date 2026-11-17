@@ -400,3 +400,30 @@ func TestDoctorCommitGraphShowsTheEffectiveCommand(t *testing.T) {
 		t.Fatalf("following the shown command under maxNewFilters=0: %+v %v", state, err)
 	}
 }
+
+// Review F24: an unsupported commitGraph.changedPathsVersion keeps Git from
+// reading the filters; doctor names it instead of recommending a rewrite.
+func TestDoctorCommitGraphNamesAnUnsupportedVersion(t *testing.T) {
+	repo := longHistoryRepo(t, nil)
+	gitInRepo(t, repo, "config", "commitGraph.changedPathsVersion", "3")
+	var reads doctorFinding
+	inDir(t, repo, func() {
+		var out, errB bytes.Buffer
+		Main([]string{"doctor", "--json"}, &out, &errB)
+		var report doctorJSON
+		if err := json.Unmarshal(out.Bytes(), &report); err != nil {
+			t.Fatalf("invalid JSON: %v", err)
+		}
+		for _, f := range report.Findings {
+			if f.Check == "git.commit-graph" {
+				t.Errorf("a rewrite is recommended under an unsupported version: %+v", f)
+			}
+			if f.Check == "git.commit-graph-reads" {
+				reads = f
+			}
+		}
+	})
+	if reads.Level != "warn" || !strings.Contains(reads.Message, "commitGraph.changedPathsVersion=3") {
+		t.Fatalf("an unsupported changedPathsVersion: %+v", reads)
+	}
+}

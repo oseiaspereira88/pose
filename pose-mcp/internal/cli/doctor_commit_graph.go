@@ -165,10 +165,15 @@ func commitGraphReadsDisabledBy(root string) string {
 		return "core.commitGraph=false"
 	}
 	if value, ok := get("int", "commitGraph.changedPathsVersion"); ok {
-		if value == "0" {
+		switch value {
+		case "-1", "1", "2":
+			return ""
+		case "0":
 			return "commitGraph.changedPathsVersion=0"
 		}
-		return ""
+		// Git reads no filters under a version it does not support, and a
+		// rewrite keeps the setting (review F24).
+		return "commitGraph.changedPathsVersion=" + value + " (unsupported)"
 	}
 	if value, ok := get("bool", "commitGraph.readChangedPaths"); ok && value == "false" {
 		return "commitGraph.readChangedPaths=false"
