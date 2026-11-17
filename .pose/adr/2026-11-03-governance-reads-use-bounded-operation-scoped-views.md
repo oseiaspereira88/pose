@@ -361,3 +361,14 @@ wall time from about 197 s to 136 s. The rest is Git: 1,116
 filters takes each from 47 ms to 2 ms and the first call to 59 s; it is
 repository maintenance, not part of this decision.
 
+## A federated dependency is proved once per operation (D15) — 2026-11-17
+
+Spec `pose-federated-source-proof-is-computed-once-per-operation`. After D14
+the first closeout call on harne8 still spent about 37 s of CPU in
+`federatedSourceProof`: 64 proofs in one call, 39 of them distinct, because
+several roadmaps consume the same pose-dist dependency. The proof reads
+through the operation's view, so within the operation it is a function of
+those reads; it is now kept per source root, identity and pinned revision,
+for each producer, by the same per-operation memo as the review ledger, and
+callers receive deep copies. The first call fell from about 80 s to 60 s.
+

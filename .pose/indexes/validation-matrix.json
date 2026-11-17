@@ -2420,6 +2420,13 @@
           "evidenceClass": "integration"
         },
         {
+          "name": "federated-source-proof-is-computed-once-per-operation-integration",
+          "program": "go",
+          "args": ["test", "./internal/pose", "-run", "TestFederatedSourceProofIsComputedOncePerOperation", "-count=1"],
+          "severity": "required",
+          "evidenceClass": "integration"
+        },
+        {
           "name": "read-view-audit-repeats-a-read-under-its-own-time-integration",
           "program": "go",
           "args": ["test", "./internal/pose", "-run", "TestReadViewAudit|TestAuditTimeoutIsTheTimeTheReadHad", "-count=1"],

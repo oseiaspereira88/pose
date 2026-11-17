@@ -703,7 +703,36 @@ func federatedGitlinkMatches(parent, child Store, revision string) bool {
 	return federatedGitlinkMatchesIn(NativeFiles(), parent, child, revision)
 }
 
+// federatedSourceProofResult is what federatedSourceProof answers.
+type federatedSourceProofResult struct {
+	BundleID, BundleDigest, SubjectDigest, PlanDigest string
+	Contracts                                         []string
+	Evidence                                          []FederatedDependencyEvidence
+	Blockers                                          []string
+}
+
+// federatedSourceProof proves one federated dependency from its source's
+// review. A closeout asks it for the same dependency from several roadmaps
+// (64 proofs, 39 distinct, in one harne8 closeout); within one read-view
+// operation the answer is a function of that operation's reads, so it is
+// computed once per operation and producer, like the review ledger (spec
+// pose-federated-source-proof-is-computed-once-per-operation).
 func federatedSourceProof(files Files, source Store, identity ArtifactRef, pinnedRevision string) (string, string, string, string, []string, []FederatedDependencyEvidence, []string) {
+	key := "federated-source-proof\x00" + filepath.Clean(source.Root) + "\x00" + identity.Project + "\x00" + identity.Kind + "\x00" + identity.Slug + "\x00" + pinnedRevision
+	result, _, err := memoizedLedgerRead(files, key, func() (federatedSourceProofResult, error) {
+		bundleID, bundleDigest, subjectDigest, planDigest, contracts, evidence, blockers := computeFederatedSourceProof(files, source, identity, pinnedRevision)
+		return federatedSourceProofResult{bundleID, bundleDigest, subjectDigest, planDigest, contracts, evidence, blockers}, nil
+	})
+	if err != nil {
+		return "", "", "", "", nil, nil, []string{localFederatedScope(identity) + ":source-proof-unavailable"}
+	}
+	result = deepCopyValue(result)
+	return result.BundleID, result.BundleDigest, result.SubjectDigest, result.PlanDigest, result.Contracts, result.Evidence, result.Blockers
+}
+
+// computeFederatedSourceProof reads the source's closeout state and review
+// and proves the dependency from them.
+func computeFederatedSourceProof(files Files, source Store, identity ArtifactRef, pinnedRevision string) (string, string, string, string, []string, []FederatedDependencyEvidence, []string) {
 	scope := localFederatedScope(identity)
 	state, err := source.GetCloseoutState(scope)
 	if err != nil || !state.Terminal {
