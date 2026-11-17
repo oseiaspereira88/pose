@@ -1,0 +1,203 @@
+{
+  "run": {
+    "run_id": "rrn-c1d074e711285ff3",
+    "proof_id": "rrp-055165d4dbd2cc7df6ef519678a10e7d700a5cd4c465ef1024a434c8da1d73a9"
+  },
+  "schema_version": 1,
+  "attestation_id": "rva-4d6aaf335fc46993",
+  "bundle_id": "rvb-f627d25d86340cec",
+  "bundle_digest": "sha256:f627d25d86340cec87ea2b87c2e86fef212af4a34a8e7e7814a50c3f2986d680",
+  "reviewer": "agent:openai/gpt-6.1-sol",
+  "decision": "approved",
+  "criteria": [
+    {
+      "id": "assumption-integrity",
+      "disposition": "passed",
+      "evidence": "integration:pose-mcp/go/review-guard-reads-the-integrity-graph-in-place-integration",
+      "rationale": "Verified that the callback sorts its own pointer slice, retains immutable string values rather than mutable graph structures, and preserves the previous selection logic. The spec explicitly accepts capability reporting remaining stale for up to one minute after host visibility changes; dispatch still performs actual termination verification. The reported performance improvement is approximate: the spec records only two alternating runs per binary under competing load, so its exact magnitude remains unverified."
+    },
+    {
+      "id": "backend-concurrency",
+      "disposition": "passed",
+      "evidence": "integration:pose-mcp/go/review-guard-reads-the-integrity-graph-in-place-integration",
+      "rationale": "review_dispatch_unix.go:134-145 protects the timestamp and probe with a mutex. Cache View pins retained entries while callbacks read them; the guard writes only local state. Cancellation, process isolation and actual group verification remain unchanged. The mutex coalesces successful probes and serializes unsuccessful probes without introducing a lock dependency on dispatch cleanup."
+    },
+    {
+      "id": "backend-contracts",
+      "disposition": "passed",
+      "evidence": "integration:pose-mcp/go/cli-mcp-operation-results-integration",
+      "rationale": "The change adds a private reader and an internal success timestamp. Public CLI, MCP, index schemas, capability names and error formats remain unchanged."
+    },
+    {
+      "id": "backend-input-errors",
+      "disposition": "passed",
+      "evidence": "integration:pose-mcp/go/review-guard-reads-the-integrity-graph-in-place-integration",
+      "rationale": "delivery_integrity.go:549-561 preserves GetDeliveryIntegrity's unavailable-generation, missing-index, invalid-index and cache-busy handling. review_policy_baseline.go preserves the guard's actionable unavailable-index reason when claim paths exist. Failed process probes are returned and are not cached."
+    },
+    {
+      "id": "backend-integration-impact",
+      "disposition": "passed",
+      "evidence": "integration:pose-mcp/go/review-guard-reads-the-integrity-graph-in-place-integration",
+      "rationale": "Traced the guard through review-plan resolution and the probe through shared containment resolution. Existing protected-baseline tests remain included in the required integration check. Dispatch cleanup calls verifyReviewProcessGroup directly rather than the cached availability probe."
+    },
+    {
+      "id": "backend-observability",
+      "disposition": "passed",
+      "evidence": "integration:pose-mcp/go/delegated-adapter-containment-integration",
+      "rationale": "Unavailable inventory still produces an unavailable capability and a bounded limitation message. Actual termination failures still mark capture incomplete, fail the run and retain runtime resources with an actionable cleanup diagnosis. The cache introduces no sensitive logging."
+    },
+    {
+      "id": "compatibility",
+      "disposition": "passed",
+      "evidence": "integration:pose-mcp/go/cli-mcp-operation-results-integration",
+      "rationale": "Compared the old and new guard implementations and traced the existing containment contract. Paths, base-revision selection, errors, serialized output and public interfaces remain compatible; only probe freshness changes within the interval explicitly specified by R3."
+    },
+    {
+      "id": "correctness",
+      "disposition": "passed",
+      "evidence": "integration:pose-mcp/go/review-guard-reads-the-integrity-graph-in-place-integration",
+      "rationale": "The guard preserves filtering, ID ordering, normalization, first nonempty resolved-base selection and error behavior. The new tests compare against a copied graph, verify retained-graph integrity, check uncached failures, check reused success and force expiry. Existing protected-baseline tests exercise governance restoration and negative paths."
+    },
+    {
+      "id": "design-causality",
+      "disposition": "passed",
+      "evidence": "structure:design-39ebc69416d7bfde",
+      "rationale": "D1 selects the existing cache view to remove repeated deep copies while satisfying R1 and R2, and a process-local success timestamp to remove repeated inventory walks under R3. The changed call site now derives results inside the view; the probe retains only its successful observation time. No individual structural facts requiring mappings were listed in this brief."
+    },
+    {
+      "id": "documentation",
+      "disposition": "passed",
+      "evidence": "integration:pose-mcp/go/review-guard-reads-the-integrity-graph-in-place-integration",
+      "rationale": "The scope spec describes the callback restriction, one-minute success lifetime, uncached failures, permanent validation command and stale-capability risk consistently with runtime behavior. The validation matrix names the actual tests, including the Unix-only probe test. No public usage or scaffold change is required."
+    },
+    {
+      "id": "operability",
+      "disposition": "passed",
+      "evidence": "integration:pose-mcp/go/delegated-adapter-containment-integration",
+      "rationale": "Missing-index remediation remains run pose index. Probe failure remains visible through capability availability and limitations, and execution termination failure remains a failed run with retained resources. Successful probe reuse expires automatically without persistent state or operator intervention."
+    },
+    {
+      "id": "requirements",
+      "disposition": "passed",
+      "evidence": "integration:pose-mcp/go/review-guard-reads-the-integrity-graph-in-place-integration",
+      "rationale": "R1 is supported by the in-place callback implementation; R2 by copied-result equivalence and unchanged retained-graph assertions; R3 by failure retry, successful reuse and expiry assertions. The required registered integration check passed. Pipeline build, package-test and cross-platform compilation results also passed."
+    },
+    {
+      "id": "scope",
+      "disposition": "passed",
+      "evidence": "structure:design-39ebc69416d7bfde",
+      "rationale": "Implementation changes remain within the three planned runtime files, two regression tests and validation registration. Supporting start, spec, index, result and review records account for the broader range. No unrelated production behavior, public contract or graph-cache policy was changed."
+    },
+    {
+      "id": "security",
+      "disposition": "passed",
+      "evidence": "integration:pose-mcp/go/delegated-adapter-containment-integration",
+      "rationale": "The callback does not mutate or retain mutable graph state. Existing immutable-revision validation and bounded baseline reads remain intact. Probe caching does not replace actual process termination checks or convert a termination failure into a successful run. Reviewed changed code adds no secret material, dynamic command construction or new authority source."
+    },
+    {
+      "id": "solution-proportionality",
+      "disposition": "passed",
+      "evidence": "structure:design-39ebc69416d7bfde",
+      "rationale": "Compared D1 with operation-local memoization and probe-only optimization. Reusing the existing view avoids the remaining per-producer copy; one mutex and timestamp satisfy the probe requirement without persistent caching, configuration or speculative infrastructure. The private Store wrapper duplicates an existing public view wrapper but introduces no divergent behavior. The choice would need revisiting if callers needed mutable graph access, retained mutable references, or instantaneous capability freshness."
+    }
+  ],
+  "tools": [
+    {
+      "id": "artifact-check",
+      "disposition": "passed",
+      "evidence": "command:pose artifact-check --spec pose-review-guard-reads-the-integrity-graph-in-place --strict --json",
+      "rationale": "Executed the strict read-only check. Its JSON contained 977 warning findings and no findings outside warning/info severity. Also inspected the supplied sealed-range output in /var/tmp/closeout/ac-gv.out, which reports existing orphan warnings."
+    },
+    {
+      "id": "assess-design",
+      "disposition": "not-used",
+      "evidence": "structure:design-39ebc69416d7bfde",
+      "rationale": "Used the sealed structural evidence and independently inspected the diff against R1-R3 and D1. Did not rerun assessment producers in the read-only worktree."
+    },
+    {
+      "id": "assess-discover",
+      "component": "pose-mcp",
+      "disposition": "not-used",
+      "evidence": "command:pose suggest review --path pose-mcp",
+      "rationale": "Did not regenerate assessment artifacts in the read-only worktree. Inspected the component mapping, applicable Go rules, implementation and validation matrix directly."
+    },
+    {
+      "id": "assess-integrate",
+      "disposition": "not-used",
+      "evidence": "integration:pose-mcp/go/review-guard-reads-the-integrity-graph-in-place-integration",
+      "rationale": "Did not regenerate integration assessment artifacts. No public inter-module contract changes were introduced; independently traced the cache, review-plan, containment and dispatch boundaries and inspected sealed integration evidence."
+    },
+    {
+      "id": "assess-tech-debt",
+      "disposition": "not-used",
+      "evidence": "command:rg -n 'TODO|FIXME|stub|panic' pose-mcp/internal/pose/review_guard* pose-mcp/internal/pose/review_policy_baseline.go pose-mcp/internal/pose/review_dispatch_unix.go pose-mcp/internal/pose/delivery_integrity.go",
+      "rationale": "Did not regenerate assessment artifacts. The direct marker scan found no matches in the changed runtime and regression-test files. Inspected the existing debt report without treating its older baseline as current validation."
+    },
+    {
+      "id": "closeout-check",
+      "disposition": "deferred",
+      "rationale": "Completion requires this review's recorded attestation. The request prohibits recording an attestation; POSE must run this gate after recording the verified conclusion."
+    },
+    {
+      "id": "review-check",
+      "disposition": "deferred",
+      "rationale": "Completion requires this review's recorded attestation. Deferred to POSE after it records the verified conclusion."
+    },
+    {
+      "id": "suggest-review",
+      "component": "pose-mcp",
+      "disposition": "passed",
+      "evidence": "command:pose suggest review --path pose-mcp",
+      "rationale": "Executed successfully and applied its selected review workflow, Go, security and documentation rules."
+    },
+    {
+      "id": "surface-check",
+      "disposition": "passed",
+      "evidence": "integration:pose-mcp/go/review-guard-reads-the-integrity-graph-in-place-integration",
+      "rationale": "Executed pose surface-check --spec pose-review-guard-reads-the-integrity-graph-in-place --strict successfully: one delivery target, 235 results and zero findings. Also inspected the supplied pipeline surface-check output."
+    },
+    {
+      "id": "validate",
+      "disposition": "passed",
+      "evidence": "unit:pose-mcp/go/test",
+      "rationale": "Accepted the sealed pipeline execution rather than rebuilding in the read-only sandbox. Inspected delivery-validation.json: strict mode, 235 executed and passed, zero failures, errors or skips. Verified identical pose-mcp tree and validation-matrix Git blobs between its recorded commit 40019024deed61f74466cf49d64b2994b4b4f7c5 and reviewed commit b7f9841bbd020d67d9a9f996aba1214e97417539."
+    },
+    {
+      "id": "validate",
+      "component": "pose-mcp",
+      "disposition": "passed",
+      "evidence": "integration:pose-mcp/go/review-guard-reads-the-integrity-graph-in-place-integration",
+      "rationale": "The sealed full strict validation executed the pose-mcp checks, including the new required integration check, package tests, build and Windows/Darwin compile checks. Inspected their passing results and verified the tested component and matrix blobs match the reviewed commit. No separate module-filtered rerun was attempted in the read-only sandbox."
+    }
+  ],
+  "evidence_refs": [
+    "delegated-run:rrn-c1d074e711285ff3",
+    "integration:pose-mcp/go/cli-mcp-operation-results-integration",
+    "integration:pose-mcp/go/delegated-adapter-containment-integration",
+    "integration:pose-mcp/go/review-guard-reads-the-integrity-graph-in-place-integration",
+    "structure:design-39ebc69416d7bfde"
+  ],
+  "findings": null,
+  "authority": {
+    "schema_version": 1,
+    "project": "proj.pose-dist",
+    "bundle_digest": "sha256:f627d25d86340cec87ea2b87c2e86fef212af4a34a8e7e7814a50c3f2986d680",
+    "principal": "agent:openai/gpt-6.1-sol",
+    "role": "agent",
+    "review_execution": "rrn-c1d074e711285ff3",
+    "implementation_principal": "agent:anthropic/claude-opus-5-5",
+    "implementation_execution": "sha256:0eb880a4fc2ed87a379c949a567b1d3dfbd6b58b466f4755fcd363dd2b7fed98",
+    "issuer": "b34-local-executor",
+    "issued_at": "2026-11-17T09:46:22Z",
+    "audience": "proj.pose-dist"
+  },
+  "envelope": {
+    "issuer": "b34-local-executor",
+    "subject": "rvb-f627d25d86340cec",
+    "algorithm": "ed25519",
+    "public_key": "ck4sApdfePV2GT+hJyAYfJd2qLzeG55P8pevGR0bvZE=",
+    "signature": "mRzo+6z9qUOsuP+xYsP6CCCDV7esRaUDOxTCO6ikwrbmBzzHRYsw9ohfUpuy7mYNl9wL0dNm29X+6M3h0JoKBA=="
+  },
+  "attested_at": "2026-11-17T09:46:22Z",
+  "path": ".pose/review-attestations/rva-4d6aaf335fc46993.json"
+}
