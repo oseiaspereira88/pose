@@ -1,0 +1,222 @@
+{
+  "run": {
+    "run_id": "rrn-7dd086634d637b19",
+    "proof_id": "rrp-956f27a8551ef58f34ecd8c2f49287a1d306e3f52e50fdb3cb0e13f15408edce"
+  },
+  "schema_version": 1,
+  "attestation_id": "rva-d965137486fabe1e",
+  "bundle_id": "rvb-701ada831ffbc6d2",
+  "bundle_digest": "sha256:701ada831ffbc6d21159b1d961f1dd9803ca842fb435aad4b88658356ae61ed7",
+  "reviewer": "agent:openai/gpt-6.1-sol",
+  "decision": "approved",
+  "criteria": [
+    {
+      "id": "assumption-integrity",
+      "disposition": "passed",
+      "evidence": "integration:pose-mcp/go/federated-source-proof-is-computed-once-per-operation-integration",
+      "rationale": "Verified complete identity keying and operation-local storage. Traced Roots.storeFor, withGovernanceReadView and withGovernanceReviewReadView: production source reads retain the operation's view and resolver binding. Inspected copyInto against the result's exported string and slice fields. Sealed tests support functional conclusions; the harne8 timing remains an implementer-reported measurement, not an independently reproduced benchmark."
+    },
+    {
+      "id": "backend-concurrency",
+      "disposition": "passed",
+      "evidence": "unit:pose-mcp/go/test",
+      "rationale": "The existing memo uses sync.Map and sync.Once, with view.begin/end guarding lifecycle. Inspected concurrent-miss and finalized-operation tests in review_ledger_memo_test.go. The new wrapper introduces no goroutine, cancellation API or independent lifecycle."
+    },
+    {
+      "id": "backend-contracts",
+      "disposition": "passed",
+      "evidence": "integration:pose-mcp/go/federated-roadmap-acceptance-integration",
+      "rationale": "The function signature and returned proof fields remain unchanged; the original proof body is preserved as computeFederatedSourceProof."
+    },
+    {
+      "id": "backend-input-errors",
+      "disposition": "passed",
+      "evidence": "integration:pose-mcp/go/federated-source-proof-is-computed-once-per-operation-integration",
+      "rationale": "Existing validation and negative proof branches remain intact. A memo lifecycle refusal returns an empty proof and a scope-qualified source-proof-unavailable blocker."
+    },
+    {
+      "id": "backend-integration-impact",
+      "disposition": "passed",
+      "evidence": "integration:pose-mcp/go/federated-spec-acceptance-integration",
+      "rationale": "Reviewed the production caller at federated_acceptance.go:518 and source Store construction through resolver.Roots. Consumer trust and graph validation still precede proof lookup."
+    },
+    {
+      "id": "backend-observability",
+      "disposition": "passed",
+      "evidence": "unit:pose-mcp/go/test",
+      "rationale": "Existing scope-qualified blockers remain visible. Refused memo reads produce an explicit dependency blocker without disclosing source paths or key material."
+    },
+    {
+      "id": "compatibility",
+      "disposition": "passed",
+      "evidence": "integration:pose-mcp/go/cli-mcp-operation-results-integration",
+      "rationale": "Inspected the extracted original body and unchanged call signature. No CLI, MCP schema, stored file format or public result field changes."
+    },
+    {
+      "id": "correctness",
+      "disposition": "passed",
+      "evidence": "integration:pose-mcp/go/federated-source-proof-is-computed-once-per-operation-integration",
+      "rationale": "Tests cover one computation within an operation, repeated computation outside it, caller mutation isolation and milestone separation in both orders. Existing federated acceptance tests cover approved composition and negative trust/review gates."
+    },
+    {
+      "id": "design-causality",
+      "disposition": "passed",
+      "evidence": "structure:design-3df678f5936c7bc2",
+      "rationale": "D1 addresses repeated proof computation by reusing the existing operation memo. R1 causes complete identity/revision keying and producer isolation; R2 preserves uncached reads; R3 causes copying and refusal blockers. The ADR records this bounded reuse as D15.",
+      "mappings": [
+        {
+          "delta": "SD-8a5174ba",
+          "basis": "D1",
+          "disposition": "mapped",
+          "rationale": "Registers the permanent integration check for R1-R3. The test timeout increase is explained in the spec's review section by the full-suite timeout under parallel validation."
+        },
+        {
+          "delta": "SD-adff4c0b",
+          "basis": "D1",
+          "disposition": "mapped",
+          "rationale": "ADR amendment D15 records the selected operation-scoped proof memo, its key boundaries and copied results."
+        }
+      ]
+    },
+    {
+      "id": "documentation",
+      "disposition": "passed",
+      "evidence": "structure:design-3df678f5936c7bc2",
+      "rationale": "Compared spec R1-R3, D1, ADR D15, implementation comments and matrix registration. They agree on operation/producer boundaries, complete identity, uncached behavior and copied answers. The spec explicitly discloses indirect lifecycle-test coverage."
+    },
+    {
+      "id": "operability",
+      "disposition": "passed",
+      "evidence": "integration:pose-mcp/go/federated-roadmap-negative-gates",
+      "rationale": "Existing trust, artifact, closeout and review blockers remain unchanged. Memo refusal fails closed with the affected local scope identified. No persistent cache or new operational maintenance is introduced."
+    },
+    {
+      "id": "requirements",
+      "disposition": "passed",
+      "evidence": "integration:pose-mcp/go/federated-source-proof-is-computed-once-per-operation-integration",
+      "rationale": "Mapped R1 to memo/key behavior and both proof tests, R2 to uncached computation counts, and R3 to copy isolation and the shared lifecycle guard. Inspected the explicit refusal branch. The performance measurement is documented in the spec but was not rebenchmarked here."
+    },
+    {
+      "id": "scope",
+      "disposition": "passed",
+      "evidence": "structure:design-3df678f5936c7bc2",
+      "rationale": "Implementation is limited to memoizing the existing proof and adding regression coverage. ADR and validation changes match declared artifacts; the timeout adjustment is explained. Generated governance evidence in the range adds no unrelated runtime behavior."
+    },
+    {
+      "id": "security",
+      "disposition": "passed",
+      "evidence": "integration:pose-mcp/go/federated-roadmap-negative-gates",
+      "rationale": "Reviewed authorized-root propagation, trust checks before proof lookup, complete scope identity, producer/project isolation, lifecycle refusal and operation-local lifetime. The memo does not grant authority or persist proofs between operations."
+    },
+    {
+      "id": "solution-proportionality",
+      "disposition": "passed",
+      "evidence": "structure:design-3df678f5936c7bc2",
+      "rationale": "The wrapper reuses the existing memo and preserves the proof algorithm, which is the smallest sufficient approach to repeated work. It adds no persistent cache, invalidation protocol or speculative extension. Reuse would need reconsideration if proof inputs gained consumer-specific state outside the operation's fixed bindings or new mutable inputs not captured by its view."
+    }
+  ],
+  "tools": [
+    {
+      "id": "artifact-check",
+      "disposition": "passed",
+      "evidence": "command:pose artifact-check --spec pose-federated-source-proof-is-computed-once-per-operation --strict --json",
+      "rationale": "Ran the read-only command and inspected the supplied /var/tmp/closeout/ac-fp.out for the exact range and change set. Its 978 findings are warnings, with no errors; the four declared source artifacts match the implementation and governance changes."
+    },
+    {
+      "id": "assess-design",
+      "disposition": "passed",
+      "evidence": "structure:design-3df678f5936c7bc2",
+      "rationale": "Used sealed design evidence and independently checked the structural mappings against D1 and R1-R3."
+    },
+    {
+      "id": "assess-discover",
+      "component": "pose-mcp",
+      "disposition": "not-used",
+      "evidence": "command:pose suggest review --path pose-mcp",
+      "rationale": "Skipped assessment generation to preserve the read-only checkout. Resolved component rules and inspected the affected source directly."
+    },
+    {
+      "id": "assess-integrate",
+      "disposition": "not-used",
+      "evidence": "integration:pose-mcp/go/federated-roadmap-acceptance-integration",
+      "rationale": "Skipped assessment generation in the read-only checkout. No public inter-module contract changed; inspected production composition and used sealed integration evidence."
+    },
+    {
+      "id": "assess-tech-debt",
+      "disposition": "not-used",
+      "evidence": "command:rg -n 'TODO|FIXME|stub|panic' pose-mcp/internal/pose/federated_acceptance.go pose-mcp/internal/pose/federated_source_proof_memo_test.go",
+      "rationale": "Skipped assessment generation to avoid writes. Direct marker inspection found none in the implementation and regression-test files."
+    },
+    {
+      "id": "closeout-check",
+      "disposition": "deferred",
+      "evidence": "command:pose context --task spec:pose-federated-source-proof-is-computed-once-per-operation --json",
+      "rationale": "Completion gate requires the review conclusion to be recorded by POSE first; this review does not record an attestation."
+    },
+    {
+      "id": "review-check",
+      "disposition": "deferred",
+      "evidence": "command:pose context --task spec:pose-federated-source-proof-is-computed-once-per-operation --json",
+      "rationale": "Requires the completed attestation, which POSE records after accepting this draft."
+    },
+    {
+      "id": "suggest-review",
+      "component": "pose-mcp",
+      "disposition": "passed",
+      "evidence": "command:pose suggest review --path pose-mcp",
+      "rationale": "Ran successfully and applied the selected Go, security and documentation rules."
+    },
+    {
+      "id": "surface-check",
+      "disposition": "passed",
+      "evidence": "integration:pose-mcp/go/federated-source-proof-is-computed-once-per-operation-integration",
+      "rationale": "Inspected supplied /var/tmp/closeout/sc-fp.out: one target, 234 results, zero findings. Independently traced the production caller. A local rerun under a 45-second bound timed out without output; the supplied completed gate and sealed integration evidence support this disposition."
+    },
+    {
+      "id": "validate",
+      "disposition": "passed",
+      "evidence": "unit:pose-mcp/go/test",
+      "rationale": "Used the sealed successful validation evidence and inspected the stored report showing 234 passing checks. Did not rerun build/test commands because the sandbox forbids their required writes."
+    },
+    {
+      "id": "validate",
+      "component": "pose-mcp",
+      "disposition": "passed",
+      "evidence": "integration:pose-mcp/go/federated-source-proof-is-computed-once-per-operation-integration",
+      "rationale": "Used sealed component build, unit, integration and e2e results. Read the targeted regression tests and relevant existing acceptance and memo tests."
+    }
+  ],
+  "evidence_refs": [
+    "delegated-run:rrn-7dd086634d637b19",
+    "integration:pose-mcp/go/cli-mcp-operation-results-integration",
+    "integration:pose-mcp/go/federated-roadmap-acceptance-integration",
+    "integration:pose-mcp/go/federated-roadmap-negative-gates",
+    "integration:pose-mcp/go/federated-source-proof-is-computed-once-per-operation-integration",
+    "integration:pose-mcp/go/federated-spec-acceptance-integration",
+    "structure:design-3df678f5936c7bc2",
+    "unit:pose-mcp/go/test"
+  ],
+  "findings": null,
+  "authority": {
+    "schema_version": 1,
+    "project": "proj.pose-dist",
+    "bundle_digest": "sha256:701ada831ffbc6d21159b1d961f1dd9803ca842fb435aad4b88658356ae61ed7",
+    "principal": "agent:openai/gpt-6.1-sol",
+    "role": "agent",
+    "review_execution": "rrn-7dd086634d637b19",
+    "implementation_principal": "agent:anthropic/claude-opus-5-5",
+    "implementation_execution": "sha256:0eb880a4fc2ed87a379c949a567b1d3dfbd6b58b466f4755fcd363dd2b7fed98",
+    "issuer": "b34-local-executor",
+    "issued_at": "2026-11-17T07:26:46Z",
+    "audience": "proj.pose-dist"
+  },
+  "envelope": {
+    "issuer": "b34-local-executor",
+    "subject": "rvb-701ada831ffbc6d2",
+    "algorithm": "ed25519",
+    "public_key": "ck4sApdfePV2GT+hJyAYfJd2qLzeG55P8pevGR0bvZE=",
+    "signature": "5nn2NKWvqjmHuEa1LVcu6tYdJpmPyObV57T0MyCBSj4C145lHmxcEg3ikobXwgWier4V2SPsAmy1/eb+5+klDw=="
+  },
+  "attested_at": "2026-11-17T07:26:46Z",
+  "path": ".pose/review-attestations/rva-d965137486fabe1e.json"
+}
