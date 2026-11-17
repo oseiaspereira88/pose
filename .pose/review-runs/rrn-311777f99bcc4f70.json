@@ -1,0 +1,140 @@
+{
+  "safety": {
+    "schema_version": 1,
+    "profile": "legacy-trusted",
+    "platform": "linux/amd64",
+    "capabilities": {
+      "automatic-expiry": "unavailable",
+      "bounded-capture": "available",
+      "cpu-limit": "unavailable",
+      "credential-filesystem-isolation": "unavailable",
+      "environment-allowlist": "available",
+      "escaped-descendant-termination": "unavailable",
+      "filesystem-isolation": "unavailable",
+      "memory-limit": "unavailable",
+      "network-isolation": "unavailable",
+      "origin-isolation": "unavailable",
+      "parent-termination": "available",
+      "process-group-termination": "available",
+      "shared-git-isolation": "unavailable"
+    },
+    "limitations": [
+      "trusted local executable required; worktree is not a sandbox",
+      "outside writes, transient writes, shared Git and credential files are not isolated",
+      "no memory/CPU quota or control of descendants escaping the process group",
+      "cleanup filesystem calls remain subject to operating-system I/O latency",
+      "legacy compatibility: HOME retained; other ambient credentials excluded"
+    ],
+    "stream_bytes": 8388608,
+    "output_bytes": 65536,
+    "retained_bytes": 16777216,
+    "timeout_ms": 3600000,
+    "max_runs_per_bundle": 3,
+    "retention": "retain-evidence; ttl=0; no automatic deletion",
+    "capture_complete": true,
+    "runtime_id": "pose-review-run-3176253559",
+    "operation": {
+      "schema_version": 1,
+      "operation": "review.dispatch.cleanup",
+      "scope": "spec:pose-review-guard-reads-the-integrity-graph-in-place",
+      "outcome": "completed",
+      "steps_run": [
+        {
+          "id": "cleanup",
+          "result": "done"
+        }
+      ],
+      "effects": [],
+      "resumable": false
+    }
+  },
+  "provenance": {
+    "execution_state": "started",
+    "planned_wire_digest": "sha256:fd3de97a30ef519a9ecbfbe6bf6b66ab30d709d9cd1e4f5657b0fc428fa1d368",
+    "wire_bytes": 28739,
+    "wire_complete": true,
+    "schema_version": 1,
+    "project": "proj.pose-dist",
+    "audience": "proj.pose-dist",
+    "worktree_digest": "sha256:9c161dc895f6496d9f800581bef8673cc9123cda65951fa2d23b0cbdbc2bac41",
+    "trust": "executor-attested",
+    "implementation": {
+      "principal": "agent:anthropic/claude-opus-5-5",
+      "execution": "sha256:0eb880a4fc2ed87a379c949a567b1d3dfbd6b58b466f4755fcd363dd2b7fed98",
+      "vendor": "anthropic",
+      "model": "claude-opus-5-5"
+    },
+    "reviewer": {
+      "principal": "agent:openai/gpt-6.1-sol",
+      "vendor": "openai",
+      "model": "gpt-6.1-sol"
+    },
+    "config_digest": "sha256:637a9d88c40dbf75da8525db65c216ace591f828ef25c233358db1a99e70ee31",
+    "command_template_digest": "sha256:e3a23ff8a55e559e954d107a039277628bfc51faa58d523ad6101de7c375ad28",
+    "argv_digest": "sha256:4b37c6813f50c4d173d5ba820b34b624fc3eafcf2fbedafe4c9c7e239f43f87d",
+    "executable_digest": "sha256:e14fc83739c13c1074b12bd1acce4010c893c7f6fbfc1593b4a31d74cabb57af",
+    "template_version": "review-brief/7",
+    "wire_digest": "sha256:fd3de97a30ef519a9ecbfbe6bf6b66ab30d709d9cd1e4f5657b0fc428fa1d368",
+    "notes_digest": "sha256:bfce3b29adf2276e7135d6520b5503cfe0c8cb5b313aa5138231b9ba5c2b1a3c",
+    "raw_transcript_digest": "sha256:a37481a6265aa13872fa50ea24040d9bda6c01e4274f54e5c222711d8711dce7",
+    "raw_output_digest": "sha256:882d7e19b562dbb44658736bb8ff14095837c161ce015a77cca04b4ac1ce135f",
+    "output_source": "file",
+    "output_complete": true
+  },
+  "session_digest": "sha256:1c89683c849520b197ba5c2a3c162e033ba6b4d8de7a4c07e8b863b0ca571878",
+  "tree_digest": "sha256:380591384a50ebe16d258e69d8ed68051dbe3392837c9e757618fdf9c26107cb",
+  "brief_notes": "Round 1 review of spec pose-review-guard-reads-the-integrity-graph-in-place (an engine performance change; follow-up F1 of the closed spec pose-federated-source-proof-is-computed-once-per-operation).\n\nWhat to judge: (1) `pose-mcp/internal/pose/review_policy_baseline.go`: `resolveReviewGovernanceGuard` no longer calls `GetDeliveryIntegrity`, which returns a deep copy of the cached graph on every call (about 5.5 s of CPU in `copyDeliveryIntegrityGraph` on harne8's first closeout call); it calls the new `Store.viewDeliveryIntegrity` (`delivery_integrity.go`), over the cache's existing in-place `viewDeliveryIntegrityGraphErr`, and derives its paths and base revision inside the callback from pointers into `graph.ChangeSets`, keeping only the strings it derives. The cache's contract is that a view callback neither modifies nor keeps the graph or anything it reaches. (2) `review_dispatch_unix.go`: `reviewProcessGroupAvailable`, which `resolveReviewerContainment` calls for every verification and which walked every `/proc/\u003cpid\u003e/stat`, now keeps a success for `processGroupProbeTTL` (one minute) and never keeps a failure. Judge: whether the guard can keep or write anything the graph reaches (the sort of the pointer slice, the `guard.Paths` strings, `set.ResolvedBase`), whether its result can differ from the copied path in any case (index unavailable, error paths, the order of sets), whether the error handling is unchanged (the reason set when the index is unavailable and the guard has claim paths), whether a minute's cached probe can make a verification declare a capability it should not, where else the probe result is used (dispatch versus verification), and whether the probe's mutex can serialize anything that matters. Tests: `TestReviewGuardReadsTheIntegrityGraphInPlace` (equivalence with a deep copy on the fixture that changes the review contract, twice, and the retained graph unchanged; fails with a guard that writes the graph), `TestProcessGroupProbeKeepsASuccessForItsTTL` (fails without the kept success), and the existing `TestABMProtectedBaseline*`. Measured on harne8, alternating binaries: 64 s and 62 s before, 60 s and 53 s after, terminal.\n\nBuilding: this review runs under a read-only sandbox, so nothing can be built or written, not even a TMPDIR; do not try, and do not stop the review over it. The pipeline built the engine of the sealed commit and installed it as `pose` on PATH (`~/.local/bin/pose`); use that binary for read-only commands. It also ran `pose artifact-check --strict` and `pose surface-check --strict` against the sealed commit; their outputs are `/var/tmp/closeout/ac-gv.out` and `/var/tmp/closeout/sc-gv.out`. Dispose those tools from that evidence and from the code when a rerun fails for environment reasons. The package tests (`go test ./internal/pose ./internal/cli`) passed on the sealed code; judge the tests by reading them.\n\nDo NOT run `pose assess`, `pose state`, `pose index` or anything else that writes under `.pose/` or `.git/`; dispose assess-* tools from the sealed evidence and the code. Leave the worktree as you found it. Dispose the `validate` tools from the sealed evidence: the pipeline ran `pose validate --strict` on a clean clone of the sealed commit with a GitHub token (`.pose/results/delivery-validation.json`); a rerun in your sandbox fails for environment reasons and is not evidence about the code. End your final message with a `pose-draft` block. A finding object accepts exactly `id`, `severity`, `disposition`, `file`, `line`, `summary`, and for an accepted follow-up `action`, `owner`, `review_by`; put any rationale inside `summary`. End your final message with a `pose-draft` block. Number review findings from F1, without any round prefix. This is round 1: `prior_findings` is empty. Sweep the whole surface and report every finding in one pass, classified blocker vs follow-up.\n",
+  "ledger_version": 1,
+  "attempt_id": "rat-c5f6d6557d151b0d95de9ac1f74025b997d668d884ed4e6bb4cb4364e0bf2ee1",
+  "schema_version": 1,
+  "run_id": "rrn-311777f99bcc4f70",
+  "scope": "spec:pose-review-guard-reads-the-integrity-graph-in-place",
+  "bundle_id": "rvb-18aeaa6c0a46a548",
+  "bundle_digest": "sha256:18aeaa6c0a46a54826f68836324dbda08c3e8d54df6089e560e4a4a49bb0bb62",
+  "sealed_commit": "4e77589037bff10a20d223d7882a3c9d85bee533",
+  "kind": "review",
+  "brief_digest": "sha256:c328ed5454af2b4ad37b73e4c87048c2eaa980cf6594bde30b6e0fee1f4f6640",
+  "adapter": "sol-medium",
+  "vendor": "openai",
+  "model": "gpt-6.1-sol",
+  "started_at": "2026-11-17T09:11:41.561843579Z",
+  "ended_at": "2026-11-17T09:17:12.16526656Z",
+  "exit_code": 0,
+  "status": "completed",
+  "transcript_digest": "sha256:e57a3ab3bbb078494cb015208195100c4985b8ebaa60dd23ba3021521c06f02f",
+  "transcript_path": ".pose/review-runs/rrn-311777f99bcc4f70.transcript",
+  "output": "decision: approved\n\nNo defects found. The guard preserves paths, base selection, and error behavior without mutating the retained graph. Probe caching matches R3; actual process termination remains independently verified.\n\nReviewed bundle `rvb-18aeaa6c0a46a548` against R1–R3 and D1. Applied security, backend-go, documentation-style, and delivery-evidence rules. Repository remains unchanged; no attestation recorded.\n\nTests were inspected and assessed using sealed evidence, without rebuilding in the read-only sandbox. The reported performance improvement remains a noisy measurement from two alternating runs.\n\n```pose-draft\n{\n  \"schema\": \"pose.review.draft/v1\",\n  \"decision\": \"approved\",\n  \"findings\": [],\n  \"criteria\": [\n    {\n      \"id\": \"assumption-integrity\",\n      \"disposition\": \"passed\",\n      \"evidence\": \"integration:pose-mcp/go/review-guard-reads-the-integrity-graph-in-place-integration\",\n      \"rationale\": \"Verified immutable graph reads, separate pointer-slice sorting, equivalent selection, and uncached termination verification. The spec explicitly accepts availability reporting remaining stale for up to one minute. The reported timing improvement is supported by two alternating runs but is not a statistically established performance guarantee.\"\n    },\n    {\n      \"id\": \"backend-concurrency\",\n      \"disposition\": \"passed\",\n      \"evidence\": \"integration:pose-mcp/go/review-guard-reads-the-integrity-graph-in-place-integration\",\n      \"rationale\": \"review_dispatch_unix.go:134-144 protects timestamp reads, refresh, and publication with one mutex. Warm calls avoid inventory traversal; cold calls serialize it. Cache views pin retained entries and the guard writes only its local pointer slice and output. Actual cancellation and termination verification are unchanged.\"\n    },\n    {\n      \"idleder\": \"unused\"\n    }\n  ]\n}\n```",
+  "policy_digest": "sha256:90ca53a44c8202b7914e12baa143afac5707221147f71fe6fa30a74bb415f911",
+  "purpose": "review",
+  "env_removed": [
+    "CLAUDE_CODE_BRIDGE_SESSION_ID",
+    "CLAUDE_CODE_CHILD_SESSION",
+    "CLAUDE_CODE_ENTRYPOINT",
+    "CLAUDE_CODE_EXECPATH",
+    "CLAUDE_CODE_MESSAGING_SOCKET",
+    "CLAUDE_CODE_MESSAGING_TOKEN",
+    "CLAUDE_CODE_SESSION_ATTENDED",
+    "CLAUDE_CODE_SESSION_ID",
+    "CLAUDE_EFFORT",
+    "CLAUDE_PID"
+  ],
+  "events": "codex-jsonl",
+  "events_digest": "sha256:8470b0625e916e65c9f7561eec1987b6d91ad6324ccce6845e355cf6f61ef10b",
+  "routing": {
+    "requested": "sol-medium",
+    "implementation": {
+      "principal": "agent:anthropic/claude-opus-5-5",
+      "vendor": "anthropic",
+      "model": "claude-opus-5-5",
+      "execution_digest": "sha256:0eb880a4fc2ed87a379c949a567b1d3dfbd6b58b466f4755fcd363dd2b7fed98",
+      "source": "declared"
+    },
+    "implementation_from": "bundle",
+    "step": "explicit"
+  },
+  "independence_achieved": "different-vendor",
+  "round": 1,
+  "draft_problems": [
+    "the pose-draft block is not a draft: json: unknown field \"idleder\""
+  ]
+}
