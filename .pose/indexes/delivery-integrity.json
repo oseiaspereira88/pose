@@ -1,7 +1,7 @@
 {
   "schema_version": 2,
-  "input_digest": "sha256:c450e6b608b180be536b2e9fd2a32964e8495df360a92b0008d71f304cd4e94b",
-  "provenance_digest": "sha256:ac1725fef42902a30192b02501ecd26fa7d1ba71d765bf47d55c6beb5290e89f",
+  "input_digest": "sha256:3c7ee1d820d8400c0c60d41bd8f736e1a646d7d7da3b8df0304316ffb3f920c3",
+  "provenance_digest": "sha256:8f765d6f24a8292828fa6bf2607917bff2a58ccc9f5f0a5c8792922f65c992f0",
   "implied_edges": [
     "changes"
   ],
@@ -47161,6 +47161,14 @@
       }
     },
     {
+      "id": "change-set:cs-73b90c5a0412",
+      "type": "change-set",
+      "attributes": {
+        "diff_digest": "sha256:281e82c0e01e505ef31225116ae497e2d3139543e765280813b91fa92aa61a2a",
+        "selector": "trailers:pose-read-view-audit-repeats-a-read-under-its-own-time"
+      }
+    },
+    {
       "id": "change-set:cs-741249dcb2ca",
       "type": "change-set",
       "attributes": {
@@ -49518,14 +49526,6 @@
       "attributes": {
         "diff_digest": "sha256:94faf2e36812b1ab8b62093891a1ddd4efa1be894475b2227be0cfc0b07328fa",
         "selector": "trailers:pose-composition-contract"
-      }
-    },
-    {
-      "id": "change-set:cs-f752fe70138d",
-      "type": "change-set",
-      "attributes": {
-        "diff_digest": "sha256:bef59ab3ca4993e70a70cc41ec83a607826d454c5af0ec63045a024ce4d935bd",
-        "selector": "trailers:pose-read-view-audit-repeats-a-read-under-its-own-time"
       }
     },
     {
@@ -127594,7 +127594,7 @@
     },
     {
       "from": "spec:pose-read-view-audit-repeats-a-read-under-its-own-time",
-      "to": "change-set:cs-f752fe70138d",
+      "to": "change-set:cs-73b90c5a0412",
       "type": "observed-by"
     },
     {
@@ -232393,6 +232393,82 @@
       }
     },
     {
+      "id": "cs-73b90c5a0412",
+      "spec": "pose-read-view-audit-repeats-a-read-under-its-own-time",
+      "selector": "trailers:pose-read-view-audit-repeats-a-read-under-its-own-time",
+      "base": "06a41c7e5cfb45ea275e2f9b9ca80810a5f03a62^",
+      "head": "839f84ccbd31f91a21fb620542668bdb14e36167",
+      "resolved_base": "d49d3aeb4ed8daa2b44b2c46d8ce5536d39dc199",
+      "resolved_head": "839f84ccbd31f91a21fb620542668bdb14e36167",
+      "commits": [
+        "06a41c7e5cfb45ea275e2f9b9ca80810a5f03a62",
+        "41694842455f097255124cd555c8c681ed93ddca",
+        "1a153f0dc0afa8c3586e777ea2ffddf916d3c8cf",
+        "a1e7d38d811a8f76fdb94d296721254acfdc0e5c",
+        "e15f022915127074f2b316bd2783ef1da72a4c45",
+        "84769b9ce9c2efcaf0eed5fa67c07bf6ed347f84",
+        "839f84ccbd31f91a21fb620542668bdb14e36167"
+      ],
+      "paths": [
+        {
+          "action": "created",
+          "path": ".pose/specs/2026-11-17-pose-read-view-audit-repeats-a-read-under-its-own-time.md"
+        },
+        {
+          "action": "created",
+          "path": ".pose/starts/pose-read-view-audit-repeats-a-read-under-its-own-time.json"
+        },
+        {
+          "action": "created",
+          "path": "pose-mcp/internal/pose/governance_read_view_audit_timeout_test.go"
+        },
+        {
+          "action": "modified",
+          "path": ".pose/indexes/delivery-integrity.json"
+        },
+        {
+          "action": "modified",
+          "path": ".pose/indexes/generation.json"
+        },
+        {
+          "action": "modified",
+          "path": ".pose/indexes/spec-graph.json"
+        },
+        {
+          "action": "modified",
+          "path": ".pose/indexes/validation-matrix.json"
+        },
+        {
+          "action": "modified",
+          "path": ".pose/results/delivery-validation.json"
+        },
+        {
+          "action": "modified",
+          "path": "pose-mcp/internal/pose/governance_read_view_git.go"
+        },
+        {
+          "action": "modified",
+          "path": "pose-mcp/internal/pose/governance_read_view_stream.go"
+        }
+      ],
+      "diff_digest": "sha256:281e82c0e01e505ef31225116ae497e2d3139543e765280813b91fa92aa61a2a",
+      "material_digest": "sha256:0c9b90f606ace0ac1d93d4cdbf645ed87a5d1294f72435479fe45b1575bbd148",
+      "material_inputs": {
+        "names": [
+          ".pose/indexes/delivery-integrity.json",
+          ".pose/indexes/generation.json",
+          ".pose/indexes/spec-graph.json",
+          ".pose/indexes/validation-matrix.json",
+          ".pose/results/delivery-validation.json",
+          ".pose/specs/2026-11-17-pose-read-view-audit-repeats-a-read-under-its-own-time.md",
+          ".pose/starts/pose-read-view-audit-repeats-a-read-under-its-own-time.json",
+          "pose-mcp/internal/pose/governance_read_view_audit_timeout_test.go",
+          "pose-mcp/internal/pose/governance_read_view_git.go",
+          "pose-mcp/internal/pose/governance_read_view_stream.go"
+        ]
+      }
+    },
+    {
       "id": "cs-741249dcb2ca",
       "spec": "pose-lint-validates-remediation-references",
       "selector": "trailers:pose-lint-validates-remediation-references",
@@ -293041,81 +293117,6 @@
           "pose-mcp/internal/scaffold/dist/.pose/specs/pose-container-build-gate/spec.md",
           "pose-mcp/internal/scaffold/dist/composition-contract.json",
           "pose-mcp/internal/version/composition_contract_test.go"
-        ]
-      }
-    },
-    {
-      "id": "cs-f752fe70138d",
-      "spec": "pose-read-view-audit-repeats-a-read-under-its-own-time",
-      "selector": "trailers:pose-read-view-audit-repeats-a-read-under-its-own-time",
-      "base": "06a41c7e5cfb45ea275e2f9b9ca80810a5f03a62^",
-      "head": "84769b9ce9c2efcaf0eed5fa67c07bf6ed347f84",
-      "resolved_base": "d49d3aeb4ed8daa2b44b2c46d8ce5536d39dc199",
-      "resolved_head": "84769b9ce9c2efcaf0eed5fa67c07bf6ed347f84",
-      "commits": [
-        "06a41c7e5cfb45ea275e2f9b9ca80810a5f03a62",
-        "41694842455f097255124cd555c8c681ed93ddca",
-        "1a153f0dc0afa8c3586e777ea2ffddf916d3c8cf",
-        "a1e7d38d811a8f76fdb94d296721254acfdc0e5c",
-        "e15f022915127074f2b316bd2783ef1da72a4c45",
-        "84769b9ce9c2efcaf0eed5fa67c07bf6ed347f84"
-      ],
-      "paths": [
-        {
-          "action": "created",
-          "path": ".pose/specs/2026-11-17-pose-read-view-audit-repeats-a-read-under-its-own-time.md"
-        },
-        {
-          "action": "created",
-          "path": ".pose/starts/pose-read-view-audit-repeats-a-read-under-its-own-time.json"
-        },
-        {
-          "action": "created",
-          "path": "pose-mcp/internal/pose/governance_read_view_audit_timeout_test.go"
-        },
-        {
-          "action": "modified",
-          "path": ".pose/indexes/delivery-integrity.json"
-        },
-        {
-          "action": "modified",
-          "path": ".pose/indexes/generation.json"
-        },
-        {
-          "action": "modified",
-          "path": ".pose/indexes/spec-graph.json"
-        },
-        {
-          "action": "modified",
-          "path": ".pose/indexes/validation-matrix.json"
-        },
-        {
-          "action": "modified",
-          "path": ".pose/results/delivery-validation.json"
-        },
-        {
-          "action": "modified",
-          "path": "pose-mcp/internal/pose/governance_read_view_git.go"
-        },
-        {
-          "action": "modified",
-          "path": "pose-mcp/internal/pose/governance_read_view_stream.go"
-        }
-      ],
-      "diff_digest": "sha256:bef59ab3ca4993e70a70cc41ec83a607826d454c5af0ec63045a024ce4d935bd",
-      "material_digest": "sha256:0c9b90f606ace0ac1d93d4cdbf645ed87a5d1294f72435479fe45b1575bbd148",
-      "material_inputs": {
-        "names": [
-          ".pose/indexes/delivery-integrity.json",
-          ".pose/indexes/generation.json",
-          ".pose/indexes/spec-graph.json",
-          ".pose/indexes/validation-matrix.json",
-          ".pose/results/delivery-validation.json",
-          ".pose/specs/2026-11-17-pose-read-view-audit-repeats-a-read-under-its-own-time.md",
-          ".pose/starts/pose-read-view-audit-repeats-a-read-under-its-own-time.json",
-          "pose-mcp/internal/pose/governance_read_view_audit_timeout_test.go",
-          "pose-mcp/internal/pose/governance_read_view_git.go",
-          "pose-mcp/internal/pose/governance_read_view_stream.go"
         ]
       }
     },
