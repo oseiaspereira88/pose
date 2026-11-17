@@ -150,3 +150,5 @@ Não concluída.
 
 Rodada 1 (run com a decisão changes-requested): F2, alto, bloqueador. A chave omitia `ArtifactRef.Milestone`, e dois marcos do mesmo roadmap, projeto e revisão dividiam a mesma prova: depois de provar `milestone:program/core`, um pedido por `milestone:program/later` recebia a aprovação, o recibo ou os bloqueadores de `core`. A chave passou a levar a identidade inteira (`fmt.Sprintf("%#v", identity)`, todos os campos, inclusive os que um JSON omitiria), e `TestFederatedSourceProofKeepsEveryIdentityApart` prova dois marcos nas duas ordens contra uma prova sem memo; reprova com a chave antiga.
 
+A primeira tentativa da rodada 2 não chegou ao revisor: o `pose validate --strict` do pipeline reprovou no check `test` do módulo `pose-mcp` (`go test ./... -count=1`), que esgotou o prazo padrão de 600 s com quatro checks em paralelo; o pacote `pose` sozinho já leva cerca de 480 s. O check passa a declarar `timeoutSeconds: 1800` na matriz.
+
