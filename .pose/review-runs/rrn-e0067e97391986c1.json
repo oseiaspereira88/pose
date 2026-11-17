@@ -1,0 +1,149 @@
+{
+  "safety": {
+    "schema_version": 1,
+    "profile": "legacy-trusted",
+    "platform": "linux/amd64",
+    "capabilities": {
+      "automatic-expiry": "unavailable",
+      "bounded-capture": "available",
+      "cpu-limit": "unavailable",
+      "credential-filesystem-isolation": "unavailable",
+      "environment-allowlist": "available",
+      "escaped-descendant-termination": "unavailable",
+      "filesystem-isolation": "unavailable",
+      "memory-limit": "unavailable",
+      "network-isolation": "unavailable",
+      "origin-isolation": "unavailable",
+      "parent-termination": "available",
+      "process-group-termination": "available",
+      "shared-git-isolation": "unavailable"
+    },
+    "limitations": [
+      "trusted local executable required; worktree is not a sandbox",
+      "outside writes, transient writes, shared Git and credential files are not isolated",
+      "no memory/CPU quota or control of descendants escaping the process group",
+      "cleanup filesystem calls remain subject to operating-system I/O latency",
+      "legacy compatibility: HOME retained; other ambient credentials excluded"
+    ],
+    "stream_bytes": 8388608,
+    "output_bytes": 65536,
+    "retained_bytes": 16777216,
+    "timeout_ms": 3600000,
+    "max_runs_per_bundle": 3,
+    "retention": "retain-evidence; ttl=0; no automatic deletion",
+    "capture_complete": true,
+    "runtime_id": "pose-review-run-3915149173",
+    "operation": {
+      "schema_version": 1,
+      "operation": "review.dispatch.cleanup",
+      "scope": "spec:pose-federated-source-proof-is-computed-once-per-operation",
+      "outcome": "completed",
+      "steps_run": [
+        {
+          "id": "cleanup",
+          "result": "done"
+        }
+      ],
+      "effects": [],
+      "resumable": false
+    }
+  },
+  "provenance": {
+    "execution_state": "started",
+    "planned_wire_digest": "sha256:ce232a8d68c3c12db37a1560b2da23a9ae9e09a1ee76fcdb2ce9f8e598fdbc4a",
+    "wire_bytes": 31295,
+    "wire_complete": true,
+    "schema_version": 1,
+    "project": "proj.pose-dist",
+    "audience": "proj.pose-dist",
+    "worktree_digest": "sha256:9c161dc895f6496d9f800581bef8673cc9123cda65951fa2d23b0cbdbc2bac41",
+    "trust": "executor-attested",
+    "implementation": {
+      "principal": "agent:anthropic/claude-opus-5-5",
+      "execution": "sha256:0eb880a4fc2ed87a379c949a567b1d3dfbd6b58b466f4755fcd363dd2b7fed98",
+      "vendor": "anthropic",
+      "model": "claude-opus-5-5"
+    },
+    "reviewer": {
+      "principal": "agent:openai/gpt-6.1-sol",
+      "vendor": "openai",
+      "model": "gpt-6.1-sol"
+    },
+    "config_digest": "sha256:637a9d88c40dbf75da8525db65c216ace591f828ef25c233358db1a99e70ee31",
+    "command_template_digest": "sha256:e3a23ff8a55e559e954d107a039277628bfc51faa58d523ad6101de7c375ad28",
+    "argv_digest": "sha256:a091e0592284ec20b66ddb0444e4c9c8857263abb4ee3ec3291325f00acfb4d9",
+    "executable_digest": "sha256:e14fc83739c13c1074b12bd1acce4010c893c7f6fbfc1593b4a31d74cabb57af",
+    "template_version": "review-brief/7",
+    "wire_digest": "sha256:ce232a8d68c3c12db37a1560b2da23a9ae9e09a1ee76fcdb2ce9f8e598fdbc4a",
+    "notes_digest": "sha256:7c760488b16837588d9cb6a4094578d53916f2a1ae22925ed35d72e3363c6767",
+    "raw_transcript_digest": "sha256:c2695e5f73e65b9e7e285407f3a04507ea14cce153a27f89cd2b8d271aa545a0",
+    "raw_output_digest": "sha256:c2695e5f73e65b9e7e285407f3a04507ea14cce153a27f89cd2b8d271aa545a0",
+    "output_source": "transcript-tail",
+    "output_complete": true
+  },
+  "interruption": {
+    "cause": "usage-limit",
+    "resumable": true
+  },
+  "session_digest": "sha256:0ddae56342b9ac2666524764167c532bb7b384d203103e2e6158553e851df363",
+  "tree_digest": "sha256:015490bb9941438d07be0ce7aef187160dbd6210eb99edb47c8a5eee22c0d14a",
+  "brief_notes": "Round 2 review of spec pose-federated-source-proof-is-computed-once-per-operation (an engine performance change with amendment D15 of ADR governance-reads-use-bounded-operation-scoped-views).\n\nWhat to judge (`pose-mcp/internal/pose/federated_acceptance.go`): `federatedSourceProof` now goes through `memoizedLedgerRead`, the per-operation memo of spec pose-review-ledger-is-read-once-per-operation (closed), keyed by source root, identity project/kind/slug and pinned revision, and the memo adds the `governanceReadViewFiles` producer and project, checks the view's lifecycle (`begin()`), and computes once per key under `sync.Once`. The former body is `computeFederatedSourceProof`; callers receive `deepCopyValue` of the result; a refused memo read is a `:source-proof-unavailable` blocker. A build instrumented on harne8 counted 64 proofs in one closeout call, 39 distinct; the call fell from 80 s to 60 s with the same terminal verdict. Judge: whether the proof is a function of the outer operation's reads only (does `source.GetCloseoutState` or `source.VerifyReviewBundle` open a nested operation whose reads would escape the outer view, or read through a Files other than `files`?), whether the key misses an input (the source store's own resolver or roots, `files` versus `source.fsys()`, the consumer's identity), whether a deep copy of `FederatedDependencyEvidence` is complete, and whether the new blocker for a refused read is sound. Test: `TestFederatedSourceProofIsComputedOncePerOperation` (one computation for three proofs in an operation, three outside it, isolated answers; fails without the memo and without the copy).\n\nRound 1 (recorded, changes-requested) raised F2: the memo key omitted `ArtifactRef.Milestone`, so two milestones of one roadmap shared a proof. Account for it in `prior_findings` with the id the engine's brief lists. The commit for this round keys the memo by `fmt.Sprintf(\"%#v\", identity)`, every field of the identity (a JSON key would omit fields tagged `json:\"-\"` or `omitempty`), and `TestFederatedSourceProofKeepsEveryIdentityApart` proves two milestones of one roadmap in both orders against an unmemoized proof; it fails with the old key. Number new findings from F3, without any round prefix.\n\nBuilding: this review runs under a read-only sandbox, so nothing can be built or written, not even a TMPDIR; do not try, and do not stop the review over it. The pipeline built the engine of the sealed commit and installed it as `pose` on PATH (`~/.local/bin/pose`); use that binary for read-only commands. It also ran `pose artifact-check --strict` and `pose surface-check --strict` against the sealed commit; their outputs are `/var/tmp/closeout/ac-fp.out` and `/var/tmp/closeout/sc-fp.out`. Dispose those tools from that evidence and from the code when a rerun fails for environment reasons. The package tests (`go test ./internal/pose ./internal/cli`) passed on the sealed code; judge the tests by reading them.\n\nDo NOT run `pose assess`, `pose state`, `pose index` or anything else that writes under `.pose/` or `.git/`; dispose assess-* tools from the sealed evidence and the code. Leave the worktree as you found it. Dispose the `validate` tools from the sealed evidence: the pipeline ran `pose validate --strict` on a clean clone of the sealed commit with a GitHub token (`.pose/results/delivery-validation.json`); a rerun in your sandbox fails for environment reasons and is not evidence about the code. End your final message with a `pose-draft` block. A finding object accepts exactly `id`, `severity`, `disposition`, `file`, `line`, `summary`, and for an accepted follow-up `action`, `owner`, `review_by`; put any rationale inside `summary`. End your final message with a `pose-draft` block. This is round 1: `prior_findings` is empty. Sweep the whole surface and report every finding in one pass, classified blocker vs follow-up.\n",
+  "partial_digest": "sha256:590408ddb4e691665d4bdc2669da01b4570b79d9616c702c86004ec3c1e16738",
+  "ledger_version": 1,
+  "attempt_id": "rat-e466162db91e0a78eea4e81039b8fbb863b0363dccd3def1905c350522acec15",
+  "schema_version": 1,
+  "run_id": "rrn-e0067e97391986c1",
+  "scope": "spec:pose-federated-source-proof-is-computed-once-per-operation",
+  "bundle_id": "rvb-dd7776c3b0119954",
+  "bundle_digest": "sha256:dd7776c3b01199545e1a7a8e1912d6c9b8c97be9dca3272b17baf612387deceb",
+  "sealed_commit": "4eacddd062ef3cc36925a778df21fc1a8fbc404b",
+  "kind": "review",
+  "brief_digest": "sha256:4becfb7d4516f9f4e9ccf32d94523126a555814a1cb9d4ca5c0295097d33010c",
+  "adapter": "sol-medium",
+  "vendor": "openai",
+  "model": "gpt-6.1-sol",
+  "started_at": "2026-11-17T06:20:46.315092533Z",
+  "ended_at": "2026-11-17T06:21:07.99519145Z",
+  "exit_code": 1,
+  "status": "interrupted",
+  "failure": "review interrupted: usage-limit (supervisor: usage-limit)",
+  "transcript_digest": "sha256:590408ddb4e691665d4bdc2669da01b4570b79d9616c702c86004ec3c1e16738",
+  "transcript_path": ".pose/review-runs/rrn-e0067e97391986c1.transcript",
+  "output": "{\"type\":\"thread.started\",\"thread_id\":\"[private-session]\"}\n{\"type\":\"turn.started\"}\n{\"type\":\"error\",\"message\":\"You’ve hit your usage limit. Upgrade to Pro (https://chatgpt.com/explore/pro), visit https://chatgpt.com/settings/usage to purchase more credits or try again at 3:57 AM.\"}\n{\"type\":\"turn.failed\",\"error\":{\"message\":\"You’ve hit your usage limit. Upgrade to Pro (https://chatgpt.com/explore/pro), visit https://chatgpt.com/settings/usage to purchase more credits or try again at 3:57 AM.\"}}\n",
+  "policy_digest": "sha256:90ca53a44c8202b7914e12baa143afac5707221147f71fe6fa30a74bb415f911",
+  "purpose": "review",
+  "env_removed": [
+    "CLAUDE_CODE_BRIDGE_SESSION_ID",
+    "CLAUDE_CODE_CHILD_SESSION",
+    "CLAUDE_CODE_ENTRYPOINT",
+    "CLAUDE_CODE_EXECPATH",
+    "CLAUDE_CODE_MESSAGING_SOCKET",
+    "CLAUDE_CODE_MESSAGING_TOKEN",
+    "CLAUDE_CODE_SESSION_ATTENDED",
+    "CLAUDE_CODE_SESSION_ID",
+    "CLAUDE_EFFORT",
+    "CLAUDE_PID"
+  ],
+  "events": "codex-jsonl",
+  "events_digest": "sha256:c0d7ee363e2e97dc5fe5551f7b99e8849264eb3dfae5c56145166a26156faa64",
+  "routing": {
+    "requested": "sol-medium",
+    "implementation": {
+      "principal": "agent:anthropic/claude-opus-5-5",
+      "vendor": "anthropic",
+      "model": "claude-opus-5-5",
+      "execution_digest": "sha256:0eb880a4fc2ed87a379c949a567b1d3dfbd6b58b466f4755fcd363dd2b7fed98",
+      "source": "declared"
+    },
+    "implementation_from": "bundle",
+    "step": "explicit"
+  },
+  "independence_achieved": "different-vendor",
+  "round": 2,
+  "thread": {
+    "round": 2,
+    "mode": "new",
+    "from": "rrn-c253e139e732c31a",
+    "reason": "the previous round's session cannot be resumed: lstat /var/tmp/closeout/pose-dist/.pose/review-private: no such file or directory"
+  }
+}
