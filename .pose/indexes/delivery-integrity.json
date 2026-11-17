@@ -1,7 +1,7 @@
 {
   "schema_version": 2,
-  "input_digest": "sha256:3e9cd537c79234348d13e319db6c805ca8db7ef69d033eb2a4da94281539a1d6",
-  "provenance_digest": "sha256:c21b4ccca9b63318ba48efa588c8d1006ca2419a04a48a9d5a9df08f4213c648",
+  "input_digest": "sha256:604965c9c12e52905d0ce989aea7a36c7c9ac51a0b4c3345f61fe8935f805f94",
+  "provenance_digest": "sha256:adefdbdd7dbc79bf3519d70d133d6673cbb4943897a85bfd89dc64c50c972a0c",
   "implied_edges": [
     "changes"
   ],
@@ -32403,6 +32403,13 @@
       }
     },
     {
+      "id": "artifact:.pose/specs/2026-11-11-pose-commit-hook-runs-with-explicit-roots.md",
+      "type": "artifact",
+      "attributes": {
+        "path": ".pose/specs/2026-11-11-pose-commit-hook-runs-with-explicit-roots.md"
+      }
+    },
+    {
       "id": "artifact:.pose/specs/2026-11-11-pose-review-subject-head-is-the-newest.md",
       "type": "artifact",
       "attributes": {
@@ -46645,6 +46652,14 @@
       }
     },
     {
+      "id": "change-set:cs-314c3913e792",
+      "type": "change-set",
+      "attributes": {
+        "diff_digest": "sha256:eb0a82b85d422716bcc7a9299bb5a22026a14ee921d330da8ca17a1ff66b5c68",
+        "selector": "trailers:pose-commit-hook-runs-with-explicit-roots"
+      }
+    },
+    {
       "id": "change-set:cs-316fe0d39a1e",
       "type": "change-set",
       "attributes": {
@@ -49709,14 +49724,6 @@
       }
     },
     {
-      "id": "change-set:cs-e0b0e01033a3",
-      "type": "change-set",
-      "attributes": {
-        "diff_digest": "sha256:94136b051c9e5acfd32a345d9484178989f10487c2795b860565825890544544",
-        "selector": "trailers:pose-review-guard-reads-the-integrity-graph-in-place"
-      }
-    },
-    {
       "id": "change-set:cs-e0b1ad66b5e8",
       "type": "change-set",
       "attributes": {
@@ -49954,6 +49961,14 @@
       "attributes": {
         "diff_digest": "sha256:674d0dfac55179c1fccfb0bbe5ec9ca119896905fe023d557bcd571b6549df4f",
         "selector": "trailers:pose-same-actor-level-admits-a-different-actor"
+      }
+    },
+    {
+      "id": "change-set:cs-ead6e5b3b68e",
+      "type": "change-set",
+      "attributes": {
+        "diff_digest": "sha256:4f410677cbc0bab50c74161b3511ce6e97f30d6104cbf2e80a8914ff2af3bcb9",
+        "selector": "trailers:pose-review-guard-reads-the-integrity-graph-in-place"
       }
     },
     {
@@ -55541,7 +55556,7 @@
       "id": "spec:pose-commit-hook-runs-with-explicit-roots",
       "type": "spec",
       "attributes": {
-        "status": "draft"
+        "status": "abandoned"
       }
     },
     {
@@ -110496,6 +110511,11 @@
       "type": "observed-by"
     },
     {
+      "from": "spec:pose-commit-hook-runs-with-explicit-roots",
+      "to": "change-set:cs-314c3913e792",
+      "type": "observed-by"
+    },
+    {
       "from": "spec:pose-common-domain-and-cli-mcp-handoff",
       "to": "artifact:.pose/adr/2026-10-14-shared-domain-and-optional-worktree-runtime.md",
       "type": "declares"
@@ -132597,7 +132617,7 @@
     },
     {
       "from": "spec:pose-review-guard-reads-the-integrity-graph-in-place",
-      "to": "change-set:cs-e0b0e01033a3",
+      "to": "change-set:cs-ead6e5b3b68e",
       "type": "observed-by"
     },
     {
@@ -204206,6 +204226,44 @@
         }
       ],
       "diff_digest": "sha256:0829b6c1e5cfc6b1113b0348998244d69d9945d7c4257125a047be057858d94d"
+    },
+    {
+      "id": "cs-314c3913e792",
+      "spec": "pose-commit-hook-runs-with-explicit-roots",
+      "selector": "trailers:pose-commit-hook-runs-with-explicit-roots",
+      "base": "089e948ac1b3a7d4fc097831722b32bfbff6395a^",
+      "head": "5933938b5cbbff1f441999ae2efa0886e43b39e1",
+      "resolved_base": "5b3caf28666de6f27a02b2d8d518ec2304eddca2",
+      "resolved_head": "5933938b5cbbff1f441999ae2efa0886e43b39e1",
+      "commits": [
+        "089e948ac1b3a7d4fc097831722b32bfbff6395a",
+        "ccb5adfede2d493a41254185a8522edcad021769",
+        "5933938b5cbbff1f441999ae2efa0886e43b39e1"
+      ],
+      "paths": [
+        {
+          "action": "modified",
+          "path": ".pose/indexes/generation.json"
+        },
+        {
+          "action": "modified",
+          "path": ".pose/indexes/spec-graph.json"
+        },
+        {
+          "action": "modified",
+          "path": ".pose/specs/2026-11-11-pose-commit-hook-runs-with-explicit-roots.md"
+        }
+      ],
+      "diff_digest": "sha256:eb0a82b85d422716bcc7a9299bb5a22026a14ee921d330da8ca17a1ff66b5c68",
+      "material_digest": "sha256:5beca0d6d92371a86b4c780eb429dbc448f192bff80ce5f5ae3d6ee00298b3ef",
+      "material_inputs": {
+        "names": [
+          ".pose/indexes/generation.json",
+          ".pose/indexes/spec-graph.json",
+          ".pose/indexes/validation-matrix.json",
+          ".pose/specs/2026-11-11-pose-commit-hook-runs-with-explicit-roots.md"
+        ]
+      }
     },
     {
       "id": "cs-316fe0d39a1e",
@@ -281473,198 +281531,6 @@
       }
     },
     {
-      "id": "cs-e0b0e01033a3",
-      "spec": "pose-review-guard-reads-the-integrity-graph-in-place",
-      "selector": "trailers:pose-review-guard-reads-the-integrity-graph-in-place",
-      "base": "e3e97e76ee1fea8cd270054698a4525c66e082be^",
-      "head": "743b0ebc24b5b61ce872c01eeb0085d44a578622",
-      "resolved_base": "680799274ea014a44cb54808669ddf9ebcea0971",
-      "resolved_head": "743b0ebc24b5b61ce872c01eeb0085d44a578622",
-      "commits": [
-        "e3e97e76ee1fea8cd270054698a4525c66e082be",
-        "2ad3f7bbae8aeea17c747221e5d7ff95e114c154",
-        "bea4b58d974ac532ded104831e26f9b083b1dbc2",
-        "c3b295b23b3dff11e1fcb8c43d1d3b764e25c320",
-        "123c26a029375ada3c6de9ed0d8d3e23acb39447",
-        "1414b98dd1ad8772cff5732a7a2984f5fd851bb4",
-        "fd75d410082a0db44f3a856dab906c251f5840f2",
-        "ae9d3a9db91ffee2decbbc4fa23fdb938695e856",
-        "6282ffcec7b3a7cebc57b49a2f44ef4d54f7df09",
-        "4e77589037bff10a20d223d7882a3c9d85bee533",
-        "f3f3b731edc0a77fe7ea1df46de5bb45e5b814f7",
-        "f0569d7e8371bb8ec1fa237c18b05ae5a44f3632",
-        "e6a0db90d57dac1512bce57a8f511efe0b237265",
-        "b4d70e697274eba1fa6e400399991c124678c83a",
-        "40019024deed61f74466cf49d64b2994b4b4f7c5",
-        "9a4d10e4718ff422c7ef66bb3e0bdc50c6c2ad4f",
-        "b7f9841bbd020d67d9a9f996aba1214e97417539",
-        "868d1c932340095674d6b7b7aaaaef00994241db",
-        "cd068da4b8b286628ea24716a75e06a2df357027",
-        "f0d11636f0858bd28af8d4f0a1987042b04bb7ac",
-        "743b0ebc24b5b61ce872c01eeb0085d44a578622"
-      ],
-      "paths": [
-        {
-          "action": "created",
-          "path": ".pose/review-attempts/8298b6e6c357c2a56bc15bfd/000001.json"
-        },
-        {
-          "action": "created",
-          "path": ".pose/review-attempts/8298b6e6c357c2a56bc15bfd/000001.result.json"
-        },
-        {
-          "action": "created",
-          "path": ".pose/review-attempts/ecd57641ffc05db66644952c/000001.json"
-        },
-        {
-          "action": "created",
-          "path": ".pose/review-attempts/ecd57641ffc05db66644952c/000001.result.json"
-        },
-        {
-          "action": "created",
-          "path": ".pose/review-attestations/rva-4d6aaf335fc46993.json"
-        },
-        {
-          "action": "created",
-          "path": ".pose/review-bundles/rvb-18aeaa6c0a46a548.json"
-        },
-        {
-          "action": "created",
-          "path": ".pose/review-bundles/rvb-f627d25d86340cec.json"
-        },
-        {
-          "action": "created",
-          "path": ".pose/review-conclusions/rrn-311777f99bcc4f70.json"
-        },
-        {
-          "action": "created",
-          "path": ".pose/review-conclusions/rrn-c1d074e711285ff3.json"
-        },
-        {
-          "action": "created",
-          "path": ".pose/review-run-ledger/rrn-311777f99bcc4f70.json"
-        },
-        {
-          "action": "created",
-          "path": ".pose/review-run-ledger/rrn-c1d074e711285ff3.json"
-        },
-        {
-          "action": "created",
-          "path": ".pose/review-run-proofs/rrn-c1d074e711285ff3/rrp-055165d4dbd2cc7df6ef519678a10e7d700a5cd4c465ef1024a434c8da1d73a9.json"
-        },
-        {
-          "action": "created",
-          "path": ".pose/review-runs/rrn-311777f99bcc4f70.events.ndjson"
-        },
-        {
-          "action": "created",
-          "path": ".pose/review-runs/rrn-311777f99bcc4f70.json"
-        },
-        {
-          "action": "created",
-          "path": ".pose/review-runs/rrn-311777f99bcc4f70.transcript"
-        },
-        {
-          "action": "created",
-          "path": ".pose/review-runs/rrn-c1d074e711285ff3.events.ndjson"
-        },
-        {
-          "action": "created",
-          "path": ".pose/review-runs/rrn-c1d074e711285ff3.json"
-        },
-        {
-          "action": "created",
-          "path": ".pose/review-runs/rrn-c1d074e711285ff3.transcript"
-        },
-        {
-          "action": "created",
-          "path": ".pose/specs/2026-11-17-pose-review-guard-reads-the-integrity-graph-in-place.md"
-        },
-        {
-          "action": "created",
-          "path": ".pose/starts/pose-review-guard-reads-the-integrity-graph-in-place.json"
-        },
-        {
-          "action": "created",
-          "path": "pose-mcp/internal/pose/review_guard_in_place_test.go"
-        },
-        {
-          "action": "created",
-          "path": "pose-mcp/internal/pose/review_guard_probe_unix_test.go"
-        },
-        {
-          "action": "modified",
-          "path": ".pose/indexes/delivery-integrity.json"
-        },
-        {
-          "action": "modified",
-          "path": ".pose/indexes/generation.json"
-        },
-        {
-          "action": "modified",
-          "path": ".pose/indexes/spec-graph.json"
-        },
-        {
-          "action": "modified",
-          "path": ".pose/indexes/validation-matrix.json"
-        },
-        {
-          "action": "modified",
-          "path": ".pose/results/delivery-validation.json"
-        },
-        {
-          "action": "modified",
-          "path": "pose-mcp/internal/pose/delivery_integrity.go"
-        },
-        {
-          "action": "modified",
-          "path": "pose-mcp/internal/pose/review_dispatch_unix.go"
-        },
-        {
-          "action": "modified",
-          "path": "pose-mcp/internal/pose/review_policy_baseline.go"
-        }
-      ],
-      "diff_digest": "sha256:94136b051c9e5acfd32a345d9484178989f10487c2795b860565825890544544",
-      "material_digest": "sha256:b55552fe581c821ea074036a6d7aa84e9cf1e198e8f764a4c51220db6c82f8a4",
-      "material_inputs": {
-        "names": [
-          ".pose/closeout-plans/spec-pose-review-guard-reads-the-integrity-graph-in-place.json",
-          ".pose/indexes/delivery-integrity.json",
-          ".pose/indexes/generation.json",
-          ".pose/indexes/spec-graph.json",
-          ".pose/indexes/validation-matrix.json",
-          ".pose/results/delivery-validation.json",
-          ".pose/review-attempts/8298b6e6c357c2a56bc15bfd/000001.json",
-          ".pose/review-attempts/8298b6e6c357c2a56bc15bfd/000001.result.json",
-          ".pose/review-attempts/ecd57641ffc05db66644952c/000001.json",
-          ".pose/review-attempts/ecd57641ffc05db66644952c/000001.result.json",
-          ".pose/review-attestations/rva-4d6aaf335fc46993.json",
-          ".pose/review-bundles/rvb-18aeaa6c0a46a548.json",
-          ".pose/review-bundles/rvb-f627d25d86340cec.json",
-          ".pose/review-conclusions/rrn-311777f99bcc4f70.json",
-          ".pose/review-conclusions/rrn-c1d074e711285ff3.json",
-          ".pose/review-run-ledger/rrn-311777f99bcc4f70.json",
-          ".pose/review-run-ledger/rrn-c1d074e711285ff3.json",
-          ".pose/review-run-proofs/rrn-c1d074e711285ff3/rrp-055165d4dbd2cc7df6ef519678a10e7d700a5cd4c465ef1024a434c8da1d73a9.json",
-          ".pose/review-runs/rrn-311777f99bcc4f70.events.ndjson",
-          ".pose/review-runs/rrn-311777f99bcc4f70.json",
-          ".pose/review-runs/rrn-311777f99bcc4f70.transcript",
-          ".pose/review-runs/rrn-c1d074e711285ff3.events.ndjson",
-          ".pose/review-runs/rrn-c1d074e711285ff3.json",
-          ".pose/review-runs/rrn-c1d074e711285ff3.transcript",
-          ".pose/specs/2026-11-17-pose-review-guard-reads-the-integrity-graph-in-place.md",
-          ".pose/starts/pose-review-guard-reads-the-integrity-graph-in-place.json",
-          "pose-mcp/internal/pose/delivery_integrity.go",
-          "pose-mcp/internal/pose/review_dispatch_unix.go",
-          "pose-mcp/internal/pose/review_guard_in_place_test.go",
-          "pose-mcp/internal/pose/review_guard_probe_fixture_test.go",
-          "pose-mcp/internal/pose/review_guard_probe_unix_test.go",
-          "pose-mcp/internal/pose/review_policy_baseline.go"
-        ]
-      }
-    },
-    {
       "id": "cs-e0b1ad66b5e8",
       "spec": "parse-the-delivery-index-once-per-content",
       "selector": "trailers:parse-the-delivery-index-once-per-content",
@@ -288901,6 +288767,245 @@
           ".pose/state/technical-debt.json",
           "pose-mcp/internal/pose/review_authority_test.go",
           "pose-mcp/internal/pose/review_bundle.go"
+        ]
+      }
+    },
+    {
+      "id": "cs-ead6e5b3b68e",
+      "spec": "pose-review-guard-reads-the-integrity-graph-in-place",
+      "selector": "trailers:pose-review-guard-reads-the-integrity-graph-in-place",
+      "base": "e3e97e76ee1fea8cd270054698a4525c66e082be^",
+      "head": "5b3caf28666de6f27a02b2d8d518ec2304eddca2",
+      "resolved_base": "680799274ea014a44cb54808669ddf9ebcea0971",
+      "resolved_head": "5b3caf28666de6f27a02b2d8d518ec2304eddca2",
+      "commits": [
+        "e3e97e76ee1fea8cd270054698a4525c66e082be",
+        "2ad3f7bbae8aeea17c747221e5d7ff95e114c154",
+        "bea4b58d974ac532ded104831e26f9b083b1dbc2",
+        "c3b295b23b3dff11e1fcb8c43d1d3b764e25c320",
+        "123c26a029375ada3c6de9ed0d8d3e23acb39447",
+        "1414b98dd1ad8772cff5732a7a2984f5fd851bb4",
+        "fd75d410082a0db44f3a856dab906c251f5840f2",
+        "ae9d3a9db91ffee2decbbc4fa23fdb938695e856",
+        "6282ffcec7b3a7cebc57b49a2f44ef4d54f7df09",
+        "4e77589037bff10a20d223d7882a3c9d85bee533",
+        "f3f3b731edc0a77fe7ea1df46de5bb45e5b814f7",
+        "f0569d7e8371bb8ec1fa237c18b05ae5a44f3632",
+        "e6a0db90d57dac1512bce57a8f511efe0b237265",
+        "b4d70e697274eba1fa6e400399991c124678c83a",
+        "40019024deed61f74466cf49d64b2994b4b4f7c5",
+        "9a4d10e4718ff422c7ef66bb3e0bdc50c6c2ad4f",
+        "b7f9841bbd020d67d9a9f996aba1214e97417539",
+        "868d1c932340095674d6b7b7aaaaef00994241db",
+        "cd068da4b8b286628ea24716a75e06a2df357027",
+        "f0d11636f0858bd28af8d4f0a1987042b04bb7ac",
+        "743b0ebc24b5b61ce872c01eeb0085d44a578622",
+        "1ebf538d9de150f5936ea50d4ea83f48bd458997",
+        "5b3caf28666de6f27a02b2d8d518ec2304eddca2"
+      ],
+      "paths": [
+        {
+          "action": "created",
+          "path": ".pose/review-attempts/8298b6e6c357c2a56bc15bfd/000001.json"
+        },
+        {
+          "action": "created",
+          "path": ".pose/review-attempts/8298b6e6c357c2a56bc15bfd/000001.result.json"
+        },
+        {
+          "action": "created",
+          "path": ".pose/review-attempts/ecd57641ffc05db66644952c/000001.json"
+        },
+        {
+          "action": "created",
+          "path": ".pose/review-attempts/ecd57641ffc05db66644952c/000001.result.json"
+        },
+        {
+          "action": "created",
+          "path": ".pose/review-attestations/rva-4d6aaf335fc46993.json"
+        },
+        {
+          "action": "created",
+          "path": ".pose/review-bundles/rvb-18aeaa6c0a46a548.json"
+        },
+        {
+          "action": "created",
+          "path": ".pose/review-bundles/rvb-f627d25d86340cec.json"
+        },
+        {
+          "action": "created",
+          "path": ".pose/review-conclusions/rrn-311777f99bcc4f70.json"
+        },
+        {
+          "action": "created",
+          "path": ".pose/review-conclusions/rrn-c1d074e711285ff3.json"
+        },
+        {
+          "action": "created",
+          "path": ".pose/review-run-ledger/rrn-311777f99bcc4f70.json"
+        },
+        {
+          "action": "created",
+          "path": ".pose/review-run-ledger/rrn-c1d074e711285ff3.json"
+        },
+        {
+          "action": "created",
+          "path": ".pose/review-run-proofs/rrn-c1d074e711285ff3/rrp-055165d4dbd2cc7df6ef519678a10e7d700a5cd4c465ef1024a434c8da1d73a9.json"
+        },
+        {
+          "action": "created",
+          "path": ".pose/review-runs/rrn-311777f99bcc4f70.events.ndjson"
+        },
+        {
+          "action": "created",
+          "path": ".pose/review-runs/rrn-311777f99bcc4f70.json"
+        },
+        {
+          "action": "created",
+          "path": ".pose/review-runs/rrn-311777f99bcc4f70.transcript"
+        },
+        {
+          "action": "created",
+          "path": ".pose/review-runs/rrn-c1d074e711285ff3.events.ndjson"
+        },
+        {
+          "action": "created",
+          "path": ".pose/review-runs/rrn-c1d074e711285ff3.json"
+        },
+        {
+          "action": "created",
+          "path": ".pose/review-runs/rrn-c1d074e711285ff3.transcript"
+        },
+        {
+          "action": "created",
+          "path": ".pose/specs/2026-11-17-pose-review-guard-reads-the-integrity-graph-in-place.md"
+        },
+        {
+          "action": "created",
+          "path": ".pose/starts/pose-review-guard-reads-the-integrity-graph-in-place.json"
+        },
+        {
+          "action": "created",
+          "path": "pose-mcp/internal/pose/review_guard_in_place_test.go"
+        },
+        {
+          "action": "created",
+          "path": "pose-mcp/internal/pose/review_guard_probe_unix_test.go"
+        },
+        {
+          "action": "modified",
+          "path": ".pose/assessments/README.md"
+        },
+        {
+          "action": "modified",
+          "path": ".pose/assessments/consolidated.md"
+        },
+        {
+          "action": "modified",
+          "path": ".pose/assessments/docs-site.md"
+        },
+        {
+          "action": "modified",
+          "path": ".pose/assessments/mcp-enforce.md"
+        },
+        {
+          "action": "modified",
+          "path": ".pose/assessments/pose-mcp.md"
+        },
+        {
+          "action": "modified",
+          "path": ".pose/indexes/delivery-integrity.json"
+        },
+        {
+          "action": "modified",
+          "path": ".pose/indexes/generation.json"
+        },
+        {
+          "action": "modified",
+          "path": ".pose/indexes/spec-graph.json"
+        },
+        {
+          "action": "modified",
+          "path": ".pose/indexes/validation-matrix.json"
+        },
+        {
+          "action": "modified",
+          "path": ".pose/results/delivery-validation.json"
+        },
+        {
+          "action": "modified",
+          "path": ".pose/state/components/docs-site.json"
+        },
+        {
+          "action": "modified",
+          "path": ".pose/state/components/mcp-enforce.json"
+        },
+        {
+          "action": "modified",
+          "path": ".pose/state/components/pose-mcp.json"
+        },
+        {
+          "action": "modified",
+          "path": ".pose/state/project-state.md"
+        },
+        {
+          "action": "modified",
+          "path": "pose-mcp/internal/pose/delivery_integrity.go"
+        },
+        {
+          "action": "modified",
+          "path": "pose-mcp/internal/pose/review_dispatch_unix.go"
+        },
+        {
+          "action": "modified",
+          "path": "pose-mcp/internal/pose/review_policy_baseline.go"
+        }
+      ],
+      "diff_digest": "sha256:4f410677cbc0bab50c74161b3511ce6e97f30d6104cbf2e80a8914ff2af3bcb9",
+      "material_digest": "sha256:b55552fe581c821ea074036a6d7aa84e9cf1e198e8f764a4c51220db6c82f8a4",
+      "material_inputs": {
+        "names": [
+          ".pose/assessments/README.md",
+          ".pose/assessments/consolidated.md",
+          ".pose/assessments/docs-site.md",
+          ".pose/assessments/mcp-enforce.md",
+          ".pose/assessments/pose-mcp.md",
+          ".pose/closeout-plans/spec-pose-review-guard-reads-the-integrity-graph-in-place.json",
+          ".pose/indexes/delivery-integrity.json",
+          ".pose/indexes/generation.json",
+          ".pose/indexes/spec-graph.json",
+          ".pose/indexes/validation-matrix.json",
+          ".pose/results/delivery-validation.json",
+          ".pose/review-attempts/8298b6e6c357c2a56bc15bfd/000001.json",
+          ".pose/review-attempts/8298b6e6c357c2a56bc15bfd/000001.result.json",
+          ".pose/review-attempts/ecd57641ffc05db66644952c/000001.json",
+          ".pose/review-attempts/ecd57641ffc05db66644952c/000001.result.json",
+          ".pose/review-attestations/rva-4d6aaf335fc46993.json",
+          ".pose/review-bundles/rvb-18aeaa6c0a46a548.json",
+          ".pose/review-bundles/rvb-f627d25d86340cec.json",
+          ".pose/review-conclusions/rrn-311777f99bcc4f70.json",
+          ".pose/review-conclusions/rrn-c1d074e711285ff3.json",
+          ".pose/review-run-ledger/rrn-311777f99bcc4f70.json",
+          ".pose/review-run-ledger/rrn-c1d074e711285ff3.json",
+          ".pose/review-run-proofs/rrn-c1d074e711285ff3/rrp-055165d4dbd2cc7df6ef519678a10e7d700a5cd4c465ef1024a434c8da1d73a9.json",
+          ".pose/review-runs/rrn-311777f99bcc4f70.events.ndjson",
+          ".pose/review-runs/rrn-311777f99bcc4f70.json",
+          ".pose/review-runs/rrn-311777f99bcc4f70.transcript",
+          ".pose/review-runs/rrn-c1d074e711285ff3.events.ndjson",
+          ".pose/review-runs/rrn-c1d074e711285ff3.json",
+          ".pose/review-runs/rrn-c1d074e711285ff3.transcript",
+          ".pose/specs/2026-11-17-pose-review-guard-reads-the-integrity-graph-in-place.md",
+          ".pose/starts/pose-review-guard-reads-the-integrity-graph-in-place.json",
+          ".pose/state/components/docs-site.json",
+          ".pose/state/components/mcp-enforce.json",
+          ".pose/state/components/pose-mcp.json",
+          ".pose/state/project-state.md",
+          "pose-mcp/internal/pose/delivery_integrity.go",
+          "pose-mcp/internal/pose/review_dispatch_unix.go",
+          "pose-mcp/internal/pose/review_guard_in_place_test.go",
+          "pose-mcp/internal/pose/review_guard_probe_fixture_test.go",
+          "pose-mcp/internal/pose/review_guard_probe_unix_test.go",
+          "pose-mcp/internal/pose/review_policy_baseline.go"
         ]
       }
     },
