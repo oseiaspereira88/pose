@@ -1,0 +1,137 @@
+{
+  "safety": {
+    "schema_version": 1,
+    "profile": "legacy-trusted",
+    "platform": "linux/amd64",
+    "capabilities": {
+      "automatic-expiry": "unavailable",
+      "bounded-capture": "available",
+      "cpu-limit": "unavailable",
+      "credential-filesystem-isolation": "unavailable",
+      "environment-allowlist": "available",
+      "escaped-descendant-termination": "unavailable",
+      "filesystem-isolation": "unavailable",
+      "memory-limit": "unavailable",
+      "network-isolation": "unavailable",
+      "origin-isolation": "unavailable",
+      "parent-termination": "available",
+      "process-group-termination": "available",
+      "shared-git-isolation": "unavailable"
+    },
+    "limitations": [
+      "trusted local executable required; worktree is not a sandbox",
+      "outside writes, transient writes, shared Git and credential files are not isolated",
+      "no memory/CPU quota or control of descendants escaping the process group",
+      "cleanup filesystem calls remain subject to operating-system I/O latency",
+      "legacy compatibility: HOME retained; other ambient credentials excluded"
+    ],
+    "stream_bytes": 8388608,
+    "output_bytes": 65536,
+    "retained_bytes": 16777216,
+    "timeout_ms": 3600000,
+    "max_runs_per_bundle": 3,
+    "retention": "retain-evidence; ttl=0; no automatic deletion",
+    "capture_complete": true,
+    "runtime_id": "pose-review-run-227162585",
+    "operation": {
+      "schema_version": 1,
+      "operation": "review.dispatch.cleanup",
+      "scope": "spec:pose-read-view-audit-repeats-a-read-under-its-own-time",
+      "outcome": "completed",
+      "steps_run": [
+        {
+          "id": "cleanup",
+          "result": "done"
+        }
+      ],
+      "effects": [],
+      "resumable": false
+    }
+  },
+  "provenance": {
+    "execution_state": "started",
+    "planned_wire_digest": "sha256:abcbeacf83c129e02806ac88d35521a5b4755a10b6d73c2a1c8ba82e6d7f53ec",
+    "wire_bytes": 28050,
+    "wire_complete": true,
+    "schema_version": 1,
+    "project": "proj.pose-dist",
+    "audience": "proj.pose-dist",
+    "worktree_digest": "sha256:9c161dc895f6496d9f800581bef8673cc9123cda65951fa2d23b0cbdbc2bac41",
+    "trust": "executor-attested",
+    "implementation": {
+      "principal": "agent:anthropic/claude-opus-5-5",
+      "execution": "sha256:0eb880a4fc2ed87a379c949a567b1d3dfbd6b58b466f4755fcd363dd2b7fed98",
+      "vendor": "anthropic",
+      "model": "claude-opus-5-5"
+    },
+    "reviewer": {
+      "principal": "agent:openai/gpt-6.1-sol",
+      "vendor": "openai",
+      "model": "gpt-6.1-sol"
+    },
+    "config_digest": "sha256:637a9d88c40dbf75da8525db65c216ace591f828ef25c233358db1a99e70ee31",
+    "command_template_digest": "sha256:e3a23ff8a55e559e954d107a039277628bfc51faa58d523ad6101de7c375ad28",
+    "argv_digest": "sha256:dc46ad0857f0e8ef8756dbd008f726125cd0507293593b47cc4aeaf54cc76ee2",
+    "executable_digest": "sha256:e14fc83739c13c1074b12bd1acce4010c893c7f6fbfc1593b4a31d74cabb57af",
+    "template_version": "review-brief/7",
+    "wire_digest": "sha256:abcbeacf83c129e02806ac88d35521a5b4755a10b6d73c2a1c8ba82e6d7f53ec",
+    "notes_digest": "sha256:90430b6022d495619606670296c3f80f071d18bd96a91215c3bc8d7d39bc544b",
+    "raw_transcript_digest": "sha256:4736a9b84a9ca2a7c0845ed30e112f3ee23538fd5ea7abc7c9361aa8c11f69d5",
+    "raw_output_digest": "sha256:dfe7a676fc9e4039c41571786f740253d069e0ddc79bc6fac9d136249fc384aa",
+    "output_source": "file",
+    "output_complete": true
+  },
+  "session_digest": "sha256:0a02d91d154dc9282bc629c50b388cefeade38483756619252d2de724ecaa573",
+  "tree_digest": "sha256:7b2d95f48c567f50031794ea2522b6e8466db897bbe6fc619d4b4e70218d577e",
+  "brief_notes": "Round 1 review of spec pose-read-view-audit-repeats-a-read-under-its-own-time (an engine bugfix in the governance read view's final audit).\n\nWhat to judge (`pose-mcp/internal/pose/governance_read_view_git.go`, `governance_read_view_stream.go`): a captured Git command and a streamed Git read record the deadline of the context they ran under. The final audit used to repeat them under `context.WithDeadline(item.deadline)`, the absolute instant that read's deadline expired. `changeSetGitStream` streams every `git show --binary` of the delivery-integrity index under a 2-minute per-read deadline; pose-dist's index generation now takes about 135 s, so the audit repeated the first streams after their deadline, they failed with \"context deadline exceeded\", and `pose index` reported \"index inputs changed during generation\" three times in a row. Each observation now also records `timeout`, the time the read had (`auditTimeout(deadline, captured)`, at least 1 ms), and the audit repeats it under `context.WithTimeout(item.ctx, item.timeout)`. Judge: whether the timeout is measured from the right instant (capture start, before any queuing on the operation lock), whether repeating under a fresh timeout weakens any guarantee the absolute deadline gave (a deadline that also bounded the whole operation, cancellation of the caller), whether every audit path that repeats a deadline-bound read was changed (captured commands, streams, and any other place that copies `deadline`), and whether the shared audit byte budgets still bound the audit. Tests: `TestReadViewAuditRepeatsAReadUnderItsOwnTime` (a command and a stream captured under a 2 s deadline, audited 2.5 s later, report nothing; under the absolute deadline both are reported changed) and `TestAuditTimeoutIsTheTimeTheReadHad`. With the fix the clone's `pose index` wrote in 135 s.\n\nBuilding: this review runs under a read-only sandbox, so nothing can be built or written, not even a TMPDIR; do not try, and do not stop the review over it. The pipeline built the engine of the sealed commit and installed it as `pose` on PATH (`~/.local/bin/pose`); use that binary for read-only commands. It also ran `pose artifact-check --strict` and `pose surface-check --strict` against the sealed commit; their outputs are `/var/tmp/closeout/ac-at.out` and `/var/tmp/closeout/sc-at.out`. Dispose those tools from that evidence and from the code when a rerun fails for environment reasons. The package tests (`go test ./internal/pose ./internal/cli`) passed on the sealed code; judge the tests by reading them.\n\nDo NOT run `pose assess`, `pose state`, `pose index` or anything else that writes under `.pose/` or `.git/`; dispose assess-* tools from the sealed evidence and the code. Leave the worktree as you found it. Dispose the `validate` tools from the sealed evidence: the pipeline ran `pose validate --strict` on a clean clone of the sealed commit with a GitHub token (`.pose/results/delivery-validation.json`); a rerun in your sandbox fails for environment reasons and is not evidence about the code. End your final message with a `pose-draft` block. A finding object accepts exactly `id`, `severity`, `disposition`, `file`, `line`, `summary`, and for an accepted follow-up `action`, `owner`, `review_by`; put any rationale inside `summary`. Number review findings from F1, without any round prefix. This is round 1: `prior_findings` is empty. Sweep the whole surface and report every finding in one pass, classified blocker vs follow-up.\n",
+  "ledger_version": 1,
+  "attempt_id": "rat-06afd308988970fef093eafd8fa067d909e9ed70180643b51f577d49e307882f",
+  "schema_version": 1,
+  "run_id": "rrn-8ff5d2cdc744047e",
+  "scope": "spec:pose-read-view-audit-repeats-a-read-under-its-own-time",
+  "bundle_id": "rvb-1c5e8d8d592bb096",
+  "bundle_digest": "sha256:1c5e8d8d592bb096a3ece08afd236069f0ae2df20aa23eddd33ea605a4a6d755",
+  "sealed_commit": "839f84ccbd31f91a21fb620542668bdb14e36167",
+  "kind": "review",
+  "brief_digest": "sha256:960793e2c7ae1ee7f211504456116354c37a288a55e27bb91e7ea2eec921032c",
+  "adapter": "sol-medium",
+  "vendor": "openai",
+  "model": "gpt-6.1-sol",
+  "started_at": "2026-11-17T01:57:25.0941464Z",
+  "ended_at": "2026-11-17T02:02:40.82234096Z",
+  "exit_code": 0,
+  "status": "completed",
+  "transcript_digest": "sha256:92cfd9b46a22166026bc31fdb447b30d12d23d23c914b9e7c8cb02ec3fb7bfdd",
+  "transcript_path": ".pose/review-runs/rrn-8ff5d2cdc744047e.transcript",
+  "output": "decision: changes-requested\n\n**F1 — medium, blocker:** [governance_read_view_audit_timeout_test.go:22](/var/tmp/pose-work-go/pose-review-run-227162585/worktree/pose-mcp/internal/pose/governance_read_view_audit_timeout_test.go:22) captures `ls-tree` using a full commit ID. `governancePureGitRead` classifies this as pure, and the final audit skips it. Consequently, the regression test passes even if the captured-command timeout fix is removed while the stream fix remains. Use a command that is replayed, such as `ls-tree … HEAD`, assert that replay occurred, and verify that independently reverting either audit path fails its test.\n\nThe production change otherwise matches R1–R3 and D1. Timeout measurement precedes mutex acquisition; cancellation detachment already existed; output comparisons and byte budgets remain unchanged. Total audit duration may grow with the sum of read timeouts, as the spec acknowledges.\n\nApplied the review workflow and backend Go, security, and documentation rules. Reviewed bundle `rvb-1c5e8d8d592bb096` and the specified range. Read-only artifact and surface checks completed; surface reported zero findings. Build/test conclusions use sealed evidence because this sandbox prohibits writes. The worktree remains clean.\n\n```pose-draft\n{\n  \"schema\": \"pose.review.draft/v1\",\n  \"decision\": \"changes-requested\",\n  \"findings\": [\n    {\n      \"id\": \"F1\",\n      \"severity\": \"medium\",\n      \"disposition\": \"blocker\",\n      \"file\": \"pose-mcp/internal/pose/governance_read_view_audit_timeout_test.go\",\n      \"line\": 22,\n      \"summary\": \"The captured-command regression case never exercises the changed audit path: snapshotBudgetRepo returns a full commit ID, so governancePureGitRead classifies ls-tree -r -z \u003cid\u003e as pure and governanceReadViewGitState.audit skips replay. The test therefore still passes if the captured-command WithTimeout change is independently reverted, provided the stream fix remains. This leaves R1/R2 without captured-command regression coverage and contradicts the validation claim that both reads are reported changed under the old deadline logic. Use a replayed command such as ls-tree against HEAD, assert that replay occurred, and demonstrate independent failure when either captured-command or stream timeout handling is reverted.\"\n    }\n  ],\n  \"criteria\": [\n    {\n      \"id\": \"assumption-integrity\",\n      \"disposition\": \"passed\",\n      \"evidence\": \"integration:pose-mcp/go/read-view-audit-repeats-a-read-under-its-own-time-integration\",\n      \"rationale\": \"Verified timeout measurement before locking, existing WithoutCancel behavior, and unchanged audit comparisons. The claim of captured-command regression coverage is disproved and recorded as F1. The reported 135-second index run was not independently reproduced; cumulative audit duration is an explicitly documented risk.\"\n    },\n    {\n      \"id\": \"backend-concurrency\",\n      \"disposition\": \"passed\",\n      \"evidence\": \"integration:pose-mcp/go/read-view-streamed-object-digests-integration\",\n      \"rationale\": \"Observation fields remain protected by existing mutexes and copied for audit. Timeout measurement occurs before locking. Caller cancellation detachment predates this patch.\"\n    },\n    {\n      \"id\": \"backend-contracts\",\n      \"disposition\": \"passed\",\n      \"evidence\": \"integration:pose-mcp/go/governance-read-view-integration\",\n      \"rationale\": \"Only internal observation state and replay contexts change; public signatures and serialized contracts remain unchanged.\"\n    },\n    {\n      \"id\": \"backend-input-errors\",\n      \"disposition\": \"passed\",\n      \"evidence\": \"integration:pose-mcp/go/read-view-streamed-object-digests-integration\",\n      \"rationale\": \"Output limits, budget errors, error identities, and unknown-producer handling remain intact; nonpositive computed timeout is clamped to one millisecond.\"\n    },\n    {\n      \"id\": \"backend-integration-impact\",\n      \"disposition\": \"passed\",\n      \"evidence\": \"integration:pose-mcp/go/governance-read-view-integration\",\n      \"rationale\": \"Both captured-command and streamed observations remain composed into the operation's final audit without provider or consumer contract changes.\"\n    },\n    {\n      \"id\": \"backend-observability\",\n      \"disposition\": \"passed\",\n      \"evidence\": \"integration:pose-mcp/go/read-view-streamed-object-digests-integration\",\n      \"rationale\": \"Existing changed-path digests, producer attribution, bounded error identities, and budget diagnostics are preserved.\"\n    },\n    {\n      \"id\": \"compatibility\",\n      \"disposition\": \"passed\",\n      \"evidence\": \"integration:pose-mcp/go/governance-read-view-integration\",\n      \"rationale\": \"Examined exported entrypoints and internal observation use. No CLI, MCP, or persisted schema changes occur. Reads without deadlines retain their existing audit behavior.\"\n    },\n    {\n      \"id\": \"correctness\",\n      \"disposition\": \"finding\",\n      \"evidence\": \"F1\"\n    },\n    {\n      \"id\": \"design-causality\",\n      \"disposition\": \"passed\",\n      \"evidence\": \"structure:design-a11cb7568fa7b4da\",\n      \"rationale\": \"D1 selects a fresh duration rather than an expired absolute deadline. Both replay sites now use WithTimeout with the deadline-minus-capture-start duration, satisfying the intended mechanism of R1 and preserving a positive bound under R3. No structural delta IDs were listed in the brief.\",\n      \"mappings\": []\n    },\n    {\n      \"id\": \"documentation\",\n      \"disposition\": \"finding\",\n      \"evidence\": \"F1\"\n    },\n    {\n      \"id\": \"operability\",\n      \"disposition\": \"passed\",\n      \"evidence\": \"integration:pose-mcp/go/read-view-streamed-object-digests-integration\",\n      \"rationale\": \"Reviewed replay error comparisons and budget diagnostics. Genuine differing or unprovable observations retain producer attribution and existing actionable diagnostics.\"\n    },\n    {\n      \"id\": \"requirements\",\n      \"disposition\": \"finding\",\n      \"evidence\": \"F1\"\n    },\n    {\n      \"id\": \"scope\",\n      \"disposition\": \"passed\",\n      \"evidence\": \"structure:design-a11cb7568fa7b4da\",\n      \"rationale\": \"The implementation is limited to timeout metadata and the two Git replay contexts, plus the declared regression test, validation registration, and start record. No unrelated production refactoring was introduced.\"\n    },\n    {\n      \"id\": \"security\",\n      \"disposition\": \"passed\",\n      \"evidence\": \"integration:pose-mcp/go/read-view-streamed-object-digests-integration\",\n      \"rationale\": \"Examined command execution, context construction, retained observations, digest comparisons, and byte admission. The patch introduces no new input or authority boundary, retains positive replay timeouts for deadline-bound reads, and does not weaken existing byte limits or expose additional output.\"\n    },\n    {\n      \"id\": \"solution-proportionality\",\n      \"disposition\": \"passed\",\n      \"evidence\": \"structure:design-a11cb7568fa7b4da\",\n      \"rationale\": \"A shared duration calculation and two replay substitutions are sufficient for D1. Raising capture deadlines merely delays recurrence, while removing replay deadlines loses boundedness. No speculative machinery was added. A future requirement for an overall audit deadline would require revisiting the per-read cumulative-duration design.\"\n    }\n  ],\n  \"tools\": [\n    {\n      \"id\": \"artifact-check\",\n      \"disposition\": \"passed\",\n      \"evidence\": \"command:pose artifact-check --spec pose-read-view-audit-repeats-a-read-under-its-own-time --strict\",\n      \"rationale\": \"Executed the read-only check and inspected /var/tmp/closeout/ac-at.out for the specified sealed range; existing orphan warnings are outside this change.\"\n    },\n    {\n      \"id\": \"assess-design\",\n      \"disposition\": \"not-used\",\n      \"evidence\": \"structure:design-a11cb7568fa7b4da\",\n      \"rationale\": \"Did not rerun an assessment that writes repository state. Reviewed the spec's R1-R3 and D1 against the implementation and sealed design evidence.\"\n    },\n    {\n      \"id\": \"assess-discover\",\n      \"component\": \"pose-mcp\",\n      \"disposition\": \"not-used\",\n      \"rationale\": \"Assessment writes are prohibited by the review boundaries. Inspected the affected component directly; no discovery rerun was attempted.\"\n    },\n    {\n      \"id\": \"assess-integrate\",\n      \"disposition\": \"not-used\",\n      \"evidence\": \"integration:pose-mcp/go/governance-read-view-integration\",\n      \"rationale\": \"Assessment writes are prohibited. Inspected operation-to-Git audit composition and used sealed integration evidence; no public inter-module contract changed.\"\n    },\n    {\n      \"id\": \"assess-tech-debt\",\n      \"disposition\": \"not-used\",\n      \"rationale\": \"Assessment writes are prohibited. Inspected the full implementation diff directly; no TODO, FIXME, stub, or panic marker was introduced.\"\n    },\n    {\n      \"id\": \"closeout-check\",\n      \"disposition\": \"deferred\",\n      \"rationale\": \"Requires the recorded conclusion and subsequent review completion; this review records no attestation.\"\n    },\n    {\n      \"id\": \"review-check\",\n      \"disposition\": \"deferred\",\n      \"rationale\": \"Cannot verify this review's attestation before POSE records its conclusion.\"\n    },\n    {\n      \"id\": \"suggest-review\",\n      \"component\": \"pose-mcp\",\n      \"disposition\": \"passed\",\n      \"evidence\": \"command:pose suggest review --path pose-mcp\",\n      \"rationale\": \"Executed; applied the selected review workflow, backend Go, security, and documentation rules.\"\n    },\n    {\n      \"id\": \"surface-check\",\n      \"disposition\": \"passed\",\n      \"evidence\": \"integration:pose-mcp/go/read-view-audit-repeats-a-read-under-its-own-time-integration\",\n      \"rationale\": \"Executed pose surface-check --spec pose-read-view-audit-repeats-a-read-under-its-own-time --strict: one target, 233 results, zero findings. Also inspected the saved sealed-check output.\"\n    },\n    {\n      \"id\": \"validate\",\n      \"disposition\": \"passed\",\n      \"evidence\": \"build:pose-mcp/go/build\",\n      \"rationale\": \"Disposed from the authorized sealed validation evidence and delivery-validation.json: strict validation reports 233 executed and 233 passed. Did not rerun build or tests in the read-only sandbox. F1 identifies a coverage defect despite the passing check.\"\n    },\n    {\n      \"id\": \"validate\",\n      \"component\": \"pose-mcp\",\n      \"disposition\": \"passed\",\n      \"evidence\": \"integration:pose-mcp/go/read-view-audit-repeats-a-read-under-its-own-time-integration\",\n      \"rationale\": \"Disposed from sealed module build, unit, and integration results. Read the registered tests and their passing result; no local write-producing execution was attempted. Passing execution does not resolve F1.\"\n    }\n  ]\n}\n```",
+  "policy_digest": "sha256:90ca53a44c8202b7914e12baa143afac5707221147f71fe6fa30a74bb415f911",
+  "purpose": "review",
+  "env_removed": [
+    "CLAUDE_CODE_BRIDGE_SESSION_ID",
+    "CLAUDE_CODE_CHILD_SESSION",
+    "CLAUDE_CODE_ENTRYPOINT",
+    "CLAUDE_CODE_EXECPATH",
+    "CLAUDE_CODE_MESSAGING_SOCKET",
+    "CLAUDE_CODE_MESSAGING_TOKEN",
+    "CLAUDE_CODE_SESSION_ATTENDED",
+    "CLAUDE_CODE_SESSION_ID",
+    "CLAUDE_EFFORT",
+    "CLAUDE_PID"
+  ],
+  "events": "codex-jsonl",
+  "events_digest": "sha256:ff4e81d6885c0f13a61b25d8876b9549f4033d6dc2c1c42e956da60c7e260707",
+  "routing": {
+    "requested": "sol-medium",
+    "implementation": {
+      "principal": "agent:anthropic/claude-opus-5-5",
+      "vendor": "anthropic",
+      "model": "claude-opus-5-5",
+      "execution_digest": "sha256:0eb880a4fc2ed87a379c949a567b1d3dfbd6b58b466f4755fcd363dd2b7fed98",
+      "source": "declared"
+    },
+    "implementation_from": "bundle",
+    "step": "explicit"
+  },
+  "independence_achieved": "different-vendor",
+  "round": 1
+}
