@@ -1,7 +1,7 @@
 {
   "schema_version": 2,
-  "input_digest": "sha256:7df4dc74655b8e3fe0497989b7d50971765c63b0d95c4556d47fa1e191fe7d67",
-  "provenance_digest": "sha256:50d8cdeb920fde8cde1847607e37a710e2c3df871942087127f83ff767c869c0",
+  "input_digest": "sha256:e16619b77f9674a925f2cda29d432bcc40b4221da2439c02526e13da7ab0fa4f",
+  "provenance_digest": "sha256:f01bb15a89d30c8be273ab5cd6bd48ccf47fc929f62e0d210f03b7e5f13c8956",
   "implied_edges": [
     "changes"
   ],
@@ -48481,14 +48481,6 @@
       }
     },
     {
-      "id": "change-set:cs-bcb0523551d5",
-      "type": "change-set",
-      "attributes": {
-        "diff_digest": "sha256:7584958583fa20e7f0a5384c2a819233c528a5dc9a68d526c288286825ff1151",
-        "selector": "trailers:pose-read-view-audit-repeats-a-read-under-its-own-time"
-      }
-    },
-    {
       "id": "change-set:cs-bcc74da28bde",
       "type": "change-set",
       "attributes": {
@@ -48902,6 +48894,14 @@
       "attributes": {
         "diff_digest": "sha256:46002b6590fa94c556314e4851a16babe97aa91cb36f4e64a924e229aeed9ed9",
         "selector": "trailers:pose-doctor-reports-unread-policy-keys"
+      }
+    },
+    {
+      "id": "change-set:cs-d9ab10a16756",
+      "type": "change-set",
+      "attributes": {
+        "diff_digest": "sha256:aa3dae30ade837a8f7106e73279cfba3fc36721946401989844e9fda4b2aef3d",
+        "selector": "trailers:pose-read-view-audit-repeats-a-read-under-its-own-time"
       }
     },
     {
@@ -127575,7 +127575,7 @@
     },
     {
       "from": "spec:pose-read-view-audit-repeats-a-read-under-its-own-time",
-      "to": "change-set:cs-bcb0523551d5",
+      "to": "change-set:cs-d9ab10a16756",
       "type": "observed-by"
     },
     {
@@ -265541,68 +265541,6 @@
       "diff_digest": "sha256:dde4124e87067545b1791f442e286dc8f8eb924e6180e771a4efdf8cadc876bf"
     },
     {
-      "id": "cs-bcb0523551d5",
-      "spec": "pose-read-view-audit-repeats-a-read-under-its-own-time",
-      "selector": "trailers:pose-read-view-audit-repeats-a-read-under-its-own-time",
-      "base": "06a41c7e5cfb45ea275e2f9b9ca80810a5f03a62^",
-      "head": "1a153f0dc0afa8c3586e777ea2ffddf916d3c8cf",
-      "resolved_base": "d49d3aeb4ed8daa2b44b2c46d8ce5536d39dc199",
-      "resolved_head": "1a153f0dc0afa8c3586e777ea2ffddf916d3c8cf",
-      "commits": [
-        "06a41c7e5cfb45ea275e2f9b9ca80810a5f03a62",
-        "41694842455f097255124cd555c8c681ed93ddca",
-        "1a153f0dc0afa8c3586e777ea2ffddf916d3c8cf"
-      ],
-      "paths": [
-        {
-          "action": "created",
-          "path": ".pose/specs/2026-11-17-pose-read-view-audit-repeats-a-read-under-its-own-time.md"
-        },
-        {
-          "action": "created",
-          "path": ".pose/starts/pose-read-view-audit-repeats-a-read-under-its-own-time.json"
-        },
-        {
-          "action": "created",
-          "path": "pose-mcp/internal/pose/governance_read_view_audit_timeout_test.go"
-        },
-        {
-          "action": "modified",
-          "path": ".pose/indexes/generation.json"
-        },
-        {
-          "action": "modified",
-          "path": ".pose/indexes/spec-graph.json"
-        },
-        {
-          "action": "modified",
-          "path": ".pose/indexes/validation-matrix.json"
-        },
-        {
-          "action": "modified",
-          "path": "pose-mcp/internal/pose/governance_read_view_git.go"
-        },
-        {
-          "action": "modified",
-          "path": "pose-mcp/internal/pose/governance_read_view_stream.go"
-        }
-      ],
-      "diff_digest": "sha256:7584958583fa20e7f0a5384c2a819233c528a5dc9a68d526c288286825ff1151",
-      "material_digest": "sha256:0c9b90f606ace0ac1d93d4cdbf645ed87a5d1294f72435479fe45b1575bbd148",
-      "material_inputs": {
-        "names": [
-          ".pose/indexes/generation.json",
-          ".pose/indexes/spec-graph.json",
-          ".pose/indexes/validation-matrix.json",
-          ".pose/specs/2026-11-17-pose-read-view-audit-repeats-a-read-under-its-own-time.md",
-          ".pose/starts/pose-read-view-audit-repeats-a-read-under-its-own-time.json",
-          "pose-mcp/internal/pose/governance_read_view_audit_timeout_test.go",
-          "pose-mcp/internal/pose/governance_read_view_git.go",
-          "pose-mcp/internal/pose/governance_read_view_stream.go"
-        ]
-      }
-    },
-    {
       "id": "cs-bcc74da28bde",
       "spec": "pose-agent-project-context",
       "selector": "trailers:pose-agent-project-context",
@@ -276394,6 +276332,74 @@
           "pose-mcp/internal/pose/review_bundle.go",
           "pose-mcp/internal/pose/review_bundle_test.go",
           "pose-mcp/internal/pose/review_closeout.go"
+        ]
+      }
+    },
+    {
+      "id": "cs-d9ab10a16756",
+      "spec": "pose-read-view-audit-repeats-a-read-under-its-own-time",
+      "selector": "trailers:pose-read-view-audit-repeats-a-read-under-its-own-time",
+      "base": "06a41c7e5cfb45ea275e2f9b9ca80810a5f03a62^",
+      "head": "a1e7d38d811a8f76fdb94d296721254acfdc0e5c",
+      "resolved_base": "d49d3aeb4ed8daa2b44b2c46d8ce5536d39dc199",
+      "resolved_head": "a1e7d38d811a8f76fdb94d296721254acfdc0e5c",
+      "commits": [
+        "06a41c7e5cfb45ea275e2f9b9ca80810a5f03a62",
+        "41694842455f097255124cd555c8c681ed93ddca",
+        "1a153f0dc0afa8c3586e777ea2ffddf916d3c8cf",
+        "a1e7d38d811a8f76fdb94d296721254acfdc0e5c"
+      ],
+      "paths": [
+        {
+          "action": "created",
+          "path": ".pose/specs/2026-11-17-pose-read-view-audit-repeats-a-read-under-its-own-time.md"
+        },
+        {
+          "action": "created",
+          "path": ".pose/starts/pose-read-view-audit-repeats-a-read-under-its-own-time.json"
+        },
+        {
+          "action": "created",
+          "path": "pose-mcp/internal/pose/governance_read_view_audit_timeout_test.go"
+        },
+        {
+          "action": "modified",
+          "path": ".pose/indexes/delivery-integrity.json"
+        },
+        {
+          "action": "modified",
+          "path": ".pose/indexes/generation.json"
+        },
+        {
+          "action": "modified",
+          "path": ".pose/indexes/spec-graph.json"
+        },
+        {
+          "action": "modified",
+          "path": ".pose/indexes/validation-matrix.json"
+        },
+        {
+          "action": "modified",
+          "path": "pose-mcp/internal/pose/governance_read_view_git.go"
+        },
+        {
+          "action": "modified",
+          "path": "pose-mcp/internal/pose/governance_read_view_stream.go"
+        }
+      ],
+      "diff_digest": "sha256:aa3dae30ade837a8f7106e73279cfba3fc36721946401989844e9fda4b2aef3d",
+      "material_digest": "sha256:0c9b90f606ace0ac1d93d4cdbf645ed87a5d1294f72435479fe45b1575bbd148",
+      "material_inputs": {
+        "names": [
+          ".pose/indexes/delivery-integrity.json",
+          ".pose/indexes/generation.json",
+          ".pose/indexes/spec-graph.json",
+          ".pose/indexes/validation-matrix.json",
+          ".pose/specs/2026-11-17-pose-read-view-audit-repeats-a-read-under-its-own-time.md",
+          ".pose/starts/pose-read-view-audit-repeats-a-read-under-its-own-time.json",
+          "pose-mcp/internal/pose/governance_read_view_audit_timeout_test.go",
+          "pose-mcp/internal/pose/governance_read_view_git.go",
+          "pose-mcp/internal/pose/governance_read_view_stream.go"
         ]
       }
     },
