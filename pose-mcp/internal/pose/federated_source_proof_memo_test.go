@@ -38,3 +38,31 @@ func TestFederatedSourceProofIsComputedOncePerOperation(t *testing.T) {
 		t.Fatalf("proofs without an operation: %d computations in total, want 3", got)
 	}
 }
+
+// Review F2: two scopes that differ only in a field of their identity (two
+// milestones of one roadmap) are proved apart, in either order.
+func TestFederatedSourceProofKeepsEveryIdentityApart(t *testing.T) {
+	f, _ := approvedByARunThenDone(t)
+	core := ArtifactRef{Project: "proj.source", Kind: "milestone", Slug: "program", Milestone: "core"}
+	later := ArtifactRef{Project: "proj.source", Kind: "milestone", Slug: "program", Milestone: "later"}
+	for _, order := range [][]ArtifactRef{{core, later}, {later, core}} {
+		scoped := ledgerOperation(t, f.store)
+		answers := map[string][]string{}
+		for _, identity := range order {
+			_, _, _, _, _, _, blockers := federatedSourceProof(scoped.fsys(), scoped, identity, "")
+			answers[identity.Milestone] = blockers
+		}
+		fresh := func(identity ArtifactRef) []string {
+			_, _, _, _, _, _, blockers := federatedSourceProof(f.store.fsys(), f.store, identity, "")
+			return blockers
+		}
+		for _, identity := range order {
+			if want := fresh(identity); !reflect.DeepEqual(answers[identity.Milestone], want) {
+				t.Fatalf("order %s first: milestone %s got %v, want %v", order[0].Milestone, identity.Milestone, answers[identity.Milestone], want)
+			}
+		}
+		if reflect.DeepEqual(answers["core"], answers["later"]) {
+			t.Fatalf("two milestones share an answer: %v", answers["core"])
+		}
+	}
+}

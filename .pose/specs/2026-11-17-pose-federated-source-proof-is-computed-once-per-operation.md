@@ -35,7 +35,7 @@ Com o ledger lido uma vez por operação e o commit-graph do Git, a primeira cha
 ## 2. Requirements
 
 ### Functional
-- R1: Within a read-view operation, the engine shall compute the proof of a federated dependency once per source root, identity and pinned revision, for each producer, and shall answer every later request of that operation from it.
+- R1: Within a read-view operation, the engine shall compute the proof of a federated dependency once per source root, complete artifact identity (every field, the milestone included) and pinned revision, for each producer, and shall answer every later request of that operation from it.
 - R2: Without a read-view operation, every request shall compute the proof.
 - R3: Each answer shall be a deep copy, so a caller that changes it does not change a later answer; a refused memo read shall be a blocker of the dependency, never a proof.
 
@@ -65,7 +65,7 @@ Com o ledger lido uma vez por operação e o commit-graph do Git, a primeira cha
 
 - capability:federated-source-proof-is-computed-once-per-operation module:pose-mcp profile:composed-capability entrypoint:pose-mcp/cmd/pose/main.go
 
-Composto em produção por toda aceitação federada de roadmap e de spec, no índice, no fechamento e na revisão. Check permanente `federated-source-proof-is-computed-once-per-operation-integration`, evidenceClass `integration`, required: `go test ./internal/pose -run 'TestFederatedSourceProofIsComputedOncePerOperation' -count=1`.
+Composto em produção por toda aceitação federada de roadmap e de spec, no índice, no fechamento e na revisão. Check permanente `federated-source-proof-is-computed-once-per-operation-integration`, evidenceClass `integration`, required: `go test ./internal/pose -run 'TestFederatedSourceProof' -count=1`.
 
 ### API/contract changes
 - Nenhuma.
@@ -125,7 +125,7 @@ Teste com uma operação real: três provas da mesma dependência computam uma v
 - Warnings: nenhum.
 
 ### Requirement trace
-- R1 [satisfied] test:TestFederatedSourceProofIsComputedOncePerOperation check:federated-source-proof-is-computed-once-per-operation-integration
+- R1 [satisfied] test:TestFederatedSourceProofIsComputedOncePerOperation test:TestFederatedSourceProofKeepsEveryIdentityApart check:federated-source-proof-is-computed-once-per-operation-integration
 - R2 [satisfied] test:TestFederatedSourceProofIsComputedOncePerOperation
 - R3 [satisfied] test:TestFederatedSourceProofIsComputedOncePerOperation
 
@@ -145,3 +145,8 @@ Não concluída.
 ### Follow-ups
 
 - [open] F1: reduzir o custo de cada prova distinta, medido no mesmo perfil: verificação dos filhos do bundle (cerca de 8,5 s), parse e cópia do grafo de integridade (cerca de 8 s e 5,5 s), carga e validação da política de delegação (cerca de 4,3 s) e a sonda de grupo de processos `verifyReviewProcessGroup` a cada verificação (cerca de 4,3 s). (owner:@pose-maintainers crit:medium review:2026-11-24)
+
+### Review
+
+Rodada 1 (run com a decisão changes-requested): F2, alto, bloqueador. A chave omitia `ArtifactRef.Milestone`, e dois marcos do mesmo roadmap, projeto e revisão dividiam a mesma prova: depois de provar `milestone:program/core`, um pedido por `milestone:program/later` recebia a aprovação, o recibo ou os bloqueadores de `core`. A chave passou a levar a identidade inteira (`fmt.Sprintf("%#v", identity)`, todos os campos, inclusive os que um JSON omitiria), e `TestFederatedSourceProofKeepsEveryIdentityApart` prova dois marcos nas duas ordens contra uma prova sem memo; reprova com a chave antiga.
+
