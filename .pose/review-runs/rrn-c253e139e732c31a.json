@@ -1,0 +1,137 @@
+{
+  "safety": {
+    "schema_version": 1,
+    "profile": "legacy-trusted",
+    "platform": "linux/amd64",
+    "capabilities": {
+      "automatic-expiry": "unavailable",
+      "bounded-capture": "available",
+      "cpu-limit": "unavailable",
+      "credential-filesystem-isolation": "unavailable",
+      "environment-allowlist": "available",
+      "escaped-descendant-termination": "unavailable",
+      "filesystem-isolation": "unavailable",
+      "memory-limit": "unavailable",
+      "network-isolation": "unavailable",
+      "origin-isolation": "unavailable",
+      "parent-termination": "available",
+      "process-group-termination": "available",
+      "shared-git-isolation": "unavailable"
+    },
+    "limitations": [
+      "trusted local executable required; worktree is not a sandbox",
+      "outside writes, transient writes, shared Git and credential files are not isolated",
+      "no memory/CPU quota or control of descendants escaping the process group",
+      "cleanup filesystem calls remain subject to operating-system I/O latency",
+      "legacy compatibility: HOME retained; other ambient credentials excluded"
+    ],
+    "stream_bytes": 8388608,
+    "output_bytes": 65536,
+    "retained_bytes": 16777216,
+    "timeout_ms": 3600000,
+    "max_runs_per_bundle": 3,
+    "retention": "retain-evidence; ttl=0; no automatic deletion",
+    "capture_complete": true,
+    "runtime_id": "pose-review-run-2131202955",
+    "operation": {
+      "schema_version": 1,
+      "operation": "review.dispatch.cleanup",
+      "scope": "spec:pose-federated-source-proof-is-computed-once-per-operation",
+      "outcome": "completed",
+      "steps_run": [
+        {
+          "id": "cleanup",
+          "result": "done"
+        }
+      ],
+      "effects": [],
+      "resumable": false
+    }
+  },
+  "provenance": {
+    "execution_state": "started",
+    "planned_wire_digest": "sha256:9a6e1085e3f1799bfbee28d4b88b5b96a2beedf9d91f6ecbd89bf7e389ae8750",
+    "wire_bytes": 28380,
+    "wire_complete": true,
+    "schema_version": 1,
+    "project": "proj.pose-dist",
+    "audience": "proj.pose-dist",
+    "worktree_digest": "sha256:9c161dc895f6496d9f800581bef8673cc9123cda65951fa2d23b0cbdbc2bac41",
+    "trust": "executor-attested",
+    "implementation": {
+      "principal": "agent:anthropic/claude-opus-5-5",
+      "execution": "sha256:0eb880a4fc2ed87a379c949a567b1d3dfbd6b58b466f4755fcd363dd2b7fed98",
+      "vendor": "anthropic",
+      "model": "claude-opus-5-5"
+    },
+    "reviewer": {
+      "principal": "agent:openai/gpt-6.1-sol",
+      "vendor": "openai",
+      "model": "gpt-6.1-sol"
+    },
+    "config_digest": "sha256:637a9d88c40dbf75da8525db65c216ace591f828ef25c233358db1a99e70ee31",
+    "command_template_digest": "sha256:e3a23ff8a55e559e954d107a039277628bfc51faa58d523ad6101de7c375ad28",
+    "argv_digest": "sha256:d5d022441c33dc8cd6985028fbb32de6b3af35f15e7131b735d4cdca77498ffc",
+    "executable_digest": "sha256:e14fc83739c13c1074b12bd1acce4010c893c7f6fbfc1593b4a31d74cabb57af",
+    "template_version": "review-brief/7",
+    "wire_digest": "sha256:9a6e1085e3f1799bfbee28d4b88b5b96a2beedf9d91f6ecbd89bf7e389ae8750",
+    "notes_digest": "sha256:65fa6344debf5024302400c3bea3bf35aa585f45aff81bfdd94b25f1c89f45b7",
+    "raw_transcript_digest": "sha256:b15d46c5887a117e2b31463d5494b520d20a7480876ba243aa2cceefa16e9a4d",
+    "raw_output_digest": "sha256:5212920a25558b494c7fd8f3bb6b317f7d7a6f0724bf9ca2dc0a141cf14d430b",
+    "output_source": "file",
+    "output_complete": true
+  },
+  "session_digest": "sha256:bafe51bb8c9af62c199c7ad57c07f4de0ef0b20d53da6d47ac4171201c4ed9d5",
+  "tree_digest": "sha256:4bf92605679b8546af28b24be894921a2550b56b0eff5342c3b735a5d698fe00",
+  "brief_notes": "Round 1 review of spec pose-federated-source-proof-is-computed-once-per-operation (an engine performance change with amendment D15 of ADR governance-reads-use-bounded-operation-scoped-views).\n\nWhat to judge (`pose-mcp/internal/pose/federated_acceptance.go`): `federatedSourceProof` now goes through `memoizedLedgerRead`, the per-operation memo of spec pose-review-ledger-is-read-once-per-operation (closed), keyed by source root, identity project/kind/slug and pinned revision, and the memo adds the `governanceReadViewFiles` producer and project, checks the view's lifecycle (`begin()`), and computes once per key under `sync.Once`. The former body is `computeFederatedSourceProof`; callers receive `deepCopyValue` of the result; a refused memo read is a `:source-proof-unavailable` blocker. A build instrumented on harne8 counted 64 proofs in one closeout call, 39 distinct; the call fell from 80 s to 60 s with the same terminal verdict. Judge: whether the proof is a function of the outer operation's reads only (does `source.GetCloseoutState` or `source.VerifyReviewBundle` open a nested operation whose reads would escape the outer view, or read through a Files other than `files`?), whether the key misses an input (the source store's own resolver or roots, `files` versus `source.fsys()`, the consumer's identity), whether a deep copy of `FederatedDependencyEvidence` is complete, and whether the new blocker for a refused read is sound. Test: `TestFederatedSourceProofIsComputedOncePerOperation` (one computation for three proofs in an operation, three outside it, isolated answers; fails without the memo and without the copy).\n\nBuilding: this review runs under a read-only sandbox, so nothing can be built or written, not even a TMPDIR; do not try, and do not stop the review over it. The pipeline built the engine of the sealed commit and installed it as `pose` on PATH (`~/.local/bin/pose`); use that binary for read-only commands. It also ran `pose artifact-check --strict` and `pose surface-check --strict` against the sealed commit; their outputs are `/var/tmp/closeout/ac-fp.out` and `/var/tmp/closeout/sc-fp.out`. Dispose those tools from that evidence and from the code when a rerun fails for environment reasons. The package tests (`go test ./internal/pose ./internal/cli`) passed on the sealed code; judge the tests by reading them.\n\nDo NOT run `pose assess`, `pose state`, `pose index` or anything else that writes under `.pose/` or `.git/`; dispose assess-* tools from the sealed evidence and the code. Leave the worktree as you found it. Dispose the `validate` tools from the sealed evidence: the pipeline ran `pose validate --strict` on a clean clone of the sealed commit with a GitHub token (`.pose/results/delivery-validation.json`); a rerun in your sandbox fails for environment reasons and is not evidence about the code. End your final message with a `pose-draft` block. A finding object accepts exactly `id`, `severity`, `disposition`, `file`, `line`, `summary`, and for an accepted follow-up `action`, `owner`, `review_by`; put any rationale inside `summary`. The spec has its own follow-up F1, so number review findings from F2, without any round prefix. End your final message with a `pose-draft` block. This is round 1: `prior_findings` is empty. Sweep the whole surface and report every finding in one pass, classified blocker vs follow-up.\n",
+  "ledger_version": 1,
+  "attempt_id": "rat-286b46d116b6bd665343283fd2d33451f12794cc002599a6ddfccd403afb71e2",
+  "schema_version": 1,
+  "run_id": "rrn-c253e139e732c31a",
+  "scope": "spec:pose-federated-source-proof-is-computed-once-per-operation",
+  "bundle_id": "rvb-9aa190b93939772e",
+  "bundle_digest": "sha256:9aa190b93939772e5dfa5ef0cbaa5bd886bcbde7f26bd6f5bfcdcb2872d8a3b1",
+  "sealed_commit": "24c7ad9ab4e86457dad72b2ca6372e2b2ef64be0",
+  "kind": "review",
+  "brief_digest": "sha256:6b586693903a2b558330bd305de673fcc9e15b82e4dc2acd50c00f768cd43af4",
+  "adapter": "sol-medium",
+  "vendor": "openai",
+  "model": "gpt-6.1-sol",
+  "started_at": "2026-11-17T05:17:18.582087894Z",
+  "ended_at": "2026-11-17T05:22:26.720942007Z",
+  "exit_code": 0,
+  "status": "completed",
+  "transcript_digest": "sha256:7dd49cf80175d546cd39ea421aec0c48505f951a4799879ab92e266dc2991952",
+  "transcript_path": ".pose/review-runs/rrn-c253e139e732c31a.transcript",
+  "output": "decision: changes-requested\n\n**F2 — high, blocker:** [federated_acceptance.go:721](/var/tmp/pose-work-go/pose-review-run-2131202955/worktree/pose-mcp/internal/pose/federated_acceptance.go:721) omits `identity.Milestone` from the memo key. Requests for `milestone:program/core` and `milestone:program/later` therefore collide within one operation. The second can inherit the first milestone’s approval, evidence or blockers without its own closeout being checked. Include the complete artifact identity and add a regression covering two milestones with different outcomes, in both request orders.\n\nThe outer read view is preserved through source-store resolution and nested closeout reads. The deep copy covers every current result field, and memo refusal fails closed.\n\nApplied the review workflow and Go, security, documentation and delivery-evidence rules. Both read-only artifact and surface checks exited successfully. Sealed validation reports 234 passing checks; tests were inspected but not rerun in this read-only environment. The reported performance improvement was not independently reproduced. The worktree remains unchanged.\n\n```pose-draft\n{\n  \"schema\": \"pose.review.draft/v1\",\n  \"decision\": \"changes-requested\",\n  \"findings\": [\n    {\n      \"id\": \"F2\",\n      \"severity\": \"high\",\n      \"disposition\": \"blocker\",\n      \"file\": \"pose-mcp/internal/pose/federated_acceptance.go\",\n      \"line\": 721,\n      \"summary\": \"The memo key omits ArtifactRef.Milestone. Two milestones of the same source roadmap, project and pinned revision share one key for a producer, although localFederatedScope uses Milestone to select distinct closeout and review states. After proving milestone:program/core, a request for milestone:program/later can receive core's approval, receipt, evidence or blockers without checking later. The resolver's done status does not prevent this: milestone status is derived from member statuses, while terminal closeout and review approval are checked by the skipped proof computation. This violates R1's identity boundary and can substitute one scope's proof for another. Include the complete artifact identity in the key and add regression coverage for two milestones with distinct outcomes in both request orders. The new test uses only one missing spec identity and cannot detect this collision.\"\n    }\n  ],\n  \"criteria\": [\n    {\n      \"id\": \"assumption-integrity\",\n      \"disposition\": \"passed\",\n      \"evidence\": \"structure:design-3c79d2e548257db0\",\n      \"rationale\": \"Examined operation ownership, source Store construction, resolver bindings, memo identity and copying. Roots.storeFor preserves the operation's Files, and nested GetCloseoutState joins an active view. The assumed completeness of the memo identity is disproved by F2. The harne8 timing remains implementer-reported evidence, not an independently reproduced measurement.\"\n    },\n    {\n      \"id\": \"backend-concurrency\",\n      \"disposition\": \"passed\",\n      \"evidence\": \"integration:pose-mcp/go/review-ledger-is-read-once-per-operation-integration\",\n      \"rationale\": \"The wrapper reuses sync.Map and sync.Once, with view.begin/end protecting lifecycle participation. Inspected existing concurrent-miss and finalized-operation tests. No new goroutines or cancellation ownership are introduced.\"\n    },\n    {\n      \"id\": \"backend-contracts\",\n      \"disposition\": \"passed\",\n      \"evidence\": \"integration:pose-mcp/go/federated-roadmap-acceptance-integration\",\n      \"rationale\": \"Public signatures and serialized CLI, MCP, manifest and evidence shapes remain unchanged. Incorrect proof selection is recorded separately as F2.\"\n    },\n    {\n      \"id\": \"backend-input-errors\",\n      \"disposition\": \"passed\",\n      \"evidence\": \"integration:pose-mcp/go/federated-roadmap-negative-gates\",\n      \"rationale\": \"Existing validation remains in place. A refused memo read returns no proof fields and a scope-qualified source-proof-unavailable blocker.\"\n    },\n    {\n      \"id\": \"backend-integration-impact\",\n      \"disposition\": \"finding\",\n      \"evidence\": \"F2\"\n    },\n    {\n      \"id\": \"backend-observability\",\n      \"disposition\": \"passed\",\n      \"evidence\": \"integration:pose-mcp/go/typed-diagnostics-integration\",\n      \"rationale\": \"Existing proof blockers remain visible through federated acceptance. The new lifecycle refusal supplies a bounded scope-qualified blocker without paths or sensitive material.\"\n    },\n    {\n      \"id\": \"compatibility\",\n      \"disposition\": \"passed\",\n      \"evidence\": \"integration:pose-mcp/go/cli-mcp-operation-results-integration\",\n      \"rationale\": \"Inspected the production caller and unchanged proof return signature. No public CLI, file or MCP schema migration is introduced; the behavioral defect is F2.\"\n    },\n    {\n      \"id\": \"correctness\",\n      \"disposition\": \"finding\",\n      \"evidence\": \"F2\"\n    },\n    {\n      \"id\": \"design-causality\",\n      \"disposition\": \"passed\",\n      \"evidence\": \"structure:design-3c79d2e548257db0\",\n      \"rationale\": \"D1 selects operation-scoped reuse because repeated consumers request proofs over the same captured inputs. Reusing the ledger memo avoids persistent-cache invalidation and preserves audit participation. The chosen mechanism addresses duplicate computation, but its implemented identity key is incomplete as recorded in F2.\",\n      \"mappings\": [\n        {\n          \"delta\": \"SD-adff4c0b\",\n          \"basis\": \"D1\",\n          \"disposition\": \"mapped\",\n          \"rationale\": \"ADR amendment D15 records D1's choice to reuse source proofs within an operation, partition by producer and return isolated copies, implementing the strategy required by R1-R3.\"\n        }\n      ]\n    },\n    {\n      \"id\": \"documentation\",\n      \"disposition\": \"passed\",\n      \"evidence\": \"structure:design-3c79d2e548257db0\",\n      \"rationale\": \"Examined the spec, ADR D15 and validation-matrix addition. They describe the intended operation lifetime, producer partitioning and copy behavior; the registered test exists. The spec explicitly acknowledges the absence of a proof-specific finalized-view test.\"\n    },\n    {\n      \"id\": \"operability\",\n      \"disposition\": \"passed\",\n      \"evidence\": \"integration:pose-mcp/go/federated-roadmap-negative-gates\",\n      \"rationale\": \"Existing dependency blockers and resolution-state propagation remain intact. A lifecycle refusal cannot become successful evidence. No new deployment, configuration or recovery procedure is required.\"\n    },\n    {\n      \"id\": \"requirements\",\n      \"disposition\": \"finding\",\n      \"evidence\": \"F2\"\n    },\n    {\n      \"id\": \"scope\",\n      \"disposition\": \"passed\",\n      \"evidence\": \"structure:design-3c79d2e548257db0\",\n      \"rationale\": \"The source change is confined to the proof wrapper, its extracted computation, a regression test and declared governance artifacts. It follows the approved refactor scope without introducing persistent caching or optimizing distinct-proof internals.\"\n    },\n    {\n      \"id\": \"security\",\n      \"disposition\": \"finding\",\n      \"evidence\": \"F2\"\n    },\n    {\n      \"id\": \"solution-proportionality\",\n      \"disposition\": \"passed\",\n      \"evidence\": \"structure:design-3c79d2e548257db0\",\n      \"rationale\": \"The existing operation memo plus a result container and deep copy is a small sufficient approach; no new cache service, persistent format or speculative extension is added. Reuse would cease to be valid if relevant bindings or proof inputs varied outside the captured operation. F2 requires completing the identity boundary, not replacing this design.\"\n    }\n  ],\n  \"tools\": [\n    {\n      \"id\": \"artifact-check\",\n      \"disposition\": \"passed\",\n      \"evidence\": \"command:pose artifact-check --spec pose-federated-source-proof-is-computed-once-per-operation --strict --json\",\n      \"rationale\": \"Ran read-only and exited zero. Also inspected the supplied artifact-check output; repository-wide orphan warnings do not establish an additional defect in this change.\"\n    },\n    {\n      \"id\": \"assess-design\",\n      \"disposition\": \"not-used\",\n      \"rationale\": \"Did not rerun assessment producers in the read-only worktree. Inspected sealed structure:design-3c79d2e548257db0, D1, ADR D15 and the implementation directly.\"\n    },\n    {\n      \"id\": \"assess-discover\",\n      \"component\": \"pose-mcp\",\n      \"disposition\": \"not-used\",\n      \"rationale\": \"Discovery may write assessment artifacts. Component scope and production composition were examined from the supplied plan, source and sealed integration evidence.\"\n    },\n    {\n      \"id\": \"assess-integrate\",\n      \"disposition\": \"not-used\",\n      \"rationale\": \"Did not invoke an assessment producer under the no-write boundary. Traced the source-store, resolver and consumer paths directly and examined sealed federated acceptance integration evidence.\"\n    },\n    {\n      \"id\": \"assess-tech-debt\",\n      \"disposition\": \"not-used\",\n      \"rationale\": \"Did not invoke an assessment producer under the no-write boundary. Searched the changed implementation and test for TODO, FIXME, stub and panic markers; none were present. The spec's existing F1 remains outside this change.\"\n    },\n    {\n      \"id\": \"closeout-check\",\n      \"disposition\": \"deferred\",\n      \"rationale\": \"Completion depends on a recorded, verified review conclusion. This independent review does not record an attestation, and F2 blocks approval.\"\n    },\n    {\n      \"id\": \"review-check\",\n      \"disposition\": \"deferred\",\n      \"rationale\": \"Requires the completed attestation that POSE records after consuming this draft; it cannot pass beforehand.\"\n    },\n    {\n      \"id\": \"suggest-review\",\n      \"component\": \"pose-mcp\",\n      \"disposition\": \"passed\",\n      \"evidence\": \"command:pose suggest review --path pose-mcp\",\n      \"rationale\": \"Ran successfully and applied the selected review workflow, security, documentation-style and backend-go rules.\"\n    },\n    {\n      \"id\": \"surface-check\",\n      \"disposition\": \"passed\",\n      \"evidence\": \"integration:pose-mcp/go/federated-source-proof-is-computed-once-per-operation-integration\",\n      \"rationale\": \"Ran pose surface-check --spec pose-federated-source-proof-is-computed-once-per-operation --strict --json read-only and exited zero. The supplied surface output reports one target, 234 results and zero findings. Reachability does not prove the missing milestone-key isolation.\"\n    },\n    {\n      \"id\": \"validate\",\n      \"disposition\": \"passed\",\n      \"evidence\": \"unit:pose-mcp/go/test\",\n      \"rationale\": \"Disposed from the sealed strict validation execution and inspected delivery-validation.json: 234 executed, 234 passed, zero failed, errored or skipped. Did not rerun build or test producers in the read-only environment.\"\n    },\n    {\n      \"id\": \"validate\",\n      \"component\": \"pose-mcp\",\n      \"disposition\": \"passed\",\n      \"evidence\": \"integration:pose-mcp/go/federated-source-proof-is-computed-once-per-operation-integration\",\n      \"rationale\": \"The sealed strict execution includes the affected module and its new required check, recorded as passing. Inspected the test and supporting memo tests directly. Their passing outcomes do not cover distinct milestone identities.\"\n    }\n  ]\n}\n```",
+  "policy_digest": "sha256:90ca53a44c8202b7914e12baa143afac5707221147f71fe6fa30a74bb415f911",
+  "purpose": "review",
+  "env_removed": [
+    "CLAUDE_CODE_BRIDGE_SESSION_ID",
+    "CLAUDE_CODE_CHILD_SESSION",
+    "CLAUDE_CODE_ENTRYPOINT",
+    "CLAUDE_CODE_EXECPATH",
+    "CLAUDE_CODE_MESSAGING_SOCKET",
+    "CLAUDE_CODE_MESSAGING_TOKEN",
+    "CLAUDE_CODE_SESSION_ATTENDED",
+    "CLAUDE_CODE_SESSION_ID",
+    "CLAUDE_EFFORT",
+    "CLAUDE_PID"
+  ],
+  "events": "codex-jsonl",
+  "events_digest": "sha256:c3e98f210a845d8f93fae598ce0c28e3c4cbcc3ea65b6c24a486f541d6184c21",
+  "routing": {
+    "requested": "sol-medium",
+    "implementation": {
+      "principal": "agent:anthropic/claude-opus-5-5",
+      "vendor": "anthropic",
+      "model": "claude-opus-5-5",
+      "execution_digest": "sha256:0eb880a4fc2ed87a379c949a567b1d3dfbd6b58b466f4755fcd363dd2b7fed98",
+      "source": "declared"
+    },
+    "implementation_from": "bundle",
+    "step": "explicit"
+  },
+  "independence_achieved": "different-vendor",
+  "round": 1
+}

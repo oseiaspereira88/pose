@@ -1,0 +1,214 @@
+{
+  "run": {
+    "run_id": "rrn-c253e139e732c31a",
+    "proof_id": "rrp-9c123a2b199fb0db3de91b6f80c7bb0f5563af69e08027cc460cfe3bddbb83a9"
+  },
+  "schema_version": 1,
+  "attestation_id": "rva-28c4a4d1fdd5d373",
+  "bundle_id": "rvb-9aa190b93939772e",
+  "bundle_digest": "sha256:9aa190b93939772e5dfa5ef0cbaa5bd886bcbde7f26bd6f5bfcdcb2872d8a3b1",
+  "reviewer": "agent:openai/gpt-6.1-sol",
+  "decision": "changes-requested",
+  "criteria": [
+    {
+      "id": "assumption-integrity",
+      "disposition": "passed",
+      "evidence": "structure:design-3c79d2e548257db0",
+      "rationale": "Examined operation ownership, source Store construction, resolver bindings, memo identity and copying. Roots.storeFor preserves the operation's Files, and nested GetCloseoutState joins an active view. The assumed completeness of the memo identity is disproved by F2. The harne8 timing remains implementer-reported evidence, not an independently reproduced measurement."
+    },
+    {
+      "id": "backend-concurrency",
+      "disposition": "passed",
+      "evidence": "integration:pose-mcp/go/review-ledger-is-read-once-per-operation-integration",
+      "rationale": "The wrapper reuses sync.Map and sync.Once, with view.begin/end protecting lifecycle participation. Inspected existing concurrent-miss and finalized-operation tests. No new goroutines or cancellation ownership are introduced."
+    },
+    {
+      "id": "backend-contracts",
+      "disposition": "passed",
+      "evidence": "integration:pose-mcp/go/federated-roadmap-acceptance-integration",
+      "rationale": "Public signatures and serialized CLI, MCP, manifest and evidence shapes remain unchanged. Incorrect proof selection is recorded separately as F2."
+    },
+    {
+      "id": "backend-input-errors",
+      "disposition": "passed",
+      "evidence": "integration:pose-mcp/go/federated-roadmap-negative-gates",
+      "rationale": "Existing validation remains in place. A refused memo read returns no proof fields and a scope-qualified source-proof-unavailable blocker."
+    },
+    {
+      "id": "backend-integration-impact",
+      "disposition": "finding",
+      "evidence": "F2"
+    },
+    {
+      "id": "backend-observability",
+      "disposition": "passed",
+      "evidence": "integration:pose-mcp/go/typed-diagnostics-integration",
+      "rationale": "Existing proof blockers remain visible through federated acceptance. The new lifecycle refusal supplies a bounded scope-qualified blocker without paths or sensitive material."
+    },
+    {
+      "id": "compatibility",
+      "disposition": "passed",
+      "evidence": "integration:pose-mcp/go/cli-mcp-operation-results-integration",
+      "rationale": "Inspected the production caller and unchanged proof return signature. No public CLI, file or MCP schema migration is introduced; the behavioral defect is F2."
+    },
+    {
+      "id": "correctness",
+      "disposition": "finding",
+      "evidence": "F2"
+    },
+    {
+      "id": "design-causality",
+      "disposition": "passed",
+      "evidence": "structure:design-3c79d2e548257db0",
+      "rationale": "D1 selects operation-scoped reuse because repeated consumers request proofs over the same captured inputs. Reusing the ledger memo avoids persistent-cache invalidation and preserves audit participation. The chosen mechanism addresses duplicate computation, but its implemented identity key is incomplete as recorded in F2.",
+      "mappings": [
+        {
+          "delta": "SD-adff4c0b",
+          "basis": "D1",
+          "disposition": "mapped",
+          "rationale": "ADR amendment D15 records D1's choice to reuse source proofs within an operation, partition by producer and return isolated copies, implementing the strategy required by R1-R3."
+        }
+      ]
+    },
+    {
+      "id": "documentation",
+      "disposition": "passed",
+      "evidence": "structure:design-3c79d2e548257db0",
+      "rationale": "Examined the spec, ADR D15 and validation-matrix addition. They describe the intended operation lifetime, producer partitioning and copy behavior; the registered test exists. The spec explicitly acknowledges the absence of a proof-specific finalized-view test."
+    },
+    {
+      "id": "operability",
+      "disposition": "passed",
+      "evidence": "integration:pose-mcp/go/federated-roadmap-negative-gates",
+      "rationale": "Existing dependency blockers and resolution-state propagation remain intact. A lifecycle refusal cannot become successful evidence. No new deployment, configuration or recovery procedure is required."
+    },
+    {
+      "id": "requirements",
+      "disposition": "finding",
+      "evidence": "F2"
+    },
+    {
+      "id": "scope",
+      "disposition": "passed",
+      "evidence": "structure:design-3c79d2e548257db0",
+      "rationale": "The source change is confined to the proof wrapper, its extracted computation, a regression test and declared governance artifacts. It follows the approved refactor scope without introducing persistent caching or optimizing distinct-proof internals."
+    },
+    {
+      "id": "security",
+      "disposition": "finding",
+      "evidence": "F2"
+    },
+    {
+      "id": "solution-proportionality",
+      "disposition": "passed",
+      "evidence": "structure:design-3c79d2e548257db0",
+      "rationale": "The existing operation memo plus a result container and deep copy is a small sufficient approach; no new cache service, persistent format or speculative extension is added. Reuse would cease to be valid if relevant bindings or proof inputs varied outside the captured operation. F2 requires completing the identity boundary, not replacing this design."
+    }
+  ],
+  "tools": [
+    {
+      "id": "artifact-check",
+      "disposition": "passed",
+      "evidence": "command:pose artifact-check --spec pose-federated-source-proof-is-computed-once-per-operation --strict --json",
+      "rationale": "Ran read-only and exited zero. Also inspected the supplied artifact-check output; repository-wide orphan warnings do not establish an additional defect in this change."
+    },
+    {
+      "id": "assess-design",
+      "disposition": "not-used",
+      "rationale": "Did not rerun assessment producers in the read-only worktree. Inspected sealed structure:design-3c79d2e548257db0, D1, ADR D15 and the implementation directly."
+    },
+    {
+      "id": "assess-discover",
+      "component": "pose-mcp",
+      "disposition": "not-used",
+      "rationale": "Discovery may write assessment artifacts. Component scope and production composition were examined from the supplied plan, source and sealed integration evidence."
+    },
+    {
+      "id": "assess-integrate",
+      "disposition": "not-used",
+      "rationale": "Did not invoke an assessment producer under the no-write boundary. Traced the source-store, resolver and consumer paths directly and examined sealed federated acceptance integration evidence."
+    },
+    {
+      "id": "assess-tech-debt",
+      "disposition": "not-used",
+      "rationale": "Did not invoke an assessment producer under the no-write boundary. Searched the changed implementation and test for TODO, FIXME, stub and panic markers; none were present. The spec's existing F1 remains outside this change."
+    },
+    {
+      "id": "closeout-check",
+      "disposition": "deferred",
+      "rationale": "Completion depends on a recorded, verified review conclusion. This independent review does not record an attestation, and F2 blocks approval."
+    },
+    {
+      "id": "review-check",
+      "disposition": "deferred",
+      "rationale": "Requires the completed attestation that POSE records after consuming this draft; it cannot pass beforehand."
+    },
+    {
+      "id": "suggest-review",
+      "component": "pose-mcp",
+      "disposition": "passed",
+      "evidence": "command:pose suggest review --path pose-mcp",
+      "rationale": "Ran successfully and applied the selected review workflow, security, documentation-style and backend-go rules."
+    },
+    {
+      "id": "surface-check",
+      "disposition": "passed",
+      "evidence": "integration:pose-mcp/go/federated-source-proof-is-computed-once-per-operation-integration",
+      "rationale": "Ran pose surface-check --spec pose-federated-source-proof-is-computed-once-per-operation --strict --json read-only and exited zero. The supplied surface output reports one target, 234 results and zero findings. Reachability does not prove the missing milestone-key isolation."
+    },
+    {
+      "id": "validate",
+      "disposition": "passed",
+      "evidence": "unit:pose-mcp/go/test",
+      "rationale": "Disposed from the sealed strict validation execution and inspected delivery-validation.json: 234 executed, 234 passed, zero failed, errored or skipped. Did not rerun build or test producers in the read-only environment."
+    },
+    {
+      "id": "validate",
+      "component": "pose-mcp",
+      "disposition": "passed",
+      "evidence": "integration:pose-mcp/go/federated-source-proof-is-computed-once-per-operation-integration",
+      "rationale": "The sealed strict execution includes the affected module and its new required check, recorded as passing. Inspected the test and supporting memo tests directly. Their passing outcomes do not cover distinct milestone identities."
+    }
+  ],
+  "evidence_refs": [
+    "F2",
+    "delegated-run:rrn-c253e139e732c31a",
+    "integration:pose-mcp/go/cli-mcp-operation-results-integration",
+    "integration:pose-mcp/go/federated-roadmap-acceptance-integration",
+    "integration:pose-mcp/go/federated-roadmap-negative-gates",
+    "integration:pose-mcp/go/review-ledger-is-read-once-per-operation-integration",
+    "integration:pose-mcp/go/typed-diagnostics-integration",
+    "structure:design-3c79d2e548257db0"
+  ],
+  "findings": [
+    {
+      "id": "F2",
+      "severity": "high",
+      "evidence": "file:pose-mcp/internal/pose/federated_acceptance.go:721",
+      "action": "The memo key omits ArtifactRef.Milestone. Two milestones of the same source roadmap, project and pinned revision share one key for a producer, although localFederatedScope uses Milestone to select distinct closeout and review states. After proving milestone:program/core, a request for milestone:program/later can receive core's approval, receipt, evidence or blockers without checking later. The resolver's done status does not prevent this: milestone status is derived from member statuses, while terminal closeout and review approval are checked by the skipped proof computation. This violates R1's identity boundary and can substitute one scope's proof for another. Include the complete artifact identity in the key and add regression coverage for two milestones with distinct outcomes in both request orders. The new test uses only one missing spec identity and cannot detect this collision.",
+      "disposition": "open"
+    }
+  ],
+  "authority": {
+    "schema_version": 1,
+    "project": "proj.pose-dist",
+    "bundle_digest": "sha256:9aa190b93939772e5dfa5ef0cbaa5bd886bcbde7f26bd6f5bfcdcb2872d8a3b1",
+    "principal": "agent:openai/gpt-6.1-sol",
+    "role": "agent",
+    "review_execution": "rrn-c253e139e732c31a",
+    "implementation_principal": "agent:anthropic/claude-opus-5-5",
+    "implementation_execution": "sha256:0eb880a4fc2ed87a379c949a567b1d3dfbd6b58b466f4755fcd363dd2b7fed98",
+    "issuer": "b34-local-executor",
+    "issued_at": "2026-11-17T05:22:28Z",
+    "audience": "proj.pose-dist"
+  },
+  "envelope": {
+    "issuer": "b34-local-executor",
+    "subject": "rvb-9aa190b93939772e",
+    "algorithm": "ed25519",
+    "public_key": "ck4sApdfePV2GT+hJyAYfJd2qLzeG55P8pevGR0bvZE=",
+    "signature": "MkXL3mm8jb2PkoubbClj9YdFxWWHpTVZsGLO7KkDkU1cJfnskMr/AGYssuT/69HgCjiEw74LUPanXZhov0MBCQ=="
+  },
+  "attested_at": "2026-11-17T05:22:28Z",
+  "path": ".pose/review-attestations/rva-28c4a4d1fdd5d373.json"
+}
