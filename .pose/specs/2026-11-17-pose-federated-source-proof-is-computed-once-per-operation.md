@@ -1,6 +1,6 @@
 ---
 slug: pose-federated-source-proof-is-computed-once-per-operation
-status: draft
+status: in-progress
 created_at: 2026-11-17
 completed_at:        # stamped on the transition to status: done
 supersedes:          # slug of the superseded spec (when applicable)
