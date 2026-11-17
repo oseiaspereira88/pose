@@ -1,8 +1,8 @@
 ---
 slug: pose-git-snapshot-budget-scales-with-the-tree
-status: in-progress
+status: done
 created_at: 2026-11-16
-completed_at:        # stamped on the transition to status: done
+completed_at: 2026-11-17
 supersedes:          # slug of the superseded spec (when applicable)
 depends_on:          # prerequisites, inline list: other-spec, milestone:<roadmap>/<id>, roadmap:<slug>
 remediates:          # optional explicit links: spec:slug@defect-fix, finding:rva-<16hex>/F1@revert (never inferred from depends_on)
