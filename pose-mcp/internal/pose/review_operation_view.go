@@ -147,6 +147,12 @@ func (s Store) WithReviewOperationView(run func(Store)) error {
 	keyable := reflect.ValueOf(baseFiles).Comparable()
 	base, readView := s.beginGovernanceReadView()
 	shared := base.withGovernanceReadView(readView, "review-operation")
+	if keyable && shared.FederatedResolver != nil && shared.FederatedResolver.Roots != nil {
+		// The old snapshots were dropped with the previous read view. Allocate
+		// new ones over this operation before binding its resolver identity.
+		resolver := shared.FederatedResolver.WithSpecSnapshots()
+		shared.FederatedResolver = &resolver
+	}
 	view := &reviewOperationView{root: filepath.Clean(shared.Root), files: shared.fsys(),
 		project: shared.FederatedProjectID, resolver: shared.FederatedResolver,
 		maxRecords: 10000, maxInputBytes: 128 * 1024 * 1024, maxRetainedText: 8 * 1024 * 1024}
@@ -667,6 +673,10 @@ func (s Store) WithReviewScopeOperationView(run func(Store) error) error {
 	}
 	base, readView := base.beginGovernanceReadView()
 	shared := base.withGovernanceReadView(readView, "review-operation")
+	if shared.FederatedResolver != nil && shared.FederatedResolver.Roots != nil {
+		resolver := shared.FederatedResolver.WithSpecSnapshots()
+		shared.FederatedResolver = &resolver
+	}
 	if !sameStringMap(parent.scopeRoots, readView.operation.initialRoots) || !sameBoolMap(parent.scopeConflicts, readView.operation.initialConflicts) {
 		readView.markUnknown("review-operation", "scope authorized root vector differs from coordinator")
 		return errors.Join(errGovernanceReadViewOutsideRoot, reviewOperationGovernanceAuditError(readView.audit(), readView, nil))

@@ -2591,6 +2591,8 @@ func (s Store) withoutGovernanceReadView() Store {
 		s.FederatedResolver = &resolver
 	}
 	s.specs = nil
+	s.doctorCloseoutMemo = nil
+	s.closeoutTrace = nil
 	s.reviewView = nil
 	s.reviewReuse = nil
 	s.indexPin = nil
@@ -2607,6 +2609,8 @@ func unwrapGovernanceReadViewFiles(files Files) (Files, bool) {
 
 func (s Store) withGovernanceReadView(view *governanceReadView, producer string) Store {
 	s.FS = view.filesFor(producer)
+	s.doctorCloseoutMemo = nil
+	s.closeoutTrace = nil
 	s.reviewView = nil
 	s.reviewReuse = nil
 	if s.FederatedResolver != nil {

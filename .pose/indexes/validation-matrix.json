@@ -312,6 +312,14 @@
       "replaceDefaultChecks": true,
       "checks": [
         {
+          "name": "doctor-federated-spec-capture-integration",
+          "program": "go",
+          "args": ["test", "-race", "./internal/pose", "-run", "TestDoctorResolverCatalogue|TestDoctorCloseoutMemo", "-count=1"],
+          "severity": "required",
+          "evidenceClass": "integration",
+          "timeoutSeconds": 600
+        },
+        {
           "name": "claude-sandboxed-review-integration",
           "program": "go",
           "args": [

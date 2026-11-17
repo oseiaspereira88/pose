@@ -56,6 +56,8 @@ type Store struct {
 	Root               string // project root containing .pose/
 	FederatedProjectID string
 	FederatedResolver  *ArtifactResolver
+	doctorCloseoutMemo *doctorCloseoutMemo
+	closeoutTrace      *doctorCloseoutTrace
 	// closeoutChain is the chain of local aggregate scopes whose terminal
 	// verification is asking for this one, through their dependency edges:
 	// a scope already in it is a cycle and is not proven closed.
@@ -324,7 +326,12 @@ func (s Store) ListSpecs(status, components string) ([]Spec, error) {
 	return specs, nil
 }
 
+// specCatalogueListed observes catalogue parsing; regression tests count CPU
+// work separately from read-view byte capture and final audit I/O.
+var specCatalogueListed = func(root string) {}
+
 func (s Store) listSpecs(status, components string) ([]Spec, error) {
+	specCatalogueListed(s.Root)
 	wantedStatus := splitStatusFilter(status)
 	wantedComponents := splitCommaFilter(components)
 	entries, err := s.fsys().ReadDir(s.specsDir())

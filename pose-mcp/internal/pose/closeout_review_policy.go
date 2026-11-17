@@ -342,6 +342,7 @@ func (s Store) AggregateDependencyClosed(resolver ArtifactResolver, localProject
 	scope := localFederatedScope(identity)
 	owner := s
 	if identity.Project != localProject {
+		s.closeoutTrace.visit("", true)
 		if resolver.Roots == nil {
 			return false, scope + " of " + identity.Project + " cannot be checked for its close: project roots are unavailable"
 		}
@@ -350,6 +351,10 @@ func (s Store) AggregateDependencyClosed(resolver ArtifactResolver, localProject
 			return false, scope + " of " + identity.Project + " cannot be checked for its close: " + projectResolutionState(err)
 		}
 		source = resolver.withSpecSnapshot(identity.Project, source)
+		// Crossing roots is deliberately not memoized: the local trace's scopes
+		// use the existing unqualified cycle semantics. A remote cut must also
+		// invalidate every enclosing local computation, including on errors.
+		source.closeoutTrace = s.closeoutTrace
 		source.closeoutChain = s.closeoutChain
 		owner = source
 	}
@@ -384,12 +389,13 @@ func (s Store) canonicalMember(raw string) (string, bool) {
 // review policy where status alone never closes it. A scope already asking
 // along the chain is a cycle and is not proven closed.
 func (s Store) localScopeClosed(scope string) bool {
+	s.closeoutTrace.visit(scope, false)
 	for _, asking := range s.closeoutChain {
 		if asking == scope {
+			s.closeoutTrace.visit(scope, true)
 			return false
 		}
 	}
-	s.closeoutChain = append(append([]string{}, s.closeoutChain...), scope)
 	closed, err := s.closedByReceipt(scope)
 	return err == nil && closed
 }
@@ -768,6 +774,10 @@ func (s Store) milestoneClosedBeforeAdoption(scope ScopeRef) bool {
 // members), local and remote. It is the one terminal projection reached,
 // roadmap-reached, attention and doctor ask.
 func (s Store) closedByReceipt(ref string) (bool, error) {
+	return s.doctorMemoClosedByReceipt(ref)
+}
+
+func (s Store) computeClosedByReceipt(ref string) (bool, error) {
 	if len(s.closeoutChain) == 0 || s.closeoutChain[len(s.closeoutChain)-1] != ref {
 		s.closeoutChain = append(append([]string{}, s.closeoutChain...), ref)
 	}
@@ -811,6 +821,7 @@ func (s Store) closeoutTerminalWithDependencies(ref string) bool {
 		s.FederatedProjectID, s.FederatedResolver = project, &resolver
 	}
 	state, err := s.getCloseoutState(ref, true)
+	s.traceDoctorCloseoutSources(state)
 	return err == nil && state.Terminal
 }
 
@@ -862,6 +873,33 @@ type CloseoutReviewOwing struct {
 // adopted closeout review policy, owe a review they do not have. A legacy
 // policy returns nothing. Close remains the authoritative gate.
 func (s Store) CloseoutReviewsOwed() ([]CloseoutReviewOwing, error) {
+	// Legacy instances have no generation to certify. Preserve their existing
+	// advisory diagnostic path instead of turning every owed review into an
+	// operation error merely because the index is unversioned.
+	if s.ReadIndexGeneration().Status == IndexGenerationLegacy {
+		return s.closeoutReviewsOwed()
+	}
+	// Every open milestone and roadmap is asked in one read-view operation:
+	// apart, each scope opened its own and the ledger, the federated proofs
+	// and the spec listing were read again for every one of them (spec
+	// pose-doctor-asks-every-closeout-in-one-operation).
+	var owing []CloseoutReviewOwing
+	var err error
+	viewErr := s.WithReviewOperationView(func(shared Store) {
+		shared.withDoctorCloseoutMemo(func(query Store) {
+			owing, err = query.closeoutReviewsOwed()
+		})
+	})
+	if err != nil {
+		return nil, err
+	}
+	if viewErr != nil {
+		return nil, viewErr
+	}
+	return owing, nil
+}
+
+func (s Store) closeoutReviewsOwed() ([]CloseoutReviewOwing, error) {
 	policy, _, err := s.loadReviewPolicy()
 	if err != nil || !policy.CloseoutReviewAdopted() {
 		return nil, err
