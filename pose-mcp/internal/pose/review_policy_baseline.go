@@ -87,34 +87,37 @@ func (s Store) resolveReviewGovernanceGuard(scope ScopeRef) reviewGovernanceGuar
 			}
 		}
 	}
-	graph, err := s.GetDeliveryIntegrity("")
+	// The guard only reads the graph: it reads the retained one in place and
+	// keeps nothing it reaches, only the strings it derives.
+	err = s.viewDeliveryIntegrity(func(graph DeliveryIntegrityGraph) {
+		sets := []*ChangeSet{}
+		for i := range graph.ChangeSets {
+			if wanted[graph.ChangeSets[i].Spec] {
+				sets = append(sets, &graph.ChangeSets[i])
+			}
+		}
+		sort.Slice(sets, func(i, j int) bool { return sets[i].ID < sets[j].ID })
+		for _, set := range sets {
+			for _, observed := range set.Paths {
+				for _, path := range []string{observed.Path, observed.OldPath, observed.NewPath} {
+					if path != "" && reviewGovernanceContractPath(path) {
+						guard.Paths = append(guard.Paths, filepath.ToSlash(filepath.Clean(path)))
+					}
+				}
+			}
+			// Mirror the review subject: the first attributed set, ordered by id,
+			// supplies the base. A scope with several sets is reviewed against the
+			// contract that governed before any of them landed.
+			if guard.Revision == "" {
+				guard.Revision = set.ResolvedBase
+			}
+		}
+	})
 	if err != nil {
 		if len(guard.Paths) > 0 {
 			guard.Reason = "delivery-integrity index is unavailable, so no base revision is attributable; run `pose index`"
 		}
 		return guard
-	}
-	sets := []ChangeSet{}
-	for _, set := range graph.ChangeSets {
-		if wanted[set.Spec] {
-			sets = append(sets, set)
-		}
-	}
-	sort.Slice(sets, func(i, j int) bool { return sets[i].ID < sets[j].ID })
-	for _, set := range sets {
-		for _, observed := range set.Paths {
-			for _, path := range []string{observed.Path, observed.OldPath, observed.NewPath} {
-				if path != "" && reviewGovernanceContractPath(path) {
-					guard.Paths = append(guard.Paths, filepath.ToSlash(filepath.Clean(path)))
-				}
-			}
-		}
-		// Mirror the review subject: the first attributed set, ordered by id,
-		// supplies the base. A scope with several sets is reviewed against the
-		// contract that governed before any of them landed.
-		if guard.Revision == "" {
-			guard.Revision = set.ResolvedBase
-		}
 	}
 	guard.Paths = uniqueSorted(guard.Paths)
 	if len(guard.Paths) > 0 && guard.Revision == "" {

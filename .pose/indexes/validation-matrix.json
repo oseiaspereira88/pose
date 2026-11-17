@@ -2421,6 +2421,13 @@
           "evidenceClass": "integration"
         },
         {
+          "name": "review-guard-reads-the-integrity-graph-in-place-integration",
+          "program": "go",
+          "args": ["test", "./internal/pose", "-run", "TestReviewGuardReadsTheIntegrityGraphInPlace|TestProcessGroupProbeKeepsASuccessForItsTTL|TestABMProtectedBaseline", "-count=1"],
+          "severity": "required",
+          "evidenceClass": "integration"
+        },
+        {
           "name": "federated-source-proof-is-computed-once-per-operation-integration",
           "program": "go",
           "args": ["test", "./internal/pose", "-run", "TestFederatedSourceProof", "-count=1"],

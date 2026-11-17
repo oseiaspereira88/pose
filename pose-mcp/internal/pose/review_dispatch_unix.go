@@ -11,6 +11,7 @@ import (
 	"runtime"
 	"strconv"
 	"strings"
+	"sync"
 	"syscall"
 	"time"
 )
@@ -114,7 +115,34 @@ func processGone(err error) bool {
 	return errors.Is(err, os.ErrNotExist) || errors.Is(err, syscall.ESRCH)
 }
 
-func reviewProcessGroupAvailable() error { return verifyReviewProcessGroup(-1) }
+// processGroupProbe keeps when the process inventory was last observed in
+// full. The probe asks whether this system lets the engine observe a process
+// group's termination; that does not change between two verifications of a
+// closeout, and the walk reads every /proc/<pid>/stat. A success holds for
+// processGroupProbeTTL; a failure is never kept (spec
+// pose-review-guard-reads-the-integrity-graph-in-place).
+var processGroupProbe struct {
+	sync.Mutex
+	ok time.Time
+}
+
+const processGroupProbeTTL = time.Minute
+
+// processGroupVerify is the walk the probe runs; tests count it.
+var processGroupVerify = verifyReviewProcessGroup
+
+func reviewProcessGroupAvailable() error {
+	processGroupProbe.Lock()
+	defer processGroupProbe.Unlock()
+	if !processGroupProbe.ok.IsZero() && time.Since(processGroupProbe.ok) < processGroupProbeTTL {
+		return nil
+	}
+	if err := processGroupVerify(-1); err != nil {
+		return err
+	}
+	processGroupProbe.ok = time.Now()
+	return nil
+}
 func openReviewRootFile(root *os.Root, path string) (*os.File, error) {
 	return root.OpenFile(path, os.O_RDONLY|syscall.O_NOFOLLOW|syscall.O_NONBLOCK, 0)
 }

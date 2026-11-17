@@ -543,6 +543,23 @@ func BuildDeliveryIntegrityWithReleases(specs []Spec, claims []ArtifactClaim, ch
 	return BuildDeliveryIntegrityWithReleasesIn(NativeFiles(), specs, claims, changeSets, tracked, policy, archived)
 }
 
+// viewDeliveryIntegrity hands fn the index's retained graph without copying
+// it, for callers that only read it: fn must neither modify nor keep the graph
+// or anything it reaches (spec pose-review-guard-reads-the-integrity-graph-in-place).
+func (s Store) viewDeliveryIntegrity(fn func(DeliveryIntegrityGraph)) error {
+	raw, _, err := s.ReadIndex("delivery-integrity.json")
+	if errors.Is(err, ErrIndexGenerationUnavailable) {
+		return err
+	}
+	if err != nil {
+		return fmt.Errorf("pose: delivery-integrity index not found; run `pose index`")
+	}
+	if err := viewDeliveryIntegrityGraphErr(s.Root, raw, fn); err != nil {
+		return deliveryIndexError(err)
+	}
+	return nil
+}
+
 func (s Store) GetDeliveryIntegrity(path string) (DeliveryIntegrityGraph, error) {
 	raw, _, err := s.ReadIndex("delivery-integrity.json")
 	if errors.Is(err, ErrIndexGenerationUnavailable) {
