@@ -8,6 +8,7 @@ depends_on: pose-review-ledger-is-read-once-per-operation
 priority: 0
 components: pose-mcp
 task_type: bugfix
+delivers: capability:doctor-asks-every-closeout-in-one-operation
 ---
 
 # Spec: Doctor compartilha as capturas federadas ao listar revisões de fechamento
@@ -52,6 +53,12 @@ Concluir o experimento CloseoutReviewsOwed já existente com snapshots do resolv
 - created: pose-mcp/internal/pose/doctor_closeout_memo_test.go
 - modified: pose-mcp/internal/pose/governance_read_view.go
 - modified: .pose/indexes/validation-matrix.json
+
+### Delivery targets
+
+- capability:doctor-asks-every-closeout-in-one-operation module:pose-mcp profile:composed-capability entrypoint:pose-mcp/cmd/pose/main.go
+
+O comando `pose doctor` chama a projeção de revisões pendentes. O check obrigatório `doctor-federated-spec-capture-integration` cobre a captura, a auditoria e o reuso dos predecessores.
 
 ### Risks
 O DAG ainda pode repetir verificações de fechamento por caminhos diferentes. Não memoizar isso só por ref: closeoutChain e ciclos fazem parte do contexto. A medição real deve distinguir melhoria de parse e conclusão dos checks F5. knowledge:adr-shared-worktree-runtime-review foi consultado como histórico; esta correção usa apenas reuso por operação já auditada e não ativa runtime/persistência.
@@ -99,14 +106,24 @@ Plano definido antes de aplicar o candidato ao checkout de entrega. O protótipo
 - Testes focados com `-race`: pass (69,618 s), seguidos pelos testes de relógio de fallback e corte de spec remota (pass em 1,597 s). Os três overlays negativos reprovam por assertiva, não por build.
 - O protótipo só com snapshots excedeu 600 s; o perfil tardio identificou a verificação repetida de predecessores. A proteção remota conservadora permanece e agora tem controle negativo.
 
+### Requirement trace
+- R1 [satisfied] check:doctor-federated-spec-capture-integration. O doctor completo em clone retornou 22 diagnósticos de revisão pendente e zero erros.
+- R2 [satisfied] test:TestDoctorResolverCatalogueIsSharedAndFresh. Uma listagem por projeto e operação. O controle sem snapshots excedeu o limite.
+- R3 [satisfied] test:TestDoctorResolverCataloguePreservesResolution e test:TestDoctorCloseoutMemoLinearEquivalenceAndCount.
+- R4 [satisfied] test:TestDoctorResolverCatalogueChangeFailsFinalAudit. A auditoria rejeita alteração de mesmo tamanho com mtime restaurado.
+- R5 [satisfied] test:TestDoctorCloseoutMemoLifetimeClockAndBinding e test:TestDoctorCloseoutMemoFallbackKeepsCallerClock.
+- R6 [satisfied] test:TestDoctorCloseoutMemoAncestorIntersection, test:TestDoctorCloseoutMemoLocalCycle e test:TestDoctorCloseoutMemoForeignSpecProofIsNotRetained.
+
 ### Known gaps
-A primeira medição do protótipo ainda excedeu 600 s sem veredito; F5 não está resolvido. Três testes existentes expuseram que o wrapper anterior transformava legacy-unversioned em erro da operação; o caminho advisory legado deve permanecer como antes, sem simular geração current.
-Ainda faltam os checks de saúde compostos, a validação completa e a revisão governada; F5 não está fechado. O diagnóstico independente é task de investigação, não aprovação ou atestação. O check global do pose-dist já tem 19 erros de atribuição antigos, preservados como baseline e não corrigidos por este escopo.
+Em 2026-11-18, a matriz do pose-mcp passou em 233 de 233 checks sobre o sujeito indexado. O doctor do commit fbae636a passou em 300,676 s. No Harne8 descartável com o candidato da7cbfcf fixado, instance-health-composite passou em 203,229 s e abm-pilot-fixture em 226,435 s. Os avisos existentes mantiveram a saúde em partial. A adoção no Harne8 principal é uma etapa separada.
+
+O Opus 5.5 aprovou o bundle rvb-54eff98cbf23ae54 no run rrn-388e5d23c2b62dcd. A validação dentro do sandbox do revisor encontrou falhas de ambiente, registradas no parecer. A validação isolada passou integralmente e o POSE registrou e verificou a conclusão do revisor. Os 19 erros de atribuição de specs antigas do check global permanecem.
 
 ## 7. Final Report
 
 ### Delivered scope
-Não concluída.
+O doctor reutiliza capturas federadas de specs dentro de uma operação auditada e reutiliza resultados locais de predecessores quando a cadeia permite. Testes cobrem repetição, equivalência, ciclos e rejeição de alterações. A medição do binário e os checks compostos estão registrados em .pose/reports/doctor-closeout-operation/.
 
 ### Follow-ups
-Sem follow-up novo; o F5 existente permanece aberto até os checks completos passarem.
+- [open] F1: reforçar a prova de que uma consulta com relógio diferente ignora o memo, distinguindo um hit de uma avaliação direta. (owner:@pose-maintainers crit:low review:2026-12-18)
+- [open] F2: cobrir diretamente o erro da auditoria final em CloseoutReviewsOwed com índice versionado e a listagem legada no mesmo teste de integração. (owner:@pose-maintainers crit:low review:2026-12-18)

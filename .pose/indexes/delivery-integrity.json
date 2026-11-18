@@ -1,6 +1,6 @@
 {
   "schema_version": 2,
-  "input_digest": "sha256:4be7e946916b6defb09b038520dd12c94cba9fde851287196fc647e3c98baa34",
+  "input_digest": "sha256:e404cfccef5069954fc5e4b6b5e239de145ece1ed140f7b35f9c3af2ca0fda28",
   "provenance_digest": "sha256:e3c26381059ad9259cfe0e55289eddd843db1f201af6d6f9929a1befcea781e8",
   "implied_edges": [
     "changes"
@@ -51234,6 +51234,14 @@
       }
     },
     {
+      "id": "delivery:capability:doctor-asks-every-closeout-in-one-operation",
+      "type": "capability",
+      "attributes": {
+        "module": "pose-mcp",
+        "profile": "composed-capability"
+      }
+    },
+    {
       "id": "delivery:capability:doctor-fixtures-exercise-production-path",
       "type": "capability",
       "attributes": {
@@ -65865,6 +65873,11 @@
     },
     {
       "from": "artifact:.pose/indexes/validation-matrix.json",
+      "to": "delivery:capability:doctor-asks-every-closeout-in-one-operation",
+      "type": "implemented-by"
+    },
+    {
+      "from": "artifact:.pose/indexes/validation-matrix.json",
       "to": "delivery:capability:doctor-recommends-the-commit-graph",
       "type": "implemented-by"
     },
@@ -70419,6 +70432,11 @@
       "type": "implemented-by"
     },
     {
+      "from": "artifact:.pose/specs/2026-11-17-pose-doctor-asks-every-closeout-in-one-operation.md",
+      "to": "delivery:capability:doctor-asks-every-closeout-in-one-operation",
+      "type": "implemented-by"
+    },
+    {
       "from": "artifact:.pose/specs/pose-action-runtime-currency-gate/spec.md",
       "to": "delivery:governance:action-runtime-currency-gate",
       "type": "implemented-by"
@@ -70961,6 +70979,11 @@
     {
       "from": "artifact:.pose/starts/pose-distributed-instructions-parity.json",
       "to": "delivery:capability:distributed-instructions-parity",
+      "type": "implemented-by"
+    },
+    {
+      "from": "artifact:.pose/starts/pose-doctor-asks-every-closeout-in-one-operation.json",
+      "to": "delivery:capability:doctor-asks-every-closeout-in-one-operation",
       "type": "implemented-by"
     },
     {
@@ -86755,6 +86778,11 @@
     },
     {
       "from": "artifact:pose-mcp/internal/pose/closeout_review_policy.go",
+      "to": "delivery:capability:doctor-asks-every-closeout-in-one-operation",
+      "type": "implemented-by"
+    },
+    {
+      "from": "artifact:pose-mcp/internal/pose/closeout_review_policy.go",
       "to": "delivery:capability:index-material-does-not-ask-closeout",
       "type": "implemented-by"
     },
@@ -87849,6 +87877,21 @@
       "type": "implemented-by"
     },
     {
+      "from": "artifact:pose-mcp/internal/pose/doctor_closeout_memo.go",
+      "to": "delivery:capability:doctor-asks-every-closeout-in-one-operation",
+      "type": "implemented-by"
+    },
+    {
+      "from": "artifact:pose-mcp/internal/pose/doctor_closeout_memo_test.go",
+      "to": "delivery:capability:doctor-asks-every-closeout-in-one-operation",
+      "type": "implemented-by"
+    },
+    {
+      "from": "artifact:pose-mcp/internal/pose/doctor_resolver_specs_test.go",
+      "to": "delivery:capability:doctor-asks-every-closeout-in-one-operation",
+      "type": "implemented-by"
+    },
+    {
       "from": "artifact:pose-mcp/internal/pose/done_spec_sealed_plan_test.go",
       "to": "delivery:capability:done-spec-keeps-its-sealed-plan",
       "type": "implemented-by"
@@ -88356,6 +88399,11 @@
     {
       "from": "artifact:pose-mcp/internal/pose/governance_read_view.go",
       "to": "delivery:capability:closeout-review-policy-by-cost-benefit",
+      "type": "implemented-by"
+    },
+    {
+      "from": "artifact:pose-mcp/internal/pose/governance_read_view.go",
+      "to": "delivery:capability:doctor-asks-every-closeout-in-one-operation",
       "type": "implemented-by"
     },
     {
@@ -91505,6 +91553,11 @@
     },
     {
       "from": "artifact:pose-mcp/internal/pose/review_operation_view.go",
+      "to": "delivery:capability:doctor-asks-every-closeout-in-one-operation",
+      "type": "implemented-by"
+    },
+    {
+      "from": "artifact:pose-mcp/internal/pose/review_operation_view.go",
       "to": "delivery:capability:federated-proof-reads-each-input-once",
       "type": "implemented-by"
     },
@@ -92206,6 +92259,11 @@
     {
       "from": "artifact:pose-mcp/internal/pose/spec.go",
       "to": "delivery:capability:delivery-integrity-graph",
+      "type": "implemented-by"
+    },
+    {
+      "from": "artifact:pose-mcp/internal/pose/spec.go",
+      "to": "delivery:capability:doctor-asks-every-closeout-in-one-operation",
       "type": "implemented-by"
     },
     {
@@ -97565,6 +97623,16 @@
     },
     {
       "from": "delivery:capability:docker-rule-extension",
+      "to": "validation-set:cf62b73b2f38838b",
+      "type": "validated-by"
+    },
+    {
+      "from": "delivery:capability:doctor-asks-every-closeout-in-one-operation",
+      "to": "entrypoint:pose-mcp/cmd/pose/main.go",
+      "type": "composes"
+    },
+    {
+      "from": "delivery:capability:doctor-asks-every-closeout-in-one-operation",
       "to": "validation-set:cf62b73b2f38838b",
       "type": "validated-by"
     },
@@ -118187,6 +118255,11 @@
       "from": "spec:pose-doctor-asks-every-closeout-in-one-operation",
       "to": "artifact:pose-mcp/internal/pose/spec.go",
       "type": "declares"
+    },
+    {
+      "from": "spec:pose-doctor-asks-every-closeout-in-one-operation",
+      "to": "delivery:capability:doctor-asks-every-closeout-in-one-operation",
+      "type": "delivers"
     },
     {
       "from": "spec:pose-doctor-asks-every-closeout-in-one-operation",
@@ -310572,16 +310645,6 @@
       "remediation": "backfill an explicit claim or add an exact reviewed exclusion"
     },
     {
-      "id": "dif-157b1056b070",
-      "code": "undeclared-delivery",
-      "severity": "error",
-      "spec": "pose-doctor-asks-every-closeout-in-one-operation",
-      "path": "pose-mcp/internal/pose/review_operation_view.go",
-      "change_set": "cs-08752e834022",
-      "message": "changed delivery root pose-mcp/internal/pose has no delivery declaration",
-      "remediation": "declare a typed delivery target or narrow the attributed change set"
-    },
-    {
       "id": "dif-15c3271ade50",
       "code": "existence",
       "severity": "error",
@@ -310955,16 +311018,6 @@
       "remediation": "add a machine-parseable ### Artifacts section"
     },
     {
-      "id": "dif-301de337db6e",
-      "code": "undeclared-delivery",
-      "severity": "error",
-      "spec": "pose-doctor-asks-every-closeout-in-one-operation",
-      "path": "pose-mcp/internal/pose/doctor_closeout_memo_test.go",
-      "change_set": "cs-08752e834022",
-      "message": "changed delivery root pose-mcp/internal/pose has no delivery declaration",
-      "remediation": "declare a typed delivery target or narrow the attributed change set"
-    },
-    {
       "id": "dif-30a271e368b4",
       "code": "existence",
       "severity": "error",
@@ -311278,16 +311331,6 @@
       "path": "pose-mcp/internal/cli/recurrence_effect_test.go",
       "message": "governed tracked path has no spec provenance claim",
       "remediation": "backfill an explicit claim or add an exact reviewed exclusion"
-    },
-    {
-      "id": "dif-47c5956fb334",
-      "code": "undeclared-delivery",
-      "severity": "error",
-      "spec": "pose-doctor-asks-every-closeout-in-one-operation",
-      "path": "pose-mcp/internal/pose/doctor_closeout_memo.go",
-      "change_set": "cs-08752e834022",
-      "message": "changed delivery root pose-mcp/internal/pose has no delivery declaration",
-      "remediation": "declare a typed delivery target or narrow the attributed change set"
     },
     {
       "id": "dif-47dd2e465011",
@@ -311693,16 +311736,6 @@
       "path": ".pose/release-policy.json",
       "message": "declared current artifact is not tracked at the selected head",
       "remediation": "correct the exact path or commit the artifact before closeout"
-    },
-    {
-      "id": "dif-5fa5c7897e01",
-      "code": "undeclared-delivery",
-      "severity": "error",
-      "spec": "pose-doctor-asks-every-closeout-in-one-operation",
-      "path": "pose-mcp/internal/pose/closeout_review_policy.go",
-      "change_set": "cs-08752e834022",
-      "message": "changed delivery root pose-mcp/internal/pose has no delivery declaration",
-      "remediation": "declare a typed delivery target or narrow the attributed change set"
     },
     {
       "id": "dif-5fae4a8cfdc1",
@@ -312123,16 +312156,6 @@
       "path": "capability:release-scope-selection-and-exclusivity",
       "message": "delivery target has no structured artifact provenance",
       "remediation": "declare and reconcile exact artifacts before asserting delivery"
-    },
-    {
-      "id": "dif-7966b914a44e",
-      "code": "undeclared-delivery",
-      "severity": "error",
-      "spec": "pose-doctor-asks-every-closeout-in-one-operation",
-      "path": "pose-mcp/internal/pose/spec.go",
-      "change_set": "cs-08752e834022",
-      "message": "changed delivery root pose-mcp/internal/pose has no delivery declaration",
-      "remediation": "declare a typed delivery target or narrow the attributed change set"
     },
     {
       "id": "dif-79b05c98de3c",
@@ -313172,16 +313195,6 @@
       "remediation": "correct the exact path or commit the artifact before closeout"
     },
     {
-      "id": "dif-b7aabf0850eb",
-      "code": "undeclared-delivery",
-      "severity": "error",
-      "spec": "pose-doctor-asks-every-closeout-in-one-operation",
-      "path": "pose-mcp/internal/pose/doctor_resolver_specs_test.go",
-      "change_set": "cs-08752e834022",
-      "message": "changed delivery root pose-mcp/internal/pose has no delivery declaration",
-      "remediation": "declare a typed delivery target or narrow the attributed change set"
-    },
-    {
       "id": "dif-b863985db102",
       "code": "legacy-narrative",
       "severity": "info",
@@ -313298,16 +313311,6 @@
       "change_set": "cs-ba9770e7c824",
       "message": "Git observed a governed path not declared by the spec",
       "remediation": "declare the exact action or narrow the attributed change set"
-    },
-    {
-      "id": "dif-c260a8f278f8",
-      "code": "undeclared-delivery",
-      "severity": "error",
-      "spec": "pose-doctor-asks-every-closeout-in-one-operation",
-      "path": "pose-mcp/internal/pose/governance_read_view.go",
-      "change_set": "cs-08752e834022",
-      "message": "changed delivery root pose-mcp/internal/pose has no delivery declaration",
-      "remediation": "declare a typed delivery target or narrow the attributed change set"
     },
     {
       "id": "dif-c29f39f96262",
@@ -315041,6 +315044,15 @@
       "entrypoint": "pose-mcp/internal/cli/delegate.go"
     },
     {
+      "spec": "pose-delegation-task-detach-and-state",
+      "ref": "capability:delegation-task",
+      "kind": "capability",
+      "id": "delegation-task",
+      "module": "pose-mcp",
+      "profile": "composed-capability",
+      "entrypoint": "pose-mcp/internal/cli/delegate_task.go"
+    },
+    {
       "spec": "pose-delegation-parity-gate",
       "ref": "capability:delegation-task",
       "kind": "capability",
@@ -315051,15 +315063,6 @@
     },
     {
       "spec": "pose-delegation-task",
-      "ref": "capability:delegation-task",
-      "kind": "capability",
-      "id": "delegation-task",
-      "module": "pose-mcp",
-      "profile": "composed-capability",
-      "entrypoint": "pose-mcp/internal/cli/delegate_task.go"
-    },
-    {
-      "spec": "pose-delegation-task-detach-and-state",
       "ref": "capability:delegation-task",
       "kind": "capability",
       "id": "delegation-task",
@@ -315144,6 +315147,15 @@
       "ref": "capability:docker-rule-extension",
       "kind": "capability",
       "id": "docker-rule-extension",
+      "module": "pose-mcp",
+      "profile": "composed-capability",
+      "entrypoint": "pose-mcp/cmd/pose/main.go"
+    },
+    {
+      "spec": "pose-doctor-asks-every-closeout-in-one-operation",
+      "ref": "capability:doctor-asks-every-closeout-in-one-operation",
+      "kind": "capability",
+      "id": "doctor-asks-every-closeout-in-one-operation",
       "module": "pose-mcp",
       "profile": "composed-capability",
       "entrypoint": "pose-mcp/cmd/pose/main.go"
@@ -315770,61 +315782,7 @@
       "entrypoint": "pose-mcp/internal/pose/review_closeout.go"
     },
     {
-      "spec": "pose-review-bundle-root-file-classification",
-      "ref": "capability:pose-mcp",
-      "kind": "capability",
-      "id": "pose-mcp",
-      "module": "pose-mcp",
-      "profile": "composed-capability",
-      "entrypoint": "pose-mcp/cmd/pose/main.go"
-    },
-    {
       "spec": "pose-install-locale-autodetect",
-      "ref": "capability:pose-mcp",
-      "kind": "capability",
-      "id": "pose-mcp",
-      "module": "pose-mcp",
-      "profile": "composed-capability",
-      "entrypoint": "pose-mcp/cmd/pose/main.go"
-    },
-    {
-      "spec": "pose-install-gate-failure-recovery-notice",
-      "ref": "capability:pose-mcp",
-      "kind": "capability",
-      "id": "pose-mcp",
-      "module": "pose-mcp",
-      "profile": "composed-capability",
-      "entrypoint": "pose-mcp/cmd/pose/main.go"
-    },
-    {
-      "spec": "pose-update-instance-directory-completeness",
-      "ref": "capability:pose-mcp",
-      "kind": "capability",
-      "id": "pose-mcp",
-      "module": "pose-mcp",
-      "profile": "composed-capability",
-      "entrypoint": "pose-mcp/cmd/pose/main.go"
-    },
-    {
-      "spec": "pose-discovery-gitignore-and-root-alias-fix",
-      "ref": "capability:pose-mcp",
-      "kind": "capability",
-      "id": "pose-mcp",
-      "module": "pose-mcp",
-      "profile": "composed-capability",
-      "entrypoint": "pose-mcp/cmd/pose/main.go"
-    },
-    {
-      "spec": "pose-review-scope-trailer-check",
-      "ref": "capability:pose-mcp",
-      "kind": "capability",
-      "id": "pose-mcp",
-      "module": "pose-mcp",
-      "profile": "composed-capability",
-      "entrypoint": "pose-mcp/cmd/pose/main.go"
-    },
-    {
-      "spec": "pose-derived-index-self-referential-leak",
       "ref": "capability:pose-mcp",
       "kind": "capability",
       "id": "pose-mcp",
@@ -315851,7 +315809,61 @@
       "entrypoint": "pose-mcp/cmd/pose/main.go"
     },
     {
+      "spec": "pose-install-gate-failure-recovery-notice",
+      "ref": "capability:pose-mcp",
+      "kind": "capability",
+      "id": "pose-mcp",
+      "module": "pose-mcp",
+      "profile": "composed-capability",
+      "entrypoint": "pose-mcp/cmd/pose/main.go"
+    },
+    {
+      "spec": "pose-derived-index-self-referential-leak",
+      "ref": "capability:pose-mcp",
+      "kind": "capability",
+      "id": "pose-mcp",
+      "module": "pose-mcp",
+      "profile": "composed-capability",
+      "entrypoint": "pose-mcp/cmd/pose/main.go"
+    },
+    {
+      "spec": "pose-update-instance-directory-completeness",
+      "ref": "capability:pose-mcp",
+      "kind": "capability",
+      "id": "pose-mcp",
+      "module": "pose-mcp",
+      "profile": "composed-capability",
+      "entrypoint": "pose-mcp/cmd/pose/main.go"
+    },
+    {
+      "spec": "pose-review-bundle-root-file-classification",
+      "ref": "capability:pose-mcp",
+      "kind": "capability",
+      "id": "pose-mcp",
+      "module": "pose-mcp",
+      "profile": "composed-capability",
+      "entrypoint": "pose-mcp/cmd/pose/main.go"
+    },
+    {
+      "spec": "pose-review-scope-trailer-check",
+      "ref": "capability:pose-mcp",
+      "kind": "capability",
+      "id": "pose-mcp",
+      "module": "pose-mcp",
+      "profile": "composed-capability",
+      "entrypoint": "pose-mcp/cmd/pose/main.go"
+    },
+    {
       "spec": "pose-scaffold-self-referential-policy-fix",
+      "ref": "capability:pose-mcp",
+      "kind": "capability",
+      "id": "pose-mcp",
+      "module": "pose-mcp",
+      "profile": "composed-capability",
+      "entrypoint": "pose-mcp/cmd/pose/main.go"
+    },
+    {
+      "spec": "pose-discovery-gitignore-and-root-alias-fix",
       "ref": "capability:pose-mcp",
       "kind": "capability",
       "id": "pose-mcp",
@@ -317588,7 +317600,7 @@
       "entrypoint": "scripts/release.sh"
     },
     {
-      "spec": "pose-debt-marker-lexical-precision",
+      "spec": "pose-project-agnostic-assessment-engines",
       "ref": "governance:project-assessment",
       "kind": "governance",
       "id": "project-assessment",
@@ -317597,7 +317609,7 @@
       "entrypoint": "pose-mcp/cmd/pose/main.go"
     },
     {
-      "spec": "pose-project-agnostic-assessment-engines",
+      "spec": "pose-debt-marker-lexical-precision",
       "ref": "governance:project-assessment",
       "kind": "governance",
       "id": "project-assessment",
@@ -317642,7 +317654,7 @@
       "entrypoint": "pose-mcp/cmd/pose/main.go"
     },
     {
-      "spec": "pose-release-evidence-trigger-fix",
+      "spec": "pose-release-lifecycle-closure",
       "ref": "governance:release-integrity",
       "kind": "governance",
       "id": "release-integrity",
@@ -317651,7 +317663,7 @@
       "entrypoint": "pose-mcp/cmd/pose/main.go"
     },
     {
-      "spec": "pose-release-lifecycle-closure",
+      "spec": "pose-release-evidence-trigger-fix",
       "ref": "governance:release-integrity",
       "kind": "governance",
       "id": "release-integrity",
@@ -318416,7 +318428,7 @@
       "entrypoint": "pose-mcp/cmd/pose/main.go"
     },
     {
-      "spec": "pose-progressive-spec-surface",
+      "spec": "pose-spec-surface-single-key",
       "ref": "surface:progressive-spec-surface",
       "kind": "surface",
       "id": "progressive-spec-surface",
@@ -318425,7 +318437,7 @@
       "entrypoint": "pose-mcp/cmd/pose/main.go"
     },
     {
-      "spec": "pose-spec-surface-single-key",
+      "spec": "pose-progressive-spec-surface",
       "ref": "surface:progressive-spec-surface",
       "kind": "surface",
       "id": "progressive-spec-surface",
@@ -323771,31 +323783,30 @@
       "validation-set:cf62b73b2f38838b"
     ],
     "capability:delegation-task": [
-      "spec:pose-delegation-task-detach-and-state",
-      "artifact:.pose/changelogs/unreleased/pose-delegation-task-detach-and-state.md",
-      "artifact:.pose/specs/2026-10-29-pose-delegation-task-detach-and-state.md",
-      "artifact:.pose/specs/2026-10-29-pose-delegation-task-detach-and-state.amendments.jsonl",
-      "artifact:.pose/starts/pose-delegation-task-detach-and-state.json",
-      "artifact:pose-mcp/internal/cli/delegate_task_detach_test.go",
-      "artifact:pose-mcp/internal/pose/delegation_task_state_test.go",
-      "artifact:pose-mcp/internal/pose/delegation_task_state_unix.go",
-      "artifact:pose-mcp/internal/pose/delegation_task_state_windows.go",
-      "artifact:.pose/roadmaps/delegation.md",
-      "artifact:.pose/specs/2026-10-26-pose-delegation-parity-gate.md",
+      "spec:pose-delegation-task",
+      "artifact:.pose/changelogs/unreleased/pose-delegation-task.md",
+      "artifact:.pose/starts/pose-delegation-task.json",
+      "artifact:pose-mcp/internal/cli/delegate_task.go",
+      "artifact:pose-mcp/internal/cli/delegate_task_test.go",
+      "artifact:pose-mcp/internal/pose/delegation_task.go",
       "artifact:.pose/specs/2026-10-26-pose-delegation-task.md",
-      "artifact:.pose/state/history.jsonl",
-      "artifact:.pose/state/project-state.md",
-      "artifact:.pose/state/refresh-log.jsonl",
       "artifact:POSE.md",
       "artifact:locales/pt-BR/POSE.md",
-      "artifact:pose-mcp/internal/cli/cli.go",
       "artifact:pose-mcp/internal/cli/delegate.go",
-      "artifact:pose-mcp/internal/cli/delegate_mcp_test.go",
-      "artifact:pose-mcp/internal/cli/delegate_task.go",
-      "artifact:pose-mcp/internal/cli/delegate_wait.go",
+      "artifact:pose-mcp/internal/cli/delegate_handoff.go",
+      "artifact:pose-mcp/internal/cli/delegate_test.go",
+      "artifact:pose-mcp/internal/cli/delegate_watch.go",
       "artifact:pose-mcp/internal/cli/help_catalog.go",
-      "artifact:pose-mcp/internal/mcpserver/delegate_tools.go",
-      "artifact:pose-mcp/internal/pose/delegation_task.go",
+      "artifact:pose-mcp/internal/cli/review_closeout.go",
+      "artifact:pose-mcp/internal/pose/delegation_events.go",
+      "artifact:pose-mcp/internal/pose/delegation_list.go",
+      "artifact:pose-mcp/internal/pose/delegation_policy.go",
+      "artifact:pose-mcp/internal/pose/delegation_routing.go",
+      "artifact:pose-mcp/internal/pose/delegation_wait.go",
+      "artifact:pose-mcp/internal/pose/review_bundle.go",
+      "artifact:pose-mcp/internal/pose/review_dispatch.go",
+      "artifact:pose-mcp/internal/pose/review_run_continuity.go",
+      "artifact:pose-mcp/internal/pose/review_run_provenance.go",
       "artifact:pose-mcp/internal/scaffold/dist/POSE.md",
       "artifact:pose-mcp/internal/scaffold/dist/locales/pt-BR/POSE.md",
       "delivery:capability:delegation-task",
@@ -324028,6 +324039,22 @@
       "artifact:pose-mcp/internal/scaffold/dist/AGENTS.md",
       "artifact:pose-mcp/internal/scaffold/dist/locales/pt-BR/AGENTS.md",
       "delivery:capability:docker-rule-extension",
+      "entrypoint:pose-mcp/cmd/pose/main.go",
+      "validation-set:cf62b73b2f38838b"
+    ],
+    "capability:doctor-asks-every-closeout-in-one-operation": [
+      "spec:pose-doctor-asks-every-closeout-in-one-operation",
+      "artifact:.pose/specs/2026-11-17-pose-doctor-asks-every-closeout-in-one-operation.md",
+      "artifact:.pose/starts/pose-doctor-asks-every-closeout-in-one-operation.json",
+      "artifact:pose-mcp/internal/pose/doctor_closeout_memo.go",
+      "artifact:pose-mcp/internal/pose/doctor_closeout_memo_test.go",
+      "artifact:pose-mcp/internal/pose/doctor_resolver_specs_test.go",
+      "artifact:.pose/indexes/validation-matrix.json",
+      "artifact:pose-mcp/internal/pose/closeout_review_policy.go",
+      "artifact:pose-mcp/internal/pose/governance_read_view.go",
+      "artifact:pose-mcp/internal/pose/review_operation_view.go",
+      "artifact:pose-mcp/internal/pose/spec.go",
+      "delivery:capability:doctor-asks-every-closeout-in-one-operation",
       "entrypoint:pose-mcp/cmd/pose/main.go",
       "validation-set:cf62b73b2f38838b"
     ],
@@ -325597,20 +325624,14 @@
       "validation-set:cf62b73b2f38838b"
     ],
     "capability:pose-mcp": [
-      "spec:pose-scaffold-self-referential-policy-fix",
-      "artifact:.pose/reports/2026-08-15-standard-validate-native.md",
-      "artifact:pose-mcp/internal/scaffold/distpolicy/distpolicy_test.go",
-      "artifact:.pose/reports/history/standard-validate-native.jsonl",
-      "artifact:mcp-enforce/README.md",
-      "artifact:pose-mcp/internal/cli/doctor.go",
-      "artifact:pose-mcp/internal/cli/doctor_remediation_test.go",
-      "artifact:pose-mcp/internal/mcpserver/server.go",
-      "artifact:pose-mcp/internal/mcpserver/validate_orchestration_test.go",
-      "artifact:pose-mcp/internal/scaffold/dist/.pose/policy/artifacts.json",
-      "artifact:pose-mcp/internal/scaffold/dist/.pose/policy/delivery.json",
-      "artifact:pose-mcp/internal/scaffold/distpolicy/distpolicy.go",
-      "artifact:pose-mcp/internal/scaffold/gen/main.go",
-      "artifact:pose-mcp/internal/scaffold/scaffold_test.go",
+      "spec:pose-discovery-gitignore-and-root-alias-fix",
+      "artifact:pose-mcp/internal/cli/index.go",
+      "artifact:pose-mcp/internal/cli/stack_seed.go",
+      "artifact:pose-mcp/internal/cli/stack_seed_test.go",
+      "artifact:pose-mcp/internal/cli/validate.go",
+      "artifact:pose-mcp/internal/cli/validate_root_and_nodemodules_test.go",
+      "artifact:pose-mcp/internal/pose/discovery.go",
+      "artifact:pose-mcp/internal/pose/discovery_test.go",
       "delivery:capability:pose-mcp",
       "entrypoint:pose-mcp/cmd/pose/main.go",
       "validation-set:cf62b73b2f38838b"
@@ -329373,18 +329394,7 @@
       "validation-set:cf62b73b2f38838b"
     ],
     "governance:project-assessment": [
-      "spec:pose-project-agnostic-assessment-engines",
-      "artifact:.pose/changelogs/v0.16.2/pose-project-agnostic-assessment-engines.md",
-      "artifact:.pose/knowledge/2026-08-03-decision-log-project-agnostic-assessment-evidence.md",
-      "artifact:.pose/specs/pose-project-agnostic-assessment-engines/spec.md",
-      "artifact:pose-mcp/internal/cli/assessment_agnostic_test.go",
-      "artifact:pose-mcp/internal/pose/assessment_agnostic_test.go",
-      "artifact:pose-mcp/internal/pose/assessment_scan.go",
-      "artifact:pose-mcp/internal/cli/assess.go",
-      "artifact:pose-mcp/internal/mcpserver/server.go",
-      "artifact:pose-mcp/internal/pose/discovery.go",
-      "artifact:pose-mcp/internal/pose/integration.go",
-      "artifact:pose-mcp/internal/pose/techdebt.go",
+      "spec:pose-debt-marker-lexical-precision",
       "delivery:governance:project-assessment",
       "entrypoint:pose-mcp/cmd/pose/main.go",
       "validation-set:cf62b73b2f38838b"
@@ -329433,43 +329443,13 @@
       "validation-set:cf62b73b2f38838b"
     ],
     "governance:release-integrity": [
-      "spec:pose-release-lifecycle-closure",
-      "artifact:.agents/skills/pose-release-closeout/SKILL.md",
-      "artifact:.pose/adr/2026-08-03-immutable-release-ledger.md",
-      "artifact:.pose/indexes/releases.json",
-      "artifact:.pose/policy/changelog.json",
-      "artifact:.pose/release-policy.json",
-      "artifact:.pose/rules/release-integrity.md",
-      "artifact:.pose/workflows/release.md",
-      "artifact:locales/pt-BR/.agents/skills/pose-release-closeout/SKILL.md",
-      "artifact:locales/pt-BR/.pose/rules/release-integrity.md",
-      "artifact:locales/pt-BR/.pose/workflows/release.md",
-      "artifact:pose-mcp/internal/cli/release_lifecycle.go",
-      "artifact:pose-mcp/internal/cli/release_lifecycle_test.go",
-      "artifact:pose-mcp/internal/mcpserver/release_status_tool_test.go",
-      "artifact:pose-mcp/internal/pose/release_lifecycle.go",
-      "artifact:pose-mcp/internal/pose/release_lifecycle_test.go",
-      "artifact:.agents/skills/README.md",
+      "spec:pose-release-evidence-trigger-fix",
+      "artifact:.pose/specs/pose-release-evidence-trigger-fix/spec.md",
       "artifact:.github/workflows/release.yml",
-      "artifact:.pose/indexes/task-map.json",
-      "artifact:.pose/indexes/validation-matrix.json",
-      "artifact:.pose/specs/pose-release-lifecycle-closure/spec.md",
-      "artifact:POSE.md",
-      "artifact:docs-site/docs/cli.md",
-      "artifact:docs-site/docs/mcp.md",
-      "artifact:pose-mcp/internal/cli/check.go",
-      "artifact:pose-mcp/internal/cli/cli.go",
-      "artifact:pose-mcp/internal/cli/index.go",
-      "artifact:pose-mcp/internal/cli/maintenance.go",
-      "artifact:pose-mcp/internal/cli/native_only_test.go",
-      "artifact:pose-mcp/internal/cli/skills_check_test.go",
-      "artifact:pose-mcp/internal/mcpserver/catalog.go",
-      "artifact:pose-mcp/internal/mcpserver/server.go",
-      "artifact:pose-mcp/internal/mcpserver/server_test.go",
-      "artifact:pose-mcp/internal/mcpserver/testdata/tool-catalog.golden.json",
-      "artifact:pose-mcp/internal/pose/changelogs.go",
-      "artifact:pose-mcp/internal/scaffold/scaffold.go",
-      "artifact:scripts/release.sh",
+      "artifact:.github/workflows/verify-release.yml",
+      "artifact:docs-site/docs/ci.md",
+      "artifact:pose-mcp/internal/version/contract_test.go",
+      "artifact:pose-mcp/internal/version/version.go",
       "delivery:governance:release-integrity",
       "entrypoint:pose-mcp/cmd/pose/main.go",
       "validation-set:cf62b73b2f38838b"
@@ -330950,11 +330930,25 @@
       "validation-set:973d31731542984c"
     ],
     "surface:progressive-spec-surface": [
-      "spec:pose-spec-surface-single-key",
-      "artifact:.pose/specs/2026-10-05-pose-spec-surface-single-key.md",
-      "artifact:pose-mcp/internal/cli/scaffold.go",
+      "spec:pose-progressive-spec-surface",
+      "artifact:.pose/specs/2026-10-04-pose-progressive-spec-surface.md",
       "artifact:pose-mcp/internal/cli/spec_surface_test.go",
-      "artifact:.pose/changelogs/v7.0.0/pose-spec-surface-single-key.md",
+      "artifact:pose-mcp/internal/pose/spec_facts.go",
+      "artifact:pose-mcp/internal/pose/spec_facts_test.go",
+      "artifact:.pose/indexes/validation-matrix.json",
+      "artifact:.pose/templates/spec.md",
+      "artifact:POSE.md",
+      "artifact:docs-site/docs/frontmatter.md",
+      "artifact:locales/pt-BR/.pose/templates/spec.md",
+      "artifact:locales/pt-BR/POSE.md",
+      "artifact:pose-mcp/internal/cli/lintspec.go",
+      "artifact:pose-mcp/internal/cli/scaffold.go",
+      "artifact:pose-mcp/internal/cli/specs_cmd.go",
+      "artifact:pose-mcp/internal/scaffold/dist/.pose/templates/spec.md",
+      "artifact:pose-mcp/internal/scaffold/dist/POSE.md",
+      "artifact:pose-mcp/internal/scaffold/dist/locales/pt-BR/.pose/templates/spec.md",
+      "artifact:pose-mcp/internal/scaffold/dist/locales/pt-BR/POSE.md",
+      "artifact:.pose/changelogs/v7.0.0/pose-progressive-spec-surface.md",
       "delivery:surface:progressive-spec-surface",
       "entrypoint:pose-mcp/cmd/pose/main.go",
       "validation-set:973d31731542984c"
