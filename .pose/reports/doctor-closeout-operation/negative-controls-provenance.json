@@ -1,0 +1,26 @@
+[
+  {
+    "case": "remote-proof-cut",
+    "test": "TestDoctorCloseoutMemoForeignSpecProofIsNotRetained",
+    "implemented_commit": "fbae636a0c252efa7b03bba7b40d8992d5a88fb5",
+    "execution_phase": "working-tree precursors of commit",
+    "replacement_sha256": "59e9f9967a3eeabb9c6801f363178ee9f854b50d078f4ee8eaab0f7716ce4864",
+    "assertion": "doctor_closeout_memo_test.go:337: foreign proof retained 1"
+  },
+  {
+    "case": "fallback-clock",
+    "test": "TestDoctorCloseoutMemoFallbackKeepsCallerClock",
+    "implemented_commit": "fbae636a0c252efa7b03bba7b40d8992d5a88fb5",
+    "execution_phase": "working-tree precursors of commit",
+    "replacement_sha256": "59eb21239ef31190424928392d31472678eac47b0e79c37e017ca701ff8298c9",
+    "assertion": "doctor_closeout_memo_test.go:293: fallback changed caller clock or enabled memo"
+  },
+  {
+    "case": "resolver-snapshot",
+    "test": "TestDoctorResolverCatalogueIsSharedAndFresh",
+    "implemented_commit": "fbae636a0c252efa7b03bba7b40d8992d5a88fb5",
+    "execution_phase": "working-tree precursors of commit",
+    "replacement_sha256": "af9f67df116d53180174df786f1b6cbd5a9a23156966208c1ff98eecc63d6e60",
+    "assertion": "doctor_resolver_specs_test.go:60: catalogue parses for /home/go/IdeaProjects/harne8/.pose/review-private/active-delivery-tmp/TestDoctorResolverCatalogueIsSharedAndFresh1431729930/001 = 20, want 1 per operation"
+  }
+]
