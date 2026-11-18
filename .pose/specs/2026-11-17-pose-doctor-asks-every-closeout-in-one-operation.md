@@ -107,7 +107,7 @@ Plano definido antes de aplicar o candidato ao checkout de entrega. O protótipo
 - O protótipo só com snapshots excedeu 600 s; o perfil tardio identificou a verificação repetida de predecessores. A proteção remota conservadora permanece e agora tem controle negativo.
 
 ### Requirement trace
-- R1 [satisfied] check:doctor-federated-spec-capture-integration. O doctor completo em clone retornou 22 diagnósticos de revisão pendente e zero erros.
+- R1 [satisfied] check:doctor-federated-spec-capture-integration. O doctor completo em clone retornou 22 diagnósticos de revisão pendente e zero erros. O teste da captura prova que a auditoria recusa a alteração. O teste direto da lista pública em caso de auditoria recusada permanece no follow-up F2.
 - R2 [satisfied] test:TestDoctorResolverCatalogueIsSharedAndFresh. Uma listagem por projeto e operação. O controle sem snapshots excedeu o limite.
 - R3 [satisfied] test:TestDoctorResolverCataloguePreservesResolution e test:TestDoctorCloseoutMemoLinearEquivalenceAndCount.
 - R4 [satisfied] test:TestDoctorResolverCatalogueChangeFailsFinalAudit. A auditoria rejeita alteração de mesmo tamanho com mtime restaurado.
