@@ -1,7 +1,7 @@
 ---
 schema_version: 1
-generated_at: 2026-11-13T09:36:14Z
-baseline_commit: 5e64bf3a542a85e905e817d19e41993d341f4f09
+generated_at: 2026-11-18T11:49:30Z
+baseline_commit: e425d772d1066d5db5c5d63da14ab498109d7482
 staleness_policy: max_age_days=7,max_commits=20
 refresh_pending: 
 ---
@@ -27,36 +27,36 @@ próprio deste repositório (produtização v2, DX) segue disponível conforme
 capacidade.
 
 ## Specs & Roadmaps
-<!-- state:derived hash:0d8552427d40 -->
+<!-- state:derived hash:7afc809014aa -->
 
-- specs: total=514 draft=24 in-progress=0 blocked=0 done=488 superseded=0 abandoned=2
+- specs: total=533 draft=22 in-progress=0 blocked=0 done=508 superseded=0 abandoned=3
 - roadmaps: total=23 active=3 done=17
 - últimos closeouts:
-  - spec:pose-claude-reviewer-runs-tests-in-sandbox (2026-11-13)
-  - spec:pose-delegated-output-redaction-root-cause (2026-11-12)
-  - spec:pose-review-subject-head-is-the-newest (2026-11-11)
-  - spec:pose-commit-gate-refuses-index-without-descriptor (2026-11-11)
-  - spec:pose-verdict-readers-ask-the-sealed-question (2026-11-11)
-  - ... e mais 483 (ver `pose_list_specs status:done`)
+  - spec:pose-doctor-asks-every-closeout-in-one-operation (2026-11-18)
+  - spec:pose-federated-source-proof-is-computed-once-per-operation (2026-11-17)
+  - spec:pose-review-guard-reads-the-integrity-graph-in-place (2026-11-17)
+  - spec:pose-read-view-audit-repeats-a-read-under-its-own-time (2026-11-17)
+  - spec:pose-git-snapshot-budget-scales-with-the-tree (2026-11-17)
+  - ... e mais 503 (ver `pose_list_specs status:done`)
 
 ## Follow-ups
-<!-- state:derived hash:44fcf268bd36 -->
+<!-- state:derived hash:38322de8e08a -->
 
-- abertos: 270
-- por criticidade: high=5 medium=51 low=195 sem-classificação=19
-- vencidos (review < hoje): 60
+- abertos: 290
+- por criticidade: high=9 medium=60 low=202 sem-classificação=19
+- vencidos (review < hoje): 63
 - cobertura: INCOMPLETA — 2 source(s) could not be read: invalid .pose/specs/2026-08-15-pose-instance-engine-version-tracking.md; invalid .pose/specs/2026-08-15-pose-knowledge-durable-reference-type.md; os números acima são o que pôde ser lido
   - spec:pose-package-manager-distribution (owner:@pose-maintainers review:2026-09-18)
   - spec:pose-federated-carried-forward-proof (owner:@harne8-platform review:2026-09-27)
-  - spec:pose-release-signing-rejection (owner:@pose-maintainers review:2026-10-02)
-  - spec:pose-verifier-assets-variable-fix (owner:@pose-maintainers review:2026-10-02)
   - spec:pose-shellcheck-ci-gate (owner:@pose-maintainers review:2026-10-02)
   - spec:pose-review-root-binding-parity (owner:@pose-maintainers review:2026-10-02)
-  - spec:pose-federated-spec-dependency-acceptance (owner:@harne8-platform review:2026-10-03)
+  - spec:pose-verifier-assets-variable-fix (owner:@pose-maintainers review:2026-10-02)
+  - spec:pose-release-signing-rejection (owner:@pose-maintainers review:2026-10-02)
   - spec:pose-spec-transfer-reconcile-terminal (owner:@harne8-platform review:2026-10-03)
-  - spec:pose-package-channel-install-repair (owner:@pose-maintainers review:2026-10-08)
+  - spec:pose-federated-spec-dependency-acceptance (owner:@harne8-platform review:2026-10-03)
   - spec:pose-governance-gate-activation (owner:@pose-maintainers review:2026-10-08)
-  - ... e mais 50 vencidos (ver `pose followups --open`)
+  - spec:pose-package-channel-install-repair (owner:@pose-maintainers review:2026-10-08)
+  - ... e mais 53 vencidos (ver `pose followups --open`)
 
 ## Capabilities
 <!-- state:derived hash:e20a9224b717 -->
@@ -76,22 +76,22 @@ capacidade.
 - knowledge: total=21 ativo=21 expirado=0
 
 ## Validação & Evidência
-<!-- state:derived hash:334d5133b7f0 -->
+<!-- state:derived hash:4987b625f2c4 -->
 
 - último registro: task=validate-native outcome=pass (2026-10-24T18:00:55Z)
 - últimos 30 dias: total=39 outcome_ok=27 outcome_outro=12
 - reports revisados (.md): total=292
-  - report:claude-review-sandbox-qualification.md
-  - report:2026-11-09-pose-worktree-runtime-measurements.md
-  - report:2026-11-05-pose-b34-dependency-budget-measurement.md
-  - report:2026-11-05-pose-b34-read-view-capacity-calibration.md
-  - report:2026-11-06-pose-b34-global-review-view-budget.md
+  - report:pose-v7-legacy-cleanup-plan.md
+  - report:pose-abm-capability-adoption.md
+  - report:pose-agency-readiness-pilot.md
+  - report:pose-governance-operation-performance-method.md
+  - report:pose-v6-2-0-autonomous-work.md
 
 ## Arquitetura
-<!-- state:derived hash:aaf22618d2cf status:active -->
+<!-- state:derived hash:1c49230a8823 status:active -->
 
 - componentes: total=3 verificados=3 completude=99.2%
-- linhas_de_codigo: producao=119810 testes=115905 total=235715
+- linhas_de_codigo: producao=120036 testes=116367 total=236403
 - linguagens: go
 - saude_de_codigo: TODOs=1 FIXMEs=0 panics=1 stubs=0
 - integracoes: contratos=70 ativos=6 gaps=64

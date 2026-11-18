@@ -1,0 +1,199 @@
+{
+  "run": {
+    "run_id": "rrn-388e5d23c2b62dcd",
+    "proof_id": "rrp-4f49ee2c46d4e672a156357472e8b41523a56ab19e7a3e6b83ec21bccf7ae6e7"
+  },
+  "schema_version": 1,
+  "attestation_id": "rva-e1eb4cd60796525d",
+  "bundle_id": "rvb-54eff98cbf23ae54",
+  "bundle_digest": "sha256:54eff98cbf23ae54af3cf97ac7baedcd020a97de55f9bbd1b4ca471992ba12ae",
+  "reviewer": "agent:anthropic/claude-opus-5-5",
+  "decision": "approved",
+  "criteria": [
+    {
+      "id": "backend-concurrency",
+      "disposition": "passed",
+      "evidence": "integration:pose-mcp/go/doctor-federated-spec-capture-integration",
+      "rationale": "Memo and trace are mutex-guarded, no lock is held across recursive verification (doctor_closeout_memo.go:170), memo is closed in a defer at callback exit and cleared by both view constructors; focused tests pass under -race locally."
+    },
+    {
+      "id": "backend-contracts",
+      "disposition": "passed",
+      "evidence": "integration:pose-mcp/go/governance-outcomes-v2-contract",
+      "rationale": "No exported signature, JSON shape or CLI/MCP output changed; new Store fields and the specCatalogueListed hook are unexported."
+    },
+    {
+      "id": "backend-input-errors",
+      "disposition": "passed",
+      "evidence": "integration:pose-mcp/go/closeout-review-policy-integration",
+      "rationale": "Errors and false results are never cached (TestDoctorCloseoutMemoErrorsAndRemoteBoundary); query error takes precedence, then audit error, and no list is returned on either."
+    },
+    {
+      "id": "backend-integration-impact",
+      "disposition": "passed",
+      "evidence": "integration:pose-mcp/go/governance-read-view-integration",
+      "rationale": "Resolver snapshots are allocated after withGovernanceReadView and before the binding pointer is fixed, in both the operation and scope-operation entries; remote crossings remain unmemoized and cut the parent trace."
+    },
+    {
+      "id": "backend-observability",
+      "disposition": "passed",
+      "evidence": "unit:pose-mcp/go/test",
+      "rationale": "Audit/binding failures surface through doctor's closeout-review.owed warn with the error text and a remediation (cli/doctor.go:1616-1619); no sensitive data added."
+    },
+    {
+      "id": "compatibility",
+      "disposition": "passed",
+      "evidence": "integration:pose-mcp/go/cli-mcp-operation-results-integration",
+      "rationale": "Examined the public CloseoutReviewsOwed and doctor caller: legacy-unversioned instances keep the prior advisory path verbatim; versioned instances now fail closed on audit failure as R1 requires. No public CLI/file/MCP contract changed."
+    },
+    {
+      "id": "correctness",
+      "disposition": "passed",
+      "evidence": "integration:pose-mcp/go/doctor-federated-spec-capture-integration",
+      "rationale": "Reviewed memo soundness: approvals reused only when the ancestor chain is disjoint from the visited scopes, which suffices because closeoutChain is only consulted in localScopeClosed; equivalence with the plain verifier is asserted for linear, ancestor-intersecting and cyclic topologies."
+    },
+    {
+      "id": "documentation",
+      "disposition": "passed",
+      "evidence": "structure:design-30a434e2df6ef2a0",
+      "rationale": "Examined doctor output, help and templates: no user-visible behavior or scaffold changed; the spec documents approach, decisions, known gaps and that F5 remains open; code comments explain memo lifetime and cut rules."
+    },
+    {
+      "id": "operability",
+      "disposition": "passed",
+      "evidence": "integration:pose-mcp/go/doctor-recommends-the-commit-graph-integration",
+      "rationale": "Doctor still reports a failure to list owed reviews as an actionable warn naming pose closeout-check; memo limits fall back to the original verifier rather than erroring."
+    },
+    {
+      "id": "requirements",
+      "disposition": "passed",
+      "evidence": "integration:pose-mcp/go/doctor-federated-spec-capture-integration",
+      "rationale": "R2/R4/R5 covered by TestDoctorResolverCatalogue*, R3 by PreservesResolution, R6 by TestDoctorCloseoutMemo*; R1 is implemented but its public-path negative test is weak (F2, accepted low follow-up)."
+    },
+    {
+      "id": "scope",
+      "disposition": "passed",
+      "evidence": "structure:design-30a434e2df6ef2a0",
+      "rationale": "Compared the diff with the spec's Artifacts list and non-goals: only the declared files changed, no persistent cache, catalogue or policy change, memo confined to the CloseoutReviewsOwed callback per D1/D2."
+    },
+    {
+      "id": "security",
+      "disposition": "passed",
+      "evidence": "integration:pose-mcp/go/governance-read-view-integration",
+      "rationale": "Examined authority boundaries: a dynamic Authorize callback disables the memo; unauthorized/missing/duplicate identities resolve identically to the live path; snapshots never cross operations; final audit still refuses changed inputs including same-size/restored-mtime edits."
+    }
+  ],
+  "tools": [
+    {
+      "id": "artifact-check",
+      "disposition": "passed",
+      "evidence": "command:pose artifact-check --spec pose-doctor-asks-every-closeout-in-one-operation --strict",
+      "rationale": "Exit 0; 10 claims, 24 observed; 978 warnings are orphan paths elsewhere in the repo."
+    },
+    {
+      "id": "assess-design",
+      "disposition": "not-used",
+      "rationale": "Recommended only; relied on the sealed structure evidence and direct code reading instead."
+    },
+    {
+      "id": "assess-discover",
+      "component": "pose-mcp",
+      "disposition": "not-used",
+      "rationale": "Recommended only; component surface reviewed directly via the diff."
+    },
+    {
+      "id": "assess-integrate",
+      "disposition": "not-used",
+      "rationale": "Recommended only; integration impact judged from sealed integration evidence and code reading."
+    },
+    {
+      "id": "assess-tech-debt",
+      "disposition": "not-used",
+      "rationale": "Recommended only; not needed to judge this bugfix scope."
+    },
+    {
+      "id": "closeout-check",
+      "disposition": "deferred",
+      "rationale": "Its precondition is completion of this review; it cannot pass before the attestation is recorded."
+    },
+    {
+      "id": "review-check",
+      "disposition": "deferred",
+      "rationale": "Its precondition is completion of this review; it cannot pass before the attestation is recorded."
+    },
+    {
+      "id": "suggest-review",
+      "component": "pose-mcp",
+      "disposition": "not-used",
+      "rationale": "Recommended only; review targets were taken from the sealed change set."
+    },
+    {
+      "id": "validate",
+      "disposition": "passed",
+      "evidence": "unit:pose-mcp/go/test",
+      "rationale": "Sealed evidence passes. My sandboxed re-run of pose validate --strict exited 1 on 11 environment-bound checks (/var/tmp ownership refusals, release-listing HTTP 403, runtime host start, chmod); none exercises the changed files."
+    },
+    {
+      "id": "validate",
+      "component": "pose-mcp",
+      "disposition": "passed",
+      "evidence": "integration:pose-mcp/go/doctor-federated-spec-capture-integration",
+      "rationale": "Sealed evidence passes; in my re-run of pose validate --strict --module pose-mcp the scope's own check and build passed, while the same 11 environment-bound checks failed (exit 1) for sandbox reasons unrelated to this change."
+    }
+  ],
+  "evidence_refs": [
+    "delegated-run:rrn-388e5d23c2b62dcd",
+    "integration:pose-mcp/go/cli-mcp-operation-results-integration",
+    "integration:pose-mcp/go/closeout-review-policy-integration",
+    "integration:pose-mcp/go/doctor-federated-spec-capture-integration",
+    "integration:pose-mcp/go/doctor-recommends-the-commit-graph-integration",
+    "integration:pose-mcp/go/governance-outcomes-v2-contract",
+    "integration:pose-mcp/go/governance-read-view-integration",
+    "structure:design-30a434e2df6ef2a0",
+    "unit:pose-mcp/go/test"
+  ],
+  "findings": [
+    {
+      "id": "F1",
+      "severity": "low",
+      "evidence": "file:pose-mcp/internal/pose/doctor_closeout_memo_test.go:158",
+      "action": "Assert non-entry directly (e.g. count computeClosedByReceipt invocations via a hook on the bypass path, or poison the cached entry and require a recomputed result) for the different-clock store.",
+      "disposition": "accepted-risk",
+      "owner": "pose-mcp maintainers",
+      "rationale": "Clock-isolation assertion (computes == 0) cannot distinguish the correct bypass from an incorrect memo hit, since onCompute fires only on memo miss and both paths return closed=true; the test does not detect the regression it names.",
+      "review_by": "2026-12-18"
+    },
+    {
+      "id": "F2",
+      "severity": "low",
+      "evidence": "file:pose-mcp/internal/pose/closeout_review_policy.go:888",
+      "action": "Add a test that publishes an index generation, mutates a captured input during CloseoutReviewsOwed, and asserts (nil, ErrGovernanceReadViewChanged); and one asserting the legacy branch still lists.",
+      "disposition": "accepted-risk",
+      "owner": "pose-mcp maintainers",
+      "rationale": "R1 negative path lacks direct evidence: no test drives the public CloseoutReviewsOwed on a current (versioned) index and shows a failed final audit yields an error and no list; memo tests use legacy fixtures and call the internal composition, existing public tests take the legacy branch.",
+      "review_by": "2026-12-18"
+    }
+  ],
+  "authority": {
+    "schema_version": 1,
+    "project": "proj.pose-dist",
+    "bundle_digest": "sha256:54eff98cbf23ae54af3cf97ac7baedcd020a97de55f9bbd1b4ca471992ba12ae",
+    "principal": "agent:anthropic/claude-opus-5-5",
+    "role": "agent",
+    "review_execution": "rrn-388e5d23c2b62dcd",
+    "implementation_principal": "agent:openai/gpt-6.2-sol",
+    "implementation_execution": "sha256:51f576fe752293140d88d04294d75c35b875d4676aa68e144e07c736ab71eea9",
+    "issuer": "b34-local-executor",
+    "issued_at": "2026-11-18T05:44:40Z",
+    "audience": "proj.pose-dist"
+  },
+  "envelope": {
+    "issuer": "b34-local-executor",
+    "subject": "rvb-54eff98cbf23ae54",
+    "algorithm": "ed25519",
+    "public_key": "ck4sApdfePV2GT+hJyAYfJd2qLzeG55P8pevGR0bvZE=",
+    "signature": "Z3ACmm0S3ETx8vnDUcgBudm4oCEykbN7njao5ZVW/i5lY1x0ObG+zpuOEtwEDniClstrDV7rkcoYsoxtyTg+Dw=="
+  },
+  "attested_at": "2026-11-18T05:44:40Z",
+  "path": ".pose/review-attestations/rva-e1eb4cd60796525d.json"
+}

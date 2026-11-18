@@ -1,0 +1,132 @@
+{
+  "safety": {
+    "schema_version": 1,
+    "profile": "legacy-trusted",
+    "platform": "linux/amd64",
+    "capabilities": {
+      "automatic-expiry": "unavailable",
+      "bounded-capture": "available",
+      "cpu-limit": "unavailable",
+      "credential-filesystem-isolation": "unavailable",
+      "environment-allowlist": "available",
+      "escaped-descendant-termination": "unavailable",
+      "filesystem-isolation": "unavailable",
+      "memory-limit": "unavailable",
+      "network-isolation": "unavailable",
+      "origin-isolation": "unavailable",
+      "parent-termination": "available",
+      "process-group-termination": "available",
+      "shared-git-isolation": "unavailable"
+    },
+    "limitations": [
+      "trusted local executable required; worktree is not a sandbox",
+      "outside writes, transient writes, shared Git and credential files are not isolated",
+      "no memory/CPU quota or control of descendants escaping the process group",
+      "cleanup filesystem calls remain subject to operating-system I/O latency",
+      "legacy compatibility: HOME retained; other ambient credentials excluded"
+    ],
+    "stream_bytes": 8388608,
+    "output_bytes": 65536,
+    "retained_bytes": 16777216,
+    "timeout_ms": 3600000,
+    "max_runs_per_bundle": 3,
+    "retention": "retain-evidence; ttl=0; no automatic deletion",
+    "capture_complete": true,
+    "runtime_id": "pose-review-run-3323286775",
+    "operation": {
+      "schema_version": 1,
+      "operation": "review.dispatch.cleanup",
+      "scope": "spec:pose-doctor-asks-every-closeout-in-one-operation",
+      "outcome": "completed",
+      "steps_run": [
+        {
+          "id": "cleanup",
+          "result": "done"
+        }
+      ],
+      "effects": [],
+      "resumable": false
+    }
+  },
+  "provenance": {
+    "execution_state": "started",
+    "planned_wire_digest": "sha256:f65154dd5ca2a967f773b9603703752839d594e7aded8a235615addd4727a2d4",
+    "wire_bytes": 24094,
+    "wire_complete": true,
+    "schema_version": 1,
+    "project": "proj.pose-dist",
+    "audience": "proj.pose-dist",
+    "worktree_digest": "sha256:d8ba3eeda14b34f632ceb2db131bbfc1d07f6e3d9137ec32eb241e1476d913f6",
+    "trust": "executor-attested",
+    "implementation": {
+      "principal": "agent:openai/gpt-6.2-sol",
+      "execution": "sha256:51f576fe752293140d88d04294d75c35b875d4676aa68e144e07c736ab71eea9",
+      "vendor": "openai",
+      "model": "gpt-6.2-sol"
+    },
+    "reviewer": {
+      "principal": "agent:anthropic/claude-opus-5-5",
+      "vendor": "anthropic",
+      "model": "claude-opus-5-5"
+    },
+    "config_digest": "sha256:e1ddc3c1271b531a70d2c5bb9354dc618af0af8a253ccc2d94f2ff3f48224862",
+    "command_template_digest": "sha256:fe92ab9beb2d06bcbed8c834916fd839e931269cea22d30819b20ba37aaede2a",
+    "argv_digest": "sha256:d9cc852c170305ad69f2369fc8cdf263f516e4111e04c4c9601040e0a3ea9a1a",
+    "executable_digest": "sha256:c157074818b094c84aaf31b8c80a1e149f234bb1c8c84a25e9a53e96afa30a29",
+    "template_version": "review-brief/7",
+    "wire_digest": "sha256:f65154dd5ca2a967f773b9603703752839d594e7aded8a235615addd4727a2d4",
+    "notes_digest": "sha256:e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "raw_transcript_digest": "sha256:04dbf032d46b7bbd3510416cb938633c09f21f4a6de7807cbfb2dbabc04a364c",
+    "raw_output_digest": "sha256:b675513ee80399528ca7b300905aa2db47a9f43b00982ec56b8bf95c7398f7e8",
+    "output_source": "stream-final",
+    "output_complete": true
+  },
+  "session_digest": "sha256:91f24ff09205b68a8a87c30a4829f8674f6ffb6b4ba390e789419904382573b8",
+  "tree_digest": "sha256:807fd9dde19cf30386594caa87b3222017c61945b27b0e74d599af4c918b0e3b",
+  "ledger_version": 1,
+  "attempt_id": "rat-58c299dddf25cf3498fa93f8d4faab1ef4a40377a34a702253cf98aac84b4869",
+  "reason": "Prior execution aborted without a conclusion because the required vendor sandbox failed to create bridge sockets. Retry with a shorter temporary root and identical containment.",
+  "schema_version": 1,
+  "run_id": "rrn-388e5d23c2b62dcd",
+  "scope": "spec:pose-doctor-asks-every-closeout-in-one-operation",
+  "bundle_id": "rvb-54eff98cbf23ae54",
+  "bundle_digest": "sha256:54eff98cbf23ae54af3cf97ac7baedcd020a97de55f9bbd1b4ca471992ba12ae",
+  "sealed_commit": "804c6fd640126cb404ec9315d67fd9301dbc84da",
+  "kind": "review",
+  "brief_digest": "sha256:638d1925585ee58712bc8d6205c6cf6d78d7c577c886a873ed491eecabf24c7f",
+  "adapter": "claude-opus-5-5",
+  "vendor": "anthropic",
+  "model": "claude-opus-5-5",
+  "started_at": "2026-11-18T03:59:15.297583583Z",
+  "ended_at": "2026-11-18T04:39:12.743889934Z",
+  "exit_code": 0,
+  "status": "completed",
+  "transcript_digest": "sha256:5344e202fe6e5302d3251e15eacbb6b8759501a646714071b8672758b8a9f5dd",
+  "transcript_path": ".pose/review-runs/rrn-388e5d23c2b62dcd.transcript",
+  "output": "decision: approved\n\n# Review: spec:pose-doctor-asks-every-closeout-in-one-operation\n\nI recommend approving. The implementation matches R1–R6 and D1–D2. I found two low-severity gaps in the tests and recorded both as follow-ups. Neither is a correctness defect.\n\nOne thing first: **my own run of `pose validate --strict` (both module and full) exited 1** in this sandbox. The same 11 checks failed in both runs, and none of them is related to this change:\n- **`/var/tmp` ownership:** \"/var/tmp belongs to another user\" broke the delegate, detach and run-continuity checks.\n- **Network:** `curl` got a 403 from the published-release listing (install journeys).\n- **Runtime host:** it couldn't start, which broke `runtime-qos` and `resident-cache`. `worktreeruntime` timed out at 600 s.\n- **Sandbox chmod:** `operation_files_test.go:584` failed on a file-mode change.\n\nNone of these checks covers the changed files. The new check `doctor-federated-spec-capture-integration` and the `build` check passed in my run, and the sealed bundle records every one of the failing checks as passing. So for both `validate` tools I cite the sealed evidence and note the local exit 1 in the rationale.\n\n## What I checked\n\n- **Diff, read in full:** `doctor_closeout_memo.go`, `closeout_review_policy.go` (+40), `review_operation_view.go` (+10), `governance_read_view.go` (+4), `spec.go` (+7).\n- **Memo soundness:**\n  - Only approvals are kept. Results that are false, errors, cycle cuts, project crossings, and traces past their limits all cut the parent trace.\n  - A cached result is reused only when nothing in the current ancestor chain overlaps the scopes that evaluation visited. That is enough, because `closeoutChain` is read only in `localScopeClosed` (`closeout_review_policy.go:393`).\n  - Removing the append from `localScopeClosed` changes nothing, because `computeClosedByReceipt:781` adds the same element.\n- **Context isolation:**\n  - The key uses root and project from the bound view.\n  - Reuse is refused when the clock, view, resolver, Authorize callback, `indexMaterial` or `planWithoutCloseoutGate` differ, or once the read view is finalized.\n  - Both view constructors clear the memo and trace (`governance_read_view.go:2594,2612`).\n  - Remote stores have no memo, so they fall back and cut.\n- **Error precedence:** in `CloseoutReviewsOwed` (`closeout_review_policy.go:888-899`), if the query returns an error or the final audit fails, no list is returned. Doctor shows that as a `closeout-review.owed` warning with the error text and a fix (`cli/doctor.go:1616-1619`).\n- **Commands I ran:**\n  - `go build ./...` and `go vet ./internal/pose`: clean.\n  - `go test -race ./internal/pose -run 'TestDoctorResolverCatalogue|DoctorCloseoutMemo|Doctor'`: pass, 12/12 new tests.\n  - `go test ./internal/pose ./internal/cli -run 'ReviewOperationView|ReviewScopeOperation|CloseoutReviewPolicy|Doctor'`: `pose` passes. `cli` has one failure, `TestRunContinuityDoctorStatusAndPending`, caused by the `/var/tmp` ownership check in `delegation_task.go:434`, which this change doesn't touch.\n  - `pose artifact-check --spec … --strict`: exit 0. 10 claims, 24 observed paths, and 978 orphan warnings about paths elsewhere in the repo.\n- **Cleanup:** `go clean -cache` exited 0, and the `go-build*` removal under `GOTMPDIR` exited 0 with none left.\n\n## Criteria\n\n| Criterion | Result | Evidence |\n|---|---|---|\n| backend-concurrency | passed | integration:pose-mcp/go/doctor-federated-spec-capture-integration (`-race`) |\n| backend-contracts | passed | integration:pose-mcp/go/governance-outcomes-v2-contract |\n| backend-input-errors | passed | integration:pose-mcp/go/closeout-review-policy-integration |\n| backend-integration-impact | passed | integration:pose-mcp/go/governance-read-view-integration |\n| backend-observability | passed | unit:pose-mcp/go/test |\n| compatibility | passed | integration:pose-mcp/go/cli-mcp-operation-results-integration |\n| correctness | passed | integration:pose-mcp/go/doctor-federated-spec-capture-integration |\n| documentation | passed | structure:design-30a434e2df6ef2a0 |\n| operability | passed | integration:pose-mcp/go/doctor-recommends-the-commit-graph-integration |\n| requirements | passed | integration:pose-mcp/go/doctor-federated-spec-capture-integration |\n| scope | passed | structure:design-30a434e2df6ef2a0 |\n| security | passed | integration:pose-mcp/go/governance-read-view-integration |\n\n## Defects\n\n- **F1 (low): `pose-mcp/internal/pose/doctor_closeout_memo_test.go:158`.** The check that a store with a different clock stays out of the memo asserts `computes == 0`. But `onCompute` only fires when the memo misses, so a wrong memo hit would also give 0 (and `closed == true`). The test can't catch the regression it names.\n- **F2 (low): `pose-mcp/internal/pose/closeout_review_policy.go:879-899`.** No test calls the public `CloseoutReviewsOwed` on a current (versioned) index and checks that a failed final audit returns no list (R1). The memo tests use legacy-index fixtures and call `WithReviewOperationView` plus `withDoctorCloseoutMemo` directly, while the existing public-API tests take the legacy branch.\n\n```pose-draft\n{\n  \"schema\": \"pose.review.draft/v1\",\n  \"decision\": \"approved\",\n  \"findings\": [\n    {\n      \"id\": \"F1\",\n      \"severity\": \"low\",\n      \"disposition\": \"follow-up\",\n      \"file\": \"pose-mcp/internal/pose/doctor_closeout_memo_test.go\",\n      \"line\": 158,\n      \"summary\": \"Clock-isolation assertion (computes == 0) cannot distinguish the correct bypass from an incorrect memo hit, since onCompute fires only on memo miss and both paths return closed=true; the test does not detect the regression it names.\",\n      \"action\": \"Assert non-entry directly (e.g. count computeClosedByReceipt invocations via a hook on the bypass path, or poison the cached entry and require a recomputed result) for the different-clock store.\",\n      \"owner\": \"pose-mcp maintainers\",\n      \"review_by\": \"2026-12-18\"\n    },\n    {\n      \"id\": \"F2\",\n      \"severity\": \"low\",\n      \"disposition\": \"follow-up\",\n      \"file\": \"pose-mcp/internal/pose/closeout_review_policy.go\",\n      \"line\": 888,\n      \"summary\": \"R1 negative path lacks direct evidence: no test drives the public CloseoutReviewsOwed on a current (versioned) index and shows a failed final audit yields an error and no list; memo tests use legacy fixtures and call the internal composition, existing public tests take the legacy branch.\",\n      \"action\": \"Add a test that publishes an index generation, mutates a captured input during CloseoutReviewsOwed, and asserts (nil, ErrGovernanceReadViewChanged); and one asserting the legacy branch still lists.\",\n      \"owner\": \"pose-mcp maintainers\",\n      \"review_by\": \"2026-12-18\"\n    }\n  ],\n  \"criteria\": [\n    {\"id\": \"backend-concurrency\", \"disposition\": \"passed\", \"evidence\": \"integration:pose-mcp/go/doctor-federated-spec-capture-integration\", \"rationale\": \"Memo and trace are mutex-guarded, no lock is held across recursive verification (doctor_closeout_memo.go:170), memo is closed in a defer at callback exit and cleared by both view constructors; focused tests pass under -race locally.\"},\n    {\"id\": \"backend-contracts\", \"disposition\": \"passed\", \"evidence\": \"integration:pose-mcp/go/governance-outcomes-v2-contract\", \"rationale\": \"No exported signature, JSON shape or CLI/MCP output changed; new Store fields and the specCatalogueListed hook are unexported.\"},\n    {\"id\": \"backend-input-errors\", \"disposition\": \"passed\", \"evidence\": \"integration:pose-mcp/go/closeout-review-policy-integration\", \"rationale\": \"Errors and false results are never cached (TestDoctorCloseoutMemoErrorsAndRemoteBoundary); query error takes precedence, then audit error, and no list is returned on either.\"},\n    {\"id\": \"backend-integration-impact\", \"disposition\": \"passed\", \"evidence\": \"integration:pose-mcp/go/governance-read-view-integration\", \"rationale\": \"Resolver snapshots are allocated after withGovernanceReadView and before the binding pointer is fixed, in both the operation and scope-operation entries; remote crossings remain unmemoized and cut the parent trace.\"},\n    {\"id\": \"backend-observability\", \"disposition\": \"passed\", \"evidence\": \"unit:pose-mcp/go/test\", \"rationale\": \"Audit/binding failures surface through doctor's closeout-review.owed warn with the error text and a remediation (cli/doctor.go:1616-1619); no sensitive data added.\"},\n    {\"id\": \"compatibility\", \"disposition\": \"passed\", \"evidence\": \"integration:pose-mcp/go/cli-mcp-operation-results-integration\", \"rationale\": \"Examined the public CloseoutReviewsOwed and doctor caller: legacy-unversioned instances keep the prior advisory path verbatim; versioned instances now fail closed on audit failure as R1 requires. No public CLI/file/MCP contract changed.\"},\n    {\"id\": \"correctness\", \"disposition\": \"passed\", \"evidence\": \"integration:pose-mcp/go/doctor-federated-spec-capture-integration\", \"rationale\": \"Reviewed memo soundness: approvals reused only when the ancestor chain is disjoint from the visited scopes, which suffices because closeoutChain is only consulted in localScopeClosed; equivalence with the plain verifier is asserted for linear, ancestor-intersecting and cyclic topologies.\"},\n    {\"id\": \"documentation\", \"disposition\": \"passed\", \"evidence\": \"structure:design-30a434e2df6ef2a0\", \"rationale\": \"Examined doctor output, help and templates: no user-visible behavior or scaffold changed; the spec documents approach, decisions, known gaps and that F5 remains open; code comments explain memo lifetime and cut rules.\"},\n    {\"id\": \"operability\", \"disposition\": \"passed\", \"evidence\": \"integration:pose-mcp/go/doctor-recommends-the-commit-graph-integration\", \"rationale\": \"Doctor still reports a failure to list owed reviews as an actionable warn naming pose closeout-check; memo limits fall back to the original verifier rather than erroring.\"},\n    {\"id\": \"requirements\", \"disposition\": \"passed\", \"evidence\": \"integration:pose-mcp/go/doctor-federated-spec-capture-integration\", \"rationale\": \"R2/R4/R5 covered by TestDoctorResolverCatalogue*, R3 by PreservesResolution, R6 by TestDoctorCloseoutMemo*; R1 is implemented but its public-path negative test is weak (F2, accepted low follow-up).\"},\n    {\"id\": \"scope\", \"disposition\": \"passed\", \"evidence\": \"structure:design-30a434e2df6ef2a0\", \"rationale\": \"Compared the diff with the spec's Artifacts list and non-goals: only the declared files changed, no persistent cache, catalogue or policy change, memo confined to the CloseoutReviewsOwed callback per D1/D2.\"},\n    {\"id\": \"security\", \"disposition\": \"passed\", \"evidence\": \"integration:pose-mcp/go/governance-read-view-integration\", \"rationale\": \"Examined authority boundaries: a dynamic Authorize callback disables the memo; unauthorized/missing/duplicate identities resolve identically to the live path; snapshots never cross operations; final audit still refuses changed inputs including same-size/restored-mtime edits.\"}\n  ],\n  \"tools\": [\n    {\"id\": \"artifact-check\", \"disposition\": \"passed\", \"evidence\": \"command:pose artifact-check --spec pose-doctor-asks-every-closeout-in-one-operation --strict\", \"rationale\": \"Exit 0; 10 claims, 24 observed; 978 warnings are orphan paths elsewhere in the repo.\"},\n    {\"id\": \"assess-design\", \"disposition\": \"not-used\", \"rationale\": \"Recommended only; relied on the sealed structure evidence and direct code reading instead.\"},\n    {\"id\": \"assess-discover\", \"component\": \"pose-mcp\", \"disposition\": \"not-used\", \"rationale\": \"Recommended only; component surface reviewed directly via the diff.\"},\n    {\"id\": \"assess-integrate\", \"disposition\": \"not-used\", \"rationale\": \"Recommended only; integration impact judged from sealed integration evidence and code reading.\"},\n    {\"id\": \"assess-tech-debt\", \"disposition\": \"not-used\", \"rationale\": \"Recommended only; not needed to judge this bugfix scope.\"},\n    {\"id\": \"closeout-check\", \"disposition\": \"deferred\", \"rationale\": \"Its precondition is completion of this review; it cannot pass before the attestation is recorded.\"},\n    {\"id\": \"review-check\", \"disposition\": \"deferred\", \"rationale\": \"Its precondition is completion of this review; it cannot pass before the attestation is recorded.\"},\n    {\"id\": \"suggest-review\", \"component\": \"pose-mcp\", \"disposition\": \"not-used\", \"rationale\": \"Recommended only; review targets were taken from the sealed change set.\"},\n    {\"id\": \"validate\", \"disposition\": \"passed\", \"evidence\": \"unit:pose-mcp/go/test\", \"rationale\": \"Sealed evidence passes. My sandboxed re-run of pose validate --strict exited 1 on 11 environment-bound checks (/var/tmp ownership refusals, release-listing HTTP 403, runtime host start, chmod); none exercises the changed files.\"},\n    {\"id\": \"validate\", \"component\": \"pose-mcp\", \"disposition\": \"passed\", \"evidence\": \"integration:pose-mcp/go/doctor-federated-spec-capture-integration\", \"rationale\": \"Sealed evidence passes; in my re-run of pose validate --strict --module pose-mcp the scope's own check and build passed, while the same 11 environment-bound checks failed (exit 1) for sandbox reasons unrelated to this change.\"}\n  ]\n}\n```",
+  "policy_digest": "sha256:90ca53a44c8202b7914e12baa143afac5707221147f71fe6fa30a74bb415f911",
+  "label": "f5-doctor-attributed-r2",
+  "purpose": "review",
+  "env_removed": [
+    "CODEX_CI",
+    "CODEX_SANDBOX_NETWORK_DISABLED",
+    "CODEX_SESSION_ID",
+    "CODEX_THREAD_ID"
+  ],
+  "events": "claude-stream-json",
+  "events_digest": "sha256:9bb1d7bc05f882181bea2e44bb83b98a770c229ed4980e4f934f1424deeb80dc",
+  "routing": {
+    "requested": "claude-opus-5-5",
+    "implementation": {
+      "principal": "agent:openai/gpt-6.2-sol",
+      "vendor": "openai",
+      "model": "gpt-6.2-sol",
+      "execution_digest": "sha256:51f576fe752293140d88d04294d75c35b875d4676aa68e144e07c736ab71eea9",
+      "source": "declared"
+    },
+    "implementation_from": "bundle",
+    "step": "explicit"
+  },
+  "independence_achieved": "different-vendor",
+  "round": 1
+}

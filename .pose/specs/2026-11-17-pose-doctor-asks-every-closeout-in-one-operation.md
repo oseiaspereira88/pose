@@ -1,8 +1,8 @@
 ---
 slug: pose-doctor-asks-every-closeout-in-one-operation
-status: in-progress
+status: done
 created_at: 2026-11-17
-completed_at:
+completed_at: 2026-11-18
 supersedes:
 depends_on: pose-review-ledger-is-read-once-per-operation
 priority: 0
@@ -127,3 +127,6 @@ O doctor reutiliza capturas federadas de specs dentro de uma operação auditada
 ### Follow-ups
 - [open] F1: reforçar a prova de que uma consulta com relógio diferente ignora o memo, distinguindo um hit de uma avaliação direta. (owner:@pose-maintainers crit:low review:2026-12-18)
 - [open] F2: cobrir diretamente o erro da auditoria final em CloseoutReviewsOwed com índice versionado e a listagem legada no mesmo teste de integração. (owner:@pose-maintainers crit:low review:2026-12-18)
+
+### Review
+A terceira rodada independente, com Claude Opus 5.5 via `pose delegate`, aprovou o bundle `rvb-802a1ee45eef5bf9` no commit `d0102317`. O POSE registrou o run `rrn-f77daa74c95f8273` com a atestação `rva-19397cf4e66e3506`. No commit aberto pelo revisor, o surface-check passou sem achados, o artifact-check passou e os testes focados com race detector passaram. A validação isolada registrou 233 checks aprovados. O parecer discrimina os checks que falharam nas condições do sandbox do revisor. F1 e F2 permanecem abertos.

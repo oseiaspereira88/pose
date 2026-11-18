@@ -1,0 +1,130 @@
+{
+  "safety": {
+    "schema_version": 1,
+    "profile": "legacy-trusted",
+    "platform": "linux/amd64",
+    "capabilities": {
+      "automatic-expiry": "unavailable",
+      "bounded-capture": "available",
+      "cpu-limit": "unavailable",
+      "credential-filesystem-isolation": "unavailable",
+      "environment-allowlist": "available",
+      "escaped-descendant-termination": "unavailable",
+      "filesystem-isolation": "unavailable",
+      "memory-limit": "unavailable",
+      "network-isolation": "unavailable",
+      "origin-isolation": "unavailable",
+      "parent-termination": "available",
+      "process-group-termination": "available",
+      "shared-git-isolation": "unavailable"
+    },
+    "limitations": [
+      "trusted local executable required; worktree is not a sandbox",
+      "outside writes, transient writes, shared Git and credential files are not isolated",
+      "no memory/CPU quota or control of descendants escaping the process group",
+      "cleanup filesystem calls remain subject to operating-system I/O latency",
+      "legacy compatibility: HOME retained; other ambient credentials excluded"
+    ],
+    "stream_bytes": 8388608,
+    "output_bytes": 65536,
+    "retained_bytes": 16777216,
+    "timeout_ms": 3600000,
+    "max_runs_per_bundle": 3,
+    "retention": "retain-evidence; ttl=0; no automatic deletion",
+    "capture_complete": false,
+    "runtime_id": "pose-review-run-1181135528",
+    "operation": {
+      "schema_version": 1,
+      "operation": "review.dispatch.cleanup",
+      "scope": "spec:pose-doctor-asks-every-closeout-in-one-operation",
+      "outcome": "completed",
+      "steps_run": [
+        {
+          "id": "cleanup",
+          "result": "done"
+        }
+      ],
+      "effects": [],
+      "resumable": false
+    }
+  },
+  "provenance": {
+    "execution_state": "not-started",
+    "planned_wire_digest": "sha256:418501544a828a9bec5a6742186a999382cfd483175e10f1e03ec5333490105c",
+    "wire_bytes": 0,
+    "wire_complete": false,
+    "schema_version": 1,
+    "project": "proj.pose-dist",
+    "audience": "proj.pose-dist",
+    "worktree_digest": "sha256:d8ba3eeda14b34f632ceb2db131bbfc1d07f6e3d9137ec32eb241e1476d913f6",
+    "trust": "executor-attested",
+    "implementation": {
+      "principal": "agent:openai/gpt-6.2-sol",
+      "execution": "sha256:51f576fe752293140d88d04294d75c35b875d4676aa68e144e07c736ab71eea9",
+      "vendor": "openai",
+      "model": "gpt-6.2-sol"
+    },
+    "reviewer": {
+      "principal": "agent:anthropic/claude-opus-5-5",
+      "vendor": "anthropic",
+      "model": "claude-opus-5-5"
+    },
+    "config_digest": "sha256:e1ddc3c1271b531a70d2c5bb9354dc618af0af8a253ccc2d94f2ff3f48224862",
+    "command_template_digest": "sha256:5aa4042b3d46a2703e19cdf776ecb75fd96a050bd98380f5e0b3451515871c38",
+    "argv_digest": "",
+    "executable_digest": "",
+    "template_version": "review-brief/7",
+    "wire_digest": "",
+    "notes_digest": "sha256:dac37de37cbeb714d2607e81ddfdb48e7bced66593f4172bd360820dc93d3c36",
+    "raw_transcript_digest": "",
+    "raw_output_digest": "",
+    "output_source": "",
+    "output_complete": false
+  },
+  "brief_notes": "Delta from approved rrn-388e5d23c2b62dcd: no Go or matrix change. The POSE close gate required a typed capability for internal/pose. Spec now declares it with the actual CLI entrypoint and integration check. Final report includes the completed healthcare checks and keeps both low findings as open follow-ups. The clean authenticated strict module matrix passed and surface-check --strict passed with no findings. Treat sandbox limitations honestly and follow the native brief. Concentrate the independent sweep on this delta and do not treat the implementer note as attestation.\n",
+  "ledger_version": 1,
+  "attempt_id": "rat-09ed8ae6f813bcb9e7c15c00c49d26a9cd93a7f452c1b197f9505032fc24ac70",
+  "schema_version": 1,
+  "run_id": "rrn-0e0d53aef6ae5c7f",
+  "scope": "spec:pose-doctor-asks-every-closeout-in-one-operation",
+  "bundle_id": "rvb-d9846c65b90d7fe9",
+  "bundle_digest": "sha256:d9846c65b90d7fe903b1f2a9820bba41307df2e6c41b831d6e4e39a3c3b4268d",
+  "sealed_commit": "2444c5416ec295caf91ff8e5b392fec2268e6561",
+  "kind": "review",
+  "brief_digest": "sha256:10cb91abc3661542e76cbc4053711ad18eb4be35bcae9131f8250a7b8d21b40f",
+  "adapter": "claude-opus-5-5",
+  "vendor": "anthropic",
+  "model": "claude-opus-5-5",
+  "started_at": "2026-11-18T07:04:59.656376224Z",
+  "ended_at": "2026-11-18T07:05:04.071795628Z",
+  "exit_code": -1,
+  "status": "failed",
+  "failure": "sealed checkout blocked: [no passed structured validation evidence is attributed to the review scope]",
+  "transcript_digest": "sha256:e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+  "transcript_path": ".pose/review-runs/rrn-0e0d53aef6ae5c7f.transcript",
+  "output": "",
+  "policy_digest": "sha256:90ca53a44c8202b7914e12baa143afac5707221147f71fe6fa30a74bb415f911",
+  "label": "f5-doctor-declared",
+  "purpose": "review",
+  "events": "claude-stream-json",
+  "events_digest": "sha256:e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+  "routing": {
+    "requested": "claude-opus-5-5",
+    "implementation": {
+      "principal": "agent:openai/gpt-6.2-sol",
+      "vendor": "openai",
+      "model": "gpt-6.2-sol",
+      "execution_digest": "sha256:51f576fe752293140d88d04294d75c35b875d4676aa68e144e07c736ab71eea9",
+      "source": "declared"
+    },
+    "implementation_from": "bundle",
+    "step": "explicit"
+  },
+  "independence_achieved": "different-vendor",
+  "round": 2,
+  "thread": {
+    "round": 2,
+    "mode": "continued",
+    "from": "rrn-388e5d23c2b62dcd"
+  }
+}

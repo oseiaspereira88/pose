@@ -1,0 +1,131 @@
+{
+  "safety": {
+    "schema_version": 1,
+    "profile": "legacy-trusted",
+    "platform": "linux/amd64",
+    "capabilities": {
+      "automatic-expiry": "unavailable",
+      "bounded-capture": "available",
+      "cpu-limit": "unavailable",
+      "credential-filesystem-isolation": "unavailable",
+      "environment-allowlist": "available",
+      "escaped-descendant-termination": "unavailable",
+      "filesystem-isolation": "unavailable",
+      "memory-limit": "unavailable",
+      "network-isolation": "unavailable",
+      "origin-isolation": "unavailable",
+      "parent-termination": "available",
+      "process-group-termination": "available",
+      "shared-git-isolation": "unavailable"
+    },
+    "limitations": [
+      "trusted local executable required; worktree is not a sandbox",
+      "outside writes, transient writes, shared Git and credential files are not isolated",
+      "no memory/CPU quota or control of descendants escaping the process group",
+      "cleanup filesystem calls remain subject to operating-system I/O latency",
+      "legacy compatibility: HOME retained; other ambient credentials excluded"
+    ],
+    "stream_bytes": 8388608,
+    "output_bytes": 65536,
+    "retained_bytes": 16777216,
+    "timeout_ms": 3600000,
+    "max_runs_per_bundle": 3,
+    "retention": "retain-evidence; ttl=0; no automatic deletion",
+    "capture_complete": true,
+    "runtime_id": "pose-review-run-1286046675",
+    "operation": {
+      "schema_version": 1,
+      "operation": "review.dispatch.cleanup",
+      "scope": "spec:pose-doctor-asks-every-closeout-in-one-operation",
+      "outcome": "completed",
+      "steps_run": [
+        {
+          "id": "cleanup",
+          "result": "done"
+        }
+      ],
+      "effects": [],
+      "resumable": false
+    }
+  },
+  "provenance": {
+    "execution_state": "started",
+    "planned_wire_digest": "sha256:f65154dd5ca2a967f773b9603703752839d594e7aded8a235615addd4727a2d4",
+    "wire_bytes": 24094,
+    "wire_complete": true,
+    "schema_version": 1,
+    "project": "proj.pose-dist",
+    "audience": "proj.pose-dist",
+    "worktree_digest": "sha256:d8ba3eeda14b34f632ceb2db131bbfc1d07f6e3d9137ec32eb241e1476d913f6",
+    "trust": "executor-attested",
+    "implementation": {
+      "principal": "agent:openai/gpt-6.2-sol",
+      "execution": "sha256:51f576fe752293140d88d04294d75c35b875d4676aa68e144e07c736ab71eea9",
+      "vendor": "openai",
+      "model": "gpt-6.2-sol"
+    },
+    "reviewer": {
+      "principal": "agent:anthropic/claude-opus-5-5",
+      "vendor": "anthropic",
+      "model": "claude-opus-5-5"
+    },
+    "config_digest": "sha256:e1ddc3c1271b531a70d2c5bb9354dc618af0af8a253ccc2d94f2ff3f48224862",
+    "command_template_digest": "sha256:fe92ab9beb2d06bcbed8c834916fd839e931269cea22d30819b20ba37aaede2a",
+    "argv_digest": "sha256:6f2e9121cc93da8545fca4cae87c561ea49aaa6cb7e992120190f990e3b85e14",
+    "executable_digest": "sha256:c157074818b094c84aaf31b8c80a1e149f234bb1c8c84a25e9a53e96afa30a29",
+    "template_version": "review-brief/7",
+    "wire_digest": "sha256:f65154dd5ca2a967f773b9603703752839d594e7aded8a235615addd4727a2d4",
+    "notes_digest": "sha256:e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "raw_transcript_digest": "sha256:63be952230840e23df53c19ba1bcbdb5e2882a6640a238b4a3b2cafae14f3017",
+    "raw_output_digest": "sha256:81747bbda6795223ea2186c94b5d7038ab80f06a6d0e4f76ef67b195fb6cb19a",
+    "output_source": "stream-final",
+    "output_complete": true
+  },
+  "session_digest": "sha256:5678a49991b64a7794e8f46827b4ed69172fe3878b1b2ddb81571d19c67c506b",
+  "tree_digest": "sha256:807fd9dde19cf30386594caa87b3222017c61945b27b0e74d599af4c918b0e3b",
+  "ledger_version": 1,
+  "attempt_id": "rat-3a0c952ea4b416a98a062d6f24e1fb17ac7e0b88f983ea6d837289e07805f2e7",
+  "schema_version": 1,
+  "run_id": "rrn-11c5c02999408559",
+  "scope": "spec:pose-doctor-asks-every-closeout-in-one-operation",
+  "bundle_id": "rvb-54eff98cbf23ae54",
+  "bundle_digest": "sha256:54eff98cbf23ae54af3cf97ac7baedcd020a97de55f9bbd1b4ca471992ba12ae",
+  "sealed_commit": "804c6fd640126cb404ec9315d67fd9301dbc84da",
+  "kind": "review",
+  "brief_digest": "sha256:638d1925585ee58712bc8d6205c6cf6d78d7c577c886a873ed491eecabf24c7f",
+  "adapter": "claude-opus-5-5",
+  "vendor": "anthropic",
+  "model": "claude-opus-5-5",
+  "started_at": "2026-11-18T03:57:08.251110818Z",
+  "ended_at": "2026-11-18T03:57:47.271625552Z",
+  "exit_code": 0,
+  "status": "completed",
+  "transcript_digest": "sha256:81adb1ad20a752cd157b8c484d3ef59f08eb0b1c34e9f5a217973baeafd6cd75",
+  "transcript_path": ".pose/review-runs/rrn-11c5c02999408559.transcript",
+  "output": "I couldn't do this review. The Bash sandbox won't start: both attempts failed with \"Sandbox is required but failed to initialize: Failed to create bridge sockets after 5 attempts. Restart to retry.\" Running outside the sandbox is disabled in this session, so no shell commands can run at all.\n\nThe brief says to name what's missing and stop if I can't get something I need. These are the things the sandbox failure blocks:\n\n- **Required tools:** `pose validate --strict`, `pose validate --strict --module pose-mcp` and `pose artifact-check --spec pose-doctor-asks-every-closeout-in-one-operation --strict`. A required tool must be run and passed before a draft can be accepted.\n- **Recommended tools:** the `assess` and `suggest review` commands.\n- **Inspecting the change and running tests:** `git diff 0482cbc2..804c6fd6`, `go test` and similar commands. I'd need those to judge the concurrency, correctness and requirements criteria with my own evidence.\n- **Final cleanup:** `go clean -cache` and removing leftover `go-build*` directories under `GOTMPDIR`. Both must run inside the sandbox. **Neither ran, so cleanup did not happen.** Since nothing was built or tested, there should be no leftovers, but that is not a completed cleanup, and the engine should treat this run as failed.\n\nI haven't written a `pose-draft` block. Without the required tools run and passed, POSE would refuse any draft, and approving or requesting changes without evidence would misstate what I checked. I haven't reported any defects for the same reason.\n\nTo retry, restart the session so the sandbox can set up again, then rerun the review. I made no changes to the repository.",
+  "policy_digest": "sha256:90ca53a44c8202b7914e12baa143afac5707221147f71fe6fa30a74bb415f911",
+  "label": "f5-doctor-attributed-r1",
+  "purpose": "review",
+  "env_removed": [
+    "CODEX_CI",
+    "CODEX_SANDBOX_NETWORK_DISABLED",
+    "CODEX_SESSION_ID",
+    "CODEX_THREAD_ID"
+  ],
+  "events": "claude-stream-json",
+  "events_digest": "sha256:806605264739e2e4858005de9e317765be07302986ff0696d08c42f4c62bce04",
+  "routing": {
+    "requested": "claude-opus-5-5",
+    "implementation": {
+      "principal": "agent:openai/gpt-6.2-sol",
+      "vendor": "openai",
+      "model": "gpt-6.2-sol",
+      "execution_digest": "sha256:51f576fe752293140d88d04294d75c35b875d4676aa68e144e07c736ab71eea9",
+      "source": "declared"
+    },
+    "implementation_from": "bundle",
+    "step": "explicit"
+  },
+  "independence_achieved": "different-vendor",
+  "round": 1
+}

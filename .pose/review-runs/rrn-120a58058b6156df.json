@@ -1,0 +1,137 @@
+{
+  "safety": {
+    "schema_version": 1,
+    "profile": "legacy-trusted",
+    "platform": "linux/amd64",
+    "capabilities": {
+      "automatic-expiry": "unavailable",
+      "bounded-capture": "available",
+      "cpu-limit": "unavailable",
+      "credential-filesystem-isolation": "unavailable",
+      "environment-allowlist": "available",
+      "escaped-descendant-termination": "unavailable",
+      "filesystem-isolation": "unavailable",
+      "memory-limit": "unavailable",
+      "network-isolation": "unavailable",
+      "origin-isolation": "unavailable",
+      "parent-termination": "available",
+      "process-group-termination": "available",
+      "shared-git-isolation": "unavailable"
+    },
+    "limitations": [
+      "trusted local executable required; worktree is not a sandbox",
+      "outside writes, transient writes, shared Git and credential files are not isolated",
+      "no memory/CPU quota or control of descendants escaping the process group",
+      "cleanup filesystem calls remain subject to operating-system I/O latency",
+      "legacy compatibility: HOME retained; other ambient credentials excluded"
+    ],
+    "stream_bytes": 8388608,
+    "output_bytes": 65536,
+    "retained_bytes": 16777216,
+    "timeout_ms": 3600000,
+    "max_runs_per_bundle": 3,
+    "retention": "retain-evidence; ttl=0; no automatic deletion",
+    "capture_complete": true,
+    "runtime_id": "pose-review-run-1001837496",
+    "operation": {
+      "schema_version": 1,
+      "operation": "review.dispatch.cleanup",
+      "scope": "spec:pose-doctor-asks-every-closeout-in-one-operation",
+      "outcome": "completed",
+      "steps_run": [
+        {
+          "id": "cleanup",
+          "result": "done"
+        }
+      ],
+      "effects": [],
+      "resumable": false
+    }
+  },
+  "provenance": {
+    "execution_state": "started",
+    "planned_wire_digest": "sha256:3b4678ef975c7c67bb2bdbc9be64b94fa53fd475f1df497f73e850f845ef7f55",
+    "wire_bytes": 27669,
+    "wire_complete": true,
+    "schema_version": 1,
+    "project": "proj.pose-dist",
+    "audience": "proj.pose-dist",
+    "worktree_digest": "sha256:d8ba3eeda14b34f632ceb2db131bbfc1d07f6e3d9137ec32eb241e1476d913f6",
+    "trust": "executor-attested",
+    "implementation": {
+      "principal": "agent:openai/gpt-6.2-sol",
+      "execution": "sha256:51f576fe752293140d88d04294d75c35b875d4676aa68e144e07c736ab71eea9",
+      "vendor": "openai",
+      "model": "gpt-6.2-sol"
+    },
+    "reviewer": {
+      "principal": "agent:anthropic/claude-opus-5-5",
+      "vendor": "anthropic",
+      "model": "claude-opus-5-5"
+    },
+    "config_digest": "sha256:e1ddc3c1271b531a70d2c5bb9354dc618af0af8a253ccc2d94f2ff3f48224862",
+    "command_template_digest": "sha256:5aa4042b3d46a2703e19cdf776ecb75fd96a050bd98380f5e0b3451515871c38",
+    "argv_digest": "sha256:af6d78fa1a1a327fce0bd51ab31875c316289327a7e5187d45554b79a80f5312",
+    "executable_digest": "sha256:c157074818b094c84aaf31b8c80a1e149f234bb1c8c84a25e9a53e96afa30a29",
+    "template_version": "review-brief/7",
+    "wire_digest": "sha256:3b4678ef975c7c67bb2bdbc9be64b94fa53fd475f1df497f73e850f845ef7f55",
+    "notes_digest": "sha256:dac37de37cbeb714d2607e81ddfdb48e7bced66593f4172bd360820dc93d3c36",
+    "raw_transcript_digest": "sha256:02536768a0acda6642dce3aa61ed034a6f3f9a58976a77aabdddc3d884d00c23",
+    "raw_output_digest": "sha256:a844d4d37933d849cb501acf0f85e7f38dca018d1469f469b49adc3b21fdaf3c",
+    "output_source": "stream-final",
+    "output_complete": true
+  },
+  "session_digest": "sha256:91f24ff09205b68a8a87c30a4829f8674f6ffb6b4ba390e789419904382573b8",
+  "tree_digest": "sha256:b05f83841164190529fa78e9cc617bf5bfdfc5a37e53b1f973e0e7fc8a9ca9fa",
+  "brief_notes": "Delta from approved rrn-388e5d23c2b62dcd: no Go or matrix change. The POSE close gate required a typed capability for internal/pose. Spec now declares it with the actual CLI entrypoint and integration check. Final report includes the completed healthcare checks and keeps both low findings as open follow-ups. The clean authenticated strict module matrix passed and surface-check --strict passed with no findings. Treat sandbox limitations honestly and follow the native brief. Concentrate the independent sweep on this delta and do not treat the implementer note as attestation.\n",
+  "ledger_version": 1,
+  "attempt_id": "rat-8cdcbd6e9f6d9248f3417ca59a9044e769cd6e083f71089b2b87814d4378b34f",
+  "schema_version": 1,
+  "run_id": "rrn-120a58058b6156df",
+  "scope": "spec:pose-doctor-asks-every-closeout-in-one-operation",
+  "bundle_id": "rvb-7c0206bdd81189c1",
+  "bundle_digest": "sha256:7c0206bdd81189c13779000801c7db8ae93a1dd3f56bf5aa445163b77de60687",
+  "sealed_commit": "a5c43041e79479ab49989cf620fd7ab0909de4d3",
+  "kind": "review",
+  "brief_digest": "sha256:bfcfc9ccde99b59282028bcd5f3d2aff5195093788f0eceb7f2b33b74009ac10",
+  "adapter": "claude-opus-5-5",
+  "vendor": "anthropic",
+  "model": "claude-opus-5-5",
+  "started_at": "2026-11-18T07:32:05.826592908Z",
+  "ended_at": "2026-11-18T08:13:10.132795191Z",
+  "exit_code": 0,
+  "status": "completed",
+  "transcript_digest": "sha256:826a565719b9df3770ceca941b6370a49be8f113b4e7598b0b2bc29180508248",
+  "transcript_path": ".pose/review-runs/rrn-120a58058b6156df.transcript",
+  "output": "decision: changes-requested\n\n# Review round 2: spec:pose-doctor-asks-every-closeout-in-one-operation\n\nI'm requesting changes. `pose surface-check --strict` is a required tool, and **it fails at the reviewed commit `a5c43041`**. That contradicts the implementer's note that it \"passed with no findings\". The Go code is the same as round 1, which I approved, and it still holds up.\n\n## What changed since round 1\n\n- `git diff --quiet 804c6fd6..a5c43041 -- pose-mcp` shows **no code or matrix change**.\n- The spec now has `delivers: capability:doctor-asks-every-closeout-in-one-operation`, a delivery target, a requirement trace and a final report. It also records R1-F1 and R1-F2 as open follow-ups.\n- There are new index, validation and bundle records, plus two report files.\n\n## The blocking problem (N1)\n\nSurface-check found two errors on the capability:\n- `stale-evidence`: \"passed integration evidence is bound to a different scoped provenance digest\".\n- `unconsumed-capability`: \"required current evidence is missing: integration\".\n\nI checked whether this could be my sandbox:\n- Two sibling capability specs pass in the same sandbox with 0 findings: `pose-check-shares-the-federated-material` and `pose-federated-proof-reads-each-input-once`.\n- All 233 results in the committed `delivery-validation.json` are bound to the scope digest `e33374…`, which no longer matches.\n- The change set `cs-73cf4b1e0847` includes `a5c43041`. That commit carries the `POSE-Spec:` trailer and adds `.pose/reports/doctor-closeout-operation/declared-dispatch-refusal.json`, after validation was recorded at `de671d80`.\n\nThat makes the trailer commit the most likely cause of the stale provenance. I'm inferring that from the history; I haven't proven it. That report file itself records an earlier refused dispatch: \"no passed structured validation evidence is attributed to the review scope\".\n\nThe fix is to re-record validation for the current subject, or keep that report out of the scope's provenance.\n\n## Other results\n\n- **Previous findings:** R1-F1 and R1-F2 are both **not fixed**. There is no code delta, and `doctor_closeout_memo_test.go:154-160` is unchanged. Both stay acceptable as low follow-ups.\n- **N2 (low):** the spec marks R1 as `[satisfied]` at line 110. Its negative path, where a failed audit must yield no list, still has no direct test, which is R1-F2.\n- **Focused tests:** `go test -race ./internal/pose -run 'TestDoctorResolverCatalogue|TestDoctorCloseoutMemo'` passes.\n- **artifact-check:** exit 0, with 10 claims, 29 observed paths and 978 orphan warnings about paths elsewhere in the repo.\n- **Strict validation, module and full:** both exited 1 on the same 11 environment-bound checks as round 1 (`/var/tmp` ownership, an HTTP 403, the runtime host, a chmod). `doctor-federated-spec-capture-integration` passed. For both validate tools I cite the sealed evidence.\n- **Housekeeping:**\n  - An unnecessary `git checkout --detach` loop ran; HEAD was already detached at `a5c43041`, so nothing moved. Afterwards HEAD was `a5c43041` with a clean tree.\n  - `go clean -cache` exited 0, and the `go-build*` removal under `GOTMPDIR` exited 0 with none left.\n\n```pose-draft\n{\n  \"schema\": \"pose.review.draft/v1\",\n  \"decision\": \"changes-requested\",\n  \"findings\": [\n    {\n      \"id\": \"N1\",\n      \"severity\": \"medium\",\n      \"disposition\": \"blocker\",\n      \"file\": \".pose/results/delivery-validation.json\",\n      \"line\": 185,\n      \"summary\": \"At the subject commit a5c43041, `pose surface-check --spec pose-doctor-asks-every-closeout-in-one-operation --strict` exits 1 with stale-evidence and unconsumed-capability errors for capability:doctor-asks-every-closeout-in-one-operation: all committed results are bound to scope provenance sha256:e33374..., which no longer matches. Sibling capability specs pass in the same environment, so this is scope-specific. Likely cause: a5c43041 (POSE-Spec trailer, adds .pose/reports/doctor-closeout-operation/declared-dispatch-refusal.json) entered the change set after validation was recorded at de671d80. Contradicts the implementer note that surface-check passed.\"\n    },\n    {\n      \"id\": \"N2\",\n      \"severity\": \"low\",\n      \"disposition\": \"follow-up\",\n      \"file\": \".pose/specs/2026-11-17-pose-doctor-asks-every-closeout-in-one-operation.md\",\n      \"line\": 110,\n      \"summary\": \"Requirement trace marks R1 [satisfied] while its negative clause (no successful list when the final audit fails on a versioned index) has no direct test; this is the open R1-F2 follow-up, so the trace overstates the evidence.\",\n      \"action\": \"Qualify the R1 trace entry to reference the open F2 follow-up, or add the versioned-index audit-failure test that F2 asks for.\",\n      \"owner\": \"pose-mcp maintainers\",\n      \"review_by\": \"2026-12-18\"\n    }\n  ],\n  \"prior_findings\": [\n    {\"id\": \"R1-F1\", \"status\": \"not-fixed\", \"evidence\": \"`git diff --quiet 804c6fd6..a5c43041 -- pose-mcp` reports no change; pose-mcp/internal/pose/doctor_closeout_memo_test.go:154-160 still asserts only computes == 0. Tracked as open follow-up F1 at spec line 128.\"},\n    {\"id\": \"R1-F2\", \"status\": \"not-fixed\", \"evidence\": \"No pose-mcp change since round 1 (`git diff --quiet 804c6fd6..a5c43041 -- pose-mcp`); no test drives public CloseoutReviewsOwed on a current index with a failed audit (closeout_review_policy.go:888-899 unchanged). Tracked as open follow-up F2 at spec line 129.\"}\n  ],\n  \"sweep\": \"Diffed 804c6fd6..a5c43041 (spec, reports, indexes, bundles; no Go/matrix change) and re-read the full 0482cbc2..a5c43041 implementation from round 1; re-ran focused -race doctor tests; ran artifact-check --strict, surface-check --strict (plus two sibling capability specs as an environment control), pose validate --strict --module pose-mcp and pose validate --strict; inspected surface-check JSON change set cs-73cf4b1e0847 and its findings, the committed scope provenance, the new delivery target entrypoint (pose-mcp/cmd/pose/main.go exists; doctor reaches CloseoutReviewsOwed at internal/cli/doctor.go:1616), the requirement trace, known gaps and follow-ups in the spec.\",\n  \"criteria\": [\n    {\"id\": \"assumption-integrity\", \"disposition\": \"passed\", \"evidence\": \"integration:pose-mcp/go/doctor-federated-spec-capture-integration\", \"rationale\": \"Examined the spec's assumptions against evidence: memo soundness rests on closeoutChain being consulted only in localScopeClosed (verified by grep, closeout_review_policy.go:393); remote proofs being conservatively cut is verified by TestDoctorCloseoutMemoForeignSpecProofIsNotRetained; the F5 timing claims are recorded measurements in .pose/reports (not reproduced, treated as reported facts); R1-F1/R1-F2 are correctly kept as accepted-risk follow-ups. The one unverified claim (surface-check passed) is contradicted, see N1.\"},\n    {\"id\": \"backend-concurrency\", \"disposition\": \"passed\", \"evidence\": \"integration:pose-mcp/go/doctor-federated-spec-capture-integration\", \"rationale\": \"Memo/trace mutexes, no lock held over recursion, defer-closed memo; focused tests pass under -race at a5c43041.\"},\n    {\"id\": \"backend-contracts\", \"disposition\": \"passed\", \"evidence\": \"integration:pose-mcp/go/governance-outcomes-v2-contract\", \"rationale\": \"No exported API, JSON or CLI/MCP shape changed; new fields and the listing hook are unexported.\"},\n    {\"id\": \"backend-input-errors\", \"disposition\": \"passed\", \"evidence\": \"integration:pose-mcp/go/closeout-review-policy-integration\", \"rationale\": \"Errors, false results and cuts are never cached; query error then audit error take precedence and no list is published.\"},\n    {\"id\": \"backend-integration-impact\", \"disposition\": \"passed\", \"evidence\": \"integration:pose-mcp/go/governance-read-view-integration\", \"rationale\": \"Snapshots allocated after the read view and before binding in both operation entries; remote crossings unmemoized; doctor consumer unchanged.\"},\n    {\"id\": \"backend-observability\", \"disposition\": \"passed\", \"evidence\": \"unit:pose-mcp/go/test\", \"rationale\": \"Audit/binding failures surface as doctor closeout-review.owed warnings with error text and remediation (internal/cli/doctor.go:1616-1619).\"},\n    {\"id\": \"compatibility\", \"disposition\": \"passed\", \"evidence\": \"integration:pose-mcp/go/cli-mcp-operation-results-integration\", \"rationale\": \"Examined the public CloseoutReviewsOwed and doctor output: legacy-unversioned instances keep the prior advisory path; versioned instances fail closed per R1; the new delivers/delivery-target spec fields use the existing declaration format. No contract migration needed.\"},\n    {\"id\": \"correctness\", \"disposition\": \"passed\", \"evidence\": \"integration:pose-mcp/go/doctor-federated-spec-capture-integration\", \"rationale\": \"Memo reuse only when the ancestor chain is disjoint from visited scopes, sufficient because cycle checks read only closeoutChain; equivalence with the plain verifier tested for linear, ancestor-intersecting and cyclic topologies.\"},\n    {\"id\": \"design-causality\", \"disposition\": \"passed\", \"evidence\": \"structure:design-30a434e2df6ef2a0\", \"rationale\": \"Examined how the design addresses the stated cause (profile: repeated GetSpec/ArtifactResolver parse and repeated predecessor verification). D1 allocates per-operation resolver snapshots, removing repeated catalogue parses (R2, measured by the specCatalogueListed hook); D1/D2 add the bounded closeout memo for repeated terminal verification (R6). Both are confined to the audited operation, so the final audit (R1/R4) remains the correctness boundary.\"},\n    {\"id\": \"documentation\", \"disposition\": \"passed\", \"evidence\": \"structure:design-30a434e2df6ef2a0\", \"rationale\": \"No user-facing doc, template or scaffold changes are needed: doctor output is unchanged. The spec's delivery target, final report and follow-ups describe runtime behavior; the R1 trace overstatement is captured separately as low N2.\"},\n    {\"id\": \"operability\", \"disposition\": \"passed\", \"evidence\": \"integration:pose-mcp/go/doctor-recommends-the-commit-graph-integration\", \"rationale\": \"Doctor still names `pose closeout-check \u003cscope\u003e` when listing fails; memo limits fall back to the original verifier rather than erroring.\"},\n    {\"id\": \"requirements\", \"disposition\": \"finding\", \"evidence\": \"N1\"},\n    {\"id\": \"scope\", \"disposition\": \"passed\", \"evidence\": \"structure:design-30a434e2df6ef2a0\", \"rationale\": \"Compared the change set with the spec's Artifacts and non-goals: only declared implementation files changed; round 2 adds only spec/report/index/bundle governance records; no persistent cache, catalogue or policy change.\"},\n    {\"id\": \"security\", \"disposition\": \"passed\", \"evidence\": \"integration:pose-mcp/go/governance-read-view-integration\", \"rationale\": \"Examined authority boundaries: a dynamic Authorize disables the memo; missing/duplicate/unauthorized identities resolve identically to the live path; snapshots never cross operations; same-size/restored-mtime edits are refused by the final audit.\"},\n    {\"id\": \"solution-proportionality\", \"disposition\": \"passed\", \"evidence\": \"structure:design-30a434e2df6ef2a0\", \"rationale\": \"Compared with the smallest alternative: snapshots alone were measured insufficient (\u003e600 s, spec execution log), so the memo is justified. It is bounded (2048 entries, 256/32768 visited), confined to one callback, keeps only approvals, and has no persistence or extension points. The choice is invalidated if closeoutChain gains other readers or terminal verification starts depending on caller state outside the guarded fields; the code comments state these limits.\"}\n  ],\n  \"tools\": [\n    {\"id\": \"artifact-check\", \"disposition\": \"passed\", \"evidence\": \"command:pose artifact-check --spec pose-doctor-asks-every-closeout-in-one-operation --strict\", \"rationale\": \"Exit 0 on cs-73cf4b1e0847 (10 claims, 29 observed); the 978 warnings are orphan paths elsewhere in the repo.\"},\n    {\"id\": \"assess-design\", \"disposition\": \"not-used\", \"rationale\": \"Recommended only; relied on sealed structure evidence and direct code reading.\"},\n    {\"id\": \"assess-discover\", \"component\": \"pose-mcp\", \"disposition\": \"not-used\", \"rationale\": \"Recommended only; the component surface was reviewed directly through the diff.\"},\n    {\"id\": \"assess-integrate\", \"disposition\": \"not-used\", \"rationale\": \"Recommended only; integration impact was judged from sealed integration evidence and code reading.\"},\n    {\"id\": \"assess-tech-debt\", \"disposition\": \"not-used\", \"rationale\": \"Recommended only; not needed to judge this bugfix scope.\"},\n    {\"id\": \"closeout-check\", \"disposition\": \"deferred\", \"rationale\": \"Its precondition is completion of this review; it cannot pass before the attestation.\"},\n    {\"id\": \"review-check\", \"disposition\": \"deferred\", \"rationale\": \"Its precondition is completion of this review; it cannot pass before the attestation.\"},\n    {\"id\": \"suggest-review\", \"component\": \"pose-mcp\", \"disposition\": \"not-used\", \"rationale\": \"Recommended only; review targets were taken from the sealed change set.\"},\n    {\"id\": \"surface-check\", \"disposition\": \"failed\", \"evidence\": \"integration:pose-mcp/go/doctor-federated-spec-capture-integration\", \"rationale\": \"Ran `pose surface-check --spec pose-doctor-asks-every-closeout-in-one-operation --strict` at a5c43041: exit 1 with stale-evidence (dif-8eab792fd7b2) and unconsumed-capability (dif-aba2192ac287). The cited check's committed result is bound to an outdated scoped provenance digest. Sibling capability specs pass in the same environment. See N1.\"},\n    {\"id\": \"validate\", \"disposition\": \"passed\", \"evidence\": \"unit:pose-mcp/go/test\", \"rationale\": \"Sealed evidence passes. My sandboxed `pose validate --strict` exited 1 on the same 11 environment-bound checks as round 1 (/var/tmp ownership, release-listing HTTP 403, runtime host start, chmod); none exercises the changed files.\"},\n    {\"id\": \"validate\", \"component\": \"pose-mcp\", \"disposition\": \"passed\", \"evidence\": \"integration:pose-mcp/go/doctor-federated-spec-capture-integration\", \"rationale\": \"Sealed evidence passes; in my `pose validate --strict --module pose-mcp` run this scope's check passed, and the run exited 1 only on the same 11 environment-bound checks.\"}\n  ]\n}\n```",
+  "policy_digest": "sha256:90ca53a44c8202b7914e12baa143afac5707221147f71fe6fa30a74bb415f911",
+  "label": "f5-doctor-anchor",
+  "purpose": "review",
+  "env_removed": [
+    "CODEX_CI",
+    "CODEX_SANDBOX_NETWORK_DISABLED",
+    "CODEX_SESSION_ID",
+    "CODEX_THREAD_ID"
+  ],
+  "events": "claude-stream-json",
+  "events_digest": "sha256:85e3b8d071bb24adf964ac22a90ab8d51f4f595253203ed5c91cbd52a34b9143",
+  "routing": {
+    "requested": "claude-opus-5-5",
+    "implementation": {
+      "principal": "agent:openai/gpt-6.2-sol",
+      "vendor": "openai",
+      "model": "gpt-6.2-sol",
+      "execution_digest": "sha256:51f576fe752293140d88d04294d75c35b875d4676aa68e144e07c736ab71eea9",
+      "source": "declared"
+    },
+    "implementation_from": "bundle",
+    "step": "explicit"
+  },
+  "independence_achieved": "different-vendor",
+  "round": 2,
+  "thread": {
+    "round": 2,
+    "mode": "continued",
+    "from": "rrn-388e5d23c2b62dcd"
+  }
+}
