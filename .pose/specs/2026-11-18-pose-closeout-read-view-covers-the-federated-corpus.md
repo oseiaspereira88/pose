@@ -1,6 +1,6 @@
 ---
 slug: pose-closeout-read-view-covers-the-federated-corpus
-status: draft
+status: in-progress
 created_at: 2026-11-18
 completed_at:
 components: pose-mcp
