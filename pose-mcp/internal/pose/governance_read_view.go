@@ -21,7 +21,7 @@ import (
 const (
 	GovernanceReadViewSchemaVersion = 1
 	governanceReadViewParserVersion = "pose-governance-inputs-v1"
-	governanceReadViewMaxRecords    = 40000
+	governanceReadViewMaxRecords    = 50000
 	governanceReadViewMaxInputBytes = 512 * 1024 * 1024
 	governanceReadViewMaxMetadata   = 16 * 1024 * 1024
 	ReadViewFreshnessCurrent        = "current"

@@ -372,3 +372,21 @@ those reads; it is now kept per source root, identity and pinned revision,
 for each producer, by the same per-operation memo as the review ledger, and
 callers receive deep copies. The first call fell from about 80 s to 60 s.
 
+
+## Accepted amendment — 2026-11-18: observation capacity for federated closeout
+
+Set the shared capture and audit limit to 50,000 observations, including
+retained directory entries. Retain the 16 MiB metadata, 512 MiB captured
+bytes and 8 GiB streamed bytes limits. An observation over any bound leaves
+coverage unknown. Root admission, retry and guarded write rules still apply.
+
+The Harne8 corpus at `dacd8e8e`, with the engine pinned to `903b1b10`, needs
+41,128 to 41,208 observations across its three outstanding closeout plans.
+The hooks plan reaches 40,000 during federated material verification after
+the worktree snapshot has consumed 13,440 observations. The higher count
+leaves room for the measured corpus. It can increase memory and replay work by
+up to 10,000 observations per operation within the other bounds.
+
+Keep the complete worktree comparison and federated input bindings. Scoping
+out either check would remove evidence used when a plan is later applied.
+The measurements are in the closeout-read-view-federated-corpus report.

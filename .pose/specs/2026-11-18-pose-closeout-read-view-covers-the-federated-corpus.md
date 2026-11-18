@@ -68,9 +68,18 @@ A captura, a auditoria e a verificação de provas usam a mesma constante. O tes
 | Corpus federado real | `pose close spec:harne8-hooks-run-through-the-bound-cli --plan --json` e as duas specs de adoção | Os três planos retornam read view current, e os demais gates continuam explícitos. |
 | Regressão do módulo | `pose validate --strict --module pose-mcp --jobs 2` | Matriz obrigatória verde, seguida de revisão Opus 5.5. |
 
+### Requirement trace
+
+- R1 [satisfied] test:TestGovernanceReadViewObservationLimit check:governance-read-view-integration
+- R2 [satisfied] test:TestGovernanceReadViewObservationLimit check:governance-read-view-integration
+- R3 [satisfied] evidence:manual <Medição dos três planos registrada em .pose/reports/closeout-read-view-federated-corpus.json.>
+
+### Known gaps
+Os planos com leitura atual ainda podem dever validação e revisão. O teste com o corpus mede frescor da read view e preserva esses gates. O teto não prediz o volume de observações de revisões futuras.
+
 ## 7. Final Report
 
 ### Delivered scope
-Em preparação.
+A captura e a auditoria admitem 50.000 observações por operação com os mesmos limites de bytes e metadados. Os três planos do Harne8 foram auditados como current com o binário sem instrumentação. Dois ainda pedem resultados estruturados da validação.
 
 ### Follow-ups

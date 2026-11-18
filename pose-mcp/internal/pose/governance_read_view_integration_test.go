@@ -722,3 +722,30 @@ func TestGovernanceReadViewOperationSharesRecordCapacityAndAuditsAcrossRoots(t *
 		t.Fatalf("aggregate record overflow lost its audit cause: %+v", audit)
 	}
 }
+
+// The federated Harne8 closeout needs more than 40,000 observations.
+// Capture and audit admit the full new capacity and refuse the next record.
+func TestGovernanceReadViewObservationLimit(t *testing.T) {
+	const limit = 50000
+	const recordMetadata = 128
+
+	capture := &governanceReadViewOperation{}
+	audit := &governanceReadViewAuditBudget{}
+	for i := 0; i < limit; i++ {
+		if !capture.reserveRecord(recordMetadata) {
+			t.Fatalf("capture refused record %d", i+1)
+		}
+		if !audit.reserve(recordMetadata) {
+			t.Fatalf("audit refused record %d", i+1)
+		}
+	}
+	if capture.reserveRecord(recordMetadata) || audit.reserve(recordMetadata) {
+		t.Fatal("capture or audit admitted a record beyond the limit")
+	}
+
+	capture = &governanceReadViewOperation{metadataBytes: governanceReadViewMaxMetadata}
+	audit = &governanceReadViewAuditBudget{metadata: governanceReadViewMaxMetadata}
+	if capture.reserveRecord(1) || audit.reserve(1) {
+		t.Fatal("the observation capacity bypassed the metadata limit")
+	}
+}
