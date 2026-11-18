@@ -1,8 +1,8 @@
 ---
 slug: pose-closeout-read-view-covers-the-federated-corpus
-status: in-progress
+status: done
 created_at: 2026-11-18
-completed_at:
+completed_at: 2026-11-18
 components: pose-mcp
 task_type: bugfix
 surface: minimal
@@ -84,3 +84,8 @@ Os planos com leitura atual ainda podem dever validação e revisão. O teste co
 A captura e a auditoria admitem 50.000 observações por operação com os mesmos limites de bytes e metadados. Os três planos do Harne8 foram auditados como current com o binário sem instrumentação. Dois ainda pedem resultados estruturados da validação.
 
 ### Follow-ups
+- [open] F1: registrar o commit do motor, o digest do binário e os comandos exatos no relatório de medições na próxima regeneração. (owner:@pose-maintainers crit:low review:2026-12-18)
+- [open] F2: explicitar no ADR que a reprodução de provas e a pré-verificação da travessia do índice compartilham o teto de observações. (owner:@pose-maintainers crit:low review:2026-12-18)
+
+### Review
+Claude Opus 5.5 aprovou a revisão independente via POSE no run rrn-cc363a9559c505dd, no bundle rvb-6d74318d29f4b69a, com atestação rva-4d5a69d35086b604. O revisor reproduziu o limite antigo e confirmou os testes com detector de corrida, o surface-check e a atribuição no commit selado. A matriz estrita do pose-mcp passou com 233 de 233 checks no clone de validação. O parecer registra as diferenças de instalação, runtime e delegação na execução do sandbox. F1 e F2 ficam abertos.

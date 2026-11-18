@@ -1,7 +1,7 @@
 ---
 schema_version: 1
-generated_at: 2026-11-18T11:49:30Z
-baseline_commit: e425d772d1066d5db5c5d63da14ab498109d7482
+generated_at: 2026-11-18T14:32:46Z
+baseline_commit: a53308d63fc488688c6dcd0145f7ee8874346d61
 staleness_policy: max_age_days=7,max_commits=20
 refresh_pending: 
 ---
@@ -27,23 +27,23 @@ próprio deste repositório (produtização v2, DX) segue disponível conforme
 capacidade.
 
 ## Specs & Roadmaps
-<!-- state:derived hash:7afc809014aa -->
+<!-- state:derived hash:76441bc9a31a -->
 
-- specs: total=533 draft=22 in-progress=0 blocked=0 done=508 superseded=0 abandoned=3
+- specs: total=534 draft=22 in-progress=0 blocked=0 done=509 superseded=0 abandoned=3
 - roadmaps: total=23 active=3 done=17
 - últimos closeouts:
+  - spec:pose-closeout-read-view-covers-the-federated-corpus (2026-11-18)
   - spec:pose-doctor-asks-every-closeout-in-one-operation (2026-11-18)
-  - spec:pose-federated-source-proof-is-computed-once-per-operation (2026-11-17)
-  - spec:pose-review-guard-reads-the-integrity-graph-in-place (2026-11-17)
   - spec:pose-read-view-audit-repeats-a-read-under-its-own-time (2026-11-17)
   - spec:pose-git-snapshot-budget-scales-with-the-tree (2026-11-17)
-  - ... e mais 503 (ver `pose_list_specs status:done`)
+  - spec:pose-federated-source-proof-is-computed-once-per-operation (2026-11-17)
+  - ... e mais 504 (ver `pose_list_specs status:done`)
 
 ## Follow-ups
-<!-- state:derived hash:38322de8e08a -->
+<!-- state:derived hash:f4a8dd4a4bf9 -->
 
-- abertos: 290
-- por criticidade: high=9 medium=60 low=202 sem-classificação=19
+- abertos: 292
+- por criticidade: high=9 medium=60 low=204 sem-classificação=19
 - vencidos (review < hoje): 63
 - cobertura: INCOMPLETA — 2 source(s) could not be read: invalid .pose/specs/2026-08-15-pose-instance-engine-version-tracking.md; invalid .pose/specs/2026-08-15-pose-knowledge-durable-reference-type.md; os números acima são o que pôde ser lido
   - spec:pose-package-manager-distribution (owner:@pose-maintainers review:2026-09-18)
@@ -76,22 +76,22 @@ capacidade.
 - knowledge: total=21 ativo=21 expirado=0
 
 ## Validação & Evidência
-<!-- state:derived hash:4987b625f2c4 -->
+<!-- state:derived hash:138a4f87fe8c -->
 
 - último registro: task=validate-native outcome=pass (2026-10-24T18:00:55Z)
 - últimos 30 dias: total=39 outcome_ok=27 outcome_outro=12
 - reports revisados (.md): total=292
+  - report:pose-v6-2-0-autonomous-work.md
   - report:pose-v7-legacy-cleanup-plan.md
   - report:pose-abm-capability-adoption.md
   - report:pose-agency-readiness-pilot.md
   - report:pose-governance-operation-performance-method.md
-  - report:pose-v6-2-0-autonomous-work.md
 
 ## Arquitetura
-<!-- state:derived hash:1c49230a8823 status:active -->
+<!-- state:derived hash:c31019acd4e2 status:active -->
 
 - componentes: total=3 verificados=3 completude=99.2%
-- linhas_de_codigo: producao=120036 testes=116367 total=236403
+- linhas_de_codigo: producao=120036 testes=116392 total=236428
 - linguagens: go
 - saude_de_codigo: TODOs=1 FIXMEs=0 panics=1 stubs=0
 - integracoes: contratos=70 ativos=6 gaps=64

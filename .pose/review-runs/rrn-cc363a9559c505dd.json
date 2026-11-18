@@ -1,0 +1,132 @@
+{
+  "safety": {
+    "schema_version": 1,
+    "profile": "legacy-trusted",
+    "platform": "linux/amd64",
+    "capabilities": {
+      "automatic-expiry": "unavailable",
+      "bounded-capture": "available",
+      "cpu-limit": "unavailable",
+      "credential-filesystem-isolation": "unavailable",
+      "environment-allowlist": "available",
+      "escaped-descendant-termination": "unavailable",
+      "filesystem-isolation": "unavailable",
+      "memory-limit": "unavailable",
+      "network-isolation": "unavailable",
+      "origin-isolation": "unavailable",
+      "parent-termination": "available",
+      "process-group-termination": "available",
+      "shared-git-isolation": "unavailable"
+    },
+    "limitations": [
+      "trusted local executable required; worktree is not a sandbox",
+      "outside writes, transient writes, shared Git and credential files are not isolated",
+      "no memory/CPU quota or control of descendants escaping the process group",
+      "cleanup filesystem calls remain subject to operating-system I/O latency",
+      "legacy compatibility: HOME retained; other ambient credentials excluded"
+    ],
+    "stream_bytes": 8388608,
+    "output_bytes": 65536,
+    "retained_bytes": 16777216,
+    "timeout_ms": 3600000,
+    "max_runs_per_bundle": 3,
+    "retention": "retain-evidence; ttl=0; no automatic deletion",
+    "capture_complete": true,
+    "runtime_id": "pose-review-run-2694386916",
+    "operation": {
+      "schema_version": 1,
+      "operation": "review.dispatch.cleanup",
+      "scope": "spec:pose-closeout-read-view-covers-the-federated-corpus",
+      "outcome": "completed",
+      "steps_run": [
+        {
+          "id": "cleanup",
+          "result": "done"
+        }
+      ],
+      "effects": [],
+      "resumable": false
+    }
+  },
+  "provenance": {
+    "execution_state": "started",
+    "planned_wire_digest": "sha256:fd7049414b3b7a6c09385ee7acca3f930ea8541ca5fc048cfe70b5a888be07bf",
+    "wire_bytes": 25906,
+    "wire_complete": true,
+    "schema_version": 1,
+    "project": "proj.pose-dist",
+    "audience": "proj.pose-dist",
+    "worktree_digest": "sha256:d1ae09ad5095c5760dc56866dd72537aede2a174dda9309514e2f106c1bc1aad",
+    "trust": "executor-attested",
+    "implementation": {
+      "principal": "agent:openai/gpt-6.2-sol",
+      "execution": "sha256:51f576fe752293140d88d04294d75c35b875d4676aa68e144e07c736ab71eea9",
+      "vendor": "openai",
+      "model": "gpt-6.2-sol"
+    },
+    "reviewer": {
+      "principal": "agent:anthropic/claude-opus-5-5",
+      "vendor": "anthropic",
+      "model": "claude-opus-5-5"
+    },
+    "config_digest": "sha256:e1ddc3c1271b531a70d2c5bb9354dc618af0af8a253ccc2d94f2ff3f48224862",
+    "command_template_digest": "sha256:fe92ab9beb2d06bcbed8c834916fd839e931269cea22d30819b20ba37aaede2a",
+    "argv_digest": "sha256:54a81273ec38e1d288fea8fbce6bebdeaf7b8da4c2ccd12558fb42b0278614a0",
+    "executable_digest": "sha256:c157074818b094c84aaf31b8c80a1e149f234bb1c8c84a25e9a53e96afa30a29",
+    "template_version": "review-brief/7",
+    "wire_digest": "sha256:fd7049414b3b7a6c09385ee7acca3f930ea8541ca5fc048cfe70b5a888be07bf",
+    "notes_digest": "sha256:6d65624638ea3a213e5a254634387405c163b2287926c9259016c5af73adf676",
+    "raw_transcript_digest": "sha256:fe434e48b9d33ac9c6e5b2186f75b2f1ec1b98f54da66299d8a9d37bad86a649",
+    "raw_output_digest": "sha256:159294c4a252b846b8a58eb455990741976fe9a5d7a4052f4634d713f127647a",
+    "output_source": "stream-final",
+    "output_complete": true
+  },
+  "session_digest": "sha256:2579da2ee995c5cf596fc582af3816aa1f56c6d33a97eff369dc07e4c010d784",
+  "tree_digest": "sha256:fccf8ce9a334047194b1933fab03b9292251afa2b2c3e056b68e03264b13ae12",
+  "brief_notes": "The observation limit is 50,000. Please verify the shared capture, audit and proof limits, including directory entries and the independent input, streamed and metadata byte limits. The tracked report records the uninstrumented implementation querying an immutable disposable Harne8 corpus. It still reports missing evidence at the next gate. The boundary test fails at 40,001 when restoring the old limit. The two-root overflow test admits either root by itself and rejects their total. The committed validation and indexes are in the exact sealed checkout. Validate the JSON structure of the pose-draft before finalizing.\n",
+  "ledger_version": 1,
+  "attempt_id": "rat-2602d4260e91bbc2682987bf08b09f2732ff69b86bdc8f08141ec87b52ce1521",
+  "schema_version": 1,
+  "run_id": "rrn-cc363a9559c505dd",
+  "scope": "spec:pose-closeout-read-view-covers-the-federated-corpus",
+  "bundle_id": "rvb-6d74318d29f4b69a",
+  "bundle_digest": "sha256:6d74318d29f4b69a1c4968232e63cf69069010e68d224971b173874909c56199",
+  "sealed_commit": "d0d9980c1edb31e2cb3c4fc1a797a9fbc30ef67a",
+  "kind": "review",
+  "brief_digest": "sha256:fc3dd0706dd2f566b2178adceb48150b31cbe49f839f3b855906fa935ca72fb2",
+  "adapter": "claude-opus-5-5",
+  "vendor": "anthropic",
+  "model": "claude-opus-5-5",
+  "started_at": "2026-11-18T13:29:51.622147019Z",
+  "ended_at": "2026-11-18T14:27:56.048512679Z",
+  "exit_code": 0,
+  "status": "completed",
+  "transcript_digest": "sha256:97231b4b56efe924a0e63bc2736b66cbd7a650c6032994ab1d3a6a4e355eb50f",
+  "transcript_path": ".pose/review-runs/rrn-cc363a9559c505dd.transcript",
+  "output": "# Review: spec:pose-closeout-read-view-covers-the-federated-corpus\n\ndecision: approved\n\nThe change is one shared constant, raised from 40,000 to 50,000, with a new boundary test, an ADR amendment and four matching doc copies. I found two low-severity documentation gaps and no blockers.\n\nMy own run of `pose validate --strict` did not pass in this sandbox. It exited 1 for both the module and the workspace: 11 tests failed and 1 timed out. All of them are runtime, delegate, journey or file-mode tests, and they fail the same way when I put the old 40,000 limit back through a build overlay. So the sandbox causes them, not this change. Two facts support marking `validate` passed anyway:\n- The bundle seals passing runs of those same checks.\n- That evidence is bound to `83334d02`, and `pose-mcp` hasn't changed between that commit and `d0d9980c`.\n\n## What I checked\n- **One limit everywhere:** the constant `governanceReadViewMaxRecords` (`governance_read_view.go:24`) bounds capture (`:630`, `:784-803`), audit (`:180`, `:197`, which includes directory entries), proof replay (`:2131`, `:2410-2470`) and the index traversal check (`index_generation.go:1080`). The other limits are unchanged: 512 MiB retained input, 16 MiB metadata and 8 GiB streamed (`governance_read_view_stream.go:27`).\n- **Targeted tests:** the spec's test commands pass with `-race`:\n  - `TestGovernanceReadViewObservationLimit`, the two-root test and the probe capacity test.\n  - The wider `GovernanceReadView|ReviewOperationView|IndexFederatedMaterial` set.\n- **Mutation check:** with the limit reverted to 40,000 through `go test -overlay` (no repository edits), `TestGovernanceReadViewObservationLimit` fails with \"capture refused record 40001\". The two-root overflow test still passes because it is written relative to the constant. That confirms the implementer's claim that each root fits alone and their total is refused.\n- **Tools:**\n  - `artifact-check --strict`: exit 0. Its 982 findings are all orphan warnings across the repository, none from this scope.\n  - `surface-check --strict`: exit 0, 0 findings.\n  - `assess design`: reproduced the sealed digest `295cfa74…`.\n  - `assess integrate`, `tech-debt` and `discover`: ran but couldn't save their output, because the review worktree is read-only.\n- **Docs:** `POSE.md`, the pt-BR copy and both scaffold copies all say 50,000.\n- **Committed validation:** `.pose/results/delivery-validation.json` is bound to `git_head` `83334d02`.\n\n## Criteria\nAll 15 are **passed**. The evidence and reasons are in the block below.\n\n## Structural fact\n- SD-2d7579b1 (ADR amendment) → **D1**, the decision to recalibrate the limit to 50,000 in that ADR.\n\n## Defects\n| id | severity | file:line | summary |\n|---|---|---|---|\n| F1 | low | `.pose/reports/closeout-read-view-federated-corpus.json:73` | The R3 report doesn't name the engine commit or binary that produced it, so the manual evidence can't be tied to the reviewed code. I couldn't re-run it either, because the Harne8 corpus isn't available here. |\n| F2 | low | `.pose/adr/2026-11-03-governance-reads-use-bounded-operation-scoped-views.md:378` | The amendment calls 50,000 the \"capture and audit\" limit. It doesn't mention that proof replay and the index traversal check share the same constant, so that traversal bound also went up. |\n\nBoth are follow-ups with an action, owner and review date, so they are accepted as low risks.\n\n## Cleanup\nI waited for all test, build and background jobs to finish. As the final command, inside the sandbox, I ran `go clean -cache` and removed the leftover `go-build*` directories under `$GOTMPDIR`. Both succeeded, and none remain.\n\n```pose-draft\n{\"schema\":\"pose.review.draft/v1\",\"decision\":\"approved\",\n\"findings\":[\n{\"id\":\"F1\",\"severity\":\"low\",\"disposition\":\"follow-up\",\"file\":\".pose/reports/closeout-read-view-federated-corpus.json\",\"line\":73,\"summary\":\"The R3 measurement report names the Harne8 and pose-dist pins but not the engine revision or binary digest that produced it ('built in isolated clone'). So the manual R3 evidence cannot be tied to the reviewed implementation (14aefb96/83334d02) or re-run by a reviewer.\",\"action\":\"Record the engine commit and binary digest, plus the exact command, in the federated-corpus report on its next regeneration\",\"owner\":\"role:maintainer\",\"review_by\":\"2026-12-18\"},\n{\"id\":\"F2\",\"severity\":\"low\",\"disposition\":\"follow-up\",\"file\":\".pose/adr/2026-11-03-governance-reads-use-bounded-operation-scoped-views.md\",\"line\":378,\"summary\":\"The amendment describes the 50,000 value as the 'shared capture and audit limit'. The same constant also bounds proof replay (governance_read_view.go:2410-2470) and the index-generation traversal preflight (index_generation.go:1080), and that traversal bound now rises too without being stated.\",\"action\":\"State in the ADR that proof replay and the index traversal preflight share the observation constant\",\"owner\":\"role:maintainer\",\"review_by\":\"2026-12-18\"}\n],\n\"criteria\":[\n{\"id\":\"assumption-integrity\",\"disposition\":\"passed\",\"evidence\":\"integration:pose-mcp/go/governance-read-view-integration\",\"rationale\":\"Verified: a single constant (governance_read_view.go:24) governs capture (630, 784-803), audit (180, 197) and proof replay (2131, 2410-2470). The byte, streamed and metadata limits are unchanged (16 MiB, 512 MiB, stream.go:27 8 GiB). An overlay mutation back to 40,000 fails TestGovernanceReadViewObservationLimit at record 40001, and the two-root test stays relative to the constant. Unresolved assumption: the Harne8 measurements of 41,128-41,208 observations (R3) are manual and were not reproducible here because the corpus is absent (F1). Accepted risk (D1 consequences): future corpus growth is not certified.\"},\n{\"id\":\"backend-concurrency\",\"disposition\":\"passed\",\"evidence\":\"integration:pose-mcp/go/governance-read-view-integration\",\"rationale\":\"Only a constant changes. reserveRecord still takes budgetMu. go test -race on GovernanceReadView|ReviewOperationView|IndexFederatedMaterial passed locally.\"},\n{\"id\":\"backend-contracts\",\"disposition\":\"passed\",\"evidence\":\"integration:pose-mcp/go/cli-mcp-operation-results-integration\",\"rationale\":\"read_view schema_version and parser version are unchanged. Only the documented capacity number changes, in all four POSE.md copies.\"},\n{\"id\":\"backend-input-errors\",\"disposition\":\"passed\",\"evidence\":\"integration:pose-mcp/go/governance-read-view-integration\",\"rationale\":\"Overflow still returns errGovernanceReadViewBudget and keeps its audit cause (integration_test.go:712-723). The new test proves refusal of the next record and that the metadata bound still applies.\"},\n{\"id\":\"backend-integration-impact\",\"disposition\":\"passed\",\"evidence\":\"integration:pose-mcp/go/federated-proof-reads-each-input-once-integration\",\"rationale\":\"The cross-root shared budget is preserved: each root fits alone and their total is refused (integration_test.go:699-723).\"},\n{\"id\":\"backend-observability\",\"disposition\":\"passed\",\"evidence\":\"integration:pose-mcp/go/governance-read-view-integration\",\"rationale\":\"The aggregate overflow audit cause is still asserted. No new logging was added and none is needed.\"},\n{\"id\":\"compatibility\",\"disposition\":\"passed\",\"evidence\":\"integration:pose-mcp/go/distributed-instructions-parity-integration\",\"rationale\":\"I checked POSE.md:385, locales/pt-BR/POSE.md:389 and both scaffold copies; all agree on 50,000. Raising a cap only admits more operations; overflow semantics are unchanged.\"},\n{\"id\":\"correctness\",\"disposition\":\"passed\",\"evidence\":\"unit:pose-mcp/go/test\",\"rationale\":\"The targeted race tests pass locally, and the boundary tests at 50,000/50,001 pass. Under the 40,000 mutation the test fails as expected.\"},\n{\"id\":\"design-causality\",\"disposition\":\"passed\",\"evidence\":\"structure:design-295cfa7490dc68de\",\"rationale\":\"The measured 41,143 observations exceed 40,000 during federated material verification. Raising the shared cap (D1) addresses that cause directly while keeping tree comparison and federated bindings in one operation. pose assess design reproduced input digest 295cfa74 with one governance-contract delta.\",\"mappings\":[{\"delta\":\"SD-2d7579b1\",\"basis\":\"D1\",\"disposition\":\"mapped\",\"rationale\":\"D1 records the recalibration to 50,000 in this ADR; the amendment at lines 376-393 is that record.\"}]},\n{\"id\":\"documentation\",\"disposition\":\"passed\",\"evidence\":\"integration:pose-mcp/go/distributed-instructions-parity-integration\",\"rationale\":\"All four doc copies and the ADR match the runtime constant. A minor scope omission is noted in F2 (low, accepted).\"},\n{\"id\":\"operability\",\"disposition\":\"passed\",\"evidence\":\"integration:pose-mcp/go/governance-read-view-integration\",\"rationale\":\"Overflow still leaves freshness unknown with a budget cause. No remediation text changed.\"},\n{\"id\":\"requirements\",\"disposition\":\"passed\",\"evidence\":\"integration:pose-mcp/go/governance-read-view-integration\",\"rationale\":\"R1: TestGovernanceReadViewObservationLimit, the probe capacity test and the directory-entry accounting through reserveDirectory. R2: the overflow refusal and metadata tests. R3: manual report showing three plans current with empty limitations (see F1).\"},\n{\"id\":\"scope\",\"disposition\":\"passed\",\"evidence\":\"structure:design-295cfa7490dc68de\",\"rationale\":\"The diff matches the declared artifacts plus the index and validation bindings. Review policy, Harne8 pin and spec discovery are untouched (non-goals).\"},\n{\"id\":\"security\",\"disposition\":\"passed\",\"evidence\":\"integration:pose-mcp/go/governance-read-view-integration\",\"rationale\":\"Unknown inputs are still blocked. The cap stays bounded: memory growth of up to 10k records is constrained by the unchanged byte and metadata limits. No path or authority changes.\"},\n{\"id\":\"solution-proportionality\",\"disposition\":\"passed\",\"evidence\":\"structure:design-295cfa7490dc68de\",\"rationale\":\"This is the smallest sufficient change: one constant, with roughly 21% headroom over the measured 41,208. The alternative of scoping out the tree comparison or the federated checks was rejected because it removes evidence. No speculative extensibility. The choice is invalidated when the corpus exceeds about 50k observations, as the ADR acknowledges.\"}\n],\n\"tools\":[\n{\"id\":\"artifact-check\",\"disposition\":\"passed\",\"evidence\":\"command:pose artifact-check --spec pose-closeout-read-view-covers-the-federated-corpus --strict\",\"rationale\":\"Exit 0. 9 claims and 14 observed paths; the 982 findings are repo-wide orphan warnings outside this scope.\"},\n{\"id\":\"assess-design\",\"disposition\":\"passed\",\"evidence\":\"structure:design-295cfa7490dc68de\",\"rationale\":\"Reproduced input digest sha256:295cfa74...\"},\n{\"id\":\"assess-discover\",\"component\":\"pose-mcp\",\"disposition\":\"failed\",\"evidence\":\"command:pose assess discover --component pose-mcp\",\"rationale\":\"Could not save .pose/state/components/pose-mcp.json because the review worktree is a read-only file system. Environmental; no assessment output was used.\"},\n{\"id\":\"assess-integrate\",\"disposition\":\"not-used\",\"rationale\":\"Attempted, but the save of .pose/state/integrations.json was refused on the read-only review worktree, so it produced no assessment. Integration was judged from sealed integration evidence.\"},\n{\"id\":\"assess-tech-debt\",\"disposition\":\"failed\",\"evidence\":\"command:pose assess tech-debt\",\"rationale\":\"Could not save .pose/state/technical-debt.json because the review worktree is a read-only file system. Environmental.\"},\n{\"id\":\"closeout-check\",\"disposition\":\"deferred\",\"rationale\":\"Its precondition is the recorded completion of this review.\"},\n{\"id\":\"review-check\",\"disposition\":\"deferred\",\"rationale\":\"Its precondition is the attestation of this review.\"},\n{\"id\":\"suggest-review\",\"component\":\"pose-mcp\",\"disposition\":\"passed\",\"evidence\":\"command:pose suggest review --path pose-mcp\",\"rationale\":\"Exit 0. Rules for security, documentation-style and backend-go were considered.\"},\n{\"id\":\"surface-check\",\"disposition\":\"passed\",\"evidence\":\"reachability:pose-mcp/go/spec-surface-reachability\",\"rationale\":\"Local run: 1 target, 233 results, 0 findings, exit 0.\"},\n{\"id\":\"validate\",\"disposition\":\"passed\",\"evidence\":\"build:pose-mcp/go/build\",\"rationale\":\"Sealed evidence is green and bound to git_head 83334d02; pose-mcp is unchanged up to d0d9980c. My sandboxed re-run exited 1 with 224/236 steps passing, 11 failures and 1 timeout, all in runtime, delegate, journey and chmod tests. Those failures reproduce identically with the base 40,000 limit overlaid, so they are environmental and not caused by this change. governance-read-view-integration passed.\"},\n{\"id\":\"validate\",\"component\":\"pose-mcp\",\"disposition\":\"passed\",\"evidence\":\"unit:pose-mcp/go/test\",\"rationale\":\"Same as the workspace run: local strict module run gave 221/233 passing with the same 11 environmental failures and 1 timeout, which are invariant under the base-limit overlay. The sealed module evidence passes.\"}\n]}\n```",
+  "policy_digest": "sha256:90ca53a44c8202b7914e12baa143afac5707221147f71fe6fa30a74bb415f911",
+  "label": "closeout-read-view-limit-opus",
+  "purpose": "review",
+  "env_removed": [
+    "CODEX_CI",
+    "CODEX_SANDBOX_NETWORK_DISABLED",
+    "CODEX_SESSION_ID",
+    "CODEX_THREAD_ID"
+  ],
+  "events": "claude-stream-json",
+  "events_digest": "sha256:4df23f95beda77e907dced0cb23460ad4dedd215239e6af1e83834d0d6e38a76",
+  "routing": {
+    "requested": "claude-opus-5-5",
+    "implementation": {
+      "principal": "agent:openai/gpt-6.2-sol",
+      "vendor": "openai",
+      "model": "gpt-6.2-sol",
+      "execution_digest": "sha256:51f576fe752293140d88d04294d75c35b875d4676aa68e144e07c736ab71eea9",
+      "source": "declared"
+    },
+    "implementation_from": "bundle",
+    "step": "explicit"
+  },
+  "independence_achieved": "different-vendor",
+  "round": 1
+}
