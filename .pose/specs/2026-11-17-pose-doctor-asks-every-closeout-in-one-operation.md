@@ -65,10 +65,10 @@ O DAG ainda pode repetir verificações de fechamento por caminhos diferentes. N
 
 ## 4. Tasks
 
-- [ ] Registrar início e implementar snapshots federados por operação.
-- [ ] Provar custo, equivalência, frescor e controle negativo.
-- [ ] Medir doctor e os checks de saúde antes de alegar F5 resolvido.
-- [ ] Revisão independente Opus 5.5 e fechamento pelos gates nativos.
+- [x] Registrar início e implementar snapshots federados por operação.
+- [x] Provar custo, equivalência, frescor e controle negativo.
+- [x] Medir doctor e os checks de saúde antes de alegar F5 resolvido.
+- [x] Revisão independente Opus 5.5 e fechamento pelos gates nativos.
 
 ## 5. Decisions
 
