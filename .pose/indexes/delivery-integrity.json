@@ -1,7 +1,7 @@
 {
   "schema_version": 2,
-  "input_digest": "sha256:4a5bd61a33d243ab593e016ba44cf5af4c1c2bc84f3d1ab31ca654d27f38606f",
-  "provenance_digest": "sha256:d9abb1ad2cb17b106f60a6001ba0d8ba85daf66a7df1958c6b47b2ef9a573ca6",
+  "input_digest": "sha256:4dcaa117e3fb07cea0d69388bff1e97e84049fde7c26a232dcf6e677b709b195",
+  "provenance_digest": "sha256:e3c26381059ad9259cfe0e55289eddd843db1f201af6d6f9929a1befcea781e8",
   "implied_edges": [
     "changes"
   ],
@@ -6909,6 +6909,13 @@
       }
     },
     {
+      "id": "artifact:.pose/reports/doctor-closeout-operation/committed-doctor-measurement.json",
+      "type": "artifact",
+      "attributes": {
+        "path": ".pose/reports/doctor-closeout-operation/committed-doctor-measurement.json"
+      }
+    },
+    {
       "id": "artifact:.pose/reports/doctor-closeout-operation/doctor-output-summary.json",
       "type": "artifact",
       "attributes": {
@@ -6923,10 +6930,24 @@
       }
     },
     {
+      "id": "artifact:.pose/reports/doctor-closeout-operation/governed-r1-dispatch.json",
+      "type": "artifact",
+      "attributes": {
+        "path": ".pose/reports/doctor-closeout-operation/governed-r1-dispatch.json"
+      }
+    },
+    {
       "id": "artifact:.pose/reports/doctor-closeout-operation/integrated-doctor-measurement.json",
       "type": "artifact",
       "attributes": {
         "path": ".pose/reports/doctor-closeout-operation/integrated-doctor-measurement.json"
+      }
+    },
+    {
+      "id": "artifact:.pose/reports/doctor-closeout-operation/negative-controls-provenance.json",
+      "type": "artifact",
+      "attributes": {
+        "path": ".pose/reports/doctor-closeout-operation/negative-controls-provenance.json"
       }
     },
     {
@@ -6969,6 +6990,13 @@
       "type": "artifact",
       "attributes": {
         "path": ".pose/reports/doctor-closeout-operation/snapshot-only-measurement.json"
+      }
+    },
+    {
+      "id": "artifact:.pose/reports/doctor-closeout-operation/validation-isolation.json",
+      "type": "artifact",
+      "attributes": {
+        "path": ".pose/reports/doctor-closeout-operation/validation-isolation.json"
       }
     },
     {
@@ -45910,6 +45938,14 @@
       }
     },
     {
+      "id": "change-set:cs-08752e834022",
+      "type": "change-set",
+      "attributes": {
+        "diff_digest": "sha256:d5f5c30db97a395ec2b720c8ed55eb2408ab41ba501edca4c95c495633d155dd",
+        "selector": "trailers:pose-doctor-asks-every-closeout-in-one-operation"
+      }
+    },
+    {
       "id": "change-set:cs-08769463bdbf",
       "type": "change-set",
       "attributes": {
@@ -49107,14 +49143,6 @@
       "attributes": {
         "diff_digest": "sha256:e302d5888be8f2b9caa913f6755be1882b6b2997d42bacce8abbab5a83e0f38a",
         "selector": "trailers:pose-review-overlay-uninstalled-rules-graceful-degradation"
-      }
-    },
-    {
-      "id": "change-set:cs-b59533e9da67",
-      "type": "change-set",
-      "attributes": {
-        "diff_digest": "sha256:139136ed4fb8e3aed69781cfca033d262d674eb117b6aa4a21aac7d8c3499c3a",
-        "selector": "trailers:pose-doctor-asks-every-closeout-in-one-operation"
       }
     },
     {
@@ -118077,7 +118105,7 @@
     },
     {
       "from": "spec:pose-doctor-asks-every-closeout-in-one-operation",
-      "to": "change-set:cs-b59533e9da67",
+      "to": "change-set:cs-08752e834022",
       "type": "observed-by"
     },
     {
@@ -181778,6 +181806,148 @@
           ".pose/state/history.jsonl",
           ".pose/state/project-state.md",
           ".pose/state/refresh-log.jsonl"
+        ]
+      }
+    },
+    {
+      "id": "cs-08752e834022",
+      "spec": "pose-doctor-asks-every-closeout-in-one-operation",
+      "selector": "trailers:pose-doctor-asks-every-closeout-in-one-operation",
+      "base": "fbae636a0c252efa7b03bba7b40d8992d5a88fb5^",
+      "head": "804c6fd640126cb404ec9315d67fd9301dbc84da",
+      "resolved_base": "0482cbc265c018799f6ba5b350337404ac5bab9e",
+      "resolved_head": "804c6fd640126cb404ec9315d67fd9301dbc84da",
+      "commits": [
+        "fbae636a0c252efa7b03bba7b40d8992d5a88fb5",
+        "c5585e80b3cb18229c05a49564f52812ad922482",
+        "804c6fd640126cb404ec9315d67fd9301dbc84da"
+      ],
+      "paths": [
+        {
+          "action": "created",
+          "path": ".pose/reports/doctor-closeout-operation/committed-doctor-measurement.json"
+        },
+        {
+          "action": "created",
+          "path": ".pose/reports/doctor-closeout-operation/doctor-output-summary.json"
+        },
+        {
+          "action": "created",
+          "path": ".pose/reports/doctor-closeout-operation/focused-tests-race.log"
+        },
+        {
+          "action": "created",
+          "path": ".pose/reports/doctor-closeout-operation/governed-r1-dispatch.json"
+        },
+        {
+          "action": "created",
+          "path": ".pose/reports/doctor-closeout-operation/integrated-doctor-measurement.json"
+        },
+        {
+          "action": "created",
+          "path": ".pose/reports/doctor-closeout-operation/negative-controls-provenance.json"
+        },
+        {
+          "action": "created",
+          "path": ".pose/reports/doctor-closeout-operation/negative-controls.json"
+        },
+        {
+          "action": "created",
+          "path": ".pose/reports/doctor-closeout-operation/opus-investigation.md"
+        },
+        {
+          "action": "created",
+          "path": ".pose/reports/doctor-closeout-operation/opus-preliminary-r1.md"
+        },
+        {
+          "action": "created",
+          "path": ".pose/reports/doctor-closeout-operation/progress.json"
+        },
+        {
+          "action": "created",
+          "path": ".pose/reports/doctor-closeout-operation/secondary-implementation.md"
+        },
+        {
+          "action": "created",
+          "path": ".pose/reports/doctor-closeout-operation/snapshot-only-measurement.json"
+        },
+        {
+          "action": "created",
+          "path": ".pose/reports/doctor-closeout-operation/validation-isolation.json"
+        },
+        {
+          "action": "created",
+          "path": ".pose/specs/2026-11-17-pose-doctor-asks-every-closeout-in-one-operation.md"
+        },
+        {
+          "action": "created",
+          "path": ".pose/starts/pose-doctor-asks-every-closeout-in-one-operation.json"
+        },
+        {
+          "action": "created",
+          "path": "pose-mcp/internal/pose/doctor_closeout_memo.go"
+        },
+        {
+          "action": "created",
+          "path": "pose-mcp/internal/pose/doctor_closeout_memo_test.go"
+        },
+        {
+          "action": "created",
+          "path": "pose-mcp/internal/pose/doctor_resolver_specs_test.go"
+        },
+        {
+          "action": "modified",
+          "path": ".pose/indexes/validation-matrix.json"
+        },
+        {
+          "action": "modified",
+          "path": ".pose/results/delivery-validation.json"
+        },
+        {
+          "action": "modified",
+          "path": "pose-mcp/internal/pose/closeout_review_policy.go"
+        },
+        {
+          "action": "modified",
+          "path": "pose-mcp/internal/pose/governance_read_view.go"
+        },
+        {
+          "action": "modified",
+          "path": "pose-mcp/internal/pose/review_operation_view.go"
+        },
+        {
+          "action": "modified",
+          "path": "pose-mcp/internal/pose/spec.go"
+        }
+      ],
+      "diff_digest": "sha256:d5f5c30db97a395ec2b720c8ed55eb2408ab41ba501edca4c95c495633d155dd",
+      "material_digest": "sha256:6719d56087670a5a561e147d45cef9e513bea71270ad158ec3ce0ba8a2ad36b0",
+      "material_inputs": {
+        "names": [
+          ".pose/indexes/validation-matrix.json",
+          ".pose/reports/doctor-closeout-operation/committed-doctor-measurement.json",
+          ".pose/reports/doctor-closeout-operation/doctor-output-summary.json",
+          ".pose/reports/doctor-closeout-operation/focused-tests-race.log",
+          ".pose/reports/doctor-closeout-operation/governed-r1-dispatch.json",
+          ".pose/reports/doctor-closeout-operation/integrated-doctor-measurement.json",
+          ".pose/reports/doctor-closeout-operation/negative-controls-provenance.json",
+          ".pose/reports/doctor-closeout-operation/negative-controls.json",
+          ".pose/reports/doctor-closeout-operation/opus-investigation.md",
+          ".pose/reports/doctor-closeout-operation/opus-preliminary-r1.md",
+          ".pose/reports/doctor-closeout-operation/progress.json",
+          ".pose/reports/doctor-closeout-operation/secondary-implementation.md",
+          ".pose/reports/doctor-closeout-operation/snapshot-only-measurement.json",
+          ".pose/reports/doctor-closeout-operation/validation-isolation.json",
+          ".pose/results/delivery-validation.json",
+          ".pose/specs/2026-11-17-pose-doctor-asks-every-closeout-in-one-operation.md",
+          ".pose/starts/pose-doctor-asks-every-closeout-in-one-operation.json",
+          "pose-mcp/internal/pose/closeout_review_policy.go",
+          "pose-mcp/internal/pose/doctor_closeout_memo.go",
+          "pose-mcp/internal/pose/doctor_closeout_memo_test.go",
+          "pose-mcp/internal/pose/doctor_resolver_specs_test.go",
+          "pose-mcp/internal/pose/governance_read_view.go",
+          "pose-mcp/internal/pose/review_operation_view.go",
+          "pose-mcp/internal/pose/spec.go"
         ]
       }
     },
@@ -264829,127 +264999,6 @@
       }
     },
     {
-      "id": "cs-b59533e9da67",
-      "spec": "pose-doctor-asks-every-closeout-in-one-operation",
-      "selector": "trailers:pose-doctor-asks-every-closeout-in-one-operation",
-      "base": "fbae636a0c252efa7b03bba7b40d8992d5a88fb5^",
-      "head": "c5585e80b3cb18229c05a49564f52812ad922482",
-      "resolved_base": "0482cbc265c018799f6ba5b350337404ac5bab9e",
-      "resolved_head": "c5585e80b3cb18229c05a49564f52812ad922482",
-      "commits": [
-        "fbae636a0c252efa7b03bba7b40d8992d5a88fb5",
-        "c5585e80b3cb18229c05a49564f52812ad922482"
-      ],
-      "paths": [
-        {
-          "action": "created",
-          "path": ".pose/reports/doctor-closeout-operation/doctor-output-summary.json"
-        },
-        {
-          "action": "created",
-          "path": ".pose/reports/doctor-closeout-operation/focused-tests-race.log"
-        },
-        {
-          "action": "created",
-          "path": ".pose/reports/doctor-closeout-operation/integrated-doctor-measurement.json"
-        },
-        {
-          "action": "created",
-          "path": ".pose/reports/doctor-closeout-operation/negative-controls.json"
-        },
-        {
-          "action": "created",
-          "path": ".pose/reports/doctor-closeout-operation/opus-investigation.md"
-        },
-        {
-          "action": "created",
-          "path": ".pose/reports/doctor-closeout-operation/opus-preliminary-r1.md"
-        },
-        {
-          "action": "created",
-          "path": ".pose/reports/doctor-closeout-operation/progress.json"
-        },
-        {
-          "action": "created",
-          "path": ".pose/reports/doctor-closeout-operation/secondary-implementation.md"
-        },
-        {
-          "action": "created",
-          "path": ".pose/reports/doctor-closeout-operation/snapshot-only-measurement.json"
-        },
-        {
-          "action": "created",
-          "path": ".pose/specs/2026-11-17-pose-doctor-asks-every-closeout-in-one-operation.md"
-        },
-        {
-          "action": "created",
-          "path": ".pose/starts/pose-doctor-asks-every-closeout-in-one-operation.json"
-        },
-        {
-          "action": "created",
-          "path": "pose-mcp/internal/pose/doctor_closeout_memo.go"
-        },
-        {
-          "action": "created",
-          "path": "pose-mcp/internal/pose/doctor_closeout_memo_test.go"
-        },
-        {
-          "action": "created",
-          "path": "pose-mcp/internal/pose/doctor_resolver_specs_test.go"
-        },
-        {
-          "action": "modified",
-          "path": ".pose/indexes/validation-matrix.json"
-        },
-        {
-          "action": "modified",
-          "path": ".pose/results/delivery-validation.json"
-        },
-        {
-          "action": "modified",
-          "path": "pose-mcp/internal/pose/closeout_review_policy.go"
-        },
-        {
-          "action": "modified",
-          "path": "pose-mcp/internal/pose/governance_read_view.go"
-        },
-        {
-          "action": "modified",
-          "path": "pose-mcp/internal/pose/review_operation_view.go"
-        },
-        {
-          "action": "modified",
-          "path": "pose-mcp/internal/pose/spec.go"
-        }
-      ],
-      "diff_digest": "sha256:139136ed4fb8e3aed69781cfca033d262d674eb117b6aa4a21aac7d8c3499c3a",
-      "material_digest": "sha256:4e4fabd58dbfbf627c49a02def50a0f17decdcc37592e18cc798f492672b63b4",
-      "material_inputs": {
-        "names": [
-          ".pose/indexes/validation-matrix.json",
-          ".pose/reports/doctor-closeout-operation/doctor-output-summary.json",
-          ".pose/reports/doctor-closeout-operation/focused-tests-race.log",
-          ".pose/reports/doctor-closeout-operation/integrated-doctor-measurement.json",
-          ".pose/reports/doctor-closeout-operation/negative-controls.json",
-          ".pose/reports/doctor-closeout-operation/opus-investigation.md",
-          ".pose/reports/doctor-closeout-operation/opus-preliminary-r1.md",
-          ".pose/reports/doctor-closeout-operation/progress.json",
-          ".pose/reports/doctor-closeout-operation/secondary-implementation.md",
-          ".pose/reports/doctor-closeout-operation/snapshot-only-measurement.json",
-          ".pose/results/delivery-validation.json",
-          ".pose/specs/2026-11-17-pose-doctor-asks-every-closeout-in-one-operation.md",
-          ".pose/starts/pose-doctor-asks-every-closeout-in-one-operation.json",
-          "pose-mcp/internal/pose/closeout_review_policy.go",
-          "pose-mcp/internal/pose/doctor_closeout_memo.go",
-          "pose-mcp/internal/pose/doctor_closeout_memo_test.go",
-          "pose-mcp/internal/pose/doctor_resolver_specs_test.go",
-          "pose-mcp/internal/pose/governance_read_view.go",
-          "pose-mcp/internal/pose/review_operation_view.go",
-          "pose-mcp/internal/pose/spec.go"
-        ]
-      }
-    },
-    {
       "id": "cs-b64ae066bc32",
       "spec": "pose-seal-names-carried-forward-evidence",
       "selector": "trailers:pose-seal-names-carried-forward-evidence",
@@ -310126,16 +310175,6 @@
       "remediation": "no Git change sets are attributed to spec pose-residual-triage-and-risk-acceptance (ensure commits carry 'POSE-Spec: pose-residual-triage-and-risk-acceptance' trailer or generate report with pose report)"
     },
     {
-      "id": "dif-019dfa1dd47f",
-      "code": "undeclared-delivery",
-      "severity": "error",
-      "spec": "pose-doctor-asks-every-closeout-in-one-operation",
-      "path": "pose-mcp/internal/pose/closeout_review_policy.go",
-      "change_set": "cs-b59533e9da67",
-      "message": "changed delivery root pose-mcp/internal/pose has no delivery declaration",
-      "remediation": "declare a typed delivery target or narrow the attributed change set"
-    },
-    {
       "id": "dif-01b653326d5d",
       "code": "existence",
       "severity": "error",
@@ -310315,16 +310354,6 @@
       "remediation": "backfill an explicit claim or add an exact reviewed exclusion"
     },
     {
-      "id": "dif-0ba29943d732",
-      "code": "undeclared-delivery",
-      "severity": "error",
-      "spec": "pose-doctor-asks-every-closeout-in-one-operation",
-      "path": "pose-mcp/internal/pose/review_operation_view.go",
-      "change_set": "cs-b59533e9da67",
-      "message": "changed delivery root pose-mcp/internal/pose has no delivery declaration",
-      "remediation": "declare a typed delivery target or narrow the attributed change set"
-    },
-    {
       "id": "dif-0bbfde0b136b",
       "code": "action-mismatch",
       "severity": "error",
@@ -310456,6 +310485,16 @@
       "path": "pose-mcp/internal/cli/release_manifests.go",
       "message": "governed tracked path has no spec provenance claim",
       "remediation": "backfill an explicit claim or add an exact reviewed exclusion"
+    },
+    {
+      "id": "dif-157b1056b070",
+      "code": "undeclared-delivery",
+      "severity": "error",
+      "spec": "pose-doctor-asks-every-closeout-in-one-operation",
+      "path": "pose-mcp/internal/pose/review_operation_view.go",
+      "change_set": "cs-08752e834022",
+      "message": "changed delivery root pose-mcp/internal/pose has no delivery declaration",
+      "remediation": "declare a typed delivery target or narrow the attributed change set"
     },
     {
       "id": "dif-15c3271ade50",
@@ -310673,16 +310712,6 @@
       "remediation": "correct the exact path or commit the artifact before closeout"
     },
     {
-      "id": "dif-21d4da5d897f",
-      "code": "undeclared-delivery",
-      "severity": "error",
-      "spec": "pose-doctor-asks-every-closeout-in-one-operation",
-      "path": "pose-mcp/internal/pose/doctor_closeout_memo_test.go",
-      "change_set": "cs-b59533e9da67",
-      "message": "changed delivery root pose-mcp/internal/pose has no delivery declaration",
-      "remediation": "declare a typed delivery target or narrow the attributed change set"
-    },
-    {
       "id": "dif-22779adaa4ef",
       "code": "action-mismatch",
       "severity": "error",
@@ -310868,6 +310897,16 @@
       "spec": "pose-review-check-time-and-output-regression-test",
       "message": "spec has no structured Artifacts section",
       "remediation": "add a machine-parseable ### Artifacts section"
+    },
+    {
+      "id": "dif-301de337db6e",
+      "code": "undeclared-delivery",
+      "severity": "error",
+      "spec": "pose-doctor-asks-every-closeout-in-one-operation",
+      "path": "pose-mcp/internal/pose/doctor_closeout_memo_test.go",
+      "change_set": "cs-08752e834022",
+      "message": "changed delivery root pose-mcp/internal/pose has no delivery declaration",
+      "remediation": "declare a typed delivery target or narrow the attributed change set"
     },
     {
       "id": "dif-30a271e368b4",
@@ -311185,6 +311224,16 @@
       "remediation": "backfill an explicit claim or add an exact reviewed exclusion"
     },
     {
+      "id": "dif-47c5956fb334",
+      "code": "undeclared-delivery",
+      "severity": "error",
+      "spec": "pose-doctor-asks-every-closeout-in-one-operation",
+      "path": "pose-mcp/internal/pose/doctor_closeout_memo.go",
+      "change_set": "cs-08752e834022",
+      "message": "changed delivery root pose-mcp/internal/pose has no delivery declaration",
+      "remediation": "declare a typed delivery target or narrow the attributed change set"
+    },
+    {
       "id": "dif-47dd2e465011",
       "code": "existence",
       "severity": "error",
@@ -311375,16 +311424,6 @@
       "path": "pose-mcp/internal/cli/docs_review.go",
       "message": "governed tracked path has no spec provenance claim",
       "remediation": "backfill an explicit claim or add an exact reviewed exclusion"
-    },
-    {
-      "id": "dif-538df4137c40",
-      "code": "undeclared-delivery",
-      "severity": "error",
-      "spec": "pose-doctor-asks-every-closeout-in-one-operation",
-      "path": "pose-mcp/internal/pose/spec.go",
-      "change_set": "cs-b59533e9da67",
-      "message": "changed delivery root pose-mcp/internal/pose has no delivery declaration",
-      "remediation": "declare a typed delivery target or narrow the attributed change set"
     },
     {
       "id": "dif-53a32012eeb8",
@@ -311608,6 +311647,16 @@
       "path": ".pose/release-policy.json",
       "message": "declared current artifact is not tracked at the selected head",
       "remediation": "correct the exact path or commit the artifact before closeout"
+    },
+    {
+      "id": "dif-5fa5c7897e01",
+      "code": "undeclared-delivery",
+      "severity": "error",
+      "spec": "pose-doctor-asks-every-closeout-in-one-operation",
+      "path": "pose-mcp/internal/pose/closeout_review_policy.go",
+      "change_set": "cs-08752e834022",
+      "message": "changed delivery root pose-mcp/internal/pose has no delivery declaration",
+      "remediation": "declare a typed delivery target or narrow the attributed change set"
     },
     {
       "id": "dif-5fae4a8cfdc1",
@@ -312064,6 +312113,16 @@
       "path": "capability:release-scope-selection-and-exclusivity",
       "message": "delivery target has no structured artifact provenance",
       "remediation": "declare and reconcile exact artifacts before asserting delivery"
+    },
+    {
+      "id": "dif-7966b914a44e",
+      "code": "undeclared-delivery",
+      "severity": "error",
+      "spec": "pose-doctor-asks-every-closeout-in-one-operation",
+      "path": "pose-mcp/internal/pose/spec.go",
+      "change_set": "cs-08752e834022",
+      "message": "changed delivery root pose-mcp/internal/pose has no delivery declaration",
+      "remediation": "declare a typed delivery target or narrow the attributed change set"
     },
     {
       "id": "dif-79b05c98de3c",
@@ -312661,16 +312720,6 @@
       "remediation": "no Git change sets are attributed to spec pose-release-publication-evidence-replay (ensure commits carry 'POSE-Spec: pose-release-publication-evidence-replay' trailer or generate report with pose report)"
     },
     {
-      "id": "dif-9f6bb8797257",
-      "code": "undeclared-delivery",
-      "severity": "error",
-      "spec": "pose-doctor-asks-every-closeout-in-one-operation",
-      "path": "pose-mcp/internal/pose/doctor_resolver_specs_test.go",
-      "change_set": "cs-b59533e9da67",
-      "message": "changed delivery root pose-mcp/internal/pose has no delivery declaration",
-      "remediation": "declare a typed delivery target or narrow the attributed change set"
-    },
-    {
       "id": "dif-9f78e7cc851f",
       "code": "action-mismatch",
       "severity": "error",
@@ -313169,6 +313218,16 @@
       "remediation": "correct the exact path or commit the artifact before closeout"
     },
     {
+      "id": "dif-b7aabf0850eb",
+      "code": "undeclared-delivery",
+      "severity": "error",
+      "spec": "pose-doctor-asks-every-closeout-in-one-operation",
+      "path": "pose-mcp/internal/pose/doctor_resolver_specs_test.go",
+      "change_set": "cs-08752e834022",
+      "message": "changed delivery root pose-mcp/internal/pose has no delivery declaration",
+      "remediation": "declare a typed delivery target or narrow the attributed change set"
+    },
+    {
       "id": "dif-b863985db102",
       "code": "legacy-narrative",
       "severity": "info",
@@ -313296,16 +313355,6 @@
       "remediation": "rerun the registered validation check for this delivery scope"
     },
     {
-      "id": "dif-c11383488550",
-      "code": "undeclared-delivery",
-      "severity": "error",
-      "spec": "pose-doctor-asks-every-closeout-in-one-operation",
-      "path": "pose-mcp/internal/pose/governance_read_view.go",
-      "change_set": "cs-b59533e9da67",
-      "message": "changed delivery root pose-mcp/internal/pose has no delivery declaration",
-      "remediation": "declare a typed delivery target or narrow the attributed change set"
-    },
-    {
       "id": "dif-c1b4ad02d503",
       "code": "undeclared",
       "severity": "error",
@@ -313314,6 +313363,16 @@
       "change_set": "cs-ba9770e7c824",
       "message": "Git observed a governed path not declared by the spec",
       "remediation": "declare the exact action or narrow the attributed change set"
+    },
+    {
+      "id": "dif-c260a8f278f8",
+      "code": "undeclared-delivery",
+      "severity": "error",
+      "spec": "pose-doctor-asks-every-closeout-in-one-operation",
+      "path": "pose-mcp/internal/pose/governance_read_view.go",
+      "change_set": "cs-08752e834022",
+      "message": "changed delivery root pose-mcp/internal/pose has no delivery declaration",
+      "remediation": "declare a typed delivery target or narrow the attributed change set"
     },
     {
       "id": "dif-c29f39f96262",
@@ -314213,16 +314272,6 @@
       "path": "pose-mcp/internal/cli/capability_stale_edit.go",
       "message": "governed tracked path has no spec provenance claim",
       "remediation": "backfill an explicit claim or add an exact reviewed exclusion"
-    },
-    {
-      "id": "dif-f74018417894",
-      "code": "undeclared-delivery",
-      "severity": "error",
-      "spec": "pose-doctor-asks-every-closeout-in-one-operation",
-      "path": "pose-mcp/internal/pose/doctor_closeout_memo.go",
-      "change_set": "cs-b59533e9da67",
-      "message": "changed delivery root pose-mcp/internal/pose has no delivery declaration",
-      "remediation": "declare a typed delivery target or narrow the attributed change set"
     },
     {
       "id": "dif-f7432d460cc7",
