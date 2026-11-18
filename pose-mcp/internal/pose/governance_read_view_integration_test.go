@@ -696,10 +696,11 @@ func TestGovernanceReadViewOperationSharesRecordCapacityAndAuditsAcrossRoots(t *
 	if changed := proof.changes(files); len(changed) != 0 {
 		t.Fatalf("shared proof replay rejected complete listings: %v", changed)
 	}
-	// Both roots fit separately even below the new cap. Their combined grown
-	// listings exceed the 40,000 cap, so shared audit/replay must refuse the closure.
-	files.directories[dirA] = governanceReadViewCapacityEntries(info, 20800)
-	files.directories[dirB] = governanceReadViewCapacityEntries(info, 20800)
+	// Each listing fits by itself, but their combined size exceeds the shared
+	// record budget. Audit and proof replay must refuse the combined closure.
+	overflowEntries := governanceReadViewMaxRecords/2 + 800
+	files.directories[dirA] = governanceReadViewCapacityEntries(info, overflowEntries)
+	files.directories[dirB] = governanceReadViewCapacityEntries(info, overflowEntries)
 	changed := proof.changes(files)
 	unverified := false
 	for _, reason := range changed {
@@ -711,7 +712,7 @@ func TestGovernanceReadViewOperationSharesRecordCapacityAndAuditsAcrossRoots(t *
 	_, overflow := store.beginGovernanceReadView()
 	for i, dir := range []string{dirA, dirB} {
 		entries, err := overflow.filesForProject("overflow", projectA).ReadDir(dir)
-		if i == 0 && (err != nil || len(entries) != 20800) {
+		if i == 0 && (err != nil || len(entries) != overflowEntries) {
 			t.Fatalf("first root no longer fits independently: entries=%d err=%v", len(entries), err)
 		}
 		if i == 1 && (!errors.Is(err, errGovernanceReadViewBudget) || len(entries) != 0) {

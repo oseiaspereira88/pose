@@ -36,6 +36,7 @@ Mudar a política de revisão, o pin do Harne8 ou a descoberta de specs.
 ### Artifacts
 - modified: pose-mcp/internal/pose/governance_read_view.go
 - modified: pose-mcp/internal/pose/governance_read_view_integration_test.go
+- modified: pose-mcp/internal/pose/governance_read_view_probe_test.go
 - modified: .pose/adr/2026-11-03-governance-reads-use-bounded-operation-scoped-views.md
 - modified: POSE.md
 - modified: locales/pt-BR/POSE.md

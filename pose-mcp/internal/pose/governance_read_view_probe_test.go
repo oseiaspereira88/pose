@@ -1136,7 +1136,7 @@ func TestGovernanceReadViewProbeRecordCapacityAndOverflow(t *testing.T) {
 	view := newGovernanceReadView(root, NativeFiles())
 	files := view.filesFor("capacity")
 	// Lstat retains real absence observations and stable parent witnesses. Fill
-	// the new boundary without creating 40,000 files or retaining file bodies.
+	// the new boundary without materializing files or retaining file bodies.
 	for i := 0; len(view.observed) < governanceReadViewMaxRecords; i++ {
 		_, err := files.Lstat(filepath.Join(root, fmt.Sprintf("absent-%05d", i)))
 		if !errors.Is(err, os.ErrNotExist) {
