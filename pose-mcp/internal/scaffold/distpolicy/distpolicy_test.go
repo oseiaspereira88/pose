@@ -361,3 +361,13 @@ func TestIndexGenerationDescriptorIsNeverSyncedNorSeeded(t *testing.T) {
 		t.Error("generation.json must not be seeded: it would describe files it does not")
 	}
 }
+
+func TestHistoricalAttributionDoesNotShipInstanceRecords(t *testing.T) {
+	neutral := NeutralPolicyTemplates()
+	for _, name := range []string{"artifact-attributions.json", "artifact-attributions.json.sig"} {
+		path := ".pose/policy/" + name
+		if _, seeded := neutral[path]; IsIncluded(path) || seeded {
+			t.Errorf("%s belongs to the signing instance", path)
+		}
+	}
+}

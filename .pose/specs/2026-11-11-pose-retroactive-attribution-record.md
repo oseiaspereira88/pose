@@ -51,6 +51,8 @@ O que não está nos requisitos abaixo.
 - modified: pose-mcp/internal/cli/artifact_integrity.go
 - modified: pose-mcp/internal/cli/surface_check.go
 - modified: pose-mcp/internal/pose/index_generation.go
+- modified: pose-mcp/internal/scaffold/distpolicy/distpolicy.go
+- modified: pose-mcp/internal/scaffold/distpolicy/distpolicy_test.go
 - created: .pose/policy/artifact-attributions.json
 - created: .pose/policy/artifact-attributions.json.sig
 - modified: .pose/policy/actions.json

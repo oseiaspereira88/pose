@@ -116,6 +116,10 @@ var SelfReferentialPolicyFiles = []string{
 	// to this instance. Native delegation setup discovers/configures the target
 	// instance; a build must never ship the engine project's live profiles.
 	"delegation.json",
+	// Historical attribution binds one project's maintainer and Git ranges.
+	// A new project receives neither the signed records nor a placeholder.
+	"artifact-attributions.json",
+	"artifact-attributions.json.sig",
 }
 
 // SelfReferentialIndexFiles are `.pose/indexes/` files whose live content in
