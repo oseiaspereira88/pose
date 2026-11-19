@@ -46,3 +46,12 @@ func TestRetroactiveAttributionIndexBinding(t *testing.T) {
 		t.Fatal("removing both attribution files failed to restore the old binding")
 	}
 }
+
+func TestRetroactiveAttributionReviewSubjectClassification(t *testing.T) {
+	scope := ScopeRef{Kind: "spec", Slug: "historical-attribution"}
+	for _, path := range []string{ArtifactAttributionManifest, ArtifactAttributionManifest + ".sig"} {
+		if class, include := reviewBundlePathClass(path, scope, nil); !include || class != "governance" {
+			t.Errorf("%s was not retained in the review subject: %q, %v", path, class, include)
+		}
+	}
+}

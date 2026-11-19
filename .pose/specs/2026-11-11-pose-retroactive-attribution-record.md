@@ -51,6 +51,7 @@ O que não está nos requisitos abaixo.
 - modified: pose-mcp/internal/cli/artifact_integrity.go
 - modified: pose-mcp/internal/cli/surface_check.go
 - modified: pose-mcp/internal/pose/index_generation.go
+- modified: pose-mcp/internal/pose/review_bundle.go
 
 ### Tasks
 
