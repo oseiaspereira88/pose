@@ -875,7 +875,7 @@ func cmdArtifactCheck(root string, args []string, stdout, stderr io.Writer) int 
 	}
 	graph := posemodel.BuildDeliveryIntegrityWithHistoryIn(posemodel.NativeFiles(), []posemodel.Spec{*full}, claims, sets, tracked, policy, posemodel.LoadArchivedFragments(root), removals)
 	if err := applyArtifactAttributions(posemodel.NativeFiles(), root, specs, &graph); err != nil {
-		fmt.Fprintf(stderr, "pose artifact-check: %v\n", err)
+		render(stdout, stderr).Failure("pose artifact-check: " + err.Error())
 		return 1
 	}
 	for _, claim := range claims {
