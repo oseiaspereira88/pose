@@ -51,7 +51,7 @@ printf '\033[1m==> Building the development binary\033[0m\n'
 go -C pose-mcp build -o "$BIN" ./cmd/pose
 "$BIN" version
 
-step "Go tests"                 env POSE_RELEASE_HISTORY_AVAILABLE=true go -C pose-mcp test ./... -count=1
+step "Go tests"                 env POSE_RELEASE_HISTORY_AVAILABLE=true bash scripts/test-engine-go.sh
 step "Shellcheck" shellcheck --severity=warning install.sh scripts/*.sh tests/*.sh tests/*/*.sh examples/demo/*.sh
 step "Structural gate"          "$BIN" check --strict
 step "Agent Skills conformance" "$BIN" skills-check --strict
