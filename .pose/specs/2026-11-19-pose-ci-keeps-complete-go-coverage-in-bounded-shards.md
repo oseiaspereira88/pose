@@ -1,6 +1,6 @@
 ---
 slug: pose-ci-keeps-complete-go-coverage-in-bounded-shards
-status: draft
+status: in-progress
 created_at: 2026-11-19
 components: pose-mcp
 task_type: bugfix
