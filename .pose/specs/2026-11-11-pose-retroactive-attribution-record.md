@@ -9,6 +9,8 @@ remediates:
 priority: 2
 components: pose-mcp
 task_type: feature
+surface: minimal
+changelog: none
 ---
 
 # Spec: Registro de atribuição retroativa para histórico selado
@@ -25,7 +27,7 @@ O `pose check --strict` do pose-dist falha com 19 erros "undeclared governed pat
 
 ### Constraints
 
-Rascunho escrito em 2026-11-11 a partir das pendências da sessão de fechamento do roadmap `pose-shared-runtime`; a spec é completada (artefatos, alvos de entrega, tarefas, validação) antes do start.
+Preserve committed Artifacts sections and sealed provenance. Accept only a signature from a human principal explicitly registered as a maintainer.
 
 ### Non-goals
 
@@ -41,21 +43,38 @@ O que não está nos requisitos abaixo.
 
 ## 3. Technical Plan
 
-Os artefatos e os alvos de entrega são fixados antes do start.
+### Artifacts
 
-## 4. Tasks
+- created: pose-mcp/internal/cli/artifact_attributions.go
+- created: pose-mcp/internal/cli/artifact_attributions_test.go
+- modified: pose-mcp/internal/cli/artifact_integrity.go
+- modified: pose-mcp/internal/cli/surface_check.go
+- modified: pose-mcp/internal/pose/index_generation.go
 
-- [ ] Completar a spec (artefatos, alvos de entrega, estratégia de validação) e iniciar
-- [ ] Implementar e testar
-- [ ] Revisão independente e fechamento
+### Tasks
+
+- Verify the signed manifest and historical witnesses.
+- Apply dispositions in the live delivery graph and scope checks.
+- Register the production records following maintainer signature.
+- Validate the full repository and request independent review.
+
+## 5. Decisions
+
+See [the attribution ADR](../adr/2026-11-18-bind-retroactive-delivery-attribution-to-signed-git-ranges.md).
 
 ## 6. Validation
 
-A estratégia e o rastreio dos requisitos são escritos antes do start.
+| Scenario | Required command | Expected evidence |
+| --- | --- | --- |
+| Verified record and unchanged provenance | `go -C pose-mcp test ./internal/cli -run '^TestRetroactiveAttribution' -count=1` | Only the exact undeclared finding is replaced with the signer and reason; the sealed provenance digest is unchanged. |
+| Unknown path, missing or wrong key, bad signature, mismatched project or baseline, new range | Same command | Fail closed or leave the new finding in force as appropriate. |
+| Index freshness | `go -C pose-mcp test ./internal/pose -run '^TestRetroactiveAttributionIndexBinding' -count=1` | Manifest appearance, changes and removal affect the binding; absent manifests preserve compatibility. |
+| Repository integration | `pose index && pose index --verify && pose check --strict` | The 19 historical paths carry verified attribution records; the strict gate passes. |
+| Affected module | `pose validate --strict --module pose-mcp --report` | Registered checks pass. |
 
 ---
 
 ## 7. Final Report
 
 ### Delivered scope
-Rascunho: nada entregue ainda.
+Implementation and validation are in progress.
