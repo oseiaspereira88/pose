@@ -1,7 +1,7 @@
 {
   "schema_version": 2,
-  "input_digest": "sha256:d89d0a941605891cc6695de9705792cec16a7bb0db29221115ba0ddbe9c112c2",
-  "provenance_digest": "sha256:9258f9400625b7562ebf323f85f78327ac5c37688f781cfaafd2cc4fce7d3ab6",
+  "input_digest": "sha256:867187ea6f75fa5853d9a86a8e875da624459c8e3d5201888f5038a6767bbe8b",
+  "provenance_digest": "sha256:de909a15a74109780015029f7afb59de83fdd85664f1d4f98d1dc30610793db0",
   "implied_edges": [
     "changes"
   ],
@@ -774,6 +774,20 @@
       "type": "artifact",
       "attributes": {
         "path": ".pose/adr/2026-11-14-governance-association-links-are-read-with-a-commonmark-parser.md"
+      }
+    },
+    {
+      "id": "artifact:.pose/artifact-attributions.json",
+      "type": "artifact",
+      "attributes": {
+        "path": ".pose/artifact-attributions.json"
+      }
+    },
+    {
+      "id": "artifact:.pose/artifact-attributions.json.sig",
+      "type": "artifact",
+      "attributes": {
+        "path": ".pose/artifact-attributions.json.sig"
       }
     },
     {
@@ -32900,6 +32914,13 @@
       }
     },
     {
+      "id": "artifact:.pose/specs/2026-11-11-pose-retroactive-attribution-record.md",
+      "type": "artifact",
+      "attributes": {
+        "path": ".pose/specs/2026-11-11-pose-retroactive-attribution-record.md"
+      }
+    },
+    {
       "id": "artifact:.pose/specs/2026-11-11-pose-review-subject-head-is-the-newest.md",
       "type": "artifact",
       "attributes": {
@@ -36155,6 +36176,20 @@
       }
     },
     {
+      "id": "artifact:pose-mcp/internal/cli/artifact_attributions.go",
+      "type": "artifact",
+      "attributes": {
+        "path": "pose-mcp/internal/cli/artifact_attributions.go"
+      }
+    },
+    {
+      "id": "artifact:pose-mcp/internal/cli/artifact_attributions_test.go",
+      "type": "artifact",
+      "attributes": {
+        "path": "pose-mcp/internal/cli/artifact_attributions_test.go"
+      }
+    },
+    {
       "id": "artifact:pose-mcp/internal/cli/artifact_integrity.go",
       "type": "artifact",
       "attributes": {
@@ -39036,6 +39071,13 @@
       "type": "artifact",
       "attributes": {
         "path": "pose-mcp/internal/pose/amendments_flat_test.go"
+      }
+    },
+    {
+      "id": "artifact:pose-mcp/internal/pose/artifact_attribution_index_test.go",
+      "type": "artifact",
+      "attributes": {
+        "path": "pose-mcp/internal/pose/artifact_attribution_index_test.go"
       }
     },
     {
@@ -48260,6 +48302,14 @@
       "attributes": {
         "diff_digest": "sha256:ad04dc3d4b613462c4866bd2b2238403a4555dc2e85cebfa476919085eabf46a",
         "selector": "trailers:pose-cli-output-machine-channel"
+      }
+    },
+    {
+      "id": "change-set:cs-69e3f6f72159",
+      "type": "change-set",
+      "attributes": {
+        "diff_digest": "sha256:536281e2d773c41f6415f1736137a84b1b6d1acba7d7015380c05e74cc9a8b61",
+        "selector": "trailers:pose-retroactive-attribution-record"
       }
     },
     {
@@ -58142,7 +58192,7 @@
       "id": "spec:pose-retroactive-attribution-record",
       "type": "spec",
       "attributes": {
-        "status": "draft"
+        "status": "in-progress"
       }
     },
     {
@@ -131833,6 +131883,61 @@
       "type": "observed-by"
     },
     {
+      "from": "spec:pose-retroactive-attribution-record",
+      "to": "artifact:.pose/artifact-attributions.json",
+      "type": "declares"
+    },
+    {
+      "from": "spec:pose-retroactive-attribution-record",
+      "to": "artifact:.pose/artifact-attributions.json.sig",
+      "type": "declares"
+    },
+    {
+      "from": "spec:pose-retroactive-attribution-record",
+      "to": "artifact:.pose/policy/actions.json",
+      "type": "declares"
+    },
+    {
+      "from": "spec:pose-retroactive-attribution-record",
+      "to": "artifact:pose-mcp/internal/cli/artifact_attributions.go",
+      "type": "declares"
+    },
+    {
+      "from": "spec:pose-retroactive-attribution-record",
+      "to": "artifact:pose-mcp/internal/cli/artifact_attributions_test.go",
+      "type": "declares"
+    },
+    {
+      "from": "spec:pose-retroactive-attribution-record",
+      "to": "artifact:pose-mcp/internal/cli/artifact_integrity.go",
+      "type": "declares"
+    },
+    {
+      "from": "spec:pose-retroactive-attribution-record",
+      "to": "artifact:pose-mcp/internal/cli/surface_check.go",
+      "type": "declares"
+    },
+    {
+      "from": "spec:pose-retroactive-attribution-record",
+      "to": "artifact:pose-mcp/internal/pose/artifact_attribution_index_test.go",
+      "type": "declares"
+    },
+    {
+      "from": "spec:pose-retroactive-attribution-record",
+      "to": "artifact:pose-mcp/internal/pose/index_generation.go",
+      "type": "declares"
+    },
+    {
+      "from": "spec:pose-retroactive-attribution-record",
+      "to": "artifact:pose-mcp/internal/pose/review_bundle.go",
+      "type": "declares"
+    },
+    {
+      "from": "spec:pose-retroactive-attribution-record",
+      "to": "change-set:cs-69e3f6f72159",
+      "type": "observed-by"
+    },
+    {
       "from": "spec:pose-reuse-is-sealed-signing-stays-live",
       "to": "artifact:.pose/adr/2026-08-13-sealed-review-bundles-and-attestations.md",
       "type": "declares"
@@ -168625,6 +168730,56 @@
       "path": "pose-mcp/internal/version/workflow_security_test.go"
     },
     {
+      "spec": "pose-retroactive-attribution-record",
+      "action": "created",
+      "path": ".pose/artifact-attributions.json"
+    },
+    {
+      "spec": "pose-retroactive-attribution-record",
+      "action": "created",
+      "path": ".pose/artifact-attributions.json.sig"
+    },
+    {
+      "spec": "pose-retroactive-attribution-record",
+      "action": "created",
+      "path": "pose-mcp/internal/cli/artifact_attributions.go"
+    },
+    {
+      "spec": "pose-retroactive-attribution-record",
+      "action": "created",
+      "path": "pose-mcp/internal/cli/artifact_attributions_test.go"
+    },
+    {
+      "spec": "pose-retroactive-attribution-record",
+      "action": "created",
+      "path": "pose-mcp/internal/pose/artifact_attribution_index_test.go"
+    },
+    {
+      "spec": "pose-retroactive-attribution-record",
+      "action": "modified",
+      "path": ".pose/policy/actions.json"
+    },
+    {
+      "spec": "pose-retroactive-attribution-record",
+      "action": "modified",
+      "path": "pose-mcp/internal/cli/artifact_integrity.go"
+    },
+    {
+      "spec": "pose-retroactive-attribution-record",
+      "action": "modified",
+      "path": "pose-mcp/internal/cli/surface_check.go"
+    },
+    {
+      "spec": "pose-retroactive-attribution-record",
+      "action": "modified",
+      "path": "pose-mcp/internal/pose/index_generation.go"
+    },
+    {
+      "spec": "pose-retroactive-attribution-record",
+      "action": "modified",
+      "path": "pose-mcp/internal/pose/review_bundle.go"
+    },
+    {
       "spec": "pose-reuse-is-sealed-signing-stays-live",
       "action": "created",
       "path": ".pose/specs/2026-09-10-pose-reuse-is-sealed-signing-stays-live.md"
@@ -177282,7 +177437,7 @@
         }
       ],
       "diff_digest": "sha256:60df3069a33822eb6f04b25c7efe7ffa179b66f0222f8c9055b98e66045f3884",
-      "material_digest": "sha256:773c3e8a09a5cd46c59930a6a53aa9582737ce17324bc69326bd6bd835f6486b",
+      "material_digest": "sha256:39bf94622bb738b2855a4f9d3188eedc354875db41ccdd5e7d74ff162ecab7c8",
       "material_inputs": {
         "names": [
           ".pose/adr/2026-10-18-git-state-that-cannot-be-read-is-unknown-and-a-worktree-is-judged-by-its-content.md",
@@ -177974,7 +178129,7 @@
         }
       ],
       "diff_digest": "sha256:254068b51d79d51bfee9e5888dc8c3290785d7a3e76d27d684dd4558e5ee2f90",
-      "material_digest": "sha256:ee0d129c92ce99ce0d4dfd4effb177675ada2c8a297c9f3cbeb3168fe8ce5b18",
+      "material_digest": "sha256:763fc65a4dca04b0a22ac96a07cf88be439371b3299944b3da1bce5de79b29ae",
       "material_inputs": {
         "names": [
           ".pose/assessments/README.md",
@@ -178205,7 +178360,7 @@
         }
       ],
       "diff_digest": "sha256:f667cce41472b8e8a4e8514d4e787b705271b44c848c5b97d39e7eb3625c80ad",
-      "material_digest": "sha256:3a00a14ae20043996655e0e82a9552059439e8779cc5362c594789c6caa273bb",
+      "material_digest": "sha256:a6296eef38003de07fafeb70b0bccd759f259a36262e6c95bc8cbfc4983a3a9a",
       "material_inputs": {
         "names": [
           ".pose/assessments/integrations.md",
@@ -179365,7 +179520,7 @@
         }
       ],
       "diff_digest": "sha256:53aad92ad458e0d39af87b695b3ac42dba6c00e338703528f34324c600ff5581",
-      "material_digest": "sha256:04c7f5fd59016f0442c96cc083b5dc1e12dd59ae1291046c74f815d56f1cd176",
+      "material_digest": "sha256:8e8f0f98a966e2ab9c64c6b5f9870308dca35b5aa070cc7daedd649bb06a3a71",
       "material_inputs": {
         "names": [
           ".pose/adr/2026-10-22-update-preview-records-the-shared-execution-in-an-operation-scoped-view.md",
@@ -179703,7 +179858,7 @@
         }
       ],
       "diff_digest": "sha256:5cd8d4c4f0b10e20ad7fc795a76aabfc9ccf0763361c7baeceec955c1de6df4d",
-      "material_digest": "sha256:1f3fb2b1ad7e309ed748d680139838011ffb27e7fdc3bb003a9bcc4d66141265",
+      "material_digest": "sha256:aa564175815b1de6774e189147c37cdcee23d63838ea653e08c3b84f165e6eb8",
       "material_inputs": {
         "names": [
           ".pose/adr/2026-09-21-federated-roadmap-acceptance-with-local-evidence-authority.md",
@@ -186054,7 +186209,7 @@
         }
       ],
       "diff_digest": "sha256:f321a656fff8bc0eb397b661b7edd7dfccfd293cd026d12c39a72f83f8357cbc",
-      "material_digest": "sha256:26c59c258f5e349683606113c6b4e6ede85e08503e484d778ff11d22b6bf665d",
+      "material_digest": "sha256:019a97a0bb78daa827f6c488b21628a62575f5c81df19f7101ad29d13e95431a",
       "material_inputs": {
         "names": [
           ".pose/indexes/delivery-integrity.json",
@@ -187380,7 +187535,7 @@
         }
       ],
       "diff_digest": "sha256:1d0f4bda9d1b7908fcbc23898091624a77bb05aac4fff8ab76dcc2c1bc61097f",
-      "material_digest": "sha256:b0ce5c1306d345c63dd2589164cda69fc2f4ba214428a8aac9abcdfade17fdc2",
+      "material_digest": "sha256:d1b9fda1652b5640d5f7a530b0228d3f80524da87b7574014a68d0cebcf93496",
       "material_inputs": {
         "names": [
           ".pose/adr/2026-11-03-governance-reads-use-bounded-operation-scoped-views.md",
@@ -187630,7 +187785,7 @@
         }
       ],
       "diff_digest": "sha256:f0275d988dc2719db51df928cedd1dac712533f38414356069143f602c100cd6",
-      "material_digest": "sha256:99f59f9f516411fcfdcc07e0810b8fe22d321dfe85ce8babe1f5117cd0d9e488",
+      "material_digest": "sha256:92001b6de0f02f6f0b855c7c995c916fc3d32eada0deddd2b2b2f2a41849310e",
       "material_inputs": {
         "names": [
           ".pose/assessments/README.md",
@@ -188748,7 +188903,7 @@
         }
       ],
       "diff_digest": "sha256:88d16037057ae68124a66f7d1020fa04c3c2736b625311660f93d74b4f218d1b",
-      "material_digest": "sha256:8548310b9cf489245839b7adc4100263ae4f0f0ef0402f6998ce26452c4d003e",
+      "material_digest": "sha256:5030ccbab80d78c5fd907df8c87b0d5c221de8a497040c2b21c36140e420446e",
       "material_inputs": {
         "names": [
           ".pose/adr/2026-10-26-delegation-is-a-first-class-execution-surface.md",
@@ -188951,7 +189106,7 @@
         }
       ],
       "diff_digest": "sha256:24cfb1e1f89849bf12ba363336c981749aaa94498360c9601712acd9ec56780f",
-      "material_digest": "sha256:ac51d2d9a30d452795238f1e943d36a0a5764fab0673a364fb678493623ba397",
+      "material_digest": "sha256:28f497cf11e76ef54a148012c2de755b5eead718cbbd0551f356c8aacff839f1",
       "material_inputs": {
         "names": [
           ".pose/changelogs/unreleased/pose-delegated-verdict-destinations.md",
@@ -191722,7 +191877,7 @@
         }
       ],
       "diff_digest": "sha256:5585226db8112cf4ddbaeb41b2c0cd7426005667dd30a5ac982ef1cc4dfd210a",
-      "material_digest": "sha256:54f7b54460c0054ee28b5934ccf59866357600f614b7f4f1fd00c347bcd0aede",
+      "material_digest": "sha256:6df59cd84ade11c61e942a7f434e8dae77dc47f29d1a5f3a867d82d0157aa364",
       "material_inputs": {
         "names": [
           ".pose/assessments/README.md",
@@ -192914,7 +193069,7 @@
         }
       ],
       "diff_digest": "sha256:f11a417e995f6cd16c159d598d3fa24dc33e784b7dfa47c9e94ef842fd15c9af",
-      "material_digest": "sha256:53dbc18f81c208bfd160c9d5b37e736abdaa4488770b9763a57ba36704248eae",
+      "material_digest": "sha256:92f6fda0ceee507ca52b1bd0b3a21b123320dbf088937ba722cfcb597f2c787f",
       "material_inputs": {
         "names": [
           ".pose/assessments/integrations.md",
@@ -193243,7 +193398,7 @@
         }
       ],
       "diff_digest": "sha256:3d2dce35234ca7e7342ecd141aa631d039250cfb4120ff0a3486f90e29ce6173",
-      "material_digest": "sha256:2dd27f659c1bc809c8ed031738c6b0e76dece7dd2ef67d58e2fcd21b97b52d84",
+      "material_digest": "sha256:57ea0219f0870ae0598176910c0a1b7e325f24ce12700ee9e725480650213736",
       "material_inputs": {
         "names": [
           ".pose/adr/2026-10-08-structural-facts-compare-attributed-content.md",
@@ -194323,7 +194478,7 @@
         }
       ],
       "diff_digest": "sha256:1bc800183eeb1ac0926214148c2ea2cd48b89b5c386cececf67c1f6ef64963bc",
-      "material_digest": "sha256:8d530635c0948ce3a62ccc664795da0028f9a141fa19f3c223ecd3164239763a",
+      "material_digest": "sha256:47ece4e9a4ffc315776ff51fe4b2b6b8b51a74b40ac1a860454cc2ea4190aca2",
       "material_inputs": {
         "names": [
           ".pose/assessments/README.md",
@@ -195648,7 +195803,7 @@
         }
       ],
       "diff_digest": "sha256:1268eed84af9d5c1af2149667ccb2126081334bf630426263ab452bbdd52aa29",
-      "material_digest": "sha256:e64f9e10fdd72fd76bc685cb6c5ca621c5f89261c0b65849d844005c2b16a1d8",
+      "material_digest": "sha256:aa67a337044b227809b35346ed5f3bf6452922f04baa3ad2c4ae129ce7d7e7fd",
       "material_inputs": {
         "names": [
           ".pose/indexes/validation-matrix.json",
@@ -196053,7 +196208,7 @@
         }
       ],
       "diff_digest": "sha256:6bec53900e97f8d14ac8dd5295a10f0c5216b626158e7d0d69d4c43959405719",
-      "material_digest": "sha256:5cc05185877033144447b0b9bb7a5398a1982692deadbfa15bf99b749e962910",
+      "material_digest": "sha256:7aa33e82b299e3e1112f7b79872dfa69338832d3332abeb193ab06184035a6f1",
       "material_inputs": {
         "names": [
           ".github/workflows/ci.yml",
@@ -198026,7 +198181,7 @@
         }
       ],
       "diff_digest": "sha256:76c575b963b162f5e84a27b3a0de7d619043ac44c86db22aa8ebb865f3328577",
-      "material_digest": "sha256:bf750e9dc2fea3d495c2d7ab56568215b89f6959432148fb5da85feb00e97596",
+      "material_digest": "sha256:e18470146184a7d738d9b6574afc8050caf9747fe37a1950a764d1c447d33803",
       "material_inputs": {
         "names": [
           ".pose/adr/2026-11-07-validation-evidence-binds-to-validated-material.md",
@@ -198622,7 +198777,7 @@
         }
       ],
       "diff_digest": "sha256:bb7510e87c4a95543d4a3e6c0bcab1986b2e076eba5f80c9bd33242ba35368ba",
-      "material_digest": "sha256:8cd50a385b32a06de1bd29c85d37b055c528b4daf7c1349cb50d973852635456",
+      "material_digest": "sha256:b49cf0eb70db4e7ffc8c49e2e22117dffc215b1f06b4f0c125908367c041d75b",
       "material_inputs": {
         "names": [
           ".pose/changelogs/unreleased/pose-contributor-mode-protocol.md",
@@ -198678,7 +198833,7 @@
         }
       ],
       "diff_digest": "sha256:179ce4b5f87613b682986f6da4fc359486f757ebf926a3e46b1332db1a72e813",
-      "material_digest": "sha256:508d8badbf15438cbd4e4e6692bfef2d98c71fe9421d903deac7b363e884c4c1",
+      "material_digest": "sha256:595dedaad81ae75ab736b9216bee4261bfe6e255e0fc7433ee64654cfc31653c",
       "material_inputs": {
         "names": [
           ".pose/indexes/validation-matrix.json",
@@ -199894,7 +200049,7 @@
         }
       ],
       "diff_digest": "sha256:edb3e69648f6e2484b5e0a000a8da981383fd4b6f00bfc874ad59fcd737be14c",
-      "material_digest": "sha256:a837a10a7cb75893532dbbc6bc9b7c3b91f33d02dfc0d599e6ae920d977e95e3",
+      "material_digest": "sha256:0b3ac6bd909d21c1186a6b906562eb123b4e75673873e3cd4a45ff181c8a6efc",
       "material_inputs": {
         "names": [
           ".pose/changelogs/unreleased/pose-engine-stability-and-diagnostics-convergence.md",
@@ -202220,7 +202375,7 @@
         }
       ],
       "diff_digest": "sha256:d9cfcb2bc9d7dc5d589a28c10dd65c4418cab377a487062cd78587d8553c414a",
-      "material_digest": "sha256:525ce93a6da65941d281caf485b9145741bd10e8cc021cdca83a8cc7d9b25a7c",
+      "material_digest": "sha256:19af5318269071dcc33086bbab2dd0886438ab2e6c6fcc0e395240bc1e6f71e6",
       "material_inputs": {
         "names": [
           ".pose/changelogs/unreleased/pose-abm-causality-attestation.md",
@@ -202439,7 +202594,7 @@
         }
       ],
       "diff_digest": "sha256:7d2406652a5fe3f2c06acb0460ebbe3f1b02aff3b806521dce67f4e3d5fd92d3",
-      "material_digest": "sha256:8982c1ffb5d33f1c685c4874d52cfc7c3384bd1e603368855040b34e35da5446",
+      "material_digest": "sha256:a693b224305b1d39bae2914bc394f339f8123043233e824f487fe42aa28d4e1a",
       "material_inputs": {
         "names": [
           ".pose/adr/2026-09-19-pose-abm-review-authority.md",
@@ -202852,7 +203007,7 @@
         }
       ],
       "diff_digest": "sha256:2db94be1c61e3faa773bff76cbeef180eb9b5a3f9d1deca5bc9334343e16a966",
-      "material_digest": "sha256:2c3ccfe9ca0fc83a9675c875dd6ffa77512c01885c392a197d30ec1837e9991d",
+      "material_digest": "sha256:313e9d680dfba4c48f29a7fc2e524d30bbc0abb35407ba8c30ee7877f0317b20",
       "material_inputs": {
         "names": [
           ".pose/adr/2026-08-13-sealed-review-bundles-and-attestations.md",
@@ -203311,7 +203466,7 @@
         }
       ],
       "diff_digest": "sha256:76fc121a2d71ed5871c58bde1dc5dc9b83c81030c81df05d61f539aa3086fa09",
-      "material_digest": "sha256:5fde39186a8bdd2c9e501199d56963f204a7804524087aebd84958cb345ae62c",
+      "material_digest": "sha256:b61a75deddac19f2d7a059f7f04224755c6b0bb867ba2f6e29bf84d80645d714",
       "material_inputs": {
         "names": [
           ".pose/adr/2026-11-03-governance-reads-use-bounded-operation-scoped-views.md",
@@ -203666,7 +203821,7 @@
         }
       ],
       "diff_digest": "sha256:13fda844ae123410502c03e138349d4bd72c0f8b34abf23633fc7bf0ec73a31a",
-      "material_digest": "sha256:96ec8ce290c24f03771744fd92cc1104a7c7a465b7ccb4db17a5db82cdd1590e",
+      "material_digest": "sha256:dbf79964404c844d038cfb029483739cc90ad0120f3c4e90d6bafad772c8612e",
       "material_inputs": {
         "names": [
           ".gitignore",
@@ -203768,7 +203923,7 @@
         }
       ],
       "diff_digest": "sha256:bde7b7790373e8c4ebe4ec982ef7f81d1f3a218db9bd63a2397838e0df8b97dc",
-      "material_digest": "sha256:31dffde32df1f666795438cc42d41e84c4eee3aba173f8212f2af1e343ee4c4d",
+      "material_digest": "sha256:ae60edd4dc9d31d46115f771ad4a19f4622ecf2a9d29a4b1e286c93b58b857fc",
       "material_inputs": {
         "names": [
           ".pose/indexes/validation-matrix.json",
@@ -203921,7 +204076,7 @@
         }
       ],
       "diff_digest": "sha256:326d6c4e27762e3bd4e2a1afad36eeeef1d4876be7df647b36cf08f8f2e6fe14",
-      "material_digest": "sha256:29376e3edc7ce6e0ecc22cf32cf2cbdd86d46e72e7f3dd220307eaec983ead17",
+      "material_digest": "sha256:017a08e39d10b254d6626eb74ff79b3a9a37552b550f2fa44f47a50bb0c4b871",
       "material_inputs": {
         "names": [
           ".pose/adr/2026-09-21-federated-roadmap-acceptance-with-local-evidence-authority.md",
@@ -204071,7 +204226,7 @@
         }
       ],
       "diff_digest": "sha256:752561f3636c0af686a6aa2c067a57afe74f0550474910697fc876193101b464",
-      "material_digest": "sha256:d0f81ec9c78e4b3ac4b3b20f58aa41b187db91b30155d739caca0e91afbee2b0",
+      "material_digest": "sha256:3607e9fbe2413e44093c33ecfe6bdb4e9a6f0bb99cd34f70c0dc2545cd8ecf38",
       "material_inputs": {
         "names": [
           ".pose/adr/2026-09-21-federated-roadmap-acceptance-with-local-evidence-authority.md",
@@ -204671,7 +204826,7 @@
         }
       ],
       "diff_digest": "sha256:3b97b7597d0a182371ee6a3ef9ae52abe6d9196f338b022ce0881bb8cfbe74ad",
-      "material_digest": "sha256:52f88bace66dcdc0c534993aad65275abc80986b3be5f21e72625c11d283d059",
+      "material_digest": "sha256:e187dfc843a3fc4fd315458af420dd87b9e42eb7a84f6f3c8e6222c47416f611",
       "material_inputs": {
         "names": [
           ".pose/indexes/validation-matrix.json",
@@ -205698,7 +205853,7 @@
         }
       ],
       "diff_digest": "sha256:4774f54d81f1221525f6007a0a7f6a41f646dfdc252c579016da8a1f0b8f62f6",
-      "material_digest": "sha256:d3d825b98abc59870c22ca8eef0c9c82956973a999b9e47991e3cad69001b3b8",
+      "material_digest": "sha256:dfb3bfd3c07fe716148af417b766a1b9f13a3cd8e688b26dfe3bfdb32cae41c1",
       "material_inputs": {
         "names": [
           ".pose/assessments/README.md",
@@ -205980,7 +206135,7 @@
         }
       ],
       "diff_digest": "sha256:ce48736d05416fca90862ab2329cffd1327fc491c8776e03c15485121a84bdb3",
-      "material_digest": "sha256:89d5ef731870c42eee99fa43cac62e3d44369b967d8da8b423d306212345def0",
+      "material_digest": "sha256:0b5ca0b08379f376c9c440dc887fe2d0a2ce0f88795fc2e089b528260b21bf5c",
       "material_inputs": {
         "names": [
           ".github/workflows/release.yml",
@@ -206122,7 +206277,7 @@
         }
       ],
       "diff_digest": "sha256:e3b694c8edd9cd3186e22f9d1a3019731b2569dc8da8c51debd42d419624909f",
-      "material_digest": "sha256:d2e1318bf332312a3f5fb98025e240dc5f5f5a4ef2f01fb578bc14c964d2b8ea",
+      "material_digest": "sha256:6313cf703d14a199290909c21de40e6abb7e994fe2a8df15723a76840141cba1",
       "material_inputs": {
         "names": [
           ".pose/changelogs/unreleased/pose-signed-legacy-attestation-ledger.md",
@@ -207045,7 +207200,7 @@
         }
       ],
       "diff_digest": "sha256:3268948233da6e2fc4495fd07bbef68c776381dbb8db784c28b191a57ede856a",
-      "material_digest": "sha256:3e7ae67c6a3931e758fd4d1839fa52caf61ac45aaeb648cecc7effc9851f13df",
+      "material_digest": "sha256:72aeb7406b8a440dbfe9969aa3131f97081552a4de2070eee6b6e6039c7b103f",
       "material_inputs": {
         "names": [
           ".gitleaksignore",
@@ -208032,7 +208187,7 @@
         }
       ],
       "diff_digest": "sha256:02d43c530c13d5338df4b1e7b3b5a88310f94ff98c4df2e0ef3e94a08d540262",
-      "material_digest": "sha256:263d32aff32ac5c72233930cd839166d435e3692c6df23c03b1355808f0de4dd",
+      "material_digest": "sha256:139244e94cd700687def4a8f445f10423bcc636ef7085b8e4651197259eaa893",
       "material_inputs": {
         "names": [
           ".pose/changelogs/unreleased/pose-action-request-presentation.md",
@@ -208561,7 +208716,7 @@
         }
       ],
       "diff_digest": "sha256:86366b3ccc31664fcd168aaa1ccbd25786be49bac889e433363fd442193b52c7",
-      "material_digest": "sha256:9bed0092e10c5002ad83fa81df12a260cf41c7c53c71bf32cec297cac37bc920",
+      "material_digest": "sha256:30389e92d2d8aa43cb5b02dbde1e5c5b57edcff06217e6a65a6aa4a4ff34f020",
       "material_inputs": {
         "names": [
           ".pose/indexes/validation-matrix.json",
@@ -208828,7 +208983,7 @@
         }
       ],
       "diff_digest": "sha256:c30da1e812fd28c212b004ebe6d09734fbb6ce8bf27d5dbd4600472617a6fd43",
-      "material_digest": "sha256:c812c8ce60842252e79f8ae1ee37fd2cc3ecaae0ec9ffdd38845a48d9e4e200a",
+      "material_digest": "sha256:6ecc913b178b73bbe4de8c038ef3629c439c8ba5dceda3c7a60019faa7db5a87",
       "material_inputs": {
         "names": [
           ".pose/changelogs/unreleased/pose-review-bundle-roadmap-path-portability.md",
@@ -210498,7 +210653,7 @@
         }
       ],
       "diff_digest": "sha256:5bc9023cbbb9dc75828e33b02102ba1de685cffcf01ea4e88b3fb896e9ec5799",
-      "material_digest": "sha256:78d5e7504c299ac72cfe25fbd144eb89514515fe7f8f125da5d64b54eb4357ab",
+      "material_digest": "sha256:ac5e3966f048d64d554690496cf5e476ec70978c3463599af2b9e1a019b1f910",
       "material_inputs": {
         "names": [
           ".pose/changelogs/unreleased/pose-delegation-surface.md",
@@ -210970,7 +211125,7 @@
         }
       ],
       "diff_digest": "sha256:46e08d82b7bb665976a6bf09395afc07968dc3b33a790423b37bcc7870af42cc",
-      "material_digest": "sha256:11677ac1f23496881934f9155b682c13a3603bb4e42e64119b6ff242d45ea32c",
+      "material_digest": "sha256:7935bb90fc26f96efaf5596935798f3a6a12bb4f8e7004cb8181720d367e3d69",
       "material_inputs": {
         "names": [
           ".pose/changelogs/unreleased/pose-action-request-presentation.md",
@@ -211969,7 +212124,7 @@
         }
       ],
       "diff_digest": "sha256:e9c6bb9020d33a34d875e873ef6fc8e956b726454e6914712eac38bc594036e4",
-      "material_digest": "sha256:c8ef1046322f4e675513d75f15e95f1baa16859b40d212a799501c38c4cc0053",
+      "material_digest": "sha256:be8d028baedecfd0f7b1fec91be1c67fefccf0a896e7629fac3504063b780fde",
       "material_inputs": {
         "names": [
           ".pose/changelogs/unreleased/pose-action-request-presentation.md",
@@ -212493,7 +212648,7 @@
         }
       ],
       "diff_digest": "sha256:29a76f910d4175183a850296767b9d0e22b2ceb2fd6434ff92988b7fed7428a3",
-      "material_digest": "sha256:5f8952f9182330a5ed4cce9f827a3f3cfc3be30320cc7cf43ab02206f3220718",
+      "material_digest": "sha256:8249d295e68442832253adc7cf30d5fe75803efc34bccf783297a5ac369cbc5d",
       "material_inputs": {
         "names": [
           ".pose/actions/act-fa1d72f029d567a0.jsonl",
@@ -213662,7 +213817,7 @@
         }
       ],
       "diff_digest": "sha256:b141508bb749d823e59b8691418781f6f57fdc3c748eac6eb8e5377c23a2cbf2",
-      "material_digest": "sha256:dc6abb61f8e3fe33136b005f19389be704078138c44b46b1a7000655c55db304",
+      "material_digest": "sha256:332da1ad018d83a98d8dd374baf9993edda65225e4413f0a8face936326d6d71",
       "material_inputs": {
         "names": [
           ".agents/skills/README.md",
@@ -215261,7 +215416,7 @@
         }
       ],
       "diff_digest": "sha256:5c3c50782d727ddf0ff2d18fe33b2bc203817a9e0c58beb98379c248c4eb0d17",
-      "material_digest": "sha256:f979d7dc85790acd5c899adb55f3e1f1c72464fee92529b847c29fc9ea4f9127",
+      "material_digest": "sha256:1fcdb4e1d89cca9f4fdc16774902da8a287c2ab98cbf692cb9ac55347862da6f",
       "material_inputs": {
         "names": [
           ".pose/changelogs/unreleased/check-builds-the-delivery-graph-once.md",
@@ -216077,7 +216232,7 @@
         }
       ],
       "diff_digest": "sha256:798023b3ad32dd5edb330c31e5b122f26e6cb93d521802d57b419e448eb1d15d",
-      "material_digest": "sha256:8e6848965c2ef1c05f22a39879de62171a8433cd66a3daa477a5d437582e9e65",
+      "material_digest": "sha256:fdbd04aba10f987d8e6f7ff92039cf201f76fd932f7effa2b36685eafabbc068",
       "material_inputs": {
         "names": [
           ".pose/adr/2026-08-02-delivery-integrity-graph-and-git-observed-provenance.md",
@@ -217183,7 +217338,7 @@
         }
       ],
       "diff_digest": "sha256:431624a5c9a886973bc4137b199fc8c1ead64203b33fbad6655ae457e32ed0e7",
-      "material_digest": "sha256:e405bdf5e723d16837238074b07fcddcc4838d05607d6dc35c27c48ee8ca0dea",
+      "material_digest": "sha256:dd4f4b602639ffac9cb64032c7713cefbef40c0f60d541748be09c59d2149b4c",
       "material_inputs": {
         "names": [
           ".pose/adr/2026-09-11-release-archival-is-attested-by-the-ledger-never-written-into-specs.md",
@@ -218323,7 +218478,7 @@
         }
       ],
       "diff_digest": "sha256:10b0a1727bc24ef2cdb040b8bda13224f41c7efd643b16edef5d03154395e9ee",
-      "material_digest": "sha256:9b375c32283ba8d6df4b6846b4689e021d5b4e19658e6885a33107260d7d4502",
+      "material_digest": "sha256:44da7dc55f00c626df7792484d035f4687b74f94ac71924e286231e0cf06e251",
       "material_inputs": {
         "names": [
           ".agents/skills/pose-feature/SKILL.md",
@@ -218586,7 +218741,7 @@
         }
       ],
       "diff_digest": "sha256:8e00e476fc2c6c7e5899c9a1119f31bab8508bcafccbf1aa8a113f9d7e964a0c",
-      "material_digest": "sha256:2bd8d6880be126e36dee7a5fc14791946c3f76fa146b170d70b2dbdfbef53800",
+      "material_digest": "sha256:f1ca2321b406e8c60e1a09eb4e6bc40c396e583f24eb19c371a8c88f2588f452",
       "material_inputs": {
         "names": [
           ".pose/changelogs/unreleased/pose-roadmap-check-reaches-its-gate.md",
@@ -218746,7 +218901,7 @@
         }
       ],
       "diff_digest": "sha256:76ad2de9b25855194b95dfdb711bfb8325bb3d7f055422283b60412af973b8f0",
-      "material_digest": "sha256:4010bf9ff555087cd21b5b26e8140b3e67ae941a3fac364f54a0e1d36b449292",
+      "material_digest": "sha256:bc7c3fbd611629b20ee7d8ca32d701bb2d9763799e8565b5faeb328b7600f9c7",
       "material_inputs": {
         "names": [
           ".pose/adr/2026-09-20-explicit-remediation-links-in-spec-frontmatter.md",
@@ -219377,7 +219532,7 @@
         }
       ],
       "diff_digest": "sha256:2e577fb5ceeaf9afc462387d8f5c14101e5171e31376c47b517f0303131d0960",
-      "material_digest": "sha256:c1402c29dd8e5c1c772a2cfdaa1f58c35ea12f606d8266a3d08faae171cb1d29",
+      "material_digest": "sha256:46a9e3a8e75df7d1fa603f3a39665112e790e9c9704f0d03bbe8aced655da7a0",
       "material_inputs": {
         "names": [
           ".pose/changelogs/unreleased/pose-review-bundle-seals-planned-component-evidence.md",
@@ -220282,7 +220437,7 @@
         }
       ],
       "diff_digest": "sha256:52a4556e4a8d052649ef7e9a32d955bde9887c094e194705ebe2bca045528b0a",
-      "material_digest": "sha256:b1226a5fd145369ab3fadfcdadff16d8bb9ca948d2538af2d9b974786477ad14",
+      "material_digest": "sha256:be78bbe511ccdc2b302199ed72766f74c95a9c571f001f9a7bfa10d0a306794e",
       "material_inputs": {
         "names": [
           ".pose/adr/2026-09-21-federated-roadmap-acceptance-with-local-evidence-authority.md",
@@ -220989,7 +221144,7 @@
         }
       ],
       "diff_digest": "sha256:f0e6df64efaf5bcf58df362f2f453f3b3b7e52d77f153833fe3acc1a4a3662ed",
-      "material_digest": "sha256:d3bba6fcefca15a28c26d477f581477477ff2aa7ae9f0148ab75ba3981b0f26e",
+      "material_digest": "sha256:76007dd6fd80b4a8e4e7933bbbd3fe6908ad5180e48bc890f2e7c89c63a92279",
       "material_inputs": {
         "names": [
           ".agents/skills/pose-spec-closeout/SKILL.md",
@@ -221363,7 +221518,7 @@
         }
       ],
       "diff_digest": "sha256:583978713738b370286441782ab82b4904f6cb0f1c4f1af0b9c38e70dcac8dfd",
-      "material_digest": "sha256:2562cec623f69a45d68d61a708e9c704dc5c1fd0daa7fa247734756adc569e1a",
+      "material_digest": "sha256:2fc1d558dec116413ba3d4c00030ada1d00d349c18459e500c3bb73599e97c8b",
       "material_inputs": {
         "names": [
           ".pose/adr/2026-08-13-sealed-review-bundles-and-attestations.md",
@@ -221702,7 +221857,7 @@
         }
       ],
       "diff_digest": "sha256:5cc18bf4fb8a4c6427639c774f72223b194945a9281308d575a55ae9e83a8c50",
-      "material_digest": "sha256:d342bb49aa65e2ef2f2f34e014abdd78b3f6ab442600a2551db44027a9619797",
+      "material_digest": "sha256:b84fee3236dca098156015724c02d5493544d62a440c8be8288b6e00cb0caefe",
       "material_inputs": {
         "names": [
           ".github/workflows/package-channels.yml",
@@ -221984,7 +222139,7 @@
         }
       ],
       "diff_digest": "sha256:384f1f9351fcc74a73c6cbbd9e0b98f0c75ba604ba681bf2f511fa80dcbd0fba",
-      "material_digest": "sha256:928ead13a96cb536f613b19cd2b972a990c2727f05e47eb1c4b1ac77923aba39",
+      "material_digest": "sha256:0e4d9a824c5b153e8f5867b13b6602af4f2aa8ec8ced50f8cf28f50ecff04e57",
       "material_inputs": {
         "names": [
           ".pose/actions/act-fa20ae0029b6ad14.jsonl",
@@ -222362,7 +222517,7 @@
         }
       ],
       "diff_digest": "sha256:3c4489c97b5173b1e80f8a738f7a0c7c55caed513efa890f00ae8766f7398bf7",
-      "material_digest": "sha256:f09236682294dbd73d5b1766885cf4194a436f7a5ec3ee14c0843aa172b65ec9",
+      "material_digest": "sha256:973b5401e553f25f3e9ef1dda937c433eed113c1adc654081bafed66c9a88b6b",
       "material_inputs": {
         "names": [
           ".pose/adr/2026-09-21-federated-roadmap-acceptance-with-local-evidence-authority.md",
@@ -224585,7 +224740,7 @@
         }
       ],
       "diff_digest": "sha256:bf7132042ad3f2bff0ab63ab3c3657eb32e191f55cac0ddb4e54ef1d78d714f7",
-      "material_digest": "sha256:08d548f3427b212cd8247135197a19462c82dd5e70433c029840af5999fbb675",
+      "material_digest": "sha256:b8736e0fab307b48a71e78e40ec56d9e2540c0b933691ababc1c3083d79ef07b",
       "material_inputs": {
         "names": [
           ".pose/adr/2026-11-03-governance-reads-use-bounded-operation-scoped-views.md",
@@ -225179,7 +225334,7 @@
         }
       ],
       "diff_digest": "sha256:b1991a7d988bc4640e5694e8bb8a461639890098680671878d8541f4d098ca3a",
-      "material_digest": "sha256:057a95f5caf79d4696bb95ddd5150bb5430d953cb6d3d32eb288322dff6c53dd",
+      "material_digest": "sha256:eaef708c6c484f639e639e5633e3a4c208ac3ee80a7e5c59f26f76f72e8c7bf0",
       "material_inputs": {
         "names": [
           ".pose/changelogs/unreleased/pose-diagnose-invisible-governance-failures.md",
@@ -228522,7 +228677,7 @@
         }
       ],
       "diff_digest": "sha256:5ab8c82c8c1f3fb8f9c3059d659cf61ee5d319040b1c8a2708272cdca9e37e5f",
-      "material_digest": "sha256:0ba463553b43ead94db9f1d3126198e6146474b7e8ac3284e159825a7f56ec6d",
+      "material_digest": "sha256:e3d411ee645eeabc9c2b8a00dc147de4041af0bc5778d468e00d85d21eaff90a",
       "material_inputs": {
         "names": [
           ".pose/changelogs/unreleased/pose-review-approval-domain-preflight.md",
@@ -228914,7 +229069,7 @@
         }
       ],
       "diff_digest": "sha256:617aec4e17b103b83070f0329d4948fae3931bbe9146a299514920dfac01528d",
-      "material_digest": "sha256:ec42dd363a15be70fa8bfcd9e5a67900dd061d913abc7e7107901caacd2f2b70",
+      "material_digest": "sha256:76178703845772985bfa47ec42d90536339d77e35a87e146158c55676017c4fa",
       "material_inputs": {
         "names": [
           ".pose/changelogs/unreleased/pose-action-request-presentation.md",
@@ -229287,7 +229442,7 @@
         }
       ],
       "diff_digest": "sha256:86a6dc24c41f3533167f2bf1275f9b5ca053e514236b24f2c05db713db8c2bd5",
-      "material_digest": "sha256:70328856b4211fb4cb438e1d37252b141b3ebbed9c121e84a1b3aa744ad86251",
+      "material_digest": "sha256:06ae62d0c789bef093834dcc6c40b372f7e17133720297c958fb05329baa8b93",
       "material_inputs": {
         "names": [
           ".pose/assessments/README.md",
@@ -229416,7 +229571,7 @@
         }
       ],
       "diff_digest": "sha256:2e576fec84145d65366d90f7b096edfe5721cd4846019bda99c47a04842aa4a2",
-      "material_digest": "sha256:150bfa762faf30b19285b9fb0847d7b6aa7f59c7a5b26485c06986de13881349",
+      "material_digest": "sha256:ebfe25a70e4e5a55ebe43e9a4d38b0c1769233137f2e0b99a12afc5b7370a600",
       "material_inputs": {
         "names": [
           ".pose/adr/2026-08-13-sealed-review-bundles-and-attestations.md",
@@ -229656,7 +229811,7 @@
         }
       ],
       "diff_digest": "sha256:8b2754c1b0919c73e89e67b65dacc395bb42db1352c0299644d4019b10049c8e",
-      "material_digest": "sha256:4f91a6bac9bdc466d4b2e55fbdec7745349b5870b162318fe63f2ee5e3beb5f2",
+      "material_digest": "sha256:d48d75bfdd07dcc0e0f45e9655b16017ade350cebd27011dfcd90b6321088d3b",
       "material_inputs": {
         "names": [
           ".gitignore",
@@ -231543,7 +231698,7 @@
         }
       ],
       "diff_digest": "sha256:3428ef55f653c36ea8bb7b6a9b17aaa688c3bc35d68d7b389422a71e7ff1d0d3",
-      "material_digest": "sha256:d1b6658f0605eb7e2f649456725c021bba87d7620e372e0abbf1b249cca7a1ed",
+      "material_digest": "sha256:d7225d9da5b5295a2c14877927bc36398a32585a90ff44319177b2d5aceafc2d",
       "material_inputs": {
         "names": [
           ".pose/assessments/README.md",
@@ -231596,7 +231751,7 @@
         }
       ],
       "diff_digest": "sha256:cc3e507b30fe33af977a959ff05403b672f4e73a474f9c13ba61227daf73ec26",
-      "material_digest": "sha256:eb083809cdaae9fdf22914bbd6676db7a41ffa5beedda398d66457c4d5cbd6bf",
+      "material_digest": "sha256:f1b72b3ad0c447eb722fcb0e633bf2bc147671fadc1448f7615568c4056a3c2c",
       "material_inputs": {
         "names": [
           ".pose/indexes/validation-matrix.json",
@@ -232181,7 +232336,7 @@
         }
       ],
       "diff_digest": "sha256:ad04dc3d4b613462c4866bd2b2238403a4555dc2e85cebfa476919085eabf46a",
-      "material_digest": "sha256:04a33857ee9f3058035ee3fc1b4d849ea7b2e01341f2edfe5c97f89f17e6b543",
+      "material_digest": "sha256:a21ee46e9f402bd3a509e0c085acac5494ab1890f7d9fe6aea30e843583ce0c5",
       "material_inputs": {
         "names": [
           ".agents/skills/pose-spec-closeout/SKILL.md",
@@ -232229,6 +232384,86 @@
           "pose-mcp/internal/scaffold/dist/locales/pt-BR/.pose/workflows/ui-surface.md",
           "pose-mcp/internal/scaffold/dist/locales/pt-BR/POSE.md",
           "tests/e2e/review-bundle/run.sh"
+        ]
+      }
+    },
+    {
+      "id": "cs-69e3f6f72159",
+      "spec": "pose-retroactive-attribution-record",
+      "selector": "trailers:pose-retroactive-attribution-record",
+      "base": "0bc27fd988f476b4f2d0349fc631b4cc8759a795^",
+      "head": "3c7d07706ac3800c4d5bdab2ca7ad10e39ae5d57",
+      "resolved_base": "c6faa8bf86572716906ccf4dc474957b955dbb6c",
+      "resolved_head": "3c7d07706ac3800c4d5bdab2ca7ad10e39ae5d57",
+      "commits": [
+        "0bc27fd988f476b4f2d0349fc631b4cc8759a795",
+        "c6ad06e0c375356965c9f156259d2f4b43ed1130",
+        "2e294d378bfbec66c936dff66fa33069058f9603",
+        "bd41b9b775bd7d9b3a0b153ceb0d78004db01bcd",
+        "3c7d07706ac3800c4d5bdab2ca7ad10e39ae5d57"
+      ],
+      "paths": [
+        {
+          "action": "created",
+          "path": ".pose/artifact-attributions.json"
+        },
+        {
+          "action": "created",
+          "path": ".pose/artifact-attributions.json.sig"
+        },
+        {
+          "action": "created",
+          "path": "pose-mcp/internal/cli/artifact_attributions.go"
+        },
+        {
+          "action": "created",
+          "path": "pose-mcp/internal/cli/artifact_attributions_test.go"
+        },
+        {
+          "action": "created",
+          "path": "pose-mcp/internal/pose/artifact_attribution_index_test.go"
+        },
+        {
+          "action": "modified",
+          "path": ".pose/policy/actions.json"
+        },
+        {
+          "action": "modified",
+          "path": ".pose/specs/2026-11-11-pose-retroactive-attribution-record.md"
+        },
+        {
+          "action": "modified",
+          "path": "pose-mcp/internal/cli/artifact_integrity.go"
+        },
+        {
+          "action": "modified",
+          "path": "pose-mcp/internal/cli/surface_check.go"
+        },
+        {
+          "action": "modified",
+          "path": "pose-mcp/internal/pose/index_generation.go"
+        },
+        {
+          "action": "modified",
+          "path": "pose-mcp/internal/pose/review_bundle.go"
+        }
+      ],
+      "diff_digest": "sha256:536281e2d773c41f6415f1736137a84b1b6d1acba7d7015380c05e74cc9a8b61",
+      "material_digest": "sha256:538112103ec44559d733cb7834ca5f1e029999f0c2c056628c10c3f2b5a848ae",
+      "material_inputs": {
+        "names": [
+          ".pose/artifact-attributions.json",
+          ".pose/artifact-attributions.json.sig",
+          ".pose/indexes/validation-matrix.json",
+          ".pose/policy/actions.json",
+          ".pose/specs/2026-11-11-pose-retroactive-attribution-record.md",
+          "pose-mcp/internal/cli/artifact_attributions.go",
+          "pose-mcp/internal/cli/artifact_attributions_test.go",
+          "pose-mcp/internal/cli/artifact_integrity.go",
+          "pose-mcp/internal/cli/surface_check.go",
+          "pose-mcp/internal/pose/artifact_attribution_index_test.go",
+          "pose-mcp/internal/pose/index_generation.go",
+          "pose-mcp/internal/pose/review_bundle.go"
         ]
       }
     },
@@ -232499,7 +232734,7 @@
         }
       ],
       "diff_digest": "sha256:7109ac3294db73a466a732b391769a19a46a6e851a5bf3eac3d245cfddfea62a",
-      "material_digest": "sha256:42ccb87f23789a8d7da993ff07700f699c2616c41381eb83d9e5ad72797cea82",
+      "material_digest": "sha256:ae60a03d685f856458939739d818f89636c05301955e341da33e4150152578ab",
       "material_inputs": {
         "names": [
           ".pose/assessments/README.md",
@@ -232968,7 +233203,7 @@
         }
       ],
       "diff_digest": "sha256:2f447132d3e35ad6a9dfe804c39c8e9682f0a8a9f046c13138c30a15a2b6a970",
-      "material_digest": "sha256:367e0b22bff7784ddc12a627cb13d8bf393987506beea6149fa4f20c84e49d8e",
+      "material_digest": "sha256:c8500c29c16d857d0b63f1c9b41cf76b04cd1b97be657cf6a8ae27d8f1b39d48",
       "material_inputs": {
         "names": [
           ".pose/adr/2026-08-13-sealed-review-bundles-and-attestations.md",
@@ -233370,7 +233605,7 @@
         }
       ],
       "diff_digest": "sha256:d8c53cefebad5c36d3c36d83aab187b3dcd5906aef7678f954fcd30f687f0025",
-      "material_digest": "sha256:d53c58f0d96fc83b89ca8f0b9e9b4dc4ab498002104644c773b6f5b887bc03a5",
+      "material_digest": "sha256:dc21dac35add28d7bbc12ceb45e9f9a5cb37a45aed220b448afb4a4390620ea1",
       "material_inputs": {
         "names": [
           ".pose/assessments/README.md",
@@ -234062,7 +234297,7 @@
         }
       ],
       "diff_digest": "sha256:a25e17138c66f41c03e192dd94197b8111c81dbe888854b840c0698b86800e57",
-      "material_digest": "sha256:d4c1190c8f549995532d9300ef6f0e5a5e0648042111c09a97281ecabed2921e",
+      "material_digest": "sha256:ecc028b9cbf6546df7518007236f73907d0e3d595c241ce7cc2ab77f61455ff1",
       "material_inputs": {
         "names": [
           ".pose/changelogs/unreleased/pose-action-request-presentation.md",
@@ -236356,7 +236591,7 @@
         }
       ],
       "diff_digest": "sha256:f2d6fe5432c82fb8fce787e827d112db050481b8aae1787aba9f557e2c0744f9",
-      "material_digest": "sha256:f723ea1166c2fbbe26a0180e962e89daf5900ee74c289a01dcac019b1f992945",
+      "material_digest": "sha256:d22a747ea2a1d75e412560f70af8b0e31529903716727669e100887010205e69",
       "material_inputs": {
         "names": [
           ".pose/changelogs/unreleased/pose-mcp-review-attest-signed-only.md",
@@ -237533,7 +237768,7 @@
         }
       ],
       "diff_digest": "sha256:f99b83da03e037cb2545485f9db805202a1b5d7958a1dd19e0120997bf800b71",
-      "material_digest": "sha256:aaf329e37732980122987b1f2c75dd41c18e14eb5840681eff94b20ba8d0683b",
+      "material_digest": "sha256:e5474ea0b2ff519aa4ed5140155a94a4233407a2c228b12b2393c55b0f97aa42",
       "material_inputs": {
         "names": [
           ".pose/changelogs/unreleased/review-verify-retains-completed-scopes.md",
@@ -237876,7 +238111,7 @@
         }
       ],
       "diff_digest": "sha256:188e5041c1fb1c8711e81094e329bfddc892a24237afac17a196e912848edb4c",
-      "material_digest": "sha256:e6d64270664c22411d7ce52b313acb8a00800f671d16b73c33ab151a92f60953",
+      "material_digest": "sha256:e9a8f6e6cc52b684cf7131cbf780852dd1c9586a530b04f3f497d7f4287b8c32",
       "material_inputs": {
         "names": [
           ".pose/assessments/README.md",
@@ -239991,7 +240226,7 @@
         }
       ],
       "diff_digest": "sha256:30f7ebde1174a7d9438564bc2f79a1ab4f8bbc24c1dc0a35a4941fe97b7e6a9e",
-      "material_digest": "sha256:060d6beeda429b8ec4ecb66be2d3318ab0d0d30c14da922bbbffaac18fe0c155",
+      "material_digest": "sha256:8cd622fde291028395b0dc81360dea231007a5772e7bd78f16fe546474707b1d",
       "material_inputs": {
         "names": [
           ".pose/adr/2026-08-15-retired-machinery-files-stay-on-disk-never-auto-migrated-by-pose-update.md",
@@ -242042,7 +242277,7 @@
         }
       ],
       "diff_digest": "sha256:ec8d13b4cf911d105f16f5540dd01b777b9a79a527b6d119c39b673a5c83cf8b",
-      "material_digest": "sha256:13be89fea2e636cba15a61f215e8c921a0d024ed04a52afefc84f3dbe158cff4",
+      "material_digest": "sha256:ce827434a8a8c46db1dd5b77b4d1e96cc83482ea5e72fdd05fb9f09fcb426d18",
       "material_inputs": {
         "names": [
           ".pose/adr/2026-11-03-governance-reads-use-bounded-operation-scoped-views.md",
@@ -243695,7 +243930,7 @@
         }
       ],
       "diff_digest": "sha256:903c0be8a6ce5179a1c7143012ed9fb7859eee4219cf144366e45b9f7e5020fe",
-      "material_digest": "sha256:ec8974af8b918c11c7d4a1aeb0b9724518255aa819046f3137e50071e0cf34bd",
+      "material_digest": "sha256:17eb859a5d6749c9dcc5a0780ae72bd228b4e2fbefbfebd1059818d7f5f0d689",
       "material_inputs": {
         "names": [
           ".pose/adr/2026-10-25-continue-delegated-runs-under-one-immutable-attempt.md",
@@ -244154,7 +244389,7 @@
         }
       ],
       "diff_digest": "sha256:3bb1efd26e36b4dea24f7d66b6f13f19446e6ac85e33dae7fa48b349e31a7a95",
-      "material_digest": "sha256:095b9376e4aa75d35c4f9f212851176d1703e9ee85b1ce9e125a6675c7080010",
+      "material_digest": "sha256:cd0c6a921e0265d93ac63a199d8fa151dc23eb50d778ae537fed11267ac55c83",
       "material_inputs": {
         "names": [
           ".pose/adr/2026-10-25-reserve-delegated-attempts-before-launch-and-witness-immutable-runs.md",
@@ -244955,7 +245190,7 @@
         }
       ],
       "diff_digest": "sha256:257dcfd83066158a46f053a3882ebf3a282ad6726a6de54fb9724c98e41d85c8",
-      "material_digest": "sha256:e5098ac1170686bceacbfae0aa5c2b14c2f61dd26b363920068686ba98f13382",
+      "material_digest": "sha256:0d8f942eff7fe90456f32cd5307720d5f3d394e7688a90f709d9a8a571231e65",
       "material_inputs": {
         "names": [
           ".pose/changelogs/unreleased/pose-governance-residual-diagnostics.md",
@@ -245378,7 +245613,7 @@
         }
       ],
       "diff_digest": "sha256:79eed72e2853adb33ba372c5f879cec35c3d124fb7909e79ce3578f1b786372c",
-      "material_digest": "sha256:eb4ac926cf58effedfab791c07b637e3be93a29c93853c73a6c090bc6f2a6464",
+      "material_digest": "sha256:04f1cfb4f6e54763e7719048a6bd8dcd1c07f165c3310fd701e87feb6b7aa5b3",
       "material_inputs": {
         "names": [
           ".pose/assessments/consolidated.md",
@@ -246205,7 +246440,7 @@
         }
       ],
       "diff_digest": "sha256:ca5aca73bc13262c7cddd7c958c539cf609dde6374c63a261d0465ba8367243a",
-      "material_digest": "sha256:b5931febced8044dda78cfbf5ed96d90a1a8a5c0e735f3301abe83f84f38f0d0",
+      "material_digest": "sha256:4dff0ecab77e43399d31a1343413541e24a3bedb2584127bfe7ab637a8fb9f12",
       "material_inputs": {
         "names": [
           ".agents/skills/pose-spec-closeout/SKILL.md",
@@ -246502,7 +246737,7 @@
         }
       ],
       "diff_digest": "sha256:12b7dbffdcdc262292b3d1ef37beeefba8e7a79f92779b6e53adcc6a948288f0",
-      "material_digest": "sha256:04f4abddb1c4275b7580e86e874eb286c48137385a4df49cc68182a67e7c39f5",
+      "material_digest": "sha256:f4e837d219224b5bb07ee0d7a4cf51d91bfecc43baa0b29ebbbc089fe56b2557",
       "material_inputs": {
         "names": [
           ".pose/adr/2026-10-31-review-reads-raw-history-and-roots-diff-from-the-empty-tree.md",
@@ -251607,7 +251842,7 @@
         }
       ],
       "diff_digest": "sha256:751bcd20135b9aa06619dfe6a808f06bab2015352111336cbee0790d58af4669",
-      "material_digest": "sha256:a0ca62884438a515bb79e3dd4a84d3b1d28782f269496c5e617d9a1dfcc93286",
+      "material_digest": "sha256:ccaec1092466b2c432068618c2f954191f49684c582196e1d1818d5872a36105",
       "material_inputs": {
         "names": [
           ".pose/changelogs/unreleased/pose-v6-2-0-delivery-authority-diagnostics.md",
@@ -253377,7 +253612,7 @@
         }
       ],
       "diff_digest": "sha256:88696d7d2eb504ba98b74f2b7cbced93f05b304bdc3b29042c3d296600c03d39",
-      "material_digest": "sha256:a99afea3c50e491d58dd6ce2af3276653bce4e8e88298e0016f420988270682c",
+      "material_digest": "sha256:4df9f192ee3c88388d199ad802f8823bf18b12ff6d98ab7c156104d547ef461d",
       "material_inputs": {
         "names": [
           ".pose/changelogs/unreleased/pose-action-request-presentation.md",
@@ -256568,7 +256803,7 @@
         }
       ],
       "diff_digest": "sha256:2b90784fddf6787b7c4ccdbb80f6d836082c46a7a4266c60a6dc1936ee62f279",
-      "material_digest": "sha256:7505f0894480c411786fb018a2a90a18b250bb1fe481a9628a79dd9573b4e67b",
+      "material_digest": "sha256:b4d331018247279036f18a541b532a27f7bbda660f66b8179da0024ae2551ebc",
       "material_inputs": {
         "names": [
           ".pose/adr/2026-08-02-delivery-integrity-graph-and-git-observed-provenance.md",
@@ -257942,7 +258177,7 @@
         }
       ],
       "diff_digest": "sha256:4f94bf3e8bfde9b0d9604618a62d82dd7a47b2b4f8d272c187f535e4956175ea",
-      "material_digest": "sha256:0f3bf1f2dee53548f9e8ab402a03bd7f6bc9ef89f77f13a4811db8069b493470",
+      "material_digest": "sha256:0f3e58c4b90922b894874d30d1c4da28b5954b9c12aecc44b3188d42f4b2d315",
       "material_inputs": {
         "names": [
           ".pose/adr/2026-10-25-bind-delegated-review-authority-to-native-signed-run-proofs.md",
@@ -258297,7 +258532,7 @@
         }
       ],
       "diff_digest": "sha256:1f90bc4ded685d03e88050c84f90d8a5dabc743d3fe1eabed41acb2ede70cdbe",
-      "material_digest": "sha256:138348be519968ca2041cfb8e1b89b90aba84d66820bdcd8834418d726d31db1",
+      "material_digest": "sha256:b2cef37974a185ca137cad146535c1362f0b2f063acf88d657a180a41a6c4edd",
       "material_inputs": {
         "names": [
           ".pose/adr/2026-08-13-sealed-review-bundles-and-attestations.md",
@@ -259756,7 +259991,7 @@
         }
       ],
       "diff_digest": "sha256:b0a5f4478aae45674ddb64bef4009103b4f7e7f9bec86c168a9ed215c7c7723f",
-      "material_digest": "sha256:d39ba59aab6dc5451f03b46c8e4e75b0ae7c6816aadfcdb43794d07fb0bcb9cc",
+      "material_digest": "sha256:7a55f9678522573b1599c3749e76347e113f228a93e9e567b3109387563b8b00",
       "material_inputs": {
         "names": [
           ".pose/changelogs/unreleased/pose-review-subject-submodule-classification.md",
@@ -261558,7 +261793,7 @@
         }
       ],
       "diff_digest": "sha256:236328fbe70a42a25ec3d0591344f70b10b2eba4df68fdc774d9f0c7f6c88689",
-      "material_digest": "sha256:24c6accc793b4b139a90370d45bc5116036366b1739a80915806ad872908ef17",
+      "material_digest": "sha256:bea3c147b24b26d9c1f94d17208dfeb4fe124d9112f1a56af0b300f126072c99",
       "material_inputs": {
         "names": [
           ".pose/assessments/README.md",
@@ -264392,7 +264627,7 @@
         }
       ],
       "diff_digest": "sha256:1fc09be5e7827dc7bfef977afc2846a735c2d8b4f2d4c2d6d40a7b16f5d2fa9f",
-      "material_digest": "sha256:96e175fb3d076af200286b108742c1023d570f7868bec9cee3a67dc1f685e172",
+      "material_digest": "sha256:3ec8073f003ec8573a62e2d49b0b4d8b2a7ffc094888338866fe189e23b3e33b",
       "material_inputs": {
         "names": [
           ".pose/changelogs/unreleased/pose-action-request-presentation.md",
@@ -266627,7 +266862,7 @@
         }
       ],
       "diff_digest": "sha256:57b7e5a8f808c23e1d6a461f856dea65fafa22003f127c60f500b56bf9f40fef",
-      "material_digest": "sha256:c3b3d1b9d30babf354e048d0383b5cc8827296f3126f9f59a396bc26f84caa9a",
+      "material_digest": "sha256:041ed5dfef990887438a24d992cea878713c4ada5a9756a70b4ec0204c64a367",
       "material_inputs": {
         "names": [
           ".pose/changelogs/unreleased/pose-doctor-fixtures-exercise-production-path.md",
@@ -267661,7 +267896,7 @@
         }
       ],
       "diff_digest": "sha256:237a997144d522058262ada4929a2f14628061f49b101a45e67190d359bac32a",
-      "material_digest": "sha256:62a5f796dd509369bdf1d7e053ceab162cd405933ecc87873de6402fa58519be",
+      "material_digest": "sha256:f815476e73beed8ddc42d131c419a75c1639cdcab59e9930d3b0b343be1eba9b",
       "material_inputs": {
         "names": [
           ".agents/skills/README.md",
@@ -267831,7 +268066,7 @@
         }
       ],
       "diff_digest": "sha256:652e7e695fbd9286b09dac05d8cf876e7d0b42feb213e77f560a7637dcce977e",
-      "material_digest": "sha256:c3b3d1b9d30babf354e048d0383b5cc8827296f3126f9f59a396bc26f84caa9a",
+      "material_digest": "sha256:041ed5dfef990887438a24d992cea878713c4ada5a9756a70b4ec0204c64a367",
       "material_inputs": {
         "names": [
           ".pose/changelogs/unreleased/pose-doctor-fixtures-exercise-production-path.md",
@@ -268366,7 +268601,7 @@
         }
       ],
       "diff_digest": "sha256:b802380d146f1a50108a1c8aa9f49d6dd7be97a676d1320e87361b872abc6ef0",
-      "material_digest": "sha256:9329ae310bea447528c6414890251aa418791180cf48cf44ae03c2d696076ecb",
+      "material_digest": "sha256:69a048c3581d89455a61673ec80c1986fd0774863f9abdc82cc3e22f8f70d688",
       "material_inputs": {
         "names": [
           ".github/workflows/ci.yml",
@@ -269109,7 +269344,7 @@
         }
       ],
       "diff_digest": "sha256:656bc1b69b9ae213d359fcd034531a40cbf34a8a7b9ec821192019151f7029e7",
-      "material_digest": "sha256:8b469fb161bf4a4161465b8fe0aad54059bdde1a5833ccb5e2889ad7a7086972",
+      "material_digest": "sha256:40178bcf5d6e7b0a13467bf2c8c43579c0e2aae9f56507a20043d6372deb8083",
       "material_inputs": {
         "names": [
           ".agents/skills/pose-review/SKILL.md",
@@ -270358,7 +270593,7 @@
         }
       ],
       "diff_digest": "sha256:40d8552979ce9ed47473f6569b66269791495090dd71c5b7ceb8abd7c10c8d85",
-      "material_digest": "sha256:940f0e421f744e287809854d04d2de10540c60abcd39d0b066836152b9ea6f46",
+      "material_digest": "sha256:369fd6c41462e2dc3fb9efd0a404e58127e7ec1d73ebbcf4194db3c3a954319b",
       "material_inputs": {
         "names": [
           ".pose/adr/2026-10-17-a-source-that-lost-something-is-incomplete-for-what-depends-on-it.md",
@@ -270843,7 +271078,7 @@
         }
       ],
       "diff_digest": "sha256:6ee4bf1e27589b310b7f03cbd8378a42b1f25803475fd112672324b7a214d251",
-      "material_digest": "sha256:f41a05c8a79ded93398af29a17d7b80f968a4aa710069b27585432b500b8a41a",
+      "material_digest": "sha256:09c5590dcca25daa5beadfa1b361c25148557e84989a1a8aed4dac1011760e97",
       "material_inputs": {
         "names": [
           ".gitignore",
@@ -272359,7 +272594,7 @@
         }
       ],
       "diff_digest": "sha256:86e5dca9bcc961281ad0d40c23e500ba6a97c40ff77da2607ca336aa120ee0f6",
-      "material_digest": "sha256:d1ef0ab7c5c0560802be71d55ffcfa42fb2c5563b8bde78704a01b63c35c905f",
+      "material_digest": "sha256:01bae0eafd2c0d4458a309331a67d0f332c62784e55d1730ca856acb34246ca8",
       "material_inputs": {
         "names": [
           ".pose/adr/2026-09-25-review-evidence-versus-delivery-target.md",
@@ -273033,7 +273268,7 @@
         }
       ],
       "diff_digest": "sha256:a2bc5b1e7ee22d45d81b9aeb311fe8aff62ea97cc1d64b22ec1f90249747b354",
-      "material_digest": "sha256:36997d63d915dddc0d3b5e9154af6685a7812b55388ef002de03dd77fd5ef0d6",
+      "material_digest": "sha256:786a82ebffa67414f291777108881b53ed58bf7cdb6136ccc7dba6421e9bd213",
       "material_inputs": {
         "names": [
           ".pose/changelogs/unreleased/pose-review-subject-and-scope-precision.md",
@@ -273831,7 +274066,7 @@
         }
       ],
       "diff_digest": "sha256:753d0fde7dd0f569c3a2001e873302e4069db2ec3142a1b30fb0eb96dc10ea0b",
-      "material_digest": "sha256:9328d0cecdb455886a415a831b027453da0d0e86a8c4dff275abfe6d903967c6",
+      "material_digest": "sha256:25ef2cf9158ba9375dee703f2988140143558259def46a90520640ad990a6ae6",
       "material_inputs": {
         "names": [
           ".pose/assessments/integrations.md",
@@ -274145,7 +274380,7 @@
         }
       ],
       "diff_digest": "sha256:8320fdd2a7a0a440d1e0b5a6d4d682e14436ca76954d6becb8ba28200a4a0579",
-      "material_digest": "sha256:def2cb4e510c6cc437f5c4c4621493e8b8a154e70a42f6066a08099ae2da1c59",
+      "material_digest": "sha256:d3b5a270ae0fe184a6044a250d314a2112e46857988017e8c55b240f95131bbe",
       "material_inputs": {
         "names": [
           ".pose/indexes/delivery-integrity.json",
@@ -274338,7 +274573,7 @@
         }
       ],
       "diff_digest": "sha256:b36038dfc3e9bbee3c9b2a8c60392cd84483436a570b8e7c0ac474a4b646375c",
-      "material_digest": "sha256:29bdae70e6e68f4b9fdc8f7d69b55612793a12a4a259e4f5512686de1e27e0ac",
+      "material_digest": "sha256:700653fef53f71ce4f4ec9d15c738fbc595e9bcef3e1c20c248598f0499c04b8",
       "material_inputs": {
         "names": [
           ".pose/assessments/README.md",
@@ -275205,7 +275440,7 @@
         }
       ],
       "diff_digest": "sha256:76dfca97900cd3ef9f4c8d877dbde6832e7e855a052b5288e4252e7bf36789ad",
-      "material_digest": "sha256:1ff2ef989477ae174cec630b60b23d041cf29320c77b77210720e19fa8a440d9",
+      "material_digest": "sha256:6c3174031f546a5b0a4ecb00676a4de096fb8edc9846b7722b06298a774fc64b",
       "material_inputs": {
         "names": [
           ".pose/actions/act-dd6a58232dd28ea5.jsonl",
@@ -278835,7 +279070,7 @@
         }
       ],
       "diff_digest": "sha256:daf12e251f07d7c8c474fd51b370c71efc95222eb474f5c638ff7b7530c89aba",
-      "material_digest": "sha256:a0e87beeecff143da1b0b65f170d5a0cca535106710a8330382f48030bb5cbae",
+      "material_digest": "sha256:e57304fdbd8d941ef98e67910dd0dd12fde8b297d41b56e45a9cde68c4a0bc70",
       "material_inputs": {
         "names": [
           ".pose/adr/2026-11-03-governance-reads-use-bounded-operation-scoped-views.md",
@@ -279413,7 +279648,7 @@
         }
       ],
       "diff_digest": "sha256:5aaca622a6f9de9cc9d4879cdf0143cfa3d64aeba06873bc013636e22ffbde8c",
-      "material_digest": "sha256:a418a4aee5ab4182a6dce05b915254b85fc61dccd4bc71b3f21f9613cc053132",
+      "material_digest": "sha256:6c173149ec555da528dc49319286049f51bba8e46bb1933e6d16ab1b143427d3",
       "material_inputs": {
         "names": [
           ".agents/skills/pose-bugfix/SKILL.md",
@@ -279991,7 +280226,7 @@
         }
       ],
       "diff_digest": "sha256:5df3c7cf87a13cdc6a8c558e6d10b46a014868fb1351f43988fc0f87abac9604",
-      "material_digest": "sha256:c30f5d1219b980417ef3f7fa210373303ead9e11449dafbe27717b7db72afae1",
+      "material_digest": "sha256:a27882f6048f528b7a0e72e38f26ac6b967bea3902852766573d3f8b0005bd22",
       "material_inputs": {
         "names": [
           ".pose/changelogs/unreleased/pose-delegation-task.md",
@@ -280126,7 +280361,7 @@
         }
       ],
       "diff_digest": "sha256:46002b6590fa94c556314e4851a16babe97aa91cb36f4e64a924e229aeed9ed9",
-      "material_digest": "sha256:c3b3d1b9d30babf354e048d0383b5cc8827296f3126f9f59a396bc26f84caa9a",
+      "material_digest": "sha256:041ed5dfef990887438a24d992cea878713c4ada5a9756a70b4ec0204c64a367",
       "material_inputs": {
         "names": [
           ".pose/changelogs/unreleased/pose-doctor-fixtures-exercise-production-path.md",
@@ -281885,7 +282120,7 @@
         }
       ],
       "diff_digest": "sha256:829dd9182e28e3bbb4c8ff889842b38ec3264f5f0d240b48a1c383b46dbcd5f2",
-      "material_digest": "sha256:adc9b625a26559b02522b8dfaf7c805310d02ee2cd355e946980e0e6057b2a3e",
+      "material_digest": "sha256:7578f16956fc42374d8badbaafddef5121e227f405c24e3c9444cf6ae3027a73",
       "material_inputs": {
         "names": [
           ".pose/adr/2026-08-13-sealed-review-bundles-and-attestations.md",
@@ -282633,7 +282868,7 @@
         }
       ],
       "diff_digest": "sha256:6e9624badd249dd687ab347a4332f3ff76a71b21a265ff6f60bd219ef5da7bac",
-      "material_digest": "sha256:7af7fae98f683f3a226841582d7f1933d734a01d9423e8e0bcb8a6d98020451e",
+      "material_digest": "sha256:25cb3997065ce7c2d8605c17c264a4faf6922e5d42db73288ce8b23d8cfc205d",
       "material_inputs": {
         "names": [
           ".pose/assessments/README.md",
@@ -288741,7 +288976,7 @@
         }
       ],
       "diff_digest": "sha256:3e538950d2afc9048299ea170cd1f4ec4b66a1981ec830462d9e8827769ee511",
-      "material_digest": "sha256:e7ed8daeedcc777c13bc03c9f94c7920cb6a8fa198bf6354270ac809e144aaad",
+      "material_digest": "sha256:5e4ae46881844d2e23488391d24c550a3a2eb167441b2ffb7b99aab3f8132e7e",
       "material_inputs": {
         "names": [
           ".github/workflows/release.yml",
@@ -289504,7 +289739,7 @@
         }
       ],
       "diff_digest": "sha256:d7126b58b30e44693cb52fa47922b1fcbf4b44838f891318e63893d789108ee2",
-      "material_digest": "sha256:9a3ec100f9d970c5eb4f72e852b0dd0dfd2fa0c3bf39e3ef8667757cf17fb8d4",
+      "material_digest": "sha256:6aaafa73f0dac0d089f822b2ad0b04ab484c545bc147dcb5ae84d6667e69ad0c",
       "material_inputs": {
         "names": [
           ".pose/adr/2026-09-11-the-cli-has-one-rendering-layer-and-its-printed-lines-are-a-contract.md",
@@ -290465,7 +290700,7 @@
         }
       ],
       "diff_digest": "sha256:674d0dfac55179c1fccfb0bbe5ec9ca119896905fe023d557bcd571b6549df4f",
-      "material_digest": "sha256:3bcaa5515e54fd533972dcdfccb180c44dc2b865ee1b184fc1ee7d6048edf823",
+      "material_digest": "sha256:2343b30953d91964dd6ba295a19a4333d7bd7c7ba55d0c4a692de62c154a414a",
       "material_inputs": {
         "names": [
           ".pose/assessments/README.md",
@@ -290802,7 +291037,7 @@
         }
       ],
       "diff_digest": "sha256:0b3e9c3a48311aa8ea44725bcaa5795a386bdc0cc2c839aa2af697387482bf96",
-      "material_digest": "sha256:6a1c1f74e145f7ca52d0081d36d83b88467a6977a78e0d7cf5d3f487d45b288f",
+      "material_digest": "sha256:a1bf6048729cdb4b01d9ed38d0cdaf7c4c5f5963e1f2a0c9ab1c7a830ad3303a",
       "material_inputs": {
         "names": [
           ".pose/changelogs/unreleased/pose-tool-dispositions-must-be-supported.md",
@@ -291255,7 +291490,7 @@
         }
       ],
       "diff_digest": "sha256:d502975170b13de98da0b28eff15140ca184e1b2149c2db799a55e412aed2724",
-      "material_digest": "sha256:c8a4b828ea50864b0488020cb2a4f28e4011ad969840939b5c8ad2cf96ccbfa6",
+      "material_digest": "sha256:49316ff693829368c117082d661c80a37a9e87baff6ca2b30576ef4d201a61e0",
       "material_inputs": {
         "names": [
           ".pose/adr/2026-09-19-structural-delta-delivery-profile.md",
@@ -292583,7 +292818,7 @@
         }
       ],
       "diff_digest": "sha256:2d24ecd853e2eb46b93acc5da523c53ad97f9fd274ef06248440d369bb401c6e",
-      "material_digest": "sha256:044f18605214e17c6386557c637bcf84385836c932824dbe74a5b10c19ca8f96",
+      "material_digest": "sha256:e7abcd6f3697bbc691c591786d616de370ed76a2338dd62138e2bebb81acabbf",
       "material_inputs": {
         "names": [
           ".pose/changelogs/unreleased/pose-action-request-presentation.md",
@@ -294150,7 +294385,7 @@
         }
       ],
       "diff_digest": "sha256:818f79288c2fd7085d39a9275a93c9ef530309085a04a96715c95130340838c3",
-      "material_digest": "sha256:94000e55837c6ab49704fd14be4c36c84994d90b57e7ddf77619cdf3301202aa",
+      "material_digest": "sha256:2275614f2cf70844fc5be97f10c878a5653c832d5c70fbc0458768cb205cc746",
       "material_inputs": {
         "names": [
           ".pose/changelogs/unreleased/review-subject-classifies-capabilities.md",
@@ -294690,7 +294925,7 @@
         }
       ],
       "diff_digest": "sha256:ae25f939fde29ca3b1b2e92a7c59b21a910d611718d780b6f3444175d6c6fa13",
-      "material_digest": "sha256:cc5658386b77a1f0887fa6624136670dfb0413d0fc8087e1c5819ee9f967300c",
+      "material_digest": "sha256:0c17b7c16cecbe75558fd658233feaa85b60aaf88482af1c85a3cc435aa46a5d",
       "material_inputs": {
         "names": [
           ".agents/skills/pose-feature/SKILL.md",
@@ -295007,7 +295242,7 @@
         }
       ],
       "diff_digest": "sha256:d796e8eb89ce015bc766ce8295122ac1be64dbf23f3056f773774c1c78ba7537",
-      "material_digest": "sha256:d0e0e44b390b4153a4d1a83913136801dad529a0413244cc6d794c4493383c0d",
+      "material_digest": "sha256:52f729d0e725d91cf00804ee4f961422d44239c57080602c8fa49671c3f30a89",
       "material_inputs": {
         "names": [
           ".pose/assessments/README.md",
@@ -295265,7 +295500,7 @@
         }
       ],
       "diff_digest": "sha256:4b9b4db06cd7ce95c73b0eca4c8f2aeac7576c09def7cfba2f7cf033f2e0e929",
-      "material_digest": "sha256:c174b0c7dc5541bd553872c38d63885197e500047e977acabaeffb5d0aa36151",
+      "material_digest": "sha256:c18edaab3e19dfdc6d328a268309b705af673aa0390948b45c711aa200ac7cb9",
       "material_inputs": {
         "names": [
           ".pose/adr/2026-10-14-shared-domain-and-optional-worktree-runtime.md",
@@ -295471,7 +295706,7 @@
         }
       ],
       "diff_digest": "sha256:c5165cb48ce27209053f7285151af2726a04406a9eacefd7ff87ef916f00df84",
-      "material_digest": "sha256:39f108ca20820b56411f198bbf5c6a8f34ff161a22f6f827a1dcf3d605ae78ea",
+      "material_digest": "sha256:11832f4a7adcae43542e31631036f00bf30b03ba95f841e0376118ea8f879cb9",
       "material_inputs": {
         "names": [
           ".pose/indexes/validation-matrix.json",
@@ -295933,7 +296168,7 @@
         }
       ],
       "diff_digest": "sha256:4b2919682a2a7634226ffedf48785a3fbc2bcc215c1d41ab1f2eecd12376b2c8",
-      "material_digest": "sha256:ef8afbb0749f70b595e0143385f9ad713c12ea65541bb9ce11b454aa4e580cbc",
+      "material_digest": "sha256:5c89b81579fb82b33694e236ec07c187be9df17776985d82d849a7a4f57b531b",
       "material_inputs": {
         "names": [
           ".pose/adr/2026-09-21-federated-roadmap-acceptance-with-local-evidence-authority.md",
@@ -297284,7 +297519,7 @@
         }
       ],
       "diff_digest": "sha256:ea2ec691773eeb22fe82b146070344457f593f0d0c8ce80fdc69c2372be134ce",
-      "material_digest": "sha256:a8cc76a32a1e7fa183ae916274648d283c44e85760ed52e4e4895b9def7e3711",
+      "material_digest": "sha256:1b488d2bfc3353284fbd279185b2dea56664308d0128d1d6b2a153517499aa6f",
       "material_inputs": {
         "names": [
           ".agents/skills/pose-spec-closeout/SKILL.md",
@@ -297501,7 +297736,7 @@
         }
       ],
       "diff_digest": "sha256:9a32945965a4d35a5cc4a118ccf5447bc953ef26355502ef6d5e7b889981a4ac",
-      "material_digest": "sha256:e18604577d855ec4ba2e403c9b67f51bd75dc35c6e2b3e33e70bf581c157d6b3",
+      "material_digest": "sha256:7f962326ee9d9ff53ae5a6ecc04f59c6c0ae6e7999f19255dcdb6c1bb867e5fe",
       "material_inputs": {
         "names": [
           ".pose/changelogs/unreleased/pose-review-subject-head-is-the-newest.md",
@@ -297978,7 +298213,7 @@
         }
       ],
       "diff_digest": "sha256:95e2d1f2405692844ce5ff6ebf59419a2d240ad8b93990342678df70e4273a26",
-      "material_digest": "sha256:1380a662389b2e71eb465a3a16a3f564c986cb16199588ebc6d73fa2414fdc3b",
+      "material_digest": "sha256:f4399e29c25cae9e876fe95d9ccc8dfbcc39daf409c5af9fc7e8b27cefa6427d",
       "material_inputs": {
         "names": [
           ".pose/changelogs/unreleased/pose-closeout-delivery-assurance-convergence.md",
@@ -298293,7 +298528,7 @@
         }
       ],
       "diff_digest": "sha256:0e73d211d24ec688089c62d9d31489d6878cdcad7c4a095db29dc270aa361038",
-      "material_digest": "sha256:0dc2481127aa7cf3cefa43f9e35b7ca82eb1c531599cc8b870bf2c11023d6bb2",
+      "material_digest": "sha256:40c756a1da0ddcee6cba0ea2346fad215e31d84992283c0986b6bac71546edd1",
       "material_inputs": {
         "names": [
           ".pose/indexes/delivery-integrity.json",
@@ -298852,7 +299087,7 @@
         }
       ],
       "diff_digest": "sha256:45e9a04302a06513bbaa97a173a04e0eff02fd5a40f028ee0e99362aaf1093fa",
-      "material_digest": "sha256:05bb513a16c8a15e5c7a9c1a4c9896b6f14bb2c4439afe441666e7da0cb82e52",
+      "material_digest": "sha256:d345c8cace2fee4317012c17907dbab4b26281df877da8e3e2c6589d966b0f16",
       "material_inputs": {
         "names": [
           ".agents/skills/pose-feature/SKILL.md",
@@ -299075,7 +299310,7 @@
         }
       ],
       "diff_digest": "sha256:3ef30ed907d4a574f542e615796a805f35db4e0c7ae0a202f325879ce49959ed",
-      "material_digest": "sha256:b479601c4a9fe1aaa4bdc09805cf84bae9edefe1b364f81ec728f8318a28ed36",
+      "material_digest": "sha256:81a29f873e0b2a4f011cdadb65081b98b6de8c36e1f82edea9ce435b14a413b4",
       "material_inputs": {
         "names": [
           ".pose/indexes/validation-matrix.json",
@@ -300102,6 +300337,12 @@
     ],
     ".pose/adr/2026-11-14-governance-association-links-are-read-with-a-commonmark-parser.md": [
       "pose-closeout-review-policy-by-cost-benefit"
+    ],
+    ".pose/artifact-attributions.json": [
+      "pose-retroactive-attribution-record"
+    ],
+    ".pose/artifact-attributions.json.sig": [
+      "pose-retroactive-attribution-record"
     ],
     ".pose/assessments/README.md": [
       "pose-abm-design-basis",
@@ -302019,7 +302260,8 @@
       "pose-delegation-parity-gate"
     ],
     ".pose/policy/actions.json": [
-      "pose-agency-readiness-pilot"
+      "pose-agency-readiness-pilot",
+      "pose-retroactive-attribution-record"
     ],
     ".pose/policy/adoption-decisions.json": [
       "pose-configuration-review-7-1-0"
@@ -306059,6 +306301,12 @@
       "pose-evidence-gate-means-validation",
       "pose-milestone-closes-when-reached"
     ],
+    "pose-mcp/internal/cli/artifact_attributions.go": [
+      "pose-retroactive-attribution-record"
+    ],
+    "pose-mcp/internal/cli/artifact_attributions_test.go": [
+      "pose-retroactive-attribution-record"
+    ],
     "pose-mcp/internal/cli/artifact_integrity.go": [
       "pose-artifact-provenance-ledger",
       "pose-cli-output-machine-channel",
@@ -306078,6 +306326,7 @@
       "pose-read-view-streamed-object-digests",
       "pose-release-archival-attested-by-the-ledger",
       "pose-removal-witness-freshness",
+      "pose-retroactive-attribution-record",
       "pose-review-bundle-component-discovery-and-governance-paths",
       "pose-review-bundle-doc-only-specs",
       "pose-spec-facts-evidence-binding",
@@ -307768,6 +308017,7 @@
       "pose-governance-read-view-generation",
       "pose-governance-residual-diagnostics",
       "pose-release-archival-attested-by-the-ledger",
+      "pose-retroactive-attribution-record",
       "pose-review-bundle-convergence",
       "pose-roadmap-check-reaches-its-gate",
       "pose-roadmap-gate-scopes-milestones-and-external-members",
@@ -308387,6 +308637,9 @@
     ],
     "pose-mcp/internal/pose/amendments_flat_test.go": [
       "pose-flat-spec-amendments"
+    ],
+    "pose-mcp/internal/pose/artifact_attribution_index_test.go": [
+      "pose-retroactive-attribution-record"
     ],
     "pose-mcp/internal/pose/artifact_claims_boundary_test.go": [
       "artifact-claims-stop-at-the-section-end"
@@ -309218,6 +309471,7 @@
       "pose-index-generation-integrity",
       "pose-index-material-is-kept-per-repository-state",
       "pose-removal-witness-freshness",
+      "pose-retroactive-attribution-record",
       "pose-update-dry-run-reports-the-whole-update"
     ],
     "pose-mcp/internal/pose/index_generation_test.go": [
@@ -309812,6 +310066,7 @@
       "pose-range-names-its-other-work",
       "pose-recoverable-closeout-plan",
       "pose-removal-witness-freshness",
+      "pose-retroactive-attribution-record",
       "pose-reuse-is-sealed-signing-stays-live",
       "pose-review-approval-domain-preflight",
       "pose-review-approval-follows-children",
@@ -311661,6 +311916,16 @@
       "remediation": "register a check for pose-mcp/internal/cli, or accept that a run of the containing module is what this target is gated on"
     },
     {
+      "id": "dif-09ecececb49c",
+      "code": "retroactive-attribution",
+      "severity": "info",
+      "spec": "pose-common-domain-and-cli-mcp-handoff",
+      "path": "pose-mcp/internal/pose/governance_read_view_git.go",
+      "change_set": "cs-f791ea60c074",
+      "message": "historical attribution signed by human:oseias (SHA256:E4BlxtexLxWA+LN47tL2OBrw59R3aPXUfI9tDlvK0M0), witness 80b49143698e7a4d175456448bad10c6cf9bd993: Published change 80b49143698e (fix: the resident memo key holds the effective Git configuration; the ADR is accepted for the delivered scope) is within the attributed range and accounts for the observed path.",
+      "remediation": "see .pose/artifact-attributions.json"
+    },
+    {
       "id": "dif-0a3058a39182",
       "code": "legacy-narrative",
       "severity": "info",
@@ -311745,16 +312010,6 @@
       "path": "pose-mcp/internal/pose/residual_identity_test.go",
       "message": "declared artifact action is absent from the attributed Git change sets",
       "remediation": "no Git change sets are attributed to spec pose-residual-material-coverage-and-identity (ensure commits carry 'POSE-Spec: pose-residual-material-coverage-and-identity' trailer or generate report with pose report)"
-    },
-    {
-      "id": "dif-0e46d1e6bd4f",
-      "code": "undeclared",
-      "severity": "error",
-      "spec": "pose-optional-worktree-runtime",
-      "path": "pose-mcp/internal/cli/runtime_host.go",
-      "change_set": "cs-ba9770e7c824",
-      "message": "Git observed a governed path not declared by the spec",
-      "remediation": "declare the exact action or narrow the attributed change set"
     },
     {
       "id": "dif-0f89b4d17573",
@@ -311863,6 +312118,16 @@
       "remediation": "rerun the registered validation check for this delivery scope"
     },
     {
+      "id": "dif-16b7836c4268",
+      "code": "undeclared-delivery",
+      "severity": "error",
+      "spec": "pose-retroactive-attribution-record",
+      "path": "pose-mcp/internal/cli/artifact_attributions.go",
+      "change_set": "cs-69e3f6f72159",
+      "message": "changed delivery root pose-mcp/internal/cli has no delivery declaration",
+      "remediation": "declare a typed delivery target or narrow the attributed change set"
+    },
+    {
       "id": "dif-16d7751f8a88",
       "code": "action-mismatch",
       "severity": "error",
@@ -311870,16 +312135,6 @@
       "path": ".pose/adr/2026-10-14-release-temporal-evidence-and-attempt-lineage.md",
       "message": "declared artifact action is absent from the attributed Git change sets",
       "remediation": "no Git change sets are attributed to spec pose-release-prepare-record-recovery (ensure commits carry 'POSE-Spec: pose-release-prepare-record-recovery' trailer or generate report with pose report)"
-    },
-    {
-      "id": "dif-178baf3a812c",
-      "code": "undeclared",
-      "severity": "error",
-      "spec": "pose-worktree-runtime-qos-and-measurement",
-      "path": "pose-mcp/internal/pose/governance_read_view_git.go",
-      "change_set": "cs-7a7d3fc88bea",
-      "message": "Git observed a governed path not declared by the spec",
-      "remediation": "declare the exact action or narrow the attributed change set"
     },
     {
       "id": "dif-181d954afd31",
@@ -312014,6 +312269,16 @@
       "remediation": "run registered checks with the required evidenceClass against the current provenance digest"
     },
     {
+      "id": "dif-1ecfce98926f",
+      "code": "retroactive-attribution",
+      "severity": "info",
+      "spec": "pose-worktree-runtime-qos-and-measurement",
+      "path": "pose-mcp/internal/pose/resident_git_memo.go",
+      "change_set": "cs-7a7d3fc88bea",
+      "message": "historical attribution signed by human:oseias (SHA256:E4BlxtexLxWA+LN47tL2OBrw59R3aPXUfI9tDlvK0M0), witness 80b49143698e7a4d175456448bad10c6cf9bd993: Published change 80b49143698e (fix: the resident memo key holds the effective Git configuration; the ADR is accepted for the delivered scope) is within the attributed range and accounts for the observed path.",
+      "remediation": "see .pose/artifact-attributions.json"
+    },
+    {
       "id": "dif-1eda4887a98c",
       "code": "existence",
       "severity": "error",
@@ -312023,14 +312288,6 @@
       "remediation": "correct the exact path or commit the artifact before closeout"
     },
     {
-      "id": "dif-21225db2262c",
-      "code": "legacy-narrative",
-      "severity": "info",
-      "spec": "pose-retroactive-attribution-record",
-      "message": "spec has no structured Artifacts section",
-      "remediation": "add a machine-parseable ### Artifacts section"
-    },
-    {
       "id": "dif-2137b27ad8dc",
       "code": "action-mismatch",
       "severity": "error",
@@ -312038,16 +312295,6 @@
       "path": "pose-mcp/internal/pose/followup_candidates.go",
       "message": "declared artifact action is absent from the attributed Git change sets",
       "remediation": "no Git change sets are attributed to spec pose-residual-material-coverage-and-identity (ensure commits carry 'POSE-Spec: pose-residual-material-coverage-and-identity' trailer or generate report with pose report)"
-    },
-    {
-      "id": "dif-217193723e97",
-      "code": "undeclared",
-      "severity": "error",
-      "spec": "pose-worktree-runtime-qos-and-measurement",
-      "path": "pose-mcp/internal/worktreeruntime/runtime_test.go",
-      "change_set": "cs-7a7d3fc88bea",
-      "message": "Git observed a governed path not declared by the spec",
-      "remediation": "declare the exact action or narrow the attributed change set"
     },
     {
       "id": "dif-21a15e3270ff",
@@ -312066,6 +312313,16 @@
       "path": "pose-mcp/internal/mcpserver/proportional_next_action_test.go",
       "message": "declared artifact action is absent from the attributed Git change sets",
       "remediation": "no Git change sets are attributed to spec pose-proportional-next-action (ensure commits carry 'POSE-Spec: pose-proportional-next-action' trailer or generate report with pose report)"
+    },
+    {
+      "id": "dif-22adfb884ad6",
+      "code": "retroactive-attribution",
+      "severity": "info",
+      "spec": "pose-optional-worktree-runtime",
+      "path": "pose-mcp/internal/cli/runtime_measure_test.go",
+      "change_set": "cs-ba9770e7c824",
+      "message": "historical attribution signed by human:oseias (SHA256:E4BlxtexLxWA+LN47tL2OBrw59R3aPXUfI9tDlvK0M0), witness 57e20957ce49b0f35f7aa6bd3343b5137540805c: Published change 57e20957ce49 (fix: a running command is counted once as in flight; the harness reads CPU and the peak per scenario; the spec and the roadmap state T7 and the delivery) is within the attributed range and accounts for the observed path.",
+      "remediation": "see .pose/artifact-attributions.json"
     },
     {
       "id": "dif-236d8ac552a6",
@@ -312137,16 +312394,6 @@
       "path": ".pose/results/pose-integrated-agency-and-runtime-pilot.json",
       "message": "declared artifact action is absent from the attributed Git change sets",
       "remediation": "no Git change sets are attributed to spec pose-integrated-agency-and-runtime-pilot (ensure commits carry 'POSE-Spec: pose-integrated-agency-and-runtime-pilot' trailer or generate report with pose report)"
-    },
-    {
-      "id": "dif-2943a01b431c",
-      "code": "undeclared",
-      "severity": "error",
-      "spec": "pose-bounded-isolated-graph-caches",
-      "path": "pose-mcp/internal/pose/resident_git_memo_test.go",
-      "change_set": "cs-9a99577c0fae",
-      "message": "Git observed a governed path not declared by the spec",
-      "remediation": "declare the exact action or narrow the attributed change set"
     },
     {
       "id": "dif-29aa112ca479",
@@ -312282,6 +312529,16 @@
       "remediation": "add a machine-parseable ### Artifacts section"
     },
     {
+      "id": "dif-34e6f94a9eaf",
+      "code": "undeclared-delivery",
+      "severity": "error",
+      "spec": "pose-retroactive-attribution-record",
+      "path": "pose-mcp/internal/cli/surface_check.go",
+      "change_set": "cs-69e3f6f72159",
+      "message": "changed delivery root pose-mcp/internal/cli has no delivery declaration",
+      "remediation": "declare a typed delivery target or narrow the attributed change set"
+    },
+    {
       "id": "dif-36a1d9a27a22",
       "code": "action-mismatch",
       "severity": "error",
@@ -312346,16 +312603,6 @@
       "remediation": "declare a typed delivery target or narrow the attributed change set"
     },
     {
-      "id": "dif-397c1ce6b7a8",
-      "code": "undeclared",
-      "severity": "error",
-      "spec": "pose-optional-worktree-runtime",
-      "path": "pose-mcp/internal/pose/resident_git_memo_test.go",
-      "change_set": "cs-ba9770e7c824",
-      "message": "Git observed a governed path not declared by the spec",
-      "remediation": "declare the exact action or narrow the attributed change set"
-    },
-    {
       "id": "dif-398d52cf67fe",
       "code": "action-mismatch",
       "severity": "error",
@@ -312371,6 +312618,16 @@
       "path": "pose-mcp/internal/observability/observability_test.go",
       "message": "governed tracked path has no spec provenance claim",
       "remediation": "backfill an explicit claim or add an exact reviewed exclusion"
+    },
+    {
+      "id": "dif-3aab2ae9a4e3",
+      "code": "retroactive-attribution",
+      "severity": "info",
+      "spec": "pose-optional-worktree-runtime",
+      "path": "pose-mcp/internal/cli/runtime_host.go",
+      "change_set": "cs-ba9770e7c824",
+      "message": "historical attribution signed by human:oseias (SHA256:E4BlxtexLxWA+LN47tL2OBrw59R3aPXUfI9tDlvK0M0), witness 57e20957ce49b0f35f7aa6bd3343b5137540805c: Published change 57e20957ce49 (fix: a running command is counted once as in flight; the harness reads CPU and the peak per scenario; the spec and the roadmap state T7 and the delivery) is within the attributed range and accounts for the observed path.",
+      "remediation": "see .pose/artifact-attributions.json"
     },
     {
       "id": "dif-3bcddee25d8e",
@@ -312400,22 +312657,22 @@
       "remediation": "register a check for pose-mcp/internal/cli, or accept that a run of the containing module is what this target is gated on"
     },
     {
-      "id": "dif-3cd4b4d4c8b0",
-      "code": "undeclared",
-      "severity": "error",
-      "spec": "pose-common-domain-and-cli-mcp-handoff",
-      "path": "pose-mcp/internal/pose/governance_read_view_git.go",
-      "change_set": "cs-f791ea60c074",
-      "message": "Git observed a governed path not declared by the spec",
-      "remediation": "declare the exact action or narrow the attributed change set"
-    },
-    {
       "id": "dif-3d4485516baf",
       "code": "legacy-narrative",
       "severity": "info",
       "spec": "pose-cyclonedx-sbom",
       "message": "spec has no structured Artifacts section",
       "remediation": "add a machine-parseable ### Artifacts section"
+    },
+    {
+      "id": "dif-3d8ff8fa24a0",
+      "code": "retroactive-attribution",
+      "severity": "info",
+      "spec": "pose-bounded-isolated-graph-caches",
+      "path": "pose-mcp/internal/pose/resident_git_memo.go",
+      "change_set": "cs-9a99577c0fae",
+      "message": "historical attribution signed by human:oseias (SHA256:E4BlxtexLxWA+LN47tL2OBrw59R3aPXUfI9tDlvK0M0), witness 80b49143698e7a4d175456448bad10c6cf9bd993: Published change 80b49143698e (fix: the resident memo key holds the effective Git configuration; the ADR is accepted for the delivered scope) is within the attributed range and accounts for the observed path.",
+      "remediation": "see .pose/artifact-attributions.json"
     },
     {
       "id": "dif-3dc358139387",
@@ -312453,6 +312710,16 @@
       "path": "pose-mcp/internal/mcpserver/condition_work_metrics_test.go",
       "message": "declared artifact action is absent from the attributed Git change sets",
       "remediation": "no Git change sets are attributed to spec pose-condition-response-and-work-metrics (ensure commits carry 'POSE-Spec: pose-condition-response-and-work-metrics' trailer or generate report with pose report)"
+    },
+    {
+      "id": "dif-412ae2349a73",
+      "code": "retroactive-attribution",
+      "severity": "info",
+      "spec": "pose-worktree-runtime-qos-and-measurement",
+      "path": "pose-mcp/internal/pose/governance_read_view_git.go",
+      "change_set": "cs-7a7d3fc88bea",
+      "message": "historical attribution signed by human:oseias (SHA256:E4BlxtexLxWA+LN47tL2OBrw59R3aPXUfI9tDlvK0M0), witness 80b49143698e7a4d175456448bad10c6cf9bd993: Published change 80b49143698e (fix: the resident memo key holds the effective Git configuration; the ADR is accepted for the delivered scope) is within the attributed range and accounts for the observed path.",
+      "remediation": "see .pose/artifact-attributions.json"
     },
     {
       "id": "dif-41ab2ce764ed",
@@ -312646,16 +312913,6 @@
       "remediation": "no Git change sets are attributed to spec pose-proportional-next-action (ensure commits carry 'POSE-Spec: pose-proportional-next-action' trailer or generate report with pose report)"
     },
     {
-      "id": "dif-4b60b67851d1",
-      "code": "undeclared",
-      "severity": "error",
-      "spec": "pose-bounded-isolated-graph-caches",
-      "path": "pose-mcp/internal/pose/resident_git_memo.go",
-      "change_set": "cs-9a99577c0fae",
-      "message": "Git observed a governed path not declared by the spec",
-      "remediation": "declare the exact action or narrow the attributed change set"
-    },
-    {
       "id": "dif-4c0d0abd52d1",
       "code": "action-mismatch",
       "severity": "error",
@@ -312797,6 +313054,16 @@
       "remediation": "no Git change sets are attributed to spec pose-release-prepare-record-recovery (ensure commits carry 'POSE-Spec: pose-release-prepare-record-recovery' trailer or generate report with pose report)"
     },
     {
+      "id": "dif-55938c4112b2",
+      "code": "undeclared-delivery",
+      "severity": "error",
+      "spec": "pose-retroactive-attribution-record",
+      "path": "pose-mcp/internal/pose/review_bundle.go",
+      "change_set": "cs-69e3f6f72159",
+      "message": "changed delivery root pose-mcp/internal/pose has no delivery declaration",
+      "remediation": "declare a typed delivery target or narrow the attributed change set"
+    },
+    {
       "id": "dif-559fa35af770",
       "code": "existence",
       "severity": "error",
@@ -312912,6 +313179,16 @@
       "path": "pose-mcp/internal/cli/harness_evidence_test.go",
       "message": "governed tracked path has no spec provenance claim",
       "remediation": "backfill an explicit claim or add an exact reviewed exclusion"
+    },
+    {
+      "id": "dif-5d29af372b8a",
+      "code": "retroactive-attribution",
+      "severity": "info",
+      "spec": "pose-governance-operation-performance",
+      "path": "pose-mcp/internal/pose/resident_git_memo.go",
+      "change_set": "cs-f3421d84f8c6",
+      "message": "historical attribution signed by human:oseias (SHA256:E4BlxtexLxWA+LN47tL2OBrw59R3aPXUfI9tDlvK0M0), witness 80b49143698e7a4d175456448bad10c6cf9bd993: Published change 80b49143698e (fix: the resident memo key holds the effective Git configuration; the ADR is accepted for the delivered scope) is within the attributed range and accounts for the observed path.",
+      "remediation": "see .pose/artifact-attributions.json"
     },
     {
       "id": "dif-5d4c42d1e4b1",
@@ -313116,6 +313393,16 @@
       "remediation": "run registered checks with the required evidenceClass against the current provenance digest"
     },
     {
+      "id": "dif-69ccb10b1eef",
+      "code": "retroactive-attribution",
+      "severity": "info",
+      "spec": "pose-governance-operation-performance",
+      "path": "pose-mcp/internal/pose/governance_read_view_git.go",
+      "change_set": "cs-f3421d84f8c6",
+      "message": "historical attribution signed by human:oseias (SHA256:E4BlxtexLxWA+LN47tL2OBrw59R3aPXUfI9tDlvK0M0), witness 80b49143698e7a4d175456448bad10c6cf9bd993: Published change 80b49143698e (fix: the resident memo key holds the effective Git configuration; the ADR is accepted for the delivered scope) is within the attributed range and accounts for the observed path.",
+      "remediation": "see .pose/artifact-attributions.json"
+    },
+    {
       "id": "dif-69de20cd788a",
       "code": "legacy-narrative",
       "severity": "info",
@@ -313247,16 +313534,6 @@
       "remediation": "run registered checks with the required evidenceClass against the current provenance digest"
     },
     {
-      "id": "dif-6e5665d9cc93",
-      "code": "undeclared",
-      "severity": "error",
-      "spec": "pose-optional-worktree-runtime",
-      "path": "pose-mcp/internal/cli/runtime_host_test.go",
-      "change_set": "cs-ba9770e7c824",
-      "message": "Git observed a governed path not declared by the spec",
-      "remediation": "declare the exact action or narrow the attributed change set"
-    },
-    {
       "id": "dif-6e5dfd034356",
       "code": "inferred-coverage",
       "severity": "warning",
@@ -313283,16 +313560,6 @@
       "path": "pose-mcp/internal/pose/release_evidence_replay_test.go",
       "message": "declared artifact action is absent from the attributed Git change sets",
       "remediation": "no Git change sets are attributed to spec pose-release-publication-evidence-replay (ensure commits carry 'POSE-Spec: pose-release-publication-evidence-replay' trailer or generate report with pose report)"
-    },
-    {
-      "id": "dif-6ebeb45aa1ef",
-      "code": "undeclared",
-      "severity": "error",
-      "spec": "pose-common-domain-and-cli-mcp-handoff",
-      "path": "pose-mcp/internal/pose/resident_git_memo_test.go",
-      "change_set": "cs-f791ea60c074",
-      "message": "Git observed a governed path not declared by the spec",
-      "remediation": "declare the exact action or narrow the attributed change set"
     },
     {
       "id": "dif-6fe97984eb14",
@@ -313397,6 +313664,16 @@
       "remediation": "backfill an explicit claim or add an exact reviewed exclusion"
     },
     {
+      "id": "dif-77c3d07ebd3b",
+      "code": "retroactive-attribution",
+      "severity": "info",
+      "spec": "pose-optional-worktree-runtime",
+      "path": "pose-mcp/internal/pose/governance_read_view_git.go",
+      "change_set": "cs-ba9770e7c824",
+      "message": "historical attribution signed by human:oseias (SHA256:E4BlxtexLxWA+LN47tL2OBrw59R3aPXUfI9tDlvK0M0), witness 80b49143698e7a4d175456448bad10c6cf9bd993: Published change 80b49143698e (fix: the resident memo key holds the effective Git configuration; the ADR is accepted for the delivered scope) is within the attributed range and accounts for the observed path.",
+      "remediation": "see .pose/artifact-attributions.json"
+    },
+    {
       "id": "dif-7807e58d2c91",
       "code": "legacy-narrative",
       "severity": "info",
@@ -313484,6 +313761,16 @@
       "remediation": "run registered checks with the required evidenceClass against the current provenance digest"
     },
     {
+      "id": "dif-7c1e63e59daf",
+      "code": "undeclared-delivery",
+      "severity": "error",
+      "spec": "pose-retroactive-attribution-record",
+      "path": "pose-mcp/internal/cli/artifact_integrity.go",
+      "change_set": "cs-69e3f6f72159",
+      "message": "changed delivery root pose-mcp/internal/cli has no delivery declaration",
+      "remediation": "declare a typed delivery target or narrow the attributed change set"
+    },
+    {
       "id": "dif-7c9ffe745bd7",
       "code": "action-mismatch",
       "severity": "error",
@@ -313544,6 +313831,16 @@
       "remediation": "backfill an explicit claim or add an exact reviewed exclusion"
     },
     {
+      "id": "dif-816e15c806f1",
+      "code": "retroactive-attribution",
+      "severity": "info",
+      "spec": "pose-bounded-isolated-graph-caches",
+      "path": "pose-mcp/internal/pose/resident_git_memo_test.go",
+      "change_set": "cs-9a99577c0fae",
+      "message": "historical attribution signed by human:oseias (SHA256:E4BlxtexLxWA+LN47tL2OBrw59R3aPXUfI9tDlvK0M0), witness 80b49143698e7a4d175456448bad10c6cf9bd993: Published change 80b49143698e (fix: the resident memo key holds the effective Git configuration; the ADR is accepted for the delivered scope) is within the attributed range and accounts for the observed path.",
+      "remediation": "see .pose/artifact-attributions.json"
+    },
+    {
       "id": "dif-81cd00ce3f0c",
       "code": "undeclared-delivery",
       "severity": "warning",
@@ -313587,16 +313884,6 @@
       "spec": "pose-release-compatibility-matrix",
       "path": "docs-site/docs/ci.md",
       "change_set": "cs-3997e5f3459b",
-      "message": "Git observed a governed path not declared by the spec",
-      "remediation": "declare the exact action or narrow the attributed change set"
-    },
-    {
-      "id": "dif-8437134a498d",
-      "code": "undeclared",
-      "severity": "error",
-      "spec": "pose-governance-operation-performance",
-      "path": "pose-mcp/internal/pose/governance_read_view_git.go",
-      "change_set": "cs-f3421d84f8c6",
       "message": "Git observed a governed path not declared by the spec",
       "remediation": "declare the exact action or narrow the attributed change set"
     },
@@ -313652,16 +313939,6 @@
       "path": ".pose/starts/pose-integrated-agency-and-runtime-pilot.json",
       "message": "declared current artifact is not tracked at the selected head",
       "remediation": "correct the exact path or commit the artifact before closeout"
-    },
-    {
-      "id": "dif-88b8152da0e7",
-      "code": "undeclared",
-      "severity": "error",
-      "spec": "pose-worktree-runtime-qos-and-measurement",
-      "path": "pose-mcp/internal/pose/resident_git_memo_test.go",
-      "change_set": "cs-7a7d3fc88bea",
-      "message": "Git observed a governed path not declared by the spec",
-      "remediation": "declare the exact action or narrow the attributed change set"
     },
     {
       "id": "dif-88bc7a35d847",
@@ -313830,6 +314107,26 @@
       "remediation": "backfill an explicit claim or add an exact reviewed exclusion"
     },
     {
+      "id": "dif-9418779c880c",
+      "code": "retroactive-attribution",
+      "severity": "info",
+      "spec": "pose-worktree-runtime-resident-cache",
+      "path": "pose-mcp/internal/cli/runtime_measure_test.go",
+      "change_set": "cs-e703b5000664",
+      "message": "historical attribution signed by human:oseias (SHA256:E4BlxtexLxWA+LN47tL2OBrw59R3aPXUfI9tDlvK0M0), witness e91c7fff898b0cd0cadfe070310478198fd3f029: Published change e91c7fff898b (fix: a hosted request carries and is checked against the caller's identity; the memo key uses content, not timestamps; measure CPU, memory per scenario and two heavy checks at once) is within the attributed range and accounts for the observed path.",
+      "remediation": "see .pose/artifact-attributions.json"
+    },
+    {
+      "id": "dif-94524ece83ee",
+      "code": "retroactive-attribution",
+      "severity": "info",
+      "spec": "pose-worktree-runtime-qos-and-measurement",
+      "path": "pose-mcp/internal/worktreeruntime/runtime_test.go",
+      "change_set": "cs-7a7d3fc88bea",
+      "message": "historical attribution signed by human:oseias (SHA256:E4BlxtexLxWA+LN47tL2OBrw59R3aPXUfI9tDlvK0M0), witness dd02ad6362681215f62a888f70f0bfb3e1d87348: Published change dd02ad636268 (fix: the stop-count test tolerates a request still closing when the stop began) is within the attributed range and accounts for the observed path.",
+      "remediation": "see .pose/artifact-attributions.json"
+    },
+    {
       "id": "dif-9515b70fbb99",
       "code": "orphan",
       "severity": "warning",
@@ -313926,6 +314223,16 @@
       "remediation": "correct the exact path or commit the artifact before closeout"
     },
     {
+      "id": "dif-9a9f7ef01997",
+      "code": "retroactive-attribution",
+      "severity": "info",
+      "spec": "pose-common-domain-and-cli-mcp-handoff",
+      "path": "pose-mcp/internal/pose/resident_git_memo.go",
+      "change_set": "cs-f791ea60c074",
+      "message": "historical attribution signed by human:oseias (SHA256:E4BlxtexLxWA+LN47tL2OBrw59R3aPXUfI9tDlvK0M0), witness 80b49143698e7a4d175456448bad10c6cf9bd993: Published change 80b49143698e (fix: the resident memo key holds the effective Git configuration; the ADR is accepted for the delivered scope) is within the attributed range and accounts for the observed path.",
+      "remediation": "see .pose/artifact-attributions.json"
+    },
+    {
       "id": "dif-9af01c7e53fd",
       "code": "undeclared-delivery",
       "severity": "warning",
@@ -313961,16 +314268,6 @@
       "path": "pose-mcp/internal/mcpserver/residual_dimensions_test.go",
       "message": "declared current artifact is not tracked at the selected head",
       "remediation": "correct the exact path or commit the artifact before closeout"
-    },
-    {
-      "id": "dif-9c1e35a6fe19",
-      "code": "undeclared",
-      "severity": "error",
-      "spec": "pose-governance-operation-performance",
-      "path": "pose-mcp/internal/pose/resident_git_memo_test.go",
-      "change_set": "cs-f3421d84f8c6",
-      "message": "Git observed a governed path not declared by the spec",
-      "remediation": "declare the exact action or narrow the attributed change set"
     },
     {
       "id": "dif-9d32a8188a92",
@@ -314073,16 +314370,6 @@
       "remediation": "no Git change sets are attributed to spec pose-proportional-next-action (ensure commits carry 'POSE-Spec: pose-proportional-next-action' trailer or generate report with pose report)"
     },
     {
-      "id": "dif-a1034895a092",
-      "code": "undeclared",
-      "severity": "error",
-      "spec": "pose-optional-worktree-runtime",
-      "path": "pose-mcp/internal/cli/runtime_measure_test.go",
-      "change_set": "cs-ba9770e7c824",
-      "message": "Git observed a governed path not declared by the spec",
-      "remediation": "declare the exact action or narrow the attributed change set"
-    },
-    {
       "id": "dif-a208b80ca6cc",
       "code": "inferred-coverage",
       "severity": "warning",
@@ -314134,6 +314421,16 @@
       "path": "capability:release-prepare-record-recovery",
       "message": "required current evidence is missing: integration",
       "remediation": "run registered checks with the required evidenceClass against the current provenance digest"
+    },
+    {
+      "id": "dif-a4a8fb1b2b6f",
+      "code": "retroactive-attribution",
+      "severity": "info",
+      "spec": "pose-optional-worktree-runtime",
+      "path": "pose-mcp/internal/cli/runtime_host_test.go",
+      "change_set": "cs-ba9770e7c824",
+      "message": "historical attribution signed by human:oseias (SHA256:E4BlxtexLxWA+LN47tL2OBrw59R3aPXUfI9tDlvK0M0), witness 57e20957ce49b0f35f7aa6bd3343b5137540805c: Published change 57e20957ce49 (fix: a running command is counted once as in flight; the harness reads CPU and the peak per scenario; the spec and the roadmap state T7 and the delivery) is within the attributed range and accounts for the observed path.",
+      "remediation": "see .pose/artifact-attributions.json"
     },
     {
       "id": "dif-a4c9cb78f7b2",
@@ -314319,6 +314616,16 @@
       "remediation": "no Git change sets are attributed to spec pose-condition-response-and-work-metrics (ensure commits carry 'POSE-Spec: pose-condition-response-and-work-metrics' trailer or generate report with pose report)"
     },
     {
+      "id": "dif-ae0b43434dd0",
+      "code": "retroactive-attribution",
+      "severity": "info",
+      "spec": "pose-common-domain-and-cli-mcp-handoff",
+      "path": "pose-mcp/internal/pose/resident_git_memo_test.go",
+      "change_set": "cs-f791ea60c074",
+      "message": "historical attribution signed by human:oseias (SHA256:E4BlxtexLxWA+LN47tL2OBrw59R3aPXUfI9tDlvK0M0), witness 80b49143698e7a4d175456448bad10c6cf9bd993: Published change 80b49143698e (fix: the resident memo key holds the effective Git configuration; the ADR is accepted for the delivered scope) is within the attributed range and accounts for the observed path.",
+      "remediation": "see .pose/artifact-attributions.json"
+    },
+    {
       "id": "dif-ae8d6f186d12",
       "code": "existence",
       "severity": "error",
@@ -314455,6 +314762,16 @@
       "remediation": "backfill an explicit claim or add an exact reviewed exclusion"
     },
     {
+      "id": "dif-b4cb0e6cb883",
+      "code": "undeclared-delivery",
+      "severity": "error",
+      "spec": "pose-retroactive-attribution-record",
+      "path": "pose-mcp/internal/pose/artifact_attribution_index_test.go",
+      "change_set": "cs-69e3f6f72159",
+      "message": "changed delivery root pose-mcp/internal/pose has no delivery declaration",
+      "remediation": "declare a typed delivery target or narrow the attributed change set"
+    },
+    {
       "id": "dif-b525a7159445",
       "code": "unconsumed-capability",
       "severity": "error",
@@ -314560,6 +314877,16 @@
       "remediation": "no Git change sets are attributed to spec pose-residual-material-coverage-and-identity (ensure commits carry 'POSE-Spec: pose-residual-material-coverage-and-identity' trailer or generate report with pose report)"
     },
     {
+      "id": "dif-bd847d26e45e",
+      "code": "undeclared-delivery",
+      "severity": "error",
+      "spec": "pose-retroactive-attribution-record",
+      "path": "pose-mcp/internal/cli/artifact_attributions_test.go",
+      "change_set": "cs-69e3f6f72159",
+      "message": "changed delivery root pose-mcp/internal/cli has no delivery declaration",
+      "remediation": "declare a typed delivery target or narrow the attributed change set"
+    },
+    {
       "id": "dif-bdc9e4caefc0",
       "code": "existence",
       "severity": "error",
@@ -314652,16 +314979,6 @@
       "remediation": "rerun the registered validation check for this delivery scope"
     },
     {
-      "id": "dif-c1b4ad02d503",
-      "code": "undeclared",
-      "severity": "error",
-      "spec": "pose-optional-worktree-runtime",
-      "path": "pose-mcp/internal/pose/resident_git_memo.go",
-      "change_set": "cs-ba9770e7c824",
-      "message": "Git observed a governed path not declared by the spec",
-      "remediation": "declare the exact action or narrow the attributed change set"
-    },
-    {
       "id": "dif-c29f39f96262",
       "code": "orphan",
       "severity": "warning",
@@ -314715,16 +315032,6 @@
       "change_set": "pose-mcp/go/abm-atomic-start-integration",
       "message": "passed integration evidence is bound to a different scoped provenance digest",
       "remediation": "rerun the registered validation check for this delivery scope"
-    },
-    {
-      "id": "dif-c78f484a6092",
-      "code": "undeclared",
-      "severity": "error",
-      "spec": "pose-worktree-runtime-resident-cache",
-      "path": "pose-mcp/internal/cli/runtime_measure_test.go",
-      "change_set": "cs-e703b5000664",
-      "message": "Git observed a governed path not declared by the spec",
-      "remediation": "declare the exact action or narrow the attributed change set"
     },
     {
       "id": "dif-c8631fc47396",
@@ -314927,6 +315234,16 @@
       "remediation": "correct the exact path or commit the artifact before closeout"
     },
     {
+      "id": "dif-d1e34b528c3d",
+      "code": "retroactive-attribution",
+      "severity": "info",
+      "spec": "pose-governance-operation-performance",
+      "path": "pose-mcp/internal/pose/resident_git_memo_test.go",
+      "change_set": "cs-f3421d84f8c6",
+      "message": "historical attribution signed by human:oseias (SHA256:E4BlxtexLxWA+LN47tL2OBrw59R3aPXUfI9tDlvK0M0), witness 80b49143698e7a4d175456448bad10c6cf9bd993: Published change 80b49143698e (fix: the resident memo key holds the effective Git configuration; the ADR is accepted for the delivered scope) is within the attributed range and accounts for the observed path.",
+      "remediation": "see .pose/artifact-attributions.json"
+    },
+    {
       "id": "dif-d2074c667958",
       "code": "undeclared-delivery",
       "severity": "warning",
@@ -315090,6 +315407,16 @@
       "remediation": "declare and reconcile exact artifacts before asserting delivery"
     },
     {
+      "id": "dif-dd14c93fec34",
+      "code": "retroactive-attribution",
+      "severity": "info",
+      "spec": "pose-optional-worktree-runtime",
+      "path": "pose-mcp/internal/pose/resident_git_memo.go",
+      "change_set": "cs-ba9770e7c824",
+      "message": "historical attribution signed by human:oseias (SHA256:E4BlxtexLxWA+LN47tL2OBrw59R3aPXUfI9tDlvK0M0), witness 80b49143698e7a4d175456448bad10c6cf9bd993: Published change 80b49143698e (fix: the resident memo key holds the effective Git configuration; the ADR is accepted for the delivered scope) is within the attributed range and accounts for the observed path.",
+      "remediation": "see .pose/artifact-attributions.json"
+    },
+    {
       "id": "dif-dd28f02348f0",
       "code": "orphan",
       "severity": "warning",
@@ -315167,16 +315494,6 @@
       "path": "pose-mcp/internal/pose/release_selection_exclusivity_test.go",
       "message": "declared artifact action is absent from the attributed Git change sets",
       "remediation": "no Git change sets are attributed to spec pose-release-scope-selection-and-exclusivity (ensure commits carry 'POSE-Spec: pose-release-scope-selection-and-exclusivity' trailer or generate report with pose report)"
-    },
-    {
-      "id": "dif-e2c52f57612e",
-      "code": "undeclared",
-      "severity": "error",
-      "spec": "pose-governance-operation-performance",
-      "path": "pose-mcp/internal/pose/resident_git_memo.go",
-      "change_set": "cs-f3421d84f8c6",
-      "message": "Git observed a governed path not declared by the spec",
-      "remediation": "declare the exact action or narrow the attributed change set"
     },
     {
       "id": "dif-e50790ebb7a9",
@@ -315269,16 +315586,6 @@
       "path": ".pose/changelogs/unreleased/pose-proportional-next-action.md",
       "message": "declared artifact action is absent from the attributed Git change sets",
       "remediation": "no Git change sets are attributed to spec pose-proportional-next-action (ensure commits carry 'POSE-Spec: pose-proportional-next-action' trailer or generate report with pose report)"
-    },
-    {
-      "id": "dif-e8eb295b575f",
-      "code": "undeclared",
-      "severity": "error",
-      "spec": "pose-optional-worktree-runtime",
-      "path": "pose-mcp/internal/pose/governance_read_view_git.go",
-      "change_set": "cs-ba9770e7c824",
-      "message": "Git observed a governed path not declared by the spec",
-      "remediation": "declare the exact action or narrow the attributed change set"
     },
     {
       "id": "dif-e9c841279fc1",
@@ -315393,6 +315700,16 @@
       "remediation": "correct the exact path or commit the artifact before closeout"
     },
     {
+      "id": "dif-f0cdbaa84a6c",
+      "code": "retroactive-attribution",
+      "severity": "info",
+      "spec": "pose-optional-worktree-runtime",
+      "path": "pose-mcp/internal/pose/resident_git_memo_test.go",
+      "change_set": "cs-ba9770e7c824",
+      "message": "historical attribution signed by human:oseias (SHA256:E4BlxtexLxWA+LN47tL2OBrw59R3aPXUfI9tDlvK0M0), witness 80b49143698e7a4d175456448bad10c6cf9bd993: Published change 80b49143698e (fix: the resident memo key holds the effective Git configuration; the ADR is accepted for the delivered scope) is within the attributed range and accounts for the observed path.",
+      "remediation": "see .pose/artifact-attributions.json"
+    },
+    {
       "id": "dif-f11e1732bf9c",
       "code": "action-mismatch",
       "severity": "error",
@@ -315400,6 +315717,16 @@
       "path": "scripts/release.sh",
       "message": "declared artifact action is absent from the attributed Git change sets",
       "remediation": "no Git change sets are attributed to spec pose-release-publication-evidence-replay (ensure commits carry 'POSE-Spec: pose-release-publication-evidence-replay' trailer or generate report with pose report)"
+    },
+    {
+      "id": "dif-f17008bf8406",
+      "code": "retroactive-attribution",
+      "severity": "info",
+      "spec": "pose-worktree-runtime-qos-and-measurement",
+      "path": "pose-mcp/internal/pose/resident_git_memo_test.go",
+      "change_set": "cs-7a7d3fc88bea",
+      "message": "historical attribution signed by human:oseias (SHA256:E4BlxtexLxWA+LN47tL2OBrw59R3aPXUfI9tDlvK0M0), witness 80b49143698e7a4d175456448bad10c6cf9bd993: Published change 80b49143698e (fix: the resident memo key holds the effective Git configuration; the ADR is accepted for the delivered scope) is within the attributed range and accounts for the observed path.",
+      "remediation": "see .pose/artifact-attributions.json"
     },
     {
       "id": "dif-f1bd142bb591",
@@ -315606,6 +315933,16 @@
       "remediation": "no Git change sets are attributed to spec pose-release-shared-sufficiency-contract (ensure commits carry 'POSE-Spec: pose-release-shared-sufficiency-contract' trailer or generate report with pose report)"
     },
     {
+      "id": "dif-fa7d4c35aeb7",
+      "code": "undeclared-delivery",
+      "severity": "error",
+      "spec": "pose-retroactive-attribution-record",
+      "path": "pose-mcp/internal/pose/index_generation.go",
+      "change_set": "cs-69e3f6f72159",
+      "message": "changed delivery root pose-mcp/internal/pose has no delivery declaration",
+      "remediation": "declare a typed delivery target or narrow the attributed change set"
+    },
+    {
       "id": "dif-fa80024e2261",
       "code": "action-mismatch",
       "severity": "error",
@@ -315641,16 +315978,6 @@
       "path": ".pose/indexes/validation-matrix.json",
       "message": "declared artifact action is absent from the attributed Git change sets",
       "remediation": "no Git change sets are attributed to spec pose-integrated-agency-and-runtime-pilot (ensure commits carry 'POSE-Spec: pose-integrated-agency-and-runtime-pilot' trailer or generate report with pose report)"
-    },
-    {
-      "id": "dif-fc3f96fb6899",
-      "code": "undeclared",
-      "severity": "error",
-      "spec": "pose-worktree-runtime-qos-and-measurement",
-      "path": "pose-mcp/internal/pose/resident_git_memo.go",
-      "change_set": "cs-7a7d3fc88bea",
-      "message": "Git observed a governed path not declared by the spec",
-      "remediation": "declare the exact action or narrow the attributed change set"
     },
     {
       "id": "dif-fd0720bfce5b",
@@ -315703,16 +316030,6 @@
       "path": "POSE.md",
       "message": "declared artifact action is absent from the attributed Git change sets",
       "remediation": "no Git change sets are attributed to spec pose-residual-nature-commitment-and-effect (ensure commits carry 'POSE-Spec: pose-residual-nature-commitment-and-effect' trailer or generate report with pose report)"
-    },
-    {
-      "id": "dif-ffef8d249b94",
-      "code": "undeclared",
-      "severity": "error",
-      "spec": "pose-common-domain-and-cli-mcp-handoff",
-      "path": "pose-mcp/internal/pose/resident_git_memo.go",
-      "change_set": "cs-f791ea60c074",
-      "message": "Git observed a governed path not declared by the spec",
-      "remediation": "declare the exact action or narrow the attributed change set"
     },
     {
       "id": "dif-fff4f1cf7f41",
