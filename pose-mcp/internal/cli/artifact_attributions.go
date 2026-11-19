@@ -4,7 +4,6 @@ import (
 	"crypto/sha256"
 	"errors"
 	"fmt"
-	"io"
 	"os"
 	"path/filepath"
 	"slices"
@@ -38,38 +37,11 @@ type attributionKey struct {
 	observed         posemodel.ObservedPath
 }
 
-func readAttributionFile(files posemodel.Files, root, name string, limit int64) ([]byte, error) {
-	if err := posemodel.ValidateArtifactPathIn(files, root, name, false); err != nil {
-		return nil, err
-	}
-	path := filepath.Join(root, filepath.FromSlash(name))
-	info, err := files.Lstat(path)
-	if err != nil {
-		return nil, err
-	}
-	if !info.Mode().IsRegular() || info.Size() > limit {
-		return nil, fmt.Errorf("%s must be a bounded regular file", name)
-	}
-	f, err := files.Open(path)
-	if err != nil {
-		return nil, err
-	}
-	defer f.Close()
-	raw, err := io.ReadAll(io.LimitReader(f, limit+1))
-	if err != nil {
-		return nil, err
-	}
-	if int64(len(raw)) > limit {
-		return nil, fmt.Errorf("%s exceeds its size limit", name)
-	}
-	return raw, nil
-}
-
 // applyArtifactAttributions changes the disposition of one exact finding.
 // Keep claims, observed changes and the sealed provenance digest intact.
 func applyArtifactAttributions(files posemodel.Files, root string, specs []posemodel.Spec, graph *posemodel.DeliveryIntegrityGraph) error {
 	name := posemodel.ArtifactAttributionManifest
-	raw, err := readAttributionFile(files, root, name, 128*1024)
+	raw, err := posemodel.ReadArtifactAttributionFileIn(files, root, false)
 	if errors.Is(err, os.ErrNotExist) {
 		absent, proofErr := posemodel.ProvenAbsentIn(files, filepath.Join(root, name))
 		if proofErr == nil && absent {
@@ -83,7 +55,7 @@ func applyArtifactAttributions(files posemodel.Files, root string, specs []posem
 	if err != nil {
 		return fmt.Errorf("retroactive attribution: read manifest: %w", err)
 	}
-	sig, err := readAttributionFile(files, root, name+".sig", 16*1024)
+	sig, err := posemodel.ReadArtifactAttributionFileIn(files, root, true)
 	if err != nil {
 		return fmt.Errorf("retroactive attribution: read signature: %w", err)
 	}
@@ -143,7 +115,8 @@ func applyArtifactAttributions(files posemodel.Files, root string, specs []posem
 		}
 	}
 	sort.Slice(graph.Findings, func(i, j int) bool { return graph.Findings[i].ID < graph.Findings[j].ID })
-	graph.InputDigest = fmt.Sprintf("sha256:%x", sha256.Sum256([]byte(fmt.Sprintf("%s\x00%x\x00%x", graph.InputDigest, sha256.Sum256(raw), sha256.Sum256(sig)))))
+	input := fmt.Sprintf("%s\x00%x\x00%x", graph.InputDigest, sha256.Sum256(raw), sha256.Sum256(sig))
+	graph.InputDigest = fmt.Sprintf("sha256:%x", sha256.Sum256([]byte(input)))
 	return nil
 }
 
