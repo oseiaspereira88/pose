@@ -47,6 +47,7 @@ O que não está nos requisitos abaixo.
 
 - created: pose-mcp/internal/cli/artifact_attributions.go
 - created: pose-mcp/internal/cli/artifact_attributions_test.go
+- created: pose-mcp/internal/pose/artifact_attribution_index_test.go
 - modified: pose-mcp/internal/cli/artifact_integrity.go
 - modified: pose-mcp/internal/cli/surface_check.go
 - modified: pose-mcp/internal/pose/index_generation.go

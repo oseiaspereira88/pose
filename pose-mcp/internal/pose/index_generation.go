@@ -907,6 +907,8 @@ func (s Store) pruneIndexGenerations(current string) error {
 // IndexInputNames are the bounded input bindings of a generation. Git history
 // remains a runtime input for consumers that need it, since binding HEAD here
 // would stale every generation on every commit.
+const ArtifactAttributionManifest = ".pose/artifact-attributions.json"
+
 var IndexInputNames = []string{
 	"specs", "roadmaps", "policy", "module-metadata", "validation-matrix",
 	"recorded-change-sets", "module-discovery", "validation-results",
@@ -929,7 +931,16 @@ func IndexInputBindingIn(files Files, root, name string) (string, bool) {
 	case "validation-matrix":
 		return fileDigest(files, root, ".pose/indexes/validation-matrix.json")
 	case "recorded-change-sets":
-		return recordedChangeSetsDigest(files, root), true
+		changeSets := recordedChangeSetsDigest(files, root)
+		manifest, manifestKnown := fileDigest(files, root, ArtifactAttributionManifest)
+		signature, signatureKnown := fileDigest(files, root, ArtifactAttributionManifest+".sig")
+		if !manifestKnown || !signatureKnown {
+			return "", false
+		}
+		if manifest == "absent" && signature == "absent" {
+			return changeSets, true
+		}
+		return sha256Prefixed([]byte(changeSets + "\x00" + manifest + "\x00" + signature)), true
 	case "module-discovery":
 		return ModuleDiscoveryBindingIn(files, root)
 	case "validation-results":
@@ -1086,10 +1097,16 @@ func treeDigest(files Files, root, rel string) (string, bool) {
 		if d.Type()&os.ModeSymlink != 0 {
 			// Bind the bytes of an in-root regular target. A dangling, escaping
 			// or directory link is unknown, never a silently omitted input.
-			if !artifactPathWithin(files, root, path) { return fmt.Errorf("pose: %s contains an unbound link", rel) }
+			if !artifactPathWithin(files, root, path) {
+				return fmt.Errorf("pose: %s contains an unbound link", rel)
+			}
 			info, err := files.Stat(path)
-			if err != nil { return err }
-			if !info.Mode().IsRegular() { return fmt.Errorf("pose: %s contains a non-regular link target", rel) }
+			if err != nil {
+				return err
+			}
+			if !info.Mode().IsRegular() {
+				return fmt.Errorf("pose: %s contains a non-regular link target", rel)
+			}
 		} else if !d.Type().IsRegular() {
 			return fmt.Errorf("pose: %s contains a non-regular input", rel)
 		}
