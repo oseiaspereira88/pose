@@ -2,10 +2,13 @@ package cli
 
 import (
 	"bytes"
+	"encoding/json"
 	"os"
 	"path/filepath"
 	"strings"
 	"testing"
+
+	"github.com/harne8/pose-mcp/internal/cli/cliout"
 )
 
 // Spec pose-commit-gate-refuses-index-without-descriptor.
@@ -21,6 +24,7 @@ func checkOutput(t *testing.T, root string, args ...string) (int, string) {
 // (a warning of the tolerant one) naming `pose index`; the repaired set and a repository with no
 // generation pass that check.
 func TestCheckRefusesAnIndexSetThatItsDescriptorDoesNotDescribe(t *testing.T) {
+	t.Setenv("POSE_LOCALE", "en")
 	root, _, _ := artifactGitFixture(t)
 	if _, out := checkOutput(t, root); strings.Contains(out, "index set unavailable") || strings.Contains(out, "differ from generation") {
 		t.Fatalf("a repository with no generation is reported: %s", out)
@@ -42,10 +46,7 @@ func TestCheckRefusesAnIndexSetThatItsDescriptorDoesNotDescribe(t *testing.T) {
 	if strictCode == 0 {
 		t.Fatalf("strict check passed with a diverged index file: %s", strictOut)
 	}
-	_, tolerantDiverged := checkOutput(t, root, "--tolerant")
-	if !findingIsAWarning(tolerantDiverged, "index files differ from generation") {
-		t.Fatalf("the tolerant gate reports the divergence as something other than a warning: %s", tolerantDiverged)
-	}
+	assertTolerantIndexWarning(t, root, "index files differ from generation")
 	if code, _, errOut := runIndex(t, root); code != 0 {
 		t.Fatalf("pose index over the diverged set: %d %s", code, errOut)
 	}
@@ -65,10 +66,7 @@ func TestCheckRefusesAnIndexSetThatItsDescriptorDoesNotDescribe(t *testing.T) {
 		t.Fatalf("strict check passed with an unavailable index set: %s", out)
 	}
 	// The tolerant gate (a commit hook) warns and does not fail on this finding.
-	_, tolerant := checkOutput(t, root, "--tolerant")
-	if !findingIsAWarning(tolerant, "index set unavailable") {
-		t.Fatalf("the tolerant gate reports it as something other than a warning: %s", tolerant)
-	}
+	assertTolerantIndexWarning(t, root, "index set unavailable")
 	if code, _, errOut := runIndex(t, root); code != 0 {
 		t.Fatalf("pose index over the unavailable set: %d %s", code, errOut)
 	}
@@ -77,13 +75,20 @@ func TestCheckRefusesAnIndexSetThatItsDescriptorDoesNotDescribe(t *testing.T) {
 	}
 }
 
-// findingIsAWarning reports whether the line of the check output that carries the finding is a
-// warning ("[!] warning ...") and not an error.
-func findingIsAWarning(output, finding string) bool {
-	for _, line := range strings.Split(output, "\n") {
-		if strings.Contains(line, finding) {
-			return strings.HasPrefix(strings.TrimSpace(line), "[!] warning") || strings.HasPrefix(strings.TrimSpace(line), "[!]")
+func assertTolerantIndexWarning(t *testing.T, root, message string) {
+	t.Helper()
+	_, output := checkOutput(t, root, "--tolerant", "--json")
+	var report cliout.Record
+	if err := json.Unmarshal([]byte(output), &report); err != nil {
+		t.Fatalf("decode check report: %v\n%s", err, output)
+	}
+	for _, finding := range report.Findings {
+		if strings.Contains(finding.Message, message) {
+			if finding.Severity != cliout.StateWarning.Key() {
+				t.Fatalf("severity for %q: got %q, want warning", finding.Message, finding.Severity)
+			}
+			return
 		}
 	}
-	return false
+	t.Fatalf("no finding for %q in %s", message, output)
 }

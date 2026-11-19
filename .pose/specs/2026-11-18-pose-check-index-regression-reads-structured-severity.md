@@ -39,6 +39,14 @@ Check the existing JSON report for the matching finding in the two tolerant case
 ### Strategy
 Run the named regression test with LC_ALL=C and LC_ALL=C.UTF-8. The original test must reproduce under UTF-8 and the updated test must pass under both locales.
 
+
+### Requirement trace
+- R1 [satisfied] test:TestCheckRefusesAnIndexSetThatItsDescriptorDoesNotDescribe
+- R2 [satisfied] check:check-index-generation-integration
+
+### Execution log
+The original test failed with LC_ALL=C.UTF-8 on f7b2fcc7. The check emitted the target warning with the UTF-8 glyph. The corrected test passed with LC_ALL=C and C.UTF-8.
+
 ## 7. Final Report
 
 ### Delivered scope
