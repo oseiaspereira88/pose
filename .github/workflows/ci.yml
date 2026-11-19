@@ -33,7 +33,9 @@ jobs:
         # sets fewer variables cannot turn that test's failure into a silent
         # skip (spec pose-the-guard-signal-is-declared-not-inherited).
         env: { POSE_RELEASE_HISTORY_AVAILABLE: "true" }
-        run: go -C pose-mcp test ./... -count=1
+        # Keep the Go package timeout and run the same test set without
+        # contention between the CLI and governance test packages.
+        run: go -C pose-mcp test -p 1 ./... -count=1
       - name: Shellcheck
         # Covers every shipped or executed script, not just the installer.
         # tests/release/ was outside this list until v0.20.2, and three
