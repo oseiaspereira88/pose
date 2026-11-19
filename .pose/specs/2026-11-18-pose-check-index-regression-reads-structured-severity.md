@@ -1,6 +1,6 @@
 ---
 slug: pose-check-index-regression-reads-structured-severity
-status: draft
+status: in-progress
 created_at: 2026-11-18
 completed_at:
 depends_on: pose-commit-gate-refuses-index-without-descriptor
