@@ -1,7 +1,7 @@
 {
   "schema_version": 2,
-  "input_digest": "sha256:d89d0a941605891cc6695de9705792cec16a7bb0db29221115ba0ddbe9c112c2",
-  "provenance_digest": "sha256:9258f9400625b7562ebf323f85f78327ac5c37688f781cfaafd2cc4fce7d3ab6",
+  "input_digest": "sha256:6286ca16e4c276d6437b4bb2162cd57527c441d465aab105652525bdba9f216e",
+  "provenance_digest": "sha256:d6e56acd8d3710029fdf5f9aabf3d8c46758fb211cd091e48cb30f4dd87729c0",
   "implied_edges": [
     "changes"
   ],
@@ -774,6 +774,27 @@
       "type": "artifact",
       "attributes": {
         "path": ".pose/adr/2026-11-14-governance-association-links-are-read-with-a-commonmark-parser.md"
+      }
+    },
+    {
+      "id": "artifact:.pose/adr/2026-11-18-bind-retroactive-delivery-attribution-to-signed-git-ranges.md",
+      "type": "artifact",
+      "attributes": {
+        "path": ".pose/adr/2026-11-18-bind-retroactive-delivery-attribution-to-signed-git-ranges.md"
+      }
+    },
+    {
+      "id": "artifact:.pose/artifact-attributions.json",
+      "type": "artifact",
+      "attributes": {
+        "path": ".pose/artifact-attributions.json"
+      }
+    },
+    {
+      "id": "artifact:.pose/artifact-attributions.json.sig",
+      "type": "artifact",
+      "attributes": {
+        "path": ".pose/artifact-attributions.json.sig"
       }
     },
     {
@@ -5016,6 +5037,20 @@
       "type": "artifact",
       "attributes": {
         "path": ".pose/policy/adoption-decisions.json"
+      }
+    },
+    {
+      "id": "artifact:.pose/policy/artifact-attributions.json",
+      "type": "artifact",
+      "attributes": {
+        "path": ".pose/policy/artifact-attributions.json"
+      }
+    },
+    {
+      "id": "artifact:.pose/policy/artifact-attributions.json.sig",
+      "type": "artifact",
+      "attributes": {
+        "path": ".pose/policy/artifact-attributions.json.sig"
       }
     },
     {
@@ -32900,6 +32935,13 @@
       }
     },
     {
+      "id": "artifact:.pose/specs/2026-11-11-pose-retroactive-attribution-record.md",
+      "type": "artifact",
+      "attributes": {
+        "path": ".pose/specs/2026-11-11-pose-retroactive-attribution-record.md"
+      }
+    },
+    {
       "id": "artifact:.pose/specs/2026-11-11-pose-review-subject-head-is-the-newest.md",
       "type": "artifact",
       "attributes": {
@@ -36155,6 +36197,20 @@
       }
     },
     {
+      "id": "artifact:pose-mcp/internal/cli/artifact_attributions.go",
+      "type": "artifact",
+      "attributes": {
+        "path": "pose-mcp/internal/cli/artifact_attributions.go"
+      }
+    },
+    {
+      "id": "artifact:pose-mcp/internal/cli/artifact_attributions_test.go",
+      "type": "artifact",
+      "attributes": {
+        "path": "pose-mcp/internal/cli/artifact_attributions_test.go"
+      }
+    },
+    {
       "id": "artifact:pose-mcp/internal/cli/artifact_integrity.go",
       "type": "artifact",
       "attributes": {
@@ -39036,6 +39092,13 @@
       "type": "artifact",
       "attributes": {
         "path": "pose-mcp/internal/pose/amendments_flat_test.go"
+      }
+    },
+    {
+      "id": "artifact:pose-mcp/internal/pose/artifact_attribution_index_test.go",
+      "type": "artifact",
+      "attributes": {
+        "path": "pose-mcp/internal/pose/artifact_attribution_index_test.go"
       }
     },
     {
@@ -49119,6 +49182,14 @@
       }
     },
     {
+      "id": "change-set:cs-a00be852dc5c",
+      "type": "change-set",
+      "attributes": {
+        "diff_digest": "sha256:fbcfc623b27711c503eff2f74e259de2e01b472e34a112cf0cdf446d6e79234f",
+        "selector": "trailers:pose-retroactive-attribution-record"
+      }
+    },
+    {
       "id": "change-set:cs-a015d8824f6a",
       "type": "change-set",
       "attributes": {
@@ -58142,7 +58213,7 @@
       "id": "spec:pose-retroactive-attribution-record",
       "type": "spec",
       "attributes": {
-        "status": "draft"
+        "status": "in-progress"
       }
     },
     {
@@ -131833,6 +131904,56 @@
       "type": "observed-by"
     },
     {
+      "from": "spec:pose-retroactive-attribution-record",
+      "to": "artifact:.pose/policy/actions.json",
+      "type": "declares"
+    },
+    {
+      "from": "spec:pose-retroactive-attribution-record",
+      "to": "artifact:.pose/policy/artifact-attributions.json",
+      "type": "declares"
+    },
+    {
+      "from": "spec:pose-retroactive-attribution-record",
+      "to": "artifact:.pose/policy/artifact-attributions.json.sig",
+      "type": "declares"
+    },
+    {
+      "from": "spec:pose-retroactive-attribution-record",
+      "to": "artifact:pose-mcp/internal/cli/artifact_attributions.go",
+      "type": "declares"
+    },
+    {
+      "from": "spec:pose-retroactive-attribution-record",
+      "to": "artifact:pose-mcp/internal/cli/artifact_attributions_test.go",
+      "type": "declares"
+    },
+    {
+      "from": "spec:pose-retroactive-attribution-record",
+      "to": "artifact:pose-mcp/internal/cli/artifact_integrity.go",
+      "type": "declares"
+    },
+    {
+      "from": "spec:pose-retroactive-attribution-record",
+      "to": "artifact:pose-mcp/internal/cli/surface_check.go",
+      "type": "declares"
+    },
+    {
+      "from": "spec:pose-retroactive-attribution-record",
+      "to": "artifact:pose-mcp/internal/pose/artifact_attribution_index_test.go",
+      "type": "declares"
+    },
+    {
+      "from": "spec:pose-retroactive-attribution-record",
+      "to": "artifact:pose-mcp/internal/pose/index_generation.go",
+      "type": "declares"
+    },
+    {
+      "from": "spec:pose-retroactive-attribution-record",
+      "to": "change-set:cs-a00be852dc5c",
+      "type": "observed-by"
+    },
+    {
       "from": "spec:pose-reuse-is-sealed-signing-stays-live",
       "to": "artifact:.pose/adr/2026-08-13-sealed-review-bundles-and-attestations.md",
       "type": "declares"
@@ -168625,6 +168746,51 @@
       "path": "pose-mcp/internal/version/workflow_security_test.go"
     },
     {
+      "spec": "pose-retroactive-attribution-record",
+      "action": "created",
+      "path": ".pose/policy/artifact-attributions.json"
+    },
+    {
+      "spec": "pose-retroactive-attribution-record",
+      "action": "created",
+      "path": ".pose/policy/artifact-attributions.json.sig"
+    },
+    {
+      "spec": "pose-retroactive-attribution-record",
+      "action": "created",
+      "path": "pose-mcp/internal/cli/artifact_attributions.go"
+    },
+    {
+      "spec": "pose-retroactive-attribution-record",
+      "action": "created",
+      "path": "pose-mcp/internal/cli/artifact_attributions_test.go"
+    },
+    {
+      "spec": "pose-retroactive-attribution-record",
+      "action": "created",
+      "path": "pose-mcp/internal/pose/artifact_attribution_index_test.go"
+    },
+    {
+      "spec": "pose-retroactive-attribution-record",
+      "action": "modified",
+      "path": ".pose/policy/actions.json"
+    },
+    {
+      "spec": "pose-retroactive-attribution-record",
+      "action": "modified",
+      "path": "pose-mcp/internal/cli/artifact_integrity.go"
+    },
+    {
+      "spec": "pose-retroactive-attribution-record",
+      "action": "modified",
+      "path": "pose-mcp/internal/cli/surface_check.go"
+    },
+    {
+      "spec": "pose-retroactive-attribution-record",
+      "action": "modified",
+      "path": "pose-mcp/internal/pose/index_generation.go"
+    },
+    {
       "spec": "pose-reuse-is-sealed-signing-stays-live",
       "action": "created",
       "path": ".pose/specs/2026-09-10-pose-reuse-is-sealed-signing-stays-live.md"
@@ -179365,7 +179531,7 @@
         }
       ],
       "diff_digest": "sha256:53aad92ad458e0d39af87b695b3ac42dba6c00e338703528f34324c600ff5581",
-      "material_digest": "sha256:04c7f5fd59016f0442c96cc083b5dc1e12dd59ae1291046c74f815d56f1cd176",
+      "material_digest": "sha256:5d03f932dd7e7245cd21eb002312e483b18f2feedb3d168c8094944175926232",
       "material_inputs": {
         "names": [
           ".pose/adr/2026-10-22-update-preview-records-the-shared-execution-in-an-operation-scoped-view.md",
@@ -179703,7 +179869,7 @@
         }
       ],
       "diff_digest": "sha256:5cd8d4c4f0b10e20ad7fc795a76aabfc9ccf0763361c7baeceec955c1de6df4d",
-      "material_digest": "sha256:1f3fb2b1ad7e309ed748d680139838011ffb27e7fdc3bb003a9bcc4d66141265",
+      "material_digest": "sha256:f52a2d9fc58a985df43122bd5fd5b7a422f47f4525d582cbc698578bc5168ed6",
       "material_inputs": {
         "names": [
           ".pose/adr/2026-09-21-federated-roadmap-acceptance-with-local-evidence-authority.md",
@@ -187380,7 +187546,7 @@
         }
       ],
       "diff_digest": "sha256:1d0f4bda9d1b7908fcbc23898091624a77bb05aac4fff8ab76dcc2c1bc61097f",
-      "material_digest": "sha256:b0ce5c1306d345c63dd2589164cda69fc2f4ba214428a8aac9abcdfade17fdc2",
+      "material_digest": "sha256:44c8bf96049571c16a6f527a8cdb8bfa81bae40639a76b14805ea8cf7b54cdbf",
       "material_inputs": {
         "names": [
           ".pose/adr/2026-11-03-governance-reads-use-bounded-operation-scoped-views.md",
@@ -187630,7 +187796,7 @@
         }
       ],
       "diff_digest": "sha256:f0275d988dc2719db51df928cedd1dac712533f38414356069143f602c100cd6",
-      "material_digest": "sha256:99f59f9f516411fcfdcc07e0810b8fe22d321dfe85ce8babe1f5117cd0d9e488",
+      "material_digest": "sha256:0138b8cacf68ab400cbec225c0d51265eef52630c3e5a7776882f8ccb83497f1",
       "material_inputs": {
         "names": [
           ".pose/assessments/README.md",
@@ -188951,7 +189117,7 @@
         }
       ],
       "diff_digest": "sha256:24cfb1e1f89849bf12ba363336c981749aaa94498360c9601712acd9ec56780f",
-      "material_digest": "sha256:ac51d2d9a30d452795238f1e943d36a0a5764fab0673a364fb678493623ba397",
+      "material_digest": "sha256:58a1222493cae155a1b42b4d59d040e69604ecf67c9dd1d1c6393b56beaa40d5",
       "material_inputs": {
         "names": [
           ".pose/changelogs/unreleased/pose-delegated-verdict-destinations.md",
@@ -198026,7 +198192,7 @@
         }
       ],
       "diff_digest": "sha256:76c575b963b162f5e84a27b3a0de7d619043ac44c86db22aa8ebb865f3328577",
-      "material_digest": "sha256:bf750e9dc2fea3d495c2d7ab56568215b89f6959432148fb5da85feb00e97596",
+      "material_digest": "sha256:e6dcf6c5bab1017a1c888b7adddc5604c3cb9bb36d602d5a7e40cbb4e8e3ee91",
       "material_inputs": {
         "names": [
           ".pose/adr/2026-11-07-validation-evidence-binds-to-validated-material.md",
@@ -199894,7 +200060,7 @@
         }
       ],
       "diff_digest": "sha256:edb3e69648f6e2484b5e0a000a8da981383fd4b6f00bfc874ad59fcd737be14c",
-      "material_digest": "sha256:a837a10a7cb75893532dbbc6bc9b7c3b91f33d02dfc0d599e6ae920d977e95e3",
+      "material_digest": "sha256:bb41d1a3048587ce23654a16d5724e2d2ba2d9c0ac82e894210c62eba3ba4786",
       "material_inputs": {
         "names": [
           ".pose/changelogs/unreleased/pose-engine-stability-and-diagnostics-convergence.md",
@@ -203666,7 +203832,7 @@
         }
       ],
       "diff_digest": "sha256:13fda844ae123410502c03e138349d4bd72c0f8b34abf23633fc7bf0ec73a31a",
-      "material_digest": "sha256:96ec8ce290c24f03771744fd92cc1104a7c7a465b7ccb4db17a5db82cdd1590e",
+      "material_digest": "sha256:f2e22d9748a745cb62a840afe66849302b4647a9916dd4e317ac24d996daa2ce",
       "material_inputs": {
         "names": [
           ".gitignore",
@@ -204671,7 +204837,7 @@
         }
       ],
       "diff_digest": "sha256:3b97b7597d0a182371ee6a3ef9ae52abe6d9196f338b022ce0881bb8cfbe74ad",
-      "material_digest": "sha256:52f88bace66dcdc0c534993aad65275abc80986b3be5f21e72625c11d283d059",
+      "material_digest": "sha256:fe741f3d522784da4111f06b0beea620aae623d29f6f694bc58e413b0f96cb48",
       "material_inputs": {
         "names": [
           ".pose/indexes/validation-matrix.json",
@@ -213662,7 +213828,7 @@
         }
       ],
       "diff_digest": "sha256:b141508bb749d823e59b8691418781f6f57fdc3c748eac6eb8e5377c23a2cbf2",
-      "material_digest": "sha256:dc6abb61f8e3fe33136b005f19389be704078138c44b46b1a7000655c55db304",
+      "material_digest": "sha256:b3176b972a9f611b743417fa50db90b2233966ea5d29a8c53ec45d92a472ee4f",
       "material_inputs": {
         "names": [
           ".agents/skills/README.md",
@@ -215261,7 +215427,7 @@
         }
       ],
       "diff_digest": "sha256:5c3c50782d727ddf0ff2d18fe33b2bc203817a9e0c58beb98379c248c4eb0d17",
-      "material_digest": "sha256:f979d7dc85790acd5c899adb55f3e1f1c72464fee92529b847c29fc9ea4f9127",
+      "material_digest": "sha256:a31b678c9010626406b1ab31e8ac54609765065407b1cd5836a2a90397243c52",
       "material_inputs": {
         "names": [
           ".pose/changelogs/unreleased/check-builds-the-delivery-graph-once.md",
@@ -216077,7 +216243,7 @@
         }
       ],
       "diff_digest": "sha256:798023b3ad32dd5edb330c31e5b122f26e6cb93d521802d57b419e448eb1d15d",
-      "material_digest": "sha256:8e6848965c2ef1c05f22a39879de62171a8433cd66a3daa477a5d437582e9e65",
+      "material_digest": "sha256:da64f83abf477b42085bd50d9b90f19c4f90912c3d97b3e93a2315da545bf4ad",
       "material_inputs": {
         "names": [
           ".pose/adr/2026-08-02-delivery-integrity-graph-and-git-observed-provenance.md",
@@ -217183,7 +217349,7 @@
         }
       ],
       "diff_digest": "sha256:431624a5c9a886973bc4137b199fc8c1ead64203b33fbad6655ae457e32ed0e7",
-      "material_digest": "sha256:e405bdf5e723d16837238074b07fcddcc4838d05607d6dc35c27c48ee8ca0dea",
+      "material_digest": "sha256:f5c0e170455350062131dfa923750a178bec3ba8e22a17b061c612b2d7da7843",
       "material_inputs": {
         "names": [
           ".pose/adr/2026-09-11-release-archival-is-attested-by-the-ledger-never-written-into-specs.md",
@@ -218586,7 +218752,7 @@
         }
       ],
       "diff_digest": "sha256:8e00e476fc2c6c7e5899c9a1119f31bab8508bcafccbf1aa8a113f9d7e964a0c",
-      "material_digest": "sha256:2bd8d6880be126e36dee7a5fc14791946c3f76fa146b170d70b2dbdfbef53800",
+      "material_digest": "sha256:6af2904f43aca6b5a2040450d160e21721827517992f0a5741f68a1adab2f204",
       "material_inputs": {
         "names": [
           ".pose/changelogs/unreleased/pose-roadmap-check-reaches-its-gate.md",
@@ -224585,7 +224751,7 @@
         }
       ],
       "diff_digest": "sha256:bf7132042ad3f2bff0ab63ab3c3657eb32e191f55cac0ddb4e54ef1d78d714f7",
-      "material_digest": "sha256:08d548f3427b212cd8247135197a19462c82dd5e70433c029840af5999fbb675",
+      "material_digest": "sha256:d0e498952a799a4e4af5d585fe80229421294334eeb22ca35a86fd859dd77f66",
       "material_inputs": {
         "names": [
           ".pose/adr/2026-11-03-governance-reads-use-bounded-operation-scoped-views.md",
@@ -225179,7 +225345,7 @@
         }
       ],
       "diff_digest": "sha256:b1991a7d988bc4640e5694e8bb8a461639890098680671878d8541f4d098ca3a",
-      "material_digest": "sha256:057a95f5caf79d4696bb95ddd5150bb5430d953cb6d3d32eb288322dff6c53dd",
+      "material_digest": "sha256:f0cb4d3b9a6cbd93d2a8249108801ec56f658f0339f8bfce67fad6b4626c77b9",
       "material_inputs": {
         "names": [
           ".pose/changelogs/unreleased/pose-diagnose-invisible-governance-failures.md",
@@ -232181,7 +232347,7 @@
         }
       ],
       "diff_digest": "sha256:ad04dc3d4b613462c4866bd2b2238403a4555dc2e85cebfa476919085eabf46a",
-      "material_digest": "sha256:04a33857ee9f3058035ee3fc1b4d849ea7b2e01341f2edfe5c97f89f17e6b543",
+      "material_digest": "sha256:f06fb86d4c7e2f35fc4ead62dd0e1169f236d927b518b565ecfed3b88f85e0a1",
       "material_inputs": {
         "names": [
           ".agents/skills/pose-spec-closeout/SKILL.md",
@@ -233370,7 +233536,7 @@
         }
       ],
       "diff_digest": "sha256:d8c53cefebad5c36d3c36d83aab187b3dcd5906aef7678f954fcd30f687f0025",
-      "material_digest": "sha256:d53c58f0d96fc83b89ca8f0b9e9b4dc4ab498002104644c773b6f5b887bc03a5",
+      "material_digest": "sha256:8cbf041134bc4f813d38ee9882281db49f36f856a3ea8637e19d5801d0cb5021",
       "material_inputs": {
         "names": [
           ".pose/assessments/README.md",
@@ -237876,7 +238042,7 @@
         }
       ],
       "diff_digest": "sha256:188e5041c1fb1c8711e81094e329bfddc892a24237afac17a196e912848edb4c",
-      "material_digest": "sha256:e6d64270664c22411d7ce52b313acb8a00800f671d16b73c33ab151a92f60953",
+      "material_digest": "sha256:46810f20525049e47b8096d1d68373587628d059b2059bb82d4804aa0646c47f",
       "material_inputs": {
         "names": [
           ".pose/assessments/README.md",
@@ -242042,7 +242208,7 @@
         }
       ],
       "diff_digest": "sha256:ec8d13b4cf911d105f16f5540dd01b777b9a79a527b6d119c39b673a5c83cf8b",
-      "material_digest": "sha256:13be89fea2e636cba15a61f215e8c921a0d024ed04a52afefc84f3dbe158cff4",
+      "material_digest": "sha256:a5e35cd9bb647bed5557729fdd7a2f01fcb96d4d4a9e50c259bbbb05832e9a81",
       "material_inputs": {
         "names": [
           ".pose/adr/2026-11-03-governance-reads-use-bounded-operation-scoped-views.md",
@@ -244955,7 +245121,7 @@
         }
       ],
       "diff_digest": "sha256:257dcfd83066158a46f053a3882ebf3a282ad6726a6de54fb9724c98e41d85c8",
-      "material_digest": "sha256:e5098ac1170686bceacbfae0aa5c2b14c2f61dd26b363920068686ba98f13382",
+      "material_digest": "sha256:bcfd850b6a918032d6b5cd67210890ec0cbe09eb1f737b655e51596112d5f269",
       "material_inputs": {
         "names": [
           ".pose/changelogs/unreleased/pose-governance-residual-diagnostics.md",
@@ -246502,7 +246668,7 @@
         }
       ],
       "diff_digest": "sha256:12b7dbffdcdc262292b3d1ef37beeefba8e7a79f92779b6e53adcc6a948288f0",
-      "material_digest": "sha256:04f4abddb1c4275b7580e86e874eb286c48137385a4df49cc68182a67e7c39f5",
+      "material_digest": "sha256:b695dddae6f78076e821f25b78baf039b6b4f584acff3392666b63901ad5c8ad",
       "material_inputs": {
         "names": [
           ".pose/adr/2026-10-31-review-reads-raw-history-and-roots-diff-from-the-empty-tree.md",
@@ -251607,7 +251773,7 @@
         }
       ],
       "diff_digest": "sha256:751bcd20135b9aa06619dfe6a808f06bab2015352111336cbee0790d58af4669",
-      "material_digest": "sha256:a0ca62884438a515bb79e3dd4a84d3b1d28782f269496c5e617d9a1dfcc93286",
+      "material_digest": "sha256:eb27c57de8ba015ffb48adca83da4666038ff637a7adaf060aab5b9b6990f61b",
       "material_inputs": {
         "names": [
           ".pose/changelogs/unreleased/pose-v6-2-0-delivery-authority-diagnostics.md",
@@ -254912,6 +255078,103 @@
       }
     },
     {
+      "id": "cs-a00be852dc5c",
+      "spec": "pose-retroactive-attribution-record",
+      "selector": "trailers:pose-retroactive-attribution-record",
+      "base": "0bc27fd988f476b4f2d0349fc631b4cc8759a795^",
+      "head": "73897e18b53457fffee0cce1bb841fd77cfd114d",
+      "resolved_base": "c6faa8bf86572716906ccf4dc474957b955dbb6c",
+      "resolved_head": "73897e18b53457fffee0cce1bb841fd77cfd114d",
+      "commits": [
+        "0bc27fd988f476b4f2d0349fc631b4cc8759a795",
+        "c6ad06e0c375356965c9f156259d2f4b43ed1130",
+        "2e294d378bfbec66c936dff66fa33069058f9603",
+        "bd41b9b775bd7d9b3a0b153ceb0d78004db01bcd",
+        "3c7d07706ac3800c4d5bdab2ca7ad10e39ae5d57",
+        "45d40b0d9ad02805b11c9442907f45345abbc204",
+        "73897e18b53457fffee0cce1bb841fd77cfd114d"
+      ],
+      "paths": [
+        {
+          "action": "created",
+          "path": ".pose/artifact-attributions.json"
+        },
+        {
+          "action": "created",
+          "path": ".pose/artifact-attributions.json.sig"
+        },
+        {
+          "action": "created",
+          "path": ".pose/policy/artifact-attributions.json"
+        },
+        {
+          "action": "created",
+          "path": ".pose/policy/artifact-attributions.json.sig"
+        },
+        {
+          "action": "created",
+          "path": "pose-mcp/internal/cli/artifact_attributions.go"
+        },
+        {
+          "action": "created",
+          "path": "pose-mcp/internal/cli/artifact_attributions_test.go"
+        },
+        {
+          "action": "created",
+          "path": "pose-mcp/internal/pose/artifact_attribution_index_test.go"
+        },
+        {
+          "action": "modified",
+          "path": ".pose/adr/2026-11-18-bind-retroactive-delivery-attribution-to-signed-git-ranges.md"
+        },
+        {
+          "action": "modified",
+          "path": ".pose/policy/actions.json"
+        },
+        {
+          "action": "modified",
+          "path": ".pose/specs/2026-11-11-pose-retroactive-attribution-record.md"
+        },
+        {
+          "action": "modified",
+          "path": "pose-mcp/internal/cli/artifact_integrity.go"
+        },
+        {
+          "action": "modified",
+          "path": "pose-mcp/internal/cli/surface_check.go"
+        },
+        {
+          "action": "modified",
+          "path": "pose-mcp/internal/pose/index_generation.go"
+        },
+        {
+          "action": "modified",
+          "path": "pose-mcp/internal/pose/review_bundle.go"
+        }
+      ],
+      "diff_digest": "sha256:fbcfc623b27711c503eff2f74e259de2e01b472e34a112cf0cdf446d6e79234f",
+      "material_digest": "sha256:6e5e07abbfa1015eaa7d014a768e70f78af36bf5aa324c2aa6c3f335333b9049",
+      "material_inputs": {
+        "names": [
+          ".pose/adr/2026-11-18-bind-retroactive-delivery-attribution-to-signed-git-ranges.md",
+          ".pose/artifact-attributions.json",
+          ".pose/artifact-attributions.json.sig",
+          ".pose/indexes/validation-matrix.json",
+          ".pose/policy/actions.json",
+          ".pose/policy/artifact-attributions.json",
+          ".pose/policy/artifact-attributions.json.sig",
+          ".pose/specs/2026-11-11-pose-retroactive-attribution-record.md",
+          "pose-mcp/internal/cli/artifact_attributions.go",
+          "pose-mcp/internal/cli/artifact_attributions_test.go",
+          "pose-mcp/internal/cli/artifact_integrity.go",
+          "pose-mcp/internal/cli/surface_check.go",
+          "pose-mcp/internal/pose/artifact_attribution_index_test.go",
+          "pose-mcp/internal/pose/index_generation.go",
+          "pose-mcp/internal/pose/review_bundle.go"
+        ]
+      }
+    },
+    {
       "id": "cs-a015d8824f6a",
       "spec": "pose-release-closeout-skill-policy-link",
       "selector": "trailers:pose-release-closeout-skill-policy-link",
@@ -256568,7 +256831,7 @@
         }
       ],
       "diff_digest": "sha256:2b90784fddf6787b7c4ccdbb80f6d836082c46a7a4266c60a6dc1936ee62f279",
-      "material_digest": "sha256:7505f0894480c411786fb018a2a90a18b250bb1fe481a9628a79dd9573b4e67b",
+      "material_digest": "sha256:f73601824055e55dc26db165d819ebfd0c67e106e37478809cfa2ef32bc40c4f",
       "material_inputs": {
         "names": [
           ".pose/adr/2026-08-02-delivery-integrity-graph-and-git-observed-provenance.md",
@@ -270843,7 +271106,7 @@
         }
       ],
       "diff_digest": "sha256:6ee4bf1e27589b310b7f03cbd8378a42b1f25803475fd112672324b7a214d251",
-      "material_digest": "sha256:f41a05c8a79ded93398af29a17d7b80f968a4aa710069b27585432b500b8a41a",
+      "material_digest": "sha256:a39d06c601c36091e9f907610669022f3a8377794cdbf05ae31101282783a632",
       "material_inputs": {
         "names": [
           ".gitignore",
@@ -275205,7 +275468,7 @@
         }
       ],
       "diff_digest": "sha256:76dfca97900cd3ef9f4c8d877dbde6832e7e855a052b5288e4252e7bf36789ad",
-      "material_digest": "sha256:1ff2ef989477ae174cec630b60b23d041cf29320c77b77210720e19fa8a440d9",
+      "material_digest": "sha256:6c3174031f546a5b0a4ecb00676a4de096fb8edc9846b7722b06298a774fc64b",
       "material_inputs": {
         "names": [
           ".pose/actions/act-dd6a58232dd28ea5.jsonl",
@@ -278835,7 +279098,7 @@
         }
       ],
       "diff_digest": "sha256:daf12e251f07d7c8c474fd51b370c71efc95222eb474f5c638ff7b7530c89aba",
-      "material_digest": "sha256:a0e87beeecff143da1b0b65f170d5a0cca535106710a8330382f48030bb5cbae",
+      "material_digest": "sha256:56298f89c5237c37251cafb9672f1c0bedcd0463c59caa44f9734a5c9290be1d",
       "material_inputs": {
         "names": [
           ".pose/adr/2026-11-03-governance-reads-use-bounded-operation-scoped-views.md",
@@ -279413,7 +279676,7 @@
         }
       ],
       "diff_digest": "sha256:5aaca622a6f9de9cc9d4879cdf0143cfa3d64aeba06873bc013636e22ffbde8c",
-      "material_digest": "sha256:a418a4aee5ab4182a6dce05b915254b85fc61dccd4bc71b3f21f9613cc053132",
+      "material_digest": "sha256:10391bae4f34131f07f4b1b4ad4c82ff618328265b4c6f91c38228c612a182c8",
       "material_inputs": {
         "names": [
           ".agents/skills/pose-bugfix/SKILL.md",
@@ -282633,7 +282896,7 @@
         }
       ],
       "diff_digest": "sha256:6e9624badd249dd687ab347a4332f3ff76a71b21a265ff6f60bd219ef5da7bac",
-      "material_digest": "sha256:7af7fae98f683f3a226841582d7f1933d734a01d9423e8e0bcb8a6d98020451e",
+      "material_digest": "sha256:e9b8e0563d53ac008c946cd31b6113bcd7d1022084c7cffb3288741341bed07b",
       "material_inputs": {
         "names": [
           ".pose/assessments/README.md",
@@ -289504,7 +289767,7 @@
         }
       ],
       "diff_digest": "sha256:d7126b58b30e44693cb52fa47922b1fcbf4b44838f891318e63893d789108ee2",
-      "material_digest": "sha256:9a3ec100f9d970c5eb4f72e852b0dd0dfd2fa0c3bf39e3ef8667757cf17fb8d4",
+      "material_digest": "sha256:1f47715b981ee2bf525afc4286efba39c2e2815bf2991cd6b43c89f69b781e41",
       "material_inputs": {
         "names": [
           ".pose/adr/2026-09-11-the-cli-has-one-rendering-layer-and-its-printed-lines-are-a-contract.md",
@@ -295265,7 +295528,7 @@
         }
       ],
       "diff_digest": "sha256:4b9b4db06cd7ce95c73b0eca4c8f2aeac7576c09def7cfba2f7cf033f2e0e929",
-      "material_digest": "sha256:c174b0c7dc5541bd553872c38d63885197e500047e977acabaeffb5d0aa36151",
+      "material_digest": "sha256:9c641eb94cae78be58eec37a4974ba3083ed855a36f8b79293f52eabb47c1f07",
       "material_inputs": {
         "names": [
           ".pose/adr/2026-10-14-shared-domain-and-optional-worktree-runtime.md",
@@ -295933,7 +296196,7 @@
         }
       ],
       "diff_digest": "sha256:4b2919682a2a7634226ffedf48785a3fbc2bcc215c1d41ab1f2eecd12376b2c8",
-      "material_digest": "sha256:ef8afbb0749f70b595e0143385f9ad713c12ea65541bb9ce11b454aa4e580cbc",
+      "material_digest": "sha256:5d3d8b384d1742cb42977660fdade765360a2064aa3e3e350bca1084f8d34a56",
       "material_inputs": {
         "names": [
           ".pose/adr/2026-09-21-federated-roadmap-acceptance-with-local-evidence-authority.md",
@@ -297978,7 +298241,7 @@
         }
       ],
       "diff_digest": "sha256:95e2d1f2405692844ce5ff6ebf59419a2d240ad8b93990342678df70e4273a26",
-      "material_digest": "sha256:1380a662389b2e71eb465a3a16a3f564c986cb16199588ebc6d73fa2414fdc3b",
+      "material_digest": "sha256:c8f4451c1a6fa8347ef9dfb444dacb2952ec3746117eeb77b4f908dcb291be5f",
       "material_inputs": {
         "names": [
           ".pose/changelogs/unreleased/pose-closeout-delivery-assurance-convergence.md",
@@ -298852,7 +299115,7 @@
         }
       ],
       "diff_digest": "sha256:45e9a04302a06513bbaa97a173a04e0eff02fd5a40f028ee0e99362aaf1093fa",
-      "material_digest": "sha256:05bb513a16c8a15e5c7a9c1a4c9896b6f14bb2c4439afe441666e7da0cb82e52",
+      "material_digest": "sha256:b4e42269e171ba73e5df59fafc5f7185c3d5f529816c994aa2a890896ec51474",
       "material_inputs": {
         "names": [
           ".agents/skills/pose-feature/SKILL.md",
@@ -299075,7 +299338,7 @@
         }
       ],
       "diff_digest": "sha256:3ef30ed907d4a574f542e615796a805f35db4e0c7ae0a202f325879ce49959ed",
-      "material_digest": "sha256:b479601c4a9fe1aaa4bdc09805cf84bae9edefe1b364f81ec728f8318a28ed36",
+      "material_digest": "sha256:4bf2a38712d7755605356244d19621f160572b3fc92267fcf220f25ab46d4cb0",
       "material_inputs": {
         "names": [
           ".pose/indexes/validation-matrix.json",
@@ -302019,10 +302282,17 @@
       "pose-delegation-parity-gate"
     ],
     ".pose/policy/actions.json": [
-      "pose-agency-readiness-pilot"
+      "pose-agency-readiness-pilot",
+      "pose-retroactive-attribution-record"
     ],
     ".pose/policy/adoption-decisions.json": [
       "pose-configuration-review-7-1-0"
+    ],
+    ".pose/policy/artifact-attributions.json": [
+      "pose-retroactive-attribution-record"
+    ],
+    ".pose/policy/artifact-attributions.json.sig": [
+      "pose-retroactive-attribution-record"
     ],
     ".pose/policy/artifacts.json": [
       "pose-artifact-provenance-ledger"
@@ -306059,6 +306329,12 @@
       "pose-evidence-gate-means-validation",
       "pose-milestone-closes-when-reached"
     ],
+    "pose-mcp/internal/cli/artifact_attributions.go": [
+      "pose-retroactive-attribution-record"
+    ],
+    "pose-mcp/internal/cli/artifact_attributions_test.go": [
+      "pose-retroactive-attribution-record"
+    ],
     "pose-mcp/internal/cli/artifact_integrity.go": [
       "pose-artifact-provenance-ledger",
       "pose-cli-output-machine-channel",
@@ -306078,6 +306354,7 @@
       "pose-read-view-streamed-object-digests",
       "pose-release-archival-attested-by-the-ledger",
       "pose-removal-witness-freshness",
+      "pose-retroactive-attribution-record",
       "pose-review-bundle-component-discovery-and-governance-paths",
       "pose-review-bundle-doc-only-specs",
       "pose-spec-facts-evidence-binding",
@@ -307768,6 +308045,7 @@
       "pose-governance-read-view-generation",
       "pose-governance-residual-diagnostics",
       "pose-release-archival-attested-by-the-ledger",
+      "pose-retroactive-attribution-record",
       "pose-review-bundle-convergence",
       "pose-roadmap-check-reaches-its-gate",
       "pose-roadmap-gate-scopes-milestones-and-external-members",
@@ -308387,6 +308665,9 @@
     ],
     "pose-mcp/internal/pose/amendments_flat_test.go": [
       "pose-flat-spec-amendments"
+    ],
+    "pose-mcp/internal/pose/artifact_attribution_index_test.go": [
+      "pose-retroactive-attribution-record"
     ],
     "pose-mcp/internal/pose/artifact_claims_boundary_test.go": [
       "artifact-claims-stop-at-the-section-end"
@@ -309218,6 +309499,7 @@
       "pose-index-generation-integrity",
       "pose-index-material-is-kept-per-repository-state",
       "pose-removal-witness-freshness",
+      "pose-retroactive-attribution-record",
       "pose-update-dry-run-reports-the-whole-update"
     ],
     "pose-mcp/internal/pose/index_generation_test.go": [
@@ -311661,6 +311943,16 @@
       "remediation": "register a check for pose-mcp/internal/cli, or accept that a run of the containing module is what this target is gated on"
     },
     {
+      "id": "dif-09ecececb49c",
+      "code": "retroactive-attribution",
+      "severity": "info",
+      "spec": "pose-common-domain-and-cli-mcp-handoff",
+      "path": "pose-mcp/internal/pose/governance_read_view_git.go",
+      "change_set": "cs-f791ea60c074",
+      "message": "historical attribution signed by human:oseias (SHA256:E4BlxtexLxWA+LN47tL2OBrw59R3aPXUfI9tDlvK0M0), witness 80b49143698e7a4d175456448bad10c6cf9bd993: Published change 80b49143698e (fix: the resident memo key holds the effective Git configuration; the ADR is accepted for the delivered scope) is within the attributed range and accounts for the observed path.",
+      "remediation": "see .pose/policy/artifact-attributions.json"
+    },
+    {
       "id": "dif-0a3058a39182",
       "code": "legacy-narrative",
       "severity": "info",
@@ -311745,16 +312037,6 @@
       "path": "pose-mcp/internal/pose/residual_identity_test.go",
       "message": "declared artifact action is absent from the attributed Git change sets",
       "remediation": "no Git change sets are attributed to spec pose-residual-material-coverage-and-identity (ensure commits carry 'POSE-Spec: pose-residual-material-coverage-and-identity' trailer or generate report with pose report)"
-    },
-    {
-      "id": "dif-0e46d1e6bd4f",
-      "code": "undeclared",
-      "severity": "error",
-      "spec": "pose-optional-worktree-runtime",
-      "path": "pose-mcp/internal/cli/runtime_host.go",
-      "change_set": "cs-ba9770e7c824",
-      "message": "Git observed a governed path not declared by the spec",
-      "remediation": "declare the exact action or narrow the attributed change set"
     },
     {
       "id": "dif-0f89b4d17573",
@@ -311870,16 +312152,6 @@
       "path": ".pose/adr/2026-10-14-release-temporal-evidence-and-attempt-lineage.md",
       "message": "declared artifact action is absent from the attributed Git change sets",
       "remediation": "no Git change sets are attributed to spec pose-release-prepare-record-recovery (ensure commits carry 'POSE-Spec: pose-release-prepare-record-recovery' trailer or generate report with pose report)"
-    },
-    {
-      "id": "dif-178baf3a812c",
-      "code": "undeclared",
-      "severity": "error",
-      "spec": "pose-worktree-runtime-qos-and-measurement",
-      "path": "pose-mcp/internal/pose/governance_read_view_git.go",
-      "change_set": "cs-7a7d3fc88bea",
-      "message": "Git observed a governed path not declared by the spec",
-      "remediation": "declare the exact action or narrow the attributed change set"
     },
     {
       "id": "dif-181d954afd31",
@@ -312014,6 +312286,16 @@
       "remediation": "run registered checks with the required evidenceClass against the current provenance digest"
     },
     {
+      "id": "dif-1ecfce98926f",
+      "code": "retroactive-attribution",
+      "severity": "info",
+      "spec": "pose-worktree-runtime-qos-and-measurement",
+      "path": "pose-mcp/internal/pose/resident_git_memo.go",
+      "change_set": "cs-7a7d3fc88bea",
+      "message": "historical attribution signed by human:oseias (SHA256:E4BlxtexLxWA+LN47tL2OBrw59R3aPXUfI9tDlvK0M0), witness 80b49143698e7a4d175456448bad10c6cf9bd993: Published change 80b49143698e (fix: the resident memo key holds the effective Git configuration; the ADR is accepted for the delivered scope) is within the attributed range and accounts for the observed path.",
+      "remediation": "see .pose/policy/artifact-attributions.json"
+    },
+    {
       "id": "dif-1eda4887a98c",
       "code": "existence",
       "severity": "error",
@@ -312023,14 +312305,6 @@
       "remediation": "correct the exact path or commit the artifact before closeout"
     },
     {
-      "id": "dif-21225db2262c",
-      "code": "legacy-narrative",
-      "severity": "info",
-      "spec": "pose-retroactive-attribution-record",
-      "message": "spec has no structured Artifacts section",
-      "remediation": "add a machine-parseable ### Artifacts section"
-    },
-    {
       "id": "dif-2137b27ad8dc",
       "code": "action-mismatch",
       "severity": "error",
@@ -312038,16 +312312,6 @@
       "path": "pose-mcp/internal/pose/followup_candidates.go",
       "message": "declared artifact action is absent from the attributed Git change sets",
       "remediation": "no Git change sets are attributed to spec pose-residual-material-coverage-and-identity (ensure commits carry 'POSE-Spec: pose-residual-material-coverage-and-identity' trailer or generate report with pose report)"
-    },
-    {
-      "id": "dif-217193723e97",
-      "code": "undeclared",
-      "severity": "error",
-      "spec": "pose-worktree-runtime-qos-and-measurement",
-      "path": "pose-mcp/internal/worktreeruntime/runtime_test.go",
-      "change_set": "cs-7a7d3fc88bea",
-      "message": "Git observed a governed path not declared by the spec",
-      "remediation": "declare the exact action or narrow the attributed change set"
     },
     {
       "id": "dif-21a15e3270ff",
@@ -312066,6 +312330,16 @@
       "path": "pose-mcp/internal/mcpserver/proportional_next_action_test.go",
       "message": "declared artifact action is absent from the attributed Git change sets",
       "remediation": "no Git change sets are attributed to spec pose-proportional-next-action (ensure commits carry 'POSE-Spec: pose-proportional-next-action' trailer or generate report with pose report)"
+    },
+    {
+      "id": "dif-22adfb884ad6",
+      "code": "retroactive-attribution",
+      "severity": "info",
+      "spec": "pose-optional-worktree-runtime",
+      "path": "pose-mcp/internal/cli/runtime_measure_test.go",
+      "change_set": "cs-ba9770e7c824",
+      "message": "historical attribution signed by human:oseias (SHA256:E4BlxtexLxWA+LN47tL2OBrw59R3aPXUfI9tDlvK0M0), witness 57e20957ce49b0f35f7aa6bd3343b5137540805c: Published change 57e20957ce49 (fix: a running command is counted once as in flight; the harness reads CPU and the peak per scenario; the spec and the roadmap state T7 and the delivery) is within the attributed range and accounts for the observed path.",
+      "remediation": "see .pose/policy/artifact-attributions.json"
     },
     {
       "id": "dif-236d8ac552a6",
@@ -312137,16 +312411,6 @@
       "path": ".pose/results/pose-integrated-agency-and-runtime-pilot.json",
       "message": "declared artifact action is absent from the attributed Git change sets",
       "remediation": "no Git change sets are attributed to spec pose-integrated-agency-and-runtime-pilot (ensure commits carry 'POSE-Spec: pose-integrated-agency-and-runtime-pilot' trailer or generate report with pose report)"
-    },
-    {
-      "id": "dif-2943a01b431c",
-      "code": "undeclared",
-      "severity": "error",
-      "spec": "pose-bounded-isolated-graph-caches",
-      "path": "pose-mcp/internal/pose/resident_git_memo_test.go",
-      "change_set": "cs-9a99577c0fae",
-      "message": "Git observed a governed path not declared by the spec",
-      "remediation": "declare the exact action or narrow the attributed change set"
     },
     {
       "id": "dif-29aa112ca479",
@@ -312346,16 +312610,6 @@
       "remediation": "declare a typed delivery target or narrow the attributed change set"
     },
     {
-      "id": "dif-397c1ce6b7a8",
-      "code": "undeclared",
-      "severity": "error",
-      "spec": "pose-optional-worktree-runtime",
-      "path": "pose-mcp/internal/pose/resident_git_memo_test.go",
-      "change_set": "cs-ba9770e7c824",
-      "message": "Git observed a governed path not declared by the spec",
-      "remediation": "declare the exact action or narrow the attributed change set"
-    },
-    {
       "id": "dif-398d52cf67fe",
       "code": "action-mismatch",
       "severity": "error",
@@ -312371,6 +312625,16 @@
       "path": "pose-mcp/internal/observability/observability_test.go",
       "message": "governed tracked path has no spec provenance claim",
       "remediation": "backfill an explicit claim or add an exact reviewed exclusion"
+    },
+    {
+      "id": "dif-3aab2ae9a4e3",
+      "code": "retroactive-attribution",
+      "severity": "info",
+      "spec": "pose-optional-worktree-runtime",
+      "path": "pose-mcp/internal/cli/runtime_host.go",
+      "change_set": "cs-ba9770e7c824",
+      "message": "historical attribution signed by human:oseias (SHA256:E4BlxtexLxWA+LN47tL2OBrw59R3aPXUfI9tDlvK0M0), witness 57e20957ce49b0f35f7aa6bd3343b5137540805c: Published change 57e20957ce49 (fix: a running command is counted once as in flight; the harness reads CPU and the peak per scenario; the spec and the roadmap state T7 and the delivery) is within the attributed range and accounts for the observed path.",
+      "remediation": "see .pose/policy/artifact-attributions.json"
     },
     {
       "id": "dif-3bcddee25d8e",
@@ -312400,22 +312664,22 @@
       "remediation": "register a check for pose-mcp/internal/cli, or accept that a run of the containing module is what this target is gated on"
     },
     {
-      "id": "dif-3cd4b4d4c8b0",
-      "code": "undeclared",
-      "severity": "error",
-      "spec": "pose-common-domain-and-cli-mcp-handoff",
-      "path": "pose-mcp/internal/pose/governance_read_view_git.go",
-      "change_set": "cs-f791ea60c074",
-      "message": "Git observed a governed path not declared by the spec",
-      "remediation": "declare the exact action or narrow the attributed change set"
-    },
-    {
       "id": "dif-3d4485516baf",
       "code": "legacy-narrative",
       "severity": "info",
       "spec": "pose-cyclonedx-sbom",
       "message": "spec has no structured Artifacts section",
       "remediation": "add a machine-parseable ### Artifacts section"
+    },
+    {
+      "id": "dif-3d8ff8fa24a0",
+      "code": "retroactive-attribution",
+      "severity": "info",
+      "spec": "pose-bounded-isolated-graph-caches",
+      "path": "pose-mcp/internal/pose/resident_git_memo.go",
+      "change_set": "cs-9a99577c0fae",
+      "message": "historical attribution signed by human:oseias (SHA256:E4BlxtexLxWA+LN47tL2OBrw59R3aPXUfI9tDlvK0M0), witness 80b49143698e7a4d175456448bad10c6cf9bd993: Published change 80b49143698e (fix: the resident memo key holds the effective Git configuration; the ADR is accepted for the delivered scope) is within the attributed range and accounts for the observed path.",
+      "remediation": "see .pose/policy/artifact-attributions.json"
     },
     {
       "id": "dif-3dc358139387",
@@ -312453,6 +312717,16 @@
       "path": "pose-mcp/internal/mcpserver/condition_work_metrics_test.go",
       "message": "declared artifact action is absent from the attributed Git change sets",
       "remediation": "no Git change sets are attributed to spec pose-condition-response-and-work-metrics (ensure commits carry 'POSE-Spec: pose-condition-response-and-work-metrics' trailer or generate report with pose report)"
+    },
+    {
+      "id": "dif-412ae2349a73",
+      "code": "retroactive-attribution",
+      "severity": "info",
+      "spec": "pose-worktree-runtime-qos-and-measurement",
+      "path": "pose-mcp/internal/pose/governance_read_view_git.go",
+      "change_set": "cs-7a7d3fc88bea",
+      "message": "historical attribution signed by human:oseias (SHA256:E4BlxtexLxWA+LN47tL2OBrw59R3aPXUfI9tDlvK0M0), witness 80b49143698e7a4d175456448bad10c6cf9bd993: Published change 80b49143698e (fix: the resident memo key holds the effective Git configuration; the ADR is accepted for the delivered scope) is within the attributed range and accounts for the observed path.",
+      "remediation": "see .pose/policy/artifact-attributions.json"
     },
     {
       "id": "dif-41ab2ce764ed",
@@ -312646,16 +312920,6 @@
       "remediation": "no Git change sets are attributed to spec pose-proportional-next-action (ensure commits carry 'POSE-Spec: pose-proportional-next-action' trailer or generate report with pose report)"
     },
     {
-      "id": "dif-4b60b67851d1",
-      "code": "undeclared",
-      "severity": "error",
-      "spec": "pose-bounded-isolated-graph-caches",
-      "path": "pose-mcp/internal/pose/resident_git_memo.go",
-      "change_set": "cs-9a99577c0fae",
-      "message": "Git observed a governed path not declared by the spec",
-      "remediation": "declare the exact action or narrow the attributed change set"
-    },
-    {
       "id": "dif-4c0d0abd52d1",
       "code": "action-mismatch",
       "severity": "error",
@@ -312842,6 +313106,16 @@
       "remediation": "correct the exact path or commit the artifact before closeout"
     },
     {
+      "id": "dif-58248a213496",
+      "code": "undeclared-delivery",
+      "severity": "error",
+      "spec": "pose-retroactive-attribution-record",
+      "path": "pose-mcp/internal/cli/artifact_attributions_test.go",
+      "change_set": "cs-a00be852dc5c",
+      "message": "changed delivery root pose-mcp/internal/cli has no delivery declaration",
+      "remediation": "declare a typed delivery target or narrow the attributed change set"
+    },
+    {
       "id": "dif-5912a58a3041",
       "code": "action-mismatch",
       "severity": "error",
@@ -312912,6 +313186,16 @@
       "path": "pose-mcp/internal/cli/harness_evidence_test.go",
       "message": "governed tracked path has no spec provenance claim",
       "remediation": "backfill an explicit claim or add an exact reviewed exclusion"
+    },
+    {
+      "id": "dif-5d29af372b8a",
+      "code": "retroactive-attribution",
+      "severity": "info",
+      "spec": "pose-governance-operation-performance",
+      "path": "pose-mcp/internal/pose/resident_git_memo.go",
+      "change_set": "cs-f3421d84f8c6",
+      "message": "historical attribution signed by human:oseias (SHA256:E4BlxtexLxWA+LN47tL2OBrw59R3aPXUfI9tDlvK0M0), witness 80b49143698e7a4d175456448bad10c6cf9bd993: Published change 80b49143698e (fix: the resident memo key holds the effective Git configuration; the ADR is accepted for the delivered scope) is within the attributed range and accounts for the observed path.",
+      "remediation": "see .pose/policy/artifact-attributions.json"
     },
     {
       "id": "dif-5d4c42d1e4b1",
@@ -313116,6 +313400,26 @@
       "remediation": "run registered checks with the required evidenceClass against the current provenance digest"
     },
     {
+      "id": "dif-69ad21f87867",
+      "code": "undeclared-delivery",
+      "severity": "error",
+      "spec": "pose-retroactive-attribution-record",
+      "path": "pose-mcp/internal/pose/artifact_attribution_index_test.go",
+      "change_set": "cs-a00be852dc5c",
+      "message": "changed delivery root pose-mcp/internal/pose has no delivery declaration",
+      "remediation": "declare a typed delivery target or narrow the attributed change set"
+    },
+    {
+      "id": "dif-69ccb10b1eef",
+      "code": "retroactive-attribution",
+      "severity": "info",
+      "spec": "pose-governance-operation-performance",
+      "path": "pose-mcp/internal/pose/governance_read_view_git.go",
+      "change_set": "cs-f3421d84f8c6",
+      "message": "historical attribution signed by human:oseias (SHA256:E4BlxtexLxWA+LN47tL2OBrw59R3aPXUfI9tDlvK0M0), witness 80b49143698e7a4d175456448bad10c6cf9bd993: Published change 80b49143698e (fix: the resident memo key holds the effective Git configuration; the ADR is accepted for the delivered scope) is within the attributed range and accounts for the observed path.",
+      "remediation": "see .pose/policy/artifact-attributions.json"
+    },
+    {
       "id": "dif-69de20cd788a",
       "code": "legacy-narrative",
       "severity": "info",
@@ -313247,16 +313551,6 @@
       "remediation": "run registered checks with the required evidenceClass against the current provenance digest"
     },
     {
-      "id": "dif-6e5665d9cc93",
-      "code": "undeclared",
-      "severity": "error",
-      "spec": "pose-optional-worktree-runtime",
-      "path": "pose-mcp/internal/cli/runtime_host_test.go",
-      "change_set": "cs-ba9770e7c824",
-      "message": "Git observed a governed path not declared by the spec",
-      "remediation": "declare the exact action or narrow the attributed change set"
-    },
-    {
       "id": "dif-6e5dfd034356",
       "code": "inferred-coverage",
       "severity": "warning",
@@ -313283,16 +313577,6 @@
       "path": "pose-mcp/internal/pose/release_evidence_replay_test.go",
       "message": "declared artifact action is absent from the attributed Git change sets",
       "remediation": "no Git change sets are attributed to spec pose-release-publication-evidence-replay (ensure commits carry 'POSE-Spec: pose-release-publication-evidence-replay' trailer or generate report with pose report)"
-    },
-    {
-      "id": "dif-6ebeb45aa1ef",
-      "code": "undeclared",
-      "severity": "error",
-      "spec": "pose-common-domain-and-cli-mcp-handoff",
-      "path": "pose-mcp/internal/pose/resident_git_memo_test.go",
-      "change_set": "cs-f791ea60c074",
-      "message": "Git observed a governed path not declared by the spec",
-      "remediation": "declare the exact action or narrow the attributed change set"
     },
     {
       "id": "dif-6fe97984eb14",
@@ -313395,6 +313679,16 @@
       "path": "pose-mcp/internal/mcpserver/docs_tool_test.go",
       "message": "governed tracked path has no spec provenance claim",
       "remediation": "backfill an explicit claim or add an exact reviewed exclusion"
+    },
+    {
+      "id": "dif-77c3d07ebd3b",
+      "code": "retroactive-attribution",
+      "severity": "info",
+      "spec": "pose-optional-worktree-runtime",
+      "path": "pose-mcp/internal/pose/governance_read_view_git.go",
+      "change_set": "cs-ba9770e7c824",
+      "message": "historical attribution signed by human:oseias (SHA256:E4BlxtexLxWA+LN47tL2OBrw59R3aPXUfI9tDlvK0M0), witness 80b49143698e7a4d175456448bad10c6cf9bd993: Published change 80b49143698e (fix: the resident memo key holds the effective Git configuration; the ADR is accepted for the delivered scope) is within the attributed range and accounts for the observed path.",
+      "remediation": "see .pose/policy/artifact-attributions.json"
     },
     {
       "id": "dif-7807e58d2c91",
@@ -313544,6 +313838,16 @@
       "remediation": "backfill an explicit claim or add an exact reviewed exclusion"
     },
     {
+      "id": "dif-816e15c806f1",
+      "code": "retroactive-attribution",
+      "severity": "info",
+      "spec": "pose-bounded-isolated-graph-caches",
+      "path": "pose-mcp/internal/pose/resident_git_memo_test.go",
+      "change_set": "cs-9a99577c0fae",
+      "message": "historical attribution signed by human:oseias (SHA256:E4BlxtexLxWA+LN47tL2OBrw59R3aPXUfI9tDlvK0M0), witness 80b49143698e7a4d175456448bad10c6cf9bd993: Published change 80b49143698e (fix: the resident memo key holds the effective Git configuration; the ADR is accepted for the delivered scope) is within the attributed range and accounts for the observed path.",
+      "remediation": "see .pose/policy/artifact-attributions.json"
+    },
+    {
       "id": "dif-81cd00ce3f0c",
       "code": "undeclared-delivery",
       "severity": "warning",
@@ -313587,16 +313891,6 @@
       "spec": "pose-release-compatibility-matrix",
       "path": "docs-site/docs/ci.md",
       "change_set": "cs-3997e5f3459b",
-      "message": "Git observed a governed path not declared by the spec",
-      "remediation": "declare the exact action or narrow the attributed change set"
-    },
-    {
-      "id": "dif-8437134a498d",
-      "code": "undeclared",
-      "severity": "error",
-      "spec": "pose-governance-operation-performance",
-      "path": "pose-mcp/internal/pose/governance_read_view_git.go",
-      "change_set": "cs-f3421d84f8c6",
       "message": "Git observed a governed path not declared by the spec",
       "remediation": "declare the exact action or narrow the attributed change set"
     },
@@ -313652,16 +313946,6 @@
       "path": ".pose/starts/pose-integrated-agency-and-runtime-pilot.json",
       "message": "declared current artifact is not tracked at the selected head",
       "remediation": "correct the exact path or commit the artifact before closeout"
-    },
-    {
-      "id": "dif-88b8152da0e7",
-      "code": "undeclared",
-      "severity": "error",
-      "spec": "pose-worktree-runtime-qos-and-measurement",
-      "path": "pose-mcp/internal/pose/resident_git_memo_test.go",
-      "change_set": "cs-7a7d3fc88bea",
-      "message": "Git observed a governed path not declared by the spec",
-      "remediation": "declare the exact action or narrow the attributed change set"
     },
     {
       "id": "dif-88bc7a35d847",
@@ -313830,6 +314114,26 @@
       "remediation": "backfill an explicit claim or add an exact reviewed exclusion"
     },
     {
+      "id": "dif-9418779c880c",
+      "code": "retroactive-attribution",
+      "severity": "info",
+      "spec": "pose-worktree-runtime-resident-cache",
+      "path": "pose-mcp/internal/cli/runtime_measure_test.go",
+      "change_set": "cs-e703b5000664",
+      "message": "historical attribution signed by human:oseias (SHA256:E4BlxtexLxWA+LN47tL2OBrw59R3aPXUfI9tDlvK0M0), witness e91c7fff898b0cd0cadfe070310478198fd3f029: Published change e91c7fff898b (fix: a hosted request carries and is checked against the caller's identity; the memo key uses content, not timestamps; measure CPU, memory per scenario and two heavy checks at once) is within the attributed range and accounts for the observed path.",
+      "remediation": "see .pose/policy/artifact-attributions.json"
+    },
+    {
+      "id": "dif-94524ece83ee",
+      "code": "retroactive-attribution",
+      "severity": "info",
+      "spec": "pose-worktree-runtime-qos-and-measurement",
+      "path": "pose-mcp/internal/worktreeruntime/runtime_test.go",
+      "change_set": "cs-7a7d3fc88bea",
+      "message": "historical attribution signed by human:oseias (SHA256:E4BlxtexLxWA+LN47tL2OBrw59R3aPXUfI9tDlvK0M0), witness dd02ad6362681215f62a888f70f0bfb3e1d87348: Published change dd02ad636268 (fix: the stop-count test tolerates a request still closing when the stop began) is within the attributed range and accounts for the observed path.",
+      "remediation": "see .pose/policy/artifact-attributions.json"
+    },
+    {
       "id": "dif-9515b70fbb99",
       "code": "orphan",
       "severity": "warning",
@@ -313917,6 +314221,16 @@
       "remediation": "no Git change sets are attributed to spec pose-condition-response-and-work-metrics (ensure commits carry 'POSE-Spec: pose-condition-response-and-work-metrics' trailer or generate report with pose report)"
     },
     {
+      "id": "dif-99c376b800ee",
+      "code": "undeclared-delivery",
+      "severity": "error",
+      "spec": "pose-retroactive-attribution-record",
+      "path": "pose-mcp/internal/cli/artifact_attributions.go",
+      "change_set": "cs-a00be852dc5c",
+      "message": "changed delivery root pose-mcp/internal/cli has no delivery declaration",
+      "remediation": "declare a typed delivery target or narrow the attributed change set"
+    },
+    {
       "id": "dif-99c568ac4af3",
       "code": "existence",
       "severity": "error",
@@ -313924,6 +314238,16 @@
       "path": "pose-mcp/internal/cli/integrated_agency_runtime_pilot_test.go",
       "message": "declared current artifact is not tracked at the selected head",
       "remediation": "correct the exact path or commit the artifact before closeout"
+    },
+    {
+      "id": "dif-9a9f7ef01997",
+      "code": "retroactive-attribution",
+      "severity": "info",
+      "spec": "pose-common-domain-and-cli-mcp-handoff",
+      "path": "pose-mcp/internal/pose/resident_git_memo.go",
+      "change_set": "cs-f791ea60c074",
+      "message": "historical attribution signed by human:oseias (SHA256:E4BlxtexLxWA+LN47tL2OBrw59R3aPXUfI9tDlvK0M0), witness 80b49143698e7a4d175456448bad10c6cf9bd993: Published change 80b49143698e (fix: the resident memo key holds the effective Git configuration; the ADR is accepted for the delivered scope) is within the attributed range and accounts for the observed path.",
+      "remediation": "see .pose/policy/artifact-attributions.json"
     },
     {
       "id": "dif-9af01c7e53fd",
@@ -313961,16 +314285,6 @@
       "path": "pose-mcp/internal/mcpserver/residual_dimensions_test.go",
       "message": "declared current artifact is not tracked at the selected head",
       "remediation": "correct the exact path or commit the artifact before closeout"
-    },
-    {
-      "id": "dif-9c1e35a6fe19",
-      "code": "undeclared",
-      "severity": "error",
-      "spec": "pose-governance-operation-performance",
-      "path": "pose-mcp/internal/pose/resident_git_memo_test.go",
-      "change_set": "cs-f3421d84f8c6",
-      "message": "Git observed a governed path not declared by the spec",
-      "remediation": "declare the exact action or narrow the attributed change set"
     },
     {
       "id": "dif-9d32a8188a92",
@@ -314073,16 +314387,6 @@
       "remediation": "no Git change sets are attributed to spec pose-proportional-next-action (ensure commits carry 'POSE-Spec: pose-proportional-next-action' trailer or generate report with pose report)"
     },
     {
-      "id": "dif-a1034895a092",
-      "code": "undeclared",
-      "severity": "error",
-      "spec": "pose-optional-worktree-runtime",
-      "path": "pose-mcp/internal/cli/runtime_measure_test.go",
-      "change_set": "cs-ba9770e7c824",
-      "message": "Git observed a governed path not declared by the spec",
-      "remediation": "declare the exact action or narrow the attributed change set"
-    },
-    {
       "id": "dif-a208b80ca6cc",
       "code": "inferred-coverage",
       "severity": "warning",
@@ -314134,6 +314438,16 @@
       "path": "capability:release-prepare-record-recovery",
       "message": "required current evidence is missing: integration",
       "remediation": "run registered checks with the required evidenceClass against the current provenance digest"
+    },
+    {
+      "id": "dif-a4a8fb1b2b6f",
+      "code": "retroactive-attribution",
+      "severity": "info",
+      "spec": "pose-optional-worktree-runtime",
+      "path": "pose-mcp/internal/cli/runtime_host_test.go",
+      "change_set": "cs-ba9770e7c824",
+      "message": "historical attribution signed by human:oseias (SHA256:E4BlxtexLxWA+LN47tL2OBrw59R3aPXUfI9tDlvK0M0), witness 57e20957ce49b0f35f7aa6bd3343b5137540805c: Published change 57e20957ce49 (fix: a running command is counted once as in flight; the harness reads CPU and the peak per scenario; the spec and the roadmap state T7 and the delivery) is within the attributed range and accounts for the observed path.",
+      "remediation": "see .pose/policy/artifact-attributions.json"
     },
     {
       "id": "dif-a4c9cb78f7b2",
@@ -314319,6 +314633,16 @@
       "remediation": "no Git change sets are attributed to spec pose-condition-response-and-work-metrics (ensure commits carry 'POSE-Spec: pose-condition-response-and-work-metrics' trailer or generate report with pose report)"
     },
     {
+      "id": "dif-ae0b43434dd0",
+      "code": "retroactive-attribution",
+      "severity": "info",
+      "spec": "pose-common-domain-and-cli-mcp-handoff",
+      "path": "pose-mcp/internal/pose/resident_git_memo_test.go",
+      "change_set": "cs-f791ea60c074",
+      "message": "historical attribution signed by human:oseias (SHA256:E4BlxtexLxWA+LN47tL2OBrw59R3aPXUfI9tDlvK0M0), witness 80b49143698e7a4d175456448bad10c6cf9bd993: Published change 80b49143698e (fix: the resident memo key holds the effective Git configuration; the ADR is accepted for the delivered scope) is within the attributed range and accounts for the observed path.",
+      "remediation": "see .pose/policy/artifact-attributions.json"
+    },
+    {
       "id": "dif-ae8d6f186d12",
       "code": "existence",
       "severity": "error",
@@ -314411,6 +314735,16 @@
       "remediation": "declare a typed delivery target or narrow the attributed change set"
     },
     {
+      "id": "dif-b1eb244a2e23",
+      "code": "undeclared",
+      "severity": "error",
+      "spec": "pose-retroactive-attribution-record",
+      "path": "pose-mcp/internal/pose/review_bundle.go",
+      "change_set": "cs-a00be852dc5c",
+      "message": "Git observed a governed path not declared by the spec",
+      "remediation": "declare the exact action or narrow the attributed change set"
+    },
+    {
       "id": "dif-b2b975951bfb",
       "code": "action-mismatch",
       "severity": "error",
@@ -314427,6 +314761,16 @@
       "path": ".pose/changelogs/unreleased/pose-release-prepare-record-recovery.md",
       "message": "declared current artifact is not tracked at the selected head; no release manifest archives .pose/changelogs/unreleased/pose-release-prepare-record-recovery.md",
       "remediation": "correct the exact path or commit the artifact before closeout"
+    },
+    {
+      "id": "dif-b3038fdee536",
+      "code": "undeclared-delivery",
+      "severity": "error",
+      "spec": "pose-retroactive-attribution-record",
+      "path": "pose-mcp/internal/pose/index_generation.go",
+      "change_set": "cs-a00be852dc5c",
+      "message": "changed delivery root pose-mcp/internal/pose has no delivery declaration",
+      "remediation": "declare a typed delivery target or narrow the attributed change set"
     },
     {
       "id": "dif-b33c7916857f",
@@ -314616,6 +314960,16 @@
       "remediation": "correct the exact path or commit the artifact before closeout"
     },
     {
+      "id": "dif-bedbd9bbf230",
+      "code": "undeclared-delivery",
+      "severity": "error",
+      "spec": "pose-retroactive-attribution-record",
+      "path": "pose-mcp/internal/cli/surface_check.go",
+      "change_set": "cs-a00be852dc5c",
+      "message": "changed delivery root pose-mcp/internal/cli has no delivery declaration",
+      "remediation": "declare a typed delivery target or narrow the attributed change set"
+    },
+    {
       "id": "dif-bf1f0d739503",
       "code": "action-mismatch",
       "severity": "error",
@@ -314650,16 +315004,6 @@
       "change_set": "pose-mcp/go/abm-atomic-start-integration",
       "message": "passed integration evidence is bound to a different scoped provenance digest",
       "remediation": "rerun the registered validation check for this delivery scope"
-    },
-    {
-      "id": "dif-c1b4ad02d503",
-      "code": "undeclared",
-      "severity": "error",
-      "spec": "pose-optional-worktree-runtime",
-      "path": "pose-mcp/internal/pose/resident_git_memo.go",
-      "change_set": "cs-ba9770e7c824",
-      "message": "Git observed a governed path not declared by the spec",
-      "remediation": "declare the exact action or narrow the attributed change set"
     },
     {
       "id": "dif-c29f39f96262",
@@ -314717,16 +315061,6 @@
       "remediation": "rerun the registered validation check for this delivery scope"
     },
     {
-      "id": "dif-c78f484a6092",
-      "code": "undeclared",
-      "severity": "error",
-      "spec": "pose-worktree-runtime-resident-cache",
-      "path": "pose-mcp/internal/cli/runtime_measure_test.go",
-      "change_set": "cs-e703b5000664",
-      "message": "Git observed a governed path not declared by the spec",
-      "remediation": "declare the exact action or narrow the attributed change set"
-    },
-    {
       "id": "dif-c8631fc47396",
       "code": "undeclared-delivery",
       "severity": "warning",
@@ -314744,6 +315078,16 @@
       "path": ".pose/changelogs/unreleased/pose-followup-metadata-and-routing-integrity.md",
       "message": "declared current artifact is not tracked at the selected head; no release manifest archives .pose/changelogs/unreleased/pose-followup-metadata-and-routing-integrity.md",
       "remediation": "correct the exact path or commit the artifact before closeout"
+    },
+    {
+      "id": "dif-c8efd2eb8298",
+      "code": "undeclared-delivery",
+      "severity": "error",
+      "spec": "pose-retroactive-attribution-record",
+      "path": "pose-mcp/internal/cli/artifact_integrity.go",
+      "change_set": "cs-a00be852dc5c",
+      "message": "changed delivery root pose-mcp/internal/cli has no delivery declaration",
+      "remediation": "declare a typed delivery target or narrow the attributed change set"
     },
     {
       "id": "dif-c95f2ca1941c",
@@ -314927,6 +315271,16 @@
       "remediation": "correct the exact path or commit the artifact before closeout"
     },
     {
+      "id": "dif-d1e34b528c3d",
+      "code": "retroactive-attribution",
+      "severity": "info",
+      "spec": "pose-governance-operation-performance",
+      "path": "pose-mcp/internal/pose/resident_git_memo_test.go",
+      "change_set": "cs-f3421d84f8c6",
+      "message": "historical attribution signed by human:oseias (SHA256:E4BlxtexLxWA+LN47tL2OBrw59R3aPXUfI9tDlvK0M0), witness 80b49143698e7a4d175456448bad10c6cf9bd993: Published change 80b49143698e (fix: the resident memo key holds the effective Git configuration; the ADR is accepted for the delivered scope) is within the attributed range and accounts for the observed path.",
+      "remediation": "see .pose/policy/artifact-attributions.json"
+    },
+    {
       "id": "dif-d2074c667958",
       "code": "undeclared-delivery",
       "severity": "warning",
@@ -314952,6 +315306,16 @@
       "path": "pose-mcp/internal/pose/assessment_agnostic_test.go",
       "message": "declared artifact action is absent from the attributed Git change sets",
       "remediation": "no Git change sets are attributed to spec pose-debt-marker-lexical-precision (ensure commits carry 'POSE-Spec: pose-debt-marker-lexical-precision' trailer or generate report with pose report)"
+    },
+    {
+      "id": "dif-d496df2cb0e1",
+      "code": "undeclared-delivery",
+      "severity": "error",
+      "spec": "pose-retroactive-attribution-record",
+      "path": "pose-mcp/internal/pose/review_bundle.go",
+      "change_set": "cs-a00be852dc5c",
+      "message": "changed delivery root pose-mcp/internal/pose has no delivery declaration",
+      "remediation": "declare a typed delivery target or narrow the attributed change set"
     },
     {
       "id": "dif-d523be099607",
@@ -315090,6 +315454,16 @@
       "remediation": "declare and reconcile exact artifacts before asserting delivery"
     },
     {
+      "id": "dif-dd14c93fec34",
+      "code": "retroactive-attribution",
+      "severity": "info",
+      "spec": "pose-optional-worktree-runtime",
+      "path": "pose-mcp/internal/pose/resident_git_memo.go",
+      "change_set": "cs-ba9770e7c824",
+      "message": "historical attribution signed by human:oseias (SHA256:E4BlxtexLxWA+LN47tL2OBrw59R3aPXUfI9tDlvK0M0), witness 80b49143698e7a4d175456448bad10c6cf9bd993: Published change 80b49143698e (fix: the resident memo key holds the effective Git configuration; the ADR is accepted for the delivered scope) is within the attributed range and accounts for the observed path.",
+      "remediation": "see .pose/policy/artifact-attributions.json"
+    },
+    {
       "id": "dif-dd28f02348f0",
       "code": "orphan",
       "severity": "warning",
@@ -315167,16 +315541,6 @@
       "path": "pose-mcp/internal/pose/release_selection_exclusivity_test.go",
       "message": "declared artifact action is absent from the attributed Git change sets",
       "remediation": "no Git change sets are attributed to spec pose-release-scope-selection-and-exclusivity (ensure commits carry 'POSE-Spec: pose-release-scope-selection-and-exclusivity' trailer or generate report with pose report)"
-    },
-    {
-      "id": "dif-e2c52f57612e",
-      "code": "undeclared",
-      "severity": "error",
-      "spec": "pose-governance-operation-performance",
-      "path": "pose-mcp/internal/pose/resident_git_memo.go",
-      "change_set": "cs-f3421d84f8c6",
-      "message": "Git observed a governed path not declared by the spec",
-      "remediation": "declare the exact action or narrow the attributed change set"
     },
     {
       "id": "dif-e50790ebb7a9",
@@ -315269,16 +315633,6 @@
       "path": ".pose/changelogs/unreleased/pose-proportional-next-action.md",
       "message": "declared artifact action is absent from the attributed Git change sets",
       "remediation": "no Git change sets are attributed to spec pose-proportional-next-action (ensure commits carry 'POSE-Spec: pose-proportional-next-action' trailer or generate report with pose report)"
-    },
-    {
-      "id": "dif-e8eb295b575f",
-      "code": "undeclared",
-      "severity": "error",
-      "spec": "pose-optional-worktree-runtime",
-      "path": "pose-mcp/internal/pose/governance_read_view_git.go",
-      "change_set": "cs-ba9770e7c824",
-      "message": "Git observed a governed path not declared by the spec",
-      "remediation": "declare the exact action or narrow the attributed change set"
     },
     {
       "id": "dif-e9c841279fc1",
@@ -315393,6 +315747,16 @@
       "remediation": "correct the exact path or commit the artifact before closeout"
     },
     {
+      "id": "dif-f0cdbaa84a6c",
+      "code": "retroactive-attribution",
+      "severity": "info",
+      "spec": "pose-optional-worktree-runtime",
+      "path": "pose-mcp/internal/pose/resident_git_memo_test.go",
+      "change_set": "cs-ba9770e7c824",
+      "message": "historical attribution signed by human:oseias (SHA256:E4BlxtexLxWA+LN47tL2OBrw59R3aPXUfI9tDlvK0M0), witness 80b49143698e7a4d175456448bad10c6cf9bd993: Published change 80b49143698e (fix: the resident memo key holds the effective Git configuration; the ADR is accepted for the delivered scope) is within the attributed range and accounts for the observed path.",
+      "remediation": "see .pose/policy/artifact-attributions.json"
+    },
+    {
       "id": "dif-f11e1732bf9c",
       "code": "action-mismatch",
       "severity": "error",
@@ -315400,6 +315764,16 @@
       "path": "scripts/release.sh",
       "message": "declared artifact action is absent from the attributed Git change sets",
       "remediation": "no Git change sets are attributed to spec pose-release-publication-evidence-replay (ensure commits carry 'POSE-Spec: pose-release-publication-evidence-replay' trailer or generate report with pose report)"
+    },
+    {
+      "id": "dif-f17008bf8406",
+      "code": "retroactive-attribution",
+      "severity": "info",
+      "spec": "pose-worktree-runtime-qos-and-measurement",
+      "path": "pose-mcp/internal/pose/resident_git_memo_test.go",
+      "change_set": "cs-7a7d3fc88bea",
+      "message": "historical attribution signed by human:oseias (SHA256:E4BlxtexLxWA+LN47tL2OBrw59R3aPXUfI9tDlvK0M0), witness 80b49143698e7a4d175456448bad10c6cf9bd993: Published change 80b49143698e (fix: the resident memo key holds the effective Git configuration; the ADR is accepted for the delivered scope) is within the attributed range and accounts for the observed path.",
+      "remediation": "see .pose/policy/artifact-attributions.json"
     },
     {
       "id": "dif-f1bd142bb591",
@@ -315643,16 +316017,6 @@
       "remediation": "no Git change sets are attributed to spec pose-integrated-agency-and-runtime-pilot (ensure commits carry 'POSE-Spec: pose-integrated-agency-and-runtime-pilot' trailer or generate report with pose report)"
     },
     {
-      "id": "dif-fc3f96fb6899",
-      "code": "undeclared",
-      "severity": "error",
-      "spec": "pose-worktree-runtime-qos-and-measurement",
-      "path": "pose-mcp/internal/pose/resident_git_memo.go",
-      "change_set": "cs-7a7d3fc88bea",
-      "message": "Git observed a governed path not declared by the spec",
-      "remediation": "declare the exact action or narrow the attributed change set"
-    },
-    {
       "id": "dif-fd0720bfce5b",
       "code": "legacy-narrative",
       "severity": "info",
@@ -315703,16 +316067,6 @@
       "path": "POSE.md",
       "message": "declared artifact action is absent from the attributed Git change sets",
       "remediation": "no Git change sets are attributed to spec pose-residual-nature-commitment-and-effect (ensure commits carry 'POSE-Spec: pose-residual-nature-commitment-and-effect' trailer or generate report with pose report)"
-    },
-    {
-      "id": "dif-ffef8d249b94",
-      "code": "undeclared",
-      "severity": "error",
-      "spec": "pose-common-domain-and-cli-mcp-handoff",
-      "path": "pose-mcp/internal/pose/resident_git_memo.go",
-      "change_set": "cs-f791ea60c074",
-      "message": "Git observed a governed path not declared by the spec",
-      "remediation": "declare the exact action or narrow the attributed change set"
     },
     {
       "id": "dif-fff4f1cf7f41",
