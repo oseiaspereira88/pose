@@ -93,7 +93,9 @@ func localGateOmissions(ci, local string) []string {
 			omitted = append(omitted, match[1])
 		}
 	}
-	if len(scripts) == 0 || len(commands) == 0 || len(goCommands) == 0 {
+	// The engine suite is a shell gate now. Direct Go gates are still
+	// discovered when present, including the negative control below.
+	if len(scripts) == 0 || len(commands) == 0 {
 		omitted = append(omitted, "CI gate discovery lost a command family")
 	}
 	return omitted

@@ -38,6 +38,7 @@ The maintainer approved changing the aggregate scheduling budget on 2026-11-19.
 - modified: .github/workflows/ci.yml
 - modified: .pose/indexes/validation-matrix.json
 - modified: scripts/verify.sh
+- modified: pose-mcp/internal/version/release_harness_discovery_test.go
 
 ## 6. Validation
 
