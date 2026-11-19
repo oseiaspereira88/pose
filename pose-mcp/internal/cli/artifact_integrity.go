@@ -771,7 +771,11 @@ func buildCurrentDeliveryGraphIn(files posemodel.Files, root string) (posemodel.
 	if err != nil {
 		return posemodel.DeliveryIntegrityGraph{}, err
 	}
-	return extendCurrentDeliveryGraphIn(files, root, posemodel.BuildDeliveryIntegrityWithHistoryIn(files, specs, claims, sets, tracked, policy, posemodel.LoadArchivedFragmentsIn(files, root), artifactRemovalsIn(files, root, claims, sets, tracked, gaps)))
+	graph := posemodel.BuildDeliveryIntegrityWithHistoryIn(files, specs, claims, sets, tracked, policy, posemodel.LoadArchivedFragmentsIn(files, root), artifactRemovalsIn(files, root, claims, sets, tracked, gaps))
+	if err := applyArtifactAttributions(files, root, specs, &graph); err != nil {
+		return posemodel.DeliveryIntegrityGraph{}, err
+	}
+	return extendCurrentDeliveryGraphIn(files, root, graph)
 }
 
 // buildCurrentDeliveryGraph reads and writes the filesystem directly; buildCurrentDeliveryGraphIn takes the
@@ -864,10 +868,16 @@ func cmdArtifactCheck(root string, args []string, stdout, stderr io.Writer) int 
 	// A later removal by another spec is read from every spec's claims and
 	// change sets (spec pose-delivery-later-removal R4).
 	var removals []posemodel.ArtifactRemoval
-	if _, allClaims, allSets, _, _, gaps, err := collectArtifactGraphInputsWithGapsIn(posemodel.NativeFiles(), root); err == nil {
+	specs := []posemodel.Spec{*full}
+	if allSpecs, allClaims, allSets, _, _, gaps, err := collectArtifactGraphInputsWithGapsIn(posemodel.NativeFiles(), root); err == nil {
+		specs = allSpecs
 		removals = artifactRemovals(root, allClaims, allSets, tracked, gaps, sets...)
 	}
 	graph := posemodel.BuildDeliveryIntegrityWithHistoryIn(posemodel.NativeFiles(), []posemodel.Spec{*full}, claims, sets, tracked, policy, posemodel.LoadArchivedFragments(root), removals)
+	if err := applyArtifactAttributions(posemodel.NativeFiles(), root, specs, &graph); err != nil {
+		render(stdout, stderr).Failure("pose artifact-check: " + err.Error())
+		return 1
+	}
 	for _, claim := range claims {
 		if claim.Action == "none" {
 			continue

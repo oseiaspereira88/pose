@@ -233,6 +233,10 @@ func cmdSurfaceCheck(root string, args []string, stdout, stderr io.Writer) int {
 		return 1
 	}
 	base := posemodel.BuildDeliveryIntegrityWithHistoryIn(posemodel.NativeFiles(), baseSpecs, claims, sets, tracked, artifactPolicy, posemodel.LoadArchivedFragments(root), artifactRemovals(root, claims, sets, tracked, gaps))
+	if err := applyArtifactAttributions(posemodel.NativeFiles(), root, baseSpecs, &base); err != nil {
+		render(stdout, stderr).Failure("pose surface-check: " + err.Error())
+		return 1
+	}
 	profiles, err := loadDeliveryProfiles(root)
 	if err != nil {
 		fmt.Fprintf(stderr, "pose surface-check: %v\n", err)

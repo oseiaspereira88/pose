@@ -10,9 +10,9 @@ The strict delivery gate reports 19 undeclared paths in published change sets. T
 
 ## Decision
 
-Store a versioned attribution manifest in `.pose/artifact-attributions.json` with a detached SSHSIG in `.pose/artifact-attributions.json.sig`. Reuse SSH public keys registered to principals in the project's action policy. Require the named signer to be a human principal expressly assigned the maintainer role, and verify the signature using the dedicated `pose-retroactive-attribution` namespace. The signed bytes include the project ID, signer, baseline revision, reason, spec, complete attributed range, Git witness commit and exact observed action and path for each record. Anchor the baseline in the repository's raw history.
+Store a versioned attribution manifest in `.pose/policy/artifact-attributions.json` with a detached SSHSIG in `.pose/policy/artifact-attributions.json.sig`. Reuse SSH public keys registered to principals in the project's action policy. Require the named signer to be a human principal expressly assigned the maintainer role, and verify the signature using the dedicated `pose-retroactive-attribution` namespace. The signed bytes include the project ID, signer, baseline revision, reason, spec, complete attributed range, Git witness commit and exact observed action and path for each record. Anchor the baseline in the repository's raw history.
 
-Apply a record exclusively to the corresponding undeclared finding in that exact range and expose the verified signer and reason. Keep the existing observed changes, claims and sealed subject provenance. Bind manifest and signature bytes to index freshness. A newer range requires its own record, and ordinary artifact, review and closeout gates continue to run.
+Apply a record exclusively to the corresponding undeclared finding in that exact range and expose the verified signer and reason. Keep the existing observed changes, claims and sealed subject provenance. Bind manifest and signature bytes through the existing policy-tree index input. Repositories without attribution records keep the same index read path. A newer range requires its own record, and ordinary artifact, review and closeout gates continue to run.
 
 ## Consequences
 

@@ -907,6 +907,42 @@ func (s Store) pruneIndexGenerations(current string) error {
 // IndexInputNames are the bounded input bindings of a generation. Git history
 // remains a runtime input for consumers that need it, since binding HEAD here
 // would stale every generation on every commit.
+const ArtifactAttributionManifest = ".pose/policy/artifact-attributions.json"
+
+// ReadArtifactAttributionFileIn reads the signed manifest or its detached
+// signature from the same bounded project view used for index bindings.
+func ReadArtifactAttributionFileIn(files Files, root string, signature bool) ([]byte, error) {
+	files = FilesOrNative(files)
+	name, limit := ArtifactAttributionManifest, int64(128*1024)
+	if signature {
+		name, limit = name+".sig", 16*1024
+	}
+	if err := ValidateArtifactPathIn(files, root, name, false); err != nil {
+		return nil, err
+	}
+	path := filepath.Join(root, filepath.FromSlash(name))
+	info, err := files.Lstat(path)
+	if err != nil {
+		return nil, err
+	}
+	if !info.Mode().IsRegular() || info.Size() > limit {
+		return nil, fmt.Errorf("%s must be a bounded regular file", name)
+	}
+	f, err := files.Open(path)
+	if err != nil {
+		return nil, err
+	}
+	defer f.Close()
+	raw, err := io.ReadAll(io.LimitReader(f, limit+1))
+	if err != nil {
+		return nil, err
+	}
+	if int64(len(raw)) > limit {
+		return nil, fmt.Errorf("%s exceeds its size limit", name)
+	}
+	return raw, nil
+}
+
 var IndexInputNames = []string{
 	"specs", "roadmaps", "policy", "module-metadata", "validation-matrix",
 	"recorded-change-sets", "module-discovery", "validation-results",
@@ -1086,10 +1122,16 @@ func treeDigest(files Files, root, rel string) (string, bool) {
 		if d.Type()&os.ModeSymlink != 0 {
 			// Bind the bytes of an in-root regular target. A dangling, escaping
 			// or directory link is unknown, never a silently omitted input.
-			if !artifactPathWithin(files, root, path) { return fmt.Errorf("pose: %s contains an unbound link", rel) }
+			if !artifactPathWithin(files, root, path) {
+				return fmt.Errorf("pose: %s contains an unbound link", rel)
+			}
 			info, err := files.Stat(path)
-			if err != nil { return err }
-			if !info.Mode().IsRegular() { return fmt.Errorf("pose: %s contains a non-regular link target", rel) }
+			if err != nil {
+				return err
+			}
+			if !info.Mode().IsRegular() {
+				return fmt.Errorf("pose: %s contains a non-regular link target", rel)
+			}
 		} else if !d.Type().IsRegular() {
 			return fmt.Errorf("pose: %s contains a non-regular input", rel)
 		}
