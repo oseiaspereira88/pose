@@ -77,9 +77,17 @@ See [the attribution ADR](../adr/2026-11-18-bind-retroactive-delivery-attributio
 | Repository integration | `pose index && pose index --verify && pose check --strict` | The 19 historical paths carry verified attribution records; the strict gate passes. |
 | Affected module | `pose validate --strict --module pose-mcp --report` | Registered checks pass. |
 
+### Requirement trace
+
+- R1 [satisfied] adr:2026-11-18-bind-retroactive-delivery-attribution-to-signed-git-ranges
+- R2 [satisfied] test:TestRetroactiveAttribution and test:TestRetroactiveAttributionIndexBinding
+- R3 [satisfied] test:TestRetroactiveAttribution
+- R4 [satisfied] test:TestRetroactiveAttribution
+- R5 [satisfied] The maintainer's signed manifest covered the 19 strict findings. The candidate af5f01ef passed index verification and the strict structural gate with zero errors.
+
 ---
 
 ## 7. Final Report
 
 ### Delivered scope
-Implementation and validation are in progress.
+The implementation verifies the maintainer's signature and applies the 19 historical dispositions. The independent review and CI are pending.
