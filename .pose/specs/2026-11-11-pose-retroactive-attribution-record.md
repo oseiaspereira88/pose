@@ -52,6 +52,9 @@ O que não está nos requisitos abaixo.
 - modified: pose-mcp/internal/cli/surface_check.go
 - modified: pose-mcp/internal/pose/index_generation.go
 - modified: pose-mcp/internal/pose/review_bundle.go
+- created: .pose/artifact-attributions.json
+- created: .pose/artifact-attributions.json.sig
+- modified: .pose/policy/actions.json
 
 ### Tasks
 
