@@ -134,13 +134,14 @@ func (s *reviewGitlinkSetup) git(limit int64, args ...string) ([]byte, error) {
 	env := command.Env[:0]
 	for _, variable := range command.Env {
 		name, _, _ := strings.Cut(variable, "=")
-		if !strings.HasPrefix(name, "GIT_CONFIG") && name != "GIT_EXEC_PATH" {
+		if !strings.HasPrefix(name, "GIT_") {
 			env = append(env, variable)
 		}
 	}
 	command.Env = append(env,
 		"GIT_CONFIG_NOSYSTEM=1", "GIT_CONFIG_GLOBAL="+os.DevNull, "GIT_ALLOW_PROTOCOL=file",
-		"GIT_TERMINAL_PROMPT=0", "GIT_ATTR_NOSYSTEM=1",
+		"GIT_TERMINAL_PROMPT=0", "GIT_ATTR_NOSYSTEM=1", "GIT_OPTIONAL_LOCKS=0",
+		"GIT_NO_REPLACE_OBJECTS=1", "GIT_GRAFT_FILE="+os.DevNull,
 	)
 	cmd := reviewSetupCommand(s.ctx, command)
 	output := &reviewBoundedCapture{limit: limit, cancel: s.cancel}
