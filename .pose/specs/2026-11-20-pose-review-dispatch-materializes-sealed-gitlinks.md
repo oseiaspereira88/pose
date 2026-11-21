@@ -33,7 +33,7 @@ Initialize unrelated submodules, resolve a remote URL or review changes inside a
 
 - R1: Materialize each scoped gitlink at the commit recorded in the sealed parent tree and bound to the subject digest. Use only committed objects already available in the selected local origin, including nested gitlinks required to verify the scoped repository.
 - R2: Keep Git metadata private to the run and give equivalent repeated checkouts the same snapshot. Preserve origin files and Git metadata.
-- R3: Fail before running the adapter when needed objects are unavailable or the pin, source worktree or resulting checkout fails verification. Apply the existing setup process, capture and cleanup limits.
+- R3: Fail before running the adapter when needed objects are unavailable or the pin, source worktree or resulting checkout fails verification. Apply the existing setup process, capture and cleanup limits. Include each sealed child tree in the committed byte budget for snapshot and worktree cleanup.
 
 ## 3. Technical Plan
 
@@ -45,6 +45,8 @@ Use the validated origin's local submodule and stage a standalone detached check
 
 - created: .pose/specs/2026-11-20-pose-review-dispatch-materializes-sealed-gitlinks.md
 - created: .pose/adr/2026-11-20-materialize-review-gitlinks-from-the-sealed-local-origin.md
+- modified: pose-mcp/internal/pose/git_snapshot_integrity.go
+- modified: pose-mcp/internal/pose/git_snapshot_budget_test.go
 - modified: pose-mcp/internal/pose/review_dispatch.go
 - created: pose-mcp/internal/pose/review_dispatch_gitlinks.go
 - modified: pose-mcp/internal/cli/git_snapshot_integrity_test.go

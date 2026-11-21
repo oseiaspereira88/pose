@@ -76,12 +76,15 @@ func gitCommittedTreeBytes(listing []byte) int64 {
 
 // Snapshot disk, including ignored files. Git status alone cannot witness
 // creation of an ignored output. WalkDir never follows a directory symlink.
-func dispatchDiskSnapshot(root string) (map[string]string, error) {
+func dispatchDiskSnapshot(root string, committedGitlinks ...int64) (map[string]string, error) {
 	entries := map[string]string{}
 	var total int64
 	committed := int64(0)
 	if listing, err := listCommittedTree(root, "HEAD"); err == nil {
 		committed = gitCommittedTreeBytes(listing)
+	}
+	for _, size := range committedGitlinks {
+		committed += size
 	}
 	budget := gitSnapshotBudget(committed)
 	err := filepath.WalkDir(root, func(path string, entry fs.DirEntry, err error) error {

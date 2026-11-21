@@ -17,6 +17,7 @@ type reviewGitlinkSetup struct {
 	hooks              string
 	metadata           string
 	count              int
+	committedBytes     int64
 	captureOverflow    bool
 	terminationFailure bool
 }
@@ -27,7 +28,7 @@ func (s *reviewGitlinkSetup) materialize(origin, worktree, commit string, entrie
 			continue
 		}
 		path := reviewBundleEntryPath(entry)
-		raw, err := s.git(64<<10, "--literal-pathspecs", "-C", worktree, "ls-tree", "-z", commit, "--", path)
+		raw, err := s.git(64<<10, "--literal-pathspecs", "-C", worktree, "ls-tree", "-l", "-z", commit, "--", path)
 		if err != nil {
 			return err
 		}
@@ -48,7 +49,7 @@ func reviewGitlinkRecord(record []byte) (pin, path string, err error) {
 		return "", "", fmt.Errorf("sealed tree record has no path")
 	}
 	fields := strings.Fields(metadata)
-	if len(fields) != 3 || strings.ContainsRune(path, 0) {
+	if len(fields) != 4 || strings.ContainsRune(path, 0) {
 		return "", "", fmt.Errorf("invalid sealed tree record")
 	}
 	if fields[0] != "160000" {
@@ -100,11 +101,15 @@ func (s *reviewGitlinkSetup) checkout(origin, worktree, path, pin string) error 
 	if _, err := s.git(64<<10, "-C", target, "fetch", "-q", "--depth=1", "--no-tags", "--no-recurse-submodules", "--no-write-fetch-head", "--no-auto-maintenance", "--", source, pin); err != nil {
 		return err
 	}
-	if _, err := s.git(64<<10, "-C", target, "checkout", "-q", "--detach", pin, "--"); err != nil {
+	raw, err := s.git(gitTreeListingMaxBytes, "-C", target, "ls-tree", "-r", "-l", "-z", pin)
+	if err != nil {
 		return err
 	}
-	raw, err := s.git(gitTreeListingMaxBytes, "-C", target, "ls-tree", "-r", "-z", pin)
-	if err != nil {
+	s.committedBytes += gitCommittedTreeBytes(raw)
+	if s.committedBytes > gitSnapshotCeilingBytes {
+		return fmt.Errorf("sealed gitlinks exceed the snapshot byte ceiling")
+	}
+	if _, err := s.git(64<<10, "-C", target, "checkout", "-q", "--detach", pin, "--"); err != nil {
 		return err
 	}
 	for record := range bytes.SplitSeq(bytes.TrimSuffix(raw, []byte{0}), []byte{0}) {

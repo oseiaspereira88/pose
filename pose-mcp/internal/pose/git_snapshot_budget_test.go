@@ -214,3 +214,23 @@ func TestGovernedTreeListingIsBounded(t *testing.T) {
 		t.Fatal("a listing past its deadline was returned")
 	}
 }
+
+func TestGitSnapshotBudgetCoversSealedGitlinkBytes(t *testing.T) {
+	root, _ := snapshotBudgetRepo(t)
+	payload := bytes.Repeat([]byte{'x'}, 8<<10)
+	if err := os.WriteFile(filepath.Join(root, "gitlink-payload"), payload, 0600); err != nil {
+		t.Fatal(err)
+	}
+	if _, err := dispatchDiskSnapshot(root); err == nil || !strings.Contains(err.Error(), "budget") {
+		t.Fatalf("ordinary disk growth exceeded the unextended budget: %v", err)
+	}
+	if _, err := dispatchDiskSnapshot(root, int64(len(payload))); err != nil {
+		t.Fatalf("sealed child tree bytes were omitted from the budget: %v", err)
+	}
+	if err := os.WriteFile(filepath.Join(root, "extra"), payload, 0600); err != nil {
+		t.Fatal(err)
+	}
+	if _, err := dispatchDiskSnapshot(root, int64(len(payload))); err == nil || !strings.Contains(err.Error(), "budget") {
+		t.Fatalf("undeclared disk growth escaped the budget: %v", err)
+	}
+}

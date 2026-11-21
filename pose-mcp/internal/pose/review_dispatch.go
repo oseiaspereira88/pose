@@ -851,13 +851,15 @@ func (s Store) RunReviewDispatchContext(parent context.Context, plan DispatchPla
 		}
 	}
 	gitlinks := reviewGitlinkSetup{ctx: setupCtx, cancel: stopSetup, hooks: hooks, metadata: filepath.Join(tmp, "gitlinks")}
-	if err := gitlinks.materialize(s.Root, worktree, plan.SealedCommit, plan.Bundle.Payload.Subject.Entries); err != nil {
+	gitlinkErr := gitlinks.materialize(s.Root, worktree, plan.SealedCommit, plan.Bundle.Payload.Subject.Entries)
+	ownership.inventoryBytes = gitSnapshotBudget(ownership.inventoryBytes - gitSnapshotMarginBytes + gitlinks.committedBytes)
+	if gitlinkErr != nil {
 		terminationFailed = gitlinks.terminationFailure
 		safety.ExecutionCause = executionCause(setupCtx)
 		if gitlinks.captureOverflow {
 			safety.ExecutionCause = "setup-capture-limit"
 		}
-		return finish(ReviewRunFailed, "sealed gitlink setup failed: "+err.Error())
+		return finish(ReviewRunFailed, "sealed gitlink setup failed: "+gitlinkErr.Error())
 	}
 	stopSetup()
 	checkout := s
@@ -886,7 +888,7 @@ func (s Store) RunReviewDispatchContext(parent context.Context, plan DispatchPla
 			}
 		}
 	}
-	diskBefore, err := dispatchDiskSnapshot(worktree)
+	diskBefore, err := dispatchDiskSnapshot(worktree, gitlinks.committedBytes)
 	if err != nil {
 		return finish(ReviewRunFailed, err.Error())
 	}
@@ -1095,7 +1097,7 @@ func (s Store) RunReviewDispatchContext(parent context.Context, plan DispatchPla
 
 	if status != "" {
 		// Partial drafts are evidence only after the same containment checks.
-		after, err := dispatchDiskSnapshot(worktree)
+		after, err := dispatchDiskSnapshot(worktree, gitlinks.committedBytes)
 		if err != nil || !reflect.DeepEqual(diskBefore, after) {
 			return finish(ReviewRunFailed, "interrupted adapter changed or obscured the sealed worktree")
 		}
@@ -1110,7 +1112,7 @@ func (s Store) RunReviewDispatchContext(parent context.Context, plan DispatchPla
 		}
 		return finish(status, failure)
 	}
-	diskAfter, err := dispatchDiskSnapshot(worktree)
+	diskAfter, err := dispatchDiskSnapshot(worktree, gitlinks.committedBytes)
 	if err != nil {
 		return finish(ReviewRunFailed, err.Error())
 	}
