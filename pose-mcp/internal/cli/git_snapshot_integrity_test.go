@@ -180,3 +180,80 @@ func TestTheWorktreeIsComparedWithTheSealedCommitBeforeTheRun(t *testing.T) {
 		t.Fatalf("a worktree that differs from the sealed commit was handed over: %d %s", code, out)
 	}
 }
+
+func TestReviewDispatchMaterializesSealedGitlinks(t *testing.T) {
+	newRepo := func(payload string) string {
+		t.Helper()
+		root := t.TempDir()
+		artifactGit(t, root, "init", "-q")
+		writeArtifactTestFile(t, root, "payload.txt", payload+"\n")
+		commitSnapshotFixture(t, root)
+		return root
+	}
+	child, grandchild, unrelated := newRepo("sealed"), newRepo("nested"), newRepo("unrelated")
+	artifactGit(t, child, "-c", "protocol.file.allow=always", "submodule", "add", "-q", grandchild, "grandchild")
+	commitSnapshotFixture(t, child)
+	pin := artifactGit(t, child, "rev-parse", "HEAD")
+	root := dispatchInstanceWith(t, func(root string, git func(...string) string) {
+		git("-c", "protocol.file.allow=always", "submodule", "add", "-q", child, "scoped")
+		git("-c", "protocol.file.allow=always", "submodule", "add", "-q", unrelated, "unrelated")
+		git("-c", "protocol.file.allow=always", "submodule", "update", "--init", "--recursive", "scoped")
+		// An offline checkout must ignore the URL written in the sealed tree.
+		git("config", "-f", ".gitmodules", "submodule.scoped.url", filepath.Join(root, "missing-source"))
+		git("add", ".gitmodules")
+	}, posemodel.ObservedPath{Action: "modified", Path: "scoped"})
+	scoped := filepath.Join(root, "scoped")
+	hookMarker := filepath.Join(t.TempDir(), "hook-ran")
+	hookDir := filepath.Dir(hookMarker)
+	writeArtifactTestFile(t, hookDir, "post-checkout", "#!/bin/sh\ntouch \""+hookMarker+"\"\nexit 1\n")
+	if err := os.Chmod(filepath.Join(hookDir, "post-checkout"), 0o700); err != nil {
+		t.Fatal(err)
+	}
+	artifactGit(t, scoped, "config", "core.hooksPath", hookDir)
+
+	writeReviewers(t, root, map[string]posemodel.ReviewerAdapter{
+		"ok": {Command: []string{"sh", "-ec", `cat >/dev/null
+test "$(git -C scoped rev-parse HEAD)" = "$0"
+test "$(cat scoped/payload.txt)" = "sealed"
+test "$(cat scoped/grandchild/payload.txt)" = "nested"
+test ! -e unrelated/.git
+test ! -e unrelated/payload.txt
+echo "decision: approved"`, pin}, Vendor: "test", Model: "test", MaxRunsPerBundle: 3},
+	})
+	store := posemodel.Store{Root: root}
+	var treeDigest string
+	for _, reason := range []string{"first checkout", "repeated checkout"} {
+		plan, err := store.PlanReviewDispatch("spec:alpha", "review", "", "ok", reason)
+		if err != nil {
+			t.Fatal(err)
+		}
+		run, err := store.RunReviewDispatch(plan, time.Now)
+		if err != nil || run.Status != posemodel.ReviewRunCompleted {
+			t.Fatalf("sealed dispatch: %s %v", run.Failure, err)
+		}
+		if run.TreeDigest == "" || treeDigest != "" && treeDigest != run.TreeDigest {
+			t.Fatalf("non-reproducible checkout digest: %q, %q", treeDigest, run.TreeDigest)
+		}
+		treeDigest = run.TreeDigest
+	}
+	if _, err := os.Lstat(hookMarker); !os.IsNotExist(err) {
+		t.Fatalf("ambient checkout hook ran: %v", err)
+	}
+	if got := artifactGit(t, scoped, "rev-parse", "HEAD"); got != pin {
+		t.Fatalf("source moved to %s", got)
+	}
+	if got := artifactGit(t, root, "worktree", "list", "--porcelain"); strings.Count(got, "worktree ") != 1 {
+		t.Fatalf("review checkout retained a registration: %s", got)
+	}
+
+	plan, err := store.PlanReviewDispatch("spec:alpha", "review", "", "ok", "dirty origin")
+	if err != nil {
+		t.Fatal(err)
+	}
+	artifactGit(t, scoped, "update-index", "--assume-unchanged", "payload.txt")
+	writeArtifactTestFile(t, scoped, "payload.txt", "hidden edit\n")
+	run, err := store.RunReviewDispatch(plan, time.Now)
+	if err != nil || run.Status != posemodel.ReviewRunFailed || run.Output != "" || !strings.Contains(run.Failure, "payload.txt") {
+		t.Fatalf("dirty origin was not rejected before execution: %s %q %v", run.Failure, run.Output, err)
+	}
+}

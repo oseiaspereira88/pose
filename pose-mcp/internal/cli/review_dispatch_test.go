@@ -18,7 +18,7 @@ func dispatchInstance(t *testing.T) string { return dispatchInstanceWith(t, nil)
 
 // dispatchInstanceWith is dispatchInstance with a hook that runs after the files are written and
 // before the commit that is sealed.
-func dispatchInstanceWith(t *testing.T, beforeCommit func(root string, git func(args ...string) string)) string {
+func dispatchInstanceWith(t *testing.T, beforeCommit func(root string, git func(args ...string) string), additionalPaths ...posemodel.ObservedPath) string {
 	t.Helper()
 	root := newDetachedFixtureRoot(t)
 	writeCloseoutCLIFile(t, root, ".gitignore", "scratch/\n")
@@ -47,7 +47,7 @@ func dispatchInstanceWith(t *testing.T, beforeCommit func(root string, git func(
 		ProvenanceDigest: "sha256:1111111111111111111111111111111111111111111111111111111111111111",
 		ChangeSets: []posemodel.ChangeSet{{
 			ID: "cs-alpha", Spec: "alpha", Selector: "range:" + head + ".." + head, Base: head, Head: head, ResolvedBase: head, ResolvedHead: head,
-			Paths:      []posemodel.ObservedPath{{Action: "modified", Path: "pose-mcp/lib.go"}},
+			Paths:      append([]posemodel.ObservedPath{{Action: "modified", Path: "pose-mcp/lib.go"}}, additionalPaths...),
 			DiffDigest: "sha256:2222222222222222222222222222222222222222222222222222222222222222",
 		}},
 		Deliveries:        []posemodel.DeliveryTarget{{Spec: "alpha", Ref: "contract:alpha-api", Kind: "contract", ID: "alpha-api", Module: "pose-mcp", Profile: "api-contract", Entrypoint: "pose-mcp/lib.go"}},

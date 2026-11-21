@@ -811,6 +811,7 @@ func (s Store) RunReviewDispatchContext(parent context.Context, plan DispatchPla
 		return finish(ReviewRunFailed, "private hook directory setup failed")
 	}
 	setupCtx, stopSetup := context.WithTimeout(parent, 2*time.Minute)
+	defer stopSetup()
 	setup := reviewSetupCommand(setupCtx, gitCommand("-C", s.Root, "-c", "core.hooksPath="+hooks, "worktree", "add", "--detach", worktree, plan.SealedCommit))
 	setupOutput := &reviewBoundedCapture{limit: 64 << 10, cancel: stopSetup}
 	setup.Stdout, setup.Stderr = setupOutput, setupOutput
@@ -821,7 +822,6 @@ func (s Store) RunReviewDispatchContext(parent context.Context, plan DispatchPla
 		terminationFailed = true
 	}
 	setupCause := executionCause(setupCtx)
-	stopSetup()
 	if setupErr != nil || terminationErr != nil || setupOverflow {
 		safety.ExecutionCause = setupCause
 		if setupOverflow {
@@ -850,6 +850,25 @@ func (s Store) RunReviewDispatchContext(parent context.Context, plan DispatchPla
 			submodules[reviewBundleEntryPath(entry)] = true
 		}
 	}
+	committedWorktreeBytes := ownership.inventoryBytes - gitSnapshotMarginBytes
+	gitlinks := reviewGitlinkSetup{
+		ctx: setupCtx, cancel: stopSetup, hooks: hooks,
+		metadata:          filepath.Join(tmp, reviewGitlinkMetadataDir),
+		maxCommittedBytes: gitSnapshotCeilingBytes - committedWorktreeBytes,
+	}
+	gitlinkErr := gitlinks.materialize(s.Root, worktree, plan.SealedCommit, plan.Bundle.Payload.Subject.Entries)
+	ownership.inventoryBytes = gitSnapshotBudget(committedWorktreeBytes + gitlinks.committedBytes)
+	ownership.gitlinkMetadata = gitlinks.metadataOwned
+	ownership.gitlinkMetadataBytes = gitSnapshotBudget(gitlinks.committedBytes)
+	if gitlinkErr != nil {
+		terminationFailed = gitlinks.terminationFailure
+		safety.ExecutionCause = executionCause(setupCtx)
+		if gitlinks.captureOverflow {
+			safety.ExecutionCause = "setup-capture-limit"
+		}
+		return finish(ReviewRunFailed, "sealed gitlink setup failed: "+gitlinkErr.Error())
+	}
+	stopSetup()
 	checkout := s
 	checkout.Root, checkout.indexPin = worktree, nil
 	if prepared, err := checkout.PrepareReviewBundle(plan.Brief.Scope); err != nil {
@@ -876,7 +895,7 @@ func (s Store) RunReviewDispatchContext(parent context.Context, plan DispatchPla
 			}
 		}
 	}
-	diskBefore, err := dispatchDiskSnapshot(worktree)
+	diskBefore, err := dispatchDiskSnapshot(worktree, gitlinks.committedBytes)
 	if err != nil {
 		return finish(ReviewRunFailed, err.Error())
 	}
@@ -1085,7 +1104,7 @@ func (s Store) RunReviewDispatchContext(parent context.Context, plan DispatchPla
 
 	if status != "" {
 		// Partial drafts are evidence only after the same containment checks.
-		after, err := dispatchDiskSnapshot(worktree)
+		after, err := dispatchDiskSnapshot(worktree, gitlinks.committedBytes)
 		if err != nil || !reflect.DeepEqual(diskBefore, after) {
 			return finish(ReviewRunFailed, "interrupted adapter changed or obscured the sealed worktree")
 		}
@@ -1100,7 +1119,7 @@ func (s Store) RunReviewDispatchContext(parent context.Context, plan DispatchPla
 		}
 		return finish(status, failure)
 	}
-	diskAfter, err := dispatchDiskSnapshot(worktree)
+	diskAfter, err := dispatchDiskSnapshot(worktree, gitlinks.committedBytes)
 	if err != nil {
 		return finish(ReviewRunFailed, err.Error())
 	}
