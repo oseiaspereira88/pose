@@ -811,6 +811,7 @@ func (s Store) RunReviewDispatchContext(parent context.Context, plan DispatchPla
 		return finish(ReviewRunFailed, "private hook directory setup failed")
 	}
 	setupCtx, stopSetup := context.WithTimeout(parent, 2*time.Minute)
+	defer stopSetup()
 	setup := reviewSetupCommand(setupCtx, gitCommand("-C", s.Root, "-c", "core.hooksPath="+hooks, "worktree", "add", "--detach", worktree, plan.SealedCommit))
 	setupOutput := &reviewBoundedCapture{limit: 64 << 10, cancel: stopSetup}
 	setup.Stdout, setup.Stderr = setupOutput, setupOutput
@@ -821,7 +822,6 @@ func (s Store) RunReviewDispatchContext(parent context.Context, plan DispatchPla
 		terminationFailed = true
 	}
 	setupCause := executionCause(setupCtx)
-	stopSetup()
 	if setupErr != nil || terminationErr != nil || setupOverflow {
 		safety.ExecutionCause = setupCause
 		if setupOverflow {
@@ -850,6 +850,16 @@ func (s Store) RunReviewDispatchContext(parent context.Context, plan DispatchPla
 			submodules[reviewBundleEntryPath(entry)] = true
 		}
 	}
+	gitlinks := reviewGitlinkSetup{ctx: setupCtx, cancel: stopSetup, hooks: hooks, metadata: filepath.Join(tmp, "gitlinks")}
+	if err := gitlinks.materialize(s.Root, worktree, plan.SealedCommit, plan.Bundle.Payload.Subject.Entries); err != nil {
+		terminationFailed = gitlinks.terminationFailure
+		safety.ExecutionCause = executionCause(setupCtx)
+		if gitlinks.captureOverflow {
+			safety.ExecutionCause = "setup-capture-limit"
+		}
+		return finish(ReviewRunFailed, "sealed gitlink setup failed: "+err.Error())
+	}
+	stopSetup()
 	checkout := s
 	checkout.Root, checkout.indexPin = worktree, nil
 	if prepared, err := checkout.PrepareReviewBundle(plan.Brief.Scope); err != nil {
