@@ -1,7 +1,7 @@
 {
   "schema_version": 2,
-  "input_digest": "sha256:5359fd8ac87bb3a899d6c7bb8dcd21184f87700678a76d1f09898362d3499a70",
-  "provenance_digest": "sha256:e8f39cc5ae50bd665dba1e6e5bef677bd8dcd5b197cdee7ee48feb550a4c09ae",
+  "input_digest": "sha256:ebc1603b2057c11d97448d142fd989a0731e050e0cc52de243a2193b15128504",
+  "provenance_digest": "sha256:2f569af27b619ed4742d8fb62897fb4a72f698dcc1736476d3dfa34a26b8c259",
   "implied_edges": [
     "changes"
   ],
@@ -47752,6 +47752,14 @@
       }
     },
     {
+      "id": "change-set:cs-4971f224942c",
+      "type": "change-set",
+      "attributes": {
+        "diff_digest": "sha256:8d7bb416683a1c8253712fa722d7192fe53f00de8dd64046b59b418a674bb684",
+        "selector": "trailers:pose-review-dispatch-materializes-sealed-gitlinks"
+      }
+    },
+    {
       "id": "change-set:cs-497d6acdf6d8",
       "type": "change-set",
       "attributes": {
@@ -48349,14 +48357,6 @@
       "attributes": {
         "diff_digest": "sha256:ccd04280c5a4293628fa27ce0439010f852df1e880037f66b572cf6fdef9ea87",
         "selector": "trailers:pose-gitleaks-action-idempotency-keys"
-      }
-    },
-    {
-      "id": "change-set:cs-6883d494e0bc",
-      "type": "change-set",
-      "attributes": {
-        "diff_digest": "sha256:b84d8ef7d14aa8e57cb57990b8621cb45de301ef8c9f6b865f08810311811bba",
-        "selector": "trailers:pose-review-dispatch-materializes-sealed-gitlinks"
       }
     },
     {
@@ -133710,7 +133710,7 @@
     },
     {
       "from": "spec:pose-review-dispatch-materializes-sealed-gitlinks",
-      "to": "change-set:cs-6883d494e0bc",
+      "to": "change-set:cs-4971f224942c",
       "type": "observed-by"
     },
     {
@@ -218605,6 +218605,69 @@
       }
     },
     {
+      "id": "cs-4971f224942c",
+      "spec": "pose-review-dispatch-materializes-sealed-gitlinks",
+      "selector": "trailers:pose-review-dispatch-materializes-sealed-gitlinks",
+      "base": "c1ab19e91c67c2c27f53acb36bc196d62873474c^",
+      "head": "e157079b494a37b80498bea933f9ae62330cd333",
+      "resolved_base": "2b7da808ea8fa1284b9affbd7e5c62ebc7c49d86",
+      "resolved_head": "e157079b494a37b80498bea933f9ae62330cd333",
+      "commits": [
+        "c1ab19e91c67c2c27f53acb36bc196d62873474c",
+        "ca265785a4896d7b0fb1a0d4c7eda35088a4c5f4",
+        "e157079b494a37b80498bea933f9ae62330cd333"
+      ],
+      "paths": [
+        {
+          "action": "created",
+          "path": ".pose/adr/2026-11-20-materialize-review-gitlinks-from-the-sealed-local-origin.md"
+        },
+        {
+          "action": "created",
+          "path": ".pose/specs/2026-11-20-pose-review-dispatch-materializes-sealed-gitlinks.md"
+        },
+        {
+          "action": "created",
+          "path": "pose-mcp/internal/pose/review_dispatch_gitlinks.go"
+        },
+        {
+          "action": "modified",
+          "path": "pose-mcp/internal/cli/git_snapshot_integrity_test.go"
+        },
+        {
+          "action": "modified",
+          "path": "pose-mcp/internal/cli/review_dispatch_test.go"
+        },
+        {
+          "action": "modified",
+          "path": "pose-mcp/internal/pose/git_snapshot_budget_test.go"
+        },
+        {
+          "action": "modified",
+          "path": "pose-mcp/internal/pose/git_snapshot_integrity.go"
+        },
+        {
+          "action": "modified",
+          "path": "pose-mcp/internal/pose/review_dispatch.go"
+        }
+      ],
+      "diff_digest": "sha256:8d7bb416683a1c8253712fa722d7192fe53f00de8dd64046b59b418a674bb684",
+      "material_digest": "sha256:08a3906f7243a8270208702e8079c17e12d5527cb4e652a56fd2256afe428ee5",
+      "material_inputs": {
+        "names": [
+          ".pose/adr/2026-11-20-materialize-review-gitlinks-from-the-sealed-local-origin.md",
+          ".pose/indexes/validation-matrix.json",
+          ".pose/specs/2026-11-20-pose-review-dispatch-materializes-sealed-gitlinks.md",
+          "pose-mcp/internal/cli/git_snapshot_integrity_test.go",
+          "pose-mcp/internal/cli/review_dispatch_test.go",
+          "pose-mcp/internal/pose/git_snapshot_budget_test.go",
+          "pose-mcp/internal/pose/git_snapshot_integrity.go",
+          "pose-mcp/internal/pose/review_dispatch.go",
+          "pose-mcp/internal/pose/review_dispatch_gitlinks.go"
+        ]
+      }
+    },
+    {
       "id": "cs-497d6acdf6d8",
       "spec": "pose-abm-review-soundness",
       "selector": "trailers:pose-abm-review-soundness",
@@ -232386,68 +232449,6 @@
           ".pose/review-bundles/rvb-e80a3f4a82615f3c.json",
           ".pose/specs/2026-10-06-pose-gitleaks-action-idempotency-keys.md",
           ".pose/starts/pose-gitleaks-action-idempotency-keys.json"
-        ]
-      }
-    },
-    {
-      "id": "cs-6883d494e0bc",
-      "spec": "pose-review-dispatch-materializes-sealed-gitlinks",
-      "selector": "trailers:pose-review-dispatch-materializes-sealed-gitlinks",
-      "base": "c1ab19e91c67c2c27f53acb36bc196d62873474c^",
-      "head": "ca265785a4896d7b0fb1a0d4c7eda35088a4c5f4",
-      "resolved_base": "2b7da808ea8fa1284b9affbd7e5c62ebc7c49d86",
-      "resolved_head": "ca265785a4896d7b0fb1a0d4c7eda35088a4c5f4",
-      "commits": [
-        "c1ab19e91c67c2c27f53acb36bc196d62873474c",
-        "ca265785a4896d7b0fb1a0d4c7eda35088a4c5f4"
-      ],
-      "paths": [
-        {
-          "action": "created",
-          "path": ".pose/adr/2026-11-20-materialize-review-gitlinks-from-the-sealed-local-origin.md"
-        },
-        {
-          "action": "created",
-          "path": ".pose/specs/2026-11-20-pose-review-dispatch-materializes-sealed-gitlinks.md"
-        },
-        {
-          "action": "created",
-          "path": "pose-mcp/internal/pose/review_dispatch_gitlinks.go"
-        },
-        {
-          "action": "modified",
-          "path": "pose-mcp/internal/cli/git_snapshot_integrity_test.go"
-        },
-        {
-          "action": "modified",
-          "path": "pose-mcp/internal/cli/review_dispatch_test.go"
-        },
-        {
-          "action": "modified",
-          "path": "pose-mcp/internal/pose/git_snapshot_budget_test.go"
-        },
-        {
-          "action": "modified",
-          "path": "pose-mcp/internal/pose/git_snapshot_integrity.go"
-        },
-        {
-          "action": "modified",
-          "path": "pose-mcp/internal/pose/review_dispatch.go"
-        }
-      ],
-      "diff_digest": "sha256:b84d8ef7d14aa8e57cb57990b8621cb45de301ef8c9f6b865f08810311811bba",
-      "material_digest": "sha256:cd1f100f05e96c937658fea159051944f9c353d7662740e7f39efdb2a30df6f7",
-      "material_inputs": {
-        "names": [
-          ".pose/adr/2026-11-20-materialize-review-gitlinks-from-the-sealed-local-origin.md",
-          ".pose/indexes/validation-matrix.json",
-          ".pose/specs/2026-11-20-pose-review-dispatch-materializes-sealed-gitlinks.md",
-          "pose-mcp/internal/cli/git_snapshot_integrity_test.go",
-          "pose-mcp/internal/cli/review_dispatch_test.go",
-          "pose-mcp/internal/pose/git_snapshot_budget_test.go",
-          "pose-mcp/internal/pose/git_snapshot_integrity.go",
-          "pose-mcp/internal/pose/review_dispatch.go",
-          "pose-mcp/internal/pose/review_dispatch_gitlinks.go"
         ]
       }
     },
