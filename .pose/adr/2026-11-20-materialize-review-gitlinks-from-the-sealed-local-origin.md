@@ -12,7 +12,7 @@ A governed subject already binds a submodule to a digest of its Git commit and v
 
 Walk only the gitlinks present in the sealed subject and the nested gitlinks required by their checkout integrity checks. Read their revisions from committed trees and transfer only the requested commit and its tree from each selected local repository. Keep network protocols, inherited Git configuration, templates and hooks outside this setup. Use standalone private Git administration so there is no object-store sharing or source registration. Keep its metadata outside the reviewer tree, with a relative marker that is stable across runs.
 
-Use the shared setup deadline, bounded subprocess capture, process termination checks and owned runtime cleanup. Verify both origin and materialized checkout with the existing dispatch checks before allowing the adapter to execute.
+Use the shared setup deadline, bounded subprocess capture and process termination checks. Charge each child tree before transferring it. Inventory the private Git metadata under its captured directory identity and committed byte budget, separately from adapter output. Verify both origin and materialized checkout with the existing dispatch checks before allowing the adapter to execute.
 
 ## Consequences
 

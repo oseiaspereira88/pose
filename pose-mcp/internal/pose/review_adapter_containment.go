@@ -445,7 +445,9 @@ type reviewCleanupOwnership struct {
 	// checked-out commit's tree plus the snapshot margin, read from the
 	// coordinator repository when the worktree is registered (spec
 	// pose-git-snapshot-budget-scales-with-the-tree).
-	inventoryBytes int64
+	inventoryBytes       int64
+	gitlinkMetadata      os.FileInfo
+	gitlinkMetadataBytes int64
 }
 
 func (s Store) captureReviewCleanupOwnership(runtime *os.Root, worktree string, marker []byte) (*reviewCleanupOwnership, error) {
@@ -589,6 +591,11 @@ func (s Store) cleanupReviewResources(tmp string, owned os.FileInfo, worktree st
 	} else if _, e := root.Lstat("worktree"); !errors.Is(e, os.ErrNotExist) {
 		return fmt.Errorf("partial worktree setup has no verified ownership; resources retained")
 	}
+	if o != nil && o.gitlinkMetadata != nil {
+		if err := removeReviewGitlinkMetadata(root, o.gitlinkMetadata, o.gitlinkMetadataBytes); err != nil {
+			return err
+		}
+	}
 	if err := removeReviewGoBuildLeftovers(root); err != nil {
 		return err
 	}
@@ -604,6 +611,33 @@ func (s Store) cleanupReviewResources(tmp string, owned os.FileInfo, worktree st
 	}
 	if o != nil {
 		o.removed = true
+	}
+	return nil
+}
+
+// Private gitlink stores are charged separately from the adapter's runtime
+// output. Both the opened directory and the removal target must be the
+// directory setup created inside the operation root.
+func removeReviewGitlinkMetadata(root *os.Root, owned os.FileInfo, limit int64) error {
+	dir, err := root.OpenRoot(reviewGitlinkMetadataDir)
+	if err != nil {
+		return fmt.Errorf("private gitlink metadata cleanup unavailable")
+	}
+	defer dir.Close()
+	info, err := dir.Stat(".")
+	if err != nil || !os.SameFile(owned, info) {
+		return fmt.Errorf("private gitlink metadata identity changed")
+	}
+	if err := removeReviewOwnedContents(dir, 100000, limit); err != nil {
+		return err
+	}
+	info, err = root.Lstat(reviewGitlinkMetadataDir)
+	if err != nil || !os.SameFile(owned, info) {
+		return fmt.Errorf("private gitlink metadata identity changed")
+	}
+	dir.Close()
+	if err := root.Remove(reviewGitlinkMetadataDir); err != nil {
+		return fmt.Errorf("private gitlink metadata cleanup incomplete")
 	}
 	return nil
 }

@@ -33,7 +33,7 @@ Initialize unrelated submodules, resolve a remote URL or review changes inside a
 
 - R1: Materialize each scoped gitlink at the commit recorded in the sealed parent tree and bound to the subject digest. Use only committed objects already available in the selected local origin, including nested gitlinks required to verify the scoped repository.
 - R2: Keep Git metadata private to the run and give equivalent repeated checkouts the same snapshot. Preserve origin files and Git metadata.
-- R3: Fail before running the adapter when needed objects are unavailable or the pin, source worktree or resulting checkout fails verification. Apply the existing setup process, capture and cleanup limits. Include each sealed child tree in the committed byte budget for snapshot and worktree cleanup.
+- R3: Fail before running the adapter when needed objects are unavailable or the pin, source worktree or resulting checkout fails verification. Apply the existing setup process, capture and cleanup limits. Check each sealed child tree against the committed byte ceiling before transfer. Account for the populated worktree and its private object stores in their own cleanup inventories.
 
 ## 3. Technical Plan
 
@@ -47,6 +47,7 @@ Use the validated origin's local submodule and stage a standalone detached check
 - created: .pose/adr/2026-11-20-materialize-review-gitlinks-from-the-sealed-local-origin.md
 - modified: pose-mcp/internal/pose/git_snapshot_integrity.go
 - modified: pose-mcp/internal/pose/git_snapshot_budget_test.go
+- modified: pose-mcp/internal/pose/review_adapter_containment.go
 - modified: pose-mcp/internal/pose/review_dispatch.go
 - created: pose-mcp/internal/pose/review_dispatch_gitlinks.go
 - modified: pose-mcp/internal/cli/git_snapshot_integrity_test.go
@@ -74,8 +75,8 @@ Run the CLI regression against the parent first. It must reach sealing and fail 
 
 - R1 [satisfied] test:TestReviewDispatchMaterializesSealedGitlinks
 - R2 [satisfied] test:TestReviewDispatchMaterializesSealedGitlinks
-- R3 [satisfied] test:TestReviewDispatchMaterializesSealedGitlinks
+- R3 [satisfied] test:TestReviewDispatchMaterializesSealedGitlinks test:TestReviewCleanupCoversLargePrivateGitlinkStore test:TestReviewGitlinkSetupChecksAvailabilityAndSizeBeforeFetch
 
 ## 7. Final Report
 
-The CLI fixture reached the empty gitlink identity error on the parent commit and passed after local materialization. Candidate validation and a real Harne8 review remain pending.
+The CLI fixture reached the empty gitlink identity error on the parent commit and passed after local materialization. Harne8 reached its real Opus review and confirmed cleanup on the adopted engine fixture. The focused engine review reproduced retained private metadata above 128 MiB. The correction checks tree sizes before transfer and inventories the private Git stores separately. Candidate qualification is pending.

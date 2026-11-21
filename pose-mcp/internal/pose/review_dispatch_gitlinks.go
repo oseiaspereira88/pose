@@ -11,11 +11,15 @@ import (
 	"strings"
 )
 
+const reviewGitlinkMetadataDir = "gitlinks"
+
 type reviewGitlinkSetup struct {
 	ctx                context.Context
 	cancel             context.CancelFunc
 	hooks              string
 	metadata           string
+	metadataOwned      os.FileInfo
+	maxCommittedBytes  int64
 	count              int
 	committedBytes     int64
 	captureOverflow    bool
@@ -30,9 +34,9 @@ func (s *reviewGitlinkSetup) materialize(origin, worktree, commit string, entrie
 		path := reviewBundleEntryPath(entry)
 		raw, err := s.git(64<<10, "--literal-pathspecs", "-C", worktree, "ls-tree", "-l", "-z", commit, "--", path)
 		if err != nil {
-			return err
+			return fmt.Errorf("read sealed gitlink %q: %w", path, err)
 		}
-		pin, name, err := reviewGitlinkRecord(bytes.TrimSuffix(raw, []byte{0}))
+		pin, name, _, err := reviewGitlinkRecord(bytes.TrimSuffix(raw, []byte{0}))
 		if err != nil || name != path || pin == "" || digestBytes([]byte(pin)) != entry.Digest {
 			return fmt.Errorf("sealed gitlink %q does not match the subject", path)
 		}
@@ -43,22 +47,26 @@ func (s *reviewGitlinkSetup) materialize(origin, worktree, commit string, entrie
 	return nil
 }
 
-func reviewGitlinkRecord(record []byte) (pin, path string, err error) {
+func reviewGitlinkRecord(record []byte) (pin, path string, size int64, err error) {
 	metadata, path, ok := strings.Cut(string(record), "\t")
 	if !ok {
-		return "", "", fmt.Errorf("sealed tree record has no path")
+		return "", "", 0, fmt.Errorf("sealed tree record has no path")
 	}
 	fields := strings.Fields(metadata)
 	if len(fields) != 4 || strings.ContainsRune(path, 0) {
-		return "", "", fmt.Errorf("invalid sealed tree record")
+		return "", "", 0, fmt.Errorf("invalid sealed tree record")
 	}
 	if fields[0] != "160000" {
-		return "", path, nil
+		size, err := strconv.ParseInt(fields[3], 10, 64)
+		if fields[1] != "blob" || err != nil || size < 0 {
+			return "", "", 0, fmt.Errorf("sealed tree blob size unavailable")
+		}
+		return "", path, size, nil
 	}
 	if fields[1] != "commit" || !isGitRevision(fields[2]) {
-		return "", "", fmt.Errorf("invalid sealed gitlink")
+		return "", "", 0, fmt.Errorf("invalid sealed gitlink")
 	}
-	return fields[2], path, nil
+	return fields[2], path, 0, nil
 }
 
 func (s *reviewGitlinkSetup) checkout(origin, worktree, path, pin string) error {
@@ -77,8 +85,40 @@ func (s *reviewGitlinkSetup) checkout(origin, worktree, path, pin string) error 
 	if err != nil || len(children) != 0 {
 		return fmt.Errorf("sealed gitlink %q has no empty checkout directory", path)
 	}
-	if err := os.MkdirAll(s.metadata, 0700); err != nil {
-		return fmt.Errorf("private gitlink metadata directory unavailable")
+	// Charge the exact shallow tree before transferring its objects. This also
+	// witnesses the pin's availability in the selected local repository.
+	raw, err := s.git(gitTreeListingMaxBytes, "-C", source, "ls-tree", "-r", "-l", "-z", pin)
+	if err != nil {
+		return fmt.Errorf("read local tree for sealed gitlink %q: %w", path, err)
+	}
+	type nestedGitlink struct{ path, pin string }
+	var nested []nestedGitlink
+	var treeBytes int64
+	for record := range bytes.SplitSeq(bytes.TrimSuffix(raw, []byte{0}), []byte{0}) {
+		if len(record) == 0 {
+			continue
+		}
+		nestedPin, nestedPath, size, err := reviewGitlinkRecord(record)
+		if err != nil {
+			return fmt.Errorf("inspect local tree for sealed gitlink %q: %w", path, err)
+		}
+		if size > s.maxCommittedBytes-s.committedBytes-treeBytes {
+			return fmt.Errorf("sealed gitlink %q exceeds the snapshot byte ceiling", path)
+		}
+		treeBytes += size
+		if nestedPin != "" {
+			nested = append(nested, nestedGitlink{path: nestedPath, pin: nestedPin})
+		}
+	}
+	s.committedBytes += treeBytes
+	if s.metadataOwned == nil {
+		if err := os.Mkdir(s.metadata, 0700); err != nil {
+			return fmt.Errorf("private gitlink metadata directory unavailable")
+		}
+		s.metadataOwned, err = os.Lstat(s.metadata)
+		if err != nil {
+			return fmt.Errorf("private gitlink metadata identity unavailable")
+		}
 	}
 	s.count++
 	gitDir := filepath.Join(s.metadata, strconv.Itoa(s.count))
@@ -87,7 +127,7 @@ func (s *reviewGitlinkSetup) checkout(origin, worktree, path, pin string) error 
 		objectFormat = "sha256"
 	}
 	if _, err := s.git(64<<10, "-C", target, "init", "-q", "--object-format="+objectFormat, "--template="+s.hooks, "--separate-git-dir="+gitDir); err != nil {
-		return err
+		return fmt.Errorf("initialize private Git directory for %q: %w", path, err)
 	}
 	// Git writes an absolute marker on init. Preserve a reproducible checkout
 	// snapshot by expressing the path within the owned runtime directory.
@@ -99,31 +139,14 @@ func (s *reviewGitlinkSetup) checkout(origin, worktree, path, pin string) error 
 		return err
 	}
 	if _, err := s.git(64<<10, "-C", target, "fetch", "-q", "--depth=1", "--no-tags", "--no-recurse-submodules", "--no-write-fetch-head", "--no-auto-maintenance", "--", source, pin); err != nil {
-		return err
-	}
-	raw, err := s.git(gitTreeListingMaxBytes, "-C", target, "ls-tree", "-r", "-l", "-z", pin)
-	if err != nil {
-		return err
-	}
-	s.committedBytes += gitCommittedTreeBytes(raw)
-	if s.committedBytes > gitSnapshotCeilingBytes {
-		return fmt.Errorf("sealed gitlinks exceed the snapshot byte ceiling")
+		return fmt.Errorf("fetch local objects for sealed gitlink %q: %w", path, err)
 	}
 	if _, err := s.git(64<<10, "-C", target, "checkout", "-q", "--detach", pin, "--"); err != nil {
-		return err
+		return fmt.Errorf("check out sealed gitlink %q: %w", path, err)
 	}
-	for record := range bytes.SplitSeq(bytes.TrimSuffix(raw, []byte{0}), []byte{0}) {
-		if len(record) == 0 {
-			continue
-		}
-		nestedPin, nestedPath, err := reviewGitlinkRecord(record)
-		if err != nil {
+	for _, child := range nested {
+		if err := s.checkout(source, target, child.path, child.pin); err != nil {
 			return err
-		}
-		if nestedPin != "" {
-			if err := s.checkout(source, target, nestedPath, nestedPin); err != nil {
-				return err
-			}
 		}
 	}
 	return nil

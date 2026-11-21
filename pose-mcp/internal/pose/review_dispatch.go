@@ -850,9 +850,16 @@ func (s Store) RunReviewDispatchContext(parent context.Context, plan DispatchPla
 			submodules[reviewBundleEntryPath(entry)] = true
 		}
 	}
-	gitlinks := reviewGitlinkSetup{ctx: setupCtx, cancel: stopSetup, hooks: hooks, metadata: filepath.Join(tmp, "gitlinks")}
+	committedWorktreeBytes := ownership.inventoryBytes - gitSnapshotMarginBytes
+	gitlinks := reviewGitlinkSetup{
+		ctx: setupCtx, cancel: stopSetup, hooks: hooks,
+		metadata:          filepath.Join(tmp, reviewGitlinkMetadataDir),
+		maxCommittedBytes: gitSnapshotCeilingBytes - committedWorktreeBytes,
+	}
 	gitlinkErr := gitlinks.materialize(s.Root, worktree, plan.SealedCommit, plan.Bundle.Payload.Subject.Entries)
-	ownership.inventoryBytes = gitSnapshotBudget(ownership.inventoryBytes - gitSnapshotMarginBytes + gitlinks.committedBytes)
+	ownership.inventoryBytes = gitSnapshotBudget(committedWorktreeBytes + gitlinks.committedBytes)
+	ownership.gitlinkMetadata = gitlinks.metadataOwned
+	ownership.gitlinkMetadataBytes = gitSnapshotBudget(gitlinks.committedBytes)
 	if gitlinkErr != nil {
 		terminationFailed = gitlinks.terminationFailure
 		safety.ExecutionCause = executionCause(setupCtx)

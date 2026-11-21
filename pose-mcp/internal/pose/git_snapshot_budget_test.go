@@ -2,6 +2,7 @@ package pose
 
 import (
 	"bytes"
+	"context"
 	"os"
 	"path/filepath"
 	"strings"
@@ -232,5 +233,69 @@ func TestGitSnapshotBudgetCoversSealedGitlinkBytes(t *testing.T) {
 	}
 	if _, err := dispatchDiskSnapshot(root, int64(len(payload))); err == nil || !strings.Contains(err.Error(), "budget") {
 		t.Fatalf("undeclared disk growth escaped the budget: %v", err)
+	}
+}
+
+func TestReviewCleanupCoversLargePrivateGitlinkStore(t *testing.T) {
+	store, tmp, owned, worktree, worktreeOwned, marker, ownership := cleanupBudgetFixture(t, 0)
+	t.Cleanup(func() { ownership.registry.Close() })
+	path := filepath.Join(tmp, reviewGitlinkMetadataDir)
+	if err := os.Mkdir(path, 0700); err != nil {
+		t.Fatal(err)
+	}
+	const packBytes = 140 << 20
+	pack, err := os.Create(filepath.Join(path, "fixture.pack"))
+	if err != nil {
+		t.Fatal(err)
+	}
+	err = pack.Truncate(packBytes)
+	closeErr := pack.Close()
+	if err != nil || closeErr != nil {
+		t.Fatal(err, closeErr)
+	}
+	ownership.gitlinkMetadata, err = os.Lstat(path)
+	if err != nil {
+		t.Fatal(err)
+	}
+	ownership.gitlinkMetadataBytes = gitSnapshotBudget(packBytes)
+	if err := store.cleanupReviewResources(tmp, owned, worktree, worktreeOwned, marker, ownership); err != nil {
+		t.Fatalf("cleanup refused the operation-owned Git store: %v", err)
+	}
+	if _, err := os.Lstat(tmp); !os.IsNotExist(err) {
+		t.Fatalf("cleanup retained the review runtime: %v", err)
+	}
+}
+
+func TestReviewGitlinkSetupChecksAvailabilityAndSizeBeforeFetch(t *testing.T) {
+	origin := t.TempDir()
+	source := filepath.Join(origin, "child")
+	repo := snapshotRepo(t, map[string]string{"payload": "ten bytes\n"})
+	if err := os.Rename(repo, source); err != nil {
+		t.Fatal(err)
+	}
+	pin := snapshotTestGit(t, source, "rev-parse", "HEAD")
+	runtime := t.TempDir()
+	worktree := filepath.Join(runtime, "worktree")
+	target := filepath.Join(worktree, "child")
+	if err := os.MkdirAll(target, 0700); err != nil {
+		t.Fatal(err)
+	}
+	ctx, cancel := context.WithCancel(t.Context())
+	defer cancel()
+	setup := reviewGitlinkSetup{
+		ctx: ctx, cancel: cancel, hooks: t.TempDir(),
+		metadata:          filepath.Join(runtime, reviewGitlinkMetadataDir),
+		maxCommittedBytes: 1,
+	}
+	for _, tt := range []struct{ pin, want string }{
+		{strings.Repeat("0", len(pin)), "read local tree for sealed gitlink"},
+		{pin, "exceeds the snapshot byte ceiling"},
+	} {
+		if err := setup.checkout(origin, worktree, "child", tt.pin); err == nil || !strings.Contains(err.Error(), tt.want) {
+			t.Fatalf("expected %q, got %v", tt.want, err)
+		}
+		if _, err := os.Lstat(setup.metadata); !os.IsNotExist(err) || setup.committedBytes != 0 {
+			t.Fatalf("failed preflight began transferring objects: %v", err)
+		}
 	}
 }
