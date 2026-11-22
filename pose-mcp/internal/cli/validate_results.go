@@ -42,6 +42,10 @@ type checkResult struct {
 	// Runtime guardrails (spec pose-validation-runtime-guardrails), additive:
 	LimitState string `json:"limit_state,omitempty"` // timeout | output-limit | cancelled | no-tests
 	Isolation  string `json:"isolation,omitempty"`   // required = delegated to Harness
+	// A carried result is the base's, run at CarriedFrom (spec
+	// pose-validate-carries-unchanged-checks R4).
+	CarriedFrom        string `json:"carried_from,omitempty"`
+	CarriedGeneratedAt string `json:"carried_generated_at,omitempty"`
 }
 
 // outputLimiter cancels the check when total output exceeds the limit —
@@ -73,6 +77,10 @@ type validationRunResult struct {
 	ProvenanceDigest   string            `json:"provenance_digest,omitempty"`
 	ScopeProvenance    map[string]string `json:"scope_provenance,omitempty"`
 	MaterialProvenance map[string]string `json:"material_provenance,omitempty"`
+	// EngineVersion and Carry let a later run judge this one as a base (spec
+	// pose-validate-carries-unchanged-checks R2, R5).
+	EngineVersion string       `json:"engine_version,omitempty"`
+	Carry         *carryRecord `json:"carry,omitempty"`
 	// Jobs is how many checks ran at once; WallSeconds the run's elapsed time
 	// (spec pose-validate-concurrent-steps R3–R4).
 	Jobs        int     `json:"jobs,omitempty"`
@@ -91,6 +99,7 @@ type runCounts struct {
 	OptionalFailed int `json:"optional_failed"`
 	Errored        int `json:"errored"`
 	Skipped        int `json:"skipped"`
+	Carried        int `json:"carried,omitempty"`
 }
 
 // secretEnvKeyRE marks configured env keys whose values are redacted from

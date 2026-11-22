@@ -28,6 +28,10 @@ func ParseDeliveryValidationRun(raw []byte, relative string) ([]DeliveryValidati
 			Severity      string `json:"severity"`
 			EvidenceClass string `json:"evidence_class,omitempty"`
 			Outcome       string `json:"outcome"`
+			// A carried check ran at its own head (spec
+			// pose-validate-carries-unchanged-checks R7).
+			CarriedFrom        string `json:"carried_from,omitempty"`
+			CarriedGeneratedAt string `json:"carried_generated_at,omitempty"`
 		} `json:"checks"`
 	}
 	if err := json.Unmarshal(raw, &run); err != nil || run.SchemaVersion != DeliveryValidationResultSchema {
@@ -38,7 +42,11 @@ func ParseDeliveryValidationRun(raw []byte, relative string) ([]DeliveryValidati
 		if check.EvidenceClass == "" {
 			continue
 		}
-		results = append(results, DeliveryValidationResult{ID: check.ID, Module: check.Module, Check: check.Name, EvidenceClass: check.EvidenceClass, Severity: check.Severity, Outcome: check.Outcome, GitHead: run.GitHead, GeneratedAt: run.GeneratedAt, ProvenanceDigest: run.ProvenanceDigest, ScopeProvenance: run.ScopeProvenance, MaterialProvenance: run.MaterialProvenance, Report: relative})
+		head, generated := run.GitHead, run.GeneratedAt
+		if check.CarriedFrom != "" {
+			head, generated = check.CarriedFrom, check.CarriedGeneratedAt
+		}
+		results = append(results, DeliveryValidationResult{ID: check.ID, Module: check.Module, Check: check.Name, EvidenceClass: check.EvidenceClass, Severity: check.Severity, Outcome: check.Outcome, GitHead: head, GeneratedAt: generated, ProvenanceDigest: run.ProvenanceDigest, ScopeProvenance: run.ScopeProvenance, MaterialProvenance: run.MaterialProvenance, Report: relative})
 	}
 	sort.Slice(results, func(i, j int) bool { return results[i].ID < results[j].ID })
 	return results, nil

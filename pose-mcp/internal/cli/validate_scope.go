@@ -25,6 +25,10 @@ var safeGitRevRE = regexp.MustCompile(`^[A-Za-z0-9][A-Za-z0-9._/~^-]*$`)
 type scopeModuleMeta struct {
 	Criticality string   `json:"criticality"`
 	DependsOn   []string `json:"dependsOn"`
+	// SelfContained declares that the module's checks read only its own
+	// directory and its declared dependencies, so a change outside every
+	// module does not select it (spec pose-validate-carries-unchanged-checks R6).
+	SelfContained bool `json:"selfContained"`
 }
 
 type scopeMetadata struct {
@@ -57,8 +61,10 @@ func (s scopeSelection) rangeLabel() string {
 // computeChangedScope resolves the selection. Modules are selected when they
 // contain changed files, depend (transitively) on a changed module, or policy
 // widens them (criticality high). A change outside every module selects
-// everything — uncertainty prefers safe execution.
-func computeChangedScope(root, base, head string, modules []validationModule) (scopeSelection, error) {
+// every module that does not declare itself self-contained — uncertainty
+// prefers safe execution. Excluded paths (the run's own canonical result) are
+// not changes.
+func computeChangedScope(root, base, head string, modules []validationModule, exclude ...string) (scopeSelection, error) {
 	sel := scopeSelection{Base: base, Head: head, Selected: map[string]string{}}
 	for _, rev := range []string{base, head} {
 		if rev != "" && !safeGitRevRE.MatchString(rev) {
@@ -90,6 +96,19 @@ func computeChangedScope(root, base, head string, modules []validationModule) (s
 			}
 		}
 	}
+	if len(exclude) > 0 {
+		excluded := map[string]bool{}
+		for _, path := range exclude {
+			excluded[filepath.ToSlash(filepath.Clean(path))] = true
+		}
+		kept := sel.Changed[:0]
+		for _, file := range sel.Changed {
+			if !excluded[file] {
+				kept = append(kept, file)
+			}
+		}
+		sel.Changed = kept
+	}
 	sort.Strings(sel.Changed)
 
 	meta := loadScopeMetadata(root)
@@ -110,13 +129,16 @@ func computeChangedScope(root, base, head string, modules []validationModule) (s
 				sel.Selected[m] = "contains changed file: " + file
 			}
 		} else {
-			// Root-level or unmapped change: safe execution wins.
+			// Root-level or unmapped change: safe execution wins, except for
+			// modules that declare their checks read nothing outside them.
 			for _, m := range modules {
+				if meta.Modules[m.Rel].SelfContained {
+					continue
+				}
 				if _, ok := sel.Selected[m.Rel]; !ok {
 					sel.Selected[m.Rel] = "root-level change outside any module: " + file
 				}
 			}
-			return sel, nil
 		}
 	}
 	// Policy widening: high-criticality modules always run.

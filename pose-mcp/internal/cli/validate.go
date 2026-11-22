@@ -24,6 +24,7 @@ import (
 	"time"
 
 	posemodel "github.com/harne8/pose-mcp/internal/pose"
+	"github.com/harne8/pose-mcp/internal/version"
 )
 
 type validationWhen struct {
@@ -65,7 +66,10 @@ type validationEntry struct {
 	skip     string
 	silent   bool
 	isolated bool
-	result   checkResult
+	// carried marks a check whose result comes from the canonical base (spec
+	// pose-validate-carries-unchanged-checks R4); it is silent and never runs.
+	carried bool
+	result  checkResult
 	done     chan struct{}
 }
 
@@ -905,6 +909,7 @@ func cmdValidateWithStore(store posemodel.Store, args []string, stdout, stderr i
 	verbose := false
 	autoReport := false
 	rootOnly := false
+	carry := false
 	workspaceFilter := ""
 	jobs := 0
 	var isolationChecks []checkResult
@@ -922,6 +927,10 @@ func cmdValidateWithStore(store posemodel.Store, args []string, stdout, stderr i
 			// A check's output is captured by default; --verbose streams it
 			// (spec pose-cli-output-rendering-system R7).
 			verbose = true
+		case "--carry":
+			// Refresh the canonical result, carrying the checks a change
+			// cannot affect (spec pose-validate-carries-unchanged-checks).
+			carry = true
 		case "--root-only":
 			// Documented alias of --module . (spec
 			// pose-monorepo-validation-advisory, R2) — sugar over the
@@ -995,8 +1004,21 @@ func cmdValidateWithStore(store posemodel.Store, args []string, stdout, stderr i
 		}
 	}
 	canonicalResultsPath := ""
-	if jsonOut != "" {
+	if jsonOut != "" || carry {
 		canonicalResultsPath = configuredDeliveryResultsPath(root)
+	}
+	if carry {
+		switch {
+		case moduleFilter != "" || stackFilter != "" || workspaceFilter != "" || changedFrom != "" || changedTo != "":
+			render(stdout, stderr).Failure(cliText(locale, "--carry refreshes the whole canonical result; it cannot be combined with --module, --stack, --workspace, --root-only, --changed-from or --changed-to", "--carry renova o resultado canônico inteiro; não combina com --module, --stack, --workspace, --root-only, --changed-from ou --changed-to"))
+			return 2
+		case canonicalResultsPath == "":
+			render(stdout, stderr).Failure(cliText(locale, "--carry needs results_path in .pose/policy/delivery.json", "--carry exige results_path em .pose/policy/delivery.json"))
+			return 2
+		case normalizeValidationOutputPath(jsonOut) != canonicalResultsPath:
+			render(stdout, stderr).Failure(fmt.Sprintf(cliText(locale, "--carry writes the canonical result: use --json-out %s", "--carry grava o resultado canônico: use --json-out %s"), canonicalResultsPath))
+			return 2
+		}
 	}
 	// The report --report writes records this run, so it reads this run's own
 	// output. It used to look for a pose-validate.latest.log that native
@@ -1121,6 +1143,27 @@ func cmdValidateWithStore(store posemodel.Store, args []string, stdout, stderr i
 	}
 	matrixDigest := sha256.Sum256(raw)
 	run.MatrixSHA256 = "sha256:" + hex.EncodeToString(matrixDigest[:])
+	run.EngineVersion = version.Version
+	var carryState carryPlan
+	if carry {
+		carryState = planCarry(root, canonicalResultsPath, mode, run.MatrixSHA256, matrix, modules)
+		run.Carry = carryState.record
+		out := render(stdout, stderr)
+		if !carryState.record.Used {
+			out.ContractLine("[carry] full run: " + carryState.record.Reason)
+		} else {
+			out.ContractLine(fmt.Sprintf("[carry] base %s: %d changed file(s), %d/%d module(s) run", carryState.record.BaseHead, carryState.record.Changed, len(carryState.record.Selected), len(modules)))
+			if explain {
+				for _, m := range modules {
+					if reason, ok := carryState.record.Selected[m.Rel]; ok {
+						out.ContractLine("  + " + m.Rel + ": " + reason)
+					} else {
+						out.ContractLine("  = " + m.Rel + ": carried from " + carryState.record.BaseHead)
+					}
+				}
+			}
+		}
+	}
 	if head, err := gitOutputBounded(root, 1024, "rev-parse", "HEAD"); err == nil {
 		run.GitHead = strings.TrimSpace(string(head))
 	}
@@ -1171,6 +1214,9 @@ func cmdValidateWithStore(store posemodel.Store, args []string, stdout, stderr i
 				continue
 			}
 		}
+		if carryState.carried(module.Rel) {
+			continue
+		}
 		for _, check := range checks {
 			if check.Program != "" {
 				planned++
@@ -1213,6 +1259,16 @@ func cmdValidateWithStore(store posemodel.Store, args []string, stdout, stderr i
 				}
 				continue
 			}
+		}
+		if carryState.carried(module.Rel) {
+			for _, check := range checks {
+				if check.Program == "" {
+					continue
+				}
+				id := module.Rel + "/" + stack + "/" + check.Name
+				entries = append(entries, &validationEntry{check: check, silent: true, carried: true, result: carryState.carriedResult(id)})
+			}
+			continue
 		}
 		moduleMode := mode
 		if override.Mode != "" {
@@ -1267,6 +1323,34 @@ func cmdValidateWithStore(store posemodel.Store, args []string, stdout, stderr i
 	for _, entry := range entries {
 		if entry.note != "" {
 			steps.Note(entry.note)
+			continue
+		}
+		if entry.carried {
+			// A carried result counts toward the outcome exactly as it did in
+			// its own run; a carried failure stays a failure (R4).
+			run.Counts.Carried++
+			switch entry.result.Outcome {
+			case "pass":
+				run.Counts.Passed++
+			case "fail":
+				if entry.result.Severity == "required" {
+					failures++
+					run.Counts.Failed++
+				} else {
+					optionalFailures++
+					run.Counts.OptionalFailed++
+				}
+			case "skipped":
+				run.Counts.Skipped++
+			default:
+				run.Counts.Errored++
+				if entry.result.Severity == "required" {
+					failures++
+				} else {
+					optionalFailures++
+				}
+			}
+			run.Checks = append(run.Checks, entry.result)
 			continue
 		}
 		if !entry.silent && !entry.isolated {
@@ -1350,7 +1434,7 @@ func cmdValidateWithStore(store posemodel.Store, args []string, stdout, stderr i
 		steps.Note(line)
 	}
 	steps.Summary()
-	if executed == 0 {
+	if executed == 0 && run.Counts.Carried == 0 {
 		fmt.Fprintln(stdout, "No modules/checks matched the matrix and filters.")
 	}
 	result := "pass"

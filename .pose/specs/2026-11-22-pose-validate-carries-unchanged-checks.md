@@ -69,6 +69,10 @@ Caching individual command outputs, hashing arbitrary inputs of a check, carryin
 - modified: pose-mcp/internal/pose/delivery_validation_run.go
 - created: pose-mcp/internal/pose/delivery_validation_run_test.go
 - modified: POSE.md
+- modified: locales/pt-BR/POSE.md
+- modified: pose-mcp/internal/cli/help_catalog.go
+- modified: pose-mcp/internal/scaffold/dist/POSE.md
+- modified: pose-mcp/internal/scaffold/dist/locales/pt-BR/POSE.md
 
 ### Delivery targets
 
