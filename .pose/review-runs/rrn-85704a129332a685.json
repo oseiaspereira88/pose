@@ -1,0 +1,166 @@
+{
+  "safety": {
+    "schema_version": 1,
+    "profile": "legacy-trusted",
+    "platform": "linux/amd64",
+    "capabilities": {
+      "automatic-expiry": "unavailable",
+      "bounded-capture": "available",
+      "cpu-limit": "unavailable",
+      "credential-filesystem-isolation": "unavailable",
+      "environment-allowlist": "available",
+      "escaped-descendant-termination": "unavailable",
+      "filesystem-isolation": "unavailable",
+      "memory-limit": "unavailable",
+      "network-isolation": "unavailable",
+      "origin-isolation": "unavailable",
+      "parent-termination": "available",
+      "process-group-termination": "available",
+      "shared-git-isolation": "unavailable"
+    },
+    "limitations": [
+      "trusted local executable required; worktree is not a sandbox",
+      "outside writes, transient writes, shared Git and credential files are not isolated",
+      "no memory/CPU quota or control of descendants escaping the process group",
+      "cleanup filesystem calls remain subject to operating-system I/O latency",
+      "legacy compatibility: HOME retained; other ambient credentials excluded"
+    ],
+    "stream_bytes": 8388608,
+    "output_bytes": 65536,
+    "retained_bytes": 16777216,
+    "timeout_ms": 3600000,
+    "max_runs_per_bundle": 3,
+    "retention": "retain-evidence; ttl=0; no automatic deletion",
+    "capture_complete": true,
+    "runtime_id": "pose-review-run-2791357838",
+    "operation": {
+      "schema_version": 1,
+      "operation": "review.dispatch.cleanup",
+      "scope": "spec:pose-validate-carries-unchanged-checks",
+      "outcome": "failed",
+      "step": "cleanup",
+      "steps_run": [
+        {
+          "id": "cleanup",
+          "result": "failed"
+        }
+      ],
+      "effects": [],
+      "unconfirmed": [
+        {
+          "step": "cleanup",
+          "reason": "owned resources may remain; no automatic respawn"
+        }
+      ],
+      "resumable": false,
+      "error": {
+        "cause": "cleanup-incomplete",
+        "message": "runtime cleanup incomplete; resources retained"
+      }
+    }
+  },
+  "provenance": {
+    "execution_state": "started",
+    "planned_wire_digest": "sha256:222e7b000bf26aaaade2613b8f6248d8e55dc4ea0cfb9384fb32c4b7ab650dcd",
+    "wire_bytes": 35500,
+    "wire_complete": true,
+    "schema_version": 1,
+    "project": "proj.pose-dist",
+    "audience": "proj.pose-dist",
+    "worktree_digest": "sha256:092ca52378c4c0d0f2b627da8d5031dbb854563bd4b9f2474458710c62a14816",
+    "trust": "executor-attested",
+    "implementation": {
+      "principal": "agent:anthropic/unknown",
+      "execution": "sha256:344ac5868944c155772d60a95ef6ff20644580a642e772ad5c92c29428464ff8",
+      "vendor": "anthropic",
+      "model": "unknown"
+    },
+    "reviewer": {
+      "principal": "agent:openai/gpt-6.1-sol",
+      "vendor": "openai",
+      "model": "gpt-6.1-sol"
+    },
+    "config_digest": "sha256:637a9d88c40dbf75da8525db65c216ace591f828ef25c233358db1a99e70ee31",
+    "command_template_digest": "sha256:e3a23ff8a55e559e954d107a039277628bfc51faa58d523ad6101de7c375ad28",
+    "argv_digest": "sha256:3c59807713f1b56f0401014bdc74956d04962f6c49bb814848af4f12da8408e6",
+    "executable_digest": "sha256:0e0c66f50074965a40cbd12f625b0a35963baf41bbd8c201a93e32fddbe2e073",
+    "template_version": "review-brief/7",
+    "wire_digest": "sha256:222e7b000bf26aaaade2613b8f6248d8e55dc4ea0cfb9384fb32c4b7ab650dcd",
+    "notes_digest": "sha256:24aa8b73ba440cc7062d1cce48afa27c95494c33aa433598e0ce1cb890fae17f",
+    "raw_transcript_digest": "sha256:b659e87d48659b43736b2b48332c6a6b698a17e07efd22297c2d38c237230b5d",
+    "raw_output_digest": "sha256:4ce116c7384dc1d529e1e31a1d3b8565a8e6aa2ee333c73918f7a28d7255a345",
+    "output_source": "file",
+    "output_complete": true
+  },
+  "session_digest": "sha256:0d63bd6d22195ac32e59bbba8731a7306c010d1da14592028337d9152c060dc8",
+  "tree_digest": "sha256:22935d50c94a516ab195faa2a90775c8bd33c3790961a91d3dd145cafcae1fd9",
+  "brief_notes": "Implementer notes (Claude Opus 5.5, the lead in this session). Use them as context only; the judgment is yours.\n\n- The feature was motivated by the Harne8 batch of 2026-11-22. There, every review round re-ran a 72-check matrix of about 35 minutes, and intermittent suites failed roughly one run in three.\n- In this repository `pose-mcp` holds 233 of the 236 checks and is high criticality, so `--carry` saves little here. The dogfood record at c4182727 carried five of six modules with zero changed files.\n- Please challenge the soundness argument of D1 in particular. A carried result is bound to the material computed at HEAD, and that is only safe when the selection guarantees the carried module's inputs did not change.\n- Please also check the derived-record exclusion (`carryExclusions` with `posemodel.IsAdministrativePath`) and the engine identity, which is the version plus the VCS revision.\n- Report every finding you see in this round, each classified as blocker or follow-up.\n\nRound 2 notes:\n- F1 from round 1 (rrn-0dd98c4aab8b5918) is addressed in d601fbe1. The record now has `material_clean`, set when the working copy matched HEAD at the start and at the end of the run. `planCarry` refuses a base without it, or with any unavailable material binding. `TestCarryRefusesABaseThatValidatedADirtyWorkingCopy` reproduces your sequence: a pass over an uncommitted fix, a commit of the record alone, the restored failing file, then `--carry`. The test failed with the check mutated out. Account for F1 in prior_findings.\n- Round 1 also changed files in the sealed worktree because `pose assess integrate` and `pose assess tech-debt` persist their outputs: `.pose/assessments/*`, `.pose/state/*`. Run every `assess` command on a copy in the operation's scratch, never in the sealed checkout, and keep the Bash working directory at the checkout root. Example: `scratch=$(mktemp -d \"$TMPDIR/pose-assess.XXXXXX\")`, `git archive HEAD | tar -x -C \"$scratch\"`, `sh -c 'cd \"$1\" \u0026\u0026 exec \"$2\" assess integrate --json' sh \"$scratch\" \"$(command -v pose)\"`.\n- The `artifact-check` head differs from the bundle subject because the index commits also carry this spec's trailer. `artifact-check` resolves the change set range to the last trailer commit, which is an index-only commit. The bundle subject skips commits that only touch derived records, whose material digest is unchanged. That is existing engine behaviour, which the lead will take up separately. Judge it as you see fit.\n- The full matrix takes about 13 minutes. If you cannot complete it in the sandbox, cite the sealed canonical result for the `validate` tool and state your own run's limits.\n\nRound 3 notes: round 2 (rrn-1c033e4c349d7794) found N1–N4. 2077731b fixes them:\n- The changed set uses `git diff -z --no-renames` and `ls-files -z`, so a rename names both sides and a quoted name keeps its owner.\n- The root module `.` is never exempt from root files.\n- A build with `vcs.modified=true` is not a verifiable identity: it never carries, and a base with a `.dirty` identity is refused.\n\nThe regression tests are `TestCarrySelectsBothSidesOfARename`, `TestCarryKeepsTheOwnerOfAQuotedName`, `TestCarryRootModuleOwnsRootFiles` and `TestEngineIdentityRefusesModifiedBuilds`. Each one failed with its fix mutated out. Account for R2-N1..R2-N4 in prior_findings.\n\nRound 4 notes: round 3 (rrn-3461f6ff36909419) found N5 and N6.\n- N5: a declared `dependsOn` path now owns its files even when the dependency is no longer discovered (`underDeclaredDependency`).\n- N6: module metadata that does not decode is now an error. It means a full run under `--carry` and exit 2 under `--changed-from`.\nThe regression tests are `TestCarryDeletedDependencySelectsItsDependents` and `TestCarryRejectsUndecodableMetadata`. Both failed with their fix mutated out. Account for R3-N5 and R3-N6 in prior_findings.\n\nPlease make this round an exhaustive sweep and report every remaining issue in it, each classified as blocker or follow-up, so the scope can converge. Cover at least:\n- gitlinks and submodules;\n- symlinks;\n- paths that differ only by case;\n- `moduleOverrides` modules that have no manifest;\n- nested modules;\n- a module whose matrix checks or stack change while the matrix digest does not;\n- criticality and policy widening;\n- chained carries over many bases;\n- concurrent runs writing the canonical file.\n- The lead's own sweep before this round found a gitlink case: a changed gitlink above a declared dependency selected nothing under it. A changed path now selects the modules and dependencies under it, tested by `TestChangedScopeGitlinkAboveADependencySelectsItsDependents`.\n\nRound 5 notes: round 4 (rrn-4b28f2ff95acf9c4) found N7–N10. The selection in `computeChangedScope` was rewritten instead of patched. Each changed file now independently selects:\n- its most specific owner;\n- every module beneath it;\n- every module whose declared dependency contains it, lies beneath it or is the root `.`, when that dependency is not a discovered module, which the transitive widening covers;\n- for a file no module owns, the root module and every module that is not self-contained.\n\n`planCarry` refuses when any module is reached through a symlink. `material_clean` now also requires the HEAD at the end of the run to equal the recorded head. The regression tests are `TestCarryDeletedNestedDependencySelectsItsDependents`, `TestCarryRootDependencyIsChangedByRootFiles`, `TestCarryRefusesModulesReachedThroughASymlink` and `TestValidateHeadMovingDuringTheRunIsNotClean`. Each failed with its fix mutated out. Account for R4-N7..R4-N10 in prior_findings, and again report every remaining issue in this round.\n\nRound 6 notes: round 5 (rrn-b07ee93779a65e40) found N11–N14.\n- N11: every eligible dependency now counts (`declaredDependencyHits`).\n- N12: a run whose HEAD moved, or that is otherwise not `material_clean`, records every material binding as unavailable.\n- N13: `aliasedModule` also refuses modules that share a physical directory (`os.SameFile`).\n- N14: the head is pinned before planning, and `planCarry`, the selection and the exclusions use that SHA.\nThe regression tests are `TestChangedScopeEvaluatesEveryDeclaredDependency`, `TestValidateHeadMovingDuringTheRunBindsNoMaterial`, `TestCarryRefusesModulesSharingADirectory` and `TestCarryPlansAgainstThePinnedHead`. Each failed with its fix mutated out. Account for R5-N11..R5-N14 and the remaining partials R3-N9/R3-N10 in prior_findings, and report every remaining issue in this round.\n\nRound 7 notes: round 6 (rrn-88e0428bda9bc9c7) found N15 and N16.\n- N15: a declared dependency now selects its consumer whenever a changed file intersects it, discovered or not, unless it is the file's own owner, which the transitive widening covers.\n- N16: `planCarry` refuses when a declared dependency path is reached through a symlink.\nThe regression tests are `TestChangedScopeDiscoveredAncestorDependencySelectsItsDependents`, which covers a parent and a discovered root dependency, and `TestCarryRefusesDependenciesReachedThroughASymlink`. Account for R6-N15 and R6-N16, and report every remaining issue in this round.\n",
+  "ledger_version": 1,
+  "attempt_id": "rat-103f0ec935323f2aa87ac00b681e31ad1f2eff792ba6041a1025122ba93815c9",
+  "schema_version": 1,
+  "run_id": "rrn-85704a129332a685",
+  "scope": "spec:pose-validate-carries-unchanged-checks",
+  "bundle_id": "rvb-2abee56e5867cac6",
+  "bundle_digest": "sha256:2abee56e5867cac6323fa54594c005372da290237c4cf135a573592e2cf67f45",
+  "sealed_commit": "2c062ebc7bc53296dc1db619876783bee320d379",
+  "kind": "review",
+  "brief_digest": "sha256:77ce9a283e8682e028072b74ca369edd3cb57cb8d5b83ef416f89194642ad733",
+  "adapter": "sol-medium",
+  "vendor": "openai",
+  "model": "gpt-6.1-sol",
+  "started_at": "2026-11-23T05:01:03.742212671Z",
+  "ended_at": "2026-11-23T05:11:25.489308159Z",
+  "exit_code": 0,
+  "status": "completed",
+  "transcript_digest": "sha256:981a4120a81e19ede3d47b29f6bca289034b4a36742302a7706cdabe15c35165",
+  "transcript_path": ".pose/review-runs/rrn-85704a129332a685.transcript",
+  "output": "decision: changes-requested\n\nThree high-severity blockers remain:\n\n- **N17 — Missing dependency leaves bypass symlink detection**, [validate_carry.go:125](/var/tmp/pose-work-go/pose-review-run-2791357838/worktree/pose-mcp/internal/cli/validate_carry.go:125). With `b/link -\u003e ../a` and `b.dependsOn=[\"b/link/input\"]`, deleting `a/input` makes `Lstat` fail. The guard skips that dependency, and lexical selection misses `b`, carrying its stale pass.\n- **N18 — Dependency case aliases escape invalidation**, [validate_carry.go:128](/var/tmp/pose-work-go/pose-review-run-2791357838/worktree/pose-mcp/internal/cli/validate_carry.go:128). On case-insensitive Unix filesystems, `A/input` can identify `a/input`, while symlink resolution preserves the supplied spelling. Dependency comparison remains case-sensitive; the physical alias check covers module directories only. This conclusion follows from source inspection; that filesystem configuration was not exercised locally.\n- **N19 — Duplicate check IDs can turn failure into success**, [validate_carry.go:142](/var/tmp/pose-work-go/pose-review-run-2791357838/worktree/pose-mcp/internal/cli/validate_carry.go:142). Validation permits a default check and appended override with the same name. A failing entry followed by a passing entry shares one ID; the map retains only the pass, which carry then copies into both entries. This violates R4.\n\nR5-N15 is fixed. R5-N16 is partial because missing leaves bypass its new guard.\n\nApplied the review workflow and security, backend-Go, documentation-style, and delivery-evidence rules. Focused regression tests, focused `go vet`, and focused race tests passed. Full validation commands were started but had not completed; their sealed canonical evidence is cited below. Assessments could not run because the read-only sandbox denied scratch creation. The checkout remains unchanged, and no attestation was recorded.\n\n```pose-draft\n{\n  \"schema\": \"pose.review.draft/v1\",\n  \"decision\": \"changes-requested\",\n  \"findings\": [\n    {\n      \"id\": \"N17\",\n      \"severity\": \"high\",\n      \"disposition\": \"blocker\",\n      \"file\": \"pose-mcp/internal/cli/validate_carry.go\",\n      \"line\": 125,\n      \"summary\": \"A missing dependency leaf bypasses dependency symlink refusal. With ordinary modules a and b, committed b/link -\u003e ../a, b selfContained with dependsOn=['b/link/input'], and a baseline b check that requires link/input, delete a/input and commit. Lstat(b/link/input) now returns ENOENT and the guard continues without examining its symlink ancestor. Selection sees a/input, which intersects neither b nor b/link/input, and carries b's old pass. This violates R2 and D1. Inspect existing ancestors before accepting an absent dependency, or conservatively refuse carry when its path cannot be proven unaliased. Evidence: validate_carry.go:122-130, validate_scope.go:171-175 and 220-225; a read-only filesystem probe confirmed that a missing leaf beneath a symlink returns ENOENT.\"\n    },\n    {\n      \"id\": \"N18\",\n      \"severity\": \"high\",\n      \"disposition\": \"blocker\",\n      \"file\": \"pose-mcp/internal/cli/validate_carry.go\",\n      \"line\": 128,\n      \"summary\": \"Declared dependency aliases differing only by case are not guarded. On a case-insensitive Unix filesystem, let discovered modules be a and b, with b selfContained and dependsOn=['A/input']; b reads ../A/input. After changing a/input, Lstat(A/input) succeeds and Unix EvalSymlinks preserves the supplied non-symlink spelling, so this comparison accepts it. declaredDependencyHits compares A/input with Git's a/input case-sensitively, and aliasedModule compares only module directories. b therefore retains a stale pass despite declaring the input it reads. Resolve dependency identity consistently with changed paths or conservatively refuse ambiguous aliases. Evidence: validate_carry.go:124-129 and 233-249, validate_scope.go:220-225, and the installed Go toolchain's filepath/symlink.go and symlink_unix.go. The case-insensitive platform scenario was established by source analysis, not a local platform test.\"\n    },\n    {\n      \"id\": \"N19\",\n      \"severity\": \"high\",\n      \"disposition\": \"blocker\",\n      \"file\": \"pose-mcp/internal/cli/validate_carry.go\",\n      \"line\": 142,\n      \"summary\": \"The base map silently collapses duplicate effective check IDs. Matrix parsing and validation do not reject duplicate names, including collisions between stack defaults and appended moduleOverrides checks. For an unchanged module b with two required checks named ok, first program false and then program true, the full baseline records fail followed by pass under b/go/ok. planCarry retains only the later pass, and the carry loop copies that pass for both checks, changing a failed baseline into a successful carried run. This violates R4's requirement that carried failures remain failures. Reject duplicate effective IDs or refuse ambiguous bases before carrying. Evidence: validate.go:633-637, 821-835, 1240-1245 and 1264-1273; validate_carry.go:140-155. A read-only map projection reproduced fail/pass becoming pass/pass.\"\n    }\n  ],\n  \"prior_findings\": [\n    {\n      \"id\": \"R5-N15\",\n      \"status\": \"fixed\",\n      \"evidence\": \"validate_scope.go:171-175 applies dependency intersection to discovered ancestors as well as undiscovered paths, except the selected owner handled transitively. TestChangedScopeDiscoveredAncestorDependencySelectsItsDependents covers parent and discovered-root dependencies. Ran go test ./internal/cli ./internal/pose -run 'Test(Carry|ChangedScope|EngineIdentity|ValidateHeadMoving|DeliveryValidationRunReadsTheCarriedHead)' -count=1 in pose-mcp; both packages passed.\"\n    },\n    {\n      \"id\": \"R5-N16\",\n      \"status\": \"partial\",\n      \"evidence\": \"validate_carry.go:122-130 rejects existing dependencies reached through symlinks, and TestCarryRefusesDependenciesReachedThroughASymlink passed in the focused test run. However, lines 125-126 skip the guard entirely when a dependency leaf is missing, leaving a symlink ancestor unchecked. N17 records the remaining stale-carry sequence.\"\n    }\n  ],\n  \"sweep\": \"Inspected the spec, ADR, complete implementation diff, result reader, manuals, help and scaffold changes. Swept rename and quoted-name handling, root ownership, discovered and deleted nested dependencies, gitlinks and submodule status, symlinks including absent dependency leaves, case aliases, manifest-free moduleOverrides, stack and effective-check changes, duplicate effective IDs, criticality and policy widening, administrative exclusions, engine identity, pinned HEAD and material cleanliness, chained carry origins, cancellation, and guarded atomic canonical publication. Ran focused regression tests, focused vet, focused race tests, artifact-check, context resolution, suggest-review and recurrence-check. Full validation commands were started but remained incomplete locally; sealed canonical results were inspected separately. Assessment scratch creation failed under the read-only sandbox. No repository changes or attestation were made.\",\n  \"criteria\": [\n    {\n      \"id\": \"assumption-integrity\",\n      \"disposition\": \"finding\",\n      \"evidence\": \"N18\",\n      \"rationale\": \"Examined the explicit selfContained and declared-dependency assumptions, engine identity, material cleanliness and lexical path identity. Physical dependency identity is not established for case aliases. The platform-specific result is a source-based conclusion; local case-insensitive execution remains unverified.\"\n    },\n    {\n      \"id\": \"backend-concurrency\",\n      \"disposition\": \"passed\",\n      \"evidence\": \"integration:pose-mcp/go/writer-coordination-and-atomic-publication-integration\",\n      \"rationale\": \"Inspected carried entries being silent and excluded from dispatch, cancellation accounting, and canonical publication under the governance write guard with authoritative atomic publication. Focused carry, concurrency and canonical-guard race tests passed.\"\n    },\n    {\n      \"id\": \"backend-contracts\",\n      \"disposition\": \"finding\",\n      \"evidence\": \"N19\",\n      \"rationale\": \"Additive JSON fields preserve decoding compatibility, but duplicate IDs violate the promised outcome-preservation contract.\"\n    },\n    {\n      \"id\": \"backend-input-errors\",\n      \"disposition\": \"finding\",\n      \"evidence\": \"N17\",\n      \"rationale\": \"Dependency lookup errors are treated as permission to omit alias verification rather than uncertainty requiring safe execution. Duplicate effective IDs are also accepted, as detailed in N19.\"\n    },\n    {\n      \"id\": \"backend-integration-impact\",\n      \"disposition\": \"finding\",\n      \"evidence\": \"N17\",\n      \"rationale\": \"The result reader preserves carried origin correctly, but an unsound selection can attach current material bindings to a stale carried observation.\"\n    },\n    {\n      \"id\": \"backend-observability\",\n      \"disposition\": \"passed\",\n      \"evidence\": \"unit:pose-mcp/go/test\",\n      \"rationale\": \"Inspected bounded check output, preserved failure context, carry fallback reasons, selected-module explanations and per-check origin fields. Focused fallback and carried-failure tests passed.\"\n    },\n    {\n      \"id\": \"compatibility\",\n      \"disposition\": \"passed\",\n      \"evidence\": \"integration:pose-mcp/go/delivery-integration\",\n      \"rationale\": \"Examined CLI argument refusals, additive schema-1 fields and delivery decoding. Legacy records retain their reading behavior and are refused only as carry bases when required eligibility fields are absent.\"\n    },\n    {\n      \"id\": \"correctness\",\n      \"disposition\": \"finding\",\n      \"evidence\": \"N19\",\n      \"rationale\": \"A carried run can upgrade a required failure to a pass through duplicate-ID collapse. N17 and N18 independently permit stale observations.\"\n    },\n    {\n      \"id\": \"design-causality\",\n      \"disposition\": \"finding\",\n      \"evidence\": \"N17\",\n      \"rationale\": \"D1 relies on unchanged-input selection to justify binding carried results to current material. Missing-leaf and case aliases invalidate that premise. Whole-matrix and engine comparison address definition changes but do not repair path identity.\",\n      \"mappings\": [\n        {\n          \"delta\": \"SD-a9e60b2a\",\n          \"basis\": \"D1\",\n          \"disposition\": \"mapped\",\n          \"rationale\": \"The added ADR records the structural contract for carrying canonical validation results while preserving each check's true observation head. It also documents the matrix/engine comparison and explicit self-containment trade-off.\"\n        }\n      ]\n    },\n    {\n      \"id\": \"documentation\",\n      \"disposition\": \"finding\",\n      \"evidence\": \"N17\",\n      \"rationale\": \"The manuals and embedded copies describe refusal for declared dependencies reached through symlinks, but runtime bypasses that guarantee for absent leaves.\"\n    },\n    {\n      \"id\": \"operability\",\n      \"disposition\": \"finding\",\n      \"evidence\": \"N17\",\n      \"rationale\": \"The affected run reports successful carry eligibility rather than an actionable fallback reason, hiding the unresolved dependency alias.\"\n    },\n    {\n      \"id\": \"requirements\",\n      \"disposition\": \"finding\",\n      \"evidence\": \"N19\",\n      \"rationale\": \"R4 fails for duplicate effective IDs. R2 and D1 also remain unsatisfied for the alias cases in N17 and N18. Existing regression tests passed but do not cover these sequences.\"\n    },\n    {\n      \"id\": \"scope\",\n      \"disposition\": \"passed\",\n      \"evidence\": \"structure:design-c2f8d17e41b23cd2\",\n      \"rationale\": \"Examined the changed implementation, additive result contract, delivery reader, ADR, CLI help and localized/scaffold documentation. They remain within the approved carry-validation scope.\"\n    },\n    {\n      \"id\": \"security\",\n      \"disposition\": \"finding\",\n      \"evidence\": \"N18\",\n      \"rationale\": \"Git revision confinement and bounded output remain present, but dependency path identity can cross the lexical evidence boundary and authorize reuse for changed physical inputs.\"\n    },\n    {\n      \"id\": \"solution-proportionality\",\n      \"disposition\": \"passed\",\n      \"evidence\": \"structure:design-c2f8d17e41b23cd2\",\n      \"rationale\": \"Compared the selected coarse module-level reuse with per-check input hashing and manual result merging. Reusing the existing selector with conservative refusal is proportionate and avoids speculative caching machinery. The choice remains valid only when input identity and effective check identity are unambiguous; the blockers require enforcing those conditions.\"\n    }\n  ],\n  \"tools\": [\n    {\n      \"id\": \"artifact-check\",\n      \"disposition\": \"passed\",\n      \"evidence\": \"command:pose artifact-check --spec pose-validate-carries-unchanged-checks --strict\",\n      \"rationale\": \"Ran the required command. It reported 15 claims, 20 observations and 985 warning findings, with the trailer-resolved head at index-only commit f835a1bb. The warnings and range difference were not treated as proof of a new implementation defect.\"\n    },\n    {\n      \"id\": \"assess-design\",\n      \"disposition\": \"not-used\",\n      \"evidence\": \"structure:design-c2f8d17e41b23cd2\",\n      \"rationale\": \"Inspected the sealed structural evidence and ADR directly. A separate local assessment was not run because scratch creation was denied by the read-only sandbox.\"\n    },\n    {\n      \"id\": \"assess-discover\",\n      \"component\": \"pose-mcp\",\n      \"disposition\": \"not-used\",\n      \"evidence\": \"command:python3 -\",\n      \"rationale\": \"The scratch-copy preparation script failed in tempfile.mkdtemp with no usable writable temporary directory. Did not run a persisting assessment in the sealed checkout.\"\n    },\n    {\n      \"id\": \"assess-integrate\",\n      \"disposition\": \"not-used\",\n      \"evidence\": \"integration:pose-mcp/go/delivery-integration\",\n      \"rationale\": \"Used sealed integration evidence and inspected the delivery-reader boundary. Local assessment was not executed because a scratch copy could not be created.\"\n    },\n    {\n      \"id\": \"assess-tech-debt\",\n      \"disposition\": \"not-used\",\n      \"evidence\": \"command:python3 -\",\n      \"rationale\": \"Scratch creation failed under the read-only sandbox, so the persisting assessment was not executed in the sealed checkout.\"\n    },\n    {\n      \"id\": \"closeout-check\",\n      \"disposition\": \"deferred\",\n      \"evidence\": \"command:pose context --task spec:pose-validate-carries-unchanged-checks --json\",\n      \"rationale\": \"Completion check is deferred until POSE records and verifies the review conclusion. No attestation was recorded by this execution.\"\n    },\n    {\n      \"id\": \"review-check\",\n      \"disposition\": \"deferred\",\n      \"evidence\": \"command:pose context --task spec:pose-validate-carries-unchanged-checks --json\",\n      \"rationale\": \"Cannot verify this review's attestation before POSE records it; the request explicitly prohibits recording an attestation.\"\n    },\n    {\n      \"id\": \"suggest-review\",\n      \"component\": \"pose-mcp\",\n      \"disposition\": \"passed\",\n      \"evidence\": \"command:pose suggest review --path pose-mcp\",\n      \"rationale\": \"Resolved the backend-Go domain and applied the selected security, documentation-style and backend-Go rules.\"\n    },\n    {\n      \"id\": \"validate\",\n      \"disposition\": \"passed\",\n      \"evidence\": \"build:pose-mcp/go/build\",\n      \"rationale\": \"Disposition cites the sealed canonical producer result. Started pose validate --strict independently, but it had not completed locally; no local full-matrix pass is claimed. Inspected the existing canonical record reporting 236 executed and passed checks with material_clean true.\"\n    },\n    {\n      \"id\": \"validate\",\n      \"component\": \"pose-mcp\",\n      \"disposition\": \"passed\",\n      \"evidence\": \"unit:pose-mcp/go/test\",\n      \"rationale\": \"Disposition cites the sealed canonical producer result. Started pose validate --strict --module pose-mcp independently, but it had not completed locally. Focused CLI/pose regression tests, focused vet and focused race tests passed independently.\"\n    }\n  ]\n}\n```",
+  "policy_digest": "sha256:b98e89a0dfe961193c55d1fa1bc18b3d906c3a09839492803795b73f79298f16",
+  "label": "engine-a-review-r7",
+  "purpose": "review",
+  "env_removed": [
+    "CLAUDECODE",
+    "CLAUDE_CODE_BRIDGE_SESSION_ID",
+    "CLAUDE_CODE_CHILD_SESSION",
+    "CLAUDE_CODE_ENTRYPOINT",
+    "CLAUDE_CODE_EXECPATH",
+    "CLAUDE_CODE_MESSAGING_SOCKET",
+    "CLAUDE_CODE_MESSAGING_TOKEN",
+    "CLAUDE_CODE_SESSION_ATTENDED",
+    "CLAUDE_CODE_SESSION_ID",
+    "CLAUDE_EFFORT",
+    "CLAUDE_PID"
+  ],
+  "events": "codex-jsonl",
+  "events_digest": "sha256:6a19a3f0a2094fa9f7dc3a3973cef5904dcfb40f42268c3599e19e1f5a3e9904",
+  "routing": {
+    "requested": "auto",
+    "prefer": "opposite-vendor-of-implementation",
+    "implementation": {
+      "principal": "agent:anthropic/unknown",
+      "vendor": "anthropic",
+      "model": "unknown",
+      "execution_digest": "sha256:344ac5868944c155772d60a95ef6ff20644580a642e772ad5c92c29428464ff8",
+      "source": "detected"
+    },
+    "implementation_from": "bundle",
+    "candidates": [
+      {
+        "agent": "sol-medium",
+        "vendor": "openai",
+        "model": "gpt-6.1-sol",
+        "group": "preferred",
+        "state": "available"
+      }
+    ],
+    "step": "preferred"
+  },
+  "independence_achieved": "different-vendor",
+  "round": 6,
+  "thread": {
+    "round": 6,
+    "mode": "new",
+    "from": "rrn-88e0428bda9bc9c7",
+    "reason": "round 6 reached the round threshold 5"
+  }
+}
