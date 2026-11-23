@@ -155,6 +155,11 @@ func planCarry(root, resultsPath, mode, matrixSHA, head string, matrix validatio
 			if !asciiPath(clean) {
 				return unused("dependency %s of module %s is not an ASCII path, so normalization aliases cannot be ruled out", dep, rel)
 			}
+			// Its physical identity, through any symlink tracked or ignored,
+			// must be its spelling (review round 12, N33).
+			if !physicallyLexical(root, clean) {
+				return unused("dependency %s of module %s resolves through a symlink, so its changes cannot be attributed", dep, rel)
+			}
 		}
 	}
 	for _, m := range modules {
@@ -502,12 +507,15 @@ func casefoldedDirectory(dir string, readDir func(string) ([]os.DirEntry, error)
 	if err != nil {
 		return true
 	}
+	// Only ASCII letters swap case without Unicode folding subtleties, such
+	// as dotless i (review round 12, N35); a directory with no such entry
+	// cannot be shown not to fold.
 	for _, entry := range entries {
 		name := entry.Name()
-		swapped := swapCase(name)
-		if swapped == name {
+		if !asciiPath(name) || !strings.ContainsAny(name, "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ") {
 			continue
 		}
+		swapped := swapCase(name)
 		original, err := stat(filepath.Join(dir, name))
 		if err != nil {
 			continue
@@ -517,7 +525,7 @@ func casefoldedDirectory(dir string, readDir func(string) ([]os.DirEntry, error)
 		other, err := stat(filepath.Join(dir, swapped))
 		return err == nil && os.SameFile(original, other)
 	}
-	return false
+	return true
 }
 
 func swapCase(s string) string {
@@ -579,4 +587,43 @@ func hiddenIndexEntries(root, head string) (string, error) {
 		}
 	}
 	return "", nil
+}
+
+// physicallyLexical reports whether rel, and every existing ancestor of it,
+// resolves to its own spelling: no symlink, tracked or not, on the way.
+func physicallyLexical(root, rel string) bool {
+	root = filepath.Clean(root)
+	resolvedRoot, err := filepath.EvalSymlinks(root)
+	if err != nil {
+		return false
+	}
+	p := filepath.Join(root, filepath.FromSlash(rel))
+	for ; p != root && strings.HasPrefix(p, root+string(filepath.Separator)); p = filepath.Dir(p) {
+		if _, err := os.Lstat(p); err != nil {
+			continue
+		}
+		resolved, err := filepath.EvalSymlinks(p)
+		if err != nil {
+			return false
+		}
+		want := filepath.Join(resolvedRoot, strings.TrimPrefix(p, root+string(filepath.Separator)))
+		if filepath.Clean(resolved) != filepath.Clean(want) {
+			return false
+		}
+	}
+	return true
+}
+
+// headReflogLength counts the entries of HEAD's reflog; -1 when it cannot be
+// read or reflogs are disabled.
+func headReflogLength(root string) int {
+	out, err := posemodel.RawGit("-C", root, "reflog", "show", "--format=%H", "HEAD", "--").Output()
+	if err != nil {
+		return -1
+	}
+	lines := strings.Count(string(out), "\n")
+	if lines == 0 {
+		return -1
+	}
+	return lines
 }

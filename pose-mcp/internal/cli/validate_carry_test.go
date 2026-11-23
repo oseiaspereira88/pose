@@ -1012,3 +1012,63 @@ func TestCarryRefusesHiddenIndexEntries(t *testing.T) {
 		t.Fatalf("carry = %+v, want a hidden index entry refused", run.Carry)
 	}
 }
+
+// A dependency reached through an ignored symlink refuses the carry (review
+// round 12, N33).
+func TestCarryRefusesDependenciesThroughAnIgnoredSymlink(t *testing.T) {
+	f := newCarryFixture(t, `{"schemaVersion":1,"modules":{"b":{"selfContained":true,"dependsOn":["link/input"]}}}`)
+	f.write(".gitignore", ".pose/transfers/.authority-transfer.lock\nlink\n")
+	f.commit("ignore link")
+	if err := os.Symlink("a", filepath.Join(f.root, "link")); err != nil {
+		t.Fatal(err)
+	}
+	f.baseline()
+	f.write("a/input", "x\n")
+	f.commit("change a")
+	_, _, run := f.validate("--carry")
+	if run.Carry == nil || run.Carry.Used || !strings.Contains(run.Carry.Reason, "resolves through a symlink") {
+		t.Fatalf("carry = %+v, want an ignored-symlink dependency refused", run.Carry)
+	}
+}
+
+// HEAD moving away and back during a run is still movement (review round 12,
+// N34).
+func TestValidateHeadMovingAndReturningIsNotClean(t *testing.T) {
+	f := newCarryFixture(t, "")
+	raw, _ := os.ReadFile(filepath.Join(f.root, ".pose/indexes/validation-matrix.json"))
+	script := `git -C .. -c user.name=t -c user.email=t@t -c core.hooksPath=/dev/null commit -q --allow-empty -m moved && git -C .. reset -q --hard HEAD~1`
+	f.write(".pose/indexes/validation-matrix.json", strings.Replace(string(raw), `"stacks"`, `"moduleOverrides":{"a":{"checks":[{"name":"moves","program":"sh","args":["-c","`+script+`"],"severity":"required","evidenceClass":"unit"}]}},"stacks"`, 1))
+	f.commit("a check that moves HEAD and back")
+	_, out, run := f.validate()
+	if run.MaterialClean {
+		t.Fatalf("material_clean = true although HEAD moved and came back: %s", out)
+	}
+}
+
+// The case probe ignores entries whose case swap is not a plain ASCII fold
+// (review round 12, N35).
+func TestCarryCaseProbeUsesOnlyASCIILetters(t *testing.T) {
+	dir := t.TempDir()
+	for _, name := range []string{"0bı", "a"} {
+		if err := os.WriteFile(filepath.Join(dir, name), []byte("x"), 0o644); err != nil {
+			t.Fatal(err)
+		}
+	}
+	info, err := os.Lstat(filepath.Join(dir, "a"))
+	if err != nil {
+		t.Fatal(err)
+	}
+	folding := func(p string) (os.FileInfo, error) {
+		if base := filepath.Base(p); base == "a" || base == "A" {
+			return info, nil
+		}
+		return os.Lstat(p)
+	}
+	if !casefoldedDirectory(dir, os.ReadDir, folding) {
+		t.Fatal("a folding directory must be detected despite a non-ASCII first entry")
+	}
+	empty := t.TempDir()
+	if !casefoldedDirectory(empty, os.ReadDir, os.Lstat) {
+		t.Fatal("a directory without an ASCII letter entry cannot be shown not to fold")
+	}
+}

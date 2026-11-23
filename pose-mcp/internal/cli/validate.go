@@ -1150,6 +1150,7 @@ func cmdValidateWithStore(store posemodel.Store, args []string, stdout, stderr i
 		run.GitHead = strings.TrimSpace(string(head))
 	}
 	startedClean := materialWorktreeClean(root)
+	startReflog := headReflogLength(root)
 	var carryState carryPlan
 	if carry {
 		carryState = planCarry(root, canonicalResultsPath, mode, run.MatrixSHA256, run.GitHead, matrix, modules)
@@ -1433,7 +1434,10 @@ func cmdValidateWithStore(store posemodel.Store, args []string, stdout, stderr i
 	// Untracked material created while checks ran counts too (review round 8,
 	// N21): only ignored files may differ from the recorded head.
 	hidden, hiddenErr := hiddenIndexEntries(root, run.GitHead)
-	run.MaterialClean = startedClean && endedClean && materialWorktreeClean(root) && run.GitHead != "" && endHead == run.GitHead && hiddenErr == nil && hidden == ""
+	// Equal endpoints do not show HEAD never moved: H -> H' -> H leaves them
+	// equal. The reflog must not have grown (review round 12, N34).
+	endReflog := headReflogLength(root)
+	run.MaterialClean = startedClean && endedClean && materialWorktreeClean(root) && run.GitHead != "" && endHead == run.GitHead && hiddenErr == nil && hidden == "" && startReflog >= 0 && endReflog == startReflog
 	// A run that did not validate its recorded head binds no material: its
 	// bindings would let a later tree make a misattributed pass current again
 	// (review round 5, N12).
