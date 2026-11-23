@@ -1,0 +1,155 @@
+{
+  "safety": {
+    "schema_version": 1,
+    "profile": "legacy-trusted",
+    "platform": "linux/amd64",
+    "capabilities": {
+      "automatic-expiry": "unavailable",
+      "bounded-capture": "available",
+      "cpu-limit": "unavailable",
+      "credential-filesystem-isolation": "unavailable",
+      "environment-allowlist": "available",
+      "escaped-descendant-termination": "unavailable",
+      "filesystem-isolation": "unavailable",
+      "memory-limit": "unavailable",
+      "network-isolation": "unavailable",
+      "origin-isolation": "unavailable",
+      "parent-termination": "available",
+      "process-group-termination": "available",
+      "shared-git-isolation": "unavailable"
+    },
+    "limitations": [
+      "trusted local executable required; worktree is not a sandbox",
+      "outside writes, transient writes, shared Git and credential files are not isolated",
+      "no memory/CPU quota or control of descendants escaping the process group",
+      "cleanup filesystem calls remain subject to operating-system I/O latency",
+      "legacy compatibility: HOME retained; other ambient credentials excluded"
+    ],
+    "stream_bytes": 8388608,
+    "output_bytes": 65536,
+    "retained_bytes": 16777216,
+    "timeout_ms": 3600000,
+    "max_runs_per_bundle": 3,
+    "retention": "retain-evidence; ttl=0; no automatic deletion",
+    "capture_complete": true,
+    "runtime_id": "pose-review-run-3931211055",
+    "operation": {
+      "schema_version": 1,
+      "operation": "review.dispatch.cleanup",
+      "scope": "spec:pose-validate-carries-unchanged-checks",
+      "outcome": "completed",
+      "steps_run": [
+        {
+          "id": "cleanup",
+          "result": "done"
+        }
+      ],
+      "effects": [],
+      "resumable": false
+    }
+  },
+  "provenance": {
+    "execution_state": "started",
+    "planned_wire_digest": "sha256:2f452bf9ac5cea5f66d552180d0e21bd03b39816667b3302bc9265d9c66b07ba",
+    "wire_bytes": 35898,
+    "wire_complete": true,
+    "schema_version": 1,
+    "project": "proj.pose-dist",
+    "audience": "proj.pose-dist",
+    "worktree_digest": "sha256:092ca52378c4c0d0f2b627da8d5031dbb854563bd4b9f2474458710c62a14816",
+    "trust": "executor-attested",
+    "implementation": {
+      "principal": "agent:anthropic/unknown",
+      "execution": "sha256:344ac5868944c155772d60a95ef6ff20644580a642e772ad5c92c29428464ff8",
+      "vendor": "anthropic",
+      "model": "unknown"
+    },
+    "reviewer": {
+      "principal": "agent:openai/gpt-6.1-sol",
+      "vendor": "openai",
+      "model": "gpt-6.1-sol"
+    },
+    "config_digest": "sha256:637a9d88c40dbf75da8525db65c216ace591f828ef25c233358db1a99e70ee31",
+    "command_template_digest": "sha256:e3a23ff8a55e559e954d107a039277628bfc51faa58d523ad6101de7c375ad28",
+    "argv_digest": "sha256:2fdb6dc8a4728a34932ad7591a6954567bc2d3eac3e6be2ce5663636c4ec9215",
+    "executable_digest": "sha256:0e0c66f50074965a40cbd12f625b0a35963baf41bbd8c201a93e32fddbe2e073",
+    "template_version": "review-brief/7",
+    "wire_digest": "sha256:2f452bf9ac5cea5f66d552180d0e21bd03b39816667b3302bc9265d9c66b07ba",
+    "notes_digest": "sha256:4aafd7b45c081448e38795c6822f2fd2e373cfb73c8c3b4a98e3f8a6432c677b",
+    "raw_transcript_digest": "sha256:659583a701535d1563df464ffe3f86830fce614711262ada7179c758978f33e1",
+    "raw_output_digest": "sha256:7818c2bd8cbe8449f5ce58978de3ed994182d5e90e67a7270733b8edc0af4039",
+    "output_source": "file",
+    "output_complete": true
+  },
+  "session_digest": "sha256:a753a17264b5d1eb63866468bc4d6c262ce32fab61cddb06cc3d1012b4cb5273",
+  "tree_digest": "sha256:7350600902c3dfe5d7fb732f76d1b594ebedb584d160dd79e88ec513422d3ca2",
+  "brief_notes": "Implementer notes (Claude Opus 5.5, the lead). Use them as context only; the judgment is yours.\n\nScope: `pose validate --carry` refreshes the canonical result by running the modules a change can affect since a comparable base and carrying the other checks with the head where they ran. Rounds 1–19 produced findings N1–N56. Each blocker was fixed and has a regression test that failed when its fix was mutated out. The spec's execution log lists them. Round 19 (rrn-fc6566de3c7eedf0) approved, but its conclusion was refused at preflight because decision D1 named no requirement. The spec now gives each decision a `- Basis:` line.\n\nChange since round 19:\n- The rule \"refuse any base with an unavailable material binding\" was removed. A clean record of this repository holds 77 specs whose material the engine cannot compute, recorded `unavailable` in every clean run, so that rule refused every real base.\n- `material_clean` is the witness that a base validated its head. It requires one full predicate (status with forced fileMode, no hidden index entries, every submodule at its recorded commit, no nested submodules) at the pin, before any plan input is read, and at the end. It also requires unchanged reflogs of HEAD and of every submodule, and no cancellation.\n- A run that is not clean records every binding unavailable.\nPlease check that removing the rule leaves no gap.\n\nDraft format rules, enforced by the conclusion preflight:\n- New findings use unprefixed IDs not used before (next free: N57). Round-prefixed IDs go only in `prior_findings`, with exactly id, status and evidence.\n- Structural-delta mappings go inside the criterion that answers them, and only to decisions that declare a basis.\n- A criterion scoped to a component cites evidence from that component only.\n\nSandbox limits: if building the CLI or creating scratch copies is read-only, run the focused Go tests (`go test ./internal/cli -run 'Carry|ChangedScope|Validate|Material|Cancellation'`, `go vet`) and cite the sealed canonical result for `validate` and `assess`, stating the limit, instead of stopping. Never `cd`; keep the checkout root as the Bash working directory.\n\nKnown follow-ups: F1 (end-to-end seal, verify and closeout over a carried record) and F2 (`--report` presents carried checks as executed).\n\nRound 22 notes:\n- Round 21 (rrn-20db50998dd91866) failed because `pose assess` commands ran inside the sealed checkout and rewrote `.pose/assessments/*` and `.pose/state/*`. Never run `pose assess` or any other writing command in the sealed checkout. If you cannot make a scratch copy, skip those tools and cite the sealed canonical result, stating the limit.\n- Its draft found N57: the manual still described the removed unavailable-binding rule. All four manual copies now say an uncomputable binding does not refuse a base. N58/N59 restated F2/F1.\n- The dogfood after round 21 carried five of six modules from a clean base with zero changed files; `pose-mcp` ran because of its high-criticality policy.\n\n\nRound 22 repeat notes:\n- In `prior_findings`, account for exactly the findings the brief lists under \"Findings to account for\", using the IDs printed there. Only concluded rounds count. Do not add IDs from these notes: rrn-40ae26a7899db347 was refused for citing R19/R21 IDs the scope's rounds do not hold open.\n- Not being able to rerun a tool in this read-only sandbox is a limit of the run, not a defect of the subject. For such a tool, cite the sealed evidence that covers it and state the limit, as the approving rounds 17 and 19 did. Then decide on the code itself. rrn-40ae26a7899db347 found no implementation blocker but requested changes only for that limit.\n\nRound 23 notes: round 22's repeat approved (rrn-41f73b6e7465d0bb, attestation rva-c09024015650a57b). `pose close` refused because no delivery target was declared. The spec now declares `delivers: capability:validate-carries-unchanged-checks` with a `### Delivery targets` line (module pose-mcp, profile composed-capability, entrypoint `pose-mcp/internal/cli/validate.go`). No code changed. The declaration adds the plan tool `surface-check`; its disposition must cite both a sealed `integration:` and a sealed `reachability:` evidence id from the bundle.\n",
+  "ledger_version": 1,
+  "attempt_id": "rat-7d75e9d6aab4276ab1495ee0184816e3e6e4329767d8c05ec9d29fd39c334393",
+  "schema_version": 1,
+  "run_id": "rrn-2312702d8e59883f",
+  "scope": "spec:pose-validate-carries-unchanged-checks",
+  "bundle_id": "rvb-3540657ae0a94c2f",
+  "bundle_digest": "sha256:3540657ae0a94c2f7019d7642aa90f2738f393f23311d03089e32ba565262504",
+  "sealed_commit": "481d36dfd2ea673b5f5dc58a76d3e4213dac35bf",
+  "kind": "review",
+  "brief_digest": "sha256:955cdee487e268c39ae6d735f71240f1c4d1d305899b104f6c5f589cd5e34a8d",
+  "adapter": "sol-medium",
+  "vendor": "openai",
+  "model": "gpt-6.1-sol",
+  "started_at": "2026-11-23T17:12:13.105182108Z",
+  "ended_at": "2026-11-23T17:20:24.561071893Z",
+  "exit_code": 0,
+  "status": "completed",
+  "transcript_digest": "sha256:0650d53c1bb91511b7c6c36b9ce97eef0ab5d3822858cb28c97570da11c4d479",
+  "transcript_path": ".pose/review-runs/rrn-2312702d8e59883f.transcript",
+  "output": "decision: approved\n\nNo blocking defect found. Two existing low-priority follow-ups remain accepted: report provenance and dedicated end-to-end coverage for carried records.\n\nFocused CLI tests, the delivery-parser test, scoped `go vet`, and selected race tests passed. Explicit-range artifact reconciliation exited 0 with warnings only. Surface-check passed with one target, 236 results, and zero findings. Full validation relies on the supplied sealed evidence; I did not rerun commands that could modify checkout artifacts.\n\nApplied the review workflow and Backend Go, security, documentation-style, and delivery-evidence rules. Reviewed bundle `rvb-3540657ae0a94c2f`, digest `sha256:3540657ae0a94c2f7019d7642aa90f2738f393f23311d03089e32ba565262504`. HEAD remained `481d36dfd2ea673b5f5dc58a76d3e4213dac35bf`, and the working tree remained clean. No attestation was recorded.\n\n```pose-draft\n{\n  \"schema\": \"pose.review.draft/v1\",\n  \"decision\": \"approved\",\n  \"findings\": [\n    {\n      \"id\": \"N62\",\n      \"severity\": \"low\",\n      \"disposition\": \"follow-up\",\n      \"file\": \"pose-mcp/internal/cli/validate.go\",\n      \"line\": 1623,\n      \"summary\": \"Existing F2 remains: validationSummaryOf includes carried checks in executed Commands and renders their previous outcomes and durations without their original head or time. A newly dated --carry --report therefore presents reused observations as commands executed by this run.\",\n      \"action\": \"Complete spec follow-up F2: exclude carried checks from executed Commands and label reused results with carried_from and carried_generated_at.\",\n      \"owner\": \"@pose-maintainers\",\n      \"review_by\": \"2026-12-15\"\n    },\n    {\n      \"id\": \"N63\",\n      \"severity\": \"low\",\n      \"disposition\": \"follow-up\",\n      \"file\": \".pose/specs/2026-11-22-pose-validate-carries-unchanged-checks.md\",\n      \"line\": 264,\n      \"summary\": \"Existing F1 remains: direct delivery-reader coverage verifies carried head and time, but no dedicated end-to-end fixture seals a bundle, verifies it and checks closeout over a carried record.\",\n      \"action\": \"Complete spec follow-up F1 with a fixture proving seal, verify and closeout-check judge the carried check's original head.\",\n      \"owner\": \"@pose-maintainers\",\n      \"review_by\": \"2026-12-15\"\n    }\n  ],\n  \"prior_findings\": [\n    {\n      \"id\": \"R12-N39\",\n      \"status\": \"not-fixed\",\n      \"evidence\": \"pose-mcp/internal/cli/validate.go:1623-1636 still includes carried commands and omits their origin; owned as F2 at spec line 265.\"\n    },\n    {\n      \"id\": \"R13-N42\",\n      \"status\": \"not-fixed\",\n      \"evidence\": \"pose-mcp/internal/cli/validate.go:1623-1636 still includes carried commands and omits their origin; owned as F2 at spec line 265.\"\n    },\n    {\n      \"id\": \"R14-N44\",\n      \"status\": \"not-fixed\",\n      \"evidence\": \"pose-mcp/internal/cli/validate.go:1623-1636 still includes carried commands and omits their origin; owned as F2 at spec line 265.\"\n    },\n    {\n      \"id\": \"R16-N51\",\n      \"status\": \"not-fixed\",\n      \"evidence\": \"pose-mcp/internal/cli/validate.go:1623-1636 still includes carried commands and omits their origin; owned as F2 at spec line 265.\"\n    },\n    {\n      \"id\": \"R17-N53\",\n      \"status\": \"not-fixed\",\n      \"evidence\": \"pose-mcp/internal/cli/validate.go:1623-1636 still includes carried commands and omits their origin; owned as F2 at spec line 265.\"\n    },\n    {\n      \"id\": \"R17-N54\",\n      \"status\": \"not-fixed\",\n      \"evidence\": \"Spec line 264 retains F1. go -C pose-mcp test ./internal/pose -run TestDeliveryValidationRunReadsTheCarriedHead -count=1 passed, but this test exercises parsing rather than seal, verify and closeout.\"\n    },\n    {\n      \"id\": \"R18-N55\",\n      \"status\": \"not-fixed\",\n      \"evidence\": \"pose-mcp/internal/cli/validate.go:1623-1636 still includes carried commands and omits their origin; owned as F2 at spec line 265.\"\n    },\n    {\n      \"id\": \"R18-N56\",\n      \"status\": \"not-fixed\",\n      \"evidence\": \"Spec line 264 retains F1. The direct carried-head parser test passed; no dedicated carried-record seal/verify/closeout fixture was found in the reviewed tests.\"\n    },\n    {\n      \"id\": \"R19-N60\",\n      \"status\": \"not-fixed\",\n      \"evidence\": \"pose-mcp/internal/cli/validate.go:1623-1636 still includes carried commands and omits their origin; owned as F2 at spec line 265.\"\n    },\n    {\n      \"id\": \"R19-N61\",\n      \"status\": \"not-fixed\",\n      \"evidence\": \"Spec line 264 retains F1. The direct carried-head parser test passed; the dedicated end-to-end consumer journey remains absent.\"\n    }\n  ],\n  \"sweep\": \"Reviewed the requested dec2e64c1395fafbf8e2a78171e5437c1720bbbf..481d36dfd2ea673b5f5dc58a76d3e4213dac35bf source diff, requirements R1-R10, decisions D1-D3, ADR, CLI help, English and Portuguese manuals and scaffold copies. Swept eligibility, unavailable bindings, cleanliness and reflog witnesses, cancellation, hidden index entries, submodule and alias handling, pinned metadata, changed-scope ownership and dependency widening, base completeness, chained provenance, failure accounting, dispatch, serialization, report projection and delivery consumption. Examined negative tests, the adversarial corpus and owned follow-ups. Focused CLI tests, direct delivery-parser test, scoped vet and selected race tests passed. Explicit-range artifact-check exited 0 with warning-only findings; surface-check exited 0 with zero findings. Full matrix evidence was supplied by the sealed bundle, not rerun. Final git status was clean. No blocker beyond the two accepted existing low-priority follow-ups was established.\",\n  \"criteria\": [\n    {\n      \"id\": \"assumption-integrity\",\n      \"disposition\": \"passed\",\n      \"evidence\": \"unit:pose-mcp/go/test\",\n      \"rationale\": \"Examined R2 and the start/end full cleanliness predicate, movement witnesses and cancellation invalidation. Removing the unavailable-binding refusal leaves material_clean as the independent witness that the base validated its head; unclean or cancelled runs invalidate bindings. Focused tests passed. Correct selfContained declarations remain an explicit instance-owned assumption; arbitrary undeclared check inputs are outside the design's guarantee.\"\n    },\n    {\n      \"id\": \"backend-concurrency\",\n      \"disposition\": \"passed\",\n      \"evidence\": \"integration:pose-mcp/go/validate-concurrent-steps-integration\",\n      \"rationale\": \"Carried entries are silent and bypass dispatch; aggregation reads their unchanged results. Traced cancellation finalization and lifecycle behavior. Focused Validate tests and selected race tests for cancellation, cancelled bases and submodule movement passed.\"\n    },\n    {\n      \"id\": \"backend-contracts\",\n      \"disposition\": \"passed\",\n      \"evidence\": \"integration:pose-mcp/go/delivery-integration\",\n      \"rationale\": \"Reviewed additive result fields and legacy fallback behavior. The delivery reader preserves run-level provenance for ordinary records and uses per-check provenance for carried records. The direct carried-head and time parser test passed.\"\n    },\n    {\n      \"id\": \"backend-input-errors\",\n      \"disposition\": \"passed\",\n      \"evidence\": \"unit:pose-mcp/go/test\",\n      \"rationale\": \"Focused tests passed for incompatible flags, unusable bases, malformed or unreadable metadata, path aliases, hidden index entries and cancellation. Invalid eligibility widens to full execution with a reason; incompatible invocation flags return exit 2.\"\n    },\n    {\n      \"id\": \"backend-integration-impact\",\n      \"disposition\": \"finding\",\n      \"evidence\": \"N63\",\n      \"rationale\": \"The producer-to-delivery-reader boundary is directly tested. Dedicated carried-record seal, verify and closeout coverage remains the accepted low-priority F1 gap.\"\n    },\n    {\n      \"id\": \"backend-observability\",\n      \"disposition\": \"finding\",\n      \"evidence\": \"N62\",\n      \"rationale\": \"Structured provenance, carry counts and fallback explanations are present, but the human report summary still loses carried provenance.\"\n    },\n    {\n      \"id\": \"compatibility\",\n      \"disposition\": \"passed\",\n      \"evidence\": \"integration:pose-mcp/go/delivery-integration\",\n      \"rationale\": \"Examined CLI parsing, schema additions and the delivery consumer. Carry is opt-in, old records retain their meaning, and records without engine_version cannot become carry bases. The selfContained extension is specified and documented.\"\n    },\n    {\n      \"id\": \"correctness\",\n      \"disposition\": \"passed\",\n      \"evidence\": \"unit:pose-mcp/go/test\",\n      \"rationale\": \"Independently passed go -C pose-mcp test ./internal/cli -run 'Carry|ChangedScope|Validate|Material|Cancellation' -count=1 and the direct delivery-parser test. Examined selection, chained origins, preserved failures, missing prior results and cleanliness invalidation. Full build and matrix coverage relies on the supplied sealed evidence.\"\n    },\n    {\n      \"id\": \"design-causality\",\n      \"disposition\": \"passed\",\n      \"evidence\": \"structure:design-c1f08e237f8792fa\",\n      \"rationale\": \"D1 addresses the inability of partial changed-scope records to replace canonical evidence: a complete result retains each reused observation's actual origin. D2 conservatively rejects matrix or engine changes; D3 makes narrower root-change behavior explicit. The cheapest stale-reuse shortcut is representing an old observation as newly executed; carried_from and the delivery reader preserve its origin, and dirty-base tests reject invalid reuse. The corpus has no dedicated carried-record seal/closeout case; N63 records that assurance gap.\",\n      \"mappings\": [\n        {\n          \"delta\": \"SD-253b523c\",\n          \"basis\": \"D1\",\n          \"disposition\": \"mapped\",\n          \"rationale\": \"The ADR records canonical carry and original-observation provenance required by D1, whose declared basis is R3, R4 and R7. It also records the D2 comparability boundary and D3 selfContained trade-off.\"\n        }\n      ]\n    },\n    {\n      \"id\": \"documentation\",\n      \"disposition\": \"passed\",\n      \"evidence\": \"unit:pose-mcp/go/test\",\n      \"rationale\": \"Compared help, both language manuals and scaffold changes with runtime eligibility and selection. All four manuals correctly state that an uncomputable binding alone does not refuse a clean base. The full English scaffold difference is the instance-only Contributor Mode section.\"\n    },\n    {\n      \"id\": \"operability\",\n      \"disposition\": \"finding\",\n      \"evidence\": \"N62\",\n      \"rationale\": \"Fallback reasons and selection explanations provide actionable context. Report provenance remains the accepted low-priority F2 defect.\"\n    },\n    {\n      \"id\": \"requirements\",\n      \"disposition\": \"finding\",\n      \"evidence\": \"N63\",\n      \"rationale\": \"Mapped R1-R10 to code and focused tests. Direct R7 provenance parsing passed, while the additional end-to-end delivery-consumer assurance remains the owned F1 follow-up.\"\n    },\n    {\n      \"id\": \"scope\",\n      \"disposition\": \"passed\",\n      \"evidence\": \"structure:design-c1f08e237f8792fa\",\n      \"rationale\": \"The runtime paths, tests, help, manuals and ADR implement the approved carry scope. The unavailable-binding change matches current R2. The delivery declaration identifies the production validate entrypoint, and surface-check found one target with zero findings.\"\n    },\n    {\n      \"id\": \"security\",\n      \"disposition\": \"passed\",\n      \"evidence\": \"integration:pose-mcp/go/adversarial-corpus\",\n      \"rationale\": \"Examined revision confinement before Git calls, dependency containment, physical aliases, symlinks, hidden index flags, submodules and administrative exclusions. Focused negative tests passed. Carry retains the existing local validation-record trust boundary and introduces no external execution authority.\"\n    },\n    {\n      \"id\": \"solution-proportionality\",\n      \"disposition\": \"passed\",\n      \"evidence\": \"structure:design-c1f08e237f8792fa\",\n      \"rationale\": \"Reusing changed-scope selection and comparing the whole matrix and engine is smaller than per-command caching or arbitrary input hashing. Refusing every unavailable binding would disable legitimate reuse without strengthening the independent material_clean witness. This choice becomes insufficient when checks depend on undeclared inputs outside the selection model.\"\n    }\n  ],\n  \"tools\": [\n    {\n      \"id\": \"artifact-check\",\n      \"disposition\": \"passed\",\n      \"evidence\": \"command:pose artifact-check --spec pose-validate-carries-unchanged-checks --strict --from dec2e64c1395fafbf8e2a78171e5437c1720bbbf --to 481d36dfd2ea673b5f5dc58a76d3e4213dac35bf --json\",\n      \"rationale\": \"Ran the required default command and an additional reconciliation pinned to the sealed range because automatic attribution selected a wider range. The explicit-range command exited 0; all 985 findings were warnings. Reviewed the requested source diff independently.\"\n    },\n    {\n      \"id\": \"assess-design\",\n      \"disposition\": \"not-used\",\n      \"evidence\": \"structure:design-c1f08e237f8792fa\",\n      \"rationale\": \"Did not rerun the writing assessment in the sealed checkout. Examined the spec, ADR and structural change directly and used the supplied sealed design evidence.\"\n    },\n    {\n      \"id\": \"assess-discover\",\n      \"component\": \"pose-mcp\",\n      \"disposition\": \"not-used\",\n      \"evidence\": \"unit:pose-mcp/go/test\",\n      \"rationale\": \"Skipped assessment writes under the no-change boundary. Inspected the component and independently ran focused tests; these are not represented as a new discovery assessment.\"\n    },\n    {\n      \"id\": \"assess-integrate\",\n      \"disposition\": \"not-used\",\n      \"evidence\": \"integration:pose-mcp/go/delivery-integration\",\n      \"rationale\": \"Skipped the writing assessment. Traced the validation producer and delivery consumer and passed the direct carried-head parser test. Dedicated end-to-end coverage remains N63.\"\n    },\n    {\n      \"id\": \"assess-tech-debt\",\n      \"disposition\": \"not-used\",\n      \"evidence\": \"unit:pose-mcp/go/test\",\n      \"rationale\": \"Skipped the writing assessment. Manually scanned the changed implementation for TODO, FIXME, stub and panic markers and checked the spec's owned follow-ups; no additional marker debt was established.\"\n    },\n    {\n      \"id\": \"closeout-check\",\n      \"disposition\": \"deferred\",\n      \"evidence\": \"unit:pose-mcp/go/test\",\n      \"rationale\": \"Completion requires POSE to record and verify this review conclusion. No attestation or closeout was recorded by this reviewer.\"\n    },\n    {\n      \"id\": \"review-check\",\n      \"disposition\": \"deferred\",\n      \"evidence\": \"unit:pose-mcp/go/test\",\n      \"rationale\": \"Deferred until POSE records this conclusion; it cannot validate an attestation that does not yet exist.\"\n    },\n    {\n      \"id\": \"suggest-review\",\n      \"component\": \"pose-mcp\",\n      \"disposition\": \"passed\",\n      \"evidence\": \"command:pose suggest review --path pose-mcp\",\n      \"rationale\": \"Executed successfully and applied the selected Backend Go, security and documentation rules.\"\n    },\n    {\n      \"id\": \"surface-check\",\n      \"disposition\": \"passed\",\n      \"evidence\": \"integration:pose-mcp/go/delivery-integration\",\n      \"rationale\": \"Executed pose surface-check --spec pose-validate-carries-unchanged-checks --strict successfully: one target, 236 results and zero findings. Also cites sealed reachability:pose-mcp/go/delivery-reachability. Traced the declared validate.go entrypoint through dispatch, canonical serialization and delivery parsing; dedicated carried-record end-to-end assurance remains N63.\"\n    },\n    {\n      \"id\": \"validate\",\n      \"disposition\": \"passed\",\n      \"evidence\": \"unit:pose-mcp/go/test\",\n      \"rationale\": \"Relies on the supplied sealed canonical run, including passing build, unit, integration and e2e evidence. Did not rerun the full writing matrix in the read-only checkout. Independently passed focused CLI tests, scoped vet, the delivery-parser test and selected race tests.\"\n    },\n    {\n      \"id\": \"validate\",\n      \"component\": \"pose-mcp\",\n      \"disposition\": \"passed\",\n      \"evidence\": \"unit:pose-mcp/go/test\",\n      \"rationale\": \"Uses the supplied sealed pose-mcp validation evidence. Independently passed focused component tests, scoped vet and selected race tests. The full --strict --module pose-mcp command was not rerun because it can write checkout artifacts.\"\n    }\n  ]\n}\n```",
+  "policy_digest": "sha256:b98e89a0dfe961193c55d1fa1bc18b3d906c3a09839492803795b73f79298f16",
+  "label": "engine-a-review-r23",
+  "purpose": "review",
+  "env_removed": [
+    "CLAUDECODE",
+    "CLAUDE_CODE_BRIDGE_SESSION_ID",
+    "CLAUDE_CODE_CHILD_SESSION",
+    "CLAUDE_CODE_ENTRYPOINT",
+    "CLAUDE_CODE_EXECPATH",
+    "CLAUDE_CODE_MESSAGING_SOCKET",
+    "CLAUDE_CODE_MESSAGING_TOKEN",
+    "CLAUDE_CODE_SESSION_ATTENDED",
+    "CLAUDE_CODE_SESSION_ID",
+    "CLAUDE_EFFORT",
+    "CLAUDE_PID"
+  ],
+  "events": "codex-jsonl",
+  "events_digest": "sha256:20242ae63c49332bb68a81ff1f370d49c5d3b168c23d37aa13d2d1aedf988c0f",
+  "routing": {
+    "requested": "auto",
+    "prefer": "opposite-vendor-of-implementation",
+    "implementation": {
+      "principal": "agent:anthropic/unknown",
+      "vendor": "anthropic",
+      "model": "unknown",
+      "execution_digest": "sha256:344ac5868944c155772d60a95ef6ff20644580a642e772ad5c92c29428464ff8",
+      "source": "detected"
+    },
+    "implementation_from": "bundle",
+    "candidates": [
+      {
+        "agent": "sol-medium",
+        "vendor": "openai",
+        "model": "gpt-6.1-sol",
+        "group": "preferred",
+        "state": "available"
+      }
+    ],
+    "step": "preferred"
+  },
+  "independence_achieved": "different-vendor",
+  "round": 20,
+  "thread": {
+    "round": 20,
+    "mode": "new",
+    "from": "rrn-41f73b6e7465d0bb",
+    "reason": "the chain of rounds is broken: the draft of round 7 (rrn-0375009e985e6a3d) cannot be read: finding id \"R7-N20\" is not a unique identifier without a round prefix; the draft of round 10 (rrn-c0b4006e2a8ff303) cannot be read: finding id \"R10-N30\" is not a unique identifier without a round prefix; the draft of round 11 (rrn-abb61f059dc6d700) cannot be read: finding id \"R12-N33\" is not a unique identifier without a round prefix; the draft of round 15 (rrn-328651cf23a32126) cannot be read: finding id \"R16-N46\" is not a unique identifier without a round prefix"
+  }
+}
