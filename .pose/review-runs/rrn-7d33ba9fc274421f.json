@@ -1,0 +1,158 @@
+{
+  "safety": {
+    "schema_version": 1,
+    "profile": "legacy-trusted",
+    "platform": "linux/amd64",
+    "capabilities": {
+      "automatic-expiry": "unavailable",
+      "bounded-capture": "available",
+      "cpu-limit": "unavailable",
+      "credential-filesystem-isolation": "unavailable",
+      "environment-allowlist": "available",
+      "escaped-descendant-termination": "unavailable",
+      "filesystem-isolation": "unavailable",
+      "memory-limit": "unavailable",
+      "network-isolation": "unavailable",
+      "origin-isolation": "unavailable",
+      "parent-termination": "available",
+      "process-group-termination": "available",
+      "shared-git-isolation": "unavailable"
+    },
+    "limitations": [
+      "trusted local executable required; worktree is not a sandbox",
+      "outside writes, transient writes, shared Git and credential files are not isolated",
+      "no memory/CPU quota or control of descendants escaping the process group",
+      "cleanup filesystem calls remain subject to operating-system I/O latency",
+      "legacy compatibility: HOME retained; other ambient credentials excluded"
+    ],
+    "stream_bytes": 8388608,
+    "output_bytes": 65536,
+    "retained_bytes": 16777216,
+    "timeout_ms": 3600000,
+    "max_runs_per_bundle": 3,
+    "retention": "retain-evidence; ttl=0; no automatic deletion",
+    "capture_complete": true,
+    "runtime_id": "pose-review-run-4152710152",
+    "operation": {
+      "schema_version": 1,
+      "operation": "review.dispatch.cleanup",
+      "scope": "spec:pose-validate-carries-unchanged-checks",
+      "outcome": "completed",
+      "steps_run": [
+        {
+          "id": "cleanup",
+          "result": "done"
+        }
+      ],
+      "effects": [],
+      "resumable": false
+    }
+  },
+  "provenance": {
+    "execution_state": "started",
+    "planned_wire_digest": "sha256:2f08366840d348ff9f530961b31740ea0a7a0fd110e37fa68d86981d5fc5e2c2",
+    "wire_bytes": 43862,
+    "wire_complete": true,
+    "schema_version": 1,
+    "project": "proj.pose-dist",
+    "audience": "proj.pose-dist",
+    "worktree_digest": "sha256:092ca52378c4c0d0f2b627da8d5031dbb854563bd4b9f2474458710c62a14816",
+    "trust": "executor-attested",
+    "implementation": {
+      "principal": "agent:anthropic/unknown",
+      "execution": "sha256:344ac5868944c155772d60a95ef6ff20644580a642e772ad5c92c29428464ff8",
+      "vendor": "anthropic",
+      "model": "unknown"
+    },
+    "reviewer": {
+      "principal": "agent:openai/gpt-6.1-sol",
+      "vendor": "openai",
+      "model": "gpt-6.1-sol"
+    },
+    "config_digest": "sha256:637a9d88c40dbf75da8525db65c216ace591f828ef25c233358db1a99e70ee31",
+    "command_template_digest": "sha256:e3a23ff8a55e559e954d107a039277628bfc51faa58d523ad6101de7c375ad28",
+    "argv_digest": "sha256:0811786cf7444c52100afd7ccf347c7fa53a5fc4a13af56649520ccf32999ed3",
+    "executable_digest": "sha256:0e0c66f50074965a40cbd12f625b0a35963baf41bbd8c201a93e32fddbe2e073",
+    "template_version": "review-brief/7",
+    "wire_digest": "sha256:2f08366840d348ff9f530961b31740ea0a7a0fd110e37fa68d86981d5fc5e2c2",
+    "notes_digest": "sha256:1dab028864a0829339e56bcb7fe746c81a65a3e18d9cb2e2d582543cbe4f3597",
+    "raw_transcript_digest": "sha256:4c91a44909370be2dceeb8fc346906d53cd127ab82e1c464c42913b0ac19d32a",
+    "raw_output_digest": "sha256:ac93de855011885f5654fbcb0fd59c95dacf3da06c828cc3e1e2c2b25f6bceec",
+    "output_source": "file",
+    "output_complete": true
+  },
+  "session_digest": "sha256:1ff4c605bc5abd89c7e01c66ff53800b9c59152f5f5c33203f264780403be84c",
+  "tree_digest": "sha256:d3fdfb88e60142a1aad68d2a94bbc7402d35ebf44605e85a37809c6f461210ce",
+  "brief_notes": "Implementer notes (Claude Opus 5.5, the lead in this session). Use them as context only; the judgment is yours.\n\n- The feature was motivated by the Harne8 batch of 2026-11-22. There, every review round re-ran a 72-check matrix of about 35 minutes, and intermittent suites failed roughly one run in three.\n- In this repository `pose-mcp` holds 233 of the 236 checks and is high criticality, so `--carry` saves little here. The dogfood record at c4182727 carried five of six modules with zero changed files.\n- Please challenge the soundness argument of D1 in particular. A carried result is bound to the material computed at HEAD, and that is only safe when the selection guarantees the carried module's inputs did not change.\n- Please also check the derived-record exclusion (`carryExclusions` with `posemodel.IsAdministrativePath`) and the engine identity, which is the version plus the VCS revision.\n- Report every finding you see in this round, each classified as blocker or follow-up.\n\nRound 2 notes:\n- F1 from round 1 (rrn-0dd98c4aab8b5918) is addressed in d601fbe1. The record now has `material_clean`, set when the working copy matched HEAD at the start and at the end of the run. `planCarry` refuses a base without it, or with any unavailable material binding. `TestCarryRefusesABaseThatValidatedADirtyWorkingCopy` reproduces your sequence: a pass over an uncommitted fix, a commit of the record alone, the restored failing file, then `--carry`. The test failed with the check mutated out. Account for F1 in prior_findings.\n- Round 1 also changed files in the sealed worktree because `pose assess integrate` and `pose assess tech-debt` persist their outputs: `.pose/assessments/*`, `.pose/state/*`. Run every `assess` command on a copy in the operation's scratch, never in the sealed checkout, and keep the Bash working directory at the checkout root. Example: `scratch=$(mktemp -d \"$TMPDIR/pose-assess.XXXXXX\")`, `git archive HEAD | tar -x -C \"$scratch\"`, `sh -c 'cd \"$1\" \u0026\u0026 exec \"$2\" assess integrate --json' sh \"$scratch\" \"$(command -v pose)\"`.\n- The `artifact-check` head differs from the bundle subject because the index commits also carry this spec's trailer. `artifact-check` resolves the change set range to the last trailer commit, which is an index-only commit. The bundle subject skips commits that only touch derived records, whose material digest is unchanged. That is existing engine behaviour, which the lead will take up separately. Judge it as you see fit.\n- The full matrix takes about 13 minutes. If you cannot complete it in the sandbox, cite the sealed canonical result for the `validate` tool and state your own run's limits.\n\nRound 3 notes: round 2 (rrn-1c033e4c349d7794) found N1–N4. 2077731b fixes them:\n- The changed set uses `git diff -z --no-renames` and `ls-files -z`, so a rename names both sides and a quoted name keeps its owner.\n- The root module `.` is never exempt from root files.\n- A build with `vcs.modified=true` is not a verifiable identity: it never carries, and a base with a `.dirty` identity is refused.\n\nThe regression tests are `TestCarrySelectsBothSidesOfARename`, `TestCarryKeepsTheOwnerOfAQuotedName`, `TestCarryRootModuleOwnsRootFiles` and `TestEngineIdentityRefusesModifiedBuilds`. Each one failed with its fix mutated out. Account for R2-N1..R2-N4 in prior_findings.\n\nRound 4 notes: round 3 (rrn-3461f6ff36909419) found N5 and N6.\n- N5: a declared `dependsOn` path now owns its files even when the dependency is no longer discovered (`underDeclaredDependency`).\n- N6: module metadata that does not decode is now an error. It means a full run under `--carry` and exit 2 under `--changed-from`.\nThe regression tests are `TestCarryDeletedDependencySelectsItsDependents` and `TestCarryRejectsUndecodableMetadata`. Both failed with their fix mutated out. Account for R3-N5 and R3-N6 in prior_findings.\n\nPlease make this round an exhaustive sweep and report every remaining issue in it, each classified as blocker or follow-up, so the scope can converge. Cover at least:\n- gitlinks and submodules;\n- symlinks;\n- paths that differ only by case;\n- `moduleOverrides` modules that have no manifest;\n- nested modules;\n- a module whose matrix checks or stack change while the matrix digest does not;\n- criticality and policy widening;\n- chained carries over many bases;\n- concurrent runs writing the canonical file.\n- The lead's own sweep before this round found a gitlink case: a changed gitlink above a declared dependency selected nothing under it. A changed path now selects the modules and dependencies under it, tested by `TestChangedScopeGitlinkAboveADependencySelectsItsDependents`.\n\nRound 5 notes: round 4 (rrn-4b28f2ff95acf9c4) found N7–N10. The selection in `computeChangedScope` was rewritten instead of patched. Each changed file now independently selects:\n- its most specific owner;\n- every module beneath it;\n- every module whose declared dependency contains it, lies beneath it or is the root `.`, when that dependency is not a discovered module, which the transitive widening covers;\n- for a file no module owns, the root module and every module that is not self-contained.\n\n`planCarry` refuses when any module is reached through a symlink. `material_clean` now also requires the HEAD at the end of the run to equal the recorded head. The regression tests are `TestCarryDeletedNestedDependencySelectsItsDependents`, `TestCarryRootDependencyIsChangedByRootFiles`, `TestCarryRefusesModulesReachedThroughASymlink` and `TestValidateHeadMovingDuringTheRunIsNotClean`. Each failed with its fix mutated out. Account for R4-N7..R4-N10 in prior_findings, and again report every remaining issue in this round.\n\nRound 6 notes: round 5 (rrn-b07ee93779a65e40) found N11–N14.\n- N11: every eligible dependency now counts (`declaredDependencyHits`).\n- N12: a run whose HEAD moved, or that is otherwise not `material_clean`, records every material binding as unavailable.\n- N13: `aliasedModule` also refuses modules that share a physical directory (`os.SameFile`).\n- N14: the head is pinned before planning, and `planCarry`, the selection and the exclusions use that SHA.\nThe regression tests are `TestChangedScopeEvaluatesEveryDeclaredDependency`, `TestValidateHeadMovingDuringTheRunBindsNoMaterial`, `TestCarryRefusesModulesSharingADirectory` and `TestCarryPlansAgainstThePinnedHead`. Each failed with its fix mutated out. Account for R5-N11..R5-N14 and the remaining partials R3-N9/R3-N10 in prior_findings, and report every remaining issue in this round.\n\nRound 7 notes: round 6 (rrn-88e0428bda9bc9c7) found N15 and N16.\n- N15: a declared dependency now selects its consumer whenever a changed file intersects it, discovered or not, unless it is the file's own owner, which the transitive widening covers.\n- N16: `planCarry` refuses when a declared dependency path is reached through a symlink.\nThe regression tests are `TestChangedScopeDiscoveredAncestorDependencySelectsItsDependents`, which covers a parent and a discovered root dependency, and `TestCarryRefusesDependenciesReachedThroughASymlink`. Account for R6-N15 and R6-N16, and report every remaining issue in this round.\n\nRound 8 notes: round 7 (rrn-85704a129332a685) found N17–N19. Instead of chasing alias forms one path at a time, `planCarry` now applies global rules:\n- `caseInsensitiveFilesystem` refuses on case-folding filesystems.\n- `aliasingSymlink` refuses any tracked symlink whose path or target lies in a non-root module or intersects a declared dependency, or whose target leaves the repository. Symlinks between unowned paths, such as `.claude/skills` to `.agents/skills`, stay allowed, since a change on either side already selects the root and every non-self-contained module.\n- `duplicateCheckID` and a base-id check refuse duplicate check ids.\nThe tests are `TestCarryRefusesASymlinkInsideAModule`, `TestCarryRefusesASymlinkFromAModuleToAnUnownedPath`, `TestCarryAllowsSymlinksBetweenUnownedPaths`, `TestCarryDetectsACaseInsensitiveFilesystem` and `TestCarryRefusesDuplicateCheckIDs`. Account for R7-N17..R7-N19, and report every remaining issue in this round.\n\nRound 9 notes: round 8 (rrn-0375009e985e6a3d) found N20–N23.\n- N23: both diffs force `-c diff.ignoreSubmodules=none diff --ignore-submodules=none`.\n- N21: `material_clean` also requires `materialWorktreeClean` at the end, so untracked unignored material counts.\n- N20: `submoduleAliases` scans each submodule that holds a module or a dependency, at its recorded commit. It refuses when that submodule is not checked out at the commit or has nested submodules.\n- N22: `casefoldedDirectory` probes every module directory and the nearest existing directory of every dependency.\nThe regression tests are `TestChangedScopeIgnoresSubmoduleHidingConfiguration`, `TestValidateUntrackedMaterialCreatedDuringTheRunIsNotClean`, `TestCarryRefusesAnAliasingSymlinkInsideASubmodule` and `TestCarryDetectsACaseFoldedDirectory`. Each failed with its fix mutated out. Account for R7-N20..R7-N23 and the partials, and report every remaining issue in this round.\n\nRound 10 notes: round 9 (rrn-dfc7e3348240ce19) found N24–N26.\n- N24: `submoduleAliases` scans every gitlink, not only those holding a module or dependency.\n- N25: the selection also picks every module enclosing the owner. The lead extended this: the root module encloses every module.\n- N26: `carryRelevantDirs` probes every existing directory from the root to each module and dependency.\nThe regression tests are `TestChangedScopeSelectsTheEnclosingModule`, `TestChangedScopeRootModuleEnclosesEveryModule`, `TestCarryScansAGitlinkInsideAModule` and `TestCarryRelevantDirsIncludeEveryAncestor`. Account for R9-N24..R9-N26 and report every remaining issue in this round.\n\nRound 11 notes: round 10 (rrn-29af03286365811e) found N27–N29.\n- N27: `casefoldedDirectory` probes with `Lstat`, skips unusable entries and treats an unreadable directory as folding.\n- N28: `planCarry` refuses absolute or root-escaping dependencies.\n- N29: the ADR consequences paragraph and the spec summary now describe the selection accurately.\nThe tests are `TestCarryCaseProbeSkipsUnusableEntries` and `TestCarryRefusesDependenciesOutsideTheRepository`. Account for R10-N27..R10-N29 and report every remaining issue in this round.\n\nRound 12 notes: round 11 (rrn-c0b4006e2a8ff303) found N30–N32. All are refused conservatively:\n- N30: a dependency that is not already a clean path.\n- N32: non-ASCII module or dependency paths.\n- N31: any index entry marked assume-unchanged or skip-worktree, in the repository or a checked-out submodule. It also clears `material_clean`.\nThe tests are `TestCarryRefusesUncleanDependencies`, `TestCarryRefusesNonASCIIPaths` and `TestCarryRefusesHiddenIndexEntries`. Account for R11-N30..R11-N32 and report every remaining issue in this round.\n\nRound 13 notes: round 12 (rrn-abb61f059dc6d700) found N33–N35.\n- N33: `physicallyLexical` resolves each dependency and its existing ancestors, tracked or ignored symlinks alike.\n- N34: `material_clean` requires HEAD's reflog length to be unchanged and readable.\n- N35: `casefoldedDirectory` probes only ASCII-letter entries and treats a directory without one as folding.\nThe tests are `TestCarryRefusesDependenciesThroughAnIgnoredSymlink`, `TestValidateHeadMovingAndReturningIsNotClean` and `TestCarryCaseProbeUsesOnlyASCIILetters`. Account for R12-N33..R12-N35 and report every remaining issue in this round.\n\nRound 14 notes: round 13 (rrn-f6546af4c9e5625e) found N36–N39.\n- N36: the cleanliness status reads force `-c core.fileMode=true`.\n- N37: HEAD and its reflog are pinned before the matrix is read and modules are discovered. This is structural ordering; a race before planning cannot be reproduced deterministically.\n- N38: `submodulesCheckedOut` requires every gitlink to be checked out at its recorded commit, both for `material_clean` and for the carry.\n- N39 is recorded as follow-up F2 in the spec.\nThe tests are `TestValidateModeChangeHiddenByConfigurationIsNotClean` and `TestValidateUninitializedSubmoduleIsNotClean`. Account for R13-N36..R13-N39 and report every remaining issue in this round.\n\nRound 15 notes: round 14 (rrn-db44fd7f02f7b981) found N40 and N41, and N42 restated F2. One predicate, `validationMaterialClean`, now covers status, hidden index entries and submodule checkouts. It runs at the pin, before the matrix is read and modules are discovered, and again at the end. The test is `TestValidateConditionClearedDuringTheRunIsNotClean`. Account for R14-N40..R14-N42 and report every remaining issue in this round.\n",
+  "ledger_version": 1,
+  "attempt_id": "rat-c21278ed846e429c9b169a936818512c96aabbd92fd0f5758e8efe2239af6909",
+  "schema_version": 1,
+  "run_id": "rrn-7d33ba9fc274421f",
+  "scope": "spec:pose-validate-carries-unchanged-checks",
+  "bundle_id": "rvb-f76d274831ac5fbd",
+  "bundle_digest": "sha256:f76d274831ac5fbdd80972713ce8a37fc629b1339fa8d543e3ee35d53b4e766d",
+  "sealed_commit": "55ac2a9db0dfd3d95ba131c0b4971c7efe7a7def",
+  "kind": "review",
+  "brief_digest": "sha256:89c8ff60be665e0185b8b182559123ac77fc9d386744aa171677a440bb38b3f7",
+  "adapter": "sol-medium",
+  "vendor": "openai",
+  "model": "gpt-6.1-sol",
+  "started_at": "2026-11-23T11:45:25.137843514Z",
+  "ended_at": "2026-11-23T11:49:23.783814791Z",
+  "exit_code": 0,
+  "status": "completed",
+  "transcript_digest": "sha256:5176e2f36cd886aa9e7cb66b9cdabc900e76d8ddef4c1f943e6d055657a4aa4b",
+  "transcript_path": ".pose/review-runs/rrn-7d33ba9fc274421f.transcript",
+  "output": "Review blocked; stopping under the brief’s missing-prerequisite rule. I cannot produce a valid POSE conclusion.\n\nThe installed `pose` was built from `40019024`, before this change. Building the reviewed CLI and creating assessment scratch copies both failed with `read-only file system`. Required tool checks therefore remain unverified.\n\nEvidence gathered:\n\n- Targeted carry, selection, engine-identity, and delivery-reader tests passed.\n- R12-N38 and R13-N40 are fixed by the shared cleanliness predicate at start and completion (`validate_carry.go:659`, `validate.go:1050,1448`).\n- R13-N41’s ordering issue is fixed: start cleanliness precedes matrix reads and module discovery (`validate.go:1050–1080`).\n- R12-N39 and R13-N42 remain unfixed: report summaries omit carry provenance (`validate.go:1612–1629`), tracked as spec follow-up F2.\n\nThe checkout remains unchanged. Completion requires writable scratch/build space and a CLI built from `55ac2a9`.",
+  "policy_digest": "sha256:b98e89a0dfe961193c55d1fa1bc18b3d906c3a09839492803795b73f79298f16",
+  "label": "engine-a-review-r15",
+  "purpose": "review",
+  "env_removed": [
+    "CLAUDECODE",
+    "CLAUDE_CODE_BRIDGE_SESSION_ID",
+    "CLAUDE_CODE_CHILD_SESSION",
+    "CLAUDE_CODE_ENTRYPOINT",
+    "CLAUDE_CODE_EXECPATH",
+    "CLAUDE_CODE_MESSAGING_SOCKET",
+    "CLAUDE_CODE_MESSAGING_TOKEN",
+    "CLAUDE_CODE_SESSION_ATTENDED",
+    "CLAUDE_CODE_SESSION_ID",
+    "CLAUDE_EFFORT",
+    "CLAUDE_PID"
+  ],
+  "events": "codex-jsonl",
+  "events_digest": "sha256:fd721021c77a7c8c7295437df74b2eee79d0e719bdb0693adf7438483048c85b",
+  "routing": {
+    "requested": "auto",
+    "prefer": "opposite-vendor-of-implementation",
+    "implementation": {
+      "principal": "agent:anthropic/unknown",
+      "vendor": "anthropic",
+      "model": "unknown",
+      "execution_digest": "sha256:344ac5868944c155772d60a95ef6ff20644580a642e772ad5c92c29428464ff8",
+      "source": "detected"
+    },
+    "implementation_from": "bundle",
+    "candidates": [
+      {
+        "agent": "sol-medium",
+        "vendor": "openai",
+        "model": "gpt-6.1-sol",
+        "group": "preferred",
+        "state": "available"
+      }
+    ],
+    "step": "preferred"
+  },
+  "independence_achieved": "different-vendor",
+  "round": 14,
+  "draft_problems": [
+    "a draft of round 14 needs a pose-draft block"
+  ],
+  "thread": {
+    "round": 14,
+    "mode": "new",
+    "from": "rrn-db44fd7f02f7b981",
+    "reason": "the chain of rounds is broken: the draft of round 7 (rrn-0375009e985e6a3d) cannot be read: finding id \"R7-N20\" is not a unique identifier without a round prefix; the draft of round 10 (rrn-c0b4006e2a8ff303) cannot be read: finding id \"R10-N30\" is not a unique identifier without a round prefix; the draft of round 11 (rrn-abb61f059dc6d700) cannot be read: finding id \"R12-N33\" is not a unique identifier without a round prefix"
+  }
+}
