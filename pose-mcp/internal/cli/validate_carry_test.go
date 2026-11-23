@@ -537,14 +537,16 @@ func TestValidateHeadMovingDuringTheRunIsNotClean(t *testing.T) {
 
 // Every eligible dependency counts, whatever its order (review round 5, N11).
 func TestChangedScopeEvaluatesEveryDeclaredDependency(t *testing.T) {
-	f := newCarryFixture(t, `{"schemaVersion":1,"modules":{"b":{"selfContained":true,"dependsOn":["a","."]}}}`)
-	f.write("a/nested/go.mod", "module nested\n")
-	f.commit("nested module")
-	f.write("a/nested/changed.go", "package nested\n")
-	f.commit("change nested")
-	_, out := runValidate(t, f.root, "--changed-from", "HEAD~1", "--changed-to", "HEAD", "--explain")
-	if !strings.Contains(out, "+ b: declared dependency . changed: a/nested/changed.go") {
-		t.Fatalf("b must be selected through its root dependency whatever the order: %s", out)
+	for _, deps := range []string{`["a","."]`, `[".","a"]`} {
+		f := newCarryFixture(t, `{"schemaVersion":1,"modules":{"b":{"selfContained":true,"dependsOn":`+deps+`}}}`)
+		f.write("a/nested/go.mod", "module nested\n")
+		f.commit("nested module")
+		f.write("a/nested/changed.go", "package nested\n")
+		f.commit("change nested")
+		_, out := runValidate(t, f.root, "--changed-from", "HEAD~1", "--changed-to", "HEAD", "--explain")
+		if !strings.Contains(out, "+ b: declared dependency ") {
+			t.Fatalf("dependsOn %s: b must be selected whatever the order: %s", deps, out)
+		}
 	}
 }
 
@@ -618,5 +620,46 @@ func TestCarryPlansAgainstThePinnedHead(t *testing.T) {
 	}
 	if !plan.record.Used && !strings.Contains(plan.record.Reason, "engine") {
 		t.Fatalf("carry unused for an unexpected reason: %q", plan.record.Reason)
+	}
+}
+
+// A discovered dependency above the changed module selects its dependents
+// (review round 6, N15), and so does a discovered root dependency.
+func TestChangedScopeDiscoveredAncestorDependencySelectsItsDependents(t *testing.T) {
+	f := newCarryFixture(t, `{"schemaVersion":1,"modules":{"b":{"selfContained":true,"dependsOn":["a"]}}}`)
+	f.write("a/nested/go.mod", "module nested\n")
+	f.commit("nested module")
+	f.write("a/nested/input.txt", "x\n")
+	f.commit("change nested")
+	_, out := runValidate(t, f.root, "--changed-from", "HEAD~1", "--changed-to", "HEAD", "--explain")
+	if !strings.Contains(out, "+ b: declared dependency a changed: a/nested/input.txt") {
+		t.Fatalf("b must be selected through its discovered ancestor dependency: %s", out)
+	}
+
+	g := newCarryFixture(t, `{"schemaVersion":1,"modules":{"b":{"selfContained":true,"dependsOn":["."]}}}`)
+	g.write("go.mod", "module root\n")
+	g.commit("root module")
+	g.write("a/changed.go", "package a\n")
+	g.commit("change a")
+	_, out = runValidate(t, g.root, "--changed-from", "HEAD~1", "--changed-to", "HEAD", "--explain")
+	if !strings.Contains(out, "+ b: declared dependency . changed: a/changed.go") {
+		t.Fatalf("b must be selected through its discovered root dependency: %s", out)
+	}
+}
+
+// A declared dependency reached through a symlink refuses the carry (review
+// round 6, N16).
+func TestCarryRefusesDependenciesReachedThroughASymlink(t *testing.T) {
+	f := newCarryFixture(t, `{"schemaVersion":1,"modules":{"b":{"selfContained":true,"dependsOn":["link"]}}}`)
+	if err := os.Symlink("a", filepath.Join(f.root, "link")); err != nil {
+		t.Fatal(err)
+	}
+	f.commit("link")
+	f.baseline()
+	f.write("a/changed.go", "package a\n")
+	f.commit("change a")
+	_, _, run := f.validate("--carry")
+	if run.Carry == nil || run.Carry.Used || !strings.Contains(run.Carry.Reason, "dependency link") {
+		t.Fatalf("carry = %+v, want an aliased dependency refused", run.Carry)
 	}
 }

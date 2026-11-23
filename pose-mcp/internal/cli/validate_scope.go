@@ -154,12 +154,6 @@ func computeChangedScope(root, base, head string, modules []validationModule, ex
 			sel.Selected[rel] = reason
 		}
 	}
-	// A discovered dependency reaches its dependents through the transitive
-	// widening below, with its own reason.
-	discovered := map[string]bool{}
-	for _, m := range modules {
-		discovered[m.Rel] = true
-	}
 	for _, file := range sel.Changed {
 		owner := moduleOf(file)
 		if owner != "" {
@@ -171,8 +165,11 @@ func computeChangedScope(root, base, head string, modules []validationModule, ex
 			}
 			// Every eligible dependency counts, whatever its order (review
 			// round 5, N11).
+			// A dependency that is the file's own owner reaches its dependents
+			// through the transitive widening; any other one, discovered or not,
+			// selects here (review round 6, N15).
 			for _, dep := range declaredDependencyHits(file, meta.Modules[m.Rel].DependsOn) {
-				if !discovered[dep] {
+				if dep != owner {
 					selectModule(m.Rel, "declared dependency "+dep+" changed: "+file)
 					break
 				}

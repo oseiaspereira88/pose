@@ -113,6 +113,23 @@ func planCarry(root, resultsPath, mode, matrixSHA, head string, matrix validatio
 	if reason := aliasedModule(modules, filepath.EvalSymlinks, os.Stat); reason != "" {
 		return unused("%s", reason)
 	}
+	// A declared dependency reached through a symlink aliases another path
+	// the selection cannot see (review round 6, N16).
+	meta, err := loadScopeMetadata(root)
+	if err != nil {
+		return unused("changed-scope selection failed: %v", err)
+	}
+	for rel, module := range meta.Modules {
+		for _, dep := range module.DependsOn {
+			abs := filepath.Join(root, filepath.FromSlash(filepath.ToSlash(filepath.Clean(dep))))
+			if _, err := os.Lstat(abs); err != nil {
+				continue
+			}
+			if resolved, err := filepath.EvalSymlinks(abs); err != nil || filepath.Clean(resolved) != filepath.Clean(abs) {
+				return unused("dependency %s of module %s is reached through a symlink, so its changes cannot be attributed", dep, rel)
+			}
+		}
+	}
 	if err := posemodel.RawGit("-C", root, "merge-base", "--is-ancestor", base.GitHead, head).Run(); err != nil {
 		return unused("the canonical result's head %s is not an ancestor of HEAD", base.GitHead)
 	}
