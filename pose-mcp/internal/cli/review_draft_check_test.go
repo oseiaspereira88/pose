@@ -65,6 +65,23 @@ func TestReviewDraftCheckMatchesTheConclusionStep(t *testing.T) {
 	if code, out := runPose(t, root, "review", "draft-check", "--draft", draftPath); code != 0 {
 		t.Fatalf("the run's context refused a good draft: %d %s", code, out)
 	}
+	// Naming the run's own bundle uses the context too, where the sealed
+	// checkout holds no bundle file (review round 2, N5).
+	empty := t.TempDir()
+	if code, out := runPose(t, empty, "review", "draft-check", bundleID, "--draft", draftPath); code != 0 {
+		t.Fatalf("naming the run's bundle ignored the context: %d %s", code, out)
+	}
+	if code, out := runPose(t, empty, "review", "draft-check", "rvb-ffffffffffffffff", "--draft", draftPath); code == 0 || !strings.Contains(out, "this run's draft context holds bundle "+bundleID) {
+		t.Fatalf("another bundle was not refused with the context named: %d %s", code, out)
+	}
+	// A draft past the limit is refused, never judged by its prefix (N4).
+	huge := filepath.Join(t.TempDir(), "huge.txt")
+	if err := os.WriteFile(huge, append(good, make([]byte, 4<<20)...), 0o600); err != nil {
+		t.Fatal(err)
+	}
+	if code, out := runPose(t, root, "review", "draft-check", "--draft", huge); code == 0 || !strings.Contains(out, "larger than") {
+		t.Fatalf("an oversized draft was judged: %d %s", code, out)
+	}
 	// From standard input, as a read-only sandbox can only offer it.
 	t.Setenv(posemodel.ReviewDraftContextEnv, "")
 	stdin, _ := os.Open(badPath)

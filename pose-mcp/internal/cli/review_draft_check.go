@@ -1,6 +1,7 @@
 package cli
 
 import (
+	"fmt"
 	"io"
 	"os"
 	"strings"
@@ -36,34 +37,38 @@ func cmdReviewDraftCheck(root string, args []string, stdout, stderr io.Writer) i
 	if draftPath == "" {
 		return usageError(stderr, "pose review draft-check: name the draft with --draft\nUsage: "+reviewDraftCheckUsage)
 	}
-	var raw []byte
-	var err error
-	if draftPath == "-" {
-		raw, err = io.ReadAll(io.LimitReader(os.Stdin, 4<<20))
-	} else {
-		raw, err = os.ReadFile(draftPath)
-	}
+	raw, err := readReviewDraftInput(draftPath)
 	if err != nil {
 		render(stdout, stderr).Failure("pose review draft-check: " + err.Error())
 		return 1
 	}
 	store := cliGovernedStore(root)
 	var reasons []string
-	contextPath := os.Getenv(posemodel.ReviewDraftContextEnv)
-	switch {
-	case bundleID == "" && contextPath == "":
-		return usageError(stderr, "pose review draft-check: name the bundle; only a delegated review provides it\nUsage: "+reviewDraftCheckUsage)
-	case contextPath != "" && bundleID == "":
-		ctx, err := posemodel.ReadReviewDraftContext(contextPath)
+	var ctx *posemodel.ReviewDraftContext
+	if contextPath := os.Getenv(posemodel.ReviewDraftContextEnv); contextPath != "" {
+		read, err := posemodel.ReadReviewDraftContext(contextPath)
 		if err != nil {
 			render(stdout, stderr).Failure("pose review draft-check: " + strings.TrimPrefix(err.Error(), "pose: "))
 			return 1
 		}
-		reasons = store.CheckReviewDraftIn(ctx, string(raw), time.Now())
+		ctx = &read
+	}
+	switch {
+	case bundleID == "" && ctx == nil:
+		return usageError(stderr, "pose review draft-check: name the bundle; only a delegated review provides it\nUsage: "+reviewDraftCheckUsage)
+	case ctx != nil && (bundleID == "" || bundleID == ctx.Bundle.BundleID):
+		// Inside a delegated review the sealed checkout holds no bundle: the
+		// run's own bundle, named or not, is judged from the context the
+		// dispatch wrote (review round 2, N5).
+		reasons = store.CheckReviewDraftIn(*ctx, string(raw), time.Now())
 	default:
 		reasons, err = store.CheckReviewDraft(bundleID, string(raw), time.Now())
 		if err != nil {
-			render(stdout, stderr).Failure("pose review draft-check: " + strings.TrimPrefix(err.Error(), "pose: "))
+			msg := strings.TrimPrefix(err.Error(), "pose: ")
+			if ctx != nil {
+				msg += "; this run's draft context holds bundle " + ctx.Bundle.BundleID + ", which is checked when it is named or no reference is given"
+			}
+			render(stdout, stderr).Failure("pose review draft-check: " + msg)
 			return 1
 		}
 	}
@@ -89,4 +94,30 @@ func nonNilStrings(v []string) []string {
 		return []string{}
 	}
 	return v
+}
+
+// reviewDraftInputLimit bounds the draft read; a larger input is refused,
+// never judged by its prefix (review round 2, N4).
+const reviewDraftInputLimit = 4 << 20
+
+func readReviewDraftInput(path string) ([]byte, error) {
+	var in io.Reader
+	if path == "-" {
+		in = os.Stdin
+	} else {
+		f, err := os.Open(path)
+		if err != nil {
+			return nil, err
+		}
+		defer f.Close()
+		in = f
+	}
+	raw, err := io.ReadAll(io.LimitReader(in, reviewDraftInputLimit+1))
+	if err != nil {
+		return nil, err
+	}
+	if len(raw) > reviewDraftInputLimit {
+		return nil, fmt.Errorf("the draft is larger than %d bytes; a run's final message that large is not checked by a prefix", reviewDraftInputLimit)
+	}
+	return raw, nil
 }
