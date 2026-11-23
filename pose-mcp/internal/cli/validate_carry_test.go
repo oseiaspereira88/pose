@@ -1112,3 +1112,20 @@ func TestValidateUninitializedSubmoduleIsNotClean(t *testing.T) {
 		t.Fatalf("submodulesCheckedOut = %q, want b/data", sub)
 	}
 }
+
+// A condition that holds only at the end of the run does not make it clean:
+// a hidden index entry cleared during the run (review round 14, N40).
+func TestValidateConditionClearedDuringTheRunIsNotClean(t *testing.T) {
+	f := newCarryFixture(t, "")
+	f.write("b/input", "x\n")
+	f.commit("b input")
+	raw, _ := os.ReadFile(filepath.Join(f.root, ".pose/indexes/validation-matrix.json"))
+	script := `git -C .. update-index --no-skip-worktree b/input`
+	f.write(".pose/indexes/validation-matrix.json", strings.Replace(string(raw), `"stacks"`, `"moduleOverrides":{"a":{"checks":[{"name":"clears","program":"sh","args":["-c","`+script+`"],"severity":"required","evidenceClass":"unit"}]}},"stacks"`, 1))
+	f.commit("a check that clears the flag")
+	f.git("update-index", "--skip-worktree", "b/input")
+	_, out, run := f.validate()
+	if run.MaterialClean {
+		t.Fatalf("material_clean = true although the run started with a hidden index entry: %s", out)
+	}
+}

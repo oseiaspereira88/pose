@@ -1044,6 +1044,10 @@ func cmdValidateWithStore(store posemodel.Store, args []string, stdout, stderr i
 		pinnedHead = strings.TrimSpace(string(head))
 	}
 	startReflog := headReflogLength(root)
+	// The working copy must match the pinned head before the plan inputs are
+	// read, by the same full predicate checked at the end: status, hidden
+	// index entries and submodule checkouts (review round 14, N40 and N41).
+	startedClean := pinnedHead != "" && validationMaterialClean(root, pinnedHead)
 	matrixPath := filepath.Join(root, ".pose", "indexes", "validation-matrix.json")
 	raw, err := os.ReadFile(matrixPath)
 	if err != nil {
@@ -1155,7 +1159,6 @@ func cmdValidateWithStore(store posemodel.Store, args []string, stdout, stderr i
 	// results and the end-of-run comparison all name this one commit (review
 	// round 5, N14).
 	run.GitHead = pinnedHead
-	startedClean := materialWorktreeClean(root)
 	var carryState carryPlan
 	if carry {
 		carryState = planCarry(root, canonicalResultsPath, mode, run.MatrixSHA256, run.GitHead, matrix, modules)
@@ -1438,14 +1441,11 @@ func cmdValidateWithStore(store posemodel.Store, args []string, stdout, stderr i
 	}
 	// Untracked material created while checks ran counts too (review round 8,
 	// N21): only ignored files may differ from the recorded head.
-	hidden, hiddenErr := hiddenIndexEntries(root, run.GitHead)
+
 	// Equal endpoints do not show HEAD never moved: H -> H' -> H leaves them
 	// equal. The reflog must not have grown (review round 12, N34).
 	endReflog := headReflogLength(root)
-	// Every submodule must hold its recorded commit: an uninitialized one
-	// reads as clean while its material is absent (review round 13, N38).
-	submodulesOK := run.GitHead != "" && submodulesCheckedOut(root, run.GitHead) == ""
-	run.MaterialClean = startedClean && endedClean && materialWorktreeClean(root) && run.GitHead != "" && endHead == run.GitHead && hiddenErr == nil && hidden == "" && startReflog >= 0 && endReflog == startReflog && submodulesOK
+	run.MaterialClean = startedClean && endedClean && run.GitHead != "" && endHead == run.GitHead && validationMaterialClean(root, run.GitHead) && startReflog >= 0 && endReflog == startReflog
 	// A run that did not validate its recorded head binds no material: its
 	// bindings would let a later tree make a misattributed pass current again
 	// (review round 5, N12).

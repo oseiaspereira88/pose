@@ -650,3 +650,18 @@ func submodulesCheckedOut(root, head string) string {
 	}
 	return ""
 }
+
+// validationMaterialClean is the full predicate a run must satisfy at its
+// start and at its end to validate head (review rounds 8–14): no tracked or
+// untracked unignored difference in status (mode changes included), no index
+// entry hiding edits, and every submodule checked out at its recorded commit
+// (an uninitialized one reads as clean to status).
+func validationMaterialClean(root, head string) bool {
+	if !materialWorktreeClean(root) {
+		return false
+	}
+	if hidden, err := hiddenIndexEntries(root, head); err != nil || hidden != "" {
+		return false
+	}
+	return submodulesCheckedOut(root, head) == ""
+}
