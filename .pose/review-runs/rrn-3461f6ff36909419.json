@@ -1,0 +1,154 @@
+{
+  "safety": {
+    "schema_version": 1,
+    "profile": "legacy-trusted",
+    "platform": "linux/amd64",
+    "capabilities": {
+      "automatic-expiry": "unavailable",
+      "bounded-capture": "available",
+      "cpu-limit": "unavailable",
+      "credential-filesystem-isolation": "unavailable",
+      "environment-allowlist": "available",
+      "escaped-descendant-termination": "unavailable",
+      "filesystem-isolation": "unavailable",
+      "memory-limit": "unavailable",
+      "network-isolation": "unavailable",
+      "origin-isolation": "unavailable",
+      "parent-termination": "available",
+      "process-group-termination": "available",
+      "shared-git-isolation": "unavailable"
+    },
+    "limitations": [
+      "trusted local executable required; worktree is not a sandbox",
+      "outside writes, transient writes, shared Git and credential files are not isolated",
+      "no memory/CPU quota or control of descendants escaping the process group",
+      "cleanup filesystem calls remain subject to operating-system I/O latency",
+      "legacy compatibility: HOME retained; other ambient credentials excluded"
+    ],
+    "stream_bytes": 8388608,
+    "output_bytes": 65536,
+    "retained_bytes": 16777216,
+    "timeout_ms": 3600000,
+    "max_runs_per_bundle": 3,
+    "retention": "retain-evidence; ttl=0; no automatic deletion",
+    "capture_complete": true,
+    "runtime_id": "pose-review-run-1106239546",
+    "operation": {
+      "schema_version": 1,
+      "operation": "review.dispatch.cleanup",
+      "scope": "spec:pose-validate-carries-unchanged-checks",
+      "outcome": "completed",
+      "steps_run": [
+        {
+          "id": "cleanup",
+          "result": "done"
+        }
+      ],
+      "effects": [],
+      "resumable": false
+    }
+  },
+  "provenance": {
+    "execution_state": "started",
+    "planned_wire_digest": "sha256:e03058070968ab9f47a8c8ae29727341037441e15630ae4d96990c41f6d208dd",
+    "wire_bytes": 31459,
+    "wire_complete": true,
+    "schema_version": 1,
+    "project": "proj.pose-dist",
+    "audience": "proj.pose-dist",
+    "worktree_digest": "sha256:092ca52378c4c0d0f2b627da8d5031dbb854563bd4b9f2474458710c62a14816",
+    "trust": "executor-attested",
+    "implementation": {
+      "principal": "agent:anthropic/unknown",
+      "execution": "sha256:344ac5868944c155772d60a95ef6ff20644580a642e772ad5c92c29428464ff8",
+      "vendor": "anthropic",
+      "model": "unknown"
+    },
+    "reviewer": {
+      "principal": "agent:openai/gpt-6.1-sol",
+      "vendor": "openai",
+      "model": "gpt-6.1-sol"
+    },
+    "config_digest": "sha256:637a9d88c40dbf75da8525db65c216ace591f828ef25c233358db1a99e70ee31",
+    "command_template_digest": "sha256:e49fc2491333bb1973855674a04dfcc3edf577094dabb278bf9ef23c413c48f5",
+    "argv_digest": "sha256:6e24cfc9e47fb7f022a1f2b2e628bc16d86bdbbd9e7c1009a65270739c6f7486",
+    "executable_digest": "sha256:0e0c66f50074965a40cbd12f625b0a35963baf41bbd8c201a93e32fddbe2e073",
+    "template_version": "review-brief/7",
+    "wire_digest": "sha256:e03058070968ab9f47a8c8ae29727341037441e15630ae4d96990c41f6d208dd",
+    "notes_digest": "sha256:0de4f6d858b05148e08285671d81fe22de8631e60833f9798a1188708a03c009",
+    "raw_transcript_digest": "sha256:5d8460f37d1d32eec660b0ccc985be4b298fd32a5bbb39d923aa28076c9330f5",
+    "raw_output_digest": "sha256:15c25045fc46701959f2b3854e43c2ba00773218750ed56053c9188da19cfee5",
+    "output_source": "file",
+    "output_complete": true
+  },
+  "session_digest": "sha256:e0ccae8d891152a7932b7164fc070d290f7fe9c2c0ed5824e80b1cfa180ec32c",
+  "tree_digest": "sha256:c81398d98394a9bbc174555438ef9969bf4268bf578f28867f9c4e796392d13e",
+  "brief_notes": "Implementer notes (Claude Opus 5.5, the lead in this session). Use them as context only; the judgment is yours.\n\n- The feature was motivated by the Harne8 batch of 2026-11-22. There, every review round re-ran a 72-check matrix of about 35 minutes, and intermittent suites failed roughly one run in three.\n- In this repository `pose-mcp` holds 233 of the 236 checks and is high criticality, so `--carry` saves little here. The dogfood record at c4182727 carried five of six modules with zero changed files.\n- Please challenge the soundness argument of D1 in particular. A carried result is bound to the material computed at HEAD, and that is only safe when the selection guarantees the carried module's inputs did not change.\n- Please also check the derived-record exclusion (`carryExclusions` with `posemodel.IsAdministrativePath`) and the engine identity, which is the version plus the VCS revision.\n- Report every finding you see in this round, each classified as blocker or follow-up.\n\nRound 2 notes:\n- F1 from round 1 (rrn-0dd98c4aab8b5918) is addressed in d601fbe1. The record now has `material_clean`, set when the working copy matched HEAD at the start and at the end of the run. `planCarry` refuses a base without it, or with any unavailable material binding. `TestCarryRefusesABaseThatValidatedADirtyWorkingCopy` reproduces your sequence: a pass over an uncommitted fix, a commit of the record alone, the restored failing file, then `--carry`. The test failed with the check mutated out. Account for F1 in prior_findings.\n- Round 1 also changed files in the sealed worktree because `pose assess integrate` and `pose assess tech-debt` persist their outputs: `.pose/assessments/*`, `.pose/state/*`. Run every `assess` command on a copy in the operation's scratch, never in the sealed checkout, and keep the Bash working directory at the checkout root. Example: `scratch=$(mktemp -d \"$TMPDIR/pose-assess.XXXXXX\")`, `git archive HEAD | tar -x -C \"$scratch\"`, `sh -c 'cd \"$1\" \u0026\u0026 exec \"$2\" assess integrate --json' sh \"$scratch\" \"$(command -v pose)\"`.\n- The `artifact-check` head differs from the bundle subject because the index commits also carry this spec's trailer. `artifact-check` resolves the change set range to the last trailer commit, which is an index-only commit. The bundle subject skips commits that only touch derived records, whose material digest is unchanged. That is existing engine behaviour, which the lead will take up separately. Judge it as you see fit.\n- The full matrix takes about 13 minutes. If you cannot complete it in the sandbox, cite the sealed canonical result for the `validate` tool and state your own run's limits.\n\nRound 3 notes: round 2 (rrn-1c033e4c349d7794) found N1–N4. 2077731b fixes them:\n- The changed set uses `git diff -z --no-renames` and `ls-files -z`, so a rename names both sides and a quoted name keeps its owner.\n- The root module `.` is never exempt from root files.\n- A build with `vcs.modified=true` is not a verifiable identity: it never carries, and a base with a `.dirty` identity is refused.\n\nThe regression tests are `TestCarrySelectsBothSidesOfARename`, `TestCarryKeepsTheOwnerOfAQuotedName`, `TestCarryRootModuleOwnsRootFiles` and `TestEngineIdentityRefusesModifiedBuilds`. Each one failed with its fix mutated out. Account for R2-N1..R2-N4 in prior_findings.\n",
+  "ledger_version": 1,
+  "attempt_id": "rat-88d7a39155105d7e703e1a05843cb1e2a6db45b84cc32bfb6957ce789743c7d0",
+  "schema_version": 1,
+  "run_id": "rrn-3461f6ff36909419",
+  "scope": "spec:pose-validate-carries-unchanged-checks",
+  "bundle_id": "rvb-2557a395e6a8121c",
+  "bundle_digest": "sha256:2557a395e6a8121c4fc54cd1e343369de864196db4d4d58bed2133dfcbb6e0e1",
+  "sealed_commit": "43764959e1f0468db45f0c461ecd6fa905078443",
+  "kind": "review",
+  "brief_digest": "sha256:2fccd71e9e869c64d38924b502bf6d24bc89cc1b8c30f4ad4fc9e865e69bc7f2",
+  "adapter": "sol-medium",
+  "vendor": "openai",
+  "model": "gpt-6.1-sol",
+  "started_at": "2026-11-23T02:34:10.034546564Z",
+  "ended_at": "2026-11-23T02:41:04.795880593Z",
+  "exit_code": 0,
+  "status": "completed",
+  "transcript_digest": "sha256:1b5f2ba580dde87f1ccc5ea8177c102dc263a556ccc1669a27ef8e52a564779e",
+  "transcript_path": ".pose/review-runs/rrn-3461f6ff36909419.transcript",
+  "output": "decision: changes-requested\n\nThe four previous findings are fixed. Two further blockers remain:\n\n- **N5 — high:** [validate_scope.go:140](/var/tmp/pose-work-go/pose-review-run-1106239546/worktree/pose-mcp/internal/cli/validate_scope.go:140). Deleting a dependency’s directory or manifest removes it from current module discovery. Its deleted paths become unmapped, self-contained dependents are exempted, and dependency propagation never selects them. For example, `b` with `selfContained: true`, `dependsOn: [\"a\"]`, and a check reading `../a/input.txt` can retain its old pass after deleting `a`. Preserve dependency ownership across deletions or conservatively rerun affected consumers.\n- **N6 — medium:** [validate_scope.go:42](/var/tmp/pose-work-go/pose-review-run-1106239546/worktree/pose-mcp/internal/cli/validate_scope.go:42). Metadata decoding errors are discarded. A record containing `\"selfContained\": true, \"dependsOn\": \"a\"` can retain the exemption while losing its dependency edge. Changes to `a` can then carry `b` silently. Reject invalid metadata or fall back to full validation.\n\nBoth findings follow from code inspection; writable scratch was unavailable for additional fixtures.\n\nFocused tests, race tests and vet passed. Strict artifact-check passed; its later head differs only in three derived indexes. Both required validation runs failed because the sandbox denied build-directory/cache writes. The supplied sealed matrix records 236 passes, but fresh required-tool validation remains unmet.\n\nApplied the review workflow, backend-go, security, documentation-style and delivery-evidence rules. No repository changes or attestation were made.\n\n```pose-draft\n{\n  \"schema\": \"pose.review.draft/v1\",\n  \"decision\": \"changes-requested\",\n  \"findings\": [\n    {\n      \"id\": \"N5\",\n      \"severity\": \"high\",\n      \"disposition\": \"blocker\",\n      \"file\": \"pose-mcp/internal/cli/validate_scope.go\",\n      \"line\": 140,\n      \"summary\": \"Deleting a dependency directory or its manifest removes that module from current discovery. Its deleted paths become unmapped, selfContained dependents are exempted, and dependency propagation cannot find the removed module in Selected. A dependent check reading the deleted module can therefore retain its old pass. Preserve base/dependency ownership for deletions or conservatively select affected consumers; cover directory and manifest removal under both flags.\"\n    },\n    {\n      \"id\": \"N6\",\n      \"severity\": \"medium\",\n      \"disposition\": \"blocker\",\n      \"file\": \"pose-mcp/internal/cli/validate_scope.go\",\n      \"line\": 42,\n      \"summary\": \"loadScopeMetadata discards JSON decoding errors and returns partially populated metadata. For example, selfContained:true with dependsOn:\\\"a\\\" can retain the exemption while dropping the invalid dependency field, allowing a changed dependency's consumer to be carried silently. Return an actionable error or conservatively run the full matrix when metadata cannot be decoded.\"\n    }\n  ],\n  \"prior_findings\": [\n    {\n      \"id\": \"R1-N1\",\n      \"status\": \"fixed\",\n      \"evidence\": \"validate_scope.go:77 and validate_carry.go:147 use NUL-delimited git diff with --no-renames. TestCarrySelectsBothSidesOfARename passed.\"\n    },\n    {\n      \"id\": \"R1-N2\",\n      \"status\": \"fixed\",\n      \"evidence\": \"validate_scope.go:140 prevents the root module from claiming the unmapped-file exemption. TestCarryRootModuleOwnsRootFiles passed.\"\n    },\n    {\n      \"id\": \"R1-N3\",\n      \"status\": \"fixed\",\n      \"evidence\": \"validate_scope.go:86-98 splits tracked and untracked Git names on NUL without trimming or quoted-name parsing. TestCarryKeepsTheOwnerOfAQuotedName passed.\"\n    },\n    {\n      \"id\": \"R1-N4\",\n      \"status\": \"fixed\",\n      \"evidence\": \"validate_carry.go:82-85 rejects unverifiable current builds and dirty base identities; engineIdentityFrom returns false for modified builds. TestEngineIdentityRefusesModifiedBuilds passed.\"\n    }\n  ],\n  \"sweep\": \"Reviewed the full subject against R1-R10 and D1-D3, including all prior fixes, eligibility, engine identity, dirty-base protection, module discovery, dependency propagation, administrative exclusions, dispatch and cancellation, result accounting, chained origins, delivery freshness consumers, legacy compatibility, documentation and scaffold copies. Focused and broader validation-related tests, race tests and vet passed. Additional findings concern deleted dependencies and invalid metadata. Repository remained unchanged.\",\n  \"criteria\": [\n    {\n      \"id\": \"assumption-integrity\",\n      \"disposition\": \"finding\",\n      \"evidence\": \"N5\",\n      \"rationale\": \"Verified dirty-base and dirty-engine guards and the four prior fixes. Explicit self-containment remains an instance responsibility, but D1 also assumes dependency changes remain discoverable; deletion violates that assumption even with correctly declared edges.\"\n    },\n    {\n      \"id\": \"backend-concurrency\",\n      \"disposition\": \"passed\",\n      \"evidence\": \"integration:pose-mcp/go/validate-concurrent-steps-integration\",\n      \"rationale\": \"Inspected carried-entry exclusion from worker dispatch, serial accounting and existing cancellation paths. Focused carry, selection and engine-identity race tests passed.\"\n    },\n    {\n      \"id\": \"backend-contracts\",\n      \"disposition\": \"passed\",\n      \"evidence\": \"integration:pose-mcp/go/delivery-integration\",\n      \"rationale\": \"Inspected additive record fields, canonical-output restrictions, legacy parsing and original-head delivery reading. Existing records retain their interpretation.\"\n    },\n    {\n      \"id\": \"backend-input-errors\",\n      \"disposition\": \"finding\",\n      \"evidence\": \"N6\",\n      \"rationale\": \"Malformed dependency metadata is silently accepted as partial configuration instead of producing an actionable error or conservative fallback.\"\n    },\n    {\n      \"id\": \"backend-integration-impact\",\n      \"disposition\": \"finding\",\n      \"evidence\": \"N5\",\n      \"rationale\": \"A removed provider can disappear from selection before its declared consumers are widened, allowing stale carried outcomes to receive current run provenance.\"\n    },\n    {\n      \"id\": \"backend-observability\",\n      \"disposition\": \"finding\",\n      \"evidence\": \"N6\",\n      \"rationale\": \"Normal fallback and selection explanations are useful, but discarded metadata errors leave no diagnostic explaining the lost dependency edge.\"\n    },\n    {\n      \"id\": \"compatibility\",\n      \"disposition\": \"passed\",\n      \"evidence\": \"unit:pose-mcp/go/test\",\n      \"rationale\": \"Reviewed optional JSON fields, unchanged legacy parsing, explicit flag combinations and refusal of old bases without engine_version. Changes to CLI and file contracts are additive; no MCP signature changed.\"\n    },\n    {\n      \"id\": \"correctness\",\n      \"disposition\": \"finding\",\n      \"evidence\": \"N5\",\n      \"rationale\": \"Existing regression fixtures pass, but removing a dependency can carry a consumer whose declared inputs changed.\"\n    },\n    {\n      \"id\": \"design-causality\",\n      \"disposition\": \"finding\",\n      \"evidence\": \"N5\",\n      \"rationale\": \"Reusing affected-module selection addresses repeated full execution. D1's justification for current material provenance nevertheless requires complete dependency invalidation, which fails when a dependency disappears from current discovery.\",\n      \"mappings\": [\n        {\n          \"delta\": \"SD-a9e60b2a\",\n          \"basis\": \"D1\",\n          \"disposition\": \"mapped\",\n          \"rationale\": \"The ADR records original-observation reuse and its unchanged-input premise; D2 and D3 provide engine/matrix comparison and self-containment policy.\"\n        }\n      ]\n    },\n    {\n      \"id\": \"documentation\",\n      \"disposition\": \"passed\",\n      \"evidence\": \"integration:pose-mcp/go/distributed-instructions-parity-integration\",\n      \"rationale\": \"Compared manuals, translations, embedded copies, help, spec and ADR. Carry behavior and prior fixes are documented consistently. The English embedded-copy difference is the repository-specific Contributor Mode section.\"\n    },\n    {\n      \"id\": \"operability\",\n      \"disposition\": \"finding\",\n      \"evidence\": \"N6\",\n      \"rationale\": \"Invalid metadata can silently narrow execution without naming the decoding failure or offering remediation.\"\n    },\n    {\n      \"id\": \"requirements\",\n      \"disposition\": \"finding\",\n      \"evidence\": \"N5\",\n      \"rationale\": \"R6 requires declared dependency widening, including for self-contained modules. A removed dependency is not propagated. R3 and D1 consequently permit stale carried evidence.\"\n    },\n    {\n      \"id\": \"scope\",\n      \"disposition\": \"passed\",\n      \"evidence\": \"structure:design-adcaa66093f2a598\",\n      \"rationale\": \"Compared implementation, tests, governance and documentation changes against the spec's affected areas and artifact declarations. Changes remain within the approved carry feature.\"\n    },\n    {\n      \"id\": \"security\",\n      \"disposition\": \"finding\",\n      \"evidence\": \"N5\",\n      \"rationale\": \"Revision confinement and output-path restrictions remain intact, but incomplete dependency invalidation permits stale evidence to acquire current material provenance.\"\n    },\n    {\n      \"id\": \"solution-proportionality\",\n      \"disposition\": \"passed\",\n      \"evidence\": \"structure:design-adcaa66093f2a598\",\n      \"rationale\": \"Reusing module selection and whole-matrix comparison is smaller than per-check input manifests or output caching and adds no speculative infrastructure. It remains sufficient only when declared dependencies are completely invalidated and configuration errors cannot narrow execution; N5 and N6 identify the missing conditions.\"\n    }\n  ],\n  \"tools\": [\n    {\n      \"id\": \"artifact-check\",\n      \"disposition\": \"passed\",\n      \"evidence\": \"command:pose artifact-check --spec pose-validate-carries-unchanged-checks --strict\",\n      \"rationale\": \"Exited 0 with 15 claims, 20 observations and 985 reported findings. Its trailer range ends at 217e24ec; comparison with the sealed checkout showed only delivery-integrity.json, generation.json and spec-graph.json differences.\"\n    },\n    {\n      \"id\": \"assess-design\",\n      \"disposition\": \"not-used\",\n      \"rationale\": \"Used the supplied sealed structural evidence and inspected the ADR and complete diff. Writable scratch for isolated assessment execution was unavailable.\"\n    },\n    {\n      \"id\": \"assess-discover\",\n      \"component\": \"pose-mcp\",\n      \"disposition\": \"not-used\",\n      \"rationale\": \"Assessment publication would change files. Scratch creation failed with a read-only filesystem error.\"\n    },\n    {\n      \"id\": \"assess-integrate\",\n      \"disposition\": \"not-used\",\n      \"rationale\": \"Writable scratch was unavailable for this publishing assessment. Inspected producer, parser and material-freshness consumers directly.\"\n    },\n    {\n      \"id\": \"assess-tech-debt\",\n      \"disposition\": \"not-used\",\n      \"rationale\": \"Writable scratch was unavailable for this publishing assessment; no output was written into the sealed checkout.\"\n    },\n    {\n      \"id\": \"closeout-check\",\n      \"disposition\": \"deferred\",\n      \"rationale\": \"Completion-only tool requires the recorded review conclusion. No attestation was recorded.\"\n    },\n    {\n      \"id\": \"review-check\",\n      \"disposition\": \"deferred\",\n      \"rationale\": \"Completion-only tool requires the recorded review conclusion. No attestation was recorded.\"\n    },\n    {\n      \"id\": \"suggest-review\",\n      \"component\": \"pose-mcp\",\n      \"disposition\": \"passed\",\n      \"evidence\": \"command:pose suggest review --path pose-mcp\",\n      \"rationale\": \"Resolved and consulted backend-go, security and documentation-style rules; additionally applied delivery-evidence and consumed relevant knowledge.\"\n    },\n    {\n      \"id\": \"validate\",\n      \"disposition\": \"failed\",\n      \"evidence\": \"unit:pose-mcp/go/test\",\n      \"rationale\": \"This ref identifies the supplied sealed canonical pass, not a fresh local pass. Ran pose validate --strict; it exited 1 with 236 failures because child checks could not create build directories or write caches in the read-only sandbox. The committed canonical record reports 236 passes.\"\n    },\n    {\n      \"id\": \"validate\",\n      \"component\": \"pose-mcp\",\n      \"disposition\": \"failed\",\n      \"evidence\": \"unit:pose-mcp/go/test\",\n      \"rationale\": \"This ref identifies the supplied sealed canonical pass, not a fresh local pass. Ran pose validate --strict --module pose-mcp; it exited 1 with 233 failures caused by sandbox write restrictions. Independent focused and broader validation-related tests, focused race tests and vet passed.\"\n    }\n  ]\n}\n```",
+  "policy_digest": "sha256:b98e89a0dfe961193c55d1fa1bc18b3d906c3a09839492803795b73f79298f16",
+  "label": "engine-a-review-r3",
+  "purpose": "review",
+  "env_removed": [
+    "CLAUDECODE",
+    "CLAUDE_CODE_BRIDGE_SESSION_ID",
+    "CLAUDE_CODE_CHILD_SESSION",
+    "CLAUDE_CODE_ENTRYPOINT",
+    "CLAUDE_CODE_EXECPATH",
+    "CLAUDE_CODE_MESSAGING_SOCKET",
+    "CLAUDE_CODE_MESSAGING_TOKEN",
+    "CLAUDE_CODE_SESSION_ATTENDED",
+    "CLAUDE_CODE_SESSION_ID",
+    "CLAUDE_EFFORT",
+    "CLAUDE_PID"
+  ],
+  "events": "codex-jsonl",
+  "events_digest": "sha256:4c5be68b46089f808515a4def64e533bf6ec36e6000a62987fb6d250e14d4825",
+  "routing": {
+    "requested": "auto",
+    "prefer": "opposite-vendor-of-implementation",
+    "implementation": {
+      "principal": "agent:anthropic/unknown",
+      "vendor": "anthropic",
+      "model": "unknown",
+      "execution_digest": "sha256:344ac5868944c155772d60a95ef6ff20644580a642e772ad5c92c29428464ff8",
+      "source": "detected"
+    },
+    "implementation_from": "bundle",
+    "candidates": [
+      {
+        "agent": "sol-medium",
+        "vendor": "openai",
+        "model": "gpt-6.1-sol",
+        "group": "preferred",
+        "state": "available"
+      }
+    ],
+    "step": "preferred"
+  },
+  "independence_achieved": "different-vendor",
+  "round": 2,
+  "thread": {
+    "round": 2,
+    "mode": "continued",
+    "from": "rrn-1c033e4c349d7794"
+  }
+}
