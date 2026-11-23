@@ -1,8 +1,8 @@
 ---
 slug: pose-review-readiness-before-seal
-status: in-progress
+status: done
 created_at: 2026-11-23
-completed_at:
+completed_at: 2026-11-23
 supersedes:
 depends_on: 
 remediates:
