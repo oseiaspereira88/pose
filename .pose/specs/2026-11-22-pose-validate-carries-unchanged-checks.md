@@ -1,6 +1,6 @@
 ---
 slug: pose-validate-carries-unchanged-checks
-status: draft
+status: in-progress
 created_at: 2026-11-22
 completed_at:
 supersedes:
@@ -88,18 +88,18 @@ An instance that marks a module `selfContained` while its checks read root files
 ## 4. Tasks
 
 ### Planning
-- [ ] ADR for carrying results and the self-contained declaration.
+- [x] ADR for carrying results and the self-contained declaration.
 
 ### Implementation
-- [ ] Record fields and base eligibility.
-- [ ] Selection excluding the results file, the self-contained declaration and the no-prior-result widening.
-- [ ] Carried entries in the run loop and counts.
-- [ ] Per-check head in the delivery reading.
-- [ ] Manual and help.
+- [x] Record fields and base eligibility.
+- [x] Selection excluding the results file, the self-contained declaration and the no-prior-result widening.
+- [x] Carried entries in the run loop and counts.
+- [x] Per-check head in the delivery reading.
+- [x] Manual and help.
 
 ### Validation
-- [ ] Unit and fixture tests for every requirement, each shown failing before its code.
-- [ ] `pose validate --module pose-mcp` and `check --strict`.
+- [x] Unit and fixture tests for every requirement, each shown failing before its code.
+- [x] `pose validate --module pose-mcp` and `check --strict`.
 
 ## 5. Decisions
 
@@ -144,21 +144,44 @@ Each test is run against the code before its requirement and must fail there.
 - Command: `pose check --strict`.
 
 ### Execution log
+- 2026-11-22: the new fixtures in `validate_carry_test.go` and `delivery_validation_run_test.go` drive real Git repositories through `validate --carry`. Each requirement's code was mutated out and its test failed: the per-check head reading, the self-contained declaration, the canonical-result exclusion and the derived-record exclusion.
+- 2026-11-22: `go test ./...` in `pose-mcp` first failed on `TestDirectPrintSitesOnlyShrink` and `TestEmbeddedDistMatchesPoseDist`; the carry lines now go through `cliout` and the embedded manual was regenerated. A full `pose validate` then failed the post-install gate because the manual cited derived-record directories absent from a fresh install; the text was rewritten without those paths.
+- 2026-11-22: `pose validate --json-out .pose/results/delivery-validation.json` with a binary built from `606a0fa8` passed 236 of 236 checks in 786 s.
+- 2026-11-22: dogfood: `validate --carry --explain` at `c4182727` used that record as base. The record and index commits counted as zero changed files. Five of six modules were carried, and `pose-mcp` ran because its criticality is high. The run passed with `counts.carried` 3, and the record is kept at `.pose/bin/batch-20261118/engine-a-dogfood-carried.json` in the Harne8 batch.
 
 ### Results summary
+All new and existing tests pass, and the strict matrix is green. In this repository, `pose-mcp` holds 233 of the 236 checks and is high criticality, so carrying saves little here. In an instance with many modules, a change confined to one of them reruns only that module and the modules that are not declared self-contained.
 
 ### Requirement trace
+- R1 [satisfied] test:TestCarryRefusesIncompatibleFlags
+- R2 [satisfied] test:TestCarryFallsBackToAFullRun test:TestCarryRefusesAFilteredBase
+- R3 [satisfied] test:TestCarryRunsOnlyTheChangedModule test:TestCarryRecordFileIsNotAChange test:TestCarryIgnoresDerivedAdministrativeRecords test:TestCarrySelectsAModuleWithoutAPriorResult
+- R4 [satisfied] test:TestCarryKeepsTheOriginalHeadAcrossChainedCarries test:TestCarryKeepsACarriedFailureAFailure
+- R5 [satisfied] test:TestCarryRunsOnlyTheChangedModule
+- R6 [satisfied] test:TestCarryRootChangeRunsEverythingUnlessSelfContained test:TestChangedScopeHonoursSelfContainedModules
+- R7 [satisfied] test:TestDeliveryValidationRunReadsTheCarriedHead
+- R8 [satisfied] test:TestCarryRecordFileIsNotAChange
+- R9 [satisfied] test:TestCarryFallsBackToAFullRun
+- R10 [satisfied] test:TestCarryFallsBackToAFullRun
+
+R9 is enforced by `safeGitRevRE` in `planCarry` before any Git call; the not-an-ancestor case drives a forged head through it. R10 is the `base without engine version` case.
 
 ### Known gaps
+Review bundles and closeout consume the per-check head through the delivery index. No separate end-to-end test seals a bundle over a carried record.
 
 ## 7. Final Report
 
 ### Delivered scope
+`pose validate --carry` refreshes the canonical structured result. It runs the modules the changed-scope rules select since the canonical base and carries the other checks with their outcome and the head where they ran. The changed set ignores the result file and the derived administrative records that material bindings already ignore. Any doubt about the base runs everything, and the record says why. Modules can declare `selfContained` to stop being widened by changes outside every module. The delivery index reads a carried result as an observation of its own head. The record now names the engine version together with its build revision.
 
 ### Files and modules changed
+`pose-mcp/internal/cli` (validate, its scope selection, its result fields and the help catalogue), `pose-mcp/internal/pose` (the delivery reading of the result), the manual in English and pt-BR with their embedded copies, this spec and its ADR.
 
 ### Validation executed
+See the execution log: the package tests with mutation checks, the full `go test ./...` and the strict matrix with 236 of 236 checks.
 
 ### Residual risks
+An instance that declares a module self-contained while its checks read files outside it would carry a stale result. The declaration is explicit and documented, and the default stays the full fallback.
 
 ### Follow-ups
+- [open] F1: cover with an end-to-end test that a review bundle sealed over a carried record judges the carried head (seal, verify and closeout-check on a fixture). (owner:@pose-maintainers crit:low review:2026-12-15)
