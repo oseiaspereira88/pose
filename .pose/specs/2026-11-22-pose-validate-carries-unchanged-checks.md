@@ -38,7 +38,8 @@ Caching individual command outputs, hashing arbitrary inputs of a check, carryin
   - Its `git_head` is an ancestor of, or equal to, `HEAD`.
   - It was not cancelled.
   - It recorded `material_clean`: its own working copy matched its head when it started and when it ended, HEAD did not move during the run, and none of its material bindings is unavailable. A run that did not validate its recorded head records every material binding as unavailable.
-  - No module, and no declared dependency, is reached through a symlink, and no module shares its physical directory with another module.
+  - The filesystem is case-sensitive. No module is reached through a symlink or shares its physical directory with another module. No tracked symlink has its path or target in a module other than the root or in a declared dependency, and no tracked target leaves the repository.
+  - No check id occurs twice, in the matrix or in the base.
   - The head is pinned before planning; selection and the end-of-run comparison use that commit.
   - The working copy is clean in material paths.
 - R3: With a usable base, the run shall select modules with the changed-scope rules over `base.git_head..HEAD`, excluding the `results_path` file itself. It shall also exclude derived administrative records of the engine's closed list (`posemodel.IsAdministrativePath`, the classes material bindings ignore) that are regular files, or absent, at `HEAD`. Otherwise the index and state commits that follow every record would select every module. It shall execute every check of a selected module. Every check of an unselected module whose base result exists and was not skipped shall be carried. A module with any check lacking such a base result shall be selected with the reason `carry: no prior result for <check id>`.
@@ -170,13 +171,18 @@ Each test is run against the code before its requirement and must fail there.
   - N14: the head was captured after planning.
   All four are fixed, each with a regression test that failed when its fix was mutated out.
 - 2026-11-23: review round 6 (rrn-88e0428bda9bc9c7) found N15 and N16. N15: a discovered ancestor dependency missed changes in nested modules. N16: declared dependencies reached through symlinks. Both are fixed, each with a regression test that failed when its fix was mutated out.
+- 2026-11-23: review round 7 (rrn-85704a129332a685) found N17–N19.
+  - N17: an absent dependency leaf beneath a symlink.
+  - N18: dependency case aliases.
+  - N19: duplicate check ids sharing one base result.
+  The per-path alias checks gave way to global rules: a case-insensitive filesystem refuses, and so does any tracked symlink whose path or target is in a non-root module or a declared dependency, or whose target leaves the repository. Symlinks between unowned paths are allowed, which covers both repositories' `.claude/skills` links. Duplicate check ids refuse. A mutation of the link-path rule first survived, which exposed a missing test for a module's outward link; that test was added. The matrix duplicate check is redundant with the base check under an equal matrix digest, so the two were mutated together.
 
 ### Results summary
 All new and existing tests pass, and the strict matrix is green. In this repository, `pose-mcp` holds 233 of the 236 checks and is high criticality, so carrying saves little here. In an instance with many modules, a change confined to one of them reruns only that module and the modules that are not declared self-contained.
 
 ### Requirement trace
 - R1 [satisfied] test:TestCarryRefusesIncompatibleFlags
-- R2 [satisfied] test:TestCarryFallsBackToAFullRun test:TestCarryRefusesAFilteredBase test:TestCarryRefusesABaseThatValidatedADirtyWorkingCopy test:TestEngineIdentityRefusesModifiedBuilds test:TestCarryRefusesModulesReachedThroughASymlink test:TestValidateHeadMovingDuringTheRunIsNotClean test:TestValidateHeadMovingDuringTheRunBindsNoMaterial test:TestCarryRefusesModulesSharingADirectory test:TestCarryPlansAgainstThePinnedHead test:TestCarryRefusesDependenciesReachedThroughASymlink
+- R2 [satisfied] test:TestCarryFallsBackToAFullRun test:TestCarryRefusesAFilteredBase test:TestCarryRefusesABaseThatValidatedADirtyWorkingCopy test:TestEngineIdentityRefusesModifiedBuilds test:TestCarryRefusesModulesReachedThroughASymlink test:TestValidateHeadMovingDuringTheRunIsNotClean test:TestValidateHeadMovingDuringTheRunBindsNoMaterial test:TestCarryRefusesModulesSharingADirectory test:TestCarryPlansAgainstThePinnedHead test:TestCarryRefusesDependenciesReachedThroughASymlink test:TestCarryRefusesASymlinkInsideAModule test:TestCarryRefusesASymlinkFromAModuleToAnUnownedPath test:TestCarryAllowsSymlinksBetweenUnownedPaths test:TestCarryDetectsACaseInsensitiveFilesystem test:TestCarryRefusesDuplicateCheckIDs
 - R3 [satisfied] test:TestCarryRunsOnlyTheChangedModule test:TestCarryRecordFileIsNotAChange test:TestCarryIgnoresDerivedAdministrativeRecords test:TestCarrySelectsAModuleWithoutAPriorResult
 - R4 [satisfied] test:TestCarryKeepsTheOriginalHeadAcrossChainedCarries test:TestCarryKeepsACarriedFailureAFailure
 - R5 [satisfied] test:TestCarryRunsOnlyTheChangedModule

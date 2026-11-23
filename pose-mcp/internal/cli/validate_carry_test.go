@@ -659,7 +659,102 @@ func TestCarryRefusesDependenciesReachedThroughASymlink(t *testing.T) {
 	f.write("a/changed.go", "package a\n")
 	f.commit("change a")
 	_, _, run := f.validate("--carry")
-	if run.Carry == nil || run.Carry.Used || !strings.Contains(run.Carry.Reason, "dependency link") {
+	if run.Carry == nil || run.Carry.Used || !strings.Contains(run.Carry.Reason, "symlink link") {
 		t.Fatalf("carry = %+v, want an aliased dependency refused", run.Carry)
+	}
+}
+
+// A symlink inside a module refuses the carry even when the dependency it
+// leads to is absent (review round 7, N17).
+func TestCarryRefusesASymlinkInsideAModule(t *testing.T) {
+	f := newCarryFixture(t, `{"schemaVersion":1,"modules":{"b":{"selfContained":true,"dependsOn":["b/link/input"]}}}`)
+	f.write("a/input", "x\n")
+	if err := os.Symlink("../a", filepath.Join(f.root, "b", "link")); err != nil {
+		t.Fatal(err)
+	}
+	f.commit("link from b into a")
+	f.baseline()
+	f.git("rm", "-q", "a/input")
+	f.commit("delete the input")
+	_, _, run := f.validate("--carry")
+	if run.Carry == nil || run.Carry.Used || !strings.Contains(run.Carry.Reason, "symlink b/link") {
+		t.Fatalf("carry = %+v, want a symlink inside a module refused", run.Carry)
+	}
+}
+
+// Symlinks between paths no module owns do not block a carry.
+func TestCarryAllowsSymlinksBetweenUnownedPaths(t *testing.T) {
+	f := newCarryFixture(t, "")
+	f.write(".agents/skills/x/SKILL.md", "skill\n")
+	if err := os.MkdirAll(filepath.Join(f.root, ".claude", "skills"), 0o755); err != nil {
+		t.Fatal(err)
+	}
+	if err := os.Symlink("../../.agents/skills/x", filepath.Join(f.root, ".claude", "skills", "x")); err != nil {
+		t.Fatal(err)
+	}
+	f.commit("skills link")
+	f.baseline()
+	f.write("a/changed.go", "package a\n")
+	f.commit("change a")
+	_, _, run := f.validate("--carry")
+	if run.Carry == nil || !run.Carry.Used || checkOf(run, "b").CarriedFrom == "" {
+		t.Fatalf("carry = %+v, want b carried despite an unowned symlink", run.Carry)
+	}
+}
+
+// A case-folding filesystem refuses the carry (review round 7, N18); faked,
+// since this filesystem is case-sensitive.
+func TestCarryDetectsACaseInsensitiveFilesystem(t *testing.T) {
+	dir := t.TempDir()
+	info, err := os.Stat(dir)
+	if err != nil {
+		t.Fatal(err)
+	}
+	folding := func(string) (os.FileInfo, error) { return info, nil }
+	if !caseInsensitiveFilesystem("/repo", folding) {
+		t.Fatal("a filesystem where .GIT names .git must read as case-insensitive")
+	}
+	sensitive := func(p string) (os.FileInfo, error) {
+		if strings.HasSuffix(p, ".GIT") {
+			return nil, os.ErrNotExist
+		}
+		return info, nil
+	}
+	if caseInsensitiveFilesystem("/repo", sensitive) {
+		t.Fatal("a case-sensitive filesystem refused")
+	}
+}
+
+// Two checks with one id never share a base result (review round 7, N19).
+func TestCarryRefusesDuplicateCheckIDs(t *testing.T) {
+	f := newCarryFixture(t, "")
+	raw, _ := os.ReadFile(filepath.Join(f.root, ".pose/indexes/validation-matrix.json"))
+	f.write(".pose/indexes/validation-matrix.json", strings.Replace(string(raw), `"stacks"`, `"moduleOverrides":{"b":{"checks":[{"name":"ok","program":"true","severity":"required","evidenceClass":"unit"}]}},"stacks"`, 1))
+	f.commit("duplicate check")
+	f.validate()
+	f.commit("record")
+	f.write("a/changed.go", "package a\n")
+	f.commit("change a")
+	_, _, run := f.validate("--carry")
+	if run.Carry == nil || run.Carry.Used || !strings.Contains(run.Carry.Reason, "more than once") {
+		t.Fatalf("carry = %+v, want duplicate check ids refused", run.Carry)
+	}
+}
+
+// A symlink inside a self-contained module that leads to a path no module owns
+// would hide that path's changes from the module (review round 7, N17).
+func TestCarryRefusesASymlinkFromAModuleToAnUnownedPath(t *testing.T) {
+	f := newCarryFixture(t, `{"schemaVersion":1,"modules":{"b":{"selfContained":true}}}`)
+	f.write("shared/input", "x\n")
+	if err := os.Symlink("../shared", filepath.Join(f.root, "b", "shared")); err != nil {
+		t.Fatal(err)
+	}
+	f.commit("link from b to an unowned path")
+	f.baseline()
+	f.write("shared/input", "y\n")
+	f.commit("change the shared input")
+	_, _, run := f.validate("--carry")
+	if run.Carry == nil || run.Carry.Used || !strings.Contains(run.Carry.Reason, "symlink b/shared") {
+		t.Fatalf("carry = %+v, want a module's outward symlink refused", run.Carry)
 	}
 }

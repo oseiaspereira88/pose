@@ -10,6 +10,7 @@ import (
 	"encoding/json"
 	"fmt"
 	"os"
+	"path"
 	"path/filepath"
 	"runtime/debug"
 	"strings"
@@ -113,22 +114,33 @@ func planCarry(root, resultsPath, mode, matrixSHA, head string, matrix validatio
 	if reason := aliasedModule(modules, filepath.EvalSymlinks, os.Stat); reason != "" {
 		return unused("%s", reason)
 	}
-	// A declared dependency reached through a symlink aliases another path
-	// the selection cannot see (review round 6, N16).
+	// Lexical selection cannot see through aliases. Rather than chase every
+	// alias form (review rounds 4–7, N9, N13, N16–N18), a carry needs a
+	// case-sensitive filesystem and no tracked symlink that links a module
+	// (other than the root) or a declared dependency with any other path.
 	meta, err := loadScopeMetadata(root)
 	if err != nil {
 		return unused("changed-scope selection failed: %v", err)
 	}
-	for rel, module := range meta.Modules {
-		for _, dep := range module.DependsOn {
-			abs := filepath.Join(root, filepath.FromSlash(filepath.ToSlash(filepath.Clean(dep))))
-			if _, err := os.Lstat(abs); err != nil {
-				continue
-			}
-			if resolved, err := filepath.EvalSymlinks(abs); err != nil || filepath.Clean(resolved) != filepath.Clean(abs) {
-				return unused("dependency %s of module %s is reached through a symlink, so its changes cannot be attributed", dep, rel)
-			}
+	if link, err := aliasingSymlink(root, head, modules, meta); err != nil {
+		return unused("tracked symlinks cannot be read: %v", err)
+	} else if link != "" {
+		return unused("the tree tracks symlink %s into or out of a module or a declared dependency, so changes cannot be attributed", link)
+	}
+	if caseInsensitiveFilesystem(root, os.Stat) {
+		return unused("the filesystem is case-insensitive, so changes cannot be attributed to modules")
+	}
+	// Check ids must be unique: two checks sharing an id would share one base
+	// result (review round 7, N19).
+	if id := duplicateCheckID(matrix, modules); id != "" {
+		return unused("the matrix defines check %s more than once", id)
+	}
+	baseIDs := map[string]bool{}
+	for _, check := range base.Checks {
+		if baseIDs[check.ID] {
+			return unused("the canonical result records check %s more than once", check.ID)
 		}
+		baseIDs[check.ID] = true
 	}
 	if err := posemodel.RawGit("-C", root, "merge-base", "--is-ancestor", base.GitHead, head).Run(); err != nil {
 		return unused("the canonical result's head %s is not an ancestor of HEAD", base.GitHead)
@@ -247,6 +259,92 @@ func aliasedModule(modules []validationModule, resolve func(string) (string, err
 			}
 		}
 		seen = append(seen, info)
+	}
+	return ""
+}
+
+// aliasingSymlink returns a tracked symlink that could hide a change from the
+// lexical selection: one whose path or target lies in a module other than the
+// root, or intersects a declared dependency, or whose target leaves the
+// repository. Symlinks between paths no module owns are harmless: a change on
+// either side already selects the root module and every module that is not
+// self-contained.
+func aliasingSymlink(root, head string, modules []validationModule, meta scopeMetadata) (string, error) {
+	out, err := posemodel.RawGit("-C", root, "ls-tree", "-r", "-z", head).Output()
+	if err != nil {
+		return "", err
+	}
+	var deps []string
+	for _, module := range meta.Modules {
+		for _, dep := range module.DependsOn {
+			deps = append(deps, filepath.ToSlash(filepath.Clean(dep)))
+		}
+	}
+	touches := func(p string) bool {
+		for _, m := range modules {
+			if m.Rel != "." && (p == m.Rel || strings.HasPrefix(p, m.Rel+"/") || strings.HasPrefix(m.Rel, p+"/")) {
+				return true
+			}
+		}
+		for _, dep := range deps {
+			if dep == "." || p == dep || strings.HasPrefix(p, dep+"/") || strings.HasPrefix(dep, p+"/") {
+				return true
+			}
+		}
+		return false
+	}
+	for _, entry := range strings.Split(string(out), "\x00") {
+		if !strings.HasPrefix(entry, "120000 ") {
+			continue
+		}
+		tab := strings.IndexByte(entry, '\t')
+		if tab < 0 {
+			return "", fmt.Errorf("unexpected tree entry %q", entry)
+		}
+		fields := strings.Fields(entry[:tab])
+		if len(fields) != 3 {
+			return "", fmt.Errorf("unexpected tree entry %q", entry)
+		}
+		link := entry[tab+1:]
+		blob, err := posemodel.RawGit("-C", root, "cat-file", "blob", fields[2]).Output()
+		if err != nil {
+			return "", err
+		}
+		target := string(blob)
+		resolved := path.Clean(path.Join(path.Dir(link), target))
+		if path.IsAbs(target) || resolved == ".." || strings.HasPrefix(resolved, "../") || touches(link) || touches(resolved) {
+			return link, nil
+		}
+	}
+	return "", nil
+}
+
+// caseInsensitiveFilesystem reports whether root's filesystem folds case: the
+// upper-case spelling of its .git entry names the same file.
+func caseInsensitiveFilesystem(root string, stat func(string) (os.FileInfo, error)) bool {
+	lower, err := stat(filepath.Join(root, ".git"))
+	if err != nil {
+		return true
+	}
+	upper, err := stat(filepath.Join(root, ".GIT"))
+	return err == nil && os.SameFile(lower, upper)
+}
+
+// duplicateCheckID returns a check id the matrix defines more than once.
+func duplicateCheckID(matrix validationMatrix, modules []validationModule) string {
+	seen := map[string]bool{}
+	for _, module := range modules {
+		stack, checks, _ := moduleValidationChecks(module, matrix, "", "")
+		for _, check := range checks {
+			if check.Program == "" {
+				continue
+			}
+			id := module.Rel + "/" + stack + "/" + check.Name
+			if seen[id] {
+				return id
+			}
+			seen[id] = true
+		}
 	}
 	return ""
 }
