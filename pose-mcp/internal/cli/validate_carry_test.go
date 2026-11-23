@@ -1178,3 +1178,60 @@ func TestCarryRefusesABaseCancelledAtRunLevel(t *testing.T) {
 		t.Fatalf("carry = %+v, want a run-level cancelled base refused", result.Carry)
 	}
 }
+
+// Working module metadata that differs from HEAD's refuses the carry (review
+// round 16, N46).
+func TestCarryRefusesWorkingMetadataThatDiffersFromHead(t *testing.T) {
+	f := newCarryFixture(t, `{"schemaVersion":1,"modules":{"b":{"selfContained":true,"dependsOn":["a"]}}}`)
+	f.baseline()
+	f.write("a/changed.go", "package a\n")
+	f.commit("change a")
+	f.write(".pose/indexes/module-metadata.json", `{"schemaVersion":1,"modules":{"b":{"selfContained":true}}}`)
+	_, _, run := f.validate("--carry")
+	if run.Carry == nil || run.Carry.Used || !strings.Contains(run.Carry.Reason, "module metadata differs") {
+		t.Fatalf("carry = %+v, want uncommitted metadata refused", run.Carry)
+	}
+}
+
+// A cancelled run binds no material (review round 16, N47).
+func TestCancellationMakesBindingsUnavailable(t *testing.T) {
+	run := validationRunResult{MaterialClean: true, MaterialProvenance: map[string]string{"s": "sha256:abc"}}
+	if !finalizeCancellation(&run) || run.MaterialClean || run.MaterialProvenance["s"] != posemodel.MaterialBindingUnavailable {
+		t.Fatalf("run = %+v, want a cancelled run unclean with unavailable bindings", run)
+	}
+}
+
+// A submodule with nested submodules makes the run unclean (review round 16,
+// N48).
+func TestValidateNestedSubmodulesAreNotClean(t *testing.T) {
+	f := newCarryFixture(t, "")
+	sub := filepath.Join(f.root, "b", "sub")
+	if err := os.MkdirAll(sub, 0o755); err != nil {
+		t.Fatal(err)
+	}
+	git := func(dir string, args ...string) string {
+		cmd := exec.Command("git", append([]string{"-C", dir}, args...)...)
+		cmd.Env = append(os.Environ(), "GIT_AUTHOR_NAME=t", "GIT_AUTHOR_EMAIL=t@t", "GIT_COMMITTER_NAME=t", "GIT_COMMITTER_EMAIL=t@t", "GIT_CONFIG_GLOBAL=/dev/null")
+		out, err := cmd.CombinedOutput()
+		if err != nil {
+			t.Fatalf("git %v: %v %s", args, err, out)
+		}
+		return strings.TrimSpace(string(out))
+	}
+	git(sub, "init", "-q")
+	git(sub, "-c", "core.hooksPath=/dev/null", "commit", "-q", "--allow-empty", "-m", "one")
+	inner := git(sub, "rev-parse", "HEAD")
+	git(sub, "update-index", "--add", "--cacheinfo", "160000,"+inner+",nested")
+	git(sub, "-c", "core.hooksPath=/dev/null", "commit", "-q", "-m", "nested gitlink")
+	if err := os.MkdirAll(filepath.Join(sub, "nested"), 0o755); err != nil {
+		t.Fatal(err)
+	}
+	f.commit("submodule with a nested submodule")
+	head := f.git("rev-parse", "HEAD")
+	if !materialWorktreeClean(f.root) || submodulesCheckedOut(f.root, head) != "" {
+		t.Fatal("the fixture must pass every other condition for this test to mean anything")
+	}
+	if validationMaterialClean(f.root, head) {
+		t.Fatal("a submodule with nested submodules must not read as clean material")
+	}
+}

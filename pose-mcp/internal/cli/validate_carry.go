@@ -7,7 +7,9 @@ package cli
 // about the base runs everything and records why (R2).
 
 import (
+	"bytes"
 	"encoding/json"
+	"errors"
 	"fmt"
 	"os"
 	"path"
@@ -123,6 +125,12 @@ func planCarry(root, resultsPath, mode, matrixSHA, head string, matrix validatio
 	// alias form (review rounds 4–7, N9, N13, N16–N18), a carry needs a
 	// case-sensitive filesystem and no tracked symlink that links a module
 	// (other than the root) or a declared dependency with any other path.
+	// Module metadata is an administrative record, outside the cleanliness
+	// check, so the selection policy must be the pinned head's (review round
+	// 16, N46).
+	if differs, err := workingFileDiffersFromHead(root, head, ".pose/indexes/module-metadata.json"); err != nil || differs {
+		return unused("the working module metadata differs from HEAD's, so the selection policy is not the pinned one")
+	}
 	meta, err := loadScopeMetadata(root)
 	if err != nil {
 		return unused("changed-scope selection failed: %v", err)
@@ -666,7 +674,47 @@ func validationMaterialClean(root, head string) bool {
 	if hidden, err := hiddenIndexEntries(root, head); err != nil || hidden != "" {
 		return false
 	}
-	return submodulesCheckedOut(root, head) == ""
+	if submodulesCheckedOut(root, head) != "" {
+		return false
+	}
+	// Nested submodules are neither witnessed nor checked: a run over them
+	// cannot claim its recorded material (review round 16, N48).
+	links, err := gitlinks(root, head)
+	if err != nil {
+		return false
+	}
+	for sub, commit := range links {
+		nested, err := gitlinks(filepath.Join(root, filepath.FromSlash(sub)), commit)
+		if err != nil || len(nested) > 0 {
+			return false
+		}
+	}
+	return true
+}
+
+// finalizeCancellation records a cancelled run: not clean, and binding no
+// material, whatever was decided before the signal was seen (review round 16,
+// N47). It returns true for the run's cancelled field.
+func finalizeCancellation(run *validationRunResult) bool {
+	run.MaterialClean = false
+	for spec := range run.MaterialProvenance {
+		run.MaterialProvenance[spec] = posemodel.MaterialBindingUnavailable
+	}
+	return true
+}
+
+// workingFileDiffersFromHead reports whether rel in the working copy differs
+// from its blob at head; absent on both sides is equal.
+func workingFileDiffersFromHead(root, head, rel string) (bool, error) {
+	working, werr := os.ReadFile(filepath.Join(root, filepath.FromSlash(rel)))
+	committed, cerr := posemodel.RawGit("-C", root, "show", head+":"+rel).Output()
+	switch {
+	case errors.Is(werr, os.ErrNotExist) && cerr != nil:
+		return false, nil
+	case werr != nil || cerr != nil:
+		return true, nil
+	}
+	return !bytes.Equal(working, committed), nil
 }
 
 // movementWitness summarizes the reflog lengths of HEAD and of every

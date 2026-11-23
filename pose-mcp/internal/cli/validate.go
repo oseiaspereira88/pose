@@ -1465,7 +1465,7 @@ func cmdValidateWithStore(store posemodel.Store, args []string, stdout, stderr i
 		cancelled = cancelled || check.LimitState == "cancelled"
 	}
 	if cancelled {
-		run.Cancelled, run.MaterialClean = true, false
+		run.Cancelled = finalizeCancellation(&run)
 	}
 	for _, line := range validationTimingNotes(run) {
 		steps.Note(line)
