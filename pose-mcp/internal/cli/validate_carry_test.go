@@ -419,3 +419,35 @@ func TestCarryRootModuleOwnsRootFiles(t *testing.T) {
 		t.Fatalf("executed %q, want only the root module", got)
 	}
 }
+
+// A deleted dependency still selects its self-contained dependents (review
+// round 3, N5).
+func TestCarryDeletedDependencySelectsItsDependents(t *testing.T) {
+	f := newCarryFixture(t, `{"schemaVersion":1,"modules":{"b":{"selfContained":true,"dependsOn":["a"]}}}`)
+	f.baseline()
+	f.git("rm", "-rq", "a")
+	f.commit("delete a")
+	_, _, run := f.validate("--carry")
+	if !strings.Contains(run.Carry.Selected["b"], "a/") {
+		t.Fatalf("selected = %v, want b selected by its deleted dependency", run.Carry.Selected)
+	}
+	if got := strings.Join(f.ran(), ","); got != "b" {
+		t.Fatalf("executed %q, want b", got)
+	}
+}
+
+// Metadata that does not decode never narrows the selection (review round 3,
+// N6).
+func TestCarryRejectsUndecodableMetadata(t *testing.T) {
+	f := newCarryFixture(t, `{"schemaVersion":1,"modules":{"b":{"selfContained":true,"dependsOn":"a"}}}`)
+	f.baseline()
+	f.write("a/changed.go", "package a\n")
+	f.commit("change a")
+	_, _, run := f.validate("--carry")
+	if run.Carry == nil || run.Carry.Used || !strings.Contains(run.Carry.Reason, "metadata") {
+		t.Fatalf("carry = %+v, want a full run over undecodable metadata", run.Carry)
+	}
+	if code, out := runValidate(t, f.root, "--changed-from", "HEAD~1"); code != 2 || !strings.Contains(out, "metadata") {
+		t.Fatalf("--changed-from over undecodable metadata: exit=%d %s", code, out)
+	}
+}

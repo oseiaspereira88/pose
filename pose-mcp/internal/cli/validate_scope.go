@@ -9,6 +9,7 @@ package cli
 
 import (
 	"encoding/json"
+	"errors"
 	"fmt"
 	posemodel "github.com/harne8/pose-mcp/internal/pose"
 	"os"
@@ -35,13 +36,23 @@ type scopeMetadata struct {
 	Modules map[string]scopeModuleMeta `json:"modules"`
 }
 
-func loadScopeMetadata(root string) scopeMetadata {
+// loadScopeMetadata reads the module metadata. An absent file is empty
+// metadata; a file that does not decode is an error, never a partial
+// reading that could keep an exemption and drop a dependency (review round
+// 3, N6).
+func loadScopeMetadata(root string) (scopeMetadata, error) {
 	var meta scopeMetadata
 	raw, err := os.ReadFile(filepath.Join(root, ".pose", "indexes", "module-metadata.json"))
-	if err == nil {
-		_ = json.Unmarshal(raw, &meta)
+	if errors.Is(err, os.ErrNotExist) {
+		return meta, nil
 	}
-	return meta
+	if err != nil {
+		return meta, fmt.Errorf("module metadata is unreadable: %v", err)
+	}
+	if err := json.Unmarshal(raw, &meta); err != nil {
+		return scopeMetadata{}, fmt.Errorf("module metadata does not decode: %v", err)
+	}
+	return meta, nil
 }
 
 // scopeSelection maps selected module → deterministic selection reason.
@@ -114,7 +125,10 @@ func computeChangedScope(root, base, head string, modules []validationModule, ex
 	}
 	sort.Strings(sel.Changed)
 
-	meta := loadScopeMetadata(root)
+	meta, err := loadScopeMetadata(root)
+	if err != nil {
+		return sel, err
+	}
 	moduleOf := func(file string) string {
 		match := ""
 		for _, m := range modules {
@@ -135,9 +149,11 @@ func computeChangedScope(root, base, head string, modules []validationModule, ex
 			// Root-level or unmapped change: safe execution wins, except for
 			// modules that declare their checks read nothing outside them. A
 			// root module owns the files no other module owns, so its
-			// declaration never exempts it from them (review round 2, N2).
+			// declaration never exempts it from them (review round 2, N2). A
+			// declared dependency owns its paths even when it is gone from
+			// discovery, as after a deletion (review round 3, N5).
 			for _, m := range modules {
-				if meta.Modules[m.Rel].SelfContained && m.Rel != "." {
+				if meta.Modules[m.Rel].SelfContained && m.Rel != "." && !underDeclaredDependency(file, meta.Modules[m.Rel].DependsOn) {
 					continue
 				}
 				if _, ok := sel.Selected[m.Rel]; !ok {
@@ -179,4 +195,15 @@ func firstScopeReason(reason string) string {
 		return reason[:i]
 	}
 	return reason
+}
+
+// underDeclaredDependency reports whether file lies in one of deps.
+func underDeclaredDependency(file string, deps []string) bool {
+	for _, dep := range deps {
+		dep = filepath.ToSlash(filepath.Clean(dep))
+		if file == dep || strings.HasPrefix(file, dep+"/") {
+			return true
+		}
+	}
+	return false
 }
