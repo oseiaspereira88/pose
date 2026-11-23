@@ -1,0 +1,231 @@
+{
+  "run": {
+    "run_id": "rrn-5ed84b0f66cce29b",
+    "proof_id": "rrp-5d77ecc2f7ffb67b591fd1160e8a4b02a4a6450b59afa99901912768e338c85e"
+  },
+  "schema_version": 1,
+  "attestation_id": "rva-f39a887e59b3aaaa",
+  "bundle_id": "rvb-85f7d3178908466e",
+  "bundle_digest": "sha256:85f7d3178908466e56ead09e1ad625b9c931e9d7bea6d509fe86347dd79a1c77",
+  "reviewer": "agent:openai/gpt-6.1-sol",
+  "decision": "changes-requested",
+  "criteria": [
+    {
+      "id": "assumption-integrity",
+      "disposition": "passed",
+      "evidence": "structure:design-09ab654124b2b985",
+      "rationale": "Examined D1-D3, declarations, eligibility guards and material provenance. Verified that selection now uses one pinned metadata snapshot. The declaration that checks respect module/dependency boundaries remains an explicit instance assumption. N52 identifies unresolved read-failure uncertainty; N53 and N54 retain the documented low risks. Local tests passed, while full-matrix claims rely on sealed evidence."
+    },
+    {
+      "id": "backend-concurrency",
+      "disposition": "passed",
+      "evidence": "integration:pose-mcp/go/writer-coordination-and-atomic-publication-integration",
+      "rationale": "Reviewed cancellation finalization, dispatch and canonical publication. Publication retains the governance write guard, policy recheck and authoritative atomic publish. Focused concurrency and publication tests passed."
+    },
+    {
+      "id": "backend-contracts",
+      "disposition": "passed",
+      "evidence": "integration:pose-mcp/go/delivery-integration",
+      "rationale": "JSON fields and the CLI flag are additive. Legacy records retain their parsing behavior; missing engine identity prevents reuse. The delivery reader uses the carried head and time. Dedicated carried-record closeout coverage remains accepted follow-up N54."
+    },
+    {
+      "id": "backend-input-errors",
+      "disposition": "finding",
+      "evidence": "N52"
+    },
+    {
+      "id": "backend-integration-impact",
+      "disposition": "passed",
+      "evidence": "integration:pose-mcp/go/delivery-integration",
+      "rationale": "Traced the canonical result through ParseDeliveryValidationRun into delivery results. Direct carried-head/time reader tests passed. The complete carried-record sealing journey remains the explicit N54 coverage risk."
+    },
+    {
+      "id": "backend-observability",
+      "disposition": "finding",
+      "evidence": "N52"
+    },
+    {
+      "id": "compatibility",
+      "disposition": "passed",
+      "evidence": "integration:pose-mcp/go/cli-mcp-operation-results-integration",
+      "rationale": "Examined flag refusals, additive JSON fields, engine comparison and legacy parsing. Existing CLI/file consumers remain compatible; metadata that cannot decode now intentionally errors or falls back as specified."
+    },
+    {
+      "id": "correctness",
+      "disposition": "finding",
+      "evidence": "N52"
+    },
+    {
+      "id": "design-causality",
+      "disposition": "passed",
+      "evidence": "structure:design-09ab654124b2b985",
+      "rationale": "D1 directly addresses repeated whole-matrix execution by retaining original observations and using changed-scope selection to justify reuse. D2 rejects matrix/engine drift; D3 makes root-change exemptions explicit. The ADR records these authority and safety decisions. N52 is an implementation failure of the conservative fallback, rather than a need for a different architecture.",
+      "mappings": [
+        {
+          "delta": "SD-253b523c",
+          "basis": "D1",
+          "disposition": "mapped",
+          "rationale": "The added ADR records why carried observations keep their original head while the run computes current material bindings, with sound selection as the required premise."
+        }
+      ]
+    },
+    {
+      "id": "documentation",
+      "disposition": "passed",
+      "evidence": "integration:pose-mcp/go/distributed-instructions-parity-integration",
+      "rationale": "Compared runtime behavior with the ADR, CLI help, English and pt-BR manuals and embedded carry sections. They describe eligibility, conservative fallback, declarations and carried provenance consistently. Report rendering remains separately tracked by N53."
+    },
+    {
+      "id": "operability",
+      "disposition": "finding",
+      "evidence": "N52"
+    },
+    {
+      "id": "requirements",
+      "disposition": "finding",
+      "evidence": "N52"
+    },
+    {
+      "id": "scope",
+      "disposition": "passed",
+      "evidence": "structure:design-09ab654124b2b985",
+      "rationale": "The implementation stays within validation planning/results, changed-scope selection, delivery reading and their documentation. The ADR is required by D1's structural evidence contract. No unrelated runtime refactor or new dependency was introduced."
+    },
+    {
+      "id": "security",
+      "disposition": "finding",
+      "evidence": "N52"
+    },
+    {
+      "id": "solution-proportionality",
+      "disposition": "passed",
+      "evidence": "structure:design-09ab654124b2b985",
+      "rationale": "Module-level reuse with whole-matrix and engine comparison is the smallest sufficient extension of existing changed-scope selection. Per-check arbitrary-input hashing would require a larger input contract; manual merging would lose provenance. Conservative alias refusals avoid speculative alias tracking. The choice must be revisited if declarations cannot describe actual check inputs or if broader reuse precision becomes a requirement. N52 requires fail-closed error handling within this design."
+    }
+  ],
+  "tools": [
+    {
+      "id": "artifact-check",
+      "disposition": "passed",
+      "evidence": "command:pose artifact-check --spec pose-validate-carries-unchanged-checks --strict",
+      "rationale": "Ran the required command and a JSON diagnostic rerun. The diagnostic summary reported zero errors and 985 warnings. The resolved trailer range includes derived index/result paths, as disclosed in the brief. Final git status was clean."
+    },
+    {
+      "id": "assess-design",
+      "disposition": "passed",
+      "evidence": "structure:design-09ab654124b2b985",
+      "rationale": "Ran pose assess design --spec pose-validate-carries-unchanged-checks --json. It returned the sealed design digest and SD-253b523c."
+    },
+    {
+      "id": "assess-discover",
+      "component": "pose-mcp",
+      "disposition": "not-used",
+      "evidence": "command:mktemp -d /tmp/pose-review-assess.XXXXXX",
+      "rationale": "Scratch creation failed with Read-only file system. The brief requires persisting assessments to run on a copy, so discovery was not run against the sealed checkout."
+    },
+    {
+      "id": "assess-integrate",
+      "disposition": "not-used",
+      "evidence": "command:mktemp -d /tmp/pose-review-assess.XXXXXX",
+      "rationale": "Could not create the required scratch copy. Avoided persisting assessment/state outputs in the sealed checkout; integration judgment uses source tracing and sealed integration evidence."
+    },
+    {
+      "id": "assess-tech-debt",
+      "disposition": "not-used",
+      "evidence": "command:mktemp -d /tmp/pose-review-assess.XXXXXX",
+      "rationale": "Could not create the required scratch copy. Avoided persisting assessment/state outputs in the sealed checkout; reviewed the changed code and existing owned follow-ups directly."
+    },
+    {
+      "id": "closeout-check",
+      "disposition": "deferred",
+      "evidence": "command:pose closeout-check spec:pose-validate-carries-unchanged-checks",
+      "rationale": "Completion gate depends on POSE recording and verifying this review's conclusion. No attestation or closeout was recorded by this reviewer."
+    },
+    {
+      "id": "review-check",
+      "disposition": "deferred",
+      "evidence": "command:pose review-check spec:pose-validate-carries-unchanged-checks",
+      "rationale": "Completion gate depends on the recorded attestation. Deferred to POSE after conclusion processing."
+    },
+    {
+      "id": "suggest-review",
+      "component": "pose-mcp",
+      "disposition": "passed",
+      "evidence": "command:pose suggest review --path pose-mcp",
+      "rationale": "Ran successfully; selected the review workflow and backend-go, security and documentation-style rules. Also consulted delivery-evidence and knowledge governance guidance."
+    },
+    {
+      "id": "validate",
+      "disposition": "passed",
+      "evidence": "build:pose-mcp/go/build",
+      "rationale": "Cites the sealed canonical strict validation result under the brief's explicit sandbox allowance. Did not rerun the full matrix locally. Local focused CLI tests, delivery-reader tests, concurrency/publication tests and go vet passed; this is not a claim of an independent full-matrix rerun."
+    },
+    {
+      "id": "validate",
+      "component": "pose-mcp",
+      "disposition": "passed",
+      "evidence": "unit:pose-mcp/go/test",
+      "rationale": "Cites the sealed canonical component validation result under the brief's sandbox allowance. Independently ran go test ./internal/cli -run 'Carry|ChangedScope|Validate|Material', go test ./internal/pose -run 'DeliveryValidation|Carried', focused engine/concurrency/publication tests, and go vet ./internal/cli ./internal/pose; all passed. The full component matrix was not rerun locally."
+    }
+  ],
+  "evidence_refs": [
+    "N52",
+    "delegated-run:rrn-5ed84b0f66cce29b",
+    "integration:pose-mcp/go/cli-mcp-operation-results-integration",
+    "integration:pose-mcp/go/delivery-integration",
+    "integration:pose-mcp/go/distributed-instructions-parity-integration",
+    "integration:pose-mcp/go/writer-coordination-and-atomic-publication-integration",
+    "structure:design-09ab654124b2b985"
+  ],
+  "findings": [
+    {
+      "id": "N52",
+      "severity": "high",
+      "evidence": "file:pose-mcp/internal/cli/validate_carry.go:760",
+      "action": "Metadata read errors can become an empty selection policy. scopeMetadataAt returns empty metadata whenever both git show and cat-file -e fail, although a missing or unreadable blob is not proof that the path is absent from the tree. workingFileDiffersFromHead at lines 713-714 likewise treats any Git read failure as equality when the working file is absent. Consequently, with a valid base declaring b dependsOn a, an unavailable metadata blob and an absent working metadata file can pass both guards, discard the dependency, and carry b after a changes. Administrative metadata deletion is permitted by material cleanliness, and the name-only diff need not read the unavailable blob. This violates R2's full-run fallback on uncertainty and D1's selection premise. Determine absence from the pinned tree and return errors for failed object reads; add a regression for an unavailable committed metadata blob. Source-established; a new corruption fixture could not be created in the read-only sandbox.",
+      "disposition": "open"
+    },
+    {
+      "id": "N53",
+      "severity": "low",
+      "evidence": "file:pose-mcp/internal/cli/validate.go:1623",
+      "action": "Exclude carried checks from executed commands and label reused results with their original head and time, as tracked by spec follow-up F2.",
+      "disposition": "accepted-risk",
+      "owner": "@pose-maintainers",
+      "rationale": "validationSummaryOf includes carried checks in Commands and renders their prior outcome and duration without carried_from or carried_generated_at. A newly dated --carry --report therefore presents reused observations as commands executed by this run. This is existing spec follow-up F2.",
+      "review_by": "2026-12-15"
+    },
+    {
+      "id": "N54",
+      "severity": "low",
+      "evidence": "file:.pose/specs/2026-11-22-pose-validate-carries-unchanged-checks.md:254",
+      "action": "Implement the seal, verify and closeout-check fixture tracked by spec follow-up F1.",
+      "disposition": "accepted-risk",
+      "owner": "@pose-maintainers",
+      "rationale": "The delivery parser has direct coverage for the carried head and time, but no dedicated end-to-end fixture seals, verifies and checks closeout over a carried record. This remains the explicitly documented F1 coverage gap.",
+      "review_by": "2026-12-15"
+    }
+  ],
+  "authority": {
+    "schema_version": 1,
+    "project": "proj.pose-dist",
+    "bundle_digest": "sha256:85f7d3178908466e56ead09e1ad625b9c931e9d7bea6d509fe86347dd79a1c77",
+    "principal": "agent:openai/gpt-6.1-sol",
+    "role": "agent",
+    "review_execution": "rrn-5ed84b0f66cce29b",
+    "implementation_principal": "agent:anthropic/unknown",
+    "implementation_execution": "sha256:344ac5868944c155772d60a95ef6ff20644580a642e772ad5c92c29428464ff8",
+    "issuer": "b34-local-executor",
+    "issued_at": "2026-11-23T14:09:27Z",
+    "audience": "proj.pose-dist"
+  },
+  "envelope": {
+    "issuer": "b34-local-executor",
+    "subject": "rvb-85f7d3178908466e",
+    "algorithm": "ed25519",
+    "public_key": "ck4sApdfePV2GT+hJyAYfJd2qLzeG55P8pevGR0bvZE=",
+    "signature": "qcw0+GopH+9C9lnc9rSQ6wvS1mNCbyOnSPK0tCkfvo2tawMqQcVM2uvyPmVO7SU1VYHd0x6iNxHcba7e8wq0CA=="
+  },
+  "attested_at": "2026-11-23T14:09:27Z",
+  "path": ".pose/review-attestations/rva-f39a887e59b3aaaa.json"
+}
