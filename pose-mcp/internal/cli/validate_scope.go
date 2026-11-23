@@ -140,27 +140,40 @@ func computeChangedScope(root, base, head string, modules []validationModule, ex
 		}
 		return match
 	}
+	// Every changed file selects, independently of one another (review rounds
+	// 2–4, N2, N5, N7, N8):
+	//   - its most specific owning module;
+	//   - every module under it (a gitlink or a replaced directory changes what
+	//     lies beneath);
+	//   - every module whose declared dependsOn contains it, lies under it, or
+	//     is the project root ".", whether or not the dependency is discovered;
+	//   - when no module owns it: the root module and every module that does
+	//     not declare itself self-contained (safe execution wins).
+	selectModule := func(rel, reason string) {
+		if _, ok := sel.Selected[rel]; !ok {
+			sel.Selected[rel] = reason
+		}
+	}
+	// A discovered dependency reaches its dependents through the transitive
+	// widening below, with its own reason.
+	discovered := map[string]bool{}
+	for _, m := range modules {
+		discovered[m.Rel] = true
+	}
 	for _, file := range sel.Changed {
-		if m := moduleOf(file); m != "" {
-			if _, ok := sel.Selected[m]; !ok {
-				sel.Selected[m] = "contains changed file: " + file
+		owner := moduleOf(file)
+		if owner != "" {
+			selectModule(owner, "contains changed file: "+file)
+		}
+		for _, m := range modules {
+			if m.Rel != "." && strings.HasPrefix(m.Rel, file+"/") {
+				selectModule(m.Rel, "changed path above the module: "+file)
 			}
-		} else {
-			// Root-level or unmapped change: safe execution wins, except for
-			// modules that declare their checks read nothing outside them. A
-			// root module owns the files no other module owns, so its
-			// declaration never exempts it from them (review round 2, N2). A
-			// declared dependency owns its paths even when it is gone from
-			// discovery, as after a deletion (review round 3, N5).
-			// A changed path above a module or a declared dependency (a
-			// gitlink, a replaced directory) changes everything under it.
-			for _, m := range modules {
-				if meta.Modules[m.Rel].SelfContained && m.Rel != "." && !underDeclaredDependency(file, meta.Modules[m.Rel].DependsOn) && !strings.HasPrefix(m.Rel, file+"/") {
-					continue
-				}
-				if _, ok := sel.Selected[m.Rel]; !ok {
-					sel.Selected[m.Rel] = "root-level change outside any module: " + file
-				}
+			if dep, ok := declaredDependencyHit(file, meta.Modules[m.Rel].DependsOn); ok && !discovered[dep] {
+				selectModule(m.Rel, "declared dependency "+dep+" changed: "+file)
+			}
+			if owner == "" && (m.Rel == "." || !meta.Modules[m.Rel].SelfContained) {
+				selectModule(m.Rel, "root-level change outside any module: "+file)
 			}
 		}
 	}
@@ -199,14 +212,15 @@ func firstScopeReason(reason string) string {
 	return reason
 }
 
-// underDeclaredDependency reports whether file lies in one of deps, or above
-// one of them.
-func underDeclaredDependency(file string, deps []string) bool {
+// declaredDependencyHit returns the declared dependency file changes: one it
+// lies in, one it lies above, or the project root ".", which every file
+// changes.
+func declaredDependencyHit(file string, deps []string) (string, bool) {
 	for _, dep := range deps {
 		dep = filepath.ToSlash(filepath.Clean(dep))
-		if file == dep || strings.HasPrefix(file, dep+"/") || strings.HasPrefix(dep, file+"/") {
-			return true
+		if dep == "." || file == dep || strings.HasPrefix(file, dep+"/") || strings.HasPrefix(dep, file+"/") {
+			return dep, true
 		}
 	}
-	return false
+	return "", false
 }

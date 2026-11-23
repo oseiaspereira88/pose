@@ -104,6 +104,14 @@ func planCarry(root, resultsPath, mode, matrixSHA string, matrix validationMatri
 	if !materialWorktreeClean(root) {
 		return unused("the working copy differs from HEAD in material paths")
 	}
+	// Selection is lexical: a module reached through a symlink aliases another
+	// path, so its inputs cannot be told apart (review round 4, N9).
+	for _, module := range modules {
+		resolved, err := filepath.EvalSymlinks(module.Abs)
+		if err != nil || filepath.Clean(resolved) != filepath.Clean(module.Abs) {
+			return unused("module %s is reached through a symlink, so its changes cannot be attributed", module.Rel)
+		}
+	}
 	if err := posemodel.RawGit("-C", root, "merge-base", "--is-ancestor", base.GitHead, "HEAD").Run(); err != nil {
 		return unused("the canonical result's head %s is not an ancestor of HEAD", base.GitHead)
 	}

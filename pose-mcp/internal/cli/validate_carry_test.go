@@ -463,7 +463,70 @@ func TestChangedScopeGitlinkAboveADependencySelectsItsDependents(t *testing.T) {
 	f.git("update-index", "--add", "--cacheinfo", "160000,"+second+",vendor")
 	f.git("-c", "core.hooksPath=/dev/null", "commit", "-qm", "move the gitlink")
 	_, out := runValidate(t, f.root, "--changed-from", "HEAD~1", "--changed-to", "HEAD", "--explain")
-	if !strings.Contains(out, "+ b: root-level change outside any module: vendor") || !strings.Contains(out, "- a: not affected") {
+	if !strings.Contains(out, "+ b: declared dependency vendor/lib changed: vendor") || !strings.Contains(out, "- a: not affected") {
 		t.Fatalf("a gitlink above b's dependency must select b and leave a: %s", out)
+	}
+}
+
+// A dependency beneath a surviving module keeps its dependents selected after
+// it is deleted (review round 4, N7).
+func TestCarryDeletedNestedDependencySelectsItsDependents(t *testing.T) {
+	f := newCarryFixture(t, `{"schemaVersion":1,"modules":{"b":{"selfContained":true,"dependsOn":["a/nested"]}}}`)
+	f.write("a/nested/go.mod", "module nested\n")
+	f.commit("nested module")
+	f.baseline()
+	f.git("rm", "-rq", "a/nested")
+	f.commit("delete the nested dependency")
+	_, _, run := f.validate("--carry")
+	if !strings.Contains(run.Carry.Selected["b"], "a/nested") {
+		t.Fatalf("selected = %v, want b selected by its deleted nested dependency", run.Carry.Selected)
+	}
+}
+
+// A dependency on the project root is changed by any file once the root
+// module is gone (review round 4, N8).
+func TestCarryRootDependencyIsChangedByRootFiles(t *testing.T) {
+	f := newCarryFixture(t, `{"schemaVersion":1,"modules":{"a":{"selfContained":true},"b":{"selfContained":true,"dependsOn":["."]}}}`)
+	f.baseline()
+	f.write("root.txt", "edited\n")
+	f.commit("root change")
+	_, _, run := f.validate("--carry")
+	if _, ok := run.Carry.Selected["b"]; !ok {
+		t.Fatalf("selected = %v, want b selected through its root dependency", run.Carry.Selected)
+	}
+	if _, ok := run.Carry.Selected["a"]; ok {
+		t.Fatalf("selected = %v, want a carried", run.Carry.Selected)
+	}
+}
+
+// A module reached through a symlink is never carried (review round 4, N9).
+func TestCarryRefusesModulesReachedThroughASymlink(t *testing.T) {
+	f := newCarryFixture(t, "")
+	if err := os.Symlink("a", filepath.Join(f.root, "alias")); err != nil {
+		t.Fatal(err)
+	}
+	raw, _ := os.ReadFile(filepath.Join(f.root, ".pose/indexes/validation-matrix.json"))
+	f.write(".pose/indexes/validation-matrix.json", strings.Replace(string(raw), `"stacks"`, `"moduleOverrides":{"alias":{"stack":"go"}},"stacks"`, 1))
+	f.commit("alias")
+	f.baseline()
+	f.write("a/changed.go", "package a\n")
+	f.commit("change a")
+	_, _, run := f.validate("--carry")
+	if run.Carry == nil || run.Carry.Used || !strings.Contains(run.Carry.Reason, "symlink") {
+		t.Fatalf("carry = %+v, want an aliased module refused", run.Carry)
+	}
+}
+
+// A run whose HEAD moved while checks ran did not validate its recorded head
+// (review round 4, N10).
+func TestValidateHeadMovingDuringTheRunIsNotClean(t *testing.T) {
+	f := newCarryFixture(t, "")
+	raw, _ := os.ReadFile(filepath.Join(f.root, ".pose/indexes/validation-matrix.json"))
+	commit := `git -C .. -c user.name=t -c user.email=t@t -c core.hooksPath=/dev/null commit -q --allow-empty -m moved`
+	f.write(".pose/indexes/validation-matrix.json", strings.Replace(string(raw), `"stacks":{"go":{"checks":[`, `"moduleOverrides":{"a":{"checks":[{"name":"moves","program":"sh","args":["-c","`+commit+`"],"severity":"required","evidenceClass":"unit"}]}},"stacks":{"go":{"checks":[`, 1))
+	f.commit("a check that commits")
+	_, out, run := f.validate()
+	if run.MaterialClean {
+		t.Fatalf("material_clean = true although HEAD moved during the run: %s", out)
 	}
 }

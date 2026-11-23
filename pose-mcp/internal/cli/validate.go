@@ -1420,7 +1420,14 @@ func cmdValidateWithStore(store posemodel.Store, args []string, stdout, stderr i
 	// A check that changed a tracked file changed the material it ran over: the
 	// committed tree no longer describes what was validated.
 	endedClean := materialTrackedUnchanged(root)
-	run.MaterialClean = startedClean && endedClean
+	// The run validated its recorded head only if HEAD never moved: a commit
+	// made while checks ran would let them observe code the record does not
+	// name (review round 4, N10).
+	endHead := ""
+	if head, err := gitOutputBounded(root, 1024, "rev-parse", "HEAD"); err == nil {
+		endHead = strings.TrimSpace(string(head))
+	}
+	run.MaterialClean = startedClean && endedClean && run.GitHead != "" && endHead == run.GitHead
 	if len(run.MaterialProvenance) > 0 && !endedClean {
 		for spec := range run.MaterialProvenance {
 			run.MaterialProvenance[spec] = posemodel.MaterialBindingUnavailable
