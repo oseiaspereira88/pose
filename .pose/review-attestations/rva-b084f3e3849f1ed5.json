@@ -1,0 +1,226 @@
+{
+  "run": {
+    "run_id": "rrn-243366b14aa5fea4",
+    "proof_id": "rrp-108d96e40c057ea7b52e8d212d49efb558ace078273266907bf9a84bbc213926"
+  },
+  "schema_version": 1,
+  "attestation_id": "rva-b084f3e3849f1ed5",
+  "bundle_id": "rvb-e9f817c0c3b444b7",
+  "bundle_digest": "sha256:e9f817c0c3b444b729612267b8409541bc3f7911edece26c40f0b013ad7e0a34",
+  "reviewer": "agent:openai/gpt-6.1-sol",
+  "decision": "changes-requested",
+  "criteria": [
+    {
+      "id": "assumption-integrity",
+      "disposition": "finding",
+      "evidence": "N50",
+      "rationale": "Examined explicit selfContained declarations and inherited material-binding limits. Transient material writers are an accepted prerequisite-ADR risk, with immutable execution tracked separately. The new promise that selection uses pinned metadata is not established because planning rereads mutable bytes."
+    },
+    {
+      "id": "backend-concurrency",
+      "disposition": "finding",
+      "evidence": "N50",
+      "rationale": "Cancellation and submodule movement regressions pass, as do focused race tests. Canonical publication retains its write guard and atomic publisher. Concurrent metadata updates can nevertheless narrow selection after verification."
+    },
+    {
+      "id": "backend-contracts",
+      "disposition": "passed",
+      "evidence": "integration:pose-mcp/go/delivery-integration",
+      "rationale": "Inspected additive result fields, legacy-record parsing, CLI refusals and the delivery reader. Existing records retain their interpretation; bases lacking new eligibility fields rerun."
+    },
+    {
+      "id": "backend-input-errors",
+      "disposition": "passed",
+      "evidence": "unit:pose-mcp/go/test",
+      "rationale": "Focused tests exercised incompatible flags, malformed metadata, unsafe revisions, missing results, duplicate IDs, aliases and fallback reasons. Errors remain actionable."
+    },
+    {
+      "id": "backend-integration-impact",
+      "disposition": "passed",
+      "evidence": "integration:pose-mcp/go/delivery-integration",
+      "rationale": "Traced carried_from and carried_generated_at through ParseDeliveryValidationRun. The direct reader regression passed, and both strict matrices passed. The complete carry-to-seal journey remains explicitly tracked as spec follow-up F1."
+    },
+    {
+      "id": "backend-observability",
+      "disposition": "finding",
+      "evidence": "N51",
+      "rationale": "Canonical JSON retains carry provenance and fallback reasons, but the generated report loses that provenance."
+    },
+    {
+      "id": "compatibility",
+      "disposition": "passed",
+      "evidence": "integration:pose-mcp/go/delivery-integration",
+      "rationale": "Examined CLI help, argument combinations, schema additions and legacy delivery parsing. The new flag is opt-in and older results remain readable while unsuitable carry bases trigger full execution."
+    },
+    {
+      "id": "correctness",
+      "disposition": "finding",
+      "evidence": "N50",
+      "rationale": "Existing regression suites and both matrices pass, but the verified metadata and selection metadata can differ, producing an unsound carried result."
+    },
+    {
+      "id": "design-causality",
+      "disposition": "finding",
+      "evidence": "N50",
+      "rationale": "Whole-matrix and engine comparisons implement D2, while declared ownership implements D3. D1 additionally requires selection from the verified policy; rereading working metadata breaks that causal link.",
+      "mappings": [
+        {
+          "delta": "SD-253b523c",
+          "basis": "D1",
+          "disposition": "mapped",
+          "rationale": "The added ADR records the decision to preserve each carried observation's origin while binding the new run to current material, conditional on sound changed-scope selection."
+        }
+      ]
+    },
+    {
+      "id": "documentation",
+      "disposition": "finding",
+      "evidence": "N51",
+      "rationale": "Compared English and Portuguese manuals, help and scaffold changes against runtime. Carry documentation agrees with the implemented rules, but --report still contradicts its executed-command description."
+    },
+    {
+      "id": "operability",
+      "disposition": "finding",
+      "evidence": "N51",
+      "rationale": "Eligibility refusals and selection explanations are actionable. Report users cannot distinguish carried observations from newly executed commands."
+    },
+    {
+      "id": "requirements",
+      "disposition": "finding",
+      "evidence": "N50",
+      "rationale": "Reviewed R1-R10 and their fixtures. The metadata equality guard covers pre-existing working edits but does not ensure that R2's pinned policy is the policy R3 selection actually consumes."
+    },
+    {
+      "id": "scope",
+      "disposition": "passed",
+      "evidence": "structure:design-97948d92f0ce316e",
+      "rationale": "Compared the implementation, delivery reader, help, manuals and ADR with declared artifacts. Changes remain within the approved carry and changed-scope work. Artifact-check exited successfully; its later index-only trailer head is distinct from the sealed semantic subject."
+    },
+    {
+      "id": "security",
+      "disposition": "finding",
+      "evidence": "N50",
+      "rationale": "Revision confinement and conservative alias refusals are present. Mutable metadata can still cross the verified-policy boundary and authorize stale carry evidence."
+    },
+    {
+      "id": "solution-proportionality",
+      "disposition": "finding",
+      "evidence": "N50",
+      "rationale": "Module-level reuse with whole-matrix and engine equality avoids speculative per-check caching. The smallest sufficient correction for N50 is to reuse one verified metadata snapshot throughout planning. A full immutable execution snapshot remains a separately accepted prerequisite follow-up."
+    }
+  ],
+  "tools": [
+    {
+      "id": "artifact-check",
+      "disposition": "passed",
+      "evidence": "command:pose artifact-check --spec pose-validate-carries-unchanged-checks --strict",
+      "rationale": "Executed and exited 0. Reported provenance warnings, 15 claims and 20 observations, without blocking errors. Its resolved head was the later index-only trailer commit identified in the brief."
+    },
+    {
+      "id": "assess-design",
+      "disposition": "passed",
+      "evidence": "structure:design-97948d92f0ce316e",
+      "rationale": "Executed the requested JSON assessment successfully; its input digest matches the sealed design evidence and it reports SD-253b523c."
+    },
+    {
+      "id": "assess-discover",
+      "component": "pose-mcp",
+      "disposition": "not-used",
+      "evidence": "command:mktemp -d /tmp/pose-review-assess.XXXXXX",
+      "rationale": "Scratch creation failed with Read-only file system. Did not run a state-writing assessment in the sealed checkout."
+    },
+    {
+      "id": "assess-integrate",
+      "disposition": "not-used",
+      "evidence": "integration:pose-mcp/go/delivery-integration",
+      "rationale": "Inspected sealed integration evidence and independently ran both strict matrices. The state-writing assessor was not invoked because a safe scratch copy could not be created."
+    },
+    {
+      "id": "assess-tech-debt",
+      "disposition": "not-used",
+      "evidence": "command:mktemp -d /tmp/pose-review-assess.XXXXXX",
+      "rationale": "The state-writing assessment requires scratch, whose creation was denied. Manually searched the new carry and delivery-reader files for debt markers; no new TODO, FIXME, stub or panic marker was found."
+    },
+    {
+      "id": "closeout-check",
+      "disposition": "deferred",
+      "evidence": "command:pose closeout-check spec:pose-validate-carries-unchanged-checks",
+      "rationale": "Not executed: completion-only verification follows the recorded review conclusion. This request explicitly forbids recording an attestation."
+    },
+    {
+      "id": "review-check",
+      "disposition": "deferred",
+      "evidence": "command:pose review-check spec:pose-validate-carries-unchanged-checks",
+      "rationale": "Not executed: it cannot verify this conclusion before POSE records it, and the reviewer was instructed not to record an attestation."
+    },
+    {
+      "id": "suggest-review",
+      "component": "pose-mcp",
+      "disposition": "passed",
+      "evidence": "command:pose suggest review --path pose-mcp",
+      "rationale": "Executed successfully and applied its Go, security and documentation rule selection."
+    },
+    {
+      "id": "validate",
+      "disposition": "passed",
+      "evidence": "unit:pose-mcp/go/test",
+      "rationale": "Independently executed pose validate --strict: exit 0, 236 checks passed. The sealed matrix also supplies build, integration and e2e evidence."
+    },
+    {
+      "id": "validate",
+      "component": "pose-mcp",
+      "disposition": "passed",
+      "evidence": "unit:pose-mcp/go/test",
+      "rationale": "Independently executed pose validate --strict --module pose-mcp: exit 0, 233 checks passed. Focused CLI tests, focused race tests, delivery-reader tests and go vet ./internal/cli ./internal/pose also passed."
+    }
+  ],
+  "evidence_refs": [
+    "N50",
+    "N51",
+    "delegated-run:rrn-243366b14aa5fea4",
+    "integration:pose-mcp/go/delivery-integration",
+    "structure:design-97948d92f0ce316e",
+    "unit:pose-mcp/go/test"
+  ],
+  "findings": [
+    {
+      "id": "N50",
+      "severity": "high",
+      "evidence": "file:pose-mcp/internal/cli/validate_carry.go:215",
+      "action": "Capture and verify module metadata once, then use that immutable snapshot for every eligibility and selection decision. Add a synchronized regression that changes working metadata between verification and selection and proves that b is selected or carry is refused.",
+      "disposition": "open"
+    },
+    {
+      "id": "N51",
+      "severity": "low",
+      "evidence": "file:pose-mcp/internal/cli/validate.go:1623",
+      "action": "Complete F2: exclude carried checks from executed Commands and label reused results with carried_from and carried_generated_at.",
+      "disposition": "accepted-risk",
+      "owner": "@pose-maintainers",
+      "rationale": "validationSummaryOf adds carried checks to executed Commands and displays their prior outcome and duration without their original head or time. A newly dated --carry --report therefore misrepresents reused observations as commands executed by this run. This is existing spec follow-up F2.",
+      "review_by": "2026-12-15"
+    }
+  ],
+  "authority": {
+    "schema_version": 1,
+    "project": "proj.pose-dist",
+    "bundle_digest": "sha256:e9f817c0c3b444b729612267b8409541bc3f7911edece26c40f0b013ad7e0a34",
+    "principal": "agent:openai/gpt-6.1-sol",
+    "role": "agent",
+    "review_execution": "rrn-243366b14aa5fea4",
+    "implementation_principal": "agent:anthropic/unknown",
+    "implementation_execution": "sha256:344ac5868944c155772d60a95ef6ff20644580a642e772ad5c92c29428464ff8",
+    "issuer": "b34-local-executor",
+    "issued_at": "2026-11-23T13:33:28Z",
+    "audience": "proj.pose-dist"
+  },
+  "envelope": {
+    "issuer": "b34-local-executor",
+    "subject": "rvb-e9f817c0c3b444b7",
+    "algorithm": "ed25519",
+    "public_key": "ck4sApdfePV2GT+hJyAYfJd2qLzeG55P8pevGR0bvZE=",
+    "signature": "kRxl+MbJ6R5opaEau25fTknqu+2R2TpRBeie0+36B4R6+Rol1YZjpCpqLej+7yGQB8z/u84egkt6o2TSuV0bCA=="
+  },
+  "attested_at": "2026-11-23T13:33:28Z",
+  "path": ".pose/review-attestations/rva-b084f3e3849f1ed5.json"
+}
