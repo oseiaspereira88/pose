@@ -451,3 +451,19 @@ func TestCarryRejectsUndecodableMetadata(t *testing.T) {
 		t.Fatalf("--changed-from over undecodable metadata: exit=%d %s", code, out)
 	}
 }
+
+// A gitlink above a declared dependency changes what lies under it. The
+// selection is shared by --changed-from and --carry.
+func TestChangedScopeGitlinkAboveADependencySelectsItsDependents(t *testing.T) {
+	f := newCarryFixture(t, `{"schemaVersion":1,"modules":{"a":{"selfContained":true},"b":{"selfContained":true,"dependsOn":["vendor/lib"]}}}`)
+	first := f.git("rev-parse", "HEAD")
+	f.git("update-index", "--add", "--cacheinfo", "160000,"+first+",vendor")
+	f.git("-c", "core.hooksPath=/dev/null", "commit", "-qm", "gitlink")
+	second := f.git("rev-parse", "HEAD")
+	f.git("update-index", "--add", "--cacheinfo", "160000,"+second+",vendor")
+	f.git("-c", "core.hooksPath=/dev/null", "commit", "-qm", "move the gitlink")
+	_, out := runValidate(t, f.root, "--changed-from", "HEAD~1", "--changed-to", "HEAD", "--explain")
+	if !strings.Contains(out, "+ b: root-level change outside any module: vendor") || !strings.Contains(out, "- a: not affected") {
+		t.Fatalf("a gitlink above b's dependency must select b and leave a: %s", out)
+	}
+}

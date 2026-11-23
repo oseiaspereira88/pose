@@ -152,8 +152,10 @@ func computeChangedScope(root, base, head string, modules []validationModule, ex
 			// declaration never exempts it from them (review round 2, N2). A
 			// declared dependency owns its paths even when it is gone from
 			// discovery, as after a deletion (review round 3, N5).
+			// A changed path above a module or a declared dependency (a
+			// gitlink, a replaced directory) changes everything under it.
 			for _, m := range modules {
-				if meta.Modules[m.Rel].SelfContained && m.Rel != "." && !underDeclaredDependency(file, meta.Modules[m.Rel].DependsOn) {
+				if meta.Modules[m.Rel].SelfContained && m.Rel != "." && !underDeclaredDependency(file, meta.Modules[m.Rel].DependsOn) && !strings.HasPrefix(m.Rel, file+"/") {
 					continue
 				}
 				if _, ok := sel.Selected[m.Rel]; !ok {
@@ -197,11 +199,12 @@ func firstScopeReason(reason string) string {
 	return reason
 }
 
-// underDeclaredDependency reports whether file lies in one of deps.
+// underDeclaredDependency reports whether file lies in one of deps, or above
+// one of them.
 func underDeclaredDependency(file string, deps []string) bool {
 	for _, dep := range deps {
 		dep = filepath.ToSlash(filepath.Clean(dep))
-		if file == dep || strings.HasPrefix(file, dep+"/") {
+		if file == dep || strings.HasPrefix(file, dep+"/") || strings.HasPrefix(dep, file+"/") {
 			return true
 		}
 	}
