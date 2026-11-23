@@ -345,3 +345,27 @@ func TestCarryIgnoresDerivedAdministrativeRecords(t *testing.T) {
 		t.Fatalf("a non-record file in a class executed %q, want everything", got)
 	}
 }
+
+// A pass recorded over an uncommitted fix proves nothing about the committed
+// head; once the fix is dropped it must not be carried (review round 1, F1).
+func TestCarryRefusesABaseThatValidatedADirtyWorkingCopy(t *testing.T) {
+	f := newCarryFixture(t, "")
+	f.write("b/fail", "x\n")
+	f.commit("b fails")
+	if err := os.Remove(filepath.Join(f.root, "b", "fail")); err != nil {
+		t.Fatal(err)
+	}
+	if code, out, _ := f.validate(); code != 0 {
+		t.Fatalf("the uncommitted fix should pass: exit=%d %s", code, out)
+	}
+	f.git("add", "--", carryResults)
+	f.git("-c", "core.hooksPath=/dev/null", "commit", "-qm", "record over a dirty copy")
+	f.git("checkout", "--", "b/fail")
+	code, _, run := f.validate("--carry")
+	if run.Carry == nil || run.Carry.Used || !strings.Contains(run.Carry.Reason, "clean working copy") {
+		t.Fatalf("carry = %+v, want a dirty base refused", run.Carry)
+	}
+	if code == 0 || checkOf(run, "b").Outcome != "fail" {
+		t.Fatalf("exit=%d b=%+v, want b re-run and failing", code, checkOf(run, "b"))
+	}
+}

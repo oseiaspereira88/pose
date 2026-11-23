@@ -81,6 +81,10 @@ type validationRunResult struct {
 	// pose-validate-carries-unchanged-checks R2, R5).
 	EngineVersion string       `json:"engine_version,omitempty"`
 	Carry         *carryRecord `json:"carry,omitempty"`
+	// MaterialClean says the working copy matched HEAD in material paths when
+	// the run started and still did when it ended, so the run validated the
+	// commit it records. Only such a run can be a carry base (R2).
+	MaterialClean bool `json:"material_clean,omitempty"`
 	// Jobs is how many checks ran at once; WallSeconds the run's elapsed time
 	// (spec pose-validate-concurrent-steps R3–R4).
 	Jobs        int     `json:"jobs,omitempty"`

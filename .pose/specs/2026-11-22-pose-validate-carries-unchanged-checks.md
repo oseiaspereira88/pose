@@ -37,6 +37,7 @@ Caching individual command outputs, hashing arbitrary inputs of a check, carryin
   - Its schema, mode, `matrix_sha256` and `engine_version` equal the current run's.
   - Its `git_head` is an ancestor of, or equal to, `HEAD`.
   - It was not cancelled.
+  - It recorded `material_clean`: its own working copy matched its head when it started and when it ended, and none of its material bindings is unavailable.
   - The working copy is clean in material paths.
 - R3: With a usable base, the run shall select modules with the changed-scope rules over `base.git_head..HEAD`, excluding the `results_path` file itself. It shall also exclude derived administrative records of the engine's closed list (`posemodel.IsAdministrativePath`, the classes material bindings ignore) that are regular files, or absent, at `HEAD`. Otherwise the index and state commits that follow every record would select every module. It shall execute every check of a selected module. Every check of an unselected module whose base result exists and was not skipped shall be carried. A module with any check lacking such a base result shall be selected with the reason `carry: no prior result for <check id>`.
 - R4: A carried check shall keep the base result's outcome, exit code, duration, limit state, output and evidence class. It shall add `carried_from`, the head the check actually ran at, preserved through chained carries, and `carried_generated_at`. Counts shall add `carried`. Carried failures and errors shall count toward the run outcome exactly like executed ones.
@@ -149,12 +150,14 @@ Each test is run against the code before its requirement and must fail there.
 - 2026-11-22: `pose validate --json-out .pose/results/delivery-validation.json` with a binary built from `606a0fa8` passed 236 of 236 checks in 786 s.
 - 2026-11-22: dogfood: `validate --carry --explain` at `c4182727` used that record as base. The record and index commits counted as zero changed files. Five of six modules were carried, and `pose-mcp` ran because its criticality is high. The run passed with `counts.carried` 3, and the record is kept at `.pose/bin/batch-20261118/engine-a-dogfood-carried.json` in the Harne8 batch.
 
+- 2026-11-22: review round 1 (rrn-0dd98c4aab8b5918, Codex) found F1 (high). A base that validated a dirty working copy could be carried. The record now has `material_clean`, and a base without it, or with an unavailable material binding, is refused. `TestCarryRefusesABaseThatValidatedADirtyWorkingCopy` reproduces the sequence. It failed with the check mutated out and passes with it.
+
 ### Results summary
 All new and existing tests pass, and the strict matrix is green. In this repository, `pose-mcp` holds 233 of the 236 checks and is high criticality, so carrying saves little here. In an instance with many modules, a change confined to one of them reruns only that module and the modules that are not declared self-contained.
 
 ### Requirement trace
 - R1 [satisfied] test:TestCarryRefusesIncompatibleFlags
-- R2 [satisfied] test:TestCarryFallsBackToAFullRun test:TestCarryRefusesAFilteredBase
+- R2 [satisfied] test:TestCarryFallsBackToAFullRun test:TestCarryRefusesAFilteredBase test:TestCarryRefusesABaseThatValidatedADirtyWorkingCopy
 - R3 [satisfied] test:TestCarryRunsOnlyTheChangedModule test:TestCarryRecordFileIsNotAChange test:TestCarryIgnoresDerivedAdministrativeRecords test:TestCarrySelectsAModuleWithoutAPriorResult
 - R4 [satisfied] test:TestCarryKeepsTheOriginalHeadAcrossChainedCarries test:TestCarryKeepsACarriedFailureAFailure
 - R5 [satisfied] test:TestCarryRunsOnlyTheChangedModule

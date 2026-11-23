@@ -88,6 +88,16 @@ func planCarry(root, resultsPath, mode, matrixSHA string, matrix validationMatri
 			return unused("the canonical result was cancelled")
 		}
 	}
+	// The base must have validated the commit it records: a run over a working
+	// copy that differed from its head proves nothing about that head.
+	if !base.MaterialClean {
+		return unused("the canonical result did not validate a clean working copy of its head")
+	}
+	for _, binding := range base.MaterialProvenance {
+		if binding == posemodel.MaterialBindingUnavailable {
+			return unused("the canonical result records an unavailable material binding")
+		}
+	}
 	if !materialWorktreeClean(root) {
 		return unused("the working copy differs from HEAD in material paths")
 	}

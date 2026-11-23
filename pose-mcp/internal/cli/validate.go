@@ -1143,6 +1143,7 @@ func cmdValidateWithStore(store posemodel.Store, args []string, stdout, stderr i
 	matrixDigest := sha256.Sum256(raw)
 	run.MatrixSHA256 = "sha256:" + hex.EncodeToString(matrixDigest[:])
 	run.EngineVersion = validationEngineIdentity()
+	startedClean := materialWorktreeClean(root)
 	var carryState carryPlan
 	if carry {
 		carryState = planCarry(root, canonicalResultsPath, mode, run.MatrixSHA256, matrix, modules)
@@ -1418,7 +1419,9 @@ func cmdValidateWithStore(store posemodel.Store, args []string, stdout, stderr i
 	run.WallSeconds = time.Since(wallStart).Seconds()
 	// A check that changed a tracked file changed the material it ran over: the
 	// committed tree no longer describes what was validated.
-	if len(run.MaterialProvenance) > 0 && !materialTrackedUnchanged(root) {
+	endedClean := materialTrackedUnchanged(root)
+	run.MaterialClean = startedClean && endedClean
+	if len(run.MaterialProvenance) > 0 && !endedClean {
 		for spec := range run.MaterialProvenance {
 			run.MaterialProvenance[spec] = posemodel.MaterialBindingUnavailable
 		}
