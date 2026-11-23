@@ -707,12 +707,20 @@ func finalizeCancellation(run *validationRunResult) bool {
 // workingFileDiffersFromHead reports whether rel in the working copy differs
 // from its blob at head; absent on both sides is equal.
 func workingFileDiffersFromHead(root, head, rel string) (bool, error) {
+	present, err := inTree(root, head, rel)
+	if err != nil {
+		return true, err
+	}
 	working, werr := os.ReadFile(filepath.Join(root, filepath.FromSlash(rel)))
+	if !present {
+		// Absent from the commit: equal only when absent from the copy too.
+		return !errors.Is(werr, os.ErrNotExist), nil
+	}
 	committed, cerr := posemodel.RawGit("-C", root, "show", head+":"+rel).Output()
-	switch {
-	case errors.Is(werr, os.ErrNotExist) && cerr != nil:
-		return false, nil
-	case werr != nil || cerr != nil:
+	if cerr != nil {
+		return true, fmt.Errorf("%s at %s is unreadable: %v", rel, head, cerr)
+	}
+	if werr != nil {
 		return true, nil
 	}
 	return !bytes.Equal(working, committed), nil
@@ -755,15 +763,32 @@ func movementWitness(root, head string) string {
 // undecodable is an error.
 func scopeMetadataAt(root, head string) (scopeMetadata, error) {
 	var meta scopeMetadata
-	raw, err := posemodel.RawGit("-C", root, "show", head+":.pose/indexes/module-metadata.json").Output()
+	const rel = ".pose/indexes/module-metadata.json"
+	// Absence is read from the pinned tree; a listed blob that cannot be read
+	// is an error, never an empty policy (review round 18, N52).
+	present, err := inTree(root, head, rel)
 	if err != nil {
-		if posemodel.RawGit("-C", root, "cat-file", "-e", head+":.pose/indexes/module-metadata.json").Run() != nil {
-			return meta, nil
-		}
+		return meta, err
+	}
+	if !present {
+		return meta, nil
+	}
+	raw, err := posemodel.RawGit("-C", root, "show", head+":"+rel).Output()
+	if err != nil {
 		return meta, fmt.Errorf("module metadata at %s is unreadable: %v", head, err)
 	}
 	if err := json.Unmarshal(raw, &meta); err != nil {
 		return scopeMetadata{}, fmt.Errorf("module metadata does not decode: %v", err)
 	}
 	return meta, nil
+}
+
+// inTree reports whether rel is an entry of head's tree, reading the tree,
+// not the blob; a tree that cannot be read is an error.
+func inTree(root, head, rel string) (bool, error) {
+	out, err := posemodel.RawGit("-C", root, "ls-tree", "-z", head, "--", rel).Output()
+	if err != nil {
+		return false, fmt.Errorf("the tree of %s is unreadable: %v", head, err)
+	}
+	return strings.TrimSpace(strings.TrimRight(string(out), "\x00")) != "", nil
 }

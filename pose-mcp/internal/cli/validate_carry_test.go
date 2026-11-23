@@ -1259,3 +1259,24 @@ func TestCarrySelectsWithThePinnedMetadataSnapshot(t *testing.T) {
 		t.Fatalf("selected = %v, want b selected through the snapshot's dependency despite the edited working metadata", sel.Selected)
 	}
 }
+
+// A committed metadata blob that cannot be read is an error, never an empty
+// policy (review round 18, N52).
+func TestCarryRefusesAnUnreadableMetadataBlob(t *testing.T) {
+	f := newCarryFixture(t, `{"schemaVersion":1,"modules":{"b":{"selfContained":true,"dependsOn":["a"]}}}`)
+	head := f.git("rev-parse", "HEAD")
+	blob := strings.Fields(f.git("ls-tree", head, "--", ".pose/indexes/module-metadata.json"))[2]
+	object := filepath.Join(f.root, ".git", "objects", blob[:2], blob[2:])
+	if err := os.Remove(object); err != nil {
+		t.Fatalf("the fixture keeps the blob loose: %v", err)
+	}
+	if _, err := scopeMetadataAt(f.root, head); err == nil {
+		t.Fatal("an unreadable metadata blob must be an error")
+	}
+	if err := os.Remove(filepath.Join(f.root, ".pose/indexes/module-metadata.json")); err != nil {
+		t.Fatal(err)
+	}
+	if differs, err := workingFileDiffersFromHead(f.root, head, ".pose/indexes/module-metadata.json"); err == nil && !differs {
+		t.Fatal("an absent working file over an unreadable committed blob must not read as equal")
+	}
+}
