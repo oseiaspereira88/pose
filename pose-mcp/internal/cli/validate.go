@@ -1143,10 +1143,16 @@ func cmdValidateWithStore(store posemodel.Store, args []string, stdout, stderr i
 	matrixDigest := sha256.Sum256(raw)
 	run.MatrixSHA256 = "sha256:" + hex.EncodeToString(matrixDigest[:])
 	run.EngineVersion = validationEngineIdentity()
+	// The head is pinned before anything is planned: selection, carried
+	// results and the end-of-run comparison all name this one commit (review
+	// round 5, N14).
+	if head, err := gitOutputBounded(root, 1024, "rev-parse", "HEAD"); err == nil {
+		run.GitHead = strings.TrimSpace(string(head))
+	}
 	startedClean := materialWorktreeClean(root)
 	var carryState carryPlan
 	if carry {
-		carryState = planCarry(root, canonicalResultsPath, mode, run.MatrixSHA256, matrix, modules)
+		carryState = planCarry(root, canonicalResultsPath, mode, run.MatrixSHA256, run.GitHead, matrix, modules)
 		run.Carry = carryState.record
 		out := render(stdout, stderr)
 		if !carryState.record.Used {
@@ -1163,9 +1169,6 @@ func cmdValidateWithStore(store posemodel.Store, args []string, stdout, stderr i
 				}
 			}
 		}
-	}
-	if head, err := gitOutputBounded(root, 1024, "rev-parse", "HEAD"); err == nil {
-		run.GitHead = strings.TrimSpace(string(head))
 	}
 	if graph, err := buildCurrentDeliveryGraph(root); err == nil {
 		run.ProvenanceDigest = graph.ProvenanceDigest
@@ -1428,7 +1431,10 @@ func cmdValidateWithStore(store posemodel.Store, args []string, stdout, stderr i
 		endHead = strings.TrimSpace(string(head))
 	}
 	run.MaterialClean = startedClean && endedClean && run.GitHead != "" && endHead == run.GitHead
-	if len(run.MaterialProvenance) > 0 && !endedClean {
+	// A run that did not validate its recorded head binds no material: its
+	// bindings would let a later tree make a misattributed pass current again
+	// (review round 5, N12).
+	if len(run.MaterialProvenance) > 0 && !run.MaterialClean {
 		for spec := range run.MaterialProvenance {
 			run.MaterialProvenance[spec] = posemodel.MaterialBindingUnavailable
 		}

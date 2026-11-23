@@ -37,13 +37,14 @@ Caching individual command outputs, hashing arbitrary inputs of a check, carryin
   - Its schema, mode, `matrix_sha256` and `engine_version` equal the current run's. Neither engine build is modified from its recorded revision.
   - Its `git_head` is an ancestor of, or equal to, `HEAD`.
   - It was not cancelled.
-  - It recorded `material_clean`: its own working copy matched its head when it started and when it ended, HEAD did not move during the run, and none of its material bindings is unavailable.
-  - No module is reached through a symlink.
+  - It recorded `material_clean`: its own working copy matched its head when it started and when it ended, HEAD did not move during the run, and none of its material bindings is unavailable. A run that did not validate its recorded head records every material binding as unavailable.
+  - No module is reached through a symlink or shares its physical directory with another module.
+  - The head is pinned before planning; selection and the end-of-run comparison use that commit.
   - The working copy is clean in material paths.
 - R3: With a usable base, the run shall select modules with the changed-scope rules over `base.git_head..HEAD`, excluding the `results_path` file itself. It shall also exclude derived administrative records of the engine's closed list (`posemodel.IsAdministrativePath`, the classes material bindings ignore) that are regular files, or absent, at `HEAD`. Otherwise the index and state commits that follow every record would select every module. It shall execute every check of a selected module. Every check of an unselected module whose base result exists and was not skipped shall be carried. A module with any check lacking such a base result shall be selected with the reason `carry: no prior result for <check id>`.
 - R4: A carried check shall keep the base result's outcome, exit code, duration, limit state, output and evidence class. It shall add `carried_from`, the head the check actually ran at, preserved through chained carries, and `carried_generated_at`. Counts shall add `carried`. Carried failures and errors shall count toward the run outcome exactly like executed ones.
 - R5: The record shall add `engine_version` on every run: the engine version plus the VCS revision the binary was built from, when the build records it. With `--carry` it shall also add a `carry` object: `used`, `reason`, `base_head`, `changed` (the number of files) and `selected` (module to reason).
-- R6: The changed set shall read Git names NUL-delimited and without rename pairing, so a quoted or multi-line name keeps its owner and a rename names both its source and its destination. A root module `.` owns the files no other module owns, whatever it declares. Each changed file independently selects its most specific owner, every module beneath it, and every module whose declared dependency contains it, lies beneath it or is the root `.`. The dependency case applies only while that dependency is not a discovered module, which the transitive widening covers. A file no module owns also selects the root module and every module that is not self-contained. Module metadata that does not decode is an error, never a partial reading. A module declared `"selfContained": true` in `.pose/indexes/module-metadata.json` shall not be selected by a change outside every module. It is still selected by changes inside it, by its declared `dependsOn` and by policy. This shall hold for `--changed-from` and `--carry` alike, with the reason recorded for the modules it widens.
+- R6: The changed set shall read Git names NUL-delimited and without rename pairing, so a quoted or multi-line name keeps its owner and a rename names both its source and its destination. A root module `.` owns the files no other module owns, whatever it declares. Each changed file independently selects its most specific owner, every module beneath it, and every module whose declared dependency contains it, lies beneath it or is the root `.`. Every eligible dependency counts, whatever its order. The dependency case applies only while that dependency is not a discovered module, which the transitive widening covers. A file no module owns also selects the root module and every module that is not self-contained. Module metadata that does not decode is an error, never a partial reading. A module declared `"selfContained": true` in `.pose/indexes/module-metadata.json` shall not be selected by a change outside every module. It is still selected by changes inside it, by its declared `dependsOn` and by policy. This shall hold for `--changed-from` and `--carry` alike, with the reason recorded for the modules it widens.
 - R7: Reading the record into the delivery index shall use a check's `carried_from` and `carried_generated_at` as that result's head and time. Every consumer of a result's head therefore judges the commit a carried check really ran at.
 
 ### Non-functional
@@ -162,17 +163,23 @@ Each test is run against the code before its requirement and must fail there.
   - N9: modules aliased through symlinks.
   - N10: `material_clean` ignored HEAD moving during the run.
   The selection was rewritten so that each changed file applies every rule independently. Aliased modules refuse the carry, and a moved HEAD clears `material_clean`. Each regression test failed with its fix mutated out.
+- 2026-11-23: review round 5 (rrn-b07ee93779a65e40) found N11–N14.
+  - N11: the first matching dependency masked later ones.
+  - N12: a moved HEAD kept the material bindings.
+  - N13: case aliases on case-insensitive filesystems.
+  - N14: the head was captured after planning.
+  All four are fixed, each with a regression test that failed when its fix was mutated out.
 
 ### Results summary
 All new and existing tests pass, and the strict matrix is green. In this repository, `pose-mcp` holds 233 of the 236 checks and is high criticality, so carrying saves little here. In an instance with many modules, a change confined to one of them reruns only that module and the modules that are not declared self-contained.
 
 ### Requirement trace
 - R1 [satisfied] test:TestCarryRefusesIncompatibleFlags
-- R2 [satisfied] test:TestCarryFallsBackToAFullRun test:TestCarryRefusesAFilteredBase test:TestCarryRefusesABaseThatValidatedADirtyWorkingCopy test:TestEngineIdentityRefusesModifiedBuilds test:TestCarryRefusesModulesReachedThroughASymlink test:TestValidateHeadMovingDuringTheRunIsNotClean
+- R2 [satisfied] test:TestCarryFallsBackToAFullRun test:TestCarryRefusesAFilteredBase test:TestCarryRefusesABaseThatValidatedADirtyWorkingCopy test:TestEngineIdentityRefusesModifiedBuilds test:TestCarryRefusesModulesReachedThroughASymlink test:TestValidateHeadMovingDuringTheRunIsNotClean test:TestValidateHeadMovingDuringTheRunBindsNoMaterial test:TestCarryRefusesModulesSharingADirectory test:TestCarryPlansAgainstThePinnedHead
 - R3 [satisfied] test:TestCarryRunsOnlyTheChangedModule test:TestCarryRecordFileIsNotAChange test:TestCarryIgnoresDerivedAdministrativeRecords test:TestCarrySelectsAModuleWithoutAPriorResult
 - R4 [satisfied] test:TestCarryKeepsTheOriginalHeadAcrossChainedCarries test:TestCarryKeepsACarriedFailureAFailure
 - R5 [satisfied] test:TestCarryRunsOnlyTheChangedModule
-- R6 [satisfied] test:TestCarryRootChangeRunsEverythingUnlessSelfContained test:TestChangedScopeHonoursSelfContainedModules test:TestCarrySelectsBothSidesOfARename test:TestCarryKeepsTheOwnerOfAQuotedName test:TestCarryRootModuleOwnsRootFiles test:TestCarryDeletedDependencySelectsItsDependents test:TestCarryRejectsUndecodableMetadata test:TestChangedScopeGitlinkAboveADependencySelectsItsDependents test:TestCarryDeletedNestedDependencySelectsItsDependents test:TestCarryRootDependencyIsChangedByRootFiles
+- R6 [satisfied] test:TestCarryRootChangeRunsEverythingUnlessSelfContained test:TestChangedScopeHonoursSelfContainedModules test:TestCarrySelectsBothSidesOfARename test:TestCarryKeepsTheOwnerOfAQuotedName test:TestCarryRootModuleOwnsRootFiles test:TestCarryDeletedDependencySelectsItsDependents test:TestCarryRejectsUndecodableMetadata test:TestChangedScopeGitlinkAboveADependencySelectsItsDependents test:TestCarryDeletedNestedDependencySelectsItsDependents test:TestCarryRootDependencyIsChangedByRootFiles test:TestChangedScopeEvaluatesEveryDeclaredDependency
 - R7 [satisfied] test:TestDeliveryValidationRunReadsTheCarriedHead
 - R8 [satisfied] test:TestCarryRecordFileIsNotAChange
 - R9 [satisfied] test:TestCarryFallsBackToAFullRun

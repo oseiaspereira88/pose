@@ -57,7 +57,7 @@ func (p carryPlan) carriedResult(id string) checkResult {
 
 // planCarry judges the canonical result at resultsPath as a base. A nil
 // selection means every check runs; the record says why.
-func planCarry(root, resultsPath, mode, matrixSHA string, matrix validationMatrix, modules []validationModule) carryPlan {
+func planCarry(root, resultsPath, mode, matrixSHA, head string, matrix validationMatrix, modules []validationModule) carryPlan {
 	plan := carryPlan{record: &carryRecord{}}
 	engine, engineVerifiable := engineIdentityFrom(debug.ReadBuildInfo())
 	unused := func(format string, args ...any) carryPlan {
@@ -85,6 +85,8 @@ func planCarry(root, resultsPath, mode, matrixSHA string, matrix validationMatri
 		return unused("the engine version differs from the canonical result's or was not recorded")
 	case base.GitHead == "" || !safeGitRevRE.MatchString(base.GitHead):
 		return unused("the canonical result records no usable head")
+	case head == "" || !safeGitRevRE.MatchString(head):
+		return unused("the current head cannot be read")
 	}
 	for _, check := range base.Checks {
 		if check.LimitState == "cancelled" {
@@ -106,16 +108,15 @@ func planCarry(root, resultsPath, mode, matrixSHA string, matrix validationMatri
 	}
 	// Selection is lexical: a module reached through a symlink aliases another
 	// path, so its inputs cannot be told apart (review round 4, N9).
-	for _, module := range modules {
-		resolved, err := filepath.EvalSymlinks(module.Abs)
-		if err != nil || filepath.Clean(resolved) != filepath.Clean(module.Abs) {
-			return unused("module %s is reached through a symlink, so its changes cannot be attributed", module.Rel)
-		}
+	// Two modules sharing one physical directory (a case alias on a
+	// case-insensitive filesystem) alias each other too (review round 5, N13).
+	if reason := aliasedModule(modules, filepath.EvalSymlinks, os.Stat); reason != "" {
+		return unused("%s", reason)
 	}
-	if err := posemodel.RawGit("-C", root, "merge-base", "--is-ancestor", base.GitHead, "HEAD").Run(); err != nil {
+	if err := posemodel.RawGit("-C", root, "merge-base", "--is-ancestor", base.GitHead, head).Run(); err != nil {
 		return unused("the canonical result's head %s is not an ancestor of HEAD", base.GitHead)
 	}
-	selection, err := computeChangedScope(root, base.GitHead, "HEAD", modules, carryExclusions(root, base.GitHead, resultsPath)...)
+	selection, err := computeChangedScope(root, base.GitHead, head, modules, carryExclusions(root, base.GitHead, head, resultsPath)...)
 	if err != nil {
 		return unused("changed-scope selection failed: %v", err)
 	}
@@ -150,9 +151,9 @@ func planCarry(root, resultsPath, mode, matrixSHA string, matrix validationMatri
 // records of the engine's closed list (the same classes material bindings
 // ignore) that are still regular files, or gone, at HEAD. A symlink,
 // submodule or directory in a class stays a change.
-func carryExclusions(root, base, resultsPath string) []string {
+func carryExclusions(root, base, head, resultsPath string) []string {
 	exclude := []string{resultsPath}
-	out, err := posemodel.RawGit("-C", root, "diff", "--name-only", "-z", "--no-renames", base, "HEAD", "--").Output()
+	out, err := posemodel.RawGit("-C", root, "diff", "--name-only", "-z", "--no-renames", base, head, "--").Output()
 	if err != nil {
 		return exclude
 	}
@@ -161,7 +162,7 @@ func carryExclusions(root, base, resultsPath string) []string {
 		if file == "" || !posemodel.IsAdministrativePath(file) {
 			continue
 		}
-		entry, err := posemodel.RawGit("-C", root, "ls-tree", "-z", "HEAD", "--", file).Output()
+		entry, err := posemodel.RawGit("-C", root, "ls-tree", "-z", head, "--", file).Output()
 		if err != nil {
 			continue
 		}
@@ -206,4 +207,29 @@ func engineIdentityFrom(info *debug.BuildInfo, ok bool) (string, bool) {
 		}
 	}
 	return identity, !modified
+}
+
+// aliasedModule names a module whose changes cannot be attributed lexically:
+// one reached through a symlink, or one sharing its physical directory with
+// another module, as a case alias does on a case-insensitive filesystem
+// (review rounds 4–5, N9 and N13).
+func aliasedModule(modules []validationModule, resolve func(string) (string, error), stat func(string) (os.FileInfo, error)) string {
+	seen := make([]os.FileInfo, 0, len(modules))
+	for _, module := range modules {
+		resolved, err := resolve(module.Abs)
+		if err != nil || filepath.Clean(resolved) != filepath.Clean(module.Abs) {
+			return fmt.Sprintf("module %s is reached through a symlink, so its changes cannot be attributed", module.Rel)
+		}
+		info, err := stat(module.Abs)
+		if err != nil {
+			return fmt.Sprintf("module %s cannot be read", module.Rel)
+		}
+		for _, other := range seen {
+			if os.SameFile(info, other) {
+				return fmt.Sprintf("module %s shares its directory with another module, so its changes cannot be attributed", module.Rel)
+			}
+		}
+		seen = append(seen, info)
+	}
+	return ""
 }

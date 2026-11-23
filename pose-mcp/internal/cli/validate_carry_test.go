@@ -5,6 +5,8 @@ package cli
 // affect and carrying the rest with the head it really ran at.
 
 import (
+	"crypto/sha256"
+	"encoding/hex"
 	"encoding/json"
 	"os"
 	"os/exec"
@@ -12,6 +14,8 @@ import (
 	"sort"
 	"strings"
 	"testing"
+
+	posemodel "github.com/harne8/pose-mcp/internal/pose"
 )
 
 const carryResults = ".pose/results/delivery-validation.json"
@@ -528,5 +532,91 @@ func TestValidateHeadMovingDuringTheRunIsNotClean(t *testing.T) {
 	_, out, run := f.validate()
 	if run.MaterialClean {
 		t.Fatalf("material_clean = true although HEAD moved during the run: %s", out)
+	}
+}
+
+// Every eligible dependency counts, whatever its order (review round 5, N11).
+func TestChangedScopeEvaluatesEveryDeclaredDependency(t *testing.T) {
+	f := newCarryFixture(t, `{"schemaVersion":1,"modules":{"b":{"selfContained":true,"dependsOn":["a","."]}}}`)
+	f.write("a/nested/go.mod", "module nested\n")
+	f.commit("nested module")
+	f.write("a/nested/changed.go", "package nested\n")
+	f.commit("change nested")
+	_, out := runValidate(t, f.root, "--changed-from", "HEAD~1", "--changed-to", "HEAD", "--explain")
+	if !strings.Contains(out, "+ b: declared dependency . changed: a/nested/changed.go") {
+		t.Fatalf("b must be selected through its root dependency whatever the order: %s", out)
+	}
+}
+
+// A run whose HEAD moved binds no material (review round 5, N12).
+func TestValidateHeadMovingDuringTheRunBindsNoMaterial(t *testing.T) {
+	f := newCarryFixture(t, "")
+	f.write(".pose/specs/2026-11-23-carry-fixture.md", "---\nslug: carry-fixture\nstatus: in-progress\ncreated_at: 2026-11-23\n---\n\n# Spec: carry-fixture\n\n## 3. Technical Plan\n\n### Artifacts\n- created: a/feature.go\n")
+	f.write("a/feature.go", "package a\n")
+	f.git("add", "-A")
+	f.git("-c", "core.hooksPath=/dev/null", "commit", "-qm", "feature\n\nPOSE-Spec: carry-fixture")
+	if _, out, run := f.validate(); len(run.MaterialProvenance) == 0 {
+		t.Fatalf("the fixture must bind material for this test to mean anything: %s", out)
+	}
+	f.commit("record")
+	raw, _ := os.ReadFile(filepath.Join(f.root, ".pose/indexes/validation-matrix.json"))
+	commit := `git -C .. -c user.name=t -c user.email=t@t -c core.hooksPath=/dev/null commit -q --allow-empty -m moved`
+	f.write(".pose/indexes/validation-matrix.json", strings.Replace(string(raw), `"stacks":{"go":{"checks":[`, `"moduleOverrides":{"a":{"checks":[{"name":"moves","program":"sh","args":["-c","`+commit+`"],"severity":"required","evidenceClass":"unit"}]}},"stacks":{"go":{"checks":[`, 1))
+	f.commit("a check that commits")
+	_, _, run := f.validate()
+	if run.MaterialClean {
+		t.Fatal("material_clean must be false")
+	}
+	for spec, binding := range run.MaterialProvenance {
+		if binding != posemodel.MaterialBindingUnavailable {
+			t.Fatalf("binding of %s = %s, want unavailable when HEAD moved", spec, binding)
+		}
+	}
+}
+
+// Two modules on one physical directory alias each other (review round 5,
+// N13); a case alias cannot be made on this filesystem, so stat is faked.
+func TestCarryRefusesModulesSharingADirectory(t *testing.T) {
+	dir := t.TempDir()
+	info, err := os.Stat(dir)
+	if err != nil {
+		t.Fatal(err)
+	}
+	modules := []validationModule{{Rel: "a", Abs: "/repo/a"}, {Rel: "A", Abs: "/repo/A"}}
+	same := func(string) (os.FileInfo, error) { return info, nil }
+	identity := func(p string) (string, error) { return p, nil }
+	if reason := aliasedModule(modules, identity, same); !strings.Contains(reason, "shares its directory") {
+		t.Fatalf("reason = %q, want modules sharing a directory refused", reason)
+	}
+	distinct := func(p string) (os.FileInfo, error) { return os.Stat(map[string]string{"/repo/a": dir, "/repo/A": t.TempDir()}[p]) }
+	if reason := aliasedModule(modules, identity, distinct); reason != "" {
+		t.Fatalf("distinct directories refused: %q", reason)
+	}
+}
+
+// Selection uses the head pinned before planning, not whatever HEAD is later
+// (review round 5, N14).
+func TestCarryPlansAgainstThePinnedHead(t *testing.T) {
+	f := newCarryFixture(t, "")
+	f.baseline()
+	pinned := f.git("rev-parse", "HEAD")
+	f.write("a/changed.go", "package a\n")
+	f.commit("a change after the pin")
+	raw, _ := os.ReadFile(filepath.Join(f.root, ".pose/indexes/validation-matrix.json"))
+	matrix, err := parseValidationMatrix(raw)
+	if err != nil {
+		t.Fatal(err)
+	}
+	modules, err := discoverValidationModules(f.root)
+	if err != nil {
+		t.Fatal(err)
+	}
+	digest := sha256.Sum256(raw)
+	plan := planCarry(f.root, carryResults, "strict", "sha256:"+hex.EncodeToString(digest[:]), pinned, matrix, modules)
+	if plan.record.Used && len(plan.record.Selected) != 0 {
+		t.Fatalf("selected = %v, want nothing changed up to the pinned head", plan.record.Selected)
+	}
+	if !plan.record.Used && !strings.Contains(plan.record.Reason, "engine") {
+		t.Fatalf("carry unused for an unexpected reason: %q", plan.record.Reason)
 	}
 }

@@ -169,8 +169,13 @@ func computeChangedScope(root, base, head string, modules []validationModule, ex
 			if m.Rel != "." && strings.HasPrefix(m.Rel, file+"/") {
 				selectModule(m.Rel, "changed path above the module: "+file)
 			}
-			if dep, ok := declaredDependencyHit(file, meta.Modules[m.Rel].DependsOn); ok && !discovered[dep] {
-				selectModule(m.Rel, "declared dependency "+dep+" changed: "+file)
+			// Every eligible dependency counts, whatever its order (review
+			// round 5, N11).
+			for _, dep := range declaredDependencyHits(file, meta.Modules[m.Rel].DependsOn) {
+				if !discovered[dep] {
+					selectModule(m.Rel, "declared dependency "+dep+" changed: "+file)
+					break
+				}
 			}
 			if owner == "" && (m.Rel == "." || !meta.Modules[m.Rel].SelfContained) {
 				selectModule(m.Rel, "root-level change outside any module: "+file)
@@ -212,15 +217,16 @@ func firstScopeReason(reason string) string {
 	return reason
 }
 
-// declaredDependencyHit returns the declared dependency file changes: one it
-// lies in, one it lies above, or the project root ".", which every file
+// declaredDependencyHits returns every declared dependency file changes: one
+// it lies in, one it lies above, or the project root ".", which every file
 // changes.
-func declaredDependencyHit(file string, deps []string) (string, bool) {
+func declaredDependencyHits(file string, deps []string) []string {
+	var hits []string
 	for _, dep := range deps {
 		dep = filepath.ToSlash(filepath.Clean(dep))
 		if dep == "." || file == dep || strings.HasPrefix(file, dep+"/") || strings.HasPrefix(dep, file+"/") {
-			return dep, true
+			hits = append(hits, dep)
 		}
 	}
-	return "", false
+	return hits
 }
