@@ -1,3 +1,3 @@
-# Strict matrix for pose-validate-carries-unchanged-checks
+# Strict matrix for pose-validate-carries-unchanged-checks, round 2
 
-The [structured result](delivery-validation.json) ran at `e55bde0c` with `validate --carry`. Its base was the full record at `606a0fa8`. The spec report changed a file outside every module, so all six modules ran. The result was 236 of 236 checks passing.
+The [structured result](delivery-validation.json) is the run after the clean-base fix for finding F1 of review round 1. Its earlier base did not record `material_clean`, so `--carry` ran everything. It passed.
