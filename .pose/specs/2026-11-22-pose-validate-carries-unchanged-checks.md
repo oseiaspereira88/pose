@@ -10,7 +10,7 @@ priority: 1
 components: pose-mcp
 task_type: feature
 surface: standard
-delivers:
+delivers: capability:validate-carries-unchanged-checks
 ---
 
 # Spec: pose-validate-carries-unchanged-checks
@@ -84,6 +84,8 @@ Caching individual command outputs, hashing arbitrary inputs of a check, carryin
 - modified: pose-mcp/internal/scaffold/dist/locales/pt-BR/POSE.md
 
 ### Delivery targets
+
+- capability:validate-carries-unchanged-checks module:pose-mcp profile:composed-capability entrypoint:pose-mcp/internal/cli/validate.go
 
 ### API/contract changes
 Additive fields in the structured validation result: `engine_version`, `carry`, `counts.carried`, and per check `carried_from` and `carried_generated_at`. There is a new `validate --carry` flag and a new optional `selfContained` field in module metadata.
@@ -222,6 +224,7 @@ Each test is run against the code before its requirement and must fail there.
 - 2026-11-23: review round 19 (rrn-fc6566de3c7eedf0) approved, but the conclusion was refused at preflight because decision D1 named no requirement. Each decision now states its basis: D1 rests on R3, R4 and R7, D2 on R2 and R10, D3 on R6.
 - 2026-11-23: the round-20 run showed that the rule refusing any base with an unavailable material binding refused every real base: a clean record of this repository holds 77 bindings the engine cannot compute. `material_clean` is the witness, and that rule was removed. The round-20 delegation also failed before running because the reviewer note exceeded 16 KiB, so the note was condensed.
 - 2026-11-23: review round 21 (rrn-20db50998dd91866) found no code defect. Its run failed because `pose assess` wrote inside the sealed checkout. Its draft found N57: the manual still stated the removed rule. All four manual copies were corrected. The dogfood after round 21 carried five of six modules from a clean base with zero changed files; `pose-mcp` ran because of its high-criticality policy.
+- 2026-11-23: review round 22 approved (rrn-41f73b6e7465d0bb, attestation rva-c09024015650a57b). `pose close` then refused with `undeclared-delivery`, because the spec declared no delivery target. The spec now declares `capability:validate-carries-unchanged-checks`, whose entrypoint is the `validate` command.
 
 ### Results summary
 All new and existing tests pass, and the strict matrix is green. In this repository, `pose-mcp` holds 233 of the 236 checks and is high criticality, so carrying saves little here. In an instance with many modules, a change confined to one of them reruns that module, the modules enclosing it and its declared dependents. A changed file that no module owns also reruns every module that is not declared self-contained.
