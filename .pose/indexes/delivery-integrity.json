@@ -1,7 +1,7 @@
 {
   "schema_version": 2,
-  "input_digest": "sha256:d23a6dc205ea2b32d6c7a45bb5f185f7b212a388545d618baf0f675b5c459ea0",
-  "provenance_digest": "sha256:e3261b370e37fd7339d1e4589f5e563120658aec980f87067b063703a2363e0d",
+  "input_digest": "sha256:4270e1d2274f0ffe9466cdbe2b70e47c63923964cf0b23013a2c08b372841fd5",
+  "provenance_digest": "sha256:bd51735543ded7e5af76fd13d64e7aeb14a9f59f576bdc5d88a87f94c3fbeb0b",
   "implied_edges": [
     "changes"
   ],
@@ -8761,6 +8761,13 @@
       "type": "artifact",
       "attributes": {
         "path": ".pose/results/pose-v6-snapshot.json"
+      }
+    },
+    {
+      "id": "artifact:.pose/results/pose-validate-carries-unchanged-checks-matrix.md",
+      "type": "artifact",
+      "attributes": {
+        "path": ".pose/results/pose-validate-carries-unchanged-checks-matrix.md"
       }
     },
     {
@@ -48029,6 +48036,14 @@
       }
     },
     {
+      "id": "change-set:cs-55be6c0fe81a",
+      "type": "change-set",
+      "attributes": {
+        "diff_digest": "sha256:1bf7fc8ed472b3f59e0d0cb64123f7f0ae391ee7cab30bb6011a92c1677b700f",
+        "selector": "trailers:pose-validate-carries-unchanged-checks"
+      }
+    },
+    {
       "id": "change-set:cs-564bb3d4134c",
       "type": "change-set",
       "attributes": {
@@ -49914,14 +49929,6 @@
       "attributes": {
         "diff_digest": "sha256:b52fb2a8de700f112398bccbaf3059be03a1bcd6b5db4436ba7c7ef4f550d2f7",
         "selector": "trailers:pose-delegated-review-contract"
-      }
-    },
-    {
-      "id": "change-set:cs-bddb80098370",
-      "type": "change-set",
-      "attributes": {
-        "diff_digest": "sha256:ee17e4fe65a2548884b34e1588250bcd52468df5ce1be928150531644ca1f0fa",
-        "selector": "trailers:pose-validate-carries-unchanged-checks"
       }
     },
     {
@@ -140538,7 +140545,7 @@
     },
     {
       "from": "spec:pose-validate-carries-unchanged-checks",
-      "to": "change-set:cs-bddb80098370",
+      "to": "change-set:cs-55be6c0fe81a",
       "type": "observed-by"
     },
     {
@@ -224688,6 +224695,140 @@
       }
     },
     {
+      "id": "cs-55be6c0fe81a",
+      "spec": "pose-validate-carries-unchanged-checks",
+      "selector": "trailers:pose-validate-carries-unchanged-checks",
+      "base": "e4ab4d11b5dcf81c98281731f7af707dbb2678fa^",
+      "head": "883eb1ef143c3897e159011c19e8403eb1f022cf",
+      "resolved_base": "dec2e64c1395fafbf8e2a78171e5437c1720bbbf",
+      "resolved_head": "883eb1ef143c3897e159011c19e8403eb1f022cf",
+      "commits": [
+        "e4ab4d11b5dcf81c98281731f7af707dbb2678fa",
+        "be3578024b8c8d082c7168dbf54094d819c9a21b",
+        "2714e759a042834464eaf850c8a5a5c57e211188",
+        "07b8207e206408bf24d57bad4b6959d1eeb4433d",
+        "a99741f9b50181f9977321617043f50d878d54fa",
+        "bc7d67dc679be1a4703ecc646fc1bc10c3f14cb2",
+        "59ff08c9370ad9818702823ccbd6e5d0d3110eaf",
+        "bba0f22217f383f24cffb2178826c113506ab2c4",
+        "275fafa7ae8c80aba4ddc9cbe29ff27c189c7278",
+        "87ed1bb81193f59a4985624148ebaf15bac491da",
+        "282042f31ab4e8cd9755f1c23da9a3e80e993bfa",
+        "606a0fa821f009a91b11dfb282de49fb24516cde",
+        "5375cd816cbba4776632b9e394f7c37c4fd2bcfa",
+        "c4182727845d5d8c1411887ebed11749a6d59c25",
+        "29f6da72e0beee1e42170fd3466ef759e0faa6ab",
+        "e55bde0c82b66dd7891577f45fcdefc146140899",
+        "bc3d545017f60a0dd367f051f30303b6805b1a00",
+        "ed37f1bc27c7754ef6e0772a4edadc62f53c19d8",
+        "883eb1ef143c3897e159011c19e8403eb1f022cf"
+      ],
+      "paths": [
+        {
+          "action": "created",
+          "path": ".pose/adr/2026-11-22-validate-carries-unchanged-checks.md"
+        },
+        {
+          "action": "created",
+          "path": ".pose/results/pose-validate-carries-unchanged-checks-matrix.md"
+        },
+        {
+          "action": "created",
+          "path": ".pose/specs/2026-11-22-pose-validate-carries-unchanged-checks.md"
+        },
+        {
+          "action": "created",
+          "path": "pose-mcp/internal/cli/validate_carry.go"
+        },
+        {
+          "action": "created",
+          "path": "pose-mcp/internal/cli/validate_carry_test.go"
+        },
+        {
+          "action": "created",
+          "path": "pose-mcp/internal/pose/delivery_validation_run_test.go"
+        },
+        {
+          "action": "modified",
+          "path": ".pose/indexes/delivery-integrity.json"
+        },
+        {
+          "action": "modified",
+          "path": ".pose/indexes/generation.json"
+        },
+        {
+          "action": "modified",
+          "path": ".pose/indexes/spec-graph.json"
+        },
+        {
+          "action": "modified",
+          "path": ".pose/results/delivery-validation.json"
+        },
+        {
+          "action": "modified",
+          "path": "POSE.md"
+        },
+        {
+          "action": "modified",
+          "path": "locales/pt-BR/POSE.md"
+        },
+        {
+          "action": "modified",
+          "path": "pose-mcp/internal/cli/help_catalog.go"
+        },
+        {
+          "action": "modified",
+          "path": "pose-mcp/internal/cli/validate.go"
+        },
+        {
+          "action": "modified",
+          "path": "pose-mcp/internal/cli/validate_results.go"
+        },
+        {
+          "action": "modified",
+          "path": "pose-mcp/internal/cli/validate_scope.go"
+        },
+        {
+          "action": "modified",
+          "path": "pose-mcp/internal/pose/delivery_validation_run.go"
+        },
+        {
+          "action": "modified",
+          "path": "pose-mcp/internal/scaffold/dist/POSE.md"
+        },
+        {
+          "action": "modified",
+          "path": "pose-mcp/internal/scaffold/dist/locales/pt-BR/POSE.md"
+        }
+      ],
+      "diff_digest": "sha256:1bf7fc8ed472b3f59e0d0cb64123f7f0ae391ee7cab30bb6011a92c1677b700f",
+      "material_digest": "sha256:1b81458465ac37496c42c48cbba3e368a3b36fc8941d58b7d30494c6ea84b3f4",
+      "material_inputs": {
+        "names": [
+          ".pose/adr/2026-11-22-validate-carries-unchanged-checks.md",
+          ".pose/indexes/delivery-integrity.json",
+          ".pose/indexes/generation.json",
+          ".pose/indexes/spec-graph.json",
+          ".pose/indexes/validation-matrix.json",
+          ".pose/results/delivery-validation.json",
+          ".pose/results/pose-validate-carries-unchanged-checks-matrix.md",
+          ".pose/specs/2026-11-22-pose-validate-carries-unchanged-checks.md",
+          "POSE.md",
+          "locales/pt-BR/POSE.md",
+          "pose-mcp/internal/cli/help_catalog.go",
+          "pose-mcp/internal/cli/validate.go",
+          "pose-mcp/internal/cli/validate_carry.go",
+          "pose-mcp/internal/cli/validate_carry_test.go",
+          "pose-mcp/internal/cli/validate_results.go",
+          "pose-mcp/internal/cli/validate_scope.go",
+          "pose-mcp/internal/pose/delivery_validation_run.go",
+          "pose-mcp/internal/pose/delivery_validation_run_test.go",
+          "pose-mcp/internal/scaffold/dist/POSE.md",
+          "pose-mcp/internal/scaffold/dist/locales/pt-BR/POSE.md"
+        ]
+      }
+    },
+    {
       "id": "cs-564bb3d4134c",
       "spec": "pose-consolidation-batch-15-authoring",
       "selector": "trailers:pose-consolidation-batch-15-authoring",
@@ -270716,133 +270857,6 @@
       }
     },
     {
-      "id": "cs-bddb80098370",
-      "spec": "pose-validate-carries-unchanged-checks",
-      "selector": "trailers:pose-validate-carries-unchanged-checks",
-      "base": "e4ab4d11b5dcf81c98281731f7af707dbb2678fa^",
-      "head": "bc3d545017f60a0dd367f051f30303b6805b1a00",
-      "resolved_base": "dec2e64c1395fafbf8e2a78171e5437c1720bbbf",
-      "resolved_head": "bc3d545017f60a0dd367f051f30303b6805b1a00",
-      "commits": [
-        "e4ab4d11b5dcf81c98281731f7af707dbb2678fa",
-        "be3578024b8c8d082c7168dbf54094d819c9a21b",
-        "2714e759a042834464eaf850c8a5a5c57e211188",
-        "07b8207e206408bf24d57bad4b6959d1eeb4433d",
-        "a99741f9b50181f9977321617043f50d878d54fa",
-        "bc7d67dc679be1a4703ecc646fc1bc10c3f14cb2",
-        "59ff08c9370ad9818702823ccbd6e5d0d3110eaf",
-        "bba0f22217f383f24cffb2178826c113506ab2c4",
-        "275fafa7ae8c80aba4ddc9cbe29ff27c189c7278",
-        "87ed1bb81193f59a4985624148ebaf15bac491da",
-        "282042f31ab4e8cd9755f1c23da9a3e80e993bfa",
-        "606a0fa821f009a91b11dfb282de49fb24516cde",
-        "5375cd816cbba4776632b9e394f7c37c4fd2bcfa",
-        "c4182727845d5d8c1411887ebed11749a6d59c25",
-        "29f6da72e0beee1e42170fd3466ef759e0faa6ab",
-        "e55bde0c82b66dd7891577f45fcdefc146140899",
-        "bc3d545017f60a0dd367f051f30303b6805b1a00"
-      ],
-      "paths": [
-        {
-          "action": "created",
-          "path": ".pose/adr/2026-11-22-validate-carries-unchanged-checks.md"
-        },
-        {
-          "action": "created",
-          "path": ".pose/specs/2026-11-22-pose-validate-carries-unchanged-checks.md"
-        },
-        {
-          "action": "created",
-          "path": "pose-mcp/internal/cli/validate_carry.go"
-        },
-        {
-          "action": "created",
-          "path": "pose-mcp/internal/cli/validate_carry_test.go"
-        },
-        {
-          "action": "created",
-          "path": "pose-mcp/internal/pose/delivery_validation_run_test.go"
-        },
-        {
-          "action": "modified",
-          "path": ".pose/indexes/delivery-integrity.json"
-        },
-        {
-          "action": "modified",
-          "path": ".pose/indexes/generation.json"
-        },
-        {
-          "action": "modified",
-          "path": ".pose/indexes/spec-graph.json"
-        },
-        {
-          "action": "modified",
-          "path": ".pose/results/delivery-validation.json"
-        },
-        {
-          "action": "modified",
-          "path": "POSE.md"
-        },
-        {
-          "action": "modified",
-          "path": "locales/pt-BR/POSE.md"
-        },
-        {
-          "action": "modified",
-          "path": "pose-mcp/internal/cli/help_catalog.go"
-        },
-        {
-          "action": "modified",
-          "path": "pose-mcp/internal/cli/validate.go"
-        },
-        {
-          "action": "modified",
-          "path": "pose-mcp/internal/cli/validate_results.go"
-        },
-        {
-          "action": "modified",
-          "path": "pose-mcp/internal/cli/validate_scope.go"
-        },
-        {
-          "action": "modified",
-          "path": "pose-mcp/internal/pose/delivery_validation_run.go"
-        },
-        {
-          "action": "modified",
-          "path": "pose-mcp/internal/scaffold/dist/POSE.md"
-        },
-        {
-          "action": "modified",
-          "path": "pose-mcp/internal/scaffold/dist/locales/pt-BR/POSE.md"
-        }
-      ],
-      "diff_digest": "sha256:ee17e4fe65a2548884b34e1588250bcd52468df5ce1be928150531644ca1f0fa",
-      "material_digest": "sha256:1b81458465ac37496c42c48cbba3e368a3b36fc8941d58b7d30494c6ea84b3f4",
-      "material_inputs": {
-        "names": [
-          ".pose/adr/2026-11-22-validate-carries-unchanged-checks.md",
-          ".pose/indexes/delivery-integrity.json",
-          ".pose/indexes/generation.json",
-          ".pose/indexes/spec-graph.json",
-          ".pose/indexes/validation-matrix.json",
-          ".pose/results/delivery-validation.json",
-          ".pose/specs/2026-11-22-pose-validate-carries-unchanged-checks.md",
-          "POSE.md",
-          "locales/pt-BR/POSE.md",
-          "pose-mcp/internal/cli/help_catalog.go",
-          "pose-mcp/internal/cli/validate.go",
-          "pose-mcp/internal/cli/validate_carry.go",
-          "pose-mcp/internal/cli/validate_carry_test.go",
-          "pose-mcp/internal/cli/validate_results.go",
-          "pose-mcp/internal/cli/validate_scope.go",
-          "pose-mcp/internal/pose/delivery_validation_run.go",
-          "pose-mcp/internal/pose/delivery_validation_run_test.go",
-          "pose-mcp/internal/scaffold/dist/POSE.md",
-          "pose-mcp/internal/scaffold/dist/locales/pt-BR/POSE.md"
-        ]
-      }
-    },
-    {
       "id": "cs-bed8f2e21704",
       "spec": "pose-index-recovery-and-close-scope-consistency",
       "selector": "trailers:pose-index-recovery-and-close-scope-consistency",
@@ -312721,6 +312735,16 @@
       "remediation": "correct the exact path or commit the artifact before closeout"
     },
     {
+      "id": "dif-056457aaf38a",
+      "code": "undeclared-delivery",
+      "severity": "error",
+      "spec": "pose-validate-carries-unchanged-checks",
+      "path": "pose-mcp/internal/cli/help_catalog.go",
+      "change_set": "cs-55be6c0fe81a",
+      "message": "changed delivery root pose-mcp/internal/cli has no delivery declaration",
+      "remediation": "declare a typed delivery target or narrow the attributed change set"
+    },
+    {
       "id": "dif-05c764e2ef58",
       "code": "action-mismatch",
       "severity": "error",
@@ -312809,16 +312833,6 @@
       "remediation": "add a machine-parseable ### Artifacts section"
     },
     {
-      "id": "dif-0ae95b4d5658",
-      "code": "undeclared-delivery",
-      "severity": "error",
-      "spec": "pose-validate-carries-unchanged-checks",
-      "path": "pose-mcp/internal/cli/validate.go",
-      "change_set": "cs-bddb80098370",
-      "message": "changed delivery root pose-mcp/internal/cli has no delivery declaration",
-      "remediation": "declare a typed delivery target or narrow the attributed change set"
-    },
-    {
       "id": "dif-0b446105b649",
       "code": "existence",
       "severity": "error",
@@ -312842,6 +312856,16 @@
       "path": "pose-mcp/internal/cli/docs_test.go",
       "message": "governed tracked path has no spec provenance claim",
       "remediation": "backfill an explicit claim or add an exact reviewed exclusion"
+    },
+    {
+      "id": "dif-0b93a7f1be43",
+      "code": "undeclared-delivery",
+      "severity": "error",
+      "spec": "pose-validate-carries-unchanged-checks",
+      "path": "pose-mcp/internal/cli/validate_carry_test.go",
+      "change_set": "cs-55be6c0fe81a",
+      "message": "changed delivery root pose-mcp/internal/cli has no delivery declaration",
+      "remediation": "declare a typed delivery target or narrow the attributed change set"
     },
     {
       "id": "dif-0bbfde0b136b",
@@ -313047,16 +313071,6 @@
       "remediation": "no Git change sets are attributed to spec pose-release-shared-sufficiency-contract (ensure commits carry 'POSE-Spec: pose-release-shared-sufficiency-contract' trailer or generate report with pose report)"
     },
     {
-      "id": "dif-1a17ac08051e",
-      "code": "undeclared-delivery",
-      "severity": "error",
-      "spec": "pose-validate-carries-unchanged-checks",
-      "path": "pose-mcp/internal/cli/validate_results.go",
-      "change_set": "cs-bddb80098370",
-      "message": "changed delivery root pose-mcp/internal/cli has no delivery declaration",
-      "remediation": "declare a typed delivery target or narrow the attributed change set"
-    },
-    {
       "id": "dif-1a81fdc75729",
       "code": "legacy-narrative",
       "severity": "info",
@@ -313201,13 +313215,23 @@
       "remediation": "backfill an explicit claim or add an exact reviewed exclusion"
     },
     {
-      "id": "dif-244924a86c8c",
+      "id": "dif-23ddbf4a49dd",
       "code": "undeclared-delivery",
       "severity": "error",
       "spec": "pose-validate-carries-unchanged-checks",
       "path": "pose-mcp/internal/cli/validate_carry.go",
-      "change_set": "cs-bddb80098370",
+      "change_set": "cs-55be6c0fe81a",
       "message": "changed delivery root pose-mcp/internal/cli has no delivery declaration",
+      "remediation": "declare a typed delivery target or narrow the attributed change set"
+    },
+    {
+      "id": "dif-2423c1f5ffba",
+      "code": "undeclared-delivery",
+      "severity": "error",
+      "spec": "pose-validate-carries-unchanged-checks",
+      "path": "pose-mcp/internal/pose/delivery_validation_run_test.go",
+      "change_set": "cs-55be6c0fe81a",
+      "message": "changed delivery root pose-mcp/internal/pose has no delivery declaration",
       "remediation": "declare a typed delivery target or narrow the attributed change set"
     },
     {
@@ -314014,6 +314038,16 @@
       "remediation": "declare the exact action or narrow the attributed change set"
     },
     {
+      "id": "dif-59e2cc120ec0",
+      "code": "undeclared-delivery",
+      "severity": "error",
+      "spec": "pose-validate-carries-unchanged-checks",
+      "path": "pose-mcp/internal/cli/validate_results.go",
+      "change_set": "cs-55be6c0fe81a",
+      "message": "changed delivery root pose-mcp/internal/cli has no delivery declaration",
+      "remediation": "declare a typed delivery target or narrow the attributed change set"
+    },
+    {
       "id": "dif-5a09f7303eca",
       "code": "action-mismatch",
       "severity": "error",
@@ -314110,16 +314144,6 @@
       "path": "pose-mcp/internal/pose/release_evidence_replay_test.go",
       "message": "declared current artifact is not tracked at the selected head",
       "remediation": "correct the exact path or commit the artifact before closeout"
-    },
-    {
-      "id": "dif-5ea9431d96e1",
-      "code": "undeclared-delivery",
-      "severity": "error",
-      "spec": "pose-validate-carries-unchanged-checks",
-      "path": "pose-mcp/internal/cli/help_catalog.go",
-      "change_set": "cs-bddb80098370",
-      "message": "changed delivery root pose-mcp/internal/cli has no delivery declaration",
-      "remediation": "declare a typed delivery target or narrow the attributed change set"
     },
     {
       "id": "dif-5f77273806ea",
@@ -314333,6 +314357,16 @@
       "path": ".pose/roadmaps/delegated-review.md",
       "message": "declared artifact action is absent from the attributed Git change sets",
       "remediation": "no Git change sets are attributed to spec pose-planning-and-release-narrative-reconciliation (ensure commits carry 'POSE-Spec: pose-planning-and-release-narrative-reconciliation' trailer or generate report with pose report)"
+    },
+    {
+      "id": "dif-6b7e8ac0d021",
+      "code": "undeclared-delivery",
+      "severity": "error",
+      "spec": "pose-validate-carries-unchanged-checks",
+      "path": "pose-mcp/internal/cli/validate_scope.go",
+      "change_set": "cs-55be6c0fe81a",
+      "message": "changed delivery root pose-mcp/internal/cli has no delivery declaration",
+      "remediation": "declare a typed delivery target or narrow the attributed change set"
     },
     {
       "id": "dif-6bc7f24712f2",
@@ -314692,16 +314726,6 @@
       "remediation": "no Git change sets are attributed to spec pose-residual-nature-commitment-and-effect (ensure commits carry 'POSE-Spec: pose-residual-nature-commitment-and-effect' trailer or generate report with pose report)"
     },
     {
-      "id": "dif-7e1663b119db",
-      "code": "undeclared-delivery",
-      "severity": "error",
-      "spec": "pose-validate-carries-unchanged-checks",
-      "path": "pose-mcp/internal/cli/validate_carry_test.go",
-      "change_set": "cs-bddb80098370",
-      "message": "changed delivery root pose-mcp/internal/cli has no delivery declaration",
-      "remediation": "declare a typed delivery target or narrow the attributed change set"
-    },
-    {
       "id": "dif-7f15c514a049",
       "code": "existence",
       "severity": "error",
@@ -314933,16 +314957,6 @@
       "path": "pose-mcp/internal/pose/security_scan.go",
       "message": "governed tracked path has no spec provenance claim",
       "remediation": "backfill an explicit claim or add an exact reviewed exclusion"
-    },
-    {
-      "id": "dif-909fd3718a2a",
-      "code": "undeclared-delivery",
-      "severity": "error",
-      "spec": "pose-validate-carries-unchanged-checks",
-      "path": "pose-mcp/internal/pose/delivery_validation_run.go",
-      "change_set": "cs-bddb80098370",
-      "message": "changed delivery root pose-mcp/internal/pose has no delivery declaration",
-      "remediation": "declare a typed delivery target or narrow the attributed change set"
     },
     {
       "id": "dif-91239b597844",
@@ -316522,6 +316536,16 @@
       "remediation": "correct the exact path or commit the artifact before closeout"
     },
     {
+      "id": "dif-ead85a4a8bd2",
+      "code": "undeclared-delivery",
+      "severity": "error",
+      "spec": "pose-validate-carries-unchanged-checks",
+      "path": "pose-mcp/internal/cli/validate.go",
+      "change_set": "cs-55be6c0fe81a",
+      "message": "changed delivery root pose-mcp/internal/cli has no delivery declaration",
+      "remediation": "declare a typed delivery target or narrow the attributed change set"
+    },
+    {
       "id": "dif-eae6598a04e2",
       "code": "orphan",
       "severity": "warning",
@@ -316685,22 +316709,22 @@
       "remediation": "declare a typed delivery target or narrow the attributed change set"
     },
     {
+      "id": "dif-f2c124d33a81",
+      "code": "undeclared-delivery",
+      "severity": "error",
+      "spec": "pose-validate-carries-unchanged-checks",
+      "path": "pose-mcp/internal/pose/delivery_validation_run.go",
+      "change_set": "cs-55be6c0fe81a",
+      "message": "changed delivery root pose-mcp/internal/pose has no delivery declaration",
+      "remediation": "declare a typed delivery target or narrow the attributed change set"
+    },
+    {
       "id": "dif-f2d0d6ea39e2",
       "code": "orphan",
       "severity": "warning",
       "path": "docs-site/docs/assets/og-card.png",
       "message": "governed tracked path has no spec provenance claim",
       "remediation": "backfill an explicit claim or add an exact reviewed exclusion"
-    },
-    {
-      "id": "dif-f2ff43073c45",
-      "code": "undeclared-delivery",
-      "severity": "error",
-      "spec": "pose-validate-carries-unchanged-checks",
-      "path": "pose-mcp/internal/cli/validate_scope.go",
-      "change_set": "cs-bddb80098370",
-      "message": "changed delivery root pose-mcp/internal/cli has no delivery declaration",
-      "remediation": "declare a typed delivery target or narrow the attributed change set"
     },
     {
       "id": "dif-f3181e84ea77",
@@ -316913,16 +316937,6 @@
       "path": "pose-mcp/internal/cli/lintspec.go",
       "change_set": "cs-a3a7991407a9",
       "message": "changed delivery root pose-mcp/internal/cli has no delivery declaration",
-      "remediation": "declare a typed delivery target or narrow the attributed change set"
-    },
-    {
-      "id": "dif-fe790898553e",
-      "code": "undeclared-delivery",
-      "severity": "error",
-      "spec": "pose-validate-carries-unchanged-checks",
-      "path": "pose-mcp/internal/pose/delivery_validation_run_test.go",
-      "change_set": "cs-bddb80098370",
-      "message": "changed delivery root pose-mcp/internal/pose has no delivery declaration",
       "remediation": "declare a typed delivery target or narrow the attributed change set"
     },
     {
