@@ -1,8 +1,8 @@
 ---
 slug: pose-validate-carries-unchanged-checks
-status: in-progress
+status: done
 created_at: 2026-11-22
-completed_at:
+completed_at: 2026-11-23
 supersedes:
 depends_on: pose-changed-scope-validation, pose-validation-evidence-material-binding
 remediates:
