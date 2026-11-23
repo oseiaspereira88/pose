@@ -1,3 +1,3 @@
-# Strict matrix for pose-validate-carries-unchanged-checks, round 19
+# Strict matrix for pose-validate-carries-unchanged-checks, round 20
 
-The [structured result](delivery-validation.json) is the run after the fix for finding N52 of review round 18. The engine changed, so `--carry` ran everything. It passed.
+The [structured result](delivery-validation.json) is the `--carry` run after the spec gave each decision its basis. No code changed since round 19.
