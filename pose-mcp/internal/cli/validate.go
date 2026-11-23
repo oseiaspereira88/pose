@@ -1430,7 +1430,9 @@ func cmdValidateWithStore(store posemodel.Store, args []string, stdout, stderr i
 	if head, err := gitOutputBounded(root, 1024, "rev-parse", "HEAD"); err == nil {
 		endHead = strings.TrimSpace(string(head))
 	}
-	run.MaterialClean = startedClean && endedClean && run.GitHead != "" && endHead == run.GitHead
+	// Untracked material created while checks ran counts too (review round 8,
+	// N21): only ignored files may differ from the recorded head.
+	run.MaterialClean = startedClean && endedClean && materialWorktreeClean(root) && run.GitHead != "" && endHead == run.GitHead
 	// A run that did not validate its recorded head binds no material: its
 	// bindings would let a later tree make a misattributed pass current again
 	// (review round 5, N12).

@@ -758,3 +758,83 @@ func TestCarryRefusesASymlinkFromAModuleToAnUnownedPath(t *testing.T) {
 		t.Fatalf("carry = %+v, want a module's outward symlink refused", run.Carry)
 	}
 }
+
+// Configuration never hides a changed gitlink (review round 8, N23).
+func TestChangedScopeIgnoresSubmoduleHidingConfiguration(t *testing.T) {
+	t.Setenv("GIT_CONFIG_COUNT", "1")
+	t.Setenv("GIT_CONFIG_KEY_0", "diff.ignoreSubmodules")
+	t.Setenv("GIT_CONFIG_VALUE_0", "all")
+	TestChangedScopeGitlinkAboveADependencySelectsItsDependents(t)
+}
+
+// Untracked material created while checks run means the run did not validate
+// its recorded head (review round 8, N21).
+func TestValidateUntrackedMaterialCreatedDuringTheRunIsNotClean(t *testing.T) {
+	f := newCarryFixture(t, "")
+	raw, _ := os.ReadFile(filepath.Join(f.root, ".pose/indexes/validation-matrix.json"))
+	f.write(".pose/indexes/validation-matrix.json", strings.Replace(string(raw), `"stacks"`, `"moduleOverrides":{"a":{"checks":[{"name":"writes","program":"sh","args":["-c","echo x > created.go"],"severity":"required","evidenceClass":"unit"}]}},"stacks"`, 1))
+	f.commit("a check that writes an input")
+	_, out, run := f.validate()
+	if run.MaterialClean {
+		t.Fatalf("material_clean = true although the run created untracked material: %s", out)
+	}
+}
+
+// Symlinks inside a submodule are scanned at its recorded commit (review
+// round 8, N20).
+func TestCarryRefusesAnAliasingSymlinkInsideASubmodule(t *testing.T) {
+	f := newCarryFixture(t, `{"schemaVersion":1,"modules":{"b":{"selfContained":true,"dependsOn":["sub/link/input"]}}}`)
+	sub := filepath.Join(f.root, "sub")
+	if err := os.MkdirAll(sub, 0o755); err != nil {
+		t.Fatal(err)
+	}
+	run := func(dir string, args ...string) {
+		cmd := exec.Command("git", append([]string{"-C", dir}, args...)...)
+		cmd.Env = append(os.Environ(), "GIT_AUTHOR_NAME=t", "GIT_AUTHOR_EMAIL=t@t", "GIT_COMMITTER_NAME=t", "GIT_COMMITTER_EMAIL=t@t", "GIT_CONFIG_GLOBAL=/dev/null")
+		if out, err := cmd.CombinedOutput(); err != nil {
+			t.Fatalf("git %v: %v %s", args, err, out)
+		}
+	}
+	run(sub, "init", "-q")
+	if err := os.Symlink("../a", filepath.Join(sub, "link")); err != nil {
+		t.Fatal(err)
+	}
+	run(sub, "add", "-A")
+	run(sub, "-c", "core.hooksPath=/dev/null", "commit", "-qm", "link out of the submodule")
+	f.commit("sub as a gitlink")
+	if links, _ := gitlinks(f.root, "HEAD"); links["sub"] == "" {
+		t.Fatalf("the fixture must track sub as a gitlink: %v", links)
+	}
+	f.baseline()
+	f.write("a/changed.go", "package a\n")
+	f.commit("change a")
+	_, _, result := f.validate("--carry")
+	if result.Carry == nil || result.Carry.Used || !strings.Contains(result.Carry.Reason, "symlink sub/link") {
+		t.Fatalf("carry = %+v, want the submodule's aliasing symlink refused", result.Carry)
+	}
+}
+
+// A case-folded directory is detected inside a case-sensitive filesystem
+// (review round 8, N22); faked, since this filesystem does not fold.
+func TestCarryDetectsACaseFoldedDirectory(t *testing.T) {
+	dir := t.TempDir()
+	if err := os.WriteFile(filepath.Join(dir, "input"), []byte("x"), 0o644); err != nil {
+		t.Fatal(err)
+	}
+	info, err := os.Stat(filepath.Join(dir, "input"))
+	if err != nil {
+		t.Fatal(err)
+	}
+	folding := func(p string) (os.FileInfo, error) {
+		if strings.EqualFold(filepath.Base(p), "input") {
+			return info, nil
+		}
+		return os.Stat(p)
+	}
+	if !casefoldedDirectory(dir, os.ReadDir, folding) {
+		t.Fatal("a directory where INPUT names input must read as case-folded")
+	}
+	if casefoldedDirectory(dir, os.ReadDir, os.Stat) {
+		t.Fatal("a case-sensitive directory read as case-folded")
+	}
+}

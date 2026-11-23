@@ -85,7 +85,8 @@ func computeChangedScope(root, base, head string, modules []validationModule, ex
 	// NUL-delimited and without rename pairing: a quoted or multi-line name
 	// keeps its owner, and a rename names both its source and its destination
 	// (review round 2, N1 and N3).
-	gitArgs := []string{"-C", root, "diff", "--name-only", "-z", "--no-renames", base}
+	// Configuration never hides a changed gitlink (review round 8, N23).
+	gitArgs := []string{"-C", root, "-c", "diff.ignoreSubmodules=none", "diff", "--ignore-submodules=none", "--name-only", "-z", "--no-renames", base}
 	if head != "" {
 		gitArgs = append(gitArgs, head)
 	}

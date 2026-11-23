@@ -14,6 +14,7 @@ import (
 	"path/filepath"
 	"runtime/debug"
 	"strings"
+	"unicode"
 
 	posemodel "github.com/harne8/pose-mcp/internal/pose"
 	"github.com/harne8/pose-mcp/internal/version"
@@ -122,6 +123,14 @@ func planCarry(root, resultsPath, mode, matrixSHA, head string, matrix validatio
 	if err != nil {
 		return unused("changed-scope selection failed: %v", err)
 	}
+	// Symlinks inside a submodule hide behind its gitlink (review round 8,
+	// N20): scan each checked-out submodule at its recorded commit, and refuse
+	// when a module or a dependency lies in one that cannot be scanned.
+	if reason, err := submoduleAliases(root, head, modules, meta); err != nil {
+		return unused("submodules cannot be read: %v", err)
+	} else if reason != "" {
+		return unused("%s", reason)
+	}
 	if link, err := aliasingSymlink(root, head, modules, meta); err != nil {
 		return unused("tracked symlinks cannot be read: %v", err)
 	} else if link != "" {
@@ -129,6 +138,13 @@ func planCarry(root, resultsPath, mode, matrixSHA, head string, matrix validatio
 	}
 	if caseInsensitiveFilesystem(root, os.Stat) {
 		return unused("the filesystem is case-insensitive, so changes cannot be attributed to modules")
+	}
+	// A case-folded directory inside a case-sensitive filesystem is an alias
+	// too (review round 8, N22).
+	for _, dir := range carryRelevantDirs(root, modules, meta) {
+		if casefoldedDirectory(dir, os.ReadDir, os.Stat) {
+			return unused("directory %s folds case, so changes cannot be attributed to modules", dir)
+		}
 	}
 	// Check ids must be unique: two checks sharing an id would share one base
 	// result (review round 7, N19).
@@ -182,7 +198,7 @@ func planCarry(root, resultsPath, mode, matrixSHA, head string, matrix validatio
 // submodule or directory in a class stays a change.
 func carryExclusions(root, base, head, resultsPath string) []string {
 	exclude := []string{resultsPath}
-	out, err := posemodel.RawGit("-C", root, "diff", "--name-only", "-z", "--no-renames", base, head, "--").Output()
+	out, err := posemodel.RawGit("-C", root, "-c", "diff.ignoreSubmodules=none", "diff", "--ignore-submodules=none", "--name-only", "-z", "--no-renames", base, head, "--").Output()
 	if err != nil {
 		return exclude
 	}
@@ -270,7 +286,13 @@ func aliasedModule(modules []validationModule, resolve func(string) (string, err
 // either side already selects the root module and every module that is not
 // self-contained.
 func aliasingSymlink(root, head string, modules []validationModule, meta scopeMetadata) (string, error) {
-	out, err := posemodel.RawGit("-C", root, "ls-tree", "-r", "-z", head).Output()
+	return aliasingSymlinkIn(root, root, head, "", modules, meta)
+}
+
+// aliasingSymlinkIn scans the tree of the repository at repo, at commit, whose
+// paths sit under prefix in the project.
+func aliasingSymlinkIn(root, repo, commit, prefix string, modules []validationModule, meta scopeMetadata) (string, error) {
+	out, err := posemodel.RawGit("-C", repo, "ls-tree", "-r", "-z", commit).Output()
 	if err != nil {
 		return "", err
 	}
@@ -305,8 +327,8 @@ func aliasingSymlink(root, head string, modules []validationModule, meta scopeMe
 		if len(fields) != 3 {
 			return "", fmt.Errorf("unexpected tree entry %q", entry)
 		}
-		link := entry[tab+1:]
-		blob, err := posemodel.RawGit("-C", root, "cat-file", "blob", fields[2]).Output()
+		link := path.Join(prefix, entry[tab+1:])
+		blob, err := posemodel.RawGit("-C", repo, "cat-file", "blob", fields[2]).Output()
 		if err != nil {
 			return "", err
 		}
@@ -347,4 +369,138 @@ func duplicateCheckID(matrix validationMatrix, modules []validationModule) strin
 		}
 	}
 	return ""
+}
+
+// gitlinks lists the gitlinks of a tree: path and recorded commit.
+func gitlinks(repo, commit string) (map[string]string, error) {
+	out, err := posemodel.RawGit("-C", repo, "ls-tree", "-r", "-z", commit).Output()
+	if err != nil {
+		return nil, err
+	}
+	links := map[string]string{}
+	for _, entry := range strings.Split(string(out), "\x00") {
+		if !strings.HasPrefix(entry, "160000 ") {
+			continue
+		}
+		tab := strings.IndexByte(entry, '\t')
+		fields := strings.Fields(entry[:max(tab, 0)])
+		if tab < 0 || len(fields) != 3 {
+			return nil, fmt.Errorf("unexpected tree entry %q", entry)
+		}
+		links[entry[tab+1:]] = fields[2]
+	}
+	return links, nil
+}
+
+// submoduleAliases names a submodule that could hide an alias: one holding a
+// module or a declared dependency that is not checked out at its recorded
+// commit, or that itself has gitlinks, or whose tree tracks an aliasing
+// symlink.
+func submoduleAliases(root, head string, modules []validationModule, meta scopeMetadata) (string, error) {
+	links, err := gitlinks(root, head)
+	if err != nil {
+		return "", err
+	}
+	holds := func(sub string) bool {
+		for _, m := range modules {
+			if m.Rel == sub || strings.HasPrefix(m.Rel, sub+"/") {
+				return true
+			}
+		}
+		for _, module := range meta.Modules {
+			for _, dep := range module.DependsOn {
+				dep = filepath.ToSlash(filepath.Clean(dep))
+				if dep == "." || dep == sub || strings.HasPrefix(dep, sub+"/") || strings.HasPrefix(sub, dep+"/") {
+					return true
+				}
+			}
+		}
+		return false
+	}
+	for sub, commit := range links {
+		if !holds(sub) {
+			continue
+		}
+		repo := filepath.Join(root, filepath.FromSlash(sub))
+		if err := posemodel.RawGit("-C", repo, "cat-file", "-e", commit+"^{commit}").Run(); err != nil {
+			return fmt.Sprintf("submodule %s is not checked out at its recorded commit, so aliases in it cannot be ruled out", sub), nil
+		}
+		nested, err := gitlinks(repo, commit)
+		if err != nil {
+			return "", err
+		}
+		if len(nested) > 0 {
+			return fmt.Sprintf("submodule %s has nested submodules, so aliases in it cannot be ruled out", sub), nil
+		}
+		link, err := aliasingSymlinkIn(root, repo, commit, sub, modules, meta)
+		if err != nil {
+			return "", err
+		}
+		if link != "" {
+			return fmt.Sprintf("the tree tracks symlink %s into or out of a module or a declared dependency, so changes cannot be attributed", link), nil
+		}
+	}
+	return "", nil
+}
+
+// carryRelevantDirs are the directories whose case behaviour decides whether
+// lexical selection is sound: every module directory and the nearest existing
+// directory of every declared dependency.
+func carryRelevantDirs(root string, modules []validationModule, meta scopeMetadata) []string {
+	dirs := []string{}
+	for _, m := range modules {
+		dirs = append(dirs, m.Abs)
+	}
+	for _, module := range meta.Modules {
+		for _, dep := range module.DependsOn {
+			p := filepath.Join(root, filepath.FromSlash(filepath.ToSlash(filepath.Clean(dep))))
+			for {
+				if info, err := os.Stat(p); err == nil && info.IsDir() {
+					dirs = append(dirs, p)
+					break
+				}
+				parent := filepath.Dir(p)
+				if parent == p || len(parent) < len(root) {
+					break
+				}
+				p = parent
+			}
+		}
+	}
+	return dirs
+}
+
+// casefoldedDirectory reports whether dir looks names up without case: an
+// entry spelled with its letters' case swapped names the same file.
+func casefoldedDirectory(dir string, readDir func(string) ([]os.DirEntry, error), stat func(string) (os.FileInfo, error)) bool {
+	entries, err := readDir(dir)
+	if err != nil {
+		return false
+	}
+	for _, entry := range entries {
+		name := entry.Name()
+		swapped := swapCase(name)
+		if swapped == name {
+			continue
+		}
+		original, err := stat(filepath.Join(dir, name))
+		if err != nil {
+			return false
+		}
+		other, err := stat(filepath.Join(dir, swapped))
+		return err == nil && os.SameFile(original, other)
+	}
+	return false
+}
+
+func swapCase(s string) string {
+	return strings.Map(func(r rune) rune {
+		switch {
+		case unicode.IsUpper(r):
+			return unicode.ToLower(r)
+		case unicode.IsLower(r):
+			return unicode.ToUpper(r)
+		}
+		return r
+	}, s)
 }
