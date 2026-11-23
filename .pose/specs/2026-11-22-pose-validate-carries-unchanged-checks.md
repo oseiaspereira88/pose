@@ -113,12 +113,15 @@ An instance that marks a module `selfContained` while its checks read root files
 ## 5. Decisions
 
 ### Decision D1
+- Basis: R3, R4, R7
 A carried result is the base's result, not a new observation. It keeps the head where it ran, and consumers judge that head. The run's material binding is still computed at `HEAD`. This holds only because the selection guarantees that a carried module's inputs did not change between the two heads, under the changed-scope rules and the instance's declarations. See ADR `2026-11-22-validate-carries-unchanged-checks`.
 
 ### Decision D2
+- Basis: R2, R10
 Eligibility compares the whole matrix digest and the engine version instead of per-check definitions. A matrix or engine change reruns everything. That is the existing rule for material bindings, and it keeps the comparison obviously sound.
 
 ### Decision D3
+- Basis: R6
 Out-of-module changes keep selecting every module unless a module declares itself self-contained. Instances opt in per module, so a repository that never declares anything gets today's behaviour.
 
 ## 6. Validation
@@ -216,6 +219,7 @@ Each test is run against the code before its requirement and must fail there.
   All three are fixed, each with a regression test that failed when its fix was mutated out. The first N48 fixture did not isolate the fix and was corrected.
 - 2026-11-23: review round 17 approved in rrn-6741de0e146e3777, but the conclusion was refused for a round-prefixed finding id. The repeat rrn-243366b14aa5fea4 was concluded as changes-requested in rva-b084f3e3849f1ed5 with N50: the metadata was verified and then reread from disk. The carry now selects with one snapshot read from the pinned commit. `TestCarrySelectsWithThePinnedMetadataSnapshot` failed with a disk reread mutated back in. The other repeated finding is F2.
 - 2026-11-23: review round 18 (rrn-5ed84b0f66cce29b, attestation rva-f39a887e59b3aaaa) found N52: an unreadable metadata blob read as absent. N53 restated F2 and N54 restated F1. Absence now comes from the pinned tree, and a listed blob that cannot be read is an error. `TestCarryRefusesAnUnreadableMetadataBlob` failed when the old fallback was mutated back in.
+- 2026-11-23: review round 19 (rrn-fc6566de3c7eedf0) approved, but the conclusion was refused at preflight because decision D1 named no requirement. Each decision now states its basis: D1 rests on R3, R4 and R7, D2 on R2 and R10, D3 on R6.
 
 ### Results summary
 All new and existing tests pass, and the strict matrix is green. In this repository, `pose-mcp` holds 233 of the 236 checks and is high criticality, so carrying saves little here. In an instance with many modules, a change confined to one of them reruns that module, the modules enclosing it and its declared dependents. A changed file that no module owns also reruns every module that is not declared self-contained.
