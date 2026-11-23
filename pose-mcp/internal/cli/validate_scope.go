@@ -76,6 +76,17 @@ func (s scopeSelection) rangeLabel() string {
 // prefers safe execution. Excluded paths (the run's own canonical result) are
 // not changes.
 func computeChangedScope(root, base, head string, modules []validationModule, exclude ...string) (scopeSelection, error) {
+	meta, err := loadScopeMetadata(root)
+	if err != nil {
+		return scopeSelection{Base: base, Head: head, Selected: map[string]string{}}, err
+	}
+	return computeChangedScopeWith(root, base, head, modules, meta, exclude...)
+}
+
+// computeChangedScopeWith selects with the given metadata snapshot, so a
+// caller that verified one snapshot selects with exactly it (review round 17,
+// N50).
+func computeChangedScopeWith(root, base, head string, modules []validationModule, meta scopeMetadata, exclude ...string) (scopeSelection, error) {
 	sel := scopeSelection{Base: base, Head: head, Selected: map[string]string{}}
 	for _, rev := range []string{base, head} {
 		if rev != "" && !safeGitRevRE.MatchString(rev) {
@@ -126,10 +137,6 @@ func computeChangedScope(root, base, head string, modules []validationModule, ex
 	}
 	sort.Strings(sel.Changed)
 
-	meta, err := loadScopeMetadata(root)
-	if err != nil {
-		return sel, err
-	}
 	moduleOf := func(file string) string {
 		match := ""
 		for _, m := range modules {

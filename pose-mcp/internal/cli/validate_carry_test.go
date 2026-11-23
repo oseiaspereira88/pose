@@ -1235,3 +1235,27 @@ func TestValidateNestedSubmodulesAreNotClean(t *testing.T) {
 		t.Fatal("a submodule with nested submodules must not read as clean material")
 	}
 }
+
+// The carry selects with one metadata snapshot read from the pinned commit,
+// never rereading the working copy (review round 17, N50).
+func TestCarrySelectsWithThePinnedMetadataSnapshot(t *testing.T) {
+	f := newCarryFixture(t, `{"schemaVersion":1,"modules":{"b":{"selfContained":true,"dependsOn":["a"]}}}`)
+	head := f.git("rev-parse", "HEAD")
+	f.write(".pose/indexes/module-metadata.json", `{"schemaVersion":1,"modules":{"b":{"selfContained":true}}}`)
+	meta, err := scopeMetadataAt(f.root, head)
+	if err != nil || len(meta.Modules["b"].DependsOn) != 1 {
+		t.Fatalf("metadata at %s = %+v (%v), want the committed dependency", head, meta, err)
+	}
+	modules, err := discoverValidationModules(f.root)
+	if err != nil {
+		t.Fatal(err)
+	}
+	f.write("a/changed.go", "package a\n")
+	sel, err := computeChangedScopeWith(f.root, "HEAD", "", modules, meta)
+	if err != nil {
+		t.Fatal(err)
+	}
+	if _, ok := sel.Selected["b"]; !ok {
+		t.Fatalf("selected = %v, want b selected through the snapshot's dependency despite the edited working metadata", sel.Selected)
+	}
+}

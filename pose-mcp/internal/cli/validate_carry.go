@@ -127,11 +127,12 @@ func planCarry(root, resultsPath, mode, matrixSHA, head string, matrix validatio
 	// (other than the root) or a declared dependency with any other path.
 	// Module metadata is an administrative record, outside the cleanliness
 	// check, so the selection policy must be the pinned head's (review round
-	// 16, N46).
+	// 16, N46): the working copy must match it, and the one snapshot read from
+	// the pinned commit is what every later step uses (review round 17, N50).
 	if differs, err := workingFileDiffersFromHead(root, head, ".pose/indexes/module-metadata.json"); err != nil || differs {
 		return unused("the working module metadata differs from HEAD's, so the selection policy is not the pinned one")
 	}
-	meta, err := loadScopeMetadata(root)
+	meta, err := scopeMetadataAt(root, head)
 	if err != nil {
 		return unused("changed-scope selection failed: %v", err)
 	}
@@ -212,7 +213,7 @@ func planCarry(root, resultsPath, mode, matrixSHA, head string, matrix validatio
 	if err := posemodel.RawGit("-C", root, "merge-base", "--is-ancestor", base.GitHead, head).Run(); err != nil {
 		return unused("the canonical result's head %s is not an ancestor of HEAD", base.GitHead)
 	}
-	selection, err := computeChangedScope(root, base.GitHead, head, modules, carryExclusions(root, base.GitHead, head, resultsPath)...)
+	selection, err := computeChangedScopeWith(root, base.GitHead, head, modules, meta, carryExclusions(root, base.GitHead, head, resultsPath)...)
 	if err != nil {
 		return unused("changed-scope selection failed: %v", err)
 	}
@@ -748,4 +749,21 @@ func movementWitness(root, head string) string {
 		parts = append(parts, fmt.Sprintf("%s=%d", sub, n))
 	}
 	return strings.Join(parts, ",")
+}
+
+// scopeMetadataAt reads the module metadata of commit head: absent is empty,
+// undecodable is an error.
+func scopeMetadataAt(root, head string) (scopeMetadata, error) {
+	var meta scopeMetadata
+	raw, err := posemodel.RawGit("-C", root, "show", head+":.pose/indexes/module-metadata.json").Output()
+	if err != nil {
+		if posemodel.RawGit("-C", root, "cat-file", "-e", head+":.pose/indexes/module-metadata.json").Run() != nil {
+			return meta, nil
+		}
+		return meta, fmt.Errorf("module metadata at %s is unreadable: %v", head, err)
+	}
+	if err := json.Unmarshal(raw, &meta); err != nil {
+		return scopeMetadata{}, fmt.Errorf("module metadata does not decode: %v", err)
+	}
+	return meta, nil
 }
