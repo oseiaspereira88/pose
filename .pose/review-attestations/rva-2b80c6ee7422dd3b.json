@@ -1,0 +1,212 @@
+{
+  "run": {
+    "run_id": "rrn-07b6541ca424d00b",
+    "proof_id": "rrp-393d073a3c54f5b2972e68fb5fa918e9997927459a0b02f5e1df79770871b3fa"
+  },
+  "schema_version": 1,
+  "attestation_id": "rva-2b80c6ee7422dd3b",
+  "bundle_id": "rvb-d89a1063ed5e1278",
+  "bundle_digest": "sha256:d89a1063ed5e12789397218353ee4dcd0c401b4b1a0fab8753866605203ad180",
+  "reviewer": "agent:openai/gpt-6.1-sol",
+  "decision": "approved",
+  "criteria": [
+    {
+      "id": "assumption-integrity",
+      "disposition": "passed",
+      "evidence": "structure:design-36ac800e7cdd7060",
+      "rationale": "Examined D1/D2 and ADR L1/L2. The context is advisory; final conclusion checks authority and identity. The committed index can miss newly discovered findings, with close remaining the final gate. The resealed bundle records a declared implementation execution digest; this review does not claim to authenticate it independently. Full validation uses sealed canonical evidence; focused tests/vet and sandbox probes were rerun."
+    },
+    {
+      "id": "backend-concurrency",
+      "disposition": "passed",
+      "evidence": "integration:pose-mcp/go/writer-coordination-and-atomic-publication-integration",
+      "rationale": "Inspected private context publication before child start and existing dispatch cancellation/cleanup. No new goroutines or shared mutable execution state were introduced."
+    },
+    {
+      "id": "backend-contracts",
+      "disposition": "passed",
+      "evidence": "integration:pose-mcp/go/review-brief-conclusion-rules-integration",
+      "rationale": "Inspected CLI routing/help, bundle/run resolution and dispatch-context contracts. Focused contract regressions passed; implicit and explicitly named own-bundle sandbox checks agree."
+    },
+    {
+      "id": "backend-input-errors",
+      "disposition": "passed",
+      "evidence": "unit:pose-mcp/go/test",
+      "rationale": "Focused regressions passed. Live checks accepted exactly 4194304 bytes, refused oversized stdin/file-reader input and returned actionable mismatched-bundle diagnostics."
+    },
+    {
+      "id": "backend-integration-impact",
+      "disposition": "passed",
+      "evidence": "integration:pose-mcp/go/delegated-review-capability-integration",
+      "rationale": "Reviewed CLI-to-Store routing, dispatch context/CLI environment and conclusion integration; focused dispatch and conclusion-comparison tests and live sandbox probes passed."
+    },
+    {
+      "id": "backend-observability",
+      "disposition": "passed",
+      "evidence": "integration:pose-mcp/go/delegated-output-redaction-diagnostics-integration",
+      "rationale": "Reviewed seal rule/path/remediation messages, overflow errors, bundle-context guidance, named note limits and conclude hints. Existing redaction remains unchanged."
+    },
+    {
+      "id": "compatibility",
+      "disposition": "passed",
+      "evidence": "integration:pose-mcp/go/review-brief-templates-are-immutable-integration",
+      "rationale": "Verified all preexisting template digests are retained and the extracted content-validation body is unchanged from the base. Existing sealed bundles return before new readiness checks. Added CLI/environment contracts and new-seal refusals are explicitly documented."
+    },
+    {
+      "id": "correctness",
+      "disposition": "passed",
+      "evidence": "unit:pose-mcp/go/test",
+      "rationale": "Focused readiness, draft-check, brief, sealed-gate and delegate regressions passed. Independently checked input boundaries, explicit/implicit bundle context, mismatch failures and unchanged validator extraction."
+    },
+    {
+      "id": "design-causality",
+      "disposition": "passed",
+      "evidence": "structure:design-36ac800e7cdd7060",
+      "rationale": "D1 addresses validation drift through shared parsing, round accounting and content checks. D2 moves only declaration/basis checks to new seals, requires mapping owners and preserves final evidence/authority gates.",
+      "mappings": [
+        {
+          "delta": "SD-e71849b4",
+          "basis": "D1",
+          "disposition": "mapped",
+          "rationale": "The ADR records the R3/R4 shared-validation/private-context design and D2's R1/R2 seal timing, alternatives and L1/L2 limits."
+        }
+      ]
+    },
+    {
+      "id": "documentation",
+      "disposition": "passed",
+      "evidence": "integration:pose-mcp/go/review-brief-conclusion-rules-integration",
+      "rationale": "Reviewed help, both manuals, /8 instructions and prior-findings guidance. Added manual text matches both scaffold copies exactly; existing template digests are retained. The dispatching CLI works in the sealed sandbox."
+    },
+    {
+      "id": "operability",
+      "disposition": "passed",
+      "evidence": "integration:pose-mcp/go/typed-diagnostics-integration",
+      "rationale": "Live probes verified actionable overflow and bundle-context diagnostics. Inspected seal remediation, note-size/limit messages and precise conclude commands; no new operational defect found."
+    },
+    {
+      "id": "requirements",
+      "disposition": "passed",
+      "evidence": "unit:pose-mcp/go/test",
+      "rationale": "Focused regressions cover R1 declarations, R2 mapping applicability, R3 shared checking/context/bounds, R4 brief instructions/prior findings and R5/R6 note/conclusion guidance. Live probes corroborate R3; sealed strict validation supplies module-wide evidence."
+    },
+    {
+      "id": "scope",
+      "disposition": "passed",
+      "evidence": "structure:design-36ac800e7cdd7060",
+      "rationale": "Reviewed the amended spec, artifact declarations and capability target. Changes remain within readiness, advisory draft checking and associated dispatch guidance/docs/tests. The checkout head matches the requested range; the new bundle changes implementation identity binding."
+    },
+    {
+      "id": "security",
+      "disposition": "passed",
+      "evidence": "integration:pose-mcp/go/delegated-adapter-containment-integration",
+      "rationale": "Inspected private 0600 context creation, bounded draft input, existing adapter confinement and final signature/identity enforcement. Advisory context cannot authorize an attestation. No new credential exposure or authority bypass established."
+    },
+    {
+      "id": "solution-proportionality",
+      "disposition": "passed",
+      "evidence": "structure:design-36ac800e7cdd7060",
+      "rationale": "Shared validation plus a private snapshot is smaller than a duplicate validator or premature full closeout. One bounded reader and a context-selection condition address the prior transport defects. Making the snapshot authoritative would invalidate this choice. Nominal Basis labels or edited advisory context can satisfy form; meaningful causality remains reviewer judgment and final revalidation protects authority. The adversarial corpus's canned-executor case documents cognition limits; dedicated readiness corpus coverage is absent, while focused negative tests and live input/context probes cover mechanical boundaries."
+    }
+  ],
+  "tools": [
+    {
+      "id": "artifact-check",
+      "disposition": "passed",
+      "evidence": "command:pose artifact-check --spec pose-review-readiness-before-seal --strict --json",
+      "rationale": "Independently executed through POSE_REVIEW_CLI with --strict --json; exit 0 and no scope-specific or error findings."
+    },
+    {
+      "id": "assess-design",
+      "disposition": "not-used",
+      "rationale": "Assessment writers were excluded from the sealed checkout. Inspected sealed structure:design-36ac800e7cdd7060 and mapped its governance delta."
+    },
+    {
+      "id": "assess-discover",
+      "component": "pose-mcp",
+      "disposition": "not-used",
+      "rationale": "Assessment publication was excluded; inspected component source and focused regressions directly."
+    },
+    {
+      "id": "assess-integrate",
+      "disposition": "not-used",
+      "rationale": "Assessment writers were excluded. Inspected CLI/dispatch/conclusion boundaries and sealed integration evidence; ran live sandbox probes."
+    },
+    {
+      "id": "assess-tech-debt",
+      "disposition": "not-used",
+      "rationale": "Assessment writers were excluded. Direct searches found no TODO, FIXME, stub or panic markers in the new readiness/draft-check files."
+    },
+    {
+      "id": "closeout-check",
+      "disposition": "deferred",
+      "rationale": "Requires this review's recorded conclusion; the reviewer must not record an attestation."
+    },
+    {
+      "id": "review-check",
+      "disposition": "deferred",
+      "rationale": "Requires this review's recorded conclusion; the reviewer must not record an attestation."
+    },
+    {
+      "id": "suggest-review",
+      "component": "pose-mcp",
+      "disposition": "passed",
+      "evidence": "command:pose suggest review --path pose-mcp",
+      "rationale": "Independently executed through POSE_REVIEW_CLI; applied security, backend-go and documentation-style rules and the review workflow."
+    },
+    {
+      "id": "surface-check",
+      "disposition": "passed",
+      "evidence": "integration:pose-mcp/go/spec-surface-integration",
+      "rationale": "Independently executed through POSE_REVIEW_CLI with --strict --json; exit 0 and no scope-specific or error findings. Sealed spec-surface integration evidence inspected."
+    },
+    {
+      "id": "validate",
+      "disposition": "passed",
+      "evidence": "unit:pose-mcp/go/test",
+      "rationale": "Pass cites sealed canonical execution, not a fresh full rerun: delivery-validation.json records strict mode, 236 checks and no nonpassing required check. Independently reran focused regressions/vet under the brief's sandbox fallback."
+    },
+    {
+      "id": "validate",
+      "component": "pose-mcp",
+      "disposition": "passed",
+      "evidence": "unit:pose-mcp/go/test",
+      "rationale": "Pass cites sealed pose-mcp canonical validation; full module validation was not rerun here. Independently passed go -C pose-mcp test ./internal/pose ./internal/cli -run 'DraftCheck|SealReadiness|SealRefuses|DelegateNamesTheNoteLimit|Brief|SealedGate|OnlyTheSigning' and go -C pose-mcp vet ./internal/pose ./internal/cli."
+    }
+  ],
+  "evidence_refs": [
+    "delegated-run:rrn-07b6541ca424d00b",
+    "integration:pose-mcp/go/delegated-adapter-containment-integration",
+    "integration:pose-mcp/go/delegated-output-redaction-diagnostics-integration",
+    "integration:pose-mcp/go/delegated-review-capability-integration",
+    "integration:pose-mcp/go/review-brief-conclusion-rules-integration",
+    "integration:pose-mcp/go/review-brief-templates-are-immutable-integration",
+    "integration:pose-mcp/go/typed-diagnostics-integration",
+    "integration:pose-mcp/go/writer-coordination-and-atomic-publication-integration",
+    "structure:design-36ac800e7cdd7060",
+    "unit:pose-mcp/go/test"
+  ],
+  "findings": null,
+  "authority": {
+    "schema_version": 1,
+    "project": "proj.pose-dist",
+    "bundle_digest": "sha256:d89a1063ed5e12789397218353ee4dcd0c401b4b1a0fab8753866605203ad180",
+    "principal": "agent:openai/gpt-6.1-sol",
+    "role": "agent",
+    "review_execution": "rrn-07b6541ca424d00b",
+    "implementation_principal": "agent:anthropic/unknown",
+    "implementation_execution": "sha256:344ac5868944c155772d60a95ef6ff20644580a642e772ad5c92c29428464ff8",
+    "issuer": "b34-local-executor",
+    "issued_at": "2026-11-23T22:31:06Z",
+    "audience": "proj.pose-dist"
+  },
+  "envelope": {
+    "issuer": "b34-local-executor",
+    "subject": "rvb-d89a1063ed5e1278",
+    "algorithm": "ed25519",
+    "public_key": "ck4sApdfePV2GT+hJyAYfJd2qLzeG55P8pevGR0bvZE=",
+    "signature": "z/l18L47nV/4B/A1Ni0RUDmkXVFGn6a2wrp9tWnOCtHNXnNTOkwLNio5/6XyOcFgZ9HMl0cxljBE5f/kOpgDAQ=="
+  },
+  "attested_at": "2026-11-23T22:31:06Z",
+  "path": ".pose/review-attestations/rva-2b80c6ee7422dd3b.json"
+}
