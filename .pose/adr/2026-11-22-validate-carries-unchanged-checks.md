@@ -22,7 +22,7 @@ A module may declare `"selfContained": true` in its metadata. A change outside e
 
 ## Consequences
 
-A change confined to one module reruns that module, its declared dependents and the modules that cannot claim self-containment. Everything else is reused with its true origin visible. Consumers that compare a result's head with a subject head now see carried results as observations of the earlier head, which is accurate. An incorrect `selfContained` declaration can carry a stale result. That risk sits with the instance's explicit declaration and is documented next to it.
+A change confined to one module reruns that module, the modules enclosing it (the root module included), the modules beneath the changed path and its declared dependents. Everything else is reused with its true origin visible. Only a changed file that no module owns widens the run to every module that does not declare itself self-contained. Consumers that compare a result's head with a subject head now see carried results as observations of the earlier head, which is accurate. An incorrect `selfContained` declaration can carry a stale result. That risk sits with the instance's explicit declaration and is documented next to it.
 
 ## Alternatives considered
 

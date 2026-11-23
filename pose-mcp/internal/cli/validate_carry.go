@@ -137,13 +137,23 @@ func planCarry(root, resultsPath, mode, matrixSHA, head string, matrix validatio
 	} else if link != "" {
 		return unused("the tree tracks symlink %s into or out of a module or a declared dependency, so changes cannot be attributed", link)
 	}
+	// A declared dependency outside the repository changes without any change
+	// the selection can see (review round 10, N28).
+	for rel, module := range meta.Modules {
+		for _, dep := range module.DependsOn {
+			clean := filepath.ToSlash(filepath.Clean(dep))
+			if filepath.IsAbs(dep) || path.IsAbs(clean) || clean == ".." || strings.HasPrefix(clean, "../") {
+				return unused("dependency %s of module %s lies outside the repository, so its changes cannot be seen", dep, rel)
+			}
+		}
+	}
 	if caseInsensitiveFilesystem(root, os.Stat) {
 		return unused("the filesystem is case-insensitive, so changes cannot be attributed to modules")
 	}
 	// A case-folded directory inside a case-sensitive filesystem is an alias
 	// too (review round 8, N22).
 	for _, dir := range carryRelevantDirs(root, modules, meta) {
-		if casefoldedDirectory(dir, os.ReadDir, os.Stat) {
+		if casefoldedDirectory(dir, os.ReadDir, os.Lstat) {
 			return unused("directory %s folds case, so changes cannot be attributed to modules", dir)
 		}
 	}
@@ -464,9 +474,12 @@ func carryRelevantDirs(root string, modules []validationModule, meta scopeMetada
 // casefoldedDirectory reports whether dir looks names up without case: an
 // entry spelled with its letters' case swapped names the same file.
 func casefoldedDirectory(dir string, readDir func(string) ([]os.DirEntry, error), stat func(string) (os.FileInfo, error)) bool {
+	// An unreadable directory cannot be shown not to fold. Entries are probed
+	// without following links, and an unusable one is skipped, not taken as
+	// proof (review round 10, N27).
 	entries, err := readDir(dir)
 	if err != nil {
-		return false
+		return true
 	}
 	for _, entry := range entries {
 		name := entry.Name()
@@ -476,8 +489,10 @@ func casefoldedDirectory(dir string, readDir func(string) ([]os.DirEntry, error)
 		}
 		original, err := stat(filepath.Join(dir, name))
 		if err != nil {
-			return false
+			continue
 		}
+		// The first usable entry decides: its swapped spelling names the same
+		// file only where lookups fold case.
 		other, err := stat(filepath.Join(dir, swapped))
 		return err == nil && os.SameFile(original, other)
 	}

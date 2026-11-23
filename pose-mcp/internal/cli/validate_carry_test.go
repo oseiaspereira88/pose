@@ -917,3 +917,50 @@ func TestChangedScopeRootModuleEnclosesEveryModule(t *testing.T) {
 		t.Fatalf("the root module must be selected as the enclosing module, b left: %s", out)
 	}
 }
+
+// An unusable entry does not end the case probe (review round 10, N27).
+func TestCarryCaseProbeSkipsUnusableEntries(t *testing.T) {
+	dir := t.TempDir()
+	if err := os.Symlink("../missing", filepath.Join(dir, "0-dangling")); err != nil {
+		t.Fatal(err)
+	}
+	if err := os.WriteFile(filepath.Join(dir, "input"), []byte("x"), 0o644); err != nil {
+		t.Fatal(err)
+	}
+	info, err := os.Lstat(filepath.Join(dir, "input"))
+	if err != nil {
+		t.Fatal(err)
+	}
+	folding := func(p string) (os.FileInfo, error) {
+		switch filepath.Base(p) {
+		case "0-dangling", "0-DANGLING":
+			return nil, os.ErrNotExist
+		}
+		if strings.EqualFold(filepath.Base(p), "input") {
+			return info, nil
+		}
+		return os.Lstat(p)
+	}
+	if !casefoldedDirectory(dir, os.ReadDir, folding) {
+		t.Fatal("a folding directory must be detected past an unusable first entry")
+	}
+	unreadable := func(string) ([]os.DirEntry, error) { return nil, os.ErrPermission }
+	if !casefoldedDirectory(dir, unreadable, os.Lstat) {
+		t.Fatal("an unreadable directory must not count as case-sensitive")
+	}
+}
+
+// A dependency outside the repository refuses the carry (review round 10,
+// N28).
+func TestCarryRefusesDependenciesOutsideTheRepository(t *testing.T) {
+	for _, dep := range []string{"../shared/input", "/etc/shared"} {
+		f := newCarryFixture(t, `{"schemaVersion":1,"modules":{"b":{"selfContained":true,"dependsOn":["`+dep+`"]}}}`)
+		f.baseline()
+		f.write("a/changed.go", "package a\n")
+		f.commit("change a")
+		_, _, run := f.validate("--carry")
+		if run.Carry == nil || run.Carry.Used || !strings.Contains(run.Carry.Reason, "outside the repository") {
+			t.Fatalf("dependsOn %s: carry = %+v, want an external dependency refused", dep, run.Carry)
+		}
+	}
+}
