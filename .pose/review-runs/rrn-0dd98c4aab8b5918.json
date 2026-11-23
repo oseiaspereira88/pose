@@ -1,0 +1,151 @@
+{
+  "safety": {
+    "schema_version": 1,
+    "profile": "legacy-trusted",
+    "platform": "linux/amd64",
+    "capabilities": {
+      "automatic-expiry": "unavailable",
+      "bounded-capture": "available",
+      "cpu-limit": "unavailable",
+      "credential-filesystem-isolation": "unavailable",
+      "environment-allowlist": "available",
+      "escaped-descendant-termination": "unavailable",
+      "filesystem-isolation": "unavailable",
+      "memory-limit": "unavailable",
+      "network-isolation": "unavailable",
+      "origin-isolation": "unavailable",
+      "parent-termination": "available",
+      "process-group-termination": "available",
+      "shared-git-isolation": "unavailable"
+    },
+    "limitations": [
+      "trusted local executable required; worktree is not a sandbox",
+      "outside writes, transient writes, shared Git and credential files are not isolated",
+      "no memory/CPU quota or control of descendants escaping the process group",
+      "cleanup filesystem calls remain subject to operating-system I/O latency",
+      "legacy compatibility: HOME retained; other ambient credentials excluded"
+    ],
+    "stream_bytes": 8388608,
+    "output_bytes": 65536,
+    "retained_bytes": 16777216,
+    "timeout_ms": 3600000,
+    "max_runs_per_bundle": 3,
+    "retention": "retain-evidence; ttl=0; no automatic deletion",
+    "capture_complete": true,
+    "runtime_id": "pose-review-run-501794006",
+    "operation": {
+      "schema_version": 1,
+      "operation": "review.dispatch.cleanup",
+      "scope": "spec:pose-validate-carries-unchanged-checks",
+      "outcome": "completed",
+      "steps_run": [
+        {
+          "id": "cleanup",
+          "result": "done"
+        }
+      ],
+      "effects": [],
+      "resumable": false
+    }
+  },
+  "provenance": {
+    "execution_state": "started",
+    "planned_wire_digest": "sha256:1c804e213b2bc6761860d4e8e36c9964a1e7352afc8253c5a9fbc483292fda4a",
+    "wire_bytes": 26325,
+    "wire_complete": true,
+    "schema_version": 1,
+    "project": "proj.pose-dist",
+    "audience": "proj.pose-dist",
+    "worktree_digest": "sha256:092ca52378c4c0d0f2b627da8d5031dbb854563bd4b9f2474458710c62a14816",
+    "trust": "executor-attested",
+    "implementation": {
+      "principal": "agent:anthropic/unknown",
+      "execution": "sha256:344ac5868944c155772d60a95ef6ff20644580a642e772ad5c92c29428464ff8",
+      "vendor": "anthropic",
+      "model": "unknown"
+    },
+    "reviewer": {
+      "principal": "agent:openai/gpt-6.1-sol",
+      "vendor": "openai",
+      "model": "gpt-6.1-sol"
+    },
+    "config_digest": "sha256:637a9d88c40dbf75da8525db65c216ace591f828ef25c233358db1a99e70ee31",
+    "command_template_digest": "sha256:e3a23ff8a55e559e954d107a039277628bfc51faa58d523ad6101de7c375ad28",
+    "argv_digest": "sha256:8c1c16901c2a536002cfe6a4bd7720a03976c7b5fa5c757c94d4689cd9c16ebc",
+    "executable_digest": "sha256:0e0c66f50074965a40cbd12f625b0a35963baf41bbd8c201a93e32fddbe2e073",
+    "template_version": "review-brief/7",
+    "wire_digest": "sha256:1c804e213b2bc6761860d4e8e36c9964a1e7352afc8253c5a9fbc483292fda4a",
+    "notes_digest": "sha256:602d6fe2507fcdbbcae9fad18f65a0931d7a98a83b260c155e06d26fba43ea86",
+    "raw_transcript_digest": "sha256:f32afd11e54486dab3bc09a8821850710fc29581301d95806fa6cd3de9e5885e",
+    "raw_output_digest": "sha256:906224290b9415bdf234b2d3451ec7a8e7ee6e8c8480817009e78ccf8620cc1e",
+    "output_source": "file",
+    "output_complete": true
+  },
+  "session_digest": "sha256:fa6ade82c3519e935fd3fb27c82e8f64538a2e3c4900638ea4cb665f1a120260",
+  "tree_digest": "sha256:8afa463fe2bad0aeda1be2d951d47670d19bf5a302bb0582f7cb995c5817a3d2",
+  "brief_notes": "Implementer notes (Claude Opus 5.5, the lead in this session). Use them as context only; the judgment is yours.\n\n- The feature was motivated by the Harne8 batch of 2026-11-22. There, every review round re-ran a 72-check matrix of about 35 minutes, and intermittent suites failed roughly one run in three.\n- In this repository `pose-mcp` holds 233 of the 236 checks and is high criticality, so `--carry` saves little here. The dogfood record at c4182727 carried five of six modules with zero changed files.\n- Please challenge the soundness argument of D1 in particular. A carried result is bound to the material computed at HEAD, and that is only safe when the selection guarantees the carried module's inputs did not change.\n- Please also check the derived-record exclusion (`carryExclusions` with `posemodel.IsAdministrativePath`) and the engine identity, which is the version plus the VCS revision.\n- Report every finding you see in this round, each classified as blocker or follow-up.\n",
+  "ledger_version": 1,
+  "attempt_id": "rat-aed350c464ac7d6c1e99503c987e6b4d1840079590e99177a51d818583546722",
+  "reason": "The first run stopped before review: the sealed subject's index did not include the final record",
+  "schema_version": 1,
+  "run_id": "rrn-0dd98c4aab8b5918",
+  "scope": "spec:pose-validate-carries-unchanged-checks",
+  "bundle_id": "rvb-f509df70749ff77f",
+  "bundle_digest": "sha256:f509df70749ff77f2b7fc6d3cbd46f49ba131520b4c81a6abb9b3d3056da06a6",
+  "sealed_commit": "883eb1ef143c3897e159011c19e8403eb1f022cf",
+  "kind": "review",
+  "brief_digest": "sha256:e532c0bebbd8014846e66fc8abcc7729a9685cbaf88f87e0ed1d9e576343fe33",
+  "adapter": "sol-medium",
+  "vendor": "openai",
+  "model": "gpt-6.1-sol",
+  "started_at": "2026-11-23T01:20:40.374939275Z",
+  "ended_at": "2026-11-23T01:25:07.400832638Z",
+  "exit_code": 0,
+  "status": "failed",
+  "failure": "the run changed files in the sealed worktree (including ignored materialization): [\".pose/assessments/integrations.md\" \".pose/assessments/technical-debt.md\" \".pose/state/integrations.json\" \".pose/state/technical-debt.json\"]",
+  "transcript_digest": "sha256:a427028f0002685098194081c413b2c6e38c6834da45b70b6f363031e28b6eff",
+  "transcript_path": ".pose/review-runs/rrn-0dd98c4aab8b5918.transcript",
+  "output": "decision: changes-requested\n\n**F1 — high, blocker:** [validate_carry.go:91](/var/tmp/pose-work-go/pose-review-run-501794006/worktree/pose-mcp/internal/cli/validate_carry.go:91) checks the current worktree’s cleanliness but never establishes that the base validated its recorded commit.\n\nA full validation can pass against an uncommitted fix while recording the original `git_head` and unavailable material provenance. Restore the original failing source, retain the canonical result, then run `--carry`: selection sees no source changes and carries the pass. The new run assigns current material provenance to that result. This breaks D1’s premise and can turn invalid evidence into current evidence.\n\nReject bases whose validated material cannot be established, and cover this sequence with a regression test. This finding follows from code inspection; the additional reproduction fixture was blocked by unavailable writable scratch space.\n\nThe existing carry and delivery-parser fixtures passed, and `go vet ./...` passed. Full validation did not complete. `artifact-check` reported a range ending at `6be3a6f…`, inconsistent with the requested `883eb1e…`; I stopped verification and cancelled the remaining checks. The draft below therefore **cannot satisfy the required-tool gate**.\n\nRules applied: pose-review workflow, backend-go, security, documentation-style and delivery-evidence. No attestation was recorded.\n\nThe assessment commands unexpectedly modified four derived files: `.pose/assessments/{integrations,technical-debt}.md` and `.pose/state/{integrations,technical-debt}.json`. Restoration was rejected by the read-only sandbox; those modifications remain. No implementation files were changed.\n\n```pose-draft\n{\n  \"schema\": \"pose.review.draft/v1\",\n  \"decision\": \"changes-requested\",\n  \"findings\": [\n    {\n      \"id\": \"F1\",\n      \"severity\": \"high\",\n      \"disposition\": \"blocker\",\n      \"file\": \"pose-mcp/internal/cli/validate_carry.go\",\n      \"line\": 91,\n      \"summary\": \"Carry eligibility establishes only current worktree cleanliness, not that the base validated its recorded HEAD. A pass produced against an uncommitted fix can be carried after restoring failing committed source; the new run then replaces unavailable base provenance with current material provenance. Reject unverifiable base material and add a dirty-base regression fixture.\"\n    }\n  ],\n  \"criteria\": [\n    {\n      \"id\": \"assumption-integrity\",\n      \"disposition\": \"finding\",\n      \"evidence\": \"F1\",\n      \"rationale\": \"Explicit selfContained declarations are a documented instance responsibility. The separate assumption that base results observed base.git_head is unverified and unsafe for dirty baseline runs.\"\n    },\n    {\n      \"id\": \"backend-concurrency\",\n      \"disposition\": \"passed\",\n      \"evidence\": \"integration:pose-mcp/go/validate-concurrent-steps-integration\",\n      \"rationale\": \"Inspected dispatcher exclusion of silent carried entries, serial result accounting and existing cancellation handling. Carried entries do not execute or require worker completion channels.\"\n    },\n    {\n      \"id\": \"backend-contracts\",\n      \"disposition\": \"passed\",\n      \"evidence\": \"integration:pose-mcp/go/delivery-integration\",\n      \"rationale\": \"Inspected additive result fields, canonical-output flag restrictions and legacy parser fallback. Existing records retain their parsing behavior.\"\n    },\n    {\n      \"id\": \"backend-input-errors\",\n      \"disposition\": \"passed\",\n      \"evidence\": \"unit:pose-mcp/go/test\",\n      \"rationale\": \"Inspected incompatible flag refusals, revision confinement and conservative fallback paths; existing carry refusal fixtures passed.\"\n    },\n    {\n      \"id\": \"backend-integration-impact\",\n      \"disposition\": \"finding\",\n      \"evidence\": \"F1\",\n      \"rationale\": \"Delivery parsing combines carried outcomes with newly computed run-level provenance without establishing the base's validated material.\"\n    },\n    {\n      \"id\": \"backend-observability\",\n      \"disposition\": \"passed\",\n      \"evidence\": \"unit:pose-mcp/go/test\",\n      \"rationale\": \"Fallback reasons, selected-module reasons, carry origins and carried outcomes remain available in structured results.\"\n    },\n    {\n      \"id\": \"compatibility\",\n      \"disposition\": \"passed\",\n      \"evidence\": \"unit:pose-mcp/go/test\",\n      \"rationale\": \"Inspected optional JSON fields, unchanged schema number, legacy delivery parsing and explicit --carry restrictions. The CLI and file changes are additive.\"\n    },\n    {\n      \"id\": \"correctness\",\n      \"disposition\": \"finding\",\n      \"evidence\": \"F1\"\n    },\n    {\n      \"id\": \"design-causality\",\n      \"disposition\": \"finding\",\n      \"evidence\": \"F1\",\n      \"rationale\": \"Changed-scope reuse and whole-matrix engine comparison address repeated execution, but D1 also requires a trustworthy initial observation. Current eligibility does not establish that prerequisite.\",\n      \"mappings\": [\n        {\n          \"delta\": \"SD-a9e60b2a\",\n          \"basis\": \"D1\",\n          \"disposition\": \"mapped\",\n          \"rationale\": \"The ADR defines reuse with original observation heads and explains why current material binding depends on unchanged carried inputs; D2 and D3 supply comparison and selection policy.\"\n        }\n      ]\n    },\n    {\n      \"id\": \"documentation\",\n      \"disposition\": \"passed\",\n      \"evidence\": \"integration:pose-mcp/go/distributed-instructions-parity-integration\",\n      \"rationale\": \"Inspected English and Portuguese manual changes, embedded copies and CLI help. They describe implemented flags, eligibility, origins and explicit self-containment risk.\"\n    },\n    {\n      \"id\": \"operability\",\n      \"disposition\": \"passed\",\n      \"evidence\": \"unit:pose-mcp/go/test\",\n      \"rationale\": \"Inspected refusal messages, full-run fallback explanations and --explain selection output. Existing diagnostic paths provide actionable context.\"\n    },\n    {\n      \"id\": \"requirements\",\n      \"disposition\": \"finding\",\n      \"evidence\": \"F1\",\n      \"rationale\": \"The fixtures cover principal R1-R10 behaviors, but the constraints and D1 soundness premise fail when the base observed dirty material.\"\n    },\n    {\n      \"id\": \"scope\",\n      \"disposition\": \"passed\",\n      \"evidence\": \"structure:design-72d43b18e7c9f6a1\",\n      \"rationale\": \"Compared the listed implementation, tests, ADR and documentation against the spec artifacts and affected areas. Changes remain within the approved carry feature.\"\n    },\n    {\n      \"id\": \"security\",\n      \"disposition\": \"finding\",\n      \"evidence\": \"F1\",\n      \"rationale\": \"Revision option confinement is preserved, but the evidence authority boundary permits an unverified base observation to receive fresh material provenance.\"\n    },\n    {\n      \"id\": \"solution-proportionality\",\n      \"disposition\": \"passed\",\n      \"evidence\": \"structure:design-72d43b18e7c9f6a1\",\n      \"rationale\": \"Reusing module selection and comparing the whole matrix is smaller than introducing per-check input manifests or command-output caching. It avoids speculative infrastructure. The choice remains appropriate only when baseline observations and declared module inputs are trustworthy; F1 identifies a missing baseline guard.\"\n    }\n  ],\n  \"tools\": [\n    {\n      \"id\": \"artifact-check\",\n      \"disposition\": \"failed\",\n      \"evidence\": \"command:pose artifact-check --spec pose-validate-carries-unchanged-checks --strict\",\n      \"rationale\": \"Output evaluated a range ending at 6be3a6f7009c1d782198c74a24549f8ec41423df rather than the requested 883eb1ef143c3897e159011c19e8403eb1f022cf. Verification was stopped and the command cancelled.\"\n    },\n    {\n      \"id\": \"assess-design\",\n      \"disposition\": \"passed\",\n      \"evidence\": \"structure:design-72d43b18e7c9f6a1\",\n      \"rationale\": \"Ran the requested design assessment; its structural digest and ADR delta match the sealed structure evidence.\"\n    },\n    {\n      \"id\": \"assess-discover\",\n      \"component\": \"pose-mcp\",\n      \"disposition\": \"not-used\",\n      \"rationale\": \"Avoided further assessment publication after observing derived report mutations during a read-only review.\"\n    },\n    {\n      \"id\": \"assess-integrate\",\n      \"disposition\": \"passed\",\n      \"evidence\": \"command:pose assess integrate\",\n      \"rationale\": \"Completed; reported three unobserved HTTP consumers. These do not identify a defect introduced by this change.\"\n    },\n    {\n      \"id\": \"assess-tech-debt\",\n      \"disposition\": \"failed\",\n      \"evidence\": \"command:pose assess tech-debt\",\n      \"rationale\": \"Command completed but explicitly reported an incomplete scan because two existing spec sources were invalid. No complete debt-assurance claim is made.\"\n    },\n    {\n      \"id\": \"closeout-check\",\n      \"disposition\": \"deferred\",\n      \"rationale\": \"Completion-only tool requires the recorded review conclusion; no attestation was authorized or recorded here.\"\n    },\n    {\n      \"id\": \"review-check\",\n      \"disposition\": \"deferred\",\n      \"rationale\": \"Completion-only tool requires the recorded review conclusion; no attestation was authorized or recorded here.\"\n    },\n    {\n      \"id\": \"suggest-review\",\n      \"component\": \"pose-mcp\",\n      \"disposition\": \"passed\",\n      \"evidence\": \"command:pose suggest review --path pose-mcp\",\n      \"rationale\": \"Resolved backend-go, security and documentation-style rules and consulted them.\"\n    },\n    {\n      \"id\": \"validate\",\n      \"disposition\": \"failed\",\n      \"evidence\": \"command:pose validate --strict\",\n      \"rationale\": \"Started, then cancelled after the validation-binding mismatch was observed. Exited 1 with cancelled checks; no new passing sealed evidence was produced.\"\n    },\n    {\n      \"id\": \"validate\",\n      \"component\": \"pose-mcp\",\n      \"disposition\": \"failed\",\n      \"evidence\": \"command:pose validate --strict --module pose-mcp\",\n      \"rationale\": \"Started, then cancelled after the validation-binding mismatch was observed. Exited 1 with cancelled checks; no new passing sealed evidence was produced.\"\n    }\n  ]\n}\n```",
+  "policy_digest": "sha256:b98e89a0dfe961193c55d1fa1bc18b3d906c3a09839492803795b73f79298f16",
+  "label": "engine-a-review-2",
+  "purpose": "review",
+  "env_removed": [
+    "CLAUDECODE",
+    "CLAUDE_CODE_BRIDGE_SESSION_ID",
+    "CLAUDE_CODE_CHILD_SESSION",
+    "CLAUDE_CODE_ENTRYPOINT",
+    "CLAUDE_CODE_EXECPATH",
+    "CLAUDE_CODE_MESSAGING_SOCKET",
+    "CLAUDE_CODE_MESSAGING_TOKEN",
+    "CLAUDE_CODE_SESSION_ATTENDED",
+    "CLAUDE_CODE_SESSION_ID",
+    "CLAUDE_EFFORT",
+    "CLAUDE_PID"
+  ],
+  "events": "codex-jsonl",
+  "events_digest": "sha256:1429a072f926714c7b31192699d167e7ad8ce24b403ba4c681bb673a44d2a468",
+  "routing": {
+    "requested": "auto",
+    "prefer": "opposite-vendor-of-implementation",
+    "implementation": {
+      "principal": "agent:anthropic/unknown",
+      "vendor": "anthropic",
+      "model": "unknown",
+      "execution_digest": "sha256:344ac5868944c155772d60a95ef6ff20644580a642e772ad5c92c29428464ff8",
+      "source": "detected"
+    },
+    "implementation_from": "bundle",
+    "candidates": [
+      {
+        "agent": "sol-medium",
+        "vendor": "openai",
+        "model": "gpt-6.1-sol",
+        "group": "preferred",
+        "state": "available"
+      }
+    ],
+    "step": "preferred"
+  },
+  "independence_achieved": "different-vendor",
+  "round": 1
+}

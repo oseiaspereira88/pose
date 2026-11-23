@@ -1,0 +1,135 @@
+{
+  "safety": {
+    "schema_version": 1,
+    "profile": "legacy-trusted",
+    "platform": "linux/amd64",
+    "capabilities": {
+      "automatic-expiry": "unavailable",
+      "bounded-capture": "available",
+      "cpu-limit": "unavailable",
+      "credential-filesystem-isolation": "unavailable",
+      "environment-allowlist": "available",
+      "escaped-descendant-termination": "unavailable",
+      "filesystem-isolation": "unavailable",
+      "memory-limit": "unavailable",
+      "network-isolation": "unavailable",
+      "origin-isolation": "unavailable",
+      "parent-termination": "available",
+      "process-group-termination": "available",
+      "shared-git-isolation": "unavailable"
+    },
+    "limitations": [
+      "trusted local executable required; worktree is not a sandbox",
+      "outside writes, transient writes, shared Git and credential files are not isolated",
+      "no memory/CPU quota or control of descendants escaping the process group",
+      "cleanup filesystem calls remain subject to operating-system I/O latency",
+      "legacy compatibility: HOME retained; other ambient credentials excluded"
+    ],
+    "stream_bytes": 8388608,
+    "output_bytes": 65536,
+    "retained_bytes": 16777216,
+    "timeout_ms": 3600000,
+    "max_runs_per_bundle": 3,
+    "retention": "retain-evidence; ttl=0; no automatic deletion",
+    "capture_complete": false,
+    "runtime_id": "pose-review-run-1546451666",
+    "operation": {
+      "schema_version": 1,
+      "operation": "review.dispatch.cleanup",
+      "scope": "spec:pose-validate-carries-unchanged-checks",
+      "outcome": "completed",
+      "steps_run": [
+        {
+          "id": "cleanup",
+          "result": "done"
+        }
+      ],
+      "effects": [],
+      "resumable": false
+    }
+  },
+  "provenance": {
+    "execution_state": "not-started",
+    "planned_wire_digest": "sha256:8c99c2b31cdfb0a6d0f3f97233d05f65f620967634795165d7bf87b7fb39bb74",
+    "wire_bytes": 0,
+    "wire_complete": false,
+    "schema_version": 1,
+    "project": "proj.pose-dist",
+    "audience": "proj.pose-dist",
+    "worktree_digest": "sha256:092ca52378c4c0d0f2b627da8d5031dbb854563bd4b9f2474458710c62a14816",
+    "trust": "executor-attested",
+    "implementation": {
+      "principal": "agent:anthropic/unknown",
+      "execution": "sha256:344ac5868944c155772d60a95ef6ff20644580a642e772ad5c92c29428464ff8",
+      "vendor": "anthropic",
+      "model": "unknown"
+    },
+    "reviewer": {
+      "principal": "agent:openai/gpt-6.1-sol",
+      "vendor": "openai",
+      "model": "gpt-6.1-sol"
+    },
+    "config_digest": "sha256:637a9d88c40dbf75da8525db65c216ace591f828ef25c233358db1a99e70ee31",
+    "command_template_digest": "sha256:e3a23ff8a55e559e954d107a039277628bfc51faa58d523ad6101de7c375ad28",
+    "argv_digest": "",
+    "executable_digest": "",
+    "template_version": "review-brief/7",
+    "wire_digest": "",
+    "notes_digest": "sha256:602d6fe2507fcdbbcae9fad18f65a0931d7a98a83b260c155e06d26fba43ea86",
+    "raw_transcript_digest": "",
+    "raw_output_digest": "",
+    "output_source": "",
+    "output_complete": false
+  },
+  "brief_notes": "Implementer notes (Claude Opus 5.5, the lead in this session). Use them as context only; the judgment is yours.\n\n- The feature was motivated by the Harne8 batch of 2026-11-22. There, every review round re-ran a 72-check matrix of about 35 minutes, and intermittent suites failed roughly one run in three.\n- In this repository `pose-mcp` holds 233 of the 236 checks and is high criticality, so `--carry` saves little here. The dogfood record at c4182727 carried five of six modules with zero changed files.\n- Please challenge the soundness argument of D1 in particular. A carried result is bound to the material computed at HEAD, and that is only safe when the selection guarantees the carried module's inputs did not change.\n- Please also check the derived-record exclusion (`carryExclusions` with `posemodel.IsAdministrativePath`) and the engine identity, which is the version plus the VCS revision.\n- Report every finding you see in this round, each classified as blocker or follow-up.\n",
+  "ledger_version": 1,
+  "attempt_id": "rat-5faa6af5574b21151d4711c5a8500e7377cc83dc97e6a64e2f545556ff8f2fd5",
+  "schema_version": 1,
+  "run_id": "rrn-360343d3dc95895e",
+  "scope": "spec:pose-validate-carries-unchanged-checks",
+  "bundle_id": "rvb-f509df70749ff77f",
+  "bundle_digest": "sha256:f509df70749ff77f2b7fc6d3cbd46f49ba131520b4c81a6abb9b3d3056da06a6",
+  "sealed_commit": "bc3d545017f60a0dd367f051f30303b6805b1a00",
+  "kind": "review",
+  "brief_digest": "sha256:4b3f55fd987ed1d652939501737c12ac211846f8aa1d5fd207fa02cc90971295",
+  "adapter": "sol-medium",
+  "vendor": "openai",
+  "model": "gpt-6.1-sol",
+  "started_at": "2026-11-23T01:12:02.771179823Z",
+  "ended_at": "2026-11-23T01:12:07.025985211Z",
+  "exit_code": -1,
+  "status": "failed",
+  "failure": "sealed checkout blocked: [no passed structured validation evidence is attributed to the review scope]",
+  "transcript_digest": "sha256:e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+  "transcript_path": ".pose/review-runs/rrn-360343d3dc95895e.transcript",
+  "output": "",
+  "policy_digest": "sha256:b98e89a0dfe961193c55d1fa1bc18b3d906c3a09839492803795b73f79298f16",
+  "label": "engine-a-review",
+  "purpose": "review",
+  "events": "codex-jsonl",
+  "events_digest": "sha256:e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+  "routing": {
+    "requested": "auto",
+    "prefer": "opposite-vendor-of-implementation",
+    "implementation": {
+      "principal": "agent:anthropic/unknown",
+      "vendor": "anthropic",
+      "model": "unknown",
+      "execution_digest": "sha256:344ac5868944c155772d60a95ef6ff20644580a642e772ad5c92c29428464ff8",
+      "source": "detected"
+    },
+    "implementation_from": "bundle",
+    "candidates": [
+      {
+        "agent": "sol-medium",
+        "vendor": "openai",
+        "model": "gpt-6.1-sol",
+        "group": "preferred",
+        "state": "available"
+      }
+    ],
+    "step": "preferred"
+  },
+  "independence_achieved": "different-vendor",
+  "round": 1
+}
