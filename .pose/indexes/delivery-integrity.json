@@ -1,7 +1,7 @@
 {
   "schema_version": 2,
-  "input_digest": "sha256:78cad32c475c97d88a5ba00e0e37f15723e006c0d61ee3be31331b4513c77014",
-  "provenance_digest": "sha256:205bc3f74e5bef1a90ec66bc2d0c819cbcc7a01c3a7a5828b319a14457f8e618",
+  "input_digest": "sha256:98c68653fa43d561c9017eb5670df6188b88a10ae4b39ecafcd10d4fce457f9e",
+  "provenance_digest": "sha256:b9f1c7c3e0e17f03741057a9788bc1aa366c0c6df2f906200657fad860530e0f",
   "implied_edges": [
     "changes"
   ],
@@ -46603,14 +46603,6 @@
       }
     },
     {
-      "id": "change-set:cs-0d2d78afbd76",
-      "type": "change-set",
-      "attributes": {
-        "diff_digest": "sha256:627edd8f33de47fed039c16299dabc949b9c525a2963a96616fe235b849dec12",
-        "selector": "trailers:pose-validate-carries-unchanged-checks"
-      }
-    },
-    {
       "id": "change-set:cs-0d58c3af025a",
       "type": "change-set",
       "attributes": {
@@ -47848,6 +47840,14 @@
       "attributes": {
         "diff_digest": "sha256:ec00007bc87ca05ff1f443d5924fe6ad2cdd123c3cc6900de1886ab725e2a3c4",
         "selector": "trailers:pose-doctor-asks-every-closeout-in-one-operation"
+      }
+    },
+    {
+      "id": "change-set:cs-4b1ed3fa2b18",
+      "type": "change-set",
+      "attributes": {
+        "diff_digest": "sha256:9794cf67b28ddb3d14716ced866c67357bec399a60c1f57f8b130fe45730cf41",
+        "selector": "trailers:pose-validate-carries-unchanged-checks"
       }
     },
     {
@@ -140557,7 +140557,7 @@
     },
     {
       "from": "spec:pose-validate-carries-unchanged-checks",
-      "to": "change-set:cs-0d2d78afbd76",
+      "to": "change-set:cs-4b1ed3fa2b18",
       "type": "observed-by"
     },
     {
@@ -185447,217 +185447,6 @@
       "diff_digest": "sha256:e8adb071545f9c0ad0e12fe3e9d1927f9ce53a77f584c0dbdbb501845cd7c35c"
     },
     {
-      "id": "cs-0d2d78afbd76",
-      "spec": "pose-validate-carries-unchanged-checks",
-      "selector": "trailers:pose-validate-carries-unchanged-checks",
-      "base": "e4ab4d11b5dcf81c98281731f7af707dbb2678fa^",
-      "head": "92a12a394cb6e22663953493d409fe19f4369be8",
-      "resolved_base": "dec2e64c1395fafbf8e2a78171e5437c1720bbbf",
-      "resolved_head": "92a12a394cb6e22663953493d409fe19f4369be8",
-      "commits": [
-        "e4ab4d11b5dcf81c98281731f7af707dbb2678fa",
-        "be3578024b8c8d082c7168dbf54094d819c9a21b",
-        "2714e759a042834464eaf850c8a5a5c57e211188",
-        "07b8207e206408bf24d57bad4b6959d1eeb4433d",
-        "a99741f9b50181f9977321617043f50d878d54fa",
-        "bc7d67dc679be1a4703ecc646fc1bc10c3f14cb2",
-        "59ff08c9370ad9818702823ccbd6e5d0d3110eaf",
-        "bba0f22217f383f24cffb2178826c113506ab2c4",
-        "275fafa7ae8c80aba4ddc9cbe29ff27c189c7278",
-        "87ed1bb81193f59a4985624148ebaf15bac491da",
-        "282042f31ab4e8cd9755f1c23da9a3e80e993bfa",
-        "606a0fa821f009a91b11dfb282de49fb24516cde",
-        "5375cd816cbba4776632b9e394f7c37c4fd2bcfa",
-        "c4182727845d5d8c1411887ebed11749a6d59c25",
-        "29f6da72e0beee1e42170fd3466ef759e0faa6ab",
-        "e55bde0c82b66dd7891577f45fcdefc146140899",
-        "bc3d545017f60a0dd367f051f30303b6805b1a00",
-        "ed37f1bc27c7754ef6e0772a4edadc62f53c19d8",
-        "883eb1ef143c3897e159011c19e8403eb1f022cf",
-        "6be3a6f7009c1d782198c74a24549f8ec41423df",
-        "d601fbe105a7d56c91d9ab791972d9249a59a5c4",
-        "300b91384f692c0c3b9aef80af9f8f8c72c40cde",
-        "35b4cc7fba4c1eae22a44f5e05ba45ffa179cecb",
-        "0f0829c7f2b9be7ad24ac67ea5086935634f2fd1",
-        "8300e10ef0951010c1ca8ff389b5f6133d0a8b9a",
-        "c1f54d56cc793741633b4ecc8050f611250960ef",
-        "2077731bef03a72bc7cd0abdc166f1d7b3b55c3a",
-        "a8c3467332b6ce1fe1dd80a8f98775274e599084",
-        "6adcf0134f2236740767d0a86fb523f681e8869b",
-        "acdae439c6a16ee999a0076ae1745e795ba1ddc1",
-        "43764959e1f0468db45f0c461ecd6fa905078443",
-        "217e24ecd10d9902146f14cb44bde53c54a83605",
-        "3f02bc6c99edb12369f71096dc9a2a30dc1d8e15",
-        "71032c665e7b88a0e77fceee96ef5de7e3e3fb48",
-        "f435c58b0cad9aa64deba3705a11b5ee5ddc796d",
-        "b1083e75c0b8efd2e4be85e2dc0ab85a81487120",
-        "1c30933eb7eda396c6084cb54fefadf0b80af3f2",
-        "2345fbcf5785a8e4acc8264527c3f7be244f55c6",
-        "80f91a6a65e6b71d5207da47e7fd9cfb95353d41",
-        "d286747c971f284b1d20d175aea91f84ea9be081",
-        "2091d0853c76b39bf58bffcf8b4b8707aae7334c",
-        "4b77f5dac150733ad9a01b6280ecdf5e23df1a41",
-        "ce3f5e604dec14b5e997a1b3d38ea7fd2cd47bc1",
-        "f78dc97718a57f201d42942f8db715911f7c13d0",
-        "79193a88f6a303175de0504cf0c63ae849465b79",
-        "87515826e5c34f393cad451f3b61f1cafcb33fbb",
-        "a653aa113c0dc1daa2b044d0052a27df287a4701",
-        "c0321b9cb396576db6baa3bd5b5d8f41c1b19b34",
-        "2eeb3e5edc622c872f0ee31d183a30ac2a48f73f",
-        "703458fad319ac9df95c6c975a1f9f42f6c63ff4",
-        "df97e82aff0b6d8c8b1b2393f8f9f3ccc7c168bd",
-        "8d4713b4a77613a7dc708ab8a73cd71dbfacaadb",
-        "6299fb0559b33bffbbd9e01fa5f869b201f414a1",
-        "2b51a8a3ed09c30b905fa1f5489957b04c834c3e",
-        "bd58948750f3ad7fc15dc9e854f7de4805fbce96",
-        "aee99fd4302c9ee77053456ad946908b62e6d19f",
-        "2c062ebc7bc53296dc1db619876783bee320d379",
-        "f835a1bb4ba09bdbb038ef9cee511deb448fe6dd",
-        "79dd8cfd6317b6b694e35762147f723a8959b1e5",
-        "fc85c74d67fb1542549cf03999a25bc1e4f58b10",
-        "10ebce7bba390374898ababf889839ee19b07acd",
-        "1147d00a38a496eaa6a648faf36ad06f80c2b320",
-        "2f2c1ab0fe9eaaff5d32a7803e97c9c7989542b6",
-        "716ced7cd0cda84b5a7a2e27a22c4ad5e166b427",
-        "02d853ba0c24001d1fa86583878e2f343628e19b",
-        "d557c8d613d2e8e87e38e0015af87d56329a826e",
-        "c0025fe222483e5da72eea789b8900c78e28d484",
-        "78d9807fe989e2e359d229dc36110be043aa8257",
-        "8945bb748820564cb8d080e49454b2cc91462b7a",
-        "e7fdb811fc639f2f4c9f1cd5b693f69400c359a5",
-        "7edaa8ec4ce4f2822845209b2f0202e4afab940a",
-        "67663ee829ea9d711fb3f4f036a8f96264261665",
-        "4e71c34975b177ca24f059fb4802e8017bfa9719",
-        "3d3d8c3c460884672cf41b1256fafff0f1de8fbe",
-        "97e70de5a99e64b1254bd6d83372877a273d2128",
-        "11199ce4d5ae6db2305bb6a484728f475661f007",
-        "6fea1a2c285d278f36556714a851853b34ae1cff",
-        "e9a0204785185fa49efe966e0c8dbfe050e2689d",
-        "52c90b19daa155e7e90fbf312dec89a6f23d4a8d",
-        "7967e66f0c30c17ed429fa8c9f7a5accdcde52da",
-        "392d81f70007476e8eb264ae86f954a7e6f879f8",
-        "67ddf1edf3fcae60fe8aac3950207aeae7358a59",
-        "b94b043d39d288696e308fbe8cb9f7437adf6a4b",
-        "ad066fa8219ccf1c6c5dc71f278967f21e4cfa78",
-        "ddad365d3092f925f7fcfec41f0a76609acb2fa8",
-        "7d3d0e7b5083989b07fb37afc745adc2663c9122",
-        "45214a244f39ae74bf850df62f6077f0c2981ed8",
-        "d204b60f525d1f4c08512998d48516710deb8f55",
-        "35c2375955ec60f433b7749f886d85b5cdeea2e8",
-        "998c384205b9e554fbb13c03ce89cbfc8e827a57",
-        "92a12a394cb6e22663953493d409fe19f4369be8"
-      ],
-      "paths": [
-        {
-          "action": "created",
-          "path": ".pose/adr/2026-11-22-validate-carries-unchanged-checks.md"
-        },
-        {
-          "action": "created",
-          "path": ".pose/results/pose-validate-carries-unchanged-checks-matrix.md"
-        },
-        {
-          "action": "created",
-          "path": ".pose/specs/2026-11-22-pose-validate-carries-unchanged-checks.md"
-        },
-        {
-          "action": "created",
-          "path": "pose-mcp/internal/cli/validate_carry.go"
-        },
-        {
-          "action": "created",
-          "path": "pose-mcp/internal/cli/validate_carry_test.go"
-        },
-        {
-          "action": "created",
-          "path": "pose-mcp/internal/cli/validate_engine_identity_test.go"
-        },
-        {
-          "action": "created",
-          "path": "pose-mcp/internal/pose/delivery_validation_run_test.go"
-        },
-        {
-          "action": "modified",
-          "path": ".pose/indexes/delivery-integrity.json"
-        },
-        {
-          "action": "modified",
-          "path": ".pose/indexes/generation.json"
-        },
-        {
-          "action": "modified",
-          "path": ".pose/indexes/spec-graph.json"
-        },
-        {
-          "action": "modified",
-          "path": ".pose/results/delivery-validation.json"
-        },
-        {
-          "action": "modified",
-          "path": "POSE.md"
-        },
-        {
-          "action": "modified",
-          "path": "locales/pt-BR/POSE.md"
-        },
-        {
-          "action": "modified",
-          "path": "pose-mcp/internal/cli/help_catalog.go"
-        },
-        {
-          "action": "modified",
-          "path": "pose-mcp/internal/cli/validate.go"
-        },
-        {
-          "action": "modified",
-          "path": "pose-mcp/internal/cli/validate_results.go"
-        },
-        {
-          "action": "modified",
-          "path": "pose-mcp/internal/cli/validate_scope.go"
-        },
-        {
-          "action": "modified",
-          "path": "pose-mcp/internal/pose/delivery_validation_run.go"
-        },
-        {
-          "action": "modified",
-          "path": "pose-mcp/internal/scaffold/dist/POSE.md"
-        },
-        {
-          "action": "modified",
-          "path": "pose-mcp/internal/scaffold/dist/locales/pt-BR/POSE.md"
-        }
-      ],
-      "diff_digest": "sha256:627edd8f33de47fed039c16299dabc949b9c525a2963a96616fe235b849dec12",
-      "material_digest": "sha256:6ebd4a305f7e816f32b0cb3e9eae89e6006045139c73ff39bca52c1c631099d6",
-      "material_inputs": {
-        "names": [
-          ".pose/adr/2026-11-22-validate-carries-unchanged-checks.md",
-          ".pose/indexes/delivery-integrity.json",
-          ".pose/indexes/generation.json",
-          ".pose/indexes/spec-graph.json",
-          ".pose/indexes/validation-matrix.json",
-          ".pose/results/delivery-validation.json",
-          ".pose/results/pose-validate-carries-unchanged-checks-matrix.md",
-          ".pose/specs/2026-11-22-pose-validate-carries-unchanged-checks.md",
-          "POSE.md",
-          "locales/pt-BR/POSE.md",
-          "pose-mcp/internal/cli/help_catalog.go",
-          "pose-mcp/internal/cli/validate.go",
-          "pose-mcp/internal/cli/validate_carry.go",
-          "pose-mcp/internal/cli/validate_carry_test.go",
-          "pose-mcp/internal/cli/validate_engine_identity_test.go",
-          "pose-mcp/internal/cli/validate_results.go",
-          "pose-mcp/internal/cli/validate_scope.go",
-          "pose-mcp/internal/pose/delivery_validation_run.go",
-          "pose-mcp/internal/pose/delivery_validation_run_test.go",
-          "pose-mcp/internal/scaffold/dist/POSE.md",
-          "pose-mcp/internal/scaffold/dist/locales/pt-BR/POSE.md"
-        ]
-      }
-    },
-    {
       "id": "cs-0d58c3af025a",
       "spec": "pose-release-manifest-tag-integrity",
       "selector": "trailers:pose-release-manifest-tag-integrity",
@@ -220317,6 +220106,219 @@
           "pose-mcp/internal/pose/governance_read_view.go",
           "pose-mcp/internal/pose/review_operation_view.go",
           "pose-mcp/internal/pose/spec.go"
+        ]
+      }
+    },
+    {
+      "id": "cs-4b1ed3fa2b18",
+      "spec": "pose-validate-carries-unchanged-checks",
+      "selector": "trailers:pose-validate-carries-unchanged-checks",
+      "base": "e4ab4d11b5dcf81c98281731f7af707dbb2678fa^",
+      "head": "52fdf0261eab77c0fa0a40d2b8590153f4f1d78f",
+      "resolved_base": "dec2e64c1395fafbf8e2a78171e5437c1720bbbf",
+      "resolved_head": "52fdf0261eab77c0fa0a40d2b8590153f4f1d78f",
+      "commits": [
+        "e4ab4d11b5dcf81c98281731f7af707dbb2678fa",
+        "be3578024b8c8d082c7168dbf54094d819c9a21b",
+        "2714e759a042834464eaf850c8a5a5c57e211188",
+        "07b8207e206408bf24d57bad4b6959d1eeb4433d",
+        "a99741f9b50181f9977321617043f50d878d54fa",
+        "bc7d67dc679be1a4703ecc646fc1bc10c3f14cb2",
+        "59ff08c9370ad9818702823ccbd6e5d0d3110eaf",
+        "bba0f22217f383f24cffb2178826c113506ab2c4",
+        "275fafa7ae8c80aba4ddc9cbe29ff27c189c7278",
+        "87ed1bb81193f59a4985624148ebaf15bac491da",
+        "282042f31ab4e8cd9755f1c23da9a3e80e993bfa",
+        "606a0fa821f009a91b11dfb282de49fb24516cde",
+        "5375cd816cbba4776632b9e394f7c37c4fd2bcfa",
+        "c4182727845d5d8c1411887ebed11749a6d59c25",
+        "29f6da72e0beee1e42170fd3466ef759e0faa6ab",
+        "e55bde0c82b66dd7891577f45fcdefc146140899",
+        "bc3d545017f60a0dd367f051f30303b6805b1a00",
+        "ed37f1bc27c7754ef6e0772a4edadc62f53c19d8",
+        "883eb1ef143c3897e159011c19e8403eb1f022cf",
+        "6be3a6f7009c1d782198c74a24549f8ec41423df",
+        "d601fbe105a7d56c91d9ab791972d9249a59a5c4",
+        "300b91384f692c0c3b9aef80af9f8f8c72c40cde",
+        "35b4cc7fba4c1eae22a44f5e05ba45ffa179cecb",
+        "0f0829c7f2b9be7ad24ac67ea5086935634f2fd1",
+        "8300e10ef0951010c1ca8ff389b5f6133d0a8b9a",
+        "c1f54d56cc793741633b4ecc8050f611250960ef",
+        "2077731bef03a72bc7cd0abdc166f1d7b3b55c3a",
+        "a8c3467332b6ce1fe1dd80a8f98775274e599084",
+        "6adcf0134f2236740767d0a86fb523f681e8869b",
+        "acdae439c6a16ee999a0076ae1745e795ba1ddc1",
+        "43764959e1f0468db45f0c461ecd6fa905078443",
+        "217e24ecd10d9902146f14cb44bde53c54a83605",
+        "3f02bc6c99edb12369f71096dc9a2a30dc1d8e15",
+        "71032c665e7b88a0e77fceee96ef5de7e3e3fb48",
+        "f435c58b0cad9aa64deba3705a11b5ee5ddc796d",
+        "b1083e75c0b8efd2e4be85e2dc0ab85a81487120",
+        "1c30933eb7eda396c6084cb54fefadf0b80af3f2",
+        "2345fbcf5785a8e4acc8264527c3f7be244f55c6",
+        "80f91a6a65e6b71d5207da47e7fd9cfb95353d41",
+        "d286747c971f284b1d20d175aea91f84ea9be081",
+        "2091d0853c76b39bf58bffcf8b4b8707aae7334c",
+        "4b77f5dac150733ad9a01b6280ecdf5e23df1a41",
+        "ce3f5e604dec14b5e997a1b3d38ea7fd2cd47bc1",
+        "f78dc97718a57f201d42942f8db715911f7c13d0",
+        "79193a88f6a303175de0504cf0c63ae849465b79",
+        "87515826e5c34f393cad451f3b61f1cafcb33fbb",
+        "a653aa113c0dc1daa2b044d0052a27df287a4701",
+        "c0321b9cb396576db6baa3bd5b5d8f41c1b19b34",
+        "2eeb3e5edc622c872f0ee31d183a30ac2a48f73f",
+        "703458fad319ac9df95c6c975a1f9f42f6c63ff4",
+        "df97e82aff0b6d8c8b1b2393f8f9f3ccc7c168bd",
+        "8d4713b4a77613a7dc708ab8a73cd71dbfacaadb",
+        "6299fb0559b33bffbbd9e01fa5f869b201f414a1",
+        "2b51a8a3ed09c30b905fa1f5489957b04c834c3e",
+        "bd58948750f3ad7fc15dc9e854f7de4805fbce96",
+        "aee99fd4302c9ee77053456ad946908b62e6d19f",
+        "2c062ebc7bc53296dc1db619876783bee320d379",
+        "f835a1bb4ba09bdbb038ef9cee511deb448fe6dd",
+        "79dd8cfd6317b6b694e35762147f723a8959b1e5",
+        "fc85c74d67fb1542549cf03999a25bc1e4f58b10",
+        "10ebce7bba390374898ababf889839ee19b07acd",
+        "1147d00a38a496eaa6a648faf36ad06f80c2b320",
+        "2f2c1ab0fe9eaaff5d32a7803e97c9c7989542b6",
+        "716ced7cd0cda84b5a7a2e27a22c4ad5e166b427",
+        "02d853ba0c24001d1fa86583878e2f343628e19b",
+        "d557c8d613d2e8e87e38e0015af87d56329a826e",
+        "c0025fe222483e5da72eea789b8900c78e28d484",
+        "78d9807fe989e2e359d229dc36110be043aa8257",
+        "8945bb748820564cb8d080e49454b2cc91462b7a",
+        "e7fdb811fc639f2f4c9f1cd5b693f69400c359a5",
+        "7edaa8ec4ce4f2822845209b2f0202e4afab940a",
+        "67663ee829ea9d711fb3f4f036a8f96264261665",
+        "4e71c34975b177ca24f059fb4802e8017bfa9719",
+        "3d3d8c3c460884672cf41b1256fafff0f1de8fbe",
+        "97e70de5a99e64b1254bd6d83372877a273d2128",
+        "11199ce4d5ae6db2305bb6a484728f475661f007",
+        "6fea1a2c285d278f36556714a851853b34ae1cff",
+        "e9a0204785185fa49efe966e0c8dbfe050e2689d",
+        "52c90b19daa155e7e90fbf312dec89a6f23d4a8d",
+        "7967e66f0c30c17ed429fa8c9f7a5accdcde52da",
+        "392d81f70007476e8eb264ae86f954a7e6f879f8",
+        "67ddf1edf3fcae60fe8aac3950207aeae7358a59",
+        "b94b043d39d288696e308fbe8cb9f7437adf6a4b",
+        "ad066fa8219ccf1c6c5dc71f278967f21e4cfa78",
+        "ddad365d3092f925f7fcfec41f0a76609acb2fa8",
+        "7d3d0e7b5083989b07fb37afc745adc2663c9122",
+        "45214a244f39ae74bf850df62f6077f0c2981ed8",
+        "d204b60f525d1f4c08512998d48516710deb8f55",
+        "35c2375955ec60f433b7749f886d85b5cdeea2e8",
+        "998c384205b9e554fbb13c03ce89cbfc8e827a57",
+        "92a12a394cb6e22663953493d409fe19f4369be8",
+        "b683705a8e982c4dd06a33102f28588cf112fbfa",
+        "52fdf0261eab77c0fa0a40d2b8590153f4f1d78f"
+      ],
+      "paths": [
+        {
+          "action": "created",
+          "path": ".pose/adr/2026-11-22-validate-carries-unchanged-checks.md"
+        },
+        {
+          "action": "created",
+          "path": ".pose/results/pose-validate-carries-unchanged-checks-matrix.md"
+        },
+        {
+          "action": "created",
+          "path": ".pose/specs/2026-11-22-pose-validate-carries-unchanged-checks.md"
+        },
+        {
+          "action": "created",
+          "path": "pose-mcp/internal/cli/validate_carry.go"
+        },
+        {
+          "action": "created",
+          "path": "pose-mcp/internal/cli/validate_carry_test.go"
+        },
+        {
+          "action": "created",
+          "path": "pose-mcp/internal/cli/validate_engine_identity_test.go"
+        },
+        {
+          "action": "created",
+          "path": "pose-mcp/internal/pose/delivery_validation_run_test.go"
+        },
+        {
+          "action": "modified",
+          "path": ".pose/indexes/delivery-integrity.json"
+        },
+        {
+          "action": "modified",
+          "path": ".pose/indexes/generation.json"
+        },
+        {
+          "action": "modified",
+          "path": ".pose/indexes/spec-graph.json"
+        },
+        {
+          "action": "modified",
+          "path": ".pose/results/delivery-validation.json"
+        },
+        {
+          "action": "modified",
+          "path": "POSE.md"
+        },
+        {
+          "action": "modified",
+          "path": "locales/pt-BR/POSE.md"
+        },
+        {
+          "action": "modified",
+          "path": "pose-mcp/internal/cli/help_catalog.go"
+        },
+        {
+          "action": "modified",
+          "path": "pose-mcp/internal/cli/validate.go"
+        },
+        {
+          "action": "modified",
+          "path": "pose-mcp/internal/cli/validate_results.go"
+        },
+        {
+          "action": "modified",
+          "path": "pose-mcp/internal/cli/validate_scope.go"
+        },
+        {
+          "action": "modified",
+          "path": "pose-mcp/internal/pose/delivery_validation_run.go"
+        },
+        {
+          "action": "modified",
+          "path": "pose-mcp/internal/scaffold/dist/POSE.md"
+        },
+        {
+          "action": "modified",
+          "path": "pose-mcp/internal/scaffold/dist/locales/pt-BR/POSE.md"
+        }
+      ],
+      "diff_digest": "sha256:9794cf67b28ddb3d14716ced866c67357bec399a60c1f57f8b130fe45730cf41",
+      "material_digest": "sha256:6ebd4a305f7e816f32b0cb3e9eae89e6006045139c73ff39bca52c1c631099d6",
+      "material_inputs": {
+        "names": [
+          ".pose/adr/2026-11-22-validate-carries-unchanged-checks.md",
+          ".pose/indexes/delivery-integrity.json",
+          ".pose/indexes/generation.json",
+          ".pose/indexes/spec-graph.json",
+          ".pose/indexes/validation-matrix.json",
+          ".pose/results/delivery-validation.json",
+          ".pose/results/pose-validate-carries-unchanged-checks-matrix.md",
+          ".pose/specs/2026-11-22-pose-validate-carries-unchanged-checks.md",
+          "POSE.md",
+          "locales/pt-BR/POSE.md",
+          "pose-mcp/internal/cli/help_catalog.go",
+          "pose-mcp/internal/cli/validate.go",
+          "pose-mcp/internal/cli/validate_carry.go",
+          "pose-mcp/internal/cli/validate_carry_test.go",
+          "pose-mcp/internal/cli/validate_engine_identity_test.go",
+          "pose-mcp/internal/cli/validate_results.go",
+          "pose-mcp/internal/cli/validate_scope.go",
+          "pose-mcp/internal/pose/delivery_validation_run.go",
+          "pose-mcp/internal/pose/delivery_validation_run_test.go",
+          "pose-mcp/internal/scaffold/dist/POSE.md",
+          "pose-mcp/internal/scaffold/dist/locales/pt-BR/POSE.md"
         ]
       }
     },
@@ -313175,6 +313177,16 @@
       "remediation": "rerun the registered validation check for this delivery scope"
     },
     {
+      "id": "dif-1b568f835a36",
+      "code": "undeclared-delivery",
+      "severity": "error",
+      "spec": "pose-validate-carries-unchanged-checks",
+      "path": "pose-mcp/internal/cli/validate_results.go",
+      "change_set": "cs-4b1ed3fa2b18",
+      "message": "changed delivery root pose-mcp/internal/cli has no delivery declaration",
+      "remediation": "declare a typed delivery target or narrow the attributed change set"
+    },
+    {
       "id": "dif-1b7cab6c2ed6",
       "code": "action-mismatch",
       "severity": "error",
@@ -313226,16 +313238,6 @@
       "path": "capability:condition-response-and-work-metrics",
       "message": "required current evidence is missing: integration",
       "remediation": "run registered checks with the required evidenceClass against the current provenance digest"
-    },
-    {
-      "id": "dif-1ea1a75c12ae",
-      "code": "undeclared-delivery",
-      "severity": "error",
-      "spec": "pose-validate-carries-unchanged-checks",
-      "path": "pose-mcp/internal/cli/validate_carry.go",
-      "change_set": "cs-0d2d78afbd76",
-      "message": "changed delivery root pose-mcp/internal/cli has no delivery declaration",
-      "remediation": "declare a typed delivery target or narrow the attributed change set"
     },
     {
       "id": "dif-1ecfce98926f",
@@ -313460,6 +313462,16 @@
       "spec": "pose-review-check-time-and-output-regression-test",
       "message": "spec has no structured Artifacts section",
       "remediation": "add a machine-parseable ### Artifacts section"
+    },
+    {
+      "id": "dif-30860ee35fd2",
+      "code": "undeclared-delivery",
+      "severity": "error",
+      "spec": "pose-validate-carries-unchanged-checks",
+      "path": "pose-mcp/internal/cli/validate.go",
+      "change_set": "cs-4b1ed3fa2b18",
+      "message": "changed delivery root pose-mcp/internal/cli has no delivery declaration",
+      "remediation": "declare a typed delivery target or narrow the attributed change set"
     },
     {
       "id": "dif-30a271e368b4",
@@ -313779,6 +313791,16 @@
       "remediation": "no Git change sets are attributed to spec pose-followup-metadata-and-routing-integrity (ensure commits carry 'POSE-Spec: pose-followup-metadata-and-routing-integrity' trailer or generate report with pose report)"
     },
     {
+      "id": "dif-46ee3ab3e8af",
+      "code": "undeclared-delivery",
+      "severity": "error",
+      "spec": "pose-validate-carries-unchanged-checks",
+      "path": "pose-mcp/internal/cli/validate_carry.go",
+      "change_set": "cs-4b1ed3fa2b18",
+      "message": "changed delivery root pose-mcp/internal/cli has no delivery declaration",
+      "remediation": "declare a typed delivery target or narrow the attributed change set"
+    },
+    {
       "id": "dif-470b47494e4a",
       "code": "orphan",
       "severity": "warning",
@@ -313944,16 +313966,6 @@
       "remediation": "no Git change sets are attributed to spec pose-release-shared-sufficiency-contract (ensure commits carry 'POSE-Spec: pose-release-shared-sufficiency-contract' trailer or generate report with pose report)"
     },
     {
-      "id": "dif-500365f05217",
-      "code": "undeclared-delivery",
-      "severity": "error",
-      "spec": "pose-validate-carries-unchanged-checks",
-      "path": "pose-mcp/internal/cli/validate_scope.go",
-      "change_set": "cs-0d2d78afbd76",
-      "message": "changed delivery root pose-mcp/internal/cli has no delivery declaration",
-      "remediation": "declare a typed delivery target or narrow the attributed change set"
-    },
-    {
       "id": "dif-5024c2f9bbfc",
       "code": "action-mismatch",
       "severity": "error",
@@ -313994,6 +314006,16 @@
       "path": "pose-mcp/internal/observability/log.go",
       "message": "governed tracked path has no spec provenance claim",
       "remediation": "backfill an explicit claim or add an exact reviewed exclusion"
+    },
+    {
+      "id": "dif-53e0a8a73384",
+      "code": "undeclared-delivery",
+      "severity": "error",
+      "spec": "pose-validate-carries-unchanged-checks",
+      "path": "pose-mcp/internal/cli/validate_carry_test.go",
+      "change_set": "cs-4b1ed3fa2b18",
+      "message": "changed delivery root pose-mcp/internal/cli has no delivery declaration",
+      "remediation": "declare a typed delivery target or narrow the attributed change set"
     },
     {
       "id": "dif-53f5d5897029",
@@ -314300,16 +314322,6 @@
       "spec": "pose-doctor-guided-remediation",
       "message": "spec has no structured Artifacts section",
       "remediation": "add a machine-parseable ### Artifacts section"
-    },
-    {
-      "id": "dif-64a43772c7bf",
-      "code": "undeclared-delivery",
-      "severity": "error",
-      "spec": "pose-validate-carries-unchanged-checks",
-      "path": "pose-mcp/internal/cli/validate_results.go",
-      "change_set": "cs-0d2d78afbd76",
-      "message": "changed delivery root pose-mcp/internal/cli has no delivery declaration",
-      "remediation": "declare a typed delivery target or narrow the attributed change set"
     },
     {
       "id": "dif-66e2a80a9af6",
@@ -314636,6 +314648,16 @@
       "remediation": "add a machine-parseable ### Artifacts section"
     },
     {
+      "id": "dif-75f09022acc7",
+      "code": "undeclared-delivery",
+      "severity": "error",
+      "spec": "pose-validate-carries-unchanged-checks",
+      "path": "pose-mcp/internal/cli/validate_engine_identity_test.go",
+      "change_set": "cs-4b1ed3fa2b18",
+      "message": "changed delivery root pose-mcp/internal/cli has no delivery declaration",
+      "remediation": "declare a typed delivery target or narrow the attributed change set"
+    },
+    {
       "id": "dif-760687884b2d",
       "code": "existence",
       "severity": "error",
@@ -314876,26 +314898,6 @@
       "remediation": "run registered checks with the required evidenceClass against the current provenance digest"
     },
     {
-      "id": "dif-8492d12e53bc",
-      "code": "undeclared-delivery",
-      "severity": "error",
-      "spec": "pose-validate-carries-unchanged-checks",
-      "path": "pose-mcp/internal/pose/delivery_validation_run_test.go",
-      "change_set": "cs-0d2d78afbd76",
-      "message": "changed delivery root pose-mcp/internal/pose has no delivery declaration",
-      "remediation": "declare a typed delivery target or narrow the attributed change set"
-    },
-    {
-      "id": "dif-84c165f111b5",
-      "code": "undeclared-delivery",
-      "severity": "error",
-      "spec": "pose-validate-carries-unchanged-checks",
-      "path": "pose-mcp/internal/cli/help_catalog.go",
-      "change_set": "cs-0d2d78afbd76",
-      "message": "changed delivery root pose-mcp/internal/cli has no delivery declaration",
-      "remediation": "declare a typed delivery target or narrow the attributed change set"
-    },
-    {
       "id": "dif-859b8d7fdef6",
       "code": "action-mismatch",
       "severity": "error",
@@ -315063,16 +315065,6 @@
       "remediation": "add a machine-parseable ### Artifacts section"
     },
     {
-      "id": "dif-91dba369fdbd",
-      "code": "undeclared-delivery",
-      "severity": "error",
-      "spec": "pose-validate-carries-unchanged-checks",
-      "path": "pose-mcp/internal/cli/validate_carry_test.go",
-      "change_set": "cs-0d2d78afbd76",
-      "message": "changed delivery root pose-mcp/internal/cli has no delivery declaration",
-      "remediation": "declare a typed delivery target or narrow the attributed change set"
-    },
-    {
       "id": "dif-925c304bd04e",
       "code": "action-mismatch",
       "severity": "error",
@@ -315097,16 +315089,6 @@
       "path": "pose-mcp/internal/mcpserver/release_selection_exclusivity_test.go",
       "message": "declared current artifact is not tracked at the selected head",
       "remediation": "correct the exact path or commit the artifact before closeout"
-    },
-    {
-      "id": "dif-937415d5c040",
-      "code": "undeclared-delivery",
-      "severity": "error",
-      "spec": "pose-validate-carries-unchanged-checks",
-      "path": "pose-mcp/internal/pose/delivery_validation_run.go",
-      "change_set": "cs-0d2d78afbd76",
-      "message": "changed delivery root pose-mcp/internal/pose has no delivery declaration",
-      "remediation": "declare a typed delivery target or narrow the attributed change set"
     },
     {
       "id": "dif-93891c4903d3",
@@ -315389,6 +315371,16 @@
       "remediation": "no Git change sets are attributed to spec pose-proportional-next-action (ensure commits carry 'POSE-Spec: pose-proportional-next-action' trailer or generate report with pose report)"
     },
     {
+      "id": "dif-a1dd56da42e9",
+      "code": "undeclared-delivery",
+      "severity": "error",
+      "spec": "pose-validate-carries-unchanged-checks",
+      "path": "pose-mcp/internal/pose/delivery_validation_run.go",
+      "change_set": "cs-4b1ed3fa2b18",
+      "message": "changed delivery root pose-mcp/internal/pose has no delivery declaration",
+      "remediation": "declare a typed delivery target or narrow the attributed change set"
+    },
+    {
       "id": "dif-a208b80ca6cc",
       "code": "inferred-coverage",
       "severity": "warning",
@@ -315396,6 +315388,16 @@
       "path": "surface:lifecycle-date-order",
       "message": "evidence for reachability comes only from a module containing pose-mcp/internal/cli, so covering it is inferred rather than reported",
       "remediation": "register a check for pose-mcp/internal/cli, or accept that a run of the containing module is what this target is gated on"
+    },
+    {
+      "id": "dif-a2509bd68720",
+      "code": "undeclared-delivery",
+      "severity": "error",
+      "spec": "pose-validate-carries-unchanged-checks",
+      "path": "pose-mcp/internal/pose/delivery_validation_run_test.go",
+      "change_set": "cs-4b1ed3fa2b18",
+      "message": "changed delivery root pose-mcp/internal/pose has no delivery declaration",
+      "remediation": "declare a typed delivery target or narrow the attributed change set"
     },
     {
       "id": "dif-a270a4b3d63d",
@@ -316280,6 +316282,16 @@
       "remediation": "no Git change sets are attributed to spec pose-debt-marker-lexical-precision (ensure commits carry 'POSE-Spec: pose-debt-marker-lexical-precision' trailer or generate report with pose report)"
     },
     {
+      "id": "dif-d31c76b27bdf",
+      "code": "undeclared-delivery",
+      "severity": "error",
+      "spec": "pose-validate-carries-unchanged-checks",
+      "path": "pose-mcp/internal/cli/validate_scope.go",
+      "change_set": "cs-4b1ed3fa2b18",
+      "message": "changed delivery root pose-mcp/internal/cli has no delivery declaration",
+      "remediation": "declare a typed delivery target or narrow the attributed change set"
+    },
+    {
       "id": "dif-d523be099607",
       "code": "action-mismatch",
       "severity": "error",
@@ -316572,16 +316584,6 @@
       "remediation": "correct the exact path or commit the artifact before closeout"
     },
     {
-      "id": "dif-e6b1b6202d8d",
-      "code": "undeclared-delivery",
-      "severity": "error",
-      "spec": "pose-validate-carries-unchanged-checks",
-      "path": "pose-mcp/internal/cli/validate.go",
-      "change_set": "cs-0d2d78afbd76",
-      "message": "changed delivery root pose-mcp/internal/cli has no delivery declaration",
-      "remediation": "declare a typed delivery target or narrow the attributed change set"
-    },
-    {
       "id": "dif-e6b701ca7717",
       "code": "stale-evidence",
       "severity": "error",
@@ -316625,16 +316627,6 @@
       "path": ".pose/changelogs/unreleased/pose-proportional-next-action.md",
       "message": "declared artifact action is absent from the attributed Git change sets",
       "remediation": "no Git change sets are attributed to spec pose-proportional-next-action (ensure commits carry 'POSE-Spec: pose-proportional-next-action' trailer or generate report with pose report)"
-    },
-    {
-      "id": "dif-e9acdfcc8303",
-      "code": "undeclared-delivery",
-      "severity": "error",
-      "spec": "pose-validate-carries-unchanged-checks",
-      "path": "pose-mcp/internal/cli/validate_engine_identity_test.go",
-      "change_set": "cs-0d2d78afbd76",
-      "message": "changed delivery root pose-mcp/internal/cli has no delivery declaration",
-      "remediation": "declare a typed delivery target or narrow the attributed change set"
     },
     {
       "id": "dif-e9c841279fc1",
@@ -317027,6 +317019,16 @@
       "path": ".pose/indexes/validation-matrix.json",
       "message": "declared artifact action is absent from the attributed Git change sets",
       "remediation": "no Git change sets are attributed to spec pose-integrated-agency-and-runtime-pilot (ensure commits carry 'POSE-Spec: pose-integrated-agency-and-runtime-pilot' trailer or generate report with pose report)"
+    },
+    {
+      "id": "dif-fce6f5b27b8f",
+      "code": "undeclared-delivery",
+      "severity": "error",
+      "spec": "pose-validate-carries-unchanged-checks",
+      "path": "pose-mcp/internal/cli/help_catalog.go",
+      "change_set": "cs-4b1ed3fa2b18",
+      "message": "changed delivery root pose-mcp/internal/cli has no delivery declaration",
+      "remediation": "declare a typed delivery target or narrow the attributed change set"
     },
     {
       "id": "dif-fd0720bfce5b",
