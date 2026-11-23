@@ -102,6 +102,11 @@ func delegateAutoConclude(store posemodel.Store, run posemodel.ReviewRun, err er
 		return
 	}
 	if conclusion == nil {
+		// R6 of spec pose-review-readiness-before-seal: a completed run that
+		// is not concluded automatically names the step that concludes it.
+		if next := delegateConcludeNextStep(store, run); next != "" {
+			render(stdout, stderr).Hint(next)
+		}
 		return
 	}
 	line := "pose delegate: conclusion " + conclusion.State
@@ -112,4 +117,22 @@ func delegateAutoConclude(store posemodel.Store, run posemodel.ReviewRun, err er
 		line += ": " + strings.Join(conclusion.Reasons, "; ")
 	}
 	render(stdout, stderr).Hint(line)
+}
+
+// delegateConcludeNextStep is the command that records the conclusion of a
+// completed run nothing concluded, or "" when there is none to record.
+func delegateConcludeNextStep(store posemodel.Store, run posemodel.ReviewRun) string {
+	if run.Status != posemodel.ReviewRunCompleted || run.RunID == "" {
+		return ""
+	}
+	switch run.Kind {
+	case posemodel.ReviewBriefKindReview, posemodel.ReviewBriefKindAdjudication, posemodel.ReviewBriefKindSmoke:
+	default:
+		return ""
+	}
+	command := "pose review conclude " + run.RunID
+	if policy, _, found, err := store.LoadDelegationPolicy(); err != nil || !found || policy.ConclusionsIssuer() == "" {
+		command += " --issuer <name>"
+	}
+	return "pose delegate: nothing concluded this run automatically; preview its conclusion with `" + command + "`, then record it with `" + command + " --apply`"
 }

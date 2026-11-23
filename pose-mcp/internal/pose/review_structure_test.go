@@ -374,3 +374,24 @@ func TestABMStructuralCausalityGovernsOnlySealedContracts(t *testing.T) {
 		t.Fatal("an unmapped judgment passed under the contract")
 	}
 }
+
+// Spec pose-review-readiness-before-seal R2: when the plan asks for
+// structural mappings, a decision basis that reaches no requirement is
+// refused at seal; the same scope without structural facts seals.
+func TestSealReadinessRefusesADecisionWithoutBasis(t *testing.T) {
+	store := causalityFixture(t)
+	structure, _ := causalityInputs()
+	var bundle ReviewBundle
+	bundle.Payload.Scope.Ref = "spec:backend"
+	bundle.Payload.Plan.Structure = structure
+	blockers := store.sealReadinessBlockers(bundle)
+	assertBlocker(t, blockers, "decision basis D9 reaches no requirement or constraint")
+	assertBlocker(t, blockers, "decision basis A9 reaches no requirement or constraint")
+	if strings.Contains(strings.Join(blockers, "\n"), "basis D1 ") || strings.Contains(strings.Join(blockers, "\n"), "basis A1 ") {
+		t.Fatalf("a basis that reaches a requirement was refused: %v", blockers)
+	}
+	bundle.Payload.Plan.Structure = nil
+	if blockers := store.sealReadinessBlockers(bundle); len(blockers) != 0 {
+		t.Fatalf("a plan without structural facts was refused: %v", blockers)
+	}
+}

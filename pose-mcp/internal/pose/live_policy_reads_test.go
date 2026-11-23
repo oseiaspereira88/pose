@@ -112,7 +112,7 @@ func validateBundleAttestationWithBody(t *testing.T) string {
 	found := false
 	for _, declaration := range file.Decls {
 		fn, ok := declaration.(*ast.FuncDecl)
-		if !ok || (fn.Name.Name != "validateBundleAttestationWith" && fn.Name.Name != "reviewFindingDecisionBlockers") {
+		if !ok || (fn.Name.Name != "validateBundleAttestationWith" && fn.Name.Name != "attestationContentBlockers" && fn.Name.Name != "reviewFindingDecisionBlockers") {
 			continue
 		}
 		if fn.Name.Name == "validateBundleAttestationWith" {

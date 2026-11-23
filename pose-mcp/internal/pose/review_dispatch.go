@@ -965,6 +965,17 @@ func (s Store) RunReviewDispatchContext(parent context.Context, plan DispatchPla
 	// The reviewer works in a sealed checkout: diagnostics it runs must not
 	// publish derived records into it (SealedCheckoutEnv).
 	env = append(env, SealedCheckoutEnv+"="+worktree)
+	// The reviewer checks its draft against the sealed bundle and the round
+	// before it finishes (spec pose-review-readiness-before-seal R3). A
+	// context that cannot be built leaves the check unavailable, never the
+	// review.
+	if plan.Purpose == DelegationPurposeReview {
+		if draftCtx, err := s.ReviewDraftContextFor(plan.Bundle); err == nil {
+			if path, err := writeReviewDraftContext(tmp, draftCtx); err == nil {
+				env = append(env, ReviewDraftContextEnv+"="+path)
+			}
+		}
+	}
 	cmd.Env = env
 	combined := &reviewBoundedCapture{limit: safety.StreamBytes, cancel: cancel}
 	cmd.Stdout, cmd.Stderr = combined, combined

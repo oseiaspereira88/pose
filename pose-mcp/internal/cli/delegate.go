@@ -454,6 +454,11 @@ func cmdDelegatePurpose(root, purpose string, args []string, stdout, stderr io.W
 	}
 	notes := ""
 	if f.noteFile != "" {
+		// R5 of spec pose-review-readiness-before-seal: an oversized note is
+		// named with its size and the limit, not as a generic adapter file.
+		if info, err := os.Lstat(f.noteFile); err == nil && info.Mode().IsRegular() && info.Size() > posemodel.ReviewNotesMaxBytes {
+			return delegateFail(stdout, stderr, f.jsonOut, purpose, 1, fmt.Errorf("the note file %s has %d bytes; implementer notes must be at most %d bytes: shorten it", f.noteFile, info.Size(), posemodel.ReviewNotesMaxBytes))
+		}
 		raw, err := posemodel.ReadReviewAdapterFile(f.noteFile, posemodel.ReviewNotesMaxBytes)
 		if err != nil {
 			return delegateFail(stdout, stderr, f.jsonOut, purpose, 1, err)

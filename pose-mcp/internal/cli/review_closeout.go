@@ -430,6 +430,8 @@ func cmdReview(root string, args []string, stdout, stderr io.Writer) int {
 		return cmdReviewRunProof(root, args[1:], stdout, stderr)
 	case "conclude":
 		return cmdReviewConclude(root, args[1:], stdout, stderr)
+	case "draft-check":
+		return cmdReviewDraftCheck(root, args[1:], stdout, stderr)
 	case "request":
 		return cmdReviewRequest(root, args[1:], stdout, stderr)
 	// The aliases pose-delegation-surface deprecated are removed (spec

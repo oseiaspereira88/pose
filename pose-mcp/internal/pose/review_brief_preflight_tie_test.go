@@ -19,7 +19,7 @@ import (
 // saying so, or without someone writing down why it need not.
 
 var preflightFunctions = map[string][]string{
-	"review_bundle.go":   {"validateBundleAttestationWith", "reviewCriterionEvidenceBlockers"},
+	"review_bundle.go":   {"validateBundleAttestationWith", "attestationContentBlockers", "reviewCriterionEvidenceBlockers"},
 	"review_closeout.go": {"evaluateReviewToolCoverageIn", "reviewToolEvidenceBlocker"},
 }
 

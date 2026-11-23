@@ -27,7 +27,7 @@ const (
 )
 
 var reviewBriefTemplates = map[string]string{
-	ReviewBriefKindReview:       reviewBriefTemplateAllNotApplicable,
+	ReviewBriefKindReview:       reviewBriefTemplateDraftCheck,
 	ReviewBriefKindAdjudication: adjudicationBriefTemplateTyped,
 	ReviewBriefKindSmoke:        smokeBriefTemplateTyped,
 }
@@ -65,6 +65,10 @@ const (
 	// reviewBriefTemplateAllNotApplicable is the current template: it also says that a draft
 	// cannot dispense with every required criterion as not-applicable.
 	reviewBriefTemplateAllNotApplicable = "review-brief/7"
+	// reviewBriefTemplateDraftCheck is the current template: /7 plus the step
+	// that checks the draft with `pose review draft-check` before the run ends
+	// (spec pose-review-readiness-before-seal R4).
+	reviewBriefTemplateDraftCheck = "review-brief/8"
 	// reviewBriefTemplateConclusions asked for the typed conclusion and stated its rules,
 	// without the identifiers of the findings of earlier rounds.
 	// reviewBriefTemplateConclusions (/4) asked for the typed conclusion and stated the rules
@@ -77,9 +81,15 @@ const (
 	reviewBriefTemplateFirst           = "review-brief/1"
 )
 
+// reviewBriefFromAllNotApplicable reports /7 and the templates that keep its
+// text and add to it.
+func reviewBriefFromAllNotApplicable(template string) bool {
+	return template == reviewBriefTemplateAllNotApplicable || template == reviewBriefTemplateDraftCheck
+}
+
 // reviewBriefAsksConclusion reports a template that asks for the typed conclusion.
 func reviewBriefAsksConclusion(template string) bool {
-	return template == reviewBriefTemplateAllNotApplicable || template == reviewBriefTemplateRiskRules || template == reviewBriefTemplateRoundIDs || template == reviewBriefTemplateConclusions || template == reviewBriefTemplateTypedConclusion
+	return reviewBriefFromAllNotApplicable(template) || template == reviewBriefTemplateRiskRules || template == reviewBriefTemplateRoundIDs || template == reviewBriefTemplateConclusions || template == reviewBriefTemplateTypedConclusion
 }
 
 // briefRulesTextV5 is the statement of the rules the conclusion is checked against that
@@ -91,7 +101,7 @@ const briefRulesTextV5 = "POSE checks the conclusion before it records it, and r
 // precondition is the completion of the review is answered deferred, the component scoping of
 // evidence, and what a mapping's basis is.
 func briefRulesText(template string, bundle ReviewBundle) string {
-	if template != reviewBriefTemplateRiskRules && template != reviewBriefTemplateAllNotApplicable {
+	if template != reviewBriefTemplateRiskRules && !reviewBriefFromAllNotApplicable(template) {
 		return briefRulesTextV5
 	}
 	text := briefRulesTextV5
@@ -101,7 +111,7 @@ func briefRulesText(template string, bundle ReviewBundle) string {
 	}
 	text = strings.Replace(text, "a recommended tool you did not run is `not-used` with a `rationale`;", "a recommended tool you did not run is `not-used` with a `rationale`; a required tool whose precondition is the completion of the review (`review-check`, `closeout-check`) cannot pass before your attestation: answer it `deferred` with a `rationale`;", 1)
 	text = strings.Replace(text, "which is recorded as an accepted risk, or the draft requests changes;", "which is recorded as an accepted risk only when its severity is one the sealed review policy accepts ("+severities+"), or the draft requests changes and any finding of another severity is fixed first;", 1)
-	if template == reviewBriefTemplateAllNotApplicable {
+	if reviewBriefFromAllNotApplicable(template) {
 		text += " (l) a draft that dispenses with every required criterion as `not-applicable` is refused: a scope whose whole plan is inapplicable is not reviewed by it;"
 	}
 	return text + " (j) the `evidence` of a `passed` criterion is of a class the criterion asks for and, when the criterion or tool belongs to a component, of that component (the Sealed evidence list names the module of each ref); (k) the `basis` of a mapping is a requirement or decision id of the scope's spec, such as R1 or D1."
@@ -110,14 +120,14 @@ func briefRulesText(template string, bundle ReviewBundle) string {
 // reviewBriefStatesRules reports a template that states the rules the conclusion is
 // checked against.
 func reviewBriefStatesRules(template string) bool {
-	return template == reviewBriefTemplateAllNotApplicable || template == reviewBriefTemplateRiskRules || template == reviewBriefTemplateRoundIDs || template == reviewBriefTemplateConclusions
+	return reviewBriefFromAllNotApplicable(template) || template == reviewBriefTemplateRiskRules || template == reviewBriefTemplateRoundIDs || template == reviewBriefTemplateConclusions
 }
 
 // reviewBriefEarlierTemplates are the review templates a run may have been
 // briefed with before the current one, newest first; a run briefed with one
 // is re-rendered with it to verify and to continue (the brief a run was sent
 // never changes under it).
-var reviewBriefEarlierTemplates = []string{reviewBriefTemplateRiskRules, reviewBriefTemplateRoundIDs, reviewBriefTemplateConclusions, reviewBriefTemplateTypedConclusion, reviewBriefTemplateRounds, reviewBriefTemplateFirst}
+var reviewBriefEarlierTemplates = []string{reviewBriefTemplateAllNotApplicable, reviewBriefTemplateRiskRules, reviewBriefTemplateRoundIDs, reviewBriefTemplateConclusions, reviewBriefTemplateTypedConclusion, reviewBriefTemplateRounds, reviewBriefTemplateFirst}
 
 // briefEarlierTemplates are, per kind, the templates a run may have been
 // briefed with before the current one, newest first.
@@ -475,9 +485,12 @@ func renderReviewBriefBody(bundle ReviewBundle, kind, template, notes string, sm
 			if reviewBriefStatesRules(template) {
 				line("%d. %s", next+2, briefRulesText(template, bundle))
 			}
+			if template == reviewBriefTemplateDraftCheck {
+				line("%d. Before you finish, check your final message: pipe it to `pose review draft-check --draft -` (it reads this run's bundle and round, writes nothing and works in a read-only sandbox) and fix every reason it reports. A draft it refuses is refused at conclusion, and the round is spent.", next+3)
+			}
 		}
 	}
-	if template == reviewBriefTemplateRiskRules || template == reviewBriefTemplateAllNotApplicable {
+	if template == reviewBriefTemplateRiskRules || reviewBriefFromAllNotApplicable(template) {
 		// ParseReviewDraft refuses a draft whose `decision:` line outside the block disagrees
 		// with the block, so the brief cannot say the outside is not read at all.
 		// The last occurrence is the instruction of the step; an earlier one may be in the notes.
@@ -495,7 +508,7 @@ func roundFields(round ReviewRound, template string) string {
 	if round.Number < 2 {
 		return ""
 	}
-	if template == reviewBriefTemplateRoundIDs || template == reviewBriefTemplateRiskRules || template == reviewBriefTemplateAllNotApplicable {
+	if template == reviewBriefTemplateRoundIDs || template == reviewBriefTemplateRiskRules || reviewBriefFromAllNotApplicable(template) {
 		return ", `prior_findings` (each with `id`, `status` and `evidence`, one for every finding of the previous round; the `id` is the identifier listed under Findings to account for, which carries its round, for example R2-F1, never a bare F1, and a finding you report now takes an `id` that no earlier round used, for example N1: a bare or reused identifier makes the whole draft unreadable) and `sweep` (what you swept)"
 	}
 	return ", `prior_findings` (each with `id`, `status` and `evidence`, one for every finding of the previous round) and `sweep` (what you swept)"

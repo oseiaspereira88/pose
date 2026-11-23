@@ -2134,6 +2134,9 @@ func (s Store) sealReviewBundle(ref string, identity *ReviewBundleImplementation
 		replaced.Replaces = governing.BundleID
 		identity = &replaced
 	}
+	if blockers := s.sealReadinessBlockers(bundle); len(blockers) > 0 {
+		return bundle, fmt.Errorf("pose: review bundle is not sealable: %s", strings.Join(blockers, "; "))
+	}
 	// A bundle already sealed reads as it was; a new seal holds a validation result,
 	// whatever the lifecycle of the scope says.
 	if !holdsValidationResult(bundle.Payload.Evidence) {
@@ -3891,6 +3894,15 @@ func (s Store) validateBundleAttestationWith(bundle ReviewBundle, att ReviewAtte
 			}
 		}
 	}
+	return append(blockers, s.attestationContentBlockers(bundle, att, skipEvidenceSupport)...)
+}
+
+// attestationContentBlockers judges what an attestation says about its bundle,
+// apart from who signed it: criteria, mappings, findings, evidence and tools.
+// It is the part a reviewer's draft can be checked against before the run
+// ends (spec pose-review-readiness-before-seal R3).
+func (s Store) attestationContentBlockers(bundle ReviewBundle, att ReviewAttestation, skipEvidenceSupport bool) []string {
+	blockers := []string{}
 	required := map[string]ReviewPlanCriterion{}
 	for _, criterion := range bundle.Payload.Plan.Criteria {
 		if criterion.Required {

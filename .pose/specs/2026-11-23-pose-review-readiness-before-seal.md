@@ -1,6 +1,6 @@
 ---
 slug: pose-review-readiness-before-seal
-status: draft
+status: in-progress
 created_at: 2026-11-23
 completed_at:
 supersedes:
@@ -10,7 +10,7 @@ priority: 1
 components: pose-mcp
 task_type: feature
 surface: standard
-delivers:
+delivers: capability:review-readiness-before-seal
 ---
 
 # Spec: pose-review-readiness-before-seal
@@ -33,7 +33,7 @@ Capping review rounds, changing review independence, or judging the subject itse
 
 ### Functional
 - R1: `pose review bundle --seal` shall refuse a spec scope whose attributed changes touch a delivery root without a delivery declaration, with the same rule and message `pose close` uses (`undeclared-delivery`).
-- R2: The seal shall refuse a spec scope whose decisions do not each name a requirement or constraint basis that the design check requires, with the same rule the conclusion preflight applies.
+- R2: When the plan asks for structural mappings, the seal shall refuse a spec scope with a decision or assumption that reaches no requirement or constraint, the rule the conclusion preflight applies to a mapping basis.
 - R3: A new `pose review draft-check <run|bundle> --draft <file>` shall run inside the review sandbox without writing. It reports every reason the conclusion preflight would refuse that draft: unreadable block, prefixed new finding ids, `prior_findings` outside the open findings, criterion evidence outside its component, undeclared decisions in mappings. It exits non-zero when any applies.
 - R4: The review brief shall instruct the reviewer to run `draft-check` on its draft before finishing, and list the open prior findings it must account for.
 - R5: `pose delegate` shall refuse a note file over the adapter limit with a message naming the note, its size and the limit, instead of the generic adapter-file error.
@@ -54,19 +54,42 @@ Records and indexes written by earlier engines keep their meaning.
 `pose-mcp` (CLI and engine), the manual and its embedded copy.
 
 ### Artifacts
-Declared when the spec starts.
+- created: .pose/specs/2026-11-23-pose-review-readiness-before-seal.md
+- created: .pose/adr/2026-11-23-review-readiness-before-seal.md
+- created: pose-mcp/internal/pose/review_seal_readiness.go
+- created: pose-mcp/internal/pose/review_draft_check.go
+- modified: pose-mcp/internal/pose/review_bundle.go
+- modified: pose-mcp/internal/pose/review_dispatch.go
+- modified: pose-mcp/internal/pose/review_brief.go
+- modified: pose-mcp/internal/pose/review_brief_test.go
+- modified: pose-mcp/internal/pose/review_brief_conclusion_rules_test.go
+- modified: pose-mcp/internal/pose/review_brief_preflight_tie_test.go
+- modified: pose-mcp/internal/pose/review_structure_test.go
+- modified: pose-mcp/internal/pose/testdata/review_brief_template_digests.json
+- created: pose-mcp/internal/cli/review_draft_check.go
+- created: pose-mcp/internal/cli/review_draft_check_test.go
+- created: pose-mcp/internal/cli/review_seal_readiness_test.go
+- modified: pose-mcp/internal/cli/review_closeout.go
+- modified: pose-mcp/internal/cli/review_conclude.go
+- modified: pose-mcp/internal/cli/delegate.go
+- modified: pose-mcp/internal/cli/help_catalog.go
+- modified: POSE.md
+- modified: locales/pt-BR/POSE.md
+- modified: pose-mcp/internal/scaffold/dist/POSE.md
+- modified: pose-mcp/internal/scaffold/dist/locales/pt-BR/POSE.md
 
 ### Delivery targets
-Declared when the spec starts.
+
+- capability:review-readiness-before-seal module:pose-mcp profile:composed-capability entrypoint:pose-mcp/internal/cli/review_draft_check.go
 
 ### API/contract changes
-To be detailed when the spec starts.
+New command `pose review draft-check`; new environment variable `POSE_REVIEW_DRAFT_CONTEXT` set for delegated review runs; new brief template `review-brief/8`; `review bundle --seal` refuses two more conditions for new seals.
 
 ### Data/storage changes
-To be detailed when the spec starts.
+The dispatch writes `pose-review-draft-context.json` to the run's private temporary directory; nothing is written to the repository.
 
 ### Technical risks
-To be detailed when the spec starts.
+A draft check that drifted from the conclusion would mislead reviewers; it calls the same functions, and a test compares its reasons with the conclusion's refusal. Residual limits L1 and L2 are stated in the ADR.
 
 ## 4. Tasks
 
@@ -80,6 +103,14 @@ To be detailed when the spec starts.
 - [ ] `pose validate --carry` and `pose check --strict`.
 
 ## 5. Decisions
+
+### Decision D1
+- Basis: R3, R4
+The draft check reuses the conclusion's parser, round accounting and attestation content checks, extracted as `attestationContentBlockers`, so it cannot accept what the conclusion refuses for content. It leaves out only the run's signature and identity, which do not exist before the run ends. See ADR `2026-11-23-review-readiness-before-seal`.
+
+### Decision D2
+- Basis: R1, R2
+The seal applies only the readiness rules whose inputs exist before the review: the delivery declaration and the decision basis. Evidence and trace gates of `pose close` stay at close. A bundle already sealed is returned without being judged again.
 
 ## 6. Validation
 

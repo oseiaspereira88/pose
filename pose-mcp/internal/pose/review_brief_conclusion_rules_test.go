@@ -58,7 +58,7 @@ func TestAnEarlierConclusionBriefStillRendersWithoutTheRules(t *testing.T) {
 	if err != nil {
 		t.Fatal(err)
 	}
-	if current.TemplateVersion != "review-brief/7" || earlier.TemplateVersion != "review-brief/3" {
+	if current.TemplateVersion != "review-brief/8" || earlier.TemplateVersion != "review-brief/3" {
 		t.Fatalf("templates: %s %s", current.TemplateVersion, earlier.TemplateVersion)
 	}
 	if strings.Contains(earlier.Text, "POSE checks the conclusion before it records it") {
@@ -67,8 +67,8 @@ func TestAnEarlierConclusionBriefStillRendersWithoutTheRules(t *testing.T) {
 	if !strings.Contains(earlier.Text, "the conclusion POSE records as the attestation") || earlier.Digest == current.Digest {
 		t.Fatal("review-brief/3 no longer asks for the conclusion, or has the digest of /4")
 	}
-	if !reviewBriefAsksConclusion("review-brief/3") || !reviewBriefAsksConclusion("review-brief/4") || !reviewBriefAsksConclusion("review-brief/5") || !reviewBriefAsksConclusion("review-brief/6") || !reviewBriefAsksConclusion("review-brief/7") || reviewBriefAsksConclusion("review-brief/2") {
-		t.Fatal("the templates that ask for a conclusion are /3 to /7")
+	if !reviewBriefAsksConclusion("review-brief/3") || !reviewBriefAsksConclusion("review-brief/4") || !reviewBriefAsksConclusion("review-brief/5") || !reviewBriefAsksConclusion("review-brief/6") || !reviewBriefAsksConclusion("review-brief/7") || !reviewBriefAsksConclusion("review-brief/8") || reviewBriefAsksConclusion("review-brief/2") {
+		t.Fatal("the templates that ask for a conclusion are /3 to /8")
 	}
 }
 
@@ -136,5 +136,19 @@ func TestTheBriefOfALaterRoundStatesTheIdentifiersOfPriorFindings(t *testing.T) 
 	earlier := renderReviewBriefBody(fixedBriefBundle(), ReviewBriefKindReview, reviewBriefTemplateConclusions, "", nil, &ReviewRound{Number: 2}, true, nil)
 	if strings.Contains(earlier, "never a bare F1") {
 		t.Error("review-brief/4 changed under its version: the rule belongs to review-brief/5 and later")
+	}
+}
+
+// Spec pose-review-readiness-before-seal R4: the current brief asks the
+// reviewer to check its draft before finishing; /7 never did.
+func TestTheCurrentBriefAsksForTheDraftCheck(t *testing.T) {
+	const step = "pipe it to `pose review draft-check --draft -`"
+	current := renderReviewBriefBody(fixedBriefBundle(), ReviewBriefKindReview, reviewBriefTemplates[ReviewBriefKindReview], "", nil, &ReviewRound{Number: 1}, true, nil)
+	if !strings.Contains(current, step) {
+		t.Fatal("the current review brief does not ask for the draft check")
+	}
+	earlier := renderReviewBriefBody(fixedBriefBundle(), ReviewBriefKindReview, reviewBriefTemplateAllNotApplicable, "", nil, &ReviewRound{Number: 1}, true, nil)
+	if strings.Contains(earlier, step) {
+		t.Fatal("review-brief/7 changed under the runs briefed with it")
 	}
 }
