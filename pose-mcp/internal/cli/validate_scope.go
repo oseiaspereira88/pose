@@ -159,6 +159,14 @@ func computeChangedScope(root, base, head string, modules []validationModule, ex
 		owner := moduleOf(file)
 		if owner != "" {
 			selectModule(owner, "contains changed file: "+file)
+			// An enclosing module's checks may read inside the modules nested
+			// in its directory, and the root module encloses them all (review
+			// round 9, N25).
+			for _, m := range modules {
+				if m.Rel != owner && (m.Rel == "." || strings.HasPrefix(owner, m.Rel+"/")) {
+					selectModule(m.Rel, "changed file in nested module "+owner+": "+file)
+				}
+			}
 		}
 		for _, m := range modules {
 			if m.Rel != "." && strings.HasPrefix(m.Rel, file+"/") {

@@ -838,3 +838,82 @@ func TestCarryDetectsACaseFoldedDirectory(t *testing.T) {
 		t.Fatal("a case-sensitive directory read as case-folded")
 	}
 }
+
+// An enclosing module is selected when a module nested in it changes (review
+// round 9, N25).
+func TestChangedScopeSelectsTheEnclosingModule(t *testing.T) {
+	f := newCarryFixture(t, "")
+	f.write("b/n/go.mod", "module n\n")
+	f.commit("nested module in b")
+	f.write("b/n/input", "x\n")
+	f.commit("change inside the nested module")
+	_, out := runValidate(t, f.root, "--changed-from", "HEAD~1", "--changed-to", "HEAD", "--explain")
+	if !strings.Contains(out, "+ b/n: contains changed file: b/n/input") || !strings.Contains(out, "+ b: changed file in nested module b/n: b/n/input") {
+		t.Fatalf("both the owner and its enclosing module must be selected: %s", out)
+	}
+}
+
+// A gitlink inside a module is scanned too (review round 9, N24).
+func TestCarryScansAGitlinkInsideAModule(t *testing.T) {
+	f := newCarryFixture(t, "")
+	sub := filepath.Join(f.root, "b", "sub")
+	if err := os.MkdirAll(sub, 0o755); err != nil {
+		t.Fatal(err)
+	}
+	git := func(dir string, args ...string) {
+		cmd := exec.Command("git", append([]string{"-C", dir}, args...)...)
+		cmd.Env = append(os.Environ(), "GIT_AUTHOR_NAME=t", "GIT_AUTHOR_EMAIL=t@t", "GIT_COMMITTER_NAME=t", "GIT_COMMITTER_EMAIL=t@t", "GIT_CONFIG_GLOBAL=/dev/null")
+		if out, err := cmd.CombinedOutput(); err != nil {
+			t.Fatalf("git %v: %v %s", args, err, out)
+		}
+	}
+	git(sub, "init", "-q")
+	if err := os.Symlink("../../a", filepath.Join(sub, "link")); err != nil {
+		t.Fatal(err)
+	}
+	git(sub, "add", "-A")
+	git(sub, "-c", "core.hooksPath=/dev/null", "commit", "-qm", "link out")
+	f.commit("gitlink inside b")
+	f.baseline()
+	f.write("a/changed.go", "package a\n")
+	f.commit("change a")
+	_, _, run := f.validate("--carry")
+	if run.Carry == nil || run.Carry.Used || !strings.Contains(run.Carry.Reason, "symlink b/sub/link") {
+		t.Fatalf("carry = %+v, want the aliasing symlink in the module's gitlink refused", run.Carry)
+	}
+}
+
+// Case behaviour is probed on every directory up to the root (review round 9,
+// N26).
+func TestCarryRelevantDirsIncludeEveryAncestor(t *testing.T) {
+	root := t.TempDir()
+	if err := os.MkdirAll(filepath.Join(root, "shared", "a"), 0o755); err != nil {
+		t.Fatal(err)
+	}
+	meta := scopeMetadata{Modules: map[string]scopeModuleMeta{"b": {DependsOn: []string{"shared/A/input"}}}}
+	dirs := carryRelevantDirs(root, nil, meta)
+	want := map[string]bool{root: false, filepath.Join(root, "shared"): false}
+	for _, d := range dirs {
+		if _, ok := want[d]; ok {
+			want[d] = true
+		}
+	}
+	for d, found := range want {
+		if !found {
+			t.Fatalf("dirs = %v, missing ancestor %s", dirs, d)
+		}
+	}
+}
+
+// The root module encloses every other module.
+func TestChangedScopeRootModuleEnclosesEveryModule(t *testing.T) {
+	f := newCarryFixture(t, "")
+	f.write("go.mod", "module root\n")
+	f.commit("root module")
+	f.write("a/changed.go", "package a\n")
+	f.commit("change a")
+	_, out := runValidate(t, f.root, "--changed-from", "HEAD~1", "--changed-to", "HEAD", "--explain")
+	if !strings.Contains(out, "+ .: changed file in nested module a: a/changed.go") || !strings.Contains(out, "- b: not affected") {
+		t.Fatalf("the root module must be selected as the enclosing module, b left: %s", out)
+	}
+}

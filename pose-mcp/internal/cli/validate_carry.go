@@ -13,6 +13,7 @@ import (
 	"path"
 	"path/filepath"
 	"runtime/debug"
+	"sort"
 	"strings"
 	"unicode"
 
@@ -392,35 +393,18 @@ func gitlinks(repo, commit string) (map[string]string, error) {
 	return links, nil
 }
 
-// submoduleAliases names a submodule that could hide an alias: one holding a
-// module or a declared dependency that is not checked out at its recorded
-// commit, or that itself has gitlinks, or whose tree tracks an aliasing
-// symlink.
+// submoduleAliases names a submodule that could hide an alias: one that is
+// not checked out at its recorded commit, or that itself has gitlinks, or
+// whose tree tracks an aliasing symlink.
 func submoduleAliases(root, head string, modules []validationModule, meta scopeMetadata) (string, error) {
 	links, err := gitlinks(root, head)
 	if err != nil {
 		return "", err
 	}
-	holds := func(sub string) bool {
-		for _, m := range modules {
-			if m.Rel == sub || strings.HasPrefix(m.Rel, sub+"/") {
-				return true
-			}
-		}
-		for _, module := range meta.Modules {
-			for _, dep := range module.DependsOn {
-				dep = filepath.ToSlash(filepath.Clean(dep))
-				if dep == "." || dep == sub || strings.HasPrefix(dep, sub+"/") || strings.HasPrefix(sub, dep+"/") {
-					return true
-				}
-			}
-		}
-		return false
-	}
+	// Every gitlink is scanned, not only those holding a module or a
+	// dependency: one inside a module aliases its paths too (review round 9,
+	// N24).
 	for sub, commit := range links {
-		if !holds(sub) {
-			continue
-		}
 		repo := filepath.Join(root, filepath.FromSlash(sub))
 		if err := posemodel.RawGit("-C", repo, "cat-file", "-e", commit+"^{commit}").Run(); err != nil {
 			return fmt.Sprintf("submodule %s is not checked out at its recorded commit, so aliases in it cannot be ruled out", sub), nil
@@ -444,29 +428,36 @@ func submoduleAliases(root, head string, modules []validationModule, meta scopeM
 }
 
 // carryRelevantDirs are the directories whose case behaviour decides whether
-// lexical selection is sound: every module directory and the nearest existing
-// directory of every declared dependency.
+// lexical selection is sound: every existing directory on the path from the
+// root to each module and to each declared dependency, ancestors included,
+// since any of them can fold a lookup (review round 9, N26).
 func carryRelevantDirs(root string, modules []validationModule, meta scopeMetadata) []string {
+	seen := map[string]bool{}
 	dirs := []string{}
-	for _, m := range modules {
-		dirs = append(dirs, m.Abs)
-	}
-	for _, module := range meta.Modules {
-		for _, dep := range module.DependsOn {
-			p := filepath.Join(root, filepath.FromSlash(filepath.ToSlash(filepath.Clean(dep))))
-			for {
-				if info, err := os.Stat(p); err == nil && info.IsDir() {
-					dirs = append(dirs, p)
-					break
-				}
-				parent := filepath.Dir(p)
-				if parent == p || len(parent) < len(root) {
-					break
-				}
-				p = parent
+	add := func(p string) {
+		root := filepath.Clean(root)
+		for p = filepath.Clean(p); ; p = filepath.Dir(p) {
+			if p != root && !strings.HasPrefix(p, root+string(filepath.Separator)) {
+				return
+			}
+			if info, err := os.Stat(p); err == nil && info.IsDir() && !seen[p] {
+				seen[p] = true
+				dirs = append(dirs, p)
+			}
+			if p == root {
+				return
 			}
 		}
 	}
+	for _, m := range modules {
+		add(m.Abs)
+	}
+	for _, module := range meta.Modules {
+		for _, dep := range module.DependsOn {
+			add(filepath.Join(root, filepath.FromSlash(filepath.ToSlash(filepath.Clean(dep)))))
+		}
+	}
+	sort.Strings(dirs)
 	return dirs
 }
 
