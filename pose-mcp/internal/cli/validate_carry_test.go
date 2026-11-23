@@ -369,3 +369,53 @@ func TestCarryRefusesABaseThatValidatedADirtyWorkingCopy(t *testing.T) {
 		t.Fatalf("exit=%d b=%+v, want b re-run and failing", code, checkOf(run, "b"))
 	}
 }
+
+// A rename names its source module too (review round 2, N1).
+func TestCarrySelectsBothSidesOfARename(t *testing.T) {
+	f := newCarryFixture(t, "")
+	f.write("a/data.txt", "data\n")
+	f.commit("a data")
+	f.baseline()
+	f.git("mv", "a/data.txt", "b/data.txt")
+	f.commit("move data from a to b")
+	_, _, run := f.validate("--carry")
+	if got := strings.Join(f.ran(), ","); got != "a,b" {
+		t.Fatalf("a rename executed %q, want both its source and destination modules", got)
+	}
+	if !strings.Contains(run.Carry.Selected["a"], "a/data.txt") {
+		t.Fatalf("source module reason = %q", run.Carry.Selected["a"])
+	}
+}
+
+// Names Git would quote keep their owner (review round 2, N3).
+func TestCarryKeepsTheOwnerOfAQuotedName(t *testing.T) {
+	f := newCarryFixture(t, `{"schemaVersion":1,"modules":{"a":{"selfContained":true},"b":{"selfContained":true}}}`)
+	f.baseline()
+	f.write("a/naïve \"name\".txt", "x\n")
+	f.commit("quoted name in a")
+	_, _, run := f.validate("--carry")
+	if got := strings.Join(f.ran(), ","); got != "a" {
+		t.Fatalf("a quoted name in a executed %q, want a", got)
+	}
+	if !strings.HasPrefix(run.Carry.Selected["a"], "contains changed file: a/") {
+		t.Fatalf("reason = %q, want ownership by a", run.Carry.Selected["a"])
+	}
+}
+
+// A root module owns root files even when it declares itself self-contained
+// (review round 2, N2).
+func TestCarryRootModuleOwnsRootFiles(t *testing.T) {
+	f := newCarryFixture(t, `{"schemaVersion":1,"modules":{".":{"selfContained":true},"a":{"selfContained":true},"b":{"selfContained":true}}}`)
+	f.write("go.mod", "module root\n")
+	f.commit("root module")
+	f.baseline()
+	f.write("main.go", "package main\n")
+	f.commit("root change")
+	_, _, run := f.validate("--carry")
+	if _, ok := run.Carry.Selected["."]; !ok {
+		t.Fatalf("selected = %v, want the root module selected by its own file", run.Carry.Selected)
+	}
+	if got := strings.Join(f.ran(), ","); strings.Contains(got, "a") || strings.Contains(got, "b") || got == "" {
+		t.Fatalf("executed %q, want only the root module", got)
+	}
+}

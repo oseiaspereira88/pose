@@ -71,7 +71,10 @@ func computeChangedScope(root, base, head string, modules []validationModule, ex
 			return sel, fmt.Errorf("unsafe git revision: %q", rev)
 		}
 	}
-	gitArgs := []string{"-C", root, "diff", "--name-only", base}
+	// NUL-delimited and without rename pairing: a quoted or multi-line name
+	// keeps its owner, and a rename names both its source and its destination
+	// (review round 2, N1 and N3).
+	gitArgs := []string{"-C", root, "diff", "--name-only", "-z", "--no-renames", base}
 	if head != "" {
 		gitArgs = append(gitArgs, head)
 	}
@@ -80,18 +83,18 @@ func computeChangedScope(root, base, head string, modules []validationModule, ex
 	if err != nil {
 		return sel, fmt.Errorf("git diff %s failed (revision unknown?)", sel.rangeLabel())
 	}
-	for _, line := range strings.Split(strings.TrimSpace(string(out)), "\n") {
-		if line != "" {
-			sel.Changed = append(sel.Changed, filepath.ToSlash(line))
+	for _, name := range strings.Split(string(out), "\x00") {
+		if name != "" {
+			sel.Changed = append(sel.Changed, filepath.ToSlash(name))
 		}
 	}
 	if head == "" {
 		// Worktree comparisons must also see untracked files — invisible new
 		// code must never silently narrow validation (safe execution wins).
-		if untracked, err := posemodel.RawHistoryGit(root, "ls-files", "--others", "--exclude-standard").Output(); err == nil {
-			for _, line := range strings.Split(strings.TrimSpace(string(untracked)), "\n") {
-				if line != "" {
-					sel.Changed = append(sel.Changed, filepath.ToSlash(line))
+		if untracked, err := posemodel.RawHistoryGit(root, "ls-files", "-z", "--others", "--exclude-standard").Output(); err == nil {
+			for _, name := range strings.Split(string(untracked), "\x00") {
+				if name != "" {
+					sel.Changed = append(sel.Changed, filepath.ToSlash(name))
 				}
 			}
 		}
@@ -130,9 +133,11 @@ func computeChangedScope(root, base, head string, modules []validationModule, ex
 			}
 		} else {
 			// Root-level or unmapped change: safe execution wins, except for
-			// modules that declare their checks read nothing outside them.
+			// modules that declare their checks read nothing outside them. A
+			// root module owns the files no other module owns, so its
+			// declaration never exempts it from them (review round 2, N2).
 			for _, m := range modules {
-				if meta.Modules[m.Rel].SelfContained {
+				if meta.Modules[m.Rel].SelfContained && m.Rel != "." {
 					continue
 				}
 				if _, ok := sel.Selected[m.Rel]; !ok {

@@ -34,7 +34,7 @@ Caching individual command outputs, hashing arbitrary inputs of a check, carryin
 ### Functional
 - R1: `pose validate --carry --json-out <results_path>` shall read the canonical record at the configured `results_path` as its base. It shall be refused with exit 2 when no `results_path` is configured, when the output path is not that path, or when combined with `--module`, `--stack`, `--workspace`, `--changed-from` or `--changed-to`.
 - R2: The base shall be used only when every condition below holds. Otherwise the run shall execute every check and record `carry.used: false` with the first failing condition as `carry.reason`.
-  - Its schema, mode, `matrix_sha256` and `engine_version` equal the current run's.
+  - Its schema, mode, `matrix_sha256` and `engine_version` equal the current run's. Neither engine build is modified from its recorded revision.
   - Its `git_head` is an ancestor of, or equal to, `HEAD`.
   - It was not cancelled.
   - It recorded `material_clean`: its own working copy matched its head when it started and when it ended, and none of its material bindings is unavailable.
@@ -42,7 +42,7 @@ Caching individual command outputs, hashing arbitrary inputs of a check, carryin
 - R3: With a usable base, the run shall select modules with the changed-scope rules over `base.git_head..HEAD`, excluding the `results_path` file itself. It shall also exclude derived administrative records of the engine's closed list (`posemodel.IsAdministrativePath`, the classes material bindings ignore) that are regular files, or absent, at `HEAD`. Otherwise the index and state commits that follow every record would select every module. It shall execute every check of a selected module. Every check of an unselected module whose base result exists and was not skipped shall be carried. A module with any check lacking such a base result shall be selected with the reason `carry: no prior result for <check id>`.
 - R4: A carried check shall keep the base result's outcome, exit code, duration, limit state, output and evidence class. It shall add `carried_from`, the head the check actually ran at, preserved through chained carries, and `carried_generated_at`. Counts shall add `carried`. Carried failures and errors shall count toward the run outcome exactly like executed ones.
 - R5: The record shall add `engine_version` on every run: the engine version plus the VCS revision the binary was built from, when the build records it. With `--carry` it shall also add a `carry` object: `used`, `reason`, `base_head`, `changed` (the number of files) and `selected` (module to reason).
-- R6: A module declared `"selfContained": true` in `.pose/indexes/module-metadata.json` shall not be selected by a change outside every module. It is still selected by changes inside it, by its declared `dependsOn` and by policy. This shall hold for `--changed-from` and `--carry` alike, with the reason recorded for the modules it widens.
+- R6: The changed set shall read Git names NUL-delimited and without rename pairing, so a quoted or multi-line name keeps its owner and a rename names both its source and its destination. A root module `.` owns the files no other module owns, whatever it declares. A module declared `"selfContained": true` in `.pose/indexes/module-metadata.json` shall not be selected by a change outside every module. It is still selected by changes inside it, by its declared `dependsOn` and by policy. This shall hold for `--changed-from` and `--carry` alike, with the reason recorded for the modules it widens.
 - R7: Reading the record into the delivery index shall use a check's `carried_from` and `carried_generated_at` as that result's head and time. Every consumer of a result's head therefore judges the commit a carried check really ran at.
 
 ### Non-functional
@@ -67,6 +67,7 @@ Caching individual command outputs, hashing arbitrary inputs of a check, carryin
 - modified: pose-mcp/internal/cli/validate_results.go
 - created: pose-mcp/internal/cli/validate_carry.go
 - created: pose-mcp/internal/cli/validate_carry_test.go
+- created: pose-mcp/internal/cli/validate_engine_identity_test.go
 - modified: pose-mcp/internal/pose/delivery_validation_run.go
 - created: pose-mcp/internal/pose/delivery_validation_run_test.go
 - modified: POSE.md
@@ -151,17 +152,18 @@ Each test is run against the code before its requirement and must fail there.
 - 2026-11-22: dogfood: `validate --carry --explain` at `c4182727` used that record as base. The record and index commits counted as zero changed files. Five of six modules were carried, and `pose-mcp` ran because its criticality is high. The run passed with `counts.carried` 3, and the record is kept at `.pose/bin/batch-20261118/engine-a-dogfood-carried.json` in the Harne8 batch.
 
 - 2026-11-22: review round 1 (rrn-0dd98c4aab8b5918, Codex) found F1 (high). A base that validated a dirty working copy could be carried. The record now has `material_clean`, and a base without it, or with an unavailable material binding, is refused. `TestCarryRefusesABaseThatValidatedADirtyWorkingCopy` reproduces the sequence. It failed with the check mutated out and passes with it.
+- 2026-11-22: review round 2 (rrn-1c033e4c349d7794) confirmed R1-F1 fixed and found four new issues. N1: a rename's source path was missing from the changed set. N2: a self-contained root module was exempt from its own files. N3: quoted, newline-delimited Git names lost their owner. N4: modified engine builds at one revision shared an identity. All four are fixed, each with a regression test that failed when its fix was mutated out.
 
 ### Results summary
 All new and existing tests pass, and the strict matrix is green. In this repository, `pose-mcp` holds 233 of the 236 checks and is high criticality, so carrying saves little here. In an instance with many modules, a change confined to one of them reruns only that module and the modules that are not declared self-contained.
 
 ### Requirement trace
 - R1 [satisfied] test:TestCarryRefusesIncompatibleFlags
-- R2 [satisfied] test:TestCarryFallsBackToAFullRun test:TestCarryRefusesAFilteredBase test:TestCarryRefusesABaseThatValidatedADirtyWorkingCopy
+- R2 [satisfied] test:TestCarryFallsBackToAFullRun test:TestCarryRefusesAFilteredBase test:TestCarryRefusesABaseThatValidatedADirtyWorkingCopy test:TestEngineIdentityRefusesModifiedBuilds
 - R3 [satisfied] test:TestCarryRunsOnlyTheChangedModule test:TestCarryRecordFileIsNotAChange test:TestCarryIgnoresDerivedAdministrativeRecords test:TestCarrySelectsAModuleWithoutAPriorResult
 - R4 [satisfied] test:TestCarryKeepsTheOriginalHeadAcrossChainedCarries test:TestCarryKeepsACarriedFailureAFailure
 - R5 [satisfied] test:TestCarryRunsOnlyTheChangedModule
-- R6 [satisfied] test:TestCarryRootChangeRunsEverythingUnlessSelfContained test:TestChangedScopeHonoursSelfContainedModules
+- R6 [satisfied] test:TestCarryRootChangeRunsEverythingUnlessSelfContained test:TestChangedScopeHonoursSelfContainedModules test:TestCarrySelectsBothSidesOfARename test:TestCarryKeepsTheOwnerOfAQuotedName test:TestCarryRootModuleOwnsRootFiles
 - R7 [satisfied] test:TestDeliveryValidationRunReadsTheCarriedHead
 - R8 [satisfied] test:TestCarryRecordFileIsNotAChange
 - R9 [satisfied] test:TestCarryFallsBackToAFullRun

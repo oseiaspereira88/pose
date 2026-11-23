@@ -59,6 +59,7 @@ func (p carryPlan) carriedResult(id string) checkResult {
 // selection means every check runs; the record says why.
 func planCarry(root, resultsPath, mode, matrixSHA string, matrix validationMatrix, modules []validationModule) carryPlan {
 	plan := carryPlan{record: &carryRecord{}}
+	engine, engineVerifiable := engineIdentityFrom(debug.ReadBuildInfo())
 	unused := func(format string, args ...any) carryPlan {
 		plan.record.Reason = fmt.Sprintf(format, args...)
 		return plan
@@ -78,7 +79,9 @@ func planCarry(root, resultsPath, mode, matrixSHA string, matrix validationMatri
 		return unused("the canonical result ran in mode %q, this run is %q", base.Mode, mode)
 	case base.MatrixSHA256 != matrixSHA:
 		return unused("the validation matrix changed since the canonical result")
-	case base.EngineVersion == "" || base.EngineVersion != validationEngineIdentity():
+	case !engineVerifiable:
+		return unused("this engine build was modified from its recorded revision, so its identity cannot be compared")
+	case base.EngineVersion == "" || base.EngineVersion != engine || strings.HasSuffix(base.EngineVersion, ".dirty"):
 		return unused("the engine version differs from the canonical result's or was not recorded")
 	case base.GitHead == "" || !safeGitRevRE.MatchString(base.GitHead):
 		return unused("the canonical result records no usable head")
@@ -141,7 +144,7 @@ func planCarry(root, resultsPath, mode, matrixSHA string, matrix validationMatri
 // submodule or directory in a class stays a change.
 func carryExclusions(root, base, resultsPath string) []string {
 	exclude := []string{resultsPath}
-	out, err := posemodel.RawGit("-C", root, "diff", "--name-only", "-z", base, "HEAD", "--").Output()
+	out, err := posemodel.RawGit("-C", root, "diff", "--name-only", "-z", "--no-renames", base, "HEAD", "--").Output()
 	if err != nil {
 		return exclude
 	}
@@ -167,10 +170,17 @@ func carryExclusions(root, base, resultsPath string) []string {
 // when the build tree was modified. Development builds share a version string,
 // so the revision is what tells two of them apart (R2).
 func validationEngineIdentity() string {
+	identity, _ := engineIdentityFrom(debug.ReadBuildInfo())
+	return identity
+}
+
+// engineIdentityFrom builds the identity from build information. A build of a
+// modified tree is not verifiable: two such builds at one revision share an
+// identity while their code differs (review round 2, N4).
+func engineIdentityFrom(info *debug.BuildInfo, ok bool) (string, bool) {
 	identity := version.Version
-	info, ok := debug.ReadBuildInfo()
-	if !ok {
-		return identity
+	if !ok || info == nil {
+		return identity, true
 	}
 	revision, modified := "", false
 	for _, setting := range info.Settings {
@@ -187,5 +197,5 @@ func validationEngineIdentity() string {
 			identity += ".dirty"
 		}
 	}
-	return identity
+	return identity, !modified
 }
