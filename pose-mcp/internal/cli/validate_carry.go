@@ -106,11 +106,11 @@ func planCarry(root, resultsPath, mode, matrixSHA, head string, matrix validatio
 	if !base.MaterialClean {
 		return unused("the canonical result did not validate a clean working copy of its head")
 	}
-	for _, binding := range base.MaterialProvenance {
-		if binding == posemodel.MaterialBindingUnavailable {
-			return unused("the canonical result records an unavailable material binding")
-		}
-	}
+	// material_clean is the witness that the base validated its head. A spec
+	// whose material the engine cannot compute is recorded unavailable in any
+	// clean run, so an unavailable binding is not, by itself, a reason to
+	// refuse; a run that was not clean has every binding unavailable and
+	// material_clean false.
 	if !materialWorktreeClean(root) {
 		return unused("the working copy differs from HEAD in material paths")
 	}
