@@ -123,21 +123,45 @@ Each requirement gets a regression test shown failing before its code.
 - Command: `go test ./...` (in `pose-mcp`), then `pose validate --carry`.
 
 ### Execution log
+- 2026-11-23: implemented R1–R6 with a regression test each, shown failing with its fix mutated out (seal refusal, decision basis, draft-check content, dispatch context, oversized note, conclude hint). `go test ./...` in `pose-mcp` passes.
+
 
 ### Results summary
+The full `pose-mcp` suite passes. The canonical validation result is refreshed with `pose validate --carry` after the implementation commit.
+
 
 ### Requirement trace
+- R1 [satisfied] test:TestSealRefusesAnUndeclaredDelivery
+- R2 [satisfied] test:TestSealReadinessRefusesADecisionWithoutBasis
+- R3 [satisfied] test:TestReviewDraftCheckMatchesTheConclusionStep
+- R4 [satisfied] test:TestTheCurrentBriefAsksForTheDraftCheck
+- R5 [satisfied] test:TestDelegateNamesTheNoteLimitAndTheConclusionStep
+- R6 [satisfied] test:TestDelegateNamesTheNoteLimitAndTheConclusionStep
+
 
 ### Known gaps
+The draft check cannot run the signature and identity checks, which need the finished run; the conclusion step still runs them.
+
 
 ## 7. Final Report
 
 ### Delivered scope
+The seal of a new spec bundle refuses an undeclared delivery and, when the plan asks for structural mappings, a decision basis that reaches no requirement. `pose review draft-check` reports what the conclusion step would refuse, inside the run, through a context the dispatch writes. The brief `review-brief/8` asks for it. `pose delegate` names an oversized note and the conclude command of a run nothing concluded.
+
 
 ### Files and modules changed
+`pose-mcp` (CLI and engine), the manual in both locales and its embedded copies, the ADR `2026-11-23-review-readiness-before-seal`.
+
 
 ### Validation executed
+`go test ./...` in `pose-mcp`; `pose check --strict`; `pose validate --carry --json-out .pose/results/delivery-validation.json`.
+
 
 ### Residual risks
+L1 and L2 in the ADR: the draft check judges against the dispatch's context, and the seal reads the committed index.
+
 
 ### Follow-ups
+None.
+
+
