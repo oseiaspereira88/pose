@@ -145,7 +145,28 @@ func planCarry(root, resultsPath, mode, matrixSHA, head string, matrix validatio
 			if filepath.IsAbs(dep) || path.IsAbs(clean) || clean == ".." || strings.HasPrefix(clean, "../") {
 				return unused("dependency %s of module %s lies outside the repository, so its changes cannot be seen", dep, rel)
 			}
+			// A path that is not already clean can traverse a symlink before
+			// its ".." is applied (review round 11, N30).
+			if filepath.ToSlash(dep) != clean {
+				return unused("dependency %s of module %s is not a clean path, so its physical identity cannot be established", dep, rel)
+			}
+			// Non-ASCII names can alias under Unicode normalization (review
+			// round 11, N32).
+			if !asciiPath(clean) {
+				return unused("dependency %s of module %s is not an ASCII path, so normalization aliases cannot be ruled out", dep, rel)
+			}
 		}
+	}
+	for _, m := range modules {
+		if !asciiPath(m.Rel) {
+			return unused("module %s is not an ASCII path, so normalization aliases cannot be ruled out", m.Rel)
+		}
+	}
+	// Index flags that hide tracked edits from status (review round 11, N31).
+	if hidden, err := hiddenIndexEntries(root, head); err != nil {
+		return unused("the index cannot be read: %v", err)
+	} else if hidden != "" {
+		return unused("%s is marked assume-unchanged or skip-worktree, so the working copy cannot be compared", hidden)
 	}
 	if caseInsensitiveFilesystem(root, os.Stat) {
 		return unused("the filesystem is case-insensitive, so changes cannot be attributed to modules")
@@ -509,4 +530,53 @@ func swapCase(s string) string {
 		}
 		return r
 	}, s)
+}
+
+// asciiPath reports whether p is plain ASCII.
+func asciiPath(p string) bool {
+	for i := 0; i < len(p); i++ {
+		if p[i] >= 0x80 {
+			return false
+		}
+	}
+	return true
+}
+
+// hiddenIndexEntries returns a tracked path, in the repository or in one of
+// its checked-out submodules, whose index entry is marked assume-unchanged or
+// skip-worktree: status cannot see edits to it.
+func hiddenIndexEntries(root, head string) (string, error) {
+	check := func(repo, prefix string) (string, error) {
+		out, err := posemodel.RawGit("-C", repo, "ls-files", "-v", "-z").Output()
+		if err != nil {
+			return "", err
+		}
+		for _, entry := range strings.Split(string(out), "\x00") {
+			if len(entry) < 3 {
+				continue
+			}
+			tag := entry[0]
+			if (tag >= 'a' && tag <= 'z') || tag == 'S' {
+				return path.Join(prefix, entry[2:]), nil
+			}
+		}
+		return "", nil
+	}
+	if hidden, err := check(root, ""); err != nil || hidden != "" {
+		return hidden, err
+	}
+	links, err := gitlinks(root, head)
+	if err != nil {
+		return "", err
+	}
+	for sub := range links {
+		repo := filepath.Join(root, filepath.FromSlash(sub))
+		if _, err := os.Stat(filepath.Join(repo, ".git")); err != nil {
+			continue
+		}
+		if hidden, err := check(repo, sub); err != nil || hidden != "" {
+			return hidden, err
+		}
+	}
+	return "", nil
 }

@@ -964,3 +964,51 @@ func TestCarryRefusesDependenciesOutsideTheRepository(t *testing.T) {
 		}
 	}
 }
+
+// A dependency that is not already clean refuses the carry (review round 11,
+// N30).
+func TestCarryRefusesUncleanDependencies(t *testing.T) {
+	f := newCarryFixture(t, `{"schemaVersion":1,"modules":{"b":{"selfContained":true,"dependsOn":["unowned/link/../input"]}}}`)
+	f.baseline()
+	f.write("a/changed.go", "package a\n")
+	f.commit("change a")
+	_, _, run := f.validate("--carry")
+	if run.Carry == nil || run.Carry.Used || !strings.Contains(run.Carry.Reason, "not a clean path") {
+		t.Fatalf("carry = %+v, want an unclean dependency refused", run.Carry)
+	}
+}
+
+// Non-ASCII module or dependency paths refuse the carry (review round 11,
+// N32).
+func TestCarryRefusesNonASCIIPaths(t *testing.T) {
+	f := newCarryFixture(t, `{"schemaVersion":1,"modules":{"b":{"selfContained":true,"dependsOn":["shared/café.txt"]}}}`)
+	f.baseline()
+	f.write("a/changed.go", "package a\n")
+	f.commit("change a")
+	_, _, run := f.validate("--carry")
+	if run.Carry == nil || run.Carry.Used || !strings.Contains(run.Carry.Reason, "not an ASCII path") {
+		t.Fatalf("carry = %+v, want a non-ASCII dependency refused", run.Carry)
+	}
+}
+
+// An index entry hiding edits from status means the run validated no known
+// tree, and refuses the carry (review round 11, N31).
+func TestCarryRefusesHiddenIndexEntries(t *testing.T) {
+	f := newCarryFixture(t, "")
+	f.write("b/input", "x\n")
+	f.commit("b input")
+	f.git("update-index", "--skip-worktree", "b/input")
+	if _, out, run := f.validate(); run.MaterialClean {
+		t.Fatalf("material_clean = true with a skip-worktree entry: %s", out)
+	}
+	f.git("update-index", "--no-skip-worktree", "b/input")
+	f.baseline()
+	f.git("update-index", "--assume-unchanged", "b/input")
+	f.write("a/changed.go", "package a\n")
+	f.git("add", "a/changed.go")
+	f.git("-c", "core.hooksPath=/dev/null", "commit", "-qm", "change a")
+	_, _, run := f.validate("--carry")
+	if run.Carry == nil || run.Carry.Used || !strings.Contains(run.Carry.Reason, "assume-unchanged or skip-worktree") {
+		t.Fatalf("carry = %+v, want a hidden index entry refused", run.Carry)
+	}
+}
