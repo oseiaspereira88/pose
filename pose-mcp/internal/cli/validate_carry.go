@@ -167,6 +167,9 @@ func planCarry(root, resultsPath, mode, matrixSHA, head string, matrix validatio
 			return unused("module %s is not an ASCII path, so normalization aliases cannot be ruled out", m.Rel)
 		}
 	}
+	if sub := submodulesCheckedOut(root, head); sub != "" {
+		return unused("submodule %s is not checked out at its recorded commit", sub)
+	}
 	// Index flags that hide tracked edits from status (review round 11, N31).
 	if hidden, err := hiddenIndexEntries(root, head); err != nil {
 		return unused("the index cannot be read: %v", err)
@@ -626,4 +629,24 @@ func headReflogLength(root string) int {
 		return -1
 	}
 	return lines
+}
+
+// submodulesCheckedOut returns a gitlink of head whose working repository is
+// missing or not at the recorded commit; "" when every one is.
+func submodulesCheckedOut(root, head string) string {
+	links, err := gitlinks(root, head)
+	if err != nil {
+		return "(gitlinks unreadable)"
+	}
+	for sub, commit := range links {
+		repo := filepath.Join(root, filepath.FromSlash(sub))
+		if _, err := os.Stat(filepath.Join(repo, ".git")); err != nil {
+			return sub
+		}
+		out, err := posemodel.RawGit("-C", repo, "rev-parse", "HEAD").Output()
+		if err != nil || strings.TrimSpace(string(out)) != commit {
+			return sub
+		}
+	}
+	return ""
 }

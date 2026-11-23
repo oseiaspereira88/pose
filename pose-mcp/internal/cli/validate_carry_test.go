@@ -1072,3 +1072,43 @@ func TestCarryCaseProbeUsesOnlyASCIILetters(t *testing.T) {
 		t.Fatal("a directory without an ASCII letter entry cannot be shown not to fold")
 	}
 }
+
+// A mode change hidden by core.fileMode=false still makes the run unclean
+// (review round 13, N36).
+func TestValidateModeChangeHiddenByConfigurationIsNotClean(t *testing.T) {
+	f := newCarryFixture(t, "")
+	f.write("b/check.sh", "#!/bin/sh\nexit 0\n")
+	f.commit("non-executable script")
+	f.git("config", "core.fileMode", "false")
+	if err := os.Chmod(filepath.Join(f.root, "b", "check.sh"), 0o755); err != nil {
+		t.Fatal(err)
+	}
+	_, out, run := f.validate()
+	if run.MaterialClean {
+		t.Fatalf("material_clean = true although b/check.sh differs in mode from the commit: %s", out)
+	}
+}
+
+// An uninitialized submodule is not a clean base, and refuses the carry
+// (review round 13, N38).
+func TestValidateUninitializedSubmoduleIsNotClean(t *testing.T) {
+	f := newCarryFixture(t, "")
+	first := f.git("rev-parse", "HEAD")
+	f.git("update-index", "--add", "--cacheinfo", "160000,"+first+",b/data")
+	f.git("-c", "core.hooksPath=/dev/null", "commit", "-qm", "uninitialized gitlink in b")
+	// An uninitialized submodule is an empty directory, which status reports
+	// as clean.
+	if err := os.MkdirAll(filepath.Join(f.root, "b", "data"), 0o755); err != nil {
+		t.Fatal(err)
+	}
+	if !materialWorktreeClean(f.root) {
+		t.Fatal("the fixture must look clean to status for this test to mean anything")
+	}
+	_, out, run := f.validate()
+	if run.MaterialClean {
+		t.Fatalf("material_clean = true with an uninitialized submodule: %s", out)
+	}
+	if sub := submodulesCheckedOut(f.root, "HEAD"); sub != "b/data" {
+		t.Fatalf("submodulesCheckedOut = %q, want b/data", sub)
+	}
+}

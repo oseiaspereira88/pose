@@ -1036,6 +1036,14 @@ func cmdValidateWithStore(store posemodel.Store, args []string, stdout, stderr i
 		fmt.Fprintln(stderr, cliText(locale, "Error: --module must remain inside the project.", "Erro: --module deve permanecer dentro do projeto."))
 		return 2
 	}
+	// HEAD and its movement witness are pinned before any plan input is read:
+	// the matrix and the module discovery then belong to this head, or the
+	// end-of-run comparison sees the move (review round 13, N37).
+	pinnedHead := ""
+	if head, err := gitOutputBounded(root, 1024, "rev-parse", "HEAD"); err == nil {
+		pinnedHead = strings.TrimSpace(string(head))
+	}
+	startReflog := headReflogLength(root)
 	matrixPath := filepath.Join(root, ".pose", "indexes", "validation-matrix.json")
 	raw, err := os.ReadFile(matrixPath)
 	if err != nil {
@@ -1146,11 +1154,8 @@ func cmdValidateWithStore(store posemodel.Store, args []string, stdout, stderr i
 	// The head is pinned before anything is planned: selection, carried
 	// results and the end-of-run comparison all name this one commit (review
 	// round 5, N14).
-	if head, err := gitOutputBounded(root, 1024, "rev-parse", "HEAD"); err == nil {
-		run.GitHead = strings.TrimSpace(string(head))
-	}
+	run.GitHead = pinnedHead
 	startedClean := materialWorktreeClean(root)
-	startReflog := headReflogLength(root)
 	var carryState carryPlan
 	if carry {
 		carryState = planCarry(root, canonicalResultsPath, mode, run.MatrixSHA256, run.GitHead, matrix, modules)
@@ -1437,7 +1442,10 @@ func cmdValidateWithStore(store posemodel.Store, args []string, stdout, stderr i
 	// Equal endpoints do not show HEAD never moved: H -> H' -> H leaves them
 	// equal. The reflog must not have grown (review round 12, N34).
 	endReflog := headReflogLength(root)
-	run.MaterialClean = startedClean && endedClean && materialWorktreeClean(root) && run.GitHead != "" && endHead == run.GitHead && hiddenErr == nil && hidden == "" && startReflog >= 0 && endReflog == startReflog
+	// Every submodule must hold its recorded commit: an uninitialized one
+	// reads as clean while its material is absent (review round 13, N38).
+	submodulesOK := run.GitHead != "" && submodulesCheckedOut(root, run.GitHead) == ""
+	run.MaterialClean = startedClean && endedClean && materialWorktreeClean(root) && run.GitHead != "" && endHead == run.GitHead && hiddenErr == nil && hidden == "" && startReflog >= 0 && endReflog == startReflog && submodulesOK
 	// A run that did not validate its recorded head binds no material: its
 	// bindings would let a later tree make a misattributed pass current again
 	// (review round 5, N12).
@@ -1701,7 +1709,8 @@ func sanitizeGoCheckArgs(ctx context.Context, dir, program string, args []string
 // path outside the administrative classes, untracked files included. A status
 // that cannot be read is not clean.
 func materialWorktreeClean(root string) bool {
-	out, err := gitOutputBounded(root, 16*1024*1024, "status", "--porcelain=v1", "-z", "--ignore-submodules=none", "--untracked-files=all")
+	// Mode changes count whatever core.fileMode says (review round 13, N36).
+	out, err := gitOutputBounded(root, 16*1024*1024, "-c", "core.fileMode=true", "status", "--porcelain=v1", "-z", "--ignore-submodules=none", "--untracked-files=all")
 	if err != nil {
 		return false
 	}
@@ -1734,7 +1743,7 @@ func materialWorktreeClean(root string) bool {
 // outside the administrative records. Untracked files are not counted: checks
 // leave build products behind, and those are not the material they ran over.
 func materialTrackedUnchanged(root string) bool {
-	out, err := gitOutputBounded(root, 16*1024*1024, "status", "--porcelain=v1", "-z", "--ignore-submodules=none", "--untracked-files=no")
+	out, err := gitOutputBounded(root, 16*1024*1024, "-c", "core.fileMode=true", "status", "--porcelain=v1", "-z", "--ignore-submodules=none", "--untracked-files=no")
 	if err != nil {
 		return false
 	}
