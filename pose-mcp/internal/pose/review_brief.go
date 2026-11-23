@@ -486,7 +486,7 @@ func renderReviewBriefBody(bundle ReviewBundle, kind, template, notes string, sm
 				line("%d. %s", next+2, briefRulesText(template, bundle))
 			}
 			if template == reviewBriefTemplateDraftCheck {
-				line("%d. Before you finish, check your final message: pipe it to `pose review draft-check --draft -` (it reads this run's bundle and round, writes nothing and works in a read-only sandbox) and fix every reason it reports. A draft it refuses is refused at conclusion, and the round is spent.", next+3)
+				line("%d. Before you finish, check your final message: pipe it to `\"$POSE_REVIEW_CLI\" review draft-check --draft -`, the engine that dispatched this run (it reads this run's bundle and round, writes nothing and works in a read-only sandbox) and fix every reason it reports. A draft it refuses is refused at conclusion, and the round is spent.", next+3)
 			}
 		}
 	}

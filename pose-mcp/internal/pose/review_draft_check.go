@@ -23,6 +23,11 @@ import (
 // is checked against inside a delegated review.
 const ReviewDraftContextEnv = "POSE_REVIEW_DRAFT_CONTEXT"
 
+// ReviewCLIEnv names the executable of the engine that dispatched a review,
+// so the reviewer checks its draft with it and not with another installed
+// `pose` (review round 1).
+const ReviewCLIEnv = "POSE_REVIEW_CLI"
+
 const reviewDraftContextSchema = "pose.review-draft-context/v1"
 
 // ReviewDraftContext is what a draft is judged against: the sealed bundle and
@@ -69,9 +74,18 @@ func ReadReviewDraftContext(path string) (ReviewDraftContext, error) {
 	return ctx, nil
 }
 
-// CheckReviewDraft returns every reason a draft for bundleID would be
-// refused at conclusion, or nil when none applies.
-func (s Store) CheckReviewDraft(bundleID, output string, now time.Time) ([]string, error) {
+// CheckReviewDraft returns every reason a draft for ref would be refused at
+// conclusion, or nil when none applies. ref is a bundle id, or a run id whose
+// bundle is used.
+func (s Store) CheckReviewDraft(ref, output string, now time.Time) ([]string, error) {
+	bundleID := ref
+	if strings.HasPrefix(ref, "rrn-") {
+		run, err := s.LoadProvenanceReviewRun(ref)
+		if err != nil {
+			return nil, err
+		}
+		bundleID = run.BundleID
+	}
 	bundle, err := s.LoadReviewBundle(bundleID)
 	if err != nil {
 		return nil, err

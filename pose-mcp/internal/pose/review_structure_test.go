@@ -380,10 +380,16 @@ func TestABMStructuralCausalityGovernsOnlySealedContracts(t *testing.T) {
 // refused at seal; the same scope without structural facts seals.
 func TestSealReadinessRefusesADecisionWithoutBasis(t *testing.T) {
 	store := causalityFixture(t)
-	structure, _ := causalityInputs()
+	structure, required := causalityInputs()
 	var bundle ReviewBundle
 	bundle.Payload.Scope.Ref = "spec:backend"
 	bundle.Payload.Plan.Structure = structure
+	// Material facts with no criterion that asks for their mapping: nothing
+	// is mapped, so nothing is refused (review round 1, N1).
+	if blockers := store.sealReadinessBlockers(bundle); len(blockers) != 0 {
+		t.Fatalf("a plan that asks for no mapping was refused: %v", blockers)
+	}
+	bundle.Payload.Plan.Criteria = []ReviewPlanCriterion{required["design-causality"], required["correctness"]}
 	blockers := store.sealReadinessBlockers(bundle)
 	assertBlocker(t, blockers, "decision basis D9 reaches no requirement or constraint")
 	assertBlocker(t, blockers, "decision basis A9 reaches no requirement or constraint")

@@ -973,6 +973,11 @@ func (s Store) RunReviewDispatchContext(parent context.Context, plan DispatchPla
 		if draftCtx, err := s.ReviewDraftContextFor(plan.Bundle); err == nil {
 			if path, err := writeReviewDraftContext(tmp, draftCtx); err == nil {
 				env = append(env, ReviewDraftContextEnv+"="+path)
+				// The reviewer's shell may resolve another `pose` first; the
+				// engine that dispatched the run is the one that checks it.
+				if self, err := os.Executable(); err == nil {
+					env = append(env, ReviewCLIEnv+"="+self)
+				}
 			}
 		}
 	}

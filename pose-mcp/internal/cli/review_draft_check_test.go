@@ -16,7 +16,7 @@ import (
 func TestReviewDraftCheckMatchesTheConclusionStep(t *testing.T) {
 	contextCopy := filepath.Join(t.TempDir(), "context.json")
 	root, draftPath, bundleID := cliProvenanceInstance(t, func(root, draftPath string) {
-		reviewers := posemodel.ReviewersPolicy{SchemaVersion: 1, Provenance: &posemodel.ReviewRunProvenancePolicy{Trust: "executor-attested", Implementation: posemodel.ModelIdentity{Principal: "agent:implementer", Execution: "implementation-fixture", Vendor: "openai", Model: "implementation-model"}}, Adapters: map[string]posemodel.ReviewerAdapter{"fake": {Executor: "agent:reviewer", Command: []string{"sh", "-c", "cat >/dev/null; cp \"$POSE_REVIEW_DRAFT_CONTEXT\" '" + contextCopy + "'; cat '" + draftPath + "'"}, Vendor: "openai", Model: "review-model"}}}
+		reviewers := posemodel.ReviewersPolicy{SchemaVersion: 1, Provenance: &posemodel.ReviewRunProvenancePolicy{Trust: "executor-attested", Implementation: posemodel.ModelIdentity{Principal: "agent:implementer", Execution: "implementation-fixture", Vendor: "openai", Model: "implementation-model"}}, Adapters: map[string]posemodel.ReviewerAdapter{"fake": {Executor: "agent:reviewer", Command: []string{"sh", "-c", "cat >/dev/null; cp \"$POSE_REVIEW_DRAFT_CONTEXT\" '" + contextCopy + "'; printf %s \"$POSE_REVIEW_CLI\" > '" + contextCopy + ".cli'; cat '" + draftPath + "'"}, Vendor: "openai", Model: "review-model"}}}
 		raw, _ := json.Marshal(reviewers)
 		writeCloseoutCLIFile(t, root, ".pose/policy/reviewers.json", string(raw))
 	})
@@ -49,6 +49,14 @@ func TestReviewDraftCheckMatchesTheConclusionStep(t *testing.T) {
 	}
 	if _, err := os.Stat(contextCopy); err != nil {
 		t.Fatalf("the dispatch named no draft context: %v", err)
+	}
+	if cli, _ := os.ReadFile(contextCopy + ".cli"); len(cli) == 0 {
+		t.Fatal("the dispatch named no review CLI")
+	}
+	// A run id selects its bundle (review round 1, N2).
+	runs, _, _ := s.ReadReviewRuns("")
+	if code, out := runPose(t, root, "review", "draft-check", runs[0].RunID, "--draft", badPath); code == 0 || !strings.Contains(out, "would refuse") {
+		t.Fatalf("a run id did not select its bundle: %d %s", code, out)
 	}
 	t.Setenv(posemodel.ReviewDraftContextEnv, contextCopy)
 	if code, out := runPose(t, root, "review", "draft-check", "--draft", badPath); code == 0 || !strings.Contains(out, "would refuse") {

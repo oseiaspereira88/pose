@@ -7,21 +7,26 @@ package pose
 
 import "sort"
 
+// sealReadinessFindingCodes are the declaration findings a seal refuses:
+// what the spec must declare about its own change, known before any review.
+// Evidence findings stay at close, where their inputs are final.
+var sealReadinessFindingCodes = map[string]bool{"undeclared-delivery": true, "undeclared": true}
+
 func (s Store) sealReadinessBlockers(bundle ReviewBundle) []string {
 	scope, err := ParseScopeRef(bundle.Payload.Scope.Ref)
 	if err != nil || scope.Kind != "spec" {
 		return nil
 	}
 	var blockers []string
-	// R1: the delivery declaration `pose close` requires, read from the same
-	// index findings the delivery assurance gate reports.
-	if policy, err := LoadDeliveryPolicyIn(s.fsys(), s.Root); err == nil && policy.Enabled {
+	// R1: the declarations `pose close` requires, read from the same index
+	// findings its delivery assurance gate reports.
+	{
 		if graph, err := s.GetDeliveryIntegrity(""); err == nil {
 			for _, finding := range graph.Findings {
-				if finding.Code != "undeclared-delivery" || finding.Spec != scope.Slug || finding.Severity != "error" && finding.Severity != "critical" {
+				if !sealReadinessFindingCodes[finding.Code] || finding.Spec != scope.Slug || finding.Severity != "error" && finding.Severity != "critical" {
 					continue
 				}
-				msg := "undeclared-delivery [" + finding.Path + "]: " + finding.Message
+				msg := finding.Code + " [" + finding.Path + "]: " + finding.Message
 				if finding.Remediation != "" {
 					msg += " (" + finding.Remediation + ")"
 				}
@@ -32,7 +37,11 @@ func (s Store) sealReadinessBlockers(bundle ReviewBundle) []string {
 	// R2: a structural fact is mapped to a decision basis, and the preflight
 	// refuses a basis that reaches no requirement or constraint. When the plan
 	// asks for mappings, every declared decision must be usable as one.
-	if structure := bundle.Payload.Plan.Structure; structure != nil && len(structure.Material) > 0 {
+	asksMapping := false
+	for _, criterion := range bundle.Payload.Plan.Criteria {
+		asksMapping = asksMapping || criterion.Required && criterion.RequiresStructuralMapping
+	}
+	if structure := bundle.Payload.Plan.Structure; asksMapping && structure != nil && len(structure.Material) > 0 {
 		ns := s.reviewDesignBasisNamespace(scope)
 		var unreached []string
 		for id := range ns.Known {

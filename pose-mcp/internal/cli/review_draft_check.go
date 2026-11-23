@@ -9,7 +9,7 @@ import (
 	posemodel "github.com/harne8/pose-mcp/internal/pose"
 )
 
-const reviewDraftCheckUsage = "pose review draft-check [<bundle-id>] --draft <file> [--json]"
+const reviewDraftCheckUsage = "pose review draft-check [<bundle-id|run-id>] --draft <file> [--json]"
 
 // cmdReviewDraftCheck reports the reasons a draft would be refused at
 // conclusion, writing nothing (spec pose-review-readiness-before-seal R3).

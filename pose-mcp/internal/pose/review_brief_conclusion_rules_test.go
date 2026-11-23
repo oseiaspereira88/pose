@@ -142,7 +142,7 @@ func TestTheBriefOfALaterRoundStatesTheIdentifiersOfPriorFindings(t *testing.T) 
 // Spec pose-review-readiness-before-seal R4: the current brief asks the
 // reviewer to check its draft before finishing; /7 never did.
 func TestTheCurrentBriefAsksForTheDraftCheck(t *testing.T) {
-	const step = "pipe it to `pose review draft-check --draft -`"
+	const step = "pipe it to `\"$POSE_REVIEW_CLI\" review draft-check --draft -`"
 	current := renderReviewBriefBody(fixedBriefBundle(), ReviewBriefKindReview, reviewBriefTemplates[ReviewBriefKindReview], "", nil, &ReviewRound{Number: 1}, true, nil)
 	if !strings.Contains(current, step) {
 		t.Fatal("the current review brief does not ask for the draft check")

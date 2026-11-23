@@ -11,7 +11,7 @@ import (
 
 // sealReadinessRoot is the dispatch fixture with the delivery policy enabled
 // and the index holding the finding `pose close` would report, unsealed.
-func sealReadinessRoot(t *testing.T, severity string) string {
+func sealReadinessRoot(t *testing.T, code, severity string) string {
 	t.Helper()
 	root := newDetachedFixtureRoot(t)
 	writeCloseoutCLIFile(t, root, ".pose/policy/review.json", `{"schema_version":2,"enabled":true,"adopted_at":"2026-08-02","profiles":{"spec":"spec-closeout@1"},"review_bundles":true,"review_bundles_adopted_at":"2026-08-14"}`)
@@ -38,7 +38,7 @@ func sealReadinessRoot(t *testing.T, severity string) string {
 			Paths: []posemodel.ObservedPath{{Action: "modified", Path: "pose-mcp/lib.go"}}, DiffDigest: "sha256:" + strings.Repeat("2", 64)}},
 		ValidationResults: []posemodel.DeliveryValidationResult{{ID: "val-alpha", Module: "pose-mcp", Check: "go-test", EvidenceClass: "integration", Severity: "required", Outcome: "pass", GitHead: head, ProvenanceDigest: provenance}},
 		Reverse:           map[string][]string{"pose-mcp/lib.go": {"alpha"}},
-		Findings:          []posemodel.DeliveryIntegrityFinding{posemodel.NewDeliveryIntegrityFinding("undeclared-delivery", severity, "alpha", "pose-mcp/lib.go", "cs-alpha", "changed delivery root pose-mcp has no delivery declaration", "declare a typed delivery target or narrow the attributed change set")},
+		Findings:          []posemodel.DeliveryIntegrityFinding{posemodel.NewDeliveryIntegrityFinding(code, severity, "alpha", "pose-mcp/lib.go", "cs-alpha", "changed delivery root pose-mcp has no delivery declaration", "declare a typed delivery target or narrow the attributed change set")},
 	}
 	raw, _ := json.Marshal(graph)
 	writeCloseoutCLIFile(t, root, ".pose/indexes/delivery-integrity.json", string(raw))
@@ -49,13 +49,22 @@ func sealReadinessRoot(t *testing.T, severity string) string {
 // touches a delivery root without a declaration is refused at seal, with the
 // rule `pose close` uses, instead of after an approved review.
 func TestSealRefusesAnUndeclaredDelivery(t *testing.T) {
-	root := sealReadinessRoot(t, "error")
-	code, out := runPose(t, root, "review", "bundle", "spec:alpha", "--seal")
-	if code == 0 || !strings.Contains(out, "undeclared-delivery [pose-mcp/lib.go]") || !strings.Contains(out, "pose close refuses it") {
-		t.Fatalf("an undeclared delivery was sealed: %d %s", code, out)
+	// The undeclared delivery, and the undeclared artifact of review round 1
+	// (N3): both are refused by `pose close` and known before the review.
+	for _, finding := range []string{"undeclared-delivery", "undeclared"} {
+		root := sealReadinessRoot(t, finding, "error")
+		code, out := runPose(t, root, "review", "bundle", "spec:alpha", "--seal")
+		if code == 0 || !strings.Contains(out, finding+" [pose-mcp/lib.go]") || !strings.Contains(out, "pose close refuses it") {
+			t.Fatalf("%s was sealed: %d %s", finding, code, out)
+		}
 	}
-	// A warning, as for a spec created before the delivery policy, seals.
-	root = sealReadinessRoot(t, "warning")
+	// A warning, as for a spec created before the delivery policy, seals;
+	// so does an evidence finding, which stays at close.
+	root := sealReadinessRoot(t, "undeclared-delivery", "warning")
+	if code, out := runPose(t, root, "review", "bundle", "spec:alpha", "--seal"); code != 0 {
+		t.Fatalf("a warning blocked the seal: %d %s", code, out)
+	}
+	root = sealReadinessRoot(t, "unconsumed-capability", "error")
 	if code, out := runPose(t, root, "review", "bundle", "spec:alpha", "--seal"); code != 0 {
 		t.Fatalf("a warning blocked the seal: %d %s", code, out)
 	}
