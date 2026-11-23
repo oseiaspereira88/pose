@@ -16,7 +16,7 @@ Add `validate --carry`. The flag uses the existing canonical result as a base wh
 - not cancelled;
 - a clean material working copy.
 
-With a usable base, the run executes the changed-scope selection between the two heads and copies the base results of every unselected module. Each copied result keeps its outcome and states the head where it really ran (`carried_from`) and when (`carried_generated_at`). The delivery reading uses that head for the result. Any unmet condition runs everything and records the reason.
+With a usable base, the run executes the changed-scope selection between the two heads. That selection ignores the canonical result file and the derived administrative records that material bindings already ignore: the engine's closed list, still regular files at `HEAD`. It copies the base results of every unselected module. Each copied result keeps its outcome and states the head where it really ran (`carried_from`) and when (`carried_generated_at`). The delivery reading uses that head for the result. Any unmet condition runs everything and records the reason.
 
 A module may declare `"selfContained": true` in its metadata. A change outside every module then stops selecting it. The declaration is the instance's statement that the module's checks read only its own directory and its declared dependencies, so it applies to `--changed-from` too. Without it, the existing safe fallback stays.
 

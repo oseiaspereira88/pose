@@ -326,3 +326,22 @@ func TestCarryRefusesIncompatibleFlags(t *testing.T) {
 		t.Fatalf("--carry with a non-canonical output: exit=%d, want 2: %s", code, out)
 	}
 }
+
+func TestCarryIgnoresDerivedAdministrativeRecords(t *testing.T) {
+	f := newCarryFixture(t, "")
+	f.baseline()
+	f.write(".pose/indexes/generation.json", "{\"generation\":2}\n")
+	f.write(".pose/state/project-state.md", "state\n")
+	f.commit("index and state")
+	_, _, run := f.validate("--carry")
+	if len(f.ran()) != 0 || run.Counts.Carried != 2 {
+		t.Fatalf("executed=%v counts=%+v carry=%+v, want derived records not to count as changes", f.ran(), run.Counts, run.Carry)
+	}
+	// A script stored in a class, and the validation matrix, stay material.
+	f.write(".pose/indexes/helper.sh", "echo\n")
+	f.commit("script in a class")
+	f.validate("--carry")
+	if got := strings.Join(f.ran(), ","); got != "a,b" {
+		t.Fatalf("a non-record file in a class executed %q, want everything", got)
+	}
+}

@@ -11,6 +11,8 @@ import (
 	"fmt"
 	"os"
 	"path/filepath"
+	"runtime/debug"
+	"strings"
 
 	posemodel "github.com/harne8/pose-mcp/internal/pose"
 	"github.com/harne8/pose-mcp/internal/version"
@@ -76,7 +78,7 @@ func planCarry(root, resultsPath, mode, matrixSHA string, matrix validationMatri
 		return unused("the canonical result ran in mode %q, this run is %q", base.Mode, mode)
 	case base.MatrixSHA256 != matrixSHA:
 		return unused("the validation matrix changed since the canonical result")
-	case base.EngineVersion == "" || base.EngineVersion != version.Version:
+	case base.EngineVersion == "" || base.EngineVersion != validationEngineIdentity():
 		return unused("the engine version differs from the canonical result's or was not recorded")
 	case base.GitHead == "" || !safeGitRevRE.MatchString(base.GitHead):
 		return unused("the canonical result records no usable head")
@@ -92,7 +94,7 @@ func planCarry(root, resultsPath, mode, matrixSHA string, matrix validationMatri
 	if err := posemodel.RawGit("-C", root, "merge-base", "--is-ancestor", base.GitHead, "HEAD").Run(); err != nil {
 		return unused("the canonical result's head %s is not an ancestor of HEAD", base.GitHead)
 	}
-	selection, err := computeChangedScope(root, base.GitHead, "HEAD", modules, resultsPath)
+	selection, err := computeChangedScope(root, base.GitHead, "HEAD", modules, carryExclusions(root, base.GitHead, resultsPath)...)
 	if err != nil {
 		return unused("changed-scope selection failed: %v", err)
 	}
@@ -120,4 +122,60 @@ func planCarry(root, resultsPath, mode, matrixSHA string, matrix validationMatri
 	plan.selection, plan.baseHead, plan.baseTime = &selection, base.GitHead, base.GeneratedAt
 	plan.record.Used, plan.record.BaseHead, plan.record.Changed, plan.record.Selected = true, base.GitHead, len(selection.Changed), selection.Selected
 	return plan
+}
+
+// carryExclusions are the changed paths that are not changes for the carry
+// selection (R3): the canonical result itself and the derived administrative
+// records of the engine's closed list (the same classes material bindings
+// ignore) that are still regular files, or gone, at HEAD. A symlink,
+// submodule or directory in a class stays a change.
+func carryExclusions(root, base, resultsPath string) []string {
+	exclude := []string{resultsPath}
+	out, err := posemodel.RawGit("-C", root, "diff", "--name-only", "-z", base, "HEAD", "--").Output()
+	if err != nil {
+		return exclude
+	}
+	for _, file := range strings.Split(string(out), "\x00") {
+		file = filepath.ToSlash(file)
+		if file == "" || !posemodel.IsAdministrativePath(file) {
+			continue
+		}
+		entry, err := posemodel.RawGit("-C", root, "ls-tree", "-z", "HEAD", "--", file).Output()
+		if err != nil {
+			continue
+		}
+		fields := strings.Fields(string(entry))
+		if len(fields) == 0 || fields[0] == "100644" || fields[0] == "100755" {
+			exclude = append(exclude, file)
+		}
+	}
+	return exclude
+}
+
+// validationEngineIdentity names the engine that ran a validation: its version
+// plus, when the binary records it, the VCS revision it was built from, marked
+// when the build tree was modified. Development builds share a version string,
+// so the revision is what tells two of them apart (R2).
+func validationEngineIdentity() string {
+	identity := version.Version
+	info, ok := debug.ReadBuildInfo()
+	if !ok {
+		return identity
+	}
+	revision, modified := "", false
+	for _, setting := range info.Settings {
+		switch setting.Key {
+		case "vcs.revision":
+			revision = setting.Value
+		case "vcs.modified":
+			modified = setting.Value == "true"
+		}
+	}
+	if revision != "" {
+		identity += "+" + revision
+		if modified {
+			identity += ".dirty"
+		}
+	}
+	return identity
 }

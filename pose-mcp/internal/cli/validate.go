@@ -24,7 +24,6 @@ import (
 	"time"
 
 	posemodel "github.com/harne8/pose-mcp/internal/pose"
-	"github.com/harne8/pose-mcp/internal/version"
 )
 
 type validationWhen struct {
@@ -1143,7 +1142,7 @@ func cmdValidateWithStore(store posemodel.Store, args []string, stdout, stderr i
 	}
 	matrixDigest := sha256.Sum256(raw)
 	run.MatrixSHA256 = "sha256:" + hex.EncodeToString(matrixDigest[:])
-	run.EngineVersion = version.Version
+	run.EngineVersion = validationEngineIdentity()
 	var carryState carryPlan
 	if carry {
 		carryState = planCarry(root, canonicalResultsPath, mode, run.MatrixSHA256, matrix, modules)
