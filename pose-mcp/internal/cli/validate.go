@@ -1043,7 +1043,7 @@ func cmdValidateWithStore(store posemodel.Store, args []string, stdout, stderr i
 	if head, err := gitOutputBounded(root, 1024, "rev-parse", "HEAD"); err == nil {
 		pinnedHead = strings.TrimSpace(string(head))
 	}
-	startReflog := headReflogLength(root)
+	startReflog := movementWitness(root, pinnedHead)
 	// The working copy must match the pinned head before the plan inputs are
 	// read, by the same full predicate checked at the end: status, hidden
 	// index entries and submodule checkouts (review round 14, N40 and N41).
@@ -1444,8 +1444,10 @@ func cmdValidateWithStore(store posemodel.Store, args []string, stdout, stderr i
 
 	// Equal endpoints do not show HEAD never moved: H -> H' -> H leaves them
 	// equal. The reflog must not have grown (review round 12, N34).
-	endReflog := headReflogLength(root)
-	run.MaterialClean = startedClean && endedClean && run.GitHead != "" && endHead == run.GitHead && validationMaterialClean(root, run.GitHead) && startReflog >= 0 && endReflog == startReflog
+	// The witness covers HEAD and every submodule's HEAD: a submodule moved
+	// away and back while checks ran is movement too (review round 15, N43).
+	endReflog := movementWitness(root, run.GitHead)
+	run.MaterialClean = startedClean && endedClean && run.GitHead != "" && endHead == run.GitHead && validationMaterialClean(root, run.GitHead) && startReflog != "" && endReflog == startReflog
 	// A run that did not validate its recorded head binds no material: its
 	// bindings would let a later tree make a misattributed pass current again
 	// (review round 5, N12).
@@ -1456,9 +1458,14 @@ func cmdValidateWithStore(store posemodel.Store, args []string, stdout, stderr i
 	}
 	// A cancelled run never reads as a success, whatever the severity of the
 	// checks it stopped (review round 1, B5).
-	cancelled := false
+	// A signal cancels the run even when no executed check saw it, as in an
+	// all-carried run (review round 15, N45).
+	cancelled := runCtx.Err() != nil
 	for _, check := range run.Checks {
 		cancelled = cancelled || check.LimitState == "cancelled"
+	}
+	if cancelled {
+		run.Cancelled, run.MaterialClean = true, false
 	}
 	for _, line := range validationTimingNotes(run) {
 		steps.Note(line)

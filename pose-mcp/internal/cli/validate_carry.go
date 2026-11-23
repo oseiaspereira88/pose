@@ -91,6 +91,9 @@ func planCarry(root, resultsPath, mode, matrixSHA, head string, matrix validatio
 	case head == "" || !safeGitRevRE.MatchString(head):
 		return unused("the current head cannot be read")
 	}
+	if base.Cancelled {
+		return unused("the canonical result was cancelled")
+	}
 	for _, check := range base.Checks {
 		if check.LimitState == "cancelled" {
 			return unused("the canonical result was cancelled")
@@ -664,4 +667,37 @@ func validationMaterialClean(root, head string) bool {
 		return false
 	}
 	return submodulesCheckedOut(root, head) == ""
+}
+
+// movementWitness summarizes the reflog lengths of HEAD and of every
+// checked-out submodule's HEAD; "" when any cannot be read, so the witness
+// never passes by default.
+func movementWitness(root, head string) string {
+	parent := headReflogLength(root)
+	if parent < 0 || head == "" {
+		return ""
+	}
+	parts := []string{fmt.Sprintf(".=%d", parent)}
+	links, err := gitlinks(root, head)
+	if err != nil {
+		return ""
+	}
+	subs := make([]string, 0, len(links))
+	for sub := range links {
+		subs = append(subs, sub)
+	}
+	sort.Strings(subs)
+	for _, sub := range subs {
+		repo := filepath.Join(root, filepath.FromSlash(sub))
+		if _, err := os.Stat(filepath.Join(repo, ".git")); err != nil {
+			parts = append(parts, sub+"=absent")
+			continue
+		}
+		n := headReflogLength(repo)
+		if n < 0 {
+			return ""
+		}
+		parts = append(parts, fmt.Sprintf("%s=%d", sub, n))
+	}
+	return strings.Join(parts, ",")
 }

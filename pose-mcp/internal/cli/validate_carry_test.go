@@ -1129,3 +1129,52 @@ func TestValidateConditionClearedDuringTheRunIsNotClean(t *testing.T) {
 		t.Fatalf("material_clean = true although the run started with a hidden index entry: %s", out)
 	}
 }
+
+// A submodule moved away and back while checks ran is movement (review round
+// 15, N43).
+func TestValidateSubmoduleMovingAndReturningIsNotClean(t *testing.T) {
+	f := newCarryFixture(t, "")
+	sub := filepath.Join(f.root, "b", "sub")
+	if err := os.MkdirAll(sub, 0o755); err != nil {
+		t.Fatal(err)
+	}
+	git := func(dir string, args ...string) {
+		cmd := exec.Command("git", append([]string{"-C", dir}, args...)...)
+		cmd.Env = append(os.Environ(), "GIT_AUTHOR_NAME=t", "GIT_AUTHOR_EMAIL=t@t", "GIT_COMMITTER_NAME=t", "GIT_COMMITTER_EMAIL=t@t", "GIT_CONFIG_GLOBAL=/dev/null")
+		if out, err := cmd.CombinedOutput(); err != nil {
+			t.Fatalf("git %v: %v %s", args, err, out)
+		}
+	}
+	git(sub, "init", "-q")
+	git(sub, "-c", "core.hooksPath=/dev/null", "commit", "-q", "--allow-empty", "-m", "one")
+	git(sub, "-c", "core.hooksPath=/dev/null", "commit", "-q", "--allow-empty", "-m", "two")
+	raw, _ := os.ReadFile(filepath.Join(f.root, ".pose/indexes/validation-matrix.json"))
+	script := `git -C ../b/sub checkout -q HEAD~1 && git -C ../b/sub checkout -q -`
+	f.write(".pose/indexes/validation-matrix.json", strings.Replace(string(raw), `"stacks"`, `"moduleOverrides":{"a":{"checks":[{"name":"moves","program":"sh","args":["-c","`+script+`"],"severity":"required","evidenceClass":"unit"}]}},"stacks"`, 1))
+	f.commit("submodule and a check that moves it")
+	if !validationMaterialClean(f.root, f.git("rev-parse", "HEAD")) {
+		t.Fatal("the fixture must start clean for this test to mean anything")
+	}
+	_, out, run := f.validate()
+	if run.MaterialClean {
+		t.Fatalf("material_clean = true although the submodule moved and came back: %s", out)
+	}
+}
+
+// A run-level cancellation refuses the base even when no check recorded it
+// (review round 15, N45).
+func TestCarryRefusesABaseCancelledAtRunLevel(t *testing.T) {
+	f := newCarryFixture(t, "")
+	f.baseline()
+	raw, _ := os.ReadFile(filepath.Join(f.root, carryResults))
+	var run map[string]any
+	_ = json.Unmarshal(raw, &run)
+	run["cancelled"] = true
+	out, _ := json.Marshal(run)
+	f.write(carryResults, string(out))
+	f.commit("cancelled base")
+	_, _, result := f.validate("--carry")
+	if result.Carry == nil || result.Carry.Used || !strings.Contains(result.Carry.Reason, "cancelled") {
+		t.Fatalf("carry = %+v, want a run-level cancelled base refused", result.Carry)
+	}
+}
