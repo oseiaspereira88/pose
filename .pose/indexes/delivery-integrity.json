@@ -1,7 +1,7 @@
 {
   "schema_version": 2,
-  "input_digest": "sha256:469ebc68a61257a9884346e936853443c445aea11d9f34746a88d0e772fa1a62",
-  "provenance_digest": "sha256:e7dc3a837257c79a9932196e00b84a107f6a854c313f0c75d9cbf619f5e9dd9c",
+  "input_digest": "sha256:ca477e030316b773c6c790c6a01c6c959f83b8b505e42b7348338c74a2f24a37",
+  "provenance_digest": "sha256:b134f814d4768dbcefaf96637e1a4b583642aba6b8f1cd5d9546b9fcc2666719",
   "implied_edges": [
     "changes"
   ],
@@ -38472,6 +38472,13 @@
       }
     },
     {
+      "id": "artifact:pose-mcp/internal/cli/validate_engine_identity_test.go",
+      "type": "artifact",
+      "attributes": {
+        "path": "pose-mcp/internal/cli/validate_engine_identity_test.go"
+      }
+    },
+    {
       "id": "artifact:pose-mcp/internal/cli/validate_guardrails_test.go",
       "type": "artifact",
       "attributes": {
@@ -48044,6 +48051,14 @@
       }
     },
     {
+      "id": "change-set:cs-56ab7e9702b8",
+      "type": "change-set",
+      "attributes": {
+        "diff_digest": "sha256:0230f0f278264b85a6742bc130c1fed991d29bad52ae8625fa46737e484f3eb0",
+        "selector": "trailers:pose-validate-carries-unchanged-checks"
+      }
+    },
+    {
       "id": "change-set:cs-56f1f7cb644d",
       "type": "change-set",
       "attributes": {
@@ -50273,14 +50288,6 @@
       "attributes": {
         "diff_digest": "sha256:5aaca622a6f9de9cc9d4879cdf0143cfa3d64aeba06873bc013636e22ffbde8c",
         "selector": "trailers:pose-contributor-mode-workflow-and-cli-hints"
-      }
-    },
-    {
-      "id": "change-set:cs-d854352a5108",
-      "type": "change-set",
-      "attributes": {
-        "diff_digest": "sha256:0e9024457068c337f166e28be157f428731445710364ed68be70c66b1f4f8faf",
-        "selector": "trailers:pose-validate-carries-unchanged-checks"
       }
     },
     {
@@ -140515,6 +140522,11 @@
     },
     {
       "from": "spec:pose-validate-carries-unchanged-checks",
+      "to": "artifact:pose-mcp/internal/cli/validate_engine_identity_test.go",
+      "type": "declares"
+    },
+    {
+      "from": "spec:pose-validate-carries-unchanged-checks",
       "to": "artifact:pose-mcp/internal/cli/validate_results.go",
       "type": "declares"
     },
@@ -140545,7 +140557,7 @@
     },
     {
       "from": "spec:pose-validate-carries-unchanged-checks",
-      "to": "change-set:cs-d854352a5108",
+      "to": "change-set:cs-56ab7e9702b8",
       "type": "observed-by"
     },
     {
@@ -176012,6 +176024,11 @@
     {
       "spec": "pose-validate-carries-unchanged-checks",
       "action": "created",
+      "path": "pose-mcp/internal/cli/validate_engine_identity_test.go"
+    },
+    {
+      "spec": "pose-validate-carries-unchanged-checks",
+      "action": "created",
       "path": "pose-mcp/internal/pose/delivery_validation_run_test.go"
     },
     {
@@ -177983,7 +178000,7 @@
         }
       ],
       "diff_digest": "sha256:60df3069a33822eb6f04b25c7efe7ffa179b66f0222f8c9055b98e66045f3884",
-      "material_digest": "sha256:e83e932b862dede2b77efc8587486cc0d4cd41e2695ac3f7bb8648f1fada4ca5",
+      "material_digest": "sha256:968e83dd08c17fb87bf31bb62d952aefd1f158a8f5c9d6e5eb366f56e3349fa2",
       "material_inputs": {
         "names": [
           ".pose/adr/2026-10-18-git-state-that-cannot-be-read-is-unknown-and-a-worktree-is-judged-by-its-content.md",
@@ -178518,7 +178535,7 @@
         }
       ],
       "diff_digest": "sha256:0b5d6424b578ba7e1c5987af33b6c899134dc5e3552c5e5beab6cec60aa2a2ff",
-      "material_digest": "sha256:183971cc4ac893ad007675495be20a565268d81413ae347ea465c9ea4e3ae91c",
+      "material_digest": "sha256:cc7fd1a5b4105b9837051c0eb8ef5428ed1561d403b3c09a490f323e15f7190c",
       "material_inputs": {
         "names": [
           ".pose/changelogs/unreleased/pose-manual-locale-parity.md",
@@ -179258,7 +179275,7 @@
         }
       ],
       "diff_digest": "sha256:1c58b11f6b714dab78d326ac86f86baacb59974cdc772707d10c46e37060e545",
-      "material_digest": "sha256:a53524117854ddf5b3c9daac7f9528436d54eea9592c0575b07de7800be67187",
+      "material_digest": "sha256:983eb892713539834f00b82e2406a1a8d22328f900cda461dc8b6468c3f83259",
       "material_inputs": {
         "names": [
           ".pose/changelogs/unreleased/pose-action-request-presentation.md",
@@ -182555,7 +182572,7 @@
         }
       ],
       "diff_digest": "sha256:a6b836f71464039e3a054d49d4adea3ee28942b674ec27ccbc137b10930ef7b2",
-      "material_digest": "sha256:93548a3cc3e7b0cab0d25391d906b6be31d9fd78383f588f43d7eb5458d2133f",
+      "material_digest": "sha256:98c53a80f8a20ba357f8c937444108023e1d87e5a8808947c862d68cce2a4941",
       "material_inputs": {
         "names": [
           ".pose/assessments/README.md",
@@ -182668,7 +182685,7 @@
         }
       ],
       "diff_digest": "sha256:6fa82db0f9d4bbef5b84241d6bbdc767fa2941f68f6848a900ef05c8ea8cc0e7",
-      "material_digest": "sha256:eb8f012c678494efb11d7be9deb1cbaee847bb8d60c71a335032ab4f647c8ffc",
+      "material_digest": "sha256:0f9491626f012bcf6a81bc054c7d16df99275f218022b09ad9b0b4dfbfdd54aa",
       "material_inputs": {
         "names": [
           ".pose/changelogs/unreleased/pose-spec-format-migration-command.md",
@@ -185914,7 +185931,7 @@
         }
       ],
       "diff_digest": "sha256:87ed6cf64b84a8885a5ce793c7a018d409bed4b6396e633d41639f5087752278",
-      "material_digest": "sha256:0259e0a97ca702f6b73c4857402fab9953bf379f81f9a49de81d8714f34c6ef5",
+      "material_digest": "sha256:5b0949df48c7487e5e71ba8689b7927ec12b4914a65914a0c3d997eb16282dd9",
       "material_inputs": {
         "names": [
           ".pose/assessments/README.md",
@@ -186824,7 +186841,7 @@
         }
       ],
       "diff_digest": "sha256:f321a656fff8bc0eb397b661b7edd7dfccfd293cd026d12c39a72f83f8357cbc",
-      "material_digest": "sha256:37fbcc8b5e9b38324c2915318efe84194de0dbab771c551c497acf46531f0d10",
+      "material_digest": "sha256:11c180bc9215f745da37647d5f9292e1741c5c9e4f2ba0c14230d11547d4ff7a",
       "material_inputs": {
         "names": [
           ".pose/indexes/delivery-integrity.json",
@@ -189259,7 +189276,7 @@
         }
       ],
       "diff_digest": "sha256:917e7c38182650adf9b8d8a3d9d1d3461f7a557f066397c03d33ccaabad041e1",
-      "material_digest": "sha256:1ece52634780703d548c873d85c2d867d8b48e870805b49028b2fcfa85f3209f",
+      "material_digest": "sha256:64dcd88a742e91a2f42e47c4a54071dc6025d0280cab2d37ea779b32cf187d3b",
       "material_inputs": {
         "names": [
           ".pose/adr/2026-10-23-explicit-channel-scope-for-action-presence.md",
@@ -189518,7 +189535,7 @@
         }
       ],
       "diff_digest": "sha256:88d16037057ae68124a66f7d1020fa04c3c2736b625311660f93d74b4f218d1b",
-      "material_digest": "sha256:2a533fa5ef35e563304ea07a9a8c5852de699bfbfc7505a8a30d77ac3002aaaf",
+      "material_digest": "sha256:4fa26caf1b536d24b41fc62c2002c58bd3beb5c50dc9d25760fcde1b8c2a6681",
       "material_inputs": {
         "names": [
           ".pose/adr/2026-10-26-delegation-is-a-first-class-execution-surface.md",
@@ -189721,7 +189738,7 @@
         }
       ],
       "diff_digest": "sha256:24cfb1e1f89849bf12ba363336c981749aaa94498360c9601712acd9ec56780f",
-      "material_digest": "sha256:1e1b09cf2876e15e2de5f1d141090e197da5c017b5e173bcb3eacf58e2bb1d61",
+      "material_digest": "sha256:54d0ea9ef048757b8fc0dd9b267021b541d7758c674351fa5506e7939130e332",
       "material_inputs": {
         "names": [
           ".pose/changelogs/unreleased/pose-delegated-verdict-destinations.md",
@@ -189941,7 +189958,7 @@
         }
       ],
       "diff_digest": "sha256:7998dcb803c56b11df04541796af5b8efea1b74d7f2be9553883ba6548004e47",
-      "material_digest": "sha256:70acfd9c3fe8ebd5c9049619b1adea7027e4b493e1e1278e6fd94e00451214e8",
+      "material_digest": "sha256:c60b5853e2d2c593b76b66c27c6128b23ac7ced34a959638445c21e4ffe2ef44",
       "material_inputs": {
         "names": [
           ".pose/changelogs/unreleased/pose-verdict-readers-ask-the-sealed-question.md",
@@ -190216,7 +190233,7 @@
         }
       ],
       "diff_digest": "sha256:905042f8c0249238762a570bf23463ad98e8fc2fef01c1c20f563b0b294b13af",
-      "material_digest": "sha256:a9b467e71dff909b0bea3ab8beebd8adeeeb4b969d045d459c9a37b41dbe8fda",
+      "material_digest": "sha256:d21b22179b3cbabbc4d50f0a111fb07cfca8977a084c75a878275494998e8a15",
       "material_inputs": {
         "names": [
           ".pose/indexes/delivery-integrity.json",
@@ -190649,7 +190666,7 @@
         }
       ],
       "diff_digest": "sha256:f1e282459b09095ea642db8feeb64adfe48000cd3365d5021ceb14e99e31f8a6",
-      "material_digest": "sha256:f0c07e7846201933f55b16227bd670c2d8395385a935fa828c8cdf0bb676c575",
+      "material_digest": "sha256:b36d5b41fab38f1a5e3389535f1428c57bbc12e1359666c3b93b8dec594f45ca",
       "material_inputs": {
         "names": [
           ".pose/changelogs/unreleased/pose-action-request-presentation.md",
@@ -191050,7 +191067,7 @@
         }
       ],
       "diff_digest": "sha256:10f0884561670c2483b77a937f243b82a92443f184a1c0e3bca926658a89b2ed",
-      "material_digest": "sha256:cfe092ce4c844a4aadf6ef7605c32d400a3395701d0e17b1a6bff64397f6b70d",
+      "material_digest": "sha256:c32c2cbf67b167ce5421ff2f32209c0ca7c012589bf00a0d1265874c29319a78",
       "material_inputs": {
         "names": [
           ".pose/adr/2026-11-08-generation-bound-query-cursors.md",
@@ -191266,7 +191283,7 @@
         }
       ],
       "diff_digest": "sha256:38467986d85a76501931362126cfe4d15f32d0810452c8059dd7fb561894564d",
-      "material_digest": "sha256:918c7acba629b0c80b5e86cb544aad19cb6de68dcc0e2fb09fe0bdb75c69b60a",
+      "material_digest": "sha256:c2e7ffa148136422317833aa40ef187f96fdcb05a38150d34a388260490259d9",
       "material_inputs": {
         "names": [
           ".pose/adr/2026-09-19-governance-outcomes-remain-append-only-projections.md",
@@ -191427,7 +191444,7 @@
         }
       ],
       "diff_digest": "sha256:b76729e09601aaf4706f2981b64ee706385a3ae452eb14de4e2f02777b088420",
-      "material_digest": "sha256:123f464d935d6eb2ab106eeda3735dbf017bb431f3968e21039f273948de1bde",
+      "material_digest": "sha256:59c1e3746dbeb8da95c8a0166a428594a43e1cb6695472861f3229d1401b3f48",
       "material_inputs": {
         "names": [
           ".pose/adr/2026-10-09-obligations-may-originate-on-the-project.md",
@@ -193251,7 +193268,7 @@
         }
       ],
       "diff_digest": "sha256:3642e953100f0256b6fbaf14c7e572843a9e3cd7a6d7e3879a46751e4d38360f",
-      "material_digest": "sha256:b2f088d78cac49e28f1fc280716f267c0e53c8866ec3e02b05322fbff5953abb",
+      "material_digest": "sha256:5cc17e102f2fd12b45138efdb111788e668e9f06605435208579f75b6c961013",
       "material_inputs": {
         "names": [
           ".agents/skills/README.md",
@@ -194013,7 +194030,7 @@
         }
       ],
       "diff_digest": "sha256:3d2dce35234ca7e7342ecd141aa631d039250cfb4120ff0a3486f90e29ce6173",
-      "material_digest": "sha256:82cb524af8dbc101231f6d72cf484e24a89667d15fd7b6e6c6e648ab519609e6",
+      "material_digest": "sha256:63545765a45cd218a5bf088fa10b99e69a38fec9d4a1911083ba45c95eb9110d",
       "material_inputs": {
         "names": [
           ".pose/adr/2026-10-08-structural-facts-compare-attributed-content.md",
@@ -194402,7 +194419,7 @@
         }
       ],
       "diff_digest": "sha256:0ad847367aa7942a9729ac959ea49345a76ee20888f7c7f5a4a2dc22c9b0e333",
-      "material_digest": "sha256:351d40bf2e25c2b541c5e22edcb98b82e0473f753fb5c0b585682074c5e4080a",
+      "material_digest": "sha256:340a5c69b8d293fe0d129c5e0345cab45dd5d3dd9ebdea8845d89508ac093a0e",
       "material_inputs": {
         "names": [
           ".pose/changelogs/unreleased/pose-action-request-presentation.md",
@@ -194704,7 +194721,7 @@
         }
       ],
       "diff_digest": "sha256:969faa776b4284f781ed663f227ec9560e51ad16d6ed30742258ceff08c7992e",
-      "material_digest": "sha256:5f89a39301575cdca74cf9dbaf059c2ce338177604cea5d4a17be17b21ff0f81",
+      "material_digest": "sha256:b9e8a565e71ce042c20b475b866b1003d1f72434ce9bd65ac208faf281fc6dcf",
       "material_inputs": {
         "names": [
           ".pose/changelogs/unreleased/pose-spec-authority-transfer.md",
@@ -195300,7 +195317,7 @@
         }
       ],
       "diff_digest": "sha256:22dadd9cf61facdce8a5f525e66daf33407a1980546e541356cfeb95ca297233",
-      "material_digest": "sha256:f63cc2aafdbf74d89ded9ae41d0f46a9f886df734c0ede0e798e8cbd8aac3a71",
+      "material_digest": "sha256:722978be4b55558d6222bb904123cd163a3f2deed8bdf1180901d03d8bf4f87d",
       "material_inputs": {
         "names": [
           ".pose/changelogs/unreleased/pose-machinery-backs-up-only-local-edits.md",
@@ -195806,7 +195823,7 @@
         }
       ],
       "diff_digest": "sha256:04f842959e924834bac551cbfee1ed05509b72a597ceac4022f9b50ea2d17dd5",
-      "material_digest": "sha256:ec3f864e5b733251c4b5e9b9cadc45bb3d226e45d50d18d085469e3bbb28993c",
+      "material_digest": "sha256:521049b4671a406adb1169e3b296e1477c5ea2626dc2a704e4ed7e156804aee1",
       "material_inputs": {
         "names": [
           ".pose/adr/2026-10-24-bind-action-lifecycle-proof-to-operation-and-predecessor.md",
@@ -198479,7 +198496,7 @@
         }
       ],
       "diff_digest": "sha256:5e6c7511d7ea91527d25e7d2e2f4c5c824b1918e6734adefb867a43fe4afa57d",
-      "material_digest": "sha256:a3fe2e634a9d69a99f26de107bfbd38022718e39107fffb856b3d29fa0e74a40",
+      "material_digest": "sha256:ea4a7a9196f03e11674143d1cf268d3cdc6bf6296a0d7b3b33cc9252ee779f7e",
       "material_inputs": {
         "names": [
           ".pose/assessments/README.md",
@@ -198883,7 +198900,7 @@
         }
       ],
       "diff_digest": "sha256:76c575b963b162f5e84a27b3a0de7d619043ac44c86db22aa8ebb865f3328577",
-      "material_digest": "sha256:dc8f719d6d5ceb8dc3f569d78438909db3510701a5e5abdc945d548c50fe8314",
+      "material_digest": "sha256:e78ec6df6efe20f22bcb4dbc921b15735d99cf314b7dea7815123d64d0da5a30",
       "material_inputs": {
         "names": [
           ".pose/adr/2026-11-07-validation-evidence-binds-to-validated-material.md",
@@ -199332,7 +199349,7 @@
         }
       ],
       "diff_digest": "sha256:3e3f269ee04da0e00e873528f4ac60b003353972cd64a26568334bca49ea76fc",
-      "material_digest": "sha256:51ce6e9d42fd5da8c68717e1b8b0bd4c3ef95bc6e08e71b0146380a43beb1018",
+      "material_digest": "sha256:404bc719c7b2e4238982be7856a4a4596f5ffac646ac50a9d66139277f22c11e",
       "material_inputs": {
         "names": [
           ".pose/adr/2026-11-12-sandboxed-claude-review-commands.md",
@@ -199479,7 +199496,7 @@
         }
       ],
       "diff_digest": "sha256:bb7510e87c4a95543d4a3e6c0bcab1986b2e076eba5f80c9bd33242ba35368ba",
-      "material_digest": "sha256:51f8b9e154990f7e1b4257a6e603a7369c8050565afae700a11f955c146fe60c",
+      "material_digest": "sha256:8e1e8f30ed1e2b0783fa98ca077024de019e1999cb0d7aa7f8df56be863dc448",
       "material_inputs": {
         "names": [
           ".pose/changelogs/unreleased/pose-contributor-mode-protocol.md",
@@ -200088,7 +200105,7 @@
         }
       ],
       "diff_digest": "sha256:80be1ab77e2738eb24ffeff16cfdb3875253144b971e38ab9bedcf84171292e4",
-      "material_digest": "sha256:71235803266afd9a13be2614c877b2ab5a7b463b07de07b1cb125a8acf0a19d3",
+      "material_digest": "sha256:9b0d22967659e258cc850c6a07e934288f21829fa3c1ff422578ab3be068bb6f",
       "material_inputs": {
         "names": [
           ".pose/adr/2026-09-21-qualified-artifact-authority-and-explicit-spec-transfer.md",
@@ -203077,7 +203094,7 @@
         }
       ],
       "diff_digest": "sha256:d9cfcb2bc9d7dc5d589a28c10dd65c4418cab377a487062cd78587d8553c414a",
-      "material_digest": "sha256:ce39c5caaf1f6f9cfc441a23be46dfb1682c8f6762112b12f32e1ed064d7fb2b",
+      "material_digest": "sha256:467087220df1c01eb5dd662eee4a5b58161456e422d77565ac09cf9f598400db",
       "material_inputs": {
         "names": [
           ".pose/changelogs/unreleased/pose-abm-causality-attestation.md",
@@ -203296,7 +203313,7 @@
         }
       ],
       "diff_digest": "sha256:7d2406652a5fe3f2c06acb0460ebbe3f1b02aff3b806521dce67f4e3d5fd92d3",
-      "material_digest": "sha256:343fcc5422b074d5f2ab1357bea425a02561c07b323d78399a5df2046e49d62d",
+      "material_digest": "sha256:daf6caafe686acc959cb3b09e3c57976c068b73df2b7a97a563a50d0e69da933",
       "material_inputs": {
         "names": [
           ".pose/adr/2026-09-19-pose-abm-review-authority.md",
@@ -204523,7 +204540,7 @@
         }
       ],
       "diff_digest": "sha256:13fda844ae123410502c03e138349d4bd72c0f8b34abf23633fc7bf0ec73a31a",
-      "material_digest": "sha256:604d9a93271b36b21490cf5782e9c9fc98b3e687fe35de96a11d4c0ad10fea3d",
+      "material_digest": "sha256:57f1b13139d677b286a59d110385b9b339ff7f43d80c81008a95c9e23e23d1d3",
       "material_inputs": {
         "names": [
           ".gitignore",
@@ -205134,7 +205151,7 @@
         }
       ],
       "diff_digest": "sha256:240f258fc30afefb4db2710bf6c7da8e20c793179e58b15083367616ee83f252",
-      "material_digest": "sha256:724562c73e88d39121fb497fd8053ad39e54f421f767f46e91d791fb9e6ab4dd",
+      "material_digest": "sha256:2a20ce2b7019bfdc8413bfa7a0d0726ce6cdd6ec8e428cc4754b51a59fd49947",
       "material_inputs": {
         "names": [
           ".pose/changelogs/unreleased/pose-abm-atomic-start.md",
@@ -207902,7 +207919,7 @@
         }
       ],
       "diff_digest": "sha256:3268948233da6e2fc4495fd07bbef68c776381dbb8db784c28b191a57ede856a",
-      "material_digest": "sha256:e17a4cb5631bd5ec88da76fd34ee7a7ff7fcbee7393a0f80a8aef65876831458",
+      "material_digest": "sha256:0feecf59a3ba96d233d02c22a85ea07fe7f3711fb14f681b51a65e29284ceb7c",
       "material_inputs": {
         "names": [
           ".gitleaksignore",
@@ -208182,7 +208199,7 @@
         }
       ],
       "diff_digest": "sha256:ddf621e3434e633b429bf7ddc8c3ab435e5ff26e48e5a999a21da03452990e7a",
-      "material_digest": "sha256:66db8abf381e70002f320c5daf1e39857d3caf70cb25679c2872902a8194d820",
+      "material_digest": "sha256:1b652c220339b32cc0502eb2affea5d3b2daa62666400380294fdc17a02ba982",
       "material_inputs": {
         "names": [
           ".pose/indexes/validation-matrix.json",
@@ -208322,7 +208339,7 @@
         }
       ],
       "diff_digest": "sha256:c36f467188b3b7e7907b686047cabe6cde6eb79affbd469ceb720abfc6ad9c72",
-      "material_digest": "sha256:7ab7fe88eaccee7c06f62bcfca07bc40a1f3dd90051319f817dd80c580e72d5c",
+      "material_digest": "sha256:a008b0076610b7437a1ca67083d7582532fa92137ddfba606a44776d4a16d57d",
       "material_inputs": {
         "names": [
           ".pose/changelogs/unreleased/pose-review-brief-templates-are-immutable.md",
@@ -208889,7 +208906,7 @@
         }
       ],
       "diff_digest": "sha256:02d43c530c13d5338df4b1e7b3b5a88310f94ff98c4df2e0ef3e94a08d540262",
-      "material_digest": "sha256:757ba8ca31ae66a394fdb32458aed9afd59290724f20475773b8867a25c121db",
+      "material_digest": "sha256:cca2ec6f1876d7b0b0f80de0bb276e5cd01a5365d3e2a4416052d0a63912a1ab",
       "material_inputs": {
         "names": [
           ".pose/changelogs/unreleased/pose-action-request-presentation.md",
@@ -209149,7 +209166,7 @@
         }
       ],
       "diff_digest": "sha256:73c498535a2207e95c8052795e500a03e7bc6304e09d3ebbd8e4125e9d807de8",
-      "material_digest": "sha256:6a0c5b18efded66e2558e65e336415344f6ca8025ff6780c4b32c38dd1749349",
+      "material_digest": "sha256:5515fddad0ea38e08caef87774d3700cbd7887b381bc86e2bc571b48a673b70d",
       "material_inputs": {
         "names": [
           ".pose/changelogs/unreleased/pose-specs-ergonomics-and-discovery.md",
@@ -209418,7 +209435,7 @@
         }
       ],
       "diff_digest": "sha256:86366b3ccc31664fcd168aaa1ccbd25786be49bac889e433363fd442193b52c7",
-      "material_digest": "sha256:bdfb92e45f79fa131ee1b32c9b6a6600714b9d0ebf95c5984e2fbc734308752d",
+      "material_digest": "sha256:2db8f2cc8ea85d4d1e4b12fa67dec9f26b3559b347f92c3aaab1c6361e908ee5",
       "material_inputs": {
         "names": [
           ".pose/indexes/validation-matrix.json",
@@ -209857,7 +209874,7 @@
         }
       ],
       "diff_digest": "sha256:58440e9916f0ad281cb52ac65dd00fc54c04aae316b525523787bf098eb5f26f",
-      "material_digest": "sha256:182925744886039585daab33f263b0dd1da00fac328d82bece0a4e86bc7ecd5b",
+      "material_digest": "sha256:f489585263a0932705fa175784c2b0543381a2349f6bead961e5f549adb45f5e",
       "material_inputs": {
         "names": [
           ".pose/assessments/integrations.md",
@@ -211355,7 +211372,7 @@
         }
       ],
       "diff_digest": "sha256:5bc9023cbbb9dc75828e33b02102ba1de685cffcf01ea4e88b3fb896e9ec5799",
-      "material_digest": "sha256:75a7d9a4e2d49a7e21f5a0de4cd300ba5f5dc907e95b40c3b71555212188c529",
+      "material_digest": "sha256:cdf788cc8eafc5081492949bd465e4b3e26242629b572d19640df114ffe4702f",
       "material_inputs": {
         "names": [
           ".pose/changelogs/unreleased/pose-delegation-surface.md",
@@ -211827,7 +211844,7 @@
         }
       ],
       "diff_digest": "sha256:46e08d82b7bb665976a6bf09395afc07968dc3b33a790423b37bcc7870af42cc",
-      "material_digest": "sha256:ec33c55845b358ef9e6f6845232dcae66d1c779bed30d25900a9d913c1cfa726",
+      "material_digest": "sha256:181236724e07a0407d3314cf85165e9cb6f2dece13744d0516f34b08dd1e1442",
       "material_inputs": {
         "names": [
           ".pose/changelogs/unreleased/pose-action-request-presentation.md",
@@ -212826,7 +212843,7 @@
         }
       ],
       "diff_digest": "sha256:e9c6bb9020d33a34d875e873ef6fc8e956b726454e6914712eac38bc594036e4",
-      "material_digest": "sha256:f8d3d39b6d2c5c717c8e3fc3fa1b0539025dc31663abe17a4e7c12c2d26f438a",
+      "material_digest": "sha256:656583b4589c2c6daac0d6eb19c1d184ca210bc0ceed077c4f1086f8ab6502fd",
       "material_inputs": {
         "names": [
           ".pose/changelogs/unreleased/pose-action-request-presentation.md",
@@ -213350,7 +213367,7 @@
         }
       ],
       "diff_digest": "sha256:29a76f910d4175183a850296767b9d0e22b2ceb2fd6434ff92988b7fed7428a3",
-      "material_digest": "sha256:29f90694a059976c79b9dc6924daddaf00be258111d4819b6e387a0fe6403916",
+      "material_digest": "sha256:a011a038f1db95a6ab76fce95889a473975df7ef6761eaebd8655d7cd4933970",
       "material_inputs": {
         "names": [
           ".pose/actions/act-fa1d72f029d567a0.jsonl",
@@ -214519,7 +214536,7 @@
         }
       ],
       "diff_digest": "sha256:b141508bb749d823e59b8691418781f6f57fdc3c748eac6eb8e5377c23a2cbf2",
-      "material_digest": "sha256:5e32ecef6a6794a8e1ec5ef79775b9f3d57ef7b9d9212dfb7409e57d01b75de2",
+      "material_digest": "sha256:dff97537a955d06200cbbcc6adf8037cc8a8b297c757737f98d0bd49b4e33ad8",
       "material_inputs": {
         "names": [
           ".agents/skills/README.md",
@@ -214967,7 +214984,7 @@
         }
       ],
       "diff_digest": "sha256:b7ac6c1fda5dbb0ebfdde80ac7d0bebd7853093a096836718125f7288cc1c7ed",
-      "material_digest": "sha256:6b3b1907ee0fd9411bee47a0df28d3fc901adeaebf7fc373e268bdce771ef53f",
+      "material_digest": "sha256:c02ca943c2a4818b91b9730b569922f62eef0c610f5fbfe51eaaf9c6541da6d6",
       "material_inputs": {
         "names": [
           ".agents/skills/pose-spec-closeout/SKILL.md",
@@ -215209,7 +215226,7 @@
         }
       ],
       "diff_digest": "sha256:d8dc7e6dc85b13c59e858650fba09858bdca40488bb0ed67bb4d013cb0b9c217",
-      "material_digest": "sha256:518bbf37069982360bff2e68f87370482f551be24cac692359803be351f89e4c",
+      "material_digest": "sha256:3418352a79549cfa4acf3cc132c7ae90dc82b70d6c1099c0a4bf3f3aa45c7e94",
       "material_inputs": {
         "names": [
           ".pose/changelogs/unreleased/pose-delegation-handoff.md",
@@ -215577,7 +215594,7 @@
         }
       ],
       "diff_digest": "sha256:c058681364d93e68c9474d5ce4150c108e9e69b13cb822168f8340ecb8737ddc",
-      "material_digest": "sha256:768441f48e310c6924426f997579d83ef290bd4ad437cc645afcd06d842caaef",
+      "material_digest": "sha256:e42b77445c881d9358cb229dceebabffa7afa108adfcb476c0822260c25266ce",
       "material_inputs": {
         "names": [
           ".pose/assessments/README.md",
@@ -216496,7 +216513,7 @@
         }
       ],
       "diff_digest": "sha256:691e4c0f3e6a2b3438cc77bdbad7f7f8914f1ed6be6f38b2339c25f3a48a9863",
-      "material_digest": "sha256:48fa7cb1fcbe9ba0f91cfeaa7d853b87c4459202da6ca57e49f5f02aca75e617",
+      "material_digest": "sha256:85eb386f8e1a669c51e26259ddbe1e1766704d9eaa6f211dbaa9acd55a3dd4f4",
       "material_inputs": {
         "names": [
           ".pose/changelogs/unreleased/pose-action-request-presentation.md",
@@ -217292,7 +217309,7 @@
         }
       ],
       "diff_digest": "sha256:6008067f5d10d3f3e43e3d4ddf7342d335005a4bb1b3a682c4015162d067db98",
-      "material_digest": "sha256:04c7741157d1d9091bf55278e7bcdf947fb8190e4f2626a34271b8ee02be7842",
+      "material_digest": "sha256:542a5bc147ba87d7d63d5848e3833a8189743343a3e518e422022df2c30a1ef4",
       "material_inputs": {
         "names": [
           ".pose/assessments/README.md",
@@ -218040,7 +218057,7 @@
         }
       ],
       "diff_digest": "sha256:431624a5c9a886973bc4137b199fc8c1ead64203b33fbad6655ae457e32ed0e7",
-      "material_digest": "sha256:4ebd338c0e5607ab33d32901f5d9c0e9edafbdfa502f839b80dc2ab6670920ed",
+      "material_digest": "sha256:d8462f1c5841471d420d887b78ef55fe69c688688d0c1ab33ae3b4bd7c8651d3",
       "material_inputs": {
         "names": [
           ".pose/adr/2026-09-11-release-archival-is-attested-by-the-ledger-never-written-into-specs.md",
@@ -218962,7 +218979,7 @@
         }
       ],
       "diff_digest": "sha256:282032f23922bc46938e8fef05a9342a4a9856936d5bb28e243d2e4ae5b95941",
-      "material_digest": "sha256:9403090e35c8db1a20764ef98cdc0248ae6faccdf23e8195df5bb455e39070e0",
+      "material_digest": "sha256:31a91528ee4e2f5af449a4f822958511d190d79f46649a84a5370f8835806d11",
       "material_inputs": {
         "names": [
           ".pose/adr/2026-10-25-bind-delegated-review-authority-to-native-signed-run-proofs.md",
@@ -219180,7 +219197,7 @@
         }
       ],
       "diff_digest": "sha256:10b0a1727bc24ef2cdb040b8bda13224f41c7efd643b16edef5d03154395e9ee",
-      "material_digest": "sha256:0b05d4af669a1cc354887c6ccdd0e20417b6c15ed3faa528f90947c335c82650",
+      "material_digest": "sha256:6e9dfca7ac639bb1b54c5cc09db8b8d20140a5fea86cb9f2a1af940ce036c716",
       "material_inputs": {
         "names": [
           ".agents/skills/pose-feature/SKILL.md",
@@ -220358,7 +220375,7 @@
         }
       ],
       "diff_digest": "sha256:82c5a3634870003ae7fba8909c1b0b585bbcf2ef12e6278705f7e059af3ab5ff",
-      "material_digest": "sha256:ea25187e2bb1a4513c1dfb0f17293ae22a79505db2f0758066591df0ab853c02",
+      "material_digest": "sha256:e03d0701678b2fdd678e42fc38a141fd9653cd6a6be615ea5793654c2e51139c",
       "material_inputs": {
         "names": [
           ".pose/changelogs/unreleased/pose-manual-merge-backs-up-only-local-edits.md",
@@ -221418,7 +221435,7 @@
         }
       ],
       "diff_digest": "sha256:7effe6db65f59b1a9e6f33e18b4056f7d75f9a5d26e6727044d753531782e544",
-      "material_digest": "sha256:de7160617ee001ec6a7174d052d79ed3b1c4ef33cea5450f28f0fd44a30828b3",
+      "material_digest": "sha256:67e41c6d583ca0486ee6899abfa84cf6616cdc996fb4b9923a816d56211bdc99",
       "material_inputs": {
         "names": [
           ".pose/adr/2026-10-25-bind-delegated-review-authority-to-native-signed-run-proofs.md",
@@ -221846,7 +221863,7 @@
         }
       ],
       "diff_digest": "sha256:f0e6df64efaf5bcf58df362f2f453f3b3b7e52d77f153833fe3acc1a4a3662ed",
-      "material_digest": "sha256:4a6e2cd23ffeec4617dd17e9a06c6c5272957e3f3239d19cbb6946de2c064b42",
+      "material_digest": "sha256:2ecdec77454e4a66f8fb50eda840dd45ca15482de6ff96b034bd9869dbe8eacc",
       "material_inputs": {
         "names": [
           ".agents/skills/pose-spec-closeout/SKILL.md",
@@ -222446,7 +222463,7 @@
         }
       ],
       "diff_digest": "sha256:79551963e91b3ab46629b676738a2a9341a6de6abab1e111b933bcdf4d7e80f6",
-      "material_digest": "sha256:5bcbf96cd56dfad3c4f5764bc282b001b569da70d107ecdf8eda82536469d23c",
+      "material_digest": "sha256:2f4c4e1d38fa634dcbc813a3ad06832aa6cfc3af0dbc246befbac1af4371d7f8",
       "material_inputs": {
         "names": [
           ".pose/adr/2026-10-23-shared-supported-scope-taxonomy-for-review-policy.md",
@@ -222841,7 +222858,7 @@
         }
       ],
       "diff_digest": "sha256:384f1f9351fcc74a73c6cbbd9e0b98f0c75ba604ba681bf2f511fa80dcbd0fba",
-      "material_digest": "sha256:531e60ef97cc6de3a55b2a93c10a649cb2b3e94a1ef303dcba25df1e3c3739b4",
+      "material_digest": "sha256:ee497fc9a4b52237e236d5592d80578b7adad0bd1e81911ac7b40f923527153c",
       "material_inputs": {
         "names": [
           ".pose/actions/act-fa20ae0029b6ad14.jsonl",
@@ -224522,7 +224539,7 @@
         }
       ],
       "diff_digest": "sha256:59aa07d99ec48d72f73ce5c873886c5e6220f812db2426ffa7b19b38d088f973",
-      "material_digest": "sha256:9f76fcc3ef9e351e2259f61ae8d0ad58a749692830bc60f8243171b6c917c75b",
+      "material_digest": "sha256:323da783e8d6fa26c2adf23728b4bdd9755db0e70d0dd4ced3175174e6ca9035",
       "material_inputs": {
         "names": [
           ".pose/changelogs/unreleased/pose-action-request-presentation.md",
@@ -225044,6 +225061,153 @@
       }
     },
     {
+      "id": "cs-56ab7e9702b8",
+      "spec": "pose-validate-carries-unchanged-checks",
+      "selector": "trailers:pose-validate-carries-unchanged-checks",
+      "base": "e4ab4d11b5dcf81c98281731f7af707dbb2678fa^",
+      "head": "2077731bef03a72bc7cd0abdc166f1d7b3b55c3a",
+      "resolved_base": "dec2e64c1395fafbf8e2a78171e5437c1720bbbf",
+      "resolved_head": "2077731bef03a72bc7cd0abdc166f1d7b3b55c3a",
+      "commits": [
+        "e4ab4d11b5dcf81c98281731f7af707dbb2678fa",
+        "be3578024b8c8d082c7168dbf54094d819c9a21b",
+        "2714e759a042834464eaf850c8a5a5c57e211188",
+        "07b8207e206408bf24d57bad4b6959d1eeb4433d",
+        "a99741f9b50181f9977321617043f50d878d54fa",
+        "bc7d67dc679be1a4703ecc646fc1bc10c3f14cb2",
+        "59ff08c9370ad9818702823ccbd6e5d0d3110eaf",
+        "bba0f22217f383f24cffb2178826c113506ab2c4",
+        "275fafa7ae8c80aba4ddc9cbe29ff27c189c7278",
+        "87ed1bb81193f59a4985624148ebaf15bac491da",
+        "282042f31ab4e8cd9755f1c23da9a3e80e993bfa",
+        "606a0fa821f009a91b11dfb282de49fb24516cde",
+        "5375cd816cbba4776632b9e394f7c37c4fd2bcfa",
+        "c4182727845d5d8c1411887ebed11749a6d59c25",
+        "29f6da72e0beee1e42170fd3466ef759e0faa6ab",
+        "e55bde0c82b66dd7891577f45fcdefc146140899",
+        "bc3d545017f60a0dd367f051f30303b6805b1a00",
+        "ed37f1bc27c7754ef6e0772a4edadc62f53c19d8",
+        "883eb1ef143c3897e159011c19e8403eb1f022cf",
+        "6be3a6f7009c1d782198c74a24549f8ec41423df",
+        "d601fbe105a7d56c91d9ab791972d9249a59a5c4",
+        "300b91384f692c0c3b9aef80af9f8f8c72c40cde",
+        "35b4cc7fba4c1eae22a44f5e05ba45ffa179cecb",
+        "0f0829c7f2b9be7ad24ac67ea5086935634f2fd1",
+        "8300e10ef0951010c1ca8ff389b5f6133d0a8b9a",
+        "c1f54d56cc793741633b4ecc8050f611250960ef",
+        "2077731bef03a72bc7cd0abdc166f1d7b3b55c3a"
+      ],
+      "paths": [
+        {
+          "action": "created",
+          "path": ".pose/adr/2026-11-22-validate-carries-unchanged-checks.md"
+        },
+        {
+          "action": "created",
+          "path": ".pose/results/pose-validate-carries-unchanged-checks-matrix.md"
+        },
+        {
+          "action": "created",
+          "path": ".pose/specs/2026-11-22-pose-validate-carries-unchanged-checks.md"
+        },
+        {
+          "action": "created",
+          "path": "pose-mcp/internal/cli/validate_carry.go"
+        },
+        {
+          "action": "created",
+          "path": "pose-mcp/internal/cli/validate_carry_test.go"
+        },
+        {
+          "action": "created",
+          "path": "pose-mcp/internal/cli/validate_engine_identity_test.go"
+        },
+        {
+          "action": "created",
+          "path": "pose-mcp/internal/pose/delivery_validation_run_test.go"
+        },
+        {
+          "action": "modified",
+          "path": ".pose/indexes/delivery-integrity.json"
+        },
+        {
+          "action": "modified",
+          "path": ".pose/indexes/generation.json"
+        },
+        {
+          "action": "modified",
+          "path": ".pose/indexes/spec-graph.json"
+        },
+        {
+          "action": "modified",
+          "path": ".pose/results/delivery-validation.json"
+        },
+        {
+          "action": "modified",
+          "path": "POSE.md"
+        },
+        {
+          "action": "modified",
+          "path": "locales/pt-BR/POSE.md"
+        },
+        {
+          "action": "modified",
+          "path": "pose-mcp/internal/cli/help_catalog.go"
+        },
+        {
+          "action": "modified",
+          "path": "pose-mcp/internal/cli/validate.go"
+        },
+        {
+          "action": "modified",
+          "path": "pose-mcp/internal/cli/validate_results.go"
+        },
+        {
+          "action": "modified",
+          "path": "pose-mcp/internal/cli/validate_scope.go"
+        },
+        {
+          "action": "modified",
+          "path": "pose-mcp/internal/pose/delivery_validation_run.go"
+        },
+        {
+          "action": "modified",
+          "path": "pose-mcp/internal/scaffold/dist/POSE.md"
+        },
+        {
+          "action": "modified",
+          "path": "pose-mcp/internal/scaffold/dist/locales/pt-BR/POSE.md"
+        }
+      ],
+      "diff_digest": "sha256:0230f0f278264b85a6742bc130c1fed991d29bad52ae8625fa46737e484f3eb0",
+      "material_digest": "sha256:81ae9b92d259241b0274dc640a236bf5023d889141edaf6d4637a07cc3b3df0f",
+      "material_inputs": {
+        "names": [
+          ".pose/adr/2026-11-22-validate-carries-unchanged-checks.md",
+          ".pose/indexes/delivery-integrity.json",
+          ".pose/indexes/generation.json",
+          ".pose/indexes/spec-graph.json",
+          ".pose/indexes/validation-matrix.json",
+          ".pose/results/delivery-validation.json",
+          ".pose/results/pose-validate-carries-unchanged-checks-matrix.md",
+          ".pose/specs/2026-11-22-pose-validate-carries-unchanged-checks.md",
+          "POSE.md",
+          "locales/pt-BR/POSE.md",
+          "pose-mcp/internal/cli/help_catalog.go",
+          "pose-mcp/internal/cli/validate.go",
+          "pose-mcp/internal/cli/validate_carry.go",
+          "pose-mcp/internal/cli/validate_carry_test.go",
+          "pose-mcp/internal/cli/validate_engine_identity_test.go",
+          "pose-mcp/internal/cli/validate_results.go",
+          "pose-mcp/internal/cli/validate_scope.go",
+          "pose-mcp/internal/pose/delivery_validation_run.go",
+          "pose-mcp/internal/pose/delivery_validation_run_test.go",
+          "pose-mcp/internal/scaffold/dist/POSE.md",
+          "pose-mcp/internal/scaffold/dist/locales/pt-BR/POSE.md"
+        ]
+      }
+    },
+    {
       "id": "cs-56f1f7cb644d",
       "spec": "pose-container-build-gate",
       "selector": "range:04bf682..838c2fd",
@@ -225442,7 +225606,7 @@
         }
       ],
       "diff_digest": "sha256:bf7132042ad3f2bff0ab63ab3c3657eb32e191f55cac0ddb4e54ef1d78d714f7",
-      "material_digest": "sha256:de5e1751fbae99354ddf1695655d416990028864aa4cfdb44e8573cb6f72e1f4",
+      "material_digest": "sha256:277af14b745f6efd0a8faf588ce04150e51689c5c4f912f71455aa2510830dbc",
       "material_inputs": {
         "names": [
           ".pose/adr/2026-11-03-governance-reads-use-bounded-operation-scoped-views.md",
@@ -225678,7 +225842,7 @@
         }
       ],
       "diff_digest": "sha256:0e3890f07bc3c036932ff0412b6b67e102e03558d2199be7efddbce780b5480a",
-      "material_digest": "sha256:5e9deef1b05753b9d308f0e020ec2e7c9ae5b2d428814fc1650ec3adacbd195d",
+      "material_digest": "sha256:a76f2beaa4b574a9f496dc0c5194ae877aa3831f01d66b5ac71572ea959d42cd",
       "material_inputs": {
         "names": [
           ".pose/adr/2026-09-19-material-design-basis-remains-an-advisory-projection.md",
@@ -226558,7 +226722,7 @@
         }
       ],
       "diff_digest": "sha256:8a5ada1ab32a782f78720c25863dd3e58299c642a02e0f073faf374f88beb0a8",
-      "material_digest": "sha256:b05738fc2703141d2abb9d1c6c45616895aa7d681bf88b9e3d3a5c339819bb3f",
+      "material_digest": "sha256:6ba5a0c1a43d3c1d9578d0fade224598ee72e08eb6301bd54c0507ea1443316e",
       "material_inputs": {
         "names": [
           ".pose/changelogs/unreleased/pose-action-request-presentation.md",
@@ -227151,7 +227315,7 @@
         }
       ],
       "diff_digest": "sha256:372db465332b36865cf885098de90af71fea01be044fd6c14d1a8242e13e0c1d",
-      "material_digest": "sha256:e9640324bb3a9864fa0ae6f5b1f1b97bf2af6045924014a937d7d44f61fae327",
+      "material_digest": "sha256:d2648ce011840a50582eba46d031efbc729c636a2ed26458123ee9c5e4b917e8",
       "material_inputs": {
         "names": [
           ".pose/changelogs/unreleased/pose-action-request-presentation.md",
@@ -228026,7 +228190,7 @@
         }
       ],
       "diff_digest": "sha256:3b43bb4c960b7e4881df87bf020b0e60997be0e727b3b1abd76e03cef98380fe",
-      "material_digest": "sha256:beb293dc449f88687137e1698b4b40160fe049fbb39ea8a086c636dde73a67e9",
+      "material_digest": "sha256:66ea590af0c1b3b8d22a4a18401cda3b079d5f1f541863e82c2ee463198ff463",
       "material_inputs": {
         "names": [
           ".pose/changelogs/unreleased/pose-action-request-presentation.md",
@@ -228443,7 +228607,7 @@
         }
       ],
       "diff_digest": "sha256:ecf8b13df30bbf5b6b662252f62cf5abe3dc2867ae2822f24dc233a564e5255d",
-      "material_digest": "sha256:3cca4e44f97ac9002656b600ad7ea99773397019c4034ce85d643a113993b977",
+      "material_digest": "sha256:cbe3d555a61bb4ce6ad6cf7b45fe7491e31f3d04be71b237ee8278ba2d5e6e32",
       "material_inputs": {
         "names": [
           ".pose/adr/2026-10-21-action-effects-select-material-destinations-independently-of-origin.md",
@@ -228659,7 +228823,7 @@
         }
       ],
       "diff_digest": "sha256:5493cccea4301553a4dd373135e6fd51496be126630f95d54edfed6c0e9820ea",
-      "material_digest": "sha256:1dad6cb20b86f39739382def6a1001cd876d70579dc43eace06614cf0fbd99be",
+      "material_digest": "sha256:64c5055c8e8af30ed05ea70731ff95dfba229afb10e4e2ca2b8e2656fee801fb",
       "material_inputs": {
         "names": [
           ".pose/assessments/README.md",
@@ -228982,7 +229146,7 @@
         }
       ],
       "diff_digest": "sha256:de235b903c528008dfaeb41a26f7d4ef8da951ae0d058811e63eaae69573587d",
-      "material_digest": "sha256:fa07a72d693b017b170d826657ac32a71a23d9daa4c350e6b3089ebd4434952e",
+      "material_digest": "sha256:e8625afa384044548794c285480852f1a6b4ddc24f08468c7cbd8734cd59f3e9",
       "material_inputs": {
         "names": [
           ".pose/adr/2026-10-25-bound-trusted-reviewer-execution-and-disclose-unavailable-isolation.md",
@@ -229379,7 +229543,7 @@
         }
       ],
       "diff_digest": "sha256:5ab8c82c8c1f3fb8f9c3059d659cf61ee5d319040b1c8a2708272cdca9e37e5f",
-      "material_digest": "sha256:4e68d10de43365879a1fcc7ff7775d9ef4eb4dcc6b3c43dbb96ebd43006bd5bc",
+      "material_digest": "sha256:898cb0e94ba34cb3b11d69127e439b24ca5e2de066acf3a9761ff8a29919055e",
       "material_inputs": {
         "names": [
           ".pose/changelogs/unreleased/pose-review-approval-domain-preflight.md",
@@ -229771,7 +229935,7 @@
         }
       ],
       "diff_digest": "sha256:617aec4e17b103b83070f0329d4948fae3931bbe9146a299514920dfac01528d",
-      "material_digest": "sha256:40d6de48bf22747ec06ebc4bbc0ee9de22e0096f4e4887a820c4c435323113b2",
+      "material_digest": "sha256:ba43fb1d89cf6aa706e42a8e86a5df453cfd73ff3d2c84d6f46f6f2e6dd7ba32",
       "material_inputs": {
         "names": [
           ".pose/changelogs/unreleased/pose-action-request-presentation.md",
@@ -230144,7 +230308,7 @@
         }
       ],
       "diff_digest": "sha256:86a6dc24c41f3533167f2bf1275f9b5ca053e514236b24f2c05db713db8c2bd5",
-      "material_digest": "sha256:d2a7c3850f55eeee466edcd3f86e3c8647022b040e708d13db9e0c2b4ee64884",
+      "material_digest": "sha256:3ee1774f0bce0c82a0218264d4748142a824fdf3fc18842f68c29a1b9cdde559",
       "material_inputs": {
         "names": [
           ".pose/assessments/README.md",
@@ -230513,7 +230677,7 @@
         }
       ],
       "diff_digest": "sha256:8b2754c1b0919c73e89e67b65dacc395bb42db1352c0299644d4019b10049c8e",
-      "material_digest": "sha256:3ba0d73bf93893f7cd9418c7b54a24907d696503fa87228751163086c30e6b54",
+      "material_digest": "sha256:1aabeebc478b5ea26e4221a8029a1695a47265c27bd46fed1cc0d656f1bd3434",
       "material_inputs": {
         "names": [
           ".gitignore",
@@ -231577,7 +231741,7 @@
         }
       ],
       "diff_digest": "sha256:73bd1e55549c97f4786def8d43b0a337947ad84ead46fb9490c5f48f68e342fd",
-      "material_digest": "sha256:14899a05df16797d203abd6f07054cde1d1ace9a924a925a927f1fd7d16d009c",
+      "material_digest": "sha256:e264574f55dfb554ba97326d7bbcd112e30fa9bc61762c99bb25582b42a25c4d",
       "material_inputs": {
         "names": [
           ".pose/changelogs/unreleased/pose-action-request-presentation.md",
@@ -233038,7 +233202,7 @@
         }
       ],
       "diff_digest": "sha256:ad04dc3d4b613462c4866bd2b2238403a4555dc2e85cebfa476919085eabf46a",
-      "material_digest": "sha256:ac14a0534042894b239e0778b54ad5cb647e84dd8c98cfb7f514b230b6caf798",
+      "material_digest": "sha256:40a0758d5453fd62778ef14c8012a5bd832868e52c6b11c7a056021c2c3c8895",
       "material_inputs": {
         "names": [
           ".agents/skills/pose-spec-closeout/SKILL.md",
@@ -233356,7 +233520,7 @@
         }
       ],
       "diff_digest": "sha256:7109ac3294db73a466a732b391769a19a46a6e851a5bf3eac3d245cfddfea62a",
-      "material_digest": "sha256:3bb27e3ec32b3c82a6c3caa223b0fe97eb54520a572933fe39f0683971a8022a",
+      "material_digest": "sha256:fdaf456568ce87ffd725e2b4477ebbb93471410004eb6700e10c0ce526c1cdc1",
       "material_inputs": {
         "names": [
           ".pose/assessments/README.md",
@@ -234227,7 +234391,7 @@
         }
       ],
       "diff_digest": "sha256:d8c53cefebad5c36d3c36d83aab187b3dcd5906aef7678f954fcd30f687f0025",
-      "material_digest": "sha256:64ef1fa07aa7a787eb2201fb7f6b34ea5085bd8926ec9c71ddc60449cbbdba8a",
+      "material_digest": "sha256:e4a25ae52c30a58c36ecae6693994b2a134f3461a2777be5bda1dc11e89a15e7",
       "material_inputs": {
         "names": [
           ".pose/assessments/README.md",
@@ -234919,7 +235083,7 @@
         }
       ],
       "diff_digest": "sha256:a25e17138c66f41c03e192dd94197b8111c81dbe888854b840c0698b86800e57",
-      "material_digest": "sha256:8d604905a97235c4e490daffc288708d1f9e13e043a8cacd3f5a5719af3ef23d",
+      "material_digest": "sha256:8b35cfe9c94bb4f69627a67f8357627a473e3db02e4d00824aad7f68bea27768",
       "material_inputs": {
         "names": [
           ".pose/changelogs/unreleased/pose-action-request-presentation.md",
@@ -236232,7 +236396,7 @@
         }
       ],
       "diff_digest": "sha256:57b1a9f38c18e25de06e1384df9c0d4da16081773479ec52a1bebe26bb989902",
-      "material_digest": "sha256:12c91d4ae5b3595cede65606fb4299e1d62038d834cfdfd4a128edcc52ce196e",
+      "material_digest": "sha256:233ebd0dbb6400a79f526f07927c154d0088e215d70b87bacad16aec4b9042e7",
       "material_inputs": {
         "names": [
           ".pose/changelogs/unreleased/pose-action-request-presentation.md",
@@ -236754,7 +236918,7 @@
         }
       ],
       "diff_digest": "sha256:b2617a636ca168f664a2eeddec4e415bf5fc33418d42e23afbc3fa2b0971f11d",
-      "material_digest": "sha256:e8303dae33e8382047366898d178ece3d038444beacbf31c54811cd5a3795c19",
+      "material_digest": "sha256:96975391a5c2f757c472730425f34acf749c902534a906ac93d0f84293f662a4",
       "material_inputs": {
         "names": [
           ".github/ISSUE_TEMPLATE/engine_limitation.yml",
@@ -237028,7 +237192,7 @@
         }
       ],
       "diff_digest": "sha256:1a6e873494bcf846ae0775eb762a02e47b9e5e0c1f860704c296455a30ca3c9b",
-      "material_digest": "sha256:eb85fc0bcb34d1d3ec761bfa53d24e34f756e1b860da117265a6104c6de37740",
+      "material_digest": "sha256:7265a879e64d603e91dbe1af2c2c70a1412b02dd5b9a7b73fcb11aabb146d32b",
       "material_inputs": {
         "names": [
           ".pose/assessments/README.md",
@@ -237213,7 +237377,7 @@
         }
       ],
       "diff_digest": "sha256:f2d6fe5432c82fb8fce787e827d112db050481b8aae1787aba9f557e2c0744f9",
-      "material_digest": "sha256:c2aecf791d20b7fcf8fa528768833e1a0025c7c21177486e833aa12fb14e83e6",
+      "material_digest": "sha256:2a8ca36ef5d034e3a0a284bb8b4c111c40e1eaf3d7e8db15e9e771ad5c4611fc",
       "material_inputs": {
         "names": [
           ".pose/changelogs/unreleased/pose-mcp-review-attest-signed-only.md",
@@ -237547,7 +237711,7 @@
         }
       ],
       "diff_digest": "sha256:279184e8c9a0d5304aa62bf9221ba0b79f04c29f0aaad45e6091bab68da6ffca",
-      "material_digest": "sha256:f73550d75fb45a47a42c8b89803c3e5d3969c57f14cfd1f6edb7d3242b6e0bb5",
+      "material_digest": "sha256:bf9ffb5a111710c4c7b0a0c1c04a6b06f27291be3dc9e99ebd7ae562f725960a",
       "material_inputs": {
         "names": [
           ".agents/skills/pose-review/SKILL.md",
@@ -238089,7 +238253,7 @@
         }
       ],
       "diff_digest": "sha256:e398ef04fb1c43180d5499e003e0a981e764ce7d7e155aaa3d9b2e6b8748fd68",
-      "material_digest": "sha256:58ae0022ebdb34ed28a9217091e861a3a28a86090fd954cb37c090320ac063f4",
+      "material_digest": "sha256:7e893c81add6d352430bdd3420db04146310fe5224ef213cb7dac1eace05f140",
       "material_inputs": {
         "names": [
           ".pose/changelogs/unreleased/pose-action-request-presentation.md",
@@ -238682,7 +238846,7 @@
         }
       ],
       "diff_digest": "sha256:188e5041c1fb1c8711e81094e329bfddc892a24237afac17a196e912848edb4c",
-      "material_digest": "sha256:f140563306276c9313b9f569dbd1a35f9580daf98ff42b4f049517c3b8acc674",
+      "material_digest": "sha256:8209c848cc81e1eb397bfd76fd849b9890e9b33c6b1fcca163eb5c2c1cdc9b97",
       "material_inputs": {
         "names": [
           ".pose/assessments/README.md",
@@ -239818,7 +239982,7 @@
         }
       ],
       "diff_digest": "sha256:4b2271d71eaa174d9b4056e68e0013b35a5538b696c84444c11db150abd3baed",
-      "material_digest": "sha256:c5fc19a9d722314de4fdc674b15ac16f3069d68416bed8837e92833584f3f599",
+      "material_digest": "sha256:1c86de2db764080aeafcf248fcee8aaa644a2c2930175b6ce7022e8981d8bd37",
       "material_inputs": {
         "names": [
           ".pose/adr/2026-10-14-shared-domain-and-optional-worktree-runtime.md",
@@ -240432,7 +240596,7 @@
         }
       ],
       "diff_digest": "sha256:911199d5cf32d6b0d76b87303b65da2dbea62dad0a0f8d995ece775187b139b3",
-      "material_digest": "sha256:9e8ecdc45d177c9d13fc7354eeb49d4689f9d2d580a10052ee87e5bd279b965e",
+      "material_digest": "sha256:231c89ca260e241eeb93ef94c4af4466794d6d5e8f1bfa6c0b869c157acc63d7",
       "material_inputs": {
         "names": [
           ".pose/assessments/README.md",
@@ -241420,7 +241584,7 @@
         }
       ],
       "diff_digest": "sha256:4ebf17b7f02a8bf1affe572aa2672e42427e6c138290b021d6f3176433e152d3",
-      "material_digest": "sha256:c851173115dfdc719e9a388c91ad981330ab1243021c04e7589d631b825b4a09",
+      "material_digest": "sha256:2f26aff225334f18895c8daeb6ac92313ecd687b8e7808ae980472e17a038d75",
       "material_inputs": {
         "names": [
           ".pose/adr/2026-10-02-release-version-source-is-declared-by-the-project.md",
@@ -242848,7 +243012,7 @@
         }
       ],
       "diff_digest": "sha256:ec8d13b4cf911d105f16f5540dd01b777b9a79a527b6d119c39b673a5c83cf8b",
-      "material_digest": "sha256:3a6fe19ec420bef7f742029c9c1b9e1956cffe8fede9d322b8a7cb35537b90d8",
+      "material_digest": "sha256:e060db0a31b51a5cef8d41ef3ed826b53bfe8264dffd894e2f67e7862ebf834f",
       "material_inputs": {
         "names": [
           ".pose/adr/2026-11-03-governance-reads-use-bounded-operation-scoped-views.md",
@@ -243819,7 +243983,7 @@
         }
       ],
       "diff_digest": "sha256:5c7cdbccdbab2bf21d5d9aa8a55638a3898505561263c330e1a82eecd29b9423",
-      "material_digest": "sha256:b537736c3bea2a410e62ad0cb962e47120efd062977ed2dd0ea207d4feaa2099",
+      "material_digest": "sha256:8ec9561bd6fb95d64fe4e1e78c0fb407142b8e21f29d73ca66ba9efde22ee1f9",
       "material_inputs": {
         "names": [
           ".pose/changelogs/unreleased/pose-action-request-presentation.md",
@@ -244501,7 +244665,7 @@
         }
       ],
       "diff_digest": "sha256:903c0be8a6ce5179a1c7143012ed9fb7859eee4219cf144366e45b9f7e5020fe",
-      "material_digest": "sha256:6ff96d7cfe075e0e65fcb525f6f1d9f2d5306783313bc987729be44815308f2c",
+      "material_digest": "sha256:6c32e06f8702b4b64278db0dc0ee021471a0b74bf776ce82d903c70955c8ee53",
       "material_inputs": {
         "names": [
           ".pose/adr/2026-10-25-continue-delegated-runs-under-one-immutable-attempt.md",
@@ -244960,7 +245124,7 @@
         }
       ],
       "diff_digest": "sha256:3bb1efd26e36b4dea24f7d66b6f13f19446e6ac85e33dae7fa48b349e31a7a95",
-      "material_digest": "sha256:a10da7036cacdc8001dba75ae95bb3b9db03a9b11159b3e315d44c74cc8e333d",
+      "material_digest": "sha256:2e366bdaa2b089a31eaa9b0dcfb8b86bde3c15092d54965a3d29947448b7fc20",
       "material_inputs": {
         "names": [
           ".pose/adr/2026-10-25-reserve-delegated-attempts-before-launch-and-witness-immutable-runs.md",
@@ -247308,7 +247472,7 @@
         }
       ],
       "diff_digest": "sha256:12b7dbffdcdc262292b3d1ef37beeefba8e7a79f92779b6e53adcc6a948288f0",
-      "material_digest": "sha256:140d9f3935db746be47d3188a367240719a4b99c04934b50f73e19f5febf4042",
+      "material_digest": "sha256:511bad70ea2feb3f98cda68caf9ea396014313d4b9c782bf6d653a6cf5241297",
       "material_inputs": {
         "names": [
           ".pose/adr/2026-10-31-review-reads-raw-history-and-roots-diff-from-the-empty-tree.md",
@@ -247987,7 +248151,7 @@
         }
       ],
       "diff_digest": "sha256:f6bab1b0aad70b7d320c85bae807b95b949a69136c101f94d471f4a86da0626a",
-      "material_digest": "sha256:d2999cecaae3f52bb1ebb9eab8cf583059e0ab0428f77f428acd6b9f5afbadfe",
+      "material_digest": "sha256:ab3f017277c955fc95901faa2622e6f25b47cac8900e467cea4005486234c55e",
       "material_inputs": {
         "names": [
           ".pose/changelogs/unreleased/pose-action-request-presentation.md",
@@ -248493,7 +248657,7 @@
         }
       ],
       "diff_digest": "sha256:127650cf41026c0cd7ae1659b21ea9ec8d4917ebbba6cd4dc5384aaadf795b31",
-      "material_digest": "sha256:d273a1b6297a63d3ac3d9a257a51f0e4eb3bf174627398c5a090e43b0a0d5b91",
+      "material_digest": "sha256:15105953f5f9904b3099e75188cae04082727a258b160fc5d6f5a31032eff1dc",
       "material_inputs": {
         "names": [
           ".pose/changelogs/unreleased/pose-action-request-presentation.md",
@@ -248869,7 +249033,7 @@
         }
       ],
       "diff_digest": "sha256:723417d6bbd4549d3069ee53040986475a73885617470f12dfe580c3075a85f5",
-      "material_digest": "sha256:426f04324c0193d56a8b3110cfc6f5830db3ce500b2030c532722f9caa2596ab",
+      "material_digest": "sha256:fd2c1955d0344b1309ddbb46db2e6e96e5480cadef1a957d7b5d5460aec5a192",
       "material_inputs": {
         "names": [
           ".pose/assessments/README.md",
@@ -249344,7 +249508,7 @@
         }
       ],
       "diff_digest": "sha256:b3ad9440e15da1a4d19a24101437a9dec8fd31952346620309d51f290ff66c1c",
-      "material_digest": "sha256:263c2f9777f904928f635f7f5d648f66aecf66f861f4d8d9a5734f225ea776b8",
+      "material_digest": "sha256:a18a462c92a5440b09e963305fbad158f396de8b49887fed30fa9c9b5bfed074",
       "material_inputs": {
         "names": [
           ".pose/changelogs/unreleased/pose-delegation-mcp.md",
@@ -251247,7 +251411,7 @@
         }
       ],
       "diff_digest": "sha256:3fb069858a4dae37059c0280096a46ceca22c5d011a1b1dce4c7424651d08bd4",
-      "material_digest": "sha256:8b6b63bd8ff3d9f44e453d5c2a3fe426b271ba72edc7bcd9d15cce6a8c1b8ce5",
+      "material_digest": "sha256:07db3878fd5d05aef760bfeadeb276c4b3eec2297d55af9d7ca972cf8feba855",
       "material_inputs": {
         "names": [
           ".pose/changelogs/unreleased/pose-action-request-presentation.md",
@@ -253235,7 +253399,7 @@
         }
       ],
       "diff_digest": "sha256:6d74ebbaf6fcd9a4ab0b41d0863cda506d6f2a3e82c214c88294852a88888981",
-      "material_digest": "sha256:d1e884f0514f6ef98a8950d55df9796104cb0000434b6c9ae6f2c139f95d3b73",
+      "material_digest": "sha256:fbada01df2693c6b20ddda0a9c7841482d3c84e5b381f5e992cbaf4c9f201776",
       "material_inputs": {
         "names": [
           ".pose/adr/2026-10-14-shared-domain-and-optional-worktree-runtime.md",
@@ -253454,7 +253618,7 @@
         }
       ],
       "diff_digest": "sha256:36e42e5458c60c37a38d0be6d61888f7a98a5f8f9aaa3c4ae91ecb985484a09f",
-      "material_digest": "sha256:7ab432d353678cc815a0e30f0bcf151eb452d2a4860369295409324a1d4ab70e",
+      "material_digest": "sha256:721a9b191043846ea16181597cf03636238fed36f39bef8f9fab19a5947d2088",
       "material_inputs": {
         "names": [
           ".agents/skills/pose-bugfix/SKILL.md",
@@ -253697,7 +253861,7 @@
         }
       ],
       "diff_digest": "sha256:a2e7a389d3d0d3123384a0b73c8eb0102331f610c6167fad12a2fb75641609f9",
-      "material_digest": "sha256:2a88d87c99516f58216f9f97c7c8944bcb04fc3a59d479b6d9a02c3deadb2392",
+      "material_digest": "sha256:96527f73fb1348a18f6064c538408ca43dbf1e747d4259fbcb0de32518b9ac0c",
       "material_inputs": {
         "names": [
           ".pose/adr/2026-08-10-local-usage-events-and-outcome-aware-aggregation.md",
@@ -254245,7 +254409,7 @@
         }
       ],
       "diff_digest": "sha256:88696d7d2eb504ba98b74f2b7cbced93f05b304bdc3b29042c3d296600c03d39",
-      "material_digest": "sha256:a250cf4c80863ca312ced16e1f7f2f5ac17e3b3659fb9bf473b3ea254f01fd50",
+      "material_digest": "sha256:efed9c6a04be2e9fd24e0f58d3c8776a4bd8f74d8e7bf4447f55ee9fa6ccc135",
       "material_inputs": {
         "names": [
           ".pose/changelogs/unreleased/pose-action-request-presentation.md",
@@ -255005,7 +255169,7 @@
         }
       ],
       "diff_digest": "sha256:b50cc32f8fc5fd8a9dd59a08a8e91318afb643a269d7acb7519299c8bebfdc35",
-      "material_digest": "sha256:551e434ef393f1515eb11f5433282ead01b70901ed83256b6db61fec50f80dae",
+      "material_digest": "sha256:7fc8f86ce39b8cc7fecb46f0ef0d9658b1299ab4e78afcf170da910494501126",
       "material_inputs": {
         "names": [
           ".pose/changelogs/unreleased/pose-action-request-presentation.md",
@@ -255749,7 +255913,7 @@
         }
       ],
       "diff_digest": "sha256:22d574668a1e35f3033f5387fa39c41ed11740912aa27af8f5c4ce2b7943d98f",
-      "material_digest": "sha256:a4e1ad0cfaa470c4a956fbda277c7ea69848d67c206ca4660f601ac33cece09e",
+      "material_digest": "sha256:dbd0616d523c6080f3fe2faeb845c7e4481597fae5eb3a69caf39b9bf341d417",
       "material_inputs": {
         "names": [
           ".pose/assessments/integrations.md",
@@ -256332,7 +256496,7 @@
         }
       ],
       "diff_digest": "sha256:5c82f0c2ab0571c81603893d74710ce7b2a4113a8188cc8389474c1ed7155970",
-      "material_digest": "sha256:fe0e686111d86bc2cc3b1bd5f48af234effce5b50fcd5e682b4dc542bc0dd869",
+      "material_digest": "sha256:681c7667b38f7563a60150dc855a36913f8fe22775f4fa6629574ca922773108",
       "material_inputs": {
         "names": [
           ".pose/changelogs/unreleased/pose-action-request-presentation.md",
@@ -256718,7 +256882,7 @@
         }
       ],
       "diff_digest": "sha256:0a0026fa295b2a7ad35d7a63c6e02eb1fec9f54328edabae23c18e46bd12014f",
-      "material_digest": "sha256:bcfe1be290e3e11b1008e56144e6836737d2fa24248ec98270f77a0ab7971cff",
+      "material_digest": "sha256:4f73031f80740426aff000b147a31d1bd90d0c61dc23d0699f68629acfaa18fd",
       "material_inputs": {
         "names": [
           ".pose/changelogs/unreleased/pose-assessment-engine-precision.md",
@@ -257436,7 +257600,7 @@
         }
       ],
       "diff_digest": "sha256:2b90784fddf6787b7c4ccdbb80f6d836082c46a7a4266c60a6dc1936ee62f279",
-      "material_digest": "sha256:3073011d30fec7e7a8934d5a0e3bb2c7fcf54d196c53efed077a3c8cc66ac685",
+      "material_digest": "sha256:5be02f7ead790fcf8d6a883878ba74224d9bc7a7467c9b91a25412bee75ee364",
       "material_inputs": {
         "names": [
           ".pose/adr/2026-08-02-delivery-integrity-graph-and-git-observed-provenance.md",
@@ -258235,7 +258399,7 @@
         }
       ],
       "diff_digest": "sha256:acae1bbf9cc90cf4580cca606a68c72388ea16f67d0134a25ed39411be354bb5",
-      "material_digest": "sha256:e3518841ef5e9a50bdb864b171868bf34231cc819c89f966d5c95a7909d5476d",
+      "material_digest": "sha256:2e188889e848934a5473ef040e8dce4915908f48e7a27a6bbe306001bf8c3390",
       "material_inputs": {
         "names": [
           ".pose/changelogs/unreleased/pose-action-request-presentation.md",
@@ -258810,7 +258974,7 @@
         }
       ],
       "diff_digest": "sha256:4f94bf3e8bfde9b0d9604618a62d82dd7a47b2b4f8d272c187f535e4956175ea",
-      "material_digest": "sha256:2b9aea9b287774dba9a4f397f0b6c2da325eb70770d30288037186a51aa19623",
+      "material_digest": "sha256:28222c25c0ba5dbbccf31a8732cdad1c4c3ad37826a89e7f850e70265db739f2",
       "material_inputs": {
         "names": [
           ".pose/adr/2026-10-25-bind-delegated-review-authority-to-native-signed-run-proofs.md",
@@ -259060,7 +259224,7 @@
         }
       ],
       "diff_digest": "sha256:3dcf879f96b8b9ed12ed01734eeb380b4bf0a6da10bd40cef5709cc35bb80327",
-      "material_digest": "sha256:9995755354540907ab34525cb86a26d63d1d616d7115c88a52c343cb9c5dcc4f",
+      "material_digest": "sha256:32d2b68ebc8a9195da24e8b884ff860ed25a1bda45af4e978394d482e7a212af",
       "material_inputs": {
         "names": [
           ".pose/adr/2026-11-03-governance-reads-use-bounded-operation-scoped-views.md",
@@ -261379,7 +261543,7 @@
         }
       ],
       "diff_digest": "sha256:f1c0af6552f2cab794e07a24d2dc1353a60d1ace6d5242c5df81c7e47f51ca17",
-      "material_digest": "sha256:6b3b1907ee0fd9411bee47a0df28d3fc901adeaebf7fc373e268bdce771ef53f",
+      "material_digest": "sha256:c02ca943c2a4818b91b9730b569922f62eef0c610f5fbfe51eaaf9c6541da6d6",
       "material_inputs": {
         "names": [
           ".agents/skills/pose-spec-closeout/SKILL.md",
@@ -262211,7 +262375,7 @@
         }
       ],
       "diff_digest": "sha256:b25b59849975719194626f605b448f5b18004eafba3a8bd0c9fe41e3be519997",
-      "material_digest": "sha256:353e14a5b2a10bd53d7ec2bd013a599bc34e1e8a189ae98bd12202e4aa569ce8",
+      "material_digest": "sha256:fc6ee098402bc870948a77e8d77390992c83beefb7d8d462b3c0d3359f4c3b20",
       "material_inputs": {
         "names": [
           ".pose/changelogs/unreleased/pose-abm-contract-nodes.md",
@@ -262426,7 +262590,7 @@
         }
       ],
       "diff_digest": "sha256:236328fbe70a42a25ec3d0591344f70b10b2eba4df68fdc774d9f0c7f6c88689",
-      "material_digest": "sha256:2626f6418954ae15525f5afd9e69b524530ad52be60f6cff6bf8512ae1834987",
+      "material_digest": "sha256:db5cbb58cb5b2bd0a76d1dd8cb0c97b7e8455c7454665c66f12bf7830719a595",
       "material_inputs": {
         "names": [
           ".pose/assessments/README.md",
@@ -262775,7 +262939,7 @@
         }
       ],
       "diff_digest": "sha256:77362648d962f708652a4c21b701722b7c478801dca92f8c36b57a3a1887cbe8",
-      "material_digest": "sha256:0078f2c870efd928ff77066fb7e7c440ce062be603f4e0ab54c88f7bb215a18a",
+      "material_digest": "sha256:6ce0bbfd8124a8a6b104db1b60f40ca7773530ba64441848aed0074c8af4ac9e",
       "material_inputs": {
         "names": [
           ".pose/adr/2026-10-16-operation-results-separate-execution-from-verdict.md",
@@ -262984,7 +263148,7 @@
         }
       ],
       "diff_digest": "sha256:f3a4e0681649bb675fc5df827f40bcfda94932290bec301568ccfe0718877261",
-      "material_digest": "sha256:5c800bdd09b1c2f9d108ea035473322b9fce54d20450bd7cb462430253d8e593",
+      "material_digest": "sha256:5af5b557ca08069d972265a1524f07731c64c61cb097dda32f8080803f748c8b",
       "material_inputs": {
         "names": [
           ".pose/changelogs/unreleased/pose-recurrence-check-resolved-clusters.md",
@@ -265260,7 +265424,7 @@
         }
       ],
       "diff_digest": "sha256:1fc09be5e7827dc7bfef977afc2846a735c2d8b4f2d4c2d6d40a7b16f5d2fa9f",
-      "material_digest": "sha256:7ac868f72e7d80aa09645ce1c056b7381683c3ca0531377cae5484b9ef795aff",
+      "material_digest": "sha256:cf4551a396d845ed0e278ff4eeb970d410c0b32db9af15a5a7470540aba4d7ee",
       "material_inputs": {
         "names": [
           ".pose/changelogs/unreleased/pose-action-request-presentation.md",
@@ -268529,7 +268693,7 @@
         }
       ],
       "diff_digest": "sha256:237a997144d522058262ada4929a2f14628061f49b101a45e67190d359bac32a",
-      "material_digest": "sha256:d8dfaf241b2b9a3b6ae2f96d85b35a3848521af4b6ef74ee40f3c6b67e59f9e1",
+      "material_digest": "sha256:98a8a9f28dcef308f2f2d83ff60ac70ffdd4260f0350f9b7b047c90181096f58",
       "material_inputs": {
         "names": [
           ".agents/skills/README.md",
@@ -268964,7 +269128,7 @@
         }
       ],
       "diff_digest": "sha256:d7ae591d70d0784fe28c3b38b512b9b88ec62e1256741c0340de6e6601affaee",
-      "material_digest": "sha256:1c8f6d82141c95473e30e629212e141ec5222fd8a5f38c4dedbe68f9eb8db85a",
+      "material_digest": "sha256:4a5d2770e3435f9d3e622aad48f737f37eeedcd77b49a00a12e2f9236ee3879a",
       "material_inputs": {
         "names": [
           ".pose/adr/2026-10-14-shared-domain-and-optional-worktree-runtime.md",
@@ -269234,7 +269398,7 @@
         }
       ],
       "diff_digest": "sha256:b802380d146f1a50108a1c8aa9f49d6dd7be97a676d1320e87361b872abc6ef0",
-      "material_digest": "sha256:15ff2fb7299ab6ec40b1db70e2ba92f55485a0d08440040a2379328cf60a40b8",
+      "material_digest": "sha256:ec3c92bea5cf42e554773e5e32925546f6ae999f4aba83d5f4a819435a65d288",
       "material_inputs": {
         "names": [
           ".github/workflows/ci.yml",
@@ -269977,7 +270141,7 @@
         }
       ],
       "diff_digest": "sha256:656bc1b69b9ae213d359fcd034531a40cbf34a8a7b9ec821192019151f7029e7",
-      "material_digest": "sha256:f92c71d731c4c52df8df21999a6105b492b2c2ccbe7bd8acf5c4043a54ca0065",
+      "material_digest": "sha256:9a8bd3e18a0c44267c1f172d13a572887fcd23886cb483fe6df31c57af8a2f9d",
       "material_inputs": {
         "names": [
           ".agents/skills/pose-review/SKILL.md",
@@ -270400,7 +270564,7 @@
         }
       ],
       "diff_digest": "sha256:ca21fabc9fce03e348536d69350ebe9bafab24462f5879a636955ea9603f2e9b",
-      "material_digest": "sha256:272e941d740fbea57096e1a49422ff19393f9a03d2707ece82337060fcae1ebe",
+      "material_digest": "sha256:684b2da97f54af3bcb10f49dc08d8f5dbd63eeb6d580e7fc42cb945f6cdebed1",
       "material_inputs": {
         "names": [
           ".agents/skills/pose-feature/SKILL.md",
@@ -270867,7 +271031,7 @@
         }
       ],
       "diff_digest": "sha256:a07bff3ff8a5d93622c5ff142dbe9fa06625bd8e3e7d72cf5a98d35b51b05a0a",
-      "material_digest": "sha256:b5623a4f1cac873f9bcf9363e0fe7af50201382521d45596b57861c04c015d18",
+      "material_digest": "sha256:964dc584f3e0b8a45b0fcc16a9660eba1e67553dc44ef545a7eb0c385c79c00c",
       "material_inputs": {
         "names": [
           ".pose/changelogs/unreleased/pose-index-recovery-and-close-scope-consistency.md",
@@ -271226,7 +271390,7 @@
         }
       ],
       "diff_digest": "sha256:40d8552979ce9ed47473f6569b66269791495090dd71c5b7ceb8abd7c10c8d85",
-      "material_digest": "sha256:4d97de3c2f9dc15ed597f3c6b827b88d09fb879ae603ffcd8da1352353b32620",
+      "material_digest": "sha256:1378ce174942ec5f07b141f1b76d5680b760c7c819a0d9f1c7de7abd4be5adc6",
       "material_inputs": {
         "names": [
           ".pose/adr/2026-10-17-a-source-that-lost-something-is-incomplete-for-what-depends-on-it.md",
@@ -271711,7 +271875,7 @@
         }
       ],
       "diff_digest": "sha256:6ee4bf1e27589b310b7f03cbd8378a42b1f25803475fd112672324b7a214d251",
-      "material_digest": "sha256:fe2010520b40e6758ffea2d71413963f7a467ea5234a39d6132b071c5b65d3cd",
+      "material_digest": "sha256:38cdc61ffea6387d1ac3ccd0973c23bf02ce7b7fe27e8507387e87f560612146",
       "material_inputs": {
         "names": [
           ".gitignore",
@@ -272333,7 +272497,7 @@
         }
       ],
       "diff_digest": "sha256:b66f62eae07c2ac95902952bd546d2dd7b02bf347f8713e73dce3cae251768d7",
-      "material_digest": "sha256:83ee0aacb49e8c9fe8b8be4a3ca4ebc4075308efa577d00f33aa317c654de414",
+      "material_digest": "sha256:7f44b8335f09c3153638238a821bfd5c04744c911db93638397f7d4a76c2463f",
       "material_inputs": {
         "names": [
           ".pose/adr/2026-09-27-versioned-governance-outcomes-cohorts-and-lineage.md",
@@ -272766,7 +272930,7 @@
         }
       ],
       "diff_digest": "sha256:c619b64e20f088189922f009aa5ce99c89e8cf46d913161cccfb24081cce003b",
-      "material_digest": "sha256:4510468b2d105147955b76236a66f5c013341fa7a36a23b711f6cfcee98e189d",
+      "material_digest": "sha256:63dfc083b450fe77a07deb4e15b544f03262ca52a2892b356866b2bdc79002bb",
       "material_inputs": {
         "names": [
           ".agents/skills/pose-feature/SKILL.md",
@@ -273573,7 +273737,7 @@
         }
       ],
       "diff_digest": "sha256:763b41d514e72ca634e7d4cadece0f3387f8afe043a5526b11c4da05ff565cae",
-      "material_digest": "sha256:4e81be19769aaef736af2bd371ea3826a7a976238a63c32cb9b133712cb6ce01",
+      "material_digest": "sha256:a58914d8f3ce730ab272df4c827cf2d0e81752499f72572da8e1e89645e635d4",
       "material_inputs": {
         "names": [
           ".pose/changelogs/unreleased/pose-action-request-presentation.md",
@@ -274239,7 +274403,7 @@
         }
       ],
       "diff_digest": "sha256:c28889a947af96c501e11d9359d2ecbbf52d028f16f31eea762bbafe4b211e8e",
-      "material_digest": "sha256:6081ba2861389c66f8ad769504b7efffc241ec50948a31b7f61ba2144d45aacd",
+      "material_digest": "sha256:ea92298352ca22f3a830b3a017e8d15a4185dc4a2f368230b3810331bfcb745e",
       "material_inputs": {
         "names": [
           ".agents/skills/pose-review/SKILL.md",
@@ -274699,7 +274863,7 @@
         }
       ],
       "diff_digest": "sha256:753d0fde7dd0f569c3a2001e873302e4069db2ec3142a1b30fb0eb96dc10ea0b",
-      "material_digest": "sha256:4ea6893d791dda16c11a9ade1074b1f0bc8d9e2807801ab7736152589531a4b7",
+      "material_digest": "sha256:24038caffc3ccecbc97c440ac7d2e3b7718acb2cb7c5472edc12cc2961852e6e",
       "material_inputs": {
         "names": [
           ".pose/assessments/integrations.md",
@@ -275605,7 +275769,7 @@
         }
       ],
       "diff_digest": "sha256:e055cb23c7eca84a29083285bfc57f75b28b79575be9f746458b5d1407ebcea1",
-      "material_digest": "sha256:46d0b8598e18bc3162ce0385bcb5a16ffd99697a9379d4313550c851277e98f3",
+      "material_digest": "sha256:215a92da7e71be53d20a564ada3268d966c65b3687e8e6e6a84cefc607f519bf",
       "material_inputs": {
         "names": [
           ".pose/changelogs/unreleased/pose-action-request-presentation.md",
@@ -276823,7 +276987,7 @@
         }
       ],
       "diff_digest": "sha256:5b03ff55d3bdaf0311ad273d74e22131cdcd7a962e79f89039b68efe7d0aa5ae",
-      "material_digest": "sha256:f7b5b5a4015b7c68cc4dde6ffe647c924f2473c6fe60017194e173b40a0c81c3",
+      "material_digest": "sha256:2aeb01203b618865187f4718f5f5de4b3a60195abf887b06fac92200417f9b04",
       "material_inputs": {
         "names": [
           ".pose/changelogs/unreleased/pose-action-request-presentation.md",
@@ -279703,7 +279867,7 @@
         }
       ],
       "diff_digest": "sha256:daf12e251f07d7c8c474fd51b370c71efc95222eb474f5c638ff7b7530c89aba",
-      "material_digest": "sha256:06a0535f9d8b0eac994d2a73315e5054e20814f1638cb095579425fb54b94713",
+      "material_digest": "sha256:93c83d352dcf54eb22aab3b5f6c13d1beb2cbcf63f8e22136835c8f9acf8994c",
       "material_inputs": {
         "names": [
           ".pose/adr/2026-11-03-governance-reads-use-bounded-operation-scoped-views.md",
@@ -280352,146 +280516,6 @@
       }
     },
     {
-      "id": "cs-d854352a5108",
-      "spec": "pose-validate-carries-unchanged-checks",
-      "selector": "trailers:pose-validate-carries-unchanged-checks",
-      "base": "e4ab4d11b5dcf81c98281731f7af707dbb2678fa^",
-      "head": "8300e10ef0951010c1ca8ff389b5f6133d0a8b9a",
-      "resolved_base": "dec2e64c1395fafbf8e2a78171e5437c1720bbbf",
-      "resolved_head": "8300e10ef0951010c1ca8ff389b5f6133d0a8b9a",
-      "commits": [
-        "e4ab4d11b5dcf81c98281731f7af707dbb2678fa",
-        "be3578024b8c8d082c7168dbf54094d819c9a21b",
-        "2714e759a042834464eaf850c8a5a5c57e211188",
-        "07b8207e206408bf24d57bad4b6959d1eeb4433d",
-        "a99741f9b50181f9977321617043f50d878d54fa",
-        "bc7d67dc679be1a4703ecc646fc1bc10c3f14cb2",
-        "59ff08c9370ad9818702823ccbd6e5d0d3110eaf",
-        "bba0f22217f383f24cffb2178826c113506ab2c4",
-        "275fafa7ae8c80aba4ddc9cbe29ff27c189c7278",
-        "87ed1bb81193f59a4985624148ebaf15bac491da",
-        "282042f31ab4e8cd9755f1c23da9a3e80e993bfa",
-        "606a0fa821f009a91b11dfb282de49fb24516cde",
-        "5375cd816cbba4776632b9e394f7c37c4fd2bcfa",
-        "c4182727845d5d8c1411887ebed11749a6d59c25",
-        "29f6da72e0beee1e42170fd3466ef759e0faa6ab",
-        "e55bde0c82b66dd7891577f45fcdefc146140899",
-        "bc3d545017f60a0dd367f051f30303b6805b1a00",
-        "ed37f1bc27c7754ef6e0772a4edadc62f53c19d8",
-        "883eb1ef143c3897e159011c19e8403eb1f022cf",
-        "6be3a6f7009c1d782198c74a24549f8ec41423df",
-        "d601fbe105a7d56c91d9ab791972d9249a59a5c4",
-        "300b91384f692c0c3b9aef80af9f8f8c72c40cde",
-        "35b4cc7fba4c1eae22a44f5e05ba45ffa179cecb",
-        "0f0829c7f2b9be7ad24ac67ea5086935634f2fd1",
-        "8300e10ef0951010c1ca8ff389b5f6133d0a8b9a"
-      ],
-      "paths": [
-        {
-          "action": "created",
-          "path": ".pose/adr/2026-11-22-validate-carries-unchanged-checks.md"
-        },
-        {
-          "action": "created",
-          "path": ".pose/results/pose-validate-carries-unchanged-checks-matrix.md"
-        },
-        {
-          "action": "created",
-          "path": ".pose/specs/2026-11-22-pose-validate-carries-unchanged-checks.md"
-        },
-        {
-          "action": "created",
-          "path": "pose-mcp/internal/cli/validate_carry.go"
-        },
-        {
-          "action": "created",
-          "path": "pose-mcp/internal/cli/validate_carry_test.go"
-        },
-        {
-          "action": "created",
-          "path": "pose-mcp/internal/pose/delivery_validation_run_test.go"
-        },
-        {
-          "action": "modified",
-          "path": ".pose/indexes/delivery-integrity.json"
-        },
-        {
-          "action": "modified",
-          "path": ".pose/indexes/generation.json"
-        },
-        {
-          "action": "modified",
-          "path": ".pose/indexes/spec-graph.json"
-        },
-        {
-          "action": "modified",
-          "path": ".pose/results/delivery-validation.json"
-        },
-        {
-          "action": "modified",
-          "path": "POSE.md"
-        },
-        {
-          "action": "modified",
-          "path": "locales/pt-BR/POSE.md"
-        },
-        {
-          "action": "modified",
-          "path": "pose-mcp/internal/cli/help_catalog.go"
-        },
-        {
-          "action": "modified",
-          "path": "pose-mcp/internal/cli/validate.go"
-        },
-        {
-          "action": "modified",
-          "path": "pose-mcp/internal/cli/validate_results.go"
-        },
-        {
-          "action": "modified",
-          "path": "pose-mcp/internal/cli/validate_scope.go"
-        },
-        {
-          "action": "modified",
-          "path": "pose-mcp/internal/pose/delivery_validation_run.go"
-        },
-        {
-          "action": "modified",
-          "path": "pose-mcp/internal/scaffold/dist/POSE.md"
-        },
-        {
-          "action": "modified",
-          "path": "pose-mcp/internal/scaffold/dist/locales/pt-BR/POSE.md"
-        }
-      ],
-      "diff_digest": "sha256:0e9024457068c337f166e28be157f428731445710364ed68be70c66b1f4f8faf",
-      "material_digest": "sha256:0a61891cacda6451725b05e7e8781f52a998f5bdc791049548e867f7317e2f1d",
-      "material_inputs": {
-        "names": [
-          ".pose/adr/2026-11-22-validate-carries-unchanged-checks.md",
-          ".pose/indexes/delivery-integrity.json",
-          ".pose/indexes/generation.json",
-          ".pose/indexes/spec-graph.json",
-          ".pose/indexes/validation-matrix.json",
-          ".pose/results/delivery-validation.json",
-          ".pose/results/pose-validate-carries-unchanged-checks-matrix.md",
-          ".pose/specs/2026-11-22-pose-validate-carries-unchanged-checks.md",
-          "POSE.md",
-          "locales/pt-BR/POSE.md",
-          "pose-mcp/internal/cli/help_catalog.go",
-          "pose-mcp/internal/cli/validate.go",
-          "pose-mcp/internal/cli/validate_carry.go",
-          "pose-mcp/internal/cli/validate_carry_test.go",
-          "pose-mcp/internal/cli/validate_results.go",
-          "pose-mcp/internal/cli/validate_scope.go",
-          "pose-mcp/internal/pose/delivery_validation_run.go",
-          "pose-mcp/internal/pose/delivery_validation_run_test.go",
-          "pose-mcp/internal/scaffold/dist/POSE.md",
-          "pose-mcp/internal/scaffold/dist/locales/pt-BR/POSE.md"
-        ]
-      }
-    },
-    {
       "id": "cs-d875e809303b",
       "spec": "pose-ci-keeps-complete-go-coverage-in-bounded-shards",
       "selector": "trailers:pose-ci-keeps-complete-go-coverage-in-bounded-shards",
@@ -281056,7 +281080,7 @@
         }
       ],
       "diff_digest": "sha256:5df3c7cf87a13cdc6a8c558e6d10b46a014868fb1351f43988fc0f87abac9604",
-      "material_digest": "sha256:72df061033faf382dd1b21cfebe0df41fb60beaf4b5cdaff88b2b60e74d08c93",
+      "material_digest": "sha256:cfe5423d0e2e99da1ccca1783fcb30ae70306c8bc522f8d3e6dd55f921214b42",
       "material_inputs": {
         "names": [
           ".pose/changelogs/unreleased/pose-delegation-task.md",
@@ -281728,7 +281752,7 @@
         }
       ],
       "diff_digest": "sha256:4fa9930bbbb7af287843dc51069b674d8094026d83a84f0e058d7c5d35f42e10",
-      "material_digest": "sha256:0f446abf736d6514f23a657c408fac65bbc583a8571996dcd03d472855010e0f",
+      "material_digest": "sha256:5c79eada04722e63d9146c9a827befd9990317fc152adeb75d15b5459eaa57af",
       "material_inputs": {
         "names": [
           ".pose/changelogs/unreleased/pose-action-request-presentation.md",
@@ -282298,7 +282322,7 @@
         }
       ],
       "diff_digest": "sha256:8afbba8fa3cc025d1bd068b6f752bb7119683b42047ecfe8cdc7f422a4b12d08",
-      "material_digest": "sha256:6d2aed5c5cdf678ba24a858280d83960bd414d4b68a0f5cfa2af8116b0b089a3",
+      "material_digest": "sha256:e4236101d333c78e0b817263a70926ea9e466ee4b630757de1fc14a3c9eb6751",
       "material_inputs": {
         "names": [
           ".pose/changelogs/unreleased/pose-assessment-engine-precision.md",
@@ -282580,7 +282604,7 @@
         }
       ],
       "diff_digest": "sha256:14babf8ed7ecbb0ce8e95e94761eac9ce065c292192516a4f557ac0a3b4bf7b3",
-      "material_digest": "sha256:dfa5721b84bc875c03353ca873354e4749976a7ee87ee7596bcdb5fcda2932a0",
+      "material_digest": "sha256:1f6a147fa2203c45dbaa4ef1efc44f62e917eef97bcb290513f3049f1d2d1afa",
       "material_inputs": {
         "names": [
           ".pose/changelogs/unreleased/pose-commit-gate-refuses-index-without-descriptor.md",
@@ -283698,7 +283722,7 @@
         }
       ],
       "diff_digest": "sha256:6e9624badd249dd687ab347a4332f3ff76a71b21a265ff6f60bd219ef5da7bac",
-      "material_digest": "sha256:67ac2ea948304deb5a1a90ab0ec9f338c7508471b0f24d43648a279c581ffeb2",
+      "material_digest": "sha256:2e7a7f837ac91c99604012a5a6f51adb1352ad9c5deb7fe29b4474f3a75b2d3d",
       "material_inputs": {
         "names": [
           ".pose/assessments/README.md",
@@ -284309,7 +284333,7 @@
         }
       ],
       "diff_digest": "sha256:13ef13ee4bbdf060ea9ca6207e7ce532cd5caaa3d83eab04e858dbd258788359",
-      "material_digest": "sha256:c54433dbe4b555d109e5cd8a789d6c9a61120258d7c732e45b076ab1fc575e39",
+      "material_digest": "sha256:e61a3cc397f5ff3a358e3337ccda2625e0d6e8ab21ebfc892243919ac2b75dd6",
       "material_inputs": {
         "names": [
           ".pose/changelogs/unreleased/pose-action-request-presentation.md",
@@ -284970,7 +284994,7 @@
         }
       ],
       "diff_digest": "sha256:48caf0c96c1f118828811fa21fe799772e05041460d84ceabe3e7bccf46324cc",
-      "material_digest": "sha256:d9d627e21a2d38e89cb0bb9ab7eda3700caaa86e75fc1f46512425209b2254b0",
+      "material_digest": "sha256:46d32a79e20127d86440d71eafd2ec71548de759b92f72285829748bc5720952",
       "material_inputs": {
         "names": [
           ".pose/adr/2026-10-24-recover-supersession-from-one-immutable-predecessor-intent.md",
@@ -286282,7 +286306,7 @@
         }
       ],
       "diff_digest": "sha256:800b9ea33f3eb95329125f288865f1a03f3b15098e382377eaee73d47358280e",
-      "material_digest": "sha256:675443e993b9a16e4a5209a8aa7ac67d4cfa3cf521bee9715b61aea511f4ba14",
+      "material_digest": "sha256:55229cbfe70d4c02bea2b449562ed244fa195073d3b11e5f81bc0ea74bf2ff6e",
       "material_inputs": {
         "names": [
           ".pose/assessments/README.md",
@@ -287810,7 +287834,7 @@
         }
       ],
       "diff_digest": "sha256:8b62c0ccefbedb34bd2b500c244f5b09af8d5eea0b0cd069db7d0f764c684bf9",
-      "material_digest": "sha256:756650e21aba35ec743f4b23842044f86a08a9439d6984c53e90128df35a835a",
+      "material_digest": "sha256:a8cb5bc72021cba3d22d1fa62c5b9d9f3d8be9818a9a5e7930a0c7f1c5afaace",
       "material_inputs": {
         "names": [
           ".pose/adr/2026-10-14-shared-domain-and-optional-worktree-runtime.md",
@@ -290569,7 +290593,7 @@
         }
       ],
       "diff_digest": "sha256:d7126b58b30e44693cb52fa47922b1fcbf4b44838f891318e63893d789108ee2",
-      "material_digest": "sha256:9d6139547339ef204fe3ba8580ac071a115c7f2ab06c5f070cc76633997b2401",
+      "material_digest": "sha256:7527925fc83272ba205975dafd35cfc1215527fb97dcf0c513852429ad07cdb4",
       "material_inputs": {
         "names": [
           ".pose/adr/2026-09-11-the-cli-has-one-rendering-layer-and-its-printed-lines-are-a-contract.md",
@@ -292034,7 +292058,7 @@
         }
       ],
       "diff_digest": "sha256:63526c73733bbd18c540c0041a8fca4f23005edf8e41d8607fb3658312c125d1",
-      "material_digest": "sha256:09de3503bf25a38742d6f2a166ed19dfbdde75f9d63c7ff729cb440b0a1fe887",
+      "material_digest": "sha256:2699cd54178d629e35610433bd49911e312c4e050e9f56b6c013da5a73aa6fa8",
       "material_inputs": {
         "names": [
           ".pose/changelogs/unreleased/pose-review-brief-states-the-conclusion-rules.md",
@@ -292320,7 +292344,7 @@
         }
       ],
       "diff_digest": "sha256:d502975170b13de98da0b28eff15140ca184e1b2149c2db799a55e412aed2724",
-      "material_digest": "sha256:da97f14b618645484bc1f8d49893db8cbdda7cebfa54a6724616cf9fcca36eeb",
+      "material_digest": "sha256:fc338dc3bdc70d4567049b673b6bb1ba4cc17180df8b56c8633afcfde5ed82db",
       "material_inputs": {
         "names": [
           ".pose/adr/2026-09-19-structural-delta-delivery-profile.md",
@@ -293181,7 +293205,7 @@
         }
       ],
       "diff_digest": "sha256:9577a6917b9b052ca7ae275aed94789e78dcc057838a1b08b247ed90444c3681",
-      "material_digest": "sha256:5f8e2fdf7c9c2c4da2ee3ba067d5399882c193dace4d1f6ebf1d794d4c3d4d3b",
+      "material_digest": "sha256:dbf5cb188c6dcc87db82f35014bebe4e51ef163dd95dad1b64fd6ef841552f69",
       "material_inputs": {
         "names": [
           ".pose/adr/2026-10-24-verify-terminal-state-with-the-applicable-closeout-contract.md",
@@ -293648,7 +293672,7 @@
         }
       ],
       "diff_digest": "sha256:2d24ecd853e2eb46b93acc5da523c53ad97f9fd274ef06248440d369bb401c6e",
-      "material_digest": "sha256:175f867303892b87f54bb629de952bcdf38b505b5212198af83a9972a4677deb",
+      "material_digest": "sha256:aa1d6c81a2cbafc9675682dd58b9ac7e050f59b7c518fef03bc388e72ae5d128",
       "material_inputs": {
         "names": [
           ".pose/changelogs/unreleased/pose-action-request-presentation.md",
@@ -294658,7 +294682,7 @@
         }
       ],
       "diff_digest": "sha256:7fb13b674b8b265cff7bd0c920a3e5b52eff26fbb960373252f62ae94167a55a",
-      "material_digest": "sha256:c301daeb086377e445942a1ae87227a08e1735e964b92cfbc3ffc735e16498d9",
+      "material_digest": "sha256:741f26896e75394cc24eff1e110fe2c7bdaebd1b6edce8f4fb10c18427e95633",
       "material_inputs": {
         "names": [
           ".agents/skills/pose-spec-closeout/SKILL.md",
@@ -295315,7 +295339,7 @@
         }
       ],
       "diff_digest": "sha256:b2fbed9ac6c52872b728b503c343d06c221121325ebee3cb59c99a5f54e42129",
-      "material_digest": "sha256:be63eb3debea300c8461c60ebb4eb51b03789adb828b192db6546333e82634aa",
+      "material_digest": "sha256:ada6eba5f602a78bb01f867873f45a48b2ad7cee5504359079d7fd68eb6d35ce",
       "material_inputs": {
         "names": [
           ".pose/adr/2026-08-10-production-scoped-dora-five-metric-contract.md",
@@ -295755,7 +295779,7 @@
         }
       ],
       "diff_digest": "sha256:ae25f939fde29ca3b1b2e92a7c59b21a910d611718d780b6f3444175d6c6fa13",
-      "material_digest": "sha256:60b8552f9f8b650081422221e39a214f92d20243d31e427e55ac2c18b3f038a6",
+      "material_digest": "sha256:a5e849a8a3c1f187440ae22311309dc4b2e7e1b6a3342eebbb3fd3bdc03749c5",
       "material_inputs": {
         "names": [
           ".agents/skills/pose-feature/SKILL.md",
@@ -297392,7 +297416,7 @@
         }
       ],
       "diff_digest": "sha256:7f3f869411c06c79f15cc16598fe610360680703def7a4cef01f43f3a33e5069",
-      "material_digest": "sha256:cbc5e1000da79104bf1c5fb317e6338ab873868def037abf3afa983e7d343af0",
+      "material_digest": "sha256:d8c72959110862cb7b7e22f09eeb8e84c6173fcca95a9818f5e08ac219c8cc2f",
       "material_inputs": {
         "names": [
           ".pose/changelogs/unreleased/pose-action-request-presentation.md",
@@ -297971,7 +297995,7 @@
         }
       ],
       "diff_digest": "sha256:a98756135be443c7b14099070e810d0621f7457d03bc6036c2d9fd7b3f65d196",
-      "material_digest": "sha256:174effe1416c3b82be0afa059550449b692639ed4ae0b5f4ffba0b3035b4eb69",
+      "material_digest": "sha256:82c0ddf7ff0112fb6b254b99d51049b0933c5dd975a8df8edf16d386bf7c5f1a",
       "material_inputs": {
         "names": [
           ".pose/adr/2026-10-14-shared-domain-and-optional-worktree-runtime.md",
@@ -298349,7 +298373,7 @@
         }
       ],
       "diff_digest": "sha256:ea2ec691773eeb22fe82b146070344457f593f0d0c8ce80fdc69c2372be134ce",
-      "material_digest": "sha256:34a767f273e468ac9a12dd03b64496e51daa808e2312a8373e155837810d7cc6",
+      "material_digest": "sha256:d6689d39e1696c96db180f0ec62500c98fd57a9e3dab36a21c6e09a48f7d98e3",
       "material_inputs": {
         "names": [
           ".agents/skills/pose-spec-closeout/SKILL.md",
@@ -298774,7 +298798,7 @@
         }
       ],
       "diff_digest": "sha256:f7e21865a0fb09eb576281d582917a551f9055cf0eb11c99afddfdcc6de627f6",
-      "material_digest": "sha256:ab0a6213d16b96dceb5595fbcba092241a0dd7ba3adea832f0a51999b5639783",
+      "material_digest": "sha256:bfa1e6d38931322b7b331e2e4c4ca8d2f0143593d9870889191d4d6b7ef59938",
       "material_inputs": {
         "names": [
           ".pose/adr/2026-10-24-seed-first-amendment-from-recorded-start.md",
@@ -299252,7 +299276,7 @@
         }
       ],
       "diff_digest": "sha256:28f6e8c425e4db462ffeb923faf92216dfb59e848e648a1a4e9c1fced4425afe",
-      "material_digest": "sha256:28b385315b57342bac69d9735a6a14a8ad40c26ce803b459843fb94317c78c4b",
+      "material_digest": "sha256:2269a69861c39f2e6dfcc17a621b622a8b5c2b866fdaf0f596bf66bb8133c092",
       "material_inputs": {
         "names": [
           ".gitleaksignore",
@@ -299495,7 +299519,7 @@
         }
       ],
       "diff_digest": "sha256:f1f5bc374faf80105a7af6c6f7928c475d93510aaded854d8816d4937051b561",
-      "material_digest": "sha256:f8e74712d9ab55cc42c149baf9e1f564cdb38a8513e1777925c3713134f0dbec",
+      "material_digest": "sha256:d8b45d12b87d6fa5d8c6261b9d640adfaba7de5b74793295ee21a2707b91c04d",
       "material_inputs": {
         "names": [
           ".pose/changelogs/unreleased/pose-help-lists-every-command.md",
@@ -299917,7 +299941,7 @@
         }
       ],
       "diff_digest": "sha256:45e9a04302a06513bbaa97a173a04e0eff02fd5a40f028ee0e99362aaf1093fa",
-      "material_digest": "sha256:c81f4ca0551dfcf47b9e6bd271d44cb743f68ea6ae329ed50d05494246e0ab59",
+      "material_digest": "sha256:a5c7aaeed3db847fa2a2d7f87160f256b64c356893ffaafd899d9481259297f5",
       "material_inputs": {
         "names": [
           ".agents/skills/pose-feature/SKILL.md",
@@ -300679,7 +300703,7 @@
         }
       ],
       "diff_digest": "sha256:2ec4a4ff93a71f341a1c8fed435a1efdc0658d76e1ade8745efd46405c8df5b9",
-      "material_digest": "sha256:d1d8039530dd3e78eede11ace485f35807fd46883816a277f4adf65668362713",
+      "material_digest": "sha256:6f248ab02ce766e376eb02f2e6e3766049e8d28b72efe65b236418faae08b412",
       "material_inputs": {
         "names": [
           ".pose/changelogs/unreleased/pose-managed-doc-project-identity-regression.md",
@@ -309009,6 +309033,9 @@
     "pose-mcp/internal/cli/validate_empty_go_checks_test.go": [
       "pose-validate-refuses-empty-go-checks"
     ],
+    "pose-mcp/internal/cli/validate_engine_identity_test.go": [
+      "pose-validate-carries-unchanged-checks"
+    ],
     "pose-mcp/internal/cli/validate_guardrails_test.go": [
       "pose-reports-name-the-declared-project"
     ],
@@ -312872,6 +312899,16 @@
       "remediation": "register a check for pose-mcp/internal/cli, or accept that a run of the containing module is what this target is gated on"
     },
     {
+      "id": "dif-0daef588aafd",
+      "code": "undeclared-delivery",
+      "severity": "error",
+      "spec": "pose-validate-carries-unchanged-checks",
+      "path": "pose-mcp/internal/cli/validate_engine_identity_test.go",
+      "change_set": "cs-56ab7e9702b8",
+      "message": "changed delivery root pose-mcp/internal/cli has no delivery declaration",
+      "remediation": "declare a typed delivery target or narrow the attributed change set"
+    },
+    {
       "id": "dif-0de52106da56",
       "code": "inferred-coverage",
       "severity": "warning",
@@ -313003,16 +313040,6 @@
       "path": ".pose/adr/2026-10-14-release-temporal-evidence-and-attempt-lineage.md",
       "message": "declared artifact action is absent from the attributed Git change sets",
       "remediation": "no Git change sets are attributed to spec pose-release-prepare-record-recovery (ensure commits carry 'POSE-Spec: pose-release-prepare-record-recovery' trailer or generate report with pose report)"
-    },
-    {
-      "id": "dif-17343f81dca2",
-      "code": "undeclared-delivery",
-      "severity": "error",
-      "spec": "pose-validate-carries-unchanged-checks",
-      "path": "pose-mcp/internal/cli/validate_carry.go",
-      "change_set": "cs-d854352a5108",
-      "message": "changed delivery root pose-mcp/internal/cli has no delivery declaration",
-      "remediation": "declare a typed delivery target or narrow the attributed change set"
     },
     {
       "id": "dif-181d954afd31",
@@ -314041,16 +314068,6 @@
       "remediation": "declare a typed delivery target or narrow the attributed change set"
     },
     {
-      "id": "dif-5c44ea50abb9",
-      "code": "undeclared-delivery",
-      "severity": "error",
-      "spec": "pose-validate-carries-unchanged-checks",
-      "path": "pose-mcp/internal/cli/validate_carry_test.go",
-      "change_set": "cs-d854352a5108",
-      "message": "changed delivery root pose-mcp/internal/cli has no delivery declaration",
-      "remediation": "declare a typed delivery target or narrow the attributed change set"
-    },
-    {
       "id": "dif-5cf6ded4141a",
       "code": "orphan",
       "severity": "warning",
@@ -314237,16 +314254,6 @@
       "path": "capability:release-publication-evidence-replay",
       "message": "delivery target has no structured artifact provenance",
       "remediation": "declare and reconcile exact artifacts before asserting delivery"
-    },
-    {
-      "id": "dif-676c727867fe",
-      "code": "undeclared-delivery",
-      "severity": "error",
-      "spec": "pose-validate-carries-unchanged-checks",
-      "path": "pose-mcp/internal/cli/validate.go",
-      "change_set": "cs-d854352a5108",
-      "message": "changed delivery root pose-mcp/internal/cli has no delivery declaration",
-      "remediation": "declare a typed delivery target or narrow the attributed change set"
     },
     {
       "id": "dif-67e61b8d2ffa",
@@ -314794,6 +314801,16 @@
       "remediation": "no Git change sets are attributed to spec pose-proportional-next-action (ensure commits carry 'POSE-Spec: pose-proportional-next-action' trailer or generate report with pose report)"
     },
     {
+      "id": "dif-85a18db6db29",
+      "code": "undeclared-delivery",
+      "severity": "error",
+      "spec": "pose-validate-carries-unchanged-checks",
+      "path": "pose-mcp/internal/cli/validate_carry_test.go",
+      "change_set": "cs-56ab7e9702b8",
+      "message": "changed delivery root pose-mcp/internal/cli has no delivery declaration",
+      "remediation": "declare a typed delivery target or narrow the attributed change set"
+    },
+    {
       "id": "dif-867a9e0145a7",
       "code": "action-mismatch",
       "severity": "error",
@@ -315023,16 +315040,6 @@
       "remediation": "backfill an explicit claim or add an exact reviewed exclusion"
     },
     {
-      "id": "dif-951a50608b53",
-      "code": "undeclared-delivery",
-      "severity": "error",
-      "spec": "pose-validate-carries-unchanged-checks",
-      "path": "pose-mcp/internal/cli/help_catalog.go",
-      "change_set": "cs-d854352a5108",
-      "message": "changed delivery root pose-mcp/internal/cli has no delivery declaration",
-      "remediation": "declare a typed delivery target or narrow the attributed change set"
-    },
-    {
       "id": "dif-9547880a17ee",
       "code": "action-mismatch",
       "severity": "error",
@@ -315040,6 +315047,16 @@
       "path": "pose-mcp/internal/cli/governance_stats.go",
       "message": "declared artifact action is absent from the attributed Git change sets",
       "remediation": "no Git change sets are attributed to spec pose-condition-response-and-work-metrics (ensure commits carry 'POSE-Spec: pose-condition-response-and-work-metrics' trailer or generate report with pose report)"
+    },
+    {
+      "id": "dif-95bbc33b357e",
+      "code": "undeclared-delivery",
+      "severity": "error",
+      "spec": "pose-validate-carries-unchanged-checks",
+      "path": "pose-mcp/internal/pose/delivery_validation_run.go",
+      "change_set": "cs-56ab7e9702b8",
+      "message": "changed delivery root pose-mcp/internal/pose has no delivery declaration",
+      "remediation": "declare a typed delivery target or narrow the attributed change set"
     },
     {
       "id": "dif-963bdf70608c",
@@ -315076,6 +315093,16 @@
       "path": "pose-mcp/internal/pose/docs_test.go",
       "message": "governed tracked path has no spec provenance claim",
       "remediation": "backfill an explicit claim or add an exact reviewed exclusion"
+    },
+    {
+      "id": "dif-975f9a688b57",
+      "code": "undeclared-delivery",
+      "severity": "error",
+      "spec": "pose-validate-carries-unchanged-checks",
+      "path": "pose-mcp/internal/cli/help_catalog.go",
+      "change_set": "cs-56ab7e9702b8",
+      "message": "changed delivery root pose-mcp/internal/cli has no delivery declaration",
+      "remediation": "declare a typed delivery target or narrow the attributed change set"
     },
     {
       "id": "dif-97969338b615",
@@ -315119,16 +315146,6 @@
       "path": "pose-mcp/internal/cli/integrated_agency_runtime_pilot_test.go",
       "message": "declared current artifact is not tracked at the selected head",
       "remediation": "correct the exact path or commit the artifact before closeout"
-    },
-    {
-      "id": "dif-99f03189bd3c",
-      "code": "undeclared-delivery",
-      "severity": "error",
-      "spec": "pose-validate-carries-unchanged-checks",
-      "path": "pose-mcp/internal/cli/validate_results.go",
-      "change_set": "cs-d854352a5108",
-      "message": "changed delivery root pose-mcp/internal/cli has no delivery declaration",
-      "remediation": "declare a typed delivery target or narrow the attributed change set"
     },
     {
       "id": "dif-9a9f7ef01997",
@@ -315697,6 +315714,16 @@
       "remediation": "backfill an explicit claim or add an exact reviewed exclusion"
     },
     {
+      "id": "dif-b5fc3c657588",
+      "code": "undeclared-delivery",
+      "severity": "error",
+      "spec": "pose-validate-carries-unchanged-checks",
+      "path": "pose-mcp/internal/cli/validate.go",
+      "change_set": "cs-56ab7e9702b8",
+      "message": "changed delivery root pose-mcp/internal/cli has no delivery declaration",
+      "remediation": "declare a typed delivery target or narrow the attributed change set"
+    },
+    {
       "id": "dif-b60f81ac9d17",
       "code": "action-mismatch",
       "severity": "error",
@@ -315785,13 +315812,13 @@
       "remediation": "no Git change sets are attributed to spec pose-residual-material-coverage-and-identity (ensure commits carry 'POSE-Spec: pose-residual-material-coverage-and-identity' trailer or generate report with pose report)"
     },
     {
-      "id": "dif-bd65da39594c",
+      "id": "dif-bd4bcc8528f2",
       "code": "undeclared-delivery",
       "severity": "error",
       "spec": "pose-validate-carries-unchanged-checks",
-      "path": "pose-mcp/internal/pose/delivery_validation_run_test.go",
-      "change_set": "cs-d854352a5108",
-      "message": "changed delivery root pose-mcp/internal/pose has no delivery declaration",
+      "path": "pose-mcp/internal/cli/validate_results.go",
+      "change_set": "cs-56ab7e9702b8",
+      "message": "changed delivery root pose-mcp/internal/cli has no delivery declaration",
       "remediation": "declare a typed delivery target or narrow the attributed change set"
     },
     {
@@ -315858,6 +315885,16 @@
       "path": "pose-mcp/internal/pose/obligation_sources.go",
       "message": "declared artifact action is absent from the attributed Git change sets",
       "remediation": "no Git change sets are attributed to spec pose-residual-nature-commitment-and-effect (ensure commits carry 'POSE-Spec: pose-residual-nature-commitment-and-effect' trailer or generate report with pose report)"
+    },
+    {
+      "id": "dif-bf8675d9ad10",
+      "code": "undeclared-delivery",
+      "severity": "error",
+      "spec": "pose-validate-carries-unchanged-checks",
+      "path": "pose-mcp/internal/cli/validate_scope.go",
+      "change_set": "cs-56ab7e9702b8",
+      "message": "changed delivery root pose-mcp/internal/cli has no delivery declaration",
+      "remediation": "declare a typed delivery target or narrow the attributed change set"
     },
     {
       "id": "dif-c07e6bca9ed0",
@@ -316068,6 +316105,16 @@
       "path": "pose-mcp/internal/pose/followups_parse.go",
       "message": "declared artifact action is absent from the attributed Git change sets",
       "remediation": "no Git change sets are attributed to spec pose-residual-material-coverage-and-identity (ensure commits carry 'POSE-Spec: pose-residual-material-coverage-and-identity' trailer or generate report with pose report)"
+    },
+    {
+      "id": "dif-cd328b950a35",
+      "code": "undeclared-delivery",
+      "severity": "error",
+      "spec": "pose-validate-carries-unchanged-checks",
+      "path": "pose-mcp/internal/pose/delivery_validation_run_test.go",
+      "change_set": "cs-56ab7e9702b8",
+      "message": "changed delivery root pose-mcp/internal/pose has no delivery declaration",
+      "remediation": "declare a typed delivery target or narrow the attributed change set"
     },
     {
       "id": "dif-cd3498609749",
@@ -316638,16 +316685,6 @@
       "remediation": "correct the exact path or commit the artifact before closeout"
     },
     {
-      "id": "dif-ef811e93cd69",
-      "code": "undeclared-delivery",
-      "severity": "error",
-      "spec": "pose-validate-carries-unchanged-checks",
-      "path": "pose-mcp/internal/pose/delivery_validation_run.go",
-      "change_set": "cs-d854352a5108",
-      "message": "changed delivery root pose-mcp/internal/pose has no delivery declaration",
-      "remediation": "declare a typed delivery target or narrow the attributed change set"
-    },
-    {
       "id": "dif-f0cdbaa84a6c",
       "code": "retroactive-attribution",
       "severity": "info",
@@ -316846,16 +316883,6 @@
       "remediation": "backfill an explicit claim or add an exact reviewed exclusion"
     },
     {
-      "id": "dif-f6ec1b78e348",
-      "code": "undeclared-delivery",
-      "severity": "error",
-      "spec": "pose-validate-carries-unchanged-checks",
-      "path": "pose-mcp/internal/cli/validate_scope.go",
-      "change_set": "cs-d854352a5108",
-      "message": "changed delivery root pose-mcp/internal/cli has no delivery declaration",
-      "remediation": "declare a typed delivery target or narrow the attributed change set"
-    },
-    {
       "id": "dif-f7432d460cc7",
       "code": "undeclared-delivery",
       "severity": "warning",
@@ -316880,6 +316907,16 @@
       "path": "docs-site/docs/assets/demo.tape",
       "message": "governed tracked path has no spec provenance claim",
       "remediation": "backfill an explicit claim or add an exact reviewed exclusion"
+    },
+    {
+      "id": "dif-fa00c50fd150",
+      "code": "undeclared-delivery",
+      "severity": "error",
+      "spec": "pose-validate-carries-unchanged-checks",
+      "path": "pose-mcp/internal/cli/validate_carry.go",
+      "change_set": "cs-56ab7e9702b8",
+      "message": "changed delivery root pose-mcp/internal/cli has no delivery declaration",
+      "remediation": "declare a typed delivery target or narrow the attributed change set"
     },
     {
       "id": "dif-fa72fd30c202",
