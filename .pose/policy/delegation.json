@@ -3,7 +3,7 @@
   "agents": {
     "sol-medium": {
       "vendor": "openai",
-      "model": "gpt-6.1-sol",
+      "model": "gpt-6-luna",
       "cli": "codex",
       "events": "codex-jsonl",
       "timeout": "60m",
@@ -16,7 +16,7 @@
           "read-only",
           "exec",
           "-m",
-          "gpt-6.1-sol",
+          "gpt-6-luna",
           "{effort}",
           "--skip-git-repo-check",
           "--json",
@@ -32,7 +32,7 @@
           "workspace-write",
           "exec",
           "-m",
-          "gpt-6.1-sol",
+          "gpt-6-luna",
           "{effort}",
           "--skip-git-repo-check",
           "--json",
@@ -42,11 +42,15 @@
         ]
       },
       "effort": {
-        "default": "medium",
+        "default": "max",
         "levels": {
           "medium": [
             "-c",
             "model_reasoning_effort=\"medium\""
+          ],
+          "max": [
+            "-c",
+            "model_reasoning_effort=\"max\""
           ]
         }
       },
@@ -63,7 +67,7 @@
           "exec",
           "resume",
           "-m",
-          "gpt-6.1-sol",
+          "gpt-6-luna",
           "{effort}",
           "--skip-git-repo-check",
           "--json",
@@ -82,7 +86,7 @@
             "exec",
             "resume",
             "-m",
-            "gpt-6.1-sol",
+            "gpt-6-luna",
             "{effort}",
             "--skip-git-repo-check",
             "--json",
@@ -100,7 +104,7 @@
             "exec",
             "resume",
             "-m",
-            "gpt-6.1-sol",
+            "gpt-6-luna",
             "{effort}",
             "--skip-git-repo-check",
             "--json",
@@ -115,10 +119,10 @@
       },
       "limit": {
         "output_patterns": [
-          "(?i)you(?:'|\u2019|\\\\u2019)ve hit your usage limit"
+          "(?i)you(?:'|’|\\\\u2019)ve hit your usage limit"
         ]
       },
-      "executor": "agent:openai/gpt-6.1-sol"
+      "executor": "agent:openai/gpt-6-luna"
     },
     "claude-opus-5-5": {
       "vendor": "anthropic",
