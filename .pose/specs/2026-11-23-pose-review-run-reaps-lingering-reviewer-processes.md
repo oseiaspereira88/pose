@@ -57,6 +57,8 @@ Records written by earlier engines keep their meaning.
 - created: .pose/specs/2026-11-23-pose-review-run-reaps-lingering-reviewer-processes.md
 - created: pose-mcp/internal/pose/review_reap_linux.go
 - created: pose-mcp/internal/pose/review_reap_other.go
+- created: pose-mcp/internal/pose/review_reap_linux_test.go
+- modified: pose-mcp/internal/pose/delegation_list.go
 - created: pose-mcp/internal/pose/delegation_release.go
 - created: pose-mcp/internal/pose/delegation_release_test.go
 - modified: pose-mcp/internal/pose/review_dispatch.go
@@ -126,6 +128,7 @@ Each requirement gets a regression test shown failing before its code.
 ### Execution log
 - 2026-11-24: implemented R1–R6. Each has a test that fails with its fix mutated out: the dispatch ends a process the adapter left in a session of its own (the test's leftover keeps writing into the runtime directory), the release records the failed run and receipt and removes the marker and its stall claim, a live owner is never released, and `review-brief/10` asks commands to finish while `/9` stays unchanged.
 - 2026-11-24: the containment record disclosed escaped-descendant termination as `unavailable`, and a regression test pinned that limitation. On Linux it is now `environment-marked` (ended while the descendant keeps the run's sealed-checkout entry, never `available`, so a profile that requires the full guarantee is still refused), the limitation text says so, and the test now proves the escaped child is ended with the run.
+- 2026-11-24: review round 1 (rrn-c5c082703d83c834) requested changes. N1: the reservation was published before the active marker, so a dispatch ended in between left an attempt nothing could release; the dispatch now marks the attempt active first and publishes the reservation after, and a stalled marker without a reservation is removed by the release. N2: `delegate ls` now names the abandonment cause and the release command, in text and JSON. N3: each process is pinned by a pidfd and its environment read again through it before SIGKILL, so a reused pid is never signalled. N4: a scan that cannot list `/proc` or read a process state fails; a process of this user whose environment cannot be read is counted and disclosed in the run record rather than skipped (L3). N5: the manual says the reaping is Linux-only. Each fix has a test that fails with it mutated out (N4's disclosure is not reproducible in a test: it needs a non-inspectable process).
 
 
 ### Results summary
@@ -133,11 +136,11 @@ The full `pose-mcp` suite passes; the canonical result is refreshed with `pose v
 
 
 ### Requirement trace
-- R1 [satisfied] test:TestDispatchEndsWhatTheReviewerLeftRunning
+- R1 [satisfied] test:TestDispatchEndsWhatTheReviewerLeftRunning, test:TestAPidThatLostTheRunsEntryIsNotKilled
 - R2 [satisfied] test:TestDispatchEndsWhatTheReviewerLeftRunning
 - R3 [satisfied] test:TestTheCurrentBriefAsksCommandsToFinish
 - R4 [satisfied] test:TestDispatchEndsWhatTheReviewerLeftRunning
-- R5 [satisfied] test:TestAnAbandonedAttemptIsReleasedWithARecord
+- R5 [satisfied] test:TestAnAbandonedAttemptIsReleasedWithARecord, test:TestTheAttemptIsMarkedActiveBeforeItIsReserved, test:TestAStalledMarkerWithoutReservationIsListedAndRemoved
 - R6 [satisfied] test:TestAnAbandonedAttemptIsReleasedWithARecord
 
 
@@ -160,7 +163,7 @@ The dispatch ends the processes a run left running before its cleanup and names 
 
 
 ### Residual risks
-L1: a process that clears its environment is not found; the cleanup inventory still fails that run. L2: outside Linux only the process-group kill applies.
+L1: a process that clears its environment is not found; the cleanup inventory still fails that run. L2: outside Linux only the process-group kill applies. L3: a process of this user that made itself non-inspectable cannot be matched; the run record says how many there were.
 
 
 ### Follow-ups

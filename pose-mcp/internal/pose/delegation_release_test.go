@@ -99,3 +99,62 @@ func TestARunningAttemptIsNotReleased(t *testing.T) {
 		t.Fatalf("a running attempt was released: %v", err)
 	}
 }
+
+// Review round 1, N1: the dispatch marks the attempt active before it
+// publishes the reservation, so no instant leaves a reservation without a
+// marker that turns stalled.
+func TestTheAttemptIsMarkedActiveBeforeItIsReserved(t *testing.T) {
+	var checked bool
+	beforeAttemptPublished = func(store Store, a DelegatedReviewAttempt) {
+		checked = true
+		markers, _, err := store.ListDelegationActive()
+		found := false
+		for _, m := range markers {
+			found = found || m.AttemptID == a.AttemptID
+		}
+		if err != nil || !found {
+			t.Errorf("the reservation of %s is published with no active marker: %v", a.AttemptID, err)
+		}
+		if _, err := os.Lstat(reviewAttemptPath(store.Root, a)); !errors.Is(err, os.ErrNotExist) {
+			t.Errorf("the reservation was published before the marker: %v", err)
+		}
+	}
+	t.Cleanup(func() { beforeAttemptPublished = func(Store, DelegatedReviewAttempt) {} })
+	_ = provenanceRunFixture(t, "fixture-vendor", "fixture-model")
+	if !checked {
+		t.Fatal("the dispatch never reached the reservation")
+	}
+}
+
+// A marker whose dispatch ended before publishing the reservation is removed
+// by the release; ls names the cause and the release command (N2).
+func TestAStalledMarkerWithoutReservationIsListedAndRemoved(t *testing.T) {
+	root := t.TempDir()
+	s := Store{Root: root}
+	dead := exec.Command("true")
+	if err := dead.Run(); err != nil {
+		t.Fatal(err)
+	}
+	owner := StartLockOwner{SchemaVersion: StartLockOwnerSchemaVersion, Resource: "delegate:x", Worktree: root, Operation: "pose delegate review", PID: os.Getpid()}
+	owner.Host, _ = os.Hostname()
+	identifyStartLockProcess(&owner)
+	owner.PID = dead.Process.Pid
+	old := time.Now().Add(-time.Hour).UTC().Format(time.RFC3339Nano)
+	marker := DelegationActiveRun{SchemaVersion: 1, AttemptID: "rat-" + strings.Repeat("e", 64), RunToken: strings.Repeat("f", 32), Purpose: DelegationPurposeReview, Agent: "fake", Scope: "spec:alpha", BundleID: "rvb-00000000000000a3", StartedAt: old, Owner: owner, HeartbeatAt: old, HeartbeatEvery: 10}
+	dir, _ := s.delegationActiveDir(true)
+	raw, _ := json.Marshal(marker)
+	if err := os.WriteFile(filepath.Join(dir, marker.AttemptID+".json"), raw, 0o600); err != nil {
+		t.Fatal(err)
+	}
+	attempts, _, err := s.ListDelegationAttempts()
+	if err != nil || len(attempts) != 1 || attempts[0].State != DelegationStalled || !strings.Contains(attempts[0].Failure, DelegationAbandonedCause) || !strings.Contains(attempts[0].Failure, "pose delegate cancel "+marker.AttemptID) {
+		t.Fatalf("the abandoned attempt is not listed with its cause: %+v %v", attempts, err)
+	}
+	run, err := s.ReleaseAbandonedAttempt(marker.AttemptID, time.Now())
+	if err != nil || run.RunID != "" {
+		t.Fatalf("release: %+v %v", run, err)
+	}
+	if left, _ := filepath.Glob(filepath.Join(dir, marker.AttemptID+"*")); len(left) != 0 {
+		t.Fatalf("the marker stayed: %v", left)
+	}
+}

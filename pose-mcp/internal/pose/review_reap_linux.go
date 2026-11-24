@@ -10,77 +10,166 @@ package pose
 // cleanup inventory reads it. Every process of the run inherits
 // SealedCheckoutEnv naming the run's checkout, so the dispatch finds them by
 // that entry, ends them and waits for them before the inventory.
+//
+// Each process is pinned by a pidfd before it is signalled, and its
+// environment is read again through the pinned process, so a pid reused by
+// an unrelated process between the scan and the signal is never killed
+// (review round 1, N3). A scan that cannot list or read the state of the
+// processes fails; a process of this user whose environment cannot be read
+// (one that made itself non-inspectable) is counted and disclosed in the run
+// record, never skipped silently (N4).
 
 import (
 	"bytes"
+	"errors"
 	"fmt"
+	"io/fs"
 	"os"
 	"path/filepath"
 	"strconv"
 	"strings"
 	"syscall"
 	"time"
+
+	"golang.org/x/sys/unix"
 )
 
 const reviewReapWait = 5 * time.Second
 
 // reapSealedCheckoutProcesses ends every process whose environment names
 // worktree as its sealed checkout and returns a description of each. An
-// error means a process could not be ended within the bound.
-func reapSealedCheckoutProcesses(worktree string) ([]string, error) {
+// error means the run's processes could not be proven ended within the bound.
+func reapSealedCheckoutProcesses(worktree string) ([]string, int, error) {
 	if worktree == "" {
-		return nil, nil
+		return nil, 0, nil
 	}
 	entry := []byte(SealedCheckoutEnv + "=" + worktree)
-	self := os.Getpid()
-	find := func() map[int]string {
-		found := map[int]string{}
-		dirs, err := os.ReadDir("/proc")
-		if err != nil {
-			return found
-		}
-		for _, d := range dirs {
-			pid, err := strconv.Atoi(d.Name())
-			if err != nil || pid == self {
-				continue
-			}
-			environ, err := os.ReadFile(filepath.Join("/proc", d.Name(), "environ"))
-			if err != nil {
-				continue
-			}
-			for _, kv := range bytes.Split(environ, []byte{0}) {
-				if bytes.Equal(kv, entry) {
-					found[pid] = reviewProcessName(pid)
-					break
-				}
-			}
-		}
-		return found
-	}
 	var reaped []string
 	seen := map[int]bool{}
 	deadline := time.Now().Add(reviewReapWait)
+	unreadable := 0
 	for {
-		alive := find()
-		for pid, name := range alive {
-			if reviewProcessZombie(pid) {
-				delete(alive, pid)
-				continue
-			}
+		alive, opaque, err := reviewMarkedProcesses(entry)
+		if err != nil {
+			return reaped, opaque, err
+		}
+		unreadable = opaque
+		for _, pid := range alive {
 			if !seen[pid] {
 				seen[pid] = true
-				reaped = append(reaped, fmt.Sprintf("%d %s", pid, name))
+				reaped = append(reaped, fmt.Sprintf("%d %s", pid, reviewProcessName(pid)))
 			}
-			_ = syscall.Kill(pid, syscall.SIGKILL)
+			if err := killPinnedMarkedProcess(pid, entry); err != nil {
+				return reaped, unreadable, err
+			}
 		}
 		if len(alive) == 0 {
-			return reaped, nil
+			return reaped, unreadable, nil
 		}
 		if time.Now().After(deadline) {
-			return reaped, fmt.Errorf("%d process(es) of the run could not be ended", len(alive))
+			return reaped, unreadable, fmt.Errorf("%d process(es) of the run could not be ended", len(alive))
 		}
 		time.Sleep(50 * time.Millisecond)
 	}
+}
+
+// reviewMarkedProcesses lists the live processes whose environment holds
+// entry, and counts this user's processes whose environment could not be
+// read. A process that is gone is skipped.
+func reviewMarkedProcesses(entry []byte) ([]int, int, error) {
+	dirs, err := os.ReadDir("/proc")
+	if err != nil {
+		return nil, 0, fmt.Errorf("the run's processes could not be listed: %w", err)
+	}
+	unreadable := 0
+	self, uid := os.Getpid(), os.Getuid()
+	var out []int
+	for _, d := range dirs {
+		pid, err := strconv.Atoi(d.Name())
+		if err != nil || pid == self {
+			continue
+		}
+		marked, err := reviewProcessMarked(pid, entry)
+		switch {
+		case reviewProcessGoneErr(err):
+			continue
+		case err != nil:
+			if owner, oerr := reviewProcessOwner(pid); oerr == nil && owner != uid {
+				continue // another user's process never inherits this run's environment
+			} else if reviewProcessGoneErr(oerr) {
+				continue
+			}
+			unreadable++
+			continue
+		case !marked:
+			continue
+		}
+		zombie, err := reviewProcessZombie(pid)
+		if reviewProcessGoneErr(err) || err == nil && zombie {
+			continue
+		}
+		if err != nil {
+			return nil, unreadable, fmt.Errorf("process %d state could not be read: %w", pid, err)
+		}
+		out = append(out, pid)
+	}
+	return out, unreadable, nil
+}
+
+// killPinnedMarkedProcess signals pid only through a pidfd opened on it,
+// after the environment read through that same pinned process still holds
+// entry.
+func killPinnedMarkedProcess(pid int, entry []byte) error {
+	fd, err := unix.PidfdOpen(pid, 0)
+	if errors.Is(err, unix.ESRCH) {
+		return nil
+	}
+	if err != nil {
+		return fmt.Errorf("process %d could not be pinned: %w", pid, err)
+	}
+	defer unix.Close(fd)
+	// The pidfd names one process for its lifetime; if pid was reused before
+	// it was opened, the new process does not carry this run's entry.
+	marked, err := reviewProcessMarked(pid, entry)
+	if reviewProcessGoneErr(err) || err == nil && !marked {
+		return nil
+	}
+	if err != nil {
+		return fmt.Errorf("process %d could not be inspected: %w", pid, err)
+	}
+	if err := unix.PidfdSendSignal(fd, unix.SIGKILL, nil, 0); err != nil && !errors.Is(err, unix.ESRCH) {
+		return fmt.Errorf("process %d could not be ended: %w", pid, err)
+	}
+	return nil
+}
+
+func reviewProcessMarked(pid int, entry []byte) (bool, error) {
+	environ, err := os.ReadFile(filepath.Join("/proc", strconv.Itoa(pid), "environ"))
+	if err != nil {
+		return false, err
+	}
+	for _, kv := range bytes.Split(environ, []byte{0}) {
+		if bytes.Equal(kv, entry) {
+			return true, nil
+		}
+	}
+	return false, nil
+}
+
+func reviewProcessOwner(pid int) (int, error) {
+	info, err := os.Stat(filepath.Join("/proc", strconv.Itoa(pid)))
+	if err != nil {
+		return 0, err
+	}
+	st, ok := info.Sys().(*syscall.Stat_t)
+	if !ok {
+		return 0, fmt.Errorf("process %d owner unavailable", pid)
+	}
+	return int(st.Uid), nil
+}
+
+func reviewProcessGoneErr(err error) bool {
+	return errors.Is(err, fs.ErrNotExist) || errors.Is(err, syscall.ESRCH)
 }
 
 func reviewProcessName(pid int) string {
@@ -91,14 +180,14 @@ func reviewProcessName(pid int) string {
 	return strings.TrimSpace(string(raw))
 }
 
-func reviewProcessZombie(pid int) bool {
+func reviewProcessZombie(pid int) (bool, error) {
 	raw, err := os.ReadFile(filepath.Join("/proc", strconv.Itoa(pid), "stat"))
 	if err != nil {
-		return true // gone
+		return false, err
 	}
 	// The state follows the parenthesised command name.
 	if i := bytes.LastIndexByte(raw, ')'); i >= 0 && i+2 < len(raw) {
-		return raw[i+2] == 'Z'
+		return raw[i+2] == 'Z', nil
 	}
-	return false
+	return false, fmt.Errorf("process %d state is unreadable", pid)
 }

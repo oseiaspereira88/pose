@@ -713,7 +713,7 @@ func (s Store) RunReviewDispatchContext(parent context.Context, plan DispatchPla
 	var attempt DelegatedReviewAttempt
 	if plan.predecessor == nil {
 		var err error
-		attempt, err = s.reserveDelegatedReviewAttempt(plan, now())
+		attempt, err = s.prepareDelegatedReviewAttempt(plan, now())
 		if err != nil {
 			return ReviewRun{}, err
 		}
@@ -749,8 +749,9 @@ func (s Store) RunReviewDispatchContext(parent context.Context, plan DispatchPla
 	// when the run was marked, at return otherwise (spec
 	// pose-delegation-result-before-marker R1–R2).
 	resultPublished := false
+	reserved := plan.predecessor != nil
 	publishResult := func() {
-		if resultPublished || result.RunID == "" {
+		if resultPublished || result.RunID == "" || !reserved {
 			return
 		}
 		resultPublished = true
@@ -768,7 +769,20 @@ func (s Store) RunReviewDispatchContext(parent context.Context, plan DispatchPla
 	defer publishResult()
 	stopActive, cancelFlag, err := s.markDelegationActive(run, cancelRun)
 	if err != nil {
+		if plan.predecessor == nil {
+			// Nothing was reserved yet: no run is recorded for an attempt
+			// the ledger does not hold.
+			return ReviewRun{}, fmt.Errorf("the run was not started: %w", err)
+		}
 		return finish(ReviewRunFailed, "the run was not started: "+err.Error())
+	}
+	if plan.predecessor == nil {
+		beforeAttemptPublished(s, attempt)
+		if err := s.publishDelegatedReviewAttempt(attempt); err != nil {
+			stopActive()
+			return ReviewRun{}, err
+		}
+		reserved = true
 	}
 	// The marker goes only once the record and the attempt result are
 	// published: without them it is the one trace of the reserved attempt,
@@ -1020,10 +1034,15 @@ func (s Store) RunReviewDispatchContext(parent context.Context, plan DispatchPla
 	// group kill; it is ended here, before the cleanup inventory reads the
 	// directories it may still write (spec
 	// pose-review-run-reaps-lingering-reviewer-processes R1, R2).
-	if reaped, reapErr := reapSealedCheckoutProcesses(worktree); reapErr != nil {
+	reaped, opaque, reapErr := reapSealedCheckoutProcesses(worktree)
+	if reapErr != nil {
 		terminationErr = errors.Join(terminationErr, reapErr)
-	} else if len(reaped) > 0 && safety != nil {
+	}
+	if len(reaped) > 0 && safety != nil {
 		safety.Limitations = append(safety.Limitations, "ended "+fmt.Sprint(len(reaped))+" process(es) the run left running: "+strings.Join(reaped, ", "))
+	}
+	if opaque > 0 && safety != nil {
+		safety.Limitations = append(safety.Limitations, fmt.Sprint(opaque)+" process(es) of this user could not be inspected for the run's environment entry; any of them the run started was not ended")
 	}
 	terminationFailed = terminationErr != nil
 	// The adapter exited and a child it left still held the output when
@@ -1467,6 +1486,10 @@ func tail(s string, n int) string {
 	}
 	return s[len(s)-n:]
 }
+
+// beforeAttemptPublished runs between the active marker and the reservation;
+// tests use it to stop a dispatch there.
+var beforeAttemptPublished = func(Store, DelegatedReviewAttempt) {}
 
 func (s Store) recordReviewRun(run ReviewRun, transcript []byte) (ReviewRun, error) {
 	// Identity covers only persisted content, never fields derived by a reader

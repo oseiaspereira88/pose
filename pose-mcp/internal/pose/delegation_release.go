@@ -49,7 +49,9 @@ func (s Store) ReleaseAbandonedAttempt(attemptID string, now time.Time) (ReviewR
 		}
 	}
 	if reserved == nil {
-		return ReviewRun{}, fmt.Errorf("%w: bundle %s holds no reservation %s", ErrAttemptNotAbandoned, marker.BundleID, attemptID)
+		// The dispatch ended between its marker and its reservation: nothing
+		// blocks the bundle, and the marker alone is removed.
+		return ReviewRun{}, s.removeDelegationMarker(*marker)
 	}
 	if _, err := os.Lstat(attemptReceiptPath(s.Root, *reserved)); !errors.Is(err, os.ErrNotExist) {
 		return ReviewRun{}, fmt.Errorf("%w: it already has a receipt", ErrAttemptNotAbandoned)
@@ -57,7 +59,7 @@ func (s Store) ReleaseAbandonedAttempt(attemptID string, now time.Time) (ReviewR
 	run := ReviewRun{SchemaVersion: 1, Scope: reserved.Scope, BundleID: reserved.BundleID, BundleDigest: reserved.BundleDigest,
 		Kind: DelegationKindForPurpose(marker.Purpose), Adapter: reserved.Adapter, Reason: reserved.Reason, AttemptID: reserved.AttemptID,
 		StartedAt: marker.StartedAt, ExitCode: -1, Label: marker.Label, Purpose: marker.Purpose, Round: marker.Round,
-		Status: ReviewRunFailed, Failure: "abandoned: the dispatching process ended before the run was recorded (stalled at " + marker.StalledAt + "); released by pose delegate cancel",
+		Status: ReviewRunFailed, Failure: DelegationAbandonedCause + " (stalled at " + marker.StalledAt + "); released by pose delegate cancel",
 		EndedAt: now.UTC().Format(time.RFC3339Nano)}
 	recorded, err := s.recordReviewRun(run, nil)
 	if err != nil {
@@ -66,12 +68,18 @@ func (s Store) ReleaseAbandonedAttempt(attemptID string, now time.Time) (ReviewR
 	if err := s.finishDelegatedReviewAttempt(*reserved, recorded); err != nil {
 		return recorded, err
 	}
-	if dir, err := s.delegationActiveDir(false); err == nil {
-		for _, p := range []string{filepath.Join(dir, attemptID+".json"), stallClaimPath(dir, *marker), cancelRequestPath(dir, *marker)} {
-			if err := os.Remove(p); err != nil && !errors.Is(err, os.ErrNotExist) {
-				return recorded, err
-			}
+	return recorded, s.removeDelegationMarker(*marker)
+}
+
+func (s Store) removeDelegationMarker(marker DelegationActiveRun) error {
+	dir, err := s.delegationActiveDir(false)
+	if err != nil {
+		return err
+	}
+	for _, p := range []string{filepath.Join(dir, marker.AttemptID+".json"), stallClaimPath(dir, marker), cancelRequestPath(dir, marker)} {
+		if err := os.Remove(p); err != nil && !errors.Is(err, os.ErrNotExist) {
+			return err
 		}
 	}
-	return recorded, nil
+	return nil
 }

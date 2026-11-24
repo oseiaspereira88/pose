@@ -929,6 +929,9 @@ func cmdDelegateLs(root string, args []string, stdout, stderr io.Writer) int {
 			if a.StalledAt != "" {
 				value += " stalled_at=" + a.StalledAt
 			}
+			if a.State == posemodel.DelegationStalled && a.Failure != "" {
+				value += " cause=" + strconv.Quote(a.Failure)
+			}
 			if a.HookFailure != "" {
 				value += " on_terminal_failed=" + strconv.Quote(a.HookFailure)
 			}
@@ -1132,7 +1135,11 @@ func cmdDelegateCancel(root string, args []string, stdout, stderr io.Writer) int
 		}
 		out := render(stdout, stderr)
 		out.Field("delegate.attempt", attempt.AttemptID)
-		out.Field("delegate.released", tr("true: recorded as failed run "+run.RunID+" (abandoned before its run was recorded)", "true: registrada como run com falha "+run.RunID+" (abandonada antes de o run ser registrado)"))
+		if run.RunID == "" {
+			out.Field("delegate.released", tr("true: no reservation was published; the stalled marker was removed", "true: nenhuma reserva foi publicada; o marcador parado foi removido"))
+		} else {
+			out.Field("delegate.released", tr("true: recorded as failed run "+run.RunID+" (abandoned before its run was recorded)", "true: registrada como run com falha "+run.RunID+" (abandonada antes de o run ser registrado)"))
+		}
 		return 0
 	}
 	if !attempt.Active {

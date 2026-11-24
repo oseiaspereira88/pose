@@ -63,6 +63,9 @@ func (a DelegationAttempt) Latest() *ReviewRun { return a.latest }
 const (
 	DelegationRunning = "running"
 	DelegationStalled = "stalled"
+	// DelegationAbandonedCause is the failure of a stalled attempt whose
+	// dispatch ended before recording its run.
+	DelegationAbandonedCause = "abandoned: the dispatching process ended before the run was recorded"
 )
 
 // ListDelegationAttempts groups every recorded run by attempt, adds the runs
@@ -167,6 +170,12 @@ func (s Store) ListDelegationAttempts() ([]DelegationAttempt, []string, error) {
 		}
 		if marker.StalledAt != "" {
 			row.State, row.Active, row.StalledAt = DelegationStalled, false, marker.StalledAt
+			if row.LatestRun == "" {
+				// The dispatch ended before recording its run: the cause and
+				// the release are said, not left to inspection (review round
+				// 1, N2).
+				row.Failure = DelegationAbandonedCause + "; release it with `pose delegate cancel " + marker.AttemptID + "`"
+			}
 		}
 		// A running run's progress comes from its live events (R12).
 		if live, _, err := s.ReadDelegationLiveEvents(marker.AttemptID, 0); err == nil && len(live) > 0 {

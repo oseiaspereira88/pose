@@ -416,7 +416,10 @@ func (s Store) reviewAttemptAdmission(plan DispatchPlan) ([]DelegatedReviewAttem
 	}
 	return attempts, count, nil
 }
-func (s Store) reserveDelegatedReviewAttempt(plan DispatchPlan, at time.Time) (DelegatedReviewAttempt, error) {
+
+// prepareDelegatedReviewAttempt admits and builds the next reservation of
+// the bundle without publishing it.
+func (s Store) prepareDelegatedReviewAttempt(plan DispatchPlan, at time.Time) (DelegatedReviewAttempt, error) {
 	attempts, _, err := s.reviewAttemptAdmission(plan)
 	if err != nil {
 		return DelegatedReviewAttempt{}, err
@@ -427,11 +430,20 @@ func (s Store) reserveDelegatedReviewAttempt(plan DispatchPlan, at time.Time) (D
 	}
 	a := DelegatedReviewAttempt{SchemaVersion: 1, BundleID: plan.Bundle.BundleID, BundleDigest: plan.Bundle.BundleDigest, Scope: plan.Brief.Scope, Adapter: plan.Adapter, Reason: strings.TrimSpace(plan.Reason), Ordinal: len(attempts) + 1, ReservedAt: at.UTC().Format(time.RFC3339Nano), Nonce: hex.EncodeToString(nonce)}
 	a.AttemptID = attemptIdentity(a)
+	return a, nil
+}
+
+// publishDelegatedReviewAttempt publishes a prepared reservation. The dispatch
+// marks the attempt active first, so a dispatch that ends after this point
+// always leaves a marker that turns stalled and that `pose delegate cancel`
+// can release (spec pose-review-run-reaps-lingering-reviewer-processes,
+// review round 1, N1).
+func (s Store) publishDelegatedReviewAttempt(a DelegatedReviewAttempt) error {
 	rel, _ := filepath.Rel(s.Root, reviewAttemptPath(s.Root, a))
 	if err := publishLedgerJSON(s.Root, filepath.ToSlash(rel), a); err != nil {
-		return DelegatedReviewAttempt{}, fmt.Errorf("attempt reservation refused; another dispatch may hold the slot: %w", err)
+		return fmt.Errorf("attempt reservation refused; another dispatch may hold the slot: %w", err)
 	}
-	return a, nil
+	return nil
 }
 func (s Store) finishDelegatedReviewAttempt(a DelegatedReviewAttempt, run ReviewRun) error {
 	raw, _ := json.Marshal(run)
@@ -861,4 +873,14 @@ func (s Store) delegatedReviewInsights(sinceDays int) *DelegatedReviewInsights {
 	result.ByBundle = finish(bundles)
 	result.ByAdapter = finish(adapters)
 	return result
+}
+
+// reserveDelegatedReviewAttempt prepares and publishes a reservation at once,
+// for callers that hold no active marker.
+func (s Store) reserveDelegatedReviewAttempt(plan DispatchPlan, at time.Time) (DelegatedReviewAttempt, error) {
+	a, err := s.prepareDelegatedReviewAttempt(plan, at)
+	if err != nil {
+		return DelegatedReviewAttempt{}, err
+	}
+	return a, s.publishDelegatedReviewAttempt(a)
 }
