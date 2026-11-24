@@ -57,7 +57,7 @@ func reapSealedCheckoutProcesses(worktree string, baseline map[int]string) ([]st
 		}
 		unreadable = 0
 		for pid, start := range opaque {
-			if baseline[pid] != start {
+			if prior, ok := baseline[pid]; !ok || prior != start {
 				return reaped, unreadable, fmt.Errorf("process %d of this user started during the run and cannot be inspected; it may be the run's and was not ended", pid)
 			}
 			unreadable++
@@ -65,7 +65,9 @@ func reapSealedCheckoutProcesses(worktree string, baseline map[int]string) ([]st
 		for _, pid := range alive {
 			if !seen[pid] {
 				seen[pid] = true
-				reaped = append(reaped, fmt.Sprintf("%d %s", pid, reviewProcessName(pid)))
+				// Only the pid: the name is the reviewer's to choose and is not
+				// recorded (review round 7, N4).
+				reaped = append(reaped, strconv.Itoa(pid))
 			}
 			if err := killPinnedMarkedProcess(pid, entry); err != nil {
 				return reaped, unreadable, err
@@ -110,6 +112,9 @@ func reviewMarkedProcesses(entry []byte) ([]int, map[int]string, error) {
 			start, serr := processStartTime(pid)
 			if reviewProcessGoneErr(serr) {
 				continue
+			}
+			if serr != nil || start == "" {
+				return nil, unreadable, fmt.Errorf("process %d start could not be read: %v", pid, serr)
 			}
 			unreadable[pid] = start
 			continue

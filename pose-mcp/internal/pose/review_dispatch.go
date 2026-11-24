@@ -1024,8 +1024,8 @@ func (s Store) RunReviewDispatchContext(parent context.Context, plan DispatchPla
 	opaqueBaseline := reviewOpaqueProcessBaseline()
 	// Orphans of the run are reparented to this process, so one that left
 	// the group and cleared its environment is still found (review round 6, N2).
-	subreaper := enableReviewSubreaper() == nil
-	adapterSince, _ := reviewClockTicks()
+	subreaperErr := enableReviewSubreaper()
+	adapterSince, clockErr := reviewClockTicks()
 	isolateProcessGroup(cmd)
 	cmd.WaitDelay = AdapterPipeGrace
 	var runErr error
@@ -1048,7 +1048,13 @@ func (s Store) RunReviewDispatchContext(parent context.Context, plan DispatchPla
 	if reapErr != nil {
 		terminationErr = errors.Join(terminationErr, reapErr)
 	}
-	if subreaper && reapErr == nil {
+	// Without the subreaper or the run's start the orphan scan cannot run,
+	// and the run's processes are not proven ended (review round 7, N1, N2).
+	if subreaperErr != nil {
+		terminationErr = errors.Join(terminationErr, fmt.Errorf("orphaned processes cannot be found: %w", subreaperErr))
+	} else if clockErr != nil {
+		terminationErr = errors.Join(terminationErr, fmt.Errorf("the run's start cannot be read: %w", clockErr))
+	} else if reapErr == nil {
 		orphans, orphanErr := reapOrphanedEscapees([]byte(SealedCheckoutEnv+"="+worktree), adapterSince)
 		reaped = append(reaped, orphans...)
 		if orphanErr != nil {

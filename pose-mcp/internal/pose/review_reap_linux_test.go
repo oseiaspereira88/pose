@@ -117,4 +117,14 @@ func TestAnOrphanThatClearedItsEnvironmentIsEnded(t *testing.T) {
 	if f.run.Status != ReviewRunCompleted || !strings.Contains(strings.Join(f.run.Safety.Limitations, "\n"), "(orphaned)") {
 		t.Fatalf("the run did not complete naming the orphan: %s %s %v", f.run.Status, f.run.Failure, f.run.Safety.Limitations)
 	}
+	// Review round 7, N4: the record names the pid, never the process name
+	// the reviewer chose.
+	for _, limit := range f.run.Safety.Limitations {
+		if strings.Contains(limit, "(orphaned)") && strings.Contains(limit, " sh ") {
+			t.Fatalf("the recorded limitation carries a process name: %q", limit)
+		}
+	}
+	if !strings.Contains(strings.Join(f.run.Safety.Limitations, "\n"), strconv.Itoa(pid)+" (orphaned)") {
+		t.Fatalf("the recorded limitation does not name the pid: %v", f.run.Safety.Limitations)
+	}
 }

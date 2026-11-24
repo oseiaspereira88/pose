@@ -100,7 +100,13 @@ func reapOrphanedEscapees(entry []byte, since uint64) ([]string, error) {
 				continue
 			}
 			st, err := readReviewProcStat(pid)
-			if err != nil || st.ppid != self || st.session == selfStat.session || st.start < since {
+			if reviewProcessGoneErr(err) {
+				continue
+			}
+			if err != nil {
+				return ended, fmt.Errorf("process %d could not be inspected: %w", pid, err)
+			}
+			if st.ppid != self || st.session == selfStat.session || st.start < since {
 				continue
 			}
 			if other, err := reviewProcessOtherRun(pid, entry); err == nil && other {
@@ -108,7 +114,7 @@ func reapOrphanedEscapees(entry []byte, since uint64) ([]string, error) {
 			}
 			found++
 			if zombie, _ := reviewProcessZombie(pid); !zombie {
-				ended = append(ended, fmt.Sprintf("%d %s (orphaned)", pid, reviewProcessName(pid)))
+				ended = append(ended, strconv.Itoa(pid)+" (orphaned)")
 				if err := killPinnedOrphan(pid, st); err != nil {
 					return ended, err
 				}
