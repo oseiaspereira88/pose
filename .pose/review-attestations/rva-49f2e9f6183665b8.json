@@ -1,0 +1,230 @@
+{
+  "run": {
+    "run_id": "rrn-667b69e8c01c345c",
+    "proof_id": "rrp-d60e9f3db447185b4eea3c5961b4915961d0d62005a017618900161e7332d491"
+  },
+  "schema_version": 1,
+  "attestation_id": "rva-49f2e9f6183665b8",
+  "bundle_id": "rvb-75dfb88d581fcbc7",
+  "bundle_digest": "sha256:75dfb88d581fcbc78c904a1392e94d91b4a322f63d7b4e47b2ae7ba3bfbf70f1",
+  "reviewer": "agent:openai/gpt-6-luna",
+  "decision": "changes-requested",
+  "criteria": [
+    {
+      "id": "assumption-integrity",
+      "disposition": "finding",
+      "evidence": "N2",
+      "rationale": "Verified the process marker and pidfd checks; the unresolved assumption is that a markerless reservation older than ten minutes has no live owner, which the code does not prove. L1/L2 are stated residual risks, but the age inference exceeds D2."
+    },
+    {
+      "id": "backend-concurrency",
+      "disposition": "finding",
+      "evidence": "N1",
+      "rationale": "The publish-exclusive claim prevents simultaneous releases, but the claim and run/receipt sequence has unrecoverable interrupted states."
+    },
+    {
+      "id": "backend-contracts",
+      "disposition": "passed",
+      "evidence": "integration:pose-mcp/go/delegated-review-capability-integration",
+      "rationale": "The attempt receipt and ordinary failed-run record retain the existing ledger shape; the CLI addition is scoped to stalled attempts without a latest run."
+    },
+    {
+      "id": "backend-input-errors",
+      "disposition": "finding",
+      "evidence": "N3",
+      "rationale": "Unreadable reservation and receipt errors are suppressed by orphan discovery instead of being returned as losses."
+    },
+    {
+      "id": "backend-integration-impact",
+      "disposition": "passed",
+      "evidence": "integration:pose-mcp/go/delegation-surface-integration",
+      "rationale": "The component integration surface still reaches the delegation lifecycle, and the focused CLI/pose tests pass."
+    },
+    {
+      "id": "backend-observability",
+      "disposition": "finding",
+      "evidence": "N3",
+      "rationale": "delegate ls can omit a blocked unreadable markerless reservation without a diagnostic."
+    },
+    {
+      "id": "compatibility",
+      "disposition": "passed",
+      "evidence": "integration:pose-mcp/go/delegated-attempt-ledger-integration",
+      "rationale": "I examined the unchanged receipt schema and the released record fields; older readers see a normal failed run and no schema migration is introduced."
+    },
+    {
+      "id": "correctness",
+      "disposition": "finding",
+      "evidence": "N1",
+      "rationale": "The release does not recover if interrupted between its durable claim, run record, and receipt."
+    },
+    {
+      "id": "design-causality",
+      "disposition": "finding",
+      "evidence": "N2",
+      "rationale": "D1's checkout marker and pidfd pin address escaped sessions and PID reuse; D2's release design addresses abandoned reservations, but the markerless age rule does not establish the dead-owner condition. The sealed structural assessment reports no deltas."
+    },
+    {
+      "id": "documentation",
+      "disposition": "finding",
+      "evidence": "N2",
+      "rationale": "The manual says cancellation releases only after the owner is proven gone, while the markerless path releases by age without an owner proof."
+    },
+    {
+      "id": "operability",
+      "disposition": "finding",
+      "evidence": "N1",
+      "rationale": "After an interrupted release, the error names an in-progress/interrupted claim but gives no recovery action and subsequent cancellation remains blocked."
+    },
+    {
+      "id": "requirements",
+      "disposition": "finding",
+      "evidence": "N1",
+      "rationale": "R5/R6 cover an interrupted dispatch, but the release transaction can itself leave a permanent incomplete attempt."
+    },
+    {
+      "id": "scope",
+      "disposition": "passed",
+      "evidence": "structure:design-97ab5a28825ca3ed",
+      "rationale": "The changes are limited to the planned reaping, abandonment recovery, brief, tests, CLI and documentation surfaces."
+    },
+    {
+      "id": "security",
+      "disposition": "finding",
+      "evidence": "N2",
+      "rationale": "An old live markerless dispatch can be misclassified as abandoned, release its reservation and overlap a subsequent dispatch."
+    },
+    {
+      "id": "solution-proportionality",
+      "disposition": "finding",
+      "evidence": "N2",
+      "rationale": "The ten-minute age threshold is small but does not satisfy D2's proof of owner death. A safe alternative must identify the owner or leave a markerless attempt blocked with an actionable recovery path until absence is established."
+    }
+  ],
+  "tools": [
+    {
+      "id": "artifact-check",
+      "disposition": "passed",
+      "evidence": "command:\"$POSE_REVIEW_CLI\" artifact-check --spec pose-review-run-reaps-lingering-reviewer-processes --strict",
+      "rationale": "Ran successfully; it reported repository-wide orphan provenance warnings."
+    },
+    {
+      "id": "assess-design",
+      "disposition": "passed",
+      "evidence": "structure:design-97ab5a28825ca3ed",
+      "rationale": "Ran the JSON assessment; its sealed design digest matches and it reported no structural deltas."
+    },
+    {
+      "id": "assess-discover",
+      "component": "pose-mcp",
+      "disposition": "passed",
+      "evidence": "command:\"$POSE_REVIEW_CLI\" assess discover --no-persist --component pose-mcp",
+      "rationale": "Ran successfully without persistence."
+    },
+    {
+      "id": "assess-integrate",
+      "disposition": "passed",
+      "evidence": "integration:pose-mcp/go/delegation-surface-integration",
+      "rationale": "Ran the non-persisting assessment; its generic unobserved HTTP consumer gaps do not overlap the scoped delegation changes."
+    },
+    {
+      "id": "assess-tech-debt",
+      "disposition": "passed",
+      "evidence": "command:\"$POSE_REVIEW_CLI\" assess tech-debt --no-persist",
+      "rationale": "Ran; the report noted two unrelated invalid spec inputs and an incomplete scan."
+    },
+    {
+      "id": "closeout-check",
+      "disposition": "deferred",
+      "evidence": "command:\"$POSE_REVIEW_CLI\" closeout-check spec:pose-review-run-reaps-lingering-reviewer-processes",
+      "rationale": "This check requires the review conclusion to be recorded, so it cannot pass before attestation."
+    },
+    {
+      "id": "review-check",
+      "disposition": "deferred",
+      "evidence": "command:\"$POSE_REVIEW_CLI\" review-check spec:pose-review-run-reaps-lingering-reviewer-processes",
+      "rationale": "This check requires the review conclusion to be recorded, so it cannot pass before attestation."
+    },
+    {
+      "id": "suggest-review",
+      "component": "pose-mcp",
+      "disposition": "passed",
+      "evidence": "command:\"$POSE_REVIEW_CLI\" suggest review --path pose-mcp",
+      "rationale": "Ran successfully."
+    },
+    {
+      "id": "surface-check",
+      "disposition": "passed",
+      "evidence": "integration:pose-mcp/go/delegation-surface-integration",
+      "rationale": "The required surface check ran with zero findings."
+    },
+    {
+      "id": "validate",
+      "disposition": "passed",
+      "evidence": "build:pose-mcp/go/build",
+      "rationale": "The strict rerun was blocked before checks because the read-only sandbox could not create Go build directories; the sealed build result and focused tests cover the implementation."
+    },
+    {
+      "id": "validate",
+      "component": "pose-mcp",
+      "disposition": "passed",
+      "evidence": "build:pose-mcp/go/build",
+      "rationale": "The strict module rerun was blocked by the same read-only Go build-directory limitation; sealed pose-mcp build evidence and focused tests cover the code."
+    }
+  ],
+  "evidence_refs": [
+    "N1",
+    "N2",
+    "N3",
+    "delegated-run:rrn-667b69e8c01c345c",
+    "integration:pose-mcp/go/delegated-attempt-ledger-integration",
+    "integration:pose-mcp/go/delegated-review-capability-integration",
+    "integration:pose-mcp/go/delegation-surface-integration",
+    "structure:design-97ab5a28825ca3ed"
+  ],
+  "findings": [
+    {
+      "id": "N1",
+      "severity": "high",
+      "evidence": "file:pose-mcp/internal/pose/delegation_release.go:63",
+      "action": "The exclusive .release claim has no recovery protocol. If cancellation is interrupted after publishing it, future cancel attempts are refused as already in progress/interrupted and the incomplete reservation remains blocking; interruption after the run write can also leave no receipt.",
+      "disposition": "open"
+    },
+    {
+      "id": "N2",
+      "severity": "high",
+      "evidence": "file:pose-mcp/internal/pose/delegation_release.go:184",
+      "action": "A markerless reservation is released based on age alone, without proving its dispatch owner is dead. An earlier engine paused after reserving can still be live after ten minutes; discarded marker/run loss reports also make absence unproven, allowing a live attempt to be released and overlap a later dispatch.",
+      "disposition": "open"
+    },
+    {
+      "id": "N3",
+      "severity": "medium",
+      "evidence": "file:pose-mcp/internal/pose/delegation_release.go:174",
+      "action": "orphanReservations silently skips unreadable or invalid reservations and unreadable receipt paths. delegate ls then omits a blocked attempt without adding a loss diagnostic, while later admission can still refuse it.",
+      "disposition": "open"
+    }
+  ],
+  "authority": {
+    "schema_version": 1,
+    "project": "proj.pose-dist",
+    "bundle_digest": "sha256:75dfb88d581fcbc78c904a1392e94d91b4a322f63d7b4e47b2ae7ba3bfbf70f1",
+    "principal": "agent:openai/gpt-6-luna",
+    "role": "agent",
+    "review_execution": "rrn-667b69e8c01c345c",
+    "implementation_principal": "agent:anthropic/unknown",
+    "implementation_execution": "sha256:344ac5868944c155772d60a95ef6ff20644580a642e772ad5c92c29428464ff8",
+    "issuer": "b34-local-executor",
+    "issued_at": "2026-11-24T14:16:09Z",
+    "audience": "proj.pose-dist"
+  },
+  "envelope": {
+    "issuer": "b34-local-executor",
+    "subject": "rvb-75dfb88d581fcbc7",
+    "algorithm": "ed25519",
+    "public_key": "ck4sApdfePV2GT+hJyAYfJd2qLzeG55P8pevGR0bvZE=",
+    "signature": "j69OMzMQNqQzcIsXCGTFDDQcFrZV/gBVUjnUtWJ5SI5w1koCQtzpUEfORRvEdcTnWDb2kMoFyJzWp1VqUrDyAg=="
+  },
+  "attested_at": "2026-11-24T14:16:09Z",
+  "path": ".pose/review-attestations/rva-49f2e9f6183665b8.json"
+}
