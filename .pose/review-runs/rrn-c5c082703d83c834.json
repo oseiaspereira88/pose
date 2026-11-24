@@ -1,0 +1,149 @@
+{
+  "safety": {
+    "schema_version": 1,
+    "profile": "legacy-trusted",
+    "platform": "linux/amd64",
+    "capabilities": {
+      "automatic-expiry": "unavailable",
+      "bounded-capture": "available",
+      "cpu-limit": "unavailable",
+      "credential-filesystem-isolation": "unavailable",
+      "environment-allowlist": "available",
+      "escaped-descendant-termination": "environment-marked",
+      "filesystem-isolation": "unavailable",
+      "memory-limit": "unavailable",
+      "network-isolation": "unavailable",
+      "origin-isolation": "unavailable",
+      "parent-termination": "available",
+      "process-group-termination": "available",
+      "shared-git-isolation": "unavailable"
+    },
+    "limitations": [
+      "trusted local executable required; worktree is not a sandbox",
+      "outside writes, transient writes, shared Git and credential files are not isolated",
+      "no memory/CPU quota; descendants escaping the process group are ended only while they keep the run's sealed-checkout environment entry",
+      "cleanup filesystem calls remain subject to operating-system I/O latency",
+      "legacy compatibility: HOME retained; other ambient credentials excluded"
+    ],
+    "stream_bytes": 8388608,
+    "output_bytes": 65536,
+    "retained_bytes": 16777216,
+    "timeout_ms": 3600000,
+    "max_runs_per_bundle": 3,
+    "retention": "retain-evidence; ttl=0; no automatic deletion",
+    "capture_complete": true,
+    "runtime_id": "pose-review-run-563042235",
+    "operation": {
+      "schema_version": 1,
+      "operation": "review.dispatch.cleanup",
+      "scope": "spec:pose-review-run-reaps-lingering-reviewer-processes",
+      "outcome": "completed",
+      "steps_run": [
+        {
+          "id": "cleanup",
+          "result": "done"
+        }
+      ],
+      "effects": [],
+      "resumable": false
+    }
+  },
+  "provenance": {
+    "execution_state": "started",
+    "planned_wire_digest": "sha256:c9c3d62ea0da32b01ad47cb38fc2d95d47e463cfb22e979c9f3524e38e525624",
+    "wire_bytes": 29558,
+    "wire_complete": true,
+    "schema_version": 1,
+    "project": "proj.pose-dist",
+    "audience": "proj.pose-dist",
+    "worktree_digest": "sha256:092ca52378c4c0d0f2b627da8d5031dbb854563bd4b9f2474458710c62a14816",
+    "trust": "executor-attested",
+    "implementation": {
+      "principal": "agent:anthropic/unknown",
+      "execution": "sha256:344ac5868944c155772d60a95ef6ff20644580a642e772ad5c92c29428464ff8",
+      "vendor": "anthropic",
+      "model": "unknown"
+    },
+    "reviewer": {
+      "principal": "agent:openai/gpt-6-luna",
+      "vendor": "openai",
+      "model": "gpt-6-luna"
+    },
+    "config_digest": "sha256:0496470e7d7d37c50f6d6ba38fff61a3798a301c4bb9344cb48115600dab36d4",
+    "command_template_digest": "sha256:42c94509ce1ab68857d1a7dfb101a967c1bd3243a67bdc5d921f22b58fc3db04",
+    "argv_digest": "sha256:a4be971ef863b39d6984911fc90023ec75cf5be42a4e9abd84ffa488c01e5f90",
+    "executable_digest": "sha256:0e0c66f50074965a40cbd12f625b0a35963baf41bbd8c201a93e32fddbe2e073",
+    "template_version": "review-brief/10",
+    "wire_digest": "sha256:c9c3d62ea0da32b01ad47cb38fc2d95d47e463cfb22e979c9f3524e38e525624",
+    "notes_digest": "sha256:7acf0c4c75b9859e21204211f78ae0a4f1b1f3bb06658d3cb5f3e22f63feb347",
+    "raw_transcript_digest": "sha256:e87df6a27477433609a573e6d8d25f697f5dac35ff057a37a93df17a2ebeca03",
+    "raw_output_digest": "sha256:e5cbad4e7e5d788cd21bf5509bf8492a684f48a280beff18489834696a56e263",
+    "output_source": "file",
+    "output_complete": true
+  },
+  "session_digest": "sha256:5e88af06c7b11bfd19c4890db85d2fb07c86e88649d7524fc5700172ed57b884",
+  "tree_digest": "sha256:9a34532fea0b56f3a033980cb5f6ebedb2191684ae7677f0ae9cb9e23c8a483f",
+  "brief_notes": "Implementer notes (Claude Opus 5.5, the lead). Use them as context only; the judgment is yours.\n\nScope: spec `pose-review-run-reaps-lingering-reviewer-processes` (R1–R6, decisions D1–D2, residual limits L1–L2 in the spec). Two frictions that each cost a review round:\n- R1/R2/R4: a reviewer ended while a `go test` it had started was still running in a session of its own; the process-group kill missed it, it kept writing into the runtime directory, and the cleanup inventory failed, so the run could not be concluded. After the adapter exits, the dispatch now ends every process whose environment holds `POSE_SEALED_CHECKOUT=\u003cthis run's checkout\u003e`, waits for them, and names them in `safety.limitations` (`internal/pose/review_reap_linux.go`, called in `review_dispatch.go`).\n- R3: `review-brief/10` asks the reviewer to let its commands finish (`/9` and its digest are unchanged).\n- R5/R6: a dispatch stopped between reserving its attempt and recording its run left a reservation with no receipt that refused every later dispatch, and `pose delegate cancel` refused it as \"stalled, not running\". Cancel now releases such an attempt, once its marker is stalled and its owner proven dead, by recording a failed run and its receipt and removing the marker (`internal/pose/delegation_release.go`, `internal/cli/delegate.go`).\nEach fix has a test that failed with it mutated out; the full `go test ./...` of `pose-mcp` passes.\n\nPlease check in particular that the process search cannot end a process outside this run (another run, the dispatcher itself), that a live owner is never released, and that the released records read as an ordinary failed run everywhere (ledger, `delegate ls`, round accounting).\n\nRun every planned `pose` command as `\"$POSE_REVIEW_CLI\"` with the same arguments, never a bare `pose`. Before you finish, pipe your final message to `\"$POSE_REVIEW_CLI\" review draft-check --draft -` and fix every reason it reports.\n\nDraft format rules, enforced by the conclusion preflight:\n- New findings use short unprefixed IDs (N1, N2, …). Round-prefixed IDs go only in `prior_findings`, and only for the findings the brief lists under \"Findings to account for\", with exactly id, status and evidence.\n- Structural-delta mappings go inside the criterion that answers them, with `basis` set to a requirement or a decision of this spec (R1–R6, D1, D2).\n- A criterion scoped to a component cites evidence from that component only.\n\nSandbox limits: the checkout is sealed and read-only. Never `cd`; keep the checkout root as the working directory. Keep test runs focused (`go -C pose-mcp test ./internal/cli ./internal/pose -run 'DispatchEndsWhatTheReviewer|AbandonedAttempt|RunningAttemptIsNot|Brief'`, `go -C pose-mcp vet ./internal/cli ./internal/pose`), and let every command you start finish before you end. A tool you cannot rerun in the sandbox is a limit of the run, not a defect of the subject: cite the sealed evidence that covers it, then decide on the code itself.\n",
+  "ledger_version": 1,
+  "attempt_id": "rat-bb169c1e8288de644adb653976541a1ab3c87ad3b5fd776befa72d7bcb60339f",
+  "schema_version": 1,
+  "run_id": "rrn-c5c082703d83c834",
+  "scope": "spec:pose-review-run-reaps-lingering-reviewer-processes",
+  "bundle_id": "rvb-aa10a0acf3fc6576",
+  "bundle_digest": "sha256:aa10a0acf3fc6576db3a912851fae37aa0b30accc2c44b537454518551751d2c",
+  "sealed_commit": "be42f2eff3ce564af794704083dee0b908abc387",
+  "kind": "review",
+  "brief_digest": "sha256:ef2ea0000374292efe6270dff7463d46763af0f75765883ede86d365196760aa",
+  "adapter": "sol-medium",
+  "vendor": "openai",
+  "model": "gpt-6-luna",
+  "started_at": "2026-11-24T11:12:40.956223608Z",
+  "ended_at": "2026-11-24T11:36:52.849710944Z",
+  "exit_code": 0,
+  "status": "completed",
+  "transcript_digest": "sha256:a9a4583ffeca5d617bbc9ba9beda67143485efde3d0c7fe0cd28c21e70f0fc46",
+  "transcript_path": ".pose/review-runs/rrn-c5c082703d83c834.transcript",
+  "output": "decision: changes-requested\n\nThe change addresses the session-escape cause with a per-run marker and keeps old run and receipt schemas. R5 still has a crash window before the active marker, and `delegate ls` omits the stalled attempt’s cause. The Linux reaper can signal a reused PID, silently treat `/proc` read failures as successful cleanup, and the manuals overstate non-Linux behavior.\n\nFindings:\n\n- **N1 — High:** [review_dispatch.go](/var/tmp/pose-work-go/pose-review-run-563042235/worktree/pose-mcp/internal/pose/review_dispatch.go:716) publishes the reservation before the active marker. A crash in that gap leaves an unlisted reservation that blocks later dispatches.\n- **N2 — Medium:** [delegation_list.go](/var/tmp/pose-work-go/pose-review-run-563042235/worktree/pose-mcp/internal/pose/delegation_list.go:168) lists stalled attempts without the abandonment cause required by R5.\n- **N3 — Medium:** [review_reap_linux.go](/var/tmp/pose-work-go/pose-review-run-563042235/worktree/pose-mcp/internal/pose/review_reap_linux.go:74) signals by PID after inspecting it without pinning process identity. PID reuse could lead it to kill a process outside this run.\n- **N4 — High:** [review_reap_linux.go](/var/tmp/pose-work-go/pose-review-run-563042235/worktree/pose-mcp/internal/pose/review_reap_linux.go:38) treats `/proc` scan failures as an empty process set, allowing cleanup to proceed while a leftover process survives.\n- **N5 — Low:** [POSE.md](/var/tmp/pose-work-go/pose-review-run-563042235/worktree/POSE.md:1078) describes environment-marked reaping without the Linux-only qualification in L2.\n\n**Checks:** Focused Go tests and `go vet` passed; `surface-check` passed. Global and module strict validation could not execute checks because the read-only sandbox denied Go build-workdir and cache writes. The sealed bundle contains passing build, e2e, integration, and unit evidence. The artifact check exited 0, but reported a change-set head different from the brief’s; the sealed brief remains the review subject. The working tree is clean.\n\n**Rules applied:** Mixed bugfix/documentation change; `.pose/workflows/review.md`, `.pose/rules/backend-go.md`, `.pose/rules/security.md`, and `.pose/rules/documentation-style.md`. I consulted the delegation round 4 and round 5 handoffs; the recurrence scan flagged no keys.\n\n```pose-draft\n{\n  \"schema\": \"pose.review.draft/v1\",\n  \"decision\": \"changes-requested\",\n  \"findings\": [\n    {\"id\":\"N1\",\"severity\":\"high\",\"disposition\":\"blocker\",\"file\":\"pose-mcp/internal/pose/review_dispatch.go\",\"line\":716,\"summary\":\"The reservation is published before the active marker. A dispatch stopped in that gap leaves a reservation with no run or marker, so delegate ls cannot expose it and later admission remains blocked.\"},\n    {\"id\":\"N2\",\"severity\":\"medium\",\"disposition\":\"blocker\",\"file\":\"pose-mcp/internal/pose/delegation_list.go\",\"line\":168,\"summary\":\"A stalled attempt is listed with only its state and timestamp; the abandonment cause required by R5 is omitted from both text and JSON projections.\"},\n    {\"id\":\"N3\",\"severity\":\"medium\",\"disposition\":\"blocker\",\"file\":\"pose-mcp/internal/pose/review_reap_linux.go\",\"line\":74,\"summary\":\"The process is identified by numeric PID and later signaled by PID without pinning process identity; if it exits and the PID is reused between inspection and SIGKILL, an unrelated process can be killed.\"},\n    {\"id\":\"N4\",\"severity\":\"high\",\"disposition\":\"blocker\",\"file\":\"pose-mcp/internal/pose/review_reap_linux.go\",\"line\":38,\"summary\":\"The /proc scan treats ReadDir failure as an empty process set, skips unreadable environ files, and treats stat read failures as process exit; a leftover can survive while the dispatcher reports successful reaping and proceeds to cleanup.\"},\n    {\"id\":\"N5\",\"severity\":\"low\",\"disposition\":\"blocker\",\"file\":\"POSE.md\",\"line\":1078,\"summary\":\"The manual claims environment-marked process reaping without limiting the claim to Linux; review_reap_other.go is a no-op and the spec records process-group-only cleanup on other platforms.\"}\n  ],\n  \"criteria\": [\n    {\"id\":\"assumption-integrity\",\"disposition\":\"passed\",\"evidence\":\"structure:design-c71f902ab6e6920d\",\"rationale\":\"Verified: dispatch passes the run's sealed-checkout path to the adapter environment, Linux excludes its own PID, and abandoned release requires a dead owner. Unresolved: /proc visibility and PID identity can change between inspection and signal, and the reservation precedes marker publication (N1, N3, N4). Accepted spec limits: a process that clears the marker escapes (L1), and non-Linux cleanup remains process-group-only (L2); the manual's omission of L2 is N5.\"},\n    {\"id\":\"backend-concurrency\",\"disposition\":\"finding\",\"evidence\":\"N1\"},\n    {\"id\":\"backend-contracts\",\"disposition\":\"passed\",\"evidence\":\"integration:pose-mcp/go/delegation-surface-integration\"},\n    {\"id\":\"backend-input-errors\",\"disposition\":\"passed\",\"evidence\":\"unit:pose-mcp/go/test\"},\n    {\"id\":\"backend-integration-impact\",\"disposition\":\"passed\",\"evidence\":\"integration:pose-mcp/go/delegation-surface-integration\"},\n    {\"id\":\"backend-observability\",\"disposition\":\"finding\",\"evidence\":\"N4\"},\n    {\"id\":\"compatibility\",\"disposition\":\"passed\",\"evidence\":\"integration:pose-mcp/go/delegated-attempt-ledger-integration\",\"rationale\":\"The release writes the existing version-1 ReviewRun and attempt-receipt formats; earlier records retain their parser and meaning. I checked the run ledger and delegate list projections.\"},\n    {\"id\":\"correctness\",\"disposition\":\"finding\",\"evidence\":\"N1\"},\n    {\"id\":\"design-causality\",\"disposition\":\"passed\",\"evidence\":\"structure:design-c71f902ab6e6920d\",\"rationale\":\"D1 addresses the observed session-escape cause by finding processes with the run-specific sealed-checkout entry and doing so after adapter/group termination but before cleanup inventory. D2 uses the existing failed-run and receipt records so older readers retain ordinary failed-run semantics. The design assessment reports no structural deltas; N1, N3, and N4 identify conditions where this design does not complete its promised lifecycle.\",\"mappings\":[]},\n    {\"id\":\"documentation\",\"disposition\":\"finding\",\"evidence\":\"N5\",\"rationale\":\"I compared the root and scaffold manuals in both locales with the Linux and non-Linux implementations and the spec's L2 limit.\"},\n    {\"id\":\"operability\",\"disposition\":\"finding\",\"evidence\":\"N2\"},\n    {\"id\":\"requirements\",\"disposition\":\"finding\",\"evidence\":\"N1\"},\n    {\"id\":\"scope\",\"disposition\":\"passed\",\"evidence\":\"structure:design-c71f902ab6e6920d\",\"rationale\":\"The change stays within the stated dispatcher, attempt ledger, brief and manual scope; the design assessment found no structural deltas.\"},\n    {\"id\":\"security\",\"disposition\":\"finding\",\"evidence\":\"N3\"},\n    {\"id\":\"solution-proportionality\",\"disposition\":\"passed\",\"evidence\":\"structure:design-c71f902ab6e6920d\",\"rationale\":\"Process-group-only cleanup is the smallest change but misses commands in their own sessions, so D1's per-run marker scan is a proportionate extension. D2 reuses the existing failed-run and receipt contract rather than adding a new ledger schema. The negative space is explicit: cleared markers and non-Linux platforms remain outside the guarantee (L1/L2); procfs denial and PID reuse are concrete invalidation conditions recorded as N3/N4.\"}\n  ],\n  \"tools\": [\n    {\"id\":\"artifact-check\",\"disposition\":\"passed\",\"evidence\":\"command:\\\"$POSE_REVIEW_CLI\\\" artifact-check --spec pose-review-run-reaps-lingering-reviewer-processes --strict\",\"rationale\":\"The command exited 0. Its output reported 19 claims and 25 observed artifacts, plus repository-wide orphan warnings; it named a change-set head e7873d1414a8 rather than the brief's be42f2eff3ce, so I kept the sealed brief's range as the review subject.\"},\n    {\"id\":\"assess-design\",\"disposition\":\"passed\",\"evidence\":\"structure:design-c71f902ab6e6920d\",\"rationale\":\"The design assessment returned no deltas and matches the sealed structure evidence.\"},\n    {\"id\":\"assess-discover\",\"component\":\"pose-mcp\",\"disposition\":\"passed\",\"evidence\":\"command:\\\"$POSE_REVIEW_CLI\\\" assess discover --no-persist --component pose-mcp\"},\n    {\"id\":\"assess-integrate\",\"disposition\":\"passed\",\"evidence\":\"command:\\\"$POSE_REVIEW_CLI\\\" assess integrate --no-persist\",\"rationale\":\"The scan completed and reported three unobserved HTTP consumers; none is a boundary changed by this CLI/ledger diff.\"},\n    {\"id\":\"assess-tech-debt\",\"disposition\":\"failed\",\"evidence\":\"command:\\\"$POSE_REVIEW_CLI\\\" assess tech-debt --no-persist\",\"rationale\":\"The scan reported incomplete coverage because two unrelated specs were invalid/unreadable and one uncovered marker; this is not evidence of a defect in the reviewed change.\"},\n    {\"id\":\"closeout-check\",\"disposition\":\"deferred\",\"evidence\":\"command:\\\"$POSE_REVIEW_CLI\\\" closeout-check spec:pose-review-run-reaps-lingering-reviewer-processes\",\"rationale\":\"Completion-only check: the spec is in-progress and this review explicitly forbids recording an attestation.\"},\n    {\"id\":\"review-check\",\"disposition\":\"deferred\",\"evidence\":\"command:\\\"$POSE_REVIEW_CLI\\\" review-check spec:pose-review-run-reaps-lingering-reviewer-processes\",\"rationale\":\"Completion-only check: no attestation may be recorded in this run. The command also reports the current review as unapproved.\"},\n    {\"id\":\"suggest-review\",\"component\":\"pose-mcp\",\"disposition\":\"passed\",\"evidence\":\"command:\\\"$POSE_REVIEW_CLI\\\" suggest review --path pose-mcp\"},\n    {\"id\":\"surface-check\",\"disposition\":\"passed\",\"evidence\":\"integration:pose-mcp/go/delegation-surface-integration\",\"rationale\":\"The command returned zero findings for the composed capability; sealed component integration evidence covers the delegate surface.\"},\n    {\"id\":\"validate\",\"disposition\":\"passed\",\"evidence\":\"build:pose-mcp/go/build\",\"rationale\":\"Both current strict validation invocations failed before checks could execute because the read-only sandbox denied Go build-workdir/cache writes. The sealed bundle provides passing global build, e2e, integration and unit evidence; focused changed-package tests and vet also passed in this run.\"},\n    {\"id\":\"validate\",\"component\":\"pose-mcp\",\"disposition\":\"passed\",\"evidence\":\"unit:pose-mcp/go/test\",\"rationale\":\"The module validation rerun was blocked by the same read-only Go workdir/cache restriction; the sealed bundle contains the module build, e2e, integration and unit passes, and focused tests/vet passed here.\"}\n  ]\n}\n```",
+  "policy_digest": "sha256:696cd2d8abf80e417c48c7af99954f0c89f06fe6c0e23249d5ff991f4dde4985",
+  "label": "reap-review-r1",
+  "purpose": "review",
+  "env_removed": [
+    "CLAUDECODE",
+    "CLAUDE_CODE_BRIDGE_SESSION_ID",
+    "CLAUDE_CODE_CHILD_SESSION",
+    "CLAUDE_CODE_ENTRYPOINT",
+    "CLAUDE_CODE_EXECPATH",
+    "CLAUDE_CODE_MESSAGING_SOCKET",
+    "CLAUDE_CODE_MESSAGING_TOKEN",
+    "CLAUDE_CODE_SESSION_ATTENDED",
+    "CLAUDE_CODE_SESSION_ID",
+    "CLAUDE_EFFORT",
+    "CLAUDE_PID"
+  ],
+  "events": "codex-jsonl",
+  "events_digest": "sha256:6c767554b6968bd7f801cfa53c0967f0c88bc0609dd131d7607d5d1013b37d8b",
+  "routing": {
+    "requested": "auto",
+    "prefer": "opposite-vendor-of-implementation",
+    "implementation": {
+      "principal": "agent:anthropic/unknown",
+      "vendor": "anthropic",
+      "model": "unknown",
+      "execution_digest": "sha256:344ac5868944c155772d60a95ef6ff20644580a642e772ad5c92c29428464ff8",
+      "source": "detected"
+    },
+    "implementation_from": "bundle",
+    "candidates": [
+      {
+        "agent": "sol-medium",
+        "vendor": "openai",
+        "model": "gpt-6-luna",
+        "group": "preferred",
+        "state": "available"
+      }
+    ],
+    "step": "preferred"
+  },
+  "independence_achieved": "different-vendor",
+  "round": 1
+}
