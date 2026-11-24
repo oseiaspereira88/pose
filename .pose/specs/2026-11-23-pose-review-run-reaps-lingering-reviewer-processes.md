@@ -100,8 +100,7 @@ A released attempt gets an ordinary failed run record and attempt receipt; no sc
 
 
 ### Technical risks
-The leftover processes are found by the `POSE_SEALED_CHECKOUT=<checkout>` entry of their environment, which every process of the run inherits; a process that clears its environment escapes, and the existing cleanup inventory still fails that run (L1). Reading another process's environment needs Linux and the same user; elsewhere the group kill stays the only termination (L2).
-
+On Linux the pose command runs the adapter under the review run shim, which is the subreaper of the run's subtree and ends what the run leaves in it after the adapter exits, on a timeout and when the dispatcher ends; the subtree is the run's by construction. An embedder that does not enable the shim falls back to the search by the sealed-checkout environment entry, which a reviewer process can clear or set (L6). Outside Linux only the process-group kill applies (L2).
 
 ## 4. Tasks
 
@@ -118,7 +117,7 @@ The leftover processes are found by the `POSE_SEALED_CHECKOUT=<checkout>` entry 
 
 ### Decision D1
 - Basis: R1, R2
-Leftover processes are identified by the sealed-checkout entry the dispatch already sets in the run's environment, not by process group or session: adapters such as `codex exec` run each command in a session of its own, which the group kill misses, and the entry names this run's checkout only.
+The run's leftovers are identified by the process tree, not by the environment: on Linux the adapter runs under a shim that is the subreaper of the run's subtree, so every process the run starts, including one that opens its own session or clears its environment, stays the shim's to end. A subreaper in the dispatcher itself was rejected because it is process-wide there and adopted children other code started in the same process. The sealed-checkout entry the dispatch already sets remains a fallback for an embedder without the shim.
 
 ### Decision D2
 - Basis: R5
@@ -147,6 +146,7 @@ Each requirement gets a regression test shown failing before its code.
 - 2026-11-24: the matrix of round 8 failed `TestReviewDispatchRunsAndRecordsAdapters`, and the cause was the design, not the test: a subreaper is process-wide, so the dispatcher also adopted and ended children other code started in the same process (a detached delegation) and could reap a process another goroutine waited for. The subreaper moved into a review run shim: the dispatcher starts the adapter as `<pose> __pose-review-run-shim <adapter path> <argv>`, the shim makes itself the subreaper, runs the adapter as its only child, ends and reaps everything left in its subtree, reports the ended pids in a file the dispatcher reads, and returns the adapter's status, re-raising its signal so a lost process still reads as lost. The shim has no other children, so all it adopts is the run's. The pose command and the test binaries that dispatch enable it; another embedder starts the adapter directly. `TestAnOrphanThatClearedItsEnvironmentIsEnded` fails with the shim's reaping removed.
 - 2026-11-24: review round 8 (rrn-f19179878d867e9a) requested changes. N1: the environment entry is the reviewer's to set, so with the shim the dispatcher no longer searches by it; the shim's subtree is the run's by construction, and the search remains only for an embedder without the shim (L6). N2: the shim's report goes through a pipe passed as file descriptor 3, which the shim closes on exec, never through a path the reviewer can write. N3: a timeout sends the shim SIGTERM, and the shim ends the run's subtree before it exits; the group kill after the run stays the backstop. N4: the shim receives SIGTERM when its dispatcher ends (`PR_SET_PDEATHSIG`, checked against the dispatcher's pid at start) and ends the run, so a dead dispatcher never leaves a reviewer running. Each fix has a test that fails with it mutated out.
 - 2026-11-24: review round 9 (rrn-5bbd458c7701af31) requested changes. N1 (follow-up): the manual and the recorded limitation now describe the shim as the Linux path and the environment search as the fallback of an embedder without it. N2: the shim's report is bounded (at most 1000 pids, with the total counted, and a bounded error) and the dispatcher drains whatever exceeds its read, so a large report never blocks the shim. N3: a process the shim cannot inspect or end no longer stops the reaping of the others; the problems are reported when the bound expires. N1 and N2 have tests that fail with them mutated out; N3 needs an uninspectable child, which the test host cannot produce.
+- 2026-11-24: review round 10 (rrn-ecfc61a1c2b009f6) requested changes. N1: the shim no longer counts a process of another user whose stat it cannot read (procfs mounted hidepid) as a possible run child; only an unreadable process of this user is. N2 (follow-up): the orphan scan lists each directory with a bound and reports a cut listing as a loss. N3 (follow-up): the shim reports a pid only once its signal was delivered, and its error is recorded in the run's limitations. N4 (follow-up): Technical risks, D1 and the fallback helper's comment describe the shim as the Linux path. N2 has a test; N1 and N3 need a hidepid procfs or an unkillable child.
 
 
 ### Results summary
@@ -159,7 +159,7 @@ The full `pose-mcp` suite passes; the canonical result is refreshed with `pose v
 - R3 [satisfied] test:TestTheCurrentBriefAsksCommandsToFinish
 - R4 [satisfied] test:TestDispatchEndsWhatTheReviewerLeftRunning
 - R5 [satisfied] test:TestAnAbandonedAttemptIsReleasedWithARecord, test:TestTheAttemptIsMarkedActiveBeforeItIsReserved, test:TestAStalledMarkerWithoutReservationIsListedAndRemoved
-- R6 [satisfied] test:TestAnInterruptedDispatchIsReleasedAndTheNextOneRuns, test:TestAMarkerlessReservationOfAnEarlierEngineIsReleased, test:TestOneReleaseRunsAtATime, test:TestARecordedRunCompletesItsAttempt, test:TestAnInterruptedReleaseCompletesWithItsRun, test:TestAnUnreadableReservationIsReportedAsALoss, test:TestAnIncompleteRunHistoryRulesNothingOut, test:TestAnUnreadableMarkerRulesNothingOut
+- R6 [satisfied] test:TestAnInterruptedDispatchIsReleasedAndTheNextOneRuns, test:TestAMarkerlessReservationOfAnEarlierEngineIsReleased, test:TestOneReleaseRunsAtATime, test:TestARecordedRunCompletesItsAttempt, test:TestAnInterruptedReleaseCompletesWithItsRun, test:TestAnUnreadableReservationIsReportedAsALoss, test:TestAnIncompleteRunHistoryRulesNothingOut, test:TestAnUnreadableMarkerRulesNothingOut, test:TestTheOrphanScanListsBoundedDirectories
 
 
 ### Known gaps

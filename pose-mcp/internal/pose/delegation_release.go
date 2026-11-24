@@ -24,6 +24,7 @@ package pose
 import (
 	"errors"
 	"fmt"
+	"io"
 	"os"
 	"path/filepath"
 	"strings"
@@ -187,7 +188,7 @@ func (s Store) recordedAttemptRun(a DelegatedReviewAttempt) (ReviewRun, bool, er
 // says which reservations or receipts it could not read (review round 3, N3).
 func (s Store) orphanReservations(now time.Time) ([]DelegatedReviewAttempt, []string, error) {
 	base := filepath.Join(s.Root, reviewAttemptDir)
-	dirs, err := os.ReadDir(base)
+	dirs, dirsTruncated, err := readDirBounded(base, reviewOrphanScanMaxEntries)
 	if errors.Is(err, os.ErrNotExist) {
 		return nil, nil, nil
 	}
@@ -226,10 +227,13 @@ func (s Store) orphanReservations(now time.Time) ([]DelegatedReviewAttempt, []st
 		if !d.IsDir() {
 			continue
 		}
-		entries, err := os.ReadDir(filepath.Join(base, d.Name()))
+		entries, truncated, err := readDirBounded(filepath.Join(base, d.Name()), reviewOrphanScanMaxEntries)
 		if err != nil {
 			lost = append(lost, "the reservations in "+d.Name()+" could not be listed: "+err.Error())
 			continue
+		}
+		if truncated {
+			lost = append(lost, fmt.Sprintf("the reservations in %s exceed %d entries; the rest were not read", d.Name(), reviewOrphanScanMaxEntries))
 		}
 		for _, e := range entries {
 			if IsPublisherStaging(e.Name()) || !strings.HasSuffix(e.Name(), ".json") || strings.HasSuffix(e.Name(), ".result.json") {
@@ -260,7 +264,31 @@ func (s Store) orphanReservations(now time.Time) ([]DelegatedReviewAttempt, []st
 			out = append(out, a)
 		}
 	}
+	if dirsTruncated {
+		lost = append(lost, fmt.Sprintf("the attempt directories exceed %d entries; the rest were not read", reviewOrphanScanMaxEntries))
+	}
 	return out, lost, nil
+}
+
+// reviewOrphanScanMaxEntries bounds each directory the orphan scan lists
+// (review round 10, N2).
+const reviewOrphanScanMaxEntries = 10000
+
+// readDirBounded lists at most max entries of dir and says whether more exist.
+func readDirBounded(dir string, max int) ([]os.DirEntry, bool, error) {
+	f, err := os.Open(dir)
+	if err != nil {
+		return nil, false, err
+	}
+	defer f.Close()
+	entries, err := f.ReadDir(max + 1)
+	if err != nil && !errors.Is(err, io.EOF) {
+		return nil, false, err
+	}
+	if len(entries) > max {
+		return entries[:max], true, nil
+	}
+	return entries, false, nil
 }
 
 func (s Store) removeDelegationMarker(marker DelegationActiveRun) error {

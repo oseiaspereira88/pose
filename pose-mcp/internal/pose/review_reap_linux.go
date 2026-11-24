@@ -2,8 +2,10 @@
 
 package pose
 
-// Leftover reviewer processes (spec
-// pose-review-run-reaps-lingering-reviewer-processes R1): an adapter such as
+// Leftover reviewer processes, the fallback of an embedder that does not run
+// the adapter under the review run shim (review_shim.go), which is the Linux
+// path of the pose command (spec
+// pose-review-run-reaps-lingering-reviewer-processes R1, L6): an adapter such as
 // `codex exec` runs each command in a session of its own, so killing the
 // adapter's process group misses a command the reviewer left running, and
 // that command keeps writing into the run's runtime directory while the

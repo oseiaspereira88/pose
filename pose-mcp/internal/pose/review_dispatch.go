@@ -1113,6 +1113,11 @@ func (s Store) RunReviewDispatchContext(parent context.Context, plan DispatchPla
 			}
 			if report.Error != "" {
 				terminationErr = errors.Join(terminationErr, errors.New(report.Error))
+				// The shim's own words go into the record, not only the
+				// generic failure (review round 10, N3).
+				if safety != nil {
+					safety.Limitations = append(safety.Limitations, "the review run shim could not end the whole subtree: "+report.Error)
+				}
 			}
 		}
 	}

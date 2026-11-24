@@ -6,6 +6,7 @@ import (
 	"context"
 	"encoding/json"
 	"errors"
+	"fmt"
 	"os"
 	"os/exec"
 	"path/filepath"
@@ -480,5 +481,24 @@ func TestAnUnreadableMarkerRulesNothingOut(t *testing.T) {
 	}
 	if _, err := s.ReleaseAbandonedAttempt(a.AttemptID, time.Now(), true); err == nil {
 		t.Fatal("a reservation with an unreadable marker was released")
+	}
+}
+
+// Review round 10, N2: a directory listing of the orphan scan is bounded and
+// says when it was cut.
+func TestTheOrphanScanListsBoundedDirectories(t *testing.T) {
+	dir := t.TempDir()
+	for i := 0; i < 12; i++ {
+		if err := os.WriteFile(filepath.Join(dir, fmt.Sprintf("%06d.json", i)), []byte("{}"), 0o644); err != nil {
+			t.Fatal(err)
+		}
+	}
+	entries, truncated, err := readDirBounded(dir, 10)
+	if err != nil || len(entries) != 10 || !truncated {
+		t.Fatalf("listing: %d entries, truncated=%t, %v", len(entries), truncated, err)
+	}
+	entries, truncated, err = readDirBounded(dir, 20)
+	if err != nil || len(entries) != 12 || truncated {
+		t.Fatalf("listing: %d entries, truncated=%t, %v", len(entries), truncated, err)
 	}
 }

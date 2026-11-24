@@ -145,6 +145,12 @@ func reapShimSubtree() ([]string, error) {
 				continue
 			}
 			if err != nil {
+				// A process of another user is never the run's: with procfs
+				// mounted hidepid it is visible and unreadable (review round 10,
+				// N1). Only one of this user is an unknown that may be the run's.
+				if owner, oerr := reviewProcessOwner(pid); reviewProcessGoneErr(oerr) || oerr == nil && owner != os.Getuid() {
+					continue
+				}
 				children++
 				note(fmt.Errorf("process %d could not be inspected: %w", pid, err))
 				continue
@@ -154,12 +160,13 @@ func reapShimSubtree() ([]string, error) {
 			}
 			children++
 			if !st.zombie {
-				if !seen[pid] {
-					seen[pid] = true
-					ended = append(ended, strconv.Itoa(pid))
-				}
+				// A pid is reported ended only once its signal was delivered
+				// (review round 10, N3).
 				if err := killPinnedChild(pid, self); err != nil {
 					note(err)
+				} else if !seen[pid] {
+					seen[pid] = true
+					ended = append(ended, strconv.Itoa(pid))
 				}
 			}
 		}
