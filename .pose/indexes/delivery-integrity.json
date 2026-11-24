@@ -1,7 +1,7 @@
 {
   "schema_version": 2,
-  "input_digest": "sha256:97b844975b7973ba8d9ca18e6dd4a0603fef4916c903f62f6636d3236bc2a5ac",
-  "provenance_digest": "sha256:96aff5c0d1f9447b216cbf930be1fb461b4efa8ba097a72737a493c142e28d62",
+  "input_digest": "sha256:776d5842426ab0b7444294819270dc3b85942a4fdd7f5456c684ffbf931695e8",
+  "provenance_digest": "sha256:b57ee4acbec95e13c9f4551055b3b29abdb01cb4df849060ba925511f783dd29",
   "implied_edges": [
     "changes"
   ],
@@ -47560,14 +47560,6 @@
       }
     },
     {
-      "id": "change-set:cs-30eb9ea61ea8",
-      "type": "change-set",
-      "attributes": {
-        "diff_digest": "sha256:1673b3a2f2bb06f68e93db4caac49a9dfe7f20a438b8ebd045c17458de0bdb74",
-        "selector": "trailers:pose-review-run-reaps-lingering-reviewer-processes"
-      }
-    },
-    {
       "id": "change-set:cs-316fe0d39a1e",
       "type": "change-set",
       "attributes": {
@@ -49997,6 +49989,14 @@
       "attributes": {
         "diff_digest": "sha256:e302d5888be8f2b9caa913f6755be1882b6b2997d42bacce8abbab5a83e0f38a",
         "selector": "trailers:pose-review-overlay-uninstalled-rules-graceful-degradation"
+      }
+    },
+    {
+      "id": "change-set:cs-b51dd5fbb102",
+      "type": "change-set",
+      "attributes": {
+        "diff_digest": "sha256:7c9ee0b88382e9a5f6aaeda545477bb01389378b200f95cf56e6708d19a0d311",
+        "selector": "trailers:pose-review-run-reaps-lingering-reviewer-processes"
       }
     },
     {
@@ -81279,6 +81279,11 @@
     },
     {
       "from": "artifact:pose-mcp/internal/cli/help_catalog.go",
+      "to": "delivery:capability:review-run-reaps-lingering-reviewer-processes",
+      "type": "implemented-by"
+    },
+    {
+      "from": "artifact:pose-mcp/internal/cli/help_catalog.go",
       "to": "delivery:capability:signed-action-answers",
       "type": "implemented-by"
     },
@@ -100296,11 +100301,6 @@
       "from": "delivery:capability:review-run-reaps-lingering-reviewer-processes",
       "to": "entrypoint:pose-mcp/internal/cli/delegate.go",
       "type": "composes"
-    },
-    {
-      "from": "delivery:capability:review-run-reaps-lingering-reviewer-processes",
-      "to": "validation-set:cf62b73b2f38838b",
-      "type": "validated-by"
     },
     {
       "from": "delivery:capability:review-subject-and-scope-precision",
@@ -135189,6 +135189,11 @@
     },
     {
       "from": "spec:pose-review-run-reaps-lingering-reviewer-processes",
+      "to": "artifact:pose-mcp/internal/cli/help_catalog.go",
+      "type": "declares"
+    },
+    {
+      "from": "spec:pose-review-run-reaps-lingering-reviewer-processes",
       "to": "artifact:pose-mcp/internal/cli/review_reap_test.go",
       "type": "declares"
     },
@@ -135279,7 +135284,7 @@
     },
     {
       "from": "spec:pose-review-run-reaps-lingering-reviewer-processes",
-      "to": "change-set:cs-30eb9ea61ea8",
+      "to": "change-set:cs-b51dd5fbb102",
       "type": "observed-by"
     },
     {
@@ -172242,6 +172247,11 @@
     {
       "spec": "pose-review-run-reaps-lingering-reviewer-processes",
       "action": "modified",
+      "path": "pose-mcp/internal/cli/help_catalog.go"
+    },
+    {
+      "spec": "pose-review-run-reaps-lingering-reviewer-processes",
+      "action": "modified",
       "path": "pose-mcp/internal/pose/delegation_list.go"
     },
     {
@@ -194917,7 +194927,7 @@
         }
       ],
       "diff_digest": "sha256:438bb2434afe44e6aebc94ad4ec791f5eab8290c1525910150b5292053c6ed13",
-      "material_digest": "sha256:66c4487d3d6f7b2958124ebd236df6a156da478dfbae5b6cf523c775ed8b61b8",
+      "material_digest": "sha256:6ef7055ff204a9ca911869de99c5d770bbacd37ad02729380ed037dfabb3ed49",
       "material_inputs": {
         "names": [
           ".pose/indexes/delivery-integrity.json",
@@ -207996,195 +208006,6 @@
         }
       ],
       "diff_digest": "sha256:0829b6c1e5cfc6b1113b0348998244d69d9945d7c4257125a047be057858d94d"
-    },
-    {
-      "id": "cs-30eb9ea61ea8",
-      "spec": "pose-review-run-reaps-lingering-reviewer-processes",
-      "selector": "trailers:pose-review-run-reaps-lingering-reviewer-processes",
-      "base": "e3427a37052ac101d1e692ab092383f81be29ccc^",
-      "head": "2eb73e8598c88b551573c8d58f65ab2a7eebe9ff",
-      "resolved_base": "ddb770352f35f2f55c740e9a8479686de3a251e5",
-      "resolved_head": "2eb73e8598c88b551573c8d58f65ab2a7eebe9ff",
-      "commits": [
-        "e3427a37052ac101d1e692ab092383f81be29ccc",
-        "a9730693597450e1cd29c9f503dbae53b760306e",
-        "b92f27243f2e60eef56ecc77eba781c40e767507",
-        "606ddad100adffe0c5d6aaad8134fd811c98b3e8",
-        "0ec9c4faf9ab1d817696eb2c616599273f3442f5",
-        "8ccb17e95a1e633132746dc473e93418a3337218",
-        "5523c81d61c42a768d5129b743fbf7d4e6905950",
-        "f82cf06c331b4b900a3949f87a001ff94201ea27",
-        "9b4fb6913eec82baafd9fa82b9e79b67e7e11e30",
-        "be42f2eff3ce564af794704083dee0b908abc387",
-        "e7873d1414a8a4adfb2b92dfd694049a2a3a8a46",
-        "39619f2a5eae8f95fa66db03d59a095595880ebe",
-        "cfbd15f94e0e2986ff14b1fcd1551598fed45c00",
-        "7aeae314584d3fd3570d3b6eac4ede259bee861f",
-        "c346978d01c29eef1402949bee90481a15392c91",
-        "8a37b5771ae499ad4fee04b974d3814921d4cba3",
-        "306d48757cd135ddf7b76c4cc1319e995838a14e",
-        "cd56f388a3c09140870a446e1dbbc98ec1d15aa6",
-        "c8f067034351fcc5537a50c9d03617fce2c56f3f",
-        "3ce01e6375a38438308516ce80476b7fd8efb5f5",
-        "7852d7f85a96cb0baa3b1c1fb07de36a6ccdebe5",
-        "fd50b733ef17915026ac4f43d1261f3330ea55b9",
-        "7eda2dc4869af2b6f4ccf64914c65bfd3f06eb3a",
-        "641eef73bff03c1d2f20e45fd3e9e69809447eb1",
-        "b9abfcf1480775c2ef3951cdbb5f1264476753b4",
-        "62a0f1685b5644ace307682236161cdf8bb37886",
-        "d8e949515f9e82a4151a363588a68a8dc01f99ba",
-        "66904420a1fb898125d28319230ca2f4aac53f65",
-        "2eb73e8598c88b551573c8d58f65ab2a7eebe9ff"
-      ],
-      "paths": [
-        {
-          "action": "created",
-          "path": ".pose/results/reap-binding.md"
-        },
-        {
-          "action": "created",
-          "path": ".pose/specs/2026-11-23-pose-review-conclude-ignores-unrelated-local-edits.md"
-        },
-        {
-          "action": "created",
-          "path": ".pose/specs/2026-11-23-pose-review-run-reaps-lingering-reviewer-processes.md"
-        },
-        {
-          "action": "created",
-          "path": "pose-mcp/internal/cli/review_reap_test.go"
-        },
-        {
-          "action": "created",
-          "path": "pose-mcp/internal/pose/delegation_release.go"
-        },
-        {
-          "action": "created",
-          "path": "pose-mcp/internal/pose/delegation_release_test.go"
-        },
-        {
-          "action": "created",
-          "path": "pose-mcp/internal/pose/review_reap_linux.go"
-        },
-        {
-          "action": "created",
-          "path": "pose-mcp/internal/pose/review_reap_linux_test.go"
-        },
-        {
-          "action": "created",
-          "path": "pose-mcp/internal/pose/review_reap_other.go"
-        },
-        {
-          "action": "modified",
-          "path": ".pose/indexes/delivery-integrity.json"
-        },
-        {
-          "action": "modified",
-          "path": ".pose/indexes/generation.json"
-        },
-        {
-          "action": "modified",
-          "path": ".pose/indexes/spec-graph.json"
-        },
-        {
-          "action": "modified",
-          "path": ".pose/results/delivery-validation.json"
-        },
-        {
-          "action": "modified",
-          "path": "POSE.md"
-        },
-        {
-          "action": "modified",
-          "path": "locales/pt-BR/POSE.md"
-        },
-        {
-          "action": "modified",
-          "path": "pose-mcp/internal/cli/delegate.go"
-        },
-        {
-          "action": "modified",
-          "path": "pose-mcp/internal/cli/help_catalog.go"
-        },
-        {
-          "action": "modified",
-          "path": "pose-mcp/internal/pose/delegation_list.go"
-        },
-        {
-          "action": "modified",
-          "path": "pose-mcp/internal/pose/review_adapter_containment.go"
-        },
-        {
-          "action": "modified",
-          "path": "pose-mcp/internal/pose/review_adapter_containment_regression_test.go"
-        },
-        {
-          "action": "modified",
-          "path": "pose-mcp/internal/pose/review_attempt_ledger.go"
-        },
-        {
-          "action": "modified",
-          "path": "pose-mcp/internal/pose/review_brief.go"
-        },
-        {
-          "action": "modified",
-          "path": "pose-mcp/internal/pose/review_brief_conclusion_rules_test.go"
-        },
-        {
-          "action": "modified",
-          "path": "pose-mcp/internal/pose/review_brief_test.go"
-        },
-        {
-          "action": "modified",
-          "path": "pose-mcp/internal/pose/review_dispatch.go"
-        },
-        {
-          "action": "modified",
-          "path": "pose-mcp/internal/pose/testdata/review_brief_template_digests.json"
-        },
-        {
-          "action": "modified",
-          "path": "pose-mcp/internal/scaffold/dist/POSE.md"
-        },
-        {
-          "action": "modified",
-          "path": "pose-mcp/internal/scaffold/dist/locales/pt-BR/POSE.md"
-        }
-      ],
-      "diff_digest": "sha256:1673b3a2f2bb06f68e93db4caac49a9dfe7f20a438b8ebd045c17458de0bdb74",
-      "material_digest": "sha256:f69de0de700b6b76821613f8457649b95c82c0c9731602e675d64e0efed186e0",
-      "material_inputs": {
-        "names": [
-          ".pose/indexes/delivery-integrity.json",
-          ".pose/indexes/generation.json",
-          ".pose/indexes/spec-graph.json",
-          ".pose/indexes/validation-matrix.json",
-          ".pose/results/delivery-validation.json",
-          ".pose/results/reap-binding.md",
-          ".pose/specs/2026-11-23-pose-review-conclude-ignores-unrelated-local-edits.md",
-          ".pose/specs/2026-11-23-pose-review-run-reaps-lingering-reviewer-processes.md",
-          "POSE.md",
-          "locales/pt-BR/POSE.md",
-          "pose-mcp/internal/cli/delegate.go",
-          "pose-mcp/internal/cli/help_catalog.go",
-          "pose-mcp/internal/cli/review_reap_test.go",
-          "pose-mcp/internal/pose/delegation_list.go",
-          "pose-mcp/internal/pose/delegation_release.go",
-          "pose-mcp/internal/pose/delegation_release_test.go",
-          "pose-mcp/internal/pose/review_adapter_containment.go",
-          "pose-mcp/internal/pose/review_adapter_containment_regression_test.go",
-          "pose-mcp/internal/pose/review_attempt_ledger.go",
-          "pose-mcp/internal/pose/review_brief.go",
-          "pose-mcp/internal/pose/review_brief_conclusion_rules_test.go",
-          "pose-mcp/internal/pose/review_brief_test.go",
-          "pose-mcp/internal/pose/review_dispatch.go",
-          "pose-mcp/internal/pose/review_reap_linux.go",
-          "pose-mcp/internal/pose/review_reap_linux_test.go",
-          "pose-mcp/internal/pose/review_reap_other.go",
-          "pose-mcp/internal/pose/testdata/review_brief_template_digests.json",
-          "pose-mcp/internal/scaffold/dist/POSE.md",
-          "pose-mcp/internal/scaffold/dist/locales/pt-BR/POSE.md"
-        ]
-      }
     },
     {
       "id": "cs-316fe0d39a1e",
@@ -270065,6 +269886,197 @@
       }
     },
     {
+      "id": "cs-b51dd5fbb102",
+      "spec": "pose-review-run-reaps-lingering-reviewer-processes",
+      "selector": "trailers:pose-review-run-reaps-lingering-reviewer-processes",
+      "base": "e3427a37052ac101d1e692ab092383f81be29ccc^",
+      "head": "2f296fa6519a8b4e1a8a9616069a22a3f62ed7ad",
+      "resolved_base": "ddb770352f35f2f55c740e9a8479686de3a251e5",
+      "resolved_head": "2f296fa6519a8b4e1a8a9616069a22a3f62ed7ad",
+      "commits": [
+        "e3427a37052ac101d1e692ab092383f81be29ccc",
+        "a9730693597450e1cd29c9f503dbae53b760306e",
+        "b92f27243f2e60eef56ecc77eba781c40e767507",
+        "606ddad100adffe0c5d6aaad8134fd811c98b3e8",
+        "0ec9c4faf9ab1d817696eb2c616599273f3442f5",
+        "8ccb17e95a1e633132746dc473e93418a3337218",
+        "5523c81d61c42a768d5129b743fbf7d4e6905950",
+        "f82cf06c331b4b900a3949f87a001ff94201ea27",
+        "9b4fb6913eec82baafd9fa82b9e79b67e7e11e30",
+        "be42f2eff3ce564af794704083dee0b908abc387",
+        "e7873d1414a8a4adfb2b92dfd694049a2a3a8a46",
+        "39619f2a5eae8f95fa66db03d59a095595880ebe",
+        "cfbd15f94e0e2986ff14b1fcd1551598fed45c00",
+        "7aeae314584d3fd3570d3b6eac4ede259bee861f",
+        "c346978d01c29eef1402949bee90481a15392c91",
+        "8a37b5771ae499ad4fee04b974d3814921d4cba3",
+        "306d48757cd135ddf7b76c4cc1319e995838a14e",
+        "cd56f388a3c09140870a446e1dbbc98ec1d15aa6",
+        "c8f067034351fcc5537a50c9d03617fce2c56f3f",
+        "3ce01e6375a38438308516ce80476b7fd8efb5f5",
+        "7852d7f85a96cb0baa3b1c1fb07de36a6ccdebe5",
+        "fd50b733ef17915026ac4f43d1261f3330ea55b9",
+        "7eda2dc4869af2b6f4ccf64914c65bfd3f06eb3a",
+        "641eef73bff03c1d2f20e45fd3e9e69809447eb1",
+        "b9abfcf1480775c2ef3951cdbb5f1264476753b4",
+        "62a0f1685b5644ace307682236161cdf8bb37886",
+        "d8e949515f9e82a4151a363588a68a8dc01f99ba",
+        "66904420a1fb898125d28319230ca2f4aac53f65",
+        "2eb73e8598c88b551573c8d58f65ab2a7eebe9ff",
+        "6582b701bb0721721191760c6365ae71d21d1b10",
+        "2f296fa6519a8b4e1a8a9616069a22a3f62ed7ad"
+      ],
+      "paths": [
+        {
+          "action": "created",
+          "path": ".pose/results/reap-binding.md"
+        },
+        {
+          "action": "created",
+          "path": ".pose/specs/2026-11-23-pose-review-conclude-ignores-unrelated-local-edits.md"
+        },
+        {
+          "action": "created",
+          "path": ".pose/specs/2026-11-23-pose-review-run-reaps-lingering-reviewer-processes.md"
+        },
+        {
+          "action": "created",
+          "path": "pose-mcp/internal/cli/review_reap_test.go"
+        },
+        {
+          "action": "created",
+          "path": "pose-mcp/internal/pose/delegation_release.go"
+        },
+        {
+          "action": "created",
+          "path": "pose-mcp/internal/pose/delegation_release_test.go"
+        },
+        {
+          "action": "created",
+          "path": "pose-mcp/internal/pose/review_reap_linux.go"
+        },
+        {
+          "action": "created",
+          "path": "pose-mcp/internal/pose/review_reap_linux_test.go"
+        },
+        {
+          "action": "created",
+          "path": "pose-mcp/internal/pose/review_reap_other.go"
+        },
+        {
+          "action": "modified",
+          "path": ".pose/indexes/delivery-integrity.json"
+        },
+        {
+          "action": "modified",
+          "path": ".pose/indexes/generation.json"
+        },
+        {
+          "action": "modified",
+          "path": ".pose/indexes/spec-graph.json"
+        },
+        {
+          "action": "modified",
+          "path": ".pose/results/delivery-validation.json"
+        },
+        {
+          "action": "modified",
+          "path": "POSE.md"
+        },
+        {
+          "action": "modified",
+          "path": "locales/pt-BR/POSE.md"
+        },
+        {
+          "action": "modified",
+          "path": "pose-mcp/internal/cli/delegate.go"
+        },
+        {
+          "action": "modified",
+          "path": "pose-mcp/internal/cli/help_catalog.go"
+        },
+        {
+          "action": "modified",
+          "path": "pose-mcp/internal/pose/delegation_list.go"
+        },
+        {
+          "action": "modified",
+          "path": "pose-mcp/internal/pose/review_adapter_containment.go"
+        },
+        {
+          "action": "modified",
+          "path": "pose-mcp/internal/pose/review_adapter_containment_regression_test.go"
+        },
+        {
+          "action": "modified",
+          "path": "pose-mcp/internal/pose/review_attempt_ledger.go"
+        },
+        {
+          "action": "modified",
+          "path": "pose-mcp/internal/pose/review_brief.go"
+        },
+        {
+          "action": "modified",
+          "path": "pose-mcp/internal/pose/review_brief_conclusion_rules_test.go"
+        },
+        {
+          "action": "modified",
+          "path": "pose-mcp/internal/pose/review_brief_test.go"
+        },
+        {
+          "action": "modified",
+          "path": "pose-mcp/internal/pose/review_dispatch.go"
+        },
+        {
+          "action": "modified",
+          "path": "pose-mcp/internal/pose/testdata/review_brief_template_digests.json"
+        },
+        {
+          "action": "modified",
+          "path": "pose-mcp/internal/scaffold/dist/POSE.md"
+        },
+        {
+          "action": "modified",
+          "path": "pose-mcp/internal/scaffold/dist/locales/pt-BR/POSE.md"
+        }
+      ],
+      "diff_digest": "sha256:7c9ee0b88382e9a5f6aaeda545477bb01389378b200f95cf56e6708d19a0d311",
+      "material_digest": "sha256:19dc7d2e3e689142f314765b0a8506fc530d5fc7305974db679d90e408c2b5d2",
+      "material_inputs": {
+        "names": [
+          ".pose/indexes/delivery-integrity.json",
+          ".pose/indexes/generation.json",
+          ".pose/indexes/spec-graph.json",
+          ".pose/indexes/validation-matrix.json",
+          ".pose/results/delivery-validation.json",
+          ".pose/results/reap-binding.md",
+          ".pose/specs/2026-11-23-pose-review-conclude-ignores-unrelated-local-edits.md",
+          ".pose/specs/2026-11-23-pose-review-run-reaps-lingering-reviewer-processes.md",
+          "POSE.md",
+          "locales/pt-BR/POSE.md",
+          "pose-mcp/internal/cli/delegate.go",
+          "pose-mcp/internal/cli/help_catalog.go",
+          "pose-mcp/internal/cli/review_reap_test.go",
+          "pose-mcp/internal/pose/delegation_list.go",
+          "pose-mcp/internal/pose/delegation_release.go",
+          "pose-mcp/internal/pose/delegation_release_test.go",
+          "pose-mcp/internal/pose/review_adapter_containment.go",
+          "pose-mcp/internal/pose/review_adapter_containment_regression_test.go",
+          "pose-mcp/internal/pose/review_attempt_ledger.go",
+          "pose-mcp/internal/pose/review_brief.go",
+          "pose-mcp/internal/pose/review_brief_conclusion_rules_test.go",
+          "pose-mcp/internal/pose/review_brief_test.go",
+          "pose-mcp/internal/pose/review_dispatch.go",
+          "pose-mcp/internal/pose/review_reap_linux.go",
+          "pose-mcp/internal/pose/review_reap_linux_test.go",
+          "pose-mcp/internal/pose/review_reap_other.go",
+          "pose-mcp/internal/pose/testdata/review_brief_template_digests.json",
+          "pose-mcp/internal/scaffold/dist/POSE.md",
+          "pose-mcp/internal/scaffold/dist/locales/pt-BR/POSE.md"
+        ]
+      }
+    },
+    {
       "id": "cs-b64ae066bc32",
       "spec": "pose-seal-names-carried-forward-evidence",
       "selector": "trailers:pose-seal-names-carried-forward-evidence",
@@ -310612,6 +310624,7 @@
       "pose-report-help-names-every-flag",
       "pose-review-attribution-roles",
       "pose-review-readiness-before-seal",
+      "pose-review-run-reaps-lingering-reviewer-processes",
       "pose-setup-command",
       "pose-signed-action-answers",
       "pose-signed-legacy-attestation-ledger",
@@ -315632,6 +315645,16 @@
       "remediation": "no Git change sets are attributed to spec pose-release-shared-sufficiency-contract (ensure commits carry 'POSE-Spec: pose-release-shared-sufficiency-contract' trailer or generate report with pose report)"
     },
     {
+      "id": "dif-0c35fe5c1f7e",
+      "code": "stale-evidence",
+      "severity": "error",
+      "spec": "pose-review-run-reaps-lingering-reviewer-processes",
+      "path": "capability:review-run-reaps-lingering-reviewer-processes",
+      "change_set": "pose-mcp/go/abm-atomic-start-integration",
+      "message": "passed integration evidence is bound to a different scoped provenance digest",
+      "remediation": "rerun the registered validation check for this delivery scope"
+    },
+    {
       "id": "dif-0c40d4f2d297",
       "code": "inferred-coverage",
       "severity": "warning",
@@ -316660,6 +316683,15 @@
       "path": "pose-mcp/internal/observability/log.go",
       "message": "governed tracked path has no spec provenance claim",
       "remediation": "backfill an explicit claim or add an exact reviewed exclusion"
+    },
+    {
+      "id": "dif-53bebcff02c6",
+      "code": "unconsumed-capability",
+      "severity": "error",
+      "spec": "pose-review-run-reaps-lingering-reviewer-processes",
+      "path": "capability:review-run-reaps-lingering-reviewer-processes",
+      "message": "required current evidence is missing: integration",
+      "remediation": "run registered checks with the required evidenceClass against the current provenance digest"
     },
     {
       "id": "dif-53f5d5897029",
@@ -318817,16 +318849,6 @@
       "path": "pose-mcp/internal/pose/followups_parse.go",
       "message": "declared artifact action is absent from the attributed Git change sets",
       "remediation": "no Git change sets are attributed to spec pose-residual-material-coverage-and-identity (ensure commits carry 'POSE-Spec: pose-residual-material-coverage-and-identity' trailer or generate report with pose report)"
-    },
-    {
-      "id": "dif-cd204deddf2b",
-      "code": "undeclared",
-      "severity": "error",
-      "spec": "pose-review-run-reaps-lingering-reviewer-processes",
-      "path": "pose-mcp/internal/cli/help_catalog.go",
-      "change_set": "cs-30eb9ea61ea8",
-      "message": "Git observed a governed path not declared by the spec",
-      "remediation": "declare the exact action or narrow the attributed change set"
     },
     {
       "id": "dif-cd3498609749",
@@ -332058,6 +332080,7 @@
       "artifact:POSE.md",
       "artifact:locales/pt-BR/POSE.md",
       "artifact:pose-mcp/internal/cli/delegate.go",
+      "artifact:pose-mcp/internal/cli/help_catalog.go",
       "artifact:pose-mcp/internal/pose/delegation_list.go",
       "artifact:pose-mcp/internal/pose/review_adapter_containment.go",
       "artifact:pose-mcp/internal/pose/review_adapter_containment_regression_test.go",
@@ -332070,8 +332093,7 @@
       "artifact:pose-mcp/internal/scaffold/dist/POSE.md",
       "artifact:pose-mcp/internal/scaffold/dist/locales/pt-BR/POSE.md",
       "delivery:capability:review-run-reaps-lingering-reviewer-processes",
-      "entrypoint:pose-mcp/internal/cli/delegate.go",
-      "validation-set:cf62b73b2f38838b"
+      "entrypoint:pose-mcp/internal/cli/delegate.go"
     ],
     "capability:review-subject-and-scope-precision": [
       "spec:pose-review-subject-and-scope-precision",
