@@ -1,0 +1,237 @@
+{
+  "run": {
+    "run_id": "rrn-9abc2fe5dedc7478",
+    "proof_id": "rrp-ca00852bbdd2e950150b8f9fb2f471dc2392d33ca9196b66bfb1f1b5eb9c54d1"
+  },
+  "schema_version": 1,
+  "attestation_id": "rva-5dd0a68d900bc380",
+  "bundle_id": "rvb-d0e7d5f7b38130e6",
+  "bundle_digest": "sha256:d0e7d5f7b38130e61e984700974308c2530ebc4ee9842d40c384605dccca39d4",
+  "reviewer": "agent:openai/gpt-6-luna",
+  "decision": "changes-requested",
+  "criteria": [
+    {
+      "id": "assumption-integrity",
+      "disposition": "finding",
+      "evidence": "N1",
+      "rationale": "Verified: the adapter environment adds the run checkout marker, marked PIDs are checked again before pidfd signaling, and marker-backed release requires a proven-dead owner. Unresolved: subreaper and /proc uptime failures are ignored (N1, N2), and unreadable process start metadata can be treated as pre-existing (N3). Accepted spec limits remain L1, L2, L4 and L5."
+    },
+    {
+      "id": "backend-concurrency",
+      "disposition": "finding",
+      "evidence": "N3",
+      "rationale": "The release lock and dead-owner checks are covered by focused tests, but unreadable process metadata can be treated as absence during cleanup, so lifecycle completion is not safe on that error path."
+    },
+    {
+      "id": "backend-contracts",
+      "disposition": "passed",
+      "evidence": "integration:pose-mcp/go/delegation-surface-integration",
+      "rationale": "The cancel option is additive, existing record schemas are unchanged, and released attempts use ordinary failed-run and receipt records."
+    },
+    {
+      "id": "backend-input-errors",
+      "disposition": "finding",
+      "evidence": "N1",
+      "rationale": "The failure of PR_SET_CHILD_SUBREAPER is silently converted into a disabled orphan scan, with no typed refusal or cleanup failure."
+    },
+    {
+      "id": "backend-integration-impact",
+      "disposition": "passed",
+      "evidence": "integration:pose-mcp/go/delegated-adapter-containment-integration",
+      "rationale": "The change stays within the pose-mcp CLI and domain cleanup path; no public REST, Protobuf, Kafka or MCP contract changed."
+    },
+    {
+      "id": "backend-observability",
+      "disposition": "finding",
+      "evidence": "N4",
+      "rationale": "The termination record persists an untrusted process name without applying the credential redaction used for captured output."
+    },
+    {
+      "id": "compatibility",
+      "disposition": "passed",
+      "evidence": "integration:pose-mcp/go/delegation-surface-integration",
+      "rationale": "The new cancel flag and failed-run receipt are additive, and earlier record formats retain their meaning."
+    },
+    {
+      "id": "correctness",
+      "disposition": "finding",
+      "evidence": "N1",
+      "rationale": "On a Linux host where subreaper setup fails, an environment-cleared descendant outside the process group is not found, yet the no-match scan can permit a completed run."
+    },
+    {
+      "id": "design-causality",
+      "disposition": "finding",
+      "evidence": "N2",
+      "rationale": "D1 addresses the process-group escape with the checkout marker and a subreaper; D2 preserves abandoned attempts through failed-run records and receipts. The structural design assessment emitted no deltas. The unchecked clock failure can widen the subreaper scan beyond this run, so the chosen ownership boundary is not upheld on that path."
+    },
+    {
+      "id": "documentation",
+      "disposition": "passed",
+      "evidence": "unit:pose-mcp/go/test",
+      "rationale": "The current review-brief/10 asks commands to finish, and the root, locale and scaffold manuals describe Linux cleanup, non-Linux limits and abandoned-attempt release."
+    },
+    {
+      "id": "operability",
+      "disposition": "finding",
+      "evidence": "N1",
+      "rationale": "When subreaper setup fails, the run does not explain that escaped-process cleanup is unavailable and may still conclude."
+    },
+    {
+      "id": "requirements",
+      "disposition": "finding",
+      "evidence": "N1",
+      "rationale": "R1/R2 depend on cleanup completing before inventory and recording ended processes; the failed-subreeaper path can leave a process running without making the run incomplete."
+    },
+    {
+      "id": "scope",
+      "disposition": "passed",
+      "evidence": "unit:pose-mcp/go/test",
+      "rationale": "The supplied subject changes review dispatch cleanup, abandoned-attempt recovery, the CLI/help, review brief and its manual/scaffold copies as declared by the spec."
+    },
+    {
+      "id": "security",
+      "disposition": "finding",
+      "evidence": "N4",
+      "rationale": "A reviewer-controlled process name can carry a short credential into a persisted run record and CLI output without redaction; the unchecked start-time boundary also risks signaling an unrelated process (N2)."
+    },
+    {
+      "id": "solution-proportionality",
+      "disposition": "finding",
+      "evidence": "N2",
+      "rationale": "Group-only cleanup is insufficient for commands started in their own session, so the checkout marker and subreaper address the stated cause. The process-wide subreaper risk L5 is explicit, but an unreadable cutoff currently expands selection to pre-existing children, beyond that accepted limit."
+    }
+  ],
+  "tools": [
+    {
+      "id": "artifact-check",
+      "disposition": "passed",
+      "evidence": "command:\"$POSE_REVIEW_CLI\" artifact-check --spec pose-review-run-reaps-lingering-reviewer-processes --strict",
+      "rationale": "Exited 0. It printed repository-wide orphan warnings and a broader slug lineage; the supplied range and listed subject paths were reviewed directly."
+    },
+    {
+      "id": "assess-design",
+      "disposition": "passed",
+      "evidence": "structure:design-8127b147a553e24d",
+      "rationale": "Ran the assessment; it reported status observed and no structural deltas."
+    },
+    {
+      "id": "assess-discover",
+      "component": "pose-mcp",
+      "disposition": "passed",
+      "evidence": "command:\"$POSE_REVIEW_CLI\" assess discover --no-persist --component pose-mcp",
+      "rationale": "Ran without persistence and discovered pose-mcp."
+    },
+    {
+      "id": "assess-integrate",
+      "disposition": "passed",
+      "evidence": "integration:pose-mcp/go/delegation-surface-integration",
+      "rationale": "Ran without persistence; the three unobserved HTTP declarations are outside the changed cleanup and CLI contracts."
+    },
+    {
+      "id": "assess-tech-debt",
+      "disposition": "deferred",
+      "evidence": "command:\"$POSE_REVIEW_CLI\" assess tech-debt --no-persist",
+      "rationale": "Ran, but the scan was incomplete because two unrelated specs have invalid/unknown scope and it reported one uncovered marker; the changed production diff has no TODO/FIXME/stub/panic marker, while the observed panic calls are test seams that simulate interruption."
+    },
+    {
+      "id": "closeout-check",
+      "disposition": "deferred",
+      "evidence": "command:\"$POSE_REVIEW_CLI\" closeout-check spec:pose-review-run-reaps-lingering-reviewer-processes",
+      "rationale": "Ran; this completion-only check refused because the spec is not done and there is no approved review attestation, which this brief prohibits recording."
+    },
+    {
+      "id": "review-check",
+      "disposition": "deferred",
+      "evidence": "command:\"$POSE_REVIEW_CLI\" review-check spec:pose-review-run-reaps-lingering-reviewer-processes",
+      "rationale": "Ran; deferred because it requires a completed review attestation. It also reported that local semantic inputs are not represented by its selected sealed bundle."
+    },
+    {
+      "id": "suggest-review",
+      "component": "pose-mcp",
+      "disposition": "passed",
+      "evidence": "command:\"$POSE_REVIEW_CLI\" suggest review --path pose-mcp",
+      "rationale": "Selected backend-go, security and documentation-style rules for this component."
+    },
+    {
+      "id": "surface-check",
+      "disposition": "passed",
+      "evidence": "reachability:pose-mcp/go/delivery-reachability",
+      "rationale": "Ran strict surface-check; it reported one target, 236 results and zero findings."
+    },
+    {
+      "id": "validate",
+      "disposition": "deferred",
+      "evidence": "build:pose-mcp/go/build",
+      "rationale": "Ran strict validation; Go checks could not create their build/cache paths in this read-only sandbox. The sealed build, e2e, integration and unit results cover the module, and focused review tests and vet passed."
+    },
+    {
+      "id": "validate",
+      "component": "pose-mcp",
+      "disposition": "deferred",
+      "evidence": "unit:pose-mcp/go/test",
+      "rationale": "Ran strict module validation; Go checks could not create build/cache paths in this read-only sandbox. The sealed component build and unit results remain available, and focused review tests and vet passed."
+    }
+  ],
+  "evidence_refs": [
+    "N1",
+    "N2",
+    "N3",
+    "N4",
+    "delegated-run:rrn-9abc2fe5dedc7478",
+    "integration:pose-mcp/go/delegated-adapter-containment-integration",
+    "integration:pose-mcp/go/delegation-surface-integration",
+    "unit:pose-mcp/go/test"
+  ],
+  "findings": [
+    {
+      "id": "N1",
+      "severity": "medium",
+      "evidence": "file:pose-mcp/internal/pose/review_dispatch.go:1027",
+      "action": "If PR_SET_CHILD_SUBREAPER fails, the error is discarded and cleanup continues without the orphan scan. An escaped descendant that cleared POSE_SEALED_CHECKOUT can survive while the run still completes.",
+      "disposition": "open"
+    },
+    {
+      "id": "N2",
+      "severity": "medium",
+      "evidence": "file:pose-mcp/internal/pose/review_dispatch.go:1028",
+      "action": "reviewClockTicks errors are ignored, leaving adapterSince at zero. The orphan scan can then treat pre-existing adopted children as run orphans and SIGKILL processes outside this run.",
+      "disposition": "open"
+    },
+    {
+      "id": "N3",
+      "severity": "medium",
+      "evidence": "file:pose-mcp/internal/pose/review_reap_linux.go:110",
+      "action": "A processStartTime error is ignored and stores an empty start value; an absent baseline entry also reads as empty, so an opaque process started during this run can be counted as pre-existing. review_subreaper_linux.go:102-104 also skips unreadable stat errors.",
+      "disposition": "open"
+    },
+    {
+      "id": "N4",
+      "severity": "medium",
+      "evidence": "file:pose-mcp/internal/pose/review_reap_linux.go:68",
+      "action": "The reviewer-controlled /proc/PID/comm name is copied raw into safety.limitations and persisted by review_dispatch.go:1059, bypassing the credential redaction applied to captured output.",
+      "disposition": "open"
+    }
+  ],
+  "authority": {
+    "schema_version": 1,
+    "project": "proj.pose-dist",
+    "bundle_digest": "sha256:d0e7d5f7b38130e61e984700974308c2530ebc4ee9842d40c384605dccca39d4",
+    "principal": "agent:openai/gpt-6-luna",
+    "role": "agent",
+    "review_execution": "rrn-9abc2fe5dedc7478",
+    "implementation_principal": "agent:anthropic/unknown",
+    "implementation_execution": "sha256:344ac5868944c155772d60a95ef6ff20644580a642e772ad5c92c29428464ff8",
+    "issuer": "b34-local-executor",
+    "issued_at": "2026-11-24T19:20:40Z",
+    "audience": "proj.pose-dist"
+  },
+  "envelope": {
+    "issuer": "b34-local-executor",
+    "subject": "rvb-d0e7d5f7b38130e6",
+    "algorithm": "ed25519",
+    "public_key": "ck4sApdfePV2GT+hJyAYfJd2qLzeG55P8pevGR0bvZE=",
+    "signature": "tXAFanEVvcsY1NObuY5QK8nRgqfjvnsZksNfj7SLQhFt8VNC2ALuGO2U6+79oksvm8oDIBTzroxwWuJFLtLDBA=="
+  },
+  "attested_at": "2026-11-24T19:20:40Z",
+  "path": ".pose/review-attestations/rva-5dd0a68d900bc380.json"
+}
