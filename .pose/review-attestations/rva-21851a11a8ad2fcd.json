@@ -1,0 +1,236 @@
+{
+  "run": {
+    "run_id": "rrn-f19179878d867e9a",
+    "proof_id": "rrp-3b4ddbe059dd0ac93fdbfe61050972cbf07718339800937cb42cda8ab66660a9"
+  },
+  "schema_version": 1,
+  "attestation_id": "rva-21851a11a8ad2fcd",
+  "bundle_id": "rvb-3f665a84ee50a598",
+  "bundle_digest": "sha256:3f665a84ee50a598c26f0aeb68be0282a41cfc8eeca7398866b4920b3734c990",
+  "reviewer": "agent:openai/gpt-6-luna",
+  "decision": "changes-requested",
+  "criteria": [
+    {
+      "id": "assumption-integrity",
+      "disposition": "finding",
+      "evidence": "N1",
+      "rationale": "Verified: sealed unit/integration evidence and the focused tests cover normal-exit subtree cleanup and failed-run/receipt release; the code's PID pinning and bounded waits are present. Accepted limits are the spec's Linux-only behavior and disclosed pre-existing opaque processes. Unresolved assumptions are that the checkout environment value cannot be forged (N1), the shim report path is trusted (N2), cleanup survives timeout cancellation (N3), and dispatcher death means the run is gone (N4)."
+    },
+    {
+      "id": "backend-concurrency",
+      "disposition": "finding",
+      "evidence": "N4",
+      "rationale": "The per-attempt release flock and live-dispatcher check protect ordinary concurrent releases, but the marker checks the dispatcher PID rather than the still-running shim/adapter. Timeout cancellation also bypasses the shim reap (N3)."
+    },
+    {
+      "id": "backend-contracts",
+      "disposition": "passed",
+      "evidence": "integration:pose-mcp/go/delegation-surface-integration",
+      "rationale": "Inspected the CLI, run ledger, receipt, listing and release paths. The release writes the ordinary failed-run and receipt records; existing run/attempt schemas remain unchanged and the sealed delegation-surface integration evidence passes."
+    },
+    {
+      "id": "backend-input-errors",
+      "disposition": "passed",
+      "evidence": "unit:pose-mcp/go/test",
+      "rationale": "The release validates attempt identifiers, requires explicit confirmation for markerless reservations, refuses unreadable or incomplete histories, and returns actionable errors; sealed unit evidence passes."
+    },
+    {
+      "id": "backend-integration-impact",
+      "disposition": "passed",
+      "evidence": "integration:pose-mcp/go/delegation-surface-integration",
+      "rationale": "The reviewed CLI and pose-mcp store boundary is reachable and covered by sealed integration evidence. The integration assessment's existing HTTP consumer gaps do not involve these changed paths."
+    },
+    {
+      "id": "backend-observability",
+      "disposition": "finding",
+      "evidence": "N3",
+      "rationale": "If timeout cancellation kills the shim, no shim report is available and the outer scan cannot see an env-cleared descendant; the run does not reliably record or fail on that missed cleanup."
+    },
+    {
+      "id": "compatibility",
+      "disposition": "passed",
+      "evidence": "integration:pose-mcp/go/delegated-attempt-ledger-integration",
+      "rationale": "Inspected persisted run and receipt handling and the CLI contract. Abandoned attempts are represented as ordinary failed runs with receipts, and prior record schemas retain their interpretation."
+    },
+    {
+      "id": "correctness",
+      "disposition": "finding",
+      "evidence": "N3",
+      "rationale": "Normal adapter exit reaps its subtree, but timeout/cancellation kills the shim before that cleanup; the regression test covers a normal adapter exit, not this cancellation path."
+    },
+    {
+      "id": "design-causality",
+      "disposition": "finding",
+      "evidence": "N3",
+      "rationale": "D1 addresses session-separated children through the sealed-checkout environment, and D2 preserves interrupted attempts as failed-run records. The per-run shim corrects process-wide subreaper interference, but process-group cancellation can kill that shim before its subtree cleanup, so R1 is not met on timeout. The sealed design assessment reports no structural deltas; mappings are empty."
+    },
+    {
+      "id": "documentation",
+      "disposition": "finding",
+      "evidence": "N3",
+      "rationale": "The root and scaffold manuals, Portuguese copies, and review-brief/10 agree on the normal cleanup flow, but say the shim ends the run's remaining subtree without explaining that timeout cancellation kills the shim before it can do so."
+    },
+    {
+      "id": "operability",
+      "disposition": "finding",
+      "evidence": "N4",
+      "rationale": "The stale-attempt listing gives a release command, but after dispatcher death it can label the attempt abandoned while the shim and reviewer still run; that remediation is not safe until the run process is checked."
+    },
+    {
+      "id": "requirements",
+      "disposition": "finding",
+      "evidence": "N3",
+      "rationale": "R3–R6 have relevant sealed and focused test evidence. R1/R2 are not established for a timed-out run because the shim cleanup is bypassed (N3); R5's dead-owner release also misses a live shim (N4)."
+    },
+    {
+      "id": "scope",
+      "disposition": "passed",
+      "evidence": "structure:design-71242c7bd963d61e",
+      "rationale": "The changed dispatch, release, CLI, brief and documentation files match the spec's pose-mcp and manual/scaffold scope. The defects are in that approved scope, not unrelated additions."
+    },
+    {
+      "id": "security",
+      "disposition": "finding",
+      "evidence": "N2",
+      "rationale": "The reviewer can control TMPDIR contents, but the trusted shim follows a predictable report path when writing. The environment marker also permits cross-run process-kill authority when forged (N1)."
+    },
+    {
+      "id": "solution-proportionality",
+      "disposition": "finding",
+      "evidence": "N1",
+      "rationale": "A per-run shim is a proportionate way to reap descendants without making the dispatcher a process-wide subreaper. The additional global environment sweep is broader than that subtree and treats a forgeable string as ownership; it needs verifiable run ownership or a justified narrower scope. The design choice is invalidated by concurrent runs whose children can set another run's marker."
+    }
+  ],
+  "tools": [
+    {
+      "id": "artifact-check",
+      "disposition": "passed",
+      "evidence": "command:\"$POSE_REVIEW_CLI\" artifact-check --spec pose-review-run-reaps-lingering-reviewer-processes --strict",
+      "rationale": "Executed and exited 0. Its output resolved cs-46546384ddbb/head c417... rather than this sealed bundle's cs-8af2c30edef8/head ca59...; it does not independently establish attribution for this bundle, whose sealed artifact list is used for scope."
+    },
+    {
+      "id": "assess-design",
+      "disposition": "passed",
+      "evidence": "structure:design-71242c7bd963d61e",
+      "rationale": "Executed; the sealed structural assessment for this bundle reports no deltas. The standalone command resolved a different prepared subject, so the sealed ref is the evidence used."
+    },
+    {
+      "id": "assess-discover",
+      "component": "pose-mcp",
+      "disposition": "passed",
+      "evidence": "command:\"$POSE_REVIEW_CLI\" assess discover --no-persist --component pose-mcp",
+      "rationale": "Executed and completed the pose-mcp discovery."
+    },
+    {
+      "id": "assess-integrate",
+      "disposition": "passed",
+      "evidence": "integration:pose-mcp/go/delegation-surface-integration",
+      "rationale": "Executed; the assessment's existing HTTP consumer gaps are outside this change. The sealed pose-mcp delegation integration evidence is used for the changed boundary."
+    },
+    {
+      "id": "assess-tech-debt",
+      "disposition": "passed",
+      "evidence": "command:\"$POSE_REVIEW_CLI\" assess tech-debt --no-persist",
+      "rationale": "Executed; it reported two markers and one uncovered item, but the scan was incomplete because two pre-existing specs could not be read. No debt marker was found in the new cleanup, shim or release source reviewed here."
+    },
+    {
+      "id": "closeout-check",
+      "disposition": "deferred",
+      "rationale": "Its review-complete precondition cannot be satisfied before this attestation."
+    },
+    {
+      "id": "review-check",
+      "disposition": "deferred",
+      "rationale": "Its review-complete precondition cannot be satisfied before this attestation."
+    },
+    {
+      "id": "suggest-review",
+      "component": "pose-mcp",
+      "disposition": "passed",
+      "evidence": "command:\"$POSE_REVIEW_CLI\" suggest review --path pose-mcp",
+      "rationale": "Executed and resolved the component's backend-go review workflow and rules."
+    },
+    {
+      "id": "surface-check",
+      "disposition": "passed",
+      "evidence": "integration:pose-mcp/go/delegation-surface-integration",
+      "rationale": "Executed; it reported the declared delivery target reachable with no findings."
+    },
+    {
+      "id": "validate",
+      "disposition": "passed",
+      "evidence": "build:pose-mcp/go/build",
+      "rationale": "The strict rerun was attempted but Go could not create build/cache files in the read-only sandbox. The sealed run supplies passing build, e2e, integration and unit evidence; this is a sealed-evidence pass, not a local rerun pass."
+    },
+    {
+      "id": "validate",
+      "component": "pose-mcp",
+      "disposition": "passed",
+      "evidence": "unit:pose-mcp/go/test",
+      "rationale": "The module rerun was attempted but Go could not create build/cache files in the read-only sandbox. The sealed pose-mcp validation evidence passes; focused tests and vet also passed locally."
+    }
+  ],
+  "evidence_refs": [
+    "N1",
+    "N2",
+    "N3",
+    "N4",
+    "delegated-run:rrn-f19179878d867e9a",
+    "integration:pose-mcp/go/delegated-attempt-ledger-integration",
+    "integration:pose-mcp/go/delegation-surface-integration",
+    "structure:design-71242c7bd963d61e",
+    "unit:pose-mcp/go/test"
+  ],
+  "findings": [
+    {
+      "id": "N1",
+      "severity": "medium",
+      "evidence": "file:pose-mcp/internal/pose/review_reap_linux.go:169",
+      "action": "The reaper treats the reviewer-controlled POSE_SEALED_CHECKOUT environment string as authority to SIGKILL a process. A child of another concurrent run can set it to this run's worktree and be killed by this run. Bind cleanup to verifiable per-run ownership and test overlapping runs.",
+      "disposition": "open"
+    },
+    {
+      "id": "N2",
+      "severity": "medium",
+      "evidence": "file:pose-mcp/internal/pose/review_shim_linux.go:36",
+      "action": "The shim writes its report with os.WriteFile to a predictable file under the adapter-writable TMPDIR. The adapter can pre-create a symlink there and make the shim truncate a file outside the run. Create and retain a trusted no-follow report file or keep the report outside adapter-writable paths.",
+      "disposition": "open"
+    },
+    {
+      "id": "N3",
+      "severity": "medium",
+      "evidence": "file:pose-mcp/internal/pose/review_dispatch_unix.go:24",
+      "action": "Context cancellation SIGKILLs the whole process group, including the subreaper shim, before its post-adapter subtree reap and report. A setsid descendant that cleared POSE_SEALED_CHECKOUT can survive a timeout while the outer environment scan misses it.",
+      "disposition": "open"
+    },
+    {
+      "id": "N4",
+      "severity": "medium",
+      "evidence": "file:pose-mcp/internal/pose/delegation_active.go:100",
+      "action": "The active marker names the dispatcher PID as owner, while the shim and adapter can remain alive if that dispatcher is killed. After heartbeats stop, cancel can prove only the dispatcher is dead and release the reservation while the reviewer is still running. Track and check the run process before release; cover a killed dispatcher with a live adapter.",
+      "disposition": "open"
+    }
+  ],
+  "authority": {
+    "schema_version": 1,
+    "project": "proj.pose-dist",
+    "bundle_digest": "sha256:3f665a84ee50a598c26f0aeb68be0282a41cfc8eeca7398866b4920b3734c990",
+    "principal": "agent:openai/gpt-6-luna",
+    "role": "agent",
+    "review_execution": "rrn-f19179878d867e9a",
+    "implementation_principal": "agent:anthropic/unknown",
+    "implementation_execution": "sha256:344ac5868944c155772d60a95ef6ff20644580a642e772ad5c92c29428464ff8",
+    "issuer": "b34-local-executor",
+    "issued_at": "2026-11-24T21:23:53Z",
+    "audience": "proj.pose-dist"
+  },
+  "envelope": {
+    "issuer": "b34-local-executor",
+    "subject": "rvb-3f665a84ee50a598",
+    "algorithm": "ed25519",
+    "public_key": "ck4sApdfePV2GT+hJyAYfJd2qLzeG55P8pevGR0bvZE=",
+    "signature": "1rZJXQNSKRIahjZzvTb401Hfc0QAgqwxbdeV6PMYQwnRuAYPDzfrm+5tVLxuWEurVix3/pld75Cf/arlSH8hBg=="
+  },
+  "attested_at": "2026-11-24T21:23:53Z",
+  "path": ".pose/review-attestations/rva-21851a11a8ad2fcd.json"
+}
