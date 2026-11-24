@@ -70,6 +70,7 @@ Records written by earlier engines keep their meaning.
 - modified: pose-mcp/internal/pose/review_brief_conclusion_rules_test.go
 - modified: pose-mcp/internal/pose/testdata/review_brief_template_digests.json
 - modified: pose-mcp/internal/cli/delegate.go
+- modified: pose-mcp/internal/cli/help_catalog.go
 - created: pose-mcp/internal/cli/review_reap_test.go
 - modified: POSE.md
 - modified: locales/pt-BR/POSE.md
