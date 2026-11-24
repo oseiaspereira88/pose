@@ -131,6 +131,16 @@ func resolveReviewerContainment(a ReviewerAdapter) (*ReviewExecutionSafety, erro
 	if runtime.GOOS == "linux" {
 		if err := reviewProcessGroupAvailable(); err == nil {
 			r.Capabilities["process-group-termination"] = "available"
+			// A descendant that left the group is still ended while its
+			// environment keeps the run's sealed-checkout entry; one that
+			// clears it is not, so the guarantee is not "available" (spec
+			// pose-review-run-reaps-lingering-reviewer-processes R1, L1).
+			r.Capabilities["escaped-descendant-termination"] = "environment-marked"
+			for i, limit := range r.Limitations {
+				if limit == "no memory/CPU quota or control of descendants escaping the process group" {
+					r.Limitations[i] = "no memory/CPU quota; descendants escaping the process group are ended only while they keep the run's sealed-checkout environment entry"
+				}
+			}
 		} else {
 			r.Capabilities["process-group-termination"] = "unavailable"
 			r.Limitations = append(r.Limitations, "process inventory not observable on this host")

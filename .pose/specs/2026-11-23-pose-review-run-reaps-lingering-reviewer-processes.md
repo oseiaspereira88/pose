@@ -61,6 +61,8 @@ Records written by earlier engines keep their meaning.
 - created: pose-mcp/internal/pose/delegation_release_test.go
 - modified: pose-mcp/internal/pose/review_dispatch.go
 - modified: pose-mcp/internal/pose/review_attempt_ledger.go
+- modified: pose-mcp/internal/pose/review_adapter_containment.go
+- modified: pose-mcp/internal/pose/review_adapter_containment_regression_test.go
 - modified: pose-mcp/internal/pose/review_brief.go
 - modified: pose-mcp/internal/pose/review_brief_test.go
 - modified: pose-mcp/internal/pose/review_brief_conclusion_rules_test.go
@@ -123,6 +125,7 @@ Each requirement gets a regression test shown failing before its code.
 
 ### Execution log
 - 2026-11-24: implemented R1–R6. Each has a test that fails with its fix mutated out: the dispatch ends a process the adapter left in a session of its own (the test's leftover keeps writing into the runtime directory), the release records the failed run and receipt and removes the marker and its stall claim, a live owner is never released, and `review-brief/10` asks commands to finish while `/9` stays unchanged.
+- 2026-11-24: the containment record disclosed escaped-descendant termination as `unavailable`, and a regression test pinned that limitation. On Linux it is now `environment-marked` (ended while the descendant keeps the run's sealed-checkout entry, never `available`, so a profile that requires the full guarantee is still refused), the limitation text says so, and the test now proves the escaped child is ended with the run.
 
 
 ### Results summary

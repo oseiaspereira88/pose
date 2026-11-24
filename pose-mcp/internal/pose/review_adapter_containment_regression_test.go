@@ -294,7 +294,10 @@ func TestAdapterContainmentFailedCleanupContinuationRemainsFailed(t *testing.T) 
 	}
 }
 
-func TestAdapterContainmentEscapedFiniteChildIsDisclosedNotContained(t *testing.T) {
+// A child that escaped the process group but keeps the run's environment is
+// ended with the run, and the guarantee is disclosed as environment-marked,
+// never as available (spec pose-review-run-reaps-lingering-reviewer-processes).
+func TestAdapterContainmentEscapedChildIsEndedWhileEnvironmentMarked(t *testing.T) {
 	if runtime.GOOS != "linux" {
 		t.Skip("Linux setsid limitation fixture")
 	}
@@ -310,8 +313,8 @@ func TestAdapterContainmentEscapedFiniteChildIsDisclosedNotContained(t *testing.
 		a.Containment = containmentPolicy()
 		a.Command = []string{"sh", "-c", `cat >/dev/null; setsid sh -c 'printf ready > "$3"; n=0; while test "$n" -lt 200; do if test -e "$1"; then printf escaped > "$2"; exit 0; fi; n=$((n+1)); sleep 0.01; done' sh "$1" "$2" "$3" >/dev/null 2>&1 & n=0; while ! test -e "$3"; do n=$((n+1)); test "$n" -lt 100 || exit 2; sleep 0.01; done; printf 'decision: approved\n'`, "sh", trigger, escaped, ready}
 	})
-	if f.run.Status != ReviewRunCompleted || f.run.Safety.Capabilities["escaped-descendant-termination"] != "unavailable" {
-		t.Fatal("escaped process was claimed contained", f.run.Failure, f.run.Safety)
+	if f.run.Status != ReviewRunCompleted || f.run.Safety.Capabilities["escaped-descendant-termination"] != "environment-marked" {
+		t.Fatal("escaped-process termination was not disclosed as environment-marked", f.run.Failure, f.run.Safety)
 	}
 	if _, err := os.Stat(escaped); !os.IsNotExist(err) {
 		t.Fatal("escape fixture ran before dispatch returned", err)
@@ -319,14 +322,10 @@ func TestAdapterContainmentEscapedFiniteChildIsDisclosedNotContained(t *testing.
 	if err := os.WriteFile(trigger, []byte("release finite child"), 0600); err != nil {
 		t.Fatal(err)
 	}
-	deadline := time.Now().Add(time.Second)
-	for time.Now().Before(deadline) {
-		if raw, err := os.ReadFile(escaped); err == nil && string(raw) == "escaped" {
-			return
-		}
-		time.Sleep(10 * time.Millisecond)
+	time.Sleep(500 * time.Millisecond)
+	if _, err := os.Stat(escaped); !os.IsNotExist(err) {
+		t.Fatal("the escaped child outlived the run", err)
 	}
-	t.Fatal("escape fixture did not exercise the disclosed limitation")
 }
 
 // Spec pose-review-cleanup-removes-go-build-leftovers: the Go build directory
