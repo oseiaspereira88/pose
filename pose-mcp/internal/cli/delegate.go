@@ -1123,13 +1123,19 @@ func cmdDelegateCancel(root string, args []string, stdout, stderr io.Writer) int
 	if err != nil {
 		return delegateFail(stdout, stderr, f.jsonOut, "cancel", code, withDelegationLosses(err, lost))
 	}
-	if attempt.State == posemodel.DelegationStalled && attempt.LatestRun == "" && !f.dryRun {
-		// An attempt whose dispatch ended before recording its run is
-		// released with a failed run and its receipt, so it stops blocking
-		// the bundle (spec pose-review-run-reaps-lingering-reviewer-processes R5).
+	if !attempt.Active && !f.dryRun {
+		// An attempt whose dispatch, or whose earlier release, ended before
+		// its receipt is released with a failed run and its receipt, so it
+		// stops blocking the bundle; the release proves the abandonment
+		// itself (spec pose-review-run-reaps-lingering-reviewer-processes R5,
+		// review round 4, N1).
 		run, err := store.ReleaseAbandonedAttempt(attempt.AttemptID, time.Now(), f.confirmAbandoned)
-		if err != nil {
+		if err != nil && (attempt.State == posemodel.DelegationStalled || !errors.Is(err, posemodel.ErrAttemptNotAbandoned)) {
 			return delegateFail(stdout, stderr, f.jsonOut, "cancel", 1, err)
+		}
+		if err != nil {
+			return delegateFail(stdout, stderr, f.jsonOut, "cancel", 1, withDelegationLosses(errors.New(tr("attempt "+attempt.AttemptID+" is "+attempt.State+", not running",
+				"a tentativa "+attempt.AttemptID+" está "+attempt.State+", não rodando")), lost))
 		}
 		if f.jsonOut {
 			writeDelegateJSON(stdout, map[string]any{"schema": delegateCancelSchema, "attempt": attempt.AttemptID, "released": true, "run": run.RunID, "status": run.Status})

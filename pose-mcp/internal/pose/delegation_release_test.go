@@ -347,6 +347,15 @@ func TestAMarkerlessReservationOfAnEarlierEngineIsReleased(t *testing.T) {
 	if _, err := s.readAttemptReceipt(old); err != nil {
 		t.Fatalf("the released reservation still blocks its bundle: %v", err)
 	}
+	// Review round 4, N1: a release stopped between its run and its receipt
+	// leaves the attempt with a run; it is still released, with that run.
+	if err := os.Remove(attemptReceiptPath(root, old)); err != nil {
+		t.Fatal(err)
+	}
+	again, err := s.ReleaseAbandonedAttempt(old.AttemptID, time.Now(), true)
+	if err != nil || again.RunID != run.RunID {
+		t.Fatalf("the interrupted release did not complete with its run: %s then %s (%v)", run.RunID, again.RunID, err)
+	}
 }
 
 // Review round 3, N3: an unreadable reservation is reported, not skipped.
@@ -363,5 +372,71 @@ func TestAnUnreadableReservationIsReportedAsALoss(t *testing.T) {
 	_, lost, err := s.ListDelegationAttempts()
 	if err != nil || !strings.Contains(strings.Join(lost, "\n"), "broken/000001.json could not be read") {
 		t.Fatalf("an unreadable reservation was skipped silently: %v %v", lost, err)
+	}
+}
+
+// Review round 4, N2: two takers of one stale claim never both win.
+func TestAStaleClaimHasOneTaker(t *testing.T) {
+	dir := t.TempDir()
+	claim := filepath.Join(dir, "rat-x.release")
+	dead := exec.Command("true")
+	if err := dead.Run(); err != nil {
+		t.Fatal(err)
+	}
+	gone := StartLockOwner{SchemaVersion: StartLockOwnerSchemaVersion, Resource: "release:x", Operation: "pose delegate cancel", PID: os.Getpid()}
+	gone.Host, _ = os.Hostname()
+	identifyStartLockProcess(&gone)
+	gone.PID = dead.Process.Pid
+	raw, _ := json.Marshal(gone)
+	for round := 0; round < 20; round++ {
+		if err := os.WriteFile(claim, raw, 0o600); err != nil {
+			t.Fatal(err)
+		}
+		results := make(chan error, 2)
+		start := make(chan struct{})
+		for i := 0; i < 2; i++ {
+			go func() { <-start; results <- claimAttemptRelease(claim, time.Now()) }()
+		}
+		close(start)
+		won := 0
+		for i := 0; i < 2; i++ {
+			if <-results == nil {
+				won++
+			}
+		}
+		if won != 1 {
+			t.Fatalf("round %d: %d takers won the stale claim", round, won)
+		}
+		_ = os.Remove(claim)
+	}
+}
+
+// Review round 4, N3: with the run history incomplete, no reservation is
+// taken as runless, and the loss is reported.
+func TestAnIncompleteRunHistoryRulesNothingOut(t *testing.T) {
+	root := t.TempDir()
+	s := Store{Root: root}
+	a := DelegatedReviewAttempt{SchemaVersion: 1, BundleID: "rvb-00000000000000c1", BundleDigest: "sha256:" + strings.Repeat("a", 64), Scope: "spec:alpha", Adapter: "fake", Ordinal: 1,
+		ReservedAt: time.Now().Add(-time.Hour).UTC().Format(time.RFC3339Nano), Nonce: strings.Repeat("3", 32)}
+	a.AttemptID = attemptIdentity(a)
+	rel, _ := filepath.Rel(root, reviewAttemptPath(root, a))
+	if err := publishLedgerJSON(root, filepath.ToSlash(rel), a); err != nil {
+		t.Fatal(err)
+	}
+	if err := os.MkdirAll(filepath.Join(root, reviewRunsDir), 0o755); err != nil {
+		t.Fatal(err)
+	}
+	if err := os.WriteFile(filepath.Join(root, reviewRunsDir, "rrn-0000000000000bad.json"), []byte("{broken"), 0o644); err != nil {
+		t.Fatal(err)
+	}
+	if _, runLost, err := s.ReadReviewRuns(""); err != nil || len(runLost) == 0 {
+		t.Skipf("the fixture does not make the run history incomplete: %v %v", runLost, err)
+	}
+	orphans, lost, err := s.orphanReservations(time.Now())
+	if err != nil || len(orphans) != 0 || !strings.Contains(strings.Join(lost, "\n"), "run history is incomplete") {
+		t.Fatalf("an incomplete history ruled a run out: %v %v %v", orphans, lost, err)
+	}
+	if _, err := s.ReleaseAbandonedAttempt(a.AttemptID, time.Now(), true); err == nil {
+		t.Fatal("a reservation was released over an incomplete run history")
 	}
 }

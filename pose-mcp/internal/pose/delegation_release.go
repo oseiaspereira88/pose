@@ -20,6 +20,7 @@ package pose
 // recorded the run completes it instead of recording another (N1).
 
 import (
+	"bytes"
 	"encoding/json"
 	"errors"
 	"fmt"
@@ -97,9 +98,20 @@ func claimAttemptRelease(claim string, now time.Time) error {
 	if liveness, detail := probeStartLockOwner(previous); liveness != LockOwnerDead {
 		return fmt.Errorf("%w: another release of it is in progress (%s)", ErrAttemptNotAbandoned, detail)
 	}
-	if err := PublishFile(claim, append(raw, '\n'), 0600, PublishAuthoritative, ExpectBytes(held, true)); err != nil {
+	// Taking over is a rename of the stale claim to a name of this process,
+	// which only one taker can win, then an exclusive publish: two takers
+	// never both enter the release (review round 4, N2).
+	stale := fmt.Sprintf("%s.stale.%d.%d", claim, os.Getpid(), now.UnixNano())
+	if err := os.Rename(claim, stale); err != nil {
 		return fmt.Errorf("%w: another release took over the claim %s", ErrAttemptNotAbandoned, claim)
 	}
+	if after, err := os.ReadFile(stale); err != nil || !bytes.Equal(after, held) {
+		return fmt.Errorf("%w: the claim %s changed while it was taken over", ErrAttemptNotAbandoned, claim)
+	}
+	if err := publish(); err != nil {
+		return fmt.Errorf("%w: another release took over the claim %s", ErrAttemptNotAbandoned, claim)
+	}
+	_ = os.Remove(stale)
 	return nil
 }
 
@@ -174,9 +186,14 @@ func (s Store) releaseAbandonedAttemptClaimed(attemptID string, marker *Delegati
 // recordedAbandonmentRun finds the failed run an interrupted release of a
 // recorded for it.
 func (s Store) recordedAbandonmentRun(a DelegatedReviewAttempt) (ReviewRun, bool, error) {
-	runs, _, err := s.ReadReviewRuns(a.BundleID)
+	runs, lost, err := s.ReadReviewRuns(a.BundleID)
 	if err != nil {
 		return ReviewRun{}, false, err
+	}
+	if len(lost) > 0 {
+		// An unreadable run may be this release's: the history is unknown,
+		// and the release does not write another (review round 4, N3).
+		return ReviewRun{}, false, fmt.Errorf("the run history of %s is incomplete, so an earlier release cannot be ruled out: %s", a.BundleID, strings.Join(lost, "; "))
 	}
 	for _, r := range runs {
 		if r.AttemptID == a.AttemptID && r.Status == ReviewRunFailed && strings.HasPrefix(r.Failure, DelegationAbandonedCause) {
@@ -206,12 +223,21 @@ func (s Store) orphanReservations(now time.Time) ([]DelegatedReviewAttempt, []st
 	for _, m := range markers {
 		marked[m.AttemptID] = true
 	}
-	runs, _, err := s.ReadReviewRuns("")
+	runs, runLost, err := s.ReadReviewRuns("")
 	if err != nil {
 		return nil, nil, err
 	}
+	if len(runLost) > 0 {
+		// Without the whole run history nothing is known to have no run.
+		return nil, append([]string{"abandoned reservations cannot be determined while the run history is incomplete"}, runLost...), nil
+	}
 	ran := map[string]bool{}
 	for _, r := range runs {
+		// The run an interrupted release recorded leaves the reservation
+		// abandoned until its receipt is written (review round 4, N1).
+		if r.Status == ReviewRunFailed && strings.HasPrefix(r.Failure, DelegationAbandonedCause) {
+			continue
+		}
 		ran[r.AttemptID] = true
 	}
 	var out []DelegatedReviewAttempt
