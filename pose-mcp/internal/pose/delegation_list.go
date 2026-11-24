@@ -189,15 +189,16 @@ func (s Store) ListDelegationAttempts() ([]DelegationAttempt, []string, error) {
 	}
 	// A reservation an earlier engine left without a marker or a run is
 	// listed too, so it can be named and released (review round 2, N1).
-	if orphans, err := s.orphanReservations(time.Now()); err != nil {
+	if orphans, orphanLost, err := s.orphanReservations(time.Now()); err != nil {
 		lost = append(lost, "abandoned reservations could not be read: "+err.Error())
 	} else {
+		lost = append(lost, orphanLost...)
 		for _, a := range orphans {
 			if _, ok := byAttempt[a.AttemptID]; ok {
 				continue
 			}
 			byAttempt[a.AttemptID] = &DelegationAttempt{AttemptID: a.AttemptID, Runs: []string{}, StartedAt: a.ReservedAt, Purpose: DelegationPurposeReview, Access: DelegationAccessRead, Agent: a.Adapter, Scope: a.Scope, BundleID: a.BundleID,
-				State: DelegationStalled, StalledAt: a.ReservedAt, Failure: DelegationAbandonedCause + "; release it with `pose delegate cancel " + a.AttemptID + "`"}
+				State: DelegationStalled, StalledAt: a.ReservedAt, Failure: "no owner record: an earlier engine reserved it without a marker, so nothing proves its dispatch ended; if none is running, release it with `pose delegate cancel " + a.AttemptID + " --confirm-abandoned`"}
 			order = append(order, a.AttemptID)
 		}
 	}

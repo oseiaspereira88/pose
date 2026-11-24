@@ -9,15 +9,18 @@ package pose
 // a failed run naming the abandonment and its receipt. Nothing is deleted
 // from the ledger.
 //
-// Proof of abandonment: a marker that is stalled with its owner proven dead;
-// or, for a reservation an earlier engine left without any marker (it
-// reserved before marking), no marker, no receipt, no run of the attempt and
-// a reservation older than reviewOrphanReservationAge, far beyond the
-// instant an earlier engine took between reserving and marking (review
-// round 2, N1). One release runs at a time per attempt: a claim published
-// exclusively guards it (N3).
+// Proof of abandonment: a marker that is stalled with its owner proven dead.
+// A reservation an earlier engine left without any marker (it reserved
+// before marking) records no owner, so nothing proves it abandoned: it is
+// listed once it is older than reviewOrphanReservationAge and has no
+// receipt or run, and released only on the operator's explicit confirmation,
+// which the recorded run states (review round 3, N2). One release runs at a
+// time per attempt under an exclusive claim that records its owner; a claim
+// whose owner is gone is taken over, and a release interrupted after it
+// recorded the run completes it instead of recording another (N1).
 
 import (
+	"encoding/json"
 	"errors"
 	"fmt"
 	"os"
@@ -38,7 +41,7 @@ const reviewOrphanReservationAge = 10 * time.Minute
 // dispatch ended before recording it, and removes its stalled marker. A
 // stalled marker whose reservation was never published is only removed; the
 // returned run is then empty.
-func (s Store) ReleaseAbandonedAttempt(attemptID string, now time.Time) (ReviewRun, error) {
+func (s Store) ReleaseAbandonedAttempt(attemptID string, now time.Time, operatorConfirmed bool) (ReviewRun, error) {
 	if !validAttemptFileName(attemptID) {
 		return ReviewRun{}, fmt.Errorf("%w: %q names no attempt", ErrAttemptNotAbandoned, attemptID)
 	}
@@ -60,17 +63,47 @@ func (s Store) ReleaseAbandonedAttempt(attemptID string, now time.Time) (ReviewR
 		return ReviewRun{}, err
 	}
 	claim := filepath.Join(dir, attemptID+".release")
-	if err := PublishFile(claim, []byte(now.UTC().Format(time.RFC3339Nano)+"\n"), 0600, PublishAuthoritative, PublishExpectation{Mode: ExpectAbsent}); err != nil {
-		return ReviewRun{}, fmt.Errorf("%w: another release of it is in progress or was interrupted (%s)", ErrAttemptNotAbandoned, claim)
+	if err := claimAttemptRelease(claim, now); err != nil {
+		return ReviewRun{}, err
 	}
-	run, err := s.releaseAbandonedAttemptClaimed(attemptID, marker, now)
+	run, err := s.releaseAbandonedAttemptClaimed(attemptID, marker, now, operatorConfirmed)
 	if rerr := os.Remove(claim); rerr != nil && !errors.Is(rerr, os.ErrNotExist) && err == nil {
 		err = rerr
 	}
 	return run, err
 }
 
-func (s Store) releaseAbandonedAttemptClaimed(attemptID string, marker *DelegationActiveRun, now time.Time) (ReviewRun, error) {
+// claimAttemptRelease publishes the release claim with its owner. A claim
+// whose owner is proven gone is an interrupted release and is taken over.
+func claimAttemptRelease(claim string, now time.Time) error {
+	owner := StartLockOwner{SchemaVersion: StartLockOwnerSchemaVersion, Resource: "release:" + filepath.Base(claim), Operation: "pose delegate cancel", PID: os.Getpid(), AcquiredAt: now.UTC().Format(time.RFC3339Nano)}
+	owner.Host, _ = os.Hostname()
+	identifyStartLockProcess(&owner)
+	raw, _ := json.Marshal(owner)
+	publish := func() error {
+		return PublishFile(claim, append(raw, '\n'), 0600, PublishAuthoritative, PublishExpectation{Mode: ExpectAbsent})
+	}
+	if publish() == nil {
+		return nil
+	}
+	held, err := os.ReadFile(claim)
+	if err != nil {
+		return fmt.Errorf("%w: the release claim %s cannot be read: %v", ErrAttemptNotAbandoned, claim, err)
+	}
+	var previous StartLockOwner
+	if json.Unmarshal(held, &previous) != nil {
+		return fmt.Errorf("%w: the release claim %s is not one this engine reads", ErrAttemptNotAbandoned, claim)
+	}
+	if liveness, detail := probeStartLockOwner(previous); liveness != LockOwnerDead {
+		return fmt.Errorf("%w: another release of it is in progress (%s)", ErrAttemptNotAbandoned, detail)
+	}
+	if err := PublishFile(claim, append(raw, '\n'), 0600, PublishAuthoritative, ExpectBytes(held, true)); err != nil {
+		return fmt.Errorf("%w: another release took over the claim %s", ErrAttemptNotAbandoned, claim)
+	}
+	return nil
+}
+
+func (s Store) releaseAbandonedAttemptClaimed(attemptID string, marker *DelegationActiveRun, now time.Time, operatorConfirmed bool) (ReviewRun, error) {
 	var reserved *DelegatedReviewAttempt
 	if marker != nil {
 		attempts, err := s.readDelegatedReviewAttempts(marker.BundleID)
@@ -88,7 +121,10 @@ func (s Store) releaseAbandonedAttemptClaimed(attemptID string, marker *Delegati
 			return ReviewRun{}, s.removeDelegationMarker(*marker)
 		}
 	} else {
-		orphans, err := s.orphanReservations(now)
+		if !operatorConfirmed {
+			return ReviewRun{}, fmt.Errorf("%w: it has no marker, so nothing proves its dispatch ended; if no dispatch of it is running, confirm with --confirm-abandoned", ErrAttemptNotAbandoned)
+		}
+		orphans, _, err := s.orphanReservations(now)
 		if err != nil {
 			return ReviewRun{}, err
 		}
@@ -114,11 +150,17 @@ func (s Store) releaseAbandonedAttemptClaimed(attemptID string, marker *Delegati
 		run.Kind, run.Purpose, run.Label, run.Round, run.StartedAt = DelegationKindForPurpose(marker.Purpose), marker.Purpose, marker.Label, marker.Round, marker.StartedAt
 		run.Failure = DelegationAbandonedCause + " (stalled at " + marker.StalledAt + "); released by pose delegate cancel"
 	} else {
-		run.Failure = DelegationAbandonedCause + " (reservation of " + reserved.ReservedAt + " with no marker, left by an earlier engine); released by pose delegate cancel"
+		run.Failure = DelegationAbandonedCause + " (reservation of " + reserved.ReservedAt + " with no marker, left by an earlier engine); released by pose delegate cancel on the operator's confirmation"
 	}
-	recorded, err := s.recordReviewRun(run, nil)
+	// A release interrupted after recording the run completes with that run.
+	recorded, found, err := s.recordedAbandonmentRun(*reserved)
 	if err != nil {
 		return ReviewRun{}, err
+	}
+	if !found {
+		if recorded, err = s.recordReviewRun(run, nil); err != nil {
+			return ReviewRun{}, err
+		}
 	}
 	if err := s.finishDelegatedReviewAttempt(*reserved, recorded); err != nil {
 		return recorded, err
@@ -129,20 +171,36 @@ func (s Store) releaseAbandonedAttemptClaimed(attemptID string, marker *Delegati
 	return recorded, nil
 }
 
+// recordedAbandonmentRun finds the failed run an interrupted release of a
+// recorded for it.
+func (s Store) recordedAbandonmentRun(a DelegatedReviewAttempt) (ReviewRun, bool, error) {
+	runs, _, err := s.ReadReviewRuns(a.BundleID)
+	if err != nil {
+		return ReviewRun{}, false, err
+	}
+	for _, r := range runs {
+		if r.AttemptID == a.AttemptID && r.Status == ReviewRunFailed && strings.HasPrefix(r.Failure, DelegationAbandonedCause) {
+			return r, true, nil
+		}
+	}
+	return ReviewRun{}, false, nil
+}
+
 // orphanReservations lists the reservations an earlier engine left without
-// a receipt, a marker or a run, older than reviewOrphanReservationAge.
-func (s Store) orphanReservations(now time.Time) ([]DelegatedReviewAttempt, error) {
+// a receipt, a marker or a run, older than reviewOrphanReservationAge, and
+// says which reservations or receipts it could not read (review round 3, N3).
+func (s Store) orphanReservations(now time.Time) ([]DelegatedReviewAttempt, []string, error) {
 	base := filepath.Join(s.Root, reviewAttemptDir)
 	dirs, err := os.ReadDir(base)
 	if errors.Is(err, os.ErrNotExist) {
-		return nil, nil
+		return nil, nil, nil
 	}
 	if err != nil {
-		return nil, err
+		return nil, nil, err
 	}
 	markers, _, err := s.ListDelegationActive()
 	if err != nil {
-		return nil, err
+		return nil, nil, err
 	}
 	marked := map[string]bool{}
 	for _, m := range markers {
@@ -150,13 +208,14 @@ func (s Store) orphanReservations(now time.Time) ([]DelegatedReviewAttempt, erro
 	}
 	runs, _, err := s.ReadReviewRuns("")
 	if err != nil {
-		return nil, err
+		return nil, nil, err
 	}
 	ran := map[string]bool{}
 	for _, r := range runs {
 		ran[r.AttemptID] = true
 	}
 	var out []DelegatedReviewAttempt
+	var lost []string
 	budget := reviewReadBudget(nil)
 	for _, d := range dirs {
 		if !d.IsDir() {
@@ -164,20 +223,29 @@ func (s Store) orphanReservations(now time.Time) ([]DelegatedReviewAttempt, erro
 		}
 		entries, err := os.ReadDir(filepath.Join(base, d.Name()))
 		if err != nil {
-			return nil, err
+			lost = append(lost, "the reservations in "+d.Name()+" could not be listed: "+err.Error())
+			continue
 		}
 		for _, e := range entries {
 			if IsPublisherStaging(e.Name()) || !strings.HasSuffix(e.Name(), ".json") || strings.HasSuffix(e.Name(), ".result.json") {
 				continue
 			}
 			var a DelegatedReviewAttempt
-			if err := readLedgerJSONBudgetIn(s.fsys(), filepath.Join(base, d.Name(), e.Name()), &a, budget); err != nil || a.AttemptID != attemptIdentity(a) {
+			if err := readLedgerJSONBudgetIn(s.fsys(), filepath.Join(base, d.Name(), e.Name()), &a, budget); err != nil {
+				lost = append(lost, "the reservation "+d.Name()+"/"+e.Name()+" could not be read: "+err.Error())
+				continue
+			}
+			if a.AttemptID != attemptIdentity(a) {
+				lost = append(lost, "the reservation "+d.Name()+"/"+e.Name()+" does not match its identity")
 				continue
 			}
 			if marked[a.AttemptID] || ran[a.AttemptID] {
 				continue
 			}
-			if _, err := os.Lstat(attemptReceiptPath(s.Root, a)); !errors.Is(err, os.ErrNotExist) {
+			if _, err := os.Lstat(attemptReceiptPath(s.Root, a)); err == nil {
+				continue
+			} else if !errors.Is(err, os.ErrNotExist) {
+				lost = append(lost, "the receipt of "+a.AttemptID+" could not be inspected: "+err.Error())
 				continue
 			}
 			at, err := time.Parse(time.RFC3339Nano, a.ReservedAt)
@@ -187,7 +255,7 @@ func (s Store) orphanReservations(now time.Time) ([]DelegatedReviewAttempt, erro
 			out = append(out, a)
 		}
 	}
-	return out, nil
+	return out, lost, nil
 }
 
 func (s Store) removeDelegationMarker(marker DelegationActiveRun) error {

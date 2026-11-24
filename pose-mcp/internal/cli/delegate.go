@@ -63,7 +63,7 @@ type delegateFlags struct {
 	request                                      string
 	to, cd, effort, promptFile, session          string
 	addDirs                                      []string
-	noNetwork, record                            bool
+	noNetwork, record, confirmAbandoned          bool
 	dryRun, jsonOut, active, wait, detach        bool
 	verbose, noFollow                            bool
 	lines                                        int
@@ -91,7 +91,7 @@ func parseDelegateFlags(args []string, extra ...string) (delegateFlags, string) 
 			return f, tr("unknown or inapplicable flag "+name, "flag desconhecida ou inaplicável "+name)
 		}
 		switch name {
-		case "--dry-run", "--json", "--active", "--detach", "-v", "--no-follow", "--no-network", "--record":
+		case "--dry-run", "--json", "--active", "--detach", "-v", "--no-follow", "--no-network", "--record", "--confirm-abandoned":
 			if hasInline {
 				return f, tr(name+" takes no value", name+" não recebe valor")
 			}
@@ -108,6 +108,8 @@ func parseDelegateFlags(args []string, extra ...string) (delegateFlags, string) 
 				f.noNetwork = true
 			case "--record":
 				f.record = true
+			case "--confirm-abandoned":
+				f.confirmAbandoned = true
 			case "--no-follow":
 				f.noFollow = true
 			default:
@@ -1108,9 +1110,9 @@ func cmdDelegateResume(root string, args []string, stdout, stderr io.Writer) int
 }
 
 func cmdDelegateCancel(root string, args []string, stdout, stderr io.Writer) int {
-	f, problem := parseDelegateFlags(args)
+	f, problem := parseDelegateFlags(args, "--confirm-abandoned")
 	if problem != "" {
-		return delegateUsage(stdout, stderr, args, "cancel", problem+"\n"+tr("Usage: ", "Uso: ")+"pose delegate cancel <run> [--dry-run] [--json]")
+		return delegateUsage(stdout, stderr, args, "cancel", problem+"\n"+tr("Usage: ", "Uso: ")+"pose delegate cancel <run> [--confirm-abandoned] [--dry-run] [--json]")
 	}
 	store := posemodel.Store{Root: root}
 	attempts, lost, err := store.ListDelegationAttempts()
@@ -1125,7 +1127,7 @@ func cmdDelegateCancel(root string, args []string, stdout, stderr io.Writer) int
 		// An attempt whose dispatch ended before recording its run is
 		// released with a failed run and its receipt, so it stops blocking
 		// the bundle (spec pose-review-run-reaps-lingering-reviewer-processes R5).
-		run, err := store.ReleaseAbandonedAttempt(attempt.AttemptID, time.Now())
+		run, err := store.ReleaseAbandonedAttempt(attempt.AttemptID, time.Now(), f.confirmAbandoned)
 		if err != nil {
 			return delegateFail(stdout, stderr, f.jsonOut, "cancel", 1, err)
 		}
