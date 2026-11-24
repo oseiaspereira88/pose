@@ -3,8 +3,12 @@
 package pose
 
 import (
+	"os"
 	"os/exec"
+	"path/filepath"
+	"strconv"
 	"strings"
+	"syscall"
 	"testing"
 	"time"
 )
@@ -86,5 +90,31 @@ func TestANonInspectableProcessStartedDuringTheRunFailsTheScan(t *testing.T) {
 	during := opaqueProcess(t)
 	if _, _, err := reapSealedCheckoutProcesses("/nonexistent/run-checkout", baseline); err == nil || !strings.Contains(err.Error(), "started during the run") {
 		t.Fatalf("process %d, started during the run, did not fail the scan: %v", during.Process.Pid, err)
+	}
+}
+
+// Review round 6, N2: a descendant that leaves the group, starts its own
+// session and clears its environment is still ended with the run.
+func TestAnOrphanThatClearedItsEnvironmentIsEnded(t *testing.T) {
+	if _, err := exec.LookPath("setsid"); err != nil {
+		t.Skip("setsid is not available")
+	}
+	pidFile := filepath.Join(t.TempDir(), "orphan.pid")
+	f := provenanceRunFixture(t, "fixture-vendor", "fixture-model", func(a *ReviewerAdapter) {
+		a.Containment = containmentPolicy()
+		a.Command = []string{"sh", "-c", `cat >/dev/null; setsid env -i /bin/sh -c 'echo $$ > "$1"; while :; do sleep 0.05; done' sh "$1" </dev/null >/dev/null 2>&1 & ` +
+			`i=0; while [ ! -s "$1" ] && [ $i -lt 100 ]; do sleep 0.05; i=$((i+1)); done; printf 'decision: approved\n'`, "sh", pidFile}
+	})
+	raw, err := os.ReadFile(pidFile)
+	if err != nil {
+		t.Fatalf("the orphan never started: %v", err)
+	}
+	pid, _ := strconv.Atoi(strings.TrimSpace(string(raw)))
+	t.Cleanup(func() { _ = syscall.Kill(pid, syscall.SIGKILL) })
+	if zombie, err := reviewProcessZombie(pid); err == nil && !zombie {
+		t.Fatalf("the orphan that cleared its environment survived the run (status %s: %s)", f.run.Status, f.run.Failure)
+	}
+	if f.run.Status != ReviewRunCompleted || !strings.Contains(strings.Join(f.run.Safety.Limitations, "\n"), "(orphaned)") {
+		t.Fatalf("the run did not complete naming the orphan: %s %s %v", f.run.Status, f.run.Failure, f.run.Safety.Limitations)
 	}
 }

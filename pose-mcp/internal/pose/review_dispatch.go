@@ -1022,6 +1022,10 @@ func (s Store) RunReviewDispatchContext(parent context.Context, plan DispatchPla
 	// is killed on timeout and after the run, and pipes are released at most
 	// a few seconds after the kill.
 	opaqueBaseline := reviewOpaqueProcessBaseline()
+	// Orphans of the run are reparented to this process, so one that left
+	// the group and cleared its environment is still found (review round 6, N2).
+	subreaper := enableReviewSubreaper() == nil
+	adapterSince, _ := reviewClockTicks()
 	isolateProcessGroup(cmd)
 	cmd.WaitDelay = AdapterPipeGrace
 	var runErr error
@@ -1044,10 +1048,17 @@ func (s Store) RunReviewDispatchContext(parent context.Context, plan DispatchPla
 	if reapErr != nil {
 		terminationErr = errors.Join(terminationErr, reapErr)
 	}
+	if subreaper && reapErr == nil {
+		orphans, orphanErr := reapOrphanedEscapees([]byte(SealedCheckoutEnv+"="+worktree), adapterSince)
+		reaped = append(reaped, orphans...)
+		if orphanErr != nil {
+			terminationErr = errors.Join(terminationErr, orphanErr)
+		}
+	}
 	if len(reaped) > 0 && safety != nil {
 		safety.Limitations = append(safety.Limitations, "ended "+fmt.Sprint(len(reaped))+" process(es) the run left running: "+strings.Join(reaped, ", "))
 	}
-	if opaque > 0 && safety != nil {
+	if opaque > 0 && reapErr == nil && safety != nil {
 		safety.Limitations = append(safety.Limitations, fmt.Sprint(opaque)+" process(es) of this user that existed before the run could not be inspected for its environment entry")
 	}
 	terminationFailed = terminationErr != nil

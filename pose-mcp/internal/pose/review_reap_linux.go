@@ -53,12 +53,12 @@ func reapSealedCheckoutProcesses(worktree string, baseline map[int]string) ([]st
 	for {
 		alive, opaque, err := reviewMarkedProcesses(entry)
 		if err != nil {
-			return reaped, len(opaque), err
+			return reaped, unreadable, err
 		}
 		unreadable = 0
 		for pid, start := range opaque {
 			if baseline[pid] != start {
-				return reaped, len(opaque), fmt.Errorf("process %d of this user started during the run and cannot be inspected; it may be the run's and was not ended", pid)
+				return reaped, unreadable, fmt.Errorf("process %d of this user started during the run and cannot be inspected; it may be the run's and was not ended", pid)
 			}
 			unreadable++
 		}

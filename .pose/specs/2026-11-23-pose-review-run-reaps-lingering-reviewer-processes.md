@@ -58,6 +58,7 @@ Records written by earlier engines keep their meaning.
 - created: pose-mcp/internal/pose/review_reap_linux.go
 - created: pose-mcp/internal/pose/review_reap_other.go
 - created: pose-mcp/internal/pose/review_reap_linux_test.go
+- created: pose-mcp/internal/pose/review_subreaper_linux.go
 - modified: pose-mcp/internal/pose/delegation_list.go
 - created: pose-mcp/internal/pose/delegation_release.go
 - created: pose-mcp/internal/pose/delegation_release_test.go
@@ -134,6 +135,7 @@ Each requirement gets a regression test shown failing before its code.
 - 2026-11-24: review round 3 (rrn-667b69e8c01c345c) requested changes. N1: the release claim records its owner; a claim whose owner is gone is taken over, and a release interrupted after recording its run completes with that run instead of recording another. N2: age proves nothing about a markerless reservation, so it is released only with `--confirm-abandoned`, the operator's assertion that no dispatch of it runs, which the recorded run states. N3: reservations and receipts that cannot be read are reported as losses by `delegate ls`. Each fix has a test that fails with it mutated out.
 - 2026-11-24: review round 4 (rrn-97acfcc2809e32c2) requested changes. N1: `pose delegate cancel` now asks the release for every attempt that is not running, so a release interrupted after recording its run is completed even when the attempt already shows that run; an abandonment run no longer counts as the attempt's run when looking for orphans. N2: a stale claim is taken over by renaming it, which only one taker wins, then an exclusive publish. N3: with the run history incomplete, the release refuses to rule a run out and the listing reports why. Each fix has a test that fails with it mutated out.
 - 2026-11-24: review round 5 (rrn-146bc70da7364cde) requested changes. N1: the published claim and its takeover protocol are replaced by an operating-system lock (`flock`) on a per-attempt lock file, which the kernel releases when its holder ends, so there is nothing to take over and no window between two takers. N2: a release that finds the receipt already published and the marker still stalled completes by removing the marker. N3: the release completes with any run the attempt already recorded (by its dispatch or by an earlier release), never writing a second one. Each fix has a test that fails with it mutated out.
+- 2026-11-24: review round 6 (rrn-adf91bb46841bd66) requested changes. N1: an unreadable active marker may be a live attempt's, so no reservation is then taken as markerless. N2: a descendant that leaves the group, starts its own session and clears its environment is now ended too on Linux: the dispatcher makes itself a child subreaper, and after the adapter exits it ends every child reparented to it in another session, started after the adapter, that does not name another run's checkout, pinning each by pidfd and reaping it. N3: the disclosed count holds only processes that predate the run. Each fix has a test that fails with it mutated out.
 
 
 ### Results summary
@@ -141,12 +143,12 @@ The full `pose-mcp` suite passes; the canonical result is refreshed with `pose v
 
 
 ### Requirement trace
-- R1 [satisfied] test:TestDispatchEndsWhatTheReviewerLeftRunning, test:TestAPidThatLostTheRunsEntryIsNotKilled, test:TestANonInspectableProcessStartedDuringTheRunFailsTheScan
+- R1 [satisfied] test:TestDispatchEndsWhatTheReviewerLeftRunning, test:TestAnOrphanThatClearedItsEnvironmentIsEnded, test:TestAPidThatLostTheRunsEntryIsNotKilled, test:TestANonInspectableProcessStartedDuringTheRunFailsTheScan
 - R2 [satisfied] test:TestDispatchEndsWhatTheReviewerLeftRunning
 - R3 [satisfied] test:TestTheCurrentBriefAsksCommandsToFinish
 - R4 [satisfied] test:TestDispatchEndsWhatTheReviewerLeftRunning
 - R5 [satisfied] test:TestAnAbandonedAttemptIsReleasedWithARecord, test:TestTheAttemptIsMarkedActiveBeforeItIsReserved, test:TestAStalledMarkerWithoutReservationIsListedAndRemoved
-- R6 [satisfied] test:TestAnInterruptedDispatchIsReleasedAndTheNextOneRuns, test:TestAMarkerlessReservationOfAnEarlierEngineIsReleased, test:TestOneReleaseRunsAtATime, test:TestARecordedRunCompletesItsAttempt, test:TestAnInterruptedReleaseCompletesWithItsRun, test:TestAnUnreadableReservationIsReportedAsALoss, test:TestAnIncompleteRunHistoryRulesNothingOut
+- R6 [satisfied] test:TestAnInterruptedDispatchIsReleasedAndTheNextOneRuns, test:TestAMarkerlessReservationOfAnEarlierEngineIsReleased, test:TestOneReleaseRunsAtATime, test:TestARecordedRunCompletesItsAttempt, test:TestAnInterruptedReleaseCompletesWithItsRun, test:TestAnUnreadableReservationIsReportedAsALoss, test:TestAnIncompleteRunHistoryRulesNothingOut, test:TestAnUnreadableMarkerRulesNothingOut
 
 
 ### Known gaps
@@ -168,7 +170,7 @@ The dispatch ends the processes a run left running before its cleanup and names 
 
 
 ### Residual risks
-L1: a process that clears its environment is not found; the cleanup inventory still fails that run. L2: outside Linux only the process-group kill applies. L4: a reservation an earlier engine left without a marker records no owner, so its release rests on the operator's confirmation, not on proof. L3: a process of this user that made itself non-inspectable cannot be matched: one that predates the run is skipped and counted in the run record, and one started during the run fails the cleanup, so such a run is not concludable.
+L1: on Linux a run's process escapes only while it keeps a live parent outside the run and neither the run's group nor its environment entry, for example one handed to a service manager; the cleanup inventory still fails a run whose files it keeps changing. L5: the subreaper is process-wide, so in a long-running server a process that other code daemonizes during a run (git's automatic gc) is ended with the run's orphans. L2: outside Linux only the process-group kill applies. L4: a reservation an earlier engine left without a marker records no owner, so its release rests on the operator's confirmation, not on proof. L3: a process of this user that made itself non-inspectable cannot be matched: one that predates the run is skipped and counted in the run record, and one started during the run fails the cleanup, so such a run is not concludable.
 
 
 ### Follow-ups

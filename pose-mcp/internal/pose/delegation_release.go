@@ -194,9 +194,14 @@ func (s Store) orphanReservations(now time.Time) ([]DelegatedReviewAttempt, []st
 	if err != nil {
 		return nil, nil, err
 	}
-	markers, _, err := s.ListDelegationActive()
+	markers, markerLost, err := s.ListDelegationActive()
 	if err != nil {
 		return nil, nil, err
+	}
+	if len(markerLost) > 0 {
+		// An unreadable marker may be a live attempt's: nothing is known to
+		// have no marker (review round 6, N1).
+		return nil, append([]string{"abandoned reservations cannot be determined while an active marker is unreadable"}, markerLost...), nil
 	}
 	marked := map[string]bool{}
 	for _, m := range markers {

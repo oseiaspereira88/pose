@@ -457,3 +457,28 @@ func TestARecordedRunCompletesItsAttempt(t *testing.T) {
 		t.Fatal("the stalled marker stayed after the receipt")
 	}
 }
+
+// Review round 6, N1: an unreadable active marker may be a live attempt's,
+// so no reservation is taken as markerless.
+func TestAnUnreadableMarkerRulesNothingOut(t *testing.T) {
+	root := t.TempDir()
+	s := Store{Root: root}
+	a := DelegatedReviewAttempt{SchemaVersion: 1, BundleID: "rvb-00000000000000d1", BundleDigest: "sha256:" + strings.Repeat("a", 64), Scope: "spec:alpha", Adapter: "fake", Ordinal: 1,
+		ReservedAt: time.Now().Add(-time.Hour).UTC().Format(time.RFC3339Nano), Nonce: strings.Repeat("4", 32)}
+	a.AttemptID = attemptIdentity(a)
+	rel, _ := filepath.Rel(root, reviewAttemptPath(root, a))
+	if err := publishLedgerJSON(root, filepath.ToSlash(rel), a); err != nil {
+		t.Fatal(err)
+	}
+	dir, _ := s.delegationActiveDir(true)
+	if err := os.WriteFile(filepath.Join(dir, a.AttemptID+".json"), []byte("{damaged"), 0o600); err != nil {
+		t.Fatal(err)
+	}
+	orphans, lost, err := s.orphanReservations(time.Now())
+	if err != nil || len(orphans) != 0 || !strings.Contains(strings.Join(lost, "\n"), "active marker is unreadable") {
+		t.Fatalf("an unreadable marker let a reservation pass as markerless: %v %v %v", orphans, lost, err)
+	}
+	if _, err := s.ReleaseAbandonedAttempt(a.AttemptID, time.Now(), true); err == nil {
+		t.Fatal("a reservation with an unreadable marker was released")
+	}
+}
