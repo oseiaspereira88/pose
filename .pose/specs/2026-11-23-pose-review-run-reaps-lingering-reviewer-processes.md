@@ -21,7 +21,7 @@ delivers:            # optional typed refs: surface:id, contract:id, capability:
 Keep a delegated review run concludable when the reviewer ends while a process it started is still running, by terminating and reaping the run's remaining processes before the cleanup inventory.
 
 ### Business value
-Round 2 of `pose-review-readiness-before-seal` (rrn-9d5816c780952f13) produced a complete draft with two valid findings, but its cleanup was `runtime cleanup inventory incomplete; resources retained` because a broad `go test` the reviewer started was still running. The run could not be concluded and its findings had to be carried by hand.
+Round 2 of `pose-review-readiness-before-seal` (rrn-9d5816c780952f13) produced a complete draft with two valid findings, but its cleanup was `runtime cleanup inventory incomplete; resources retained` because a broad `go test` the reviewer started was still running. The run could not be concluded and its findings had to be carried by hand. On 2026-11-24 a dispatch stopped during setup left reservation `000002.json` of attempt `rat-cfa14ceb…` with no run: every later dispatch failed with `attempt … incomplete or unreadable`, and `pose delegate cancel` refused it as `stalled, not running`; the reservation had to be moved out of the repository by hand.
 
 ### Constraints
 Cleanup keeps proving that the sealed checkout is unchanged and that no owned resource survives; only the order changes. A run whose resources truly cannot be reclaimed stays unconcludable.
@@ -36,6 +36,8 @@ Changing review independence, round accounting or the attestation preflight.
 - R2: A run whose leftover processes were terminated and reaped, and whose inventory then completes, shall be concludable; the run record shall say which processes were terminated.
 - R3: The review brief shall ask the reviewer to let every command it starts finish before ending.
 - R4: A regression test shall dispatch an adapter that leaves a background process running and conclude the run.
+- R5: An attempt reservation whose dispatch was interrupted before its run was recorded shall not block later dispatches: `pose delegate ls` shall show it as abandoned with its cause, and `pose delegate cancel` (or the next dispatch) shall release it with a record, never by deleting the reservation.
+- R6: A regression test shall interrupt a dispatch between the reservation and the run record and dispatch again.
 
 ### Non-functional
 Existing behaviour outside the stated requirements is unchanged.
