@@ -1,0 +1,236 @@
+{
+  "run": {
+    "run_id": "rrn-2c9fa8ac47c2fbab",
+    "proof_id": "rrp-c74d11c03942a20cda17063eefacf4e364892e3c35be84df8e72236811a0b9f0"
+  },
+  "schema_version": 1,
+  "attestation_id": "rva-10dd57a60cb87407",
+  "bundle_id": "rvb-2a820a7a2fc91123",
+  "bundle_digest": "sha256:2a820a7a2fc911230433bf87f944234a13441dd473cae8ab93bb0b3ff8946a4d",
+  "reviewer": "agent:openai/gpt-6-luna",
+  "decision": "changes-requested",
+  "criteria": [
+    {
+      "id": "assumption-integrity",
+      "disposition": "finding",
+      "evidence": "N2",
+      "rationale": "The exact checkout environment marker and pidfd handling are verified. L1/L2 are disclosed limits; L3 leaves an unresolved assumption that an unreadable same-user process is unrelated, although it could be a reviewer child and the run can still conclude."
+    },
+    {
+      "id": "backend-concurrency",
+      "disposition": "finding",
+      "evidence": "N3"
+    },
+    {
+      "id": "backend-contracts",
+      "disposition": "finding",
+      "evidence": "N1"
+    },
+    {
+      "id": "backend-input-errors",
+      "disposition": "finding",
+      "evidence": "N5"
+    },
+    {
+      "id": "backend-integration-impact",
+      "disposition": "passed",
+      "evidence": "integration:pose-mcp/go/delegation-surface-integration"
+    },
+    {
+      "id": "backend-observability",
+      "disposition": "passed",
+      "evidence": "unit:pose-mcp/go/test",
+      "rationale": "The run record reports ended PIDs and the number of same-user processes whose environments could not be inspected."
+    },
+    {
+      "id": "compatibility",
+      "disposition": "finding",
+      "evidence": "N1",
+      "rationale": "The new record format remains compatible, but an incomplete reservation left without a marker by the previous ordering remains blocked and cannot be discovered or released by the new CLI path."
+    },
+    {
+      "id": "correctness",
+      "disposition": "finding",
+      "evidence": "N2"
+    },
+    {
+      "id": "design-causality",
+      "disposition": "finding",
+      "evidence": "N2",
+      "rationale": "D1 addresses children that escape the adapter group by matching the run checkout and pinning the signal target; D2 records a failed run and receipt only after the marker proves its owner dead. L3 remains capable of bypassing cleanup. The design assessment found no structural deltas, so there are no mappings."
+    },
+    {
+      "id": "documentation",
+      "disposition": "passed",
+      "evidence": "integration:pose-mcp/go/distributed-instructions-parity-integration",
+      "rationale": "I checked the English and pt-BR manuals and scaffold copies: they state the Linux limit, describe the new lifecycle, and retain the prior template versions."
+    },
+    {
+      "id": "operability",
+      "disposition": "finding",
+      "evidence": "N1",
+      "rationale": "The new incomplete-receipt message directs users to find a stalled row with delegate ls, but that projection omits a legacy reservation with no marker."
+    },
+    {
+      "id": "requirements",
+      "disposition": "finding",
+      "evidence": "N4"
+    },
+    {
+      "id": "scope",
+      "disposition": "passed",
+      "evidence": "structure:design-8c0312d2812b4312",
+      "rationale": "The reviewed implementation, lifecycle records, brief and manuals fit the capability's approved areas; the structural assessment reports no deltas."
+    },
+    {
+      "id": "security",
+      "disposition": "finding",
+      "evidence": "N2"
+    },
+    {
+      "id": "solution-proportionality",
+      "disposition": "finding",
+      "evidence": "N2",
+      "rationale": "A per-run environment scan with pidfd signaling is a small sufficient addition because process-group cleanup misses own-session children; a generic supervisor is unnecessary. The choice is invalid when the scan cannot inspect a same-user process and still permits conclusion."
+    }
+  ],
+  "tools": [
+    {
+      "id": "artifact-check",
+      "disposition": "passed",
+      "evidence": "command:\"$POSE_REVIEW_CLI\" artifact-check --spec pose-review-run-reaps-lingering-reviewer-processes --strict",
+      "rationale": "Command exited 0; it emitted repository-wide provenance warnings."
+    },
+    {
+      "id": "assess-design",
+      "disposition": "passed",
+      "evidence": "structure:design-8c0312d2812b4312",
+      "rationale": "The JSON result had no structural deltas."
+    },
+    {
+      "id": "assess-discover",
+      "component": "pose-mcp",
+      "disposition": "passed",
+      "evidence": "command:\"$POSE_REVIEW_CLI\" assess discover --no-persist --component pose-mcp"
+    },
+    {
+      "id": "assess-integrate",
+      "disposition": "passed",
+      "evidence": "integration:pose-mcp/go/delegation-surface-integration",
+      "rationale": "The command ran; it reported three unobserved HTTP endpoint consumers outside the changed capability."
+    },
+    {
+      "id": "assess-tech-debt",
+      "disposition": "passed",
+      "evidence": "command:\"$POSE_REVIEW_CLI\" assess tech-debt --no-persist",
+      "rationale": "The scan ran but reported two unrelated specs with unknown scope."
+    },
+    {
+      "id": "closeout-check",
+      "disposition": "deferred",
+      "evidence": "command:\"$POSE_REVIEW_CLI\" closeout-check spec:pose-review-run-reaps-lingering-reviewer-processes",
+      "rationale": "This completion gate cannot pass before the review conclusion is recorded, and recording an attestation is outside this task."
+    },
+    {
+      "id": "review-check",
+      "disposition": "deferred",
+      "evidence": "command:\"$POSE_REVIEW_CLI\" review-check spec:pose-review-run-reaps-lingering-reviewer-processes",
+      "rationale": "This completion gate cannot pass before the review conclusion is recorded, and recording an attestation is outside this task."
+    },
+    {
+      "id": "suggest-review",
+      "component": "pose-mcp",
+      "disposition": "passed",
+      "evidence": "command:\"$POSE_REVIEW_CLI\" suggest review --path pose-mcp"
+    },
+    {
+      "id": "surface-check",
+      "disposition": "passed",
+      "evidence": "integration:pose-mcp/go/spec-surface-integration"
+    },
+    {
+      "id": "validate",
+      "disposition": "passed",
+      "evidence": "unit:pose-mcp/go/test",
+      "rationale": "The strict rerun was blocked because the read-only sandbox denied Go temporary/cache writes; sealed build, e2e, integration and unit evidence covers the subject."
+    },
+    {
+      "id": "validate",
+      "component": "pose-mcp",
+      "disposition": "passed",
+      "evidence": "build:pose-mcp/go/build",
+      "rationale": "The strict module rerun was blocked because the read-only sandbox denied Go temporary/cache writes; focused Go tests and vet passed, and sealed module evidence covers build and unit checks."
+    }
+  ],
+  "evidence_refs": [
+    "N1",
+    "N2",
+    "N3",
+    "N4",
+    "N5",
+    "delegated-run:rrn-2c9fa8ac47c2fbab",
+    "integration:pose-mcp/go/delegation-surface-integration",
+    "integration:pose-mcp/go/distributed-instructions-parity-integration",
+    "structure:design-8c0312d2812b4312",
+    "unit:pose-mcp/go/test"
+  ],
+  "findings": [
+    {
+      "id": "N1",
+      "severity": "high",
+      "evidence": "file:pose-mcp/internal/pose/delegation_list.go:79",
+      "action": "A markerless reservation left by the earlier reserve-before-marker protocol is invisible to ListDelegationAttempts, while reviewAttemptAdmission still rejects its missing receipt. The new ordering prevents new cases but leaves the existing orphan state unrecoverable, so delegate ls/cancel cannot release it and later dispatches remain blocked.",
+      "disposition": "open"
+    },
+    {
+      "id": "N2",
+      "severity": "high",
+      "evidence": "file:pose-mcp/internal/pose/review_dispatch.go:1052",
+      "action": "When a same-user process environment is unreadable, the reaper returns its count without an error; dispatch only adds a limitation and leaves terminationFailed false. A run-owned child may therefore survive while cleanup and conclusion proceed, contrary to R1 and the constraint that unreclaimable runs stay unconcludable.",
+      "disposition": "open"
+    },
+    {
+      "id": "N3",
+      "severity": "medium",
+      "evidence": "file:pose-mcp/internal/pose/delegation_release.go:56",
+      "action": "Release has no exclusive claim across the missing-receipt check, run write, and receipt write. Two concurrent cancels can both pass this check, write distinct failed runs, then race for the single receipt; the losing run remains recorded without a receipt and that cancel returns an error.",
+      "disposition": "open"
+    },
+    {
+      "id": "N4",
+      "severity": "medium",
+      "evidence": "file:pose-mcp/internal/pose/delegation_release_test.go:20",
+      "action": "The R5/R6 release test constructs a reservation and dead-owner marker directly, then calls Store.ReleaseAbandonedAttempt. It does not interrupt a real dispatch between reservation and run recording or attempt a later dispatch, so the required R6 regression is absent.",
+      "disposition": "open"
+    },
+    {
+      "id": "N5",
+      "severity": "low",
+      "evidence": "file:pose-mcp/internal/pose/delegation_release.go:56",
+      "action": "Every receipt Lstat error other than not-exist is reported as 'it already has a receipt', including permission or I/O errors. The cancel diagnostic can give a false cause and does not expose the actionable filesystem error.",
+      "disposition": "open"
+    }
+  ],
+  "authority": {
+    "schema_version": 1,
+    "project": "proj.pose-dist",
+    "bundle_digest": "sha256:2a820a7a2fc911230433bf87f944234a13441dd473cae8ab93bb0b3ff8946a4d",
+    "principal": "agent:openai/gpt-6-luna",
+    "role": "agent",
+    "review_execution": "rrn-2c9fa8ac47c2fbab",
+    "implementation_principal": "agent:anthropic/unknown",
+    "implementation_execution": "sha256:344ac5868944c155772d60a95ef6ff20644580a642e772ad5c92c29428464ff8",
+    "issuer": "b34-local-executor",
+    "issued_at": "2026-11-24T13:04:03Z",
+    "audience": "proj.pose-dist"
+  },
+  "envelope": {
+    "issuer": "b34-local-executor",
+    "subject": "rvb-2a820a7a2fc91123",
+    "algorithm": "ed25519",
+    "public_key": "ck4sApdfePV2GT+hJyAYfJd2qLzeG55P8pevGR0bvZE=",
+    "signature": "Q7ENa7G4J4yy0QSx+/CDookit+yey1TufBt9kcAbg7eL+0H+2cHWTfU+Rpw5mSK5+iwVtkPZ8CZqQsn2uVTYAw=="
+  },
+  "attested_at": "2026-11-24T13:04:03Z",
+  "path": ".pose/review-attestations/rva-10dd57a60cb87407.json"
+}
