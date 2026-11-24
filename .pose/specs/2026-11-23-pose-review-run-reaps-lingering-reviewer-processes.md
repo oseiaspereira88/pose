@@ -129,6 +129,7 @@ Each requirement gets a regression test shown failing before its code.
 - 2026-11-24: implemented R1–R6. Each has a test that fails with its fix mutated out: the dispatch ends a process the adapter left in a session of its own (the test's leftover keeps writing into the runtime directory), the release records the failed run and receipt and removes the marker and its stall claim, a live owner is never released, and `review-brief/10` asks commands to finish while `/9` stays unchanged.
 - 2026-11-24: the containment record disclosed escaped-descendant termination as `unavailable`, and a regression test pinned that limitation. On Linux it is now `environment-marked` (ended while the descendant keeps the run's sealed-checkout entry, never `available`, so a profile that requires the full guarantee is still refused), the limitation text says so, and the test now proves the escaped child is ended with the run.
 - 2026-11-24: review round 1 (rrn-c5c082703d83c834) requested changes. N1: the reservation was published before the active marker, so a dispatch ended in between left an attempt nothing could release; the dispatch now marks the attempt active first and publishes the reservation after, and a stalled marker without a reservation is removed by the release. When marking itself fails, the dispatch still publishes the reservation and records the failed run and its receipt, keeping the contract of `pose-delegation-result-before-marker`. N2: `delegate ls` now names the abandonment cause and the release command, in text and JSON. N3: each process is pinned by a pidfd and its environment read again through it before SIGKILL, so a reused pid is never signalled. N4: a scan that cannot list `/proc` or read a process state fails; a process of this user whose environment cannot be read is counted and disclosed in the run record rather than skipped (L3). N5: the manual says the reaping is Linux-only. Each fix has a test that fails with it mutated out (N4's disclosure is not reproducible in a test: it needs a non-inspectable process).
+- 2026-11-24: review round 2 (rrn-2c9fa8ac47c2fbab) requested changes. N1: a reservation an earlier engine left without any marker is now listed by `delegate ls` and released by `cancel` once it has no marker, receipt or run and is older than ten minutes (an earlier engine marked within moments of reserving). N2: a non-inspectable process of this user that did not exist before the adapter started may be the run's, so the scan fails and the run stays unconcludable; ones that predate the run are skipped and disclosed. N3: a release claims the attempt exclusively, so two cancels never record two runs. N4: `TestAnInterruptedDispatchIsReleasedAndTheNextOneRuns` interrupts a real dispatch after its reservation, sees the next dispatch refused with the release command, releases it and dispatches again. N5: a receipt that cannot be inspected is reported with its error. Each fix has a test that fails with it mutated out, except N5.
 
 
 ### Results summary
@@ -136,16 +137,16 @@ The full `pose-mcp` suite passes; the canonical result is refreshed with `pose v
 
 
 ### Requirement trace
-- R1 [satisfied] test:TestDispatchEndsWhatTheReviewerLeftRunning, test:TestAPidThatLostTheRunsEntryIsNotKilled
+- R1 [satisfied] test:TestDispatchEndsWhatTheReviewerLeftRunning, test:TestAPidThatLostTheRunsEntryIsNotKilled, test:TestANonInspectableProcessStartedDuringTheRunFailsTheScan
 - R2 [satisfied] test:TestDispatchEndsWhatTheReviewerLeftRunning
 - R3 [satisfied] test:TestTheCurrentBriefAsksCommandsToFinish
 - R4 [satisfied] test:TestDispatchEndsWhatTheReviewerLeftRunning
 - R5 [satisfied] test:TestAnAbandonedAttemptIsReleasedWithARecord, test:TestTheAttemptIsMarkedActiveBeforeItIsReserved, test:TestAStalledMarkerWithoutReservationIsListedAndRemoved
-- R6 [satisfied] test:TestAnAbandonedAttemptIsReleasedWithARecord
+- R6 [satisfied] test:TestAnInterruptedDispatchIsReleasedAndTheNextOneRuns, test:TestAMarkerlessReservationOfAnEarlierEngineIsReleased, test:TestAClaimedReleaseIsNotRunTwice
 
 
 ### Known gaps
-The release is exercised through the Store; the `pose delegate cancel` branch that calls it is not driven end to end, because producing a stalled marker through the CLI needs a dispatch process killed and three silent heartbeat intervals.
+The release is driven through the Store, including after a real interrupted dispatch; the thin `pose delegate cancel` branch that calls it is not driven through the CLI, because a stalled marker there needs a dispatch process killed and three silent heartbeat intervals. N5 (the receipt inspection error) has no test: making the receipt path uninspectable also makes the reservation unreadable first.
 
 
 ## 7. Final Report
@@ -163,7 +164,7 @@ The dispatch ends the processes a run left running before its cleanup and names 
 
 
 ### Residual risks
-L1: a process that clears its environment is not found; the cleanup inventory still fails that run. L2: outside Linux only the process-group kill applies. L3: a process of this user that made itself non-inspectable cannot be matched; the run record says how many there were.
+L1: a process that clears its environment is not found; the cleanup inventory still fails that run. L2: outside Linux only the process-group kill applies. L3: a process of this user that made itself non-inspectable cannot be matched: one that predates the run is skipped and counted in the run record, and one started during the run fails the cleanup, so such a run is not concludable.
 
 
 ### Follow-ups

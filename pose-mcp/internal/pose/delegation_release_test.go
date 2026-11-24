@@ -3,6 +3,7 @@
 package pose
 
 import (
+	"context"
 	"encoding/json"
 	"errors"
 	"os"
@@ -156,5 +157,125 @@ func TestAStalledMarkerWithoutReservationIsListedAndRemoved(t *testing.T) {
 	}
 	if left, _ := filepath.Glob(filepath.Join(dir, marker.AttemptID+"*")); len(left) != 0 {
 		t.Fatalf("the marker stayed: %v", left)
+	}
+}
+
+// writeDeadMarker rewrites the marker of attempt so its owner is a process
+// that has exited and its heartbeat is an hour old, as a dispatch killed
+// mid-run leaves it.
+func writeDeadMarker(t *testing.T, s Store, attempt string) {
+	t.Helper()
+	dir, err := s.delegationActiveDir(false)
+	if err != nil {
+		t.Fatal(err)
+	}
+	path := filepath.Join(dir, attempt+".json")
+	raw, err := os.ReadFile(path)
+	if err != nil {
+		t.Fatal(err)
+	}
+	var marker DelegationActiveRun
+	if err := json.Unmarshal(raw, &marker); err != nil {
+		t.Fatal(err)
+	}
+	dead := exec.Command("true")
+	if err := dead.Run(); err != nil {
+		t.Fatal(err)
+	}
+	old := time.Now().Add(-time.Hour).UTC().Format(time.RFC3339Nano)
+	marker.Owner.PID, marker.HeartbeatAt, marker.StartedAt = dead.Process.Pid, old, old
+	raw, _ = json.Marshal(marker)
+	if err := os.WriteFile(path, raw, 0o600); err != nil {
+		t.Fatal(err)
+	}
+}
+
+// Review round 2, N4 (R6): a real dispatch interrupted after its reservation
+// and before its run record blocks the next dispatch; once released, the
+// next dispatch runs.
+func TestAnInterruptedDispatchIsReleasedAndTheNextOneRuns(t *testing.T) {
+	f := provenanceRunFixture(t, "openai", "probe-model")
+	plan, err := f.store.PlanReviewDispatch(f.bundle.BundleID, "review", "fixture labelled notes", "fake", "interrupted")
+	if err != nil {
+		t.Fatal(err)
+	}
+	attempt := ""
+	plan.OnStart = func(a string) error { attempt = a; panic("the dispatching process ends here") }
+	func() {
+		defer func() { _ = recover() }()
+		_, _ = f.store.RunReviewDispatchContext(context.Background(), plan, time.Now)
+	}()
+	if attempt == "" {
+		t.Fatal("the dispatch never reached its start")
+	}
+	writeDeadMarker(t, f.store, attempt)
+	if _, err := f.store.PlanReviewDispatch(f.bundle.BundleID, "review", "fixture labelled notes", "fake", "after interruption"); err == nil || !strings.Contains(err.Error(), "pose delegate cancel "+attempt) {
+		t.Fatalf("the interrupted attempt did not block the bundle with its release command: %v", err)
+	}
+	if _, err := f.store.ReleaseAbandonedAttempt(attempt, time.Now()); err != nil {
+		t.Fatal(err)
+	}
+	next, err := f.store.PlanReviewDispatch(f.bundle.BundleID, "review", "fixture labelled notes", "fake", "after release")
+	if err != nil {
+		t.Fatalf("the released attempt still blocks the bundle: %v", err)
+	}
+	if run, err := f.store.RunReviewDispatchContext(context.Background(), next, time.Now); err != nil || run.Status != ReviewRunCompleted {
+		t.Fatalf("the next dispatch did not run: %s %v", run.Status, err)
+	}
+}
+
+// Review round 2, N3: a release already claimed is not run again.
+func TestAClaimedReleaseIsNotRunTwice(t *testing.T) {
+	root := t.TempDir()
+	s := Store{Root: root}
+	attempt := "rat-" + strings.Repeat("9", 64)
+	dir, _ := s.delegationActiveDir(true)
+	if err := os.WriteFile(filepath.Join(dir, attempt+".release"), []byte("x\n"), 0o600); err != nil {
+		t.Fatal(err)
+	}
+	if _, err := s.ReleaseAbandonedAttempt(attempt, time.Now()); !errors.Is(err, ErrAttemptNotAbandoned) || !strings.Contains(err.Error(), "in progress") {
+		t.Fatalf("a claimed release ran again: %v", err)
+	}
+}
+
+// Review round 2, N1: a reservation an earlier engine left with no marker is
+// listed and released once it is old enough, never while it is young.
+func TestAMarkerlessReservationOfAnEarlierEngineIsReleased(t *testing.T) {
+	root := t.TempDir()
+	s := Store{Root: root}
+	reserve := func(age time.Duration, nonce string) DelegatedReviewAttempt {
+		a := DelegatedReviewAttempt{SchemaVersion: 1, BundleID: "rvb-00000000000000b" + nonce[:1], BundleDigest: "sha256:" + strings.Repeat("a", 64), Scope: "spec:alpha", Adapter: "fake", Ordinal: 1,
+			ReservedAt: time.Now().Add(-age).UTC().Format(time.RFC3339Nano), Nonce: strings.Repeat(nonce[:1], 32)}
+		a.AttemptID = attemptIdentity(a)
+		rel, _ := filepath.Rel(root, reviewAttemptPath(root, a))
+		if err := publishLedgerJSON(root, filepath.ToSlash(rel), a); err != nil {
+			t.Fatal(err)
+		}
+		return a
+	}
+	old, young := reserve(time.Hour, "1"), reserve(time.Minute, "2")
+	attempts, _, err := s.ListDelegationAttempts()
+	if err != nil {
+		t.Fatal(err)
+	}
+	listed := map[string]DelegationAttempt{}
+	for _, a := range attempts {
+		listed[a.AttemptID] = a
+	}
+	if a, ok := listed[old.AttemptID]; !ok || a.State != DelegationStalled || !strings.Contains(a.Failure, "pose delegate cancel "+old.AttemptID) {
+		t.Fatalf("the old markerless reservation is not listed with its release: %+v", attempts)
+	}
+	if _, ok := listed[young.AttemptID]; ok {
+		t.Fatal("a young reservation was listed as abandoned")
+	}
+	if _, err := s.ReleaseAbandonedAttempt(young.AttemptID, time.Now()); !errors.Is(err, ErrAttemptNotAbandoned) {
+		t.Fatalf("a young reservation was released: %v", err)
+	}
+	run, err := s.ReleaseAbandonedAttempt(old.AttemptID, time.Now())
+	if err != nil || run.Status != ReviewRunFailed || !strings.Contains(run.Failure, "earlier engine") {
+		t.Fatalf("release: %+v %v", run, err)
+	}
+	if _, err := s.readAttemptReceipt(old); err != nil {
+		t.Fatalf("the released reservation still blocks its bundle: %v", err)
 	}
 }

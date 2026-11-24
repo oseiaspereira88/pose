@@ -1021,6 +1021,7 @@ func (s Store) RunReviewDispatchContext(parent context.Context, plan DispatchPla
 	// (found in review). The run gets its own process group, the whole group
 	// is killed on timeout and after the run, and pipes are released at most
 	// a few seconds after the kill.
+	opaqueBaseline := reviewOpaqueProcessBaseline()
 	isolateProcessGroup(cmd)
 	cmd.WaitDelay = AdapterPipeGrace
 	var runErr error
@@ -1039,7 +1040,7 @@ func (s Store) RunReviewDispatchContext(parent context.Context, plan DispatchPla
 	// group kill; it is ended here, before the cleanup inventory reads the
 	// directories it may still write (spec
 	// pose-review-run-reaps-lingering-reviewer-processes R1, R2).
-	reaped, opaque, reapErr := reapSealedCheckoutProcesses(worktree)
+	reaped, opaque, reapErr := reapSealedCheckoutProcesses(worktree, opaqueBaseline)
 	if reapErr != nil {
 		terminationErr = errors.Join(terminationErr, reapErr)
 	}
@@ -1047,7 +1048,7 @@ func (s Store) RunReviewDispatchContext(parent context.Context, plan DispatchPla
 		safety.Limitations = append(safety.Limitations, "ended "+fmt.Sprint(len(reaped))+" process(es) the run left running: "+strings.Join(reaped, ", "))
 	}
 	if opaque > 0 && safety != nil {
-		safety.Limitations = append(safety.Limitations, fmt.Sprint(opaque)+" process(es) of this user could not be inspected for the run's environment entry; any of them the run started was not ended")
+		safety.Limitations = append(safety.Limitations, fmt.Sprint(opaque)+" process(es) of this user that existed before the run could not be inspected for its environment entry")
 	}
 	terminationFailed = terminationErr != nil
 	// The adapter exited and a child it left still held the output when

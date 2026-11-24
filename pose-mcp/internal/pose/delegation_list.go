@@ -187,6 +187,20 @@ func (s Store) ListDelegationAttempts() ([]DelegationAttempt, []string, error) {
 			row.LastStep = delegationStepText(live[len(live)-1])
 		}
 	}
+	// A reservation an earlier engine left without a marker or a run is
+	// listed too, so it can be named and released (review round 2, N1).
+	if orphans, err := s.orphanReservations(time.Now()); err != nil {
+		lost = append(lost, "abandoned reservations could not be read: "+err.Error())
+	} else {
+		for _, a := range orphans {
+			if _, ok := byAttempt[a.AttemptID]; ok {
+				continue
+			}
+			byAttempt[a.AttemptID] = &DelegationAttempt{AttemptID: a.AttemptID, Runs: []string{}, StartedAt: a.ReservedAt, Purpose: DelegationPurposeReview, Access: DelegationAccessRead, Agent: a.Adapter, Scope: a.Scope, BundleID: a.BundleID,
+				State: DelegationStalled, StalledAt: a.ReservedAt, Failure: DelegationAbandonedCause + "; release it with `pose delegate cancel " + a.AttemptID + "`"}
+			order = append(order, a.AttemptID)
+		}
+	}
 	out := make([]DelegationAttempt, 0, len(order))
 	for _, key := range order {
 		out = append(out, *byAttempt[key])

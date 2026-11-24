@@ -4,6 +4,7 @@ package pose
 
 import (
 	"os/exec"
+	"strings"
 	"testing"
 	"time"
 )
@@ -45,5 +46,45 @@ func TestAPidThatLostTheRunsEntryIsNotKilled(t *testing.T) {
 	}
 	if err := marked.Wait(); err == nil {
 		t.Fatal("the marked process was not ended")
+	}
+}
+
+// opaqueProcess starts a process of this user whose environment cannot be
+// read (it makes itself non-dumpable), or skips without python3.
+func opaqueProcess(t *testing.T) *exec.Cmd {
+	t.Helper()
+	if _, err := exec.LookPath("python3"); err != nil {
+		t.Skip("python3 is not available")
+	}
+	cmd := exec.Command("python3", "-c", "import ctypes,time; ctypes.CDLL(None).prctl(4,0,0,0,0); time.sleep(30)")
+	if err := cmd.Start(); err != nil {
+		t.Fatal(err)
+	}
+	t.Cleanup(func() { _ = cmd.Process.Kill(); _ = cmd.Wait() })
+	for i := 0; i < 300; i++ {
+		if _, err := reviewProcessMarked(cmd.Process.Pid, []byte("x")); err != nil && !reviewProcessGoneErr(err) {
+			return cmd
+		}
+		time.Sleep(10 * time.Millisecond)
+	}
+	t.Skip("the process never became non-inspectable")
+	return nil
+}
+
+// Review round 2, N2: a non-inspectable process that existed before the run
+// is not the run's; one that started during it may be, and the scan fails
+// instead of reporting the run's processes ended.
+func TestANonInspectableProcessStartedDuringTheRunFailsTheScan(t *testing.T) {
+	before := opaqueProcess(t)
+	baseline := reviewOpaqueProcessBaseline()
+	if _, ok := baseline[before.Process.Pid]; !ok {
+		t.Fatalf("the baseline misses process %d", before.Process.Pid)
+	}
+	if _, opaque, err := reapSealedCheckoutProcesses("/nonexistent/run-checkout", baseline); err != nil || opaque == 0 {
+		t.Fatalf("a process that predates the run failed the scan or was not counted: %d %v", opaque, err)
+	}
+	during := opaqueProcess(t)
+	if _, _, err := reapSealedCheckoutProcesses("/nonexistent/run-checkout", baseline); err == nil || !strings.Contains(err.Error(), "started during the run") {
+		t.Fatalf("process %d, started during the run, did not fail the scan: %v", during.Process.Pid, err)
 	}
 }

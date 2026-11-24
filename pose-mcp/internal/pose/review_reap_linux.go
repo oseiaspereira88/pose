@@ -15,9 +15,11 @@ package pose
 // environment is read again through the pinned process, so a pid reused by
 // an unrelated process between the scan and the signal is never killed
 // (review round 1, N3). A scan that cannot list or read the state of the
-// processes fails; a process of this user whose environment cannot be read
-// (one that made itself non-inspectable) is counted and disclosed in the run
-// record, never skipped silently (N4).
+// processes fails. A process of this user whose environment cannot be read
+// (one that made itself non-inspectable) cannot be matched: one that already
+// existed before the adapter started is not the run's and is skipped; any
+// other may be the run's, so the scan fails and the run stays unconcludable
+// (review round 2, N2).
 
 import (
 	"bytes"
@@ -39,7 +41,7 @@ const reviewReapWait = 5 * time.Second
 // reapSealedCheckoutProcesses ends every process whose environment names
 // worktree as its sealed checkout and returns a description of each. An
 // error means the run's processes could not be proven ended within the bound.
-func reapSealedCheckoutProcesses(worktree string) ([]string, int, error) {
+func reapSealedCheckoutProcesses(worktree string, baseline map[int]string) ([]string, int, error) {
 	if worktree == "" {
 		return nil, 0, nil
 	}
@@ -51,9 +53,15 @@ func reapSealedCheckoutProcesses(worktree string) ([]string, int, error) {
 	for {
 		alive, opaque, err := reviewMarkedProcesses(entry)
 		if err != nil {
-			return reaped, opaque, err
+			return reaped, len(opaque), err
 		}
-		unreadable = opaque
+		unreadable = 0
+		for pid, start := range opaque {
+			if baseline[pid] != start {
+				return reaped, len(opaque), fmt.Errorf("process %d of this user started during the run and cannot be inspected; it may be the run's and was not ended", pid)
+			}
+			unreadable++
+		}
 		for _, pid := range alive {
 			if !seen[pid] {
 				seen[pid] = true
@@ -76,12 +84,12 @@ func reapSealedCheckoutProcesses(worktree string) ([]string, int, error) {
 // reviewMarkedProcesses lists the live processes whose environment holds
 // entry, and counts this user's processes whose environment could not be
 // read. A process that is gone is skipped.
-func reviewMarkedProcesses(entry []byte) ([]int, int, error) {
+func reviewMarkedProcesses(entry []byte) ([]int, map[int]string, error) {
 	dirs, err := os.ReadDir("/proc")
 	if err != nil {
-		return nil, 0, fmt.Errorf("the run's processes could not be listed: %w", err)
+		return nil, nil, fmt.Errorf("the run's processes could not be listed: %w", err)
 	}
-	unreadable := 0
+	unreadable := map[int]string{}
 	self, uid := os.Getpid(), os.Getuid()
 	var out []int
 	for _, d := range dirs {
@@ -99,7 +107,11 @@ func reviewMarkedProcesses(entry []byte) ([]int, int, error) {
 			} else if reviewProcessGoneErr(oerr) {
 				continue
 			}
-			unreadable++
+			start, serr := processStartTime(pid)
+			if reviewProcessGoneErr(serr) {
+				continue
+			}
+			unreadable[pid] = start
 			continue
 		case !marked:
 			continue
@@ -190,4 +202,12 @@ func reviewProcessZombie(pid int) (bool, error) {
 		return raw[i+2] == 'Z', nil
 	}
 	return false, fmt.Errorf("process %d state is unreadable", pid)
+}
+
+// reviewOpaqueProcessBaseline records, before the adapter starts, the
+// processes of this user whose environment cannot be read, by pid and start
+// time: they cannot be the run's.
+func reviewOpaqueProcessBaseline() map[int]string {
+	_, opaque, _ := reviewMarkedProcesses([]byte(SealedCheckoutEnv + "=\x00"))
+	return opaque
 }
