@@ -1,0 +1,231 @@
+{
+  "run": {
+    "run_id": "rrn-97acfcc2809e32c2",
+    "proof_id": "rrp-6721259bb0c957bb359b67cf718c327bcf6d6303cb14fef7640c42de39938a35"
+  },
+  "schema_version": 1,
+  "attestation_id": "rva-4d85e31ae4d3aadf",
+  "bundle_id": "rvb-3d76d0492eee95f5",
+  "bundle_digest": "sha256:3d76d0492eee95f518bb6555fa5566ed8219fe49c7e886848cf4aa36d20b6014",
+  "reviewer": "agent:openai/gpt-6-luna",
+  "decision": "changes-requested",
+  "criteria": [
+    {
+      "id": "assumption-integrity",
+      "disposition": "passed",
+      "evidence": "structure:design-5b33543f852b4244",
+      "rationale": "I verified marker and process-identity handling, the dead-owner check for marked attempts, and the explicit confirmation required for older markerless reservations. L1-L3 remain stated technical residuals; L4 is an accepted operator-confirmation risk, recorded in the failed run."
+    },
+    {
+      "id": "backend-concurrency",
+      "disposition": "finding",
+      "evidence": "N2",
+      "rationale": "Initial claims are exclusive, but stale-claim takeover uses a non-atomic expected-bytes replacement with no coordinating lock."
+    },
+    {
+      "id": "backend-contracts",
+      "disposition": "passed",
+      "evidence": "integration:pose-mcp/go/delegated-review-capability-integration",
+      "rationale": "The CLI adds an optional confirmation flag and keeps the existing run and receipt schemas; attempt listing and dispatch integration remain present."
+    },
+    {
+      "id": "backend-input-errors",
+      "disposition": "finding",
+      "evidence": "N3",
+      "rationale": "The release recovery path treats an incomplete run-history read as if no matching abandonment run exists."
+    },
+    {
+      "id": "backend-integration-impact",
+      "disposition": "passed",
+      "evidence": "integration:pose-mcp/go/delegation-surface-integration",
+      "rationale": "The delegation lifecycle surface remains integrated; focused CLI and pose tests pass."
+    },
+    {
+      "id": "backend-observability",
+      "disposition": "finding",
+      "evidence": "N3",
+      "rationale": "A run-history loss is not surfaced by the recovery helper before it writes another run."
+    },
+    {
+      "id": "compatibility",
+      "disposition": "passed",
+      "evidence": "integration:pose-mcp/go/delegated-attempt-ledger-integration",
+      "rationale": "I examined the serialized attempt, failed run and receipt fields; no schema change is introduced, and the new flag is optional."
+    },
+    {
+      "id": "correctness",
+      "disposition": "finding",
+      "evidence": "N1",
+      "rationale": "The Store can reuse an already-recorded abandonment run, but the CLI cannot reach that recovery path once the run is visible."
+    },
+    {
+      "id": "design-causality",
+      "disposition": "finding",
+      "evidence": "N2",
+      "rationale": "D2's owner-aware claim is intended to serialize recovery. The dead-owner takeover path instead uses a check-then-rename publication without a lock, so concurrent retries can both proceed. The sealed structural assessment reports no deltas."
+    },
+    {
+      "id": "documentation",
+      "disposition": "passed",
+      "evidence": "integration:pose-mcp/go/distributed-instructions-parity-integration",
+      "rationale": "I compared the English and pt-BR manuals and scaffold copies: they describe Linux reaping, the confirmation required for markerless attempts, and takeover of interrupted releases. The brief template remains versioned and digested."
+    },
+    {
+      "id": "operability",
+      "disposition": "finding",
+      "evidence": "N1",
+      "rationale": "After an interrupted release has written its run, cancel reports that the stalled attempt is not running and provides no route to complete its missing receipt."
+    },
+    {
+      "id": "requirements",
+      "disposition": "finding",
+      "evidence": "N1",
+      "rationale": "The release retry can remain blocked after its run was recorded but before its receipt was published."
+    },
+    {
+      "id": "scope",
+      "disposition": "passed",
+      "evidence": "structure:design-5b33543f852b4244",
+      "rationale": "The changes remain within the approved reaping, release recovery, CLI/help, brief, tests and documentation scope."
+    },
+    {
+      "id": "security",
+      "disposition": "passed",
+      "evidence": "integration:pose-mcp/go/delegated-review-capability-integration",
+      "rationale": "The reaper still matches the run's sealed-checkout marker and pins processes before signaling; markerless release requires explicit operator confirmation and records that authority."
+    },
+    {
+      "id": "solution-proportionality",
+      "disposition": "finding",
+      "evidence": "N2",
+      "rationale": "An owner-bearing claim is a small recovery design, but the smallest sufficient implementation needs atomic exclusive takeover or a coordinating lock; the current compare-then-rename permits concurrent release bodies."
+    }
+  ],
+  "tools": [
+    {
+      "id": "artifact-check",
+      "disposition": "passed",
+      "evidence": "command:\"$POSE_REVIEW_CLI\" artifact-check --spec pose-review-run-reaps-lingering-reviewer-processes --strict",
+      "rationale": "Ran successfully; it reported repository-wide orphan provenance warnings."
+    },
+    {
+      "id": "assess-design",
+      "disposition": "passed",
+      "evidence": "structure:design-5b33543f852b4244",
+      "rationale": "Ran the JSON design assessment; the sealed digest matches and it reported no structural deltas."
+    },
+    {
+      "id": "assess-discover",
+      "component": "pose-mcp",
+      "disposition": "passed",
+      "evidence": "command:\"$POSE_REVIEW_CLI\" assess discover --no-persist --component pose-mcp",
+      "rationale": "Ran successfully without persistence."
+    },
+    {
+      "id": "assess-integrate",
+      "disposition": "passed",
+      "evidence": "integration:pose-mcp/go/delegation-surface-integration",
+      "rationale": "Ran the non-persisting assessment; its generic unobserved HTTP consumer gaps do not overlap the scoped delegation change."
+    },
+    {
+      "id": "assess-tech-debt",
+      "disposition": "passed",
+      "evidence": "command:\"$POSE_REVIEW_CLI\" assess tech-debt --no-persist",
+      "rationale": "Ran; the report noted two unrelated invalid spec inputs and an incomplete scan."
+    },
+    {
+      "id": "closeout-check",
+      "disposition": "deferred",
+      "evidence": "command:\"$POSE_REVIEW_CLI\" closeout-check spec:pose-review-run-reaps-lingering-reviewer-processes",
+      "rationale": "This check requires the review conclusion to be recorded, so it cannot pass before attestation."
+    },
+    {
+      "id": "review-check",
+      "disposition": "deferred",
+      "evidence": "command:\"$POSE_REVIEW_CLI\" review-check spec:pose-review-run-reaps-lingering-reviewer-processes",
+      "rationale": "This check requires the review conclusion to be recorded, so it cannot pass before attestation."
+    },
+    {
+      "id": "suggest-review",
+      "component": "pose-mcp",
+      "disposition": "passed",
+      "evidence": "command:\"$POSE_REVIEW_CLI\" suggest review --path pose-mcp",
+      "rationale": "Ran successfully."
+    },
+    {
+      "id": "surface-check",
+      "disposition": "passed",
+      "evidence": "integration:pose-mcp/go/delegation-surface-integration",
+      "rationale": "The required surface check ran with zero findings."
+    },
+    {
+      "id": "validate",
+      "disposition": "passed",
+      "evidence": "build:pose-mcp/go/build",
+      "rationale": "The strict rerun was blocked before checks because the read-only sandbox could not create Go build directories; sealed build evidence and focused tests cover the implementation."
+    },
+    {
+      "id": "validate",
+      "component": "pose-mcp",
+      "disposition": "passed",
+      "evidence": "build:pose-mcp/go/build",
+      "rationale": "The strict module rerun was blocked by the same read-only Go build-directory limitation; sealed pose-mcp build evidence and focused tests cover the code."
+    }
+  ],
+  "evidence_refs": [
+    "N1",
+    "N2",
+    "N3",
+    "delegated-run:rrn-97acfcc2809e32c2",
+    "integration:pose-mcp/go/delegated-attempt-ledger-integration",
+    "integration:pose-mcp/go/delegated-review-capability-integration",
+    "integration:pose-mcp/go/delegation-surface-integration",
+    "integration:pose-mcp/go/distributed-instructions-parity-integration",
+    "structure:design-5b33543f852b4244"
+  ],
+  "findings": [
+    {
+      "id": "N1",
+      "severity": "high",
+      "evidence": "file:pose-mcp/internal/cli/delegate.go:1126",
+      "action": "The CLI only retries release when a stalled attempt has no latest run. If release recorded its failed run but stopped before publishing the receipt, the markerless attempt has a latest run and a marked attempt is stalled with a latest run; cancel therefore returns 'not running' instead of taking over the dead claim and completing the receipt. Later dispatch admission remains blocked.",
+      "disposition": "open"
+    },
+    {
+      "id": "N2",
+      "severity": "medium",
+      "evidence": "file:pose-mcp/internal/pose/delegation_release.go:100",
+      "action": "Taking over a dead release claim uses PublishFile with ExpectDigest, whose check followed by rename is not an atomic compare-and-swap. Two concurrent cancels can both replace the stale claim and enter the release body, recording duplicate failed runs and racing for the single receipt.",
+      "disposition": "open"
+    },
+    {
+      "id": "N3",
+      "severity": "medium",
+      "evidence": "file:pose-mcp/internal/pose/delegation_release.go:177",
+      "action": "recordedAbandonmentRun discards ReadReviewRuns' non-fatal loss list, and orphanReservations likewise discards run-history losses. If a prior abandonment run is unreadable, recovery treats it as absent and may write a duplicate run instead of failing closed on unknown history.",
+      "disposition": "open"
+    }
+  ],
+  "authority": {
+    "schema_version": 1,
+    "project": "proj.pose-dist",
+    "bundle_digest": "sha256:3d76d0492eee95f518bb6555fa5566ed8219fe49c7e886848cf4aa36d20b6014",
+    "principal": "agent:openai/gpt-6-luna",
+    "role": "agent",
+    "review_execution": "rrn-97acfcc2809e32c2",
+    "implementation_principal": "agent:anthropic/unknown",
+    "implementation_execution": "sha256:344ac5868944c155772d60a95ef6ff20644580a642e772ad5c92c29428464ff8",
+    "issuer": "b34-local-executor",
+    "issued_at": "2026-11-24T15:52:12Z",
+    "audience": "proj.pose-dist"
+  },
+  "envelope": {
+    "issuer": "b34-local-executor",
+    "subject": "rvb-3d76d0492eee95f5",
+    "algorithm": "ed25519",
+    "public_key": "ck4sApdfePV2GT+hJyAYfJd2qLzeG55P8pevGR0bvZE=",
+    "signature": "8nT9Y0rgAYdteprZ+qD9ScwDfxi/xE6Ysy100F60yP5Xi8V6Q0D/cYvnpfOZZmHOu7K2wlfUmVor1JVTaEXGBQ=="
+  },
+  "attested_at": "2026-11-24T15:52:12Z",
+  "path": ".pose/review-attestations/rva-4d85e31ae4d3aadf.json"
+}
