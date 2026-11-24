@@ -1,8 +1,8 @@
 ---
 slug: pose-assess-leaves-sealed-checkouts-alone
-status: in-progress
+status: done
 created_at: 2026-11-23
-completed_at:
+completed_at: 2026-11-24
 supersedes:
 depends_on: 
 remediates:
