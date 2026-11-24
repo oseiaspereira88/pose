@@ -1,0 +1,151 @@
+{
+  "safety": {
+    "schema_version": 1,
+    "profile": "legacy-trusted",
+    "platform": "linux/amd64",
+    "capabilities": {
+      "automatic-expiry": "unavailable",
+      "bounded-capture": "available",
+      "cpu-limit": "unavailable",
+      "credential-filesystem-isolation": "unavailable",
+      "environment-allowlist": "available",
+      "escaped-descendant-termination": "unavailable",
+      "filesystem-isolation": "unavailable",
+      "memory-limit": "unavailable",
+      "network-isolation": "unavailable",
+      "origin-isolation": "unavailable",
+      "parent-termination": "available",
+      "process-group-termination": "available",
+      "shared-git-isolation": "unavailable"
+    },
+    "limitations": [
+      "trusted local executable required; worktree is not a sandbox",
+      "outside writes, transient writes, shared Git and credential files are not isolated",
+      "no memory/CPU quota or control of descendants escaping the process group",
+      "cleanup filesystem calls remain subject to operating-system I/O latency",
+      "legacy compatibility: HOME retained; other ambient credentials excluded"
+    ],
+    "stream_bytes": 8388608,
+    "output_bytes": 65536,
+    "retained_bytes": 16777216,
+    "timeout_ms": 3600000,
+    "max_runs_per_bundle": 3,
+    "retention": "retain-evidence; ttl=0; no automatic deletion",
+    "capture_complete": true,
+    "runtime_id": "pose-review-run-1460578027",
+    "operation": {
+      "schema_version": 1,
+      "operation": "review.dispatch.cleanup",
+      "scope": "spec:pose-assess-leaves-sealed-checkouts-alone",
+      "outcome": "completed",
+      "steps_run": [
+        {
+          "id": "cleanup",
+          "result": "done"
+        }
+      ],
+      "effects": [],
+      "resumable": false
+    }
+  },
+  "provenance": {
+    "execution_state": "started",
+    "planned_wire_digest": "sha256:fd4273651051756e152c6b0c8cdb481f781c7c62c9e3d2f1894f382dd4585a3c",
+    "wire_bytes": 28350,
+    "wire_complete": true,
+    "schema_version": 1,
+    "project": "proj.pose-dist",
+    "audience": "proj.pose-dist",
+    "worktree_digest": "sha256:092ca52378c4c0d0f2b627da8d5031dbb854563bd4b9f2474458710c62a14816",
+    "trust": "executor-attested",
+    "implementation": {
+      "principal": "agent:anthropic/unknown",
+      "execution": "sha256:344ac5868944c155772d60a95ef6ff20644580a642e772ad5c92c29428464ff8",
+      "vendor": "anthropic",
+      "model": "unknown"
+    },
+    "reviewer": {
+      "principal": "agent:openai/gpt-6-luna",
+      "vendor": "openai",
+      "model": "gpt-6-luna"
+    },
+    "config_digest": "sha256:0496470e7d7d37c50f6d6ba38fff61a3798a301c4bb9344cb48115600dab36d4",
+    "command_template_digest": "sha256:42c94509ce1ab68857d1a7dfb101a967c1bd3243a67bdc5d921f22b58fc3db04",
+    "argv_digest": "sha256:28612b7f09f708cb0491d121e673bbf9cc4ce115aaaa0d99c36aa84fb5b7e7f9",
+    "executable_digest": "sha256:0e0c66f50074965a40cbd12f625b0a35963baf41bbd8c201a93e32fddbe2e073",
+    "template_version": "review-brief/8",
+    "wire_digest": "sha256:fd4273651051756e152c6b0c8cdb481f781c7c62c9e3d2f1894f382dd4585a3c",
+    "notes_digest": "sha256:aa2fa940c68aed09e57c3fc599cb1cf413031e2d2f48e1010a5f212d901c6e1a",
+    "raw_transcript_digest": "sha256:c801358ec9886fa799975c32a4cc42cdc9278e7d96ee9e75de6edad3e8753ffb",
+    "raw_output_digest": "sha256:7b654fcd2d27427da2b693b36c8be8122624de017c783a9915c4351727b65b46",
+    "output_source": "file",
+    "output_complete": true
+  },
+  "session_digest": "sha256:004959250da60988f55f92ede0313aae0846b73105fd8097c80b2bc9fe9810a0",
+  "tree_digest": "sha256:484392446a5ba8af5545872678bca6ed943b448d0ddd1e6e98fb8375a8784fa9",
+  "brief_notes": "Implementer notes (Claude Opus 5.5, the lead). Use them as context only; the judgment is yours.\n\nScope: spec `pose-assess-leaves-sealed-checkouts-alone` (R1–R4, decisions D1–D2, residual limit L1 in the Final Report). Reviewer runs used to fail with \"the run changed files in the sealed worktree\" after a planned `pose assess` persisted `.pose/assessments/*` and `.pose/state/*` into the sealed checkout.\n- R1: `pose assess discover|integrate|tech-debt --no-persist` prints the result without writing (`internal/cli/assess.go`, `assessPersists`).\n- R2: in the sealed checkout of a delegated review (`POSE_SEALED_CHECKOUT`, already set by the dispatch) those commands never persist and say so on standard error; `init`, `snapshot` and `request` refuse. The Store's assessment writers (`SaveComponentState`, `GenerateConsolidatedAssessment`, `SaveIntegrationMatrix`, `SaveTechDebtReport`) also refuse there (`internal/pose/assessment_sealed.go`).\n- R3: the review plan's assessment tools carry `--no-persist` (`reviewToolArgs`).\n- R4: `TestAssessLeavesTheSealedCheckoutUnchanged` hashes the whole tree before and after every command.\nEach guard has a test that failed with it mutated out. The full `go test ./...` of `pose-mcp` passed.\n\nPlease check in particular that no assess path still writes in a sealed checkout, that `--update-state` cannot bypass the guard, and that persisting runs outside a sealed checkout behave as before.\n\nThe planned assessment tools of this bundle now carry `--no-persist`, so you may run them in the sealed checkout: that is also a live test of R2 and R3.\n\nBefore you finish, run `\"$POSE_REVIEW_CLI\" review draft-check --draft -` on your final message (pipe it on standard input) and fix every reason it reports.\n\nDraft format rules, enforced by the conclusion preflight:\n- New findings use short unprefixed IDs (N1, N2, …). Round-prefixed IDs go only in `prior_findings`, and only for the findings the brief lists under \"Findings to account for\", with exactly id, status and evidence.\n- Structural-delta mappings go inside the criterion that answers them, with `basis` set to a requirement or a decision of this spec (R1–R4, D1, D2).\n- A criterion scoped to a component cites evidence from that component only.\n\nSandbox limits: the checkout is sealed and read-only. Never `cd`; keep the checkout root as the working directory. Keep test runs focused (`go -C pose-mcp test ./internal/cli ./internal/pose -run 'Assess|ReviewPlanRunsAssessments'`, `go -C pose-mcp vet ./internal/cli ./internal/pose`), and let every command you start finish before you end: a process still running when you end makes the run unconcludable. A tool you cannot rerun in the sandbox is a limit of the run, not a defect of the subject: cite the sealed evidence that covers it, then decide on the code itself.\n",
+  "ledger_version": 1,
+  "attempt_id": "rat-4003b17b524c7ebc078897b56eaa2fa67901fea58d373b2d2250c10a5b325178",
+  "reason": "repeat after the reviewer model changed to gpt-6-luna at max effort",
+  "schema_version": 1,
+  "run_id": "rrn-cd0ac9394ca5892b",
+  "scope": "spec:pose-assess-leaves-sealed-checkouts-alone",
+  "bundle_id": "rvb-463c1d036776b14f",
+  "bundle_digest": "sha256:463c1d036776b14f0cb72ce8f21329d304f36f20bf10262a3609d2521ef0add8",
+  "sealed_commit": "04ec840012a842ca47b4e79f1b94669d18b84d13",
+  "kind": "review",
+  "brief_digest": "sha256:71e28e47284ab63ecdf60d6ca97d9c9889239a6fa06632bc0b9cdb94a8dd811b",
+  "adapter": "sol-medium",
+  "vendor": "openai",
+  "model": "gpt-6-luna",
+  "started_at": "2026-11-24T07:53:42.920411166Z",
+  "ended_at": "2026-11-24T08:06:39.847775197Z",
+  "exit_code": 0,
+  "status": "failed",
+  "failure": "the run changed files in the sealed worktree (including ignored materialization): [\".pose/assessments/README.md\" \".pose/assessments/consolidated.md\" \".pose/assessments/integrations.md\" \".pose/assessments/pose-mcp.md\" \".pose/assessments/technical-debt.md\" \".pose/state/components/pose-mcp.json\" \".pose/state/integrations.json\" \".pose/state/technical-debt.json\"]",
+  "transcript_digest": "sha256:f2dae774e3ac5d293f7aab8a17e95664826f71e1cbc34c1c3b01372580118de3",
+  "transcript_path": ".pose/review-runs/rrn-cd0ac9394ca5892b.transcript",
+  "output": "decision: changes-requested\n\n**Finding N1 — medium, blocker:** [discovery.go](/var/tmp/pose-work-go/pose-review-run-1460578027/worktree/pose-mcp/internal/pose/discovery.go:658) exports `GenerateComponentAssessmentMarkdown`, which creates and writes an assessment file without the sealed-checkout guard. A caller can therefore mutate the sealed checkout directly, bypassing the guards on the other Store writers. This leaves the Store-level guarantee in D1 incomplete.\n\nThe focused Go tests and vet passed: `go -C pose-mcp test ./internal/cli ./internal/pose -run 'Assess|ReviewPlanRunsAssessments'` and `go -C pose-mcp vet ./internal/cli ./internal/pose`. The design assessment reported no structural deltas. The final draft preflight **accepted** the conclusion draft below. I did not record an attestation.\n\n**Execution issue:** I ran assessment commands with the installed `pose` executable, which predates the reviewed `--no-persist` change. It printed that it wrote artifacts and changed these tracked files:\n\n- [.pose/assessments/README.md](/var/tmp/pose-work-go/pose-review-run-1460578027/worktree/.pose/assessments/README.md)\n- [.pose/assessments/consolidated.md](/var/tmp/pose-work-go/pose-review-run-1460578027/worktree/.pose/assessments/consolidated.md)\n- [.pose/assessments/integrations.md](/var/tmp/pose-work-go/pose-review-run-1460578027/worktree/.pose/assessments/integrations.md)\n- [.pose/assessments/pose-mcp.md](/var/tmp/pose-work-go/pose-review-run-1460578027/worktree/.pose/assessments/pose-mcp.md)\n- [.pose/assessments/technical-debt.md](/var/tmp/pose-work-go/pose-review-run-1460578027/worktree/.pose/assessments/technical-debt.md)\n- [.pose/state/components/pose-mcp.json](/var/tmp/pose-work-go/pose-review-run-1460578027/worktree/.pose/state/components/pose-mcp.json)\n- [.pose/state/integrations.json](/var/tmp/pose-work-go/pose-review-run-1460578027/worktree/.pose/state/integrations.json)\n- [.pose/state/technical-debt.json](/var/tmp/pose-work-go/pose-review-run-1460578027/worktree/.pose/state/technical-debt.json)\n\nI left them untouched under the no-edit boundary. The artifact-check and surface-check attempts did not return a captured completion status, so the draft records them as failed; this is a review-run limitation, not an additional subject-code finding.\n\n```pose-draft\n{\n  \"schema\": \"pose.review.draft/v1\",\n  \"decision\": \"changes-requested\",\n  \"findings\": [\n    {\n      \"id\": \"N1\",\n      \"severity\": \"medium\",\n      \"disposition\": \"blocker\",\n      \"file\": \"pose-mcp/internal/pose/discovery.go\",\n      \"line\": 658,\n      \"summary\": \"GenerateComponentAssessmentMarkdown writes .pose/assessments/\u003cslug\u003e.md without refuseSealedAssessmentWrite, so a Store caller can still mutate the sealed checkout despite the guards on SaveComponentState and the other assessment writers.\"\n    }\n  ],\n  \"criteria\": [\n    {\"id\":\"assumption-integrity\",\"disposition\":\"passed\",\"evidence\":\"integration:pose-mcp/go/sealed-checkout-child-evidence-integration\",\"rationale\":\"Verified review_dispatch.go appends POSE_SEALED_CHECKOUT for the checkout and IsSealedCheckout resolves and compares the paths. L1 remains an accepted limitation: a reviewer process that clears the variable can write, with the dispatch tree comparison detecting the mutation.\"},\n    {\"id\":\"backend-concurrency\",\"disposition\":\"passed\",\"evidence\":\"unit:pose-mcp/go/test\",\"rationale\":\"The change adds no shared mutable state or asynchronous lifecycle. The no-persist paths skip publication; the focused Assess and ReviewPlanRunsAssessments Go tests passed.\"},\n    {\"id\":\"backend-contracts\",\"disposition\":\"finding\",\"evidence\":\"N1\"},\n    {\"id\":\"backend-input-errors\",\"disposition\":\"passed\",\"evidence\":\"unit:pose-mcp/go/test\",\"rationale\":\"Sealed CLI write commands return a refusal, while Store assessment writes use the typed ErrSealedAssessmentWrite error. Focused CLI and pose package tests passed.\"},\n    {\"id\":\"backend-integration-impact\",\"disposition\":\"passed\",\"evidence\":\"integration:pose-mcp/go/sealed-checkout-child-evidence-integration\",\"rationale\":\"The change stays within the pose-mcp assessment CLI and Store boundary; sealed integration evidence covers delegated review checkout handling.\"},\n    {\"id\":\"backend-observability\",\"disposition\":\"passed\",\"evidence\":\"integration:pose-mcp/go/typed-diagnostics-integration\",\"rationale\":\"The CLI emits a persistence hint on stderr and direct Store callers receive a typed error with a remediation hint.\"},\n    {\"id\":\"compatibility\",\"disposition\":\"passed\",\"evidence\":\"unit:pose-mcp/go/test\",\"rationale\":\"The three flags are additive; persisting paths remain the default outside a sealed checkout, JSON output keeps the same result shape, and no stored record schema changes.\"},\n    {\"id\":\"correctness\",\"disposition\":\"finding\",\"evidence\":\"N1\"},\n    {\"id\":\"design-causality\",\"disposition\":\"passed\",\"evidence\":\"structure:design-f5a95f8918bdd747\",\"rationale\":\"R1/R2 address persisted assessment files as the cause of sealed-run failures; D1's CLI skip plus Store guard is the smallest direct backstop, and D2 makes planned commands safe when copied. The design assessment observed no structural deltas, so there are no delta mappings.\",\"mappings\":[]},\n    {\"id\":\"documentation\",\"disposition\":\"passed\",\"evidence\":\"integration:pose-mcp/go/distributed-instructions-parity-integration\",\"rationale\":\"Compared the English and pt-BR manuals and embedded scaffold copies with the CLI behavior and help entries; they describe --no-persist, sealed checkout behavior, refusal commands, and planned flags consistently.\"},\n    {\"id\":\"operability\",\"disposition\":\"passed\",\"evidence\":\"unit:pose-mcp/go/test\",\"rationale\":\"The refusal paths explain why writes are blocked and the Store error names --no-persist. The focused tests passed.\"},\n    {\"id\":\"requirements\",\"disposition\":\"finding\",\"evidence\":\"N1\"},\n    {\"id\":\"scope\",\"disposition\":\"passed\",\"evidence\":\"structure:design-f5a95f8918bdd747\",\"rationale\":\"Changes are confined to the assessment CLI and Store writers, review plan, help, and the specified manuals/scaffold copies. The one omitted writer guard is recorded as N1.\"},\n    {\"id\":\"security\",\"disposition\":\"passed\",\"evidence\":\"unit:pose-mcp/go/test\",\"rationale\":\"No new external input or credential handling was added. The sealed root comparison is path-normalized; L1 is disclosed under assumption-integrity. N1 is a sealed-worktree integrity gap, not an input-validation or secret-exposure issue.\"},\n    {\"id\":\"solution-proportionality\",\"disposition\":\"passed\",\"evidence\":\"structure:design-f5a95f8918bdd747\",\"rationale\":\"The two-layer CLI and Store guard is proportionate to the failure cause; a CLI-only flag would leave other Store callers able to publish. It avoids a broader filesystem policy. The choice would be incomplete unless every exported assessment writer, including the markdown writer in N1, is guarded.\"}\n  ],\n  \"tools\": [\n    {\"id\":\"artifact-check\",\"disposition\":\"failed\",\"evidence\":\"command:pose artifact-check --spec pose-assess-leaves-sealed-checkouts-alone --strict\",\"rationale\":\"The installed pose executable did not return a captured completion status; the checkout was subsequently changed by that older executable, so no pass can be claimed.\"},\n    {\"id\":\"assess-design\",\"disposition\":\"passed\",\"evidence\":\"structure:design-f5a95f8918bdd747\",\"rationale\":\"The design assessment returned observed with no structural deltas.\"},\n    {\"id\":\"assess-discover\",\"component\":\"pose-mcp\",\"disposition\":\"not-used\",\"evidence\":\"command:pose assess discover --no-persist --component pose-mcp\",\"rationale\":\"The installed pose executable predates the reviewed --no-persist change and wrote assessment artifacts; its output is not valid evidence for the reviewed implementation.\"},\n    {\"id\":\"assess-integrate\",\"disposition\":\"not-used\",\"evidence\":\"command:pose assess integrate --no-persist\",\"rationale\":\"The installed pose executable predates the reviewed --no-persist change and wrote assessment artifacts; its output is not valid evidence for the reviewed implementation.\"},\n    {\"id\":\"assess-tech-debt\",\"disposition\":\"not-used\",\"evidence\":\"command:pose assess tech-debt --no-persist\",\"rationale\":\"The installed pose executable predates the reviewed --no-persist change and wrote assessment artifacts; its output is not valid evidence for the reviewed implementation.\"},\n    {\"id\":\"closeout-check\",\"disposition\":\"deferred\",\"evidence\":\"command:pose closeout-check spec:pose-assess-leaves-sealed-checkouts-alone\",\"rationale\":\"The closeout check requires completion of this review and must remain deferred because no attestation was recorded.\"},\n    {\"id\":\"review-check\",\"disposition\":\"deferred\",\"evidence\":\"command:pose review-check spec:pose-assess-leaves-sealed-checkouts-alone\",\"rationale\":\"The review check requires completion of this review and must remain deferred because no attestation was recorded.\"},\n    {\"id\":\"suggest-review\",\"component\":\"pose-mcp\",\"disposition\":\"passed\",\"evidence\":\"command:pose suggest review --path pose-mcp\",\"rationale\":\"Rule selection returned backend-go, security, and documentation-style for pose-mcp.\"},\n    {\"id\":\"surface-check\",\"disposition\":\"failed\",\"evidence\":\"integration:pose-mcp/go/sealed-checkout-child-evidence-integration\",\"rationale\":\"The attempted installed-CLI check did not return a captured completion status; the stale executable makes the result untrustworthy.\"},\n    {\"id\":\"validate\",\"disposition\":\"passed\",\"evidence\":\"build:pose-mcp/go/build\",\"rationale\":\"Cited the bundle's sealed validation evidence because a fresh strict run could not be safely trusted after the installed CLI changed the checkout.\"},\n    {\"id\":\"validate\",\"component\":\"pose-mcp\",\"disposition\":\"passed\",\"evidence\":\"unit:pose-mcp/go/test\",\"rationale\":\"Cited the bundle's sealed module validation evidence; the focused current-source Go tests and vet passed separately.\"}\n  ]\n}\n```",
+  "policy_digest": "sha256:696cd2d8abf80e417c48c7af99954f0c89f06fe6c0e23249d5ff991f4dde4985",
+  "label": "assess-review-r1c",
+  "purpose": "review",
+  "env_removed": [
+    "CLAUDECODE",
+    "CLAUDE_CODE_BRIDGE_SESSION_ID",
+    "CLAUDE_CODE_CHILD_SESSION",
+    "CLAUDE_CODE_ENTRYPOINT",
+    "CLAUDE_CODE_EXECPATH",
+    "CLAUDE_CODE_MESSAGING_SOCKET",
+    "CLAUDE_CODE_MESSAGING_TOKEN",
+    "CLAUDE_CODE_SESSION_ATTENDED",
+    "CLAUDE_CODE_SESSION_ID",
+    "CLAUDE_EFFORT",
+    "CLAUDE_PID"
+  ],
+  "events": "codex-jsonl",
+  "events_digest": "sha256:96452488098c36ee15df0a42c68f4590fa74e0e0d4ccbfcb518d03762466c1ac",
+  "routing": {
+    "requested": "auto",
+    "prefer": "opposite-vendor-of-implementation",
+    "implementation": {
+      "principal": "agent:anthropic/unknown",
+      "vendor": "anthropic",
+      "model": "unknown",
+      "execution_digest": "sha256:344ac5868944c155772d60a95ef6ff20644580a642e772ad5c92c29428464ff8",
+      "source": "detected"
+    },
+    "implementation_from": "bundle",
+    "candidates": [
+      {
+        "agent": "sol-medium",
+        "vendor": "openai",
+        "model": "gpt-6-luna",
+        "group": "preferred",
+        "state": "available"
+      }
+    ],
+    "step": "preferred"
+  },
+  "independence_achieved": "different-vendor",
+  "round": 1
+}
