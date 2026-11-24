@@ -25,6 +25,9 @@ func init() {
 
 // Main is the entrypoint used by cmd/pose. It returns the process exit code.
 func Main(args []string, stdout, stderr io.Writer) int {
+	if len(args) > 0 && args[0] == posemodel.ReviewShimArg {
+		return posemodel.RunReviewShim(args[1:])
+	}
 	return mainWithUsage(args, stdout, stderr)
 }
 

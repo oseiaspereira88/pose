@@ -6,9 +6,11 @@ import (
 	"path/filepath"
 
 	"github.com/harne8/pose-mcp/internal/cli"
+	"github.com/harne8/pose-mcp/internal/pose"
 )
 
 func main() {
+	pose.ReviewShimAvailable = true
 	if base := filepath.Base(os.Args[0]); base == "pre-commit" || base == "post-merge" {
 		os.Exit(cli.HookMain(base, os.Stdout, os.Stderr))
 	}

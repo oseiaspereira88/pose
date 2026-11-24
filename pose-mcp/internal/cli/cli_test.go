@@ -16,6 +16,11 @@ import (
 )
 
 func TestMain(m *testing.M) {
+	// A dispatch re-enters this binary as the review run shim.
+	if len(os.Args) > 1 && os.Args[1] == posemodel.ReviewShimArg {
+		os.Exit(posemodel.RunReviewShim(os.Args[2:]))
+	}
+	posemodel.ReviewShimAvailable = true
 	if posemodel.EngineVersion == "unknown" {
 		posemodel.EngineVersion = "pose-test-engine"
 	}

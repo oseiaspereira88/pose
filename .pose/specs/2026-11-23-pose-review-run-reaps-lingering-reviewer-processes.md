@@ -58,7 +58,12 @@ Records written by earlier engines keep their meaning.
 - created: pose-mcp/internal/pose/review_reap_linux.go
 - created: pose-mcp/internal/pose/review_reap_other.go
 - created: pose-mcp/internal/pose/review_reap_linux_test.go
-- created: pose-mcp/internal/pose/review_subreaper_linux.go
+- created: pose-mcp/internal/pose/review_shim.go
+- created: pose-mcp/internal/pose/review_shim_linux.go
+- modified: pose-mcp/internal/pose/main_test.go
+- modified: pose-mcp/internal/cli/cli.go
+- modified: pose-mcp/internal/cli/cli_test.go
+- modified: pose-mcp/cmd/pose/main.go
 - modified: pose-mcp/internal/pose/delegation_list.go
 - created: pose-mcp/internal/pose/delegation_release.go
 - created: pose-mcp/internal/pose/delegation_release_test.go
@@ -137,6 +142,7 @@ Each requirement gets a regression test shown failing before its code.
 - 2026-11-24: review round 5 (rrn-146bc70da7364cde) requested changes. N1: the published claim and its takeover protocol are replaced by an operating-system lock (`flock`) on a per-attempt lock file, which the kernel releases when its holder ends, so there is nothing to take over and no window between two takers. N2: a release that finds the receipt already published and the marker still stalled completes by removing the marker. N3: the release completes with any run the attempt already recorded (by its dispatch or by an earlier release), never writing a second one. Each fix has a test that fails with it mutated out.
 - 2026-11-24: review round 6 (rrn-adf91bb46841bd66) requested changes. N1: an unreadable active marker may be a live attempt's, so no reservation is then taken as markerless. N2: a descendant that leaves the group, starts its own session and clears its environment is now ended too on Linux: the dispatcher makes itself a child subreaper, and after the adapter exits it ends every child reparented to it in another session, started after the adapter, that does not name another run's checkout, pinning each by pidfd and reaping it. N3: the disclosed count holds only processes that predate the run. Each fix has a test that fails with it mutated out.
 - 2026-11-24: review round 7 (rrn-9abc2fe5dedc7478) requested changes. N1, N2: a subreaper that cannot be enabled or a run start that cannot be read now fails the cleanup instead of skipping the orphan scan. N3: a process start that cannot be read, in the baseline or the orphan scan, is an error, and a process absent from the baseline is never taken as preexisting. N4: the run record names the ended processes by pid only; their names, which the reviewer chooses, are not recorded. N4 has a test; N1–N3 are error paths the host cannot be made to produce in a test.
+- 2026-11-24: the matrix of round 8 failed `TestReviewDispatchRunsAndRecordsAdapters`, and the cause was the design, not the test: a subreaper is process-wide, so the dispatcher also adopted and ended children other code started in the same process (a detached delegation) and could reap a process another goroutine waited for. The subreaper moved into a review run shim: the dispatcher starts the adapter as `<pose> __pose-review-run-shim <adapter path> <argv>`, the shim makes itself the subreaper, runs the adapter as its only child, ends and reaps everything left in its subtree, reports the ended pids in a file the dispatcher reads, and returns the adapter's status, re-raising its signal so a lost process still reads as lost. The shim has no other children, so all it adopts is the run's. The pose command and the test binaries that dispatch enable it; another embedder starts the adapter directly. `TestAnOrphanThatClearedItsEnvironmentIsEnded` fails with the shim's reaping removed.
 
 
 ### Results summary
@@ -171,7 +177,7 @@ The dispatch ends the processes a run left running before its cleanup and names 
 
 
 ### Residual risks
-L1: on Linux a run's process escapes only while it keeps a live parent outside the run and neither the run's group nor its environment entry, for example one handed to a service manager; the cleanup inventory still fails a run whose files it keeps changing. L5: the subreaper is process-wide, so in a long-running server a process that other code daemonizes during a run (git's automatic gc) is ended with the run's orphans. L2: outside Linux only the process-group kill applies. L4: a reservation an earlier engine left without a marker records no owner, so its release rests on the operator's confirmation, not on proof. L3: a process of this user that made itself non-inspectable cannot be matched: one that predates the run is skipped and counted in the run record, and one started during the run fails the cleanup, so such a run is not concludable.
+L1: on Linux a run's process escapes only while it keeps a live parent outside the run and neither the run's group nor its environment entry, for example one handed to a service manager; the cleanup inventory still fails a run whose files it keeps changing. L2: outside Linux only the process-group kill applies. L4: a reservation an earlier engine left without a marker records no owner, so its release rests on the operator's confirmation, not on proof. L3: a process of this user that made itself non-inspectable cannot be matched: one that predates the run is skipped and counted in the run record, and one started during the run fails the cleanup, so such a run is not concludable.
 
 
 ### Follow-ups

@@ -14,6 +14,11 @@ import (
 // test would otherwise record whichever agent ran the suite as its
 // implementation (spec pose-delegation-routing R2).
 func TestMain(m *testing.M) {
+	// A dispatch re-enters this binary as the review run shim.
+	if len(os.Args) > 1 && os.Args[1] == ReviewShimArg {
+		os.Exit(RunReviewShim(os.Args[2:]))
+	}
+	ReviewShimAvailable = true
 	if EngineVersion == "unknown" {
 		EngineVersion = "pose-test-engine"
 	}

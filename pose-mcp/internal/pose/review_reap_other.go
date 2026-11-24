@@ -8,6 +8,7 @@ func reapSealedCheckoutProcesses(string, map[int]string) ([]string, int, error) 
 
 func reviewOpaqueProcessBaseline() map[int]string { return nil }
 
-func enableReviewSubreaper() error                                      { return nil }
-func reviewClockTicks() (uint64, error)                                 { return 0, nil }
-func reapOrphanedEscapees(entry []byte, since uint64) ([]string, error) { return nil, nil }
+// RunReviewShim is the Linux review run shim; elsewhere it is not used.
+func RunReviewShim(args []string) int { return 125 }
+
+func readReviewShimReport(string) (reviewShimReport, error) { return reviewShimReport{}, nil }
