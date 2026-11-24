@@ -405,6 +405,9 @@ func markdownCell(value string) string {
 
 // SaveIntegrationMatrix writes integrations.json and integrations.md in .pose/.
 func (s Store) SaveIntegrationMatrix(matrix *IntegrationMatrix) error {
+	if err := refuseSealedAssessmentWrite(s.Root); err != nil {
+		return err
+	}
 	if matrix == nil {
 		return fmt.Errorf("integration matrix is required")
 	}

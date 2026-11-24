@@ -720,9 +720,9 @@ var commandHelpCatalog = map[string]CommandHelp{
 		DescriptionEN:   "Runs bounded local assessments for component LOC, dependencies, technical debt markers, public contracts, and structural deltas on a canonical review subject.",
 		DescriptionPtBR: "Executa assessments locais e bounded de LOC, dependências, débito técnico, contratos públicos e deltas estruturais sobre um subject canônico de review.",
 		Subcommands: []SubcommandHelp{
-			{"discover", "pose assess discover [--component <dir>] [--update-state]", "Discover LOC metrics, debts, and module structure", "Descobre métricas de LOC, débitos e estrutura de módulos"},
-			{"integrate", "pose assess integrate", "Check inter-module contracts (REST, Protobuf, Kafka, MCP)", "Verifica contratos inter-módulos (REST, Protobuf, Kafka, MCP)"},
-			{"tech-debt", "pose assess tech-debt", "Scan codebase for technical debt markers and uncovered stubs", "Escaneia a base de código por marcadores de débito e stubs"},
+			{"discover", "pose assess discover [--component <dir>] [--update-state] [--no-persist]", "Discover LOC metrics, debts, and module structure", "Descobre métricas de LOC, débitos e estrutura de módulos"},
+			{"integrate", "pose assess integrate [--update-state] [--no-persist]", "Check inter-module contracts (REST, Protobuf, Kafka, MCP)", "Verifica contratos inter-módulos (REST, Protobuf, Kafka, MCP)"},
+			{"tech-debt", "pose assess tech-debt [--update-state] [--no-persist]", "Scan codebase for technical debt markers and uncovered stubs", "Escaneia a base de código por marcadores de débito e stubs"},
 			{"design", "pose assess design --spec <slug> [--json] [--max-files N] [--max-bytes N]", "Observe bounded structural deltas from the sealed review subject", "Observa deltas estruturais bounded a partir do subject selado de review"},
 		},
 		Examples: []string{

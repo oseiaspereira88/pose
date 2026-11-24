@@ -55,8 +55,30 @@ func loadCapabilityPolicy(root string) capabilityPolicy {
 	return loadCapabilityPolicyIn(pose.NativeFiles(), root)
 }
 
+// assessPersists reports whether an assess command may write its records:
+// not with --no-persist, and never in the sealed checkout of a delegated
+// review (spec pose-assess-leaves-sealed-checkouts-alone R1, R2).
+func assessPersists(root string, args []string) (bool, string) {
+	for _, a := range args {
+		if a == "--no-persist" {
+			return false, "not persisted (--no-persist)"
+		}
+	}
+	if pose.IsSealedCheckout(root) {
+		return false, "not persisted: this is the sealed checkout of a delegated review"
+	}
+	return true, ""
+}
+
 func cmdAssess(root string, args []string, stdout, stderr io.Writer) int {
 	locale := cliLocaleValue()
+	if len(args) > 0 && pose.IsSealedCheckout(root) {
+		switch args[0] {
+		case "init", "snapshot", "request":
+			render(stdout, stderr).Failure("pose assess " + args[0] + ": writes the capability assessment, which a sealed review checkout does not take")
+			return 1
+		}
+	}
 	if len(args) > 0 {
 		switch args[0] {
 		case "init":
@@ -630,6 +652,7 @@ func assessDiscover(root string, args []string, stdout, stderr io.Writer, locale
 			ifStale = true
 		}
 	}
+	persist, persistNote := assessPersists(root, args)
 
 	store := pose.Store{Root: root}
 	var targets []string
@@ -662,9 +685,11 @@ func assessDiscover(root string, args []string, stdout, stderr io.Writer, locale
 			fmt.Fprintf(stderr, "pose assess discover %s: %v\n", t, err)
 			return 1
 		}
-		if err := store.SaveComponentState(state); err != nil {
-			fmt.Fprintf(stderr, "pose assess discover save %s: %v\n", t, err)
-			return 1
+		if persist {
+			if err := store.SaveComponentState(state); err != nil {
+				fmt.Fprintf(stderr, "pose assess discover save %s: %v\n", t, err)
+				return 1
+			}
 		}
 		results = append(results, state)
 	}
@@ -677,12 +702,14 @@ func assessDiscover(root string, args []string, stdout, stderr io.Writer, locale
 	if targetComp != "" {
 		consolidated = mergeWithPersistedComponentStates(store, results)
 	}
-	if err := store.GenerateConsolidatedAssessment(consolidated); err != nil {
-		fmt.Fprintf(stderr, "pose assess discover consolidate: %v\n", err)
-		return 1
+	if persist {
+		if err := store.GenerateConsolidatedAssessment(consolidated); err != nil {
+			fmt.Fprintf(stderr, "pose assess discover consolidate: %v\n", err)
+			return 1
+		}
 	}
 
-	if updateState {
+	if updateState && persist {
 		// The state is built from what this run observed: a persisted record of a component
 		// that is no longer there is not part of it. What was recorded and cannot be read is
 		// carried as a loss, so the state does not read as a certified total.
@@ -700,6 +727,9 @@ func assessDiscover(root string, args []string, stdout, stderr io.Writer, locale
 		}
 	}
 
+	if !persist {
+		render(stdout, stderr).Hint("pose assess: " + persistNote)
+	}
 	if asJSON {
 		enc, _ := json.MarshalIndent(results, "", "  ")
 		fmt.Fprintln(stdout, string(enc))
@@ -855,12 +885,17 @@ func assessIntegrate(root string, args []string, stdout, stderr io.Writer, local
 		return 1
 	}
 
-	if err := store.SaveIntegrationMatrix(matrix); err != nil {
-		fmt.Fprintf(stderr, "pose assess integrate save: %v\n", err)
-		return 1
+	persist, persistNote := assessPersists(root, args)
+	if persist {
+		if err := store.SaveIntegrationMatrix(matrix); err != nil {
+			fmt.Fprintf(stderr, "pose assess integrate save: %v\n", err)
+			return 1
+		}
+	} else {
+		render(stdout, stderr).Hint("pose assess: " + persistNote)
 	}
 
-	if updateState {
+	if updateState && persist {
 		if err := updateProjectStateArchitecture(root, nil); err != nil {
 			fmt.Fprintf(stderr, "pose assess integrate update-state: %v\n", err)
 			return 1
@@ -883,7 +918,9 @@ func assessIntegrate(root string, args []string, stdout, stderr io.Writer, local
 			g.GapID, g.Title, g.Severity, g.Provider, g.Consumer, g.Description)
 	}
 
-	fmt.Fprintf(stdout, "Artifacts written to .pose/assessments/integrations.md and .pose/state/integrations.json\n")
+	if persist {
+		fmt.Fprintf(stdout, "Artifacts written to .pose/assessments/integrations.md and .pose/state/integrations.json\n")
+	}
 	return 0
 }
 
@@ -907,12 +944,17 @@ func assessTechDebt(root string, args []string, stdout, stderr io.Writer, locale
 		return 1
 	}
 
-	if err := store.SaveTechDebtReport(report); err != nil {
-		fmt.Fprintf(stderr, "pose assess tech-debt save: %v\n", err)
-		return 1
+	persist, persistNote := assessPersists(root, args)
+	if persist {
+		if err := store.SaveTechDebtReport(report); err != nil {
+			fmt.Fprintf(stderr, "pose assess tech-debt save: %v\n", err)
+			return 1
+		}
+	} else {
+		render(stdout, stderr).Hint("pose assess: " + persistNote)
 	}
 
-	if updateState {
+	if updateState && persist {
 		if err := updateProjectStateArchitecture(root, nil); err != nil {
 			fmt.Fprintf(stderr, "pose assess tech-debt update-state: %v\n", err)
 			return 1
@@ -941,6 +983,8 @@ func assessTechDebt(root string, args []string, stdout, stderr io.Writer, locale
 	for _, exclusion := range report.Coverage.Exclusions {
 		scope.Field("techdebt.excluded", fmt.Sprintf("%s: %d file(s) — %s", exclusion.Pattern, exclusion.Count, exclusion.Reason))
 	}
-	fmt.Fprintf(stdout, "Artifacts written to .pose/assessments/technical-debt.md and .pose/state/technical-debt.json\n")
+	if persist {
+		fmt.Fprintf(stdout, "Artifacts written to .pose/assessments/technical-debt.md and .pose/state/technical-debt.json\n")
+	}
 	return 0
 }

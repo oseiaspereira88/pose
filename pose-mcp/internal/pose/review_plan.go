@@ -1385,7 +1385,7 @@ func reviewToolArgs(id string, scope ScopeRef, component string) []string {
 		}
 		return []string{"pose", "suggest", "review", "--path", path}
 	case "assess-discover":
-		args := []string{"pose", "assess", "discover"}
+		args := []string{"pose", "assess", "discover", "--no-persist"}
 		if component != "" {
 			args = append(args, "--component", component)
 		}
@@ -1393,9 +1393,9 @@ func reviewToolArgs(id string, scope ScopeRef, component string) []string {
 	case "assess-design":
 		return []string{"pose", "assess", "design", "--spec", scope.Slug, "--json"}
 	case "assess-integrate":
-		return []string{"pose", "assess", "integrate"}
+		return []string{"pose", "assess", "integrate", "--no-persist"}
 	case "assess-tech-debt":
-		return []string{"pose", "assess", "tech-debt"}
+		return []string{"pose", "assess", "tech-debt", "--no-persist"}
 	case "artifact-check":
 		return []string{"pose", "artifact-check", "--spec", scope.Slug, "--strict"}
 	case "validate":

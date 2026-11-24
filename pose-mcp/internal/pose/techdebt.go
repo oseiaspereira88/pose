@@ -427,6 +427,9 @@ func (s Store) AnalyzeTechDebt() (*TechDebtReportState, error) {
 
 // SaveTechDebtReport writes technical-debt.json and technical-debt.md in .pose/.
 func (s Store) SaveTechDebtReport(report *TechDebtReportState) error {
+	if err := refuseSealedAssessmentWrite(s.Root); err != nil {
+		return err
+	}
 	if report == nil {
 		return fmt.Errorf("technical-debt report is required")
 	}

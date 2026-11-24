@@ -631,6 +631,9 @@ func inspectCodeFile(files Files, path string) (loc int, isTest, generated bool,
 // SaveComponentState writes ComponentDiscoveryState JSON to .pose/state/components/<slug>.json
 // and automatically generates the corresponding .pose/assessments/<slug>.md report.
 func (s Store) SaveComponentState(state *ComponentDiscoveryState) error {
+	if err := refuseSealedAssessmentWrite(s.Root); err != nil {
+		return err
+	}
 	if state == nil {
 		return fmt.Errorf("component state is required")
 	}
@@ -737,6 +740,9 @@ func (s Store) LoadComponentState(slug string) (*ComponentDiscoveryState, error)
 
 // GenerateConsolidatedAssessment builds a project-derived consolidated report.
 func (s Store) GenerateConsolidatedAssessment(states []*ComponentDiscoveryState) error {
+	if err := refuseSealedAssessmentWrite(s.Root); err != nil {
+		return err
+	}
 	dir := s.AssessmentsDir()
 	if err := os.MkdirAll(dir, 0o755); err != nil {
 		return err
