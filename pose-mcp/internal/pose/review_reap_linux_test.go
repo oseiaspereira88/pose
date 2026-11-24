@@ -128,3 +128,97 @@ func TestAnOrphanThatClearedItsEnvironmentIsEnded(t *testing.T) {
 		t.Fatalf("the recorded limitation does not name the pid: %v", f.run.Safety.Limitations)
 	}
 }
+
+// waitGone waits for pid to end (or be a zombie) and reports whether it did.
+func waitGone(pid int, within time.Duration) bool {
+	deadline := time.Now().Add(within)
+	for time.Now().Before(deadline) {
+		if zombie, err := reviewProcessZombie(pid); err != nil || zombie {
+			return true
+		}
+		time.Sleep(50 * time.Millisecond)
+	}
+	return false
+}
+
+// Review round 8, N2: the shim's report never goes through a path the
+// reviewer can write, and the reviewer does not inherit the report pipe.
+func TestTheAdapterDoesNotInheritTheShimReport(t *testing.T) {
+	fds := filepath.Join(t.TempDir(), "fds")
+	f := provenanceRunFixture(t, "fixture-vendor", "fixture-model", func(a *ReviewerAdapter) {
+		a.Containment = containmentPolicy()
+		a.Command = []string{"sh", "-c", `cat >/dev/null; ls /proc/$$/fd > "$1"; env | grep -c POSE_REVIEW_SHIM_REPORT >> "$1"; ls "$TMPDIR" >> "$1"; printf 'decision: approved\n'`, "sh", fds}
+	})
+	raw, err := os.ReadFile(fds)
+	if err != nil || f.run.Status != ReviewRunCompleted {
+		t.Fatalf("the probe did not run: %v %s %s", err, f.run.Status, f.run.Failure)
+	}
+	lines := strings.Fields(string(raw))
+	for _, l := range lines {
+		if l == "3" || strings.Contains(l, "shim-report") {
+			t.Fatalf("the adapter sees the shim's report (%q): %s", l, raw)
+		}
+	}
+}
+
+// Review round 8, N3: a timeout asks the shim to end the run's subtree, so an
+// orphan that cleared its environment does not outlive it.
+func TestATimeoutEndsTheRunsOrphans(t *testing.T) {
+	if _, err := exec.LookPath("setsid"); err != nil {
+		t.Skip("setsid is not available")
+	}
+	pidFile := filepath.Join(t.TempDir(), "orphan.pid")
+	_ = provenanceRunFixture(t, "fixture-vendor", "fixture-model", func(a *ReviewerAdapter) {
+		a.Containment = containmentPolicy()
+		a.Timeout = "2s"
+		a.Command = []string{"sh", "-c", `cat >/dev/null; setsid env -i /bin/sh -c 'echo $$ > "$1"; while :; do sleep 0.05; done' sh "$1" </dev/null >/dev/null 2>&1 & sleep 30`, "sh", pidFile}
+	})
+	raw, err := os.ReadFile(pidFile)
+	if err != nil {
+		t.Fatalf("the orphan never started: %v", err)
+	}
+	pid, _ := strconv.Atoi(strings.TrimSpace(string(raw)))
+	t.Cleanup(func() { _ = syscall.Kill(pid, syscall.SIGKILL) })
+	if !waitGone(pid, 2*time.Second) {
+		t.Fatal("an orphan outlived the run's timeout")
+	}
+}
+
+// Review round 8, N4: when the dispatcher ends, the shim ends the run's
+// subtree instead of leaving the reviewer running behind a dead owner.
+func TestTheShimEndsTheRunWhenItsDispatcherEnds(t *testing.T) {
+	if _, err := exec.LookPath("setsid"); err != nil {
+		t.Skip("setsid is not available")
+	}
+	self, err := os.Executable()
+	if err != nil {
+		t.Fatal(err)
+	}
+	dir := t.TempDir()
+	orphanPid, shimPid := filepath.Join(dir, "orphan.pid"), filepath.Join(dir, "shim.pid")
+	adapter := filepath.Join(dir, "adapter.sh")
+	if err := os.WriteFile(adapter, []byte("#!/bin/sh\nsetsid env -i /bin/sh -c 'echo $$ > \"$1\"; while :; do sleep 0.05; done' sh \"$1\" </dev/null >/dev/null 2>&1 &\nsleep 30\n"), 0o755); err != nil {
+		t.Fatal(err)
+	}
+	// A stand-in dispatcher starts the shim and ends once the run is going.
+	script := `export ` + ReviewShimReportEnv + `=$$; "$1" ` + ReviewShimArg + ` /bin/sh sh "$4" "$2" & echo $! > "$3"; ` +
+		`i=0; while [ ! -s "$2" ] && [ $i -lt 100 ]; do sleep 0.05; i=$((i+1)); done; exit 0`
+	// No output pipe: waiting for one would wait for the shim that inherits it.
+	dispatcher := exec.Command("sh", "-c", script, "sh", self, orphanPid, shimPid, adapter)
+	started := time.Now()
+	if err := dispatcher.Run(); err != nil {
+		t.Fatalf("the stand-in dispatcher failed: %v", err)
+	}
+	if time.Since(started) > 10*time.Second {
+		t.Fatal("the stand-in dispatcher waited for the run")
+	}
+	raw, err := os.ReadFile(orphanPid)
+	if err != nil {
+		t.Fatalf("the run never started: %v", err)
+	}
+	pid, _ := strconv.Atoi(strings.TrimSpace(string(raw)))
+	t.Cleanup(func() { _ = syscall.Kill(pid, syscall.SIGKILL) })
+	if !waitGone(pid, 5*time.Second) {
+		t.Fatal("the run outlived its dispatcher")
+	}
+}

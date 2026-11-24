@@ -36,8 +36,6 @@ import (
 	"golang.org/x/sys/unix"
 )
 
-const reviewReapWait = 5 * time.Second
-
 // reapSealedCheckoutProcesses ends every process whose environment names
 // worktree as its sealed checkout and returns a description of each. An
 // error means the run's processes could not be proven ended within the bound.

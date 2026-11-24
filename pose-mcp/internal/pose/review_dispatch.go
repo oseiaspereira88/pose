@@ -971,12 +971,16 @@ func (s Store) RunReviewDispatchContext(parent context.Context, plan DispatchPla
 	cmd.Args[0] = argv[0]
 	// The adapter runs under the review run shim, which ends what the run
 	// leaves in its subtree (review_shim.go).
-	shimReport := ""
+	useShim := false
+	var shimRead, shimWrite *os.File
 	if ReviewShimAvailable && runtime.GOOS == "linux" && cmd.Err == nil {
 		// The adapter's path as resolved here, in the dispatcher's PATH.
 		if self, err := os.Executable(); err == nil {
-			shimReport = filepath.Join(tmp, "pose-review-shim-report.json")
-			cmd = exec.CommandContext(ctx, self, append([]string{ReviewShimArg, cmd.Path}, argv...)...)
+			if r, w, err := os.Pipe(); err == nil {
+				useShim, shimRead, shimWrite = true, r, w
+				cmd = exec.CommandContext(ctx, self, append([]string{ReviewShimArg, cmd.Path}, argv...)...)
+				cmd.ExtraFiles = []*os.File{w}
+			}
 		}
 	}
 	cmd.Dir = worktree
@@ -994,8 +998,8 @@ func (s Store) RunReviewDispatchContext(parent context.Context, plan DispatchPla
 	// The reviewer works in a sealed checkout: diagnostics it runs must not
 	// publish derived records into it (SealedCheckoutEnv).
 	env = append(env, SealedCheckoutEnv+"="+worktree)
-	if shimReport != "" {
-		env = append(env, ReviewShimReportEnv+"="+shimReport)
+	if useShim {
+		env = append(env, ReviewShimReportEnv+"="+fmt.Sprint(os.Getpid()))
 	}
 	// The reviewer checks its draft against the sealed bundle and the round
 	// before it finishes (spec pose-review-readiness-before-seal R3). A
@@ -1039,6 +1043,20 @@ func (s Store) RunReviewDispatchContext(parent context.Context, plan DispatchPla
 	// the group and cleared its environment is still found (review round 6, N2).
 	isolateProcessGroup(cmd)
 	cmd.WaitDelay = AdapterPipeGrace
+	var shimReport []byte
+	shimReportDone := make(chan struct{})
+	if useShim {
+		// A timeout asks the shim to end the run's subtree first; the group
+		// kill after Wait remains the backstop (review round 8, N3).
+		cmd.Cancel = stopReviewShim(cmd)
+		cmd.WaitDelay = AdapterPipeGrace + reviewReapWait
+		go func() {
+			defer close(shimReportDone)
+			shimReport, _ = io.ReadAll(io.LimitReader(shimRead, 64<<10))
+		}()
+	} else {
+		close(shimReportDone)
+	}
 	var runErr error
 	if run.Provenance == nil {
 		runErr = cmd.Run()
@@ -1050,20 +1068,30 @@ func (s Store) RunReviewDispatchContext(parent context.Context, plan DispatchPla
 			run.Provenance.ExecutionState = "started"
 		}
 	}
+	if useShim {
+		_ = shimWrite.Close()
+		<-shimReportDone
+		_ = shimRead.Close()
+	}
 	terminationErr = killProcessGroup(cmd)
 	// A command the reviewer left running in a session of its own escapes the
 	// group kill; it is ended here, before the cleanup inventory reads the
 	// directories it may still write (spec
 	// pose-review-run-reaps-lingering-reviewer-processes R1, R2).
-	reaped, opaque, reapErr := reapSealedCheckoutProcesses(worktree, opaqueBaseline)
-	if reapErr != nil {
-		terminationErr = errors.Join(terminationErr, reapErr)
+	// The environment entry is the reviewer's to set, so it is searched only
+	// without the shim, whose subtree is the run's by construction (review
+	// round 8, N1).
+	var reaped []string
+	var opaque int
+	var reapErr error
+	if !useShim {
+		reaped, opaque, reapErr = reapSealedCheckoutProcesses(worktree, opaqueBaseline)
+		if reapErr != nil {
+			terminationErr = errors.Join(terminationErr, reapErr)
+		}
 	}
-	// The shim reports what it ended in the run's subtree once the adapter
-	// exited; a shim ended by the group kill (a timeout) leaves no report.
-	_, reportStatErr := os.Lstat(shimReport)
-	if shimReport != "" && reapErr == nil && (reportStatErr == nil || cmd.ProcessState != nil && cmd.ProcessState.Exited()) {
-		if report, err := readReviewShimReport(shimReport); err != nil {
+	if useShim && cmd.ProcessState != nil {
+		if report, err := parseReviewShimReport(shimReport); err != nil {
 			terminationErr = errors.Join(terminationErr, err)
 		} else {
 			for _, pid := range report.Ended {
