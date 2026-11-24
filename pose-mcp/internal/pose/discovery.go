@@ -656,6 +656,9 @@ func (s Store) SaveComponentState(state *ComponentDiscoveryState) error {
 
 // GenerateComponentAssessmentMarkdown automatically builds .pose/assessments/<slug>.md from discovery data.
 func (s Store) GenerateComponentAssessmentMarkdown(state *ComponentDiscoveryState) error {
+	if err := refuseSealedAssessmentWrite(s.Root); err != nil {
+		return err
+	}
 	dir := s.AssessmentsDir()
 	if err := os.MkdirAll(dir, 0o755); err != nil {
 		return err
@@ -858,6 +861,9 @@ func (s Store) GenerateConsolidatedAssessment(states []*ComponentDiscoveryState)
 
 // GenerateAssessmentsIndex automatically builds .pose/assessments/README.md linking all components.
 func (s Store) GenerateAssessmentsIndex(states []*ComponentDiscoveryState) error {
+	if err := refuseSealedAssessmentWrite(s.Root); err != nil {
+		return err
+	}
 	dir := s.AssessmentsDir()
 	if err := os.MkdirAll(dir, 0o755); err != nil {
 		return err

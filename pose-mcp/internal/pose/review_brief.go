@@ -27,7 +27,7 @@ const (
 )
 
 var reviewBriefTemplates = map[string]string{
-	ReviewBriefKindReview:       reviewBriefTemplateDraftCheck,
+	ReviewBriefKindReview:       reviewBriefTemplateEngineTools,
 	ReviewBriefKindAdjudication: adjudicationBriefTemplateTyped,
 	ReviewBriefKindSmoke:        smokeBriefTemplateTyped,
 }
@@ -69,6 +69,12 @@ const (
 	// that checks the draft with `pose review draft-check` before the run ends
 	// (spec pose-review-readiness-before-seal R4).
 	reviewBriefTemplateDraftCheck = "review-brief/8"
+	// reviewBriefTemplateEngineTools is the current template: /8 plus the
+	// instruction to run the planned `pose` commands with the engine that
+	// dispatched the run, since the reviewer's shell may resolve an older
+	// installed `pose` that ignores flags such as --no-persist (spec
+	// pose-assess-leaves-sealed-checkouts-alone R5).
+	reviewBriefTemplateEngineTools = "review-brief/9"
 	// reviewBriefTemplateConclusions asked for the typed conclusion and stated its rules,
 	// without the identifiers of the findings of earlier rounds.
 	// reviewBriefTemplateConclusions (/4) asked for the typed conclusion and stated the rules
@@ -84,7 +90,12 @@ const (
 // reviewBriefFromAllNotApplicable reports /7 and the templates that keep its
 // text and add to it.
 func reviewBriefFromAllNotApplicable(template string) bool {
-	return template == reviewBriefTemplateAllNotApplicable || template == reviewBriefTemplateDraftCheck
+	return template == reviewBriefTemplateAllNotApplicable || template == reviewBriefTemplateDraftCheck || template == reviewBriefTemplateEngineTools
+}
+
+// reviewBriefFromDraftCheck reports /8 and the templates that keep its text.
+func reviewBriefFromDraftCheck(template string) bool {
+	return template == reviewBriefTemplateDraftCheck || template == reviewBriefTemplateEngineTools
 }
 
 // reviewBriefAsksConclusion reports a template that asks for the typed conclusion.
@@ -127,7 +138,7 @@ func reviewBriefStatesRules(template string) bool {
 // briefed with before the current one, newest first; a run briefed with one
 // is re-rendered with it to verify and to continue (the brief a run was sent
 // never changes under it).
-var reviewBriefEarlierTemplates = []string{reviewBriefTemplateAllNotApplicable, reviewBriefTemplateRiskRules, reviewBriefTemplateRoundIDs, reviewBriefTemplateConclusions, reviewBriefTemplateTypedConclusion, reviewBriefTemplateRounds, reviewBriefTemplateFirst}
+var reviewBriefEarlierTemplates = []string{reviewBriefTemplateDraftCheck, reviewBriefTemplateAllNotApplicable, reviewBriefTemplateRiskRules, reviewBriefTemplateRoundIDs, reviewBriefTemplateConclusions, reviewBriefTemplateTypedConclusion, reviewBriefTemplateRounds, reviewBriefTemplateFirst}
 
 // briefEarlierTemplates are, per kind, the templates a run may have been
 // briefed with before the current one, newest first.
@@ -375,6 +386,10 @@ func renderReviewBriefBody(bundle ReviewBundle, kind, template, notes string, sm
 	if len(plan.Tools) > 0 {
 		line("## Tools the plan requires")
 		line("")
+		if template == reviewBriefTemplateEngineTools {
+			line("Run each `pose` command below as `\"$POSE_REVIEW_CLI\"` followed by the same arguments: it is the engine that sealed and dispatched this run. The `pose` your shell resolves may be an older installed engine that ignores flags such as `--no-persist` and writes into this sealed checkout, which fails the run.")
+			line("")
+		}
 		tools := append([]ReviewPlanTool(nil), plan.Tools...)
 		sort.SliceStable(tools, func(i, j int) bool { return tools[i].ID+tools[i].Component < tools[j].ID+tools[j].Component })
 		for _, t := range tools {
@@ -485,7 +500,7 @@ func renderReviewBriefBody(bundle ReviewBundle, kind, template, notes string, sm
 			if reviewBriefStatesRules(template) {
 				line("%d. %s", next+2, briefRulesText(template, bundle))
 			}
-			if template == reviewBriefTemplateDraftCheck {
+			if reviewBriefFromDraftCheck(template) {
 				line("%d. Before you finish, check your final message: pipe it to `\"$POSE_REVIEW_CLI\" review draft-check --draft -`, the engine that dispatched this run (it reads this run's bundle and round, writes nothing and works in a read-only sandbox) and fix every reason it reports. A draft it refuses is refused at conclusion, and the round is spent.", next+3)
 			}
 		}

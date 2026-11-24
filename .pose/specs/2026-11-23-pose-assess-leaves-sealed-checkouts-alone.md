@@ -36,6 +36,7 @@ Changing assessment content or scoring.
 - R2: When the working root is a sealed review checkout (`POSE_SEALED_CHECKOUT` or the review runtime marker), `pose assess` shall not persist, whether or not `--no-persist` is given, and shall say so.
 - R3: The review brief shall plan assessment tools with the non-persisting form.
 - R4: A regression test shall run each assessment command inside a sealed checkout fixture and prove the tree unchanged.
+- R5: The review brief shall tell the reviewer to run the planned `pose` commands with the engine that dispatched the run (`"$POSE_REVIEW_CLI"`), since the `pose` its shell resolves may be an older engine that ignores `--no-persist`.
 
 ### Non-functional
 Existing behaviour outside the stated requirements is unchanged.
@@ -59,6 +60,10 @@ Records and indexes written by earlier engines keep their meaning.
 - modified: pose-mcp/internal/pose/integration.go
 - modified: pose-mcp/internal/pose/techdebt.go
 - modified: pose-mcp/internal/pose/review_plan.go
+- modified: pose-mcp/internal/pose/review_brief.go
+- modified: pose-mcp/internal/pose/review_brief_test.go
+- modified: pose-mcp/internal/pose/review_brief_conclusion_rules_test.go
+- modified: pose-mcp/internal/pose/testdata/review_brief_template_digests.json
 - modified: pose-mcp/internal/cli/assess.go
 - created: pose-mcp/internal/cli/assess_sealed_test.go
 - modified: pose-mcp/internal/cli/help_catalog.go
@@ -118,6 +123,7 @@ Each requirement gets a regression test shown failing before its code.
 
 ### Execution log
 - 2026-11-23: implemented R1–R4. Each guard has a test that fails with it mutated out: the CLI's sealed-checkout branch, the Store writer guard, `--no-persist`, and the refusal of `init`, `snapshot` and `request`.
+- 2026-11-24: review round 1 (rrn-cd0ac9394ca5892b, gpt-6-luna at max effort) failed: the reviewer ran the planned `pose assess ... --no-persist` with the installed `pose` its login shell resolved, an older engine that ignores the flag, and it wrote into the sealed checkout. Its draft also found N1: `GenerateComponentAssessmentMarkdown` wrote without the guard. Fixes: every writer in the assessment files calls the guard, and `TestEveryAssessmentWriterRefusesASealedCheckout` scans them so a new unguarded writer fails; R5 adds `review-brief/9`, which has the planned `pose` commands run as `"$POSE_REVIEW_CLI"`. Both fixes have tests that fail with them mutated out.
 
 
 ### Results summary
@@ -129,6 +135,7 @@ The full `pose-mcp` suite passes; the canonical result is refreshed with `pose v
 - R2 [satisfied] test:TestAssessLeavesTheSealedCheckoutUnchanged
 - R3 [satisfied] test:TestReviewPlanRunsAssessmentsWithoutPersisting
 - R4 [satisfied] test:TestAssessLeavesTheSealedCheckoutUnchanged
+- R5 [satisfied] test:TestTheCurrentBriefRunsPlannedToolsWithTheDispatchingEngine
 
 
 ### Known gaps
@@ -138,7 +145,7 @@ None.
 ## 7. Final Report
 
 ### Delivered scope
-`pose assess discover|integrate|tech-debt --no-persist`; no persistence and refusal of the writing subcommands in a sealed review checkout; the Store's assessment writers refuse there; the review plan runs assessments without persisting.
+`pose assess discover|integrate|tech-debt --no-persist`; no persistence and refusal of the writing subcommands in a sealed review checkout; the Store's assessment writers refuse there; the review plan runs assessments without persisting, and `review-brief/9` has the planned `pose` commands run by the dispatching engine.
 
 
 ### Files and modules changed
