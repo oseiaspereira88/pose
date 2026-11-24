@@ -1053,6 +1053,8 @@ func (s Store) RunReviewDispatchContext(parent context.Context, plan DispatchPla
 		go func() {
 			defer close(shimReportDone)
 			shimReport, _ = io.ReadAll(io.LimitReader(shimRead, 64<<10))
+			// Whatever exceeds the bound is drained, so the shim never blocks.
+			_, _ = io.Copy(io.Discard, shimRead)
 		}()
 	} else {
 		close(shimReportDone)
@@ -1066,6 +1068,15 @@ func (s Store) RunReviewDispatchContext(parent context.Context, plan DispatchPla
 		run.Provenance.WireDigest, run.Provenance.WireBytes, run.Provenance.WireComplete = digest, n, complete
 		if started {
 			run.Provenance.ExecutionState = "started"
+		}
+	}
+	if useShim && safety != nil {
+		// With the shim the run's leftovers are its subtree, not an
+		// environment match (review round 9, N1).
+		for i, limit := range safety.Limitations {
+			if strings.HasPrefix(limit, "no memory/CPU quota;") {
+				safety.Limitations[i] = "no memory/CPU quota; the review run shim ends every process left in the run's subtree, including one in its own session"
+			}
 		}
 	}
 	if useShim {
@@ -1096,6 +1107,9 @@ func (s Store) RunReviewDispatchContext(parent context.Context, plan DispatchPla
 		} else {
 			for _, pid := range report.Ended {
 				reaped = append(reaped, pid+" (orphaned)")
+			}
+			if more := report.EndedTotal - len(report.Ended); more > 0 {
+				reaped = append(reaped, fmt.Sprintf("and %d more (orphaned)", more))
 			}
 			if report.Error != "" {
 				terminationErr = errors.Join(terminationErr, errors.New(report.Error))

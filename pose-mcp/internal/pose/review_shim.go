@@ -1,6 +1,9 @@
 package pose
 
-import "time"
+import (
+	"encoding/json"
+	"time"
+)
 
 // The review run shim (spec pose-review-run-reaps-lingering-reviewer-processes,
 // review rounds 6 and 8): a descendant of the reviewer that leaves the
@@ -36,6 +39,25 @@ var ReviewShimAvailable = false
 
 // reviewShimReport is what the shim found after the adapter exited.
 type reviewShimReport struct {
-	Ended []string `json:"ended"`
-	Error string   `json:"error,omitempty"`
+	Ended      []string `json:"ended"`
+	EndedTotal int      `json:"ended_total"`
+	Error      string   `json:"error,omitempty"`
+}
+
+// reviewShimReportMaxPids bounds the pids a report lists; EndedTotal counts
+// them all. A full report stays far below the dispatcher's read bound.
+const reviewShimReportMaxPids = 1000
+
+// boundedReviewShimReport encodes r within the dispatcher's read bound, so
+// the dispatcher always reads it whole (review round 9, N2).
+func boundedReviewShimReport(r reviewShimReport) []byte {
+	r.EndedTotal = len(r.Ended)
+	if len(r.Ended) > reviewShimReportMaxPids {
+		r.Ended = r.Ended[:reviewShimReportMaxPids]
+	}
+	if len(r.Error) > 4096 {
+		r.Error = r.Error[:4096]
+	}
+	raw, _ := json.Marshal(r)
+	return raw
 }

@@ -35,7 +35,7 @@ func RunReviewShim(args []string) int {
 		if reportFile == nil {
 			return
 		}
-		raw, _ := json.Marshal(report)
+		raw := boundedReviewShimReport(report)
 		_, _ = reportFile.Write(raw)
 		_ = reportFile.Close()
 	}
@@ -119,12 +119,22 @@ func reapShimSubtree() ([]string, error) {
 	var ended []string
 	seen := map[int]bool{}
 	deadline := time.Now().Add(reviewReapWait)
+	// A process that cannot be inspected or ended is not a reason to stop:
+	// the others are still ended, and the problem is reported at the end
+	// (review round 9, N3).
+	var problems []string
+	note := func(err error) {
+		if len(problems) < 8 {
+			problems = append(problems, err.Error())
+		}
+	}
 	for {
+		children := 0
+		problems = problems[:0]
 		dirs, err := os.ReadDir("/proc")
 		if err != nil {
-			return ended, fmt.Errorf("the run's processes could not be listed: %w", err)
+			note(fmt.Errorf("the run's processes could not be listed: %w", err))
 		}
-		children := 0
 		for _, d := range dirs {
 			pid, err := strconv.Atoi(d.Name())
 			if err != nil || pid == self {
@@ -135,7 +145,9 @@ func reapShimSubtree() ([]string, error) {
 				continue
 			}
 			if err != nil {
-				return ended, fmt.Errorf("process %d could not be inspected: %w", pid, err)
+				children++
+				note(fmt.Errorf("process %d could not be inspected: %w", pid, err))
+				continue
 			}
 			if st.ppid != self {
 				continue
@@ -147,7 +159,7 @@ func reapShimSubtree() ([]string, error) {
 					ended = append(ended, strconv.Itoa(pid))
 				}
 				if err := killPinnedChild(pid, self); err != nil {
-					return ended, err
+					note(err)
 				}
 			}
 		}
@@ -157,11 +169,11 @@ func reapShimSubtree() ([]string, error) {
 				break
 			}
 		}
-		if children == 0 {
+		if children == 0 && len(problems) == 0 {
 			return ended, nil
 		}
 		if time.Now().After(deadline) {
-			return ended, fmt.Errorf("%d process(es) of the run could not be ended", children)
+			return ended, fmt.Errorf("%d process(es) of the run could not be ended: %s", children, strings.Join(problems, "; "))
 		}
 		time.Sleep(20 * time.Millisecond)
 	}

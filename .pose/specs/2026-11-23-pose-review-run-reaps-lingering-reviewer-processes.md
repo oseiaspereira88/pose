@@ -60,6 +60,7 @@ Records written by earlier engines keep their meaning.
 - created: pose-mcp/internal/pose/review_reap_linux_test.go
 - created: pose-mcp/internal/pose/review_shim.go
 - created: pose-mcp/internal/pose/review_shim_linux.go
+- created: pose-mcp/internal/pose/review_shim_test.go
 - modified: pose-mcp/internal/pose/main_test.go
 - modified: pose-mcp/internal/pose/engine_reads_raw_history_test.go
 - modified: pose-mcp/internal/cli/cli.go
@@ -145,6 +146,7 @@ Each requirement gets a regression test shown failing before its code.
 - 2026-11-24: review round 7 (rrn-9abc2fe5dedc7478) requested changes. N1, N2: a subreaper that cannot be enabled or a run start that cannot be read now fails the cleanup instead of skipping the orphan scan. N3: a process start that cannot be read, in the baseline or the orphan scan, is an error, and a process absent from the baseline is never taken as preexisting. N4: the run record names the ended processes by pid only; their names, which the reviewer chooses, are not recorded. N4 has a test; N1–N3 are error paths the host cannot be made to produce in a test.
 - 2026-11-24: the matrix of round 8 failed `TestReviewDispatchRunsAndRecordsAdapters`, and the cause was the design, not the test: a subreaper is process-wide, so the dispatcher also adopted and ended children other code started in the same process (a detached delegation) and could reap a process another goroutine waited for. The subreaper moved into a review run shim: the dispatcher starts the adapter as `<pose> __pose-review-run-shim <adapter path> <argv>`, the shim makes itself the subreaper, runs the adapter as its only child, ends and reaps everything left in its subtree, reports the ended pids in a file the dispatcher reads, and returns the adapter's status, re-raising its signal so a lost process still reads as lost. The shim has no other children, so all it adopts is the run's. The pose command and the test binaries that dispatch enable it; another embedder starts the adapter directly. `TestAnOrphanThatClearedItsEnvironmentIsEnded` fails with the shim's reaping removed.
 - 2026-11-24: review round 8 (rrn-f19179878d867e9a) requested changes. N1: the environment entry is the reviewer's to set, so with the shim the dispatcher no longer searches by it; the shim's subtree is the run's by construction, and the search remains only for an embedder without the shim (L6). N2: the shim's report goes through a pipe passed as file descriptor 3, which the shim closes on exec, never through a path the reviewer can write. N3: a timeout sends the shim SIGTERM, and the shim ends the run's subtree before it exits; the group kill after the run stays the backstop. N4: the shim receives SIGTERM when its dispatcher ends (`PR_SET_PDEATHSIG`, checked against the dispatcher's pid at start) and ends the run, so a dead dispatcher never leaves a reviewer running. Each fix has a test that fails with it mutated out.
+- 2026-11-24: review round 9 (rrn-5bbd458c7701af31) requested changes. N1 (follow-up): the manual and the recorded limitation now describe the shim as the Linux path and the environment search as the fallback of an embedder without it. N2: the shim's report is bounded (at most 1000 pids, with the total counted, and a bounded error) and the dispatcher drains whatever exceeds its read, so a large report never blocks the shim. N3: a process the shim cannot inspect or end no longer stops the reaping of the others; the problems are reported when the bound expires. N1 and N2 have tests that fail with them mutated out; N3 needs an uninspectable child, which the test host cannot produce.
 
 
 ### Results summary
@@ -152,7 +154,7 @@ The full `pose-mcp` suite passes; the canonical result is refreshed with `pose v
 
 
 ### Requirement trace
-- R1 [satisfied] test:TestDispatchEndsWhatTheReviewerLeftRunning, test:TestATimeoutEndsTheRunsOrphans, test:TestTheShimEndsTheRunWhenItsDispatcherEnds, test:TestTheAdapterDoesNotInheritTheShimReport, test:TestAnOrphanThatClearedItsEnvironmentIsEnded, test:TestAPidThatLostTheRunsEntryIsNotKilled, test:TestANonInspectableProcessStartedDuringTheRunFailsTheScan
+- R1 [satisfied] test:TestDispatchEndsWhatTheReviewerLeftRunning, test:TestATimeoutEndsTheRunsOrphans, test:TestTheShimEndsTheRunWhenItsDispatcherEnds, test:TestTheAdapterDoesNotInheritTheShimReport, test:TestTheShimReportIsBounded, test:TestAnOrphanThatClearedItsEnvironmentIsEnded, test:TestAPidThatLostTheRunsEntryIsNotKilled, test:TestANonInspectableProcessStartedDuringTheRunFailsTheScan
 - R2 [satisfied] test:TestDispatchEndsWhatTheReviewerLeftRunning
 - R3 [satisfied] test:TestTheCurrentBriefAsksCommandsToFinish
 - R4 [satisfied] test:TestDispatchEndsWhatTheReviewerLeftRunning

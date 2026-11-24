@@ -117,6 +117,11 @@ func TestAnOrphanThatClearedItsEnvironmentIsEnded(t *testing.T) {
 	if f.run.Status != ReviewRunCompleted || !strings.Contains(strings.Join(f.run.Safety.Limitations, "\n"), "(orphaned)") {
 		t.Fatalf("the run did not complete naming the orphan: %s %s %v", f.run.Status, f.run.Failure, f.run.Safety.Limitations)
 	}
+	// Review round 9, N1: the recorded limitation describes the shim, not an
+	// environment match.
+	if !strings.Contains(strings.Join(f.run.Safety.Limitations, "\n"), "the review run shim ends every process left in the run's subtree") {
+		t.Fatalf("the limitation does not describe the shim: %v", f.run.Safety.Limitations)
+	}
 	// Review round 7, N4: the record names the pid, never the process name
 	// the reviewer chose.
 	for _, limit := range f.run.Safety.Limitations {
