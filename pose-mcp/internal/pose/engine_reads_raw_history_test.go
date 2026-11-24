@@ -60,6 +60,7 @@ var dynamicLaunches = map[string]string{
 	"internal/pose/delegation_routing.go#runDelegationProbe":               "a declared routing probe",
 	"internal/pose/delegation_task.go#RunDelegationTask":                   "a declared delegated agent",
 	"internal/pose/review_dispatch.go#RunReviewDispatchContext":            "a declared reviewer adapter",
+	"internal/pose/review_shim_linux.go#RunReviewShim":                     "the declared reviewer adapter the shim runs as its only child",
 	"internal/pose/review_dispatch_unix.go#reviewSetupCommand":             "the setup of a declared reviewer adapter",
 	"internal/pose/review_dispatch_windows.go#reviewSetupCommand":          "the setup of a declared reviewer adapter",
 	"internal/pose/review_run_provenance.go#provenanceExecutableSelection": "looks a declared reviewer adapter up, and starts nothing",

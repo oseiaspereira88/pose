@@ -61,6 +61,7 @@ Records written by earlier engines keep their meaning.
 - created: pose-mcp/internal/pose/review_shim.go
 - created: pose-mcp/internal/pose/review_shim_linux.go
 - modified: pose-mcp/internal/pose/main_test.go
+- modified: pose-mcp/internal/pose/engine_reads_raw_history_test.go
 - modified: pose-mcp/internal/cli/cli.go
 - modified: pose-mcp/internal/cli/cli_test.go
 - modified: pose-mcp/cmd/pose/main.go
