@@ -1118,6 +1118,23 @@ func cmdDelegateCancel(root string, args []string, stdout, stderr io.Writer) int
 	if err != nil {
 		return delegateFail(stdout, stderr, f.jsonOut, "cancel", code, withDelegationLosses(err, lost))
 	}
+	if attempt.State == posemodel.DelegationStalled && attempt.LatestRun == "" && !f.dryRun {
+		// An attempt whose dispatch ended before recording its run is
+		// released with a failed run and its receipt, so it stops blocking
+		// the bundle (spec pose-review-run-reaps-lingering-reviewer-processes R5).
+		run, err := store.ReleaseAbandonedAttempt(attempt.AttemptID, time.Now())
+		if err != nil {
+			return delegateFail(stdout, stderr, f.jsonOut, "cancel", 1, err)
+		}
+		if f.jsonOut {
+			writeDelegateJSON(stdout, map[string]any{"schema": delegateCancelSchema, "attempt": attempt.AttemptID, "released": true, "run": run.RunID, "status": run.Status})
+			return 0
+		}
+		out := render(stdout, stderr)
+		out.Field("delegate.attempt", attempt.AttemptID)
+		out.Field("delegate.released", tr("true: recorded as failed run "+run.RunID+" (abandoned before its run was recorded)", "true: registrada como run com falha "+run.RunID+" (abandonada antes de o run ser registrado)"))
+		return 0
+	}
 	if !attempt.Active {
 		return delegateFail(stdout, stderr, f.jsonOut, "cancel", 1, withDelegationLosses(errors.New(tr("attempt "+attempt.AttemptID+" is "+attempt.State+", not running",
 			"a tentativa "+attempt.AttemptID+" está "+attempt.State+", não rodando")), lost))

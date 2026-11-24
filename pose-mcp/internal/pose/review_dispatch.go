@@ -1016,6 +1016,15 @@ func (s Store) RunReviewDispatchContext(parent context.Context, plan DispatchPla
 		}
 	}
 	terminationErr = killProcessGroup(cmd)
+	// A command the reviewer left running in a session of its own escapes the
+	// group kill; it is ended here, before the cleanup inventory reads the
+	// directories it may still write (spec
+	// pose-review-run-reaps-lingering-reviewer-processes R1, R2).
+	if reaped, reapErr := reapSealedCheckoutProcesses(worktree); reapErr != nil {
+		terminationErr = errors.Join(terminationErr, reapErr)
+	} else if len(reaped) > 0 && safety != nil {
+		safety.Limitations = append(safety.Limitations, "ended "+fmt.Sprint(len(reaped))+" process(es) the run left running: "+strings.Join(reaped, ", "))
+	}
 	terminationFailed = terminationErr != nil
 	// The adapter exited and a child it left still held the output when
 	// WaitDelay expired: the run finished, its leftover is killed above, and

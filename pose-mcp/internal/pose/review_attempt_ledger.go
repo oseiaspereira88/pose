@@ -354,7 +354,7 @@ func (s Store) readAttemptReceipt(a DelegatedReviewAttempt, budgets ...*int64) (
 	budget := reviewReadBudget(budgets)
 	var r reviewAttemptReceipt
 	if err := readLedgerJSONBudgetIn(s.fsys(), attemptReceiptPath(s.Root, a), &r, budget); err != nil {
-		return r, fmt.Errorf("attempt %s incomplete or unreadable; inspect explicitly: %w", a.AttemptID, err)
+		return r, fmt.Errorf("attempt %s incomplete or unreadable; inspect explicitly (an attempt `pose delegate ls` shows stalled is released by `pose delegate cancel %s`): %w", a.AttemptID, a.AttemptID, err)
 	}
 	if r.SchemaVersion != 1 || r.AttemptID != a.AttemptID || !strings.HasPrefix(r.RunID, "rrn-") || strings.ContainsAny(r.RunID, "/\\") {
 		return r, fmt.Errorf("invalid attempt receipt %s", a.AttemptID)

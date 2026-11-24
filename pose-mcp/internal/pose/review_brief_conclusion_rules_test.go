@@ -58,7 +58,7 @@ func TestAnEarlierConclusionBriefStillRendersWithoutTheRules(t *testing.T) {
 	if err != nil {
 		t.Fatal(err)
 	}
-	if current.TemplateVersion != "review-brief/9" || earlier.TemplateVersion != "review-brief/3" {
+	if current.TemplateVersion != "review-brief/10" || earlier.TemplateVersion != "review-brief/3" {
 		t.Fatalf("templates: %s %s", current.TemplateVersion, earlier.TemplateVersion)
 	}
 	if strings.Contains(earlier.Text, "POSE checks the conclusion before it records it") {
@@ -67,8 +67,8 @@ func TestAnEarlierConclusionBriefStillRendersWithoutTheRules(t *testing.T) {
 	if !strings.Contains(earlier.Text, "the conclusion POSE records as the attestation") || earlier.Digest == current.Digest {
 		t.Fatal("review-brief/3 no longer asks for the conclusion, or has the digest of /4")
 	}
-	if !reviewBriefAsksConclusion("review-brief/3") || !reviewBriefAsksConclusion("review-brief/4") || !reviewBriefAsksConclusion("review-brief/5") || !reviewBriefAsksConclusion("review-brief/6") || !reviewBriefAsksConclusion("review-brief/7") || !reviewBriefAsksConclusion("review-brief/8") || !reviewBriefAsksConclusion("review-brief/9") || reviewBriefAsksConclusion("review-brief/2") {
-		t.Fatal("the templates that ask for a conclusion are /3 to /9")
+	if !reviewBriefAsksConclusion("review-brief/3") || !reviewBriefAsksConclusion("review-brief/4") || !reviewBriefAsksConclusion("review-brief/5") || !reviewBriefAsksConclusion("review-brief/6") || !reviewBriefAsksConclusion("review-brief/7") || !reviewBriefAsksConclusion("review-brief/8") || !reviewBriefAsksConclusion("review-brief/9") || !reviewBriefAsksConclusion("review-brief/10") || reviewBriefAsksConclusion("review-brief/2") {
+		t.Fatal("the templates that ask for a conclusion are /3 to /10")
 	}
 }
 
@@ -164,5 +164,19 @@ func TestTheCurrentBriefRunsPlannedToolsWithTheDispatchingEngine(t *testing.T) {
 	earlier := renderReviewBriefBody(fixedBriefBundle(), ReviewBriefKindReview, reviewBriefTemplateDraftCheck, "", nil, &ReviewRound{Number: 1}, true, nil)
 	if strings.Contains(earlier, step) {
 		t.Fatal("review-brief/8 changed under the runs briefed with it")
+	}
+}
+
+// Spec pose-review-run-reaps-lingering-reviewer-processes R3: the current
+// brief asks the reviewer to let its commands finish; /9 never did.
+func TestTheCurrentBriefAsksCommandsToFinish(t *testing.T) {
+	const boundary = "Let every command you start finish before you end"
+	current := renderReviewBriefBody(fixedBriefBundle(), ReviewBriefKindReview, reviewBriefTemplates[ReviewBriefKindReview], "", nil, &ReviewRound{Number: 1}, true, nil)
+	if !strings.Contains(current, boundary) || !strings.Contains(current, "Run each `pose` command below as") {
+		t.Fatal("the current review brief does not keep /9 and ask commands to finish")
+	}
+	earlier := renderReviewBriefBody(fixedBriefBundle(), ReviewBriefKindReview, reviewBriefTemplateEngineTools, "", nil, &ReviewRound{Number: 1}, true, nil)
+	if strings.Contains(earlier, boundary) {
+		t.Fatal("review-brief/9 changed under the runs briefed with it")
 	}
 }

@@ -27,7 +27,7 @@ const (
 )
 
 var reviewBriefTemplates = map[string]string{
-	ReviewBriefKindReview:       reviewBriefTemplateEngineTools,
+	ReviewBriefKindReview:       reviewBriefTemplateFinishCommands,
 	ReviewBriefKindAdjudication: adjudicationBriefTemplateTyped,
 	ReviewBriefKindSmoke:        smokeBriefTemplateTyped,
 }
@@ -69,12 +69,16 @@ const (
 	// that checks the draft with `pose review draft-check` before the run ends
 	// (spec pose-review-readiness-before-seal R4).
 	reviewBriefTemplateDraftCheck = "review-brief/8"
-	// reviewBriefTemplateEngineTools is the current template: /8 plus the
+	// reviewBriefTemplateEngineTools was the current template: /8 plus the
 	// instruction to run the planned `pose` commands with the engine that
 	// dispatched the run, since the reviewer's shell may resolve an older
 	// installed `pose` that ignores flags such as --no-persist (spec
 	// pose-assess-leaves-sealed-checkouts-alone R5).
 	reviewBriefTemplateEngineTools = "review-brief/9"
+	// reviewBriefTemplateFinishCommands is the current template: /9 plus the
+	// boundary that every command the reviewer starts ends before it does
+	// (spec pose-review-run-reaps-lingering-reviewer-processes R3).
+	reviewBriefTemplateFinishCommands = "review-brief/10"
 	// reviewBriefTemplateConclusions asked for the typed conclusion and stated its rules,
 	// without the identifiers of the findings of earlier rounds.
 	// reviewBriefTemplateConclusions (/4) asked for the typed conclusion and stated the rules
@@ -90,12 +94,17 @@ const (
 // reviewBriefFromAllNotApplicable reports /7 and the templates that keep its
 // text and add to it.
 func reviewBriefFromAllNotApplicable(template string) bool {
-	return template == reviewBriefTemplateAllNotApplicable || template == reviewBriefTemplateDraftCheck || template == reviewBriefTemplateEngineTools
+	return template == reviewBriefTemplateAllNotApplicable || reviewBriefFromDraftCheck(template)
 }
 
 // reviewBriefFromDraftCheck reports /8 and the templates that keep its text.
 func reviewBriefFromDraftCheck(template string) bool {
-	return template == reviewBriefTemplateDraftCheck || template == reviewBriefTemplateEngineTools
+	return template == reviewBriefTemplateDraftCheck || reviewBriefFromEngineTools(template)
+}
+
+// reviewBriefFromEngineTools reports /9 and the templates that keep its text.
+func reviewBriefFromEngineTools(template string) bool {
+	return template == reviewBriefTemplateEngineTools || template == reviewBriefTemplateFinishCommands
 }
 
 // reviewBriefAsksConclusion reports a template that asks for the typed conclusion.
@@ -138,7 +147,7 @@ func reviewBriefStatesRules(template string) bool {
 // briefed with before the current one, newest first; a run briefed with one
 // is re-rendered with it to verify and to continue (the brief a run was sent
 // never changes under it).
-var reviewBriefEarlierTemplates = []string{reviewBriefTemplateDraftCheck, reviewBriefTemplateAllNotApplicable, reviewBriefTemplateRiskRules, reviewBriefTemplateRoundIDs, reviewBriefTemplateConclusions, reviewBriefTemplateTypedConclusion, reviewBriefTemplateRounds, reviewBriefTemplateFirst}
+var reviewBriefEarlierTemplates = []string{reviewBriefTemplateEngineTools, reviewBriefTemplateDraftCheck, reviewBriefTemplateAllNotApplicable, reviewBriefTemplateRiskRules, reviewBriefTemplateRoundIDs, reviewBriefTemplateConclusions, reviewBriefTemplateTypedConclusion, reviewBriefTemplateRounds, reviewBriefTemplateFirst}
 
 // briefEarlierTemplates are, per kind, the templates a run may have been
 // briefed with before the current one, newest first.
@@ -330,6 +339,9 @@ func renderReviewBriefBody(bundle ReviewBundle, kind, template, notes string, sm
 	line("- Do not record an attestation: POSE records the conclusion of a verified run.")
 	line("- Do not reveal secrets or key material you come across.")
 	line("- If something you need is missing, say what and stop, rather than assuming it.")
+	if template == reviewBriefTemplateFinishCommands {
+		line("- Let every command you start finish before you end, and do not leave anything running in the background: POSE ends what is left and records it, and a long run left behind costs time you could have used.")
+	}
 	line("")
 
 	line("## Change")
@@ -386,7 +398,7 @@ func renderReviewBriefBody(bundle ReviewBundle, kind, template, notes string, sm
 	if len(plan.Tools) > 0 {
 		line("## Tools the plan requires")
 		line("")
-		if template == reviewBriefTemplateEngineTools {
+		if reviewBriefFromEngineTools(template) {
 			line("Run each `pose` command below as `\"$POSE_REVIEW_CLI\"` followed by the same arguments: it is the engine that sealed and dispatched this run. The `pose` your shell resolves may be an older installed engine that ignores flags such as `--no-persist` and writes into this sealed checkout, which fails the run.")
 			line("")
 		}
