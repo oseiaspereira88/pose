@@ -1,0 +1,156 @@
+{
+  "safety": {
+    "schema_version": 1,
+    "profile": "legacy-trusted",
+    "platform": "linux/amd64",
+    "capabilities": {
+      "automatic-expiry": "unavailable",
+      "bounded-capture": "available",
+      "cpu-limit": "unavailable",
+      "credential-filesystem-isolation": "unavailable",
+      "environment-allowlist": "available",
+      "escaped-descendant-termination": "environment-marked",
+      "filesystem-isolation": "unavailable",
+      "memory-limit": "unavailable",
+      "network-isolation": "unavailable",
+      "origin-isolation": "unavailable",
+      "parent-termination": "available",
+      "process-group-termination": "available",
+      "shared-git-isolation": "unavailable"
+    },
+    "limitations": [
+      "trusted local executable required; worktree is not a sandbox",
+      "outside writes, transient writes, shared Git and credential files are not isolated",
+      "no memory/CPU quota; descendants escaping the process group are ended only while they keep the run's sealed-checkout environment entry",
+      "cleanup filesystem calls remain subject to operating-system I/O latency",
+      "legacy compatibility: HOME retained; other ambient credentials excluded",
+      "4 process(es) of this user that existed before the run could not be inspected for its environment entry"
+    ],
+    "stream_bytes": 8388608,
+    "output_bytes": 65536,
+    "retained_bytes": 16777216,
+    "timeout_ms": 3600000,
+    "max_runs_per_bundle": 3,
+    "retention": "retain-evidence; ttl=0; no automatic deletion",
+    "capture_complete": true,
+    "runtime_id": "pose-review-run-3562965836",
+    "operation": {
+      "schema_version": 1,
+      "operation": "review.dispatch.cleanup",
+      "scope": "spec:pose-review-run-reaps-lingering-reviewer-processes",
+      "outcome": "completed",
+      "steps_run": [
+        {
+          "id": "cleanup",
+          "result": "done"
+        }
+      ],
+      "effects": [],
+      "resumable": false
+    }
+  },
+  "provenance": {
+    "execution_state": "started",
+    "planned_wire_digest": "sha256:6858908d39eb06dfbbd506b6b4d1a1c1ca4ccc81f403fc92756a7908e9ae15c6",
+    "wire_bytes": 35688,
+    "wire_complete": true,
+    "schema_version": 1,
+    "project": "proj.pose-dist",
+    "audience": "proj.pose-dist",
+    "worktree_digest": "sha256:092ca52378c4c0d0f2b627da8d5031dbb854563bd4b9f2474458710c62a14816",
+    "trust": "executor-attested",
+    "implementation": {
+      "principal": "agent:anthropic/unknown",
+      "execution": "sha256:344ac5868944c155772d60a95ef6ff20644580a642e772ad5c92c29428464ff8",
+      "vendor": "anthropic",
+      "model": "unknown"
+    },
+    "reviewer": {
+      "principal": "agent:openai/gpt-6-luna",
+      "vendor": "openai",
+      "model": "gpt-6-luna"
+    },
+    "config_digest": "sha256:0496470e7d7d37c50f6d6ba38fff61a3798a301c4bb9344cb48115600dab36d4",
+    "command_template_digest": "sha256:42c94509ce1ab68857d1a7dfb101a967c1bd3243a67bdc5d921f22b58fc3db04",
+    "argv_digest": "sha256:656c3ef28f5b0250f1ac1d363aeb36a68f12fda24b49d3d2025a274b40962488",
+    "executable_digest": "sha256:0e0c66f50074965a40cbd12f625b0a35963baf41bbd8c201a93e32fddbe2e073",
+    "template_version": "review-brief/10",
+    "wire_digest": "sha256:6858908d39eb06dfbbd506b6b4d1a1c1ca4ccc81f403fc92756a7908e9ae15c6",
+    "notes_digest": "sha256:68897e8587a0e6e823f179273c846a14121ff3d4e5b4c13cf3cd487367888358",
+    "raw_transcript_digest": "sha256:79fe83744180f9e7636e6aedc11bea96fbf63a2714b31e68cafb932d49d9200e",
+    "raw_output_digest": "sha256:86c5b98dc43484ddd53297ac2850ec554ad49c071d98d3a519e418bef8f908d9",
+    "output_source": "file",
+    "output_complete": true
+  },
+  "session_digest": "sha256:f802fc7ddc370641cd997e4e113e330314497043fa53067782f0e1b10553eac3",
+  "tree_digest": "sha256:ed0af7dcf957b9b4a7c683210ee53c02fd0db6a495bd2963491369dd251e5f15",
+  "brief_notes": "Implementer notes (Claude Opus 5.5, the lead). Use them as context only; the judgment is yours.\n\nScope: spec `pose-review-run-reaps-lingering-reviewer-processes` (R1–R6, decisions D1–D2, residual limits L1–L2 in the spec). Two frictions that each cost a review round:\n- R1/R2/R4: a reviewer ended while a `go test` it had started was still running in a session of its own; the process-group kill missed it, it kept writing into the runtime directory, and the cleanup inventory failed, so the run could not be concluded. After the adapter exits, the dispatch now ends every process whose environment holds `POSE_SEALED_CHECKOUT=\u003cthis run's checkout\u003e`, waits for them, and names them in `safety.limitations` (`internal/pose/review_reap_linux.go`, called in `review_dispatch.go`).\n- R3: `review-brief/10` asks the reviewer to let its commands finish (`/9` and its digest are unchanged).\n- R5/R6: a dispatch stopped between reserving its attempt and recording its run left a reservation with no receipt that refused every later dispatch, and `pose delegate cancel` refused it as \"stalled, not running\". Cancel now releases such an attempt, once its marker is stalled and its owner proven dead, by recording a failed run and its receipt and removing the marker (`internal/pose/delegation_release.go`, `internal/cli/delegate.go`).\nEach fix has a test that failed with it mutated out; the full `go test ./...` of `pose-mcp` passes.\n\nPlease check in particular that the process search cannot end a process outside this run (another run, the dispatcher itself), that a live owner is never released, and that the released records read as an ordinary failed run everywhere (ledger, `delegate ls`, round accounting).\n\nRun every planned `pose` command as `\"$POSE_REVIEW_CLI\"` with the same arguments, never a bare `pose`. Before you finish, pipe your final message to `\"$POSE_REVIEW_CLI\" review draft-check --draft -` and fix every reason it reports.\n\nDraft format rules, enforced by the conclusion preflight:\n- New findings use short unprefixed IDs (N1, N2, …). Round-prefixed IDs go only in `prior_findings`, and only for the findings the brief lists under \"Findings to account for\", with exactly id, status and evidence.\n- Structural-delta mappings go inside the criterion that answers them, with `basis` set to a requirement or a decision of this spec (R1–R6, D1, D2).\n- A criterion scoped to a component cites evidence from that component only.\n\nSandbox limits: the checkout is sealed and read-only. Never `cd`; keep the checkout root as the working directory. Keep test runs focused (`go -C pose-mcp test ./internal/cli ./internal/pose -run 'DispatchEndsWhatTheReviewer|AbandonedAttempt|RunningAttemptIsNot|Brief'`, `go -C pose-mcp vet ./internal/cli ./internal/pose`), and let every command you start finish before you end. A tool you cannot rerun in the sandbox is a limit of the run, not a defect of the subject: cite the sealed evidence that covers it, then decide on the code itself.\n\nRound 2 notes: round 1 (rrn-c5c082703d83c834) requested changes with N1–N5, listed in the brief. Fixes: N1, the dispatch marks the attempt active before publishing its reservation (`prepareDelegatedReviewAttempt`, then the marker, then `publishDelegatedReviewAttempt`), and a stalled marker without a reservation is removed by the release; N2, `delegate ls` names the cause and the release command; N3, each process is pinned by a pidfd and re-checked before SIGKILL; N4, failing to list `/proc` or read a state is an error, and an unreadable process of this user is disclosed in the run record (limit L3, stated in the spec); N5, the manual says Linux only.\n\nRound 3 notes: round 2 (rrn-2c9fa8ac47c2fbab) requested changes with N1–N5, listed in the brief. Fixes: N1, a reservation an earlier engine left without a marker is listed and released once it has no marker, receipt or run and is ten minutes old (`orphanReservations`); N2, a non-inspectable process that started during the run fails the scan (baseline taken before the adapter starts), and one that predates it is skipped and disclosed; N3, an exclusive `.release` claim; N4, `TestAnInterruptedDispatchIsReleasedAndTheNextOneRuns` interrupts a real dispatch after its reservation, sees the next one refused with the release command, releases and dispatches again; N5, the receipt inspection error is reported as such. The spec's Known gaps states what stays untested.\n\nRound 4 notes: round 3 (rrn-667b69e8c01c345c) requested changes with N1–N3, listed in the brief. Fixes: N1, the release claim records its owner and a claim whose owner is gone is taken over; a release interrupted after recording its run completes with that run (`recordedAbandonmentRun`); N2, a markerless reservation is released only with `--confirm-abandoned`, stated in the recorded run (limit L4); N3, unreadable reservations and receipts are reported as losses.\n\nRound 5 notes: round 4 (rrn-97acfcc2809e32c2) requested changes with N1–N3, listed in the brief. Fixes: N1, `cancel` asks the release for every attempt that is not running, and an abandonment run does not hide an orphan, so an interrupted release completes; N2, a stale claim is taken over by rename (one winner) then an exclusive publish (`TestAStaleClaimHasOneTaker` races two takers); N3, an incomplete run history makes the release refuse and the listing report it. The CLI `cancel` branch is still not driven through the CLI (stated in Known gaps).\n\nRound 6 notes: round 5 (rrn-146bc70da7364cde) requested changes with N1–N3, listed in the brief. Fixes: N1, the claim file and its takeover are gone; one release runs at a time under `flock` on `\u003cattempt\u003e.release.lock`, released by the kernel with its holder; N2, a receipt already published with a stalled marker completes by removing the marker; N3, the release completes with any run the attempt already recorded (`recordedAttemptRun`), and an orphan is any reservation with no receipt and no marker.\n",
+  "ledger_version": 1,
+  "attempt_id": "rat-9a84fb43b58bedfccc301772d9eccc1096d21dcdb9507b966573a262c2c91b9e",
+  "schema_version": 1,
+  "run_id": "rrn-adf91bb46841bd66",
+  "scope": "spec:pose-review-run-reaps-lingering-reviewer-processes",
+  "bundle_id": "rvb-9c55067e423cd075",
+  "bundle_digest": "sha256:9c55067e423cd07543cb9d03217895e8b6830924abf70f27413d356e9ef78c33",
+  "sealed_commit": "3e5b35f910b509d27c6591f286fed7ead46b827c",
+  "kind": "review",
+  "brief_digest": "sha256:41b40939347e40caee605807a4e29c6ba1ac95409f17d17077f06b700c1be86d",
+  "adapter": "sol-medium",
+  "vendor": "openai",
+  "model": "gpt-6-luna",
+  "started_at": "2026-11-24T17:39:02.582491531Z",
+  "ended_at": "2026-11-24T18:07:06.318500827Z",
+  "exit_code": 0,
+  "status": "completed",
+  "transcript_digest": "sha256:db4f0dc15891e2b5f90b6c3cc21b19b8530f6eea4efd5a43410ad3537ab4b42e",
+  "transcript_path": ".pose/review-runs/rrn-adf91bb46841bd66.transcript",
+  "output": "decision: changes-requested\n\nThe process group cleanup and abandoned attempt recovery work for the covered cases, and the earlier release race findings are fixed. Two blockers remain: a cleared environment marker can let a descendant survive successful cleanup, and an unreadable active marker can be mistaken for an abandoned markerless reservation. I recorded one low severity observability follow-up.\n\n## Findings\n\n- **N1 — medium, blocker:** [delegation_release.go:197](/var/tmp/pose-work-go/pose-review-run-3562965836/worktree/pose-mcp/internal/pose/delegation_release.go:197) — `orphanReservations` discards losses from `ListDelegationActive`. A damaged live marker can be treated as absent, allowing `--confirm-abandoned` to publish a failed run and receipt without proving the owner is dead.\n- **N2 — high, blocker:** [review_reap_linux.go:74](/var/tmp/pose-work-go/pose-review-run-3562965836/worktree/pose-mcp/internal/pose/review_reap_linux.go:74) — If a descendant escapes the process group and clears `POSE_SEALED_CHECKOUT`, the scan finds no marked process and returns success. The cleanup inventory does not prove that process ended, contrary to L1.\n- **N3 — low, follow-up:** [review_reap_linux.go:61](/var/tmp/pose-work-go/pose-review-run-3562965836/worktree/pose-mcp/internal/pose/review_reap_linux.go:61) — The opaque process count includes a process started during the run, while dispatch records that count as pre-existing processes.\n\n## Criteria\n\n- assumption-integrity — **failed** (N2): L1 names the marker-cleared descendant case, but the code does not prove cleanup fails for it.\n- backend-concurrency — **failed** (N1): a damaged active marker bypasses the owner-dead check on the confirmed orphan path.\n- backend-contracts — **passed**; `integration:pose-mcp/go/delegation-surface-integration`: the CLI flag and failed-run receipt are additive; stored schemas retain their meaning.\n- backend-input-errors — **failed** (N1): marker read loss is dropped during orphan discovery.\n- backend-integration-impact — **passed**; `integration:pose-mcp/go/delegation-surface-integration`: no changed inter-module API; integration scan gaps were unrelated HTTP declarations.\n- backend-observability — **failed** (N3): failure metadata labels the wrong opaque-process count as pre-existing.\n- compatibility — **passed**; `integration:pose-mcp/go/delegation-surface-integration`: existing CLI and ledger contracts remain readable.\n- correctness — **failed** (N2): marker absence is treated as process termination.\n- design-causality — **failed** (N2): D1 addresses separate sessions and D2 preserves ledger history, but clearing D1’s marker defeats the cleanup proof. The design assessment reported no structural deltas.\n- documentation — **passed**; `unit:pose-mcp/go/test`: manuals and scaffold copies describe Linux behavior, and `review-brief/10` asks commands to finish.\n- operability — **failed** (N1): cancel can proceed without surfacing an unreadable marker loss.\n- requirements — **failed** (N2): R1/R2 and the stated L1 behavior are not established for a marker-cleared descendant.\n- scope — **passed**; `unit:pose-mcp/go/test`: the supplied changed paths match the spec artifact list.\n- security — **failed** (N2): a reviewer-started process can evade the mutable marker and survive the run.\n- solution-proportionality — **failed** (N2): environment matching is the smallest extension, but its known invalidating condition is not detected.\n\n## Validation and plan tools\n\n- Focused tests passed: `go -C pose-mcp test ./internal/cli ./internal/pose -run 'DispatchEndsWhatTheReviewer|AbandonedAttempt|RunningAttemptIsNot|Brief'`.\n- Focused concurrency tests passed under `-race`; `go -C pose-mcp vet ./internal/cli ./internal/pose` passed.\n- Both `validate --strict` commands were attempted and stopped because the read-only sandbox could not create Go work directories. This is a run limitation, not a subject defect; the brief seals `build:pose-mcp/go/build`, `unit:pose-mcp/go/test`, and integration/e2e evidence.\n- `surface-check --strict` passed with zero findings. `assess design` reported no structural deltas. `assess integrate` found three unobserved HTTP declarations outside the changed contract. `assess tech-debt` ran but could not read two unrelated specs, so that scan is incomplete.\n- `review-check` and `closeout-check` are deferred until an attestation exists; this review is expressly prohibited from recording one.\n\nNo repository changes or attestation were made.\n\n```pose-draft\n{\n  \"schema\": \"pose.review.draft/v1\",\n  \"decision\": \"changes-requested\",\n  \"findings\": [\n    {\n      \"id\": \"N1\",\n      \"severity\": \"medium\",\n      \"disposition\": \"blocker\",\n      \"file\": \"pose-mcp/internal/pose/delegation_release.go\",\n      \"line\": 197,\n      \"summary\": \"orphanReservations discards unreadable active-marker losses, so a live attempt with a damaged marker can be treated as markerless and released with --confirm-abandoned.\"\n    },\n    {\n      \"id\": \"N2\",\n      \"severity\": \"high\",\n      \"disposition\": \"blocker\",\n      \"file\": \"pose-mcp/internal/pose/review_reap_linux.go\",\n      \"line\": 74,\n      \"summary\": \"A descendant that leaves the process group and clears POSE_SEALED_CHECKOUT is invisible to the scan; no matches is treated as successful cleanup although the process can remain running.\"\n    },\n    {\n      \"id\": \"N3\",\n      \"severity\": \"low\",\n      \"disposition\": \"follow-up\",\n      \"file\": \"pose-mcp/internal/pose/review_reap_linux.go\",\n      \"line\": 61,\n      \"summary\": \"The opaque-process count includes a process started during the run, but dispatch records that count as processes that predated the run.\",\n      \"action\": \"Count only baseline-matched opaque processes in the returned limitation and cover the count in the regression test.\",\n      \"owner\": \"@pose-maintainers\",\n      \"review_by\": \"2026-12-24\"\n    }\n  ],\n  \"prior_findings\": [\n    {\n      \"id\": \"R4-N2\",\n      \"status\": \"fixed\",\n      \"evidence\": \"pose-mcp/internal/pose/delegation_release.go:66-76\"\n    },\n    {\n      \"id\": \"R5-N1\",\n      \"status\": \"fixed\",\n      \"evidence\": \"pose-mcp/internal/pose/delegation_release.go:66-76\"\n    },\n    {\n      \"id\": \"R5-N2\",\n      \"status\": \"fixed\",\n      \"evidence\": \"pose-mcp/internal/pose/delegation_release.go:113-127\"\n    },\n    {\n      \"id\": \"R5-N3\",\n      \"status\": \"fixed\",\n      \"evidence\": \"pose-mcp/internal/pose/delegation_release.go:141-155\"\n    }\n  ],\n  \"sweep\": \"Swept the sealed change paths across Linux process enumeration/pidfd signaling, dispatch cleanup ordering and safety records, marker/reservation/receipt release and locking, delegate list/cancel/help behavior, attempt ledger and round accounting, review-brief/10 with earlier-template compatibility, English and pt-BR manuals and scaffold copies, and the related regression tests.\",\n  \"criteria\": [\n    {\n      \"id\": \"assumption-integrity\",\n      \"disposition\": \"finding\",\n      \"evidence\": \"N2\",\n      \"rationale\": \"The run-specific environment marker is verified for descendants that retain it, but absence of the marker is treated as proof that no descendant remains; the L1 case where a descendant clears it is not proven to make cleanup fail.\"\n    },\n    {\n      \"id\": \"backend-concurrency\",\n      \"disposition\": \"finding\",\n      \"evidence\": \"N1\",\n      \"rationale\": \"The flock serializes releases, but discarded active-marker read losses allow the confirmation path to bypass proof that a live owner is gone.\"\n    },\n    {\n      \"id\": \"backend-contracts\",\n      \"disposition\": \"passed\",\n      \"evidence\": \"integration:pose-mcp/go/delegation-surface-integration\",\n      \"rationale\": \"The new cancel flag is additive, existing record schemas remain unchanged, and released attempts use ordinary failed run and receipt records.\"\n    },\n    {\n      \"id\": \"backend-input-errors\",\n      \"disposition\": \"finding\",\n      \"evidence\": \"N1\",\n      \"rationale\": \"A corrupt or unreadable marker is not surfaced as a release refusal; the orphan scan treats it as absent.\"\n    },\n    {\n      \"id\": \"backend-integration-impact\",\n      \"disposition\": \"passed\",\n      \"evidence\": \"integration:pose-mcp/go/delegation-surface-integration\",\n      \"rationale\": \"The integration assessment found no changed REST, Protobuf, Kafka, or MCP contract; its three unobserved HTTP declarations are outside this change.\"\n    },\n    {\n      \"id\": \"backend-observability\",\n      \"disposition\": \"finding\",\n      \"evidence\": \"N3\",\n      \"rationale\": \"When an opaque process started during the run, the returned count includes it while the dispatch limitation labels the count as pre-existing.\"\n    },\n    {\n      \"id\": \"compatibility\",\n      \"disposition\": \"passed\",\n      \"evidence\": \"integration:pose-mcp/go/delegation-surface-integration\",\n      \"rationale\": \"Existing CLI arguments and stored record meanings are retained; the new confirmation flag and failed-run receipt are additive.\"\n    },\n    {\n      \"id\": \"correctness\",\n      \"disposition\": \"finding\",\n      \"evidence\": \"N2\",\n      \"rationale\": \"The successful no-match path does not establish that all run-owned descendants ended when a descendant clears the marker and leaves the process group.\"\n    },\n    {\n      \"id\": \"design-causality\",\n      \"disposition\": \"finding\",\n      \"evidence\": \"N2\",\n      \"rationale\": \"D1 correctly addresses commands escaping the adapter process group and D2 preserves attempt history, but D1's marker can be cleared and the current cleanup path then has no evidence that the process ended.\",\n      \"mappings\": []\n    },\n    {\n      \"id\": \"documentation\",\n      \"disposition\": \"passed\",\n      \"evidence\": \"unit:pose-mcp/go/test\",\n      \"rationale\": \"The root and scaffold manuals in both locales describe Linux marker-based reaping, stalled-attempt release, and the explicit legacy confirmation; the brief uses immutable review-brief/10.\"\n    },\n    {\n      \"id\": \"operability\",\n      \"disposition\": \"finding\",\n      \"evidence\": \"N1\",\n      \"rationale\": \"The cancel path can release despite an unreadable live marker and does not carry the listing loss into the successful named-attempt path.\"\n    },\n    {\n      \"id\": \"requirements\",\n      \"disposition\": \"finding\",\n      \"evidence\": \"N2\",\n      \"rationale\": \"R1/R2 and the L1 residual require an escaped descendant that cannot be proven ended to keep cleanup incomplete; the marker-cleared path returns success.\"\n    },\n    {\n      \"id\": \"scope\",\n      \"disposition\": \"passed\",\n      \"evidence\": \"unit:pose-mcp/go/test\",\n      \"rationale\": \"The sealed changed-path list matches the spec artifacts; implementation is confined to review cleanup, abandoned-attempt recovery, CLI/help, brief, and manuals.\"\n    },\n    {\n      \"id\": \"security\",\n      \"disposition\": \"finding\",\n      \"evidence\": \"N2\",\n      \"rationale\": \"A reviewer-started process can evade the ownership marker and continue after the run while cleanup reports success; the design relies on a mutable process environment.\"\n    },\n    {\n      \"id\": \"solution-proportionality\",\n      \"disposition\": \"finding\",\n      \"evidence\": \"N2\",\n      \"rationale\": \"The environment marker is a small extension to process-group cleanup and pidfds prevent PID-reuse signals, but clearing the marker invalidates the guarantee and no cleanup proof catches that condition.\"\n    }\n  ],\n  \"tools\": [\n    {\n      \"id\": \"artifact-check\",\n      \"disposition\": \"passed\",\n      \"evidence\": \"command:\\\"$POSE_REVIEW_CLI\\\" artifact-check --spec pose-review-run-reaps-lingering-reviewer-processes --strict\",\n      \"rationale\": \"Exited 0. Its slug-wide lineage output reported a broader change set than the sealed bundle; the supplied range and listed paths were reviewed directly.\"\n    },\n    {\n      \"id\": \"assess-design\",\n      \"disposition\": \"passed\",\n      \"evidence\": \"structure:design-f569ec881cd9677d\",\n      \"rationale\": \"Ran the required design assessment; it reported status observed and no structural deltas.\"\n    },\n    {\n      \"id\": \"assess-discover\",\n      \"component\": \"pose-mcp\",\n      \"disposition\": \"passed\",\n      \"evidence\": \"command:\\\"$POSE_REVIEW_CLI\\\" assess discover --no-persist --component pose-mcp\",\n      \"rationale\": \"Ran without persistence; the component was discovered.\"\n    },\n    {\n      \"id\": \"assess-integrate\",\n      \"disposition\": \"passed\",\n      \"evidence\": \"integration:pose-mcp/go/delegation-surface-integration\",\n      \"rationale\": \"Ran without persistence; three existing HTTP declarations had no observed consumers and no integration gap was introduced by these paths.\"\n    },\n    {\n      \"id\": \"assess-tech-debt\",\n      \"disposition\": \"deferred\",\n      \"evidence\": \"command:\\\"$POSE_REVIEW_CLI\\\" assess tech-debt --no-persist\",\n      \"rationale\": \"Ran, but its scan was incomplete because two unrelated specs had invalid/unknown scope; changed production files have no TODO/FIXME/stub/panic markers.\"\n    },\n    {\n      \"id\": \"closeout-check\",\n      \"disposition\": \"deferred\",\n      \"evidence\": \"command:\\\"$POSE_REVIEW_CLI\\\" closeout-check spec:pose-review-run-reaps-lingering-reviewer-processes\",\n      \"rationale\": \"Deferred because closeout-check requires a completed review attestation, which this brief prohibits recording.\"\n    },\n    {\n      \"id\": \"review-check\",\n      \"disposition\": \"deferred\",\n      \"evidence\": \"command:\\\"$POSE_REVIEW_CLI\\\" review-check spec:pose-review-run-reaps-lingering-reviewer-processes\",\n      \"rationale\": \"Deferred because review-check requires a completed review attestation, which this brief prohibits recording.\"\n    },\n    {\n      \"id\": \"suggest-review\",\n      \"component\": \"pose-mcp\",\n      \"disposition\": \"passed\",\n      \"evidence\": \"command:\\\"$POSE_REVIEW_CLI\\\" suggest review --path pose-mcp\",\n      \"rationale\": \"Selected backend-go, security, and documentation-style rules for this component.\"\n    },\n    {\n      \"id\": \"surface-check\",\n      \"disposition\": \"passed\",\n      \"evidence\": \"reachability:pose-mcp/go/delivery-reachability\",\n      \"rationale\": \"Ran strict surface-check; it reported one target, 236 results, and zero findings.\"\n    },\n    {\n      \"id\": \"validate\",\n      \"disposition\": \"deferred\",\n      \"evidence\": \"build:pose-mcp/go/build\",\n      \"rationale\": \"Ran strict validation, but the read-only sandbox prevented Go from creating its work directories; sealed build, e2e, integration, and unit evidence covers the matrix. Focused tests, race tests, and vet passed independently.\"\n    },\n    {\n      \"id\": \"validate\",\n      \"component\": \"pose-mcp\",\n      \"disposition\": \"deferred\",\n      \"evidence\": \"unit:pose-mcp/go/test\",\n      \"rationale\": \"Ran module-scoped strict validation, but the read-only sandbox blocked Go build/test work directories; sealed component build and unit evidence remains available. Focused tests, race tests, and vet passed independently.\"\n    }\n  ]\n}\n```",
+  "policy_digest": "sha256:696cd2d8abf80e417c48c7af99954f0c89f06fe6c0e23249d5ff991f4dde4985",
+  "label": "reap-review-r6",
+  "purpose": "review",
+  "env_removed": [
+    "CLAUDECODE",
+    "CLAUDE_CODE_BRIDGE_SESSION_ID",
+    "CLAUDE_CODE_CHILD_SESSION",
+    "CLAUDE_CODE_ENTRYPOINT",
+    "CLAUDE_CODE_EXECPATH",
+    "CLAUDE_CODE_MESSAGING_SOCKET",
+    "CLAUDE_CODE_MESSAGING_TOKEN",
+    "CLAUDE_CODE_SESSION_ATTENDED",
+    "CLAUDE_CODE_SESSION_ID",
+    "CLAUDE_EFFORT",
+    "CLAUDE_PID"
+  ],
+  "events": "codex-jsonl",
+  "events_digest": "sha256:32a7ec39c37a1d05526458f9af836ebed2e5d027db5d25ad5f65d996b9a51b4b",
+  "routing": {
+    "requested": "auto",
+    "prefer": "opposite-vendor-of-implementation",
+    "implementation": {
+      "principal": "agent:anthropic/unknown",
+      "vendor": "anthropic",
+      "model": "unknown",
+      "execution_digest": "sha256:344ac5868944c155772d60a95ef6ff20644580a642e772ad5c92c29428464ff8",
+      "source": "detected"
+    },
+    "implementation_from": "bundle",
+    "candidates": [
+      {
+        "agent": "sol-medium",
+        "vendor": "openai",
+        "model": "gpt-6-luna",
+        "group": "preferred",
+        "state": "available"
+      }
+    ],
+    "step": "preferred"
+  },
+  "independence_achieved": "different-vendor",
+  "round": 6,
+  "thread": {
+    "round": 6,
+    "mode": "new",
+    "from": "rrn-146bc70da7364cde",
+    "reason": "round 6 reached the round threshold 5"
+  }
+}
