@@ -1,0 +1,230 @@
+{
+  "run": {
+    "run_id": "rrn-5bbd458c7701af31",
+    "proof_id": "rrp-c9bebd9c7eb60cc7d5ae4ad1f16b840e0773b1c0fa5b56666625cf6891a241e9"
+  },
+  "schema_version": 1,
+  "attestation_id": "rva-9bceebfccdbbae90",
+  "bundle_id": "rvb-47801204301a2aa8",
+  "bundle_digest": "sha256:47801204301a2aa8b4dc935b0c19f5ab347aa6ec89c6610424e6e5b360d407ea",
+  "reviewer": "agent:openai/gpt-6-luna",
+  "decision": "changes-requested",
+  "criteria": [
+    {
+      "id": "assumption-integrity",
+      "disposition": "passed",
+      "evidence": "unit:pose-mcp/go/test",
+      "rationale": "Verified the standard CLI enables the run shim, fd 3 is not inherited, and dead-owner release requires a stalled marker. Unresolved assumptions are that the shim can inspect and signal every child and can publish its full report; N2 and N3 capture those failures. Accepted spec limits are shimless embedder environment matching (L6), non-Linux group-only cleanup (L2), external live-parent escape (L1), markerless legacy reservation confirmation (L4), and non-inspectable process handling (L3)."
+    },
+    {
+      "id": "backend-concurrency",
+      "disposition": "finding",
+      "evidence": "N3",
+      "rationale": "The run shim confines subreaper scope, but an inspection failure exits before the subtree is fully reaped and the dispatcher-only owner marker lets release proceed after dispatcher death."
+    },
+    {
+      "id": "backend-contracts",
+      "disposition": "passed",
+      "evidence": "integration:pose-mcp/go/delegation-surface-integration",
+      "rationale": "The CLI additions are additive and a released reservation is represented as an ordinary failed run plus receipt; run/receipt schemas remain unchanged."
+    },
+    {
+      "id": "backend-input-errors",
+      "disposition": "passed",
+      "evidence": "unit:pose-mcp/go/test",
+      "rationale": "Attempt identifiers are validated, abandonment is a typed refusal, live owners are refused, and read/receipt failures retain context."
+    },
+    {
+      "id": "backend-integration-impact",
+      "disposition": "passed",
+      "evidence": "integration:pose-mcp/go/delegation-surface-integration",
+      "rationale": "The change stays within pose-mcp and does not alter REST, MCP, protobuf, or event contracts. The integration assessment's unobserved HTTP consumers are outside the changed surface."
+    },
+    {
+      "id": "backend-observability",
+      "disposition": "finding",
+      "evidence": "N2",
+      "rationale": "A report larger than the reader limit can block before the shim returns; truncated JSON produces a generic unreadable-report failure and loses the PIDs the run record should name."
+    },
+    {
+      "id": "compatibility",
+      "disposition": "passed",
+      "evidence": "unit:pose-mcp/go/test",
+      "rationale": "Earlier run records retain their meaning; the new release writes the existing failed-run and receipt formats, and the CLI flag is additive."
+    },
+    {
+      "id": "correctness",
+      "disposition": "finding",
+      "evidence": "N2",
+      "rationale": "An unbounded descendant list can block report publication and prevent a fully reaped run from completing its required record and conclusion path."
+    },
+    {
+      "id": "design-causality",
+      "disposition": "passed",
+      "evidence": "structure:design-7d32807cefe47d21",
+      "rationale": "The process-scoped shim addresses the cause that process-group kills miss detached sessions while avoiding dispatcher-wide subreaper adoption and reviewer-controlled environment authority. The release records preserve ordinary run semantics. The design assessment observed no structural deltas; N2 and N3 are implementation gaps."
+    },
+    {
+      "id": "documentation",
+      "disposition": "finding",
+      "evidence": "N1",
+      "rationale": "The root and localized manuals, scaffold copies, and runtime limitation text still describe environment-based cleanup as the normal path."
+    },
+    {
+      "id": "operability",
+      "disposition": "finding",
+      "evidence": "N1",
+      "rationale": "The documented cleanup guarantee and diagnostic limitations do not match the standard CLI's shim behavior, so operators cannot rely on the stated process-selection and disclosure behavior."
+    },
+    {
+      "id": "requirements",
+      "disposition": "finding",
+      "evidence": "N2",
+      "rationale": "R2 is not met when the ended-PID report exceeds 64 KiB; N3 also leaves a process-liveness gap when cleanup fails after dispatcher death."
+    },
+    {
+      "id": "scope",
+      "disposition": "passed",
+      "evidence": "unit:pose-mcp/go/test",
+      "rationale": "The implementation, tests and manual updates align with the spec's review cleanup and abandoned-attempt scope."
+    },
+    {
+      "id": "security",
+      "disposition": "finding",
+      "evidence": "N3",
+      "rationale": "A reviewer descendant can remain alive after the shim's fail-fast inspection path while release proves only that the dispatcher has died."
+    },
+    {
+      "id": "solution-proportionality",
+      "disposition": "passed",
+      "evidence": "structure:design-7d32807cefe47d21",
+      "rationale": "A per-run subreaper shim is the smallest sufficient ownership boundary for detached descendants; a process-wide subreaper or reviewer-controlled environment matching would broaden authority. The shim and lock-file release follow D1/D2, but report bounds and cleanup-failure liveness still need correction."
+    }
+  ],
+  "tools": [
+    {
+      "id": "artifact-check",
+      "disposition": "passed",
+      "evidence": "command:\"$POSE_REVIEW_CLI\" artifact-check --spec pose-review-run-reaps-lingering-reviewer-processes --strict",
+      "rationale": "Ran to exit 0."
+    },
+    {
+      "id": "assess-design",
+      "disposition": "passed",
+      "evidence": "structure:design-7d32807cefe47d21",
+      "rationale": "Ran; no structural deltas were observed."
+    },
+    {
+      "id": "assess-discover",
+      "component": "pose-mcp",
+      "disposition": "passed",
+      "evidence": "command:\"$POSE_REVIEW_CLI\" assess discover --no-persist --component pose-mcp",
+      "rationale": "Ran without persistence; changed cleanup and release files contain no TODO/FIXME/stub markers."
+    },
+    {
+      "id": "assess-integrate",
+      "disposition": "failed",
+      "evidence": "command:\"$POSE_REVIEW_CLI\" assess integrate --no-persist",
+      "rationale": "The scan completed but reported three unobserved HTTP consumers (/admin/refresh, /healthz, /mcp), which are outside this change's contracts."
+    },
+    {
+      "id": "assess-tech-debt",
+      "disposition": "failed",
+      "evidence": "command:\"$POSE_REVIEW_CLI\" assess tech-debt --no-persist",
+      "rationale": "The scan was incomplete because two unrelated specs have invalid follow-up metadata and it reported an uncovered panic in pose-mcp/internal/pose/bounded_cache.go:334, outside this subject."
+    },
+    {
+      "id": "closeout-check",
+      "disposition": "deferred",
+      "rationale": "Closeout-check requires a completed review attestation; this review is not authorized to record one."
+    },
+    {
+      "id": "review-check",
+      "disposition": "deferred",
+      "rationale": "Review-check runs after an attestation; this review is not authorized to record one."
+    },
+    {
+      "id": "suggest-review",
+      "component": "pose-mcp",
+      "disposition": "passed",
+      "evidence": "command:\"$POSE_REVIEW_CLI\" suggest review --path pose-mcp",
+      "rationale": "Selected backend-go, security and documentation-style rules."
+    },
+    {
+      "id": "surface-check",
+      "disposition": "passed",
+      "evidence": "reachability:pose-mcp/go/review-assurance-disclosure-reachability",
+      "rationale": "Ran strict surface-check: one target, zero findings."
+    },
+    {
+      "id": "validate",
+      "disposition": "passed",
+      "evidence": "build:pose-mcp/go/build",
+      "rationale": "Strict validation was run but all steps failed before execution because the sandbox denied Go temporary-workdir/cache writes; sealed evidence contains passing build/e2e/integration/unit results."
+    },
+    {
+      "id": "validate",
+      "component": "pose-mcp",
+      "disposition": "passed",
+      "evidence": "unit:pose-mcp/go/test",
+      "rationale": "Module validation was run but all steps failed before execution because the sandbox denied Go temporary-workdir/cache writes; sealed pose-mcp evidence contains passing build/e2e/integration/unit results."
+    }
+  ],
+  "evidence_refs": [
+    "N1",
+    "N2",
+    "N3",
+    "delegated-run:rrn-5bbd458c7701af31",
+    "integration:pose-mcp/go/delegation-surface-integration",
+    "structure:design-7d32807cefe47d21",
+    "unit:pose-mcp/go/test"
+  ],
+  "findings": [
+    {
+      "id": "N1",
+      "severity": "low",
+      "evidence": "file:POSE.md:1078",
+      "action": "Correct the manuals, scaffold copies, and runtime safety limitation to describe the shim as the normal Linux path and environment matching as the shimless fallback.",
+      "disposition": "accepted-risk",
+      "owner": "@pose-maintainers",
+      "rationale": "The manuals and recorded containment limits still describe environment matching and unreadable prior-process disclosure as the normal Linux path. The standard CLI instead uses the run shim's subtree; environment matching is only the shimless embedder fallback. Update the English and pt-BR manuals and scaffold copies, plus the safety limitation text.",
+      "review_by": "2026-12-08"
+    },
+    {
+      "id": "N2",
+      "severity": "medium",
+      "evidence": "file:pose-mcp/internal/pose/review_dispatch.go:1055",
+      "action": "The parent reads at most 64 KiB from the shim report, while the shim writes the complete unbounded ended-PID list. For a large list the reader stops draining and the shim blocks after reaping; dispatch waits until timeout/WaitDelay, then parses truncated JSON and marks cleanup incomplete. A fully reaped run becomes unconcludable and loses the full PID report.",
+      "disposition": "open"
+    },
+    {
+      "id": "N3",
+      "severity": "medium",
+      "evidence": "file:pose-mcp/internal/pose/review_shim_linux.go:138",
+      "action": "The first unreadable /proc stat aborts subtree reaping. If the dispatcher has died, PDEATHSIG reaches this fail-fast path and the shim can exit with run descendants still alive; the marker tracks only the dispatcher PID and abandoned-attempt release checks only that owner's liveness, so cancel can later release the attempt while a reviewer process remains.",
+      "disposition": "open"
+    }
+  ],
+  "authority": {
+    "schema_version": 1,
+    "project": "proj.pose-dist",
+    "bundle_digest": "sha256:47801204301a2aa8b4dc935b0c19f5ab347aa6ec89c6610424e6e5b360d407ea",
+    "principal": "agent:openai/gpt-6-luna",
+    "role": "agent",
+    "review_execution": "rrn-5bbd458c7701af31",
+    "implementation_principal": "agent:anthropic/unknown",
+    "implementation_execution": "sha256:344ac5868944c155772d60a95ef6ff20644580a642e772ad5c92c29428464ff8",
+    "issuer": "b34-local-executor",
+    "issued_at": "2026-11-24T22:41:59Z",
+    "audience": "proj.pose-dist"
+  },
+  "envelope": {
+    "issuer": "b34-local-executor",
+    "subject": "rvb-47801204301a2aa8",
+    "algorithm": "ed25519",
+    "public_key": "ck4sApdfePV2GT+hJyAYfJd2qLzeG55P8pevGR0bvZE=",
+    "signature": "JMYMHDNLvJIZVYDKjx4P3v1Fr9uxqTLdaNmh41zZTxRF6Ug0S/OSWg67YYPqRuJ9IGKvvoygJ/0UoJXVCkVJAQ=="
+  },
+  "attested_at": "2026-11-24T22:41:59Z",
+  "path": ".pose/review-attestations/rva-9bceebfccdbbae90.json"
+}
