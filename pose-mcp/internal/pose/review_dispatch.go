@@ -770,9 +770,14 @@ func (s Store) RunReviewDispatchContext(parent context.Context, plan DispatchPla
 	stopActive, cancelFlag, err := s.markDelegationActive(run, cancelRun)
 	if err != nil {
 		if plan.predecessor == nil {
-			// Nothing was reserved yet: no run is recorded for an attempt
-			// the ledger does not hold.
-			return ReviewRun{}, fmt.Errorf("the run was not started: %w", err)
+			// The attempt is reserved anyway, so the failed run and its
+			// receipt are recorded against it, as before the marker moved
+			// ahead of the reservation (spec
+			// pose-delegation-result-before-marker R1–R2).
+			if perr := s.publishDelegatedReviewAttempt(attempt); perr != nil {
+				return ReviewRun{}, perr
+			}
+			reserved = true
 		}
 		return finish(ReviewRunFailed, "the run was not started: "+err.Error())
 	}
