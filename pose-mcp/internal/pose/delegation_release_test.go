@@ -10,6 +10,7 @@ import (
 	"os/exec"
 	"path/filepath"
 	"strings"
+	"syscall"
 	"testing"
 	"time"
 )
@@ -65,7 +66,7 @@ func TestAnAbandonedAttemptIsReleasedWithARecord(t *testing.T) {
 	if _, err := s.readAttemptReceipt(a); err != nil {
 		t.Fatalf("the released attempt still blocks the bundle: %v", err)
 	}
-	if left, _ := filepath.Glob(filepath.Join(dir, a.AttemptID+"*")); len(left) != 0 {
+	if left, _ := filepath.Glob(filepath.Join(dir, a.AttemptID+"*")); len(left) != 1 || !strings.HasSuffix(left[0], ".release.lock") {
 		t.Fatalf("the marker or its stall claim stayed: %v", left)
 	}
 	// Released once: a second release finds nothing abandoned.
@@ -155,7 +156,7 @@ func TestAStalledMarkerWithoutReservationIsListedAndRemoved(t *testing.T) {
 	if err != nil || run.RunID != "" {
 		t.Fatalf("release: %+v %v", run, err)
 	}
-	if left, _ := filepath.Glob(filepath.Join(dir, marker.AttemptID+"*")); len(left) != 0 {
+	if left, _ := filepath.Glob(filepath.Join(dir, marker.AttemptID+"*")); len(left) != 1 || !strings.HasSuffix(left[0], ".release.lock") {
 		t.Fatalf("the marker stayed: %v", left)
 	}
 }
@@ -224,37 +225,43 @@ func TestAnInterruptedDispatchIsReleasedAndTheNextOneRuns(t *testing.T) {
 	}
 }
 
-// Review round 2, N3: a release already claimed is not run again.
-func TestAClaimedReleaseIsNotRunTwice(t *testing.T) {
+// Review rounds 2 and 5 (N3, N1): one release runs at a time, under a lock
+// the operating system releases when its holder ends.
+func TestOneReleaseRunsAtATime(t *testing.T) {
 	root := t.TempDir()
 	s := Store{Root: root}
 	attempt := "rat-" + strings.Repeat("9", 64)
 	dir, _ := s.delegationActiveDir(true)
-	claim := filepath.Join(dir, attempt+".release")
-	live := StartLockOwner{SchemaVersion: StartLockOwnerSchemaVersion, Resource: "release:x", Operation: "pose delegate cancel", PID: os.Getpid()}
-	live.Host, _ = os.Hostname()
-	identifyStartLockProcess(&live)
-	raw, _ := json.Marshal(live)
-	if err := os.WriteFile(claim, raw, 0o600); err != nil {
+	lockPath := filepath.Join(dir, attempt+".release.lock")
+	held, err := os.OpenFile(lockPath, os.O_CREATE|os.O_RDWR, 0o600)
+	if err != nil {
+		t.Fatal(err)
+	}
+	unlock, err := lockSpecTransferFile(held)
+	if err != nil {
 		t.Fatal(err)
 	}
 	if _, err := s.ReleaseAbandonedAttempt(attempt, time.Now(), false); !errors.Is(err, ErrAttemptNotAbandoned) || !strings.Contains(err.Error(), "in progress") {
-		t.Fatalf("a claimed release ran again: %v", err)
+		t.Fatalf("a release ran while another held the lock: %v", err)
 	}
-	// Review round 3, N1: a claim whose owner is gone is an interrupted
-	// release, taken over.
-	dead := exec.Command("true")
-	if err := dead.Run(); err != nil {
-		t.Fatal(err)
+	unlock()
+	held.Close()
+	// A holder that ends releases the lock with it: nothing is left to take over.
+	if _, err := exec.LookPath("flock"); err == nil {
+		holder := exec.Command("flock", lockPath, "sleep", "30")
+		holder.SysProcAttr = &syscall.SysProcAttr{Setpgid: true}
+		if err := holder.Start(); err != nil {
+			t.Fatal(err)
+		}
+		time.Sleep(200 * time.Millisecond)
+		if _, err := s.ReleaseAbandonedAttempt(attempt, time.Now(), false); err == nil || !strings.Contains(err.Error(), "in progress") {
+			t.Fatalf("the other process's lock was not seen: %v", err)
+		}
+		_ = syscall.Kill(-holder.Process.Pid, syscall.SIGKILL)
+		_ = holder.Wait()
 	}
-	gone := live
-	gone.PID = dead.Process.Pid
-	raw, _ = json.Marshal(gone)
-	if err := os.WriteFile(claim, raw, 0o600); err != nil {
-		t.Fatal(err)
-	}
-	if err := claimAttemptRelease(claim, time.Now()); err != nil {
-		t.Fatalf("an interrupted release's claim was not taken over: %v", err)
+	if _, err := s.ReleaseAbandonedAttempt(attempt, time.Now(), false); err != nil && strings.Contains(err.Error(), "in progress") {
+		t.Fatalf("an ended holder's lock still blocks the release: %v", err)
 	}
 }
 
@@ -375,42 +382,6 @@ func TestAnUnreadableReservationIsReportedAsALoss(t *testing.T) {
 	}
 }
 
-// Review round 4, N2: two takers of one stale claim never both win.
-func TestAStaleClaimHasOneTaker(t *testing.T) {
-	dir := t.TempDir()
-	claim := filepath.Join(dir, "rat-x.release")
-	dead := exec.Command("true")
-	if err := dead.Run(); err != nil {
-		t.Fatal(err)
-	}
-	gone := StartLockOwner{SchemaVersion: StartLockOwnerSchemaVersion, Resource: "release:x", Operation: "pose delegate cancel", PID: os.Getpid()}
-	gone.Host, _ = os.Hostname()
-	identifyStartLockProcess(&gone)
-	gone.PID = dead.Process.Pid
-	raw, _ := json.Marshal(gone)
-	for round := 0; round < 20; round++ {
-		if err := os.WriteFile(claim, raw, 0o600); err != nil {
-			t.Fatal(err)
-		}
-		results := make(chan error, 2)
-		start := make(chan struct{})
-		for i := 0; i < 2; i++ {
-			go func() { <-start; results <- claimAttemptRelease(claim, time.Now()) }()
-		}
-		close(start)
-		won := 0
-		for i := 0; i < 2; i++ {
-			if <-results == nil {
-				won++
-			}
-		}
-		if won != 1 {
-			t.Fatalf("round %d: %d takers won the stale claim", round, won)
-		}
-		_ = os.Remove(claim)
-	}
-}
-
 // Review round 4, N3: with the run history incomplete, no reservation is
 // taken as runless, and the loss is reported.
 func TestAnIncompleteRunHistoryRulesNothingOut(t *testing.T) {
@@ -438,5 +409,51 @@ func TestAnIncompleteRunHistoryRulesNothingOut(t *testing.T) {
 	}
 	if _, err := s.ReleaseAbandonedAttempt(a.AttemptID, time.Now(), true); err == nil {
 		t.Fatal("a reservation was released over an incomplete run history")
+	}
+}
+
+// Review round 5, N3: a dispatch that recorded its run and stopped before
+// the receipt is completed with that run, not with a second one; N2: a
+// release that stopped after the receipt only removes the marker.
+func TestARecordedRunCompletesItsAttempt(t *testing.T) {
+	f := provenanceRunFixture(t, "openai", "probe-model")
+	plan, err := f.store.PlanReviewDispatch(f.bundle.BundleID, "review", "fixture labelled notes", "fake", "receipt lost")
+	if err != nil {
+		t.Fatal(err)
+	}
+	saved := beforeRunResultPublished
+	t.Cleanup(func() { beforeRunResultPublished = saved })
+	recorded := ""
+	beforeRunResultPublished = func(r ReviewRun) { recorded = r.RunID; panic("the dispatching process ends before the receipt") }
+	func() {
+		defer func() { _ = recover() }()
+		_, _ = f.store.RunReviewDispatchContext(context.Background(), plan, time.Now)
+	}()
+	beforeRunResultPublished = saved
+	runs, _, _ := f.store.ReadReviewRuns(f.bundle.BundleID)
+	if recorded == "" || len(runs) == 0 {
+		t.Fatalf("the dispatch recorded no run: %q %d", recorded, len(runs))
+	}
+	attempt := runs[len(runs)-1].AttemptID
+	writeDeadMarker(t, f.store, attempt)
+	activeDir, _ := f.store.delegationActiveDir(false)
+	markerBytes, _ := os.ReadFile(filepath.Join(activeDir, attempt+".json"))
+	released, err := f.store.ReleaseAbandonedAttempt(attempt, time.Now(), false)
+	if err != nil || released.RunID != recorded {
+		t.Fatalf("the release did not complete with the recorded run %s: %s %v", recorded, released.RunID, err)
+	}
+	if after, _, _ := f.store.ReadReviewRuns(f.bundle.BundleID); len(after) != len(runs) {
+		t.Fatalf("the release recorded another run: %d then %d", len(runs), len(after))
+	}
+	// The marker comes back, as a release stopped after the receipt leaves it.
+	if err := os.WriteFile(filepath.Join(activeDir, attempt+".json"), markerBytes, 0o600); err != nil {
+		t.Fatal(err)
+	}
+	again, err := f.store.ReleaseAbandonedAttempt(attempt, time.Now(), false)
+	if err != nil || again.RunID != recorded {
+		t.Fatalf("a release after the receipt did not complete: %s %v", again.RunID, err)
+	}
+	if left, _ := filepath.Glob(filepath.Join(activeDir, attempt+".json")); len(left) != 0 {
+		t.Fatal("the stalled marker stayed after the receipt")
 	}
 }

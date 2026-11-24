@@ -15,13 +15,13 @@ package pose
 // listed once it is older than reviewOrphanReservationAge and has no
 // receipt or run, and released only on the operator's explicit confirmation,
 // which the recorded run states (review round 3, N2). One release runs at a
-// time per attempt under an exclusive claim that records its owner; a claim
-// whose owner is gone is taken over, and a release interrupted after it
-// recorded the run completes it instead of recording another (N1).
+// time per attempt under a lock the operating system releases when its
+// holder ends, so an interrupted release leaves nothing to take over (review
+// round 5, N1). A release is idempotent: it completes with a run the
+// attempt already recorded, whatever wrote it (N3), and with a receipt
+// already published it only removes the stalled marker (N2).
 
 import (
-	"bytes"
-	"encoding/json"
 	"errors"
 	"fmt"
 	"os"
@@ -63,56 +63,17 @@ func (s Store) ReleaseAbandonedAttempt(attemptID string, now time.Time, operator
 	if err != nil {
 		return ReviewRun{}, err
 	}
-	claim := filepath.Join(dir, attemptID+".release")
-	if err := claimAttemptRelease(claim, now); err != nil {
+	lock, err := os.OpenFile(filepath.Join(dir, attemptID+".release.lock"), os.O_CREATE|os.O_RDWR, 0600)
+	if err != nil {
 		return ReviewRun{}, err
 	}
-	run, err := s.releaseAbandonedAttemptClaimed(attemptID, marker, now, operatorConfirmed)
-	if rerr := os.Remove(claim); rerr != nil && !errors.Is(rerr, os.ErrNotExist) && err == nil {
-		err = rerr
-	}
-	return run, err
-}
-
-// claimAttemptRelease publishes the release claim with its owner. A claim
-// whose owner is proven gone is an interrupted release and is taken over.
-func claimAttemptRelease(claim string, now time.Time) error {
-	owner := StartLockOwner{SchemaVersion: StartLockOwnerSchemaVersion, Resource: "release:" + filepath.Base(claim), Operation: "pose delegate cancel", PID: os.Getpid(), AcquiredAt: now.UTC().Format(time.RFC3339Nano)}
-	owner.Host, _ = os.Hostname()
-	identifyStartLockProcess(&owner)
-	raw, _ := json.Marshal(owner)
-	publish := func() error {
-		return PublishFile(claim, append(raw, '\n'), 0600, PublishAuthoritative, PublishExpectation{Mode: ExpectAbsent})
-	}
-	if publish() == nil {
-		return nil
-	}
-	held, err := os.ReadFile(claim)
+	defer lock.Close()
+	unlock, err := lockSpecTransferFile(lock)
 	if err != nil {
-		return fmt.Errorf("%w: the release claim %s cannot be read: %v", ErrAttemptNotAbandoned, claim, err)
+		return ReviewRun{}, fmt.Errorf("%w: another release of it is in progress", ErrAttemptNotAbandoned)
 	}
-	var previous StartLockOwner
-	if json.Unmarshal(held, &previous) != nil {
-		return fmt.Errorf("%w: the release claim %s is not one this engine reads", ErrAttemptNotAbandoned, claim)
-	}
-	if liveness, detail := probeStartLockOwner(previous); liveness != LockOwnerDead {
-		return fmt.Errorf("%w: another release of it is in progress (%s)", ErrAttemptNotAbandoned, detail)
-	}
-	// Taking over is a rename of the stale claim to a name of this process,
-	// which only one taker can win, then an exclusive publish: two takers
-	// never both enter the release (review round 4, N2).
-	stale := fmt.Sprintf("%s.stale.%d.%d", claim, os.Getpid(), now.UnixNano())
-	if err := os.Rename(claim, stale); err != nil {
-		return fmt.Errorf("%w: another release took over the claim %s", ErrAttemptNotAbandoned, claim)
-	}
-	if after, err := os.ReadFile(stale); err != nil || !bytes.Equal(after, held) {
-		return fmt.Errorf("%w: the claim %s changed while it was taken over", ErrAttemptNotAbandoned, claim)
-	}
-	if err := publish(); err != nil {
-		return fmt.Errorf("%w: another release took over the claim %s", ErrAttemptNotAbandoned, claim)
-	}
-	_ = os.Remove(stale)
-	return nil
+	defer unlock()
+	return s.releaseAbandonedAttemptClaimed(attemptID, marker, now, operatorConfirmed)
 }
 
 func (s Store) releaseAbandonedAttemptClaimed(attemptID string, marker *DelegationActiveRun, now time.Time, operatorConfirmed bool) (ReviewRun, error) {
@@ -150,6 +111,19 @@ func (s Store) releaseAbandonedAttemptClaimed(attemptID string, marker *Delegati
 		}
 	}
 	if _, err := os.Lstat(attemptReceiptPath(s.Root, *reserved)); err == nil {
+		// A release that stopped after the receipt completes by removing
+		// the stalled marker; with no marker there is nothing to release.
+		if marker != nil {
+			receipt, err := s.readAttemptReceipt(*reserved)
+			if err != nil {
+				return ReviewRun{}, err
+			}
+			run, err := s.LoadProvenanceReviewRun(receipt.RunID)
+			if err != nil {
+				return ReviewRun{}, err
+			}
+			return run, s.removeDelegationMarker(*marker)
+		}
 		return ReviewRun{}, fmt.Errorf("%w: it already has a receipt", ErrAttemptNotAbandoned)
 	} else if !errors.Is(err, os.ErrNotExist) {
 		return ReviewRun{}, fmt.Errorf("the receipt of %s cannot be inspected: %w", attemptID, err)
@@ -164,8 +138,10 @@ func (s Store) releaseAbandonedAttemptClaimed(attemptID string, marker *Delegati
 	} else {
 		run.Failure = DelegationAbandonedCause + " (reservation of " + reserved.ReservedAt + " with no marker, left by an earlier engine); released by pose delegate cancel on the operator's confirmation"
 	}
-	// A release interrupted after recording the run completes with that run.
-	recorded, found, err := s.recordedAbandonmentRun(*reserved)
+	// A run the attempt already recorded, by its dispatch or by a release
+	// interrupted before the receipt, completes the attempt; no second run
+	// is written for it.
+	recorded, found, err := s.recordedAttemptRun(*reserved)
 	if err != nil {
 		return ReviewRun{}, err
 	}
@@ -183,9 +159,8 @@ func (s Store) releaseAbandonedAttemptClaimed(attemptID string, marker *Delegati
 	return recorded, nil
 }
 
-// recordedAbandonmentRun finds the failed run an interrupted release of a
-// recorded for it.
-func (s Store) recordedAbandonmentRun(a DelegatedReviewAttempt) (ReviewRun, bool, error) {
+// recordedAttemptRun finds the latest run recorded for attempt a.
+func (s Store) recordedAttemptRun(a DelegatedReviewAttempt) (ReviewRun, bool, error) {
 	runs, lost, err := s.ReadReviewRuns(a.BundleID)
 	if err != nil {
 		return ReviewRun{}, false, err
@@ -195,16 +170,20 @@ func (s Store) recordedAbandonmentRun(a DelegatedReviewAttempt) (ReviewRun, bool
 		// and the release does not write another (review round 4, N3).
 		return ReviewRun{}, false, fmt.Errorf("the run history of %s is incomplete, so an earlier release cannot be ruled out: %s", a.BundleID, strings.Join(lost, "; "))
 	}
-	for _, r := range runs {
-		if r.AttemptID == a.AttemptID && r.Status == ReviewRunFailed && strings.HasPrefix(r.Failure, DelegationAbandonedCause) {
-			return r, true, nil
+	var latest *ReviewRun
+	for i := range runs {
+		if runs[i].AttemptID == a.AttemptID && (latest == nil || runs[i].EndedAt > latest.EndedAt) {
+			latest = &runs[i]
 		}
 	}
-	return ReviewRun{}, false, nil
+	if latest == nil {
+		return ReviewRun{}, false, nil
+	}
+	return *latest, true, nil
 }
 
-// orphanReservations lists the reservations an earlier engine left without
-// a receipt, a marker or a run, older than reviewOrphanReservationAge, and
+// orphanReservations lists the reservations left without a receipt or a
+// marker, older than reviewOrphanReservationAge, and
 // says which reservations or receipts it could not read (review round 3, N3).
 func (s Store) orphanReservations(now time.Time) ([]DelegatedReviewAttempt, []string, error) {
 	base := filepath.Join(s.Root, reviewAttemptDir)
@@ -231,15 +210,10 @@ func (s Store) orphanReservations(now time.Time) ([]DelegatedReviewAttempt, []st
 		// Without the whole run history nothing is known to have no run.
 		return nil, append([]string{"abandoned reservations cannot be determined while the run history is incomplete"}, runLost...), nil
 	}
-	ran := map[string]bool{}
-	for _, r := range runs {
-		// The run an interrupted release recorded leaves the reservation
-		// abandoned until its receipt is written (review round 4, N1).
-		if r.Status == ReviewRunFailed && strings.HasPrefix(r.Failure, DelegationAbandonedCause) {
-			continue
-		}
-		ran[r.AttemptID] = true
-	}
+	// A recorded run does not finish an attempt, its receipt does: a
+	// reservation whose run was recorded without a receipt still blocks and
+	// is released with that run (review round 5, N3).
+	_ = runs
 	var out []DelegatedReviewAttempt
 	var lost []string
 	budget := reviewReadBudget(nil)
@@ -265,7 +239,7 @@ func (s Store) orphanReservations(now time.Time) ([]DelegatedReviewAttempt, []st
 				lost = append(lost, "the reservation "+d.Name()+"/"+e.Name()+" does not match its identity")
 				continue
 			}
-			if marked[a.AttemptID] || ran[a.AttemptID] {
+			if marked[a.AttemptID] {
 				continue
 			}
 			if _, err := os.Lstat(attemptReceiptPath(s.Root, a)); err == nil {
