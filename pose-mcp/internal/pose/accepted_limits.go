@@ -24,21 +24,29 @@ type ReviewAcceptedLimit struct {
 
 var acceptedLimitRE = regexp.MustCompile(`^-\s+(L[1-9][0-9]*):\s+(.+)$`)
 
-// acceptedLimitReasonRE finds the reason that follows the marker, which
-// opens a sentence: "<assumption>. Accepted because <reason>." A marker
-// inside a sentence, as in "Not accepted because", is not one (review round
-// 3, N1).
-var acceptedLimitReasonRE = regexp.MustCompile(`(?:^|[.;:!?]\s+)(?:Accepted because|Aceito porque)\s+(.*)$`)
+// acceptedLimitMarkerRE finds the marker where a sentence opens, after the
+// assumption: "<assumption>. Accepted because <reason>." A marker inside a
+// sentence ("Not accepted because") is not one (review round 3, N1).
+var acceptedLimitMarkerRE = regexp.MustCompile(`[.;:!?]\s+(?:Accepted because|Aceito porque)\s+`)
 
 // acceptedLimitReasonWordRE is a word with at least one letter.
 var acceptedLimitReasonWordRE = regexp.MustCompile(`\p{L}+`)
 
-// hasAcceptedLimitReason requires a reason after the marker of at least two
-// words with letters: neither the marker alone (review round 1, N2) nor
-// punctuation (round 2, N1) says why a limit is accepted.
+// hasAcceptedLimitReason reads an entry as written: an assumption of at
+// least two words, then the marker opening a sentence, then a reason of at
+// least two words in that same sentence. A marker alone, punctuation, a
+// missing assumption or a reason borrowed from a later sentence does not say
+// why a limit is accepted (review rounds 1–4).
 func hasAcceptedLimitReason(text string) bool {
-	m := acceptedLimitReasonRE.FindStringSubmatch(text)
-	return m != nil && len(acceptedLimitReasonWordRE.FindAllString(m[1], -1)) >= 2
+	loc := acceptedLimitMarkerRE.FindStringIndex(text)
+	if loc == nil {
+		return false
+	}
+	assumption, rest := text[:loc[0]], text[loc[1]:]
+	if end := strings.IndexAny(rest, ".;!?"); end >= 0 {
+		rest = rest[:end]
+	}
+	return len(acceptedLimitReasonWordRE.FindAllString(assumption, -1)) >= 2 && len(acceptedLimitReasonWordRE.FindAllString(rest, -1)) >= 2
 }
 
 // ParseAcceptedLimits reads the `### Accepted limits` section of a spec body.

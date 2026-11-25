@@ -98,13 +98,18 @@ func TestLimitsAcrossSpecsAreQualified(t *testing.T) {
 // with a one-letter word.
 func TestAnAcceptedLimitNeedsWordsAsItsReason(t *testing.T) {
 	for text, want := range map[string]bool{
-		"x. Accepted because ..":                         false,
-		"x. Accepted because -- !":                       false,
-		"x. Accepted because rare":                       false,
-		"x. Accepted because a shim covers it.":          true,
-		"x. Aceito porque o shim cobre o caso.":          true,
-		"Not accepted because this would violate scope.": false,
-		"x, accepted because it is rare.":                false,
+		"x. Accepted because ..":                                          false,
+		"x. Accepted because -- !":                                        false,
+		"x. Accepted because rare":                                        false,
+		"An escape. Accepted because a shim covers it.":                   true,
+		"Uma fuga. Aceito porque o shim cobre o caso.":                    true,
+		"Not accepted because this would violate scope.":                  false,
+		"Accepted because it is rare.":                                    false,
+		"An escape. Accepted because. Then unrelated prose follows here.": false,
+		"An escape. Accepted because a shim covers it. More context.":     true,
+		"An escape. Accepted because ; later prose has words.":            false,
+		"X. Accepted because a shim covers it.":                           false,
+		"x, accepted because it is rare.":                                 false,
 	} {
 		if got := hasAcceptedLimitReason(text); got != want {
 			t.Errorf("%q: reason=%t, want %t", text, got, want)
