@@ -48,4 +48,15 @@ func TestReadyCheckJudgesAcceptedLimits(t *testing.T) {
 	if code, out := run(); code == 0 || !strings.Contains(out, "accepted limit L2 is not named by the ADR") {
 		t.Fatalf("a limit the ADR omits passed: %d %s", code, out)
 	}
+	// Review round 5, N2: an ADR that cannot be read fails the check closed.
+	if os.Geteuid() != 0 {
+		adr := filepath.Join(root, ".pose/adr/2026-11-25-limited.md")
+		if err := os.Chmod(adr, 0o000); err != nil {
+			t.Fatal(err)
+		}
+		defer os.Chmod(adr, 0o644)
+		if code, out := run(); code == 0 || !strings.Contains(out, "cannot be read to check the accepted limits") {
+			t.Fatalf("an unreadable ADR was read as absent: %d %s", code, out)
+		}
+	}
 }

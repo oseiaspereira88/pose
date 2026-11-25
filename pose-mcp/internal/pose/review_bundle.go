@@ -4082,7 +4082,7 @@ func reviewFindingDecisionBlockers(bundle ReviewBundle, att ReviewAttestation) [
 			// (spec pose-review-declared-threat-model R3).
 			if !sealedAcceptedLimit(bundle, finding.Limit) {
 				blockers = append(blockers, "finding "+finding.ID+" names accepted limit "+firstNonempty(finding.Limit, "(none)")+", which this bundle did not seal")
-			} else if finding.Rationale == "" {
+			} else if strings.TrimSpace(finding.Rationale) == "" {
 				blockers = append(blockers, "finding "+finding.ID+" is within limit "+finding.Limit+" without saying why")
 			}
 		case "open", "changes-requested":

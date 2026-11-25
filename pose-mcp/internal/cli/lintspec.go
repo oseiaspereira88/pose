@@ -4,6 +4,7 @@ package cli
 // stable machine metrics without an external runtime.
 
 import (
+	"errors"
 	"fmt"
 	"io"
 	"os"
@@ -1188,19 +1189,32 @@ func containsSection(names []string, name string) bool {
 // the spec does not mention. With no ADR citing the spec nothing is required.
 func acceptedLimitsMissingFromADRs(root, slug string, limits []posepkg.ReviewAcceptedLimit) []string {
 	entries, err := os.ReadDir(filepath.Join(root, ".pose", "adr"))
-	if err != nil {
+	if errors.Is(err, os.ErrNotExist) {
 		return nil
 	}
+	// An ADR that cannot be read may be the one that cites the spec: the
+	// check fails closed instead of reading it as absent (review round 5, N2).
+	if err != nil {
+		return []string{"DoR: the ADRs cannot be read to check the accepted limits: " + err.Error()}
+	}
 	var citing []string
+	var unreadable []string
 	for _, e := range entries {
 		if e.IsDir() || !strings.HasSuffix(e.Name(), ".md") {
 			continue
 		}
 		raw, err := os.ReadFile(filepath.Join(root, ".pose", "adr", e.Name()))
-		if err != nil || !strings.Contains(string(raw), slug) {
+		if err != nil {
+			unreadable = append(unreadable, "DoR: ADR "+e.Name()+" cannot be read to check the accepted limits: "+err.Error())
+			continue
+		}
+		if !strings.Contains(string(raw), slug) {
 			continue
 		}
 		citing = append(citing, string(raw))
+	}
+	if len(unreadable) > 0 {
+		return unreadable
 	}
 	if len(citing) == 0 {
 		return nil

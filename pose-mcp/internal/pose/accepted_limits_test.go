@@ -74,7 +74,7 @@ func TestAFindingWithinASealedLimitDoesNotBlockApproval(t *testing.T) {
 	if blockers := strings.Join(reviewFindingDecisionBlockers(bundle, att), "\n"); !strings.Contains(blockers, "L9, which this bundle did not seal") {
 		t.Fatalf("an unsealed limit was accepted: %s", blockers)
 	}
-	att.Findings[0].Limit, att.Findings[0].Rationale = "L1", ""
+	att.Findings[0].Limit, att.Findings[0].Rationale = "L1", "  \t "
 	if blockers := strings.Join(reviewFindingDecisionBlockers(bundle, att), "\n"); !strings.Contains(blockers, "without saying why") {
 		t.Fatalf("a finding within a limit without a reason was accepted: %s", blockers)
 	}
