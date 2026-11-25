@@ -1,0 +1,224 @@
+{
+  "run": {
+    "run_id": "rrn-1236e104ff346a2d",
+    "proof_id": "rrp-01679704e3d669ad697e2537c1604b8ddf911822c7e625793e85e32416d43c02"
+  },
+  "schema_version": 1,
+  "attestation_id": "rva-8f61590bcf242c2f",
+  "bundle_id": "rvb-999f5a5a58143900",
+  "bundle_digest": "sha256:999f5a5a581439009c007f99111ad7658e5b86c7a4ffb00df84cab1c1a66370f",
+  "reviewer": "agent:openai/gpt-6-luna",
+  "decision": "changes-requested",
+  "criteria": [
+    {
+      "id": "assumption-integrity",
+      "disposition": "passed",
+      "evidence": "structure:design-97f41f9a91f96dfa",
+      "rationale": "I checked L1 and L2 against the spec and D1/D2 against the parser, plan and bundle code. L2 is verified by digest binding and the empty-limit compatibility test. L1 leaves semantic breadth to the reviewer; the lexical weakness in N1 is disclosed as an accepted L1 follow-up."
+    },
+    {
+      "id": "backend-concurrency",
+      "disposition": "passed",
+      "evidence": "unit:pose-mcp/go/test",
+      "rationale": "The change adds deterministic parsing and synchronous ADR reads, with no shared mutable state, goroutines, cancellation hooks or background lifecycle."
+    },
+    {
+      "id": "backend-contracts",
+      "disposition": "passed",
+      "evidence": "integration:pose-mcp/go/review-brief-conclusion-rules-integration",
+      "rationale": "The review plan, bundle and finding additions are optional JSON fields; the brief moved to /11 and prior templates remain versioned. Tests cover the new conclusion contract."
+    },
+    {
+      "id": "backend-input-errors",
+      "disposition": "finding",
+      "evidence": "N2",
+      "rationale": "The new ADR input path is unbounded and follows symlinks, allowing repository input to hang or exhaust the linter."
+    },
+    {
+      "id": "backend-integration-impact",
+      "disposition": "passed",
+      "evidence": "integration:pose-mcp/go/review-brief-conclusion-rules-integration",
+      "rationale": "No HTTP, event or external MCP contract was changed. The integration assessment's three unobserved HTTP consumers are unrelated endpoints; the scoped review path has sealed integration coverage."
+    },
+    {
+      "id": "backend-observability",
+      "disposition": "finding",
+      "evidence": "N2",
+      "rationale": "A non-terminating or very large ADR target can prevent any bounded diagnostic from being returned."
+    },
+    {
+      "id": "compatibility",
+      "disposition": "passed",
+      "evidence": "integration:pose-mcp/go/review-bundle-convergence",
+      "rationale": "I checked additive fields use omitempty, the plan and bundle digest tests preserve the no-limit form, and review-brief/11 preserves earlier immutable template versions."
+    },
+    {
+      "id": "correctness",
+      "disposition": "finding",
+      "evidence": "N1",
+      "rationale": "The ready-check's word-count heuristic admits a placeholder-only assumption and reason; this is accepted only as the L1 reviewer-judgment follow-up."
+    },
+    {
+      "id": "design-causality",
+      "disposition": "passed",
+      "evidence": "structure:design-97f41f9a91f96dfa",
+      "rationale": "The spec identifies non-converging rounds caused by unstated environmental assumptions. D1 makes limit classification an explicit reviewer judgment; D2 seals the same limits into plan and bundle digests. The structural assessment reported no deltas to map."
+    },
+    {
+      "id": "documentation",
+      "disposition": "passed",
+      "evidence": "integration:pose-mcp/go/review-brief-conclusion-rules-integration",
+      "rationale": "I compared POSE.md, the Portuguese manual, and both scaffold copies with runtime parsing, review-brief/11, and within-limit recording; the documented flow matches those behaviors."
+    },
+    {
+      "id": "operability",
+      "disposition": "finding",
+      "evidence": "N2",
+      "rationale": "Ordinary unreadable ADRs produce actionable errors, but a symlink to an unbounded source can hang the ready-check without a returned diagnostic."
+    },
+    {
+      "id": "requirements",
+      "disposition": "finding",
+      "evidence": "N1",
+      "rationale": "R1-R3 are supported by the parsed/sealed brief and conclusion paths; R4's format gate accepts the placeholder-only text described in N1, an L1 follow-up."
+    },
+    {
+      "id": "scope",
+      "disposition": "passed",
+      "evidence": "structure:design-97f41f9a91f96dfa",
+      "rationale": "I compared the attributed subject with the spec's plan: parser, CLI ready-check, plan/bundle/conclusion/brief code, tests, manuals and scaffold copies all serve the declared capability."
+    },
+    {
+      "id": "security",
+      "disposition": "finding",
+      "evidence": "N2",
+      "rationale": "The ready-check follows repository-controlled ADR symlinks and reads without a bound, crossing the project path boundary and enabling resource exhaustion."
+    },
+    {
+      "id": "solution-proportionality",
+      "disposition": "passed",
+      "evidence": "structure:design-97f41f9a91f96dfa",
+      "rationale": "I compared lint-only handling with the selected plan/bundle/brief/conclusion flow: sealing is needed so later review uses the reviewed limits, while omitted fields preserve old records. No general threat-model DSL was added. Revisit this choice if policy requires machine-verifiable semantic matching between finding text and limit text."
+    }
+  ],
+  "tools": [
+    {
+      "id": "artifact-check",
+      "disposition": "passed",
+      "evidence": "command:$POSE_REVIEW_CLI artifact-check --spec pose-review-declared-threat-model --strict",
+      "rationale": "Exited 0, with attribution warnings; its active index named cs-3a000dc4048f rather than the supplied cs-0e1f3afb4f75, so I did not use those warnings to judge the sealed subject."
+    },
+    {
+      "id": "assess-design",
+      "disposition": "passed",
+      "evidence": "structure:design-97f41f9a91f96dfa",
+      "rationale": "Ran successfully; the assessment reported no structural deltas."
+    },
+    {
+      "id": "assess-discover",
+      "component": "pose-mcp",
+      "disposition": "passed",
+      "evidence": "command:$POSE_REVIEW_CLI assess discover --no-persist --component pose-mcp",
+      "rationale": "Ran successfully and discovered the pose-mcp component."
+    },
+    {
+      "id": "assess-integrate",
+      "disposition": "passed",
+      "evidence": "integration:pose-mcp/go/review-brief-conclusion-rules-integration",
+      "rationale": "Ran successfully; it reported three unobserved HTTP consumers (/admin/refresh, /healthz, /mcp), none changed by this subject. Scoped review integration evidence passes."
+    },
+    {
+      "id": "assess-tech-debt",
+      "disposition": "failed",
+      "evidence": "command:$POSE_REVIEW_CLI assess tech-debt --no-persist",
+      "rationale": "The scan was incomplete because two unrelated specs could not be read and it reported one uncovered repository marker. No TODO/FIXME/stub/panic marker was introduced in the changed Go implementation."
+    },
+    {
+      "id": "closeout-check",
+      "disposition": "deferred",
+      "rationale": "Its precondition is review completion; this task forbids recording an attestation."
+    },
+    {
+      "id": "review-check",
+      "disposition": "deferred",
+      "rationale": "Its precondition is review completion; this task forbids recording an attestation."
+    },
+    {
+      "id": "suggest-review",
+      "component": "pose-mcp",
+      "disposition": "passed",
+      "evidence": "command:$POSE_REVIEW_CLI suggest review --path pose-mcp",
+      "rationale": "Ran successfully and selected backend-go, security and documentation-style rules."
+    },
+    {
+      "id": "surface-check",
+      "disposition": "passed",
+      "evidence": "integration:pose-mcp/go/spec-surface-integration",
+      "rationale": "Ran successfully: one target, 236 results, zero findings; sealed reachability evidence also passes."
+    },
+    {
+      "id": "validate",
+      "disposition": "passed",
+      "evidence": "unit:pose-mcp/go/test",
+      "rationale": "The strict global rerun exited 1 before Go checks could start because the read-only sandbox denied Go work/cache creation. The sealed bundle supplies passing pose-mcp build, e2e, integration and unit evidence."
+    },
+    {
+      "id": "validate",
+      "component": "pose-mcp",
+      "disposition": "passed",
+      "evidence": "unit:pose-mcp/go/test",
+      "rationale": "The strict module rerun hit the same read-only Go work/cache failure. The sealed pose-mcp build, integration and unit refs cover the component; the focused accepted-limit/brief/conclusion tests also passed in this run."
+    }
+  ],
+  "evidence_refs": [
+    "N1",
+    "N2",
+    "delegated-run:rrn-1236e104ff346a2d",
+    "integration:pose-mcp/go/review-brief-conclusion-rules-integration",
+    "integration:pose-mcp/go/review-bundle-convergence",
+    "structure:design-97f41f9a91f96dfa",
+    "unit:pose-mcp/go/test"
+  ],
+  "findings": [
+    {
+      "id": "N1",
+      "severity": "low",
+      "evidence": "file:pose-mcp/internal/pose/accepted_limits.go:49",
+      "action": "Add regression cases for placeholder-only assumptions and reasons, or make the reviewer-only semantic check explicit in the ready-check guidance.",
+      "disposition": "within-limit",
+      "owner": "POSE maintainers",
+      "rationale": "The lexical gate accepts placeholder-like text such as “X. Y. Accepted because z w.” because it counts letter runs, not substantive assumptions or reasons. This is a format-only residual within L1: the sealed brief exposes the limit text for the reviewer to judge and dispute.",
+      "review_by": "2026-12-31",
+      "limit": "L1"
+    },
+    {
+      "id": "N2",
+      "severity": "medium",
+      "evidence": "file:pose-mcp/internal/cli/lintspec.go:1206",
+      "action": "The ready-check reads each ADR Markdown path with unbounded os.ReadFile and follows symlinks. A repository-controlled ADR symlink can escape the project root or target a non-terminating/huge source such as /dev/zero, hanging the check or exhausting memory.",
+      "disposition": "open"
+    }
+  ],
+  "authority": {
+    "schema_version": 1,
+    "project": "proj.pose-dist",
+    "bundle_digest": "sha256:999f5a5a581439009c007f99111ad7658e5b86c7a4ffb00df84cab1c1a66370f",
+    "principal": "agent:openai/gpt-6-luna",
+    "role": "agent",
+    "review_execution": "rrn-1236e104ff346a2d",
+    "implementation_principal": "agent:anthropic/unknown",
+    "implementation_execution": "sha256:344ac5868944c155772d60a95ef6ff20644580a642e772ad5c92c29428464ff8",
+    "issuer": "b34-local-executor",
+    "issued_at": "2026-11-25T23:28:30Z",
+    "audience": "proj.pose-dist"
+  },
+  "envelope": {
+    "issuer": "b34-local-executor",
+    "subject": "rvb-999f5a5a58143900",
+    "algorithm": "ed25519",
+    "public_key": "ck4sApdfePV2GT+hJyAYfJd2qLzeG55P8pevGR0bvZE=",
+    "signature": "ndcIctRCDWsqsSQVUbL72Qg0ATrO3Op5syNOjg4nvWYQNi1Bcn44okmi7OmMre6MjWzEXf9gAmAWFRsEtlD+Cg=="
+  },
+  "attested_at": "2026-11-25T23:28:30Z",
+  "path": ".pose/review-attestations/rva-8f61590bcf242c2f.json"
+}
