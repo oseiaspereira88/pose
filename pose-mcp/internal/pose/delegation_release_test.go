@@ -502,3 +502,39 @@ func TestTheOrphanScanListsBoundedDirectories(t *testing.T) {
 		t.Fatalf("listing: %d entries, truncated=%t, %v", len(entries), truncated, err)
 	}
 }
+
+// Review round 14, N5: a release interrupted after its run's witness and
+// before the run's record leaves an incomplete history; the next release
+// records the same run again, completes it and releases the attempt.
+func TestAReleaseInterruptedAfterTheWitnessCompletes(t *testing.T) {
+	f := provenanceRunFixture(t, "openai", "probe-model")
+	plan, err := f.store.PlanReviewDispatch(f.bundle.BundleID, "review", "fixture labelled notes", "fake", "interrupted")
+	if err != nil {
+		t.Fatal(err)
+	}
+	attempt := ""
+	plan.OnStart = func(a string) error { attempt = a; panic("the dispatching process ends here") }
+	func() {
+		defer func() { _ = recover() }()
+		_, _ = f.store.RunReviewDispatchContext(context.Background(), plan, time.Now)
+	}()
+	writeDeadMarker(t, f.store, attempt)
+	afterRunWitnessPublished = func(ReviewRun) error { return errors.New("the release ends between the witness and the record") }
+	if _, err := f.store.ReleaseAbandonedAttempt(attempt, time.Now(), false); err == nil {
+		t.Fatal("the interrupted release reported success")
+	}
+	afterRunWitnessPublished = func(ReviewRun) error { return nil }
+	if _, lost, _ := f.store.ReadReviewRuns(f.bundle.BundleID); len(lost) == 0 {
+		t.Fatal("the interruption left no incomplete history to recover from")
+	}
+	run, err := f.store.ReleaseAbandonedAttempt(attempt, time.Now(), false)
+	if err != nil {
+		t.Fatalf("the release after the interruption was refused: %v", err)
+	}
+	if _, lost, _ := f.store.ReadReviewRuns(f.bundle.BundleID); len(lost) != 0 {
+		t.Fatalf("the history stays incomplete after the release: %v", lost)
+	}
+	if next, err := f.store.PlanReviewDispatch(f.bundle.BundleID, "review", "fixture labelled notes", "fake", "after release"); err != nil || next.Bundle.BundleID == "" {
+		t.Fatalf("the released attempt still blocks the bundle (%s): %v", run.RunID, err)
+	}
+}

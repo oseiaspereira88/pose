@@ -129,20 +129,12 @@ func (s Store) releaseAbandonedAttemptClaimed(attemptID string, marker *Delegati
 	} else if !errors.Is(err, os.ErrNotExist) {
 		return ReviewRun{}, fmt.Errorf("the receipt of %s cannot be inspected: %w", attemptID, err)
 	}
-	run := ReviewRun{SchemaVersion: 1, Scope: reserved.Scope, BundleID: reserved.BundleID, BundleDigest: reserved.BundleDigest,
-		Kind: ReviewBriefKindReview, Adapter: reserved.Adapter, Reason: reserved.Reason, AttemptID: reserved.AttemptID,
-		StartedAt: reserved.ReservedAt, ExitCode: -1, Purpose: DelegationPurposeReview,
-		Status: ReviewRunFailed, EndedAt: now.UTC().Format(time.RFC3339Nano)}
-	if marker != nil {
-		run.Kind, run.Purpose, run.Label, run.Round, run.StartedAt = DelegationKindForPurpose(marker.Purpose), marker.Purpose, marker.Label, marker.Round, marker.StartedAt
-		run.Failure = DelegationAbandonedCause + " (stalled at " + marker.StalledAt + "); released by pose delegate cancel"
-	} else {
-		run.Failure = DelegationAbandonedCause + " (reservation of " + reserved.ReservedAt + " with no marker, left by an earlier engine); released by pose delegate cancel on the operator's confirmation"
-	}
+	run := abandonmentRun(*reserved, marker)
+	candidate, _ := identifiedReviewRun(run, nil)
 	// A run the attempt already recorded, by its dispatch or by a release
 	// interrupted before the receipt, completes the attempt; no second run
 	// is written for it.
-	recorded, found, err := s.recordedAttemptRun(*reserved)
+	recorded, found, err := s.recordedAttemptRun(*reserved, candidate.RunID)
 	if err != nil {
 		return ReviewRun{}, err
 	}
@@ -160,13 +152,45 @@ func (s Store) releaseAbandonedAttemptClaimed(attemptID string, marker *Delegati
 	return recorded, nil
 }
 
-// recordedAttemptRun finds the latest run recorded for attempt a.
-func (s Store) recordedAttemptRun(a DelegatedReviewAttempt) (ReviewRun, bool, error) {
+// abandonmentRun is the failed run a release records for reserved. Its
+// content is deterministic (no reading of the clock), so a release
+// interrupted between the run's witness and its record records the same run
+// again and completes it (review round 14, N5).
+func abandonmentRun(reserved DelegatedReviewAttempt, marker *DelegationActiveRun) ReviewRun {
+	run := ReviewRun{SchemaVersion: 1, Scope: reserved.Scope, BundleID: reserved.BundleID, BundleDigest: reserved.BundleDigest,
+		Kind: ReviewBriefKindReview, Adapter: reserved.Adapter, Reason: reserved.Reason, AttemptID: reserved.AttemptID,
+		StartedAt: reserved.ReservedAt, EndedAt: reserved.ReservedAt, ExitCode: -1, Purpose: DelegationPurposeReview, Status: ReviewRunFailed}
+	if marker != nil {
+		run.Kind, run.Purpose, run.Label, run.Round, run.StartedAt, run.EndedAt = DelegationKindForPurpose(marker.Purpose), marker.Purpose, marker.Label, marker.Round, marker.StartedAt, marker.StalledAt
+		run.Failure = DelegationAbandonedCause + " (stalled at " + marker.StalledAt + "); released by pose delegate cancel"
+	} else {
+		run.Failure = DelegationAbandonedCause + " (reservation of " + reserved.ReservedAt + " with no marker, left by an earlier engine); released by pose delegate cancel on the operator's confirmation"
+	}
+	return run
+}
+
+// withoutOwnWitness drops the loss of the release's own run, a witness whose
+// record an interrupted release did not publish yet: recording it again
+// completes it.
+func withoutOwnWitness(lost []string, runID string) []string {
+	var out []string
+	for _, l := range lost {
+		if runID != "" && strings.HasPrefix(l, "witnessed run "+runID+":") {
+			continue
+		}
+		out = append(out, l)
+	}
+	return out
+}
+
+// recordedAttemptRun finds the latest run recorded for attempt a. own is the
+// run the release would record, whose own missing record is not an unknown.
+func (s Store) recordedAttemptRun(a DelegatedReviewAttempt, own string) (ReviewRun, bool, error) {
 	runs, lost, err := s.ReadReviewRuns(a.BundleID)
 	if err != nil {
 		return ReviewRun{}, false, err
 	}
-	if len(lost) > 0 {
+	if lost = withoutOwnWitness(lost, own); len(lost) > 0 {
 		// An unreadable run may be this release's: the history is unknown,
 		// and the release does not write another (review round 4, N3).
 		return ReviewRun{}, false, fmt.Errorf("the run history of %s is incomplete, so an earlier release cannot be ruled out: %s", a.BundleID, strings.Join(lost, "; "))
@@ -212,10 +236,7 @@ func (s Store) orphanReservations(now time.Time) ([]DelegatedReviewAttempt, []st
 	if err != nil {
 		return nil, nil, err
 	}
-	if len(runLost) > 0 {
-		// Without the whole run history nothing is known to have no run.
-		return nil, append([]string{"abandoned reservations cannot be determined while the run history is incomplete"}, runLost...), nil
-	}
+
 	// A recorded run does not finish an attempt, its receipt does: a
 	// reservation whose run was recorded without a receipt still blocks and
 	// is released with that run (review round 5, N3).
@@ -266,6 +287,16 @@ func (s Store) orphanReservations(now time.Time) ([]DelegatedReviewAttempt, []st
 	}
 	if dirsTruncated {
 		lost = append(lost, fmt.Sprintf("the attempt directories exceed %d entries; the rest were not read", reviewOrphanScanMaxEntries))
+	}
+	// Without the whole run history nothing is known to have no run, except
+	// the loss of an orphan's own abandonment run an interrupted release left
+	// before its record (review round 14, N5).
+	for _, a := range out {
+		own, _ := identifiedReviewRun(abandonmentRun(a, nil), nil)
+		runLost = withoutOwnWitness(runLost, own.RunID)
+	}
+	if len(runLost) > 0 {
+		return nil, append([]string{"abandoned reservations cannot be determined while the run history is incomplete"}, runLost...), nil
 	}
 	return out, lost, nil
 }

@@ -138,6 +138,13 @@ func reapShimSubtree() ([]string, error) {
 			note(err)
 		}
 		for _, d := range dirs {
+			// The bound holds per process, not only per listing (review round
+			// 14, N4).
+			if time.Now().After(deadline) {
+				children++
+				note(fmt.Errorf("the run's processes could not be scanned within the bound"))
+				break
+			}
 			pid, err := strconv.Atoi(d.Name())
 			if err != nil || pid == self {
 				continue

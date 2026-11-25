@@ -51,7 +51,7 @@ func reapSealedCheckoutProcesses(worktree string, baseline map[int]string) ([]st
 	deadline := time.Now().Add(reviewReapWait)
 	unreadable := 0
 	for {
-		alive, opaque, err := reviewMarkedProcesses(entry)
+		alive, opaque, err := reviewMarkedProcesses(entry, deadline)
 		if err != nil {
 			return reaped, unreadable, err
 		}
@@ -86,7 +86,7 @@ func reapSealedCheckoutProcesses(worktree string, baseline map[int]string) ([]st
 // reviewMarkedProcesses lists the live processes whose environment holds
 // entry, and counts this user's processes whose environment could not be
 // read. A process that is gone is skipped.
-func reviewMarkedProcesses(entry []byte) ([]int, map[int]string, error) {
+func reviewMarkedProcesses(entry []byte, deadline time.Time) ([]int, map[int]string, error) {
 	dirs, err := os.ReadDir("/proc")
 	if err != nil {
 		return nil, nil, fmt.Errorf("the run's processes could not be listed: %w", err)
@@ -95,6 +95,9 @@ func reviewMarkedProcesses(entry []byte) ([]int, map[int]string, error) {
 	self, uid := os.Getpid(), os.Getuid()
 	var out []int
 	for _, d := range dirs {
+		if !deadline.IsZero() && time.Now().After(deadline) {
+			return nil, unreadable, fmt.Errorf("the run's processes could not be scanned within the bound")
+		}
 		pid, err := strconv.Atoi(d.Name())
 		if err != nil || pid == self {
 			continue
@@ -213,6 +216,6 @@ func reviewProcessZombie(pid int) (bool, error) {
 // processes of this user whose environment cannot be read, by pid and start
 // time: they cannot be the run's.
 func reviewOpaqueProcessBaseline() map[int]string {
-	_, opaque, _ := reviewMarkedProcesses([]byte(SealedCheckoutEnv + "=\x00"))
+	_, opaque, _ := reviewMarkedProcesses([]byte(SealedCheckoutEnv+"=\x00"), time.Time{})
 	return opaque
 }

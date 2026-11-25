@@ -32,8 +32,8 @@ Changing review independence, round accounting or the attestation preflight.
 ## 2. Requirements
 
 ### Functional
-- R1: When the adapter exits, the dispatch shall terminate every remaining process of the run's process group, wait for them within a bound, and only then take the cleanup inventory.
-- R2: A run whose leftover processes were terminated and reaped, and whose inventory then completes, shall be concludable; the run record shall say which processes were terminated.
+- R1: When the adapter exits, the dispatch shall end every remaining process of the run and wait for them within a bound before the cleanup inventory: on Linux through the review run shim, the subreaper of the run's subtree, and on Windows through a kill-on-close job object. Other Unix platforms, which keep the process-group kill, are carried by `pose-review-run-reaping-beyond-linux`.
+- R2: A run whose leftover processes were ended and whose inventory then completes shall be concludable; on Linux the run record shall name the processes the shim ended. Naming the processes a Windows job or a Unix group kill ended is carried by `pose-review-run-reaping-beyond-linux`.
 - R3: The review brief shall ask the reviewer to let every command it starts finish before ending.
 - R4: A regression test shall dispatch an adapter that leaves a background process running and conclude the run.
 - R5: An attempt reservation whose dispatch was interrupted before its run was recorded shall not block later dispatches: `pose delegate ls` shall show it as abandoned with its cause, and `pose delegate cancel` (or the next dispatch) shall release it with a record, never by deleting the reservation.
@@ -154,6 +154,7 @@ Each requirement gets a regression test shown failing before its code.
 - 2026-11-25: round 11 first hit the Codex usage limit; its resume pointed the reviewer at the removed checkout of the first attempt, so a new run reviewed the same bundle (rrn-2b8c0f5ecc1b6196) and requested changes. N1: a shim that cannot be set up now fails the run instead of falling back to the environment search. N2 (follow-up): a child that already ended is not reported as ended by the shim. N3 (follow-up): `cancel` says when it completed an attempt with a run already recorded, with that run's status. N2 has a test that fails with it mutated out; N1 needs `os.Executable` or `pipe` to fail, and N3 is a message of the CLI branch stated untested in Known gaps.
 - 2026-11-25: review round 12 (rrn-1b7f5566a0a0e47e) requested changes. N1: the manual and the run record no longer claim a process-group kill on Windows, where the dispatch never ended the adapter's descendants; the limit is L2, and a containment profile that requires `process-group-termination` was and stays refused there. N2 (follow-up): the shim reports a pid ended only after it was signalled and reaped. N3 (follow-up): the recorded count is the shim's total, not the listed pids plus a placeholder.
 - 2026-11-25: review round 13 (rrn-0d9d3f3755d48f99) kept Windows as a blocker: R1 has no OS exception. By the maintainer's decision the Windows dispatch now ends the reviewer's tree: the adapter starts suspended, joins a job object limited to kill on close, and only then resumes, so no descendant starts outside it; the dispatch terminates the job after the run and on a timeout, and the kill-on-close limit ends the tree if the dispatcher dies. N2 (follow-up) stays declared as L6, the fallback of an embedder without the shim. N3 (follow-up): the shim reads /proc in batches under its deadline. The Windows test compiles for Windows but cannot run on this Linux host.
+- 2026-11-25: review round 14 (rrn-88cb9ca67527d00e) requested changes with N1–N5. By the maintainer's decision the spec closes on its core: R1 and R2 now state Linux (shim) and Windows (job object), and N2 (group emptiness on other Unix), N3 (naming what Windows and Unix group kills ended) and N1 (the embedder fallback, L6) moved to `pose-review-run-reaping-beyond-linux`. Fixed here: N4, the bound is checked per process in the shim's scan and in the fallback scan; N5, the abandonment run a release records is deterministic (no clock reading), so a release interrupted between the run's witness and its record records the same run again, which completes it, and the release tolerates only the loss of its own run's record. N5 has a test (`TestAReleaseInterruptedAfterTheWitnessCompletes`) that fails with the run made non-deterministic; N4 needs a process table slower than the bound.
 
 
 ### Results summary
@@ -166,7 +167,7 @@ The full `pose-mcp` suite passes; the canonical result is refreshed with `pose v
 - R3 [satisfied] test:TestTheCurrentBriefAsksCommandsToFinish
 - R4 [satisfied] test:TestDispatchEndsWhatTheReviewerLeftRunning
 - R5 [satisfied] test:TestAnAbandonedAttemptIsReleasedWithARecord, test:TestTheAttemptIsMarkedActiveBeforeItIsReserved, test:TestAStalledMarkerWithoutReservationIsListedAndRemoved
-- R6 [satisfied] test:TestAnInterruptedDispatchIsReleasedAndTheNextOneRuns, test:TestAMarkerlessReservationOfAnEarlierEngineIsReleased, test:TestOneReleaseRunsAtATime, test:TestARecordedRunCompletesItsAttempt, test:TestAnInterruptedReleaseCompletesWithItsRun, test:TestAnUnreadableReservationIsReportedAsALoss, test:TestAnIncompleteRunHistoryRulesNothingOut, test:TestAnUnreadableMarkerRulesNothingOut, test:TestTheOrphanScanListsBoundedDirectories
+- R6 [satisfied] test:TestAnInterruptedDispatchIsReleasedAndTheNextOneRuns, test:TestAMarkerlessReservationOfAnEarlierEngineIsReleased, test:TestOneReleaseRunsAtATime, test:TestARecordedRunCompletesItsAttempt, test:TestAnInterruptedReleaseCompletesWithItsRun, test:TestAnUnreadableReservationIsReportedAsALoss, test:TestAnIncompleteRunHistoryRulesNothingOut, test:TestAnUnreadableMarkerRulesNothingOut, test:TestTheOrphanScanListsBoundedDirectories, test:TestAReleaseInterruptedAfterTheWitnessCompletes
 
 
 ### Known gaps
@@ -192,6 +193,6 @@ L1: on Linux a run's process escapes only while it keeps a live parent outside t
 
 
 ### Follow-ups
-None.
+Carried by `pose-review-run-reaping-beyond-linux`: group emptiness on other Unix, naming what Windows and Unix group kills ended, and the embedder fallback (L6).
 
 

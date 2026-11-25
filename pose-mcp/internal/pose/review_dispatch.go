@@ -1590,11 +1590,17 @@ func tail(s string, n int) string {
 	return s[len(s)-n:]
 }
 
+// afterRunWitnessPublished runs between a run's witness and its record;
+// tests use it to stop a recording there.
+var afterRunWitnessPublished = func(ReviewRun) error { return nil }
+
 // beforeAttemptPublished runs between the active marker and the reservation;
 // tests use it to stop a dispatch there.
 var beforeAttemptPublished = func(Store, DelegatedReviewAttempt) {}
 
-func (s Store) recordReviewRun(run ReviewRun, transcript []byte) (ReviewRun, error) {
+// identifiedReviewRun is run as recordReviewRun persists it, with its
+// content identity: the same content always yields the same run id.
+func identifiedReviewRun(run ReviewRun, transcript []byte) (ReviewRun, []byte) {
 	// Identity covers only persisted content, never fields derived by a reader
 	// or a previous write of a copied record.
 	run.RunID, run.Path, run.TranscriptPath, run.SupersededBy = "", "", "", ""
@@ -1611,6 +1617,11 @@ func (s Store) recordReviewRun(run ReviewRun, transcript []byte) (ReviewRun, err
 	identity, _ := json.Marshal(run)
 	idSum := sha256.Sum256(identity)
 	run.RunID = "rrn-" + hex.EncodeToString(idSum[:])[:16]
+	return run, events
+}
+
+func (s Store) recordReviewRun(run ReviewRun, transcript []byte) (ReviewRun, error) {
+	run, events := identifiedReviewRun(run, transcript)
 	dir, err := ensureReviewArtifactDirIn(s.fsys(), s.Root, reviewRunsDir, true)
 	if err != nil {
 		return ReviewRun{}, err
@@ -1629,7 +1640,14 @@ func (s Store) recordReviewRun(run ReviewRun, transcript []byte) (ReviewRun, err
 	}
 
 	witness := reviewRunWitness{SchemaVersion: 1, RunID: run.RunID, BundleID: run.BundleID, Scope: run.Scope, RecordDigest: digestBytes(pretty), TranscriptDigest: run.TranscriptDigest}
+	// A publication of identical bytes is accepted, so a recording interrupted
+	// after the witness completes when the same content is recorded again
+	// (spec pose-review-run-reaps-lingering-reviewer-processes, review round
+	// 14, N5).
 	if err := publishLedgerJSON(s.Root, filepath.ToSlash(filepath.Join(reviewRunLedgerDir, run.RunID+".json")), witness); err != nil {
+		return ReviewRun{}, err
+	}
+	if err := afterRunWitnessPublished(run); err != nil {
 		return ReviewRun{}, err
 	}
 	if run.Safety != nil && int64(len(pretty)+len(transcript)+len(events)) > run.Safety.RetainedBytes {
