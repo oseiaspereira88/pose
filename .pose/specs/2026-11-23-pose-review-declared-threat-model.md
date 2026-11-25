@@ -133,6 +133,7 @@ Each requirement gets a regression test shown failing before its code.
 - 2026-11-25: review round 4 (rrn-721e2a4c9bd37e2e) found that an entry with no assumption, or with an empty reason followed by other prose, passed. The entry is now read structurally: an assumption of at least two words, the marker opening a sentence, and a reason of at least two words within that same sentence. Each rule has a test case that fails with it mutated out.
 - 2026-11-25: review round 5 (rrn-9f6867b3c3e42377): N1, a whitespace-only reason of a `within-limit` finding is refused; N2, the ready check fails closed on an ADR directory or file it cannot read, keeping the absent-directory case. Both have tests that fail with them mutated out.
 - 2026-11-25: review round 6 (rrn-a5b61489ac04873d) found the bundle's plan digest did not cover the sealed limits; it now does, omitted when empty so every other bundle keeps its digest. `TestTheBundlePlanDigestCoversTheAcceptedLimits` checks both and fails with the field mutated out.
+- 2026-11-25: review round 7 (rrn-1236e104ff346a2d): N2, the ready check reads an ADR only as a regular file, without following a link and within 1 MiB, so a link to an endless source fails instead of hanging; the test fails with the bounded read mutated out. N1 (low) was classified by the reviewer within L1: the check is a format gate, and the substance of a limit is judged in review.
 
 
 ### Results summary

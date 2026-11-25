@@ -1203,7 +1203,7 @@ func acceptedLimitsMissingFromADRs(root, slug string, limits []posepkg.ReviewAcc
 		if e.IsDir() || !strings.HasSuffix(e.Name(), ".md") {
 			continue
 		}
-		raw, err := os.ReadFile(filepath.Join(root, ".pose", "adr", e.Name()))
+		raw, err := readADRBounded(filepath.Join(root, ".pose", "adr", e.Name()))
 		if err != nil {
 			unreadable = append(unreadable, "DoR: ADR "+e.Name()+" cannot be read to check the accepted limits: "+err.Error())
 			continue
@@ -1232,4 +1232,25 @@ func acceptedLimitsMissingFromADRs(root, slug string, limits []posepkg.ReviewAcc
 		}
 	}
 	return missing
+}
+
+// adrReadLimit bounds one ADR the ready check reads.
+const adrReadLimit = 1 << 20
+
+// readADRBounded reads a regular ADR file without following a link and
+// within adrReadLimit, so a link out of the project or to an endless source
+// fails instead of hanging the check (review round 7, N2).
+func readADRBounded(path string) ([]byte, error) {
+	info, err := os.Lstat(path)
+	if err != nil {
+		return nil, err
+	}
+	if !info.Mode().IsRegular() {
+		return nil, fmt.Errorf("not a regular file")
+	}
+	f, err := posepkg.ReadReviewAdapterFile(path, adrReadLimit)
+	if err != nil {
+		return nil, err
+	}
+	return f, nil
 }

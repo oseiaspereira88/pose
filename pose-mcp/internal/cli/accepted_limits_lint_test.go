@@ -6,6 +6,7 @@ import (
 	"path/filepath"
 	"strings"
 	"testing"
+	"time"
 )
 
 // Spec pose-review-declared-threat-model R4: the ready check refuses an
@@ -58,5 +59,24 @@ func TestReadyCheckJudgesAcceptedLimits(t *testing.T) {
 		if code, out := run(); code == 0 || !strings.Contains(out, "cannot be read to check the accepted limits") {
 			t.Fatalf("an unreadable ADR was read as absent: %d %s", code, out)
 		}
+	}
+	// Review round 7, N2: an ADR that is a link is not followed.
+	adr := filepath.Join(root, ".pose/adr/2026-11-25-limited.md")
+	_ = os.Chmod(adr, 0o644)
+	_ = os.Remove(adr)
+	if err := os.Symlink("/dev/zero", adr); err != nil {
+		t.Fatal(err)
+	}
+	done := make(chan struct{})
+	var code int
+	var out string
+	go func() { code, out = run(); close(done) }()
+	select {
+	case <-done:
+	case <-time.After(10 * time.Second):
+		t.Fatal("the ready check followed an ADR link to an endless source")
+	}
+	if code == 0 || !strings.Contains(out, "cannot be read to check the accepted limits") {
+		t.Fatalf("an ADR link was read: %d %s", code, out)
 	}
 }
