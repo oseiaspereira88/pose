@@ -1143,10 +1143,15 @@ func cmdDelegateCancel(root string, args []string, stdout, stderr io.Writer) int
 		}
 		out := render(stdout, stderr)
 		out.Field("delegate.attempt", attempt.AttemptID)
-		if run.RunID == "" {
+		switch {
+		case run.RunID == "":
 			out.Field("delegate.released", tr("true: no reservation was published; the stalled marker was removed", "true: nenhuma reserva foi publicada; o marcador parado foi removido"))
-		} else {
+		case run.Status == posemodel.ReviewRunFailed && strings.HasPrefix(run.Failure, posemodel.DelegationAbandonedCause):
 			out.Field("delegate.released", tr("true: recorded as failed run "+run.RunID+" (abandoned before its run was recorded)", "true: registrada como run com falha "+run.RunID+" (abandonada antes de o run ser registrado)"))
+		default:
+			// The attempt had a run already: its receipt was completed with
+			// it (review round 11, N3).
+			out.Field("delegate.released", tr("true: completed with run "+run.RunID+", already recorded as "+run.Status, "true: concluída com o run "+run.RunID+", já registrado como "+run.Status))
 		}
 		return 0
 	}

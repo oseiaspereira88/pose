@@ -162,9 +162,9 @@ func reapShimSubtree() ([]string, error) {
 			if !st.zombie {
 				// A pid is reported ended only once its signal was delivered
 				// (review round 10, N3).
-				if err := killPinnedChild(pid, self); err != nil {
+				if delivered, err := killPinnedChild(pid, self); err != nil {
 					note(err)
-				} else if !seen[pid] {
+				} else if delivered && !seen[pid] {
 					seen[pid] = true
 					ended = append(ended, strconv.Itoa(pid))
 				}
@@ -213,27 +213,32 @@ func readShimProcStat(pid int) (shimProcStat, error) {
 }
 
 // killPinnedChild signals pid through a pidfd while it is still a child of
-// parent: a pid reused by an unrelated process is never signalled.
-func killPinnedChild(pid, parent int) error {
+// parent: a pid reused by an unrelated process is never signalled. It says
+// whether the signal reached the process; one that already ended was not
+// ended by the shim and is not reported (review round 11, N2).
+func killPinnedChild(pid, parent int) (bool, error) {
 	fd, err := unix.PidfdOpen(pid, 0)
 	if errors.Is(err, unix.ESRCH) {
-		return nil
+		return false, nil
 	}
 	if err != nil {
-		return fmt.Errorf("process %d could not be pinned: %w", pid, err)
+		return false, fmt.Errorf("process %d could not be pinned: %w", pid, err)
 	}
 	defer unix.Close(fd)
 	st, err := readShimProcStat(pid)
-	if reviewProcessGoneErr(err) || err == nil && st.ppid != parent {
-		return nil
+	if reviewProcessGoneErr(err) || err == nil && (st.ppid != parent || st.zombie) {
+		return false, nil
 	}
 	if err != nil {
-		return fmt.Errorf("process %d could not be inspected: %w", pid, err)
+		return false, fmt.Errorf("process %d could not be inspected: %w", pid, err)
 	}
-	if err := unix.PidfdSendSignal(fd, unix.SIGKILL, nil, 0); err != nil && !errors.Is(err, unix.ESRCH) {
-		return fmt.Errorf("process %d could not be ended: %w", pid, err)
+	if err := unix.PidfdSendSignal(fd, unix.SIGKILL, nil, 0); err != nil {
+		if errors.Is(err, unix.ESRCH) {
+			return false, nil
+		}
+		return false, fmt.Errorf("process %d could not be ended: %w", pid, err)
 	}
-	return nil
+	return true, nil
 }
 
 // parseReviewShimReport reads the report the shim wrote to its pipe.

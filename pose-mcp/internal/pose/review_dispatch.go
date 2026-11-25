@@ -974,14 +974,20 @@ func (s Store) RunReviewDispatchContext(parent context.Context, plan DispatchPla
 	useShim := false
 	var shimRead, shimWrite *os.File
 	if ReviewShimAvailable && runtime.GOOS == "linux" && cmd.Err == nil {
-		// The adapter's path as resolved here, in the dispatcher's PATH.
-		if self, err := os.Executable(); err == nil {
-			if r, w, err := os.Pipe(); err == nil {
-				useShim, shimRead, shimWrite = true, r, w
-				cmd = exec.CommandContext(ctx, self, append([]string{ReviewShimArg, cmd.Path}, argv...)...)
-				cmd.ExtraFiles = []*os.File{w}
-			}
+		// The adapter's path as resolved here, in the dispatcher's PATH. A
+		// shim that cannot be set up fails the run: it never falls back to
+		// the weaker environment search (review round 11, N1).
+		self, err := os.Executable()
+		if err != nil {
+			return finish(ReviewRunFailed, "the review run shim could not be set up: "+err.Error())
 		}
+		r, w, err := os.Pipe()
+		if err != nil {
+			return finish(ReviewRunFailed, "the review run shim could not be set up: "+err.Error())
+		}
+		useShim, shimRead, shimWrite = true, r, w
+		cmd = exec.CommandContext(ctx, self, append([]string{ReviewShimArg, cmd.Path}, argv...)...)
+		cmd.ExtraFiles = []*os.File{w}
 	}
 	cmd.Dir = worktree
 	cmd.Stdin = strings.NewReader(plan.Brief.Text)

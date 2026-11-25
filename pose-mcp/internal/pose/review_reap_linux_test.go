@@ -227,3 +227,32 @@ func TestTheShimEndsTheRunWhenItsDispatcherEnds(t *testing.T) {
 		t.Fatal("the run outlived its dispatcher")
 	}
 }
+
+// Review round 11, N2: a child that already ended was not ended by the shim,
+// and killPinnedChild says so.
+func TestAChildThatAlreadyEndedIsNotReportedEnded(t *testing.T) {
+	child := exec.Command("true")
+	if err := child.Start(); err != nil {
+		t.Fatal(err)
+	}
+	pid := child.Process.Pid
+	for i := 0; i < 200; i++ {
+		if zombie, _ := reviewProcessZombie(pid); zombie {
+			break
+		}
+		time.Sleep(10 * time.Millisecond)
+	}
+	delivered, err := killPinnedChild(pid, os.Getpid())
+	_ = child.Wait()
+	if err != nil || delivered {
+		t.Fatalf("an ended child was reported as ended by the shim: delivered=%t %v", delivered, err)
+	}
+	live := exec.Command("sleep", "30")
+	if err := live.Start(); err != nil {
+		t.Fatal(err)
+	}
+	defer func() { _ = live.Process.Kill(); _ = live.Wait() }()
+	if delivered, err := killPinnedChild(live.Process.Pid, os.Getpid()); err != nil || !delivered {
+		t.Fatalf("a live child was not ended: delivered=%t %v", delivered, err)
+	}
+}
