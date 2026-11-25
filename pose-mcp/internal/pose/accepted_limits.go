@@ -24,8 +24,11 @@ type ReviewAcceptedLimit struct {
 
 var acceptedLimitRE = regexp.MustCompile(`^-\s+(L[1-9][0-9]*):\s+(.+)$`)
 
-// acceptedLimitReasonRE finds the reason that follows the marker.
-var acceptedLimitReasonRE = regexp.MustCompile(`(?i)(?:accepted because|aceito porque)(.*)$`)
+// acceptedLimitReasonRE finds the reason that follows the marker, which
+// opens a sentence: "<assumption>. Accepted because <reason>." A marker
+// inside a sentence, as in "Not accepted because", is not one (review round
+// 3, N1).
+var acceptedLimitReasonRE = regexp.MustCompile(`(?:^|[.;:!?]\s+)(?:Accepted because|Aceito porque)\s+(.*)$`)
 
 // acceptedLimitReasonWordRE is a word with at least one letter.
 var acceptedLimitReasonWordRE = regexp.MustCompile(`\p{L}+`)
