@@ -55,6 +55,7 @@ Records written by earlier engines keep their meaning.
 
 ### Artifacts
 - created: .pose/specs/2026-11-23-pose-review-run-reaps-lingering-reviewer-processes.md
+- created: .pose/specs/2026-11-25-pose-review-run-reaping-beyond-linux.md
 - created: pose-mcp/internal/pose/review_reap_linux.go
 - created: pose-mcp/internal/pose/review_reap_other.go
 - created: pose-mcp/internal/pose/review_reap_linux_test.go
