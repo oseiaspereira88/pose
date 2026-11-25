@@ -1,0 +1,224 @@
+{
+  "run": {
+    "run_id": "rrn-0d9d3f3755d48f99",
+    "proof_id": "rrp-351e6a46692d180cb3a9eb7b2786b0a91f504f4b4298b863cdf6689ddc98aac9"
+  },
+  "schema_version": 1,
+  "attestation_id": "rva-f8f905a009222a17",
+  "bundle_id": "rvb-fe767c8467d12cb0",
+  "bundle_digest": "sha256:fe767c8467d12cb01b17f3ca47923036827ed87d7739959e8ac0695374145720",
+  "reviewer": "agent:openai/gpt-6-luna",
+  "decision": "changes-requested",
+  "criteria": [
+    {
+      "id": "assumption-integrity",
+      "disposition": "passed",
+      "evidence": "structure:design-982290171ea075a2",
+      "rationale": "Verified that the pose CLI enables the Linux shim and that the shim only adopts descendants in its subtree. The unshimmed environment-search fallback (N2) and Windows no-op path (N1) are unresolved findings; L1, L3 and L4 remain declared residual limits. I did not treat documentation alone as proof that R1 is met on Windows."
+    },
+    {
+      "id": "backend-concurrency",
+      "disposition": "passed",
+      "evidence": "unit:pose-mcp/go/test",
+      "rationale": "The focused dispatch/release regressions and their race-enabled subset passed; release serialization uses an OS lock and a live owner is rejected."
+    },
+    {
+      "id": "backend-contracts",
+      "disposition": "passed",
+      "evidence": "integration:pose-mcp/go/delegation-surface-integration",
+      "rationale": "The new cancel flag is additive; released attempts use the existing failed-run record and receipt shape."
+    },
+    {
+      "id": "backend-input-errors",
+      "disposition": "finding",
+      "evidence": "N3"
+    },
+    {
+      "id": "backend-integration-impact",
+      "disposition": "passed",
+      "evidence": "integration:pose-mcp/go/delegated-adapter-containment-integration",
+      "rationale": "The change stays within pose-mcp CLI/domain dispatch; assess-integrate reported three unrelated HTTP providers without observed consumers."
+    },
+    {
+      "id": "backend-observability",
+      "disposition": "passed",
+      "evidence": "integration:pose-mcp/go/delegated-output-redaction-diagnostics-integration",
+      "rationale": "Shim failures are returned in the run limitations with bounded diagnostics; the shim report is bounded and identifies ended pids."
+    },
+    {
+      "id": "compatibility",
+      "disposition": "passed",
+      "evidence": "unit:pose-mcp/go/test",
+      "rationale": "The release writes the established ReviewRun and receipt formats, so earlier readers see an ordinary failed run."
+    },
+    {
+      "id": "correctness",
+      "disposition": "finding",
+      "evidence": "N1"
+    },
+    {
+      "id": "design-causality",
+      "disposition": "passed",
+      "evidence": "structure:design-982290171ea075a2",
+      "rationale": "D1 puts the subreaper in a separate shim because a dispatcher-wide subreaper would adopt unrelated children; it handles session escape and cleared environments. D2 closes abandoned attempts by run and receipt records. The design assessment reported no structural deltas."
+    },
+    {
+      "id": "documentation",
+      "disposition": "passed",
+      "evidence": "integration:pose-mcp/go/distributed-instructions-parity-integration",
+      "rationale": "The manual and embedded copies describe the Linux shim, unshimmed fallback, other Unix behavior and Windows descendant limitation; review-brief/10 asks commands to finish."
+    },
+    {
+      "id": "operability",
+      "disposition": "passed",
+      "evidence": "unit:pose-mcp/go/test",
+      "rationale": "The release path records the abandonment cause and run id, and delegate ls names the release command for stalled reservations. The CLI cancel branch itself remains an acknowledged test gap."
+    },
+    {
+      "id": "requirements",
+      "disposition": "finding",
+      "evidence": "N1"
+    },
+    {
+      "id": "scope",
+      "disposition": "passed",
+      "evidence": "structure:design-982290171ea075a2",
+      "rationale": "The changed implementation, tests, template and manuals match the spec's declared affected areas; no unrelated implementation change was introduced in the reviewed subject."
+    },
+    {
+      "id": "security",
+      "disposition": "finding",
+      "evidence": "N2"
+    },
+    {
+      "id": "solution-proportionality",
+      "disposition": "finding",
+      "evidence": "N2",
+      "rationale": "The per-run shim is the smallest sufficient Linux design: process-group killing misses sessions, while a dispatcher subreaper would affect unrelated children. The environment fallback is not a sufficient ownership proof for untrusted reviewers; its use invalidates the safety claim."
+    }
+  ],
+  "tools": [
+    {
+      "id": "artifact-check",
+      "disposition": "passed",
+      "evidence": "command:$POSE_REVIEW_CLI artifact-check --spec pose-review-run-reaps-lingering-reviewer-processes --strict",
+      "rationale": "Exited 0. Its resolver reported change set cs-d2c08d4165dd at head ea51bb579731 rather than the brief's cs-5456dbbb4e93 at 2052d734a6fd, with broad orphan warnings; I did not treat those unrelated paths as subject findings."
+    },
+    {
+      "id": "assess-design",
+      "disposition": "passed",
+      "evidence": "structure:design-982290171ea075a2",
+      "rationale": "Ran the required CLI; it reported no structural deltas. The sealed design evidence is the criterion evidence."
+    },
+    {
+      "id": "assess-discover",
+      "component": "pose-mcp",
+      "disposition": "passed",
+      "evidence": "command:$POSE_REVIEW_CLI assess discover --no-persist --component pose-mcp"
+    },
+    {
+      "id": "assess-integrate",
+      "disposition": "passed",
+      "evidence": "command:$POSE_REVIEW_CLI assess integrate --no-persist",
+      "rationale": "Completed; its three provider-only HTTP gaps are outside this change's internal dispatch/CLI boundary."
+    },
+    {
+      "id": "assess-tech-debt",
+      "disposition": "deferred",
+      "evidence": "command:$POSE_REVIEW_CLI assess tech-debt --no-persist",
+      "rationale": "The scan was incomplete because two unrelated specs had unknown scope and it reported one uncovered marker; changed subject files had no TODO/FIXME/stub/panic markers."
+    },
+    {
+      "id": "closeout-check",
+      "disposition": "deferred",
+      "rationale": "This completion gate requires a completed review/attestation; the task explicitly prohibits recording an attestation."
+    },
+    {
+      "id": "review-check",
+      "disposition": "deferred",
+      "rationale": "This completion gate requires a completed review/attestation; the task explicitly prohibits recording an attestation."
+    },
+    {
+      "id": "suggest-review",
+      "component": "pose-mcp",
+      "disposition": "passed",
+      "evidence": "command:$POSE_REVIEW_CLI suggest review --path pose-mcp"
+    },
+    {
+      "id": "surface-check",
+      "disposition": "passed",
+      "evidence": "reachability:pose-mcp/go/delivery-reachability",
+      "rationale": "The required surface check exited 0 with one delivery target and no findings."
+    },
+    {
+      "id": "validate",
+      "disposition": "deferred",
+      "evidence": "unit:pose-mcp/go/test",
+      "rationale": "Both required validation invocations were attempted; their Go steps could not create build directories or write GOCACHE in the read-only sandbox. The focused current tests and vet passed, and the cited sealed unit evidence covers the module baseline."
+    },
+    {
+      "id": "validate-module",
+      "component": "pose-mcp",
+      "disposition": "deferred",
+      "evidence": "unit:pose-mcp/go/test",
+      "rationale": "The module matrix was blocked before test execution by read-only build/cache paths; focused current regressions and vet passed, with the sealed module unit evidence cited."
+    }
+  ],
+  "evidence_refs": [
+    "N1",
+    "N2",
+    "N3",
+    "delegated-run:rrn-0d9d3f3755d48f99",
+    "integration:pose-mcp/go/delegated-adapter-containment-integration",
+    "integration:pose-mcp/go/delegated-output-redaction-diagnostics-integration",
+    "integration:pose-mcp/go/delegation-surface-integration",
+    "integration:pose-mcp/go/distributed-instructions-parity-integration",
+    "structure:design-982290171ea075a2",
+    "unit:pose-mcp/go/test"
+  ],
+  "findings": [
+    {
+      "id": "N1",
+      "severity": "medium",
+      "evidence": "file:pose-mcp/internal/pose/review_dispatch_windows.go:16",
+      "action": "Windows review dispatch has no process-group termination and does not enable the Linux shim or another descendant reaper; it can proceed through cleanup while reviewer children survive. R1 has no OS exception, so the documented L2 limit does not meet the requirement. Fail dispatch closed on Windows or implement safe tree termination.",
+      "disposition": "open"
+    },
+    {
+      "id": "N2",
+      "severity": "low",
+      "evidence": "file:pose-mcp/internal/pose/review_reap_linux.go:102",
+      "action": "The unshimmed fallback treats a reviewer-controlled POSE_SEALED_CHECKOUT value as process ownership and scans all same-user PIDs without checking ancestry. A process launched outside this run with the same value can be signalled; pidfd prevents PID reuse but does not prove run ownership. Require the shim for untrusted reviewers or constrain the fallback to run descendants.",
+      "disposition": "open"
+    },
+    {
+      "id": "N3",
+      "severity": "low",
+      "evidence": "file:pose-mcp/internal/pose/review_shim_linux.go:134",
+      "action": "The shim materializes all of /proc with os.ReadDir before checking its five-second deadline. A large host process table or reviewer-created process flood can make this scan allocate and run beyond the promised bound. Read /proc in bounded batches and enforce the deadline during scanning.",
+      "disposition": "open"
+    }
+  ],
+  "authority": {
+    "schema_version": 1,
+    "project": "proj.pose-dist",
+    "bundle_digest": "sha256:fe767c8467d12cb01b17f3ca47923036827ed87d7739959e8ac0695374145720",
+    "principal": "agent:openai/gpt-6-luna",
+    "role": "agent",
+    "review_execution": "rrn-0d9d3f3755d48f99",
+    "implementation_principal": "agent:anthropic/unknown",
+    "implementation_execution": "sha256:344ac5868944c155772d60a95ef6ff20644580a642e772ad5c92c29428464ff8",
+    "issuer": "b34-local-executor",
+    "issued_at": "2026-11-25T04:04:02Z",
+    "audience": "proj.pose-dist"
+  },
+  "envelope": {
+    "issuer": "b34-local-executor",
+    "subject": "rvb-fe767c8467d12cb0",
+    "algorithm": "ed25519",
+    "public_key": "ck4sApdfePV2GT+hJyAYfJd2qLzeG55P8pevGR0bvZE=",
+    "signature": "okdC3ATiATPBKq+3V6T9BM+7Sm+SNWJ49bcotjTLEedrPuk6FlApmqJnLRKz6Z616bcXROzs9lyu3JEIMy61CA=="
+  },
+  "attested_at": "2026-11-25T04:04:02Z",
+  "path": ".pose/review-attestations/rva-f8f905a009222a17.json"
+}
