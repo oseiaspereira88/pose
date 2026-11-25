@@ -164,9 +164,8 @@ func reapShimSubtree() ([]string, error) {
 				// (review round 10, N3).
 				if delivered, err := killPinnedChild(pid, self); err != nil {
 					note(err)
-				} else if delivered && !seen[pid] {
+				} else if delivered {
 					seen[pid] = true
-					ended = append(ended, strconv.Itoa(pid))
 				}
 			}
 		}
@@ -174,6 +173,12 @@ func reapShimSubtree() ([]string, error) {
 			pid, err := unix.Wait4(-1, nil, unix.WNOHANG, nil)
 			if pid <= 0 || err != nil {
 				break
+			}
+			// A pid is reported ended once it was signalled and reaped
+			// (review round 12, N2).
+			if seen[pid] {
+				delete(seen, pid)
+				ended = append(ended, strconv.Itoa(pid))
 			}
 		}
 		if children == 0 && len(problems) == 0 {

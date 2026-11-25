@@ -147,6 +147,11 @@ func resolveReviewerContainment(a ReviewerAdapter) (*ReviewExecutionSafety, erro
 		}
 	} else {
 		r.Limitations = append(r.Limitations, "process-group termination not qualified on this platform")
+		if runtime.GOOS == "windows" {
+			// On Windows the dispatch does not end the adapter's descendants
+			// at all (review round 12, N1).
+			r.Limitations = append(r.Limitations, "the adapter's descendants are not ended on Windows: a process the reviewer leaves running survives the run")
+		}
 	}
 	p := a.Containment
 	if p == nil {

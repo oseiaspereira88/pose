@@ -1099,6 +1099,7 @@ func (s Store) RunReviewDispatchContext(parent context.Context, plan DispatchPla
 	// without the shim, whose subtree is the run's by construction (review
 	// round 8, N1).
 	var reaped []string
+	shimMore := 0
 	var opaque int
 	var reapErr error
 	if !useShim {
@@ -1115,7 +1116,9 @@ func (s Store) RunReviewDispatchContext(parent context.Context, plan DispatchPla
 				reaped = append(reaped, pid+" (orphaned)")
 			}
 			if more := report.EndedTotal - len(report.Ended); more > 0 {
-				reaped = append(reaped, fmt.Sprintf("and %d more (orphaned)", more))
+				// Counted from the total, not from the listed pids (review
+				// round 12, N3).
+				shimMore = more
 			}
 			if report.Error != "" {
 				terminationErr = errors.Join(terminationErr, errors.New(report.Error))
@@ -1127,8 +1130,12 @@ func (s Store) RunReviewDispatchContext(parent context.Context, plan DispatchPla
 			}
 		}
 	}
-	if len(reaped) > 0 && safety != nil {
-		safety.Limitations = append(safety.Limitations, "ended "+fmt.Sprint(len(reaped))+" process(es) the run left running: "+strings.Join(reaped, ", "))
+	if endedCount := len(reaped) + shimMore; endedCount > 0 && safety != nil {
+		listed := strings.Join(reaped, ", ")
+		if shimMore > 0 {
+			listed += fmt.Sprintf(" and %d more (orphaned)", shimMore)
+		}
+		safety.Limitations = append(safety.Limitations, "ended "+fmt.Sprint(endedCount)+" process(es) the run left running: "+listed)
 	}
 	if opaque > 0 && reapErr == nil && safety != nil {
 		safety.Limitations = append(safety.Limitations, fmt.Sprint(opaque)+" process(es) of this user that existed before the run could not be inspected for its environment entry")
