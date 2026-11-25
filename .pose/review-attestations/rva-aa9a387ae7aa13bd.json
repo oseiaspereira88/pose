@@ -1,0 +1,224 @@
+{
+  "run": {
+    "run_id": "rrn-d1680df442b23d12",
+    "proof_id": "rrp-bc5a6c7226549116af0715f221d0d4fdb7193c821100ed84bcf53f74034dbed5"
+  },
+  "schema_version": 1,
+  "attestation_id": "rva-aa9a387ae7aa13bd",
+  "bundle_id": "rvb-8c5b48b85bb59245",
+  "bundle_digest": "sha256:8c5b48b85bb5924542b10d6612fd8200890d9d7c346be8acf9aca5d22872a784",
+  "reviewer": "agent:openai/gpt-6-luna",
+  "decision": "changes-requested",
+  "criteria": [
+    {
+      "id": "assumption-integrity",
+      "disposition": "passed",
+      "evidence": "unit:pose-mcp/go/test",
+      "rationale": "I examined the two sealed limits and their consumers. L1's dependence on an independent reviewer inspecting the displayed text is explicit and accepted for a single-spec review; L2 is supported by the limit's inclusion in the plan digest and optional bundle field. Semantic fit remains reviewer judgment, and N1 identifies the composite-scope ambiguity."
+    },
+    {
+      "id": "backend-concurrency",
+      "disposition": "passed",
+      "evidence": "integration:pose-mcp/go/writer-coordination-and-atomic-publication-integration"
+    },
+    {
+      "id": "backend-contracts",
+      "disposition": "finding",
+      "evidence": "N1",
+      "rationale": "Composite review findings cannot unambiguously name one of two same-ID limits."
+    },
+    {
+      "id": "backend-input-errors",
+      "disposition": "finding",
+      "evidence": "N2",
+      "rationale": "A limit with no text after the acceptance phrase passes validation."
+    },
+    {
+      "id": "backend-integration-impact",
+      "disposition": "passed",
+      "evidence": "integration:pose-mcp/go/lint-spec-all-gate-contract"
+    },
+    {
+      "id": "backend-observability",
+      "disposition": "passed",
+      "evidence": "unit:pose-mcp/go/test"
+    },
+    {
+      "id": "compatibility",
+      "disposition": "finding",
+      "evidence": "N1",
+      "rationale": "The new limit identity contract is ambiguous when a plan contains multiple specs."
+    },
+    {
+      "id": "correctness",
+      "disposition": "finding",
+      "evidence": "N2",
+      "rationale": "The ready-check accepts an unjustified limit; N1 also affects composite reviews."
+    },
+    {
+      "id": "design-causality",
+      "disposition": "passed",
+      "evidence": "structure:design-79400ddcaa553202",
+      "rationale": "D1 addresses non-convergence by recording an explicit reviewer classification; D2 binds the limits into the plan and bundle digests. The inspected implementation follows that design, with the specific defects reported separately. The structural assessment observed no deltas."
+    },
+    {
+      "id": "documentation",
+      "disposition": "passed",
+      "evidence": "structure:design-79400ddcaa553202",
+      "rationale": "I compared the English and Portuguese manuals and their scaffold copies with runtime behavior: they describe the new section, sealed plan/bundle, review-brief/11 classification, and ready-check."
+    },
+    {
+      "id": "operability",
+      "disposition": "finding",
+      "evidence": "N2",
+      "rationale": "The ready-check reports unjustified limits in normal cases but gives a false pass when the reason phrase has no explanation."
+    },
+    {
+      "id": "requirements",
+      "disposition": "finding",
+      "evidence": "N1",
+      "rationale": "R3 is ambiguous for composite scopes (N1); R4 also has false passes for empty reasons and partial ADR ID matches (N2, N3)."
+    },
+    {
+      "id": "scope",
+      "disposition": "passed",
+      "evidence": "structure:design-79400ddcaa553202",
+      "rationale": "The inspected prepared subject contained the 18 implementation/documentation paths named by the spec artifacts, and the design assessment observed no structural delta."
+    },
+    {
+      "id": "security",
+      "disposition": "finding",
+      "evidence": "N1",
+      "rationale": "A composite-scope finding can be accepted against an ambiguous same-ID limit, weakening the integrity of the approval classification."
+    },
+    {
+      "id": "solution-proportionality",
+      "disposition": "passed",
+      "evidence": "structure:design-79400ddcaa553202",
+      "rationale": "The optional sealed field, versioned brief and typed finding field are a small sufficient design for preserving review-time assumptions; the digest omission preserves existing records. The reported defects are validation gaps, not speculative architecture."
+    }
+  ],
+  "tools": [
+    {
+      "id": "artifact-check",
+      "disposition": "passed",
+      "evidence": "command:\"$POSE_REVIEW_CLI\" artifact-check --spec pose-review-declared-threat-model --strict",
+      "rationale": "The command exited 0. It selected cs-6010196c7421, not the brief's cs-2f8efba58158, and reported 19 claims versus 30 observations with repository-wide orphan warnings; those warnings are not treated as scoped findings."
+    },
+    {
+      "id": "assess-design",
+      "disposition": "passed",
+      "evidence": "structure:design-79400ddcaa553202",
+      "rationale": "Ran the recommended assessment; it observed the subject and reported no structural deltas."
+    },
+    {
+      "id": "assess-discover",
+      "component": "pose-mcp",
+      "disposition": "passed",
+      "evidence": "command:\"$POSE_REVIEW_CLI\" assess discover --no-persist --component pose-mcp",
+      "rationale": "Ran without persistence and confirmed the pose-mcp component."
+    },
+    {
+      "id": "assess-integrate",
+      "disposition": "passed",
+      "evidence": "integration:pose-mcp/go/review-bundle-convergence",
+      "rationale": "Ran the assessment. It reported three unobserved HTTP consumers (/admin/refresh, /healthz, /mcp), outside the changed CLI/review-limit boundary."
+    },
+    {
+      "id": "assess-tech-debt",
+      "disposition": "failed",
+      "evidence": "command:\"$POSE_REVIEW_CLI\" assess tech-debt --no-persist",
+      "rationale": "The scan was incomplete: two invalid specs were unread and one debt item was uncovered. No marker was found in the changed accepted-limit implementation."
+    },
+    {
+      "id": "closeout-check",
+      "disposition": "deferred",
+      "rationale": "The brief says closeout-check requires completion of the review; no attestation is recorded in this run."
+    },
+    {
+      "id": "review-check",
+      "disposition": "deferred",
+      "rationale": "The brief says review-check requires completion of the review; no attestation is recorded in this run."
+    },
+    {
+      "id": "surface-check",
+      "disposition": "passed",
+      "evidence": "integration:pose-mcp/go/lint-spec-all-gate-contract",
+      "rationale": "The required surface check completed with one target, 236 results and zero findings."
+    },
+    {
+      "id": "validate",
+      "disposition": "passed",
+      "evidence": "build:pose-mcp/go/build",
+      "rationale": "The required rerun could not create Go work/cache files in the read-only sandbox; the sealed bundle's pose-mcp build evidence is pass."
+    },
+    {
+      "id": "validate",
+      "component": "pose-mcp",
+      "disposition": "passed",
+      "evidence": "unit:pose-mcp/go/test",
+      "rationale": "The required module rerun was blocked by the read-only Go work/cache paths; the sealed full pose-mcp unit result is pass, and the focused review tests also passed."
+    },
+    {
+      "id": "suggest-review",
+      "component": "pose-mcp",
+      "disposition": "passed",
+      "evidence": "command:\"$POSE_REVIEW_CLI\" suggest review --path pose-mcp",
+      "rationale": "Ran and selected backend-go, security and documentation-style rules."
+    }
+  ],
+  "evidence_refs": [
+    "N1",
+    "N2",
+    "delegated-run:rrn-d1680df442b23d12",
+    "integration:pose-mcp/go/lint-spec-all-gate-contract",
+    "integration:pose-mcp/go/writer-coordination-and-atomic-publication-integration",
+    "structure:design-79400ddcaa553202",
+    "unit:pose-mcp/go/test"
+  ],
+  "findings": [
+    {
+      "id": "N1",
+      "severity": "medium",
+      "evidence": "file:pose-mcp/internal/pose/accepted_limits.go:71",
+      "action": "Composite roadmap or milestone plans append limits from multiple specs without preserving the source spec or checking ID collisions. Since IDs are spec-local L\u003cN\u003e values and findings record only limit, the brief and attestation cannot unambiguously identify which sealed limit was used; the gate accepts either one, so R3 attribution is ambiguous.",
+      "disposition": "open"
+    },
+    {
+      "id": "N2",
+      "severity": "medium",
+      "evidence": "file:pose-mcp/internal/pose/accepted_limits.go:54",
+      "action": "The ready-check treats the substring 'Accepted because' as a reason even when it ends the entry (for example, '- L1: assumption. Accepted because'). That unjustified limit is parsed and sealed, so R4's justification gate has a false pass.",
+      "disposition": "open"
+    },
+    {
+      "id": "N3",
+      "severity": "low",
+      "evidence": "file:pose-mcp/internal/cli/lintspec.go:1212",
+      "action": "ADR coverage uses substring matching for limit IDs. An ADR mentioning L10 therefore satisfies the required reference to L1, allowing an ADR that omits L1 to pass ready-check.",
+      "disposition": "open"
+    }
+  ],
+  "authority": {
+    "schema_version": 1,
+    "project": "proj.pose-dist",
+    "bundle_digest": "sha256:8c5b48b85bb5924542b10d6612fd8200890d9d7c346be8acf9aca5d22872a784",
+    "principal": "agent:openai/gpt-6-luna",
+    "role": "agent",
+    "review_execution": "rrn-d1680df442b23d12",
+    "implementation_principal": "agent:anthropic/unknown",
+    "implementation_execution": "sha256:344ac5868944c155772d60a95ef6ff20644580a642e772ad5c92c29428464ff8",
+    "issuer": "b34-local-executor",
+    "issued_at": "2026-11-25T17:08:22Z",
+    "audience": "proj.pose-dist"
+  },
+  "envelope": {
+    "issuer": "b34-local-executor",
+    "subject": "rvb-8c5b48b85bb59245",
+    "algorithm": "ed25519",
+    "public_key": "ck4sApdfePV2GT+hJyAYfJd2qLzeG55P8pevGR0bvZE=",
+    "signature": "ftzF1JbwzRTb4jjxSbmFKjkZWxhRPwupAKJEyeO8B4+15vAOUMUoruIdzZm2KQO5nZ6WEz+rwHuDAgvq7q3BCA=="
+  },
+  "attested_at": "2026-11-25T17:08:22Z",
+  "path": ".pose/review-attestations/rva-aa9a387ae7aa13bd.json"
+}
