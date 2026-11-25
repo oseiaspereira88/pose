@@ -1,0 +1,205 @@
+{
+  "run": {
+    "run_id": "rrn-83989c85cee570d8",
+    "proof_id": "rrp-a820df78a58d81231e22739355dda8fe0d5ac80de1dc5f86b103c3c9b2b8b2a1"
+  },
+  "schema_version": 1,
+  "attestation_id": "rva-7015abd199f4ae77",
+  "bundle_id": "rvb-4657593603abfed6",
+  "bundle_digest": "sha256:4657593603abfed61c7bc48e14f029f52d75b7bc0ea65075c9c9472b164b7c81",
+  "reviewer": "agent:openai/gpt-6-luna",
+  "decision": "approved",
+  "criteria": [
+    {
+      "id": "assumption-integrity",
+      "disposition": "passed",
+      "evidence": "unit:pose-mcp/go/test",
+      "rationale": "I examined R1-R3 and D1 against the conclusion, proof and bundle paths. Verified: the draft decision is copied into the attestation and signed proof binds the run output; approvals alone require current bundle currency. The exact bundle file was not present in this checkout, so I relied on the supplied sealed brief, evidence and run draft-check context. No unresolved assumption changes the outcome; I accept no residual risk."
+    },
+    {
+      "id": "backend-concurrency",
+      "disposition": "passed",
+      "evidence": "unit:pose-mcp/go/test",
+      "rationale": "I examined the existing conclusion lock and the new currency branch at review_conclusions.go:418-464, 547-563. The new path adds no concurrent worker or cancellation lifecycle; the refusal returns before publishing a conclusion record, and the focused conclusion/provenance tests passed."
+    },
+    {
+      "id": "backend-contracts",
+      "disposition": "passed",
+      "evidence": "integration:pose-mcp/go/review-brief-conclusion-rules-integration",
+      "rationale": "I examined the CLI/MCP conclusion path and the documented typed conclusion contract. The API shape and stored record format are unchanged; only non-approving runs may conclude over local edits, and an approval still requires current currency."
+    },
+    {
+      "id": "backend-input-errors",
+      "disposition": "passed",
+      "evidence": "unit:pose-mcp/go/test",
+      "rationale": "I examined reviewConclusionChecks and the draft parser/error paths at review_conclusions.go:91-148, 547-563. Invalid or incomplete run records remain refused; a currency-only approval refusal returns explicit reasons and does not publish."
+    },
+    {
+      "id": "backend-integration-impact",
+      "disposition": "passed",
+      "evidence": "integration:pose-mcp/go/mcp-review-attest-integration",
+      "rationale": "I examined the shared conclusion writer and attestation preflight integration. The change reuses the existing proof and attestation boundary; it adds no provider, consumer or MCP schema."
+    },
+    {
+      "id": "backend-observability",
+      "disposition": "passed",
+      "evidence": "unit:pose-mcp/go/test",
+      "rationale": "I examined the refusal reasons at review_conclusions.go:137-148, 551-563. A currency-only refusal identifies the stale subject and tells the operator to retry after restoring the bundle materialization; no sensitive data is added."
+    },
+    {
+      "id": "compatibility",
+      "disposition": "passed",
+      "evidence": "unit:pose-mcp/go/test",
+      "rationale": "I examined the public conclude behavior and compatibility documentation. Existing approval behavior and record schemas remain intact; callers gain a non-recorded refusal only for a stale approval, while older run briefs retain versioned verification."
+    },
+    {
+      "id": "correctness",
+      "disposition": "passed",
+      "evidence": "unit:pose-mcp/go/test",
+      "rationale": "The focused Go command passed. I examined the decision split at review_conclusions.go:125-148, 547-563, proof context at review_run_provenance.go:762-786, and current-bundle admission at review_bundle.go:3158-3173."
+    },
+    {
+      "id": "design-causality",
+      "disposition": "passed",
+      "evidence": "structure:design-62c2a0e10a1a19a2",
+      "rationale": "The design assessment observed no structural deltas. D1 implements R1-R2 with the smallest relevant split: a run record and its original brief establish a non-approval, while current bundle currency gates an approval. I examined review_conclusions.go:121-148 and review_run_provenance.go:762-774."
+    },
+    {
+      "id": "documentation",
+      "disposition": "passed",
+      "evidence": "integration:pose-mcp/go/distributed-instructions-parity-integration",
+      "rationale": "I examined the English and pt-BR manuals and both scaffold copies. Each describes the non-approving local-edit behavior, the approval retry condition and the preserved bundle binding consistently with runtime."
+    },
+    {
+      "id": "operability",
+      "disposition": "passed",
+      "evidence": "unit:pose-mcp/go/test",
+      "rationale": "I examined the returned currency refusal at review_conclusions.go:551-563. It explains that no conclusion was recorded and gives a direct recovery action: make the working tree hold the bundle subject and conclude the same run again."
+    },
+    {
+      "id": "requirements",
+      "disposition": "passed",
+      "evidence": "unit:pose-mcp/go/test",
+      "rationale": "The focused regression command passed. TestARequestForChangesConcludesOverLocalEdits and TestAnApprovalOverLocalEditsIsNotRecordedAndConcludesLater cover R1-R3 in review_conclusion_local_edits_test.go:41-83; proof, bundle and verdict paths preserve D1."
+    },
+    {
+      "id": "scope",
+      "disposition": "passed",
+      "evidence": "structure:design-62c2a0e10a1a19a2",
+      "rationale": "I examined all eight sealed subject entries and the implementation. The changes are limited to review conclusion/provenance behavior, regression coverage and the four mirrored manuals; I found no unrelated behavior expansion."
+    },
+    {
+      "id": "security",
+      "disposition": "passed",
+      "evidence": "integration:pose-mcp/go/review-soundness-residuals-integration",
+      "rationale": "I examined reviewRunRecordStands and proof verification. A non-approving run remains bound to its recorded bundle, transcript and output; changing its verdict would invalidate the proof, and attestation verification rejects any decision that differs from the run draft. No new authority or input path is introduced."
+    },
+    {
+      "id": "solution-proportionality",
+      "disposition": "passed",
+      "evidence": "structure:design-62c2a0e10a1a19a2",
+      "rationale": "I examined D1 and the currency gates at review_conclusions.go:137-148, 551-563. The smallest sufficient choice is to keep run integrity checks universal and apply current-subject checks only to approvals. Always skipping currency could approve stale work; retaining it for all verdicts causes the reported refusal. This choice would be invalidated if a non-approving run could be transformed into an approval or if closeout accepted its old bundle."
+    }
+  ],
+  "tools": [
+    {
+      "id": "artifact-check",
+      "disposition": "passed",
+      "evidence": "command:/var/tmp/pose-work-go/pose-ready artifact-check --spec pose-review-conclude-ignores-unrelated-local-edits --strict",
+      "rationale": "The command exited 0. It emitted a large orphan-path report from the broad commit range; the warnings concern unrelated paths and do not affect the scoped subject."
+    },
+    {
+      "id": "assess-design",
+      "disposition": "passed",
+      "evidence": "structure:design-62c2a0e10a1a19a2",
+      "rationale": "Ran the JSON assessment; it observed eight subject files and no structural deltas."
+    },
+    {
+      "id": "assess-discover",
+      "component": "pose-mcp",
+      "disposition": "passed",
+      "evidence": "command:/var/tmp/pose-work-go/pose-ready assess discover --no-persist --component pose-mcp",
+      "rationale": "The no-persist discovery completed and identified the pose-mcp component."
+    },
+    {
+      "id": "assess-integrate",
+      "disposition": "passed",
+      "evidence": "integration:pose-mcp/go/mcp-review-attest-integration",
+      "rationale": "The no-persist assessment completed. It reported three unobserved HTTP consumers elsewhere in the repository; they are outside this change, which adds no inter-module contract."
+    },
+    {
+      "id": "assess-tech-debt",
+      "disposition": "failed",
+      "evidence": "command:/var/tmp/pose-work-go/pose-ready assess tech-debt --no-persist",
+      "rationale": "The scan was incomplete: two unrelated existing specs could not be parsed, so the assessment cannot establish repository-wide marker coverage."
+    },
+    {
+      "id": "closeout-check",
+      "disposition": "deferred",
+      "rationale": "This completion check requires a recorded review attestation. The brief prohibits recording one during this review."
+    },
+    {
+      "id": "review-check",
+      "disposition": "deferred",
+      "rationale": "This completion check requires a recorded review attestation. The brief prohibits recording one during this review."
+    },
+    {
+      "id": "suggest-review",
+      "component": "pose-mcp",
+      "disposition": "passed",
+      "evidence": "command:/var/tmp/pose-work-go/pose-ready suggest review --path pose-mcp",
+      "rationale": "The selector resolved backend-go, security and documentation-style rules, which I applied."
+    },
+    {
+      "id": "surface-check",
+      "disposition": "passed",
+      "evidence": "reachability:pose-mcp/go/delivery-reachability",
+      "rationale": "The strict command passed with one target and zero findings; the sealed delivery reachability evidence covers the pose-mcp component."
+    },
+    {
+      "id": "validate",
+      "disposition": "passed",
+      "evidence": "build:pose-mcp/go/build",
+      "rationale": "I ran validate --strict, but the read-only sandbox blocked Go temporary build directories and cache reads before checks executed. The sealed bundle supplies passing build, e2e, integration and unit evidence; the focused regression tests passed locally."
+    },
+    {
+      "id": "validate",
+      "component": "pose-mcp",
+      "disposition": "passed",
+      "evidence": "unit:pose-mcp/go/test",
+      "rationale": "I ran validate --strict --module pose-mcp, but the read-only sandbox blocked Go temporary build directories and cache reads before checks executed. The sealed pose-mcp evidence supplies passing build, e2e, integration and unit refs; the focused regression tests passed locally."
+    }
+  ],
+  "evidence_refs": [
+    "delegated-run:rrn-83989c85cee570d8",
+    "integration:pose-mcp/go/distributed-instructions-parity-integration",
+    "integration:pose-mcp/go/mcp-review-attest-integration",
+    "integration:pose-mcp/go/review-brief-conclusion-rules-integration",
+    "integration:pose-mcp/go/review-soundness-residuals-integration",
+    "structure:design-62c2a0e10a1a19a2",
+    "unit:pose-mcp/go/test"
+  ],
+  "findings": null,
+  "authority": {
+    "schema_version": 1,
+    "project": "proj.pose-dist",
+    "bundle_digest": "sha256:4657593603abfed61c7bc48e14f029f52d75b7bc0ea65075c9c9472b164b7c81",
+    "principal": "agent:openai/gpt-6-luna",
+    "role": "agent",
+    "review_execution": "rrn-83989c85cee570d8",
+    "implementation_principal": "agent:anthropic/unknown",
+    "implementation_execution": "sha256:344ac5868944c155772d60a95ef6ff20644580a642e772ad5c92c29428464ff8",
+    "issuer": "b34-local-executor",
+    "issued_at": "2026-11-25T10:49:00Z",
+    "audience": "proj.pose-dist"
+  },
+  "envelope": {
+    "issuer": "b34-local-executor",
+    "subject": "rvb-4657593603abfed6",
+    "algorithm": "ed25519",
+    "public_key": "ck4sApdfePV2GT+hJyAYfJd2qLzeG55P8pevGR0bvZE=",
+    "signature": "/Et3gohxArYbN7EQe+gSt34XOWmqw65wP40I4T5HZKmxJayZ5V3Shxf70eTrULjA6CPtxQpCJBjO3I92ELFjDQ=="
+  },
+  "attested_at": "2026-11-25T10:49:00Z",
+  "path": ".pose/review-attestations/rva-7015abd199f4ae77.json"
+}
