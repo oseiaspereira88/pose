@@ -1974,7 +1974,10 @@ func reviewBundlePlanDigest(plan ReviewPlan) (string, error) {
 		Tools                     []ReviewPlanTool      `json:"tools"`
 		Limitations               []string              `json:"limitations,omitempty"`
 		DelegatedRunProofRequired bool                  `json:"delegated_run_proof_required,omitempty"`
-	}{plan.SchemaVersion, plan.PolicySchemaVersion, plan.BaseProfile, plan.Independence, append([]ReviewPlanComponent{}, plan.Components...), append([]ReviewPlanProfile{}, plan.SelectedProfiles...), append([]ReviewPlanCriterion{}, plan.Criteria...), append([]ReviewPlanTool{}, plan.Tools...), plan.Limitations, plan.DelegatedRunProofRequired}
+		// The sealed limits enter the bundle's plan digest too; omitted when
+		// none, so every other bundle keeps its digest (review round 6, N1).
+		AcceptedLimits []ReviewAcceptedLimit `json:"accepted_limits,omitempty"`
+	}{plan.SchemaVersion, plan.PolicySchemaVersion, plan.BaseProfile, plan.Independence, append([]ReviewPlanComponent{}, plan.Components...), append([]ReviewPlanProfile{}, plan.SelectedProfiles...), append([]ReviewPlanCriterion{}, plan.Criteria...), append([]ReviewPlanTool{}, plan.Tools...), plan.Limitations, plan.DelegatedRunProofRequired, plan.AcceptedLimits}
 	return digestJSON(contract)
 }
 

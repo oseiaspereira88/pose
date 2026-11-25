@@ -116,3 +116,36 @@ func TestAnAcceptedLimitNeedsWordsAsItsReason(t *testing.T) {
 		}
 	}
 }
+
+// Review round 6, N1: the bundle's plan digest covers the sealed limits, and
+// a plan without limits keeps the digest it had before them.
+func TestTheBundlePlanDigestCoversTheAcceptedLimits(t *testing.T) {
+	var plan ReviewPlan
+	plan.SchemaVersion, plan.Independence = 1, "different-actor"
+	empty, err := reviewBundlePlanDigest(plan)
+	if err != nil {
+		t.Fatal(err)
+	}
+	legacy, _ := digestJSON(struct {
+		SchemaVersion             int                   `json:"schema_version"`
+		PolicySchemaVersion       int                   `json:"policy_schema_version"`
+		BaseProfile               string                `json:"base_profile"`
+		Independence              string                `json:"independence"`
+		Components                []ReviewPlanComponent `json:"components"`
+		SelectedProfiles          []ReviewPlanProfile   `json:"selected_profiles"`
+		Criteria                  []ReviewPlanCriterion `json:"criteria"`
+		Tools                     []ReviewPlanTool      `json:"tools"`
+		Limitations               []string              `json:"limitations,omitempty"`
+		DelegatedRunProofRequired bool                  `json:"delegated_run_proof_required,omitempty"`
+	}{1, 0, "", "different-actor", []ReviewPlanComponent{}, []ReviewPlanProfile{}, []ReviewPlanCriterion{}, []ReviewPlanTool{}, nil, false})
+	if empty != legacy {
+		t.Fatal("a plan without limits changed its bundle plan digest")
+	}
+	plan.AcceptedLimits = []ReviewAcceptedLimit{{ID: "L1", Text: "An escape. Accepted because a shim covers it."}}
+	one, _ := reviewBundlePlanDigest(plan)
+	plan.AcceptedLimits[0].Text = "An escape. Accepted because nothing else covers it."
+	other, _ := reviewBundlePlanDigest(plan)
+	if one == empty || one == other {
+		t.Fatalf("the bundle plan digest does not cover the accepted limits: %s %s %s", empty, one, other)
+	}
+}
