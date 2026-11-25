@@ -93,3 +93,19 @@ func TestLimitsAcrossSpecsAreQualified(t *testing.T) {
 		t.Fatalf("limits across specs are ambiguous: %+v", both)
 	}
 }
+
+// Review round 2, N1: punctuation is not a reason, and a reason may start
+// with a one-letter word.
+func TestAnAcceptedLimitNeedsWordsAsItsReason(t *testing.T) {
+	for text, want := range map[string]bool{
+		"x. Accepted because ..":                false,
+		"x. Accepted because -- !":              false,
+		"x. Accepted because rare":              false,
+		"x. Accepted because a shim covers it.": true,
+		"x. Aceito porque o shim cobre o caso.": true,
+	} {
+		if got := hasAcceptedLimitReason(text); got != want {
+			t.Errorf("%q: reason=%t, want %t", text, got, want)
+		}
+	}
+}

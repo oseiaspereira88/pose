@@ -24,9 +24,19 @@ type ReviewAcceptedLimit struct {
 
 var acceptedLimitRE = regexp.MustCompile(`^-\s+(L[1-9][0-9]*):\s+(.+)$`)
 
-// acceptedLimitReasonRE requires a reason after the marker, not the marker
-// alone (review round 1, N2).
-var acceptedLimitReasonRE = regexp.MustCompile(`(?i)(accepted because|aceito porque)\s+\S{2,}`)
+// acceptedLimitReasonRE finds the reason that follows the marker.
+var acceptedLimitReasonRE = regexp.MustCompile(`(?i)(?:accepted because|aceito porque)(.*)$`)
+
+// acceptedLimitReasonWordRE is a word with at least one letter.
+var acceptedLimitReasonWordRE = regexp.MustCompile(`\p{L}+`)
+
+// hasAcceptedLimitReason requires a reason after the marker of at least two
+// words with letters: neither the marker alone (review round 1, N2) nor
+// punctuation (round 2, N1) says why a limit is accepted.
+func hasAcceptedLimitReason(text string) bool {
+	m := acceptedLimitReasonRE.FindStringSubmatch(text)
+	return m != nil && len(acceptedLimitReasonWordRE.FindAllString(m[1], -1)) >= 2
+}
 
 // ParseAcceptedLimits reads the `### Accepted limits` section of a spec body.
 // It returns the limits and the problems that keep the section from being
@@ -57,7 +67,7 @@ func ParseAcceptedLimits(body string) ([]ReviewAcceptedLimit, []string) {
 			continue
 		}
 		seen[m[1]] = true
-		if !acceptedLimitReasonRE.MatchString(m[2]) {
+		if !hasAcceptedLimitReason(m[2]) {
 			problems = append(problems, "accepted limit "+m[1]+" does not say why it is accepted ('Accepted because ...')")
 		}
 		limits = append(limits, ReviewAcceptedLimit{ID: m[1], Text: strings.TrimSpace(m[2])})

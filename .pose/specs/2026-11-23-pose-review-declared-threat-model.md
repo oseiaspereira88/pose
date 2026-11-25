@@ -128,6 +128,7 @@ Each requirement gets a regression test shown failing before its code.
 ### Execution log
 - 2026-11-25: implemented R1–R4: `ParseAcceptedLimits`, the plan and bundle `accepted_limits`, the draft `limit` and the `within-limit` disposition, `review-brief/11` and the ready check. Each has a test that fails with it mutated out; the first digest test survived because the spec edit changed the scope digest too, and now compares the plan's digest with and without the limits.
 - 2026-11-25: review round 1 (rrn-d1680df442b23d12) requested changes. N1: in a scope with several specs (a milestone or a roadmap) each limit id is qualified by its spec as `<spec>#L<N>`, with the spec recorded, so a finding names exactly one sealed limit. N2: the reason must follow `Accepted because`, not only the marker. N3: an ADR names a limit only by the id as a word, so L10 does not name L1. Each fix has a test that fails with it mutated out.
+- 2026-11-25: review round 2 (rrn-256db7e6eea5a6e2) found that punctuation after the marker passed as a reason and a one-letter first word failed. The reason must now hold at least two words with letters (`hasAcceptedLimitReason`), with a test that fails with the rule mutated out.
 
 
 ### Results summary
@@ -135,7 +136,7 @@ The full `pose-mcp` suite passes; the canonical result is refreshed with `pose v
 
 
 ### Requirement trace
-- R1 [satisfied] test:TestAcceptedLimitsAreParsed, test:TestTheReviewPlanSealsTheAcceptedLimits, test:TestLimitsAcrossSpecsAreQualified
+- R1 [satisfied] test:TestAcceptedLimitsAreParsed, test:TestTheReviewPlanSealsTheAcceptedLimits, test:TestLimitsAcrossSpecsAreQualified, test:TestAnAcceptedLimitNeedsWordsAsItsReason
 - R2 [satisfied] test:TestTheCurrentBriefListsTheAcceptedLimits
 - R3 [satisfied] test:TestAFindingWithinASealedLimitDoesNotBlockApproval
 - R4 [satisfied] test:TestReadyCheckJudgesAcceptedLimits
