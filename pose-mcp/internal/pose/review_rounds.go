@@ -57,6 +57,9 @@ type ReviewDraftFinding struct {
 	Action   string `json:"action,omitempty"`
 	Owner    string `json:"owner,omitempty"`
 	ReviewBy string `json:"review_by,omitempty"`
+	// Limit names the declared accepted limit the finding falls inside
+	// (spec pose-review-declared-threat-model R2).
+	Limit string `json:"limit,omitempty"`
 }
 
 // ReviewDraftCriterion answers one criterion of the plan, as the reviewer of

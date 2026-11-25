@@ -117,13 +117,18 @@ type ReviewBundleSubject struct {
 }
 
 type ReviewBundlePlan struct {
-	DelegatedRunProofRequired bool                  `json:"delegated_run_proof_required,omitempty"`
-	Limitations               []string              `json:"limitations,omitempty"`
-	PlanDigest                string                `json:"plan_digest"`
-	Independence              string                `json:"independence"`
-	Components                []ReviewPlanComponent `json:"components"`
-	Criteria                  []ReviewPlanCriterion `json:"criteria"`
-	Tools                     []ReviewPlanTool      `json:"tools"`
+	DelegatedRunProofRequired bool     `json:"delegated_run_proof_required,omitempty"`
+	Limitations               []string `json:"limitations,omitempty"`
+	// AcceptedLimits seals the residual limits the scope's spec declares, so
+	// the brief and the conclusion read them from the bundle (spec
+	// pose-review-declared-threat-model). Omitted when none, so every other
+	// bundle keeps its digest.
+	AcceptedLimits []ReviewAcceptedLimit `json:"accepted_limits,omitempty"`
+	PlanDigest     string                `json:"plan_digest"`
+	Independence   string                `json:"independence"`
+	Components     []ReviewPlanComponent `json:"components"`
+	Criteria       []ReviewPlanCriterion `json:"criteria"`
+	Tools          []ReviewPlanTool      `json:"tools"`
 	// SelectedProfiles records which components each profile was selected for.
 	// A criterion names the profiles it came from, and without this mapping the
 	// sealed subject cannot say which components that criterion answers for —
@@ -515,7 +520,7 @@ func (s Store) prepareReviewBundle(ref string, legacyMilestoneManifest bool) (Re
 	if err != nil {
 		return ReviewBundle{}, err
 	}
-	bundle.Payload.Plan = ReviewBundlePlan{DelegatedRunProofRequired: plan.DelegatedRunProofRequired, Limitations: append([]string(nil), plan.Limitations...), PlanDigest: bundlePlanDigest, Independence: plan.Independence, Components: append([]ReviewPlanComponent{}, plan.Components...), Criteria: append([]ReviewPlanCriterion{}, plan.Criteria...), Tools: append([]ReviewPlanTool{}, plan.Tools...), SelectedProfiles: append([]ReviewPlanProfile{}, plan.SelectedProfiles...), Structure: plan.Structure, CloseoutReview: plan.CloseoutReview}
+	bundle.Payload.Plan = ReviewBundlePlan{DelegatedRunProofRequired: plan.DelegatedRunProofRequired, Limitations: append([]string(nil), plan.Limitations...), PlanDigest: bundlePlanDigest, Independence: plan.Independence, Components: append([]ReviewPlanComponent{}, plan.Components...), Criteria: append([]ReviewPlanCriterion{}, plan.Criteria...), Tools: append([]ReviewPlanTool{}, plan.Tools...), SelectedProfiles: append([]ReviewPlanProfile{}, plan.SelectedProfiles...), Structure: plan.Structure, CloseoutReview: plan.CloseoutReview, AcceptedLimits: append([]ReviewAcceptedLimit(nil), plan.AcceptedLimits...)}
 
 	scopeProjection, excluded, err := s.reviewBundleScopeProjection(scope)
 	if err != nil {
@@ -4070,6 +4075,15 @@ func reviewFindingDecisionBlockers(bundle ReviewBundle, att ReviewAttestation) [
 			// disposition's spelling. Use the policy frozen into this bundle.
 			if !allowedRisk[finding.Severity] || finding.Owner == "" || finding.Rationale == "" || finding.ReviewBy == "" {
 				blockers = append(blockers, "finding "+finding.ID+" has unapproved or incomplete accepted risk")
+			}
+		case "within-limit":
+			// Inside a limit the spec declared and the bundle sealed, whatever
+			// its severity; a limit the bundle did not seal accepts nothing
+			// (spec pose-review-declared-threat-model R3).
+			if !sealedAcceptedLimit(bundle, finding.Limit) {
+				blockers = append(blockers, "finding "+finding.ID+" names accepted limit "+firstNonempty(finding.Limit, "(none)")+", which this bundle did not seal")
+			} else if finding.Rationale == "" {
+				blockers = append(blockers, "finding "+finding.ID+" is within limit "+finding.Limit+" without saying why")
 			}
 		case "open", "changes-requested":
 			blockers = append(blockers, "finding "+finding.ID+" is "+finding.Disposition)

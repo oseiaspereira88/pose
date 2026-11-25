@@ -566,6 +566,21 @@ func lintOneSpecWith(r *cliout.Renderer, fields bool, specPath string, requiredO
 			lint.finding(cliout.StateError, "dor", fmt.Sprintf(cliText(locale, "DoR: invalid depends_on reference: '%s'", "DoR: ref inválida em depends_on: '%s'"), ref))
 			failures++
 		}
+		// Accepted limits (spec pose-review-declared-threat-model R4): each
+		// says why it is accepted, and an ADR that names the spec names each
+		// limit, so the decision record carries what the review will treat as
+		// out of scope.
+		limits, limitProblems := posepkg.ParseAcceptedLimits(text)
+		for _, problem := range limitProblems {
+			lint.finding(cliout.StateError, "dor", "DoR: "+problem)
+			failures++
+		}
+		if len(limits) > 0 {
+			for _, missing := range acceptedLimitsMissingFromADRs(lintProjectRoot(specPath), slug, limits) {
+				lint.finding(cliout.StateError, "dor", missing)
+				failures++
+			}
+		}
 		emitDesignBasis()
 		failures += designFailures + lineageFailures
 		ready := "true"
@@ -1167,4 +1182,38 @@ func containsSection(names []string, name string) bool {
 		}
 	}
 	return false
+}
+
+// acceptedLimitsMissingFromADRs names each declared limit an ADR that cites
+// the spec does not mention. With no ADR citing the spec nothing is required.
+func acceptedLimitsMissingFromADRs(root, slug string, limits []posepkg.ReviewAcceptedLimit) []string {
+	entries, err := os.ReadDir(filepath.Join(root, ".pose", "adr"))
+	if err != nil {
+		return nil
+	}
+	var citing []string
+	for _, e := range entries {
+		if e.IsDir() || !strings.HasSuffix(e.Name(), ".md") {
+			continue
+		}
+		raw, err := os.ReadFile(filepath.Join(root, ".pose", "adr", e.Name()))
+		if err != nil || !strings.Contains(string(raw), slug) {
+			continue
+		}
+		citing = append(citing, string(raw))
+	}
+	if len(citing) == 0 {
+		return nil
+	}
+	var missing []string
+	for _, l := range limits {
+		found := false
+		for _, adr := range citing {
+			found = found || strings.Contains(adr, l.ID)
+		}
+		if !found {
+			missing = append(missing, "DoR: accepted limit "+l.ID+" is not named by the ADR that cites "+slug)
+		}
+	}
+	return missing
 }

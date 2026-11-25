@@ -58,7 +58,7 @@ func TestAnEarlierConclusionBriefStillRendersWithoutTheRules(t *testing.T) {
 	if err != nil {
 		t.Fatal(err)
 	}
-	if current.TemplateVersion != "review-brief/10" || earlier.TemplateVersion != "review-brief/3" {
+	if current.TemplateVersion != "review-brief/11" || earlier.TemplateVersion != "review-brief/3" {
 		t.Fatalf("templates: %s %s", current.TemplateVersion, earlier.TemplateVersion)
 	}
 	if strings.Contains(earlier.Text, "POSE checks the conclusion before it records it") {
@@ -67,8 +67,8 @@ func TestAnEarlierConclusionBriefStillRendersWithoutTheRules(t *testing.T) {
 	if !strings.Contains(earlier.Text, "the conclusion POSE records as the attestation") || earlier.Digest == current.Digest {
 		t.Fatal("review-brief/3 no longer asks for the conclusion, or has the digest of /4")
 	}
-	if !reviewBriefAsksConclusion("review-brief/3") || !reviewBriefAsksConclusion("review-brief/4") || !reviewBriefAsksConclusion("review-brief/5") || !reviewBriefAsksConclusion("review-brief/6") || !reviewBriefAsksConclusion("review-brief/7") || !reviewBriefAsksConclusion("review-brief/8") || !reviewBriefAsksConclusion("review-brief/9") || !reviewBriefAsksConclusion("review-brief/10") || reviewBriefAsksConclusion("review-brief/2") {
-		t.Fatal("the templates that ask for a conclusion are /3 to /10")
+	if !reviewBriefAsksConclusion("review-brief/3") || !reviewBriefAsksConclusion("review-brief/4") || !reviewBriefAsksConclusion("review-brief/5") || !reviewBriefAsksConclusion("review-brief/6") || !reviewBriefAsksConclusion("review-brief/7") || !reviewBriefAsksConclusion("review-brief/8") || !reviewBriefAsksConclusion("review-brief/9") || !reviewBriefAsksConclusion("review-brief/10") || !reviewBriefAsksConclusion("review-brief/11") || reviewBriefAsksConclusion("review-brief/2") {
+		t.Fatal("the templates that ask for a conclusion are /3 to /11")
 	}
 }
 
@@ -178,5 +178,19 @@ func TestTheCurrentBriefAsksCommandsToFinish(t *testing.T) {
 	earlier := renderReviewBriefBody(fixedBriefBundle(), ReviewBriefKindReview, reviewBriefTemplateEngineTools, "", nil, &ReviewRound{Number: 1}, true, nil)
 	if strings.Contains(earlier, boundary) {
 		t.Fatal("review-brief/9 changed under the runs briefed with it")
+	}
+}
+
+// Spec pose-review-declared-threat-model R2: the current brief lists the
+// sealed accepted limits and says how a finding inside one is classified;
+// /10 never did.
+func TestTheCurrentBriefListsTheAcceptedLimits(t *testing.T) {
+	current := renderReviewBriefBody(richBriefBundle(), ReviewBriefKindReview, reviewBriefTemplates[ReviewBriefKindReview], "", nil, &ReviewRound{Number: 1}, true, nil)
+	if !strings.Contains(current, "## Accepted limits") || !strings.Contains(current, "- L1: A process that clears its environment escapes.") || !strings.Contains(current, "with `limit` set to its id") {
+		t.Fatalf("the current brief does not list the accepted limits:\n%s", current)
+	}
+	earlier := renderReviewBriefBody(richBriefBundle(), ReviewBriefKindReview, reviewBriefTemplateFinishCommands, "", nil, &ReviewRound{Number: 1}, true, nil)
+	if strings.Contains(earlier, "## Accepted limits") {
+		t.Fatal("review-brief/10 changed under the runs briefed with it")
 	}
 }

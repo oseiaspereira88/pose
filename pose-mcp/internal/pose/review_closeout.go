@@ -382,6 +382,9 @@ type ReviewFinding struct {
 	Owner       string `json:"owner,omitempty"`
 	Rationale   string `json:"rationale,omitempty"`
 	ReviewBy    string `json:"review_by,omitempty"`
+	// Limit is the declared accepted limit a finding disposed within-limit
+	// falls inside (spec pose-review-declared-threat-model R3).
+	Limit string `json:"limit,omitempty"`
 }
 
 type ReviewToolDisposition struct {

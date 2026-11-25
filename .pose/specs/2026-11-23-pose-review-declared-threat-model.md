@@ -1,6 +1,6 @@
 ---
 slug: pose-review-declared-threat-model
-status: draft
+status: in-progress
 created_at: 2026-11-23
 completed_at:
 supersedes:
@@ -10,7 +10,7 @@ priority: 4
 components: pose-mcp
 task_type: feature
 surface: standard
-delivers:
+delivers: capability:review-declared-threat-model
 ---
 
 # Spec: pose-review-declared-threat-model
@@ -52,19 +52,47 @@ Records and indexes written by earlier engines keep their meaning.
 `pose-mcp` (CLI and engine), the manual and its embedded copy.
 
 ### Artifacts
-Declared when the spec starts.
+- created: .pose/specs/2026-11-23-pose-review-declared-threat-model.md
+- created: pose-mcp/internal/pose/accepted_limits.go
+- created: pose-mcp/internal/pose/accepted_limits_test.go
+- modified: pose-mcp/internal/pose/review_plan.go
+- modified: pose-mcp/internal/pose/review_bundle.go
+- modified: pose-mcp/internal/pose/review_rounds.go
+- modified: pose-mcp/internal/pose/review_closeout.go
+- modified: pose-mcp/internal/pose/review_conclusions.go
+- modified: pose-mcp/internal/pose/review_brief.go
+- modified: pose-mcp/internal/pose/review_brief_test.go
+- modified: pose-mcp/internal/pose/review_brief_versions_test.go
+- modified: pose-mcp/internal/pose/review_brief_conclusion_rules_test.go
+- modified: pose-mcp/internal/pose/testdata/review_brief_template_digests.json
+- modified: pose-mcp/internal/cli/lintspec.go
+- created: pose-mcp/internal/cli/accepted_limits_lint_test.go
+- modified: POSE.md
+- modified: locales/pt-BR/POSE.md
+- modified: pose-mcp/internal/scaffold/dist/POSE.md
+- modified: pose-mcp/internal/scaffold/dist/locales/pt-BR/POSE.md
+
 
 ### Delivery targets
-Declared when the spec starts.
+
+- capability:review-declared-threat-model module:pose-mcp profile:composed-capability entrypoint:pose-mcp/internal/cli/lintspec.go
+
+
+### Accepted limits
+- L1: The limits are written by the implementer, so a limit can be broader than it should be. Accepted because the brief presents them as data to verify and a disputed limit is a blocking finding of its own.
+- L2: A spec edited after sealing changes its limits only through a new bundle. Accepted because the limits enter the plan digest, so an edit stales the review as any other change does.
 
 ### API/contract changes
-To be detailed when the spec starts.
+A spec section `### Accepted limits` with `- L<N>: <assumption>. Accepted because <reason>.` entries. The review plan and the bundle seal them as `accepted_limits` (omitted when none, so every other plan and bundle keeps its digest). A draft finding may carry `limit`; the attestation records it with disposition `within-limit`. Brief template `review-brief/11`. `lint-spec --ready-check` checks the section.
+
 
 ### Data/storage changes
-To be detailed when the spec starts.
+`accepted_limits` in review plans and bundles and `limit` in draft and attestation findings, all omitted when empty.
+
 
 ### Technical risks
-To be detailed when the spec starts.
+A limit could be used to wave a real defect through. It is the spec's own declaration, sealed into the plan digest and visible in the brief and the attestation; the reviewer may dispute it with a finding of its own, which then blocks as any finding does.
+
 
 ## 4. Tasks
 
@@ -79,6 +107,14 @@ To be detailed when the spec starts.
 
 ## 5. Decisions
 
+### Decision D1
+- Basis: R1, R2, R3
+A finding inside a declared limit is neither an open finding nor an accepted risk: it gets its own disposition, `within-limit`, which does not block an approval whatever its severity, requires a sealed limit and a reason, and records the limit's id. Accepted risks keep their severity bound; a limit is the spec's statement of scope, decided before the review.
+
+### Decision D2
+- Basis: R1, R4
+The limits are sealed in the plan and the bundle, and in the plan digest, so the brief and the conclusion read them from what was reviewed, never from the current spec; both fields are omitted when empty so no earlier plan or bundle changes digest.
+
 ## 6. Validation
 
 ### Strategy
@@ -90,21 +126,43 @@ Each requirement gets a regression test shown failing before its code.
 - Command: `go test ./...` (in `pose-mcp`), then `pose validate --carry`.
 
 ### Execution log
+- 2026-11-25: implemented R1–R4: `ParseAcceptedLimits`, the plan and bundle `accepted_limits`, the draft `limit` and the `within-limit` disposition, `review-brief/11` and the ready check. Each has a test that fails with it mutated out; the first digest test survived because the spec edit changed the scope digest too, and now compares the plan's digest with and without the limits.
+
 
 ### Results summary
+The full `pose-mcp` suite passes; the canonical result is refreshed with `pose validate --carry`.
+
 
 ### Requirement trace
+- R1 [satisfied] test:TestAcceptedLimitsAreParsed, test:TestTheReviewPlanSealsTheAcceptedLimits
+- R2 [satisfied] test:TestTheCurrentBriefListsTheAcceptedLimits
+- R3 [satisfied] test:TestAFindingWithinASealedLimitDoesNotBlockApproval
+- R4 [satisfied] test:TestReadyCheckJudgesAcceptedLimits
+
 
 ### Known gaps
+None.
+
 
 ## 7. Final Report
 
 ### Delivered scope
+Specs declare accepted limits; the review plan and bundle seal them; `review-brief/11` lists them and tells the reviewer to classify a finding inside one with `limit`; the attestation records it `within-limit`, which does not block an approval; `lint-spec --ready-check` requires each limit to say why it is accepted and an ADR citing the spec to name it.
+
 
 ### Files and modules changed
+`pose-mcp` (plan, bundle, conclusion, brief, lint), the manual in both locales and its embedded copies.
+
 
 ### Validation executed
+`go test ./...` in `pose-mcp`; `pose check --strict`; `pose validate --carry --json-out .pose/results/delivery-validation.json`.
+
 
 ### Residual risks
+L1 and L2 above.
+
 
 ### Follow-ups
+None.
+
+

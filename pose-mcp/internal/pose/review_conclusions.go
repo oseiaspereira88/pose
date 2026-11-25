@@ -178,6 +178,12 @@ func reviewAttestationFromDraft(run ReviewRun, bundle ReviewBundle, draft Review
 		if f.Disposition == "follow-up" && f.Action != "" && f.Owner != "" && f.ReviewBy != "" {
 			finding.Disposition, finding.Owner, finding.ReviewBy, finding.Rationale = "accepted-risk", f.Owner, f.ReviewBy, f.Summary
 		}
+		// A follow-up the reviewer classified inside a declared accepted
+		// limit is recorded as such, naming the limit (spec
+		// pose-review-declared-threat-model R3).
+		if f.Disposition == "follow-up" && f.Limit != "" {
+			finding.Disposition, finding.Limit, finding.Rationale, finding.Owner, finding.ReviewBy = "within-limit", f.Limit, f.Summary, f.Owner, f.ReviewBy
+		}
 		att.Findings = append(att.Findings, finding)
 	}
 	for ref := range evidence {

@@ -54,6 +54,7 @@ func richBriefBundle() ReviewBundle {
 	bundle.Payload.Plan.Tools = append(bundle.Payload.Plan.Tools, ReviewPlanTool{ID: "assess-discover", Component: "core", Requiredness: "recommended", Args: []string{"pose", "assess", "discover"}})
 	bundle.Payload.Subject.Entries = append(bundle.Payload.Subject.Entries, ReviewBundleSubjectEntry{Action: "renamed", OldPath: "core/old.go", NewPath: "core/new.go", Class: "source", Reason: "moved"})
 	bundle.Payload.Plan.Criteria = append(bundle.Payload.Plan.Criteria, ReviewPlanCriterion{ID: "documentation", Description: "The docs say it.", Required: false, Kind: ReviewCriterionKindMechanical})
+	bundle.Payload.Plan.AcceptedLimits = []ReviewAcceptedLimit{{ID: "L1", Text: "A process that clears its environment escapes. Accepted because the shim covers it."}}
 	return bundle
 }
 

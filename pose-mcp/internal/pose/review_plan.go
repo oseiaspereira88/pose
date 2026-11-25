@@ -126,6 +126,10 @@ type ReviewPlan struct {
 	// obligation input, so it enters the plan digest: see review_structure.go.
 	Structure   *ReviewPlanStructure `json:"structure,omitempty"`
 	Limitations []string             `json:"limitations,omitempty"`
+	// AcceptedLimits are the residual limits the scope's spec declares; they
+	// are sealed so the brief lists them and the conclusion classifies
+	// findings against them (spec pose-review-declared-threat-model).
+	AcceptedLimits []ReviewAcceptedLimit `json:"accepted_limits,omitempty"`
 	// A change disabling an adopted baseline must still prove its review.
 	DelegatedRunProofRequired bool     `json:"delegated_run_proof_required,omitempty"`
 	Warnings                  []string `json:"warnings,omitempty"`
@@ -397,6 +401,7 @@ func (s Store) ReviewPlan(ref string) (ReviewPlan, error) {
 		}
 	}
 	plan.Projection = projectDeclaredReviewObligations(plan, scope, base, floor, overlays, context)
+	plan.AcceptedLimits = s.acceptedLimitsOf(scope)
 	plan.PlanDigest, err = digestReviewPlan(plan)
 	if err != nil {
 		return ReviewPlan{}, err
@@ -1449,7 +1454,8 @@ func digestReviewPlan(plan ReviewPlan) (string, error) {
 		Structure                                     *[]ReviewStructuralFact `json:",omitempty"`
 		Limitations                                   []string                `json:",omitempty"`
 		DelegatedRunProofRequired                     bool                    `json:",omitempty"`
-	}{plan.SchemaVersion, plan.Scope, plan.ScopeDigest, plan.BaseProfile, plan.Independence, plan.PolicySchemaVersion, components, plan.SelectedProfiles, plan.Criteria, plan.Tools, plan.Warnings, plan.Blockers, plan.Explain, structure, plan.Limitations, plan.DelegatedRunProofRequired})
+		AcceptedLimits                                []ReviewAcceptedLimit   `json:",omitempty"`
+	}{plan.SchemaVersion, plan.Scope, plan.ScopeDigest, plan.BaseProfile, plan.Independence, plan.PolicySchemaVersion, components, plan.SelectedProfiles, plan.Criteria, plan.Tools, plan.Warnings, plan.Blockers, plan.Explain, structure, plan.Limitations, plan.DelegatedRunProofRequired, plan.AcceptedLimits})
 }
 
 func validateReviewPath(files Files, root, value string) error {
