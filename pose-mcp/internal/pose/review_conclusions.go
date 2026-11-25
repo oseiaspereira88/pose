@@ -122,6 +122,22 @@ func (s Store) reviewConclusionChecks(run ReviewRun) ([]string, *ReviewBundle, *
 	if err != nil {
 		return append(reasons, "the run's bundle cannot be read: "+err.Error()), nil, draft
 	}
+	// The run's own record must stand whatever it concludes. Whether its
+	// bundle is still the current subject matters only to an approval: a
+	// verdict that requests changes or rejects is a fact about the bundle it
+	// reviewed, and the working tree the implementer is already fixing does
+	// not change it (spec pose-review-conclude-ignores-unrelated-local-edits R1).
+	if why := s.ReviewRunRecordStands(run); why != "" {
+		reasons = append(reasons, "the run no longer governs: "+why)
+	}
+	reasons = append(reasons, s.verdictCoverageReasons(run, bundle, draft)...)
+	return reasons, &bundle, draft
+}
+
+// reviewConclusionCurrency is why an approval of run's bundle would no longer
+// approve the current subject.
+func (s Store) reviewConclusionCurrency(run ReviewRun, bundle ReviewBundle) []string {
+	var reasons []string
 	current, err := s.CurrentReviewBundle(bundle.Payload.Scope.Ref)
 	if err != nil || current == nil || current.BundleID != bundle.BundleID {
 		reasons = append(reasons, "the run's bundle no longer governs "+bundle.Payload.Scope.Ref+": the subject, the plan or the policy changed since it was sealed")
@@ -129,8 +145,7 @@ func (s Store) reviewConclusionChecks(run ReviewRun) ([]string, *ReviewBundle, *
 	if why := s.ReviewRunStillGoverns(run); why != "" {
 		reasons = append(reasons, "the run no longer governs: "+why)
 	}
-	reasons = append(reasons, s.verdictCoverageReasons(run, bundle, draft)...)
-	return reasons, &bundle, draft
+	return reasons
 }
 
 // reviewAttestationFromDraft builds the attestation a draft concludes, for
@@ -532,6 +547,19 @@ func (s Store) concludeReviewRun(id, issuer string, apply bool, now time.Time, t
 	reasons, bundle, draft := s.reviewConclusionChecks(run)
 	if draft != nil {
 		result.Decision = draft.Decision
+	}
+	if bundle != nil && draft != nil && reviewDecisionApproves(draft.Decision) {
+		if current := s.reviewConclusionCurrency(run, *bundle); len(current) > 0 {
+			if len(reasons) == 0 {
+				// Refused only because the subject the working tree holds is
+				// not the bundle's: nothing about the run is wrong, so the
+				// refusal is not recorded and the run concludes once the tree
+				// matches its bundle again (R2).
+				result.Reasons = append(current, "not recorded: conclude this run again once the working tree holds its bundle's subject (commit or set aside the local edits)")
+				return result, nil
+			}
+			reasons = append(reasons, current...)
+		}
 	}
 	var key IssuerKey
 	if len(reasons) == 0 {

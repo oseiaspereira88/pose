@@ -505,7 +505,7 @@ func (s Store) verifyRunProof(proof ReviewRunProof, run ReviewRun, now time.Time
 	if !validProofDigest(p.WorktreeDigest) {
 		return fail("the origin worktree of the run is not recorded")
 	}
-	brief, e := s.RenderReviewBriefMatching(run.BundleID, run.Kind, run.BriefNotes, run.BriefDigest)
+	brief, e := s.renderRunBriefMatching(run.BundleID, run.Kind, run.BriefNotes, run.BriefDigest)
 	// A handoff run was sent the brief and the section its predecessor's
 	// record yields; the verifier derives the same bytes (spec
 	// pose-delegation-handoff R4).
@@ -764,6 +764,13 @@ func (s Store) runProofContextConflict(run ReviewRun) string {
 		return why
 	}
 	if run.Status == ReviewRunCompleted {
+		// A completed run that does not approve is a fact about the bundle it
+		// reviewed: its proof needs its own record to stand, not its bundle
+		// to be the current subject. An approving one still does (spec
+		// pose-review-conclude-ignores-unrelated-local-edits R1).
+		if draft, err := ParseReviewDraft(run.Output); err == nil && draft != nil && !reviewDecisionApproves(draft.Decision) {
+			return s.ReviewRunRecordStands(run)
+		}
 		return s.ReviewRunStillGoverns(run)
 	}
 	if why := s.reviewRunTranscriptIntact(run); why != "" {

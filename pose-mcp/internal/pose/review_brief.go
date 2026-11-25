@@ -174,7 +174,20 @@ func (s Store) RenderReviewBrief(target, kind string, notes string) (ReviewBrief
 // recorded, so a run briefed before the round protocol still verifies and
 // continues.
 func (s Store) RenderReviewBriefMatching(target, kind, notes, digest string) (ReviewBrief, error) {
-	brief, err := s.renderReviewBriefAs(target, kind, notes, "")
+	return s.renderReviewBriefMatching(target, kind, notes, digest, true)
+}
+
+// renderRunBriefMatching re-renders the brief a run of bundle target was
+// sent, whether or not the bundle is still the current subject: a run is
+// verified against what it reviewed. Whether an approval still approves the
+// current subject is decided apart (spec
+// pose-review-conclude-ignores-unrelated-local-edits R1).
+func (s Store) renderRunBriefMatching(target, kind, notes, digest string) (ReviewBrief, error) {
+	return s.renderReviewBriefMatching(target, kind, notes, digest, false)
+}
+
+func (s Store) renderReviewBriefMatching(target, kind, notes, digest string, requireCurrent bool) (ReviewBrief, error) {
+	brief, err := s.renderReviewBriefAsCurrent(target, kind, notes, "", requireCurrent)
 	if err != nil || brief.Digest == digest {
 		return brief, err
 	}
@@ -182,7 +195,7 @@ func (s Store) RenderReviewBriefMatching(target, kind, notes, digest string) (Re
 		kind = ReviewBriefKindReview
 	}
 	for _, version := range briefEarlierTemplates[kind] {
-		if earlier, eerr := s.renderReviewBriefAs(target, kind, notes, version); eerr == nil && earlier.Digest == digest {
+		if earlier, eerr := s.renderReviewBriefAsCurrent(target, kind, notes, version, requireCurrent); eerr == nil && earlier.Digest == digest {
 			return earlier, nil
 		}
 	}
@@ -190,6 +203,10 @@ func (s Store) RenderReviewBriefMatching(target, kind, notes, digest string) (Re
 }
 
 func (s Store) renderReviewBriefAs(target, kind, notes, version string) (ReviewBrief, error) {
+	return s.renderReviewBriefAsCurrent(target, kind, notes, version, true)
+}
+
+func (s Store) renderReviewBriefAsCurrent(target, kind, notes, version string, requireCurrent bool) (ReviewBrief, error) {
 	if kind == "" {
 		kind = ReviewBriefKindReview
 	}
@@ -206,12 +223,14 @@ func (s Store) renderReviewBriefAs(target, kind, notes, version string) (ReviewB
 		if err != nil {
 			return ReviewBrief{}, err
 		}
-		current, err := s.CurrentReviewBundle(loaded.Payload.Scope.Ref)
-		if err != nil {
-			return ReviewBrief{}, err
-		}
-		if current == nil || current.BundleID != loaded.BundleID {
-			return ReviewBrief{}, fmt.Errorf("pose: bundle %s is superseded by current semantic inputs; seal the scope again and brief the new bundle", target)
+		if requireCurrent {
+			current, err := s.CurrentReviewBundle(loaded.Payload.Scope.Ref)
+			if err != nil {
+				return ReviewBrief{}, err
+			}
+			if current == nil || current.BundleID != loaded.BundleID {
+				return ReviewBrief{}, fmt.Errorf("pose: bundle %s is superseded by current semantic inputs; seal the scope again and brief the new bundle", target)
+			}
 		}
 		bundle = loaded
 	} else {
