@@ -1,0 +1,226 @@
+{
+  "run": {
+    "run_id": "rrn-d01ce959ef20ccfc",
+    "proof_id": "rrp-e2b86432644c0bb69aa733d4e01bbfeb9217426dcef12016ed518808e1843383"
+  },
+  "schema_version": 1,
+  "attestation_id": "rva-8811e5e592243f23",
+  "bundle_id": "rvb-53504320e1d0f96b",
+  "bundle_digest": "sha256:53504320e1d0f96b08bf14821bc66afd396abe059d4188c44a2d9daec1c3127e",
+  "reviewer": "agent:openai/gpt-6-luna",
+  "decision": "approved",
+  "criteria": [
+    {
+      "id": "assumption-integrity",
+      "disposition": "passed",
+      "evidence": "structure:design-d8fb4eee1d869659",
+      "rationale": "Verified that the Linux CLI re-enters the same executable as an isolated subreaper and that Windows assigns the suspended adapter to a kill-on-close job before resuming it. L2 records that the Windows runtime test was not run on this Linux host; other Unix behavior and the embedder fallback are explicitly carried to the follow-up spec. The remaining Linux escape case in L1 is stated as a residual risk."
+    },
+    {
+      "id": "backend-concurrency",
+      "disposition": "finding",
+      "evidence": "N2",
+      "rationale": "The report pipe is opened before environment validation and the error return does not close it."
+    },
+    {
+      "id": "backend-contracts",
+      "disposition": "passed",
+      "evidence": "integration:pose-mcp/go/delegation-surface-integration",
+      "rationale": "The change adds the cancel release behavior and brief template version while retaining the run/receipt schema. The Linux CLI process-tree path is covered by the dispatch test; the CLI cancel route itself remains a documented test gap."
+    },
+    {
+      "id": "backend-input-errors",
+      "disposition": "finding",
+      "evidence": "N1",
+      "rationale": "An unreadable or malformed receipt is treated as proof of completion in the orphan listing, so the attempt is omitted even though admission later rejects it."
+    },
+    {
+      "id": "backend-integration-impact",
+      "disposition": "passed",
+      "evidence": "integration:pose-mcp/go/delegation-marker-stop-joins-heartbeat-integration",
+      "rationale": "The changed path stays within pose-mcp delegation and review-run lifecycle handling; no HTTP, event, protobuf, or MCP contract is changed."
+    },
+    {
+      "id": "backend-observability",
+      "disposition": "finding",
+      "evidence": "N1",
+      "rationale": "The invalid-receipt case does not appear in delegate ls losses, so the blocked attempt is not diagnosable from the listing."
+    },
+    {
+      "id": "compatibility",
+      "disposition": "passed",
+      "evidence": "unit:pose-mcp/go/test",
+      "rationale": "The new failed run is recorded with the existing run and receipt formats. The old-engine meaning remains an ordinary failed run; markerless older reservations require explicit operator confirmation."
+    },
+    {
+      "id": "correctness",
+      "disposition": "finding",
+      "evidence": "N1",
+      "rationale": "The core Linux process cleanup and deterministic release recovery are correct under the tested cases; the corrupt-receipt path can still leave a reservation blocking dispatch without a visible loss."
+    },
+    {
+      "id": "design-causality",
+      "disposition": "passed",
+      "evidence": "structure:design-d8fb4eee1d869659",
+      "rationale": "D1 addresses the ownership cause with a child-only subreaper shim, avoiding the dispatcher's process-wide subreaper and reviewer-controlled environment matching on the standard Linux path. D2 closes abandoned attempts with a deterministic failed-run record and receipt rather than deleting the reservation. The design assessment observed no structural deltas."
+    },
+    {
+      "id": "documentation",
+      "disposition": "passed",
+      "evidence": "integration:pose-mcp/go/distributed-instructions-parity-integration",
+      "rationale": "The English, Portuguese, and scaffold manuals describe Linux shim, Windows job-object, other-Unix, and embedder-fallback behavior; review-brief/10 asks commands to finish."
+    },
+    {
+      "id": "operability",
+      "disposition": "finding",
+      "evidence": "N1",
+      "rationale": "The invalid-receipt state lacks a loss message and actionable listing row, although the normal abandoned-release path reports the failed run and status."
+    },
+    {
+      "id": "requirements",
+      "disposition": "finding",
+      "evidence": "N1",
+      "rationale": "R5's normal no-receipt interruption path is covered by release and next-dispatch tests, but an existing unreadable receipt can hide a reservation that still blocks a later dispatch."
+    },
+    {
+      "id": "scope",
+      "disposition": "passed",
+      "evidence": "structure:design-d8fb4eee1d869659",
+      "rationale": "The implementation delivers R1-R6 and D1-D2. The additional beyond-Linux spec tracks the explicitly transferred platform and embedder cases."
+    },
+    {
+      "id": "security",
+      "disposition": "passed",
+      "evidence": "integration:pose-mcp/go/delegated-adapter-containment-integration",
+      "rationale": "The standard Linux path uses process ancestry rather than reviewer-settable environment ownership, the report pipe is not inherited by the adapter, PIDs are pinned before signals, and the Windows adapter is suspended until assigned to its job. L6 remains an explicit embedder limitation."
+    },
+    {
+      "id": "solution-proportionality",
+      "disposition": "passed",
+      "evidence": "structure:design-d8fb4eee1d869659",
+      "rationale": "A process-group kill misses setsid descendants, environment matching is not trustworthy for the standard CLI, and putting a subreaper in the dispatcher would affect unrelated work. The shim and suspended Windows job are the smallest isolated ownership mechanisms for the declared platforms. A live process handed outside the run can invalidate the Linux guarantee as L1 states."
+    }
+  ],
+  "tools": [
+    {
+      "id": "artifact-check",
+      "disposition": "passed",
+      "evidence": "command:\"$POSE_REVIEW_CLI\" artifact-check --spec pose-review-run-reaps-lingering-reviewer-processes --strict",
+      "rationale": "Exited 0. It reported 35 claims and 41 observed paths with repository-wide orphan warnings; its change-set head differed from the sealed bundle subject, so those totals are treated as a provenance caveat."
+    },
+    {
+      "id": "assess-design",
+      "disposition": "passed",
+      "evidence": "structure:design-d8fb4eee1d869659",
+      "rationale": "Ran the recommended design assessment; it observed zero deltas."
+    },
+    {
+      "id": "assess-discover",
+      "component": "pose-mcp",
+      "disposition": "passed",
+      "evidence": "command:\"$POSE_REVIEW_CLI\" assess discover --no-persist --component pose-mcp"
+    },
+    {
+      "id": "assess-integrate",
+      "disposition": "failed",
+      "evidence": "integration:pose-mcp/go/delegation-surface-integration",
+      "rationale": "Ran the recommended assessment. It reported no consumers observed for /admin/refresh, /healthz, and /mcp; these are repository-wide observations outside the changed review-dispatch and CLI-cancel boundaries."
+    },
+    {
+      "id": "assess-tech-debt",
+      "disposition": "failed",
+      "evidence": "command:\"$POSE_REVIEW_CLI\" assess tech-debt --no-persist",
+      "rationale": "The scan was incomplete because two unrelated specs were invalid, and it reported one uncovered debt marker; changed subject files contain no TODO or FIXME markers."
+    },
+    {
+      "id": "closeout-check",
+      "disposition": "deferred",
+      "rationale": "Completion check requires a recorded attestation, which this review brief forbids recording."
+    },
+    {
+      "id": "review-check",
+      "disposition": "deferred",
+      "rationale": "Completion check requires the review attestation to exist; the brief requires it remain unrecorded."
+    },
+    {
+      "id": "suggest-review",
+      "component": "pose-mcp",
+      "disposition": "passed",
+      "evidence": "command:\"$POSE_REVIEW_CLI\" suggest review --path pose-mcp"
+    },
+    {
+      "id": "surface-check",
+      "disposition": "passed",
+      "evidence": "reachability:pose-mcp/go/spec-surface-reachability",
+      "rationale": "The strict surface check completed with one target and zero findings."
+    },
+    {
+      "id": "validate",
+      "disposition": "passed",
+      "evidence": "build:pose-mcp/go/build",
+      "rationale": "The command was attempted but the sandbox prevented Go from creating build directories. The sealed bundle contains passing build, e2e, integration, and unit evidence; focused tests and vet also passed locally."
+    },
+    {
+      "id": "validate",
+      "component": "pose-mcp",
+      "disposition": "passed",
+      "evidence": "unit:pose-mcp/go/test",
+      "rationale": "The module command was attempted but stopped because the checkout and Go cache are read-only. The sealed module evidence covers the validation matrix; focused regression tests and go vet passed."
+    }
+  ],
+  "evidence_refs": [
+    "N1",
+    "N2",
+    "delegated-run:rrn-d01ce959ef20ccfc",
+    "integration:pose-mcp/go/delegated-adapter-containment-integration",
+    "integration:pose-mcp/go/delegation-marker-stop-joins-heartbeat-integration",
+    "integration:pose-mcp/go/delegation-surface-integration",
+    "integration:pose-mcp/go/distributed-instructions-parity-integration",
+    "structure:design-d8fb4eee1d869659",
+    "unit:pose-mcp/go/test"
+  ],
+  "findings": [
+    {
+      "id": "N1",
+      "severity": "low",
+      "evidence": "file:pose-mcp/internal/pose/delegation_release.go:275",
+      "action": "Validate and bind an existing receipt before omitting its reservation; report unreadable receipts as losses and keep the attempt visible.",
+      "disposition": "accepted-risk",
+      "owner": "pose-mcp maintainers",
+      "rationale": "The orphan scan treats any existing receipt path as a completed attempt without reading or validating the receipt. A corrupt receipt makes delegate ls omit the reservation while later dispatch admission rejects it, leaving a blocked attempt without a loss entry.",
+      "review_by": "2026-12-25"
+    },
+    {
+      "id": "N2",
+      "severity": "low",
+      "evidence": "file:pose-mcp/internal/pose/review_dispatch.go:997",
+      "action": "Close both report-pipe ends on every pre-launch error path and add a repeated validation-failure descriptor-count regression test.",
+      "disposition": "accepted-risk",
+      "owner": "pose-mcp maintainers",
+      "rationale": "After opening the Linux shim report pipe, an adapter-environment validation error returns without closing either pipe end. Repeated failed dispatches in a long-lived embedder can retain descriptors until garbage collection.",
+      "review_by": "2026-12-25"
+    }
+  ],
+  "authority": {
+    "schema_version": 1,
+    "project": "proj.pose-dist",
+    "bundle_digest": "sha256:53504320e1d0f96b08bf14821bc66afd396abe059d4188c44a2d9daec1c3127e",
+    "principal": "agent:openai/gpt-6-luna",
+    "role": "agent",
+    "review_execution": "rrn-d01ce959ef20ccfc",
+    "implementation_principal": "agent:anthropic/unknown",
+    "implementation_execution": "sha256:344ac5868944c155772d60a95ef6ff20644580a642e772ad5c92c29428464ff8",
+    "issuer": "b34-local-executor",
+    "issued_at": "2026-11-25T08:34:50Z",
+    "audience": "proj.pose-dist"
+  },
+  "envelope": {
+    "issuer": "b34-local-executor",
+    "subject": "rvb-53504320e1d0f96b",
+    "algorithm": "ed25519",
+    "public_key": "ck4sApdfePV2GT+hJyAYfJd2qLzeG55P8pevGR0bvZE=",
+    "signature": "2XkRbJgqVqXj+ouqCmTyfFYuzFqAtVsox+OjzJDzGaDrdSyTF2bokxYK493WWjgDO+oR7xuvUZG0SNY46vUfBg=="
+  },
+  "attested_at": "2026-11-25T08:34:50Z",
+  "path": ".pose/review-attestations/rva-8811e5e592243f23.json"
+}

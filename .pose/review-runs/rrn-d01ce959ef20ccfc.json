@@ -1,0 +1,155 @@
+{
+  "safety": {
+    "schema_version": 1,
+    "profile": "legacy-trusted",
+    "platform": "linux/amd64",
+    "capabilities": {
+      "automatic-expiry": "unavailable",
+      "bounded-capture": "available",
+      "cpu-limit": "unavailable",
+      "credential-filesystem-isolation": "unavailable",
+      "environment-allowlist": "available",
+      "escaped-descendant-termination": "environment-marked",
+      "filesystem-isolation": "unavailable",
+      "memory-limit": "unavailable",
+      "network-isolation": "unavailable",
+      "origin-isolation": "unavailable",
+      "parent-termination": "available",
+      "process-group-termination": "available",
+      "shared-git-isolation": "unavailable"
+    },
+    "limitations": [
+      "trusted local executable required; worktree is not a sandbox",
+      "outside writes, transient writes, shared Git and credential files are not isolated",
+      "no memory/CPU quota; the review run shim ends every process left in the run's subtree, including one in its own session",
+      "cleanup filesystem calls remain subject to operating-system I/O latency",
+      "legacy compatibility: HOME retained; other ambient credentials excluded"
+    ],
+    "stream_bytes": 8388608,
+    "output_bytes": 65536,
+    "retained_bytes": 16777216,
+    "timeout_ms": 3600000,
+    "max_runs_per_bundle": 3,
+    "retention": "retain-evidence; ttl=0; no automatic deletion",
+    "capture_complete": true,
+    "runtime_id": "pose-review-run-291218663",
+    "operation": {
+      "schema_version": 1,
+      "operation": "review.dispatch.cleanup",
+      "scope": "spec:pose-review-run-reaps-lingering-reviewer-processes",
+      "outcome": "completed",
+      "steps_run": [
+        {
+          "id": "cleanup",
+          "result": "done"
+        }
+      ],
+      "effects": [],
+      "resumable": false
+    }
+  },
+  "provenance": {
+    "execution_state": "started",
+    "planned_wire_digest": "sha256:182b1f442fcb77e853c58efaed5e3848c4234a8a71cabb71d36d966a9ae42e13",
+    "wire_bytes": 43776,
+    "wire_complete": true,
+    "schema_version": 1,
+    "project": "proj.pose-dist",
+    "audience": "proj.pose-dist",
+    "worktree_digest": "sha256:092ca52378c4c0d0f2b627da8d5031dbb854563bd4b9f2474458710c62a14816",
+    "trust": "executor-attested",
+    "implementation": {
+      "principal": "agent:anthropic/unknown",
+      "execution": "sha256:344ac5868944c155772d60a95ef6ff20644580a642e772ad5c92c29428464ff8",
+      "vendor": "anthropic",
+      "model": "unknown"
+    },
+    "reviewer": {
+      "principal": "agent:openai/gpt-6-luna",
+      "vendor": "openai",
+      "model": "gpt-6-luna"
+    },
+    "config_digest": "sha256:0496470e7d7d37c50f6d6ba38fff61a3798a301c4bb9344cb48115600dab36d4",
+    "command_template_digest": "sha256:42c94509ce1ab68857d1a7dfb101a967c1bd3243a67bdc5d921f22b58fc3db04",
+    "argv_digest": "sha256:6821f9f696b22f89c6b472aba3967253d6b2bbf91598ed591c0a5e073033ae13",
+    "executable_digest": "sha256:0e0c66f50074965a40cbd12f625b0a35963baf41bbd8c201a93e32fddbe2e073",
+    "template_version": "review-brief/10",
+    "wire_digest": "sha256:182b1f442fcb77e853c58efaed5e3848c4234a8a71cabb71d36d966a9ae42e13",
+    "notes_digest": "sha256:c4214b1a3b4976e2e2992ba531cfc6986cfc57936eb12490004a9325cc13db15",
+    "raw_transcript_digest": "sha256:eb2fbd1335b03eb620f4ec13d6e57b7d3185ec02657ab641907718376c6894d7",
+    "raw_output_digest": "sha256:acbff0baafa6743404a5ec452209188560903d21b075e4c8f1aa370326bd24f8",
+    "output_source": "file",
+    "output_complete": true
+  },
+  "session_digest": "sha256:23e97b512d465d8a7a6f903ff9e6cf64081e3c30ba87f5047c5a0928e7ec8dc9",
+  "tree_digest": "sha256:1aac754179ca6fc8a0aaae557486800a432ecfd69063d73dd3790fd399218111",
+  "brief_notes": "Implementer notes (Claude Opus 5.5, the lead). Use them as context only; the judgment is yours.\n\nScope: spec `pose-review-run-reaps-lingering-reviewer-processes` (R1–R6, decisions D1–D2, residual limits L1–L2 in the spec). Two frictions that each cost a review round:\n- R1/R2/R4: a reviewer ended while a `go test` it had started was still running in a session of its own; the process-group kill missed it, it kept writing into the runtime directory, and the cleanup inventory failed, so the run could not be concluded. After the adapter exits, the dispatch now ends every process whose environment holds `POSE_SEALED_CHECKOUT=\u003cthis run's checkout\u003e`, waits for them, and names them in `safety.limitations` (`internal/pose/review_reap_linux.go`, called in `review_dispatch.go`).\n- R3: `review-brief/10` asks the reviewer to let its commands finish (`/9` and its digest are unchanged).\n- R5/R6: a dispatch stopped between reserving its attempt and recording its run left a reservation with no receipt that refused every later dispatch, and `pose delegate cancel` refused it as \"stalled, not running\". Cancel now releases such an attempt, once its marker is stalled and its owner proven dead, by recording a failed run and its receipt and removing the marker (`internal/pose/delegation_release.go`, `internal/cli/delegate.go`).\nEach fix has a test that failed with it mutated out; the full `go test ./...` of `pose-mcp` passes.\n\nPlease check in particular that the process search cannot end a process outside this run (another run, the dispatcher itself), that a live owner is never released, and that the released records read as an ordinary failed run everywhere (ledger, `delegate ls`, round accounting).\n\nRun every planned `pose` command as `\"$POSE_REVIEW_CLI\"` with the same arguments, never a bare `pose`. Before you finish, pipe your final message to `\"$POSE_REVIEW_CLI\" review draft-check --draft -` and fix every reason it reports.\n\nDraft format rules, enforced by the conclusion preflight:\n- New findings use short unprefixed IDs (N1, N2, …). Round-prefixed IDs go only in `prior_findings`, and only for the findings the brief lists under \"Findings to account for\", with exactly id, status and evidence.\n- Structural-delta mappings go inside the criterion that answers them, with `basis` set to a requirement or a decision of this spec (R1–R6, D1, D2).\n- A criterion scoped to a component cites evidence from that component only.\n\nSandbox limits: the checkout is sealed and read-only. Never `cd`; keep the checkout root as the working directory. Keep test runs focused (`go -C pose-mcp test ./internal/cli ./internal/pose -run 'DispatchEndsWhatTheReviewer|AbandonedAttempt|RunningAttemptIsNot|Brief'`, `go -C pose-mcp vet ./internal/cli ./internal/pose`), and let every command you start finish before you end. A tool you cannot rerun in the sandbox is a limit of the run, not a defect of the subject: cite the sealed evidence that covers it, then decide on the code itself.\n\nRound 2 notes: round 1 (rrn-c5c082703d83c834) requested changes with N1–N5, listed in the brief. Fixes: N1, the dispatch marks the attempt active before publishing its reservation (`prepareDelegatedReviewAttempt`, then the marker, then `publishDelegatedReviewAttempt`), and a stalled marker without a reservation is removed by the release; N2, `delegate ls` names the cause and the release command; N3, each process is pinned by a pidfd and re-checked before SIGKILL; N4, failing to list `/proc` or read a state is an error, and an unreadable process of this user is disclosed in the run record (limit L3, stated in the spec); N5, the manual says Linux only.\n\nRound 3 notes: round 2 (rrn-2c9fa8ac47c2fbab) requested changes with N1–N5, listed in the brief. Fixes: N1, a reservation an earlier engine left without a marker is listed and released once it has no marker, receipt or run and is ten minutes old (`orphanReservations`); N2, a non-inspectable process that started during the run fails the scan (baseline taken before the adapter starts), and one that predates it is skipped and disclosed; N3, an exclusive `.release` claim; N4, `TestAnInterruptedDispatchIsReleasedAndTheNextOneRuns` interrupts a real dispatch after its reservation, sees the next one refused with the release command, releases and dispatches again; N5, the receipt inspection error is reported as such. The spec's Known gaps states what stays untested.\n\nRound 4 notes: round 3 (rrn-667b69e8c01c345c) requested changes with N1–N3, listed in the brief. Fixes: N1, the release claim records its owner and a claim whose owner is gone is taken over; a release interrupted after recording its run completes with that run (`recordedAbandonmentRun`); N2, a markerless reservation is released only with `--confirm-abandoned`, stated in the recorded run (limit L4); N3, unreadable reservations and receipts are reported as losses.\n\nRound 5 notes: round 4 (rrn-97acfcc2809e32c2) requested changes with N1–N3, listed in the brief. Fixes: N1, `cancel` asks the release for every attempt that is not running, and an abandonment run does not hide an orphan, so an interrupted release completes; N2, a stale claim is taken over by rename (one winner) then an exclusive publish (`TestAStaleClaimHasOneTaker` races two takers); N3, an incomplete run history makes the release refuse and the listing report it. The CLI `cancel` branch is still not driven through the CLI (stated in Known gaps).\n\nRound 6 notes: round 5 (rrn-146bc70da7364cde) requested changes with N1–N3, listed in the brief. Fixes: N1, the claim file and its takeover are gone; one release runs at a time under `flock` on `\u003cattempt\u003e.release.lock`, released by the kernel with its holder; N2, a receipt already published with a stalled marker completes by removing the marker; N3, the release completes with any run the attempt already recorded (`recordedAttemptRun`), and an orphan is any reservation with no receipt and no marker.\n\nRound 7 notes: round 6 (rrn-adf91bb46841bd66) requested changes with N1–N3, listed in the brief. Fixes: N1, an unreadable active marker blocks treating any reservation as markerless; N2, the dispatcher is a child subreaper, and after the adapter exits it ends every child reparented to it in another session since the adapter started, unless it names another run's checkout (`review_subreaper_linux.go`; `TestAnOrphanThatClearedItsEnvironmentIsEnded` uses `setsid env -i`); N3, the disclosed count holds only processes that predate the run. Residual limits L1 and L5 in the spec state what remains.\n\nRound 8 notes: round 7 (rrn-9abc2fe5dedc7478) requested changes with N1–N4, listed in the brief. Fixes: N1/N2, a failed `PR_SET_CHILD_SUBREAPER` or an unreadable clock fails the cleanup; N3, unreadable start times and stats are errors, and a process missing from the baseline is never preexisting; N4, only pids are recorded.\n\nRound 8 notes (after the matrix): the first attempt at round 8 failed the matrix because the round-6 subreaper was process-wide in the dispatcher: it adopted and ended other children of the same process (a detached delegation) and could reap a process another goroutine waited for. The subreaper now lives in a review run shim (`review_shim.go`, `review_shim_linux.go`): the dispatcher re-enters its own executable as the shim, which runs the adapter as its only child, ends and reaps what is left in its subtree, reports the pids, and returns the adapter's status (re-raising its signal). Please check the shim's exit-status fidelity and that nothing outside the run can be adopted.\n\nRound 9 notes: round 8 (rrn-f19179878d867e9a) requested changes with N1–N4, listed in the brief. Fixes: N1, with the shim the dispatcher no longer searches by the reviewer-settable environment entry (only an embedder without the shim does, limit L6); N2, the report goes through a pipe on fd 3 that the shim closes on exec; N3, a timeout sends the shim SIGTERM and it ends the subtree first; N4, `PR_SET_PDEATHSIG` makes the shim end the run when the dispatcher dies. Tests: `TestTheAdapterDoesNotInheritTheShimReport`, `TestATimeoutEndsTheRunsOrphans`, `TestTheShimEndsTheRunWhenItsDispatcherEnds`.\n\nRound 10 notes: round 9 (rrn-5bbd458c7701af31) requested changes with N1–N3, listed in the brief. Fixes: N1, the manual paragraph and the recorded limitation describe the shim as the Linux path; N2, the report is bounded (`boundedReviewShimReport`, 1000 pids plus the total) and the dispatcher drains past its read; N3, an uninspectable or unkillable process no longer stops the reaping of the others.\n\nRound 11 notes: round 10 (rrn-ecfc61a1c2b009f6) requested changes with N1–N4, listed in the brief. Fixes: N1, an unreadable process of another user (hidepid) is not a possible run child; N2, bounded directory listings in the orphan scan (`readDirBounded`); N3, a pid is reported only after its signal was delivered and the shim's error is recorded; N4, Technical risks, D1 and the fallback comment now describe the shim design.\n\nRound 12 notes: round 11 (rrn-2b8c0f5ecc1b6196) requested changes with N1–N3, listed in the brief. Fixes: N1, a shim that cannot be set up fails the run (no silent fallback); N2, `killPinnedChild` reports whether its signal reached the process, and only those pids are reported; N3, `cancel` names a completed run's real status.\n\nRound 13 notes: round 12 (rrn-1b7f5566a0a0e47e) requested changes with N1–N3, listed in the brief. Fixes: N1, Windows never ended the adapter's descendants (the group kill is a no-op there, before this spec); the manual and the run record now say so, and limit L2 states it; this spec does not change Windows behaviour, and a profile requiring `process-group-termination` is refused there as before. If you consider this limit a blocker rather than a declared scope limit, please say so explicitly and why. N2, a pid is reported ended only after it was reaped; N3, the recorded count uses the shim's total.\n\nRound 14 notes: round 13 (rrn-0d9d3f3755d48f99) kept Windows as a blocker. By the maintainer's decision Windows now ends the reviewer's tree (`review_tree_windows.go`): the adapter starts suspended, joins a kill-on-close job object, then resumes, so no descendant starts outside it; the dispatch terminates the job after the run and on a timeout, and the kill-on-close limit ends it if the dispatcher dies. `TestTheReviewersJobEndsItsDescendants` is built for Windows; this host is Linux, so it was compiled and vetted with GOOS=windows but not run, which L2 states. N2 stays declared as L6 (embedder fallback). N3: the shim reads /proc in batches under its deadline.\n\nRound 15 notes: round 14 (rrn-88cb9ca67527d00e) requested changes with N1–N5. By the maintainer's decision this spec closes on its core scope: R1 and R2 now state Linux (shim) and Windows (job object). N2 (group emptiness on other Unix), N3 (naming what a Windows job or a Unix group kill ended) and N1 (the embedder fallback, L6) are carried by the new draft spec `pose-review-run-reaping-beyond-linux`, created in this change. Please judge those against that spec, not as blockers of this one. Fixed here: N4, the bound is checked per process in both scans; N5, the abandonment run is deterministic, so a release interrupted between the witness and the record completes on retry (`TestAReleaseInterruptedAfterTheWitnessCompletes`).\n",
+  "ledger_version": 1,
+  "attempt_id": "rat-19fe89424c7bfc250a51f0614142ff698be45142f17d93f9aae92f1e22f72609",
+  "schema_version": 1,
+  "run_id": "rrn-d01ce959ef20ccfc",
+  "scope": "spec:pose-review-run-reaps-lingering-reviewer-processes",
+  "bundle_id": "rvb-53504320e1d0f96b",
+  "bundle_digest": "sha256:53504320e1d0f96b08bf14821bc66afd396abe059d4188c44a2d9daec1c3127e",
+  "sealed_commit": "9e13fc96380396bfab2c5961c82dbcebad492550",
+  "kind": "review",
+  "brief_digest": "sha256:f78bb7a9303e20673763db9d6b36ede7ffc660c9f28997d2fc6d905caedd2d60",
+  "adapter": "sol-medium",
+  "vendor": "openai",
+  "model": "gpt-6-luna",
+  "started_at": "2026-11-25T08:00:03.011525676Z",
+  "ended_at": "2026-11-25T08:34:09.043461061Z",
+  "exit_code": 0,
+  "status": "completed",
+  "transcript_digest": "sha256:072f863eba6d87f42555496c553a2f852bfad899cee409ab8040920d67293e00",
+  "transcript_path": ".pose/review-runs/rrn-d01ce959ef20ccfc.transcript",
+  "output": "Review summary: approved with two low-severity follow-ups accepted for the next maintenance window. N1: a markerless reservation is silently omitted from the listing when any receipt file exists, even if that receipt is unreadable. N2: the Linux report pipe is not closed when adapter-environment validation fails before launch. The focused dispatch/release tests, interrupted-witness recovery test, and `go vet` passed. Strict validation was attempted, but Go could not create build directories in the read-only sandbox; sealed build, e2e, integration, and unit evidence passes. The Windows runtime test was not run on this Linux host, as recorded in L2.\n\ndecision: approved\n\n```pose-draft\n{\n  \"schema\": \"pose.review.draft/v1\",\n  \"decision\": \"approved\",\n  \"findings\": [\n    {\n      \"id\": \"N1\",\n      \"severity\": \"low\",\n      \"disposition\": \"follow-up\",\n      \"file\": \"pose-mcp/internal/pose/delegation_release.go\",\n      \"line\": 275,\n      \"summary\": \"The orphan scan treats any existing receipt path as a completed attempt without reading or validating the receipt. A corrupt receipt makes delegate ls omit the reservation while later dispatch admission rejects it, leaving a blocked attempt without a loss entry.\",\n      \"action\": \"Validate and bind an existing receipt before omitting its reservation; report unreadable receipts as losses and keep the attempt visible.\",\n      \"owner\": \"pose-mcp maintainers\",\n      \"review_by\": \"2026-12-25\"\n    },\n    {\n      \"id\": \"N2\",\n      \"severity\": \"low\",\n      \"disposition\": \"follow-up\",\n      \"file\": \"pose-mcp/internal/pose/review_dispatch.go\",\n      \"line\": 997,\n      \"summary\": \"After opening the Linux shim report pipe, an adapter-environment validation error returns without closing either pipe end. Repeated failed dispatches in a long-lived embedder can retain descriptors until garbage collection.\",\n      \"action\": \"Close both report-pipe ends on every pre-launch error path and add a repeated validation-failure descriptor-count regression test.\",\n      \"owner\": \"pose-mcp maintainers\",\n      \"review_by\": \"2026-12-25\"\n    }\n  ],\n  \"prior_findings\": [\n    {\n      \"id\": \"R13-N2\",\n      \"status\": \"superseded\",\n      \"evidence\": \".pose/specs/2026-11-25-pose-review-run-reaping-beyond-linux.md:21,37\"\n    },\n    {\n      \"id\": \"R13-N3\",\n      \"status\": \"fixed\",\n      \"evidence\": \"pose-mcp/internal/pose/review_shim_linux.go:134-145,270-291\"\n    },\n    {\n      \"id\": \"R14-N1\",\n      \"status\": \"superseded\",\n      \"evidence\": \".pose/specs/2026-11-25-pose-review-run-reaping-beyond-linux.md:20-24,37\"\n    },\n    {\n      \"id\": \"R14-N2\",\n      \"status\": \"superseded\",\n      \"evidence\": \".pose/specs/2026-11-25-pose-review-run-reaping-beyond-linux.md:35,38\"\n    },\n    {\n      \"id\": \"R14-N3\",\n      \"status\": \"superseded\",\n      \"evidence\": \".pose/specs/2026-11-25-pose-review-run-reaping-beyond-linux.md:36,38\"\n    },\n    {\n      \"id\": \"R14-N4\",\n      \"status\": \"fixed\",\n      \"evidence\": \"pose-mcp/internal/pose/review_shim_linux.go:134-145; pose-mcp/internal/pose/review_reap_linux.go:97-100\"\n    },\n    {\n      \"id\": \"R14-N5\",\n      \"status\": \"fixed\",\n      \"evidence\": \"go -C pose-mcp test ./internal/pose -run '^TestAReleaseInterruptedAfterTheWitnessCompletes$' -count=1 passed; pose-mcp/internal/pose/delegation_release_test.go:509-539\"\n    }\n  ],\n  \"sweep\": \"Swept the Linux shim and process reaper, dispatch lifecycle and run records, Windows job-object path, non-Linux stubs, reservation/release/list/cancel and round accounting, the review brief and manual/scaffold mirrors, and the regression tests. Checked transferred non-Linux and embedder-fallback concerns against pose-review-run-reaping-beyond-linux.\",\n  \"criteria\": [\n    {\n      \"id\": \"assumption-integrity\",\n      \"disposition\": \"passed\",\n      \"evidence\": \"structure:design-d8fb4eee1d869659\",\n      \"rationale\": \"Verified that the Linux CLI re-enters the same executable as an isolated subreaper and that Windows assigns the suspended adapter to a kill-on-close job before resuming it. L2 records that the Windows runtime test was not run on this Linux host; other Unix behavior and the embedder fallback are explicitly carried to the follow-up spec. The remaining Linux escape case in L1 is stated as a residual risk.\"\n    },\n    {\n      \"id\": \"backend-concurrency\",\n      \"disposition\": \"finding\",\n      \"evidence\": \"N2\",\n      \"rationale\": \"The report pipe is opened before environment validation and the error return does not close it.\"\n    },\n    {\n      \"id\": \"backend-contracts\",\n      \"disposition\": \"passed\",\n      \"evidence\": \"integration:pose-mcp/go/delegation-surface-integration\",\n      \"rationale\": \"The change adds the cancel release behavior and brief template version while retaining the run/receipt schema. The Linux CLI process-tree path is covered by the dispatch test; the CLI cancel route itself remains a documented test gap.\"\n    },\n    {\n      \"id\": \"backend-input-errors\",\n      \"disposition\": \"finding\",\n      \"evidence\": \"N1\",\n      \"rationale\": \"An unreadable or malformed receipt is treated as proof of completion in the orphan listing, so the attempt is omitted even though admission later rejects it.\"\n    },\n    {\n      \"id\": \"backend-integration-impact\",\n      \"disposition\": \"passed\",\n      \"evidence\": \"integration:pose-mcp/go/delegation-marker-stop-joins-heartbeat-integration\",\n      \"rationale\": \"The changed path stays within pose-mcp delegation and review-run lifecycle handling; no HTTP, event, protobuf, or MCP contract is changed.\"\n    },\n    {\n      \"id\": \"backend-observability\",\n      \"disposition\": \"finding\",\n      \"evidence\": \"N1\",\n      \"rationale\": \"The invalid-receipt case does not appear in delegate ls losses, so the blocked attempt is not diagnosable from the listing.\"\n    },\n    {\n      \"id\": \"compatibility\",\n      \"disposition\": \"passed\",\n      \"evidence\": \"unit:pose-mcp/go/test\",\n      \"rationale\": \"The new failed run is recorded with the existing run and receipt formats. The old-engine meaning remains an ordinary failed run; markerless older reservations require explicit operator confirmation.\"\n    },\n    {\n      \"id\": \"correctness\",\n      \"disposition\": \"finding\",\n      \"evidence\": \"N1\",\n      \"rationale\": \"The core Linux process cleanup and deterministic release recovery are correct under the tested cases; the corrupt-receipt path can still leave a reservation blocking dispatch without a visible loss.\"\n    },\n    {\n      \"id\": \"design-causality\",\n      \"disposition\": \"passed\",\n      \"evidence\": \"structure:design-d8fb4eee1d869659\",\n      \"rationale\": \"D1 addresses the ownership cause with a child-only subreaper shim, avoiding the dispatcher's process-wide subreaper and reviewer-controlled environment matching on the standard Linux path. D2 closes abandoned attempts with a deterministic failed-run record and receipt rather than deleting the reservation. The design assessment observed no structural deltas.\",\n      \"mappings\": []\n    },\n    {\n      \"id\": \"documentation\",\n      \"disposition\": \"passed\",\n      \"evidence\": \"integration:pose-mcp/go/distributed-instructions-parity-integration\",\n      \"rationale\": \"The English, Portuguese, and scaffold manuals describe Linux shim, Windows job-object, other-Unix, and embedder-fallback behavior; review-brief/10 asks commands to finish.\"\n    },\n    {\n      \"id\": \"operability\",\n      \"disposition\": \"finding\",\n      \"evidence\": \"N1\",\n      \"rationale\": \"The invalid-receipt state lacks a loss message and actionable listing row, although the normal abandoned-release path reports the failed run and status.\"\n    },\n    {\n      \"id\": \"requirements\",\n      \"disposition\": \"finding\",\n      \"evidence\": \"N1\",\n      \"rationale\": \"R5's normal no-receipt interruption path is covered by release and next-dispatch tests, but an existing unreadable receipt can hide a reservation that still blocks a later dispatch.\"\n    },\n    {\n      \"id\": \"scope\",\n      \"disposition\": \"passed\",\n      \"evidence\": \"structure:design-d8fb4eee1d869659\",\n      \"rationale\": \"The implementation delivers R1-R6 and D1-D2. The additional beyond-Linux spec tracks the explicitly transferred platform and embedder cases.\"\n    },\n    {\n      \"id\": \"security\",\n      \"disposition\": \"passed\",\n      \"evidence\": \"integration:pose-mcp/go/delegated-adapter-containment-integration\",\n      \"rationale\": \"The standard Linux path uses process ancestry rather than reviewer-settable environment ownership, the report pipe is not inherited by the adapter, PIDs are pinned before signals, and the Windows adapter is suspended until assigned to its job. L6 remains an explicit embedder limitation.\"\n    },\n    {\n      \"id\": \"solution-proportionality\",\n      \"disposition\": \"passed\",\n      \"evidence\": \"structure:design-d8fb4eee1d869659\",\n      \"rationale\": \"A process-group kill misses setsid descendants, environment matching is not trustworthy for the standard CLI, and putting a subreaper in the dispatcher would affect unrelated work. The shim and suspended Windows job are the smallest isolated ownership mechanisms for the declared platforms. A live process handed outside the run can invalidate the Linux guarantee as L1 states.\"\n    }\n  ],\n  \"tools\": [\n    {\n      \"id\": \"artifact-check\",\n      \"disposition\": \"passed\",\n      \"evidence\": \"command:\\\"$POSE_REVIEW_CLI\\\" artifact-check --spec pose-review-run-reaps-lingering-reviewer-processes --strict\",\n      \"rationale\": \"Exited 0. It reported 35 claims and 41 observed paths with repository-wide orphan warnings; its change-set head differed from the sealed bundle subject, so those totals are treated as a provenance caveat.\"\n    },\n    {\n      \"id\": \"assess-design\",\n      \"disposition\": \"passed\",\n      \"evidence\": \"structure:design-d8fb4eee1d869659\",\n      \"rationale\": \"Ran the recommended design assessment; it observed zero deltas.\"\n    },\n    {\n      \"id\": \"assess-discover\",\n      \"component\": \"pose-mcp\",\n      \"disposition\": \"passed\",\n      \"evidence\": \"command:\\\"$POSE_REVIEW_CLI\\\" assess discover --no-persist --component pose-mcp\"\n    },\n    {\n      \"id\": \"assess-integrate\",\n      \"disposition\": \"failed\",\n      \"evidence\": \"integration:pose-mcp/go/delegation-surface-integration\",\n      \"rationale\": \"Ran the recommended assessment. It reported no consumers observed for /admin/refresh, /healthz, and /mcp; these are repository-wide observations outside the changed review-dispatch and CLI-cancel boundaries.\"\n    },\n    {\n      \"id\": \"assess-tech-debt\",\n      \"disposition\": \"failed\",\n      \"evidence\": \"command:\\\"$POSE_REVIEW_CLI\\\" assess tech-debt --no-persist\",\n      \"rationale\": \"The scan was incomplete because two unrelated specs were invalid, and it reported one uncovered debt marker; changed subject files contain no TODO or FIXME markers.\"\n    },\n    {\n      \"id\": \"closeout-check\",\n      \"disposition\": \"deferred\",\n      \"rationale\": \"Completion check requires a recorded attestation, which this review brief forbids recording.\"\n    },\n    {\n      \"id\": \"review-check\",\n      \"disposition\": \"deferred\",\n      \"rationale\": \"Completion check requires the review attestation to exist; the brief requires it remain unrecorded.\"\n    },\n    {\n      \"id\": \"suggest-review\",\n      \"component\": \"pose-mcp\",\n      \"disposition\": \"passed\",\n      \"evidence\": \"command:\\\"$POSE_REVIEW_CLI\\\" suggest review --path pose-mcp\"\n    },\n    {\n      \"id\": \"surface-check\",\n      \"disposition\": \"passed\",\n      \"evidence\": \"reachability:pose-mcp/go/spec-surface-reachability\",\n      \"rationale\": \"The strict surface check completed with one target and zero findings.\"\n    },\n    {\n      \"id\": \"validate\",\n      \"disposition\": \"passed\",\n      \"evidence\": \"build:pose-mcp/go/build\",\n      \"rationale\": \"The command was attempted but the sandbox prevented Go from creating build directories. The sealed bundle contains passing build, e2e, integration, and unit evidence; focused tests and vet also passed locally.\"\n    },\n    {\n      \"id\": \"validate\",\n      \"component\": \"pose-mcp\",\n      \"disposition\": \"passed\",\n      \"evidence\": \"unit:pose-mcp/go/test\",\n      \"rationale\": \"The module command was attempted but stopped because the checkout and Go cache are read-only. The sealed module evidence covers the validation matrix; focused regression tests and go vet passed.\"\n    }\n  ]\n}\n```",
+  "policy_digest": "sha256:696cd2d8abf80e417c48c7af99954f0c89f06fe6c0e23249d5ff991f4dde4985",
+  "label": "reap-review-r15",
+  "purpose": "review",
+  "env_removed": [
+    "CLAUDECODE",
+    "CLAUDE_CODE_BRIDGE_SESSION_ID",
+    "CLAUDE_CODE_CHILD_SESSION",
+    "CLAUDE_CODE_ENTRYPOINT",
+    "CLAUDE_CODE_EXECPATH",
+    "CLAUDE_CODE_MESSAGING_SOCKET",
+    "CLAUDE_CODE_MESSAGING_TOKEN",
+    "CLAUDE_CODE_SESSION_ATTENDED",
+    "CLAUDE_CODE_SESSION_ID",
+    "CLAUDE_EFFORT",
+    "CLAUDE_PID"
+  ],
+  "events": "codex-jsonl",
+  "events_digest": "sha256:bcb6b312febc17c4f1a0daeb09c74e4ac2dfe78cadfc7a0341921844b1c045f5",
+  "routing": {
+    "requested": "auto",
+    "prefer": "opposite-vendor-of-implementation",
+    "implementation": {
+      "principal": "agent:anthropic/unknown",
+      "vendor": "anthropic",
+      "model": "unknown",
+      "execution_digest": "sha256:344ac5868944c155772d60a95ef6ff20644580a642e772ad5c92c29428464ff8",
+      "source": "detected"
+    },
+    "implementation_from": "bundle",
+    "candidates": [
+      {
+        "agent": "sol-medium",
+        "vendor": "openai",
+        "model": "gpt-6-luna",
+        "group": "preferred",
+        "state": "available"
+      }
+    ],
+    "step": "preferred"
+  },
+  "independence_achieved": "different-vendor",
+  "round": 15,
+  "thread": {
+    "round": 15,
+    "mode": "new",
+    "from": "rrn-88cb9ca67527d00e",
+    "reason": "round 15 reached the round threshold 5"
+  }
+}
