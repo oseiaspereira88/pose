@@ -844,6 +844,11 @@ func runProvenanceCommand(cmd *exec.Cmd, text string) (digest string, count int6
 		stdin.Close()
 		return "", 0, false, false, e
 	}
+	if e = attachReviewProcessTree(cmd); e != nil {
+		stdin.Close()
+		_ = cmd.Wait()
+		return "", 0, false, true, e
+	}
 	type result struct {
 		digest string
 		count  int64

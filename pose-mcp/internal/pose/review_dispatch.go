@@ -1066,8 +1066,15 @@ func (s Store) RunReviewDispatchContext(parent context.Context, plan DispatchPla
 		close(shimReportDone)
 	}
 	var runErr error
+	prepareReviewProcessTree(cmd)
 	if run.Provenance == nil {
-		runErr = cmd.Run()
+		if runErr = cmd.Start(); runErr == nil {
+			if runErr = attachReviewProcessTree(cmd); runErr == nil {
+				runErr = cmd.Wait()
+			} else {
+				_ = cmd.Wait()
+			}
+		}
 	} else {
 		digest, n, complete, started, err := runProvenanceCommand(cmd, plan.Brief.Text)
 		runErr = err
@@ -1090,7 +1097,7 @@ func (s Store) RunReviewDispatchContext(parent context.Context, plan DispatchPla
 		<-shimReportDone
 		_ = shimRead.Close()
 	}
-	terminationErr = killProcessGroup(cmd)
+	terminationErr = errors.Join(killProcessGroup(cmd), releaseReviewProcessTree(cmd))
 	// A command the reviewer left running in a session of its own escapes the
 	// group kill; it is ended here, before the cleanup inventory reads the
 	// directories it may still write (spec

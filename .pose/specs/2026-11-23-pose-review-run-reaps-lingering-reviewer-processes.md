@@ -61,6 +61,10 @@ Records written by earlier engines keep their meaning.
 - created: pose-mcp/internal/pose/review_shim.go
 - created: pose-mcp/internal/pose/review_shim_linux.go
 - created: pose-mcp/internal/pose/review_shim_test.go
+- created: pose-mcp/internal/pose/review_tree_windows.go
+- created: pose-mcp/internal/pose/review_tree_other.go
+- created: pose-mcp/internal/pose/review_tree_windows_test.go
+- modified: pose-mcp/internal/pose/review_run_provenance.go
 - modified: pose-mcp/internal/pose/main_test.go
 - modified: pose-mcp/internal/pose/engine_reads_raw_history_test.go
 - modified: pose-mcp/internal/cli/cli.go
@@ -149,6 +153,7 @@ Each requirement gets a regression test shown failing before its code.
 - 2026-11-24: review round 10 (rrn-ecfc61a1c2b009f6) requested changes. N1: the shim no longer counts a process of another user whose stat it cannot read (procfs mounted hidepid) as a possible run child; only an unreadable process of this user is. N2 (follow-up): the orphan scan lists each directory with a bound and reports a cut listing as a loss. N3 (follow-up): the shim reports a pid only once its signal was delivered, and its error is recorded in the run's limitations. N4 (follow-up): Technical risks, D1 and the fallback helper's comment describe the shim as the Linux path. N2 has a test; N1 and N3 need a hidepid procfs or an unkillable child.
 - 2026-11-25: round 11 first hit the Codex usage limit; its resume pointed the reviewer at the removed checkout of the first attempt, so a new run reviewed the same bundle (rrn-2b8c0f5ecc1b6196) and requested changes. N1: a shim that cannot be set up now fails the run instead of falling back to the environment search. N2 (follow-up): a child that already ended is not reported as ended by the shim. N3 (follow-up): `cancel` says when it completed an attempt with a run already recorded, with that run's status. N2 has a test that fails with it mutated out; N1 needs `os.Executable` or `pipe` to fail, and N3 is a message of the CLI branch stated untested in Known gaps.
 - 2026-11-25: review round 12 (rrn-1b7f5566a0a0e47e) requested changes. N1: the manual and the run record no longer claim a process-group kill on Windows, where the dispatch never ended the adapter's descendants; the limit is L2, and a containment profile that requires `process-group-termination` was and stays refused there. N2 (follow-up): the shim reports a pid ended only after it was signalled and reaped. N3 (follow-up): the recorded count is the shim's total, not the listed pids plus a placeholder.
+- 2026-11-25: review round 13 (rrn-0d9d3f3755d48f99) kept Windows as a blocker: R1 has no OS exception. By the maintainer's decision the Windows dispatch now ends the reviewer's tree: the adapter starts suspended, joins a job object limited to kill on close, and only then resumes, so no descendant starts outside it; the dispatch terminates the job after the run and on a timeout, and the kill-on-close limit ends the tree if the dispatcher dies. N2 (follow-up) stays declared as L6, the fallback of an embedder without the shim. N3 (follow-up): the shim reads /proc in batches under its deadline. The Windows test compiles for Windows but cannot run on this Linux host.
 
 
 ### Results summary
@@ -183,7 +188,7 @@ The dispatch ends the processes a run left running before its cleanup and names 
 
 
 ### Residual risks
-L1: on Linux a run's process escapes only while it keeps a live parent outside the run and neither the run's group nor its environment entry, for example one handed to a service manager; the cleanup inventory still fails a run whose files it keeps changing. L2: on other Unix platforms only the process-group kill applies; on Windows the adapter's descendants are not ended at all (an existing limitation of the dispatch this spec does not change), and the run record states it. L6: an embedder that does not enable the shim falls back to the search by the sealed-checkout entry, which a reviewer process can set. L4: a reservation an earlier engine left without a marker records no owner, so its release rests on the operator's confirmation, not on proof. L3: a process of this user that made itself non-inspectable cannot be matched: one that predates the run is skipped and counted in the run record, and one started during the run fails the cleanup, so such a run is not concludable.
+L1: on Linux a run's process escapes only while it keeps a live parent outside the run and neither the run's group nor its environment entry, for example one handed to a service manager; the cleanup inventory still fails a run whose files it keeps changing. L2: on other Unix platforms only the process-group kill applies. On Windows the adapter runs in a kill-on-close job object; its test (`TestTheReviewersJobEndsItsDescendants`) is built for Windows and was compiled and vetted here, but not run, since this host is Linux. L6: an embedder that does not enable the shim falls back to the search by the sealed-checkout entry, which a reviewer process can set. L4: a reservation an earlier engine left without a marker records no owner, so its release rests on the operator's confirmation, not on proof. L3: a process of this user that made itself non-inspectable cannot be matched: one that predates the run is skipped and counted in the run record, and one started during the run fails the cleanup, so such a run is not concludable.
 
 
 ### Follow-ups

@@ -131,9 +131,11 @@ func reapShimSubtree() ([]string, error) {
 	for {
 		children := 0
 		problems = problems[:0]
-		dirs, err := os.ReadDir("/proc")
+		// /proc is read in batches under the deadline, never materialized
+		// whole (review round 13, N3).
+		dirs, err := readProcBatched(deadline)
 		if err != nil {
-			note(fmt.Errorf("the run's processes could not be listed: %w", err))
+			note(err)
 		}
 		for _, d := range dirs {
 			pid, err := strconv.Atoi(d.Name())
@@ -256,4 +258,29 @@ func parseReviewShimReport(raw []byte) (reviewShimReport, error) {
 		return r, fmt.Errorf("the review shim report is unreadable: %w", err)
 	}
 	return r, nil
+}
+
+// readProcBatched lists the numeric entries of /proc in batches, and stops
+// with an error once deadline passes.
+func readProcBatched(deadline time.Time) ([]os.DirEntry, error) {
+	f, err := os.Open("/proc")
+	if err != nil {
+		return nil, fmt.Errorf("the run's processes could not be listed: %w", err)
+	}
+	defer f.Close()
+	var out []os.DirEntry
+	for {
+		batch, err := f.ReadDir(512)
+		for _, d := range batch {
+			if d.Name()[0] >= '0' && d.Name()[0] <= '9' {
+				out = append(out, d)
+			}
+		}
+		if err != nil || len(batch) == 0 {
+			return out, nil
+		}
+		if time.Now().After(deadline) {
+			return out, fmt.Errorf("the run's processes could not be listed within the bound")
+		}
+	}
 }
