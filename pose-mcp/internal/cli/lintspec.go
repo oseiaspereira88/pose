@@ -1208,8 +1208,10 @@ func acceptedLimitsMissingFromADRs(root, slug string, limits []posepkg.ReviewAcc
 	var missing []string
 	for _, l := range limits {
 		found := false
+		// The id as a word: L10 does not name L1 (review round 1, N3).
+		named := regexp.MustCompile(`\b` + regexp.QuoteMeta(l.ID) + `\b`)
 		for _, adr := range citing {
-			found = found || strings.Contains(adr, l.ID)
+			found = found || named.MatchString(adr)
 		}
 		if !found {
 			missing = append(missing, "DoR: accepted limit "+l.ID+" is not named by the ADR that cites "+slug)

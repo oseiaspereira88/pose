@@ -20,9 +20,9 @@ func TestAcceptedLimitsAreParsed(t *testing.T) {
 	if len(problems) != 0 || len(limits) != 2 || limits[0].ID != "L1" || limits[1].ID != "L2" {
 		t.Fatalf("limits %+v problems %v", limits, problems)
 	}
-	_, problems = ParseAcceptedLimits("### Accepted limits\n- L1: no reason given.\n- L1: twice. Accepted because yes.\n- X1: wrong id. Accepted because no.\n")
+	_, problems = ParseAcceptedLimits("### Accepted limits\n- L1: no reason given.\n- L1: twice. Accepted because yes.\n- X1: wrong id. Accepted because no.\n- L3: a marker with nothing after it. Accepted because\n")
 	joined := strings.Join(problems, "\n")
-	for _, want := range []string{"L1 does not say why it is accepted", "L1 is declared twice", "is not written as"} {
+	for _, want := range []string{"L1 does not say why it is accepted", "L1 is declared twice", "is not written as", "L3 does not say why it is accepted"} {
 		if !strings.Contains(joined, want) {
 			t.Fatalf("missing problem %q in %v", want, problems)
 		}
@@ -77,5 +77,19 @@ func TestAFindingWithinASealedLimitDoesNotBlockApproval(t *testing.T) {
 	att.Findings[0].Limit, att.Findings[0].Rationale = "L1", ""
 	if blockers := strings.Join(reviewFindingDecisionBlockers(bundle, att), "\n"); !strings.Contains(blockers, "without saying why") {
 		t.Fatalf("a finding within a limit without a reason was accepted: %s", blockers)
+	}
+}
+
+// Review round 1, N1: across the specs of a composite scope each limit is
+// qualified by its spec, so a finding names exactly one.
+func TestLimitsAcrossSpecsAreQualified(t *testing.T) {
+	body := "### Accepted limits\n- L1: one. Accepted because it is rare.\n"
+	single := acceptedLimitsOfSpecs([]Spec{{Slug: "alpha", Body: body}})
+	if len(single) != 1 || single[0].ID != "L1" || single[0].Spec != "" {
+		t.Fatalf("a single spec's limit was qualified: %+v", single)
+	}
+	both := acceptedLimitsOfSpecs([]Spec{{Slug: "alpha", Body: body}, {Slug: "beta", Body: body}})
+	if len(both) != 2 || both[0].ID != "alpha#L1" || both[1].ID != "beta#L1" || both[1].Spec != "beta" {
+		t.Fatalf("limits across specs are ambiguous: %+v", both)
 	}
 }

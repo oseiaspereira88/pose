@@ -39,6 +39,11 @@ func TestReadyCheckJudgesAcceptedLimits(t *testing.T) {
 		t.Fatalf("an unjustified limit passed: %d %s", code, out)
 	}
 	write(".pose/specs/limited/spec.md", spec("\n### Accepted limits\n- L1: an escape. Accepted because it is rare.\n- L2: another. Accepted because it is rarer.\n"))
+	// Review round 1, N3: L10 does not name L1.
+	write(".pose/adr/2026-11-25-limited.md", "# ADR\n\nFor `limited`. L10 and L2 are accepted.\n")
+	if code, out := run(); code == 0 || !strings.Contains(out, "accepted limit L1 is not named by the ADR") {
+		t.Fatalf("L10 was taken as naming L1: %d %s", code, out)
+	}
 	write(".pose/adr/2026-11-25-limited.md", "# ADR\n\nFor `limited`. L1 is accepted.\n")
 	if code, out := run(); code == 0 || !strings.Contains(out, "accepted limit L2 is not named by the ADR") {
 		t.Fatalf("a limit the ADR omits passed: %d %s", code, out)

@@ -17,9 +17,16 @@ import (
 type ReviewAcceptedLimit struct {
 	ID   string `json:"id"`
 	Text string `json:"text"`
+	// Spec names the spec that declared the limit when the scope holds more
+	// than one; the id is then qualified as <spec>#L<N> (review round 1, N1).
+	Spec string `json:"spec,omitempty"`
 }
 
 var acceptedLimitRE = regexp.MustCompile(`^-\s+(L[1-9][0-9]*):\s+(.+)$`)
+
+// acceptedLimitReasonRE requires a reason after the marker, not the marker
+// alone (review round 1, N2).
+var acceptedLimitReasonRE = regexp.MustCompile(`(?i)(accepted because|aceito porque)\s+\S{2,}`)
 
 // ParseAcceptedLimits reads the `### Accepted limits` section of a spec body.
 // It returns the limits and the problems that keep the section from being
@@ -50,8 +57,7 @@ func ParseAcceptedLimits(body string) ([]ReviewAcceptedLimit, []string) {
 			continue
 		}
 		seen[m[1]] = true
-		lower := strings.ToLower(m[2])
-		if !strings.Contains(lower, "accepted because") && !strings.Contains(lower, "aceito porque") {
+		if !acceptedLimitReasonRE.MatchString(m[2]) {
 			problems = append(problems, "accepted limit "+m[1]+" does not say why it is accepted ('Accepted because ...')")
 		}
 		limits = append(limits, ReviewAcceptedLimit{ID: m[1], Text: strings.TrimSpace(m[2])})
@@ -65,10 +71,23 @@ func (s Store) acceptedLimitsOf(scope ScopeRef) []ReviewAcceptedLimit {
 	if err != nil {
 		return nil
 	}
+	return acceptedLimitsOfSpecs(specs)
+}
+
+// acceptedLimitsOfSpecs collects the limits specs declare, qualifying each id
+// by its spec when there is more than one spec.
+func acceptedLimitsOfSpecs(specs []Spec) []ReviewAcceptedLimit {
 	var out []ReviewAcceptedLimit
 	for _, spec := range specs {
 		limits, _ := ParseAcceptedLimits(spec.Body)
-		out = append(out, limits...)
+		for _, l := range limits {
+			// Ids are spec-local: across specs each is qualified by its spec,
+			// so a finding names exactly one sealed limit.
+			if len(specs) > 1 {
+				l.ID, l.Spec = spec.Slug+"#"+l.ID, spec.Slug
+			}
+			out = append(out, l)
+		}
 	}
 	return out
 }
