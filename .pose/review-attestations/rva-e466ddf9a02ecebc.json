@@ -1,0 +1,247 @@
+{
+  "run": {
+    "run_id": "rrn-88cb9ca67527d00e",
+    "proof_id": "rrp-cf4ff2b58f27df252c5c1dbcb06b57c17e6b142d7e422260a2c0627f2daef400"
+  },
+  "schema_version": 1,
+  "attestation_id": "rva-e466ddf9a02ecebc",
+  "bundle_id": "rvb-61ce44ca6775049e",
+  "bundle_digest": "sha256:61ce44ca6775049e18ffcc0adcc9d5e4ca474c5bbedf925017f5ff242444da7a",
+  "reviewer": "agent:openai/gpt-6-luna",
+  "decision": "changes-requested",
+  "criteria": [
+    {
+      "id": "assumption-integrity",
+      "disposition": "passed",
+      "evidence": "structure:design-7d71da6b19af6951",
+      "rationale": "Verified: the normal Linux CLI enables the isolated shim; its subtree is the adapter run, it reaps children, and the focused regression tests passed. The live-owner release check passed, and release records failed status with a receipt. Unresolved: non-Linux Unix waiting and non-Linux PID reporting (N2/N3), the Linux scan bound (N4), and release recovery across a partial witness publication (N5). Accepted residuals in spec L1/L3/L4/L6 remain explicit; L6 is N1. The Windows descendant test was not executable on this Linux host."
+    },
+    {
+      "id": "backend-concurrency",
+      "disposition": "finding",
+      "evidence": "N2",
+      "rationale": "The exclusive release lock and live-owner refusal tests pass, but the non-Linux Unix path does not wait for process-group exit; the Linux per-entry scan can also exceed the stated bound (N4)."
+    },
+    {
+      "id": "backend-contracts",
+      "disposition": "passed",
+      "evidence": "integration:pose-mcp/go/delegation-surface-integration",
+      "rationale": "The cancel option is additive, the run and receipt remain schema version 1, and the entrypoint stays in the existing delegate CLI contract. The delegated-surface integration evidence is sealed."
+    },
+    {
+      "id": "backend-input-errors",
+      "disposition": "passed",
+      "evidence": "unit:pose-mcp/go/test",
+      "rationale": "Attempt ID validation, marker/liveness checks, confirmation for markerless reservations, bounded directory reads, and error returns are covered by the unit suite; focused release tests passed."
+    },
+    {
+      "id": "backend-integration-impact",
+      "disposition": "passed",
+      "evidence": "integration:pose-mcp/go/delegation-surface-integration",
+      "rationale": "The change touches local review dispatch and delegation storage, not an external service contract. The integration assessment's three unobserved HTTP consumers are unrelated to these changed paths."
+    },
+    {
+      "id": "backend-observability",
+      "disposition": "finding",
+      "evidence": "N3",
+      "rationale": "Linux records reaped PIDs, but the Windows job and non-Linux Unix paths do not populate the ended-process list in safety.limitations."
+    },
+    {
+      "id": "compatibility",
+      "disposition": "passed",
+      "evidence": "integration:pose-mcp/go/delegated-attempt-ledger-integration",
+      "rationale": "Released attempts retain ordinary v1 failed-run and receipt records; older record readers keep their existing fields and meaning. The confirm-abandoned CLI flag is additive."
+    },
+    {
+      "id": "correctness",
+      "disposition": "finding",
+      "evidence": "N5",
+      "rationale": "The normal interrupted-dispatch retry path passes, but a release interrupted between run-witness publication and run-record publication leaves history incomplete and the attempt unrecoverable; N2 and N4 also leave R1 gaps."
+    },
+    {
+      "id": "design-causality",
+      "disposition": "passed",
+      "evidence": "structure:design-7d71da6b19af6951",
+      "rationale": "D1 addresses escaped-session descendants while isolating subreaper authority in a shim, avoiding the process-wide adoption risk. D2 closes an abandoned reservation with the same failed-run and receipt records old readers consume. The sealed design assessment reports no structural deltas; the remaining issues are implementation coverage gaps."
+    },
+    {
+      "id": "documentation",
+      "disposition": "passed",
+      "evidence": "integration:pose-mcp/go/review-brief-templates-are-immutable-integration",
+      "rationale": "The brief uses review-brief/10 and asks commands to finish. English and pt-BR manuals and scaffold copies describe Linux shim, the no-shim fallback, other Unix process groups, Windows jobs, and abandoned-attempt release."
+    },
+    {
+      "id": "operability",
+      "disposition": "passed",
+      "evidence": "integration:pose-mcp/go/delegation-surface-integration",
+      "rationale": "delegate ls names stalled causes and the release command; cancel reports the released run and status, and refusal paths give the missing liveness or operator-confirmation condition."
+    },
+    {
+      "id": "requirements",
+      "disposition": "finding",
+      "evidence": "N3",
+      "rationale": "R3/R4 and the ordinary R5/R6 retry paths have relevant tests, but R1's bounded wait still has platform/scan gaps (N2/N4), R2 lacks ended-PID records outside Linux (N3), and interrupted release publication can still strand R5/R6 (N5)."
+    },
+    {
+      "id": "scope",
+      "disposition": "passed",
+      "evidence": "structure:design-7d71da6b19af6951",
+      "rationale": "The implementation, CLI, brief, manuals, and generated scaffold copies stay within the spec's listed dispatch, release, and documentation areas; no unrelated behavior was added."
+    },
+    {
+      "id": "security",
+      "disposition": "finding",
+      "evidence": "N1",
+      "rationale": "The standard Linux CLI uses the subtree shim and skips broad process matching. The no-shim fallback still treats a reviewer-settable environment value as ownership across all same-user PIDs; it can signal an unrelated run."
+    },
+    {
+      "id": "solution-proportionality",
+      "disposition": "passed",
+      "evidence": "structure:design-7d71da6b19af6951",
+      "rationale": "A run-scoped subreaper is the smallest sufficient Linux design after a dispatcher-wide subreaper proved too broad; a Windows job is the OS-native equivalent. Group kill alone misses session escapes, while a general process-management framework would add scope without value. The choice is invalidated where non-Linux paths do not wait/report (N2/N3), the Linux scan exceeds its bound (N4), or an embedder uses the settable-environment fallback (N1)."
+    }
+  ],
+  "tools": [
+    {
+      "id": "artifact-check",
+      "disposition": "passed",
+      "evidence": "command:$POSE_REVIEW_CLI artifact-check --spec pose-review-run-reaps-lingering-reviewer-processes --strict",
+      "rationale": "Ran with the sealed CLI and it exited 0. Its report resolved a different change-set head (9636e0ad8e3f6df80ea9b72f2b69bba17b82b936) than this sealed bundle (3e2102bdf778a8af30e5ee38044dfd283488787e), so its 34-claim/40-observed result and warnings were not used to establish this subject's artifact attribution."
+    },
+    {
+      "id": "assess-design",
+      "disposition": "passed",
+      "evidence": "structure:design-7d71da6b19af6951",
+      "rationale": "The no-persist assessment reported no deltas; the sealed structural evidence is pass."
+    },
+    {
+      "id": "assess-discover",
+      "component": "pose-mcp",
+      "disposition": "passed",
+      "evidence": "command:$POSE_REVIEW_CLI assess discover --no-persist --component pose-mcp",
+      "rationale": "Ran without persistence and discovered the pose-mcp component."
+    },
+    {
+      "id": "assess-integrate",
+      "disposition": "passed",
+      "evidence": "integration:pose-mcp/go/delegation-surface-integration",
+      "rationale": "Ran without persistence. It reported three unobserved HTTP consumers unrelated to the delegate/review paths under review."
+    },
+    {
+      "id": "assess-tech-debt",
+      "disposition": "deferred",
+      "evidence": "command:$POSE_REVIEW_CLI assess tech-debt --no-persist",
+      "rationale": "The scan was incomplete because two existing spec files have unknown scope and it found one uncovered marker. The listed change paths contain no new production TODO/FIXME/stub/panic marker; I did not treat the incomplete repository scan as subject evidence."
+    },
+    {
+      "id": "closeout-check",
+      "disposition": "deferred",
+      "rationale": "Deferred until after the review attestation, as required by the tool precondition and the brief's no-attestation boundary."
+    },
+    {
+      "id": "review-check",
+      "disposition": "deferred",
+      "rationale": "Deferred until after the review attestation, as required by the tool precondition and the brief's no-attestation boundary."
+    },
+    {
+      "id": "suggest-review",
+      "component": "pose-mcp",
+      "disposition": "passed",
+      "evidence": "command:$POSE_REVIEW_CLI suggest review --path pose-mcp",
+      "rationale": "The engine selected backend-go, security, and documentation-style rules; all applicable local rules were read."
+    },
+    {
+      "id": "surface-check",
+      "disposition": "passed",
+      "evidence": "reachability:pose-mcp/go/delivery-reachability",
+      "rationale": "Ran strict surface-check; it reported one target, 236 results, and zero findings. Sealed reachability evidence is from pose-mcp."
+    },
+    {
+      "id": "validate",
+      "disposition": "passed",
+      "evidence": "unit:pose-mcp/go/test",
+      "rationale": "The strict command was attempted, but the sandbox rejected Go build-directory creation in both the checkout and /tmp. The sealed validation matrix includes passing build, e2e, integration, and unit evidence; focused tests and host vet passed."
+    },
+    {
+      "id": "validate",
+      "component": "pose-mcp",
+      "disposition": "passed",
+      "evidence": "unit:pose-mcp/go/test",
+      "rationale": "The module strict command was attempted and failed only when the read-only sandbox blocked Go build/cache writes. The sealed module matrix includes passing build, e2e, integration, and unit evidence; focused tests and host vet passed."
+    }
+  ],
+  "evidence_refs": [
+    "N1",
+    "N2",
+    "N3",
+    "N5",
+    "delegated-run:rrn-88cb9ca67527d00e",
+    "integration:pose-mcp/go/delegated-attempt-ledger-integration",
+    "integration:pose-mcp/go/delegation-surface-integration",
+    "integration:pose-mcp/go/review-brief-templates-are-immutable-integration",
+    "structure:design-7d71da6b19af6951",
+    "unit:pose-mcp/go/test"
+  ],
+  "findings": [
+    {
+      "id": "N1",
+      "severity": "low",
+      "evidence": "file:pose-mcp/internal/pose/review_reap_linux.go:97",
+      "action": "Require the shim for untrusted reviewers or constrain fallback termination to verified run descendants; record a PID only after confirmed signal delivery and add a cross-run non-termination regression.",
+      "disposition": "accepted-risk",
+      "owner": "POSE maintainers",
+      "rationale": "The no-shim Linux fallback scans every same-user PID and accepts the reviewer-controlled POSE_SEALED_CHECKOUT value as ownership; pidfd pins a PID but does not prove run ancestry. A process from another run can set that value and be SIGKILLed. The fallback also records a candidate PID before confirming that a signal was delivered. The standard pose CLI enables the shim, but the fallback remains for embedders (spec L6).",
+      "review_by": "2027-02-25"
+    },
+    {
+      "id": "N2",
+      "severity": "medium",
+      "evidence": "file:pose-mcp/internal/pose/review_dispatch_unix.go:61",
+      "action": "On non-Linux Unix, verifyReviewProcessGroup returns success without checking that the SIGKILLed process group is empty. Dispatch can proceed to cleanup inventory before a remaining group member has exited, contrary to R1's bounded wait. Poll for group disappearance within the bound and keep cleanup incomplete on timeout.",
+      "disposition": "open"
+    },
+    {
+      "id": "N3",
+      "severity": "medium",
+      "evidence": "file:pose-mcp/internal/pose/review_dispatch.go:1140",
+      "action": "The run record lists ended PIDs only from reaped or shim-reported processes. Windows job termination and non-Linux Unix process-group termination leave reaped empty, so a run can terminate leftovers without recording which processes were ended, contrary to R2. Capture and persist the terminated process identities on those paths.",
+      "disposition": "open"
+    },
+    {
+      "id": "N4",
+      "severity": "medium",
+      "evidence": "file:pose-mcp/internal/pose/review_shim_linux.go:140",
+      "action": "The five-second deadline is checked while reading /proc batches, but the subsequent loop reads stats and signals for every collected entry before checking the deadline at line 189; readProcBatched accumulates all entries. The no-shim Linux fallback has the same gap: reviewMarkedProcesses materializes /proc and reads every PID without a deadline (review_reap_linux.go:90-97). A large process table or reviewer process flood can make cleanup exceed its bound, contrary to R1. Stream entries through the per-process scans and check the deadline there.",
+      "disposition": "open"
+    },
+    {
+      "id": "N5",
+      "severity": "medium",
+      "evidence": "file:pose-mcp/internal/pose/review_dispatch.go:1631",
+      "action": "recordReviewRun publishes the run witness before its transcript and JSON record. If releaseAbandonedAttemptClaimed is interrupted or a later publication fails in that gap, the witness makes ReadReviewRuns report incomplete history; the next release refuses in recordedAttemptRun (delegation_release.go:169-172) and leaves the stalled marker and reservation blocking future dispatch. Make this publication boundary recoverable and fault-test interruption before the run JSON is present.",
+      "disposition": "open"
+    }
+  ],
+  "authority": {
+    "schema_version": 1,
+    "project": "proj.pose-dist",
+    "bundle_digest": "sha256:61ce44ca6775049e18ffcc0adcc9d5e4ca474c5bbedf925017f5ff242444da7a",
+    "principal": "agent:openai/gpt-6-luna",
+    "role": "agent",
+    "review_execution": "rrn-88cb9ca67527d00e",
+    "implementation_principal": "agent:anthropic/unknown",
+    "implementation_execution": "sha256:344ac5868944c155772d60a95ef6ff20644580a642e772ad5c92c29428464ff8",
+    "issuer": "b34-local-executor",
+    "issued_at": "2026-11-25T07:15:45Z",
+    "audience": "proj.pose-dist"
+  },
+  "envelope": {
+    "issuer": "b34-local-executor",
+    "subject": "rvb-61ce44ca6775049e",
+    "algorithm": "ed25519",
+    "public_key": "ck4sApdfePV2GT+hJyAYfJd2qLzeG55P8pevGR0bvZE=",
+    "signature": "h9xMNBspgG2O41yMvyK84TQUoOFSzXuLjpNAQS6lqi10ArEzM/GV0mQfrXhm5+iqYDIHDE0T5Ep1nc6zjwx8Bg=="
+  },
+  "attested_at": "2026-11-25T07:15:45Z",
+  "path": ".pose/review-attestations/rva-e466ddf9a02ecebc.json"
+}
