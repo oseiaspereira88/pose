@@ -1,7 +1,7 @@
 {
   "schema_version": 2,
-  "input_digest": "sha256:d92b2ba7d899839f9e67e0a93b970d3062eec6940360ea1d977a0d1ec7cf25db",
-  "provenance_digest": "sha256:f342b8a0eb044a311193e59f4dcd5dcf3d1b1bb93219fdb0b23a015ee0c31256",
+  "input_digest": "sha256:4fcdb72b2daf7c64fdd49866a5b7db21ce18ef86720b7802d59040f2c0fa7a5b",
+  "provenance_digest": "sha256:43cb62dc61a5d9a33b86b598daef0bb0605eb26a8f824da51c388af16c5fe727",
   "implied_edges": [
     "changes"
   ],
@@ -8404,6 +8404,13 @@
       "type": "artifact",
       "attributes": {
         "path": ".pose/results/ci-security-vcs-failure.json"
+      }
+    },
+    {
+      "id": "artifact:.pose/results/concl-binding.md",
+      "type": "artifact",
+      "attributes": {
+        "path": ".pose/results/concl-binding.md"
       }
     },
     {
@@ -47406,14 +47413,6 @@
       }
     },
     {
-      "id": "change-set:cs-2812d97e059b",
-      "type": "change-set",
-      "attributes": {
-        "diff_digest": "sha256:2306ade6aa6ef3f61fb3fd22f59d775fd3c70b1a7bf040c03957ed6d089d3bb5",
-        "selector": "trailers:pose-review-conclude-ignores-unrelated-local-edits"
-      }
-    },
-    {
       "id": "change-set:cs-2813bee1a6dd",
       "type": "change-set",
       "attributes": {
@@ -48771,6 +48770,14 @@
       "attributes": {
         "diff_digest": "sha256:23256483746399550d08e97779320df95f0d75c2e763dc62e0a9e40d1dad0f56",
         "selector": "trailers:pose-attest-records-not-applicable"
+      }
+    },
+    {
+      "id": "change-set:cs-6e301832d822",
+      "type": "change-set",
+      "attributes": {
+        "diff_digest": "sha256:db85b52ec2169dbeeb81a2edc7b3c675d8fc51fec46c5205702749d2a5ec820e",
+        "selector": "trailers:pose-review-conclude-ignores-unrelated-local-edits"
       }
     },
     {
@@ -134852,7 +134859,7 @@
     },
     {
       "from": "spec:pose-review-conclude-ignores-unrelated-local-edits",
-      "to": "change-set:cs-2812d97e059b",
+      "to": "change-set:cs-6e301832d822",
       "type": "observed-by"
     },
     {
@@ -201692,101 +201699,6 @@
       }
     },
     {
-      "id": "cs-2812d97e059b",
-      "spec": "pose-review-conclude-ignores-unrelated-local-edits",
-      "selector": "trailers:pose-review-conclude-ignores-unrelated-local-edits",
-      "base": "e3427a37052ac101d1e692ab092383f81be29ccc^",
-      "head": "08c3daad232564d6a1954865b729df1b5667132e",
-      "resolved_base": "ddb770352f35f2f55c740e9a8479686de3a251e5",
-      "resolved_head": "08c3daad232564d6a1954865b729df1b5667132e",
-      "commits": [
-        "e3427a37052ac101d1e692ab092383f81be29ccc",
-        "a9730693597450e1cd29c9f503dbae53b760306e",
-        "6c93fd37ef45cac2b45dc7339953af699d53422e",
-        "06eb95cc4782f6292d64e5b3c00ad22bedf9c2e1",
-        "08c3daad232564d6a1954865b729df1b5667132e"
-      ],
-      "paths": [
-        {
-          "action": "created",
-          "path": ".pose/specs/2026-11-23-pose-review-conclude-ignores-unrelated-local-edits.md"
-        },
-        {
-          "action": "created",
-          "path": ".pose/specs/2026-11-23-pose-review-run-reaps-lingering-reviewer-processes.md"
-        },
-        {
-          "action": "created",
-          "path": "pose-mcp/internal/pose/review_conclusion_local_edits_test.go"
-        },
-        {
-          "action": "modified",
-          "path": ".pose/indexes/delivery-integrity.json"
-        },
-        {
-          "action": "modified",
-          "path": ".pose/indexes/generation.json"
-        },
-        {
-          "action": "modified",
-          "path": ".pose/indexes/spec-graph.json"
-        },
-        {
-          "action": "modified",
-          "path": ".pose/results/delivery-validation.json"
-        },
-        {
-          "action": "modified",
-          "path": "POSE.md"
-        },
-        {
-          "action": "modified",
-          "path": "locales/pt-BR/POSE.md"
-        },
-        {
-          "action": "modified",
-          "path": "pose-mcp/internal/pose/review_brief.go"
-        },
-        {
-          "action": "modified",
-          "path": "pose-mcp/internal/pose/review_conclusions.go"
-        },
-        {
-          "action": "modified",
-          "path": "pose-mcp/internal/pose/review_run_provenance.go"
-        },
-        {
-          "action": "modified",
-          "path": "pose-mcp/internal/scaffold/dist/POSE.md"
-        },
-        {
-          "action": "modified",
-          "path": "pose-mcp/internal/scaffold/dist/locales/pt-BR/POSE.md"
-        }
-      ],
-      "diff_digest": "sha256:2306ade6aa6ef3f61fb3fd22f59d775fd3c70b1a7bf040c03957ed6d089d3bb5",
-      "material_digest": "sha256:b7a7d2b550cd95f510c1b9dd8e7e3ae410b3f2cb73155fca51c9a1b902d0e24a",
-      "material_inputs": {
-        "names": [
-          ".pose/indexes/delivery-integrity.json",
-          ".pose/indexes/generation.json",
-          ".pose/indexes/spec-graph.json",
-          ".pose/indexes/validation-matrix.json",
-          ".pose/results/delivery-validation.json",
-          ".pose/specs/2026-11-23-pose-review-conclude-ignores-unrelated-local-edits.md",
-          ".pose/specs/2026-11-23-pose-review-run-reaps-lingering-reviewer-processes.md",
-          "POSE.md",
-          "locales/pt-BR/POSE.md",
-          "pose-mcp/internal/pose/review_brief.go",
-          "pose-mcp/internal/pose/review_conclusion_local_edits_test.go",
-          "pose-mcp/internal/pose/review_conclusions.go",
-          "pose-mcp/internal/pose/review_run_provenance.go",
-          "pose-mcp/internal/scaffold/dist/POSE.md",
-          "pose-mcp/internal/scaffold/dist/locales/pt-BR/POSE.md"
-        ]
-      }
-    },
-    {
       "id": "cs-2813bee1a6dd",
       "spec": "pose-contributor-mode-protocol",
       "selector": "trailers:pose-contributor-mode-protocol",
@@ -237037,6 +236949,108 @@
           "pose-mcp/internal/cli/help_catalog.go",
           "pose-mcp/internal/cli/review_closeout.go",
           "pose-mcp/internal/cli/review_criterion_disposition_test.go"
+        ]
+      }
+    },
+    {
+      "id": "cs-6e301832d822",
+      "spec": "pose-review-conclude-ignores-unrelated-local-edits",
+      "selector": "trailers:pose-review-conclude-ignores-unrelated-local-edits",
+      "base": "e3427a37052ac101d1e692ab092383f81be29ccc^",
+      "head": "b79f1c8a60e3af431daa185a35ef2b100f02806b",
+      "resolved_base": "ddb770352f35f2f55c740e9a8479686de3a251e5",
+      "resolved_head": "b79f1c8a60e3af431daa185a35ef2b100f02806b",
+      "commits": [
+        "e3427a37052ac101d1e692ab092383f81be29ccc",
+        "a9730693597450e1cd29c9f503dbae53b760306e",
+        "6c93fd37ef45cac2b45dc7339953af699d53422e",
+        "06eb95cc4782f6292d64e5b3c00ad22bedf9c2e1",
+        "08c3daad232564d6a1954865b729df1b5667132e",
+        "e610258ce7f4025e16352e935d843e49f654a582",
+        "b79f1c8a60e3af431daa185a35ef2b100f02806b"
+      ],
+      "paths": [
+        {
+          "action": "created",
+          "path": ".pose/results/concl-binding.md"
+        },
+        {
+          "action": "created",
+          "path": ".pose/specs/2026-11-23-pose-review-conclude-ignores-unrelated-local-edits.md"
+        },
+        {
+          "action": "created",
+          "path": ".pose/specs/2026-11-23-pose-review-run-reaps-lingering-reviewer-processes.md"
+        },
+        {
+          "action": "created",
+          "path": "pose-mcp/internal/pose/review_conclusion_local_edits_test.go"
+        },
+        {
+          "action": "modified",
+          "path": ".pose/indexes/delivery-integrity.json"
+        },
+        {
+          "action": "modified",
+          "path": ".pose/indexes/generation.json"
+        },
+        {
+          "action": "modified",
+          "path": ".pose/indexes/spec-graph.json"
+        },
+        {
+          "action": "modified",
+          "path": ".pose/results/delivery-validation.json"
+        },
+        {
+          "action": "modified",
+          "path": "POSE.md"
+        },
+        {
+          "action": "modified",
+          "path": "locales/pt-BR/POSE.md"
+        },
+        {
+          "action": "modified",
+          "path": "pose-mcp/internal/pose/review_brief.go"
+        },
+        {
+          "action": "modified",
+          "path": "pose-mcp/internal/pose/review_conclusions.go"
+        },
+        {
+          "action": "modified",
+          "path": "pose-mcp/internal/pose/review_run_provenance.go"
+        },
+        {
+          "action": "modified",
+          "path": "pose-mcp/internal/scaffold/dist/POSE.md"
+        },
+        {
+          "action": "modified",
+          "path": "pose-mcp/internal/scaffold/dist/locales/pt-BR/POSE.md"
+        }
+      ],
+      "diff_digest": "sha256:db85b52ec2169dbeeb81a2edc7b3c675d8fc51fec46c5205702749d2a5ec820e",
+      "material_digest": "sha256:b7a7d2b550cd95f510c1b9dd8e7e3ae410b3f2cb73155fca51c9a1b902d0e24a",
+      "material_inputs": {
+        "names": [
+          ".pose/indexes/delivery-integrity.json",
+          ".pose/indexes/generation.json",
+          ".pose/indexes/spec-graph.json",
+          ".pose/indexes/validation-matrix.json",
+          ".pose/results/concl-binding.md",
+          ".pose/results/delivery-validation.json",
+          ".pose/specs/2026-11-23-pose-review-conclude-ignores-unrelated-local-edits.md",
+          ".pose/specs/2026-11-23-pose-review-run-reaps-lingering-reviewer-processes.md",
+          "POSE.md",
+          "locales/pt-BR/POSE.md",
+          "pose-mcp/internal/pose/review_brief.go",
+          "pose-mcp/internal/pose/review_conclusion_local_edits_test.go",
+          "pose-mcp/internal/pose/review_conclusions.go",
+          "pose-mcp/internal/pose/review_run_provenance.go",
+          "pose-mcp/internal/scaffold/dist/POSE.md",
+          "pose-mcp/internal/scaffold/dist/locales/pt-BR/POSE.md"
         ]
       }
     },
