@@ -301,7 +301,7 @@ func TestResumedReviewFindsItsSealedCheckoutAtTheSamePath(t *testing.T) {
 	first := filepath.Join(marks, "first")
 	root, _, prior := runContinuityFixture(t, func(a *posemodel.ReviewerAdapter) {
 		a.Command = []string{"sh", "-c", `pwd > "$1"; printf 'session: fixture-private-session\nreset: 2030-01-01T00:00:00Z\ndecision: rejected\n'; exit 75`, "sh", first}
-		a.Resume.Command = []string{"sh", "-c", `test "$(pwd)" = "$(cat "$1")" || { echo "moved from $(cat "$1") to $(pwd)" >&2; exit 3; }; test -f .pose/specs/alpha/spec.md || ls >&2; printf 'decision: approved\n'`, "sh", first, "{session}"}
+		a.Resume.Command = []string{"sh", "-c", `test "$(pwd)" = "$(cat "$1")" || { echo "moved from $(cat "$1") to $(pwd)" >&2; exit 3; }; test -f .pose/specs/alpha/spec.md || exit 4; printf 'decision: approved\n'`, "sh", first, "{session}"}
 	})
 	raw, err := os.ReadFile(first)
 	if err != nil {
@@ -310,6 +310,18 @@ func TestResumedReviewFindsItsSealedCheckoutAtTheSamePath(t *testing.T) {
 	checkout := strings.TrimSpace(string(raw))
 	if _, err := os.Stat(checkout); !os.IsNotExist(err) {
 		t.Fatalf("the interrupted run left its checkout %s behind: %v", checkout, err)
+	}
+	// Review round 1, N1: a leftover runtime directory refuses the resume
+	// before it is claimed, so removing it restores the resume.
+	runtimeDir := filepath.Dir(checkout)
+	if err := os.Mkdir(runtimeDir, 0o700); err != nil {
+		t.Fatal(err)
+	}
+	if code, out := runPose(t, root, "delegate", "resume", prior.RunID); code == 0 || !strings.Contains(out, "still exists") {
+		t.Fatalf("a resume beside a leftover runtime directory: %d %s", code, out)
+	}
+	if err := os.Remove(runtimeDir); err != nil {
+		t.Fatal(err)
 	}
 	code, out := runPose(t, root, "delegate", "resume", prior.RunID)
 	if code != 0 || !strings.Contains(out, "status=completed") {

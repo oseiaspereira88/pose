@@ -813,10 +813,14 @@ func (s Store) RunReviewDispatchContext(parent context.Context, plan DispatchPla
 	safety.RuntimeID = filepath.Base(tmp)
 	owned, err := os.Lstat(tmp)
 	if err != nil {
+		// Nothing is in it yet: removing it keeps the attempt's path free
+		// for its next run (review round 1, N4).
+		_ = os.Remove(tmp)
 		return finish(ReviewRunFailed, "runtime directory identity unavailable")
 	}
 	runtimeRoot, err := os.OpenRoot(tmp)
 	if err != nil {
+		_ = os.Remove(tmp)
 		return finish(ReviewRunFailed, "runtime root unavailable")
 	}
 	defer runtimeRoot.Close()
@@ -2043,15 +2047,41 @@ var reviewAttemptIDRE = regexp.MustCompile(`^rat-[0-9a-f]{64}$`)
 // unfinished cleanup or from someone else, the run fails instead of sharing
 // it. A run without an attempt keeps a random name.
 func reviewRunRuntimeDir(attemptID string) (string, error) {
-	if !reviewAttemptIDRE.MatchString(attemptID) {
+	dir, ok := reviewRunRuntimeDirPath(attemptID)
+	if !ok {
 		return os.MkdirTemp("", "pose-review-run-*")
 	}
-	dir := filepath.Join(os.TempDir(), "pose-review-run-"+attemptID[len("rat-"):len("rat-")+32])
 	if err := os.Mkdir(dir, 0o700); err != nil {
 		if errors.Is(err, fs.ErrExist) {
-			return "", fmt.Errorf("the attempt's runtime directory %s already exists; an earlier run of the attempt did not clean up, or another process holds the path", dir)
+			return "", fmt.Errorf("the attempt's runtime directory %s already exists; an earlier run of the attempt did not clean up, or another process holds the path; remove it, then run again", dir)
 		}
 		return "", err
 	}
 	return dir, nil
+}
+
+// reviewRunRuntimeDirPath is the runtime directory every run of an attempt
+// uses, or false for a run without an attempt.
+func reviewRunRuntimeDirPath(attemptID string) (string, bool) {
+	if !reviewAttemptIDRE.MatchString(attemptID) {
+		return "", false
+	}
+	return filepath.Join(os.TempDir(), "pose-review-run-"+attemptID[len("rat-"):len("rat-")+32]), true
+}
+
+// reviewRunRuntimeDirFree refuses a continuation whose runtime directory is
+// still there, before the continuation is claimed, so removing the
+// directory restores the resume instead of losing it to a failed run
+// (review round 1, N1).
+func reviewRunRuntimeDirFree(attemptID string) error {
+	dir, ok := reviewRunRuntimeDirPath(attemptID)
+	if !ok {
+		return nil
+	}
+	if _, err := os.Lstat(dir); err == nil {
+		return fmt.Errorf("the attempt's runtime directory %s still exists; an earlier run of the attempt did not clean up, or another process holds the path; remove it, then resume", dir)
+	} else if !errors.Is(err, fs.ErrNotExist) {
+		return fmt.Errorf("the attempt's runtime directory %s cannot be checked: %w", dir, err)
+	}
+	return nil
 }
