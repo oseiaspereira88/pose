@@ -1,7 +1,7 @@
 {
   "schema_version": 2,
-  "input_digest": "sha256:8479bd2c71671ab8781d6fc275ca1fb1f5f7953dbfb772d34ce738c4e292c135",
-  "provenance_digest": "sha256:aff440ac57ed137412030fda86d86f1c03036daa4f364cee4d7fdfc8ecc89519",
+  "input_digest": "sha256:88173403059c6463b266d47d6345615540fccab8098dab7de50db5cfb209d19e",
+  "provenance_digest": "sha256:879db4a1acc0df614379c2b71bbc0a31db24338e501825797509109d8a66097b",
   "implied_edges": [
     "changes"
   ],
@@ -33264,6 +33264,13 @@
       }
     },
     {
+      "id": "artifact:.pose/specs/2026-11-26-pose-review-declared-limits-followups.md",
+      "type": "artifact",
+      "attributes": {
+        "path": ".pose/specs/2026-11-26-pose-review-declared-limits-followups.md"
+      }
+    },
+    {
       "id": "artifact:.pose/specs/2026-11-26-pose-review-resume-runtime-dir-followups.md",
       "type": "artifact",
       "attributes": {
@@ -48455,6 +48462,14 @@
       }
     },
     {
+      "id": "change-set:cs-55cc6d97ba07",
+      "type": "change-set",
+      "attributes": {
+        "diff_digest": "sha256:f869390e46f0a76393544eac18713c9afe2171798997175de701ccbe377a223b",
+        "selector": "trailers:pose-review-declared-limits-followups"
+      }
+    },
+    {
       "id": "change-set:cs-564bb3d4134c",
       "type": "change-set",
       "attributes": {
@@ -49527,6 +49542,14 @@
       }
     },
     {
+      "id": "change-set:cs-97fab76d16b4",
+      "type": "change-set",
+      "attributes": {
+        "diff_digest": "sha256:ffd5e35694366e56ae767321fa81c89b07f093a82df68e19f193c981afa57dc0",
+        "selector": "trailers:pose-review-resume-runtime-dir-followups"
+      }
+    },
+    {
       "id": "change-set:cs-982dd45efd8a",
       "type": "change-set",
       "attributes": {
@@ -50516,14 +50539,6 @@
       "attributes": {
         "diff_digest": "sha256:a2bc5b1e7ee22d45d81b9aeb311fe8aff62ea97cc1d64b22ec1f90249747b354",
         "selector": "trailers:pose-review-subject-and-scope-precision"
-      }
-    },
-    {
-      "id": "change-set:cs-c798f613dc78",
-      "type": "change-set",
-      "attributes": {
-        "diff_digest": "sha256:6410bb9722e611dd53a9138d041a662da44414db3b0995c9380619195bd1d5ef",
-        "selector": "trailers:pose-review-resume-runtime-dir-followups"
       }
     },
     {
@@ -135289,6 +135304,11 @@
       "type": "observed-by"
     },
     {
+      "from": "spec:pose-review-declared-limits-followups",
+      "to": "change-set:cs-55cc6d97ba07",
+      "type": "observed-by"
+    },
+    {
       "from": "spec:pose-review-declared-threat-model",
       "to": "artifact:.pose/specs/2026-11-23-pose-review-declared-threat-model.md",
       "type": "declares"
@@ -136030,7 +136050,7 @@
     },
     {
       "from": "spec:pose-review-resume-runtime-dir-followups",
-      "to": "change-set:cs-c798f613dc78",
+      "to": "change-set:cs-97fab76d16b4",
       "type": "observed-by"
     },
     {
@@ -228757,6 +228777,32 @@
       }
     },
     {
+      "id": "cs-55cc6d97ba07",
+      "spec": "pose-review-declared-limits-followups",
+      "selector": "trailers:pose-review-declared-limits-followups",
+      "base": "cf027c9c43f1aaeaf05cae5761c14fc520194b99^",
+      "head": "cf027c9c43f1aaeaf05cae5761c14fc520194b99",
+      "resolved_base": "0b786b14ae35ea41f3ebfa7f7c86fea7d83109d1",
+      "resolved_head": "cf027c9c43f1aaeaf05cae5761c14fc520194b99",
+      "commits": [
+        "cf027c9c43f1aaeaf05cae5761c14fc520194b99"
+      ],
+      "paths": [
+        {
+          "action": "created",
+          "path": ".pose/specs/2026-11-26-pose-review-declared-limits-followups.md"
+        }
+      ],
+      "diff_digest": "sha256:f869390e46f0a76393544eac18713c9afe2171798997175de701ccbe377a223b",
+      "material_digest": "sha256:aaab9397b833ee4739a72bad0127ac66104889c7986a95d1058c12314cc9bd65",
+      "material_inputs": {
+        "names": [
+          ".pose/indexes/validation-matrix.json",
+          ".pose/specs/2026-11-26-pose-review-declared-limits-followups.md"
+        ]
+      }
+    },
+    {
       "id": "cs-564bb3d4134c",
       "spec": "pose-consolidation-batch-15-authoring",
       "selector": "trailers:pose-consolidation-batch-15-authoring",
@@ -255260,6 +255306,48 @@
       }
     },
     {
+      "id": "cs-97fab76d16b4",
+      "spec": "pose-review-resume-runtime-dir-followups",
+      "selector": "trailers:pose-review-resume-runtime-dir-followups",
+      "base": "4d556ffdbc0b533f0c9b89b9f08ead40ec31f25c^",
+      "head": "0b786b14ae35ea41f3ebfa7f7c86fea7d83109d1",
+      "resolved_base": "b0b3431e33d2754f8e6242e6d3e49052f4e6fb83",
+      "resolved_head": "0b786b14ae35ea41f3ebfa7f7c86fea7d83109d1",
+      "commits": [
+        "4d556ffdbc0b533f0c9b89b9f08ead40ec31f25c",
+        "0b786b14ae35ea41f3ebfa7f7c86fea7d83109d1"
+      ],
+      "paths": [
+        {
+          "action": "created",
+          "path": ".pose/specs/2026-11-26-pose-review-resume-runtime-dir-followups.md"
+        },
+        {
+          "action": "modified",
+          "path": ".pose/indexes/delivery-integrity.json"
+        },
+        {
+          "action": "modified",
+          "path": ".pose/indexes/generation.json"
+        },
+        {
+          "action": "modified",
+          "path": ".pose/indexes/spec-graph.json"
+        }
+      ],
+      "diff_digest": "sha256:ffd5e35694366e56ae767321fa81c89b07f093a82df68e19f193c981afa57dc0",
+      "material_digest": "sha256:ecd99aa4746cce612ee4101b89a3d5b46b12c70a6f391285f4aae52eef4937a8",
+      "material_inputs": {
+        "names": [
+          ".pose/indexes/delivery-integrity.json",
+          ".pose/indexes/generation.json",
+          ".pose/indexes/spec-graph.json",
+          ".pose/indexes/validation-matrix.json",
+          ".pose/specs/2026-11-26-pose-review-resume-runtime-dir-followups.md"
+        ]
+      }
+    },
+    {
       "id": "cs-982dd45efd8a",
       "spec": "pose-community-contribution-surfaces",
       "selector": "trailers:pose-community-contribution-surfaces",
@@ -278745,32 +278833,6 @@
           "pose-mcp/internal/pose/review_bundle_test.go",
           "pose-mcp/internal/pose/review_plan.go",
           "pose-mcp/internal/pose/review_plan_test.go"
-        ]
-      }
-    },
-    {
-      "id": "cs-c798f613dc78",
-      "spec": "pose-review-resume-runtime-dir-followups",
-      "selector": "trailers:pose-review-resume-runtime-dir-followups",
-      "base": "4d556ffdbc0b533f0c9b89b9f08ead40ec31f25c^",
-      "head": "4d556ffdbc0b533f0c9b89b9f08ead40ec31f25c",
-      "resolved_base": "b0b3431e33d2754f8e6242e6d3e49052f4e6fb83",
-      "resolved_head": "4d556ffdbc0b533f0c9b89b9f08ead40ec31f25c",
-      "commits": [
-        "4d556ffdbc0b533f0c9b89b9f08ead40ec31f25c"
-      ],
-      "paths": [
-        {
-          "action": "created",
-          "path": ".pose/specs/2026-11-26-pose-review-resume-runtime-dir-followups.md"
-        }
-      ],
-      "diff_digest": "sha256:6410bb9722e611dd53a9138d041a662da44414db3b0995c9380619195bd1d5ef",
-      "material_digest": "sha256:ecd99aa4746cce612ee4101b89a3d5b46b12c70a6f391285f4aae52eef4937a8",
-      "material_inputs": {
-        "names": [
-          ".pose/indexes/validation-matrix.json",
-          ".pose/specs/2026-11-26-pose-review-resume-runtime-dir-followups.md"
         ]
       }
     },
