@@ -1,7 +1,7 @@
 {
   "schema_version": 2,
-  "input_digest": "sha256:e1aaceabaeefe1cbc30e0920f7543478817fec7d99054335dd7979da889a208e",
-  "provenance_digest": "sha256:09d553295a923f966178d352055a2db3ffb7d86f17531e392a086e19892883b5",
+  "input_digest": "sha256:1254f062b7a962110b803ada7721fc5d07836e63fffad9449bf823663334f5fa",
+  "provenance_digest": "sha256:5c30b65ea58fc681dda200e0811f10e80cc04cfe554ca45b5854c19a5b6897d1",
   "implied_edges": [
     "changes"
   ],
@@ -48231,14 +48231,6 @@
       }
     },
     {
-      "id": "change-set:cs-4fc6d049e16f",
-      "type": "change-set",
-      "attributes": {
-        "diff_digest": "sha256:623b31c165f87aafd196bfce3f420632983e2bdfe1e0f14a087719a33459b4f3",
-        "selector": "trailers:pose-review-resume-keeps-the-sealed-checkout"
-      }
-    },
-    {
       "id": "change-set:cs-504a76f5ac6b",
       "type": "change-set",
       "attributes": {
@@ -51436,6 +51428,14 @@
       "attributes": {
         "diff_digest": "sha256:8713b937cfe7c6fa21ccf62dd516b69c802a130a11e17b29e7eb9fa50966aa96",
         "selector": "range:6dd5b86..e3cc340"
+      }
+    },
+    {
+      "id": "change-set:cs-fafb395a6839",
+      "type": "change-set",
+      "attributes": {
+        "diff_digest": "sha256:73da0c59d6728274d0987c1ab362144436f85ef4b61f2f7dee48f240a0ea0217",
+        "selector": "trailers:pose-review-resume-keeps-the-sealed-checkout"
       }
     },
     {
@@ -135849,7 +135849,7 @@
     },
     {
       "from": "spec:pose-review-resume-keeps-the-sealed-checkout",
-      "to": "change-set:cs-4fc6d049e16f",
+      "to": "change-set:cs-fafb395a6839",
       "type": "observed-by"
     },
     {
@@ -224257,108 +224257,6 @@
       }
     },
     {
-      "id": "cs-4fc6d049e16f",
-      "spec": "pose-review-resume-keeps-the-sealed-checkout",
-      "selector": "trailers:pose-review-resume-keeps-the-sealed-checkout",
-      "base": "dfd145ee96fe4fecd6810742c4f0f3384565fa73^",
-      "head": "31714717bd709dcd603f50cbb84ef1b0284fba0e",
-      "resolved_base": "c8f98b20d68cc041c0547e71642b50f15e50d2b9",
-      "resolved_head": "31714717bd709dcd603f50cbb84ef1b0284fba0e",
-      "commits": [
-        "dfd145ee96fe4fecd6810742c4f0f3384565fa73",
-        "59a4baedb82327d14e8283a02a45834d52bb139f",
-        "0be404b1ab6ff96d6a83685f4518f4df500623b7",
-        "a1dc25c3ad9bdd53df2c27f20cca45c23a096e82",
-        "9671f96ad87f07ae4e8b653c2ac4bc2dc6378238",
-        "11450e27124f366705e9fbc48b3d8d6f7d5782e5",
-        "e26623a150f5cdbe5c83366a6b12c30bc0f727ea",
-        "dffae8f25778107e7079f5a9126a013d67df4b71",
-        "0a77595ceb6c4d2b9574d3603e77891faafa5797",
-        "4a8b0bce3d7aeeb8a8f2331f94357ef733769a8b",
-        "f7a7ed9e9ef9fb21ed31fb050410468a0c4e52b7",
-        "31714717bd709dcd603f50cbb84ef1b0284fba0e"
-      ],
-      "paths": [
-        {
-          "action": "created",
-          "path": ".pose/results/resume-binding.md"
-        },
-        {
-          "action": "created",
-          "path": ".pose/specs/2026-11-25-pose-review-resume-keeps-the-sealed-checkout.md"
-        },
-        {
-          "action": "created",
-          "path": "pose-mcp/internal/pose/review_run_runtime_dir_test.go"
-        },
-        {
-          "action": "modified",
-          "path": ".pose/indexes/delivery-integrity.json"
-        },
-        {
-          "action": "modified",
-          "path": ".pose/indexes/generation.json"
-        },
-        {
-          "action": "modified",
-          "path": ".pose/indexes/spec-graph.json"
-        },
-        {
-          "action": "modified",
-          "path": ".pose/results/delivery-validation.json"
-        },
-        {
-          "action": "modified",
-          "path": "POSE.md"
-        },
-        {
-          "action": "modified",
-          "path": "locales/pt-BR/POSE.md"
-        },
-        {
-          "action": "modified",
-          "path": "pose-mcp/internal/cli/review_run_continuity_test.go"
-        },
-        {
-          "action": "modified",
-          "path": "pose-mcp/internal/pose/review_dispatch.go"
-        },
-        {
-          "action": "modified",
-          "path": "pose-mcp/internal/pose/review_run_continuity.go"
-        },
-        {
-          "action": "modified",
-          "path": "pose-mcp/internal/scaffold/dist/POSE.md"
-        },
-        {
-          "action": "modified",
-          "path": "pose-mcp/internal/scaffold/dist/locales/pt-BR/POSE.md"
-        }
-      ],
-      "diff_digest": "sha256:623b31c165f87aafd196bfce3f420632983e2bdfe1e0f14a087719a33459b4f3",
-      "material_digest": "sha256:11506f742f3b93a005cdef07adc524f4c6bd9b740ee03dd2c9c036b1c3299351",
-      "material_inputs": {
-        "names": [
-          ".pose/indexes/delivery-integrity.json",
-          ".pose/indexes/generation.json",
-          ".pose/indexes/spec-graph.json",
-          ".pose/indexes/validation-matrix.json",
-          ".pose/results/delivery-validation.json",
-          ".pose/results/resume-binding.md",
-          ".pose/specs/2026-11-25-pose-review-resume-keeps-the-sealed-checkout.md",
-          "POSE.md",
-          "locales/pt-BR/POSE.md",
-          "pose-mcp/internal/cli/review_run_continuity_test.go",
-          "pose-mcp/internal/pose/review_dispatch.go",
-          "pose-mcp/internal/pose/review_run_continuity.go",
-          "pose-mcp/internal/pose/review_run_runtime_dir_test.go",
-          "pose-mcp/internal/scaffold/dist/POSE.md",
-          "pose-mcp/internal/scaffold/dist/locales/pt-BR/POSE.md"
-        ]
-      }
-    },
-    {
       "id": "cs-504a76f5ac6b",
       "spec": "pose-qualified-artifact-resolution",
       "selector": "trailers:pose-qualified-artifact-resolution",
@@ -303873,6 +303771,110 @@
         }
       ],
       "diff_digest": "sha256:8713b937cfe7c6fa21ccf62dd516b69c802a130a11e17b29e7eb9fa50966aa96"
+    },
+    {
+      "id": "cs-fafb395a6839",
+      "spec": "pose-review-resume-keeps-the-sealed-checkout",
+      "selector": "trailers:pose-review-resume-keeps-the-sealed-checkout",
+      "base": "dfd145ee96fe4fecd6810742c4f0f3384565fa73^",
+      "head": "e34e9468b0502d912362ee8afaca7f1ff612ba50",
+      "resolved_base": "c8f98b20d68cc041c0547e71642b50f15e50d2b9",
+      "resolved_head": "e34e9468b0502d912362ee8afaca7f1ff612ba50",
+      "commits": [
+        "dfd145ee96fe4fecd6810742c4f0f3384565fa73",
+        "59a4baedb82327d14e8283a02a45834d52bb139f",
+        "0be404b1ab6ff96d6a83685f4518f4df500623b7",
+        "a1dc25c3ad9bdd53df2c27f20cca45c23a096e82",
+        "9671f96ad87f07ae4e8b653c2ac4bc2dc6378238",
+        "11450e27124f366705e9fbc48b3d8d6f7d5782e5",
+        "e26623a150f5cdbe5c83366a6b12c30bc0f727ea",
+        "dffae8f25778107e7079f5a9126a013d67df4b71",
+        "0a77595ceb6c4d2b9574d3603e77891faafa5797",
+        "4a8b0bce3d7aeeb8a8f2331f94357ef733769a8b",
+        "f7a7ed9e9ef9fb21ed31fb050410468a0c4e52b7",
+        "31714717bd709dcd603f50cbb84ef1b0284fba0e",
+        "112c9cb4a55d988ad1a798547c8e69d4037f5e27",
+        "e34e9468b0502d912362ee8afaca7f1ff612ba50"
+      ],
+      "paths": [
+        {
+          "action": "created",
+          "path": ".pose/results/resume-binding.md"
+        },
+        {
+          "action": "created",
+          "path": ".pose/specs/2026-11-25-pose-review-resume-keeps-the-sealed-checkout.md"
+        },
+        {
+          "action": "created",
+          "path": "pose-mcp/internal/pose/review_run_runtime_dir_test.go"
+        },
+        {
+          "action": "modified",
+          "path": ".pose/indexes/delivery-integrity.json"
+        },
+        {
+          "action": "modified",
+          "path": ".pose/indexes/generation.json"
+        },
+        {
+          "action": "modified",
+          "path": ".pose/indexes/spec-graph.json"
+        },
+        {
+          "action": "modified",
+          "path": ".pose/results/delivery-validation.json"
+        },
+        {
+          "action": "modified",
+          "path": "POSE.md"
+        },
+        {
+          "action": "modified",
+          "path": "locales/pt-BR/POSE.md"
+        },
+        {
+          "action": "modified",
+          "path": "pose-mcp/internal/cli/review_run_continuity_test.go"
+        },
+        {
+          "action": "modified",
+          "path": "pose-mcp/internal/pose/review_dispatch.go"
+        },
+        {
+          "action": "modified",
+          "path": "pose-mcp/internal/pose/review_run_continuity.go"
+        },
+        {
+          "action": "modified",
+          "path": "pose-mcp/internal/scaffold/dist/POSE.md"
+        },
+        {
+          "action": "modified",
+          "path": "pose-mcp/internal/scaffold/dist/locales/pt-BR/POSE.md"
+        }
+      ],
+      "diff_digest": "sha256:73da0c59d6728274d0987c1ab362144436f85ef4b61f2f7dee48f240a0ea0217",
+      "material_digest": "sha256:11506f742f3b93a005cdef07adc524f4c6bd9b740ee03dd2c9c036b1c3299351",
+      "material_inputs": {
+        "names": [
+          ".pose/indexes/delivery-integrity.json",
+          ".pose/indexes/generation.json",
+          ".pose/indexes/spec-graph.json",
+          ".pose/indexes/validation-matrix.json",
+          ".pose/results/delivery-validation.json",
+          ".pose/results/resume-binding.md",
+          ".pose/specs/2026-11-25-pose-review-resume-keeps-the-sealed-checkout.md",
+          "POSE.md",
+          "locales/pt-BR/POSE.md",
+          "pose-mcp/internal/cli/review_run_continuity_test.go",
+          "pose-mcp/internal/pose/review_dispatch.go",
+          "pose-mcp/internal/pose/review_run_continuity.go",
+          "pose-mcp/internal/pose/review_run_runtime_dir_test.go",
+          "pose-mcp/internal/scaffold/dist/POSE.md",
+          "pose-mcp/internal/scaffold/dist/locales/pt-BR/POSE.md"
+        ]
+      }
     },
     {
       "id": "cs-fbba61ffbf39",
