@@ -1,0 +1,252 @@
+{
+  "run": {
+    "run_id": "rrn-c3e24e7943c0693e",
+    "proof_id": "rrp-1235c40f3f9d6a998d5c8a6da225c408679e10effc47f85668dcc8f0562616a9"
+  },
+  "schema_version": 1,
+  "attestation_id": "rva-b0ea5be13e4a8c41",
+  "bundle_id": "rvb-2bbfe59551bb1300",
+  "bundle_digest": "sha256:2bbfe59551bb1300f093ac9c119f1a8d0857bdb403f49d5df01bd0c5b80c5177",
+  "reviewer": "agent:anthropic/claude-sonnet-5-5",
+  "decision": "changes-requested",
+  "criteria": [
+    {
+      "id": "assumption-integrity",
+      "disposition": "passed",
+      "evidence": "unit:pose-mcp/go/test",
+      "rationale": "Examined L1 and L2. L1 is an accepted risk about implementer-written limits, mitigated by the brief listing them as data and by open findings blocking approval. L2 is verified: both plan digests cover accepted_limits. Neither is broader than its text; parser defects that alter a sealed limit are outside them (N2)."
+    },
+    {
+      "id": "backend-concurrency",
+      "disposition": "passed",
+      "evidence": "unit:pose-mcp/go/test"
+    },
+    {
+      "id": "backend-contracts",
+      "disposition": "passed",
+      "evidence": "integration:pose-mcp/go/review-brief-templates-are-immutable-integration"
+    },
+    {
+      "id": "backend-input-errors",
+      "disposition": "finding",
+      "evidence": "N2"
+    },
+    {
+      "id": "backend-integration-impact",
+      "disposition": "passed",
+      "evidence": "integration:pose-mcp/go/review-bundle-convergence"
+    },
+    {
+      "id": "backend-observability",
+      "disposition": "passed",
+      "evidence": "integration:pose-mcp/go/typed-diagnostics-integration"
+    },
+    {
+      "id": "compatibility",
+      "disposition": "passed",
+      "evidence": "integration:pose-mcp/go/review-brief-templates-are-immutable-integration",
+      "rationale": "accepted_limits and limit are omitempty in the plan, bundle, both digests, drafts and attestations, and the digest test compares with the legacy bundle contract. within_limit_findings is an added field. Earlier brief templates stay selectable. The /11 text changed after round 8 was briefed with it; the template is unreleased and that run concluded changes-requested."
+    },
+    {
+      "id": "correctness",
+      "disposition": "finding",
+      "evidence": "N2"
+    },
+    {
+      "id": "design-causality",
+      "disposition": "passed",
+      "evidence": "structure:design-9d93fd07c4704048",
+      "rationale": "D1 and D2 address the stated cause, reviews that cannot converge without a declared environment: limits are sealed before review, classified by a distinct disposition requiring a sealed id and a reason, and disputable. The structural assessment reports no deltas to map."
+    },
+    {
+      "id": "documentation",
+      "disposition": "finding",
+      "evidence": "N6"
+    },
+    {
+      "id": "operability",
+      "disposition": "passed",
+      "evidence": "integration:pose-mcp/go/lint-spec-all-gate-contract",
+      "rationale": "Examined the ready check and decision gate messages: each names the limit, ADR or finding and the fault. Silent parser cases and missing text output are reported separately as N2, N4 and N5."
+    },
+    {
+      "id": "requirements",
+      "disposition": "finding",
+      "evidence": "N3"
+    },
+    {
+      "id": "scope",
+      "disposition": "finding",
+      "evidence": "N1"
+    },
+    {
+      "id": "security",
+      "disposition": "passed",
+      "evidence": "unit:pose-mcp/go/test",
+      "rationale": "within-limit approves only an id present in the sealed bundle with a non-blank reason; blocker findings with a limit stay open; limit text is rendered as one quoted line with backticks neutralised; ADRs are read as regular bounded files without following links."
+    },
+    {
+      "id": "solution-proportionality",
+      "disposition": "passed",
+      "evidence": "unit:pose-mcp/go/test",
+      "rationale": "A spec section, two omitted-when-empty fields, one disposition and a lint check are close to the smallest sufficient change; a round cap would approve unreviewed work. The choice fails if sealed limits can differ from the declared ones, which N2 and N4 address."
+    }
+  ],
+  "tools": [
+    {
+      "id": "artifact-check",
+      "disposition": "failed",
+      "evidence": "command:pose artifact-check --spec pose-review-declared-threat-model --strict",
+      "rationale": "Exit 1: error action-mismatch on .pose/policy/delegation.json (N1)."
+    },
+    {
+      "id": "assess-design",
+      "disposition": "passed",
+      "evidence": "structure:design-9d93fd07c4704048",
+      "rationale": "Exit 0, no deltas."
+    },
+    {
+      "id": "assess-discover",
+      "component": "pose-mcp",
+      "disposition": "passed",
+      "evidence": "command:pose assess discover --no-persist --component pose-mcp",
+      "rationale": "Exit 0."
+    },
+    {
+      "id": "assess-integrate",
+      "disposition": "passed",
+      "evidence": "integration:pose-mcp/go/review-bundle-convergence",
+      "rationale": "Exit 0; the HTTP consumer gaps shown are unrelated to this change."
+    },
+    {
+      "id": "assess-tech-debt",
+      "disposition": "passed",
+      "evidence": "command:pose assess tech-debt --no-persist",
+      "rationale": "Exit 0; scan reports itself incomplete because of two unreadable old specs."
+    },
+    {
+      "id": "closeout-check",
+      "disposition": "deferred",
+      "rationale": "Needs the completed review."
+    },
+    {
+      "id": "review-check",
+      "disposition": "deferred",
+      "rationale": "Needs the completed review."
+    },
+    {
+      "id": "suggest-review",
+      "component": "pose-mcp",
+      "disposition": "passed",
+      "evidence": "command:pose suggest review --path pose-mcp",
+      "rationale": "Exit 0."
+    },
+    {
+      "id": "surface-check",
+      "disposition": "failed",
+      "evidence": "reachability:pose-mcp/go/delivery-reachability",
+      "rationale": "The command run here exits 1 with error action-mismatch (N1); the cited sealed ref is reachability evidence, not a pass of this command."
+    },
+    {
+      "id": "validate",
+      "disposition": "passed",
+      "evidence": "unit:pose-mcp/go/test",
+      "rationale": "Relies on sealed evidence. Full strict validation was not completed here: the module run was cancelled at the time bound, with sandbox failures from directory ownership."
+    },
+    {
+      "id": "validate",
+      "component": "pose-mcp",
+      "disposition": "passed",
+      "evidence": "unit:pose-mcp/go/test",
+      "rationale": "Relies on sealed evidence. The sandbox run was cancelled at 420s (exit 124); the failures inspected came from directory ownership restrictions."
+    }
+  ],
+  "evidence_refs": [
+    "N1",
+    "N2",
+    "N3",
+    "N6",
+    "delegated-run:rrn-c3e24e7943c0693e",
+    "integration:pose-mcp/go/lint-spec-all-gate-contract",
+    "integration:pose-mcp/go/review-brief-templates-are-immutable-integration",
+    "integration:pose-mcp/go/review-bundle-convergence",
+    "integration:pose-mcp/go/typed-diagnostics-integration",
+    "structure:design-9d93fd07c4704048",
+    "unit:pose-mcp/go/test"
+  ],
+  "findings": [
+    {
+      "id": "N1",
+      "severity": "medium",
+      "evidence": "file:.pose/specs/2026-11-23-pose-review-declared-threat-model.md:72",
+      "action": "The spec declares 'modified: .pose/policy/delegation.json' (added by b5296a37), but the commits in the range that change it (7bf729e0, 3e1f03cf) carry no POSE-Spec trailer. 'artifact-check --spec pose-review-declared-threat-model --strict' and 'surface-check --strict' both exit 1 with error action-mismatch on that path, so two required tools fail. Attribute the exact revisions to the spec or correct the claim, then rerun both checks.",
+      "disposition": "open"
+    },
+    {
+      "id": "N2",
+      "severity": "medium",
+      "evidence": "file:pose-mcp/internal/pose/accepted_limits.go:99",
+      "action": "The continuation-line fix reads entry boundaries wrongly (probed through a test overlay). (a) A wrapped line starting with '#' ('see issue\\n  #42 only on Linux') is taken as a heading: the limit is sealed cut at the first line, with no problem reported. (b) A nested '- only on Linux' sub-bullet is reported by lint, but the plan discards problems (line 134) and seals the limit without its qualifier. (c) A later non-indented paragraph after a blank line, or a following '* L2: ...' bullet, is appended into L1 and changes the sealed limit (L2 vanishes). (d) '- L1: no reason here', a blank line, then 'Some unrelated note. Accepted because other words follow.' now passes with no problem: the ready check accepts a reason borrowed from a later paragraph, which R4 and the round 4 rule refuse. End an entry where its Markdown list item ends, treat only real headings as headings, refuse (and do not seal) what cannot be read whole, with tests.",
+      "disposition": "open"
+    },
+    {
+      "id": "N3",
+      "severity": "medium",
+      "evidence": "file:pose-mcp/internal/cli/lintspec.go:1200",
+      "action": "Regression from the N4 fix: the whole-slug pattern refuses a preceding '-', so an ADR that cites the spec only by its file link, for example '[it](../specs/2026-11-25-limited.md)', is no longer a citing ADR and the ready check demands no limit from it (probe returned no failure; the directory form and 'spec:limited' still demand L1). Dated flat files are how this repository's ADRs link specs, some by link alone with a descriptive label (.pose/adr/2026-09-21-federated-roadmap-acceptance-with-local-evidence-authority.md:6), so R4 goes unenforced for them. Recognise the dated spec path as a citation, with a test.",
+      "disposition": "open"
+    },
+    {
+      "id": "N4",
+      "severity": "low",
+      "evidence": "file:pose-mcp/internal/pose/accepted_limits.go:74",
+      "action": "Fence and comment skipping is incomplete (probed). Any ``` or ~~~ prefix toggles one flag, so an example inside a four-backtick block or a ~~~ block holding ``` is sealed as a real limit; a 4-space indented code example is sealed too. A line starting with inline ```a``` or a literal unterminated '\u003c!--' earlier in the body silently drops every later limit, with no problem and a passing lint (lint strips only closed comments); a comment written in backticks inside a limit is removed from its sealed text. A '* L1:' bullet alone is silently ignored.",
+      "disposition": "open"
+    },
+    {
+      "id": "N5",
+      "severity": "low",
+      "evidence": "file:pose-mcp/internal/cli/governance_stats.go:132",
+      "action": "within_limit_findings is counted and present in JSON, but the text output of the governance stats prints findings, accepted_risk, resolved, open and wont_fix without it, so the printed buckets still do not add up; review-check and closeout-check text still do not show within-limit findings, which the spec constraint wants visible in the closeout.",
+      "disposition": "open"
+    },
+    {
+      "id": "N6",
+      "severity": "low",
+      "evidence": "file:pose-mcp/internal/pose/review_brief.go:563",
+      "action": "review-brief/11 still says in the conclusion step that a follow-up with action, owner and review_by is an accepted risk and 'any other finding stays open', which is false for a follow-up with a sealed limit (rule (m) states the exception only to rule (i)).",
+      "disposition": "open"
+    },
+    {
+      "id": "N7",
+      "severity": "low",
+      "evidence": "file:pose-mcp/internal/pose/accepted_limits.go:49",
+      "action": "Carried from R8-N6: the lexical reason gate accepts placeholder words. Inside L1: it is a format gate over text the implementer writes, and the sealed brief shows that text for the reviewer to judge and dispute.",
+      "disposition": "within-limit",
+      "rationale": "Carried from R8-N6: the lexical reason gate accepts placeholder words. Inside L1: it is a format gate over text the implementer writes, and the sealed brief shows that text for the reviewer to judge and dispute.",
+      "limit": "L1"
+    }
+  ],
+  "authority": {
+    "schema_version": 1,
+    "project": "proj.pose-dist",
+    "bundle_digest": "sha256:2bbfe59551bb1300f093ac9c119f1a8d0857bdb403f49d5df01bd0c5b80c5177",
+    "principal": "agent:anthropic/claude-sonnet-5-5",
+    "role": "agent",
+    "review_execution": "rrn-c3e24e7943c0693e",
+    "implementation_principal": "agent:anthropic/claude-opus-5-5",
+    "implementation_execution": "sha256:344ac5868944c155772d60a95ef6ff20644580a642e772ad5c92c29428464ff8",
+    "issuer": "b34-local-executor",
+    "issued_at": "2026-11-26T02:35:29Z",
+    "audience": "proj.pose-dist"
+  },
+  "envelope": {
+    "issuer": "b34-local-executor",
+    "subject": "rvb-2bbfe59551bb1300",
+    "algorithm": "ed25519",
+    "public_key": "ck4sApdfePV2GT+hJyAYfJd2qLzeG55P8pevGR0bvZE=",
+    "signature": "O5dsytcUdoVr/7bpXPEwub3FIwgq6KE/fVGpxXmArWxCsFh/4s0OVmh/ndl1I2mhGjxgeHZYnEyPNrMl/1agAQ=="
+  },
+  "attested_at": "2026-11-26T02:35:29Z",
+  "path": ".pose/review-attestations/rva-b0ea5be13e4a8c41.json"
+}
