@@ -1,7 +1,7 @@
 {
   "schema_version": 2,
-  "input_digest": "sha256:2a7c829a01abf61e5dfdc3b5ea60de67d077cd1bb8a76955b7091c2ee4c6649b",
-  "provenance_digest": "sha256:b61b2418790f56753642bc9b8cc7dc2406e05be9e0ce476073e2d9b583f382e8",
+  "input_digest": "sha256:04004bfe21d9b3dad3d06e2896f5f8b2e9efaeae739bc6eccf5df7261d92f10c",
+  "provenance_digest": "sha256:3d49666eae3bb6548245a1bbe327e87645323671a2364c5898c3aa25fc267e21",
   "implied_edges": [
     "changes"
   ],
@@ -8803,6 +8803,13 @@
       "type": "artifact",
       "attributes": {
         "path": ".pose/results/release-lifecycle-validation.json"
+      }
+    },
+    {
+      "id": "artifact:.pose/results/resume-binding.md",
+      "type": "artifact",
+      "attributes": {
+        "path": ".pose/results/resume-binding.md"
       }
     },
     {
@@ -47096,14 +47103,6 @@
       }
     },
     {
-      "id": "change-set:cs-16a788cb2b4f",
-      "type": "change-set",
-      "attributes": {
-        "diff_digest": "sha256:6adf864cacdfe42a229284dc33fa8c1091e0eb8d7d0d6bdb6ca518b5320705aa",
-        "selector": "trailers:pose-review-resume-keeps-the-sealed-checkout"
-      }
-    },
-    {
       "id": "change-set:cs-1717c2ba11ad",
       "type": "change-set",
       "attributes": {
@@ -49021,6 +49020,14 @@
       "attributes": {
         "diff_digest": "sha256:4b2271d71eaa174d9b4056e68e0013b35a5538b696c84444c11db150abd3baed",
         "selector": "trailers:pose-worktree-runtime-qos-and-measurement"
+      }
+    },
+    {
+      "id": "change-set:cs-7ace083c6c16",
+      "type": "change-set",
+      "attributes": {
+        "diff_digest": "sha256:a5833c2998927b8c11615963f01ce1b20271bffee2e5f0f171d926a14d2a758a",
+        "selector": "trailers:pose-review-resume-keeps-the-sealed-checkout"
       }
     },
     {
@@ -135792,7 +135799,7 @@
     },
     {
       "from": "spec:pose-review-resume-keeps-the-sealed-checkout",
-      "to": "change-set:cs-16a788cb2b4f",
+      "to": "change-set:cs-7ace083c6c16",
       "type": "observed-by"
     },
     {
@@ -192955,71 +192962,6 @@
       }
     },
     {
-      "id": "cs-16a788cb2b4f",
-      "spec": "pose-review-resume-keeps-the-sealed-checkout",
-      "selector": "trailers:pose-review-resume-keeps-the-sealed-checkout",
-      "base": "dfd145ee96fe4fecd6810742c4f0f3384565fa73^",
-      "head": "9671f96ad87f07ae4e8b653c2ac4bc2dc6378238",
-      "resolved_base": "c8f98b20d68cc041c0547e71642b50f15e50d2b9",
-      "resolved_head": "9671f96ad87f07ae4e8b653c2ac4bc2dc6378238",
-      "commits": [
-        "dfd145ee96fe4fecd6810742c4f0f3384565fa73",
-        "59a4baedb82327d14e8283a02a45834d52bb139f",
-        "0be404b1ab6ff96d6a83685f4518f4df500623b7",
-        "a1dc25c3ad9bdd53df2c27f20cca45c23a096e82",
-        "9671f96ad87f07ae4e8b653c2ac4bc2dc6378238"
-      ],
-      "paths": [
-        {
-          "action": "created",
-          "path": ".pose/specs/2026-11-25-pose-review-resume-keeps-the-sealed-checkout.md"
-        },
-        {
-          "action": "created",
-          "path": "pose-mcp/internal/pose/review_run_runtime_dir_test.go"
-        },
-        {
-          "action": "modified",
-          "path": ".pose/indexes/delivery-integrity.json"
-        },
-        {
-          "action": "modified",
-          "path": ".pose/indexes/generation.json"
-        },
-        {
-          "action": "modified",
-          "path": ".pose/indexes/spec-graph.json"
-        },
-        {
-          "action": "modified",
-          "path": ".pose/results/delivery-validation.json"
-        },
-        {
-          "action": "modified",
-          "path": "pose-mcp/internal/cli/review_run_continuity_test.go"
-        },
-        {
-          "action": "modified",
-          "path": "pose-mcp/internal/pose/review_dispatch.go"
-        }
-      ],
-      "diff_digest": "sha256:6adf864cacdfe42a229284dc33fa8c1091e0eb8d7d0d6bdb6ca518b5320705aa",
-      "material_digest": "sha256:6c1d9a5a6a470818d10a22f154479acc74e2f08ef8d5a74a5cf7c604e451f80a",
-      "material_inputs": {
-        "names": [
-          ".pose/indexes/delivery-integrity.json",
-          ".pose/indexes/generation.json",
-          ".pose/indexes/spec-graph.json",
-          ".pose/indexes/validation-matrix.json",
-          ".pose/results/delivery-validation.json",
-          ".pose/specs/2026-11-25-pose-review-resume-keeps-the-sealed-checkout.md",
-          "pose-mcp/internal/cli/review_run_continuity_test.go",
-          "pose-mcp/internal/pose/review_dispatch.go",
-          "pose-mcp/internal/pose/review_run_runtime_dir_test.go"
-        ]
-      }
-    },
-    {
       "id": "cs-1717c2ba11ad",
       "spec": "pose-manual-and-cli-command-parity",
       "selector": "trailers:pose-manual-and-cli-command-parity",
@@ -243506,6 +243448,78 @@
           "pose-mcp/internal/scaffold/dist/locales/pt-BR/POSE.md",
           "pose-mcp/internal/worktreeruntime/runtime.go",
           "pose-mcp/internal/worktreeruntime/runtime_test.go"
+        ]
+      }
+    },
+    {
+      "id": "cs-7ace083c6c16",
+      "spec": "pose-review-resume-keeps-the-sealed-checkout",
+      "selector": "trailers:pose-review-resume-keeps-the-sealed-checkout",
+      "base": "dfd145ee96fe4fecd6810742c4f0f3384565fa73^",
+      "head": "e26623a150f5cdbe5c83366a6b12c30bc0f727ea",
+      "resolved_base": "c8f98b20d68cc041c0547e71642b50f15e50d2b9",
+      "resolved_head": "e26623a150f5cdbe5c83366a6b12c30bc0f727ea",
+      "commits": [
+        "dfd145ee96fe4fecd6810742c4f0f3384565fa73",
+        "59a4baedb82327d14e8283a02a45834d52bb139f",
+        "0be404b1ab6ff96d6a83685f4518f4df500623b7",
+        "a1dc25c3ad9bdd53df2c27f20cca45c23a096e82",
+        "9671f96ad87f07ae4e8b653c2ac4bc2dc6378238",
+        "11450e27124f366705e9fbc48b3d8d6f7d5782e5",
+        "e26623a150f5cdbe5c83366a6b12c30bc0f727ea"
+      ],
+      "paths": [
+        {
+          "action": "created",
+          "path": ".pose/results/resume-binding.md"
+        },
+        {
+          "action": "created",
+          "path": ".pose/specs/2026-11-25-pose-review-resume-keeps-the-sealed-checkout.md"
+        },
+        {
+          "action": "created",
+          "path": "pose-mcp/internal/pose/review_run_runtime_dir_test.go"
+        },
+        {
+          "action": "modified",
+          "path": ".pose/indexes/delivery-integrity.json"
+        },
+        {
+          "action": "modified",
+          "path": ".pose/indexes/generation.json"
+        },
+        {
+          "action": "modified",
+          "path": ".pose/indexes/spec-graph.json"
+        },
+        {
+          "action": "modified",
+          "path": ".pose/results/delivery-validation.json"
+        },
+        {
+          "action": "modified",
+          "path": "pose-mcp/internal/cli/review_run_continuity_test.go"
+        },
+        {
+          "action": "modified",
+          "path": "pose-mcp/internal/pose/review_dispatch.go"
+        }
+      ],
+      "diff_digest": "sha256:a5833c2998927b8c11615963f01ce1b20271bffee2e5f0f171d926a14d2a758a",
+      "material_digest": "sha256:6c1d9a5a6a470818d10a22f154479acc74e2f08ef8d5a74a5cf7c604e451f80a",
+      "material_inputs": {
+        "names": [
+          ".pose/indexes/delivery-integrity.json",
+          ".pose/indexes/generation.json",
+          ".pose/indexes/spec-graph.json",
+          ".pose/indexes/validation-matrix.json",
+          ".pose/results/delivery-validation.json",
+          ".pose/results/resume-binding.md",
+          ".pose/specs/2026-11-25-pose-review-resume-keeps-the-sealed-checkout.md",
+          "pose-mcp/internal/cli/review_run_continuity_test.go",
+          "pose-mcp/internal/pose/review_dispatch.go",
+          "pose-mcp/internal/pose/review_run_runtime_dir_test.go"
         ]
       }
     },
