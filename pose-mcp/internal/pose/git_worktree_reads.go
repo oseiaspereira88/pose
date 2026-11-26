@@ -29,21 +29,26 @@ func ReadOnlyIndex(cmd *exec.Cmd, root string) (func(), error) {
 		return func() {}, fmt.Errorf("pose: the index of %s cannot be located: %w", root, err)
 	}
 	path := strings.TrimSuffix(string(out), "\n")
-	if _, err := os.Lstat(path); os.IsNotExist(err) {
+	before, err := os.Stat(path)
+	if os.IsNotExist(err) {
 		// No index yet: there is no stat cache to refresh, so the plain read
 		// writes nothing (review round 2, N11).
 		return func() {}, nil
 	}
-	// One open file is checked and read, within the bound (review round 3,
-	// N17): a file swapped in between cannot escape it.
+	// A FIFO or device is refused before it is opened, which could block
+	// (review round 4, N21); the open file must be the file checked, and is
+	// read within the bound (round 3, N17).
+	if err != nil || !before.Mode().IsRegular() {
+		return func() {}, fmt.Errorf("pose: the index of %s is not a regular file", root)
+	}
 	f, err := os.Open(path)
 	if err != nil {
 		return func() {}, fmt.Errorf("pose: the index of %s cannot be read: %w", root, err)
 	}
 	defer f.Close()
 	info, err := f.Stat()
-	if err != nil || !info.Mode().IsRegular() {
-		return func() {}, fmt.Errorf("pose: the index of %s is not a regular file", root)
+	if err != nil || !info.Mode().IsRegular() || !os.SameFile(before, info) {
+		return func() {}, fmt.Errorf("pose: the index of %s changed while it was opened", root)
 	}
 	raw, err := io.ReadAll(io.LimitReader(f, diffIndexLimit+1))
 	if err != nil {

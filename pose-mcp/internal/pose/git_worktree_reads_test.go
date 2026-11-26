@@ -5,6 +5,8 @@ import (
 	"os"
 	"os/exec"
 	"path/filepath"
+	"runtime"
+	"strings"
 	"testing"
 	"time"
 )
@@ -180,5 +182,35 @@ func TestReadOnlyIndexDiffSeesARacilyCleanEntry(t *testing.T) {
 	}
 	if string(got) != "a.txt\n" {
 		t.Fatalf("a racily clean change was hidden: %q", got)
+	}
+}
+
+// Review round 4, N21: a FIFO at the index path is refused, not opened,
+// which would block.
+func TestReadOnlyIndexRefusesAFIFOIndex(t *testing.T) {
+	if runtime.GOOS == "windows" {
+		t.Skip("no FIFOs")
+	}
+	root := t.TempDir()
+	if out, err := exec.Command("git", "-C", root, "init", "-q").CombinedOutput(); err != nil {
+		t.Fatal(err, string(out))
+	}
+	index := filepath.Join(root, ".git", "index")
+	_ = os.Remove(index)
+	if out, err := exec.Command("mkfifo", index).CombinedOutput(); err != nil {
+		t.Skip("mkfifo unavailable:", err, string(out))
+	}
+	done := make(chan error, 1)
+	go func() {
+		_, err := RawGitDiffReadOnly(root, "-C", root, "diff", "--name-only", "--")
+		done <- err
+	}()
+	select {
+	case err := <-done:
+		if err == nil || !strings.Contains(err.Error(), "not a regular file") {
+			t.Fatalf("a FIFO index: %v", err)
+		}
+	case <-time.After(10 * time.Second):
+		t.Fatal("reading a FIFO index blocked")
 	}
 }
