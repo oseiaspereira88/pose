@@ -296,7 +296,7 @@ func TestRunContinuityObservedProcessLoss(t *testing.T) {
 // Spec pose-review-resume-keeps-the-sealed-checkout R1, R2: a resumed session
 // works in the sealed checkout it saw before the interruption, recreated at
 // the same path after the interrupted run removed it.
-func TestResumedReviewFindsItsSealedCheckoutAtTheSamePath(t *testing.T) {
+func TestRunContinuityResumedReviewFindsItsSealedCheckoutAtTheSamePath(t *testing.T) {
 	marks := t.TempDir()
 	first := filepath.Join(marks, "first")
 	root, _, prior := runContinuityFixture(t, func(a *posemodel.ReviewerAdapter) {
@@ -319,6 +319,11 @@ func TestResumedReviewFindsItsSealedCheckoutAtTheSamePath(t *testing.T) {
 	}
 	if code, out := runPose(t, root, "delegate", "resume", prior.RunID); code == 0 || !strings.Contains(out, "still exists") {
 		t.Fatalf("a resume beside a leftover runtime directory: %d %s", code, out)
+	}
+	// Review round 2, N6: a handoff is refused the same way, before it
+	// claims the interrupted run.
+	if _, err := (posemodel.Store{Root: root}).PlanReviewHandoff(prior.RunID, "other"); err == nil || !strings.Contains(err.Error(), "still exists") {
+		t.Fatalf("a handoff beside a leftover runtime directory: %v", err)
 	}
 	if err := os.Remove(runtimeDir); err != nil {
 		t.Fatal(err)

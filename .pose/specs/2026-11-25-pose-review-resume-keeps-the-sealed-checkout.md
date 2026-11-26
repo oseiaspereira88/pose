@@ -56,6 +56,7 @@ Runs recorded by earlier engines keep their meaning.
 - created: pose-mcp/internal/pose/review_run_runtime_dir_test.go
 - modified: pose-mcp/internal/cli/review_run_continuity_test.go
 - modified: pose-mcp/internal/pose/review_run_continuity.go
+- modified: pose-mcp/internal/pose/delegation_handoff.go
 - modified: POSE.md
 - modified: locales/pt-BR/POSE.md
 - modified: pose-mcp/internal/scaffold/dist/POSE.md
@@ -76,7 +77,7 @@ None: the run records, briefs and adapter commands are unchanged; only where the
 None.
 
 ### Technical risks
-A run whose cleanup failed leaves the directory. Resume refuses it before claiming the continuation, naming the directory, so removing it restores the resume; a run that fails before anything is in the directory removes it.
+A run whose cleanup failed leaves the directory, and resume already refuses such a predecessor. A directory present although the last run cleaned up (another process holding the path) makes resume and handoff refuse before they claim the run, naming the directory, so removing it restores them; a run that fails before anything is in the directory removes it.
 
 ## 4. Tasks
 
@@ -108,14 +109,15 @@ Each requirement gets a regression test shown failing before its code.
 ### Execution log
 - 2026-11-26: `reviewRunRuntimeDir` gives every run of an attempt the same runtime directory, created with `os.Mkdir` (no link followed, an existing path refused). `TestResumedReviewFindsItsSealedCheckoutAtTheSamePath` fails with the random name restored (the session was moved from the first checkout); `TestTheAttemptRuntimeDirectoryIsCreatedExclusively` fails with `MkdirAll`.
 - 2026-11-26: review round 1 (rrn-7adbffa551b9acf2, Claude Sonnet 5.5) ended without a draft: its Bash sandbox did not start. From its reading: N1, resume refuses a leftover runtime directory before claiming the continuation (the test fails with the check mutated out); N2, the R2 adapter fails unless the recreated checkout holds the spec; N3, the manual in both locales states the stable path, the `TMPDIR` condition and the remedy; N4, a run that fails right after creating the directory removes it; N5 is declared as L3.
+- 2026-11-26: the full suite caught a repeated resume refused beside the directory; the check now runs only for a continuation still to start. Review round 2 (rrn-c5d57ff07d69ec1a) requested changes: N7, the manual, the technical risks and the messages no longer promise that removing a directory left by an unfinished cleanup restores resume (that predecessor is refused anyway); N6, a handoff checks the directory before it claims the run (the test fails with the check mutated out); N9, the regression tests are named `TestRunContinuity…`, so the matrix's continuity pattern runs them; N10, the exclusivity test isolates `TMP` and `TEMP` as well. N8 is a follow-up.
 
 ### Results summary
 The full `pose-mcp` suite passes; the canonical result is refreshed with `pose validate --carry`.
 
 ### Requirement trace
-- R1 [satisfied] test:TestResumedReviewFindsItsSealedCheckoutAtTheSamePath
-- R2 [satisfied] test:TestResumedReviewFindsItsSealedCheckoutAtTheSamePath
-- R3 [satisfied] test:TestTheAttemptRuntimeDirectoryIsCreatedExclusively, test:TestResumedReviewFindsItsSealedCheckoutAtTheSamePath
+- R1 [satisfied] test:TestRunContinuityResumedReviewFindsItsSealedCheckoutAtTheSamePath
+- R2 [satisfied] test:TestRunContinuityResumedReviewFindsItsSealedCheckoutAtTheSamePath
+- R3 [satisfied] test:TestRunContinuityAttemptRuntimeDirectoryIsCreatedExclusively, test:TestRunContinuityResumedReviewFindsItsSealedCheckoutAtTheSamePath
 
 ### Known gaps
 None.
@@ -135,4 +137,4 @@ A resumed review run recreates its sealed checkout at the path the interrupted r
 L1, L2 and L3 above.
 
 ### Follow-ups
-None.
+- [open] Make the continuation claim and the runtime-directory check one step, so a resume that loses a race is told the continuation is pending instead of being asked to remove a live run's directory (review round 2, N8). (owner:@pose-maintainers crit:low review:2026-12-26)

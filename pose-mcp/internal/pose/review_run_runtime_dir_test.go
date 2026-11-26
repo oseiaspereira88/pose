@@ -10,8 +10,13 @@ import (
 // Spec pose-review-resume-keeps-the-sealed-checkout R3: the attempt's
 // directory is created exclusively; an existing path, a link included, fails
 // the run instead of being shared or followed.
-func TestTheAttemptRuntimeDirectoryIsCreatedExclusively(t *testing.T) {
-	t.Setenv("TMPDIR", t.TempDir())
+func TestRunContinuityAttemptRuntimeDirectoryIsCreatedExclusively(t *testing.T) {
+	// os.TempDir reads TMPDIR on Unix and TMP/TEMP on Windows (review round
+	// 2, N10).
+	tmp := t.TempDir()
+	for _, name := range []string{"TMPDIR", "TMP", "TEMP"} {
+		t.Setenv(name, tmp)
+	}
 	id := "rat-" + strings.Repeat("ab", 32)
 	dir, err := reviewRunRuntimeDir(id)
 	if err != nil {

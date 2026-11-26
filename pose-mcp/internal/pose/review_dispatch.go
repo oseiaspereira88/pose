@@ -2053,7 +2053,7 @@ func reviewRunRuntimeDir(attemptID string) (string, error) {
 	}
 	if err := os.Mkdir(dir, 0o700); err != nil {
 		if errors.Is(err, fs.ErrExist) {
-			return "", fmt.Errorf("the attempt's runtime directory %s already exists; an earlier run of the attempt did not clean up, or another process holds the path; remove it, then run again", dir)
+			return "", fmt.Errorf("the attempt's runtime directory %s already exists; an earlier run of the attempt did not clean up, or another process holds the path; when no run of the attempt is live, remove it, then run again", dir)
 		}
 		return "", err
 	}
@@ -2079,7 +2079,7 @@ func reviewRunRuntimeDirFree(attemptID string) error {
 		return nil
 	}
 	if _, err := os.Lstat(dir); err == nil {
-		return fmt.Errorf("the attempt's runtime directory %s still exists; an earlier run of the attempt did not clean up, or another process holds the path; remove it, then resume", dir)
+		return fmt.Errorf("the attempt's runtime directory %s still exists although its last run cleaned up; another process holds the path, or a run of the attempt is starting; when none is live, remove it, then resume", dir)
 	} else if !errors.Is(err, fs.ErrNotExist) {
 		return fmt.Errorf("the attempt's runtime directory %s cannot be checked: %w", dir, err)
 	}
