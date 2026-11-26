@@ -22,6 +22,16 @@ func TestRunContinuityAttemptRuntimeDirectoryIsCreatedExclusively(t *testing.T) 
 	if err != nil {
 		t.Fatal(err)
 	}
+	// The adapter's TMPDIR is this directory and sandboxes create Unix
+	// sockets under it: the name is no longer than a random one (review
+	// rounds 1 to 3, the reviewer's sandbox failed to start).
+	random, err := os.MkdirTemp("", "pose-review-run-*")
+	if err != nil {
+		t.Fatal(err)
+	}
+	if len(filepath.Base(dir)) > len(filepath.Base(random)) {
+		t.Fatalf("the attempt's runtime directory %s is longer than a random one %s", filepath.Base(dir), filepath.Base(random))
+	}
 	if _, err := reviewRunRuntimeDir(id); err == nil || !strings.Contains(err.Error(), "already exists") {
 		t.Fatalf("an existing runtime directory was shared: %v", err)
 	}

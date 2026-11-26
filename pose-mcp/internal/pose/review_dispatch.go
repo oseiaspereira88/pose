@@ -2035,6 +2035,10 @@ func sourceMaterializationDiffers(root, commit string, entries []ReviewBundleSub
 	return ""
 }
 
+// reviewRunRuntimeHex is how many hex digits of the attempt id name its
+// runtime directory, as long as the random suffix of os.MkdirTemp.
+const reviewRunRuntimeHex = 10
+
 // reviewAttemptIDRE is the form of a delegated review attempt's id.
 var reviewAttemptIDRE = regexp.MustCompile(`^rat-[0-9a-f]{64}$`)
 
@@ -2066,7 +2070,13 @@ func reviewRunRuntimeDirPath(attemptID string) (string, bool) {
 	if !reviewAttemptIDRE.MatchString(attemptID) {
 		return "", false
 	}
-	return filepath.Join(os.TempDir(), "pose-review-run-"+attemptID[len("rat-"):len("rat-")+32]), true
+	// The name is no longer than the random one it replaces: the adapter's
+	// TMPDIR is this directory, and a sandboxed reviewer creates Unix
+	// sockets under it, whose paths are bounded (about 108 bytes); the
+	// 32-hex name made the Claude sandbox fail to start (review rounds 1
+	// to 3). Ten hex digits name the attempt; a clash with another attempt
+	// only fails the later run, as the directory is created exclusively.
+	return filepath.Join(os.TempDir(), "pose-review-run-"+attemptID[len("rat-"):len("rat-")+reviewRunRuntimeHex]), true
 }
 
 // reviewRunRuntimeDirFree refuses a continuation whose runtime directory is
