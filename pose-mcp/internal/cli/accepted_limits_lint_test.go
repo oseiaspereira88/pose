@@ -67,6 +67,11 @@ func TestReadyCheckJudgesAcceptedLimits(t *testing.T) {
 	if code, out := run(); code != 0 {
 		t.Fatalf("an ADR citing a longer slug was taken to cite this spec: %d %s", code, out)
 	}
+	// Review round 9, N3: an ADR that links the spec's dated file cites it.
+	write(".pose/adr/2026-11-25-limited.md", "# ADR\n\nSee [the spec](../specs/2026-11-25-limited.md).\n")
+	if code, out := run(); code == 0 || !strings.Contains(out, "L1") {
+		t.Fatalf("an ADR linking the spec file was not taken to cite it: %d %s", code, out)
+	}
 	// Review round 7, N2: an ADR that is a link is not followed.
 	adr := filepath.Join(root, ".pose/adr/2026-11-25-limited.md")
 	_ = os.Chmod(adr, 0o644)

@@ -69,7 +69,6 @@ Records and indexes written by earlier engines keep their meaning.
 - modified: pose-mcp/internal/pose/governance_outcomes.go
 - modified: pose-mcp/internal/pose/governance_outcomes_test.go
 - modified: pose-mcp/internal/pose/delivery_surface_test.go
-- modified: .pose/policy/delegation.json
 - created: pose-mcp/internal/cli/accepted_limits_lint_test.go
 - modified: POSE.md
 - modified: locales/pt-BR/POSE.md
@@ -139,6 +138,7 @@ Each requirement gets a regression test shown failing before its code.
 - 2026-11-25: review round 6 (rrn-a5b61489ac04873d) found the bundle's plan digest did not cover the sealed limits; it now does, omitted when empty so every other bundle keeps its digest. `TestTheBundlePlanDigestCoversTheAcceptedLimits` checks both and fails with the field mutated out.
 - 2026-11-25: review round 7 (rrn-1236e104ff346a2d): N2, the ready check reads an ADR only as a regular file, without following a link and within 1 MiB, so a link to an endless source fails instead of hanging; the test fails with the bounded read mutated out. N1 (low) was classified by the reviewer within L1: the check is a format gate, and the substance of a limit is judged in review.
 - 2026-11-26: round 8 hit the Codex usage limit; by the maintainer's decision Claude Sonnet 5.5 reviews from here (a `claude-sonnet-5-5` profile in the delegation policy, the bundle resealed with the declared lead `anthropic/claude-opus-5-5` so the review is `different-model`; vendor independence is not achieved). Its round (rrn-b874a0e13bc62075) recorded N6 within L1, the first live use of `limit`, and requested changes: N1, a wrapped entry now keeps its continuation lines; N2, fenced blocks and HTML comments are not read as declarations; N3, `review-brief/11` (not yet published, so its digest was re-recorded) states the exception to rule (i) and lists `limit` among the finding fields; N4, an ADR cites the spec only by its slug as a whole name; N5, governance outcomes count `within-limit` findings in their own bucket. Each has a test that fails with it mutated out. `gofmt` over the package's tests also reformatted `delivery_surface_test.go` (formatting only), declared among the artifacts.
+- 2026-11-26: review round 9 (rrn-c3e24e7943c0693e, Claude Sonnet 5.5) requested changes. N1: the claim on `.pose/policy/delegation.json` is withdrawn: the reviewer profile is an operational change of this checkout, committed without the trailer, not a deliverable of the spec. N2: an entry is one Markdown list item: indented lines (also after a blank line) continue it, an unindented line or the next `-`/`*` item ends it, a wrapped `#` is no heading, and a nested list or a limit without its reason is reported and not sealed. N3: an ADR that links the spec's dated file cites it. N4 (fences close only with their own marker) and N5 (the governance text prints `within_limit`) are fixed in part; the rest are follow-ups. N6: the conclusion step of `review-brief/11` (re-recorded digest) says a follow-up with a sealed limit is recorded within it. N7 was recorded within L1. Each fix has a test that fails with it mutated out.
 
 
 ### Results summary
@@ -175,6 +175,7 @@ L1 and L2 above.
 
 
 ### Follow-ups
-None.
+- [open] Make the accepted-limits reader refuse the Markdown it still misreads: an indented code example, a line opening with inline backticks, an unterminated `<!--` that hides later limits, and an HTML comment written inside backticks in a limit's text (review round 9, N4). (owner:@pose-maintainers crit:low review:2026-12-26)
+- [open] Show within-limit findings in the text output of `pose review-check` and `pose closeout-check`, as the JSON already does (review round 9, N5). (owner:@pose-maintainers crit:low review:2026-12-26)
 
 

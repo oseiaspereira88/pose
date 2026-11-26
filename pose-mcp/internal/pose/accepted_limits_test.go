@@ -83,7 +83,7 @@ func TestAFindingWithinASealedLimitDoesNotBlockApproval(t *testing.T) {
 // Review round 1, N1: across the specs of a composite scope each limit is
 // qualified by its spec, so a finding names exactly one.
 func TestLimitsAcrossSpecsAreQualified(t *testing.T) {
-	body := "### Accepted limits\n- L1: one. Accepted because it is rare.\n"
+	body := "### Accepted limits\n- L1: one escape. Accepted because it is rare.\n"
 	single := acceptedLimitsOfSpecs([]Spec{{Slug: "alpha", Body: body}})
 	if len(single) != 1 || single[0].ID != "L1" || single[0].Spec != "" {
 		t.Fatalf("a single spec's limit was qualified: %+v", single)
@@ -160,5 +160,43 @@ func TestAcceptedLimitsReadWrappedEntriesAndSkipExamples(t *testing.T) {
 	}
 	if !strings.HasSuffix(limits[0].Text, "only on Linux and only for children.") {
 		t.Fatalf("the continuation line was cut: %q", limits[0].Text)
+	}
+}
+
+// Review round 9, N2, N4: an entry ends where its list item ends; a wrapped
+// '#' is no heading; a nested list or a borrowed reason is refused and not
+// sealed; fences close only with their own marker.
+func TestAcceptedLimitsEndWhereTheirItemEnds(t *testing.T) {
+	cases := []struct {
+		name, body string
+		want       map[string]string
+		problem    string
+	}{
+		{"wrapped hash", "### Accepted limits\n- L1: An escape is open. Accepted because see issue\n  #42 only on Linux.\n", map[string]string{"L1": "An escape is open. Accepted because see issue #42 only on Linux."}, ""},
+		{"nested list", "### Accepted limits\n- L1: An escape is open. Accepted because it is rare\n  - only on Linux\n", map[string]string{}, "nested list"},
+		{"later paragraph", "### Accepted limits\n- L1: An escape is open. Accepted because it is rare.\n\nSome note that follows the list.\n* L2: Another escape. Accepted because it is rarer.\n", map[string]string{"L1": "An escape is open. Accepted because it is rare.", "L2": "Another escape. Accepted because it is rarer."}, ""},
+		{"indented paragraph", "### Accepted limits\n- L1: An escape is open. Accepted because it is rare\n\n  and only on Linux.\n", map[string]string{"L1": "An escape is open. Accepted because it is rare and only on Linux."}, ""},
+		{"borrowed reason", "### Accepted limits\n- L1: no reason here\n\nSome unrelated note. Accepted because other words follow.\n", map[string]string{}, "does not say why"},
+		{"four backticks", "### Accepted limits\n````\n```\n- L1: An example escape. Accepted because it is only shown.\n```\n````\n", map[string]string{}, ""},
+		{"tilde fence", "### Accepted limits\n~~~\n```\n- L1: An example escape. Accepted because it is only shown.\n~~~\n", map[string]string{}, ""},
+	}
+	for _, c := range cases {
+		limits, problems := ParseAcceptedLimits(c.body)
+		got := map[string]string{}
+		for _, l := range limits {
+			got[l.ID] = l.Text
+		}
+		if len(got) != len(c.want) {
+			t.Fatalf("%s: limits %+v, want %v (problems %v)", c.name, limits, c.want, problems)
+		}
+		for id, text := range c.want {
+			if got[id] != text {
+				t.Fatalf("%s: %s = %q, want %q", c.name, id, got[id], text)
+			}
+		}
+		joined := strings.Join(problems, "; ")
+		if (c.problem == "") != (joined == "") || !strings.Contains(joined, c.problem) {
+			t.Fatalf("%s: problems %q, want %q", c.name, joined, c.problem)
+		}
 	}
 }

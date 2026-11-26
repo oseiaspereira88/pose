@@ -560,7 +560,12 @@ func renderReviewBriefBody(bundle ReviewBundle, kind, template, notes string, sm
 		}
 		line("%d. At the end, the draft POSE reads: one fenced block opened with ```pose-draft holding a JSON object with `schema` %q, `decision` (the decision above), `findings` (each with `id`, `severity` high|medium|low, `disposition` blocker|follow-up, `file`, `line` and `summary`%s)%s. Everything outside the block is yours and is not read.", next, ReviewDraftSchema, limitField, roundFields(*round, template))
 		if conclusion {
-			line("%d. In the same block, the conclusion POSE records as the attestation: `criteria` (one entry per criterion above, each with `id`, `disposition` passed|finding|not-applicable, `evidence` as `<class>:<ref>` — a class the criterion asks for when it names one — and `rationale` for not-applicable), and `tools` (one entry per tool above, each with `id`, `component` when it has one, `disposition`, `evidence` and `rationale`). A follow-up finding that should be accepted as a risk carries `action`, `owner` and `review_by`; any other finding stays open. A criterion or tool you do not answer is not answered for you.", next+1)
+			text := fmt.Sprintf("%d. In the same block, the conclusion POSE records as the attestation: `criteria` (one entry per criterion above, each with `id`, `disposition` passed|finding|not-applicable, `evidence` as `<class>:<ref>` — a class the criterion asks for when it names one — and `rationale` for not-applicable), and `tools` (one entry per tool above, each with `id`, `component` when it has one, `disposition`, `evidence` and `rationale`). A follow-up finding that should be accepted as a risk carries `action`, `owner` and `review_by`; any other finding stays open. A criterion or tool you do not answer is not answered for you.", next+1)
+			if template == reviewBriefTemplateAcceptedLimits {
+				// A follow-up within a sealed limit is not open (review round 9, N6).
+				text = strings.Replace(text, "; any other finding stays open.", "; a follow-up whose `limit` names an accepted limit above is recorded within that limit; any other finding stays open.", 1)
+			}
+			line("%s", text)
 			if reviewBriefStatesRules(template) {
 				line("%d. %s", next+2, briefRulesText(template, bundle))
 			}

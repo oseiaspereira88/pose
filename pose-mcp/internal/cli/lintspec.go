@@ -1197,7 +1197,8 @@ func acceptedLimitsMissingFromADRs(root, slug string, limits []posepkg.ReviewAcc
 	if err != nil {
 		return []string{"DoR: the ADRs cannot be read to check the accepted limits: " + err.Error()}
 	}
-	citesSlug := regexp.MustCompile(`(^|[^A-Za-z0-9_-])` + regexp.QuoteMeta(slug) + `($|[^A-Za-z0-9_-])`)
+	// A whole slug, or the dated file a link names (review round 9, N3).
+	citesSlug := regexp.MustCompile(`(^|[^A-Za-z0-9_-]|[0-9]{4}-[0-9]{2}-[0-9]{2}-)` + regexp.QuoteMeta(slug) + `($|[^A-Za-z0-9_-])`)
 	var citing []string
 	var unreadable []string
 	for _, e := range entries {

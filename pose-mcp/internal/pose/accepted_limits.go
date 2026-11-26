@@ -22,7 +22,7 @@ type ReviewAcceptedLimit struct {
 	Spec string `json:"spec,omitempty"`
 }
 
-var acceptedLimitRE = regexp.MustCompile(`^-\s+(L[1-9][0-9]*):\s+(.+)$`)
+var acceptedLimitRE = regexp.MustCompile(`^[-*]\s+(L[1-9][0-9]*):\s+(.+)$`)
 
 // acceptedLimitMarkerRE finds the marker where a sentence opens, after the
 // assumption: "<assumption>. Accepted because <reason>." A marker inside a
@@ -59,45 +59,65 @@ func ParseAcceptedLimits(body string) ([]ReviewAcceptedLimit, []string) {
 	var problems []string
 	in := false
 	seen := map[string]bool{}
-	// An entry may wrap over several lines: an indented or plain line that
-	// follows it continues it (review round 8, N1). Fenced blocks and HTML
-	// comments are not the spec's declarations, so examples there are never
-	// sealed (N2).
+	// An entry is one Markdown list item: it may wrap over indented lines,
+	// including after a blank line, and it ends at an unindented line or the
+	// next item
+	// (review rounds 8 N1 and 9 N2). Fenced blocks and HTML comments are not
+	// the spec's declarations, so examples there are never sealed (round 8
+	// N2); a fence closes only with its own marker, at least as long.
 	type entry struct{ id, text string }
 	var entries []entry
-	malformed := func(line string) {
-		problems = append(problems, "accepted limit "+quoteLedgerText(line)+" is not written as '- L<N>: <assumption>. Accepted because <reason>.'")
-	}
-	fenced := false
+	open := false
+	fence := ""
 	for _, line := range strings.Split(stripHTMLComments(body), "\n") {
 		trimmed := strings.TrimSpace(line)
-		if strings.HasPrefix(trimmed, "```") || strings.HasPrefix(trimmed, "~~~") {
-			fenced = !fenced
+		if marker := fenceMarker(trimmed); marker != "" {
+			switch {
+			case fence == "":
+				fence = marker
+			case marker[0] == fence[0] && len(marker) >= len(fence) && strings.TrimLeft(trimmed, marker[:1]) == "":
+				fence = ""
+			}
+			open = false
 			continue
 		}
-		if fenced {
+		if fence != "" {
 			continue
 		}
-		if strings.HasPrefix(trimmed, "#") {
+		indented := trimmed != "" && (strings.HasPrefix(line, " ") || strings.HasPrefix(line, "\t"))
+		if !indented && strings.HasPrefix(trimmed, "#") {
 			heading := strings.TrimSpace(strings.TrimLeft(trimmed, "#"))
 			in = strings.EqualFold(heading, "Accepted limits") || strings.EqualFold(heading, "Limites aceitos")
+			open = false
 			continue
 		}
-		if !in || trimmed == "" {
+		if !in {
 			continue
 		}
-		if strings.HasPrefix(trimmed, "- ") {
+		switch {
+		case trimmed == "":
+			// A blank line inside an item keeps it open: an indented
+			// paragraph after it still belongs to the item, and an
+			// unindented line ends it.
+		case !indented && (strings.HasPrefix(trimmed, "- ") || strings.HasPrefix(trimmed, "* ")):
 			m := acceptedLimitRE.FindStringSubmatch(trimmed)
 			if m == nil {
-				malformed(trimmed)
-				entries = append(entries, entry{})
+				problems = append(problems, "accepted limit "+quoteLedgerText(trimmed)+" is not written as '- L<N>: <assumption>. Accepted because <reason>.'")
+				open = false
 				continue
 			}
 			entries = append(entries, entry{id: m[1], text: strings.TrimSpace(m[2])})
-			continue
-		}
-		if len(entries) > 0 && entries[len(entries)-1].id != "" {
+			open = true
+		case indented && open && (strings.HasPrefix(trimmed, "- ") || strings.HasPrefix(trimmed, "* ") || strings.HasPrefix(trimmed, "+ ")):
+			// A nested list cannot be read as one sentence: the whole limit
+			// is refused and not sealed.
+			problems = append(problems, "accepted limit "+entries[len(entries)-1].id+" holds a nested list; write it as one item")
+			entries[len(entries)-1].id = ""
+			open = false
+		case indented && open:
 			entries[len(entries)-1].text += " " + trimmed
+		default:
+			open = false
 		}
 	}
 	for _, e := range entries {
@@ -111,10 +131,23 @@ func ParseAcceptedLimits(body string) ([]ReviewAcceptedLimit, []string) {
 		seen[e.id] = true
 		if !hasAcceptedLimitReason(e.text) {
 			problems = append(problems, "accepted limit "+e.id+" does not say why it is accepted ('Accepted because ...')")
+			continue
 		}
 		limits = append(limits, ReviewAcceptedLimit{ID: e.id, Text: e.text})
 	}
 	return limits, problems
+}
+
+// fenceMarker returns the run of backticks or tildes that opens a code
+// fence on trimmed, or "".
+func fenceMarker(trimmed string) string {
+	for _, c := range []string{"`", "~"} {
+		n := len(trimmed) - len(strings.TrimLeft(trimmed, c))
+		if n >= 3 {
+			return trimmed[:n]
+		}
+	}
+	return ""
 }
 
 // acceptedLimitsOf collects the limits the scope's specs declare.
