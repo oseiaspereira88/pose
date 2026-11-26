@@ -1127,22 +1127,28 @@ func (checker *nativeChecker) readyTransitionCandidates() []string {
 		return nil
 	}
 	changed := map[string]bool{}
-	keep := func(rel string) {
-		relNorm := filepath.ToSlash(rel)
-		if strings.HasPrefix(relNorm, ".pose/specs/") && (strings.HasSuffix(relNorm, "/spec.md") || (strings.HasSuffix(relNorm, ".md") && !strings.EqualFold(filepath.Base(relNorm), "README.md"))) {
-			changed[relNorm] = true
+	for _, command := range [][]string{
+		{"diff", "--name-only", "HEAD", "--", ".pose/specs"},
+		{"ls-files", "--others", "--exclude-standard", "--", ".pose/specs"},
+	} {
+		// The diff reads the index without writing it (spec
+		// pose-validate-reads-leave-the-index-alone R1).
+		cmd := pose.RawHistoryGit(checker.root, command...)
+		done, err := pose.ReadOnlyIndex(cmd, checker.root)
+		if err != nil {
+			done()
+			continue
 		}
-	}
-	// What the work tree changes from HEAD, read without writing the index
-	// (spec pose-validate-reads-leave-the-index-alone R1).
-	if changes, err := pose.WorktreeChanges(checker.root, ".pose/specs"); err == nil {
-		for _, c := range changes {
-			keep(c.Path)
+		output, err := cmd.Output()
+		done()
+		if err != nil {
+			continue
 		}
-	}
-	if output, err := pose.RawHistoryGit(checker.root, "ls-files", "--others", "--exclude-standard", "--", ".pose/specs").Output(); err == nil {
 		for _, rel := range strings.Fields(string(output)) {
-			keep(rel)
+			relNorm := filepath.ToSlash(rel)
+			if strings.HasPrefix(relNorm, ".pose/specs/") && (strings.HasSuffix(relNorm, "/spec.md") || (strings.HasSuffix(relNorm, ".md") && !strings.EqualFold(filepath.Base(relNorm), "README.md"))) {
+				changed[relNorm] = true
+			}
 		}
 	}
 	found := make([]string, 0, len(changed))

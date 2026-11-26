@@ -102,25 +102,15 @@ func computeChangedScopeWith(root, base, head string, modules []validationModule
 		gitArgs = append(gitArgs, head)
 	}
 	gitArgs = append(gitArgs, "--")
-	if head == "" {
-		// Against the work tree, read without writing the index (spec
-		// pose-validate-reads-leave-the-index-alone R1).
-		names, err := posemodel.WorktreeChangedNames(root, base, "-c", "diff.ignoreSubmodules=none")
-		if err != nil {
-			return sel, fmt.Errorf("git diff %s failed (revision unknown?)", sel.rangeLabel())
-		}
-		for _, name := range names {
+	// The diff reads the index without writing it (spec
+	// pose-validate-reads-leave-the-index-alone R1).
+	out, err := posemodel.RawGitDiffReadOnly(root, gitArgs...)
+	if err != nil {
+		return sel, fmt.Errorf("git diff %s failed (revision unknown?)", sel.rangeLabel())
+	}
+	for _, name := range strings.Split(string(out), "\x00") {
+		if name != "" {
 			sel.Changed = append(sel.Changed, filepath.ToSlash(name))
-		}
-	} else {
-		out, err := posemodel.RawGit(gitArgs...).Output()
-		if err != nil {
-			return sel, fmt.Errorf("git diff %s failed (revision unknown?)", sel.rangeLabel())
-		}
-		for _, name := range strings.Split(string(out), "\x00") {
-			if name != "" {
-				sel.Changed = append(sel.Changed, filepath.ToSlash(name))
-			}
 		}
 	}
 	if head == "" {

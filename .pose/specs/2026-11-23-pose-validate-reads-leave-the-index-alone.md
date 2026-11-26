@@ -32,7 +32,7 @@ Changing which files are compared.
 ## 2. Requirements
 
 ### Functional
-- R1: Every status, diff and ls-files read the engine makes for validation provenance, material cleanliness and readiness checks shall run with optional locks disabled, and a comparison with the work tree shall be read from `git status` instead of `git diff`, so none rewrites `.git/index` or takes its lock (D1).
+- R1: Every status, diff and ls-files read the engine makes for validation provenance, material cleanliness and readiness checks shall run with optional locks disabled, and a diff against the work tree shall read the index without being able to write it, so none rewrites `.git/index` or takes its lock (D1).
 - R2: A regression test shall run those reads over a checkout with a stale stat cache and prove `.git/index` byte-identical afterwards.
 - R3: A concurrency test shall run those reads together on one checkout while a reader watches `.git/index` and its lock, and see neither change (D2).
 
@@ -55,6 +55,8 @@ Records and indexes written by earlier engines keep their meaning.
 - modified: pose-mcp/internal/pose/git_snapshot_integrity.go
 - created: pose-mcp/internal/pose/git_worktree_reads.go
 - created: pose-mcp/internal/pose/git_worktree_reads_test.go
+- created: pose-mcp/internal/pose/git_worktree_reads_linux.go
+- created: pose-mcp/internal/pose/git_worktree_reads_other.go
 - modified: pose-mcp/internal/pose/review_attempt_ledger.go
 - modified: pose-mcp/internal/cli/check.go
 - modified: pose-mcp/internal/cli/validate_scope.go
@@ -66,7 +68,7 @@ Records and indexes written by earlier engines keep their meaning.
 
 ### Accepted limits
 - L1: A Git command the engine runs through another constructor, or a tool a validation step runs, can still refresh the index. Accepted because every engine read goes through `gitCommandContext`, and what a step runs is the project's command, which the Harne8 bugfix of its own scripts already covers.
-- L2: A path changed both in the commits since a base and in the work tree is compared with the base by content only, so a change of its mode alone back to the base's is not seen. Accepted because only scope selection and `report --since` read it, and listing such a path runs or reports more, never less.
+- L2: Outside Linux there is no anonymous memory file, so a diff reads a private copy of the index in a temporary directory, which a dry run there would create. Accepted because the copy keeps the checkout's index untouched, which is the defect, and the dry-run test that forbids any file runs on Linux only.
 
 ### API/contract changes
 None: the reads answer as before; only where their stat refresh is written changes.
@@ -75,7 +77,7 @@ None: the reads answer as before; only where their stat refresh is written chang
 None.
 
 ### Technical risks
-`git status` must not take the index lock: every engine command carries `GIT_OPTIONAL_LOCKS=0`, which the tests prove by mutation.
+If Git stopped skipping a failed refresh lock silently, the diff would fail instead of answering; the equivalence test would show it.
 
 ## 4. Tasks
 
@@ -92,7 +94,7 @@ None.
 
 ### Decision D1
 - Basis: R1
-R1 as drafted asked for `diff.autoRefreshIndex=false`. Measured on a stale stat cache, `git diff --name-only HEAD` rewrites the index even with `GIT_OPTIONAL_LOCKS=0`, and with `diff.autoRefreshIndex=false` it lists a file whose stat alone changed, which breaks the constraint that reads keep their results. `git status` with `GIT_OPTIONAL_LOCKS=0` refreshes in memory and writes nothing. So every engine Git command carries `GIT_OPTIONAL_LOCKS=0`, and a comparison with the work tree is read from `git status --no-renames --untracked-files=no` (`WorktreeChanges`), mapped to the change `git diff HEAD --name-status` names. A comparison with an older base adds the commits' own diff, which touches no index, and a path in both is kept only when the work tree still differs from the base by content (`git hash-object`, which writes nothing without `-w`; a submodule by its checked-out commit), so the names equal `git diff --name-only <base>`. A first version ran the diff over a private copy of the index (`GIT_INDEX_FILE`); the full suite refused it, since a dry run must create no file at all, temporary ones included (`TestUpdatePreviewHasNoPhysicalMutationEvents`).
+R1 as drafted asked for `diff.autoRefreshIndex=false`. Measured on a stale stat cache, `git diff --name-only HEAD` rewrites the index even with `GIT_OPTIONAL_LOCKS=0`, and with `diff.autoRefreshIndex=false` it lists a file whose stat alone changed, which breaks the constraint that reads keep their results. So every engine Git command carries `GIT_OPTIONAL_LOCKS=0` (enough for `git status`), and a diff against the work tree runs unchanged but reads the index through `GIT_INDEX_FILE=/proc/self/fd/N`, an anonymous memory file (`memfd`) holding the index's bytes. Git resolves that link to `/memfd:pose-index/none (deleted)`, cannot create its lock beside it (the directory does not exist, for any user), and skips the refresh write silently, so the answer is the plain diff's and nothing is written. Two earlier versions were refused: a private copy of the index in a temporary file, by the full suite (a dry run creates no file, `TestUpdatePreviewHasNoPhysicalMutationEvents`); and answers rebuilt from `git status`, by review round 1, which found five states they got wrong (submodules ignored by configuration, conflicts, symlinks, a POSE root below the repository top). Outside Linux the copy is used (L2).
 
 ### Decision D2
 - Basis: R3
@@ -110,12 +112,13 @@ Each requirement gets a regression test shown failing before its code.
 
 ### Execution log
 - 2026-11-26: `GIT_OPTIONAL_LOCKS=0` in `gitCommandContext`; the work-tree diffs of the ready-transition read, scope selection, `report --since` and the review history ledger read `git status` (`WorktreeChanges`, `WorktreeChangedNames`). `TestValidationReadsLeaveTheIndexAlone`, `TestConcurrentValidationReadsNeverChangeTheIndex` and `TestWorktreeReadsLeaveTheIndexAlone` fail with each guard mutated out (the optional-locks setting, each caller's `git diff` restored, the content comparison); the last also checks the answers equal `git diff` for a commit since the base, a modified, a deleted and a staged-new file. A first private-index version was refused by the full suite (D1).
+- 2026-11-26: review round 1 (rrn-b249b5d958a5d8ff) requested changes with N1–N9: the status-based answers differed from `git diff` for a submodule ignored by `.gitmodules`, a submodule with uncommitted content, symlinks and a directory replaced by a file, unmerged entries, a POSE root below the repository top, intent-to-add, staged-then-reverted changes and a range base. They were withdrawn: the callers run their original `git diff` again, reading the index through a `memfd` (D1). `TestReadOnlyIndexDiffAnswersAsThePlainDiff` builds those states and requires each read to answer byte for byte as the plain diff, leave `.git/index` identical and leave no lock; it also runs the review history ledger's diff (N9). Each guard fails its test mutated out.
 
 ### Results summary
 The full `pose-mcp` suite passes; the canonical result is refreshed with `pose validate --carry`.
 
 ### Requirement trace
-- R1 [satisfied] test:TestValidationReadsLeaveTheIndexAlone, test:TestWorktreeReadsLeaveTheIndexAlone
+- R1 [satisfied] test:TestValidationReadsLeaveTheIndexAlone, test:TestReadOnlyIndexDiffAnswersAsThePlainDiff
 - R2 [satisfied] test:TestValidationReadsLeaveTheIndexAlone
 - R3 [satisfied] test:TestConcurrentValidationReadsNeverChangeTheIndex
 

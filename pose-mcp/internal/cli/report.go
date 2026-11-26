@@ -292,16 +292,15 @@ func readLastReportRecord(path string) *reportRecord {
 }
 
 func reportChangedFiles(root, since string) []string {
+	args := []string{"-C", root}
 	if since != "" {
-		// Against the work tree, read without writing the index (spec
-		// pose-validate-reads-leave-the-index-alone R1).
-		names, err := posemodel.WorktreeChangedNames(root, since)
-		if err != nil {
-			return nil
-		}
-		return names
+		args = append(args, "diff", "--name-only", since)
+	} else {
+		args = append(args, "status", "--porcelain=v1")
 	}
-	output, err := posemodel.RawGit("-C", root, "status", "--porcelain=v1").Output()
+	// The diff reads the index without writing it (spec
+	// pose-validate-reads-leave-the-index-alone R1).
+	output, err := posemodel.RawGitDiffReadOnly(root, args...)
 	if err != nil {
 		return nil
 	}
