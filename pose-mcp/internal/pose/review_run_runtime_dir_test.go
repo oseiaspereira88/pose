@@ -25,12 +25,10 @@ func TestRunContinuityAttemptRuntimeDirectoryIsCreatedExclusively(t *testing.T) 
 	// The adapter's TMPDIR is this directory and sandboxes create Unix
 	// sockets under it: the name is no longer than a random one (review
 	// rounds 1 to 3, the reviewer's sandbox failed to start).
-	random, err := os.MkdirTemp("", "pose-review-run-*")
-	if err != nil {
-		t.Fatal(err)
-	}
-	if len(filepath.Base(dir)) > len(filepath.Base(random)) {
-		t.Fatalf("the attempt's runtime directory %s is longer than a random one %s", filepath.Base(dir), filepath.Base(random))
+	// os.MkdirTemp's suffix is a uint32 in decimal, at most ten digits
+	// (review round 4, N16).
+	if longest := len("pose-review-run-") + 10; len(filepath.Base(dir)) > longest {
+		t.Fatalf("the attempt's runtime directory %s is longer than the longest random one (%d bytes)", filepath.Base(dir), longest)
 	}
 	if _, err := reviewRunRuntimeDir(id); err == nil || !strings.Contains(err.Error(), "already exists") {
 		t.Fatalf("an existing runtime directory was shared: %v", err)
@@ -39,10 +37,11 @@ func TestRunContinuityAttemptRuntimeDirectoryIsCreatedExclusively(t *testing.T) 
 		t.Fatal(err)
 	}
 	target := t.TempDir()
+	// Without the privilege to create a link (Windows), only the link case
+	// is skipped (review round 4, N20).
 	if err := os.Symlink(target, dir); err != nil {
-		t.Fatal(err)
-	}
-	if _, err := reviewRunRuntimeDir(id); err == nil {
+		t.Logf("link case skipped: %v", err)
+	} else if _, err := reviewRunRuntimeDir(id); err == nil {
 		t.Fatal("a link at the runtime directory was followed")
 	}
 	if again, err := reviewRunRuntimeDir(""); err != nil || filepath.Dir(again) != os.TempDir() {

@@ -2036,7 +2036,8 @@ func sourceMaterializationDiffers(root, commit string, entries []ReviewBundleSub
 }
 
 // reviewRunRuntimeHex is how many hex digits of the attempt id name its
-// runtime directory, as long as the random suffix of os.MkdirTemp.
+// runtime directory: no more than the longest random suffix of
+// os.MkdirTemp, a uint32 in decimal (ten digits).
 const reviewRunRuntimeHex = 10
 
 // reviewAttemptIDRE is the form of a delegated review attempt's id.
@@ -2070,7 +2071,7 @@ func reviewRunRuntimeDirPath(attemptID string) (string, bool) {
 	if !reviewAttemptIDRE.MatchString(attemptID) {
 		return "", false
 	}
-	// The name is no longer than the random one it replaces: the adapter's
+	// The name is no longer than the longest random one it replaces: the adapter's
 	// TMPDIR is this directory, and a sandboxed reviewer creates Unix
 	// sockets under it, whose paths are bounded (about 108 bytes); the
 	// 32-hex name made the Claude sandbox fail to start (review rounds 1
@@ -2083,13 +2084,13 @@ func reviewRunRuntimeDirPath(attemptID string) (string, bool) {
 // still there, before the continuation is claimed, so removing the
 // directory restores the resume instead of losing it to a failed run
 // (review round 1, N1).
-func reviewRunRuntimeDirFree(attemptID string) error {
+func reviewRunRuntimeDirFree(attemptID, verb string) error {
 	dir, ok := reviewRunRuntimeDirPath(attemptID)
 	if !ok {
 		return nil
 	}
 	if _, err := os.Lstat(dir); err == nil {
-		return fmt.Errorf("the attempt's runtime directory %s still exists although its last run cleaned up; another process holds the path, or a run of the attempt is starting; when none is live, remove it, then resume", dir)
+		return fmt.Errorf("the attempt's runtime directory %s still exists although its last run cleaned up; another process holds the path, or a run of the attempt is starting; when none is live, remove it, then %s again", dir, verb)
 	} else if !errors.Is(err, fs.ErrNotExist) {
 		return fmt.Errorf("the attempt's runtime directory %s cannot be checked: %w", dir, err)
 	}

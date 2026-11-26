@@ -322,7 +322,7 @@ func TestRunContinuityResumedReviewFindsItsSealedCheckoutAtTheSamePath(t *testin
 	}
 	// Review round 2, N6: a handoff is refused the same way, before it
 	// claims the interrupted run.
-	if _, err := (posemodel.Store{Root: root}).PlanReviewHandoff(prior.RunID, "other"); err == nil || !strings.Contains(err.Error(), "still exists") {
+	if _, err := (posemodel.Store{Root: root}).PlanReviewHandoff(prior.RunID, "other"); err == nil || !strings.Contains(err.Error(), "still exists") || !strings.Contains(err.Error(), "then hand off again") {
 		t.Fatalf("a handoff beside a leftover runtime directory: %v", err)
 	}
 	if err := os.Remove(runtimeDir); err != nil {

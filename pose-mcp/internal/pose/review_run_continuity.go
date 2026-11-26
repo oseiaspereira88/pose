@@ -428,7 +428,7 @@ func (s Store) PlanReviewResume(id string) (DispatchPlan, error) {
 	}
 	// Only a continuation still to start needs the attempt's runtime
 	// directory free; a repeated resume returns the recorded one.
-	if e = reviewRunRuntimeDirFree(prior.AttemptID); e != nil {
+	if e = reviewRunRuntimeDirFree(prior.AttemptID, "resume"); e != nil {
 		return DispatchPlan{}, e
 	}
 	// The attempt's budget, not this agent's: after a handoff the resumed

@@ -344,7 +344,7 @@ func (s Store) PlanReviewHandoff(id, agent string) (DispatchPlan, error) {
 	}
 	// A handoff runs in the attempt's runtime directory too (spec
 	// pose-review-resume-keeps-the-sealed-checkout, review round 2, N6).
-	if e = reviewRunRuntimeDirFree(prior.AttemptID); e != nil {
+	if e = reviewRunRuntimeDirFree(prior.AttemptID, "hand off"); e != nil {
 		return DispatchPlan{}, e
 	}
 	count, spent, limit, total, e := attemptContinuationBudget(runs, *prior, policy)
