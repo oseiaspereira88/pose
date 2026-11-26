@@ -350,6 +350,233 @@
           "Before returning the final review draft, wait for every test/build/background job to finish. Then run go clean -cache as a final Bash tool command INSIDE the mandatory sandbox, and remove only leftover go-build* directories directly under GOTMPDIR using `find \"$GOTMPDIR\" -mindepth 1 -maxdepth 1 -type d -name \"go-build*\" -exec rm -rf -- {} +`. Cache and Go temporary workspaces are operation-owned. Do not clean outside the sandbox or request an override. The engine retains incomplete cleanup as a failed run. Never claim successful cleanup when a command fails."
         ]
       }
+    },
+    "claude-sonnet-5-5": {
+      "vendor": "anthropic",
+      "model": "claude-sonnet-5-5",
+      "cli": "claude",
+      "events": "claude-stream-json",
+      "timeout": "60m",
+      "executor": "agent:anthropic/claude-sonnet-5-5",
+      "commands": {
+        "read": [
+          "claude",
+          "--safe-mode",
+          "--restricted",
+          "-p",
+          "--model",
+          "claude-sonnet-5-5",
+          "{effort}",
+          "--permission-mode",
+          "dontAsk",
+          "--output-format",
+          "stream-json",
+          "--verbose",
+          "--permission-prompts",
+          "none",
+          "--allowedTools",
+          "Bash(git status:*),Bash(git ls-files:*),Bash(pose artifact-check:*),Bash(pose surface-check:*),Bash(pose review-check:*),Bash(pose closeout-check:*),Bash(go test:*),Bash(go vet:*),Bash(go -C:*),Bash(git diff:*),Bash(git log:*),Bash(git show:*),Bash(git status:*),Bash(/var/tmp/pose-work-go/pose-ready:*),Bash(\"$POSE_REVIEW_CLI\":*),Bash(printf:*),Bash(cat:*)",
+          "--tools",
+          "Read,Grep,Glob,Bash"
+        ],
+        "sandboxed": [
+          "sh",
+          "-c",
+          "case \"$(uname)\" in Darwin) ;; *) for t in bwrap socat; do command -v \"$t\" >/dev/null 2>&1 || { echo \"pose: the sandboxed Claude profile needs bubblewrap and socat, and $t is missing; without them Claude Code would run its commands unsandboxed. Install them (Debian/Ubuntu: sudo apt install bubblewrap socat; Fedora: sudo dnf install bubblewrap socat; Arch: sudo pacman -S bubblewrap socat) and run again.\" >&2; exit 127; }; done;; esac; exec \"$@\"",
+          "sh",
+          "claude",
+          "--safe-mode",
+          "--restricted",
+          "-p",
+          "--model",
+          "claude-sonnet-5-5",
+          "{effort}",
+          "--permission-mode",
+          "acceptEdits",
+          "--output-format",
+          "stream-json",
+          "--verbose",
+          "--permission-prompts",
+          "none",
+          "--settings",
+          "{\"sandbox\":{\"enabled\":true,\"autoAllowBashIfSandboxed\":true,\"allowUnsandboxedCommands\":false}}",
+          "--tools",
+          "Read,Grep,Glob,Bash,Edit,Write",
+          "--allowedTools",
+          "Bash"
+        ]
+      },
+      "effort": {
+        "default": "medium",
+        "levels": {
+          "medium": [
+            "--effort",
+            "medium"
+          ]
+        }
+      },
+      "session": {
+        "pattern": "(?m)^\\{\"type\"\\s*:\\s*\"system\"\\s*,\\s*\"subtype\"\\s*:\\s*\"init\"[^\\n]*\"session_id\"\\s*:\\s*\"([^\"\\r\\n]+)\""
+      },
+      "resume": {
+        "command": [
+          "claude",
+          "--safe-mode",
+          "--restricted",
+          "-p",
+          "--model",
+          "claude-sonnet-5-5",
+          "{effort}",
+          "--permission-mode",
+          "dontAsk",
+          "--output-format",
+          "stream-json",
+          "--verbose",
+          "--resume",
+          "{session}",
+          "--permission-prompts",
+          "none",
+          "--allowedTools",
+          "Bash(git status:*),Bash(git ls-files:*),Bash(pose artifact-check:*),Bash(pose surface-check:*),Bash(pose review-check:*),Bash(pose closeout-check:*)",
+          "--tools",
+          "Read,Grep,Glob,Bash"
+        ],
+        "commands": {
+          "read": [
+            "claude",
+            "--safe-mode",
+            "--restricted",
+            "-p",
+            "--model",
+            "claude-sonnet-5-5",
+            "{effort}",
+            "--permission-mode",
+            "dontAsk",
+            "--output-format",
+            "stream-json",
+            "--verbose",
+            "--resume",
+            "{session}",
+            "--permission-prompts",
+            "none",
+            "--allowedTools",
+            "Bash(git status:*),Bash(git ls-files:*),Bash(pose artifact-check:*),Bash(pose surface-check:*),Bash(pose review-check:*),Bash(pose closeout-check:*)",
+            "--tools",
+            "Read,Grep,Glob,Bash"
+          ],
+          "sandboxed": [
+            "sh",
+            "-c",
+            "case \"$(uname)\" in Darwin) ;; *) for t in bwrap socat; do command -v \"$t\" >/dev/null 2>&1 || { echo \"pose: the sandboxed Claude profile needs bubblewrap and socat, and $t is missing; without them Claude Code would run its commands unsandboxed. Install them (Debian/Ubuntu: sudo apt install bubblewrap socat; Fedora: sudo dnf install bubblewrap socat; Arch: sudo pacman -S bubblewrap socat) and run again.\" >&2; exit 127; }; done;; esac; exec \"$@\"",
+            "sh",
+            "claude",
+            "--safe-mode",
+            "--restricted",
+            "-p",
+            "--model",
+            "claude-sonnet-5-5",
+            "{effort}",
+            "--permission-mode",
+            "acceptEdits",
+            "--output-format",
+            "stream-json",
+            "--verbose",
+            "--resume",
+            "{session}",
+            "--permission-prompts",
+            "none",
+            "--settings",
+            "{\"sandbox\":{\"enabled\":true,\"autoAllowBashIfSandboxed\":true,\"allowUnsandboxedCommands\":false}}",
+            "--tools",
+            "Read,Grep,Glob,Bash,Edit,Write",
+            "--allowedTools",
+            "Bash"
+          ]
+        },
+        "max_resumes": 3,
+        "max_wall_time": "60m"
+      },
+      "probe": {
+        "command": [
+          "claude",
+          "--version"
+        ],
+        "timeout": "10s"
+      },
+      "requires": {
+        "sandboxed": {
+          "executables": [
+            "bwrap",
+            "socat"
+          ],
+          "skip_on": [
+            "darwin"
+          ],
+          "install": "Debian/Ubuntu: sudo apt install bubblewrap socat; Fedora: sudo dnf install bubblewrap socat; Arch: sudo pacman -S bubblewrap socat"
+        }
+      },
+      "review_profile": {
+        "command": [
+          "sh",
+          "-c",
+          "case \"$(uname)\" in Darwin) command -v jq >/dev/null 2>&1 || { echo \"pose: the sandboxed Claude review needs jq. Install: brew install jq\" >&2; exit 127; };; *) for t in bwrap socat jq; do command -v \"$t\" >/dev/null 2>&1 || { echo \"pose: the sandboxed Claude review needs bubblewrap, socat and jq, and $t is missing. Install them (Debian/Ubuntu: sudo apt install bubblewrap socat jq; Fedora: sudo dnf install bubblewrap socat jq; Arch: sudo pacman -S bubblewrap socat jq).\" >&2; exit 127; }; done;; esac\nscratch=\"${1%/*}/claude-review\"\nsettings=$2\nshift 2\numask 077\nmkdir -p \"$scratch/cache\" \"$scratch/tmp\" || exit 1\nexport CLAUDE_CODE_TMPDIR=\"$scratch\" TMPDIR=\"$scratch/tmp\" GOTMPDIR=\"$scratch/tmp\" GOCACHE=\"$scratch/cache\"\ngit_common=$(git rev-parse --path-format=absolute --git-common-dir) || { echo \"pose: sandboxed review requires a Git worktree with a resolvable common directory\" >&2; exit 1; }\ngit_common=$(cd \"$git_common\" && pwd -P) || exit 1\nsettings=$(printf '%s' \"$settings\" | jq -c --arg scratch \"$scratch\" --arg cwd \"$(pwd -P)\" --arg git_common \"$git_common\" '.sandbox.filesystem.allowWrite=[$scratch] | .sandbox.filesystem.denyWrite=[$cwd,$git_common]') || exit 1\nexec \"$@\" --settings \"$settings\"",
+          "sh",
+          "{output}",
+          "{\"disableAllHooks\":true,\"sandbox\":{\"enabled\":true,\"failIfUnavailable\":true,\"autoAllowBashIfSandboxed\":true,\"allowUnsandboxedCommands\":false,\"excludedCommands\":[],\"filesystem\":{\"denyWrite\":[\".\"],\"disabled\":false},\"allowNestedUserNamespaces\":false}}",
+          "claude",
+          "--safe-mode",
+          "--restricted",
+          "--strict-mcp-config",
+          "-p",
+          "--model",
+          "claude-sonnet-5-5",
+          "{effort}",
+          "--permission-mode",
+          "manual",
+          "--permission-prompts",
+          "none",
+          "--output-format",
+          "stream-json",
+          "--verbose",
+          "--tools",
+          "Read,Grep,Glob,Bash",
+          "--allowedTools",
+          "Bash",
+          "--append-system-prompt",
+          "Before returning the final review draft, wait for every test/build/background job to finish. Then run go clean -cache as a final Bash tool command INSIDE the mandatory sandbox, and remove only leftover go-build* directories directly under GOTMPDIR using `find \"$GOTMPDIR\" -mindepth 1 -maxdepth 1 -type d -name \"go-build*\" -exec rm -rf -- {} +`. Cache and Go temporary workspaces are operation-owned. Do not clean outside the sandbox or request an override. The engine retains incomplete cleanup as a failed run. Never claim successful cleanup when a command fails."
+        ],
+        "resume_command": [
+          "sh",
+          "-c",
+          "case \"$(uname)\" in Darwin) command -v jq >/dev/null 2>&1 || { echo \"pose: the sandboxed Claude review needs jq. Install: brew install jq\" >&2; exit 127; };; *) for t in bwrap socat jq; do command -v \"$t\" >/dev/null 2>&1 || { echo \"pose: the sandboxed Claude review needs bubblewrap, socat and jq, and $t is missing. Install them (Debian/Ubuntu: sudo apt install bubblewrap socat jq; Fedora: sudo dnf install bubblewrap socat jq; Arch: sudo pacman -S bubblewrap socat jq).\" >&2; exit 127; }; done;; esac\nscratch=\"${1%/*}/claude-review\"\nsettings=$2\nshift 2\numask 077\nmkdir -p \"$scratch/cache\" \"$scratch/tmp\" || exit 1\nexport CLAUDE_CODE_TMPDIR=\"$scratch\" TMPDIR=\"$scratch/tmp\" GOTMPDIR=\"$scratch/tmp\" GOCACHE=\"$scratch/cache\"\ngit_common=$(git rev-parse --path-format=absolute --git-common-dir) || { echo \"pose: sandboxed review requires a Git worktree with a resolvable common directory\" >&2; exit 1; }\ngit_common=$(cd \"$git_common\" && pwd -P) || exit 1\nsettings=$(printf '%s' \"$settings\" | jq -c --arg scratch \"$scratch\" --arg cwd \"$(pwd -P)\" --arg git_common \"$git_common\" '.sandbox.filesystem.allowWrite=[$scratch] | .sandbox.filesystem.denyWrite=[$cwd,$git_common]') || exit 1\nexec \"$@\" --settings \"$settings\"",
+          "sh",
+          "{output}",
+          "{\"disableAllHooks\":true,\"sandbox\":{\"enabled\":true,\"failIfUnavailable\":true,\"autoAllowBashIfSandboxed\":true,\"allowUnsandboxedCommands\":false,\"excludedCommands\":[],\"filesystem\":{\"denyWrite\":[\".\"],\"disabled\":false},\"allowNestedUserNamespaces\":false}}",
+          "claude",
+          "--safe-mode",
+          "--restricted",
+          "--strict-mcp-config",
+          "-p",
+          "--model",
+          "claude-sonnet-5-5",
+          "{effort}",
+          "--permission-mode",
+          "manual",
+          "--permission-prompts",
+          "none",
+          "--output-format",
+          "stream-json",
+          "--verbose",
+          "--tools",
+          "Read,Grep,Glob,Bash",
+          "--allowedTools",
+          "Bash",
+          "--resume",
+          "{session}",
+          "--append-system-prompt",
+          "Before returning the final review draft, wait for every test/build/background job to finish. Then run go clean -cache as a final Bash tool command INSIDE the mandatory sandbox, and remove only leftover go-build* directories directly under GOTMPDIR using `find \"$GOTMPDIR\" -mindepth 1 -maxdepth 1 -type d -name \"go-build*\" -exec rm -rf -- {} +`. Cache and Go temporary workspaces are operation-owned. Do not clean outside the sandbox or request an override. The engine retains incomplete cleanup as a failed run. Never claim successful cleanup when a command fails."
+        ]
+      }
     }
   },
   "routing": {

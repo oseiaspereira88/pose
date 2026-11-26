@@ -1,0 +1,161 @@
+{
+  "safety": {
+    "schema_version": 1,
+    "profile": "legacy-trusted",
+    "platform": "linux/amd64",
+    "capabilities": {
+      "automatic-expiry": "unavailable",
+      "bounded-capture": "available",
+      "cpu-limit": "unavailable",
+      "credential-filesystem-isolation": "unavailable",
+      "environment-allowlist": "available",
+      "escaped-descendant-termination": "environment-marked",
+      "filesystem-isolation": "unavailable",
+      "memory-limit": "unavailable",
+      "network-isolation": "unavailable",
+      "origin-isolation": "unavailable",
+      "parent-termination": "available",
+      "process-group-termination": "available",
+      "shared-git-isolation": "unavailable"
+    },
+    "limitations": [
+      "trusted local executable required; worktree is not a sandbox",
+      "outside writes, transient writes, shared Git and credential files are not isolated",
+      "no memory/CPU quota; the review run shim ends every process left in the run's subtree, including one in its own session",
+      "cleanup filesystem calls remain subject to operating-system I/O latency",
+      "legacy compatibility: HOME retained; other ambient credentials excluded"
+    ],
+    "stream_bytes": 8388608,
+    "output_bytes": 65536,
+    "retained_bytes": 16777216,
+    "timeout_ms": 3600000,
+    "max_runs_per_bundle": 3,
+    "retention": "retain-evidence; ttl=0; no automatic deletion",
+    "capture_complete": true,
+    "runtime_id": "pose-review-run-1834898557",
+    "operation": {
+      "schema_version": 1,
+      "operation": "review.dispatch.cleanup",
+      "scope": "spec:pose-review-declared-threat-model",
+      "outcome": "completed",
+      "steps_run": [
+        {
+          "id": "cleanup",
+          "result": "done"
+        }
+      ],
+      "effects": [],
+      "resumable": false
+    }
+  },
+  "provenance": {
+    "execution_state": "started",
+    "planned_wire_digest": "sha256:b1bf54524e054a975588615a3242a342a641422991b694d2d8fe538b4f6e8489",
+    "wire_bytes": 34206,
+    "wire_complete": true,
+    "schema_version": 1,
+    "project": "proj.pose-dist",
+    "audience": "proj.pose-dist",
+    "worktree_digest": "sha256:092ca52378c4c0d0f2b627da8d5031dbb854563bd4b9f2474458710c62a14816",
+    "trust": "executor-attested",
+    "implementation": {
+      "principal": "agent:anthropic/unknown",
+      "execution": "sha256:344ac5868944c155772d60a95ef6ff20644580a642e772ad5c92c29428464ff8",
+      "vendor": "anthropic",
+      "model": "unknown"
+    },
+    "reviewer": {
+      "principal": "agent:openai/gpt-6-luna",
+      "vendor": "openai",
+      "model": "gpt-6-luna"
+    },
+    "config_digest": "sha256:0496470e7d7d37c50f6d6ba38fff61a3798a301c4bb9344cb48115600dab36d4",
+    "command_template_digest": "sha256:42c94509ce1ab68857d1a7dfb101a967c1bd3243a67bdc5d921f22b58fc3db04",
+    "argv_digest": "sha256:9225c6b3a990f7ea5565a7dda9caa51429c61cd081ce306d8e361834e0b9ba76",
+    "executable_digest": "sha256:0e0c66f50074965a40cbd12f625b0a35963baf41bbd8c201a93e32fddbe2e073",
+    "template_version": "review-brief/11",
+    "wire_digest": "sha256:b1bf54524e054a975588615a3242a342a641422991b694d2d8fe538b4f6e8489",
+    "notes_digest": "sha256:4dd3ec5f222eb9d201db6c2e0565e71c1a80b5061f304be94fd42c343909303f",
+    "raw_transcript_digest": "sha256:8d57550bcb026794c348740099658fb51dfed6c2d004907804a10ea9e91a8d50",
+    "raw_output_digest": "sha256:ce0a44528558718d4d96847ae397fbfb71044a3ebb8a66001bca02280a3ab950",
+    "output_source": "stream-final",
+    "output_complete": true
+  },
+  "interruption": {
+    "cause": "usage-limit",
+    "resumable": true
+  },
+  "session_digest": "sha256:e300e148bed84dfee697a66fbcbe7cf6c121a7056317b044f707fdc86624a65e",
+  "tree_digest": "sha256:5065935d44aaf9125ee83cae16e12564e28788bb85e7246555684fefc35b710c",
+  "brief_notes": "Implementer notes (Claude Opus 5.5, the lead). Use them as context only; the judgment is yours.\n\nScope: spec `pose-review-declared-threat-model` (R1–R4, decisions D1–D2). A recent spec took 15 review rounds; each round found a rarer adversarial case of a guarantee the spec never said it did not make, and no round could converge because there was no place to declare the environment a guarantee assumes. This spec adds that place.\n- R1: `### Accepted limits` with `- L\u003cN\u003e: \u003cassumption\u003e. Accepted because \u003creason\u003e.` (`ParseAcceptedLimits`); the review plan and the bundle seal them as `accepted_limits`, in the plan digest, omitted when empty so no earlier plan or bundle changes digest.\n- R2: `review-brief/11` lists the sealed limits and tells the reviewer to set `limit` on a follow-up that falls inside one, or to dispute the limit with a finding of its own.\n- R3: a draft follow-up with `limit` becomes an attestation finding with disposition `within-limit` and `limit`; it does not block an approval whatever its severity, but an unsealed limit or a missing reason is refused (`reviewFindingDecisionBlockers`).\n- R4: `lint-spec --ready-check` refuses a limit without its reason, and one an ADR citing the spec does not name.\nEach has a test that failed with it mutated out; the full `go test ./...` of `pose-mcp` passes.\n\nThis spec declares its own accepted limits (L1, L2); this brief lists them, sealed. That is also a live test of R1 and R2. Please judge whether they are justified, and check in particular that `within-limit` cannot be used to approve a finding outside a sealed limit, and that bundles and plans without limits keep their digests.\n\nRun every planned `pose` command as `\"$POSE_REVIEW_CLI\"` with the same arguments. Before you finish, pipe your final message to `\"$POSE_REVIEW_CLI\" review draft-check --draft -` and fix every reason it reports. Let every command you start finish before you end.\n\nDraft format rules, enforced by the conclusion preflight:\n- New findings use short unprefixed IDs (N1, N2, …). Round-prefixed IDs go only in `prior_findings`, and only for the findings the brief lists under \"Findings to account for\", with exactly id, status and evidence.\n- Structural-delta mappings go inside the criterion that answers them, with `basis` set to a requirement or a decision of this spec (R1–R4, D1, D2).\n- A criterion scoped to a component cites evidence from that component only.\n\nSandbox limits: the checkout is sealed and read-only. Never `cd`; keep the checkout root as the working directory. Keep test runs focused (`go -C pose-mcp test ./internal/pose ./internal/cli -run 'AcceptedLimit|WithinASealedLimit|ReadyCheckJudges|Brief|Conclud'`). A tool you cannot rerun in the sandbox is a limit of the run, not a defect of the subject: cite the sealed evidence that covers it, then decide on the code itself.\n\nRound 2 notes: round 1 (rrn-d1680df442b23d12) requested changes with N1–N3, listed in the brief. Fixes: N1, across several specs each limit id is `\u003cspec\u003e#L\u003cN\u003e` with its spec recorded (`acceptedLimitsOfSpecs`); N2, a reason must follow \"Accepted because\"; N3, the ADR check matches the id as a word.\n\nRound 3 notes: round 2 (rrn-256db7e6eea5a6e2) found that punctuation passed as a reason; the reason after \"Accepted because\" now needs at least two words with letters (`hasAcceptedLimitReason`, `TestAnAcceptedLimitNeedsWordsAsItsReason`).\n\nRound 4 notes: round 3 (rrn-0af0d413761142d8) found that \"Not accepted because ...\" passed. The marker must now open a sentence (start, or after . ; : ! ?), as the declared format states; `TestAnAcceptedLimitNeedsWordsAsItsReason` covers both cases.\n\nRound 5 notes: round 4 (rrn-721e2a4c9bd37e2e) found that an entry without an assumption, or with an empty reason followed by other prose, passed. `hasAcceptedLimitReason` now reads the entry structurally: an assumption of at least two words, the marker opening a sentence, and a reason of at least two words within that sentence. If you find another way to write an unjustified limit that passes, please also say whether you consider the remaining risk a blocker of this spec or a follow-up: the check is a format gate, while the substance of a limit is judged in review (limit L1).\n\nRound 6 notes: round 5 (rrn-9f6867b3c3e42377): N1, a whitespace-only `within-limit` reason is refused; N2, the ready check fails closed on an unreadable ADR directory or file.\n\nRound 7 notes: round 6 (rrn-a5b61489ac04873d): the bundle plan digest (`reviewBundlePlanDigest`) now covers `accepted_limits`, omitted when empty; `TestTheBundlePlanDigestCoversTheAcceptedLimits`.\n\nRound 8 notes: round 7 (rrn-1236e104ff346a2d): N2, ADRs are read as regular files without following links and within 1 MiB (`readADRBounded`); N1 was your own classification within L1, which this spec supports: please record such a finding with `limit` set (here \"L1\") so it is recorded within-limit.\n",
+  "partial_digest": "sha256:ce0a44528558718d4d96847ae397fbfb71044a3ebb8a66001bca02280a3ab950",
+  "ledger_version": 1,
+  "attempt_id": "rat-6b7e167e1430905ece970c3121b148bae0339a0b7b2346234c6918f9b558d2a2",
+  "schema_version": 1,
+  "run_id": "rrn-48539437a4df3f09",
+  "scope": "spec:pose-review-declared-threat-model",
+  "bundle_id": "rvb-ef90e8423cbf99f1",
+  "bundle_digest": "sha256:ef90e8423cbf99f1af74b0647424b8d9a13effc0ff2e0e7129248cfcd5b12ef5",
+  "sealed_commit": "e778d632021b5b063af8ad8a2eb1811cdea4f214",
+  "kind": "review",
+  "brief_digest": "sha256:854410632b516ec340955921cb471beeaba268acab04aab4c6926351a23c1304",
+  "adapter": "sol-medium",
+  "vendor": "openai",
+  "model": "gpt-6-luna",
+  "started_at": "2026-11-26T00:08:20.474475731Z",
+  "ended_at": "2026-11-26T00:09:10.677868063Z",
+  "exit_code": 1,
+  "status": "interrupted",
+  "failure": "review interrupted: usage-limit (supervisor: usage-limit)",
+  "transcript_digest": "sha256:4932f0b2e3433d7022227a3b74488d9c8dcb7a38a09f51c58361b12fbef41d1a",
+  "transcript_path": ".pose/review-runs/rrn-48539437a4df3f09.transcript",
+  "output": "I’m applying the POSE review workflow for this independent review. I’ll first read its review instructions and inspect the sealed spec and change, then run the required review commands through `\"$POSE_REVIEW_CLI\"` and focused tests. I’ll keep the checkout read-only.",
+  "policy_digest": "sha256:696cd2d8abf80e417c48c7af99954f0c89f06fe6c0e23249d5ff991f4dde4985",
+  "label": "threat-review-r8",
+  "purpose": "review",
+  "env_removed": [
+    "CLAUDECODE",
+    "CLAUDE_CODE_BRIDGE_SESSION_ID",
+    "CLAUDE_CODE_CHILD_SESSION",
+    "CLAUDE_CODE_ENTRYPOINT",
+    "CLAUDE_CODE_EXECPATH",
+    "CLAUDE_CODE_MESSAGING_SOCKET",
+    "CLAUDE_CODE_MESSAGING_TOKEN",
+    "CLAUDE_CODE_SESSION_ATTENDED",
+    "CLAUDE_CODE_SESSION_ID",
+    "CLAUDE_EFFORT",
+    "CLAUDE_PID"
+  ],
+  "events": "codex-jsonl",
+  "events_digest": "sha256:9dd76305eb6fa650889f7f1688dd46068d1b4d5ce842a68bdd0d34217566acd3",
+  "routing": {
+    "requested": "auto",
+    "prefer": "opposite-vendor-of-implementation",
+    "implementation": {
+      "principal": "agent:anthropic/unknown",
+      "vendor": "anthropic",
+      "model": "unknown",
+      "execution_digest": "sha256:344ac5868944c155772d60a95ef6ff20644580a642e772ad5c92c29428464ff8",
+      "source": "detected"
+    },
+    "implementation_from": "bundle",
+    "candidates": [
+      {
+        "agent": "sol-medium",
+        "vendor": "openai",
+        "model": "gpt-6-luna",
+        "group": "preferred",
+        "state": "available"
+      }
+    ],
+    "step": "preferred"
+  },
+  "independence_achieved": "different-vendor",
+  "round": 8,
+  "thread": {
+    "round": 8,
+    "mode": "new",
+    "from": "rrn-1236e104ff346a2d",
+    "reason": "round 8 reached the round threshold 5"
+  }
+}
