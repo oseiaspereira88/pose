@@ -2,6 +2,7 @@ package cli
 
 import (
 	"bytes"
+	posemodel "github.com/harne8/pose-mcp/internal/pose"
 	"os"
 	"os/exec"
 	"path/filepath"
@@ -90,6 +91,9 @@ func TestConcurrentValidationReadsNeverChangeTheIndex(t *testing.T) {
 				_, _ = computeChangedScopeWith(root, "HEAD", "", nil, scopeMetadata{})
 				_, _ = reportChangedFiles(root, "HEAD")
 				(&nativeChecker{root: root}).readyTransitionCandidates()
+				// The review history reader runs concurrently too (review
+				// round 1, N5).
+				_, _ = posemodel.Store{Root: root}.ReviewRunHistoryFindings()
 			}
 		}()
 	}
@@ -171,5 +175,28 @@ func TestAFailedIndexReadIsReported(t *testing.T) {
 	}
 	if _, err := reportChangedFiles(root, "HEAD"); err == nil {
 		t.Fatal("report hid a failed index read")
+	}
+}
+
+// Review round 1, N1–N2 of spec pose-validate-read-only-index-followups: a
+// corrupt index, which git itself refuses, is reported as an index failure
+// with what git said, not as an unknown revision.
+func TestACorruptIndexIsReportedWithItsCause(t *testing.T) {
+	root, _ := staleIndexRepo(t)
+	if err := os.WriteFile(filepath.Join(root, ".git", "index"), []byte("not an index at all"), 0o644); err != nil {
+		t.Fatal(err)
+	}
+	var out bytes.Buffer
+	checker := &nativeChecker{root: root, mode: "strict", locale: localeEN, stdout: &out}
+	checker.readyTransitionCandidates()
+	if checker.errors == 0 || !strings.Contains(out.String(), "index") {
+		t.Fatalf("the check did not name the corrupt index: %d %s", checker.errors, out.String())
+	}
+	_, err := computeChangedScopeWith(root, "HEAD", "", nil, scopeMetadata{})
+	if err == nil || strings.Contains(err.Error(), "revision unknown?") || !strings.Contains(err.Error(), "index") {
+		t.Fatalf("scope selection mislabelled a corrupt index: %v", err)
+	}
+	if _, err := reportChangedFiles(root, "HEAD"); err == nil || !strings.Contains(err.Error(), "index") {
+		t.Fatalf("report did not name the corrupt index: %v", err)
 	}
 }

@@ -1,6 +1,7 @@
 package cli
 
 import (
+	"bytes"
 	"context"
 	"encoding/json"
 	"fmt"
@@ -1141,14 +1142,17 @@ func (checker *nativeChecker) readyTransitionCandidates() []string {
 				done()
 				// The specs this read would name go unchecked: say so
 				// (review round 5, N23).
-				checker.failOrWarn(fmt.Sprintf("ready transitions: the changed specs cannot be listed: %v", err))
+				checker.failOrWarn(checker.message(fmt.Sprintf("ready transitions: the changed specs cannot be listed: %v", err), fmt.Sprintf("transições de prontidão: as specs alteradas não podem ser listadas: %v", err)))
 				continue
 			}
 		}
+		var stderr bytes.Buffer
+		cmd.Stderr = &stderr
 		output, err := cmd.Output()
 		done()
 		if err != nil {
-			checker.failOrWarn(fmt.Sprintf("ready transitions: git %s failed: %v", command[0], err))
+			err = pose.GitReadError("git "+command[0], err, stderr.Bytes())
+			checker.failOrWarn(checker.message(fmt.Sprintf("ready transitions: the changed specs cannot be listed: %v", err), fmt.Sprintf("transições de prontidão: as specs alteradas não podem ser listadas: %v", err)))
 			continue
 		}
 		for _, rel := range strings.Fields(string(output)) {

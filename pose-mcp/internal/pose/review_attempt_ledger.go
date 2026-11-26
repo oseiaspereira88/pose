@@ -533,7 +533,7 @@ func reviewHistoryGit(root string, args ...string) ([]byte, error) {
 	if len(args) > 0 && args[0] == "diff" {
 		// A diff against the work tree reads the index without writing it
 		// (spec pose-validate-reads-leave-the-index-alone R1).
-		done, err := ReadOnlyIndex(cmd, root)
+		done, err := ReadOnlyIndexContext(ctx, cmd, root)
 		defer done()
 		if err != nil {
 			return nil, fmt.Errorf("review history Git observation unavailable: %w", err)

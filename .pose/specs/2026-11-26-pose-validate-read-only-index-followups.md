@@ -61,6 +61,8 @@ Records and indexes written by earlier engines keep their meaning.
 - created: pose-mcp/internal/pose/git_index_open_unix.go
 - created: pose-mcp/internal/pose/git_index_open_other.go
 - modified: pose-mcp/internal/pose/git_worktree_reads_test.go
+- created: pose-mcp/internal/pose/git_worktree_reads_linux_test.go
+- modified: pose-mcp/internal/pose/review_attempt_ledger.go
 - modified: pose-mcp/internal/cli/check.go
 - modified: pose-mcp/internal/cli/validate_scope.go
 - modified: pose-mcp/internal/cli/report.go
@@ -103,6 +105,10 @@ The split-index touch is Git's own: measured with `core.splitIndex=true`, a plai
 - Basis: R1
 The index is judged on the file actually opened, opened with `O_NONBLOCK` where FIFOs exist, instead of a stat before the open: a stat-then-open pair refuses an index replaced atomically in between (round 5, N22), and opening without blocking keeps a FIFO from hanging the read (round 4, N21).
 
+### Decision D3
+- Basis: R2
+The index lookup runs under the caller's context where the caller has one (`ReadOnlyIndexContext`, used by the review history reader within its 30 s), and under a 30 s bound of its own otherwise. Git's standard error is kept, and a failure in which Git names the index is marked `ErrIndexUnreadable`; the read-only command runs with `LC_ALL=C` so that holds in any locale.
+
 ## 6. Validation
 
 ### Strategy
@@ -115,15 +121,16 @@ Each requirement gets a regression test shown failing before its code.
 
 ### Execution log
 - 2026-11-26: R1 opens without blocking and judges the opened file; R2 reports a failed index read in `check`, names it in scope selection (`ErrIndexUnreadable`) and warns in `report`; R3 locates the index with `--git-path` relative to the root, within a 30 s deadline; R4 falls back to the private copy when the memory file or its time cannot be set. Each has a test that fails with its guard mutated out: `TestReadOnlyIndexToleratesAnAtomicallyReplacedIndex`, `TestAFailedIndexReadIsReported`, `TestReadOnlyIndexFindsTheIndexFromASubdirectory`, `TestThePrivateIndexCopyLeavesTheIndexAlone`. R6 adds `TestReadOnlyIndexDiffCoversConflictsRangesAndDirtySubmodules`, which passes on the existing reader. R5 is L1 (D1).
+- 2026-11-26: review round 1 (rrn-4262ae59adfc1641) requested changes. N1–N2: a corrupt index, which Git itself refuses, is now reported with Git's own message and marked as an index failure in check, scope selection and report (`TestACorruptIndexIsReportedWithItsCause`; fails with the classification or check's capture removed). N3: D3. N4: the memfd and timestamp calls are replaceable, and `TestReadOnlyIndexFallsBackWithoutAMemoryFile` fails with either fallback removed. N5: the R6 test makes the stat cache stale before every read, so it fails with the protection or the ledger's use of it removed, and the CLI concurrency test runs `ReviewRunHistoryFindings`. N8: failures handing the index to Git are index failures, and a failing memfd write falls back too. N9: the report states that the list could not be read, and a plain `pose report` outside a repository stays silent. N10: the check's findings are localised. N6, N7 and N11 are follow-ups.
 
 ### Results summary
 The full `pose-mcp` suite passes; the canonical result is refreshed with `pose validate --carry`.
 
 ### Requirement trace
 - R1 [satisfied] test:TestReadOnlyIndexToleratesAnAtomicallyReplacedIndex, test:TestReadOnlyIndexRefusesAFIFOIndex
-- R2 [satisfied] test:TestAFailedIndexReadIsReported
+- R2 [satisfied] test:TestAFailedIndexReadIsReported, test:TestACorruptIndexIsReportedWithItsCause
 - R3 [satisfied] test:TestReadOnlyIndexFindsTheIndexFromASubdirectory
-- R4 [satisfied] test:TestThePrivateIndexCopyLeavesTheIndexAlone
+- R4 [satisfied] test:TestThePrivateIndexCopyLeavesTheIndexAlone, test:TestReadOnlyIndexFallsBackWithoutAMemoryFile
 - R5 [satisfied] (accepted limit L1, decision D1)
 - R6 [satisfied] test:TestReadOnlyIndexDiffCoversConflictsRangesAndDirtySubmodules
 
@@ -145,4 +152,7 @@ The read-only index read tolerates an atomically replaced index, reports its fai
 L1 above.
 
 ### Follow-ups
-None. Origin: `pose-validate-reads-leave-the-index-alone` (done 2026-11-26).
+Origin: `pose-validate-reads-leave-the-index-alone` (done 2026-11-26).
+- [open] Test the index lookup against a Git that echoes an unknown `--path-format` (a stand-in executable), so restoring the flag fails a test (review round 1, N6). (owner:@pose-maintainers crit:low review:2026-12-26)
+- [open] Test the `pose report` warning for an unreadable change list end to end (review round 1, N7). (owner:@pose-maintainers crit:low review:2026-12-26)
+- [open] List the changed specs of a POSE root below the repository top: `git diff --name-only` names top-relative paths that the `.pose/specs/` filter drops, so their ready transitions go unchecked (review round 1, N11; pre-existing). (owner:@pose-maintainers crit:medium review:2026-12-26)

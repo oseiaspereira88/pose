@@ -1,6 +1,7 @@
 package pose
 
 import (
+	"bytes"
 	"context"
 	"errors"
 	"fmt"
@@ -36,11 +37,17 @@ const indexLookupTimeout = 30 * time.Second
 // to read root's index without being able to write it. The returned function
 // releases what it holds; call it after the command ends.
 func ReadOnlyIndex(cmd *exec.Cmd, root string) (func(), error) {
+	ctx, cancel := context.WithTimeout(context.Background(), indexLookupTimeout)
+	defer cancel()
+	return ReadOnlyIndexContext(ctx, cmd, root)
+}
+
+// ReadOnlyIndexContext is ReadOnlyIndex with the lookup of the index bound by
+// ctx, the caller's deadline (review round 1, N3).
+func ReadOnlyIndexContext(ctx context.Context, cmd *exec.Cmd, root string) (func(), error) {
 	// `--git-path` without `--path-format`, which Git before 2.31 would echo
 	// back as a path that does not exist (review round 5, N26): the answer is
 	// relative to root unless absolute.
-	ctx, cancel := context.WithTimeout(context.Background(), indexLookupTimeout)
-	defer cancel()
 	out, err := gitCommandContext(ctx, "--no-replace-objects", "-C", root, "rev-parse", "--git-path", "index").Output()
 	if err != nil {
 		return func() {}, fmt.Errorf("pose: the index of %s cannot be located: %w: %w", root, ErrIndexUnreadable, err)
@@ -78,7 +85,29 @@ func ReadOnlyIndex(cmd *exec.Cmd, root string) (func(), error) {
 	// its stat only when the file is older than the index, so a fresher copy
 	// would hide a change made in the index's own second (review round 2,
 	// N10, racy-clean entries).
-	return readOnlyIndexFor(cmd, raw, info.ModTime())
+	// Git's messages in English, so GitReadError can tell an index failure
+	// whatever the user's locale.
+	cmd.Env = append(cmd.Env, "LC_ALL=C", "LANGUAGE=C")
+	done, err := readOnlyIndexFor(cmd, raw, info.ModTime())
+	if err != nil {
+		return done, fmt.Errorf("pose: the index of %s cannot be handed to git: %w: %w", root, ErrIndexUnreadable, err)
+	}
+	return done, nil
+}
+
+// GitReadError describes a failed git read with what git said on standard
+// error, marking it ErrIndexUnreadable when git names the index (review
+// round 1, N1–N2: a corrupt index made git exit 128 with the cause only on
+// its standard error).
+func GitReadError(what string, err error, stderr []byte) error {
+	said := strings.TrimSpace(string(stderr))
+	if said == "" {
+		return fmt.Errorf("%s failed: %w", what, err)
+	}
+	if strings.Contains(said, "index") {
+		return fmt.Errorf("%s failed: %w: %w: %s", what, ErrIndexUnreadable, err, said)
+	}
+	return fmt.Errorf("%s failed: %w: %s", what, err, said)
 }
 
 // privateIndexCopy hands raw to cmd as a private copy: Git refreshes and may
@@ -113,5 +142,11 @@ func RawGitDiffReadOnly(root string, args ...string) ([]byte, error) {
 	if err != nil {
 		return nil, err
 	}
-	return cmd.Output()
+	var stderr bytes.Buffer
+	cmd.Stderr = &stderr
+	out, err := cmd.Output()
+	if err != nil {
+		return nil, GitReadError("git diff", err, stderr.Bytes())
+	}
+	return out, nil
 }

@@ -6,6 +6,7 @@ import (
 	"crypto/sha256"
 	"encoding/hex"
 	"encoding/json"
+	"errors"
 	"fmt"
 	"github.com/harne8/pose-mcp/internal/cli/cliout"
 	"io"
@@ -197,7 +198,13 @@ func runReportWith(root string, args []string, validationLog []byte, summary *va
 		}
 	}
 	filesChanged, err := reportChangedFiles(root, values["since"])
+	if err != nil && values["since"] == "" && !errors.Is(err, posemodel.ErrIndexUnreadable) {
+		// Outside a repository the plain listing stays silent, as before
+		// (review round 1, N9).
+		err = nil
+	}
 	if err != nil {
+		filesChanged = []string{cliText(locale, "_The changed files could not be listed: ", "_Os arquivos alterados não puderam ser listados: ") + err.Error() + "_"}
 		// The report still writes, without the list it could not read
 		// (review round 5, N23).
 		render(stderr, stderr).Finding(cliout.Finding{State: cliout.StateWarning, Code: "report-changed-files", Message: fmt.Sprintf(cliText(locale, "the changed files cannot be listed: %v", "os arquivos alterados não podem ser listados: %v"), err)})
@@ -311,7 +318,12 @@ func reportChangedFiles(root, since string) ([]string, error) {
 	if since != "" {
 		output, err = posemodel.RawGitDiffReadOnly(root, args...)
 	} else {
-		output, err = posemodel.RawGit(args...).Output()
+		var stderr bytes.Buffer
+		cmd := posemodel.RawGit(args...)
+		cmd.Stderr = &stderr
+		if output, err = cmd.Output(); err != nil {
+			err = posemodel.GitReadError("git status", err, stderr.Bytes())
+		}
 	}
 	if err != nil {
 		return nil, err

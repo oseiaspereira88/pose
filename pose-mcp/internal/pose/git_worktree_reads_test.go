@@ -363,11 +363,25 @@ func TestReadOnlyIndexDiffCoversConflictsRangesAndDirtySubmodules(t *testing.T) 
 		t.Fatal(err)
 	}
 	second := strings.TrimSpace(run(root, "rev-parse", "HEAD"))
-	for _, args := range [][]string{
+	// A tracked file whose stat cache is made stale before every read, so a
+	// read that refreshes the index would write it (review round 1, N5).
+	stale := filepath.Join(root, "c.txt")
+	staleAgain := func(i int) {
+		later := time.Now().Add(time.Duration(2+i) * time.Second)
+		if err := os.Chtimes(stale, later, later); err != nil {
+			t.Fatal(err)
+		}
+		later = later.Add(time.Second)
+		if err := os.Chtimes(filepath.Join(root, ".gitmodules"), later, later); err != nil {
+			t.Fatal(err)
+		}
+	}
+	for i, args := range [][]string{
 		{"-C", root, "diff", "--name-status", "--no-renames", "--ignore-submodules=none", "HEAD", "--"},
 		{"-C", root, "diff", "--name-only", "-z", "--no-renames", first, second, "--"},
 		{"-C", root, "diff", "--name-only", "--ignore-submodules=none", first, "--"},
 	} {
+		staleAgain(i)
 		before, _ := os.ReadFile(filepath.Join(root, ".git", "index"))
 		got, err := RawGitDiffReadOnly(root, args...)
 		if err != nil {
@@ -381,6 +395,7 @@ func TestReadOnlyIndexDiffCoversConflictsRangesAndDirtySubmodules(t *testing.T) 
 			t.Fatalf("%v answered %q, the plain diff %q", args, got, want)
 		}
 	}
+	staleAgain(9)
 	before, _ := os.ReadFile(filepath.Join(root, ".git", "index"))
 	errs := make(chan error, 8)
 	for i := 0; i < 8; i++ {
