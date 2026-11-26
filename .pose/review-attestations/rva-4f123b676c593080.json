@@ -1,0 +1,293 @@
+{
+  "run": {
+    "run_id": "rrn-4262ae59adfc1641",
+    "proof_id": "rrp-3c20ad49f6878fbbb6d60d098836b0614c1a8a4266c9e0eebd40aaf9e1f4a079"
+  },
+  "schema_version": 1,
+  "attestation_id": "rva-4f123b676c593080",
+  "bundle_id": "rvb-239f5b9604f4d4a3",
+  "bundle_digest": "sha256:239f5b9604f4d4a33efb775547146b7f426bcd45a4ed416cbed0a2f3e0b7f57e",
+  "reviewer": "agent:anthropic/claude-sonnet-5-5",
+  "decision": "changes-requested",
+  "criteria": [
+    {
+      "id": "assumption-integrity",
+      "disposition": "passed",
+      "evidence": "unit:pose-mcp/go/test",
+      "rationale": "L1 verified by probe on Git 2.56: git status and git ls-files with GIT_OPTIONAL_LOCKS=0, and the engine read, each moved the shared index mtime with identical bytes and the same shared index count. Unverified: behaviour on a Git older than 2.31, which was not run. The false test-coverage claim is recorded under requirements and documentation (N4)."
+    },
+    {
+      "id": "backend-concurrency",
+      "disposition": "passed",
+      "evidence": "unit:pose-mcp/go/test"
+    },
+    {
+      "id": "backend-contracts",
+      "disposition": "passed",
+      "evidence": "integration:pose-mcp/go/engine-reads-raw-history-integration"
+    },
+    {
+      "id": "backend-input-errors",
+      "disposition": "finding",
+      "evidence": "N1"
+    },
+    {
+      "id": "backend-integration-impact",
+      "disposition": "passed",
+      "evidence": "integration:pose-mcp/go/check-git-spawns-integration"
+    },
+    {
+      "id": "backend-observability",
+      "disposition": "finding",
+      "evidence": "N2"
+    },
+    {
+      "id": "compatibility",
+      "disposition": "passed",
+      "evidence": "integration:pose-mcp/go/cli-profile-parity-integration",
+      "rationale": "reportChangedFiles is internal and its callers are updated; report keeps exit 0 and its file format; check adds findings only on failed reads. Probes of subdirectory, split-index, linked worktree, sparse-index, unborn HEAD, non-repository and inherited GIT_INDEX_FILE states produced no new check error. No MCP schema or record format changes."
+    },
+    {
+      "id": "correctness",
+      "disposition": "finding",
+      "evidence": "N1"
+    },
+    {
+      "id": "design-causality",
+      "disposition": "passed",
+      "evidence": "structure:design-a825695a0f77576b",
+      "rationale": "D2 addresses the N22 cause: judging the opened descriptor removes the stat-then-open race, and O_NONBLOCK keeps a FIFO from blocking; mutating either one makes its test fail. D1 matches the measured Git behaviour. The sealed design assessment reports no structural deltas, so there is nothing to map."
+    },
+    {
+      "id": "documentation",
+      "disposition": "finding",
+      "evidence": "N4"
+    },
+    {
+      "id": "operability",
+      "disposition": "finding",
+      "evidence": "N2"
+    },
+    {
+      "id": "requirements",
+      "disposition": "finding",
+      "evidence": "N1"
+    },
+    {
+      "id": "scope",
+      "disposition": "passed",
+      "evidence": "integration:pose-mcp/go/artifact-claim-boundary-integration",
+      "rationale": "The implementation files in the range are the ones the spec's artifacts list names, artifact-check strict exits 0, and no origin decision is reopened. Shortfalls against R2 and R6 are recorded as findings."
+    },
+    {
+      "id": "security",
+      "disposition": "passed",
+      "evidence": "integration:pose-mcp/go/engine-reads-raw-history-integration",
+      "rationale": "Examined the open path: O_NONBLOCK then fstat refuses non-regular files, the read stays bounded at 512 MiB, the lookup goes through the sanitised Git environment that drops GIT_INDEX_FILE and GIT_DIR, and the private copy is mode 0600 in a fresh temporary directory removed after use. No new input crosses a trust boundary."
+    },
+    {
+      "id": "solution-proportionality",
+      "disposition": "passed",
+      "evidence": "unit:pose-mcp/go/test",
+      "rationale": "The change is small: one open helper per platform, a fallback that reuses the existing private-copy code, and error propagation at three callers. No speculative extension. D2 would be invalidated by a platform where a non-blocking open does not return on a special file."
+    }
+  ],
+  "tools": [
+    {
+      "id": "artifact-check",
+      "disposition": "passed",
+      "evidence": "command:pose artifact-check --spec pose-validate-read-only-index-followups --strict",
+      "rationale": "Exit 0; orphan warnings only in the output inspected."
+    },
+    {
+      "id": "assess-design",
+      "disposition": "passed",
+      "evidence": "structure:design-a825695a0f77576b",
+      "rationale": "Observed, no deltas."
+    },
+    {
+      "id": "assess-discover",
+      "component": "pose-mcp",
+      "disposition": "passed",
+      "evidence": "command:pose assess discover --no-persist --component pose-mcp"
+    },
+    {
+      "id": "assess-integrate",
+      "disposition": "passed",
+      "evidence": "integration:pose-mcp/go/engine-reads-raw-history-integration",
+      "rationale": "Three HTTP consumer gaps reported, on endpoints this range does not touch."
+    },
+    {
+      "id": "assess-tech-debt",
+      "disposition": "passed",
+      "evidence": "command:pose assess tech-debt --no-persist",
+      "rationale": "Ran; the scan reports itself incomplete because two older specs could not be read."
+    },
+    {
+      "id": "closeout-check",
+      "disposition": "deferred",
+      "rationale": "Needs the completed review."
+    },
+    {
+      "id": "review-check",
+      "disposition": "deferred",
+      "rationale": "Needs the recorded attestation."
+    },
+    {
+      "id": "suggest-review",
+      "component": "pose-mcp",
+      "disposition": "passed",
+      "evidence": "command:pose suggest review --path pose-mcp"
+    },
+    {
+      "id": "surface-check",
+      "disposition": "passed",
+      "evidence": "integration:pose-mcp/go/engine-reads-raw-history-integration",
+      "rationale": "Exit 0 with zero findings."
+    },
+    {
+      "id": "validate",
+      "disposition": "passed",
+      "evidence": "unit:pose-mcp/go/test",
+      "rationale": "Rerun in the sandbox: 236 steps, 224 pass, 11 fail, 1 timeout. The failures inspected come from sandbox limits (/home and /var/tmp owned by another user, denied api.github.com, refused delegation, runtime start and socket tests hanging); a file-mode assertion and a runtime reply test are in files this range does not touch. Subject tests pass. Relies on the sealed evidence."
+    },
+    {
+      "id": "validate",
+      "component": "pose-mcp",
+      "disposition": "passed",
+      "evidence": "unit:pose-mcp/go/test",
+      "rationale": "Rerun in the sandbox: 233 steps, 221 pass, 11 fail, 1 timeout, the same sandbox-bound set as the project run. Subject tests pass, also under -race. Relies on the sealed evidence."
+    }
+  ],
+  "evidence_refs": [
+    "N1",
+    "N2",
+    "N4",
+    "delegated-run:rrn-4262ae59adfc1641",
+    "integration:pose-mcp/go/artifact-claim-boundary-integration",
+    "integration:pose-mcp/go/check-git-spawns-integration",
+    "integration:pose-mcp/go/cli-profile-parity-integration",
+    "integration:pose-mcp/go/engine-reads-raw-history-integration",
+    "structure:design-a825695a0f77576b",
+    "unit:pose-mcp/go/test"
+  ],
+  "findings": [
+    {
+      "id": "N1",
+      "severity": "medium",
+      "evidence": "file:pose-mcp/internal/cli/validate_scope.go:111",
+      "action": "R2 unmet: with a corrupt .git/index (a regular file of garbage) ReadOnlyIndex succeeds, git diff exits 128, ErrIndexUnreadable is not set, and scope selection reports 'git diff HEAD..worktree failed (revision unknown?): exit status 128'. A failed index read is still labelled revision unknown. Reproduced with an overlay probe.",
+      "disposition": "open"
+    },
+    {
+      "id": "N2",
+      "severity": "medium",
+      "evidence": "file:pose-mcp/internal/cli/check.go:1151",
+      "action": "R2 'with its cause' unmet when git itself fails on the index: Git's stderr is discarded, so check prints 'ready transitions: git diff failed: exit status 128', report.go:203 warns 'the changed files cannot be listed: exit status 128', and validate_scope.go:112 ends in 'exit status 128'. Neither the index nor a remedy is named. Reproduced with a corrupt index.",
+      "disposition": "open"
+    },
+    {
+      "id": "N3",
+      "severity": "medium",
+      "evidence": "file:pose-mcp/internal/pose/git_worktree_reads.go:42",
+      "action": "R2 requires the index lookup to run within the caller's deadline. It runs under a new context.Background() 30s timeout and ReadOnlyIndex takes no context, so reviewHistoryGit's 30s deadline (review_attempt_ledger.go:528-536) does not bound the lookup: the call can spend a second 30s budget after the caller's has started. This was the recorded origin follow-up (bound the lookup by the caller's context); no decision records the change.",
+      "disposition": "open"
+    },
+    {
+      "id": "N4",
+      "severity": "medium",
+      "evidence": "file:pose-mcp/internal/pose/git_worktree_reads_test.go:297",
+      "action": "R4 has no test of the fallback: the test calls privateIndexCopy directly. Replacing both fallbacks in git_worktree_reads_linux.go (lines 24 and 40) with error returns leaves the focused pose and cli tests green, so the requirement trace and the execution log claim (each of R1-R4 fails with its guard mutated out) is false for R4. The fallback itself works when forced.",
+      "disposition": "open"
+    },
+    {
+      "id": "N5",
+      "severity": "medium",
+      "evidence": "file:pose-mcp/internal/pose/git_worktree_reads_test.go:371",
+      "action": "R6 coverage is vacuous for the index and partly missing. The new test never makes the stat cache stale, and the plain diff run at line 379 refreshes it before later reads: with all protection removed (ReadOnlyIndex returning without readOnlyIndexFor) the test still passes, including the concurrent review history assertion at line 398. R6 also asks the CLI concurrency test to run the review history reader; TestConcurrentValidationReadsNeverChangeTheIndex was not extended to do so.",
+      "disposition": "open"
+    },
+    {
+      "id": "N6",
+      "severity": "low",
+      "evidence": "file:pose-mcp/internal/pose/git_worktree_reads_test.go:281",
+      "action": "Add a test with a git shim that echoes --path-format, asserting the read stays protected or fails.",
+      "disposition": "accepted-risk",
+      "owner": "pose-mcp maintainers",
+      "rationale": "The R3 test catches removal of the relative-path join but not restoring --path-format=absolute: with that mutation all focused tests pass on Git 2.56. No test stands in for a Git that echoes the unknown option.",
+      "review_by": "2026-12-31"
+    },
+    {
+      "id": "N7",
+      "severity": "low",
+      "evidence": "file:pose-mcp/internal/cli/validate_reads_index_test.go:165",
+      "action": "Assert the check's command-failure message and the report warning on stderr.",
+      "disposition": "accepted-risk",
+      "owner": "pose-mcp maintainers",
+      "rationale": "Two R2 reporting paths are untested: removing the failOrWarn on a failed git command (check.go:1151) or the report warning (report.go:203) leaves the focused cli tests green.",
+      "review_by": "2026-12-31"
+    },
+    {
+      "id": "N8",
+      "severity": "low",
+      "evidence": "file:pose-mcp/internal/pose/git_worktree_reads.go:81",
+      "action": "Wrap copy and memory-file errors in ErrIndexUnreadable with context, and fall back on write or seek failure.",
+      "disposition": "accepted-risk",
+      "owner": "pose-mcp maintainers",
+      "rationale": "Errors from readOnlyIndexFor and privateIndexCopy are not wrapped in ErrIndexUnreadable. With the memfd fallback forced and an unusable TMPDIR, scope selection reports '(revision unknown?)' for a failed index copy. A failing memfd Write or Seek (git_worktree_reads_linux.go:27-34) also returns an error without trying the private copy.",
+      "review_by": "2026-12-31"
+    },
+    {
+      "id": "N9",
+      "severity": "low",
+      "evidence": "file:pose-mcp/internal/cli/report.go:347",
+      "action": "Write an unavailable marker in the report when the read fails, and decide whether a non-repository should warn.",
+      "disposition": "accepted-risk",
+      "owner": "pose-mcp maintainers",
+      "rationale": "When the list cannot be read, the versioned report still states '_No files detected_' under Files Changed; only stderr says the list is unknown. The warning also appears now for plain pose report outside a Git repository, which was silent before.",
+      "review_by": "2026-12-31"
+    },
+    {
+      "id": "N10",
+      "severity": "low",
+      "evidence": "file:pose-mcp/internal/cli/check.go:1144",
+      "action": "Pass both messages through checker.message with a Portuguese variant.",
+      "disposition": "accepted-risk",
+      "owner": "pose-mcp maintainers",
+      "rationale": "The two new check findings (lines 1144 and 1151) are English only, although the neighbouring ready-transition finding and the new report warning are localised.",
+      "review_by": "2026-12-31"
+    },
+    {
+      "id": "N11",
+      "severity": "low",
+      "evidence": "file:pose-mcp/internal/cli/check.go:1131",
+      "action": "Add --relative to the ready-transition diff and cover a subdirectory root.",
+      "disposition": "accepted-risk",
+      "owner": "pose-mcp maintainers",
+      "rationale": "Pre-existing, not introduced by this range: with the POSE root below the repository top, git diff --name-only returns top-relative paths that fail the .pose/specs/ prefix filter, so a modified spec is not listed and its ready transition is unchecked without any finding (probe: found=[]).",
+      "review_by": "2026-12-31"
+    }
+  ],
+  "authority": {
+    "schema_version": 1,
+    "project": "proj.pose-dist",
+    "bundle_digest": "sha256:239f5b9604f4d4a33efb775547146b7f426bcd45a4ed416cbed0a2f3e0b7f57e",
+    "principal": "agent:anthropic/claude-sonnet-5-5",
+    "role": "agent",
+    "review_execution": "rrn-4262ae59adfc1641",
+    "implementation_principal": "agent:anthropic/claude-opus-5-5",
+    "implementation_execution": "sha256:344ac5868944c155772d60a95ef6ff20644580a642e772ad5c92c29428464ff8",
+    "issuer": "b34-local-executor",
+    "issued_at": "2026-11-26T23:56:22Z",
+    "audience": "proj.pose-dist"
+  },
+  "envelope": {
+    "issuer": "b34-local-executor",
+    "subject": "rvb-239f5b9604f4d4a3",
+    "algorithm": "ed25519",
+    "public_key": "ck4sApdfePV2GT+hJyAYfJd2qLzeG55P8pevGR0bvZE=",
+    "signature": "vn57rZtFhAXmjU0GaePwMtF6CSKNzMr+VT90paaAr9OkwwtyKt7QfuoKKzbvHnhOHCTzqMaf+2MIUKL0YdaCCg=="
+  },
+  "attested_at": "2026-11-26T23:56:22Z",
+  "path": ".pose/review-attestations/rva-4f123b676c593080.json"
+}
