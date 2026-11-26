@@ -2,6 +2,7 @@ package pose
 
 import (
 	"fmt"
+	"io"
 	"os"
 	"os/exec"
 	"strings"
@@ -28,21 +29,28 @@ func ReadOnlyIndex(cmd *exec.Cmd, root string) (func(), error) {
 		return func() {}, fmt.Errorf("pose: the index of %s cannot be located: %w", root, err)
 	}
 	path := strings.TrimSuffix(string(out), "\n")
-	info, err := os.Lstat(path)
-	if os.IsNotExist(err) {
+	if _, err := os.Lstat(path); os.IsNotExist(err) {
 		// No index yet: there is no stat cache to refresh, so the plain read
 		// writes nothing (review round 2, N11).
 		return func() {}, nil
 	}
+	// One open file is checked and read, within the bound (review round 3,
+	// N17): a file swapped in between cannot escape it.
+	f, err := os.Open(path)
 	if err != nil {
 		return func() {}, fmt.Errorf("pose: the index of %s cannot be read: %w", root, err)
 	}
-	if !info.Mode().IsRegular() || info.Size() > diffIndexLimit {
-		return func() {}, fmt.Errorf("pose: the index of %s is not a regular file within %d bytes", root, diffIndexLimit)
+	defer f.Close()
+	info, err := f.Stat()
+	if err != nil || !info.Mode().IsRegular() {
+		return func() {}, fmt.Errorf("pose: the index of %s is not a regular file", root)
 	}
-	raw, err := os.ReadFile(path)
+	raw, err := io.ReadAll(io.LimitReader(f, diffIndexLimit+1))
 	if err != nil {
 		return func() {}, fmt.Errorf("pose: the index of %s cannot be read: %w", root, err)
+	}
+	if len(raw) > diffIndexLimit {
+		return func() {}, fmt.Errorf("pose: the index of %s is larger than %d bytes", root, diffIndexLimit)
 	}
 	// The copy keeps the index's modification time: Git trusts an entry on
 	// its stat only when the file is older than the index, so a fresher copy
