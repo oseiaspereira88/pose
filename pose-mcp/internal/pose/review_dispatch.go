@@ -19,10 +19,12 @@ import (
 	"errors"
 	"fmt"
 	"io"
+	"io/fs"
 	"os"
 	"os/exec"
 	"path/filepath"
 	"reflect"
+	"regexp"
 	"runtime"
 	"sort"
 	"strings"
@@ -804,9 +806,9 @@ func (s Store) RunReviewDispatchContext(parent context.Context, plan DispatchPla
 			return finish(ReviewRunFailed, "the run was not started: its attempt could not be handed back: "+err.Error())
 		}
 	}
-	tmp, err := os.MkdirTemp("", "pose-review-run-*")
+	tmp, err := reviewRunRuntimeDir(run.AttemptID)
 	if err != nil {
-		return finish(ReviewRunFailed, "runtime directory setup failed")
+		return finish(ReviewRunFailed, "runtime directory setup failed: "+err.Error())
 	}
 	safety.RuntimeID = filepath.Base(tmp)
 	owned, err := os.Lstat(tmp)
@@ -2027,4 +2029,29 @@ func sourceMaterializationDiffers(root, commit string, entries []ReviewBundleSub
 		}
 	}
 	return ""
+}
+
+// reviewAttemptIDRE is the form of a delegated review attempt's id.
+var reviewAttemptIDRE = regexp.MustCompile(`^rat-[0-9a-f]{64}$`)
+
+// reviewRunRuntimeDir creates the private directory of one run. Every run of
+// an attempt uses the same path, so a resumed reviewer session, which still
+// refers to the sealed checkout it worked in, finds the checkout recreated
+// there after the interrupted run removed it (spec
+// pose-review-resume-keeps-the-sealed-checkout R1). The directory is created
+// exclusively and never followed: when the path already exists, from an
+// unfinished cleanup or from someone else, the run fails instead of sharing
+// it. A run without an attempt keeps a random name.
+func reviewRunRuntimeDir(attemptID string) (string, error) {
+	if !reviewAttemptIDRE.MatchString(attemptID) {
+		return os.MkdirTemp("", "pose-review-run-*")
+	}
+	dir := filepath.Join(os.TempDir(), "pose-review-run-"+attemptID[len("rat-"):len("rat-")+32])
+	if err := os.Mkdir(dir, 0o700); err != nil {
+		if errors.Is(err, fs.ErrExist) {
+			return "", fmt.Errorf("the attempt's runtime directory %s already exists; an earlier run of the attempt did not clean up, or another process holds the path", dir)
+		}
+		return "", err
+	}
+	return dir, nil
 }

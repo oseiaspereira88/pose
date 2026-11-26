@@ -292,3 +292,27 @@ func TestRunContinuityObservedProcessLoss(t *testing.T) {
 		t.Fatal(e)
 	}
 }
+
+// Spec pose-review-resume-keeps-the-sealed-checkout R1, R2: a resumed session
+// works in the sealed checkout it saw before the interruption, recreated at
+// the same path after the interrupted run removed it.
+func TestResumedReviewFindsItsSealedCheckoutAtTheSamePath(t *testing.T) {
+	marks := t.TempDir()
+	first := filepath.Join(marks, "first")
+	root, _, prior := runContinuityFixture(t, func(a *posemodel.ReviewerAdapter) {
+		a.Command = []string{"sh", "-c", `pwd > "$1"; printf 'session: fixture-private-session\nreset: 2030-01-01T00:00:00Z\ndecision: rejected\n'; exit 75`, "sh", first}
+		a.Resume.Command = []string{"sh", "-c", `test "$(pwd)" = "$(cat "$1")" || { echo "moved from $(cat "$1") to $(pwd)" >&2; exit 3; }; test -f .pose/specs/alpha/spec.md || ls >&2; printf 'decision: approved\n'`, "sh", first, "{session}"}
+	})
+	raw, err := os.ReadFile(first)
+	if err != nil {
+		t.Fatal(err)
+	}
+	checkout := strings.TrimSpace(string(raw))
+	if _, err := os.Stat(checkout); !os.IsNotExist(err) {
+		t.Fatalf("the interrupted run left its checkout %s behind: %v", checkout, err)
+	}
+	code, out := runPose(t, root, "delegate", "resume", prior.RunID)
+	if code != 0 || !strings.Contains(out, "status=completed") {
+		t.Fatalf("the resumed session did not find its checkout at %s: %d %s", checkout, code, out)
+	}
+}
