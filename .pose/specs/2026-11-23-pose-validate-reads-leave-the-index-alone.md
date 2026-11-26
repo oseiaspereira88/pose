@@ -1,8 +1,8 @@
 ---
 slug: pose-validate-reads-leave-the-index-alone
-status: draft
+status: done
 created_at: 2026-11-23
-completed_at:
+completed_at: 2026-11-26
 supersedes:
 depends_on: 
 remediates:
