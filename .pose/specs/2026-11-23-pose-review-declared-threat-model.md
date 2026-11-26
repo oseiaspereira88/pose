@@ -1,8 +1,8 @@
 ---
 slug: pose-review-declared-threat-model
-status: in-progress
+status: done
 created_at: 2026-11-23
-completed_at:
+completed_at: 2026-11-26
 supersedes:
 depends_on: 
 remediates:
