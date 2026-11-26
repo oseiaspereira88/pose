@@ -1,0 +1,237 @@
+{
+  "run": {
+    "run_id": "rrn-282d73ecd35bcc64",
+    "proof_id": "rrp-8b9a8a42055b4cb155696deeb1779194777691ac98c9c4b05a1f27a66359f4cb"
+  },
+  "schema_version": 1,
+  "attestation_id": "rva-f98437367746e925",
+  "bundle_id": "rvb-80a3d391176eb7fe",
+  "bundle_digest": "sha256:80a3d391176eb7feba3eef108a3129adb12ec0eceff8fd4e451bdbdfddbd65ee",
+  "reviewer": "agent:anthropic/claude-sonnet-5-5",
+  "decision": "changes-requested",
+  "criteria": [
+    {
+      "id": "assumption-integrity",
+      "disposition": "passed",
+      "evidence": "unit:pose-mcp/go/test",
+      "rationale": "Material assumptions: Git skips a refresh whose lock cannot be made and trusts stat only for files older than the index. Tests and probes verified both on this Linux Git. L2 is accepted; /proc availability, Git 2.31 or newer and non-Linux runtime stay unverified."
+    },
+    {
+      "id": "backend-concurrency",
+      "disposition": "passed",
+      "evidence": "unit:pose-mcp/go/test"
+    },
+    {
+      "id": "backend-contracts",
+      "disposition": "passed",
+      "evidence": "integration:pose-mcp/go/git-status-clean-git-integration"
+    },
+    {
+      "id": "backend-input-errors",
+      "disposition": "passed",
+      "evidence": "unit:pose-mcp/go/test"
+    },
+    {
+      "id": "backend-integration-impact",
+      "disposition": "passed",
+      "evidence": "integration:pose-mcp/go/engine-reads-raw-history-integration"
+    },
+    {
+      "id": "backend-observability",
+      "disposition": "passed",
+      "evidence": "unit:pose-mcp/go/test"
+    },
+    {
+      "id": "compatibility",
+      "disposition": "passed",
+      "evidence": "integration:pose-mcp/go/machine-channel-integration",
+      "rationale": "No command, flag, record or MCP schema changes. Probes show the diffs answer as the plain diff, including missing and symlinked index and range bases."
+    },
+    {
+      "id": "correctness",
+      "disposition": "passed",
+      "evidence": "unit:pose-mcp/go/test"
+    },
+    {
+      "id": "design-causality",
+      "disposition": "passed",
+      "evidence": "structure:design-7dfcdeca901ed18a",
+      "rationale": "The cause is a stat refresh written under .git. Optional locks cover status (R1) and the diff reads an unlockable memfd that keeps the index time (D1); D2 justifies testing the reads. The end-to-end probe left the index unchanged. The design delta has no structural deltas to map."
+    },
+    {
+      "id": "documentation",
+      "disposition": "passed",
+      "evidence": "structure:design-7dfcdeca901ed18a",
+      "rationale": "No command, flag or template changes. The spec's execution log and follow-ups match the round 4 code."
+    },
+    {
+      "id": "operability",
+      "disposition": "passed",
+      "evidence": "unit:pose-mcp/go/test",
+      "rationale": "Index errors name the repository and failure, and scope selection carries the cause. The silent skip in check is low and tracked in N18."
+    },
+    {
+      "id": "requirements",
+      "disposition": "passed",
+      "evidence": "unit:pose-mcp/go/test"
+    },
+    {
+      "id": "scope",
+      "disposition": "passed",
+      "evidence": "structure:design-7dfcdeca901ed18a",
+      "rationale": "The ten subject code files match the spec's artifact list; round 4 changes only the index read. artifact-check --strict exited 0."
+    },
+    {
+      "id": "security",
+      "disposition": "passed",
+      "evidence": "integration:pose-mcp/go/engine-reads-raw-history-integration",
+      "rationale": "The bound now applies to the bytes read from one open file, the redirecting Git environment stays stripped, and the memfd creates no file. The FIFO block needs local .git write access and is low, tracked in N21."
+    },
+    {
+      "id": "solution-proportionality",
+      "disposition": "passed",
+      "evidence": "structure:design-7dfcdeca901ed18a",
+      "rationale": "Locks alone do not stop git diff writing and a temporary copy creates files, so an unlockable memfd over the unchanged diff is the smallest sufficient approach found. It becomes invalid if Git stops skipping a failed refresh lock or /proc is unavailable."
+    }
+  ],
+  "tools": [
+    {
+      "id": "artifact-check",
+      "disposition": "passed",
+      "evidence": "command:pose artifact-check --spec pose-validate-reads-leave-the-index-alone --strict",
+      "rationale": "Exit 0."
+    },
+    {
+      "id": "assess-design",
+      "disposition": "passed",
+      "evidence": "structure:design-7dfcdeca901ed18a"
+    },
+    {
+      "id": "assess-discover",
+      "component": "pose-mcp",
+      "disposition": "passed",
+      "evidence": "command:pose assess discover --no-persist --component pose-mcp"
+    },
+    {
+      "id": "assess-integrate",
+      "disposition": "passed",
+      "evidence": "integration:pose-mcp/go/git-status-clean-git-integration",
+      "rationale": "Exit 0; three medium unconsumed HTTP provider gaps unrelated to these files."
+    },
+    {
+      "id": "assess-tech-debt",
+      "disposition": "passed",
+      "evidence": "command:pose assess tech-debt --no-persist",
+      "rationale": "Exit 0; the scan reports itself incomplete for two unreadable specs."
+    },
+    {
+      "id": "closeout-check",
+      "disposition": "deferred",
+      "evidence": "command:pose closeout-check spec:pose-validate-reads-leave-the-index-alone",
+      "rationale": "Needs a completed review; it exited 1."
+    },
+    {
+      "id": "review-check",
+      "disposition": "deferred",
+      "evidence": "command:pose review-check spec:pose-validate-reads-leave-the-index-alone",
+      "rationale": "Needs this review's attestation; it exited 1."
+    },
+    {
+      "id": "suggest-review",
+      "component": "pose-mcp",
+      "disposition": "passed",
+      "evidence": "command:pose suggest review --path pose-mcp"
+    },
+    {
+      "id": "surface-check",
+      "disposition": "passed",
+      "evidence": "integration:pose-mcp/go/spec-surface-integration",
+      "rationale": "surface-check --strict exited 0."
+    },
+    {
+      "id": "validate",
+      "disposition": "failed",
+      "evidence": "unit:pose-mcp/go/test",
+      "rationale": "The run in this review sandbox exited 1: 224 pass, 11 fail, 1 error. This is a limit of the run, not attributed to the subject: go test ./... listed the same failing tests on the head and with this spec's files reverted. The canonical result .pose/results/delivery-validation.json records 236 passed, 0 failed at 5e606ae7, and the cited ref is that sealed pass, not this run."
+    },
+    {
+      "id": "validate",
+      "component": "pose-mcp",
+      "disposition": "failed",
+      "evidence": "unit:pose-mcp/go/test",
+      "rationale": "The module run in this sandbox exited 1: 221 pass, 11 fail, 1 error, with the same failing step names and the same baseline comparison. The cited ref is the sealed pass, not this run."
+    }
+  ],
+  "evidence_refs": [
+    "delegated-run:rrn-282d73ecd35bcc64",
+    "integration:pose-mcp/go/engine-reads-raw-history-integration",
+    "integration:pose-mcp/go/git-status-clean-git-integration",
+    "integration:pose-mcp/go/machine-channel-integration",
+    "structure:design-7dfcdeca901ed18a",
+    "unit:pose-mcp/go/test"
+  ],
+  "findings": [
+    {
+      "id": "N18",
+      "severity": "low",
+      "evidence": "file:pose-mcp/internal/cli/check.go:1142",
+      "action": "Report the failed ready-transition read and bound the index lookup by the caller's context.",
+      "disposition": "accepted-risk",
+      "owner": "pose-maintainers",
+      "rationale": "R3-N14 remains and is recorded as a spec follow-up: a failed index read drops the ready-transition diff silently, and the rev-parse at git_worktree_reads.go:27 runs without the caller's deadline.",
+      "review_by": "2026-12-26"
+    },
+    {
+      "id": "N19",
+      "severity": "low",
+      "evidence": "file:pose-mcp/internal/pose/git_worktree_reads_linux.go:38",
+      "action": "Keep a split-index read from touching the shared index time.",
+      "disposition": "accepted-risk",
+      "owner": "pose-maintainers",
+      "rationale": "R3-N15 remains and is recorded as a spec follow-up: a split-index read-only diff still moves the modification time of .git/sharedindex.\u003chash\u003e, reproduced again. Whether the governed read view reports it was not tested.",
+      "review_by": "2026-12-26"
+    },
+    {
+      "id": "N20",
+      "severity": "low",
+      "evidence": "file:pose-mcp/internal/cli/validate_reads_index_test.go:80",
+      "action": "Add the reader to the concurrency test and the three cases to the equivalence test.",
+      "disposition": "accepted-risk",
+      "owner": "pose-maintainers",
+      "rationale": "R3-N16 remains and is recorded as a spec follow-up: the concurrency test does not run the review history reader, and the equivalence test lacks unmerged, range-base and dirty-submodule cases. Overlay probes of those states matched the plain diff.",
+      "review_by": "2026-12-26"
+    },
+    {
+      "id": "N21",
+      "severity": "low",
+      "evidence": "file:pose-mcp/internal/pose/git_worktree_reads.go:39",
+      "action": "Open without blocking, or refuse a non-regular file before opening and keep the same-file check.",
+      "disposition": "accepted-risk",
+      "owner": "pose-maintainers",
+      "rationale": "The N17 fix opens the index before checking its type, so a FIFO at the index path blocks os.Open with no deadline; the previous round's Lstat check rejected it first. Reproduced: still blocked after 3 seconds until a writer opened it. It needs a writer inside .git; whether plain git also blocks there was not tested.",
+      "review_by": "2026-12-26"
+    }
+  ],
+  "authority": {
+    "schema_version": 1,
+    "project": "proj.pose-dist",
+    "bundle_digest": "sha256:80a3d391176eb7feba3eef108a3129adb12ec0eceff8fd4e451bdbdfddbd65ee",
+    "principal": "agent:anthropic/claude-sonnet-5-5",
+    "role": "agent",
+    "review_execution": "rrn-282d73ecd35bcc64",
+    "implementation_principal": "agent:anthropic/claude-opus-5-5",
+    "implementation_execution": "sha256:344ac5868944c155772d60a95ef6ff20644580a642e772ad5c92c29428464ff8",
+    "issuer": "b34-local-executor",
+    "issued_at": "2026-11-26T19:37:50Z",
+    "audience": "proj.pose-dist"
+  },
+  "envelope": {
+    "issuer": "b34-local-executor",
+    "subject": "rvb-80a3d391176eb7fe",
+    "algorithm": "ed25519",
+    "public_key": "ck4sApdfePV2GT+hJyAYfJd2qLzeG55P8pevGR0bvZE=",
+    "signature": "ygZsQbb02MkEmXOkayZQQeASYwiWlkwJDH5SDkYYJbVDc/T5T3uS2+PbKdlYsu2N9yiB1khXQnFQFedUSQjGDQ=="
+  },
+  "attested_at": "2026-11-26T19:37:50Z",
+  "path": ".pose/review-attestations/rva-f98437367746e925.json"
+}
