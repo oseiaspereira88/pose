@@ -1,0 +1,147 @@
+{
+  "safety": {
+    "schema_version": 1,
+    "profile": "legacy-trusted",
+    "platform": "linux/amd64",
+    "capabilities": {
+      "automatic-expiry": "unavailable",
+      "bounded-capture": "available",
+      "cpu-limit": "unavailable",
+      "credential-filesystem-isolation": "unavailable",
+      "environment-allowlist": "available",
+      "escaped-descendant-termination": "environment-marked",
+      "filesystem-isolation": "unavailable",
+      "memory-limit": "unavailable",
+      "network-isolation": "unavailable",
+      "origin-isolation": "unavailable",
+      "parent-termination": "available",
+      "process-group-termination": "available",
+      "shared-git-isolation": "unavailable"
+    },
+    "limitations": [
+      "trusted local executable required; worktree is not a sandbox",
+      "outside writes, transient writes, shared Git and credential files are not isolated",
+      "no memory/CPU quota; the review run shim ends every process left in the run's subtree, including one in its own session",
+      "cleanup filesystem calls remain subject to operating-system I/O latency",
+      "legacy compatibility: HOME retained; other ambient credentials excluded"
+    ],
+    "stream_bytes": 8388608,
+    "output_bytes": 65536,
+    "retained_bytes": 16777216,
+    "timeout_ms": 3600000,
+    "max_runs_per_bundle": 3,
+    "retention": "retain-evidence; ttl=0; no automatic deletion",
+    "capture_complete": true,
+    "runtime_id": "pose-review-run-3050911272",
+    "operation": {
+      "schema_version": 1,
+      "operation": "review.dispatch.cleanup",
+      "scope": "spec:pose-review-declared-threat-model",
+      "outcome": "completed",
+      "steps_run": [
+        {
+          "id": "cleanup",
+          "result": "done"
+        }
+      ],
+      "effects": [],
+      "resumable": false
+    }
+  },
+  "provenance": {
+    "execution_state": "started",
+    "planned_wire_digest": "sha256:7bcbbdf202366ac3a333f56a3ff03642a23737e3cf1aaff16e72cfada26a1f8e",
+    "wire_bytes": 34734,
+    "wire_complete": true,
+    "schema_version": 1,
+    "project": "proj.pose-dist",
+    "audience": "proj.pose-dist",
+    "worktree_digest": "sha256:092ca52378c4c0d0f2b627da8d5031dbb854563bd4b9f2474458710c62a14816",
+    "trust": "executor-attested",
+    "implementation": {
+      "principal": "agent:anthropic/claude-opus-5-5",
+      "execution": "sha256:344ac5868944c155772d60a95ef6ff20644580a642e772ad5c92c29428464ff8",
+      "vendor": "anthropic",
+      "model": "claude-opus-5-5"
+    },
+    "reviewer": {
+      "principal": "agent:anthropic/claude-sonnet-5-5",
+      "vendor": "anthropic",
+      "model": "claude-sonnet-5-5"
+    },
+    "config_digest": "sha256:b23684d462090c30b29c472aa98a57bfadccc0b92e14fbacb173eb47d1f5b8ea",
+    "command_template_digest": "sha256:3d843a49f6314194edbdf4f7f3ce02992895b45ad84d90915a0b66a1db8afd54",
+    "argv_digest": "sha256:8a3f2e35e14de52c8cf2a1f5ed498914114c2c1071d0a23d97c2ec4deb069420",
+    "executable_digest": "sha256:c157074818b094c84aaf31b8c80a1e149f234bb1c8c84a25e9a53e96afa30a29",
+    "template_version": "review-brief/11",
+    "wire_digest": "sha256:7bcbbdf202366ac3a333f56a3ff03642a23737e3cf1aaff16e72cfada26a1f8e",
+    "notes_digest": "sha256:e27d021eb3bffccf833551d604805eda9fb82c2f845ca33a03ed167e80fcf555",
+    "raw_transcript_digest": "sha256:d71479a282b968e7958b7bcc38ce7588a44f064dbf0c8240bcf2fb43177583c0",
+    "raw_output_digest": "sha256:8528b514f1d300e67ba3a07ba0cfad11c53c0618d8ff5b5a59d6d4a34c0035fa",
+    "output_source": "stream-final",
+    "output_complete": true
+  },
+  "session_digest": "sha256:a05e3b6b1c7989e6502e62a1ce3731eaa2cdad663319afedb0f631d1d7483e05",
+  "tree_digest": "sha256:917bd8b6fc938942a26194b5b91a0a12eec091b47d8fa289c2a968daffef7750",
+  "brief_notes": "Implementer notes (Claude Opus 5.5, the lead). Use them as context only; the judgment is yours.\n\nScope: spec `pose-review-declared-threat-model` (R1–R4, decisions D1–D2). A recent spec took 15 review rounds; each round found a rarer adversarial case of a guarantee the spec never said it did not make, and no round could converge because there was no place to declare the environment a guarantee assumes. This spec adds that place.\n- R1: `### Accepted limits` with `- L\u003cN\u003e: \u003cassumption\u003e. Accepted because \u003creason\u003e.` (`ParseAcceptedLimits`); the review plan and the bundle seal them as `accepted_limits`, in the plan digest, omitted when empty so no earlier plan or bundle changes digest.\n- R2: `review-brief/11` lists the sealed limits and tells the reviewer to set `limit` on a follow-up that falls inside one, or to dispute the limit with a finding of its own.\n- R3: a draft follow-up with `limit` becomes an attestation finding with disposition `within-limit` and `limit`; it does not block an approval whatever its severity, but an unsealed limit or a missing reason is refused (`reviewFindingDecisionBlockers`).\n- R4: `lint-spec --ready-check` refuses a limit without its reason, and one an ADR citing the spec does not name.\nEach has a test that failed with it mutated out; the full `go test ./...` of `pose-mcp` passes.\n\nThis spec declares its own accepted limits (L1, L2); this brief lists them, sealed. That is also a live test of R1 and R2. Please judge whether they are justified, and check in particular that `within-limit` cannot be used to approve a finding outside a sealed limit, and that bundles and plans without limits keep their digests.\n\nRun every planned `pose` command as `\"$POSE_REVIEW_CLI\"` with the same arguments. Before you finish, pipe your final message to `\"$POSE_REVIEW_CLI\" review draft-check --draft -` and fix every reason it reports. Let every command you start finish before you end.\n\nDraft format rules, enforced by the conclusion preflight:\n- New findings use short unprefixed IDs (N1, N2, …). Round-prefixed IDs go only in `prior_findings`, and only for the findings the brief lists under \"Findings to account for\", with exactly id, status and evidence.\n- Structural-delta mappings go inside the criterion that answers them, with `basis` set to a requirement or a decision of this spec (R1–R4, D1, D2).\n- A criterion scoped to a component cites evidence from that component only.\n\nSandbox limits: the checkout is sealed and read-only. Never `cd`; keep the checkout root as the working directory. Keep test runs focused (`go -C pose-mcp test ./internal/pose ./internal/cli -run 'AcceptedLimit|WithinASealedLimit|ReadyCheckJudges|Brief|Conclud'`). A tool you cannot rerun in the sandbox is a limit of the run, not a defect of the subject: cite the sealed evidence that covers it, then decide on the code itself.\n\nRound 2 notes: round 1 (rrn-d1680df442b23d12) requested changes with N1–N3, listed in the brief. Fixes: N1, across several specs each limit id is `\u003cspec\u003e#L\u003cN\u003e` with its spec recorded (`acceptedLimitsOfSpecs`); N2, a reason must follow \"Accepted because\"; N3, the ADR check matches the id as a word.\n\nRound 3 notes: round 2 (rrn-256db7e6eea5a6e2) found that punctuation passed as a reason; the reason after \"Accepted because\" now needs at least two words with letters (`hasAcceptedLimitReason`, `TestAnAcceptedLimitNeedsWordsAsItsReason`).\n\nRound 4 notes: round 3 (rrn-0af0d413761142d8) found that \"Not accepted because ...\" passed. The marker must now open a sentence (start, or after . ; : ! ?), as the declared format states; `TestAnAcceptedLimitNeedsWordsAsItsReason` covers both cases.\n\nRound 5 notes: round 4 (rrn-721e2a4c9bd37e2e) found that an entry without an assumption, or with an empty reason followed by other prose, passed. `hasAcceptedLimitReason` now reads the entry structurally: an assumption of at least two words, the marker opening a sentence, and a reason of at least two words within that sentence. If you find another way to write an unjustified limit that passes, please also say whether you consider the remaining risk a blocker of this spec or a follow-up: the check is a format gate, while the substance of a limit is judged in review (limit L1).\n\nRound 6 notes: round 5 (rrn-9f6867b3c3e42377): N1, a whitespace-only `within-limit` reason is refused; N2, the ready check fails closed on an unreadable ADR directory or file.\n\nRound 7 notes: round 6 (rrn-a5b61489ac04873d): the bundle plan digest (`reviewBundlePlanDigest`) now covers `accepted_limits`, omitted when empty; `TestTheBundlePlanDigestCoversTheAcceptedLimits`.\n\nRound 8 notes: round 7 (rrn-1236e104ff346a2d): N2, ADRs are read as regular files without following links and within 1 MiB (`readADRBounded`); N1 was your own classification within L1, which this spec supports: please record such a finding with `limit` set (here \"L1\") so it is recorded within-limit.\n\nRound 8 is reviewed by Claude Sonnet 5.5 (the Codex reviewer hit its usage limit). Your Bash is limited to these command prefixes: `go test`, `go vet`, `go -C`, `git diff|log|show|status|ls-files`, `cat`, `printf`, `\"$POSE_REVIEW_CLI\"` (also reachable as `/var/tmp/pose-work-go/pose-ready`), and the pose checks the plan lists. Use Read/Grep/Glob for everything else. Run the draft check as `printf '%s' \"\u003cyour final message\u003e\" | \"$POSE_REVIEW_CLI\" review draft-check --draft -`, or write nothing and check the block with Read.\n",
+  "ledger_version": 1,
+  "attempt_id": "rat-18379fb9fa70a74bcdb008b1098e238fdf8c86642876d894401e4f5753696437",
+  "reason": "the Codex reviewer hit its usage limit; Claude Sonnet 5.5 reviews by the maintainer's decision",
+  "schema_version": 1,
+  "run_id": "rrn-b874a0e13bc62075",
+  "scope": "spec:pose-review-declared-threat-model",
+  "bundle_id": "rvb-2dbe5e44f6ff7bca",
+  "bundle_digest": "sha256:2dbe5e44f6ff7bca0654a01fb73d9417530a6c048bae66a696cbbe6d9c0b1a03",
+  "sealed_commit": "e778d632021b5b063af8ad8a2eb1811cdea4f214",
+  "kind": "review",
+  "brief_digest": "sha256:90ed396072b614f4ae304b9cd8bc5c1d1745dab472b2253e8d9f60abc99760f7",
+  "adapter": "claude-sonnet-5-5",
+  "vendor": "anthropic",
+  "model": "claude-sonnet-5-5",
+  "started_at": "2026-11-26T00:19:23.978770037Z",
+  "ended_at": "2026-11-26T00:48:48.130245507Z",
+  "exit_code": 0,
+  "status": "completed",
+  "transcript_digest": "sha256:917ce15130542a983145e216467f608da9e6f7111611f74060e2b15c91569161",
+  "transcript_path": ".pose/review-runs/rrn-b874a0e13bc62075.transcript",
+  "output": "Changes are requested: one medium defect blocks approval. A limit wrapped over several lines is sealed with only its first line. The draft passed `review draft-check`, and `go clean -cache` plus the `go-build*` removal exited 0.\n\n## Defects\n\n| ID | Severity | Location | Defect |\n|---|---|---|---|\n| N1 | medium, blocker | `pose-mcp/internal/pose/accepted_limits.go:68` | Continuation lines are silently dropped, so a qualifier that narrows a limit is lost from the sealed record. Confirmed with a probe. |\n| N2 | low | `pose-mcp/internal/pose/accepted_limits.go:65` | Examples inside code fences or HTML comments are sealed as real limits. Confirmed with the same probe. |\n| N3 | low | `pose-mcp/internal/pose/review_brief.go:142` | Rule (i) of `review-brief/11` contradicts the `within-limit` exception, and the finding field list omits `limit`. |\n| N4 | low | `pose-mcp/internal/cli/lintspec.go:1211` | An ADR citing a longer slug counts as citing any spec whose slug is a substring of it. |\n| N5 | low | `pose-mcp/internal/pose/governance_outcomes.go:445` | `within-limit` findings fall into no outcome bucket. |\n| N6 | low, within L1 | `pose-mcp/internal/pose/accepted_limits.go:49` | Placeholder text still passes the format check (carried from R7-N1). |\n\n## Previous findings and declared limits\n- **R7-N1:** superseded by N6.\n- **R7-N2:** fixed. ADR file links are refused and reads are bounded.\n- **L1 and L2:** both are justified. L1 covers how an implementer words a limit, not the engine truncating it (N1).\n- **`within-limit` and digests:** an unsealed limit or blank reason is refused. Plans and bundles without limits omit the new field from their digests.\n\n## Test results\n- **Focused tests:** the accepted-limit, brief and conclusion tests in `internal/pose` and `internal/cli` passed.\n- **Module validate:** `validate --strict --module pose-mcp` **failed** here, including one timeout. The full `pose` and `cli` package run also had failures.\n- **Cause of those failures:** the messages I inspected point to the sandbox (ownership of `/home` and `/var/tmp`, denied network) in code outside this change. For the runtime socket and file-mode failures, that cause is my inference. I did not see the complete list of `cli` failures.\n- **Unscoped validate:** I did not run `validate --strict` without a module. Both validate tool entries are marked passed only on the sealed evidence.\n\n```pose-draft\n{\"schema\":\"pose.review.draft/v1\",\"decision\":\"changes-requested\",\n\"findings\":[\n{\"id\":\"N1\",\"severity\":\"medium\",\"disposition\":\"blocker\",\"file\":\"pose-mcp/internal/pose/accepted_limits.go\",\"line\":68,\"summary\":\"A limit wrapped over several Markdown lines is silently cut at its first line: any line not starting with a dash is skipped. A probe with \\\"- L1: An escape. Accepted because a shim covers it\\\" followed by the indented line \\\"only on Linux and only for children.\\\" parsed with no problem and sealed only the first line, so the qualifier that narrows the limit is lost from the plan, the digests and the brief, and within-limit is judged against a broader limit than the spec declares. Read the continuation lines into the entry, or refuse a wrapped entry, with a test.\",\"action\":\"Join continuation lines into the limit text, or report them as a ready-check problem and refuse to seal a truncated limit.\"},\n{\"id\":\"N2\",\"severity\":\"low\",\"disposition\":\"follow-up\",\"file\":\"pose-mcp/internal/pose/accepted_limits.go\",\"line\":65,\"summary\":\"The parser ignores Markdown fences and HTML comments: an example Accepted limits section inside a fenced block or inside a comment is parsed with no problem and sealed as a real limit (probe confirmed both). A commented entry is hidden in the rendered spec yet can classify a finding of any severity; the brief does list it.\",\"action\":\"Skip fenced blocks and HTML comments when reading the section.\"},\n{\"id\":\"N3\",\"severity\":\"low\",\"disposition\":\"follow-up\",\"file\":\"pose-mcp/internal/pose/review_brief.go\",\"line\":142,\"summary\":\"review-brief/11 contradicts itself and the engine: rule (i) still says an approving draft leaves open every follow-up without action, owner and review_by and accepts only low severity, while the Accepted limits section and reviewFindingDecisionBlockers let a follow-up with a sealed limit through without them at any severity. The list of finding fields in the return step also omits limit.\",\"action\":\"State the within-limit exception in rule (i) and name limit among the finding fields, under a new template version.\"},\n{\"id\":\"N4\",\"severity\":\"low\",\"disposition\":\"follow-up\",\"file\":\"pose-mcp/internal/cli/lintspec.go\",\"line\":1211,\"summary\":\"An ADR cites a spec when it merely contains its slug as a substring, so an ADR about a longer slug (pose-review versus pose-review-readiness-before-seal) is taken to cite the shorter spec and the ready check then demands the shorter spec limits in it. Same shape as the L10 versus L1 defect fixed in round 1.\",\"action\":\"Match the slug as a whole token, with a test using a prefix slug.\"},\n{\"id\":\"N5\",\"severity\":\"low\",\"disposition\":\"follow-up\",\"file\":\"pose-mcp/internal/pose/governance_outcomes.go\",\"line\":445,\"summary\":\"The new within-limit disposition has no bucket: governance outcomes count the finding as observed and as an intervention but in none of accepted_risk, resolved, wont_fix or open, so the stats no longer add up and classified findings are invisible there. The text output of review-check and closeout-check does not show them either (only the JSON of review-check carries the findings).\",\"action\":\"Count within-limit findings in their own field and show it in governance stats.\"},\n{\"id\":\"N6\",\"severity\":\"low\",\"disposition\":\"follow-up\",\"file\":\"pose-mcp/internal/pose/accepted_limits.go\",\"line\":49,\"limit\":\"L1\",\"summary\":\"Carried from R7-N1: the lexical gate accepts placeholder text such as \\\"X. Y. Accepted because z w.\\\" since it counts letter runs. It falls inside L1: the check is a format gate, the implementer writes the limit, and the sealed brief shows its text for the reviewer to judge and dispute.\"}\n],\n\"prior_findings\":[\n{\"id\":\"R7-N1\",\"status\":\"superseded\",\"evidence\":\"accepted_limits.go:40-49 is unchanged in this respect; recorded again as N6 within the sealed limit L1, as that finding falls inside it.\"},\n{\"id\":\"R7-N2\",\"status\":\"fixed\",\"evidence\":\"lintspec.go:1244-1256 readADRBounded does Lstat, requires a regular file and reads through ReadReviewAdapterFile (O_NOFOLLOW, O_NONBLOCK on Unix, 1 MiB bound, identity recheck); go test ./internal/cli -run ReadyCheckJudges passed, including the link to /dev/zero. Residual not raised: a linked .pose/adr directory is still followed, but only bounded regular files are read and no content is echoed.\"}\n],\n\"sweep\":\"Read the spec, accepted_limits.go, the diffs of lintspec.go, review_plan.go, review_bundle.go, review_conclusions.go, review_rounds.go, review_closeout.go, review_brief.go, the template digests, the new and changed tests and both manuals; followed within-limit through draft parsing, attestation building, run conclusion matching, decision blockers, criterion reuse, legacy attempt evaluation, governance outcomes, obligations and the CLI check outputs; checked plan and bundle digest compatibility; probed the parser with a go test overlay kept in TMPDIR; ran focused tests (pass), the planned pose tools, and the full pose and cli packages plus module validate, whose failures seen come from the sandbox (path ownership, sockets, network, file mode) and not from these changes. The checkout stayed clean.\",\n\"criteria\":[\n{\"id\":\"assumption-integrity\",\"disposition\":\"passed\",\"evidence\":\"unit:pose-mcp/go/test\",\"rationale\":\"Checked L1 and L2 against code. L2 holds: accepted limits enter digestReviewPlan and reviewBundlePlanDigest. L1 is justified for how broad or weak a limit is written, not for the engine cutting it (N1). review-check warns the sealed evidence is current by provenance rather than run on the subject head; local focused tests of the scope passed.\"},\n{\"id\":\"backend-concurrency\",\"disposition\":\"passed\",\"evidence\":\"unit:pose-mcp/go/test\",\"rationale\":\"The change adds pure parsing, digest fields and a bounded file read; no shared state or new goroutine in production code.\"},\n{\"id\":\"backend-contracts\",\"disposition\":\"passed\",\"evidence\":\"integration:pose-mcp/go/review-brief-templates-are-immutable-integration\"},\n{\"id\":\"backend-input-errors\",\"disposition\":\"passed\",\"evidence\":\"unit:pose-mcp/go/test\",\"rationale\":\"Unsealed limit and blank reason are refused with named blockers; ADR reads are bounded and fail closed. The parser gap is recorded under correctness.\"},\n{\"id\":\"backend-integration-impact\",\"disposition\":\"finding\",\"evidence\":\"N5\"},\n{\"id\":\"backend-observability\",\"disposition\":\"passed\",\"evidence\":\"unit:pose-mcp/go/test\",\"rationale\":\"Refusals name the finding and limit; the attestation records limit and reason. The stats gap is N5.\"},\n{\"id\":\"compatibility\",\"disposition\":\"passed\",\"evidence\":\"integration:pose-mcp/go/review-brief-templates-are-immutable-integration\",\"rationale\":\"accepted_limits and limit are omitempty in plan, bundle, draft and finding and in both plan digests; the bundle digest test compares with the earlier struct; earlier brief templates render without the new section and the digest tests pass.\"},\n{\"id\":\"correctness\",\"disposition\":\"finding\",\"evidence\":\"N1\"},\n{\"id\":\"design-causality\",\"disposition\":\"passed\",\"evidence\":\"integration:pose-mcp/go/review-bundle-convergence\",\"rationale\":\"D1 and D2 address the cause, no place to declare an assumed environment: limits are sealed from the spec, listed in the brief and judged from the bundle, with a separate disposition that needs a sealed id. The design assessment reports no structural delta.\"},\n{\"id\":\"documentation\",\"disposition\":\"finding\",\"evidence\":\"N3\"},\n{\"id\":\"operability\",\"disposition\":\"finding\",\"evidence\":\"N4\"},\n{\"id\":\"requirements\",\"disposition\":\"finding\",\"evidence\":\"N1\"},\n{\"id\":\"scope\",\"disposition\":\"passed\",\"evidence\":\"unit:pose-mcp/go/test\",\"rationale\":\"The scope change sets match R1 to R4 and the declared artifacts; no cap on rounds was added. The brief template file also carries earlier versions belonging to other specs in the range.\"},\n{\"id\":\"security\",\"disposition\":\"passed\",\"evidence\":\"integration:pose-mcp/go/review-bundle-convergence\",\"rationale\":\"within-limit requires an id sealed in the bundle and a non-blank reason; a run attestation must match the draft; the manual attest syntax cannot set a limit; brief text is flattened by quoteLedgerText; ADR reads do not follow file links. Fidelity of the sealed text is N1 and N2.\"},\n{\"id\":\"solution-proportionality\",\"disposition\":\"passed\",\"evidence\":\"unit:pose-mcp/go/test\",\"rationale\":\"One section, one optional field and one disposition is close to the smallest way to classify findings; an accepted-risk reuse would have lifted its severity bound. The choice fails if limits cannot be read faithfully, which N1 shows needs fixing.\"}\n],\n\"tools\":[\n{\"id\":\"artifact-check\",\"disposition\":\"passed\",\"evidence\":\"command:pose artifact-check --spec pose-review-declared-threat-model --strict\",\"rationale\":\"Exit 0; warnings only seen, 1005 findings reported.\"},\n{\"id\":\"assess-design\",\"disposition\":\"passed\",\"evidence\":\"structure:design-9ad64c4729c340ef\",\"rationale\":\"Observed, no deltas.\"},\n{\"id\":\"assess-discover\",\"component\":\"pose-mcp\",\"disposition\":\"passed\",\"evidence\":\"command:pose assess discover --no-persist --component pose-mcp\"},\n{\"id\":\"assess-integrate\",\"disposition\":\"passed\",\"evidence\":\"integration:pose-mcp/go/review-bundle-convergence\",\"rationale\":\"Ran with --no-persist; three medium gaps about unobserved HTTP consumers.\"},\n{\"id\":\"assess-tech-debt\",\"disposition\":\"passed\",\"evidence\":\"command:pose assess tech-debt --no-persist\",\"rationale\":\"Scan reports INCOMPLETE: two older spec files could not be read.\"},\n{\"id\":\"closeout-check\",\"disposition\":\"deferred\",\"rationale\":\"Ran; not terminal before an attestation.\"},\n{\"id\":\"review-check\",\"disposition\":\"deferred\",\"rationale\":\"Ran; not approved before an attestation.\"},\n{\"id\":\"suggest-review\",\"component\":\"pose-mcp\",\"disposition\":\"passed\",\"evidence\":\"command:pose suggest review --path pose-mcp\"},\n{\"id\":\"surface-check\",\"disposition\":\"passed\",\"evidence\":\"integration:pose-mcp/go/review-bundle-convergence\",\"rationale\":\"Exit 0, zero findings.\"},\n{\"id\":\"validate\",\"disposition\":\"passed\",\"evidence\":\"unit:pose-mcp/go/test\",\"rationale\":\"The unscoped command was not rerun here; the verdict rests on sealed evidence. See the module run, which failed in this sandbox.\"},\n{\"id\":\"validate\",\"component\":\"pose-mcp\",\"disposition\":\"passed\",\"evidence\":\"unit:pose-mcp/go/test\",\"rationale\":\"The local rerun FAILED (test and several integration checks, one timeout) on sandbox restrictions seen in its output: foreign ownership of /home and /var/tmp, denied network, runtime sockets and file mode, in code outside this change. Passed rests on the sealed evidence only.\"}\n]}\n```",
+  "policy_digest": "sha256:96d45d57ca07ec9abf850150e8563fe243393ebd1604a49798920f6dade4dbe7",
+  "label": "threat-review-r8b",
+  "purpose": "review",
+  "env_removed": [
+    "CLAUDECODE",
+    "CLAUDE_CODE_BRIDGE_SESSION_ID",
+    "CLAUDE_CODE_CHILD_SESSION",
+    "CLAUDE_CODE_ENTRYPOINT",
+    "CLAUDE_CODE_EXECPATH",
+    "CLAUDE_CODE_MESSAGING_SOCKET",
+    "CLAUDE_CODE_MESSAGING_TOKEN",
+    "CLAUDE_CODE_SESSION_ATTENDED",
+    "CLAUDE_CODE_SESSION_ID",
+    "CLAUDE_EFFORT",
+    "CLAUDE_PID"
+  ],
+  "events": "claude-stream-json",
+  "events_digest": "sha256:c848db0d31326119eb2356bbd0debc33d27eb76515411e3569c629f1d3baed07",
+  "routing": {
+    "requested": "claude-sonnet-5-5",
+    "implementation": {
+      "principal": "agent:anthropic/claude-opus-5-5",
+      "vendor": "anthropic",
+      "model": "claude-opus-5-5",
+      "execution_digest": "sha256:344ac5868944c155772d60a95ef6ff20644580a642e772ad5c92c29428464ff8",
+      "source": "declared",
+      "replaces": "rvb-ef90e8423cbf99f1"
+    },
+    "implementation_from": "bundle",
+    "step": "explicit"
+  },
+  "independence_achieved": "different-model",
+  "round": 8,
+  "thread": {
+    "round": 8,
+    "mode": "new",
+    "from": "rrn-1236e104ff346a2d",
+    "reason": "the agent's vendor changed from openai to anthropic"
+  }
+}

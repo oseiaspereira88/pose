@@ -1,0 +1,243 @@
+{
+  "run": {
+    "run_id": "rrn-b874a0e13bc62075",
+    "proof_id": "rrp-5b1515ccc405a79d6b5a6171164008cf207ca3bf4723000ab2893f44bd549a2a"
+  },
+  "schema_version": 1,
+  "attestation_id": "rva-956d59fdd263082f",
+  "bundle_id": "rvb-2dbe5e44f6ff7bca",
+  "bundle_digest": "sha256:2dbe5e44f6ff7bca0654a01fb73d9417530a6c048bae66a696cbbe6d9c0b1a03",
+  "reviewer": "agent:anthropic/claude-sonnet-5-5",
+  "decision": "changes-requested",
+  "criteria": [
+    {
+      "id": "assumption-integrity",
+      "disposition": "passed",
+      "evidence": "unit:pose-mcp/go/test",
+      "rationale": "Checked L1 and L2 against code. L2 holds: accepted limits enter digestReviewPlan and reviewBundlePlanDigest. L1 is justified for how broad or weak a limit is written, not for the engine cutting it (N1). review-check warns the sealed evidence is current by provenance rather than run on the subject head; local focused tests of the scope passed."
+    },
+    {
+      "id": "backend-concurrency",
+      "disposition": "passed",
+      "evidence": "unit:pose-mcp/go/test",
+      "rationale": "The change adds pure parsing, digest fields and a bounded file read; no shared state or new goroutine in production code."
+    },
+    {
+      "id": "backend-contracts",
+      "disposition": "passed",
+      "evidence": "integration:pose-mcp/go/review-brief-templates-are-immutable-integration"
+    },
+    {
+      "id": "backend-input-errors",
+      "disposition": "passed",
+      "evidence": "unit:pose-mcp/go/test",
+      "rationale": "Unsealed limit and blank reason are refused with named blockers; ADR reads are bounded and fail closed. The parser gap is recorded under correctness."
+    },
+    {
+      "id": "backend-integration-impact",
+      "disposition": "finding",
+      "evidence": "N5"
+    },
+    {
+      "id": "backend-observability",
+      "disposition": "passed",
+      "evidence": "unit:pose-mcp/go/test",
+      "rationale": "Refusals name the finding and limit; the attestation records limit and reason. The stats gap is N5."
+    },
+    {
+      "id": "compatibility",
+      "disposition": "passed",
+      "evidence": "integration:pose-mcp/go/review-brief-templates-are-immutable-integration",
+      "rationale": "accepted_limits and limit are omitempty in plan, bundle, draft and finding and in both plan digests; the bundle digest test compares with the earlier struct; earlier brief templates render without the new section and the digest tests pass."
+    },
+    {
+      "id": "correctness",
+      "disposition": "finding",
+      "evidence": "N1"
+    },
+    {
+      "id": "design-causality",
+      "disposition": "passed",
+      "evidence": "integration:pose-mcp/go/review-bundle-convergence",
+      "rationale": "D1 and D2 address the cause, no place to declare an assumed environment: limits are sealed from the spec, listed in the brief and judged from the bundle, with a separate disposition that needs a sealed id. The design assessment reports no structural delta."
+    },
+    {
+      "id": "documentation",
+      "disposition": "finding",
+      "evidence": "N3"
+    },
+    {
+      "id": "operability",
+      "disposition": "finding",
+      "evidence": "N4"
+    },
+    {
+      "id": "requirements",
+      "disposition": "finding",
+      "evidence": "N1"
+    },
+    {
+      "id": "scope",
+      "disposition": "passed",
+      "evidence": "unit:pose-mcp/go/test",
+      "rationale": "The scope change sets match R1 to R4 and the declared artifacts; no cap on rounds was added. The brief template file also carries earlier versions belonging to other specs in the range."
+    },
+    {
+      "id": "security",
+      "disposition": "passed",
+      "evidence": "integration:pose-mcp/go/review-bundle-convergence",
+      "rationale": "within-limit requires an id sealed in the bundle and a non-blank reason; a run attestation must match the draft; the manual attest syntax cannot set a limit; brief text is flattened by quoteLedgerText; ADR reads do not follow file links. Fidelity of the sealed text is N1 and N2."
+    },
+    {
+      "id": "solution-proportionality",
+      "disposition": "passed",
+      "evidence": "unit:pose-mcp/go/test",
+      "rationale": "One section, one optional field and one disposition is close to the smallest way to classify findings; an accepted-risk reuse would have lifted its severity bound. The choice fails if limits cannot be read faithfully, which N1 shows needs fixing."
+    }
+  ],
+  "tools": [
+    {
+      "id": "artifact-check",
+      "disposition": "passed",
+      "evidence": "command:pose artifact-check --spec pose-review-declared-threat-model --strict",
+      "rationale": "Exit 0; warnings only seen, 1005 findings reported."
+    },
+    {
+      "id": "assess-design",
+      "disposition": "passed",
+      "evidence": "structure:design-9ad64c4729c340ef",
+      "rationale": "Observed, no deltas."
+    },
+    {
+      "id": "assess-discover",
+      "component": "pose-mcp",
+      "disposition": "passed",
+      "evidence": "command:pose assess discover --no-persist --component pose-mcp"
+    },
+    {
+      "id": "assess-integrate",
+      "disposition": "passed",
+      "evidence": "integration:pose-mcp/go/review-bundle-convergence",
+      "rationale": "Ran with --no-persist; three medium gaps about unobserved HTTP consumers."
+    },
+    {
+      "id": "assess-tech-debt",
+      "disposition": "passed",
+      "evidence": "command:pose assess tech-debt --no-persist",
+      "rationale": "Scan reports INCOMPLETE: two older spec files could not be read."
+    },
+    {
+      "id": "closeout-check",
+      "disposition": "deferred",
+      "rationale": "Ran; not terminal before an attestation."
+    },
+    {
+      "id": "review-check",
+      "disposition": "deferred",
+      "rationale": "Ran; not approved before an attestation."
+    },
+    {
+      "id": "suggest-review",
+      "component": "pose-mcp",
+      "disposition": "passed",
+      "evidence": "command:pose suggest review --path pose-mcp"
+    },
+    {
+      "id": "surface-check",
+      "disposition": "passed",
+      "evidence": "integration:pose-mcp/go/review-bundle-convergence",
+      "rationale": "Exit 0, zero findings."
+    },
+    {
+      "id": "validate",
+      "disposition": "passed",
+      "evidence": "unit:pose-mcp/go/test",
+      "rationale": "The unscoped command was not rerun here; the verdict rests on sealed evidence. See the module run, which failed in this sandbox."
+    },
+    {
+      "id": "validate",
+      "component": "pose-mcp",
+      "disposition": "passed",
+      "evidence": "unit:pose-mcp/go/test",
+      "rationale": "The local rerun FAILED (test and several integration checks, one timeout) on sandbox restrictions seen in its output: foreign ownership of /home and /var/tmp, denied network, runtime sockets and file mode, in code outside this change. Passed rests on the sealed evidence only."
+    }
+  ],
+  "evidence_refs": [
+    "N1",
+    "N3",
+    "N4",
+    "N5",
+    "delegated-run:rrn-b874a0e13bc62075",
+    "integration:pose-mcp/go/review-brief-templates-are-immutable-integration",
+    "integration:pose-mcp/go/review-bundle-convergence",
+    "unit:pose-mcp/go/test"
+  ],
+  "findings": [
+    {
+      "id": "N1",
+      "severity": "medium",
+      "evidence": "file:pose-mcp/internal/pose/accepted_limits.go:68",
+      "action": "Join continuation lines into the limit text, or report them as a ready-check problem and refuse to seal a truncated limit.",
+      "disposition": "open"
+    },
+    {
+      "id": "N2",
+      "severity": "low",
+      "evidence": "file:pose-mcp/internal/pose/accepted_limits.go:65",
+      "action": "Skip fenced blocks and HTML comments when reading the section.",
+      "disposition": "open"
+    },
+    {
+      "id": "N3",
+      "severity": "low",
+      "evidence": "file:pose-mcp/internal/pose/review_brief.go:142",
+      "action": "State the within-limit exception in rule (i) and name limit among the finding fields, under a new template version.",
+      "disposition": "open"
+    },
+    {
+      "id": "N4",
+      "severity": "low",
+      "evidence": "file:pose-mcp/internal/cli/lintspec.go:1211",
+      "action": "Match the slug as a whole token, with a test using a prefix slug.",
+      "disposition": "open"
+    },
+    {
+      "id": "N5",
+      "severity": "low",
+      "evidence": "file:pose-mcp/internal/pose/governance_outcomes.go:445",
+      "action": "Count within-limit findings in their own field and show it in governance stats.",
+      "disposition": "open"
+    },
+    {
+      "id": "N6",
+      "severity": "low",
+      "evidence": "file:pose-mcp/internal/pose/accepted_limits.go:49",
+      "action": "Carried from R7-N1: the lexical gate accepts placeholder text such as \"X. Y. Accepted because z w.\" since it counts letter runs. It falls inside L1: the check is a format gate, the implementer writes the limit, and the sealed brief shows its text for the reviewer to judge and dispute.",
+      "disposition": "within-limit",
+      "rationale": "Carried from R7-N1: the lexical gate accepts placeholder text such as \"X. Y. Accepted because z w.\" since it counts letter runs. It falls inside L1: the check is a format gate, the implementer writes the limit, and the sealed brief shows its text for the reviewer to judge and dispute.",
+      "limit": "L1"
+    }
+  ],
+  "authority": {
+    "schema_version": 1,
+    "project": "proj.pose-dist",
+    "bundle_digest": "sha256:2dbe5e44f6ff7bca0654a01fb73d9417530a6c048bae66a696cbbe6d9c0b1a03",
+    "principal": "agent:anthropic/claude-sonnet-5-5",
+    "role": "agent",
+    "review_execution": "rrn-b874a0e13bc62075",
+    "implementation_principal": "agent:anthropic/claude-opus-5-5",
+    "implementation_execution": "sha256:344ac5868944c155772d60a95ef6ff20644580a642e772ad5c92c29428464ff8",
+    "issuer": "b34-local-executor",
+    "issued_at": "2026-11-26T00:49:32Z",
+    "audience": "proj.pose-dist"
+  },
+  "envelope": {
+    "issuer": "b34-local-executor",
+    "subject": "rvb-2dbe5e44f6ff7bca",
+    "algorithm": "ed25519",
+    "public_key": "ck4sApdfePV2GT+hJyAYfJd2qLzeG55P8pevGR0bvZE=",
+    "signature": "byPAkxOn8Pwt7jZCVsh2nxRPZzww+psBNcg6NGqFsj6llxwoweh7o2w2dIVQCAI7T1SMgLdD0E6x5K6LT2MeAg=="
+  },
+  "attested_at": "2026-11-26T00:49:32Z",
+  "path": ".pose/review-attestations/rva-956d59fdd263082f.json"
+}
