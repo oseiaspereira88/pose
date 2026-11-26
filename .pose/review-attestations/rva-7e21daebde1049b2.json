@@ -1,0 +1,258 @@
+{
+  "run": {
+    "run_id": "rrn-87881c122439e5f3",
+    "proof_id": "rrp-9be42dbd86bccc6b55d9c0d037a06688ccc2bc3a470d150ad8ce755823aad979"
+  },
+  "schema_version": 1,
+  "attestation_id": "rva-7e21daebde1049b2",
+  "bundle_id": "rvb-34f1712e227957a0",
+  "bundle_digest": "sha256:34f1712e227957a02aaaf34d7a1b21a0758962917dbad5464edd5564d29e3336",
+  "reviewer": "agent:anthropic/claude-sonnet-5-5",
+  "decision": "changes-requested",
+  "criteria": [
+    {
+      "id": "assumption-integrity",
+      "disposition": "passed",
+      "evidence": "unit:pose-mcp/go/test",
+      "rationale": "Examined L1 and L2. L2 is verified: both plan digests include accepted_limits (digest tests pass). L1 is an accepted risk mitigated by the brief listing the limits as data and allowing a dispute; a dispute blocks or not according to its disposition, as any finding. Neither covers the parser dropping text (N1)."
+    },
+    {
+      "id": "backend-concurrency",
+      "disposition": "passed",
+      "evidence": "unit:pose-mcp/go/test",
+      "rationale": "The change adds pure parsing and bounded file reads with no shared state or new lifecycle."
+    },
+    {
+      "id": "backend-contracts",
+      "disposition": "passed",
+      "evidence": "integration:pose-mcp/go/review-brief-templates-are-immutable-integration",
+      "rationale": "New fields are omitted when empty, schemas allow additional properties, and earlier templates keep their digests."
+    },
+    {
+      "id": "backend-input-errors",
+      "disposition": "finding",
+      "evidence": "N1"
+    },
+    {
+      "id": "backend-integration-impact",
+      "disposition": "passed",
+      "evidence": "integration:pose-mcp/go/governance-outcomes-v2-contract",
+      "rationale": "Plan, bundle, brief, conclusion and governance outcomes consume the new fields consistently."
+    },
+    {
+      "id": "backend-observability",
+      "disposition": "passed",
+      "evidence": "integration:pose-mcp/go/typed-diagnostics-integration",
+      "rationale": "Unsealed limits, blank reasons, nested lists and unreadable ADRs return specific messages; silent parser cases are in N1 and N2."
+    },
+    {
+      "id": "compatibility",
+      "disposition": "passed",
+      "evidence": "integration:pose-mcp/go/review-brief-templates-are-immutable-integration",
+      "rationale": "Checked omitempty on plan, bundle, draft and attestation fields and the test that a plan without limits keeps the earlier bundle plan digest; only the unpublished review-brief/11 digest was re-recorded."
+    },
+    {
+      "id": "correctness",
+      "disposition": "finding",
+      "evidence": "N1"
+    },
+    {
+      "id": "design-causality",
+      "disposition": "passed",
+      "evidence": "structure:design-93b279f0c70e0001",
+      "rationale": "D1 and D2 address the cause: a sealed declaration lets a finding be classified within-limit instead of reopening rounds, read from the bundle and not the current spec. The design assessment lists no structural deltas, so no mappings are owed."
+    },
+    {
+      "id": "documentation",
+      "disposition": "finding",
+      "evidence": "N3"
+    },
+    {
+      "id": "operability",
+      "disposition": "finding",
+      "evidence": "N5"
+    },
+    {
+      "id": "requirements",
+      "disposition": "finding",
+      "evidence": "N1"
+    },
+    {
+      "id": "scope",
+      "disposition": "passed",
+      "evidence": "integration:pose-mcp/go/delivery-integration",
+      "rationale": "The changed paths match the spec artifacts and artifact-check strict exits 0; no round cap or other non-goal was added."
+    },
+    {
+      "id": "security",
+      "disposition": "passed",
+      "evidence": "unit:pose-mcp/go/test",
+      "rationale": "within-limit requires an id sealed in the bundle and a non-blank reason; manual attest cannot name a limit and so is refused; ADRs are read as regular bounded files. The truncated-limit defect that widens a limit is filed as N1."
+    },
+    {
+      "id": "solution-proportionality",
+      "disposition": "passed",
+      "evidence": "unit:pose-mcp/go/test",
+      "rationale": "A section, two sealed fields, one disposition and a ready check are close to the smallest sufficient design; the hand-written Markdown reader is the costly part and would justify a stricter one-line-or-refuse format if it keeps producing defects."
+    }
+  ],
+  "tools": [
+    {
+      "id": "artifact-check",
+      "disposition": "passed",
+      "evidence": "command:\"$POSE_REVIEW_CLI\" artifact-check --spec pose-review-declared-threat-model --strict",
+      "rationale": "Exit 0, warnings only."
+    },
+    {
+      "id": "assess-design",
+      "disposition": "passed",
+      "evidence": "structure:design-93b279f0c70e0001",
+      "rationale": "Exit 0, no deltas."
+    },
+    {
+      "id": "assess-discover",
+      "component": "pose-mcp",
+      "disposition": "passed",
+      "evidence": "command:\"$POSE_REVIEW_CLI\" assess discover --no-persist --component pose-mcp"
+    },
+    {
+      "id": "assess-integrate",
+      "disposition": "passed",
+      "evidence": "integration:pose-mcp/go/delivery-integration",
+      "rationale": "Rerun reported three medium unobserved-consumer gaps on HTTP routes this change does not touch."
+    },
+    {
+      "id": "assess-tech-debt",
+      "disposition": "passed",
+      "evidence": "command:\"$POSE_REVIEW_CLI\" assess tech-debt --no-persist",
+      "rationale": "Ran; the scan reports itself incomplete over two invalid older specs."
+    },
+    {
+      "id": "closeout-check",
+      "disposition": "deferred",
+      "rationale": "Needs the completed review; the run reports no approval yet."
+    },
+    {
+      "id": "review-check",
+      "disposition": "deferred",
+      "rationale": "Needs the completed review; the run reports no approval yet."
+    },
+    {
+      "id": "surface-check",
+      "disposition": "passed",
+      "evidence": "integration:pose-mcp/go/delivery-integration",
+      "rationale": "Strict rerun exit 0, zero findings."
+    },
+    {
+      "id": "suggest-review",
+      "component": "pose-mcp",
+      "disposition": "passed",
+      "evidence": "command:\"$POSE_REVIEW_CLI\" suggest review --path pose-mcp"
+    },
+    {
+      "id": "validate",
+      "disposition": "passed",
+      "evidence": "unit:pose-mcp/go/test",
+      "rationale": "Relies on sealed evidence. The local rerun FAILED (224 pass, 11 fail, 1 timeout); the failures inspected show sandbox limits (denied network, ownership of /home and /var/tmp, runtime start and timeout, file mode), outside the parser and limit tests."
+    },
+    {
+      "id": "validate",
+      "component": "pose-mcp",
+      "disposition": "passed",
+      "evidence": "unit:pose-mcp/go/test",
+      "rationale": "Relies on sealed evidence. The local rerun FAILED (221 pass, 11 fail, 1 timeout) with the same failing steps; focused limit, brief, conclusion and outcome tests passed."
+    }
+  ],
+  "evidence_refs": [
+    "N1",
+    "N3",
+    "N5",
+    "delegated-run:rrn-87881c122439e5f3",
+    "integration:pose-mcp/go/delivery-integration",
+    "integration:pose-mcp/go/governance-outcomes-v2-contract",
+    "integration:pose-mcp/go/review-brief-templates-are-immutable-integration",
+    "integration:pose-mcp/go/typed-diagnostics-integration",
+    "structure:design-93b279f0c70e0001",
+    "unit:pose-mcp/go/test"
+  ],
+  "findings": [
+    {
+      "id": "N1",
+      "severity": "medium",
+      "evidence": "file:pose-mcp/internal/pose/accepted_limits.go:119",
+      "action": "A limit is still sealed cut short with no problem reported. (a) A wrapped line without indentation is part of the Markdown list item (lazy continuation), but it falls to the default case and ends the entry: '- L1: An escape is open. Accepted because a shim covers it' followed by 'only on Linux and only for children.' seals only the first line, confirmed through ParseAcceptedLimits and Store.ReviewPlan with a test overlay. (b) An indented fenced block inside an item closes it (line 74-84), so the indented 'and only on Linux.' after it is dropped. The lost qualifier broadens the limit in the plan, digests and brief, where the reviewer cannot see it. Round 10 reintroduced (a), which round 9 read into the entry. It is not covered by L1, which concerns what the implementer writes, not text the engine drops. Read the whole item, or report it and do not seal it, with tests for both.",
+      "disposition": "open"
+    },
+    {
+      "id": "N2",
+      "severity": "low",
+      "evidence": "file:pose-mcp/internal/pose/accepted_limits.go:102",
+      "action": "Report limit-like lines in the section that are not read, or read lists and headings indented up to three spaces, with tests.",
+      "disposition": "accepted-risk",
+      "owner": "@pose-maintainers",
+      "rationale": "Valid Markdown is ignored with no problem and a passing lint: a list indented by one to three spaces ('  - L1: ...'), an indented '### Accepted limits' heading (line 88), and '+' or ordered items all yield zero limits; a sibling indented by one space is reported as a nested list and refuses L1. Nothing is accepted wrongly, but the author is not told the declaration was not read. The indented list and heading were read before round 10.",
+      "review_by": "2026-12-26"
+    },
+    {
+      "id": "N3",
+      "severity": "low",
+      "evidence": "file:docs-site/docs/cli.md:139",
+      "action": "Document within-limit, that it is recorded by review conclude from a draft limit, and its conditions.",
+      "disposition": "accepted-risk",
+      "owner": "@pose-maintainers",
+      "rationale": "The CLI reference lists the finding dispositions and what closes or blocks each, and does not mention within-limit or the limit field; only POSE.md and its locale were updated.",
+      "review_by": "2026-12-26"
+    },
+    {
+      "id": "N4",
+      "severity": "low",
+      "evidence": "file:pose-mcp/internal/pose/accepted_limits.go:72",
+      "action": "Complete the spec follow-up on the accepted-limits reader, together with N1.",
+      "disposition": "accepted-risk",
+      "owner": "@pose-maintainers",
+      "rationale": "Remainder of R9-N4, recorded as a spec follow-up and reconfirmed: a line opening with inline triple backticks or a literal unterminated '\u003c!--' silently drops later limits (a wrapped line opening with backticks also cuts the current one), and an HTML comment written in backticks is removed from a limit's sealed text.",
+      "review_by": "2026-12-26"
+    },
+    {
+      "id": "N5",
+      "severity": "low",
+      "evidence": "file:pose-mcp/internal/cli/review_closeout.go:102",
+      "action": "Print within-limit findings and their limit ids in both text outputs.",
+      "disposition": "accepted-risk",
+      "owner": "@pose-maintainers",
+      "rationale": "Remainder of R9-N5: the text output of review-check and closeout-check does not show within-limit findings, although the spec constraint wants declared limits visible in the closeout; recorded as a spec follow-up.",
+      "review_by": "2026-12-26"
+    },
+    {
+      "id": "N6",
+      "severity": "low",
+      "evidence": "file:pose-mcp/internal/pose/accepted_limits.go:40",
+      "action": "Carried from R9-N7: the lexical reason gate accepts placeholder words. It falls inside L1 because it is a format gate over text the implementer writes, and the sealed brief shows that text for the reviewer to judge and dispute.",
+      "disposition": "within-limit",
+      "rationale": "Carried from R9-N7: the lexical reason gate accepts placeholder words. It falls inside L1 because it is a format gate over text the implementer writes, and the sealed brief shows that text for the reviewer to judge and dispute.",
+      "limit": "L1"
+    }
+  ],
+  "authority": {
+    "schema_version": 1,
+    "project": "proj.pose-dist",
+    "bundle_digest": "sha256:34f1712e227957a02aaaf34d7a1b21a0758962917dbad5464edd5564d29e3336",
+    "principal": "agent:anthropic/claude-sonnet-5-5",
+    "role": "agent",
+    "review_execution": "rrn-87881c122439e5f3",
+    "implementation_principal": "agent:anthropic/claude-opus-5-5",
+    "implementation_execution": "sha256:344ac5868944c155772d60a95ef6ff20644580a642e772ad5c92c29428464ff8",
+    "issuer": "b34-local-executor",
+    "issued_at": "2026-11-26T04:46:44Z",
+    "audience": "proj.pose-dist"
+  },
+  "envelope": {
+    "issuer": "b34-local-executor",
+    "subject": "rvb-34f1712e227957a0",
+    "algorithm": "ed25519",
+    "public_key": "ck4sApdfePV2GT+hJyAYfJd2qLzeG55P8pevGR0bvZE=",
+    "signature": "F0Q0hL/Lg3rx5JJFwfz/vwtFHmWS7qp98O6L/EyyuPlYRaVEM01juWwL3b7+4hbrGbuNSDLtGc5qupmyV/RLCA=="
+  },
+  "attested_at": "2026-11-26T04:46:44Z",
+  "path": ".pose/review-attestations/rva-7e21daebde1049b2.json"
+}
