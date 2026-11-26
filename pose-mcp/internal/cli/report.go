@@ -7,6 +7,7 @@ import (
 	"encoding/hex"
 	"encoding/json"
 	"fmt"
+	"github.com/harne8/pose-mcp/internal/cli/cliout"
 	"io"
 	"os"
 	"os/exec"
@@ -199,7 +200,7 @@ func runReportWith(root string, args []string, validationLog []byte, summary *va
 	if err != nil {
 		// The report still writes, without the list it could not read
 		// (review round 5, N23).
-		fmt.Fprintf(stderr, cliText(locale, "Warning: the changed files cannot be listed: %v\n", "Aviso: os arquivos alterados não podem ser listados: %v\n"), err)
+		render(stderr, stderr).Finding(cliout.Finding{State: cliout.StateWarning, Code: "report-changed-files", Message: fmt.Sprintf(cliText(locale, "the changed files cannot be listed: %v", "os arquivos alterados não podem ser listados: %v"), err)})
 	}
 	markdown := renderReportMarkdown(now, values, task, slug, outcome, outcomeSource, filesChanged, validationCommands, validationResults, sequence, stableHash, compareStatus, previousAt, changes, changeSet)
 	if err := os.WriteFile(reportPath, []byte(markdown), 0o644); err != nil {
