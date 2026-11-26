@@ -1,0 +1,224 @@
+{
+  "run": {
+    "run_id": "rrn-c5d57ff07d69ec1a",
+    "proof_id": "rrp-53534ed38d0ff3ceaaad8a601d58fd767ffb5ca7869faa1fae46b3263dd4ab8e"
+  },
+  "schema_version": 1,
+  "attestation_id": "rva-0c7a7c9b1c21465b",
+  "bundle_id": "rvb-cbd88e2ca778e44b",
+  "bundle_digest": "sha256:cbd88e2ca778e44be8847f3acecfb4bb4af412dcb9b18b150765bf88f2c11025",
+  "reviewer": "agent:anthropic/claude-sonnet-5-5",
+  "decision": "changes-requested",
+  "criteria": [
+    {
+      "id": "assumption-integrity",
+      "disposition": "passed",
+      "evidence": "unit:pose-mcp/go/test",
+      "rationale": "Examined the assumptions behind the stable path: same TMPDIR (accepted L1), predictable name (L2), escaped processes (L3), and one live run per attempt, which the exclusive predecessor claim supports on reading. The unsupported remedy assumption is reported as N7. Sealed evidence was not rerun."
+    },
+    {
+      "id": "backend-concurrency",
+      "disposition": "finding",
+      "evidence": "N8"
+    },
+    {
+      "id": "backend-contracts",
+      "disposition": "passed",
+      "evidence": "integration:pose-mcp/go/delegated-run-continuity-integration",
+      "rationale": "Sealed result, not rerun. On reading, run record fields are unchanged."
+    },
+    {
+      "id": "backend-input-errors",
+      "disposition": "passed",
+      "evidence": "unit:pose-mcp/go/test",
+      "rationale": "Sealed result, not rerun. The attempt id is matched against a strict pattern before it forms a path, and an existing path is refused."
+    },
+    {
+      "id": "backend-integration-impact",
+      "disposition": "finding",
+      "evidence": "N6"
+    },
+    {
+      "id": "backend-observability",
+      "disposition": "passed",
+      "evidence": "unit:pose-mcp/go/test",
+      "rationale": "Sealed result, not rerun. Failures name the directory and the reason; the inaccurate remedy is N7."
+    },
+    {
+      "id": "compatibility",
+      "disposition": "passed",
+      "rationale": "On reading, CLI, record and MCP shapes are unchanged and runtime_id keeps its meaning as the directory base name, now shared by the runs of an attempt; no production reader that needs it unique was found. The handoff behaviour change is N6."
+    },
+    {
+      "id": "correctness",
+      "disposition": "passed",
+      "evidence": "unit:pose-mcp/go/test",
+      "rationale": "Sealed result, not rerun. Reading shows continuations reuse the attempt id and therefore the path, and runs without an attempt keep a random name."
+    },
+    {
+      "id": "design-causality",
+      "disposition": "passed",
+      "rationale": "The cause is a resumed session referring to a removed random path. D1 recreates the checkout at a path derived from the attempt id, satisfying R1 without changing the sealed brief or its wire digest; exclusive creation addresses R3."
+    },
+    {
+      "id": "documentation",
+      "disposition": "finding",
+      "evidence": "N7"
+    },
+    {
+      "id": "operability",
+      "disposition": "finding",
+      "evidence": "N7"
+    },
+    {
+      "id": "requirements",
+      "disposition": "passed",
+      "evidence": "unit:pose-mcp/go/test",
+      "rationale": "R1 to R3 have matching code and tests on reading; the sealed full unit result was not rerun and the narrower integration pattern does not select the new tests (N9)."
+    },
+    {
+      "id": "scope",
+      "disposition": "passed",
+      "rationale": "The change list in the brief matches the spec's declared source and documentation artifacts, and the code read stays within runtime directory handling and resume refusal. The diff itself could not be run."
+    },
+    {
+      "id": "security",
+      "disposition": "passed",
+      "rationale": "os.Mkdir with mode 0700 is exclusive and refuses an existing final component, links included; the name is built only from a validated hex id; cleanup checks directory identity. Predictability and escaped processes fall within L2 and L3."
+    },
+    {
+      "id": "solution-proportionality",
+      "disposition": "passed",
+      "rationale": "A per-attempt path is smaller than telling the session a new path, which would alter what provenance verifies, and adds no extension point. It stops working when TMPDIR differs (L1)."
+    }
+  ],
+  "tools": [
+    {
+      "id": "artifact-check",
+      "disposition": "deferred",
+      "rationale": "The Bash sandbox failed to initialize; there is no sealed substitute."
+    },
+    {
+      "id": "assess-design",
+      "disposition": "not-used",
+      "rationale": "Not run: the Bash sandbox failed to initialize."
+    },
+    {
+      "id": "assess-discover",
+      "component": "pose-mcp",
+      "disposition": "not-used",
+      "rationale": "Not run: the Bash sandbox failed to initialize."
+    },
+    {
+      "id": "assess-integrate",
+      "disposition": "not-used",
+      "rationale": "Not run: the Bash sandbox failed to initialize."
+    },
+    {
+      "id": "assess-tech-debt",
+      "disposition": "not-used",
+      "rationale": "Not run: the Bash sandbox failed to initialize."
+    },
+    {
+      "id": "closeout-check",
+      "disposition": "deferred",
+      "rationale": "Depends on a completed review, and the Bash sandbox failed to initialize."
+    },
+    {
+      "id": "review-check",
+      "disposition": "deferred",
+      "rationale": "Depends on a completed review; the attempt to run it failed at sandbox initialization."
+    },
+    {
+      "id": "suggest-review",
+      "component": "pose-mcp",
+      "disposition": "not-used",
+      "rationale": "Not run: the Bash sandbox failed to initialize."
+    },
+    {
+      "id": "surface-check",
+      "disposition": "deferred",
+      "rationale": "The Bash sandbox failed to initialize, so the command was not run."
+    },
+    {
+      "id": "validate",
+      "disposition": "passed",
+      "evidence": "unit:pose-mcp/go/test",
+      "rationale": "Cites the sealed result; not rerun because the Bash sandbox failed to initialize."
+    },
+    {
+      "id": "validate",
+      "component": "pose-mcp",
+      "disposition": "passed",
+      "evidence": "unit:pose-mcp/go/test",
+      "rationale": "Cites the sealed result; not rerun because the Bash sandbox failed to initialize."
+    }
+  ],
+  "evidence_refs": [
+    "N6",
+    "N7",
+    "N8",
+    "delegated-run:rrn-c5d57ff07d69ec1a",
+    "integration:pose-mcp/go/delegated-run-continuity-integration",
+    "unit:pose-mcp/go/test"
+  ],
+  "findings": [
+    {
+      "id": "N7",
+      "severity": "low",
+      "evidence": "file:POSE.md:1045",
+      "action": "The manual (all four copies), spec technical risks (line 79) and the error at review_dispatch.go:2082 say that removing a directory left by an unfinished cleanup restores resume. PlanReviewResume refuses a predecessor with incomplete cleanup first (review_run_continuity.go:405-407), so it does not.",
+      "disposition": "open"
+    },
+    {
+      "id": "N6",
+      "severity": "low",
+      "evidence": "file:pose-mcp/internal/pose/delegation_handoff.go:329",
+      "action": "PlanReviewHandoff does not check that the attempt's runtime directory is free. With a leftover or foreign directory, the handoff claims the predecessor (review_dispatch.go:746), fails at :809, and the interrupted run can no longer be resumed.",
+      "disposition": "open"
+    },
+    {
+      "id": "N8",
+      "severity": "low",
+      "evidence": "file:pose-mcp/internal/pose/review_run_continuity.go:431",
+      "action": "The claim lookup and the directory check are not atomic: a concurrent resume that loses the race can be told to remove a live run's directory instead of receiving pending. Established by reading, not reproduced.",
+      "disposition": "open"
+    },
+    {
+      "id": "N9",
+      "severity": "low",
+      "evidence": "file:.pose/indexes/validation-matrix.json:2639",
+      "action": "The delegated-run-continuity integration pattern RunContinuity selects neither new regression test, and no matrix pattern names them.",
+      "disposition": "open"
+    },
+    {
+      "id": "N10",
+      "severity": "low",
+      "evidence": "file:pose-mcp/internal/pose/review_run_runtime_dir_test.go:14",
+      "action": "The test isolates with TMPDIR, which Windows ignores; with a fixed attempt id it would use the real temp directory and could leave a link there that fails later runs.",
+      "disposition": "open"
+    }
+  ],
+  "authority": {
+    "schema_version": 1,
+    "project": "proj.pose-dist",
+    "bundle_digest": "sha256:cbd88e2ca778e44be8847f3acecfb4bb4af412dcb9b18b150765bf88f2c11025",
+    "principal": "agent:anthropic/claude-sonnet-5-5",
+    "role": "agent",
+    "review_execution": "rrn-c5d57ff07d69ec1a",
+    "implementation_principal": "agent:anthropic/claude-opus-5-5",
+    "implementation_execution": "sha256:344ac5868944c155772d60a95ef6ff20644580a642e772ad5c92c29428464ff8",
+    "issuer": "b34-local-executor",
+    "issued_at": "2026-11-26T08:21:46Z",
+    "audience": "proj.pose-dist"
+  },
+  "envelope": {
+    "issuer": "b34-local-executor",
+    "subject": "rvb-cbd88e2ca778e44b",
+    "algorithm": "ed25519",
+    "public_key": "ck4sApdfePV2GT+hJyAYfJd2qLzeG55P8pevGR0bvZE=",
+    "signature": "H0kV6FkCqnp16MTSwHr/aV3kegB4r0ci8QCs0kRSk4pTU7Vz9JGGLaLkXpgvFfdx0O6w2a5p0oYvla4lliJfCw=="
+  },
+  "attested_at": "2026-11-26T08:21:46Z",
+  "path": ".pose/review-attestations/rva-0c7a7c9b1c21465b.json"
+}
