@@ -1,0 +1,237 @@
+{
+  "run": {
+    "run_id": "rrn-bf0aa6522c6048ad",
+    "proof_id": "rrp-628c6b27edb529fbd380a8646007b0c61c7c99e4bbd9df879ba3cffa84eeaa95"
+  },
+  "schema_version": 1,
+  "attestation_id": "rva-b88390c1dba3a2f1",
+  "bundle_id": "rvb-eb8d0bbf071be46f",
+  "bundle_digest": "sha256:eb8d0bbf071be46f9ab688d11ede28b695ae221f5f34c339859492d251653d76",
+  "reviewer": "agent:anthropic/claude-sonnet-5-5",
+  "decision": "changes-requested",
+  "criteria": [
+    {
+      "id": "assumption-integrity",
+      "disposition": "passed",
+      "evidence": "unit:pose-mcp/go/test",
+      "rationale": "Material assumptions: Git skips a refresh whose lock cannot be made, and trusts stat only for files older than the index. Both were verified by tests, the mutation and probes on this Linux Git. L2 is an accepted risk; /proc availability, Git 2.31 or newer and non-Linux runtime behavior remain unverified."
+    },
+    {
+      "id": "backend-concurrency",
+      "disposition": "passed",
+      "evidence": "unit:pose-mcp/go/test"
+    },
+    {
+      "id": "backend-contracts",
+      "disposition": "passed",
+      "evidence": "integration:pose-mcp/go/git-status-clean-git-integration"
+    },
+    {
+      "id": "backend-input-errors",
+      "disposition": "passed",
+      "evidence": "unit:pose-mcp/go/test"
+    },
+    {
+      "id": "backend-integration-impact",
+      "disposition": "passed",
+      "evidence": "integration:pose-mcp/go/engine-reads-raw-history-integration"
+    },
+    {
+      "id": "backend-observability",
+      "disposition": "passed",
+      "evidence": "unit:pose-mcp/go/test"
+    },
+    {
+      "id": "compatibility",
+      "disposition": "passed",
+      "evidence": "integration:pose-mcp/go/machine-channel-integration",
+      "rationale": "No command, flag, record or MCP schema changes. Probes show the diffs answer as the plain diff, including a missing or symlinked index and range bases, so the round 2 differences are gone."
+    },
+    {
+      "id": "correctness",
+      "disposition": "passed",
+      "evidence": "unit:pose-mcp/go/test"
+    },
+    {
+      "id": "design-causality",
+      "disposition": "passed",
+      "evidence": "structure:design-b76113f0017ed5dd",
+      "rationale": "The cause is a stat refresh written under .git. Optional locks in gitCommandContext cover status (R1), and the diff reads a memfd whose lock cannot be created while keeping the index time (D1); D2 justifies testing the reads. The end-to-end probe left the index unchanged. The design delta has no structural deltas to map."
+    },
+    {
+      "id": "documentation",
+      "disposition": "passed",
+      "evidence": "structure:design-b76113f0017ed5dd",
+      "rationale": "No command, flag or template changes, so no operational document or scaffold needs an edit. D1, the execution log and the follow-up match the round 3 code."
+    },
+    {
+      "id": "operability",
+      "disposition": "passed",
+      "evidence": "unit:pose-mcp/go/test",
+      "rationale": "Scope selection now carries the cause and index errors name the repository and the failure. The silent skip in check and the missing deadline are low and tracked in N14."
+    },
+    {
+      "id": "requirements",
+      "disposition": "passed",
+      "evidence": "unit:pose-mcp/go/test"
+    },
+    {
+      "id": "scope",
+      "disposition": "passed",
+      "evidence": "structure:design-b76113f0017ed5dd",
+      "rationale": "The ten subject code files match the spec's artifact list and affected areas with no unrelated behaviour; artifact-check --strict exited 0."
+    },
+    {
+      "id": "security",
+      "disposition": "passed",
+      "evidence": "integration:pose-mcp/go/engine-reads-raw-history-integration",
+      "rationale": "Revisions keep their validation, the redirecting Git environment stays stripped before the private index variable is added, the memfd creates no file, and the ledger sees racy and conflicting changes. The bound check gap is low and tracked in N17."
+    },
+    {
+      "id": "solution-proportionality",
+      "disposition": "passed",
+      "evidence": "structure:design-b76113f0017ed5dd",
+      "rationale": "Locks alone do not stop git diff writing and a temporary copy creates files, so an unlockable memfd over the unchanged diff is the smallest sufficient approach found, with no speculative extension. It becomes invalid if Git stops skipping a failed refresh lock or /proc is unavailable."
+    }
+  ],
+  "tools": [
+    {
+      "id": "artifact-check",
+      "disposition": "passed",
+      "evidence": "command:pose artifact-check --spec pose-validate-reads-leave-the-index-alone --strict",
+      "rationale": "Exit 0."
+    },
+    {
+      "id": "assess-design",
+      "disposition": "passed",
+      "evidence": "structure:design-b76113f0017ed5dd"
+    },
+    {
+      "id": "assess-discover",
+      "component": "pose-mcp",
+      "disposition": "passed",
+      "evidence": "command:pose assess discover --no-persist --component pose-mcp"
+    },
+    {
+      "id": "assess-integrate",
+      "disposition": "passed",
+      "evidence": "integration:pose-mcp/go/git-status-clean-git-integration",
+      "rationale": "Exit 0; three medium unconsumed HTTP provider gaps unrelated to these files."
+    },
+    {
+      "id": "assess-tech-debt",
+      "disposition": "passed",
+      "evidence": "command:pose assess tech-debt --no-persist",
+      "rationale": "Exit 0; the scan reports itself incomplete for two unreadable specs."
+    },
+    {
+      "id": "closeout-check",
+      "disposition": "deferred",
+      "evidence": "command:pose closeout-check spec:pose-validate-reads-leave-the-index-alone",
+      "rationale": "Needs a completed review; it exited 1."
+    },
+    {
+      "id": "review-check",
+      "disposition": "deferred",
+      "evidence": "command:pose review-check spec:pose-validate-reads-leave-the-index-alone",
+      "rationale": "Needs this review's attestation; it exited 1."
+    },
+    {
+      "id": "suggest-review",
+      "component": "pose-mcp",
+      "disposition": "passed",
+      "evidence": "command:pose suggest review --path pose-mcp"
+    },
+    {
+      "id": "surface-check",
+      "disposition": "passed",
+      "evidence": "integration:pose-mcp/go/spec-surface-integration",
+      "rationale": "surface-check --strict exited 0."
+    },
+    {
+      "id": "validate",
+      "disposition": "failed",
+      "evidence": "unit:pose-mcp/go/test",
+      "rationale": "The run in this review sandbox exited 1: 224 pass, 11 fail, 1 error. A separate go test ./... listed the same failing tests on the head and with this spec's files reverted, and visible messages show ownership, network and delegation refusals, so the failures are not attributed to this change. The cited ref is the sealed pass, not this run."
+    },
+    {
+      "id": "validate",
+      "component": "pose-mcp",
+      "disposition": "failed",
+      "evidence": "unit:pose-mcp/go/test",
+      "rationale": "The module run in this review sandbox exited 1: 221 pass, 11 fail, 1 error, with the same failing step names; same baseline comparison. The cited ref is the sealed pass, not this run."
+    }
+  ],
+  "evidence_refs": [
+    "delegated-run:rrn-bf0aa6522c6048ad",
+    "integration:pose-mcp/go/engine-reads-raw-history-integration",
+    "integration:pose-mcp/go/git-status-clean-git-integration",
+    "integration:pose-mcp/go/machine-channel-integration",
+    "structure:design-b76113f0017ed5dd",
+    "unit:pose-mcp/go/test"
+  ],
+  "findings": [
+    {
+      "id": "N14",
+      "severity": "low",
+      "evidence": "file:pose-mcp/internal/cli/check.go:1141",
+      "action": "Report the failed ready-transition diff and run the index lookup under the caller's context.",
+      "disposition": "accepted-risk",
+      "owner": "pose-maintainers",
+      "rationale": "Remainder of R2-N13: when the index cannot be located or read, the ready-transition read still drops the diff silently, and the rev-parse in ReadOnlyIndex (git_worktree_reads.go:26) runs without a deadline, outside the 30 second bound of reviewHistoryGit.",
+      "review_by": "2026-12-26"
+    },
+    {
+      "id": "N15",
+      "severity": "low",
+      "evidence": "file:pose-mcp/internal/pose/git_worktree_reads_linux.go:38",
+      "action": "Keep a split-index read from touching the shared index time, as the spec follow-up states.",
+      "disposition": "accepted-risk",
+      "owner": "pose-maintainers",
+      "rationale": "R2-N12 remains: in a split-index repository the read-only diff moves the modification time of .git/sharedindex.\u003chash\u003e, reproduced again. The spec records it as an open follow-up. Whether the governed read view reports it was not tested.",
+      "review_by": "2026-12-26"
+    },
+    {
+      "id": "N16",
+      "severity": "low",
+      "evidence": "file:pose-mcp/internal/cli/validate_reads_index_test.go:80",
+      "action": "Add the ledger reader to the concurrency test and the three states to the equivalence test.",
+      "disposition": "accepted-risk",
+      "owner": "pose-maintainers",
+      "rationale": "Remainder of R1-N9: the CLI regression and concurrency tests do not run the review history ledger reader, and the equivalence test has no unmerged, range-base or dirty-submodule case. Overlay probes of those states matched the plain diff.",
+      "review_by": "2026-12-26"
+    },
+    {
+      "id": "N17",
+      "severity": "low",
+      "evidence": "file:pose-mcp/internal/pose/git_worktree_reads.go:43",
+      "action": "Read the index through an opened, same-file-checked, limited reader.",
+      "disposition": "accepted-risk",
+      "owner": "pose-maintainers",
+      "rationale": "The regular-file and size bound is checked with Lstat and then the index is read with an unbounded os.ReadFile, replacing the earlier same-file, limited read. A file swapped between the two calls escapes the bound. Established by reading the code; it needs a writer inside .git and was not reproduced.",
+      "review_by": "2026-12-26"
+    }
+  ],
+  "authority": {
+    "schema_version": 1,
+    "project": "proj.pose-dist",
+    "bundle_digest": "sha256:eb8d0bbf071be46f9ab688d11ede28b695ae221f5f34c339859492d251653d76",
+    "principal": "agent:anthropic/claude-sonnet-5-5",
+    "role": "agent",
+    "review_execution": "rrn-bf0aa6522c6048ad",
+    "implementation_principal": "agent:anthropic/claude-opus-5-5",
+    "implementation_execution": "sha256:344ac5868944c155772d60a95ef6ff20644580a642e772ad5c92c29428464ff8",
+    "issuer": "b34-local-executor",
+    "issued_at": "2026-11-26T17:54:00Z",
+    "audience": "proj.pose-dist"
+  },
+  "envelope": {
+    "issuer": "b34-local-executor",
+    "subject": "rvb-eb8d0bbf071be46f",
+    "algorithm": "ed25519",
+    "public_key": "ck4sApdfePV2GT+hJyAYfJd2qLzeG55P8pevGR0bvZE=",
+    "signature": "9HMrN3x2T75RLcBqmCxdre31O6xThq1WetwSiTo+djK3xWXZnfoF9O7t9ksjkGvOC+rDpJSqqOq0SvKjVuv1CA=="
+  },
+  "attested_at": "2026-11-26T17:54:00Z",
+  "path": ".pose/review-attestations/rva-b88390c1dba3a2f1.json"
+}
