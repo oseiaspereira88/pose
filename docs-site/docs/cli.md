@@ -140,7 +140,11 @@ as current, but named so a reviewer can tell carried-forward evidence apart.
   records a finding. Every finding needs a severity and an action. `resolved`
   and `wont-fix` close it; `accepted-risk` closes it only for a severity the
   sealed gates accept and only with an owner, a rationale and a review date;
-  `open` and `changes-requested` block closeout.
+  `within-limit` closes it at any severity, only with the id of a limit the
+  spec declares under `### Accepted limits` and the bundle sealed (its
+  `limit` field) and a rationale; `open` and `changes-requested` block
+  closeout. A reviewer records it from a follow-up whose `limit` names that
+  sealed limit.
 - The decision must be `approved`, or `approved-with-reservations` where the
   sealed gates allow it.
 

@@ -153,7 +153,7 @@ func TestTheBundlePlanDigestCoversTheAcceptedLimits(t *testing.T) {
 // Review round 8, N1, N2: a wrapped entry keeps its continuation; fenced and
 // commented examples are not sealed.
 func TestAcceptedLimitsReadWrappedEntriesAndSkipExamples(t *testing.T) {
-	body := "### Accepted limits\n- L1: An escape. Accepted because a shim covers it\n  only on Linux and only for children.\n\n```\n- L2: An example. Accepted because it is only shown.\n```\n<!--\n- L3: A hidden one. Accepted because nobody sees it.\n-->\n"
+	body := "### Accepted limits\n- L1: An escape. Accepted because a shim covers it\n  only on Linux and only for children.\n<!--\n- L3: A hidden one. Accepted because nobody sees it.\n-->\n### Notes\n```\n### Accepted limits\n- L2: An example. Accepted because it is only shown.\n```\n"
 	limits, problems := ParseAcceptedLimits(body)
 	if len(problems) != 0 || len(limits) != 1 {
 		t.Fatalf("limits %+v problems %v", limits, problems)
@@ -173,12 +173,22 @@ func TestAcceptedLimitsEndWhereTheirItemEnds(t *testing.T) {
 		problem    string
 	}{
 		{"wrapped hash", "### Accepted limits\n- L1: An escape is open. Accepted because see issue\n  #42 only on Linux.\n", map[string]string{"L1": "An escape is open. Accepted because see issue #42 only on Linux."}, ""},
-		{"nested list", "### Accepted limits\n- L1: An escape is open. Accepted because it is rare\n  - only on Linux\n", map[string]string{}, "nested list"},
-		{"later paragraph", "### Accepted limits\n- L1: An escape is open. Accepted because it is rare.\n\nSome note that follows the list.\n* L2: Another escape. Accepted because it is rarer.\n", map[string]string{"L1": "An escape is open. Accepted because it is rare.", "L2": "Another escape. Accepted because it is rarer."}, ""},
 		{"indented paragraph", "### Accepted limits\n- L1: An escape is open. Accepted because it is rare\n\n  and only on Linux.\n", map[string]string{"L1": "An escape is open. Accepted because it is rare and only on Linux."}, ""},
-		{"borrowed reason", "### Accepted limits\n- L1: no reason here\n\nSome unrelated note. Accepted because other words follow.\n", map[string]string{}, "does not say why"},
-		{"four backticks", "### Accepted limits\n````\n```\n- L1: An example escape. Accepted because it is only shown.\n```\n````\n", map[string]string{}, ""},
-		{"tilde fence", "### Accepted limits\n~~~\n```\n- L1: An example escape. Accepted because it is only shown.\n~~~\n", map[string]string{}, ""},
+		{"nested list", "### Accepted limits\n- L1: An escape is open. Accepted because it is rare\n  - only on Linux\n", map[string]string{}, "nested list"},
+		{"later paragraph", "### Accepted limits\n- L1: An escape is open. Accepted because it is rare.\n\nSome note that follows the list.\n* L2: Another escape. Accepted because it is rarer.\n", map[string]string{"L2": "Another escape. Accepted because it is rarer."}, "holds only limits"},
+		{"borrowed reason", "### Accepted limits\n- L1: no reason here\n\nSome unrelated note. Accepted because other words follow.\n", map[string]string{}, "holds only limits"},
+		// Review round 10, N1: a lazy continuation and a fence inside an
+		// item are reported, and the limit is not sealed in part.
+		{"lazy continuation", "### Accepted limits\n- L1: An escape is open. Accepted because a shim covers it\nonly on Linux and only for children.\n", map[string]string{}, "is not sealed"},
+		{"fence in item", "### Accepted limits\n- L1: An escape is open. Accepted because it is rare\n  ```\n  code\n  ```\n  and only on Linux.\n", map[string]string{}, "code fence"},
+		{"four backticks", "### Accepted limits\n````\n```\n- L1: An example escape. Accepted because it is only shown.\n```\n````\n", map[string]string{}, "code fence"},
+		// Review round 10, N2: valid list forms are read; others are reported.
+		{"indented items", "  ### Accepted limits\n  - L1: An escape is open. Accepted because it is rare.\n+ L2: Another escape. Accepted because it is rarer.\n", map[string]string{"L1": "An escape is open. Accepted because it is rare.", "L2": "Another escape. Accepted because it is rarer."}, ""},
+		{"ordered item", "### Accepted limits\n1. L1: An escape is open. Accepted because it is rare.\n", map[string]string{}, "is not written as"},
+		// Review round 10, N4: inline code is no fence; an unterminated
+		// comment is reported.
+		{"inline backticks", "### Notes\n```a``` is inline\n### Accepted limits\n- L1: An escape is open. Accepted because it is rare.\n", map[string]string{"L1": "An escape is open. Accepted because it is rare."}, ""},
+		{"unterminated comment", "<!-- draft\n### Accepted limits\n- L1: An escape is open. Accepted because it is rare.\n", map[string]string{}, "unterminated HTML comment"},
 	}
 	for _, c := range cases {
 		limits, problems := ParseAcceptedLimits(c.body)
