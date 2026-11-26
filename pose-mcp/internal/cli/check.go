@@ -1127,29 +1127,22 @@ func (checker *nativeChecker) readyTransitionCandidates() []string {
 		return nil
 	}
 	changed := map[string]bool{}
-	for _, command := range [][]string{
-		{"diff", "--name-only", "HEAD", "--", ".pose/specs"},
-		{"ls-files", "--others", "--exclude-standard", "--", ".pose/specs"},
-	} {
-		// The diff against the work tree runs over a private index, so the
-		// check never rewrites .git/index (spec
-		// pose-validate-reads-leave-the-index-alone R1).
-		cmd := pose.RawHistoryGit(checker.root, command...)
-		done, err := pose.WithPrivateIndex(cmd, checker.root)
-		if err != nil {
-			done()
-			continue
+	keep := func(rel string) {
+		relNorm := filepath.ToSlash(rel)
+		if strings.HasPrefix(relNorm, ".pose/specs/") && (strings.HasSuffix(relNorm, "/spec.md") || (strings.HasSuffix(relNorm, ".md") && !strings.EqualFold(filepath.Base(relNorm), "README.md"))) {
+			changed[relNorm] = true
 		}
-		output, err := cmd.Output()
-		done()
-		if err != nil {
-			continue
+	}
+	// What the work tree changes from HEAD, read without writing the index
+	// (spec pose-validate-reads-leave-the-index-alone R1).
+	if changes, err := pose.WorktreeChanges(checker.root, ".pose/specs"); err == nil {
+		for _, c := range changes {
+			keep(c.Path)
 		}
+	}
+	if output, err := pose.RawHistoryGit(checker.root, "ls-files", "--others", "--exclude-standard", "--", ".pose/specs").Output(); err == nil {
 		for _, rel := range strings.Fields(string(output)) {
-			relNorm := filepath.ToSlash(rel)
-			if strings.HasPrefix(relNorm, ".pose/specs/") && (strings.HasSuffix(relNorm, "/spec.md") || (strings.HasSuffix(relNorm, ".md") && !strings.EqualFold(filepath.Base(relNorm), "README.md"))) {
-				changed[relNorm] = true
-			}
+			keep(rel)
 		}
 	}
 	found := make([]string, 0, len(changed))

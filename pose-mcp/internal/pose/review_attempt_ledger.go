@@ -530,15 +530,6 @@ func reviewHistoryGit(root string, args ...string) ([]byte, error) {
 	base := gitCommand(append([]string{"-C", root}, args...)...)
 	cmd := exec.CommandContext(ctx, "git", base.Args[1:]...)
 	cmd.Env = base.Env
-	if len(args) > 0 && args[0] == "diff" {
-		// A diff against the work tree runs over a private index (spec
-		// pose-validate-reads-leave-the-index-alone R1).
-		done, err := WithPrivateIndex(cmd, root)
-		defer done()
-		if err != nil {
-			return nil, fmt.Errorf("review history Git observation unavailable: %w", err)
-		}
-	}
 	var out reviewHistoryBuffer
 	cmd.Stdout = &out
 	if err := cmd.Run(); err != nil {
@@ -573,12 +564,19 @@ func (s Store) ReviewRunHistoryFindings() ([]string, error) {
 		return findings, fmt.Errorf("delegated history Git anchor unavailable: %w", headErr)
 	}
 
-	args := append([]string{"diff", "HEAD", "--name-status", "--no-renames", "--diff-filter=MDT", "--"}, roots...)
-	pending, err := reviewHistoryGit(s.Root, args...)
+	// What the work tree changes from HEAD, read without writing the index
+	// (spec pose-validate-reads-leave-the-index-alone R1).
+	changes, err := WorktreeChanges(s.Root, roots...)
 	if err != nil {
-		return nil, err
+		return nil, fmt.Errorf("review history Git observation unavailable: %w", err)
 	}
-	args = append([]string{"log", "--format=", "--name-status", "--no-renames", "--diff-filter=MDT", "--"}, roots...)
+	var pending []byte
+	for _, c := range changes {
+		if c.Status != "A" {
+			pending = append(pending, []byte(c.Status+"\t"+c.Path+"\n")...)
+		}
+	}
+	args := append([]string{"log", "--format=", "--name-status", "--no-renames", "--diff-filter=MDT", "--"}, roots...)
 	committed, err := reviewHistoryGit(s.Root, args...)
 	if err != nil {
 		return nil, err
