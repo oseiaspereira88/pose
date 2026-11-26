@@ -1,0 +1,221 @@
+{
+  "run": {
+    "run_id": "rrn-233e9d0e27a7230a",
+    "proof_id": "rrp-6700ab59e2dbc9e8ee46db157f81757cb331f9ddeed89587cb860c99903eb464"
+  },
+  "schema_version": 1,
+  "attestation_id": "rva-ae0bbcd5ff3c73a3",
+  "bundle_id": "rvb-071f07d4988051f0",
+  "bundle_digest": "sha256:071f07d4988051f0ca843191c5e6dee79ce2a97d93051d2455ec4971133bb236",
+  "reviewer": "agent:anthropic/claude-sonnet-5-5",
+  "decision": "changes-requested",
+  "criteria": [
+    {
+      "id": "assumption-integrity",
+      "disposition": "finding",
+      "evidence": "N10"
+    },
+    {
+      "id": "backend-concurrency",
+      "disposition": "passed",
+      "evidence": "unit:pose-mcp/go/test"
+    },
+    {
+      "id": "backend-contracts",
+      "disposition": "finding",
+      "evidence": "N11"
+    },
+    {
+      "id": "backend-input-errors",
+      "disposition": "finding",
+      "evidence": "N11"
+    },
+    {
+      "id": "backend-integration-impact",
+      "disposition": "finding",
+      "evidence": "N10"
+    },
+    {
+      "id": "backend-observability",
+      "disposition": "finding",
+      "evidence": "N13"
+    },
+    {
+      "id": "compatibility",
+      "disposition": "finding",
+      "evidence": "N11"
+    },
+    {
+      "id": "correctness",
+      "disposition": "finding",
+      "evidence": "N10"
+    },
+    {
+      "id": "design-causality",
+      "disposition": "passed",
+      "evidence": "structure:design-84e37612383d6355",
+      "rationale": "Examined D1, D2, gitCommandContext and the memfd reader against the cause, a stat refresh written to .git/index. Optional locks cover status, and a lock path that cannot be created stops the diff's refresh write, which the focused index tests confirm for R1. The design delta has no structural deltas to map. The design loses the index timestamp, reported in N10."
+    },
+    {
+      "id": "documentation",
+      "disposition": "passed",
+      "evidence": "structure:design-84e37612383d6355",
+      "rationale": "The change adds no command, flag or template, and report --since and validate --changed-from keep their documented form, so no operational document or scaffold needs an edit. The spec's claim that answers equal the plain diff is contradicted by N10."
+    },
+    {
+      "id": "operability",
+      "disposition": "finding",
+      "evidence": "N13"
+    },
+    {
+      "id": "requirements",
+      "disposition": "passed",
+      "evidence": "unit:pose-mcp/go/test"
+    },
+    {
+      "id": "scope",
+      "disposition": "passed",
+      "evidence": "structure:design-84e37612383d6355",
+      "rationale": "Compared the subject's code files with the spec's artifact list and affected areas; they match and add no unrelated behaviour. artifact-check --strict exited 0. Applying the read-only index to ls-files and status is a defect reported in N11."
+    },
+    {
+      "id": "security",
+      "disposition": "finding",
+      "evidence": "N10"
+    },
+    {
+      "id": "solution-proportionality",
+      "disposition": "passed",
+      "evidence": "structure:design-84e37612383d6355",
+      "rationale": "Running the unchanged diff over an unlockable memfd is far smaller than the withdrawn status reconstruction, and D1 records why locks alone and a temporary copy were insufficient. No speculative extension was added; L2 bounds the non-Linux copy. The choice is invalid unless the copy preserves the index timestamp (N10), and it depends on Git skipping a failed refresh lock silently."
+    }
+  ],
+  "tools": [
+    {
+      "id": "artifact-check",
+      "disposition": "passed",
+      "evidence": "command:pose artifact-check --spec pose-validate-reads-leave-the-index-alone --strict",
+      "rationale": "Exit 0."
+    },
+    {
+      "id": "assess-design",
+      "disposition": "passed",
+      "evidence": "structure:design-84e37612383d6355"
+    },
+    {
+      "id": "assess-discover",
+      "component": "pose-mcp",
+      "disposition": "passed",
+      "evidence": "command:pose assess discover --no-persist --component pose-mcp"
+    },
+    {
+      "id": "assess-integrate",
+      "disposition": "passed",
+      "evidence": "integration:pose-mcp/go/git-status-clean-git-integration",
+      "rationale": "Exit 0; three medium unconsumed HTTP provider gaps unrelated to these files."
+    },
+    {
+      "id": "assess-tech-debt",
+      "disposition": "passed",
+      "evidence": "command:pose assess tech-debt --no-persist",
+      "rationale": "Exit 0; the scan reports itself incomplete for two unreadable specs."
+    },
+    {
+      "id": "closeout-check",
+      "disposition": "deferred",
+      "evidence": "command:pose closeout-check spec:pose-validate-reads-leave-the-index-alone",
+      "rationale": "Needs a completed review; it exited 1."
+    },
+    {
+      "id": "review-check",
+      "disposition": "deferred",
+      "evidence": "command:pose review-check spec:pose-validate-reads-leave-the-index-alone",
+      "rationale": "Needs this review's attestation; it exited 1."
+    },
+    {
+      "id": "suggest-review",
+      "component": "pose-mcp",
+      "disposition": "passed",
+      "evidence": "command:pose suggest review --path pose-mcp"
+    },
+    {
+      "id": "surface-check",
+      "disposition": "passed",
+      "evidence": "integration:pose-mcp/go/spec-surface-integration",
+      "rationale": "surface-check --strict exited 0."
+    },
+    {
+      "id": "validate",
+      "disposition": "failed",
+      "evidence": "unit:pose-mcp/go/test",
+      "rationale": "The local run exited 1: 224 pass, 11 fail, 1 error. Messages seen include a network 403, /home and /var/tmp ownership refusals and a 600s timeout, which are environmental; the cause of every failure, including the full test step, was not established. The cited ref is the sealed pass, not this run."
+    },
+    {
+      "id": "validate",
+      "component": "pose-mcp",
+      "disposition": "failed",
+      "evidence": "unit:pose-mcp/go/test",
+      "rationale": "The local module run exited 1: 221 pass, 11 fail, 1 error, with the same failing step names. The cited ref is the sealed pass, not this run."
+    }
+  ],
+  "evidence_refs": [
+    "N10",
+    "N11",
+    "N13",
+    "delegated-run:rrn-233e9d0e27a7230a",
+    "structure:design-84e37612383d6355",
+    "unit:pose-mcp/go/test"
+  ],
+  "findings": [
+    {
+      "id": "N10",
+      "severity": "high",
+      "evidence": "file:pose-mcp/internal/pose/git_worktree_reads_linux.go:19",
+      "action": "The memfd copy of the index carries a new modification time, so Git's racy-clean check no longer works: an entry whose file shares the real index's timestamp is trusted on stat alone, and a real change is omitted. Reproduced with default configuration, 5 of 5: stage a file, rewrite it with the same size in the same second, read over a second later; the plain diff names it and RawGitDiffReadOnly returns nothing. End to end, validate scope selection, report --since and the ready-transition read all returned empty while git diff HEAD named the spec file. With core.trustctime=false and shared timestamps, the review history diff also hid a rewritten review-attempts record. This is a regression from reading the real index and breaks D1 and the constraint that reads keep their results. The non-Linux copy is also written with a new time (git_worktree_reads_other.go:20), which L2 does not cover. No test builds a racy entry.",
+      "disposition": "open"
+    },
+    {
+      "id": "N11",
+      "severity": "medium",
+      "evidence": "file:pose-mcp/internal/cli/check.go:1137",
+      "action": "ReadOnlyIndex fails when the index file does not exist, as in a repository before its first git add, and it is also applied to ls-files and status, which needed no change. check skips both commands silently, so the ready-transition gate inspects no spec; report without --since (report.go:303) lists nothing. Reproduced: plain ls-files names the new spec and plain status shows the untracked file, while readyTransitionCandidates and reportChangedFiles returned empty.",
+      "disposition": "open"
+    },
+    {
+      "id": "N12",
+      "severity": "low",
+      "evidence": "file:pose-mcp/internal/pose/git_worktree_reads_linux.go:33",
+      "action": "In a split-index repository the read-only diff leaves .git/index and the shared index content unchanged but updates the modification time of .git/sharedindex.\u003chash\u003e, so .git is still touched. Reproduced by comparing times around RawGitDiffReadOnly. This is Git behavior on reading; whether the governed read view reports it was not tested.",
+      "disposition": "open"
+    },
+    {
+      "id": "N13",
+      "severity": "low",
+      "evidence": "file:pose-mcp/internal/cli/validate_scope.go:109",
+      "action": "The new failure causes are lost or mislabelled: validate replaces an index location or read error with 'revision unknown?', check.go discards it, and an unusable index is described as 'ledger record is not a bounded regular file' (review_attempt_ledger.go:82). The rev-parse in ReadOnlyIndex (git_worktree_reads.go:25) also runs outside the 30 second deadline of reviewHistoryGit.",
+      "disposition": "open"
+    }
+  ],
+  "authority": {
+    "schema_version": 1,
+    "project": "proj.pose-dist",
+    "bundle_digest": "sha256:071f07d4988051f0ca843191c5e6dee79ce2a97d93051d2455ec4971133bb236",
+    "principal": "agent:anthropic/claude-sonnet-5-5",
+    "role": "agent",
+    "review_execution": "rrn-233e9d0e27a7230a",
+    "implementation_principal": "agent:anthropic/claude-opus-5-5",
+    "implementation_execution": "sha256:344ac5868944c155772d60a95ef6ff20644580a642e772ad5c92c29428464ff8",
+    "issuer": "b34-local-executor",
+    "issued_at": "2026-11-26T16:07:27Z",
+    "audience": "proj.pose-dist"
+  },
+  "envelope": {
+    "issuer": "b34-local-executor",
+    "subject": "rvb-071f07d4988051f0",
+    "algorithm": "ed25519",
+    "public_key": "ck4sApdfePV2GT+hJyAYfJd2qLzeG55P8pevGR0bvZE=",
+    "signature": "N/zIEomyM+SG+8ouNMIUQHZ6CXQWm5ioVBp86w+a/9nZ7j6UCI5D1VgXuXqwkd6KQ5cdkQSmGZ6NKcnXD3/kDw=="
+  },
+  "attested_at": "2026-11-26T16:07:27Z",
+  "path": ".pose/review-attestations/rva-ae0bbcd5ff3c73a3.json"
+}
