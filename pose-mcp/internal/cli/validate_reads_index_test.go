@@ -60,7 +60,7 @@ func TestValidationReadsLeaveTheIndexAlone(t *testing.T) {
 	if err != nil || len(sel.Changed) != 0 {
 		t.Fatalf("the scope diff against the work tree: %v %v", sel.Changed, err)
 	}
-	if files := reportChangedFiles(root, "HEAD"); len(files) != 0 {
+	if files, err := reportChangedFiles(root, "HEAD"); err != nil || len(files) != 0 {
 		t.Fatalf("report listed a stat-only change: %v", files)
 	}
 	if got := (&nativeChecker{root: root}).readyTransitionCandidates(); len(got) != 0 {
@@ -88,7 +88,7 @@ func TestConcurrentValidationReadsNeverChangeTheIndex(t *testing.T) {
 			for j := 0; j < 5; j++ {
 				materialWorktreeClean(root)
 				_, _ = computeChangedScopeWith(root, "HEAD", "", nil, scopeMetadata{})
-				reportChangedFiles(root, "HEAD")
+				_, _ = reportChangedFiles(root, "HEAD")
 				(&nativeChecker{root: root}).readyTransitionCandidates()
 			}
 		}()
@@ -140,10 +140,36 @@ func TestValidationReadsAnswerWithoutAnIndex(t *testing.T) {
 	if !found {
 		t.Fatal("the ready transition read lost the new spec without an index")
 	}
-	if files := reportChangedFiles(root, ""); len(files) == 0 {
+	if files, err := reportChangedFiles(root, ""); err != nil || len(files) == 0 {
 		t.Fatal("report listed nothing without an index")
 	}
 	if _, err := computeChangedScopeWith(root, "HEAD", "", nil, scopeMetadata{}); err != nil {
 		t.Fatalf("scope selection failed without an index: %v", err)
+	}
+}
+
+// Spec pose-validate-read-only-index-followups R2: a failed index read is
+// reported with its cause by the check, scope selection and the report.
+func TestAFailedIndexReadIsReported(t *testing.T) {
+	root, _ := staleIndexRepo(t)
+	index := filepath.Join(root, ".git", "index")
+	if err := os.Remove(index); err != nil {
+		t.Fatal(err)
+	}
+	if err := os.Mkdir(index, 0o755); err != nil {
+		t.Fatal(err)
+	}
+	var out bytes.Buffer
+	checker := &nativeChecker{root: root, mode: "strict", locale: localeEN, stdout: &out}
+	checker.readyTransitionCandidates()
+	if checker.errors == 0 || !strings.Contains(out.String(), "cannot be listed") {
+		t.Fatalf("the check dropped a failed index read: %d %s", checker.errors, out.String())
+	}
+	_, err := computeChangedScopeWith(root, "HEAD", "", nil, scopeMetadata{})
+	if err == nil || strings.Contains(err.Error(), "revision unknown?") || !strings.Contains(err.Error(), "index") {
+		t.Fatalf("scope selection mislabelled a failed index read: %v", err)
+	}
+	if _, err := reportChangedFiles(root, "HEAD"); err == nil {
+		t.Fatal("report hid a failed index read")
 	}
 }

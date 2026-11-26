@@ -19,7 +19,9 @@ import (
 func readOnlyIndexFor(cmd *exec.Cmd, raw []byte, modTime time.Time) (func(), error) {
 	fd, err := unix.MemfdCreate("pose-index/none", unix.MFD_CLOEXEC)
 	if err != nil {
-		return func() {}, fmt.Errorf("pose: an in-memory index cannot be made: %w", err)
+		// No memory file here (an old kernel, a seccomp filter): the private
+		// copy keeps the index untouched too (review round 5, N27).
+		return privateIndexCopy(cmd, raw, modTime)
 	}
 	f := os.NewFile(uintptr(fd), "pose-index")
 	if _, err := f.Write(raw); err != nil {
@@ -32,8 +34,10 @@ func readOnlyIndexFor(cmd *exec.Cmd, raw []byte, modTime time.Time) (func(), err
 	}
 	ts := unix.NsecToTimespec(modTime.UnixNano())
 	if err := unix.UtimesNanoAt(unix.AT_FDCWD, fmt.Sprintf("/proc/self/fd/%d", fd), []unix.Timespec{ts, ts}, 0); err != nil {
+		// Without /proc the memory file cannot carry the time, nor be named
+		// to Git: the private copy is read instead (review round 5, N27).
 		f.Close()
-		return func() {}, fmt.Errorf("pose: the in-memory index cannot keep the index's time: %w", err)
+		return privateIndexCopy(cmd, raw, modTime)
 	}
 	cmd.ExtraFiles = append(cmd.ExtraFiles, f)
 	cmd.Env = append(cmd.Env, fmt.Sprintf("GIT_INDEX_FILE=/proc/self/fd/%d", 2+len(cmd.ExtraFiles)))

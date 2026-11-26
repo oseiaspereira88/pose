@@ -214,3 +214,187 @@ func TestReadOnlyIndexRefusesAFIFOIndex(t *testing.T) {
 		t.Fatal("reading a FIFO index blocked")
 	}
 }
+
+// staleRepo is a committed repository whose index has a stale stat cache,
+// with its POSE root optionally below the repository top.
+func staleRepo(t *testing.T, sub string) (string, string) {
+	t.Helper()
+	top := t.TempDir()
+	root := filepath.Join(top, sub)
+	if err := os.MkdirAll(root, 0o755); err != nil {
+		t.Fatal(err)
+	}
+	git := func(args ...string) {
+		t.Helper()
+		if out, err := exec.Command("git", append([]string{"-C", top, "-c", "user.name=t", "-c", "user.email=t@t"}, args...)...).CombinedOutput(); err != nil {
+			t.Fatal(args, err, string(out))
+		}
+	}
+	git("init", "-q")
+	file := filepath.Join(root, "a.txt")
+	if err := os.WriteFile(file, []byte("x\n"), 0o644); err != nil {
+		t.Fatal(err)
+	}
+	git("add", "-A")
+	git("commit", "-q", "-m", "i")
+	later := time.Now().Add(2 * time.Second)
+	if err := os.Chtimes(file, later, later); err != nil {
+		t.Fatal(err)
+	}
+	return top, root
+}
+
+// Spec pose-validate-read-only-index-followups R1: an index another process
+// replaces atomically while it is read is read whole, never refused.
+func TestReadOnlyIndexToleratesAnAtomicallyReplacedIndex(t *testing.T) {
+	top, _ := staleRepo(t, "")
+	index := filepath.Join(top, ".git", "index")
+	raw, err := os.ReadFile(index)
+	if err != nil {
+		t.Fatal(err)
+	}
+	stop := make(chan struct{})
+	go func() {
+		for i := 0; ; i++ {
+			select {
+			case <-stop:
+				return
+			default:
+			}
+			tmp := index + ".swap"
+			if os.WriteFile(tmp, raw, 0o644) == nil {
+				_ = os.Rename(tmp, index)
+			}
+		}
+	}()
+	defer close(stop)
+	for i := 0; i < 300; i++ {
+		if _, err := RawGitDiffReadOnly(top, "-C", top, "diff", "--name-only", "--"); err != nil {
+			t.Fatalf("read %d refused a replaced index: %v", i, err)
+		}
+	}
+}
+
+// Spec pose-validate-read-only-index-followups R3: the index is located
+// without `--path-format`, also from a POSE root below the repository top,
+// so the read is protected there and leaves the index alone.
+func TestReadOnlyIndexFindsTheIndexFromASubdirectory(t *testing.T) {
+	top, root := staleRepo(t, "proj")
+	before, err := os.ReadFile(filepath.Join(top, ".git", "index"))
+	if err != nil {
+		t.Fatal(err)
+	}
+	if _, err := RawGitDiffReadOnly(root, "-C", root, "diff", "--name-only", "--"); err != nil {
+		t.Fatal(err)
+	}
+	if after, _ := os.ReadFile(filepath.Join(top, ".git", "index")); !bytes.Equal(before, after) {
+		t.Fatal("a read from a subdirectory rewrote .git/index")
+	}
+}
+
+// Spec pose-validate-read-only-index-followups R4: the private copy the
+// memory file falls back to answers as the plain diff and leaves the index.
+func TestThePrivateIndexCopyLeavesTheIndexAlone(t *testing.T) {
+	top, _ := staleRepo(t, "")
+	index := filepath.Join(top, ".git", "index")
+	before, err := os.ReadFile(index)
+	if err != nil {
+		t.Fatal(err)
+	}
+	info, err := os.Stat(index)
+	if err != nil {
+		t.Fatal(err)
+	}
+	cmd := RawGit("-C", top, "diff", "--name-only", "--")
+	done, err := privateIndexCopy(cmd, before, info.ModTime())
+	if err != nil {
+		t.Fatal(err)
+	}
+	out, err := cmd.Output()
+	done()
+	if err != nil || len(out) != 0 {
+		t.Fatalf("the copy answered %q %v", out, err)
+	}
+	if after, _ := os.ReadFile(index); !bytes.Equal(before, after) {
+		t.Fatal("the private copy read rewrote .git/index")
+	}
+}
+
+// Spec pose-validate-read-only-index-followups R6: unmerged entries, a
+// two-revision range and a dirty submodule answer as the plain diff, and
+// concurrent review history reads never change the index.
+func TestReadOnlyIndexDiffCoversConflictsRangesAndDirtySubmodules(t *testing.T) {
+	root := t.TempDir()
+	run := func(dir string, args ...string) string {
+		t.Helper()
+		out, err := exec.Command("git", append([]string{"-C", dir, "-c", "user.name=t", "-c", "user.email=t@t", "-c", "protocol.file.allow=always"}, args...)...).CombinedOutput()
+		if err != nil && !strings.Contains(strings.Join(args, " "), "merge") {
+			t.Fatalf("git %v: %v %s", args, err, out)
+		}
+		return string(out)
+	}
+	sub := t.TempDir()
+	run(sub, "init", "-q")
+	if err := os.WriteFile(filepath.Join(sub, "s.txt"), []byte("1\n"), 0o644); err != nil {
+		t.Fatal(err)
+	}
+	run(sub, "add", "s.txt")
+	run(sub, "commit", "-q", "-m", "s")
+	run(root, "init", "-q", "-b", "main")
+	if err := os.WriteFile(filepath.Join(root, "c.txt"), []byte("base\n"), 0o644); err != nil {
+		t.Fatal(err)
+	}
+	run(root, "add", "c.txt")
+	run(root, "submodule", "add", "-q", sub, "mod")
+	run(root, "commit", "-q", "-m", "base")
+	first := strings.TrimSpace(run(root, "rev-parse", "HEAD"))
+	run(root, "checkout", "-q", "-b", "other")
+	if err := os.WriteFile(filepath.Join(root, "c.txt"), []byte("other\n"), 0o644); err != nil {
+		t.Fatal(err)
+	}
+	run(root, "commit", "-q", "-am", "other")
+	run(root, "checkout", "-q", "main")
+	if err := os.WriteFile(filepath.Join(root, "c.txt"), []byte("main\n"), 0o644); err != nil {
+		t.Fatal(err)
+	}
+	run(root, "commit", "-q", "-am", "main")
+	run(root, "merge", "-q", "other")
+	if err := os.WriteFile(filepath.Join(root, "mod", "s.txt"), []byte("dirty\n"), 0o644); err != nil {
+		t.Fatal(err)
+	}
+	second := strings.TrimSpace(run(root, "rev-parse", "HEAD"))
+	for _, args := range [][]string{
+		{"-C", root, "diff", "--name-status", "--no-renames", "--ignore-submodules=none", "HEAD", "--"},
+		{"-C", root, "diff", "--name-only", "-z", "--no-renames", first, second, "--"},
+		{"-C", root, "diff", "--name-only", "--ignore-submodules=none", first, "--"},
+	} {
+		before, _ := os.ReadFile(filepath.Join(root, ".git", "index"))
+		got, err := RawGitDiffReadOnly(root, args...)
+		if err != nil {
+			t.Fatalf("%v: %v", args, err)
+		}
+		if after, _ := os.ReadFile(filepath.Join(root, ".git", "index")); !bytes.Equal(before, after) {
+			t.Fatalf("%v rewrote .git/index", args)
+		}
+		want, _ := RawGit(args...).Output()
+		if !bytes.Equal(got, want) {
+			t.Fatalf("%v answered %q, the plain diff %q", args, got, want)
+		}
+	}
+	before, _ := os.ReadFile(filepath.Join(root, ".git", "index"))
+	errs := make(chan error, 8)
+	for i := 0; i < 8; i++ {
+		go func() {
+			_, err := reviewHistoryGit(root, "diff", "HEAD", "--name-status", "--no-renames", "--diff-filter=MDT", "--")
+			errs <- err
+		}()
+	}
+	for i := 0; i < 8; i++ {
+		if err := <-errs; err != nil {
+			t.Fatal(err)
+		}
+	}
+	if after, _ := os.ReadFile(filepath.Join(root, ".git", "index")); !bytes.Equal(before, after) {
+		t.Fatal("concurrent review history reads changed .git/index")
+	}
+}

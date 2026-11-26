@@ -43,7 +43,7 @@ func TestReportChangedFilesKeepsTheFirstPath(t *testing.T) {
 			t.Fatal(err)
 		}
 	}
-	got := reportChangedFiles(root, "")
+	got, _ := reportChangedFiles(root, "")
 	want := []string{"README.md", "b.md"}
 	if len(got) != len(want) {
 		t.Fatalf("changed files = %q, want %q", got, want)

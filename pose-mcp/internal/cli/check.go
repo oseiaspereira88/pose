@@ -1139,12 +1139,16 @@ func (checker *nativeChecker) readyTransitionCandidates() []string {
 			var err error
 			if done, err = pose.ReadOnlyIndex(cmd, checker.root); err != nil {
 				done()
+				// The specs this read would name go unchecked: say so
+				// (review round 5, N23).
+				checker.failOrWarn(fmt.Sprintf("ready transitions: the changed specs cannot be listed: %v", err))
 				continue
 			}
 		}
 		output, err := cmd.Output()
 		done()
 		if err != nil {
+			checker.failOrWarn(fmt.Sprintf("ready transitions: git %s failed: %v", command[0], err))
 			continue
 		}
 		for _, rel := range strings.Fields(string(output)) {

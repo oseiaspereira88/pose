@@ -195,7 +195,12 @@ func runReportWith(root string, args []string, validationLog []byte, summary *va
 			}
 		}
 	}
-	filesChanged := reportChangedFiles(root, values["since"])
+	filesChanged, err := reportChangedFiles(root, values["since"])
+	if err != nil {
+		// The report still writes, without the list it could not read
+		// (review round 5, N23).
+		fmt.Fprintf(stderr, cliText(locale, "Warning: the changed files cannot be listed: %v\n", "Aviso: os arquivos alterados não podem ser listados: %v\n"), err)
+	}
 	markdown := renderReportMarkdown(now, values, task, slug, outcome, outcomeSource, filesChanged, validationCommands, validationResults, sequence, stableHash, compareStatus, previousAt, changes, changeSet)
 	if err := os.WriteFile(reportPath, []byte(markdown), 0o644); err != nil {
 		fmt.Fprintf(stderr, cliText(locale, "Error: writing report: %v\n", "Erro: escrevendo relatório: %v\n"), err)
@@ -291,7 +296,7 @@ func readLastReportRecord(path string) *reportRecord {
 	return last
 }
 
-func reportChangedFiles(root, since string) []string {
+func reportChangedFiles(root, since string) ([]string, error) {
 	args := []string{"-C", root}
 	if since != "" {
 		args = append(args, "diff", "--name-only", since)
@@ -308,7 +313,7 @@ func reportChangedFiles(root, since string) []string {
 		output, err = posemodel.RawGit(args...).Output()
 	}
 	if err != nil {
-		return nil
+		return nil, err
 	}
 	files := []string{}
 	// Trim only the trailing newline: in porcelain output a leading space is
@@ -323,7 +328,7 @@ func reportChangedFiles(root, since string) []string {
 		}
 		files = append(files, line)
 	}
-	return files
+	return files, nil
 }
 
 func renderReportMarkdown(now time.Time, values map[string]string, task, slug, outcome, outcomeSource string, files, commands, results []string, sequence int, hash, compareStatus, previousAt string, changes []string, changeSet *posemodel.ChangeSet) string {
