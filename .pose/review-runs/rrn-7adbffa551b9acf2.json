@@ -1,0 +1,139 @@
+{
+  "safety": {
+    "schema_version": 1,
+    "profile": "legacy-trusted",
+    "platform": "linux/amd64",
+    "capabilities": {
+      "automatic-expiry": "unavailable",
+      "bounded-capture": "available",
+      "cpu-limit": "unavailable",
+      "credential-filesystem-isolation": "unavailable",
+      "environment-allowlist": "available",
+      "escaped-descendant-termination": "environment-marked",
+      "filesystem-isolation": "unavailable",
+      "memory-limit": "unavailable",
+      "network-isolation": "unavailable",
+      "origin-isolation": "unavailable",
+      "parent-termination": "available",
+      "process-group-termination": "available",
+      "shared-git-isolation": "unavailable"
+    },
+    "limitations": [
+      "trusted local executable required; worktree is not a sandbox",
+      "outside writes, transient writes, shared Git and credential files are not isolated",
+      "no memory/CPU quota; the review run shim ends every process left in the run's subtree, including one in its own session",
+      "cleanup filesystem calls remain subject to operating-system I/O latency",
+      "legacy compatibility: HOME retained; other ambient credentials excluded"
+    ],
+    "stream_bytes": 8388608,
+    "output_bytes": 65536,
+    "retained_bytes": 16777216,
+    "timeout_ms": 3600000,
+    "max_runs_per_bundle": 3,
+    "retention": "retain-evidence; ttl=0; no automatic deletion",
+    "capture_complete": true,
+    "runtime_id": "pose-review-run-93b9b9511d1567d3fc5c2c9979b76703",
+    "operation": {
+      "schema_version": 1,
+      "operation": "review.dispatch.cleanup",
+      "scope": "spec:pose-review-resume-keeps-the-sealed-checkout",
+      "outcome": "completed",
+      "steps_run": [
+        {
+          "id": "cleanup",
+          "result": "done"
+        }
+      ],
+      "effects": [],
+      "resumable": false
+    }
+  },
+  "provenance": {
+    "execution_state": "started",
+    "planned_wire_digest": "sha256:0d28353bb8e8b76f8f5044a28946119d5bf3062096432bd32eb84bb7d5ba5299",
+    "wire_bytes": 29928,
+    "wire_complete": true,
+    "schema_version": 1,
+    "project": "proj.pose-dist",
+    "audience": "proj.pose-dist",
+    "worktree_digest": "sha256:092ca52378c4c0d0f2b627da8d5031dbb854563bd4b9f2474458710c62a14816",
+    "trust": "executor-attested",
+    "implementation": {
+      "principal": "agent:anthropic/claude-opus-5-5",
+      "execution": "sha256:344ac5868944c155772d60a95ef6ff20644580a642e772ad5c92c29428464ff8",
+      "vendor": "anthropic",
+      "model": "claude-opus-5-5"
+    },
+    "reviewer": {
+      "principal": "agent:anthropic/claude-sonnet-5-5",
+      "vendor": "anthropic",
+      "model": "claude-sonnet-5-5"
+    },
+    "config_digest": "sha256:b23684d462090c30b29c472aa98a57bfadccc0b92e14fbacb173eb47d1f5b8ea",
+    "command_template_digest": "sha256:3d843a49f6314194edbdf4f7f3ce02992895b45ad84d90915a0b66a1db8afd54",
+    "argv_digest": "sha256:3299887be64211603f061d2b2b7ede0317c65f3b512cf206eba0578637fe909d",
+    "executable_digest": "sha256:c157074818b094c84aaf31b8c80a1e149f234bb1c8c84a25e9a53e96afa30a29",
+    "template_version": "review-brief/11",
+    "wire_digest": "sha256:0d28353bb8e8b76f8f5044a28946119d5bf3062096432bd32eb84bb7d5ba5299",
+    "notes_digest": "sha256:e1f35bc3ffc96a9ea534f0c623a3ec5e79a8e450ac94e05d7bf79ca9bda917e2",
+    "raw_transcript_digest": "sha256:8c72581af06fe96bd42b7952ae9bbe0220e83d11e46e02531fc94bca54c6fd63",
+    "raw_output_digest": "sha256:8cd8b1e731bc26e19a805da5d7458f33ea209c10f376cffd8bac50f1d6116447",
+    "output_source": "stream-final",
+    "output_complete": true
+  },
+  "session_digest": "sha256:df53332fe812ec9213b348544a855387ab8171eb86e87a8b5db30642389a15b1",
+  "tree_digest": "sha256:a6e9e95c40d06420100ea7953d8b2105cb31c45b97142ca7aab534e47f8bc074",
+  "brief_notes": "Implementer notes (Claude Opus 5.5, the lead). Use them as context only; the judgment is yours.\n\nScope: spec `pose-review-resume-keeps-the-sealed-checkout` (R1–R3, decision D1, accepted limits L1–L2). On 2026-11-25 a `pose delegate resume` started a new run whose resumed Codex session still referred to the first attempt's sealed checkout, which the interrupted run's cleanup had removed; the reviewer stopped and the resume produced nothing.\n- R1: every run of an attempt now uses the same runtime directory, `pose-review-run-\u003cfirst 32 hex of the attempt id\u003e` under the temporary directory (`reviewRunRuntimeDir` in `pose-mcp/internal/pose/review_dispatch.go`), so the checkout is recreated at the path the session saw. A run without an attempt keeps a random name.\n- R2: `TestResumedReviewFindsItsSealedCheckoutAtTheSamePath` (internal/cli) records the first run's working directory, checks it was removed, and resumes with an adapter that fails unless it runs there.\n- R3: the directory is created with `os.Mkdir`; an existing path or a link fails the run with its reason (`TestTheAttemptRuntimeDirectoryIsCreatedExclusively`).\nEach test fails with its guard mutated out. D1 explains why the path is kept stable instead of telling the session a new one (the continuation sends the sealed brief, whose wire digest provenance checks).\n\nPlease check in particular that no run can share or follow a directory it did not create, that cleanup still removes the whole runtime directory, and that runs outside an attempt behave as before.\n\nBefore you finish, run `\"$POSE_REVIEW_CLI\" review draft-check --draft -` on your final message (pipe it on standard input) and fix every reason it reports.\n\nDraft format rules, enforced by the conclusion preflight:\n- New findings use short unprefixed IDs (N1, N2, …).\n- Structural-delta mappings go inside the criterion that answers them, with `basis` set to a requirement or a decision of this spec (R1–R3, D1).\n- A criterion scoped to a component cites evidence from that component only.\n- A finding that falls inside an accepted limit (L1, L2) is a follow-up with `limit` set to its id.\n\nSandbox limits: the checkout is sealed and read-only. Never `cd`; keep the checkout root as the working directory. Your Bash is limited to these command prefixes: `go test`, `go vet`, `go -C`, `git diff|log|show|status|ls-files`, `cat`, `printf`, `\"$POSE_REVIEW_CLI\"`, and the pose checks the plan lists. Keep test runs focused (`go -C pose-mcp test ./internal/cli ./internal/pose -run 'RunContinuity|ResumedReview|AttemptRuntimeDirectory'`, `go -C pose-mcp vet ./internal/cli ./internal/pose`), and let every command you start finish before you end. Run every planned `pose` command as `\"$POSE_REVIEW_CLI\"`. A tool you cannot rerun in the sandbox is a limit of the run, not a defect of the subject: cite the sealed evidence that covers it.\n\nPlease report every finding you see in this round, classified blocker or follow-up, rather than stopping at the first.\n",
+  "ledger_version": 1,
+  "attempt_id": "rat-93b9b9511d1567d3fc5c2c9979b76703f8e8f35ec49fd9596f1633ce89e187e6",
+  "schema_version": 1,
+  "run_id": "rrn-7adbffa551b9acf2",
+  "scope": "spec:pose-review-resume-keeps-the-sealed-checkout",
+  "bundle_id": "rvb-5cd3a049a99eda9c",
+  "bundle_digest": "sha256:5cd3a049a99eda9c1be73d35fcf09e4e58508efb6ac41164bc100e249940f76d",
+  "sealed_commit": "e26623a150f5cdbe5c83366a6b12c30bc0f727ea",
+  "kind": "review",
+  "brief_digest": "sha256:f271b98a17e2aac186b32d0f76cf1d1c9922aa5d767853da9de8a09e9d94ec39",
+  "adapter": "claude-sonnet-5-5",
+  "vendor": "anthropic",
+  "model": "claude-sonnet-5-5",
+  "started_at": "2026-11-26T07:19:47.155835315Z",
+  "ended_at": "2026-11-26T07:22:10.264528656Z",
+  "exit_code": 0,
+  "status": "completed",
+  "transcript_digest": "sha256:51615193796db4e0e82ea0ba9a165b3ad73accbfcabda02bc87c8396719e79fb",
+  "transcript_path": ".pose/review-runs/rrn-7adbffa551b9acf2.transcript",
+  "output": "**Review incomplete: I have not reached an approval or rejection.** The Bash sandbox failed on every call with `Sandbox is required but failed to initialize: Failed to create bridge sockets after 5 attempts. Restart to retry.` Overriding it isn't allowed.\n\n## What did not run\n\n- **Tests:** no `go test` or `go vet`, so I haven't checked the claim that each test fails when its guard is removed.\n- **Diff:** no `git diff` or `git status`. I read the current files, so I haven't confirmed the change is limited to the three listed files.\n- **Planned tools:** none of the `pose` tools ran, including the required `artifact-check`, which has no sealed evidence to stand in for it.\n- **Draft check:** `review draft-check` did not run.\n- **Cleanup failed:** `go clean -cache` and the `go-build*` removal did not run. I started no builds or background jobs.\n\nI'm not including a `pose-draft` block. A complete one would need me to report required tools as passed when they never ran. Please rerun the review in a session where the sandbox starts.\n\n## Defects found by reading the code\n\nNone looks like a blocker. All are unconfirmed by execution.\n\n| ID | Severity | Location | Defect |\n|---|---|---|---|\n| N1 | low | `pose-mcp/internal/pose/review_dispatch.go:809` (claim at `:746`) | The directory is created after the predecessor has been claimed. If the path already exists, the interrupted run's one continuation becomes a failed, non-resumable run. Removing the directory doesn't restore `resume` on the original run, which returns the recorded failure; only a handoff or a new dispatch remains. The error at `:2052` gives no remedy. The spec's technical risk (line 73, \"fails until it is removed\") understates this. The blocking itself falls within L2 (or follows a leftover directory), but the lost resumability isn't stated there. |\n| N2 | low | `pose-mcp/internal/cli/review_run_continuity_test.go:304` | `test -f .pose/specs/alpha/spec.md \\|\\| ls \u003e\u00262` can't fail the script, because a successful `ls` lets it continue to approval. The R2 test checks only that the working directory path matches, not that the checkout has content. |\n| N3 | low | `POSE.md:1045` | The resume documentation doesn't say that the checkout path is now stable per attempt, that resume needs the same `TMPDIR` (L1), or what to do when the directory already exists. I didn't check the scaffold and locale copies for equivalent text. |\n| N4 | low | `pose-mcp/internal/pose/review_dispatch.go:814-829` | If `Lstat` or `OpenRoot` fails right after the directory is created, `cleanup` is still nil. The run records cleanup as completed while the directory remains, and that now blocks later runs of the attempt. The misreport appears to predate this change; the blocking is new. It's unlikely to happen. |\n| N5 | low | `pose-mcp/internal/pose/review_dispatch.go:2049` | A process that escaped an earlier run now knows the next run's paths, including `output.txt`. This matters mainly off Linux, where `reapSealedCheckoutProcesses` does nothing. Writes inside the worktree after the baseline snapshot would be detected, but `output.txt` sits outside it. Random names previously prevented this. |\n\n## Static assessment of the main questions\n\n- **No sharing or following:** `os.Mkdir` at `:2050` refuses an existing path, including a final-component link. Attempt IDs hash a random nonce (`review_attempt_ledger.go:427-432`), and continuations are claimed exclusively before the directory is created.\n- **Cleanup:** on the normal path, `cleanupReviewResources` removes the worktree, its Git registration and then the runtime directory. This lets a resume add a worktree at the same path again. N4 is the exception I found.\n- **Runs without an attempt:** they still use `os.MkdirTemp(\"\", \"pose-review-run-*\")`.\n- **Released abandoned attempts:** a leftover directory shouldn't newly block a handoff. The release record has no brief digest (`delegation_release.go:159-169`), so the handoff digest check should already refuse it.\n- **Design (D1, R1, R3):** a stable path per attempt is a small change that addresses the stated cause without altering the sealed brief. It stops working if `TMPDIR` differs (L1). I found no reason to dispute L1 or L2 beyond the gap in N1.\n- **Round-to-round session reuse:** a later round is a new attempt, so it gets a new path. The spec's goal covers only `delegate resume`, so I haven't counted this as a defect.\n\nThe sealed evidence listed in the brief reports passes, but I didn't re-verify any of it, and I'm not marking any criterion as passed.",
+  "policy_digest": "sha256:96d45d57ca07ec9abf850150e8563fe243393ebd1604a49798920f6dade4dbe7",
+  "label": "resume-review-r1",
+  "purpose": "review",
+  "env_removed": [
+    "CLAUDECODE",
+    "CLAUDE_CODE_BRIDGE_SESSION_ID",
+    "CLAUDE_CODE_CHILD_SESSION",
+    "CLAUDE_CODE_ENTRYPOINT",
+    "CLAUDE_CODE_EXECPATH",
+    "CLAUDE_CODE_MESSAGING_SOCKET",
+    "CLAUDE_CODE_MESSAGING_TOKEN",
+    "CLAUDE_CODE_SESSION_ATTENDED",
+    "CLAUDE_CODE_SESSION_ID",
+    "CLAUDE_EFFORT",
+    "CLAUDE_PID"
+  ],
+  "events": "claude-stream-json",
+  "events_digest": "sha256:beaa0c723697e4d456569ea945af5a5604d4da174596316ce07d0bd96a9f2d29",
+  "routing": {
+    "requested": "claude-sonnet-5-5",
+    "implementation": {
+      "principal": "agent:anthropic/claude-opus-5-5",
+      "vendor": "anthropic",
+      "model": "claude-opus-5-5",
+      "execution_digest": "sha256:344ac5868944c155772d60a95ef6ff20644580a642e772ad5c92c29428464ff8",
+      "source": "declared"
+    },
+    "implementation_from": "bundle",
+    "step": "explicit"
+  },
+  "independence_achieved": "different-model",
+  "round": 1
+}
