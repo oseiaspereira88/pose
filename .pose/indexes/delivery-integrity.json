@@ -1,7 +1,7 @@
 {
   "schema_version": 2,
-  "input_digest": "sha256:ad05c4bd389dbb9369d5153857a3746fbe3ac102ade91558f1e3df43e1e34b33",
-  "provenance_digest": "sha256:cc2a44c21c60a23473607a8a84089bb5ab3598ef0b69b8ad421af754e5e1e7e6",
+  "input_digest": "sha256:a9603d3fd6637ece2334040b9af2e8a6a7d82e252734339c90cb0c3de79b5f0b",
+  "provenance_digest": "sha256:04522cd83754a46cb109d47a32e62e3af7ef635f77fafafd8d0a56fdb10aea0d",
   "implied_edges": [
     "changes"
   ],
@@ -48337,6 +48337,14 @@
       }
     },
     {
+      "id": "change-set:cs-50e52356b8e1",
+      "type": "change-set",
+      "attributes": {
+        "diff_digest": "sha256:874138a75f2db762cf0ec100d7fa13f49ac6c96a49c1170aa31aee575264967d",
+        "selector": "trailers:pose-validate-reads-leave-the-index-alone"
+      }
+    },
+    {
       "id": "change-set:cs-51090c3b3255",
       "type": "change-set",
       "attributes": {
@@ -49998,14 +50006,6 @@
       "attributes": {
         "diff_digest": "sha256:13cf29167792a002468acd841fe6972a31acdb166e480fafd503f7b0b583be47",
         "selector": "range:1d29b3a..dbd41e3"
-      }
-    },
-    {
-      "id": "change-set:cs-af0b2d7ec96b",
-      "type": "change-set",
-      "attributes": {
-        "diff_digest": "sha256:6a5460edc1502050579581025dcdb02c87b1103b93199280885e5e0531d9412a",
-        "selector": "trailers:pose-validate-reads-leave-the-index-alone"
       }
     },
     {
@@ -142829,7 +142829,7 @@
     },
     {
       "from": "spec:pose-validate-reads-leave-the-index-alone",
-      "to": "change-set:cs-af0b2d7ec96b",
+      "to": "change-set:cs-50e52356b8e1",
       "type": "observed-by"
     },
     {
@@ -225932,6 +225932,158 @@
       }
     },
     {
+      "id": "cs-50e52356b8e1",
+      "spec": "pose-validate-reads-leave-the-index-alone",
+      "selector": "trailers:pose-validate-reads-leave-the-index-alone",
+      "base": "1f83c1fbba489ef8d0ca5a7d3b0b1c49d56ba00c^",
+      "head": "80316a42153958a893d238049866bec7fbbc3ab6",
+      "resolved_base": "3f63a1bb432801957ddb35354961f1825658531a",
+      "resolved_head": "80316a42153958a893d238049866bec7fbbc3ab6",
+      "commits": [
+        "1f83c1fbba489ef8d0ca5a7d3b0b1c49d56ba00c",
+        "f3a216771125e9df2d2e4ee51b92be3445ba3bc6",
+        "661a109e824fc242068485f275ac24ef4daa3f87",
+        "4b3824b6849214f5c8ac1adf7113849d643c8637",
+        "f4c673b088006aa1b5cd7d3c87ab757eecd9134f",
+        "31dc72c815e62a287c0433fc3c79a9f22568cbb6",
+        "f6dbbd7240798e7b0f5e6af8ddae6af6226986bd",
+        "9d921604c6a0e98a5c41107309f84aa1a5d878b6",
+        "4dffc6732cc82760ae87f7d434a20f6f94999c79",
+        "7b7187b9aa8fa81f0ff6e1a0c87a3e44469edd9d",
+        "8cfb8c25b084d60bee1b26ba6b4496fc33ffd50c",
+        "077c1a150dc55248e1bd8cc7f2b3f38ad0a21935",
+        "8d43b26ee83d48aba543182a7b40d7263b2f5064",
+        "be9734dc79f4b80c4fece82f304145f1cd00f5f8",
+        "593be8750d655376c092a912a62ad6bd523af137",
+        "4f87b0afdb951a58dc55a06f95488c74af9edb7d",
+        "6f9dae1072ba2a06035c67a813279225aeec7a27",
+        "61e0ba78c67af54a1f615adaf26cefabeb1654a3",
+        "e6e8e55cb6e45f75e218cbe956d2f86fff4f31af",
+        "80316a42153958a893d238049866bec7fbbc3ab6"
+      ],
+      "paths": [
+        {
+          "action": "created",
+          "path": ".pose/results/vread-binding.md"
+        },
+        {
+          "action": "created",
+          "path": ".pose/specs/2026-11-23-pose-assess-leaves-sealed-checkouts-alone.md"
+        },
+        {
+          "action": "created",
+          "path": ".pose/specs/2026-11-23-pose-review-declared-threat-model.md"
+        },
+        {
+          "action": "created",
+          "path": ".pose/specs/2026-11-23-pose-review-readiness-before-seal.md"
+        },
+        {
+          "action": "created",
+          "path": ".pose/specs/2026-11-23-pose-review-subject-includes-its-index.md"
+        },
+        {
+          "action": "created",
+          "path": ".pose/specs/2026-11-23-pose-run-verification-pins-brief-inputs.md"
+        },
+        {
+          "action": "created",
+          "path": ".pose/specs/2026-11-23-pose-validate-carry-report-and-closeout-coverage.md"
+        },
+        {
+          "action": "created",
+          "path": ".pose/specs/2026-11-23-pose-validate-reads-leave-the-index-alone.md"
+        },
+        {
+          "action": "created",
+          "path": "pose-mcp/internal/cli/validate_reads_index_test.go"
+        },
+        {
+          "action": "created",
+          "path": "pose-mcp/internal/pose/git_worktree_reads.go"
+        },
+        {
+          "action": "created",
+          "path": "pose-mcp/internal/pose/git_worktree_reads_linux.go"
+        },
+        {
+          "action": "created",
+          "path": "pose-mcp/internal/pose/git_worktree_reads_other.go"
+        },
+        {
+          "action": "created",
+          "path": "pose-mcp/internal/pose/git_worktree_reads_test.go"
+        },
+        {
+          "action": "modified",
+          "path": ".pose/indexes/delivery-integrity.json"
+        },
+        {
+          "action": "modified",
+          "path": ".pose/indexes/generation.json"
+        },
+        {
+          "action": "modified",
+          "path": ".pose/indexes/spec-graph.json"
+        },
+        {
+          "action": "modified",
+          "path": ".pose/results/delivery-validation.json"
+        },
+        {
+          "action": "modified",
+          "path": "pose-mcp/internal/cli/check.go"
+        },
+        {
+          "action": "modified",
+          "path": "pose-mcp/internal/cli/report.go"
+        },
+        {
+          "action": "modified",
+          "path": "pose-mcp/internal/cli/validate_scope.go"
+        },
+        {
+          "action": "modified",
+          "path": "pose-mcp/internal/pose/git_snapshot_integrity.go"
+        },
+        {
+          "action": "modified",
+          "path": "pose-mcp/internal/pose/review_attempt_ledger.go"
+        }
+      ],
+      "diff_digest": "sha256:874138a75f2db762cf0ec100d7fa13f49ac6c96a49c1170aa31aee575264967d",
+      "material_digest": "sha256:ae843a21aa7ac05f4be91ed8f5bf62a7e60194a4760a3e02a9fa699df8988970",
+      "material_inputs": {
+        "names": [
+          ".pose/indexes/delivery-integrity.json",
+          ".pose/indexes/generation.json",
+          ".pose/indexes/spec-graph.json",
+          ".pose/indexes/validation-matrix.json",
+          ".pose/results/delivery-validation.json",
+          ".pose/results/vread-binding.md",
+          ".pose/specs/2026-11-23-pose-assess-leaves-sealed-checkouts-alone.md",
+          ".pose/specs/2026-11-23-pose-review-declared-threat-model.md",
+          ".pose/specs/2026-11-23-pose-review-readiness-before-seal.md",
+          ".pose/specs/2026-11-23-pose-review-subject-includes-its-index.md",
+          ".pose/specs/2026-11-23-pose-run-verification-pins-brief-inputs.md",
+          ".pose/specs/2026-11-23-pose-validate-carry-report-and-closeout-coverage.md",
+          ".pose/specs/2026-11-23-pose-validate-reads-leave-the-index-alone.md",
+          "pose-mcp/internal/cli/check.go",
+          "pose-mcp/internal/cli/report.go",
+          "pose-mcp/internal/cli/validate_reads_index_test.go",
+          "pose-mcp/internal/cli/validate_scope.go",
+          "pose-mcp/internal/pose/git_private_index.go",
+          "pose-mcp/internal/pose/git_private_index_test.go",
+          "pose-mcp/internal/pose/git_snapshot_integrity.go",
+          "pose-mcp/internal/pose/git_worktree_reads.go",
+          "pose-mcp/internal/pose/git_worktree_reads_linux.go",
+          "pose-mcp/internal/pose/git_worktree_reads_other.go",
+          "pose-mcp/internal/pose/git_worktree_reads_test.go",
+          "pose-mcp/internal/pose/review_attempt_ledger.go"
+        ]
+      }
+    },
+    {
       "id": "cs-51090c3b3255",
       "spec": "pose-release-signing-rejection",
       "selector": "range:e3cc340..d92deaa",
@@ -268198,156 +268350,6 @@
         }
       ],
       "diff_digest": "sha256:13cf29167792a002468acd841fe6972a31acdb166e480fafd503f7b0b583be47"
-    },
-    {
-      "id": "cs-af0b2d7ec96b",
-      "spec": "pose-validate-reads-leave-the-index-alone",
-      "selector": "trailers:pose-validate-reads-leave-the-index-alone",
-      "base": "1f83c1fbba489ef8d0ca5a7d3b0b1c49d56ba00c^",
-      "head": "61e0ba78c67af54a1f615adaf26cefabeb1654a3",
-      "resolved_base": "3f63a1bb432801957ddb35354961f1825658531a",
-      "resolved_head": "61e0ba78c67af54a1f615adaf26cefabeb1654a3",
-      "commits": [
-        "1f83c1fbba489ef8d0ca5a7d3b0b1c49d56ba00c",
-        "f3a216771125e9df2d2e4ee51b92be3445ba3bc6",
-        "661a109e824fc242068485f275ac24ef4daa3f87",
-        "4b3824b6849214f5c8ac1adf7113849d643c8637",
-        "f4c673b088006aa1b5cd7d3c87ab757eecd9134f",
-        "31dc72c815e62a287c0433fc3c79a9f22568cbb6",
-        "f6dbbd7240798e7b0f5e6af8ddae6af6226986bd",
-        "9d921604c6a0e98a5c41107309f84aa1a5d878b6",
-        "4dffc6732cc82760ae87f7d434a20f6f94999c79",
-        "7b7187b9aa8fa81f0ff6e1a0c87a3e44469edd9d",
-        "8cfb8c25b084d60bee1b26ba6b4496fc33ffd50c",
-        "077c1a150dc55248e1bd8cc7f2b3f38ad0a21935",
-        "8d43b26ee83d48aba543182a7b40d7263b2f5064",
-        "be9734dc79f4b80c4fece82f304145f1cd00f5f8",
-        "593be8750d655376c092a912a62ad6bd523af137",
-        "4f87b0afdb951a58dc55a06f95488c74af9edb7d",
-        "6f9dae1072ba2a06035c67a813279225aeec7a27",
-        "61e0ba78c67af54a1f615adaf26cefabeb1654a3"
-      ],
-      "paths": [
-        {
-          "action": "created",
-          "path": ".pose/results/vread-binding.md"
-        },
-        {
-          "action": "created",
-          "path": ".pose/specs/2026-11-23-pose-assess-leaves-sealed-checkouts-alone.md"
-        },
-        {
-          "action": "created",
-          "path": ".pose/specs/2026-11-23-pose-review-declared-threat-model.md"
-        },
-        {
-          "action": "created",
-          "path": ".pose/specs/2026-11-23-pose-review-readiness-before-seal.md"
-        },
-        {
-          "action": "created",
-          "path": ".pose/specs/2026-11-23-pose-review-subject-includes-its-index.md"
-        },
-        {
-          "action": "created",
-          "path": ".pose/specs/2026-11-23-pose-run-verification-pins-brief-inputs.md"
-        },
-        {
-          "action": "created",
-          "path": ".pose/specs/2026-11-23-pose-validate-carry-report-and-closeout-coverage.md"
-        },
-        {
-          "action": "created",
-          "path": ".pose/specs/2026-11-23-pose-validate-reads-leave-the-index-alone.md"
-        },
-        {
-          "action": "created",
-          "path": "pose-mcp/internal/cli/validate_reads_index_test.go"
-        },
-        {
-          "action": "created",
-          "path": "pose-mcp/internal/pose/git_worktree_reads.go"
-        },
-        {
-          "action": "created",
-          "path": "pose-mcp/internal/pose/git_worktree_reads_linux.go"
-        },
-        {
-          "action": "created",
-          "path": "pose-mcp/internal/pose/git_worktree_reads_other.go"
-        },
-        {
-          "action": "created",
-          "path": "pose-mcp/internal/pose/git_worktree_reads_test.go"
-        },
-        {
-          "action": "modified",
-          "path": ".pose/indexes/delivery-integrity.json"
-        },
-        {
-          "action": "modified",
-          "path": ".pose/indexes/generation.json"
-        },
-        {
-          "action": "modified",
-          "path": ".pose/indexes/spec-graph.json"
-        },
-        {
-          "action": "modified",
-          "path": ".pose/results/delivery-validation.json"
-        },
-        {
-          "action": "modified",
-          "path": "pose-mcp/internal/cli/check.go"
-        },
-        {
-          "action": "modified",
-          "path": "pose-mcp/internal/cli/report.go"
-        },
-        {
-          "action": "modified",
-          "path": "pose-mcp/internal/cli/validate_scope.go"
-        },
-        {
-          "action": "modified",
-          "path": "pose-mcp/internal/pose/git_snapshot_integrity.go"
-        },
-        {
-          "action": "modified",
-          "path": "pose-mcp/internal/pose/review_attempt_ledger.go"
-        }
-      ],
-      "diff_digest": "sha256:6a5460edc1502050579581025dcdb02c87b1103b93199280885e5e0531d9412a",
-      "material_digest": "sha256:ae843a21aa7ac05f4be91ed8f5bf62a7e60194a4760a3e02a9fa699df8988970",
-      "material_inputs": {
-        "names": [
-          ".pose/indexes/delivery-integrity.json",
-          ".pose/indexes/generation.json",
-          ".pose/indexes/spec-graph.json",
-          ".pose/indexes/validation-matrix.json",
-          ".pose/results/delivery-validation.json",
-          ".pose/results/vread-binding.md",
-          ".pose/specs/2026-11-23-pose-assess-leaves-sealed-checkouts-alone.md",
-          ".pose/specs/2026-11-23-pose-review-declared-threat-model.md",
-          ".pose/specs/2026-11-23-pose-review-readiness-before-seal.md",
-          ".pose/specs/2026-11-23-pose-review-subject-includes-its-index.md",
-          ".pose/specs/2026-11-23-pose-run-verification-pins-brief-inputs.md",
-          ".pose/specs/2026-11-23-pose-validate-carry-report-and-closeout-coverage.md",
-          ".pose/specs/2026-11-23-pose-validate-reads-leave-the-index-alone.md",
-          "pose-mcp/internal/cli/check.go",
-          "pose-mcp/internal/cli/report.go",
-          "pose-mcp/internal/cli/validate_reads_index_test.go",
-          "pose-mcp/internal/cli/validate_scope.go",
-          "pose-mcp/internal/pose/git_private_index.go",
-          "pose-mcp/internal/pose/git_private_index_test.go",
-          "pose-mcp/internal/pose/git_snapshot_integrity.go",
-          "pose-mcp/internal/pose/git_worktree_reads.go",
-          "pose-mcp/internal/pose/git_worktree_reads_linux.go",
-          "pose-mcp/internal/pose/git_worktree_reads_other.go",
-          "pose-mcp/internal/pose/git_worktree_reads_test.go",
-          "pose-mcp/internal/pose/review_attempt_ledger.go"
-        ]
-      }
     },
     {
       "id": "cs-af18415850fc",
