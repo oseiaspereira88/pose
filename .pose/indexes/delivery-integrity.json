@@ -1,7 +1,7 @@
 {
   "schema_version": 2,
-  "input_digest": "sha256:0f16deb9acc7177a9c8f2bfb9fe5f7cbe57ed1113b96a64859e3078526162d3c",
-  "provenance_digest": "sha256:eaa2072e2ce4c4eabb3f290449e4deda598294250004bdcb8172d146f1f05ada",
+  "input_digest": "sha256:a2b64b5e7d8283e7b3506cbdbb47111709dea78714eba1e0c2ee5833329611d9",
+  "provenance_digest": "sha256:81cfb28670d373c13b5ff9b492a3ef201ffb790ca85455e52378161bacd75bcf",
   "implied_edges": [
     "changes"
   ],
@@ -50649,6 +50649,14 @@
       }
     },
     {
+      "id": "change-set:cs-d3e7021b97a8",
+      "type": "change-set",
+      "attributes": {
+        "diff_digest": "sha256:7ce7bf58a9f3e72864736e6e6ea8bf0c7dec7de84bb7211fbf62c00da754d53d",
+        "selector": "trailers:pose-validate-reads-leave-the-index-alone"
+      }
+    },
+    {
       "id": "change-set:cs-d4314c6d5936",
       "type": "change-set",
       "attributes": {
@@ -51150,14 +51158,6 @@
       "attributes": {
         "diff_digest": "sha256:0b3e9c3a48311aa8ea44725bcaa5795a386bdc0cc2c839aa2af697387482bf96",
         "selector": "trailers:pose-tool-dispositions-must-be-supported"
-      }
-    },
-    {
-      "id": "change-set:cs-eb640989f590",
-      "type": "change-set",
-      "attributes": {
-        "diff_digest": "sha256:a1e663250ceeaa6c2b629e7f413a4031758f6585313ace1b8c6d6610546c6eda",
-        "selector": "trailers:pose-validate-reads-leave-the-index-alone"
       }
     },
     {
@@ -101328,6 +101328,11 @@
       "type": "composes"
     },
     {
+      "from": "delivery:capability:validate-reads-leave-the-index-alone",
+      "to": "validation-set:cf62b73b2f38838b",
+      "type": "validated-by"
+    },
+    {
       "from": "delivery:capability:validate-refuses-empty-go-checks",
       "to": "entrypoint:pose-mcp/cmd/pose/main.go",
       "type": "composes"
@@ -142824,7 +142829,7 @@
     },
     {
       "from": "spec:pose-validate-reads-leave-the-index-alone",
-      "to": "change-set:cs-eb640989f590",
+      "to": "change-set:cs-d3e7021b97a8",
       "type": "observed-by"
     },
     {
@@ -282528,6 +282533,162 @@
       "diff_digest": "sha256:b265ba3e9fb4729c5c7818a7bdafebcd8a7d2d23f5af5cbc065bcfff8243c3c7"
     },
     {
+      "id": "cs-d3e7021b97a8",
+      "spec": "pose-validate-reads-leave-the-index-alone",
+      "selector": "trailers:pose-validate-reads-leave-the-index-alone",
+      "base": "1f83c1fbba489ef8d0ca5a7d3b0b1c49d56ba00c^",
+      "head": "d9bad9ffcc30db1d94c6e46ed8f5875a531abb49",
+      "resolved_base": "3f63a1bb432801957ddb35354961f1825658531a",
+      "resolved_head": "d9bad9ffcc30db1d94c6e46ed8f5875a531abb49",
+      "commits": [
+        "1f83c1fbba489ef8d0ca5a7d3b0b1c49d56ba00c",
+        "f3a216771125e9df2d2e4ee51b92be3445ba3bc6",
+        "661a109e824fc242068485f275ac24ef4daa3f87",
+        "4b3824b6849214f5c8ac1adf7113849d643c8637",
+        "f4c673b088006aa1b5cd7d3c87ab757eecd9134f",
+        "31dc72c815e62a287c0433fc3c79a9f22568cbb6",
+        "f6dbbd7240798e7b0f5e6af8ddae6af6226986bd",
+        "9d921604c6a0e98a5c41107309f84aa1a5d878b6",
+        "4dffc6732cc82760ae87f7d434a20f6f94999c79",
+        "7b7187b9aa8fa81f0ff6e1a0c87a3e44469edd9d",
+        "8cfb8c25b084d60bee1b26ba6b4496fc33ffd50c",
+        "077c1a150dc55248e1bd8cc7f2b3f38ad0a21935",
+        "8d43b26ee83d48aba543182a7b40d7263b2f5064",
+        "be9734dc79f4b80c4fece82f304145f1cd00f5f8",
+        "593be8750d655376c092a912a62ad6bd523af137",
+        "4f87b0afdb951a58dc55a06f95488c74af9edb7d",
+        "6f9dae1072ba2a06035c67a813279225aeec7a27",
+        "61e0ba78c67af54a1f615adaf26cefabeb1654a3",
+        "e6e8e55cb6e45f75e218cbe956d2f86fff4f31af",
+        "80316a42153958a893d238049866bec7fbbc3ab6",
+        "e98094522ac4d63c3b44f056bbc05e8270b389f3",
+        "ef1bf6aed92d9e030546fe9b85748782b5372853",
+        "5e606ae7b9c4db5faa12e240ee592a3e74d907f6",
+        "d9bad9ffcc30db1d94c6e46ed8f5875a531abb49"
+      ],
+      "paths": [
+        {
+          "action": "created",
+          "path": ".pose/results/vread-binding.md"
+        },
+        {
+          "action": "created",
+          "path": ".pose/specs/2026-11-23-pose-assess-leaves-sealed-checkouts-alone.md"
+        },
+        {
+          "action": "created",
+          "path": ".pose/specs/2026-11-23-pose-review-declared-threat-model.md"
+        },
+        {
+          "action": "created",
+          "path": ".pose/specs/2026-11-23-pose-review-readiness-before-seal.md"
+        },
+        {
+          "action": "created",
+          "path": ".pose/specs/2026-11-23-pose-review-subject-includes-its-index.md"
+        },
+        {
+          "action": "created",
+          "path": ".pose/specs/2026-11-23-pose-run-verification-pins-brief-inputs.md"
+        },
+        {
+          "action": "created",
+          "path": ".pose/specs/2026-11-23-pose-validate-carry-report-and-closeout-coverage.md"
+        },
+        {
+          "action": "created",
+          "path": ".pose/specs/2026-11-23-pose-validate-reads-leave-the-index-alone.md"
+        },
+        {
+          "action": "created",
+          "path": "pose-mcp/internal/cli/validate_reads_index_test.go"
+        },
+        {
+          "action": "created",
+          "path": "pose-mcp/internal/pose/git_worktree_reads.go"
+        },
+        {
+          "action": "created",
+          "path": "pose-mcp/internal/pose/git_worktree_reads_linux.go"
+        },
+        {
+          "action": "created",
+          "path": "pose-mcp/internal/pose/git_worktree_reads_other.go"
+        },
+        {
+          "action": "created",
+          "path": "pose-mcp/internal/pose/git_worktree_reads_test.go"
+        },
+        {
+          "action": "modified",
+          "path": ".pose/indexes/delivery-integrity.json"
+        },
+        {
+          "action": "modified",
+          "path": ".pose/indexes/generation.json"
+        },
+        {
+          "action": "modified",
+          "path": ".pose/indexes/spec-graph.json"
+        },
+        {
+          "action": "modified",
+          "path": ".pose/results/delivery-validation.json"
+        },
+        {
+          "action": "modified",
+          "path": "pose-mcp/internal/cli/check.go"
+        },
+        {
+          "action": "modified",
+          "path": "pose-mcp/internal/cli/report.go"
+        },
+        {
+          "action": "modified",
+          "path": "pose-mcp/internal/cli/validate_scope.go"
+        },
+        {
+          "action": "modified",
+          "path": "pose-mcp/internal/pose/git_snapshot_integrity.go"
+        },
+        {
+          "action": "modified",
+          "path": "pose-mcp/internal/pose/review_attempt_ledger.go"
+        }
+      ],
+      "diff_digest": "sha256:7ce7bf58a9f3e72864736e6e6ea8bf0c7dec7de84bb7211fbf62c00da754d53d",
+      "material_digest": "sha256:2abd53d2e7640bf79339603208f0d99d417c10ba9df01969006bde27ff70cda0",
+      "material_inputs": {
+        "names": [
+          ".pose/indexes/delivery-integrity.json",
+          ".pose/indexes/generation.json",
+          ".pose/indexes/spec-graph.json",
+          ".pose/indexes/validation-matrix.json",
+          ".pose/results/delivery-validation.json",
+          ".pose/results/vread-binding.md",
+          ".pose/specs/2026-11-23-pose-assess-leaves-sealed-checkouts-alone.md",
+          ".pose/specs/2026-11-23-pose-review-declared-threat-model.md",
+          ".pose/specs/2026-11-23-pose-review-readiness-before-seal.md",
+          ".pose/specs/2026-11-23-pose-review-subject-includes-its-index.md",
+          ".pose/specs/2026-11-23-pose-run-verification-pins-brief-inputs.md",
+          ".pose/specs/2026-11-23-pose-validate-carry-report-and-closeout-coverage.md",
+          ".pose/specs/2026-11-23-pose-validate-reads-leave-the-index-alone.md",
+          "pose-mcp/internal/cli/check.go",
+          "pose-mcp/internal/cli/report.go",
+          "pose-mcp/internal/cli/validate_reads_index_test.go",
+          "pose-mcp/internal/cli/validate_scope.go",
+          "pose-mcp/internal/pose/git_private_index.go",
+          "pose-mcp/internal/pose/git_private_index_test.go",
+          "pose-mcp/internal/pose/git_snapshot_integrity.go",
+          "pose-mcp/internal/pose/git_worktree_reads.go",
+          "pose-mcp/internal/pose/git_worktree_reads_linux.go",
+          "pose-mcp/internal/pose/git_worktree_reads_other.go",
+          "pose-mcp/internal/pose/git_worktree_reads_test.go",
+          "pose-mcp/internal/pose/review_attempt_ledger.go"
+        ]
+      }
+    },
+    {
       "id": "cs-d4314c6d5936",
       "spec": "pose-shipped-review-profiles-are-schema-v2",
       "selector": "trailers:pose-shipped-review-profiles-are-schema-v2",
@@ -296393,160 +296554,6 @@
           "pose-mcp/internal/pose/review_bundle.go",
           "pose-mcp/internal/pose/review_bundle_test.go",
           "pose-mcp/internal/pose/review_closeout.go"
-        ]
-      }
-    },
-    {
-      "id": "cs-eb640989f590",
-      "spec": "pose-validate-reads-leave-the-index-alone",
-      "selector": "trailers:pose-validate-reads-leave-the-index-alone",
-      "base": "1f83c1fbba489ef8d0ca5a7d3b0b1c49d56ba00c^",
-      "head": "ef1bf6aed92d9e030546fe9b85748782b5372853",
-      "resolved_base": "3f63a1bb432801957ddb35354961f1825658531a",
-      "resolved_head": "ef1bf6aed92d9e030546fe9b85748782b5372853",
-      "commits": [
-        "1f83c1fbba489ef8d0ca5a7d3b0b1c49d56ba00c",
-        "f3a216771125e9df2d2e4ee51b92be3445ba3bc6",
-        "661a109e824fc242068485f275ac24ef4daa3f87",
-        "4b3824b6849214f5c8ac1adf7113849d643c8637",
-        "f4c673b088006aa1b5cd7d3c87ab757eecd9134f",
-        "31dc72c815e62a287c0433fc3c79a9f22568cbb6",
-        "f6dbbd7240798e7b0f5e6af8ddae6af6226986bd",
-        "9d921604c6a0e98a5c41107309f84aa1a5d878b6",
-        "4dffc6732cc82760ae87f7d434a20f6f94999c79",
-        "7b7187b9aa8fa81f0ff6e1a0c87a3e44469edd9d",
-        "8cfb8c25b084d60bee1b26ba6b4496fc33ffd50c",
-        "077c1a150dc55248e1bd8cc7f2b3f38ad0a21935",
-        "8d43b26ee83d48aba543182a7b40d7263b2f5064",
-        "be9734dc79f4b80c4fece82f304145f1cd00f5f8",
-        "593be8750d655376c092a912a62ad6bd523af137",
-        "4f87b0afdb951a58dc55a06f95488c74af9edb7d",
-        "6f9dae1072ba2a06035c67a813279225aeec7a27",
-        "61e0ba78c67af54a1f615adaf26cefabeb1654a3",
-        "e6e8e55cb6e45f75e218cbe956d2f86fff4f31af",
-        "80316a42153958a893d238049866bec7fbbc3ab6",
-        "e98094522ac4d63c3b44f056bbc05e8270b389f3",
-        "ef1bf6aed92d9e030546fe9b85748782b5372853"
-      ],
-      "paths": [
-        {
-          "action": "created",
-          "path": ".pose/results/vread-binding.md"
-        },
-        {
-          "action": "created",
-          "path": ".pose/specs/2026-11-23-pose-assess-leaves-sealed-checkouts-alone.md"
-        },
-        {
-          "action": "created",
-          "path": ".pose/specs/2026-11-23-pose-review-declared-threat-model.md"
-        },
-        {
-          "action": "created",
-          "path": ".pose/specs/2026-11-23-pose-review-readiness-before-seal.md"
-        },
-        {
-          "action": "created",
-          "path": ".pose/specs/2026-11-23-pose-review-subject-includes-its-index.md"
-        },
-        {
-          "action": "created",
-          "path": ".pose/specs/2026-11-23-pose-run-verification-pins-brief-inputs.md"
-        },
-        {
-          "action": "created",
-          "path": ".pose/specs/2026-11-23-pose-validate-carry-report-and-closeout-coverage.md"
-        },
-        {
-          "action": "created",
-          "path": ".pose/specs/2026-11-23-pose-validate-reads-leave-the-index-alone.md"
-        },
-        {
-          "action": "created",
-          "path": "pose-mcp/internal/cli/validate_reads_index_test.go"
-        },
-        {
-          "action": "created",
-          "path": "pose-mcp/internal/pose/git_worktree_reads.go"
-        },
-        {
-          "action": "created",
-          "path": "pose-mcp/internal/pose/git_worktree_reads_linux.go"
-        },
-        {
-          "action": "created",
-          "path": "pose-mcp/internal/pose/git_worktree_reads_other.go"
-        },
-        {
-          "action": "created",
-          "path": "pose-mcp/internal/pose/git_worktree_reads_test.go"
-        },
-        {
-          "action": "modified",
-          "path": ".pose/indexes/delivery-integrity.json"
-        },
-        {
-          "action": "modified",
-          "path": ".pose/indexes/generation.json"
-        },
-        {
-          "action": "modified",
-          "path": ".pose/indexes/spec-graph.json"
-        },
-        {
-          "action": "modified",
-          "path": ".pose/results/delivery-validation.json"
-        },
-        {
-          "action": "modified",
-          "path": "pose-mcp/internal/cli/check.go"
-        },
-        {
-          "action": "modified",
-          "path": "pose-mcp/internal/cli/report.go"
-        },
-        {
-          "action": "modified",
-          "path": "pose-mcp/internal/cli/validate_scope.go"
-        },
-        {
-          "action": "modified",
-          "path": "pose-mcp/internal/pose/git_snapshot_integrity.go"
-        },
-        {
-          "action": "modified",
-          "path": "pose-mcp/internal/pose/review_attempt_ledger.go"
-        }
-      ],
-      "diff_digest": "sha256:a1e663250ceeaa6c2b629e7f413a4031758f6585313ace1b8c6d6610546c6eda",
-      "material_digest": "sha256:2abd53d2e7640bf79339603208f0d99d417c10ba9df01969006bde27ff70cda0",
-      "material_inputs": {
-        "names": [
-          ".pose/indexes/delivery-integrity.json",
-          ".pose/indexes/generation.json",
-          ".pose/indexes/spec-graph.json",
-          ".pose/indexes/validation-matrix.json",
-          ".pose/results/delivery-validation.json",
-          ".pose/results/vread-binding.md",
-          ".pose/specs/2026-11-23-pose-assess-leaves-sealed-checkouts-alone.md",
-          ".pose/specs/2026-11-23-pose-review-declared-threat-model.md",
-          ".pose/specs/2026-11-23-pose-review-readiness-before-seal.md",
-          ".pose/specs/2026-11-23-pose-review-subject-includes-its-index.md",
-          ".pose/specs/2026-11-23-pose-run-verification-pins-brief-inputs.md",
-          ".pose/specs/2026-11-23-pose-validate-carry-report-and-closeout-coverage.md",
-          ".pose/specs/2026-11-23-pose-validate-reads-leave-the-index-alone.md",
-          "pose-mcp/internal/cli/check.go",
-          "pose-mcp/internal/cli/report.go",
-          "pose-mcp/internal/cli/validate_reads_index_test.go",
-          "pose-mcp/internal/cli/validate_scope.go",
-          "pose-mcp/internal/pose/git_private_index.go",
-          "pose-mcp/internal/pose/git_private_index_test.go",
-          "pose-mcp/internal/pose/git_snapshot_integrity.go",
-          "pose-mcp/internal/pose/git_worktree_reads.go",
-          "pose-mcp/internal/pose/git_worktree_reads_linux.go",
-          "pose-mcp/internal/pose/git_worktree_reads_other.go",
-          "pose-mcp/internal/pose/git_worktree_reads_test.go",
-          "pose-mcp/internal/pose/review_attempt_ledger.go"
         ]
       }
     },
@@ -318091,15 +318098,6 @@
       "remediation": "see .pose/policy/artifact-attributions.json"
     },
     {
-      "id": "dif-22d902157848",
-      "code": "unconsumed-capability",
-      "severity": "error",
-      "spec": "pose-validate-reads-leave-the-index-alone",
-      "path": "capability:validate-reads-leave-the-index-alone",
-      "message": "required current evidence is missing: integration",
-      "remediation": "run registered checks with the required evidenceClass against the current provenance digest"
-    },
-    {
       "id": "dif-236d8ac552a6",
       "code": "orphan",
       "severity": "warning",
@@ -318160,16 +318158,6 @@
       "path": "pose-mcp/internal/cli/adversarial_corpus_test.go",
       "message": "declared artifact action is absent from the attributed Git change sets",
       "remediation": "no Git change sets are attributed to spec pose-integrated-agency-and-runtime-pilot (ensure commits carry 'POSE-Spec: pose-integrated-agency-and-runtime-pilot' trailer or generate report with pose report)"
-    },
-    {
-      "id": "dif-28c1e8c1cd47",
-      "code": "stale-evidence",
-      "severity": "error",
-      "spec": "pose-validate-reads-leave-the-index-alone",
-      "path": "capability:validate-reads-leave-the-index-alone",
-      "change_set": "pose-mcp/go/abm-atomic-start-integration",
-      "message": "passed integration evidence is bound to a different scoped provenance digest",
-      "remediation": "rerun the registered validation check for this delivery scope"
     },
     {
       "id": "dif-28dd01928067",
@@ -326495,10 +326483,10 @@
   ],
   "validation_runs": [
     {
-      "id": "run-8ba88c4a49268441",
-      "git_head": "6f9dae1072ba2a06035c67a813279225aeec7a27",
-      "generated_at": "2026-11-26T16:32:12Z",
-      "provenance_digest": "sha256:9bb9d6f5a6bee39dc8ed0f8c83f3b2ed06c015f715e914704580455358c44a0f",
+      "id": "run-e7ad80cd167aa4d9",
+      "git_head": "5e606ae7b9c4db5faa12e240ee592a3e74d907f6",
+      "generated_at": "2026-11-26T18:17:10Z",
+      "provenance_digest": "sha256:b097e0bf71fdef17e54166e472abe645ec869fb85cc8b94cb135fb9db0def01f",
       "report": ".pose/results/delivery-validation.json",
       "scope_provenance": {
         "artifact-claims-stop-at-the-section-end": "sha256:c0083ea34012c3ec78814d53d3bdb83918132e90f23fee8ff51903aee8672622",
@@ -326967,7 +326955,7 @@
         "pose-validate-carries-unchanged-checks": "sha256:16e0cc78af130d7afea1c175d9e191b127b90ba50cbf4ed87f3c6f075735b479",
         "pose-validate-carry-report-and-closeout-coverage": "sha256:1be744af1cae016e16bcbfb2ff4387c32db073088d18914646eff0846f106e75",
         "pose-validate-concurrent-steps": "sha256:c9aaef65bc16049830733e2329bdbbc6f45778a57e32e705d0b6b2196e27014a",
-        "pose-validate-reads-leave-the-index-alone": "sha256:f05f54eaf2031cfc6605ea69591c9992db66b84dfda5dd76caf4298f06b2a492",
+        "pose-validate-reads-leave-the-index-alone": "sha256:b42dc7c21d3145d671fda4b35e6656d8b6d879071ac10d1688df782e5c1f9ef7",
         "pose-validate-refuses-empty-go-checks": "sha256:e5fa3e2d22d8bafc573bf3f90ee3a50c49843467066ab5cac2e518152ac8117e",
         "pose-validate-report-carries-its-run": "sha256:062e3143492ff836c3072d57a9fc401f796019a3f174a0f31f15b3bb32b6fac2",
         "pose-validate-shared-go-test-run": "sha256:b15be785351a312c952da730c0f73741d291f0c4bc625d15c2b9d5e18a6b2522",
@@ -327037,7 +327025,7 @@
         "pose-agy-smoke-test": "sha256:7aed34919f57c55165619033215425b47b5423aaf7052756bd1d2590526d2920",
         "pose-amendment-history-holds-before-close": "sha256:cd5ae515b6fb1cbbb62f4ec3543f4a5aba6d2f88bf6e50ef09bd2fa918e5d959",
         "pose-artifact-provenance-ledger": "unavailable",
-        "pose-assess-leaves-sealed-checkouts-alone": "sha256:78a6bf090e9a03f922e86bdedd14d2d383f0704413f8a3db55929bf4d41d3809",
+        "pose-assess-leaves-sealed-checkouts-alone": "sha256:e2d7f7e143eff52d1f55a9e88fe7ef4421329f857c2ba55839eac66607a4423f",
         "pose-assessment-engine-precision": "unavailable",
         "pose-assumption-validity-scope": "sha256:2c546909f419572e27db09d9792677c16378f8cadfc6535f97b87cfbc319b378",
         "pose-atomic-start-adoption-cutoff": "sha256:a0231045dd6e48cf962616e681101f03d1fc0121a4bab208a1a9c1d9958b81a6",
@@ -327355,7 +327343,7 @@
         "pose-review-bundle-seals-planned-component-evidence": "sha256:af02b7992c06a06f69984c82afc4ce6be917c582242214ec45c408e58769dd9e",
         "pose-review-cleanup-removes-go-build-leftovers": "sha256:3e19103f92dbcf14bb22fcbbb2d9c6a92d95e5d0185867a319105ec49847d51f",
         "pose-review-conclude-ignores-unrelated-local-edits": "sha256:5207706b5758d495e8397b08f3763225ad9fcac5f1b02eb015490654fcf99ada",
-        "pose-review-declared-threat-model": "sha256:16ababf2de10a9980c9cf75ca7e8da576e6cfbdcbaa60eee36fd73df1469749e",
+        "pose-review-declared-threat-model": "sha256:62fb0ffe11214208b025c184e3220294060e1d5e7349e92f227bcd7ac064753f",
         "pose-review-disclosure-requires-proof": "sha256:2bcd5d077b418e29be29ddbbfb62bbe7253aba8a5a6e0445f140a28354535309",
         "pose-review-dispatch-materializes-sealed-gitlinks": "sha256:d7f8e24432f1a39f0d92dd02e05e088ff979b3095bfb5570e26bb85ced9c388e",
         "pose-review-evidence-and-fixture-lifetimes": "sha256:eb0f4cac2442a1f3ace648a2fec90295fec788db7eb0ff768de751ed75e1e350",
@@ -327364,7 +327352,7 @@
         "pose-review-overlay-uninstalled-rules-graceful-degradation": "sha256:209ed2f37b80563be0b54ead489723351bc7a22018dfdd4fc30d2bb89cd7dbf6",
         "pose-review-plan-producible-evidence-classes": "sha256:6b7d7eb6096dae5f0718da010464271efdbd99f2c69f39eb59ed03bec597afd6",
         "pose-review-policy-v2-migration-and-verify-compat": "sha256:586f75abe0a87186389a519b45eea1155a33585784b1c0412b0a3b3c22b5783a",
-        "pose-review-readiness-before-seal": "sha256:614fa20fc549c793c17746a3c8b3205c21904f042912ee7a7957438b9c818081",
+        "pose-review-readiness-before-seal": "sha256:e2ecb72e3eb7afdc2ce33300a4d2865777b6c1d7ddab93474cb7b7c184957f51",
         "pose-review-resume-keeps-the-sealed-checkout": "sha256:072b90ea020d44397e297c767f3a4a3e2f8b2d8dce87dbfbda261acee9bc9837",
         "pose-review-root-binding-parity": "sha256:48bde9f5a2f2c2a44b040996ce34722f83cdea44bf1ecbeba42218c38864efa7",
         "pose-review-run-reaping-beyond-linux": "sha256:7cba333d8a65812cc3f6d3d613845e71d7ad3c579a2fce3d220e68f40595f462",
@@ -327373,7 +327361,7 @@
         "pose-review-subject-and-scope-precision": "sha256:1c0cd5320d59a802fb2b8281489c00bc479ece1cff017738aebde8336bd72b3c",
         "pose-review-subject-classifies-engine-records": "sha256:084ab35bf3c4622a4322d62075017f8904d8d5a1d52b3a9c89eb5c21579ca587",
         "pose-review-subject-head-is-the-newest": "sha256:3eebc4c9b03d63f07355432eb84d9a1f02d1175a7c939b5fea963da7979576f0",
-        "pose-review-subject-includes-its-index": "sha256:babf17833437065d0bd6c8acce95e1329f22b951dd04977020df4c2e67306b72",
+        "pose-review-subject-includes-its-index": "sha256:c2e32c38ca17e8bcc77470ebb1d9667293826d2165edfe44982661edd62ad124",
         "pose-review-subject-later-removal": "sha256:99ba87003dad8edbcbf78ac54d05eb8348ea6d15174c9bea64d2e75bb3c450ac",
         "pose-review-subject-submodule-classification": "sha256:71510483635350945768fcd5e4b813d0104680aaf6a357e237bbb1d6d6c503a2",
         "pose-review-subject-unclassified-removals": "sha256:1ccae4571890fea3995e309925de9dab654b3cbb3f7dbc5c8245c3a9014426b6",
@@ -327382,7 +327370,7 @@
         "pose-roadmap-gate-scopes-milestones-and-external-members": "sha256:5bf2d2ee49e237b660666037e1e6f2467180df0ba2bb42f8390a26bad2258991",
         "pose-roadmap-reviews-findings": "sha256:2938a6cb56b643ee08e745ee30033bc4e185a5f6ae86ac331d3de098f793c0f4",
         "pose-rule-extension-locale-parity": "unavailable",
-        "pose-run-verification-pins-brief-inputs": "sha256:babf17833437065d0bd6c8acce95e1329f22b951dd04977020df4c2e67306b72",
+        "pose-run-verification-pins-brief-inputs": "sha256:c2e32c38ca17e8bcc77470ebb1d9667293826d2165edfe44982661edd62ad124",
         "pose-same-actor-level-admits-a-different-actor": "sha256:268924c3e74432291a02d507b54cfd6163f8e3b523d0b78bacefa253f53a44d9",
         "pose-sbom-license-coverage-gate": "unavailable",
         "pose-sbom-license-inventory": "unavailable",
@@ -327458,9 +327446,9 @@
         "pose-v7-4-1-version-alignment": "sha256:aa5d7b51721341d8c9439de88e4e40b91e263a833b96ece0042aa68eb29c0b90",
         "pose-v7-legacy-cleanup-plan": "sha256:18eadee38788664efd62ee3e70789ecde4d981e3d71f71790181ef481910a43e",
         "pose-validate-carries-unchanged-checks": "sha256:b8e64a2afd16fee705e295cbbff881cada9e54a04935bb39bee592c283795bcf",
-        "pose-validate-carry-report-and-closeout-coverage": "sha256:babf17833437065d0bd6c8acce95e1329f22b951dd04977020df4c2e67306b72",
+        "pose-validate-carry-report-and-closeout-coverage": "sha256:c2e32c38ca17e8bcc77470ebb1d9667293826d2165edfe44982661edd62ad124",
         "pose-validate-concurrent-steps": "sha256:726c5f2e2de75d4e89da43bae9db6ae8605f142885e4b0d7048384322e3f4331",
-        "pose-validate-reads-leave-the-index-alone": "sha256:19901ccfa8709f3d35fce9ec2d98dadfbccdafa7de389dded40a083fae0db36a",
+        "pose-validate-reads-leave-the-index-alone": "sha256:0d6611a610fbc74908afab6f9d65902751821f13db97447e26dd803a9dbf4e14",
         "pose-validate-refuses-empty-go-checks": "sha256:4a63a257dd490efc97af321209ed04546b57ac51fbd521d23e83341d26cbb41d",
         "pose-validate-report-carries-its-run": "sha256:7673717d8696c2ed5dd5f0ca7bbe9c1658e3b0b6cbf8c58ec9674814d80711a0",
         "pose-validate-shared-go-test-run": "sha256:ab4998237260279b490fba6a1a1dd93c08eb61ae793f2f0f41daade099c15c4e",
@@ -327496,7 +327484,7 @@
       "evidence_class": "build",
       "severity": "required",
       "outcome": "pass",
-      "run": "run-8ba88c4a49268441"
+      "run": "run-e7ad80cd167aa4d9"
     },
     {
       "id": "mcp-enforce/go/test",
@@ -327505,7 +327493,7 @@
       "evidence_class": "unit",
       "severity": "required",
       "outcome": "pass",
-      "run": "run-8ba88c4a49268441"
+      "run": "run-e7ad80cd167aa4d9"
     },
     {
       "id": "mcp-enforce/go/vet",
@@ -327514,7 +327502,7 @@
       "evidence_class": "lint",
       "severity": "optional",
       "outcome": "pass",
-      "run": "run-8ba88c4a49268441"
+      "run": "run-e7ad80cd167aa4d9"
     },
     {
       "id": "pose-mcp/go/abm-atomic-start-integration",
@@ -327523,7 +327511,7 @@
       "evidence_class": "integration",
       "severity": "required",
       "outcome": "pass",
-      "run": "run-8ba88c4a49268441"
+      "run": "run-e7ad80cd167aa4d9"
     },
     {
       "id": "pose-mcp/go/abm-causality-closeout-integration",
@@ -327532,7 +327520,7 @@
       "evidence_class": "integration",
       "severity": "required",
       "outcome": "pass",
-      "run": "run-8ba88c4a49268441"
+      "run": "run-e7ad80cd167aa4d9"
     },
     {
       "id": "pose-mcp/go/abm-contract-nodes-integration",
@@ -327541,7 +327529,7 @@
       "evidence_class": "integration",
       "severity": "required",
       "outcome": "pass",
-      "run": "run-8ba88c4a49268441"
+      "run": "run-e7ad80cd167aa4d9"
     },
     {
       "id": "pose-mcp/go/abm-progressive-review-integration",
@@ -327550,7 +327538,7 @@
       "evidence_class": "integration",
       "severity": "required",
       "outcome": "pass",
-      "run": "run-8ba88c4a49268441"
+      "run": "run-e7ad80cd167aa4d9"
     },
     {
       "id": "pose-mcp/go/abm-remediation-lineage-integration",
@@ -327559,7 +327547,7 @@
       "evidence_class": "integration",
       "severity": "required",
       "outcome": "pass",
-      "run": "run-8ba88c4a49268441"
+      "run": "run-e7ad80cd167aa4d9"
     },
     {
       "id": "pose-mcp/go/abm-replay-reachability",
@@ -327568,7 +327556,7 @@
       "evidence_class": "reachability",
       "severity": "required",
       "outcome": "pass",
-      "run": "run-8ba88c4a49268441"
+      "run": "run-e7ad80cd167aa4d9"
     },
     {
       "id": "pose-mcp/go/abm-retrospective-replay-integration",
@@ -327577,7 +327565,7 @@
       "evidence_class": "integration",
       "severity": "required",
       "outcome": "pass",
-      "run": "run-8ba88c4a49268441"
+      "run": "run-e7ad80cd167aa4d9"
     },
     {
       "id": "pose-mcp/go/action-identity-integration",
@@ -327586,7 +327574,7 @@
       "evidence_class": "integration",
       "severity": "required",
       "outcome": "pass",
-      "run": "run-8ba88c4a49268441"
+      "run": "run-e7ad80cd167aa4d9"
     },
     {
       "id": "pose-mcp/go/action-lifecycle-authority-integration",
@@ -327595,7 +327583,7 @@
       "evidence_class": "integration",
       "severity": "required",
       "outcome": "pass",
-      "run": "run-8ba88c4a49268441"
+      "run": "run-e7ad80cd167aa4d9"
     },
     {
       "id": "pose-mcp/go/action-presentation-integration",
@@ -327604,7 +327592,7 @@
       "evidence_class": "integration",
       "severity": "required",
       "outcome": "pass",
-      "run": "run-8ba88c4a49268441"
+      "run": "run-e7ad80cd167aa4d9"
     },
     {
       "id": "pose-mcp/go/action-recovery-preflight-integration",
@@ -327613,7 +327601,7 @@
       "evidence_class": "integration",
       "severity": "required",
       "outcome": "pass",
-      "run": "run-8ba88c4a49268441"
+      "run": "run-e7ad80cd167aa4d9"
     },
     {
       "id": "pose-mcp/go/action-requests-integration",
@@ -327622,7 +327610,7 @@
       "evidence_class": "integration",
       "severity": "required",
       "outcome": "pass",
-      "run": "run-8ba88c4a49268441"
+      "run": "run-e7ad80cd167aa4d9"
     },
     {
       "id": "pose-mcp/go/action-requests-reachability",
@@ -327631,7 +327619,7 @@
       "evidence_class": "reachability",
       "severity": "required",
       "outcome": "pass",
-      "run": "run-8ba88c4a49268441"
+      "run": "run-e7ad80cd167aa4d9"
     },
     {
       "id": "pose-mcp/go/action-resolution-integration",
@@ -327640,7 +327628,7 @@
       "evidence_class": "integration",
       "severity": "required",
       "outcome": "pass",
-      "run": "run-8ba88c4a49268441"
+      "run": "run-e7ad80cd167aa4d9"
     },
     {
       "id": "pose-mcp/go/action-resolution-reachability",
@@ -327649,7 +327637,7 @@
       "evidence_class": "reachability",
       "severity": "required",
       "outcome": "pass",
-      "run": "run-8ba88c4a49268441"
+      "run": "run-e7ad80cd167aa4d9"
     },
     {
       "id": "pose-mcp/go/action-target-scoping-integration",
@@ -327658,7 +327646,7 @@
       "evidence_class": "integration",
       "severity": "required",
       "outcome": "pass",
-      "run": "run-8ba88c4a49268441"
+      "run": "run-e7ad80cd167aa4d9"
     },
     {
       "id": "pose-mcp/go/adopt-request-shows-what-it-sets-integration",
@@ -327667,7 +327655,7 @@
       "evidence_class": "integration",
       "severity": "required",
       "outcome": "pass",
-      "run": "run-8ba88c4a49268441"
+      "run": "run-e7ad80cd167aa4d9"
     },
     {
       "id": "pose-mcp/go/adversarial-corpus",
@@ -327676,7 +327664,7 @@
       "evidence_class": "integration",
       "severity": "required",
       "outcome": "pass",
-      "run": "run-8ba88c4a49268441"
+      "run": "run-e7ad80cd167aa4d9"
     },
     {
       "id": "pose-mcp/go/adversarial-corpus-integration",
@@ -327685,7 +327673,7 @@
       "evidence_class": "integration",
       "severity": "required",
       "outcome": "pass",
-      "run": "run-8ba88c4a49268441"
+      "run": "run-e7ad80cd167aa4d9"
     },
     {
       "id": "pose-mcp/go/amendment-history-before-close-integration",
@@ -327694,7 +327682,7 @@
       "evidence_class": "integration",
       "severity": "required",
       "outcome": "pass",
-      "run": "run-8ba88c4a49268441"
+      "run": "run-e7ad80cd167aa4d9"
     },
     {
       "id": "pose-mcp/go/artifact-claim-boundary-integration",
@@ -327703,7 +327691,7 @@
       "evidence_class": "integration",
       "severity": "required",
       "outcome": "pass",
-      "run": "run-8ba88c4a49268441"
+      "run": "run-e7ad80cd167aa4d9"
     },
     {
       "id": "pose-mcp/go/assessment-freshness-integration",
@@ -327712,7 +327700,7 @@
       "evidence_class": "integration",
       "severity": "required",
       "outcome": "pass",
-      "run": "run-8ba88c4a49268441"
+      "run": "run-e7ad80cd167aa4d9"
     },
     {
       "id": "pose-mcp/go/atomic-start-cutoff-integration",
@@ -327721,7 +327709,7 @@
       "evidence_class": "integration",
       "severity": "required",
       "outcome": "pass",
-      "run": "run-8ba88c4a49268441"
+      "run": "run-e7ad80cd167aa4d9"
     },
     {
       "id": "pose-mcp/go/attention-snapshot-integration",
@@ -327730,7 +327718,7 @@
       "evidence_class": "integration",
       "severity": "required",
       "outcome": "pass",
-      "run": "run-8ba88c4a49268441"
+      "run": "run-e7ad80cd167aa4d9"
     },
     {
       "id": "pose-mcp/go/attention-sources-integration",
@@ -327739,7 +327727,7 @@
       "evidence_class": "integration",
       "severity": "required",
       "outcome": "pass",
-      "run": "run-8ba88c4a49268441"
+      "run": "run-e7ad80cd167aa4d9"
     },
     {
       "id": "pose-mcp/go/attest-preflight-integration",
@@ -327748,7 +327736,7 @@
       "evidence_class": "integration",
       "severity": "required",
       "outcome": "pass",
-      "run": "run-8ba88c4a49268441"
+      "run": "run-e7ad80cd167aa4d9"
     },
     {
       "id": "pose-mcp/go/audit-pure-git-integration",
@@ -327757,7 +327745,7 @@
       "evidence_class": "integration",
       "severity": "required",
       "outcome": "pass",
-      "run": "run-8ba88c4a49268441"
+      "run": "run-e7ad80cd167aa4d9"
     },
     {
       "id": "pose-mcp/go/authority-project-integration",
@@ -327766,7 +327754,7 @@
       "evidence_class": "integration",
       "severity": "required",
       "outcome": "pass",
-      "run": "run-8ba88c4a49268441"
+      "run": "run-e7ad80cd167aa4d9"
     },
     {
       "id": "pose-mcp/go/blocked-semantics-integration",
@@ -327775,7 +327763,7 @@
       "evidence_class": "integration",
       "severity": "required",
       "outcome": "pass",
-      "run": "run-8ba88c4a49268441"
+      "run": "run-e7ad80cd167aa4d9"
     },
     {
       "id": "pose-mcp/go/blocked-semantics-reachability",
@@ -327784,7 +327772,7 @@
       "evidence_class": "reachability",
       "severity": "required",
       "outcome": "pass",
-      "run": "run-8ba88c4a49268441"
+      "run": "run-e7ad80cd167aa4d9"
     },
     {
       "id": "pose-mcp/go/bounded-isolated-graph-caches-integration",
@@ -327793,7 +327781,7 @@
       "evidence_class": "integration",
       "severity": "required",
       "outcome": "pass",
-      "run": "run-8ba88c4a49268441"
+      "run": "run-e7ad80cd167aa4d9"
     },
     {
       "id": "pose-mcp/go/build",
@@ -327802,7 +327790,7 @@
       "evidence_class": "build",
       "severity": "required",
       "outcome": "pass",
-      "run": "run-8ba88c4a49268441"
+      "run": "run-e7ad80cd167aa4d9"
     },
     {
       "id": "pose-mcp/go/calendar-date-skew-integration",
@@ -327811,7 +327799,7 @@
       "evidence_class": "integration",
       "severity": "required",
       "outcome": "pass",
-      "run": "run-8ba88c4a49268441"
+      "run": "run-e7ad80cd167aa4d9"
     },
     {
       "id": "pose-mcp/go/capability-catalog-integration",
@@ -327820,7 +327808,7 @@
       "evidence_class": "integration",
       "severity": "required",
       "outcome": "pass",
-      "run": "run-8ba88c4a49268441"
+      "run": "run-e7ad80cd167aa4d9"
     },
     {
       "id": "pose-mcp/go/causality-cutoff-integration",
@@ -327829,7 +327817,7 @@
       "evidence_class": "integration",
       "severity": "required",
       "outcome": "pass",
-      "run": "run-8ba88c4a49268441"
+      "run": "run-e7ad80cd167aa4d9"
     },
     {
       "id": "pose-mcp/go/check-git-spawns-integration",
@@ -327838,7 +327826,7 @@
       "evidence_class": "integration",
       "severity": "required",
       "outcome": "pass",
-      "run": "run-8ba88c4a49268441"
+      "run": "run-e7ad80cd167aa4d9"
     },
     {
       "id": "pose-mcp/go/check-index-generation-integration",
@@ -327847,7 +327835,7 @@
       "evidence_class": "integration",
       "severity": "required",
       "outcome": "pass",
-      "run": "run-8ba88c4a49268441"
+      "run": "run-e7ad80cd167aa4d9"
     },
     {
       "id": "pose-mcp/go/check-shares-the-federated-material-integration",
@@ -327856,7 +327844,7 @@
       "evidence_class": "integration",
       "severity": "required",
       "outcome": "pass",
-      "run": "run-8ba88c4a49268441"
+      "run": "run-e7ad80cd167aa4d9"
     },
     {
       "id": "pose-mcp/go/check-verdict-mode-integration",
@@ -327865,7 +327853,7 @@
       "evidence_class": "integration",
       "severity": "required",
       "outcome": "pass",
-      "run": "run-8ba88c4a49268441"
+      "run": "run-e7ad80cd167aa4d9"
     },
     {
       "id": "pose-mcp/go/check-workers-integration",
@@ -327874,7 +327862,7 @@
       "evidence_class": "integration",
       "severity": "required",
       "outcome": "pass",
-      "run": "run-8ba88c4a49268441"
+      "run": "run-e7ad80cd167aa4d9"
     },
     {
       "id": "pose-mcp/go/ci-release-obligations-integration",
@@ -327883,7 +327871,7 @@
       "evidence_class": "integration",
       "severity": "required",
       "outcome": "pass",
-      "run": "run-8ba88c4a49268441"
+      "run": "run-e7ad80cd167aa4d9"
     },
     {
       "id": "pose-mcp/go/claude-sandboxed-profile-integration",
@@ -327892,7 +327880,7 @@
       "evidence_class": "integration",
       "severity": "required",
       "outcome": "pass",
-      "run": "run-8ba88c4a49268441"
+      "run": "run-e7ad80cd167aa4d9"
     },
     {
       "id": "pose-mcp/go/claude-sandboxed-review-integration",
@@ -327901,7 +327889,7 @@
       "evidence_class": "integration",
       "severity": "required",
       "outcome": "pass",
-      "run": "run-8ba88c4a49268441"
+      "run": "run-e7ad80cd167aa4d9"
     },
     {
       "id": "pose-mcp/go/clean-activation-recording-integration",
@@ -327910,7 +327898,7 @@
       "evidence_class": "integration",
       "severity": "required",
       "outcome": "pass",
-      "run": "run-8ba88c4a49268441"
+      "run": "run-e7ad80cd167aa4d9"
     },
     {
       "id": "pose-mcp/go/cli-mcp-operation-results-integration",
@@ -327919,7 +327907,7 @@
       "evidence_class": "integration",
       "severity": "required",
       "outcome": "pass",
-      "run": "run-8ba88c4a49268441"
+      "run": "run-e7ad80cd167aa4d9"
     },
     {
       "id": "pose-mcp/go/cli-profile-parity-integration",
@@ -327928,7 +327916,7 @@
       "evidence_class": "integration",
       "severity": "required",
       "outcome": "pass",
-      "run": "run-8ba88c4a49268441"
+      "run": "run-e7ad80cd167aa4d9"
     },
     {
       "id": "pose-mcp/go/cli-test-wall-time-integration",
@@ -327937,7 +327925,7 @@
       "evidence_class": "integration",
       "severity": "required",
       "outcome": "pass",
-      "run": "run-8ba88c4a49268441"
+      "run": "run-e7ad80cd167aa4d9"
     },
     {
       "id": "pose-mcp/go/closed-scope-stands-over-a-moved-federated-pin-integration",
@@ -327946,7 +327934,7 @@
       "evidence_class": "integration",
       "severity": "required",
       "outcome": "pass",
-      "run": "run-8ba88c4a49268441"
+      "run": "run-e7ad80cd167aa4d9"
     },
     {
       "id": "pose-mcp/go/closeout-judges-manifest-integration",
@@ -327955,7 +327943,7 @@
       "evidence_class": "integration",
       "severity": "required",
       "outcome": "pass",
-      "run": "run-8ba88c4a49268441"
+      "run": "run-e7ad80cd167aa4d9"
     },
     {
       "id": "pose-mcp/go/closeout-names-trailer-integration",
@@ -327964,7 +327952,7 @@
       "evidence_class": "integration",
       "severity": "required",
       "outcome": "pass",
-      "run": "run-8ba88c4a49268441"
+      "run": "run-e7ad80cd167aa4d9"
     },
     {
       "id": "pose-mcp/go/closeout-plan-integration",
@@ -327973,7 +327961,7 @@
       "evidence_class": "integration",
       "severity": "required",
       "outcome": "pass",
-      "run": "run-8ba88c4a49268441"
+      "run": "run-e7ad80cd167aa4d9"
     },
     {
       "id": "pose-mcp/go/closeout-plan-reachability",
@@ -327982,7 +327970,7 @@
       "evidence_class": "reachability",
       "severity": "required",
       "outcome": "pass",
-      "run": "run-8ba88c4a49268441"
+      "run": "run-e7ad80cd167aa4d9"
     },
     {
       "id": "pose-mcp/go/closeout-review-policy-integration",
@@ -327991,7 +327979,7 @@
       "evidence_class": "integration",
       "severity": "required",
       "outcome": "pass",
-      "run": "run-8ba88c4a49268441"
+      "run": "run-e7ad80cd167aa4d9"
     },
     {
       "id": "pose-mcp/go/closeout-terminal-verification-integration",
@@ -328000,7 +327988,7 @@
       "evidence_class": "integration",
       "severity": "required",
       "outcome": "pass",
-      "run": "run-8ba88c4a49268441"
+      "run": "run-e7ad80cd167aa4d9"
     },
     {
       "id": "pose-mcp/go/common-domain-and-cli-mcp-handoff-integration",
@@ -328009,7 +327997,7 @@
       "evidence_class": "integration",
       "severity": "required",
       "outcome": "pass",
-      "run": "run-8ba88c4a49268441"
+      "run": "run-e7ad80cd167aa4d9"
     },
     {
       "id": "pose-mcp/go/community-claims-hold-integration",
@@ -328018,7 +328006,7 @@
       "evidence_class": "integration",
       "severity": "required",
       "outcome": "pass",
-      "run": "run-8ba88c4a49268441"
+      "run": "run-e7ad80cd167aa4d9"
     },
     {
       "id": "pose-mcp/go/completed-review-retention-integration",
@@ -328027,7 +328015,7 @@
       "evidence_class": "integration",
       "severity": "required",
       "outcome": "pass",
-      "run": "run-8ba88c4a49268441"
+      "run": "run-e7ad80cd167aa4d9"
     },
     {
       "id": "pose-mcp/go/configuration-review-integration",
@@ -328036,7 +328024,7 @@
       "evidence_class": "integration",
       "severity": "required",
       "outcome": "pass",
-      "run": "run-8ba88c4a49268441"
+      "run": "run-e7ad80cd167aa4d9"
     },
     {
       "id": "pose-mcp/go/delegate-picker-integration",
@@ -328045,7 +328033,7 @@
       "evidence_class": "integration",
       "severity": "required",
       "outcome": "pass",
-      "run": "run-8ba88c4a49268441"
+      "run": "run-e7ad80cd167aa4d9"
     },
     {
       "id": "pose-mcp/go/delegated-adapter-containment-integration",
@@ -328054,7 +328042,7 @@
       "evidence_class": "integration",
       "severity": "required",
       "outcome": "pass",
-      "run": "run-8ba88c4a49268441"
+      "run": "run-e7ad80cd167aa4d9"
     },
     {
       "id": "pose-mcp/go/delegated-approval-survives-routine-drift-integration",
@@ -328063,7 +328051,7 @@
       "evidence_class": "integration",
       "severity": "required",
       "outcome": "pass",
-      "run": "run-8ba88c4a49268441"
+      "run": "run-e7ad80cd167aa4d9"
     },
     {
       "id": "pose-mcp/go/delegated-attempt-ledger-integration",
@@ -328072,7 +328060,7 @@
       "evidence_class": "integration",
       "severity": "required",
       "outcome": "pass",
-      "run": "run-8ba88c4a49268441"
+      "run": "run-e7ad80cd167aa4d9"
     },
     {
       "id": "pose-mcp/go/delegated-output-redaction-diagnostics-integration",
@@ -328081,7 +328069,7 @@
       "evidence_class": "integration",
       "severity": "required",
       "outcome": "pass",
-      "run": "run-8ba88c4a49268441"
+      "run": "run-e7ad80cd167aa4d9"
     },
     {
       "id": "pose-mcp/go/delegated-review-capability-integration",
@@ -328090,7 +328078,7 @@
       "evidence_class": "integration",
       "severity": "required",
       "outcome": "pass",
-      "run": "run-8ba88c4a49268441"
+      "run": "run-e7ad80cd167aa4d9"
     },
     {
       "id": "pose-mcp/go/delegated-review-expired-session-integration",
@@ -328099,7 +328087,7 @@
       "evidence_class": "integration",
       "severity": "required",
       "outcome": "pass",
-      "run": "run-8ba88c4a49268441"
+      "run": "run-e7ad80cd167aa4d9"
     },
     {
       "id": "pose-mcp/go/delegated-run-continuity-integration",
@@ -328108,7 +328096,7 @@
       "evidence_class": "integration",
       "severity": "required",
       "outcome": "pass",
-      "run": "run-8ba88c4a49268441"
+      "run": "run-e7ad80cd167aa4d9"
     },
     {
       "id": "pose-mcp/go/delegated-run-provenance-integration",
@@ -328117,7 +328105,7 @@
       "evidence_class": "integration",
       "severity": "required",
       "outcome": "pass",
-      "run": "run-8ba88c4a49268441"
+      "run": "run-e7ad80cd167aa4d9"
     },
     {
       "id": "pose-mcp/go/delegation-marker-stop-joins-heartbeat-integration",
@@ -328126,7 +328114,7 @@
       "evidence_class": "integration",
       "severity": "required",
       "outcome": "pass",
-      "run": "run-8ba88c4a49268441"
+      "run": "run-e7ad80cd167aa4d9"
     },
     {
       "id": "pose-mcp/go/delegation-result-before-marker-integration",
@@ -328135,7 +328123,7 @@
       "evidence_class": "integration",
       "severity": "required",
       "outcome": "pass",
-      "run": "run-8ba88c4a49268441"
+      "run": "run-e7ad80cd167aa4d9"
     },
     {
       "id": "pose-mcp/go/delegation-surface-integration",
@@ -328144,7 +328132,7 @@
       "evidence_class": "integration",
       "severity": "required",
       "outcome": "pass",
-      "run": "run-8ba88c4a49268441"
+      "run": "run-e7ad80cd167aa4d9"
     },
     {
       "id": "pose-mcp/go/delivery-graph-reuse-integration",
@@ -328153,7 +328141,7 @@
       "evidence_class": "integration",
       "severity": "required",
       "outcome": "pass",
-      "run": "run-8ba88c4a49268441"
+      "run": "run-e7ad80cd167aa4d9"
     },
     {
       "id": "pose-mcp/go/delivery-integration",
@@ -328162,7 +328150,7 @@
       "evidence_class": "integration",
       "severity": "required",
       "outcome": "pass",
-      "run": "run-8ba88c4a49268441"
+      "run": "run-e7ad80cd167aa4d9"
     },
     {
       "id": "pose-mcp/go/delivery-integrity-index-compaction-integration",
@@ -328171,7 +328159,7 @@
       "evidence_class": "integration",
       "severity": "required",
       "outcome": "pass",
-      "run": "run-8ba88c4a49268441"
+      "run": "run-e7ad80cd167aa4d9"
     },
     {
       "id": "pose-mcp/go/delivery-later-removal-integration",
@@ -328180,7 +328168,7 @@
       "evidence_class": "integration",
       "severity": "required",
       "outcome": "pass",
-      "run": "run-8ba88c4a49268441"
+      "run": "run-e7ad80cd167aa4d9"
     },
     {
       "id": "pose-mcp/go/delivery-reachability",
@@ -328189,7 +328177,7 @@
       "evidence_class": "reachability",
       "severity": "required",
       "outcome": "pass",
-      "run": "run-8ba88c4a49268441"
+      "run": "run-e7ad80cd167aa4d9"
     },
     {
       "id": "pose-mcp/go/demo-closes-a-delivery",
@@ -328198,7 +328186,7 @@
       "evidence_class": "integration",
       "severity": "required",
       "outcome": "pass",
-      "run": "run-8ba88c4a49268441"
+      "run": "run-e7ad80cd167aa4d9"
     },
     {
       "id": "pose-mcp/go/dependabot-runtime-repair-integration",
@@ -328207,7 +328195,7 @@
       "evidence_class": "integration",
       "severity": "required",
       "outcome": "pass",
-      "run": "run-8ba88c4a49268441"
+      "run": "run-e7ad80cd167aa4d9"
     },
     {
       "id": "pose-mcp/go/distributed-instructions-parity-integration",
@@ -328216,7 +328204,7 @@
       "evidence_class": "integration",
       "severity": "required",
       "outcome": "pass",
-      "run": "run-8ba88c4a49268441"
+      "run": "run-e7ad80cd167aa4d9"
     },
     {
       "id": "pose-mcp/go/doctor-federated-spec-capture-integration",
@@ -328225,7 +328213,7 @@
       "evidence_class": "integration",
       "severity": "required",
       "outcome": "pass",
-      "run": "run-8ba88c4a49268441"
+      "run": "run-e7ad80cd167aa4d9"
     },
     {
       "id": "pose-mcp/go/doctor-recommends-the-commit-graph-integration",
@@ -328234,7 +328222,7 @@
       "evidence_class": "integration",
       "severity": "required",
       "outcome": "pass",
-      "run": "run-8ba88c4a49268441"
+      "run": "run-e7ad80cd167aa4d9"
     },
     {
       "id": "pose-mcp/go/done-spec-keeps-its-sealed-plan-integration",
@@ -328243,7 +328231,7 @@
       "evidence_class": "integration",
       "severity": "required",
       "outcome": "pass",
-      "run": "run-8ba88c4a49268441"
+      "run": "run-e7ad80cd167aa4d9"
     },
     {
       "id": "pose-mcp/go/effective-governance-integration",
@@ -328252,7 +328240,7 @@
       "evidence_class": "integration",
       "severity": "required",
       "outcome": "pass",
-      "run": "run-8ba88c4a49268441"
+      "run": "run-e7ad80cd167aa4d9"
     },
     {
       "id": "pose-mcp/go/effective-governance-reachability",
@@ -328261,7 +328249,7 @@
       "evidence_class": "reachability",
       "severity": "required",
       "outcome": "pass",
-      "run": "run-8ba88c4a49268441"
+      "run": "run-e7ad80cd167aa4d9"
     },
     {
       "id": "pose-mcp/go/effects-reported-integration",
@@ -328270,7 +328258,7 @@
       "evidence_class": "integration",
       "severity": "required",
       "outcome": "pass",
-      "run": "run-8ba88c4a49268441"
+      "run": "run-e7ad80cd167aa4d9"
     },
     {
       "id": "pose-mcp/go/engine-reads-raw-history-integration",
@@ -328279,7 +328267,7 @@
       "evidence_class": "integration",
       "severity": "required",
       "outcome": "pass",
-      "run": "run-8ba88c4a49268441"
+      "run": "run-e7ad80cd167aa4d9"
     },
     {
       "id": "pose-mcp/go/evidence-gate-validation-integration",
@@ -328288,7 +328276,7 @@
       "evidence_class": "integration",
       "severity": "required",
       "outcome": "pass",
-      "run": "run-8ba88c4a49268441"
+      "run": "run-e7ad80cd167aa4d9"
     },
     {
       "id": "pose-mcp/go/extension-target-integration",
@@ -328297,7 +328285,7 @@
       "evidence_class": "integration",
       "severity": "required",
       "outcome": "pass",
-      "run": "run-8ba88c4a49268441"
+      "run": "run-e7ad80cd167aa4d9"
     },
     {
       "id": "pose-mcp/go/falsifier-integration",
@@ -328306,7 +328294,7 @@
       "evidence_class": "integration",
       "severity": "required",
       "outcome": "pass",
-      "run": "run-8ba88c4a49268441"
+      "run": "run-e7ad80cd167aa4d9"
     },
     {
       "id": "pose-mcp/go/federated-proof-reads-each-input-once-integration",
@@ -328315,7 +328303,7 @@
       "evidence_class": "integration",
       "severity": "required",
       "outcome": "pass",
-      "run": "run-8ba88c4a49268441"
+      "run": "run-e7ad80cd167aa4d9"
     },
     {
       "id": "pose-mcp/go/federated-roadmap-acceptance-integration",
@@ -328324,7 +328312,7 @@
       "evidence_class": "integration",
       "severity": "required",
       "outcome": "pass",
-      "run": "run-8ba88c4a49268441"
+      "run": "run-e7ad80cd167aa4d9"
     },
     {
       "id": "pose-mcp/go/federated-roadmap-negative-gates",
@@ -328333,7 +328321,7 @@
       "evidence_class": "integration",
       "severity": "required",
       "outcome": "pass",
-      "run": "run-8ba88c4a49268441"
+      "run": "run-e7ad80cd167aa4d9"
     },
     {
       "id": "pose-mcp/go/federated-source-proof-is-computed-once-per-operation-integration",
@@ -328342,7 +328330,7 @@
       "evidence_class": "integration",
       "severity": "required",
       "outcome": "pass",
-      "run": "run-8ba88c4a49268441"
+      "run": "run-e7ad80cd167aa4d9"
     },
     {
       "id": "pose-mcp/go/federated-spec-acceptance-integration",
@@ -328351,7 +328339,7 @@
       "evidence_class": "integration",
       "severity": "required",
       "outcome": "pass",
-      "run": "run-8ba88c4a49268441"
+      "run": "run-e7ad80cd167aa4d9"
     },
     {
       "id": "pose-mcp/go/flat-spec-amendments-integration",
@@ -328360,7 +328348,7 @@
       "evidence_class": "integration",
       "severity": "required",
       "outcome": "pass",
-      "run": "run-8ba88c4a49268441"
+      "run": "run-e7ad80cd167aa4d9"
     },
     {
       "id": "pose-mcp/go/flat-spec-amendments-reachability",
@@ -328369,7 +328357,7 @@
       "evidence_class": "reachability",
       "severity": "required",
       "outcome": "pass",
-      "run": "run-8ba88c4a49268441"
+      "run": "run-e7ad80cd167aa4d9"
     },
     {
       "id": "pose-mcp/go/followup-candidates-integration",
@@ -328378,7 +328366,7 @@
       "evidence_class": "integration",
       "severity": "required",
       "outcome": "pass",
-      "run": "run-8ba88c4a49268441"
+      "run": "run-e7ad80cd167aa4d9"
     },
     {
       "id": "pose-mcp/go/followup-candidates-reachability",
@@ -328387,7 +328375,7 @@
       "evidence_class": "reachability",
       "severity": "required",
       "outcome": "pass",
-      "run": "run-8ba88c4a49268441"
+      "run": "run-e7ad80cd167aa4d9"
     },
     {
       "id": "pose-mcp/go/fresh-install-health-integration",
@@ -328396,7 +328384,7 @@
       "evidence_class": "integration",
       "severity": "required",
       "outcome": "pass",
-      "run": "run-8ba88c4a49268441"
+      "run": "run-e7ad80cd167aa4d9"
     },
     {
       "id": "pose-mcp/go/generation-bound-query-cursors-integration",
@@ -328405,7 +328393,7 @@
       "evidence_class": "integration",
       "severity": "required",
       "outcome": "pass",
-      "run": "run-8ba88c4a49268441"
+      "run": "run-e7ad80cd167aa4d9"
     },
     {
       "id": "pose-mcp/go/git-and-dispatch-snapshot-integrity-integration",
@@ -328414,7 +328402,7 @@
       "evidence_class": "integration",
       "severity": "required",
       "outcome": "pass",
-      "run": "run-8ba88c4a49268441"
+      "run": "run-e7ad80cd167aa4d9"
     },
     {
       "id": "pose-mcp/go/git-dispatch-snapshot-integrity-integration",
@@ -328423,7 +328411,7 @@
       "evidence_class": "integration",
       "severity": "required",
       "outcome": "pass",
-      "run": "run-8ba88c4a49268441"
+      "run": "run-e7ad80cd167aa4d9"
     },
     {
       "id": "pose-mcp/go/git-repository-detection-locale-integration",
@@ -328432,7 +328420,7 @@
       "evidence_class": "integration",
       "severity": "required",
       "outcome": "pass",
-      "run": "run-8ba88c4a49268441"
+      "run": "run-e7ad80cd167aa4d9"
     },
     {
       "id": "pose-mcp/go/git-snapshot-budget-scales-with-the-tree-integration",
@@ -328441,7 +328429,7 @@
       "evidence_class": "integration",
       "severity": "required",
       "outcome": "pass",
-      "run": "run-8ba88c4a49268441"
+      "run": "run-e7ad80cd167aa4d9"
     },
     {
       "id": "pose-mcp/go/git-status-clean-git-integration",
@@ -328450,7 +328438,7 @@
       "evidence_class": "integration",
       "severity": "required",
       "outcome": "pass",
-      "run": "run-8ba88c4a49268441"
+      "run": "run-e7ad80cd167aa4d9"
     },
     {
       "id": "pose-mcp/go/governance-git-reads-untranslated-integration",
@@ -328459,7 +328447,7 @@
       "evidence_class": "integration",
       "severity": "required",
       "outcome": "pass",
-      "run": "run-8ba88c4a49268441"
+      "run": "run-e7ad80cd167aa4d9"
     },
     {
       "id": "pose-mcp/go/governance-operation-performance-integration",
@@ -328468,7 +328456,7 @@
       "evidence_class": "integration",
       "severity": "required",
       "outcome": "pass",
-      "run": "run-8ba88c4a49268441"
+      "run": "run-e7ad80cd167aa4d9"
     },
     {
       "id": "pose-mcp/go/governance-outcomes-v2-contract",
@@ -328477,7 +328465,7 @@
       "evidence_class": "integration",
       "severity": "required",
       "outcome": "pass",
-      "run": "run-8ba88c4a49268441"
+      "run": "run-e7ad80cd167aa4d9"
     },
     {
       "id": "pose-mcp/go/governance-read-view-integration",
@@ -328486,7 +328474,7 @@
       "evidence_class": "integration",
       "severity": "required",
       "outcome": "pass",
-      "run": "run-8ba88c4a49268441"
+      "run": "run-e7ad80cd167aa4d9"
     },
     {
       "id": "pose-mcp/go/governance-waits-integration",
@@ -328495,7 +328483,7 @@
       "evidence_class": "integration",
       "severity": "required",
       "outcome": "pass",
-      "run": "run-8ba88c4a49268441"
+      "run": "run-e7ad80cd167aa4d9"
     },
     {
       "id": "pose-mcp/go/governance-waits-reachability",
@@ -328504,7 +328492,7 @@
       "evidence_class": "reachability",
       "severity": "required",
       "outcome": "pass",
-      "run": "run-8ba88c4a49268441"
+      "run": "run-e7ad80cd167aa4d9"
     },
     {
       "id": "pose-mcp/go/governed-capabilities-integration",
@@ -328513,7 +328501,7 @@
       "evidence_class": "integration",
       "severity": "required",
       "outcome": "pass",
-      "run": "run-8ba88c4a49268441"
+      "run": "run-e7ad80cd167aa4d9"
     },
     {
       "id": "pose-mcp/go/governed-effects-integration",
@@ -328522,7 +328510,7 @@
       "evidence_class": "integration",
       "severity": "required",
       "outcome": "pass",
-      "run": "run-8ba88c4a49268441"
+      "run": "run-e7ad80cd167aa4d9"
     },
     {
       "id": "pose-mcp/go/governed-effects-reachability",
@@ -328531,7 +328519,7 @@
       "evidence_class": "reachability",
       "severity": "required",
       "outcome": "pass",
-      "run": "run-8ba88c4a49268441"
+      "run": "run-e7ad80cd167aa4d9"
     },
     {
       "id": "pose-mcp/go/help-lists-every-command-integration",
@@ -328540,7 +328528,7 @@
       "evidence_class": "integration",
       "severity": "required",
       "outcome": "pass",
-      "run": "run-8ba88c4a49268441"
+      "run": "run-e7ad80cd167aa4d9"
     },
     {
       "id": "pose-mcp/go/historical-trust-reuse-integration",
@@ -328549,7 +328537,7 @@
       "evidence_class": "integration",
       "severity": "required",
       "outcome": "pass",
-      "run": "run-8ba88c4a49268441"
+      "run": "run-e7ad80cd167aa4d9"
     },
     {
       "id": "pose-mcp/go/history-readers-read-raw-integration",
@@ -328558,7 +328546,7 @@
       "evidence_class": "integration",
       "severity": "required",
       "outcome": "pass",
-      "run": "run-8ba88c4a49268441"
+      "run": "run-e7ad80cd167aa4d9"
     },
     {
       "id": "pose-mcp/go/hooks-delegate-to-the-instance-runner-integration",
@@ -328567,7 +328555,7 @@
       "evidence_class": "integration",
       "severity": "required",
       "outcome": "pass",
-      "run": "run-8ba88c4a49268441"
+      "run": "run-e7ad80cd167aa4d9"
     },
     {
       "id": "pose-mcp/go/index-generation-integrity-integration",
@@ -328576,7 +328564,7 @@
       "evidence_class": "integration",
       "severity": "required",
       "outcome": "pass",
-      "run": "run-8ba88c4a49268441"
+      "run": "run-e7ad80cd167aa4d9"
     },
     {
       "id": "pose-mcp/go/index-input-binding-integration",
@@ -328585,7 +328573,7 @@
       "evidence_class": "integration",
       "severity": "required",
       "outcome": "pass",
-      "run": "run-8ba88c4a49268441"
+      "run": "run-e7ad80cd167aa4d9"
     },
     {
       "id": "pose-mcp/go/index-material-does-not-ask-closeout-integration",
@@ -328594,7 +328582,7 @@
       "evidence_class": "integration",
       "severity": "required",
       "outcome": "pass",
-      "run": "run-8ba88c4a49268441"
+      "run": "run-e7ad80cd167aa4d9"
     },
     {
       "id": "pose-mcp/go/index-material-is-kept-per-repository-state-integration",
@@ -328603,7 +328591,7 @@
       "evidence_class": "integration",
       "severity": "required",
       "outcome": "pass",
-      "run": "run-8ba88c4a49268441"
+      "run": "run-e7ad80cd167aa4d9"
     },
     {
       "id": "pose-mcp/go/index-recovery-integration",
@@ -328612,7 +328600,7 @@
       "evidence_class": "integration",
       "severity": "required",
       "outcome": "pass",
-      "run": "run-8ba88c4a49268441"
+      "run": "run-e7ad80cd167aa4d9"
     },
     {
       "id": "pose-mcp/go/index-streams-each-commit-once-integration",
@@ -328621,7 +328609,7 @@
       "evidence_class": "integration",
       "severity": "required",
       "outcome": "pass",
-      "run": "run-8ba88c4a49268441"
+      "run": "run-e7ad80cd167aa4d9"
     },
     {
       "id": "pose-mcp/go/init-is-install-integration",
@@ -328630,7 +328618,7 @@
       "evidence_class": "integration",
       "severity": "required",
       "outcome": "pass",
-      "run": "run-8ba88c4a49268441"
+      "run": "run-e7ad80cd167aa4d9"
     },
     {
       "id": "pose-mcp/go/install-and-upgrade-journeys-integration",
@@ -328639,7 +328627,7 @@
       "evidence_class": "integration",
       "severity": "required",
       "outcome": "pass",
-      "run": "run-8ba88c4a49268441"
+      "run": "run-e7ad80cd167aa4d9"
     },
     {
       "id": "pose-mcp/go/journal-checkpoint-and-lock-recovery-integration",
@@ -328648,7 +328636,7 @@
       "evidence_class": "integration",
       "severity": "required",
       "outcome": "pass",
-      "run": "run-8ba88c4a49268441"
+      "run": "run-e7ad80cd167aa4d9"
     },
     {
       "id": "pose-mcp/go/launcher-parity",
@@ -328657,7 +328645,7 @@
       "evidence_class": "integration",
       "severity": "required",
       "outcome": "pass",
-      "run": "run-8ba88c4a49268441"
+      "run": "run-e7ad80cd167aa4d9"
     },
     {
       "id": "pose-mcp/go/legacy-contract-cutoffs-integration",
@@ -328666,7 +328654,7 @@
       "evidence_class": "integration",
       "severity": "required",
       "outcome": "pass",
-      "run": "run-8ba88c4a49268441"
+      "run": "run-e7ad80cd167aa4d9"
     },
     {
       "id": "pose-mcp/go/legacy-contract-cutoffs-reachability",
@@ -328675,7 +328663,7 @@
       "evidence_class": "reachability",
       "severity": "required",
       "outcome": "pass",
-      "run": "run-8ba88c4a49268441"
+      "run": "run-e7ad80cd167aa4d9"
     },
     {
       "id": "pose-mcp/go/lint-spec-all-gate-contract",
@@ -328684,7 +328672,7 @@
       "evidence_class": "integration",
       "severity": "required",
       "outcome": "pass",
-      "run": "run-8ba88c4a49268441"
+      "run": "run-e7ad80cd167aa4d9"
     },
     {
       "id": "pose-mcp/go/locale-obligation-flags-integration",
@@ -328693,7 +328681,7 @@
       "evidence_class": "integration",
       "severity": "required",
       "outcome": "pass",
-      "run": "run-8ba88c4a49268441"
+      "run": "run-e7ad80cd167aa4d9"
     },
     {
       "id": "pose-mcp/go/machine-channel-integration",
@@ -328702,7 +328690,7 @@
       "evidence_class": "integration",
       "severity": "required",
       "outcome": "pass",
-      "run": "run-8ba88c4a49268441"
+      "run": "run-e7ad80cd167aa4d9"
     },
     {
       "id": "pose-mcp/go/material-reuse-integration",
@@ -328711,7 +328699,7 @@
       "evidence_class": "integration",
       "severity": "required",
       "outcome": "pass",
-      "run": "run-8ba88c4a49268441"
+      "run": "run-e7ad80cd167aa4d9"
     },
     {
       "id": "pose-mcp/go/mcp-action-resolve-integration",
@@ -328720,7 +328708,7 @@
       "evidence_class": "integration",
       "severity": "required",
       "outcome": "pass",
-      "run": "run-8ba88c4a49268441"
+      "run": "run-e7ad80cd167aa4d9"
     },
     {
       "id": "pose-mcp/go/mcp-review-attest-integration",
@@ -328729,7 +328717,7 @@
       "evidence_class": "integration",
       "severity": "required",
       "outcome": "pass",
-      "run": "run-8ba88c4a49268441"
+      "run": "run-e7ad80cd167aa4d9"
     },
     {
       "id": "pose-mcp/go/migrate-dryrun-integration",
@@ -328738,7 +328726,7 @@
       "evidence_class": "integration",
       "severity": "required",
       "outcome": "pass",
-      "run": "run-8ba88c4a49268441"
+      "run": "run-e7ad80cd167aa4d9"
     },
     {
       "id": "pose-mcp/go/migrate-dryrun-reachability",
@@ -328747,7 +328735,7 @@
       "evidence_class": "reachability",
       "severity": "required",
       "outcome": "pass",
-      "run": "run-8ba88c4a49268441"
+      "run": "run-e7ad80cd167aa4d9"
     },
     {
       "id": "pose-mcp/go/milestone-closes-when-reached-integration",
@@ -328756,7 +328744,7 @@
       "evidence_class": "integration",
       "severity": "required",
       "outcome": "pass",
-      "run": "run-8ba88c4a49268441"
+      "run": "run-e7ad80cd167aa4d9"
     },
     {
       "id": "pose-mcp/go/milestone-review-proportional-integration",
@@ -328765,7 +328753,7 @@
       "evidence_class": "integration",
       "severity": "required",
       "outcome": "pass",
-      "run": "run-8ba88c4a49268441"
+      "run": "run-e7ad80cd167aa4d9"
     },
     {
       "id": "pose-mcp/go/multi-repo-agent-context-integration",
@@ -328774,7 +328762,7 @@
       "evidence_class": "integration",
       "severity": "required",
       "outcome": "pass",
-      "run": "run-8ba88c4a49268441"
+      "run": "run-e7ad80cd167aa4d9"
     },
     {
       "id": "pose-mcp/go/multi-repo-agent-context-reachability",
@@ -328783,7 +328771,7 @@
       "evidence_class": "reachability",
       "severity": "required",
       "outcome": "pass",
-      "run": "run-8ba88c4a49268441"
+      "run": "run-e7ad80cd167aa4d9"
     },
     {
       "id": "pose-mcp/go/multi-repo-agent-installed-journey",
@@ -328792,7 +328780,7 @@
       "evidence_class": "e2e",
       "severity": "required",
       "outcome": "pass",
-      "run": "run-8ba88c4a49268441"
+      "run": "run-e7ad80cd167aa4d9"
     },
     {
       "id": "pose-mcp/go/multi-repo-agent-negative-gates",
@@ -328801,7 +328789,7 @@
       "evidence_class": "integration",
       "severity": "required",
       "outcome": "pass",
-      "run": "run-8ba88c4a49268441"
+      "run": "run-e7ad80cd167aa4d9"
     },
     {
       "id": "pose-mcp/go/obligation-contract-integration",
@@ -328810,7 +328798,7 @@
       "evidence_class": "integration",
       "severity": "required",
       "outcome": "pass",
-      "run": "run-8ba88c4a49268441"
+      "run": "run-e7ad80cd167aa4d9"
     },
     {
       "id": "pose-mcp/go/obligation-projection-integration",
@@ -328819,7 +328807,7 @@
       "evidence_class": "integration",
       "severity": "required",
       "outcome": "pass",
-      "run": "run-8ba88c4a49268441"
+      "run": "run-e7ad80cd167aa4d9"
     },
     {
       "id": "pose-mcp/go/onboarding-spec-integration",
@@ -328828,7 +328816,7 @@
       "evidence_class": "integration",
       "severity": "required",
       "outcome": "pass",
-      "run": "run-8ba88c4a49268441"
+      "run": "run-e7ad80cd167aa4d9"
     },
     {
       "id": "pose-mcp/go/optional-worktree-runtime-integration",
@@ -328837,7 +328825,7 @@
       "evidence_class": "integration",
       "severity": "required",
       "outcome": "pass",
-      "run": "run-8ba88c4a49268441"
+      "run": "run-e7ad80cd167aa4d9"
     },
     {
       "id": "pose-mcp/go/parallel-gate-integration",
@@ -328846,7 +328834,7 @@
       "evidence_class": "integration",
       "severity": "required",
       "outcome": "pass",
-      "run": "run-8ba88c4a49268441"
+      "run": "run-e7ad80cd167aa4d9"
     },
     {
       "id": "pose-mcp/go/parse-memo-integration",
@@ -328855,7 +328843,7 @@
       "evidence_class": "integration",
       "severity": "required",
       "outcome": "pass",
-      "run": "run-8ba88c4a49268441"
+      "run": "run-e7ad80cd167aa4d9"
     },
     {
       "id": "pose-mcp/go/phase-readiness-integration",
@@ -328864,7 +328852,7 @@
       "evidence_class": "integration",
       "severity": "required",
       "outcome": "pass",
-      "run": "run-8ba88c4a49268441"
+      "run": "run-e7ad80cd167aa4d9"
     },
     {
       "id": "pose-mcp/go/phase-readiness-reachability",
@@ -328873,7 +328861,7 @@
       "evidence_class": "reachability",
       "severity": "required",
       "outcome": "pass",
-      "run": "run-8ba88c4a49268441"
+      "run": "run-e7ad80cd167aa4d9"
     },
     {
       "id": "pose-mcp/go/policy-scope-validation-integration",
@@ -328882,7 +328870,7 @@
       "evidence_class": "integration",
       "severity": "required",
       "outcome": "pass",
-      "run": "run-8ba88c4a49268441"
+      "run": "run-e7ad80cd167aa4d9"
     },
     {
       "id": "pose-mcp/go/premise-validity-integration",
@@ -328891,7 +328879,7 @@
       "evidence_class": "integration",
       "severity": "required",
       "outcome": "pass",
-      "run": "run-8ba88c4a49268441"
+      "run": "run-e7ad80cd167aa4d9"
     },
     {
       "id": "pose-mcp/go/process-inventory-tolerates-exit-integration",
@@ -328900,7 +328888,7 @@
       "evidence_class": "integration",
       "severity": "required",
       "outcome": "pass",
-      "run": "run-8ba88c4a49268441"
+      "run": "run-e7ad80cd167aa4d9"
     },
     {
       "id": "pose-mcp/go/project-id-derivation-integration",
@@ -328909,7 +328897,7 @@
       "evidence_class": "integration",
       "severity": "required",
       "outcome": "pass",
-      "run": "run-8ba88c4a49268441"
+      "run": "run-e7ad80cd167aa4d9"
     },
     {
       "id": "pose-mcp/go/project-identity-integration",
@@ -328918,7 +328906,7 @@
       "evidence_class": "integration",
       "severity": "required",
       "outcome": "pass",
-      "run": "run-8ba88c4a49268441"
+      "run": "run-e7ad80cd167aa4d9"
     },
     {
       "id": "pose-mcp/go/proof-presence-channel-parity-integration",
@@ -328927,7 +328915,7 @@
       "evidence_class": "integration",
       "severity": "required",
       "outcome": "pass",
-      "run": "run-8ba88c4a49268441"
+      "run": "run-e7ad80cd167aa4d9"
     },
     {
       "id": "pose-mcp/go/public-claims-provenance-integration",
@@ -328936,7 +328924,7 @@
       "evidence_class": "integration",
       "severity": "required",
       "outcome": "pass",
-      "run": "run-8ba88c4a49268441"
+      "run": "run-e7ad80cd167aa4d9"
     },
     {
       "id": "pose-mcp/go/public-claims-provenance-reachability",
@@ -328945,7 +328933,7 @@
       "evidence_class": "reachability",
       "severity": "required",
       "outcome": "pass",
-      "run": "run-8ba88c4a49268441"
+      "run": "run-e7ad80cd167aa4d9"
     },
     {
       "id": "pose-mcp/go/public-claims-release-line-integration",
@@ -328954,7 +328942,7 @@
       "evidence_class": "integration",
       "severity": "required",
       "outcome": "pass",
-      "run": "run-8ba88c4a49268441"
+      "run": "run-e7ad80cd167aa4d9"
     },
     {
       "id": "pose-mcp/go/qualified-artifact-resolution-integration",
@@ -328963,7 +328951,7 @@
       "evidence_class": "integration",
       "severity": "required",
       "outcome": "pass",
-      "run": "run-8ba88c4a49268441"
+      "run": "run-e7ad80cd167aa4d9"
     },
     {
       "id": "pose-mcp/go/qualified-followup-integration",
@@ -328972,7 +328960,7 @@
       "evidence_class": "integration",
       "severity": "required",
       "outcome": "pass",
-      "run": "run-8ba88c4a49268441"
+      "run": "run-e7ad80cd167aa4d9"
     },
     {
       "id": "pose-mcp/go/quickstart-real-lifecycle-integration",
@@ -328981,7 +328969,7 @@
       "evidence_class": "integration",
       "severity": "required",
       "outcome": "pass",
-      "run": "run-8ba88c4a49268441"
+      "run": "run-e7ad80cd167aa4d9"
     },
     {
       "id": "pose-mcp/go/range-ownership-integration",
@@ -328990,7 +328978,7 @@
       "evidence_class": "integration",
       "severity": "required",
       "outcome": "pass",
-      "run": "run-8ba88c4a49268441"
+      "run": "run-e7ad80cd167aa4d9"
     },
     {
       "id": "pose-mcp/go/read-view-audit-repeats-a-read-under-its-own-time-integration",
@@ -328999,7 +328987,7 @@
       "evidence_class": "integration",
       "severity": "required",
       "outcome": "pass",
-      "run": "run-8ba88c4a49268441"
+      "run": "run-e7ad80cd167aa4d9"
     },
     {
       "id": "pose-mcp/go/read-view-streamed-object-digests-integration",
@@ -329008,7 +328996,7 @@
       "evidence_class": "integration",
       "severity": "required",
       "outcome": "pass",
-      "run": "run-8ba88c4a49268441"
+      "run": "run-e7ad80cd167aa4d9"
     },
     {
       "id": "pose-mcp/go/recurrence-cluster-integration",
@@ -329017,7 +329005,7 @@
       "evidence_class": "integration",
       "severity": "required",
       "outcome": "pass",
-      "run": "run-8ba88c4a49268441"
+      "run": "run-e7ad80cd167aa4d9"
     },
     {
       "id": "pose-mcp/go/recurrence-flapping-integration",
@@ -329026,7 +329014,7 @@
       "evidence_class": "integration",
       "severity": "required",
       "outcome": "pass",
-      "run": "run-8ba88c4a49268441"
+      "run": "run-e7ad80cd167aa4d9"
     },
     {
       "id": "pose-mcp/go/red-signal-contract",
@@ -329035,7 +329023,7 @@
       "evidence_class": "integration",
       "severity": "required",
       "outcome": "pass",
-      "run": "run-8ba88c4a49268441"
+      "run": "run-e7ad80cd167aa4d9"
     },
     {
       "id": "pose-mcp/go/release-cross-build-darwin",
@@ -329044,7 +329032,7 @@
       "evidence_class": "build",
       "severity": "required",
       "outcome": "pass",
-      "run": "run-8ba88c4a49268441"
+      "run": "run-e7ad80cd167aa4d9"
     },
     {
       "id": "pose-mcp/go/release-cross-build-windows",
@@ -329053,7 +329041,7 @@
       "evidence_class": "build",
       "severity": "required",
       "outcome": "pass",
-      "run": "run-8ba88c4a49268441"
+      "run": "run-e7ad80cd167aa4d9"
     },
     {
       "id": "pose-mcp/go/release-manifest-tag-integrity-integration",
@@ -329062,7 +329050,7 @@
       "evidence_class": "integration",
       "severity": "required",
       "outcome": "pass",
-      "run": "run-8ba88c4a49268441"
+      "run": "run-e7ad80cd167aa4d9"
     },
     {
       "id": "pose-mcp/go/release-needs-ci-contract",
@@ -329071,7 +329059,7 @@
       "evidence_class": "integration",
       "severity": "required",
       "outcome": "pass",
-      "run": "run-8ba88c4a49268441"
+      "run": "run-e7ad80cd167aa4d9"
     },
     {
       "id": "pose-mcp/go/release-review-archive-integration",
@@ -329080,7 +329068,7 @@
       "evidence_class": "integration",
       "severity": "required",
       "outcome": "pass",
-      "run": "run-8ba88c4a49268441"
+      "run": "run-e7ad80cd167aa4d9"
     },
     {
       "id": "pose-mcp/go/release-test-compile-darwin",
@@ -329089,7 +329077,7 @@
       "evidence_class": "build",
       "severity": "required",
       "outcome": "pass",
-      "run": "run-8ba88c4a49268441"
+      "run": "run-e7ad80cd167aa4d9"
     },
     {
       "id": "pose-mcp/go/release-test-compile-windows",
@@ -329098,7 +329086,7 @@
       "evidence_class": "build",
       "severity": "required",
       "outcome": "pass",
-      "run": "run-8ba88c4a49268441"
+      "run": "run-e7ad80cd167aa4d9"
     },
     {
       "id": "pose-mcp/go/release-version-source-integration",
@@ -329107,7 +329095,7 @@
       "evidence_class": "integration",
       "severity": "required",
       "outcome": "pass",
-      "run": "run-8ba88c4a49268441"
+      "run": "run-e7ad80cd167aa4d9"
     },
     {
       "id": "pose-mcp/go/release-version-source-reachability",
@@ -329116,7 +329104,7 @@
       "evidence_class": "reachability",
       "severity": "required",
       "outcome": "pass",
-      "run": "run-8ba88c4a49268441"
+      "run": "run-e7ad80cd167aa4d9"
     },
     {
       "id": "pose-mcp/go/removal-witness-freshness-integration",
@@ -329125,7 +329113,7 @@
       "evidence_class": "integration",
       "severity": "required",
       "outcome": "pass",
-      "run": "run-8ba88c4a49268441"
+      "run": "run-e7ad80cd167aa4d9"
     },
     {
       "id": "pose-mcp/go/reports-name-declared-project-integration",
@@ -329134,7 +329122,7 @@
       "evidence_class": "integration",
       "severity": "required",
       "outcome": "pass",
-      "run": "run-8ba88c4a49268441"
+      "run": "run-e7ad80cd167aa4d9"
     },
     {
       "id": "pose-mcp/go/resident-cache-integration",
@@ -329143,7 +329131,7 @@
       "evidence_class": "integration",
       "severity": "required",
       "outcome": "pass",
-      "run": "run-8ba88c4a49268441"
+      "run": "run-e7ad80cd167aa4d9"
     },
     {
       "id": "pose-mcp/go/review-approval-domain-preflight-integration",
@@ -329152,7 +329140,7 @@
       "evidence_class": "integration",
       "severity": "required",
       "outcome": "pass",
-      "run": "run-8ba88c4a49268441"
+      "run": "run-e7ad80cd167aa4d9"
     },
     {
       "id": "pose-mcp/go/review-approval-follows-children-integration",
@@ -329161,7 +329149,7 @@
       "evidence_class": "integration",
       "severity": "required",
       "outcome": "pass",
-      "run": "run-8ba88c4a49268441"
+      "run": "run-e7ad80cd167aa4d9"
     },
     {
       "id": "pose-mcp/go/review-assurance-disclosure-integration",
@@ -329170,7 +329158,7 @@
       "evidence_class": "integration",
       "severity": "required",
       "outcome": "pass",
-      "run": "run-8ba88c4a49268441"
+      "run": "run-e7ad80cd167aa4d9"
     },
     {
       "id": "pose-mcp/go/review-assurance-disclosure-reachability",
@@ -329179,7 +329167,7 @@
       "evidence_class": "reachability",
       "severity": "required",
       "outcome": "pass",
-      "run": "run-8ba88c4a49268441"
+      "run": "run-e7ad80cd167aa4d9"
     },
     {
       "id": "pose-mcp/go/review-attribution-roles-integration",
@@ -329188,7 +329176,7 @@
       "evidence_class": "integration",
       "severity": "required",
       "outcome": "pass",
-      "run": "run-8ba88c4a49268441"
+      "run": "run-e7ad80cd167aa4d9"
     },
     {
       "id": "pose-mcp/go/review-attribution-roles-reachability",
@@ -329197,7 +329185,7 @@
       "evidence_class": "reachability",
       "severity": "required",
       "outcome": "pass",
-      "run": "run-8ba88c4a49268441"
+      "run": "run-e7ad80cd167aa4d9"
     },
     {
       "id": "pose-mcp/go/review-brief-conclusion-rules-integration",
@@ -329206,7 +329194,7 @@
       "evidence_class": "integration",
       "severity": "required",
       "outcome": "pass",
-      "run": "run-8ba88c4a49268441"
+      "run": "run-e7ad80cd167aa4d9"
     },
     {
       "id": "pose-mcp/go/review-brief-templates-are-immutable-integration",
@@ -329215,7 +329203,7 @@
       "evidence_class": "integration",
       "severity": "required",
       "outcome": "pass",
-      "run": "run-8ba88c4a49268441"
+      "run": "run-e7ad80cd167aa4d9"
     },
     {
       "id": "pose-mcp/go/review-bundle-convergence",
@@ -329224,7 +329212,7 @@
       "evidence_class": "integration",
       "severity": "required",
       "outcome": "pass",
-      "run": "run-8ba88c4a49268441"
+      "run": "run-e7ad80cd167aa4d9"
     },
     {
       "id": "pose-mcp/go/review-cleanup-removes-go-build-leftovers-integration",
@@ -329233,7 +329221,7 @@
       "evidence_class": "integration",
       "severity": "required",
       "outcome": "pass",
-      "run": "run-8ba88c4a49268441"
+      "run": "run-e7ad80cd167aa4d9"
     },
     {
       "id": "pose-mcp/go/review-evidence-fixture-integration",
@@ -329242,7 +329230,7 @@
       "evidence_class": "integration",
       "severity": "required",
       "outcome": "pass",
-      "run": "run-8ba88c4a49268441"
+      "run": "run-e7ad80cd167aa4d9"
     },
     {
       "id": "pose-mcp/go/review-guard-reads-the-integrity-graph-in-place-integration",
@@ -329251,7 +329239,7 @@
       "evidence_class": "integration",
       "severity": "required",
       "outcome": "pass",
-      "run": "run-8ba88c4a49268441"
+      "run": "run-e7ad80cd167aa4d9"
     },
     {
       "id": "pose-mcp/go/review-ledger-is-read-once-per-operation-integration",
@@ -329260,7 +329248,7 @@
       "evidence_class": "integration",
       "severity": "required",
       "outcome": "pass",
-      "run": "run-8ba88c4a49268441"
+      "run": "run-e7ad80cd167aa4d9"
     },
     {
       "id": "pose-mcp/go/review-policy-adoption-integration",
@@ -329269,7 +329257,7 @@
       "evidence_class": "integration",
       "severity": "required",
       "outcome": "pass",
-      "run": "run-8ba88c4a49268441"
+      "run": "run-e7ad80cd167aa4d9"
     },
     {
       "id": "pose-mcp/go/review-soundness-residuals-integration",
@@ -329278,7 +329266,7 @@
       "evidence_class": "integration",
       "severity": "required",
       "outcome": "pass",
-      "run": "run-8ba88c4a49268441"
+      "run": "run-e7ad80cd167aa4d9"
     },
     {
       "id": "pose-mcp/go/review-subject-capabilities-integration",
@@ -329287,7 +329275,7 @@
       "evidence_class": "integration",
       "severity": "required",
       "outcome": "pass",
-      "run": "run-8ba88c4a49268441"
+      "run": "run-e7ad80cd167aa4d9"
     },
     {
       "id": "pose-mcp/go/review-subject-head-integration",
@@ -329296,7 +329284,7 @@
       "evidence_class": "integration",
       "severity": "required",
       "outcome": "pass",
-      "run": "run-8ba88c4a49268441"
+      "run": "run-e7ad80cd167aa4d9"
     },
     {
       "id": "pose-mcp/go/review-subject-later-removal-integration",
@@ -329305,7 +329293,7 @@
       "evidence_class": "integration",
       "severity": "required",
       "outcome": "pass",
-      "run": "run-8ba88c4a49268441"
+      "run": "run-e7ad80cd167aa4d9"
     },
     {
       "id": "pose-mcp/go/roadmap-close-keeps-approvals-integration",
@@ -329314,7 +329302,7 @@
       "evidence_class": "integration",
       "severity": "required",
       "outcome": "pass",
-      "run": "run-8ba88c4a49268441"
+      "run": "run-e7ad80cd167aa4d9"
     },
     {
       "id": "pose-mcp/go/roadmap-reviews-findings-integration",
@@ -329323,7 +329311,7 @@
       "evidence_class": "integration",
       "severity": "required",
       "outcome": "pass",
-      "run": "run-8ba88c4a49268441"
+      "run": "run-e7ad80cd167aa4d9"
     },
     {
       "id": "pose-mcp/go/runtime-qos-integration",
@@ -329332,7 +329320,7 @@
       "evidence_class": "integration",
       "severity": "required",
       "outcome": "pass",
-      "run": "run-8ba88c4a49268441"
+      "run": "run-e7ad80cd167aa4d9"
     },
     {
       "id": "pose-mcp/go/sealed-checkout-child-evidence-integration",
@@ -329341,7 +329329,7 @@
       "evidence_class": "integration",
       "severity": "required",
       "outcome": "pass",
-      "run": "run-8ba88c4a49268441"
+      "run": "run-e7ad80cd167aa4d9"
     },
     {
       "id": "pose-mcp/go/setup-command-integration",
@@ -329350,7 +329338,7 @@
       "evidence_class": "integration",
       "severity": "required",
       "outcome": "pass",
-      "run": "run-8ba88c4a49268441"
+      "run": "run-e7ad80cd167aa4d9"
     },
     {
       "id": "pose-mcp/go/signed-action-answers-integration",
@@ -329359,7 +329347,7 @@
       "evidence_class": "integration",
       "severity": "required",
       "outcome": "pass",
-      "run": "run-8ba88c4a49268441"
+      "run": "run-e7ad80cd167aa4d9"
     },
     {
       "id": "pose-mcp/go/source-coverage-integrity-integration",
@@ -329368,7 +329356,7 @@
       "evidence_class": "integration",
       "severity": "required",
       "outcome": "pass",
-      "run": "run-8ba88c4a49268441"
+      "run": "run-e7ad80cd167aa4d9"
     },
     {
       "id": "pose-mcp/go/spec-authority-transfer-integration",
@@ -329377,7 +329365,7 @@
       "evidence_class": "integration",
       "severity": "required",
       "outcome": "pass",
-      "run": "run-8ba88c4a49268441"
+      "run": "run-e7ad80cd167aa4d9"
     },
     {
       "id": "pose-mcp/go/spec-authority-transfer-mcp-status",
@@ -329386,7 +329374,7 @@
       "evidence_class": "integration",
       "severity": "required",
       "outcome": "pass",
-      "run": "run-8ba88c4a49268441"
+      "run": "run-e7ad80cd167aa4d9"
     },
     {
       "id": "pose-mcp/go/spec-authority-transfer-negative-gates",
@@ -329395,7 +329383,7 @@
       "evidence_class": "integration",
       "severity": "required",
       "outcome": "pass",
-      "run": "run-8ba88c4a49268441"
+      "run": "run-e7ad80cd167aa4d9"
     },
     {
       "id": "pose-mcp/go/spec-facts-evidence-binding-integration",
@@ -329404,7 +329392,7 @@
       "evidence_class": "integration",
       "severity": "required",
       "outcome": "pass",
-      "run": "run-8ba88c4a49268441"
+      "run": "run-e7ad80cd167aa4d9"
     },
     {
       "id": "pose-mcp/go/spec-surface-integration",
@@ -329413,7 +329401,7 @@
       "evidence_class": "integration",
       "severity": "required",
       "outcome": "pass",
-      "run": "run-8ba88c4a49268441"
+      "run": "run-e7ad80cd167aa4d9"
     },
     {
       "id": "pose-mcp/go/spec-surface-reachability",
@@ -329422,7 +329410,7 @@
       "evidence_class": "reachability",
       "severity": "required",
       "outcome": "pass",
-      "run": "run-8ba88c4a49268441"
+      "run": "run-e7ad80cd167aa4d9"
     },
     {
       "id": "pose-mcp/go/state-attention-integration",
@@ -329431,7 +329419,7 @@
       "evidence_class": "integration",
       "severity": "required",
       "outcome": "pass",
-      "run": "run-8ba88c4a49268441"
+      "run": "run-e7ad80cd167aa4d9"
     },
     {
       "id": "pose-mcp/go/state-attention-reachability",
@@ -329440,7 +329428,7 @@
       "evidence_class": "reachability",
       "severity": "required",
       "outcome": "pass",
-      "run": "run-8ba88c4a49268441"
+      "run": "run-e7ad80cd167aa4d9"
     },
     {
       "id": "pose-mcp/go/strict-json-readers-require-the-end-integration",
@@ -329449,7 +329437,7 @@
       "evidence_class": "integration",
       "severity": "required",
       "outcome": "pass",
-      "run": "run-8ba88c4a49268441"
+      "run": "run-e7ad80cd167aa4d9"
     },
     {
       "id": "pose-mcp/go/test",
@@ -329458,7 +329446,7 @@
       "evidence_class": "unit",
       "severity": "required",
       "outcome": "pass",
-      "run": "run-8ba88c4a49268441"
+      "run": "run-e7ad80cd167aa4d9"
     },
     {
       "id": "pose-mcp/go/test-git-isolation-integration",
@@ -329467,7 +329455,7 @@
       "evidence_class": "integration",
       "severity": "required",
       "outcome": "pass",
-      "run": "run-8ba88c4a49268441"
+      "run": "run-e7ad80cd167aa4d9"
     },
     {
       "id": "pose-mcp/go/test-scripts-remove-their-temp-files-integration",
@@ -329476,7 +329464,7 @@
       "evidence_class": "integration",
       "severity": "required",
       "outcome": "pass",
-      "run": "run-8ba88c4a49268441"
+      "run": "run-e7ad80cd167aa4d9"
     },
     {
       "id": "pose-mcp/go/trace-test-refs-integration",
@@ -329485,7 +329473,7 @@
       "evidence_class": "integration",
       "severity": "required",
       "outcome": "pass",
-      "run": "run-8ba88c4a49268441"
+      "run": "run-e7ad80cd167aa4d9"
     },
     {
       "id": "pose-mcp/go/transfer-actions-integration",
@@ -329494,7 +329482,7 @@
       "evidence_class": "integration",
       "severity": "required",
       "outcome": "pass",
-      "run": "run-8ba88c4a49268441"
+      "run": "run-e7ad80cd167aa4d9"
     },
     {
       "id": "pose-mcp/go/typed-diagnostics-integration",
@@ -329503,7 +329491,7 @@
       "evidence_class": "integration",
       "severity": "required",
       "outcome": "pass",
-      "run": "run-8ba88c4a49268441"
+      "run": "run-e7ad80cd167aa4d9"
     },
     {
       "id": "pose-mcp/go/typed-diagnostics-reachability",
@@ -329512,7 +329500,7 @@
       "evidence_class": "reachability",
       "severity": "required",
       "outcome": "pass",
-      "run": "run-8ba88c4a49268441"
+      "run": "run-e7ad80cd167aa4d9"
     },
     {
       "id": "pose-mcp/go/update-preview-integration",
@@ -329521,7 +329509,7 @@
       "evidence_class": "integration",
       "severity": "required",
       "outcome": "pass",
-      "run": "run-8ba88c4a49268441"
+      "run": "run-e7ad80cd167aa4d9"
     },
     {
       "id": "pose-mcp/go/usage-adjudication-integration",
@@ -329530,7 +329518,7 @@
       "evidence_class": "integration",
       "severity": "required",
       "outcome": "pass",
-      "run": "run-8ba88c4a49268441"
+      "run": "run-e7ad80cd167aa4d9"
     },
     {
       "id": "pose-mcp/go/usage-adjudication-reachability",
@@ -329539,7 +329527,7 @@
       "evidence_class": "reachability",
       "severity": "required",
       "outcome": "pass",
-      "run": "run-8ba88c4a49268441"
+      "run": "run-e7ad80cd167aa4d9"
     },
     {
       "id": "pose-mcp/go/validate-concurrent-steps-integration",
@@ -329548,7 +329536,7 @@
       "evidence_class": "integration",
       "severity": "required",
       "outcome": "pass",
-      "run": "run-8ba88c4a49268441"
+      "run": "run-e7ad80cd167aa4d9"
     },
     {
       "id": "pose-mcp/go/validate-jobs-reachability",
@@ -329557,7 +329545,7 @@
       "evidence_class": "reachability",
       "severity": "required",
       "outcome": "pass",
-      "run": "run-8ba88c4a49268441"
+      "run": "run-e7ad80cd167aa4d9"
     },
     {
       "id": "pose-mcp/go/validate-refuses-empty-go-checks-integration",
@@ -329566,7 +329554,7 @@
       "evidence_class": "integration",
       "severity": "required",
       "outcome": "pass",
-      "run": "run-8ba88c4a49268441"
+      "run": "run-e7ad80cd167aa4d9"
     },
     {
       "id": "pose-mcp/go/validation-check-materiality-integration",
@@ -329575,7 +329563,7 @@
       "evidence_class": "integration",
       "severity": "required",
       "outcome": "pass",
-      "run": "run-8ba88c4a49268441"
+      "run": "run-e7ad80cd167aa4d9"
     },
     {
       "id": "pose-mcp/go/validation-matrix-run-patterns-integration",
@@ -329584,7 +329572,7 @@
       "evidence_class": "integration",
       "severity": "required",
       "outcome": "pass",
-      "run": "run-8ba88c4a49268441"
+      "run": "run-e7ad80cd167aa4d9"
     },
     {
       "id": "pose-mcp/go/verdict-readers-sealed-integration",
@@ -329593,7 +329581,7 @@
       "evidence_class": "integration",
       "severity": "required",
       "outcome": "pass",
-      "run": "run-8ba88c4a49268441"
+      "run": "run-e7ad80cd167aa4d9"
     },
     {
       "id": "pose-mcp/go/vet",
@@ -329602,7 +329590,7 @@
       "evidence_class": "lint",
       "severity": "optional",
       "outcome": "pass",
-      "run": "run-8ba88c4a49268441"
+      "run": "run-e7ad80cd167aa4d9"
     },
     {
       "id": "pose-mcp/go/writer-coordination-and-atomic-publication-integration",
@@ -329611,7 +329599,7 @@
       "evidence_class": "integration",
       "severity": "required",
       "outcome": "pass",
-      "run": "run-8ba88c4a49268441"
+      "run": "run-e7ad80cd167aa4d9"
     }
   ],
   "roadmap_criteria": [
@@ -335294,7 +335282,8 @@
       "artifact:pose-mcp/internal/pose/git_snapshot_integrity.go",
       "artifact:pose-mcp/internal/pose/review_attempt_ledger.go",
       "delivery:capability:validate-reads-leave-the-index-alone",
-      "entrypoint:pose-mcp/internal/cli/validate.go"
+      "entrypoint:pose-mcp/internal/cli/validate.go",
+      "validation-set:cf62b73b2f38838b"
     ],
     "capability:validate-refuses-empty-go-checks": [
       "spec:pose-validate-refuses-empty-go-checks",
