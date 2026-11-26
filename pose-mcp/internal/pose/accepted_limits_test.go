@@ -149,3 +149,16 @@ func TestTheBundlePlanDigestCoversTheAcceptedLimits(t *testing.T) {
 		t.Fatalf("the bundle plan digest does not cover the accepted limits: %s %s %s", empty, one, other)
 	}
 }
+
+// Review round 8, N1, N2: a wrapped entry keeps its continuation; fenced and
+// commented examples are not sealed.
+func TestAcceptedLimitsReadWrappedEntriesAndSkipExamples(t *testing.T) {
+	body := "### Accepted limits\n- L1: An escape. Accepted because a shim covers it\n  only on Linux and only for children.\n\n```\n- L2: An example. Accepted because it is only shown.\n```\n<!--\n- L3: A hidden one. Accepted because nobody sees it.\n-->\n"
+	limits, problems := ParseAcceptedLimits(body)
+	if len(problems) != 0 || len(limits) != 1 {
+		t.Fatalf("limits %+v problems %v", limits, problems)
+	}
+	if !strings.HasSuffix(limits[0].Text, "only on Linux and only for children.") {
+		t.Fatalf("the continuation line was cut: %q", limits[0].Text)
+	}
+}

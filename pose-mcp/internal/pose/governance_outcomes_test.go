@@ -77,7 +77,7 @@ func TestGovernanceOutcomesCountsJudgmentAndInvalidArtifacts(t *testing.T) {
 	bundleRaw, _ := json.Marshal(bundle)
 	writeGovernanceFile(t, root, ".pose/review-bundles/"+bundle.BundleID+".json", string(bundleRaw)+"\n")
 
-	att := ReviewAttestation{SchemaVersion: ReviewBundleSchemaVersion, BundleID: bundle.BundleID, BundleDigest: bundle.BundleDigest, Reviewer: "agent:reviewer", Decision: "changes-requested", Criteria: []ReviewCriterion{{ID: "scope", Disposition: "not-applicable", Rationale: "fixture"}}, Findings: []ReviewFinding{{ID: "f1", Severity: "low", Disposition: "accepted-risk"}}, AttestedAt: "2026-09-19T00:01:00Z"}
+	att := ReviewAttestation{SchemaVersion: ReviewBundleSchemaVersion, BundleID: bundle.BundleID, BundleDigest: bundle.BundleDigest, Reviewer: "agent:reviewer", Decision: "changes-requested", Criteria: []ReviewCriterion{{ID: "scope", Disposition: "not-applicable", Rationale: "fixture"}}, Findings: []ReviewFinding{{ID: "f1", Severity: "low", Disposition: "accepted-risk"}, {ID: "f2", Severity: "high", Disposition: "within-limit", Limit: "L1", Rationale: "inside L1"}}, AttestedAt: "2026-09-19T00:01:00Z"}
 	att.AttestationID = reviewAttestationID(att)
 	attRaw, _ := json.Marshal(att)
 	writeGovernanceFile(t, root, ".pose/review-attestations/"+att.AttestationID+".json", string(attRaw)+"\n")
@@ -96,7 +96,9 @@ func TestGovernanceOutcomesCountsJudgmentAndInvalidArtifacts(t *testing.T) {
 	if report.Reviews.BundlesObserved != 1 || report.Reviews.AttestationsObserved != 2 || report.Reviews.ChangesRequested != 1 || report.Reviews.Approved != 1 {
 		t.Fatalf("review dimensions = %+v", report.Reviews)
 	}
-	if report.Reviews.NotApplicable != 1 || report.Reviews.AcceptedRisk != 1 || report.Reviews.FindingsObserved != 1 || report.Reviews.InterventionsObserved != 1 {
+	// A finding within a declared limit has its own bucket (spec
+	// pose-review-declared-threat-model, review round 8, N5).
+	if report.Reviews.NotApplicable != 1 || report.Reviews.AcceptedRisk != 1 || report.Reviews.WithinLimitFindings != 1 || report.Reviews.FindingsObserved != 2 || report.Reviews.InterventionsObserved != 1 {
 		t.Fatalf("intervention dimensions = %+v", report.Reviews)
 	}
 	if report.Attempts.JudgmentAttempts != 2 || report.Attempts.FirstApprovedUnits != 1 || report.Attempts.SupersededRelations != 1 || report.Reviews.StaleUnknown != 1 {

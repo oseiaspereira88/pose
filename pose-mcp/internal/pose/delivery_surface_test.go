@@ -138,7 +138,7 @@ func TestReviewBundlePreservesLegacyEvidenceOnlyForClosedScopes(t *testing.T) {
 func TestDeliverySurfaceMatchesRootModuleAndSubdirectoryTargets(t *testing.T) {
 	set := ChangeSet{ID: "cs-root", Spec: "root-spec", Paths: []ObservedPath{{Action: "modified", Path: "internal/pkg/foo.go"}}}
 	base := BuildDeliveryIntegrity([]Spec{{Slug: "root-spec"}}, []ArtifactClaim{{Spec: "root-spec", Action: "modified", Path: "internal/pkg/foo.go"}}, []ChangeSet{set}, []string{"internal/pkg/foo.go"}, ArtifactPolicy{})
-	
+
 	// Target declared with module:internal/pkg
 	targetSub := DeliveryTarget{Spec: "root-spec", Ref: "contract:my-contract", Kind: "contract", Module: "internal/pkg", Profile: "api-contract", Entrypoint: "internal/pkg/foo.go"}
 	// Target declared with module:.
@@ -158,4 +158,3 @@ func TestDeliverySurfaceMatchesRootModuleAndSubdirectoryTargets(t *testing.T) {
 		t.Fatalf("expected resolved paths for targets, got: %+v", graph.Paths)
 	}
 }
-

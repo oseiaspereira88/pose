@@ -186,7 +186,7 @@ func TestTheCurrentBriefAsksCommandsToFinish(t *testing.T) {
 // /10 never did.
 func TestTheCurrentBriefListsTheAcceptedLimits(t *testing.T) {
 	current := renderReviewBriefBody(richBriefBundle(), ReviewBriefKindReview, reviewBriefTemplates[ReviewBriefKindReview], "", nil, &ReviewRound{Number: 1}, true, nil)
-	if !strings.Contains(current, "## Accepted limits") || !strings.Contains(current, "- L1: A process that clears its environment escapes.") || !strings.Contains(current, "with `limit` set to its id") {
+	if !strings.Contains(current, "## Accepted limits") || !strings.Contains(current, "- L1: A process that clears its environment escapes.") || !strings.Contains(current, "with `limit` set to its id") || !strings.Contains(current, "(m) the one exception to (i)") || !strings.Contains(current, "and `limit` when it falls inside an accepted limit") {
 		t.Fatalf("the current brief does not list the accepted limits:\n%s", current)
 	}
 	earlier := renderReviewBriefBody(richBriefBundle(), ReviewBriefKindReview, reviewBriefTemplateFinishCommands, "", nil, &ReviewRound{Number: 1}, true, nil)

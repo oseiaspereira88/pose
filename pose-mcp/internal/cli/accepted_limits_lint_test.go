@@ -39,7 +39,7 @@ func TestReadyCheckJudgesAcceptedLimits(t *testing.T) {
 	if code, out := run(); code == 0 || !strings.Contains(out, "does not say why it is accepted") {
 		t.Fatalf("an unjustified limit passed: %d %s", code, out)
 	}
-	write(".pose/specs/limited/spec.md", spec("\n### Accepted limits\n- L1: an escape. Accepted because it is rare.\n- L2: another. Accepted because it is rarer.\n"))
+	write(".pose/specs/limited/spec.md", spec("\n### Accepted limits\n- L1: an escape. Accepted because it is rare.\n- L2: another escape. Accepted because it is rarer.\n"))
 	// Review round 1, N3: L10 does not name L1.
 	write(".pose/adr/2026-11-25-limited.md", "# ADR\n\nFor `limited`. L10 and L2 are accepted.\n")
 	if code, out := run(); code == 0 || !strings.Contains(out, "accepted limit L1 is not named by the ADR") {
@@ -55,10 +55,17 @@ func TestReadyCheckJudgesAcceptedLimits(t *testing.T) {
 		if err := os.Chmod(adr, 0o000); err != nil {
 			t.Fatal(err)
 		}
-		defer os.Chmod(adr, 0o644)
 		if code, out := run(); code == 0 || !strings.Contains(out, "cannot be read to check the accepted limits") {
 			t.Fatalf("an unreadable ADR was read as absent: %d %s", code, out)
 		}
+		if err := os.Chmod(adr, 0o644); err != nil {
+			t.Fatal(err)
+		}
+	}
+	// Review round 8, N4: an ADR about a longer slug does not cite this one.
+	write(".pose/adr/2026-11-25-limited.md", "# ADR\n\nFor `limited-other`. Nothing about this spec.\n")
+	if code, out := run(); code != 0 {
+		t.Fatalf("an ADR citing a longer slug was taken to cite this spec: %d %s", code, out)
 	}
 	// Review round 7, N2: an ADR that is a link is not followed.
 	adr := filepath.Join(root, ".pose/adr/2026-11-25-limited.md")

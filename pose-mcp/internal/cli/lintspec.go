@@ -1197,6 +1197,7 @@ func acceptedLimitsMissingFromADRs(root, slug string, limits []posepkg.ReviewAcc
 	if err != nil {
 		return []string{"DoR: the ADRs cannot be read to check the accepted limits: " + err.Error()}
 	}
+	citesSlug := regexp.MustCompile(`(^|[^A-Za-z0-9_-])` + regexp.QuoteMeta(slug) + `($|[^A-Za-z0-9_-])`)
 	var citing []string
 	var unreadable []string
 	for _, e := range entries {
@@ -1208,7 +1209,9 @@ func acceptedLimitsMissingFromADRs(root, slug string, limits []posepkg.ReviewAcc
 			unreadable = append(unreadable, "DoR: ADR "+e.Name()+" cannot be read to check the accepted limits: "+err.Error())
 			continue
 		}
-		if !strings.Contains(string(raw), slug) {
+		// The slug as a whole name: an ADR about a longer slug does not cite a
+		// shorter one it contains (review round 8, N4).
+		if !citesSlug.MatchString(string(raw)) {
 			continue
 		}
 		citing = append(citing, string(raw))

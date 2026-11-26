@@ -143,6 +143,11 @@ func briefRulesText(template string, bundle ReviewBundle) string {
 	if reviewBriefFromAllNotApplicable(template) {
 		text += " (l) a draft that dispenses with every required criterion as `not-applicable` is refused: a scope whose whole plan is inapplicable is not reviewed by it;"
 	}
+	if template == reviewBriefTemplateAcceptedLimits {
+		// The exception to (i) for a finding inside a declared limit, which
+		// the engine applies (review round 8, N3).
+		text += " (m) the one exception to (i): a follow-up whose `limit` names an accepted limit listed above is recorded within that limit, needs no `action`, `owner` or `review_by` and does not block an approval whatever its severity; its limit must be listed and its `summary` says why it falls inside;"
+	}
 	return text + " (j) the `evidence` of a `passed` criterion is of a class the criterion asks for and, when the criterion or tool belongs to a component, of that component (the Sealed evidence list names the module of each ref); (k) the `basis` of a mapping is a requirement or decision id of the scope's spec, such as R1 or D1."
 }
 
@@ -549,7 +554,11 @@ func renderReviewBriefBody(bundle ReviewBundle, kind, template, notes string, sm
 		next = 4
 	}
 	if round != nil {
-		line("%d. At the end, the draft POSE reads: one fenced block opened with ```pose-draft holding a JSON object with `schema` %q, `decision` (the decision above), `findings` (each with `id`, `severity` high|medium|low, `disposition` blocker|follow-up, `file`, `line` and `summary`)%s. Everything outside the block is yours and is not read.", next, ReviewDraftSchema, roundFields(*round, template))
+		limitField := ""
+		if template == reviewBriefTemplateAcceptedLimits {
+			limitField = ", and `limit` when it falls inside an accepted limit"
+		}
+		line("%d. At the end, the draft POSE reads: one fenced block opened with ```pose-draft holding a JSON object with `schema` %q, `decision` (the decision above), `findings` (each with `id`, `severity` high|medium|low, `disposition` blocker|follow-up, `file`, `line` and `summary`%s)%s. Everything outside the block is yours and is not read.", next, ReviewDraftSchema, limitField, roundFields(*round, template))
 		if conclusion {
 			line("%d. In the same block, the conclusion POSE records as the attestation: `criteria` (one entry per criterion above, each with `id`, `disposition` passed|finding|not-applicable, `evidence` as `<class>:<ref>` — a class the criterion asks for when it names one — and `rationale` for not-applicable), and `tools` (one entry per tool above, each with `id`, `component` when it has one, `disposition`, `evidence` and `rationale`). A follow-up finding that should be accepted as a risk carries `action`, `owner` and `review_by`; any other finding stays open. A criterion or tool you do not answer is not answered for you.", next+1)
 			if reviewBriefStatesRules(template) {

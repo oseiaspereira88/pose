@@ -66,6 +66,9 @@ Records and indexes written by earlier engines keep their meaning.
 - modified: pose-mcp/internal/pose/review_brief_conclusion_rules_test.go
 - modified: pose-mcp/internal/pose/testdata/review_brief_template_digests.json
 - modified: pose-mcp/internal/cli/lintspec.go
+- modified: pose-mcp/internal/pose/governance_outcomes.go
+- modified: pose-mcp/internal/pose/governance_outcomes_test.go
+- modified: .pose/policy/delegation.json
 - created: pose-mcp/internal/cli/accepted_limits_lint_test.go
 - modified: POSE.md
 - modified: locales/pt-BR/POSE.md
@@ -134,6 +137,7 @@ Each requirement gets a regression test shown failing before its code.
 - 2026-11-25: review round 5 (rrn-9f6867b3c3e42377): N1, a whitespace-only reason of a `within-limit` finding is refused; N2, the ready check fails closed on an ADR directory or file it cannot read, keeping the absent-directory case. Both have tests that fail with them mutated out.
 - 2026-11-25: review round 6 (rrn-a5b61489ac04873d) found the bundle's plan digest did not cover the sealed limits; it now does, omitted when empty so every other bundle keeps its digest. `TestTheBundlePlanDigestCoversTheAcceptedLimits` checks both and fails with the field mutated out.
 - 2026-11-25: review round 7 (rrn-1236e104ff346a2d): N2, the ready check reads an ADR only as a regular file, without following a link and within 1 MiB, so a link to an endless source fails instead of hanging; the test fails with the bounded read mutated out. N1 (low) was classified by the reviewer within L1: the check is a format gate, and the substance of a limit is judged in review.
+- 2026-11-26: round 8 hit the Codex usage limit; by the maintainer's decision Claude Sonnet 5.5 reviews from here (a `claude-sonnet-5-5` profile in the delegation policy, the bundle resealed with the declared lead `anthropic/claude-opus-5-5` so the review is `different-model`; vendor independence is not achieved). Its round (rrn-b874a0e13bc62075) recorded N6 within L1, the first live use of `limit`, and requested changes: N1, a wrapped entry now keeps its continuation lines; N2, fenced blocks and HTML comments are not read as declarations; N3, `review-brief/11` (not yet published, so its digest was re-recorded) states the exception to rule (i) and lists `limit` among the finding fields; N4, an ADR cites the spec only by its slug as a whole name; N5, governance outcomes count `within-limit` findings in their own bucket. Each has a test that fails with it mutated out.
 
 
 ### Results summary
@@ -141,9 +145,9 @@ The full `pose-mcp` suite passes; the canonical result is refreshed with `pose v
 
 
 ### Requirement trace
-- R1 [satisfied] test:TestAcceptedLimitsAreParsed, test:TestTheReviewPlanSealsTheAcceptedLimits, test:TestTheBundlePlanDigestCoversTheAcceptedLimits, test:TestLimitsAcrossSpecsAreQualified, test:TestAnAcceptedLimitNeedsWordsAsItsReason
+- R1 [satisfied] test:TestAcceptedLimitsAreParsed, test:TestAcceptedLimitsReadWrappedEntriesAndSkipExamples, test:TestTheReviewPlanSealsTheAcceptedLimits, test:TestTheBundlePlanDigestCoversTheAcceptedLimits, test:TestLimitsAcrossSpecsAreQualified, test:TestAnAcceptedLimitNeedsWordsAsItsReason
 - R2 [satisfied] test:TestTheCurrentBriefListsTheAcceptedLimits
-- R3 [satisfied] test:TestAFindingWithinASealedLimitDoesNotBlockApproval
+- R3 [satisfied] test:TestAFindingWithinASealedLimitDoesNotBlockApproval, test:TestGovernanceOutcomesCountsJudgmentAndInvalidArtifacts
 - R4 [satisfied] test:TestReadyCheckJudgesAcceptedLimits
 
 

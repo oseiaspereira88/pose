@@ -103,6 +103,7 @@ type GovernanceReviewDimensions struct {
 	ResolvedFindings         int `json:"resolved_findings"`
 	WontFixFindings          int `json:"wont_fix_findings"`
 	OpenFindings             int `json:"open_findings"`
+	WithinLimitFindings      int `json:"within_limit_findings"`
 	StaleObserved            int `json:"stale_observed"`
 	StaleUnknown             int `json:"stale_unknown"`
 }
@@ -451,6 +452,10 @@ func (s Store) GovernanceOutcomes(query GovernanceOutcomesQuery) (*GovernanceOut
 				report.Reviews.WontFixFindings++
 			case "open", "changes-requested":
 				report.Reviews.OpenFindings++
+			case "within-limit":
+				// A finding inside a declared accepted limit (spec
+				// pose-review-declared-threat-model, review round 8, N5).
+				report.Reviews.WithinLimitFindings++
 			}
 		}
 		if findingInAttempt {

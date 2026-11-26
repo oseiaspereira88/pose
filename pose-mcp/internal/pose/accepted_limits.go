@@ -59,29 +59,60 @@ func ParseAcceptedLimits(body string) ([]ReviewAcceptedLimit, []string) {
 	var problems []string
 	in := false
 	seen := map[string]bool{}
-	for _, line := range strings.Split(body, "\n") {
+	// An entry may wrap over several lines: an indented or plain line that
+	// follows it continues it (review round 8, N1). Fenced blocks and HTML
+	// comments are not the spec's declarations, so examples there are never
+	// sealed (N2).
+	type entry struct{ id, text string }
+	var entries []entry
+	malformed := func(line string) {
+		problems = append(problems, "accepted limit "+quoteLedgerText(line)+" is not written as '- L<N>: <assumption>. Accepted because <reason>.'")
+	}
+	fenced := false
+	for _, line := range strings.Split(stripHTMLComments(body), "\n") {
 		trimmed := strings.TrimSpace(line)
+		if strings.HasPrefix(trimmed, "```") || strings.HasPrefix(trimmed, "~~~") {
+			fenced = !fenced
+			continue
+		}
+		if fenced {
+			continue
+		}
 		if strings.HasPrefix(trimmed, "#") {
-			in = strings.EqualFold(strings.TrimSpace(strings.TrimLeft(trimmed, "#")), "Accepted limits") || strings.EqualFold(strings.TrimSpace(strings.TrimLeft(trimmed, "#")), "Limites aceitos")
+			heading := strings.TrimSpace(strings.TrimLeft(trimmed, "#"))
+			in = strings.EqualFold(heading, "Accepted limits") || strings.EqualFold(heading, "Limites aceitos")
 			continue
 		}
-		if !in || !strings.HasPrefix(trimmed, "- ") {
+		if !in || trimmed == "" {
 			continue
 		}
-		m := acceptedLimitRE.FindStringSubmatch(trimmed)
-		if m == nil {
-			problems = append(problems, "accepted limit "+quoteLedgerText(trimmed)+" is not written as '- L<N>: <assumption>. Accepted because <reason>.'")
+		if strings.HasPrefix(trimmed, "- ") {
+			m := acceptedLimitRE.FindStringSubmatch(trimmed)
+			if m == nil {
+				malformed(trimmed)
+				entries = append(entries, entry{})
+				continue
+			}
+			entries = append(entries, entry{id: m[1], text: strings.TrimSpace(m[2])})
 			continue
 		}
-		if seen[m[1]] {
-			problems = append(problems, "accepted limit "+m[1]+" is declared twice")
+		if len(entries) > 0 && entries[len(entries)-1].id != "" {
+			entries[len(entries)-1].text += " " + trimmed
+		}
+	}
+	for _, e := range entries {
+		if e.id == "" {
 			continue
 		}
-		seen[m[1]] = true
-		if !hasAcceptedLimitReason(m[2]) {
-			problems = append(problems, "accepted limit "+m[1]+" does not say why it is accepted ('Accepted because ...')")
+		if seen[e.id] {
+			problems = append(problems, "accepted limit "+e.id+" is declared twice")
+			continue
 		}
-		limits = append(limits, ReviewAcceptedLimit{ID: m[1], Text: strings.TrimSpace(m[2])})
+		seen[e.id] = true
+		if !hasAcceptedLimitReason(e.text) {
+			problems = append(problems, "accepted limit "+e.id+" does not say why it is accepted ('Accepted because ...')")
+		}
+		limits = append(limits, ReviewAcceptedLimit{ID: e.id, Text: e.text})
 	}
 	return limits, problems
 }
