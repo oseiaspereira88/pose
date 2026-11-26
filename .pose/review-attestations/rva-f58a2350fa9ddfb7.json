@@ -1,0 +1,261 @@
+{
+  "run": {
+    "run_id": "rrn-17b88c930fddf599",
+    "proof_id": "rrp-54b9d04c735f2af7720e9bea454c5d3ce476fe0ec5de9942ad792121a8698ff5"
+  },
+  "schema_version": 1,
+  "attestation_id": "rva-f58a2350fa9ddfb7",
+  "bundle_id": "rvb-be54b58360d4549a",
+  "bundle_digest": "sha256:be54b58360d4549a89b84316071f598893a1c7ee8b32d8d5a1f23fa2df548d67",
+  "reviewer": "agent:anthropic/claude-sonnet-5-5",
+  "decision": "changes-requested",
+  "criteria": [
+    {
+      "id": "assumption-integrity",
+      "disposition": "finding",
+      "evidence": "N16",
+      "rationale": "The socket-bound cause is addressed, but the assumption that the random suffix is always 10 digits is false."
+    },
+    {
+      "id": "backend-concurrency",
+      "disposition": "passed",
+      "evidence": "integration:pose-mcp/go/delegated-run-continuity-integration",
+      "rationale": "The exclusive claim precedes directory creation and os.Mkdir is exclusive; the race left affects only which refusal is returned (N17)."
+    },
+    {
+      "id": "backend-contracts",
+      "disposition": "passed",
+      "evidence": "integration:pose-mcp/go/delegated-run-continuity-integration",
+      "rationale": "No record, brief or adapter command changes."
+    },
+    {
+      "id": "backend-input-errors",
+      "disposition": "passed",
+      "evidence": "integration:pose-mcp/go/delegated-run-continuity-integration",
+      "rationale": "The attempt id is matched by a strict pattern; existing paths and links are refused."
+    },
+    {
+      "id": "backend-integration-impact",
+      "disposition": "passed",
+      "evidence": "integration:pose-mcp/go/delegated-run-continuity-integration",
+      "rationale": "Resume and handoff both consult the check; task runs do not use this function. Focused continuity and handoff tests passed locally with a private XDG_STATE_HOME."
+    },
+    {
+      "id": "backend-observability",
+      "disposition": "passed",
+      "evidence": "integration:pose-mcp/go/delegated-run-continuity-integration",
+      "rationale": "Failures name the directory and the reason in the error or run record."
+    },
+    {
+      "id": "compatibility",
+      "disposition": "passed",
+      "evidence": "integration:pose-mcp/go/delegated-run-continuity-integration",
+      "rationale": "Earlier records keep their meaning; the transitional gap for resuming older runs is N18."
+    },
+    {
+      "id": "correctness",
+      "disposition": "finding",
+      "evidence": "N16"
+    },
+    {
+      "id": "design-causality",
+      "disposition": "passed",
+      "evidence": "structure:design-300d93d23f3c2998",
+      "rationale": "The cause was a random path removed by cleanup; a per-attempt path recreates it (D1). The design assessment observed no structural delta, so no mapping is owed."
+    },
+    {
+      "id": "documentation",
+      "disposition": "passed",
+      "evidence": "integration:pose-mcp/go/distributed-instructions-parity-integration",
+      "rationale": "Both manuals state the stable path, TMPDIR condition and remedy, matching the code; the pt-BR scaffold copy is identical and the English copy differs only by the contributor-mode block."
+    },
+    {
+      "id": "operability",
+      "disposition": "passed",
+      "evidence": "integration:pose-mcp/go/delegated-run-continuity-integration",
+      "rationale": "Refusals name the path and a remedy; the wording gap is N19."
+    },
+    {
+      "id": "requirements",
+      "disposition": "passed",
+      "evidence": "unit:pose-mcp/go/test",
+      "rationale": "R1 and R2 are exercised by the resume test, R3 by the exclusivity and resume tests; the exclusivity test's flakiness is N16."
+    },
+    {
+      "id": "scope",
+      "disposition": "passed",
+      "evidence": "integration:pose-mcp/go/delegated-run-continuity-integration",
+      "rationale": "The change stays in the runtime directory, its two continuation checks, tests and manuals."
+    },
+    {
+      "id": "security",
+      "disposition": "passed",
+      "evidence": "integration:pose-mcp/go/delegated-run-continuity-integration",
+      "rationale": "Mode 0700, exclusive creation, no link following, cleanup identity checks unchanged; predictability falls within L2 and L3, which I found justified."
+    },
+    {
+      "id": "solution-proportionality",
+      "disposition": "passed",
+      "evidence": "integration:pose-mcp/go/delegated-run-continuity-integration",
+      "rationale": "A stable name is smaller than changing the sealed brief to announce a new path; it would be invalid if one attempt could have two live runs."
+    }
+  ],
+  "tools": [
+    {
+      "id": "artifact-check",
+      "disposition": "passed",
+      "evidence": "command:pose artifact-check --spec pose-review-resume-keeps-the-sealed-checkout --strict",
+      "rationale": "Exit 0; the output tail shows warnings."
+    },
+    {
+      "id": "assess-design",
+      "disposition": "passed",
+      "evidence": "structure:design-300d93d23f3c2998",
+      "rationale": "Observed, no deltas."
+    },
+    {
+      "id": "assess-discover",
+      "component": "pose-mcp",
+      "disposition": "passed",
+      "evidence": "command:pose assess discover --no-persist --component pose-mcp",
+      "rationale": "Exit 0."
+    },
+    {
+      "id": "assess-integrate",
+      "disposition": "passed",
+      "evidence": "integration:pose-mcp/go/delegated-run-continuity-integration",
+      "rationale": "Exit 0; the gaps seen in the output tail are unobserved HTTP consumers, unrelated to this change."
+    },
+    {
+      "id": "assess-tech-debt",
+      "disposition": "passed",
+      "evidence": "command:pose assess tech-debt --no-persist",
+      "rationale": "Exit 0; the scan reports itself incomplete for two older specs."
+    },
+    {
+      "id": "closeout-check",
+      "disposition": "deferred",
+      "rationale": "Needs the completed review."
+    },
+    {
+      "id": "review-check",
+      "disposition": "deferred",
+      "rationale": "Needs the completed review."
+    },
+    {
+      "id": "suggest-review",
+      "component": "pose-mcp",
+      "disposition": "passed",
+      "evidence": "command:pose suggest review --path pose-mcp",
+      "rationale": "Exit 0."
+    },
+    {
+      "id": "surface-check",
+      "disposition": "passed",
+      "evidence": "integration:pose-mcp/go/delegated-run-continuity-integration",
+      "rationale": "Exit 0, 0 findings."
+    },
+    {
+      "id": "validate",
+      "disposition": "failed",
+      "evidence": "unit:pose-mcp/go/test",
+      "rationale": "Sandbox rerun: 236 steps, 225 pass, 10 fail, 1 error. Some failures report sandbox ownership of /var/tmp or a file mode change; runtime socket, journey, capability and removal-ordering failures and the 600s timeout were not fully diagnosed; they are inferred environmental. The sealed evidence records a pass."
+    },
+    {
+      "id": "validate",
+      "component": "pose-mcp",
+      "disposition": "failed",
+      "evidence": "unit:pose-mcp/go/test",
+      "rationale": "Sandbox rerun: 233 steps, 223 pass, 9 fail, 1 error, with the same kinds of failure; not all diagnosed. The sealed evidence records a pass."
+    }
+  ],
+  "evidence_refs": [
+    "N16",
+    "delegated-run:rrn-17b88c930fddf599",
+    "integration:pose-mcp/go/delegated-run-continuity-integration",
+    "integration:pose-mcp/go/distributed-instructions-parity-integration",
+    "structure:design-300d93d23f3c2998",
+    "unit:pose-mcp/go/test"
+  ],
+  "findings": [
+    {
+      "id": "N16",
+      "severity": "medium",
+      "evidence": "file:pose-mcp/internal/pose/review_run_runtime_dir_test.go:32",
+      "action": "The R3 test is flaky and breaks the unit gate: it requires the attempt name to be no longer than one random os.MkdirTemp name, but that suffix is a uint32 in decimal (1 to 10 digits), so shorter draws fail it. Measured 235 failures in 1000 runs; it also failed in a plain -run RunContinuity run. The comment at review_dispatch.go:2038 ('as long as the random suffix') carries the same wrong assumption. Compare against the longest random name (prefix plus 10 digits) instead of a sample.",
+      "disposition": "open"
+    },
+    {
+      "id": "N17",
+      "severity": "low",
+      "evidence": "file:pose-mcp/internal/pose/review_run_continuity.go:431",
+      "action": "Make the continuation claim and the runtime-directory check one step, or re-read the claim before refusing",
+      "disposition": "accepted-risk",
+      "owner": "@pose-maintainers",
+      "rationale": "Carries R2-N8 and R3-N12: the claim lookup and the directory check are not atomic, so a resume or handoff that loses a race can get the directory refusal instead of pending. Established by reading.",
+      "review_by": "2026-12-26"
+    },
+    {
+      "id": "N18",
+      "severity": "low",
+      "evidence": "file:pose-mcp/internal/pose/review_dispatch.go:2053",
+      "action": "Refuse or warn on resume when the predecessor's safety.runtime_id differs from the attempt's path",
+      "disposition": "accepted-risk",
+      "owner": "@pose-maintainers",
+      "rationale": "Carries R3-N11: a run interrupted under an earlier engine used a random runtime directory; resuming it creates the stable path without telling the session, which still points at the removed checkout. The predecessor's safety.runtime_id is never compared. Transitional.",
+      "review_by": "2026-12-26"
+    },
+    {
+      "id": "N19",
+      "severity": "low",
+      "evidence": "file:pose-mcp/internal/pose/review_dispatch.go:2092",
+      "action": "Word the remedy neutrally, such as 'then run again'",
+      "disposition": "accepted-risk",
+      "owner": "@pose-maintainers",
+      "rationale": "Carries R3-N13: PlanReviewHandoff returns a refusal ending in 'then resume' although the operator asked for a handoff.",
+      "review_by": "2026-12-26"
+    },
+    {
+      "id": "N20",
+      "severity": "low",
+      "evidence": "file:pose-mcp/internal/pose/review_run_runtime_dir_test.go:42",
+      "action": "Skip only the link case when os.Symlink is not permitted",
+      "disposition": "accepted-risk",
+      "owner": "@pose-maintainers",
+      "rationale": "Carries R3-N14: an os.Symlink error is fatal, so the test fails on Windows without the symlink privilege instead of skipping the link case.",
+      "review_by": "2026-12-26"
+    },
+    {
+      "id": "N21",
+      "severity": "low",
+      "evidence": "file:pose-mcp/internal/pose/review_rounds.go:699",
+      "action": "Decide in a follow-up spec whether continued rounds need a stable path or a path notice",
+      "disposition": "accepted-risk",
+      "owner": "@pose-maintainers",
+      "rationale": "Carries R3-N15: a session continued into a new round belongs to a new attempt, so its checkout path differs from the one the session saw. Outside this spec's resume scope; established by reading.",
+      "review_by": "2026-12-26"
+    }
+  ],
+  "authority": {
+    "schema_version": 1,
+    "project": "proj.pose-dist",
+    "bundle_digest": "sha256:be54b58360d4549a89b84316071f598893a1c7ee8b32d8d5a1f23fa2df548d67",
+    "principal": "agent:anthropic/claude-sonnet-5-5",
+    "role": "agent",
+    "review_execution": "rrn-17b88c930fddf599",
+    "implementation_principal": "agent:anthropic/claude-opus-5-5",
+    "implementation_execution": "sha256:344ac5868944c155772d60a95ef6ff20644580a642e772ad5c92c29428464ff8",
+    "issuer": "b34-local-executor",
+    "issued_at": "2026-11-26T10:48:55Z",
+    "audience": "proj.pose-dist"
+  },
+  "envelope": {
+    "issuer": "b34-local-executor",
+    "subject": "rvb-be54b58360d4549a",
+    "algorithm": "ed25519",
+    "public_key": "ck4sApdfePV2GT+hJyAYfJd2qLzeG55P8pevGR0bvZE=",
+    "signature": "fHCO9PUQZAcDBdZof5/xoKj2RUUGrSoKX1Hx7FRjZb1r0tPa1+UKZQx0dnkGn9rTegfKNGe1yMkb2yIYfqv5BA=="
+  },
+  "attested_at": "2026-11-26T10:48:55Z",
+  "path": ".pose/review-attestations/rva-f58a2350fa9ddfb7.json"
+}
