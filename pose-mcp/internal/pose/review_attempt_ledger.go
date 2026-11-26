@@ -530,6 +530,15 @@ func reviewHistoryGit(root string, args ...string) ([]byte, error) {
 	base := gitCommand(append([]string{"-C", root}, args...)...)
 	cmd := exec.CommandContext(ctx, "git", base.Args[1:]...)
 	cmd.Env = base.Env
+	if len(args) > 0 && args[0] == "diff" {
+		// A diff against the work tree runs over a private index (spec
+		// pose-validate-reads-leave-the-index-alone R1).
+		done, err := WithPrivateIndex(cmd, root)
+		defer done()
+		if err != nil {
+			return nil, fmt.Errorf("review history Git observation unavailable: %w", err)
+		}
+	}
 	var out reviewHistoryBuffer
 	cmd.Stdout = &out
 	if err := cmd.Run(); err != nil {

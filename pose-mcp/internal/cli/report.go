@@ -298,7 +298,7 @@ func reportChangedFiles(root, since string) []string {
 	} else {
 		args = append(args, "status", "--porcelain=v1")
 	}
-	output, err := posemodel.RawGit(args...).Output()
+	output, err := posemodel.RawGitOutputWithPrivateIndex(root, args...)
 	if err != nil {
 		return nil
 	}

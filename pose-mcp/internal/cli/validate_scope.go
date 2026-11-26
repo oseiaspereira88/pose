@@ -102,7 +102,9 @@ func computeChangedScopeWith(root, base, head string, modules []validationModule
 		gitArgs = append(gitArgs, head)
 	}
 	gitArgs = append(gitArgs, "--")
-	out, err := posemodel.RawGit(gitArgs...).Output()
+	// Against the work tree (no head) the diff runs over a private index
+	// (spec pose-validate-reads-leave-the-index-alone R1).
+	out, err := posemodel.RawGitOutputWithPrivateIndex(root, gitArgs...)
 	if err != nil {
 		return sel, fmt.Errorf("git diff %s failed (revision unknown?)", sel.rangeLabel())
 	}

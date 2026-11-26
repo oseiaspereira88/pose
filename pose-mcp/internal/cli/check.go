@@ -1131,7 +1131,17 @@ func (checker *nativeChecker) readyTransitionCandidates() []string {
 		{"diff", "--name-only", "HEAD", "--", ".pose/specs"},
 		{"ls-files", "--others", "--exclude-standard", "--", ".pose/specs"},
 	} {
-		output, err := pose.RawHistoryGit(checker.root, command...).Output()
+		// The diff against the work tree runs over a private index, so the
+		// check never rewrites .git/index (spec
+		// pose-validate-reads-leave-the-index-alone R1).
+		cmd := pose.RawHistoryGit(checker.root, command...)
+		done, err := pose.WithPrivateIndex(cmd, checker.root)
+		if err != nil {
+			done()
+			continue
+		}
+		output, err := cmd.Output()
+		done()
 		if err != nil {
 			continue
 		}

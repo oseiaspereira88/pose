@@ -656,7 +656,10 @@ func gitCommandContext(ctx context.Context, args ...string) *exec.Cmd {
 			env = append(env, kv)
 		}
 	}
-	cmd.Env = append(env, "GIT_NO_REPLACE_OBJECTS=1", "GIT_GRAFT_FILE="+os.DevNull)
+	// An engine read never takes the optional index lock nor rewrites the
+	// index's stat cache: a concurrent reader would see .git change under
+	// it (spec pose-validate-reads-leave-the-index-alone R1).
+	cmd.Env = append(env, "GIT_NO_REPLACE_OBJECTS=1", "GIT_GRAFT_FILE="+os.DevNull, "GIT_OPTIONAL_LOCKS=0")
 	return cmd
 }
 
