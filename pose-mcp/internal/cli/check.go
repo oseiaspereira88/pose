@@ -1134,10 +1134,13 @@ func (checker *nativeChecker) readyTransitionCandidates() []string {
 		// The diff reads the index without writing it (spec
 		// pose-validate-reads-leave-the-index-alone R1).
 		cmd := pose.RawHistoryGit(checker.root, command...)
-		done, err := pose.ReadOnlyIndex(cmd, checker.root)
-		if err != nil {
-			done()
-			continue
+		done := func() {}
+		if command[0] == "diff" {
+			var err error
+			if done, err = pose.ReadOnlyIndex(cmd, checker.root); err != nil {
+				done()
+				continue
+			}
 		}
 		output, err := cmd.Output()
 		done()

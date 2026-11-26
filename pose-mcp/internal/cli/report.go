@@ -300,7 +300,13 @@ func reportChangedFiles(root, since string) []string {
 	}
 	// The diff reads the index without writing it (spec
 	// pose-validate-reads-leave-the-index-alone R1).
-	output, err := posemodel.RawGitDiffReadOnly(root, args...)
+	var output []byte
+	var err error
+	if since != "" {
+		output, err = posemodel.RawGitDiffReadOnly(root, args...)
+	} else {
+		output, err = posemodel.RawGit(args...).Output()
+	}
 	if err != nil {
 		return nil
 	}

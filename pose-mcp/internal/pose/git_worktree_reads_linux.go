@@ -6,6 +6,7 @@ import (
 	"fmt"
 	"os"
 	"os/exec"
+	"time"
 
 	"golang.org/x/sys/unix"
 )
@@ -15,7 +16,7 @@ import (
 // and tries to create its lock next to it, in a directory that does not
 // exist, so the lock fails for any user, root included, and the refresh is
 // not written. No file is created.
-func readOnlyIndexFor(cmd *exec.Cmd, raw []byte) (func(), error) {
+func readOnlyIndexFor(cmd *exec.Cmd, raw []byte, modTime time.Time) (func(), error) {
 	fd, err := unix.MemfdCreate("pose-index/none", unix.MFD_CLOEXEC)
 	if err != nil {
 		return func() {}, fmt.Errorf("pose: an in-memory index cannot be made: %w", err)
@@ -28,6 +29,11 @@ func readOnlyIndexFor(cmd *exec.Cmd, raw []byte) (func(), error) {
 	if _, err := f.Seek(0, 0); err != nil {
 		f.Close()
 		return func() {}, err
+	}
+	ts := unix.NsecToTimespec(modTime.UnixNano())
+	if err := unix.UtimesNanoAt(unix.AT_FDCWD, fmt.Sprintf("/proc/self/fd/%d", fd), []unix.Timespec{ts, ts}, 0); err != nil {
+		f.Close()
+		return func() {}, fmt.Errorf("pose: the in-memory index cannot keep the index's time: %w", err)
 	}
 	cmd.ExtraFiles = append(cmd.ExtraFiles, f)
 	cmd.Env = append(cmd.Env, fmt.Sprintf("GIT_INDEX_FILE=/proc/self/fd/%d", 2+len(cmd.ExtraFiles)))

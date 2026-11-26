@@ -5,6 +5,7 @@ import (
 	"os"
 	"os/exec"
 	"path/filepath"
+	"strings"
 	"sync"
 	"testing"
 	"time"
@@ -117,5 +118,32 @@ func TestConcurrentValidationReadsNeverChangeTheIndex(t *testing.T) {
 	case why := <-changed:
 		t.Fatal(why)
 	default:
+	}
+}
+
+// Review round 2, N11: without an index file the reads still answer: the
+// untracked spec is a ready-transition candidate and the report lists it.
+func TestValidationReadsAnswerWithoutAnIndex(t *testing.T) {
+	root, _ := staleIndexRepo(t)
+	if err := os.Remove(filepath.Join(root, ".git", "index")); err != nil {
+		t.Fatal(err)
+	}
+	if err := os.WriteFile(filepath.Join(root, ".pose", "specs", "2026-11-26-beta.md"), []byte("x\n"), 0o644); err != nil {
+		t.Fatal(err)
+	}
+	found := false
+	for _, c := range (&nativeChecker{root: root}).readyTransitionCandidates() {
+		if strings.HasSuffix(c, "2026-11-26-beta.md") {
+			found = true
+		}
+	}
+	if !found {
+		t.Fatal("the ready transition read lost the new spec without an index")
+	}
+	if files := reportChangedFiles(root, ""); len(files) == 0 {
+		t.Fatal("report listed nothing without an index")
+	}
+	if _, err := computeChangedScopeWith(root, "HEAD", "", nil, scopeMetadata{}); err != nil {
+		t.Fatalf("scope selection failed without an index: %v", err)
 	}
 }

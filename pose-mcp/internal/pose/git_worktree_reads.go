@@ -2,6 +2,7 @@ package pose
 
 import (
 	"fmt"
+	"os"
 	"os/exec"
 	"strings"
 )
@@ -26,11 +27,28 @@ func ReadOnlyIndex(cmd *exec.Cmd, root string) (func(), error) {
 	if err != nil {
 		return func() {}, fmt.Errorf("pose: the index of %s cannot be located: %w", root, err)
 	}
-	raw, err := readBoundedRegular(strings.TrimSuffix(string(out), "\n"), diffIndexLimit)
+	path := strings.TrimSuffix(string(out), "\n")
+	info, err := os.Lstat(path)
+	if os.IsNotExist(err) {
+		// No index yet: there is no stat cache to refresh, so the plain read
+		// writes nothing (review round 2, N11).
+		return func() {}, nil
+	}
 	if err != nil {
 		return func() {}, fmt.Errorf("pose: the index of %s cannot be read: %w", root, err)
 	}
-	return readOnlyIndexFor(cmd, raw)
+	if !info.Mode().IsRegular() || info.Size() > diffIndexLimit {
+		return func() {}, fmt.Errorf("pose: the index of %s is not a regular file within %d bytes", root, diffIndexLimit)
+	}
+	raw, err := os.ReadFile(path)
+	if err != nil {
+		return func() {}, fmt.Errorf("pose: the index of %s cannot be read: %w", root, err)
+	}
+	// The copy keeps the index's modification time: Git trusts an entry on
+	// its stat only when the file is older than the index, so a fresher copy
+	// would hide a change made in the index's own second (review round 2,
+	// N10, racy-clean entries).
+	return readOnlyIndexFor(cmd, raw, info.ModTime())
 }
 
 // RawGitDiffReadOnly runs RawGit(args...), a diff of the repository at root,

@@ -140,3 +140,45 @@ func TestReadOnlyIndexDiffAnswersAsThePlainDiff(t *testing.T) {
 		}
 	}
 }
+
+// Review round 2, N10: an entry racily clean against the index (its file as
+// new as the index) is still compared by content: the copy keeps the index's
+// time, so Git does not trust the stat a fresher copy would make old.
+func TestReadOnlyIndexDiffSeesARacilyCleanEntry(t *testing.T) {
+	root := t.TempDir()
+	git := func(args ...string) {
+		t.Helper()
+		if out, err := exec.Command("git", append([]string{"-C", root, "-c", "user.name=t", "-c", "user.email=t@t"}, args...)...).CombinedOutput(); err != nil {
+			t.Fatal(args, err, string(out))
+		}
+	}
+	git("init", "-q")
+	file := filepath.Join(root, "a.txt")
+	if err := os.WriteFile(file, []byte("aaaa\n"), 0o644); err != nil {
+		t.Fatal(err)
+	}
+	// An old file time, so the entry is written clean, not smudged as racy.
+	stamp := time.Now().Add(-time.Hour).Truncate(time.Second)
+	if err := os.Chtimes(file, stamp, stamp); err != nil {
+		t.Fatal(err)
+	}
+	git("add", "a.txt")
+	git("commit", "-q", "-m", "i")
+	// Same size, same time: only the content tells the change.
+	if err := os.WriteFile(file, []byte("bbbb\n"), 0o644); err != nil {
+		t.Fatal(err)
+	}
+	for _, p := range []string{file, filepath.Join(root, ".git", "index")} {
+		if err := os.Chtimes(p, stamp, stamp); err != nil {
+			t.Fatal(err)
+		}
+	}
+	args := []string{"-C", root, "-c", "core.trustctime=false", "diff", "--name-only", "--"}
+	got, err := RawGitDiffReadOnly(root, args...)
+	if err != nil {
+		t.Fatal(err)
+	}
+	if string(got) != "a.txt\n" {
+		t.Fatalf("a racily clean change was hidden: %q", got)
+	}
+}
