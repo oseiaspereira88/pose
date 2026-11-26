@@ -67,6 +67,7 @@ Records and indexes written by earlier engines keep their meaning.
 - modified: pose-mcp/internal/pose/testdata/review_brief_template_digests.json
 - modified: pose-mcp/internal/cli/lintspec.go
 - modified: pose-mcp/internal/pose/governance_outcomes.go
+- modified: pose-mcp/internal/cli/governance_stats.go
 - modified: pose-mcp/internal/pose/governance_outcomes_test.go
 - modified: pose-mcp/internal/pose/delivery_surface_test.go
 - created: pose-mcp/internal/cli/accepted_limits_lint_test.go
