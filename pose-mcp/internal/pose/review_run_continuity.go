@@ -405,9 +405,6 @@ func (s Store) PlanReviewResume(id string) (DispatchPlan, error) {
 	if prior.Safety != nil && prior.Safety.Operation.Outcome != OutcomeCompleted {
 		return DispatchPlan{}, fmt.Errorf("predecessor cleanup incomplete; refusing continuation beside possible orphan")
 	}
-	if e = reviewRunRuntimeDirFree(prior.AttemptID); e != nil {
-		return DispatchPlan{}, e
-	}
 	plan := DispatchPlan{predecessor: prior, notes: prior.BriefNotes, Reason: prior.Reason, PolicyDigest: prior.PolicyDigest, OriginWorktree: origin, Adapter: prior.Adapter, Config: config, Brief: brief, Bundle: bundle, SealedCommit: prior.SealedCommit}
 	continuationRound(&plan, *prior, false)
 	if e = s.checkDispatchOrigin(plan); e != nil {
@@ -428,6 +425,11 @@ func (s Store) PlanReviewResume(id string) (DispatchPlan, error) {
 		}
 		plan.Existing = existing
 		return plan, nil
+	}
+	// Only a continuation still to start needs the attempt's runtime
+	// directory free; a repeated resume returns the recorded one.
+	if e = reviewRunRuntimeDirFree(prior.AttemptID); e != nil {
+		return DispatchPlan{}, e
 	}
 	// The attempt's budget, not this agent's: after a handoff the resumed
 	// agent may declare another (spec pose-delegation-handoff R2).
