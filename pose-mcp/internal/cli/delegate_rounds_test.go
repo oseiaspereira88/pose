@@ -7,6 +7,7 @@ import (
 	"path/filepath"
 	"strings"
 	"testing"
+	"time"
 
 	posemodel "github.com/harne8/pose-mcp/internal/pose"
 )
@@ -265,5 +266,26 @@ func TestReviewRoundsKeepTheCheckoutPathOfTheirThread(t *testing.T) {
 	third := runRecord(t, root, roundRun(t, root, "rounder")["run"].(string))
 	if third.Status != posemodel.ReviewRunCompleted || third.Thread == nil || third.Thread.Mode != posemodel.ReviewThreadNew || !strings.Contains(third.Thread.Reason, "still in use") {
 		t.Fatalf("a round continued into a held path: status=%s thread=%+v failure=%s", third.Status, third.Thread, third.Failure)
+	}
+	// Spec pose-review-resume-residuals R4: the reason names the held path.
+	if !strings.Contains(third.Thread.Reason, held) {
+		t.Fatalf("the reason does not name the held path %s: %s", held, third.Thread.Reason)
+	}
+	// R3: a path taken after the round is planned does not fail the run; the
+	// round works in its own directory and the run says the checkout moved.
+	nextReviewRound(t, root, "fix B3")
+	store := posemodel.Store{Root: root}
+	plan, err := store.PlanReviewDispatch("spec:alpha", "review", "", "rounder", "next round")
+	if err != nil {
+		t.Fatal(err)
+	}
+	late := filepath.Join(os.TempDir(), third.Safety.RuntimeID)
+	if err := os.Mkdir(late, 0o700); err != nil {
+		t.Fatal(err)
+	}
+	defer os.Remove(late)
+	fourth, err := store.RunReviewDispatch(plan, time.Now)
+	if err != nil || fourth.Status != posemodel.ReviewRunCompleted || fourth.Safety == nil || !strings.Contains(strings.Join(fourth.Safety.Limitations, ";"), "checkout moved") {
+		t.Fatalf("a path taken after the plan: %v status=%s limits=%v", err, fourth.Status, fourth.Safety)
 	}
 }

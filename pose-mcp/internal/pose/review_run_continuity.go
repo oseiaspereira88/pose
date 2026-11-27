@@ -432,8 +432,15 @@ func (s Store) PlanReviewResume(id string) (DispatchPlan, error) {
 		// Another resume takes the directory just before its claim: a claim
 		// that appears meanwhile makes this one pending (spec
 		// pose-review-resume-runtime-dir-followups R1).
-		if pending := s.awaitContinuationClaim(*prior); pending != nil {
+		existing, pending := s.awaitContinuationClaim(context.Background(), *prior)
+		if pending != nil {
 			plan.PendingContinuation = pending
+			return plan, nil
+		}
+		if existing != nil {
+			// Another resume ended meanwhile: its record is the answer
+			// (spec pose-review-resume-residuals R1).
+			plan.Existing = existing
 			return plan, nil
 		}
 		return DispatchPlan{}, e

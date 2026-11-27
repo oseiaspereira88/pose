@@ -756,7 +756,11 @@ func (s Store) RunReviewDispatchContext(parent context.Context, plan DispatchPla
 		// predecessor stays resumable, and one that lost the race to another
 		// resume is told the continuation is pending (spec
 		// pose-review-resume-runtime-dir-followups R1).
-		dir, err := s.takeContinuationRuntimeDir(plan)
+		dir, err := s.takeContinuationRuntimeDir(parent, plan)
+		var recorded *continuationRecorded
+		if errors.As(err, &recorded) {
+			return existingReviewDispatchResult(recorded.run)
+		}
 		if err != nil {
 			return ReviewRun{}, err
 		}
@@ -764,6 +768,16 @@ func (s Store) RunReviewDispatchContext(parent context.Context, plan DispatchPla
 		if err := s.claimReviewContinuation(*fresh.predecessor, now()); err != nil {
 			if dir != "" {
 				_ = os.Remove(dir)
+			}
+			// Another resume claimed and may already have ended: its record
+			// is the answer, not the publication conflict (R1).
+			if again, rerr := s.replanContinuation(plan); rerr == nil {
+				if again.Existing != nil {
+					return existingReviewDispatchResult(*again.Existing)
+				}
+				if again.PendingContinuation != nil {
+					return ReviewRun{}, again.PendingContinuation
+				}
 			}
 			return ReviewRun{}, err
 		}
@@ -829,7 +843,20 @@ func (s Store) RunReviewDispatchContext(parent context.Context, plan DispatchPla
 	}
 	tmp, err := preparedRuntimeDir, error(nil)
 	if tmp == "" {
-		tmp, err = reviewRunRuntimeDir(s.runtimeSourceFor(plan, run.AttemptID))
+		source, why := s.runtimeSourceFor(plan, run.AttemptID)
+		tmp, err = reviewRunRuntimeDir(source)
+		if err != nil && errors.Is(err, fs.ErrExist) && source != run.AttemptID && plan.predecessor == nil {
+			// The previous round's path was taken after the plan: the round
+			// works in its own directory rather than fail with its attempt
+			// reserved (R3).
+			why = "the previous round's checkout path " + filepath.Join(os.TempDir(), source) + " was taken after the round was planned"
+			tmp, err = reviewRunRuntimeDir(run.AttemptID)
+		}
+		if why != "" && err == nil {
+			// The continued session will not find its checkout where it saw
+			// it; the run says so (R2, R3).
+			safety.Limitations = append(safety.Limitations, "the continued session's checkout moved to "+filepath.Base(tmp)+": "+why)
+		}
 	}
 	if err != nil {
 		return finish(ReviewRunFailed, "runtime directory setup failed: "+err.Error())
@@ -2082,17 +2109,27 @@ func runtimeSourceOf(prior ReviewRun) string {
 
 // runtimeSourceFor is what names the runtime directory of a run of plan: the
 // predecessor's, for a continuation; the previous round's run, for a round
-// that continues its thread, whose session saw that checkout (R3); the
-// attempt otherwise.
-func (s Store) runtimeSourceFor(plan DispatchPlan, attemptID string) string {
+// that continues its thread, whose session saw that checkout; the attempt
+// otherwise. The second value says why a continued round could not take the
+// previous round's name (spec pose-review-resume-residuals R2).
+func (s Store) runtimeSourceFor(plan DispatchPlan, attemptID string) (string, string) {
 	if plan.predecessor != nil {
-		return runtimeSourceOf(*plan.predecessor)
+		return runtimeSourceOf(*plan.predecessor), ""
 	}
-	var runs []ReviewRun
-	if plan.thread.continued() {
-		runs, _, _ = s.ReadReviewRuns("")
+	if !plan.thread.continued() {
+		return attemptID, ""
 	}
-	return runtimeSourceAmong(plan, attemptID, runs)
+	runs, lost, err := s.ReadReviewRuns("")
+	source := runtimeSourceAmong(plan, attemptID, runs)
+	switch {
+	case err != nil:
+		return source, "the run ledger could not be read: " + err.Error()
+	case source == attemptID && len(lost) > 0:
+		return source, fmt.Sprintf("the previous round's run %s is not readable in the ledger", plan.thread.From)
+	case source == attemptID:
+		return source, "the previous round's run " + plan.thread.From + " was not found in the ledger"
+	}
+	return source, ""
 }
 
 // runtimeSourceAmong is runtimeSourceFor over the recorded runs given.
@@ -2177,7 +2214,7 @@ func reviewRunRuntimeDirFree(attemptID, verb string) error {
 // appears meanwhile means another resume holds it: the continuation is
 // pending. Otherwise the directory belongs to no run of the attempt, and the
 // resume is refused with nothing claimed.
-func (s Store) takeContinuationRuntimeDir(plan DispatchPlan) (string, error) {
+func (s Store) takeContinuationRuntimeDir(ctx context.Context, plan DispatchPlan) (string, error) {
 	source := runtimeSourceOf(*plan.predecessor)
 	if _, ok := reviewRunRuntimeDirPath(source); !ok {
 		return "", nil
@@ -2190,28 +2227,49 @@ func (s Store) takeContinuationRuntimeDir(plan DispatchPlan) (string, error) {
 		return "", err
 	}
 	// The resume that took it claims right after; look for that claim.
-	if pending := s.awaitContinuationClaim(*plan.predecessor); pending != nil {
+	existing, pending := s.awaitContinuationClaim(ctx, *plan.predecessor)
+	if pending != nil {
 		return "", pending
+	}
+	if existing != nil {
+		return "", &continuationRecorded{run: *existing}
 	}
 	return "", err
 }
 
-// awaitContinuationClaim waits briefly for a claim on prior's continuation,
-// returning it as pending, or nil when none appears.
-func (s Store) awaitContinuationClaim(prior ReviewRun) *PendingReviewContinuation {
+// continuationRecorded carries a continuation another resume already ended,
+// so the dispatch returns it as the recorded result.
+type continuationRecorded struct{ run ReviewRun }
+
+func (c *continuationRecorded) Error() string {
+	return "the continuation was already recorded as run " + c.run.RunID
+}
+
+// awaitContinuationClaim waits briefly for another resume's claim on prior's
+// continuation. It returns the recorded continuation when one has ended, the
+// pending one while it runs, or neither when no claim appears. It reads the
+// ledger only once a claim file is there, and stops when ctx ends (spec
+// pose-review-resume-residuals R1).
+func (s Store) awaitContinuationClaim(ctx context.Context, prior ReviewRun) (*ReviewRun, *PendingReviewContinuation) {
+	claim := filepath.Join(s.Root, continuationPath(prior.RunID, false))
 	for i := 0; i < 20; i++ {
-		runs, _, err := s.ReadReviewRuns("")
-		if err == nil {
-			existing, e := s.existingReviewContinuation(prior, runs)
-			var pending *PendingReviewContinuation
-			if errors.As(e, &pending) {
-				return pending
-			}
-			if e == nil && existing != nil {
-				return &PendingReviewContinuation{ID: "resume-of:" + prior.RunID, Predecessor: prior.RunID, AttemptID: prior.AttemptID}
+		if _, err := os.Lstat(claim); err == nil {
+			if runs, _, err := s.ReadReviewRuns(""); err == nil {
+				existing, e := s.existingReviewContinuation(prior, runs)
+				var pending *PendingReviewContinuation
+				if errors.As(e, &pending) {
+					return nil, pending
+				}
+				if e == nil && existing != nil {
+					return existing, nil
+				}
 			}
 		}
-		time.Sleep(100 * time.Millisecond)
+		select {
+		case <-ctx.Done():
+			return nil, nil
+		case <-time.After(100 * time.Millisecond):
+		}
 	}
-	return nil
+	return nil, nil
 }

@@ -1,10 +1,12 @@
 package pose
 
 import (
+	"context"
 	"os"
 	"path/filepath"
 	"strings"
 	"testing"
+	"time"
 )
 
 // Spec pose-review-resume-keeps-the-sealed-checkout R3: the attempt's
@@ -95,11 +97,11 @@ func TestRunContinuityTakesTheRuntimeDirectoryBeforeTheClaim(t *testing.T) {
 	s := Store{Root: t.TempDir()}
 	prior := ReviewRun{RunID: "rrn-prior", AttemptID: "rat-" + strings.Repeat("ab", 32)}
 	plan := DispatchPlan{predecessor: &prior}
-	dir, err := s.takeContinuationRuntimeDir(plan)
+	dir, err := s.takeContinuationRuntimeDir(context.Background(), plan)
 	if err != nil || dir == "" {
 		t.Fatalf("a free directory was not taken: %q %v", dir, err)
 	}
-	if _, err := s.takeContinuationRuntimeDir(plan); err == nil || !strings.Contains(err.Error(), "already exists") {
+	if _, err := s.takeContinuationRuntimeDir(context.Background(), plan); err == nil || !strings.Contains(err.Error(), "already exists") {
 		t.Fatalf("a taken directory was shared: %v", err)
 	}
 	if entries, _ := os.ReadDir(filepath.Join(s.Root, ".pose")); len(entries) != 0 {
@@ -115,14 +117,41 @@ func TestRunContinuityARoundDoesNotContinueIntoAHeldPath(t *testing.T) {
 		t.Setenv(name, tmp)
 	}
 	prior := ReviewRun{RunID: "rrn-prior", AttemptID: "rat-" + strings.Repeat("ab", 32)}
-	if previousRoundCheckoutHeld(prior) {
+	if previousRoundCheckoutHeld(prior) != "" {
 		t.Fatal("a free path was taken for held")
 	}
 	dir, _ := reviewRunRuntimeDirPath(runtimeSourceOf(prior))
 	if err := os.Mkdir(dir, 0o700); err != nil {
 		t.Fatal(err)
 	}
-	if !previousRoundCheckoutHeld(prior) {
+	if previousRoundCheckoutHeld(prior) == "" {
 		t.Fatal("a held path was taken for free")
+	}
+}
+
+// Spec pose-review-resume-residuals R1, R4: the wait for a claim stops with
+// its context, and a path that cannot be checked counts as held.
+func TestRunContinuityTheClaimWaitStopsAndHeldPathsAreNamed(t *testing.T) {
+	ctx, cancel := context.WithCancel(context.Background())
+	cancel()
+	started := time.Now()
+	existing, pending := Store{Root: t.TempDir()}.awaitContinuationClaim(ctx, ReviewRun{RunID: "rrn-x"})
+	if existing != nil || pending != nil || time.Since(started) > time.Second {
+		t.Fatalf("a cancelled wait: %v %v after %s", existing, pending, time.Since(started))
+	}
+	tmp := t.TempDir()
+	for _, name := range []string{"TMPDIR", "TMP", "TEMP"} {
+		t.Setenv(name, tmp)
+	}
+	prior := ReviewRun{RunID: "rrn-p", AttemptID: "rat-" + strings.Repeat("ab", 32)}
+	if got := previousRoundCheckoutHeld(prior); got != "" {
+		t.Fatalf("a free path: %s", got)
+	}
+	dir, _ := reviewRunRuntimeDirPath(runtimeSourceOf(prior))
+	if err := os.Mkdir(dir, 0o700); err != nil {
+		t.Fatal(err)
+	}
+	if got := previousRoundCheckoutHeld(prior); got != dir {
+		t.Fatalf("the held path is not named: %q", got)
 	}
 }

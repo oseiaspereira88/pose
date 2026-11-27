@@ -13,6 +13,7 @@ package pose
 import (
 	"bytes"
 	"encoding/json"
+	"errors"
 	"fmt"
 	"io"
 	"os"
@@ -691,13 +692,13 @@ func (s Store) planReviewThread(plan *DispatchPlan) error {
 		thread.Reason = "the previous round's session cannot be resumed: it recorded no session or the agent declares no resume"
 	case failed != nil:
 		thread.Reason = FailedContinuationReason(failed)
-	case previousRoundCheckoutHeld(*prior):
+	case previousRoundCheckoutHeld(*prior) != "":
 		// The continued session would work where the previous round's run
 		// did; that path is held by a leftover or a live run, so the round
 		// opens a new session in its own directory instead of failing after
 		// its attempt is reserved (spec pose-review-resume-runtime-dir-followups,
 		// review round 1, N2).
-		thread.Reason = "the previous round's checkout path " + runtimeSourceOf(*prior) + " is still in use"
+		thread.Reason = "the previous round's checkout path " + previousRoundCheckoutHeld(*prior) + " is still in use"
 	default:
 		value, rerr := s.readReviewSession(prior.SessionDigest)
 		if rerr != nil {
@@ -901,13 +902,17 @@ func reviewRoundMetrics(runs []ReviewRun) []ReviewRoundMetric {
 	return out
 }
 
-// previousRoundCheckoutHeld reports whether the runtime directory a round
-// continuing prior's session would use is already there.
-func previousRoundCheckoutHeld(prior ReviewRun) bool {
+// previousRoundCheckoutHeld returns the path of the runtime directory a
+// round continuing prior's session would use when that path is already there
+// or cannot be checked, and "" when it is free (spec
+// pose-review-resume-residuals R4).
+func previousRoundCheckoutHeld(prior ReviewRun) string {
 	dir, ok := reviewRunRuntimeDirPath(runtimeSourceOf(prior))
 	if !ok {
-		return false
+		return ""
 	}
-	_, err := os.Lstat(dir)
-	return err == nil
+	if _, err := os.Lstat(dir); errors.Is(err, os.ErrNotExist) {
+		return ""
+	}
+	return dir
 }

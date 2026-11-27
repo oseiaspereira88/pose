@@ -11,6 +11,7 @@ package pose
 // as the handoff run's own decision; only the handoff run concludes.
 
 import (
+	"context"
 	"errors"
 	"fmt"
 	"path/filepath"
@@ -348,9 +349,15 @@ func (s Store) PlanReviewHandoff(id, agent string) (DispatchPlan, error) {
 		// Another resume takes the directory just before its claim: a claim
 		// that appears meanwhile makes this one pending (spec
 		// pose-review-resume-runtime-dir-followups R1).
-		if pending := s.awaitContinuationClaim(*prior); pending != nil {
+		existing, pending := s.awaitContinuationClaim(context.Background(), *prior)
+		if pending != nil {
 			plan.PendingContinuation = pending
 			return plan, nil
+		}
+		if existing != nil {
+			// Another resume ended meanwhile: its record is the answer
+			// (spec pose-review-resume-residuals R1).
+			return DispatchPlan{}, fmt.Errorf("pose: run %s was already continued by run %s", prior.RunID, existing.RunID)
 		}
 		return DispatchPlan{}, e
 	}
