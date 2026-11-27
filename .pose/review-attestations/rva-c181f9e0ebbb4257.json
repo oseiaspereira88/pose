@@ -1,0 +1,248 @@
+{
+  "run": {
+    "run_id": "rrn-977f027e0e7c7ee5",
+    "proof_id": "rrp-4ad2b249eb40767a8af63b3330419a854aa82d18761734eb227560c7432f9cbc"
+  },
+  "schema_version": 1,
+  "attestation_id": "rva-c181f9e0ebbb4257",
+  "bundle_id": "rvb-20ceba3cab83c809",
+  "bundle_digest": "sha256:20ceba3cab83c809b745f6aef123e71314823599d71ab2cba1f34e512a3526fc",
+  "reviewer": "agent:anthropic/claude-sonnet-5-5",
+  "decision": "changes-requested",
+  "criteria": [
+    {
+      "id": "assumption-integrity",
+      "disposition": "finding",
+      "evidence": "N1",
+      "rationale": "The assumption that listing the changed specs is enough to check their transitions is false below the repository top. L1 was read and is not disputed."
+    },
+    {
+      "id": "backend-concurrency",
+      "disposition": "passed",
+      "evidence": "unit:pose-mcp/go/test",
+      "rationale": "The change adds no shared mutable state in production; memfdWrite is a test seam restored by its test. Index lookup deadlines are unchanged; L1 covers the ledger one."
+    },
+    {
+      "id": "backend-contracts",
+      "disposition": "finding",
+      "evidence": "N2"
+    },
+    {
+      "id": "backend-input-errors",
+      "disposition": "finding",
+      "evidence": "N4"
+    },
+    {
+      "id": "backend-integration-impact",
+      "disposition": "finding",
+      "evidence": "N1"
+    },
+    {
+      "id": "backend-observability",
+      "disposition": "finding",
+      "evidence": "N2"
+    },
+    {
+      "id": "compatibility",
+      "disposition": "finding",
+      "evidence": "N1",
+      "rationale": "A root below the top that passed check can now fail on a spec that did not transition."
+    },
+    {
+      "id": "correctness",
+      "disposition": "finding",
+      "evidence": "N1"
+    },
+    {
+      "id": "design-causality",
+      "disposition": "finding",
+      "evidence": "N2",
+      "rationale": "--relative, TruncateUTF8 and the failing untracked listing address their causes. The redaction design (substring replacement before the generic pattern) causes N2 and N3. The design assessment observed no structural deltas."
+    },
+    {
+      "id": "documentation",
+      "disposition": "passed",
+      "evidence": "integration:pose-mcp/go/distributed-instructions-parity-integration",
+      "rationale": "Examined the spec API/contract section and searched docs-site/docs/cli.md: it states the validate command line but nothing about redaction or listing failure that this change contradicts. The spec states the new selection failure."
+    },
+    {
+      "id": "operability",
+      "disposition": "passed",
+      "evidence": "unit:pose-mcp/go/test",
+      "rationale": "The failed untracked listing names the range, the command and the Git message in English, the CLI exits 2 and carry reports the selection as unused. Focused test passed."
+    },
+    {
+      "id": "requirements",
+      "disposition": "finding",
+      "evidence": "N4"
+    },
+    {
+      "id": "scope",
+      "disposition": "passed",
+      "evidence": "unit:pose-mcp/go/test",
+      "rationale": "The eight code files in the range match the spec artifact list and R1-R5; no unrelated behaviour was added. N7 is outside this scope."
+    },
+    {
+      "id": "security",
+      "disposition": "finding",
+      "evidence": "N2"
+    },
+    {
+      "id": "solution-proportionality",
+      "disposition": "finding",
+      "evidence": "N3",
+      "rationale": "Replacing known directories is a small design, but without path-boundary handling it is not sufficient: it removes relative text and keeps absolute tails."
+    }
+  ],
+  "tools": [
+    {
+      "id": "artifact-check",
+      "disposition": "passed",
+      "evidence": "command:pose artifact-check --spec pose-validate-index-reads-residuals --strict",
+      "rationale": "Exit 0; it printed orphan-path warnings."
+    },
+    {
+      "id": "assess-design",
+      "disposition": "passed",
+      "evidence": "structure:design-8c635a2acc70b570",
+      "rationale": "Observed, no deltas."
+    },
+    {
+      "id": "assess-discover",
+      "component": "pose-mcp",
+      "disposition": "passed",
+      "evidence": "command:pose assess discover --no-persist --component pose-mcp"
+    },
+    {
+      "id": "assess-integrate",
+      "disposition": "passed",
+      "evidence": "integration:pose-mcp/go/engine-reads-raw-history-integration",
+      "rationale": "Ran with --no-persist."
+    },
+    {
+      "id": "assess-tech-debt",
+      "disposition": "passed",
+      "evidence": "command:pose assess tech-debt --no-persist",
+      "rationale": "The scan reports itself incomplete: two spec sources could not be read."
+    },
+    {
+      "id": "closeout-check",
+      "disposition": "deferred",
+      "evidence": "command:pose closeout-check spec:pose-validate-index-reads-residuals",
+      "rationale": "Ran; it cannot pass before the review is recorded and the spec is done."
+    },
+    {
+      "id": "review-check",
+      "disposition": "deferred",
+      "evidence": "command:pose review-check spec:pose-validate-index-reads-residuals",
+      "rationale": "Ran; no review record exists yet."
+    },
+    {
+      "id": "suggest-review",
+      "component": "pose-mcp",
+      "disposition": "passed",
+      "evidence": "command:pose suggest review --path pose-mcp"
+    },
+    {
+      "id": "surface-check",
+      "disposition": "passed",
+      "evidence": "integration:pose-mcp/go/delivery-integration",
+      "rationale": "Ran with --strict: zero findings."
+    },
+    {
+      "id": "validate",
+      "disposition": "passed",
+      "evidence": "unit:pose-mcp/go/test",
+      "rationale": "Rests on the sealed result. The sandbox rerun FAILED: 236 steps, 224 pass, 11 fail, 1 timeout. Seen causes include HTTP 403 and ownership refusals of /var/tmp and /home; runtime-host, delegate-refused, file-mode and timeout failures were not root-caused, and none of the failing test names is one this change adds or edits."
+    },
+    {
+      "id": "validate",
+      "component": "pose-mcp",
+      "disposition": "passed",
+      "evidence": "unit:pose-mcp/go/test",
+      "rationale": "Rests on the sealed result. The sandbox rerun FAILED: 233 steps, 221 pass, 11 fail, 1 error, with network access denied; the eight focused tests of this change passed separately."
+    }
+  ],
+  "evidence_refs": [
+    "N1",
+    "N2",
+    "N3",
+    "N4",
+    "delegated-run:rrn-977f027e0e7c7ee5",
+    "integration:pose-mcp/go/distributed-instructions-parity-integration",
+    "unit:pose-mcp/go/test"
+  ],
+  "findings": [
+    {
+      "id": "N1",
+      "severity": "high",
+      "evidence": "file:pose-mcp/internal/cli/check.go:1182",
+      "action": "R1 is incomplete: with the root below the repository top the new --relative candidates reach `git show HEAD:\u003croot-relative path\u003e`, which Git resolves from the top. The old text comes back empty, so a modified spec already in-progress at HEAD and not ready fails strict check as a new transition (reproduced). A same-named spec at the top would be read instead and could hide a real transition (by reading). The R1 test checks only the candidate list.",
+      "disposition": "open"
+    },
+    {
+      "id": "N2",
+      "severity": "high",
+      "evidence": "file:pose-mcp/internal/cli/report.go:356",
+      "action": "Regression: replacing known directories as bare substrings leaves the tail of other paths in the versioned report, because the generic pattern no longer matches after \u003cpath\u003e. Reproduced with HOME=/home/jane: /home/jane/clients/acme-secret/index gives \u003cpath\u003e/clients/acme-secret/index, /home/janet/x gives \u003cpath\u003et/x, and \u003croot\u003e-acme-secret/index gives \u003cpath\u003e-acme-secret/index. The base pattern removed these unspaced paths whole.",
+      "disposition": "open"
+    },
+    {
+      "id": "N3",
+      "severity": "medium",
+      "evidence": "file:pose-mcp/internal/cli/report.go:356",
+      "action": "Known directories are also replaced inside relative names: with TMPDIR=/tmp, feature/tmp-cleanup becomes feature\u003cpath\u003e-cleanup, and docs/home/jane/notes becomes docs\u003cpath\u003e/notes (reproduced). Relative names were kept before.",
+      "disposition": "open"
+    },
+    {
+      "id": "N4",
+      "severity": "medium",
+      "evidence": "file:pose-mcp/internal/cli/report.go:364",
+      "action": "R2 is not met outside the known directories: `open /mnt/jane doe/index` becomes `open \u003cpath\u003e doe/index` (reproduced). Spaces, quotes or parentheses still cut the match, while the spec marks R2 satisfied. The test input [/srv/x y] asserts only that /srv is gone, not the tail.",
+      "disposition": "open"
+    },
+    {
+      "id": "N5",
+      "severity": "low",
+      "evidence": "file:pose-mcp/internal/cli/report.go:329",
+      "action": "By reading, not run on Windows: filepath.Clean turns known directories into backslash form, while Git prints forward slashes, so the whole-directory replacement would not match paths in Git messages there.",
+      "disposition": "open"
+    },
+    {
+      "id": "N6",
+      "severity": "low",
+      "evidence": "file:pose-mcp/internal/cli/validate_index_residuals_test.go:60",
+      "action": "The leading-colon case of R2 has no failing test: with `:` removed from the prefix class, TestTheReportRemovesWholePaths and the other report tests run still pass (mutation by test overlay).",
+      "disposition": "open"
+    },
+    {
+      "id": "N7",
+      "severity": "high",
+      "evidence": "file:pose-mcp/internal/cli/validate_scope.go:105",
+      "action": "Pre-existing and outside R1-R5: with the root below the repository top, the scope diff lists top-relative paths (no --relative) while ls-files lists root-relative ones. A changed file in a self-contained module is then owned by no module and the module is not selected: changed=[proj/mod/x.txt], selected empty, no error (reproduced). Validation narrows silently.",
+      "disposition": "open"
+    }
+  ],
+  "authority": {
+    "schema_version": 1,
+    "project": "proj.pose-dist",
+    "bundle_digest": "sha256:20ceba3cab83c809b745f6aef123e71314823599d71ab2cba1f34e512a3526fc",
+    "principal": "agent:anthropic/claude-sonnet-5-5",
+    "role": "agent",
+    "review_execution": "rrn-977f027e0e7c7ee5",
+    "implementation_principal": "agent:anthropic/claude-opus-5-5",
+    "implementation_execution": "sha256:344ac5868944c155772d60a95ef6ff20644580a642e772ad5c92c29428464ff8",
+    "issuer": "b34-local-executor",
+    "issued_at": "2026-11-27T16:30:57Z",
+    "audience": "proj.pose-dist"
+  },
+  "envelope": {
+    "issuer": "b34-local-executor",
+    "subject": "rvb-20ceba3cab83c809",
+    "algorithm": "ed25519",
+    "public_key": "ck4sApdfePV2GT+hJyAYfJd2qLzeG55P8pevGR0bvZE=",
+    "signature": "w5vxH8hAbKxnuhmDeq4+wtmmCFzdpnwQpQyShiIn50n1AanZdzB48AOQCThbRTAOpQYEXIOrZDT2D4/pjRi6CQ=="
+  },
+  "attested_at": "2026-11-27T16:30:57Z",
+  "path": ".pose/review-attestations/rva-c181f9e0ebbb4257.json"
+}

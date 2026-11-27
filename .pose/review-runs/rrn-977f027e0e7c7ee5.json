@@ -1,0 +1,139 @@
+{
+  "safety": {
+    "schema_version": 1,
+    "profile": "legacy-trusted",
+    "platform": "linux/amd64",
+    "capabilities": {
+      "automatic-expiry": "unavailable",
+      "bounded-capture": "available",
+      "cpu-limit": "unavailable",
+      "credential-filesystem-isolation": "unavailable",
+      "environment-allowlist": "available",
+      "escaped-descendant-termination": "environment-marked",
+      "filesystem-isolation": "unavailable",
+      "memory-limit": "unavailable",
+      "network-isolation": "unavailable",
+      "origin-isolation": "unavailable",
+      "parent-termination": "available",
+      "process-group-termination": "available",
+      "shared-git-isolation": "unavailable"
+    },
+    "limitations": [
+      "trusted local executable required; worktree is not a sandbox",
+      "outside writes, transient writes, shared Git and credential files are not isolated",
+      "no memory/CPU quota; the review run shim ends every process left in the run's subtree, including one in its own session",
+      "cleanup filesystem calls remain subject to operating-system I/O latency",
+      "legacy compatibility: HOME retained; other ambient credentials excluded"
+    ],
+    "stream_bytes": 8388608,
+    "output_bytes": 65536,
+    "retained_bytes": 16777216,
+    "timeout_ms": 3600000,
+    "max_runs_per_bundle": 3,
+    "retention": "retain-evidence; ttl=0; no automatic deletion",
+    "capture_complete": true,
+    "runtime_id": "pose-review-run-a21e9a05af",
+    "operation": {
+      "schema_version": 1,
+      "operation": "review.dispatch.cleanup",
+      "scope": "spec:pose-validate-index-reads-residuals",
+      "outcome": "completed",
+      "steps_run": [
+        {
+          "id": "cleanup",
+          "result": "done"
+        }
+      ],
+      "effects": [],
+      "resumable": false
+    }
+  },
+  "provenance": {
+    "execution_state": "started",
+    "planned_wire_digest": "sha256:fcec9a83969a10e30bb5a0d0d9611917807075ce56c279550bf6a364caa90aac",
+    "wire_bytes": 30104,
+    "wire_complete": true,
+    "schema_version": 1,
+    "project": "proj.pose-dist",
+    "audience": "proj.pose-dist",
+    "worktree_digest": "sha256:092ca52378c4c0d0f2b627da8d5031dbb854563bd4b9f2474458710c62a14816",
+    "trust": "executor-attested",
+    "implementation": {
+      "principal": "agent:anthropic/claude-opus-5-5",
+      "execution": "sha256:344ac5868944c155772d60a95ef6ff20644580a642e772ad5c92c29428464ff8",
+      "vendor": "anthropic",
+      "model": "claude-opus-5-5"
+    },
+    "reviewer": {
+      "principal": "agent:anthropic/claude-sonnet-5-5",
+      "vendor": "anthropic",
+      "model": "claude-sonnet-5-5"
+    },
+    "config_digest": "sha256:b23684d462090c30b29c472aa98a57bfadccc0b92e14fbacb173eb47d1f5b8ea",
+    "command_template_digest": "sha256:3d843a49f6314194edbdf4f7f3ce02992895b45ad84d90915a0b66a1db8afd54",
+    "argv_digest": "sha256:8a22c39a7e489adc415e18247bbb58508a44585111ead66f82a359c8378965ad",
+    "executable_digest": "sha256:c157074818b094c84aaf31b8c80a1e149f234bb1c8c84a25e9a53e96afa30a29",
+    "template_version": "review-brief/11",
+    "wire_digest": "sha256:fcec9a83969a10e30bb5a0d0d9611917807075ce56c279550bf6a364caa90aac",
+    "notes_digest": "sha256:5753488dcafce55e902df9f39e6a77faf5f2534de158f7e2bda6ad9e1a221b51",
+    "raw_transcript_digest": "sha256:3ae2b66ef04031cb319b8a37716450be4102746777c925fe1718044fb5b7155e",
+    "raw_output_digest": "sha256:a7b8c6e3768777acf81fe40b1951d68a8c78789a81ce64be0131ce793f3e7ad2",
+    "output_source": "stream-final",
+    "output_complete": true
+  },
+  "session_digest": "sha256:091a42b8dd1c261108a08a226fddc847417e20bcf165ceb9a24dcf4e06294716",
+  "tree_digest": "sha256:7a3abb12f455460fdc5c74df91e7fc131a6af423ca6a5a419b5a8c320afe16aa",
+  "brief_notes": "Implementer notes (Claude Opus 5.5, the lead). Use them as context only; the judgment is yours.\n\nScope: spec `pose-validate-index-reads-residuals` (R1–R5, accepted limit L1), the follow-ups of `pose-validate-read-only-index-followups`.\n- R1: the ready-transition diff runs with `--relative`, so a POSE root below the repository top lists its changed specs (`check.go`).\n- R2: the report note replaces the root, repository top, Git directories, temporary and home directories whole, then other absolute paths, now also after `:`, a backtick or `[` (`reportRedactPaths`, `reportNote`).\n- R3: bounds cut at a character (`TruncateUTF8`).\n- R4: a failed untracked listing fails scope selection with its cause (`validate_scope.go`).\n- R5: stand-in Git tests prove the guards (`git_reads_residuals_test.go`, `validate_index_residuals_test.go`); L1 covers the ledger's deadline.\nEach guard has a test that fails with it mutated out.\n\nPlease check in particular that the redaction never removes a relative name, that no read changed its answer, and that a healthy repository's scope selection is unchanged.\n\nBefore you finish, run `\"$POSE_REVIEW_CLI\" review draft-check --draft -` on your final message (pipe it on standard input) and fix every reason it reports.\n\nDraft format rules, enforced by the conclusion preflight:\n- New findings use short unprefixed IDs (N1, N2, …).\n- Structural-delta mappings go inside the criterion that answers them, with `basis` set to a requirement or a decision of this spec (R1–R5).\n- A criterion scoped to a component cites evidence from that component only.\n- A finding that falls inside the accepted limit L1 is a follow-up with `limit` set to \"L1\".\n\nSandbox limits: the checkout is sealed and read-only. Never `cd`; keep the checkout root as the working directory. Your Bash is limited to these command prefixes: `go test`, `go vet`, `go -C`, `git diff|log|show|status|ls-files`, `cat`, `printf`, `\"$POSE_REVIEW_CLI\"`, and the pose checks the plan lists. Keep test runs focused (`go -C pose-mcp test ./internal/cli ./internal/pose -run 'BelowTheRepositoryTop|RemovesWholePaths|FailedUntrackedListing|RemainingIndexReadGuards|NeedsNoPathFormat|RunGitInEnglish|FallbacksKeepTheAnswer|BoundsCutAtACharacter'`), and let every command you start finish before you end. Run every planned `pose` command as `\"$POSE_REVIEW_CLI\"`.\n\nA tool you cannot rerun faithfully in the sandbox (the full `validate` hits HTTP 403, `/var/tmp` owned by another user and refused delegation there) is a limit of the run, not a defect of the subject. As the approving rounds of `pose-validate-reads-leave-the-index-alone` and `pose-review-resume-keeps-the-sealed-checkout` did, record it `passed` with the sealed ref (`unit:pose-mcp/go/test`) as its evidence and the sandbox failure in its rationale; record `failed` only for a failure the subject causes.\n\nPlease report every finding you see in this round, classified blocker or follow-up, rather than stopping at the first.\n\nDo not run `go test ./...`, `go build ./...` or the full `validate`: the sealed results cover them. Keep each command's output short (pipe long output through `tail -n 40`) and finish well within the time limit.\n",
+  "ledger_version": 1,
+  "attempt_id": "rat-a21e9a05af6bf50002a349248e2fd761a5c98118b4780401aebe7eeca808abeb",
+  "schema_version": 1,
+  "run_id": "rrn-977f027e0e7c7ee5",
+  "scope": "spec:pose-validate-index-reads-residuals",
+  "bundle_id": "rvb-20ceba3cab83c809",
+  "bundle_digest": "sha256:20ceba3cab83c809b745f6aef123e71314823599d71ab2cba1f34e512a3526fc",
+  "sealed_commit": "108f8d27c4e3c9f95f956044084601f3ae3db3a9",
+  "kind": "review",
+  "brief_digest": "sha256:b8042ac28a10bbb53733d79cf90e2b625a5911cc59354f8e5931d5bf86c5589c",
+  "adapter": "claude-sonnet-5-5",
+  "vendor": "anthropic",
+  "model": "claude-sonnet-5-5",
+  "started_at": "2026-11-27T15:45:21.415461101Z",
+  "ended_at": "2026-11-27T16:29:28.249049983Z",
+  "exit_code": 0,
+  "status": "completed",
+  "transcript_digest": "sha256:0dea68ef449529f45e85d7bb70cd8515cf50d25c0a22662e24708468523b6af0",
+  "transcript_path": ".pose/review-runs/rrn-977f027e0e7c7ee5.transcript",
+  "output": "decision: changes-requested\n\nI found four blockers. R1 and R2 are not met as delivered, and the redaction change leaks path fragments that the base engine removed.\n\n## Findings\n\n| ID | Severity | Disposition | Location | Defect |\n|---|---|---|---|---|\n| N1 | high | blocker | `pose-mcp/internal/cli/check.go:1182` | Below the repository top, `git show HEAD:rel` resolves from the top, so the old spec comes back empty. An edited spec that was already in progress and not ready now fails strict check (reproduced). |\n| N2 | high | blocker | `pose-mcp/internal/cli/report.go:356` | Known directories are replaced as substrings, so path tails stay in the report: `\u003cpath\u003e/clients/acme-secret/index`. This is a regression (reproduced). |\n| N3 | medium | blocker | `pose-mcp/internal/cli/report.go:356` | Relative names are rewritten: `feature/tmp-cleanup` becomes `feature\u003cpath\u003e-cleanup` (reproduced). |\n| N4 | medium | blocker | `pose-mcp/internal/cli/report.go:364` | Outside known directories, `/mnt/jane doe/index` becomes `\u003cpath\u003e doe/index`, so R2 is unmet (reproduced). |\n| N5 | low | follow-up | `pose-mcp/internal/cli/report.go:329` | On Windows, the cleaned directory names would not match Git's forward-slash paths (by reading only). |\n| N6 | low | follow-up | `pose-mcp/internal/cli/validate_index_residuals_test.go:60` | No test fails when the leading-`:` case is removed from the pattern (checked by mutation). |\n| N7 | high | follow-up | `pose-mcp/internal/cli/validate_scope.go:105` | Pre-existing and outside this spec: below the top, a changed self-contained module is silently not selected (reproduced). |\n\n## Criteria\n\n| Criterion | Result | Basis |\n|---|---|---|\n| `assumption-integrity`, `backend-integration-impact`, `compatibility`, `correctness` | finding | N1 |\n| `backend-contracts`, `backend-observability`, `design-causality`, `security` | finding | N2 |\n| `solution-proportionality` | finding | N3 |\n| `backend-input-errors`, `requirements` | finding | N4 |\n| `backend-concurrency`, `documentation`, `operability`, `scope` | passed | Evidence and rationale in the block below |\n\n## What ran\n- **Focused tests:** the eight tests for this change passed, and `go vet` on `internal/cli` and `internal/pose` reported nothing.\n- **Accepted limit:** I do not dispute L1.\n- **Full validation:** both sandbox runs failed. The root run had 224 of 236 steps passing, 11 failures and 1 timeout. The module run had 221 of 233 passing, 11 failures and 1 error.\n- **Failure causes:** some were HTTP 403 and ownership refusals on `/var/tmp` and `/home`. I did not find the cause of the runtime-host, delegate-refused, file-mode or timeout failures. No failing test name I extracted from the root run is one this change adds or edits. The two `validate` entries are marked passed on the sealed evidence, as the implementer's notes suggested.\n- **Cleanup:** `go clean -cache` and the `go-build*` removal ran inside the sandbox and exited 0. The draft check accepted the block below.\n\n```pose-draft\n{\"schema\":\"pose.review.draft/v1\",\"decision\":\"changes-requested\",\n\"findings\":[\n{\"id\":\"N1\",\"severity\":\"high\",\"disposition\":\"blocker\",\"file\":\"pose-mcp/internal/cli/check.go\",\"line\":1182,\"summary\":\"R1 is incomplete: with the root below the repository top the new --relative candidates reach `git show HEAD:\u003croot-relative path\u003e`, which Git resolves from the top. The old text comes back empty, so a modified spec already in-progress at HEAD and not ready fails strict check as a new transition (reproduced). A same-named spec at the top would be read instead and could hide a real transition (by reading). The R1 test checks only the candidate list.\"},\n{\"id\":\"N2\",\"severity\":\"high\",\"disposition\":\"blocker\",\"file\":\"pose-mcp/internal/cli/report.go\",\"line\":356,\"summary\":\"Regression: replacing known directories as bare substrings leaves the tail of other paths in the versioned report, because the generic pattern no longer matches after \u003cpath\u003e. Reproduced with HOME=/home/jane: /home/jane/clients/acme-secret/index gives \u003cpath\u003e/clients/acme-secret/index, /home/janet/x gives \u003cpath\u003et/x, and \u003croot\u003e-acme-secret/index gives \u003cpath\u003e-acme-secret/index. The base pattern removed these unspaced paths whole.\"},\n{\"id\":\"N3\",\"severity\":\"medium\",\"disposition\":\"blocker\",\"file\":\"pose-mcp/internal/cli/report.go\",\"line\":356,\"summary\":\"Known directories are also replaced inside relative names: with TMPDIR=/tmp, feature/tmp-cleanup becomes feature\u003cpath\u003e-cleanup, and docs/home/jane/notes becomes docs\u003cpath\u003e/notes (reproduced). Relative names were kept before.\"},\n{\"id\":\"N4\",\"severity\":\"medium\",\"disposition\":\"blocker\",\"file\":\"pose-mcp/internal/cli/report.go\",\"line\":364,\"summary\":\"R2 is not met outside the known directories: `open /mnt/jane doe/index` becomes `open \u003cpath\u003e doe/index` (reproduced). Spaces, quotes or parentheses still cut the match, while the spec marks R2 satisfied. The test input [/srv/x y] asserts only that /srv is gone, not the tail.\"},\n{\"id\":\"N5\",\"severity\":\"low\",\"disposition\":\"follow-up\",\"file\":\"pose-mcp/internal/cli/report.go\",\"line\":329,\"summary\":\"By reading, not run on Windows: filepath.Clean turns known directories into backslash form, while Git prints forward slashes, so the whole-directory replacement would not match paths in Git messages there.\"},\n{\"id\":\"N6\",\"severity\":\"low\",\"disposition\":\"follow-up\",\"file\":\"pose-mcp/internal/cli/validate_index_residuals_test.go\",\"line\":60,\"summary\":\"The leading-colon case of R2 has no failing test: with `:` removed from the prefix class, TestTheReportRemovesWholePaths and the other report tests run still pass (mutation by test overlay).\"},\n{\"id\":\"N7\",\"severity\":\"high\",\"disposition\":\"follow-up\",\"file\":\"pose-mcp/internal/cli/validate_scope.go\",\"line\":105,\"summary\":\"Pre-existing and outside R1-R5: with the root below the repository top, the scope diff lists top-relative paths (no --relative) while ls-files lists root-relative ones. A changed file in a self-contained module is then owned by no module and the module is not selected: changed=[proj/mod/x.txt], selected empty, no error (reproduced). Validation narrows silently.\"}\n],\n\"criteria\":[\n{\"id\":\"assumption-integrity\",\"disposition\":\"finding\",\"evidence\":\"N1\",\"rationale\":\"The assumption that listing the changed specs is enough to check their transitions is false below the repository top. L1 was read and is not disputed.\"},\n{\"id\":\"backend-concurrency\",\"disposition\":\"passed\",\"evidence\":\"unit:pose-mcp/go/test\",\"rationale\":\"The change adds no shared mutable state in production; memfdWrite is a test seam restored by its test. Index lookup deadlines are unchanged; L1 covers the ledger one.\"},\n{\"id\":\"backend-contracts\",\"disposition\":\"finding\",\"evidence\":\"N2\"},\n{\"id\":\"backend-input-errors\",\"disposition\":\"finding\",\"evidence\":\"N4\"},\n{\"id\":\"backend-integration-impact\",\"disposition\":\"finding\",\"evidence\":\"N1\"},\n{\"id\":\"backend-observability\",\"disposition\":\"finding\",\"evidence\":\"N2\"},\n{\"id\":\"compatibility\",\"disposition\":\"finding\",\"evidence\":\"N1\",\"rationale\":\"A root below the top that passed check can now fail on a spec that did not transition.\"},\n{\"id\":\"correctness\",\"disposition\":\"finding\",\"evidence\":\"N1\"},\n{\"id\":\"design-causality\",\"disposition\":\"finding\",\"evidence\":\"N2\",\"rationale\":\"--relative, TruncateUTF8 and the failing untracked listing address their causes. The redaction design (substring replacement before the generic pattern) causes N2 and N3. The design assessment observed no structural deltas.\"},\n{\"id\":\"documentation\",\"disposition\":\"passed\",\"evidence\":\"integration:pose-mcp/go/distributed-instructions-parity-integration\",\"rationale\":\"Examined the spec API/contract section and searched docs-site/docs/cli.md: it states the validate command line but nothing about redaction or listing failure that this change contradicts. The spec states the new selection failure.\"},\n{\"id\":\"operability\",\"disposition\":\"passed\",\"evidence\":\"unit:pose-mcp/go/test\",\"rationale\":\"The failed untracked listing names the range, the command and the Git message in English, the CLI exits 2 and carry reports the selection as unused. Focused test passed.\"},\n{\"id\":\"requirements\",\"disposition\":\"finding\",\"evidence\":\"N4\"},\n{\"id\":\"scope\",\"disposition\":\"passed\",\"evidence\":\"unit:pose-mcp/go/test\",\"rationale\":\"The eight code files in the range match the spec artifact list and R1-R5; no unrelated behaviour was added. N7 is outside this scope.\"},\n{\"id\":\"security\",\"disposition\":\"finding\",\"evidence\":\"N2\"},\n{\"id\":\"solution-proportionality\",\"disposition\":\"finding\",\"evidence\":\"N3\",\"rationale\":\"Replacing known directories is a small design, but without path-boundary handling it is not sufficient: it removes relative text and keeps absolute tails.\"}\n],\n\"tools\":[\n{\"id\":\"artifact-check\",\"disposition\":\"passed\",\"evidence\":\"command:pose artifact-check --spec pose-validate-index-reads-residuals --strict\",\"rationale\":\"Exit 0; it printed orphan-path warnings.\"},\n{\"id\":\"assess-design\",\"disposition\":\"passed\",\"evidence\":\"structure:design-8c635a2acc70b570\",\"rationale\":\"Observed, no deltas.\"},\n{\"id\":\"assess-discover\",\"component\":\"pose-mcp\",\"disposition\":\"passed\",\"evidence\":\"command:pose assess discover --no-persist --component pose-mcp\"},\n{\"id\":\"assess-integrate\",\"disposition\":\"passed\",\"evidence\":\"integration:pose-mcp/go/engine-reads-raw-history-integration\",\"rationale\":\"Ran with --no-persist.\"},\n{\"id\":\"assess-tech-debt\",\"disposition\":\"passed\",\"evidence\":\"command:pose assess tech-debt --no-persist\",\"rationale\":\"The scan reports itself incomplete: two spec sources could not be read.\"},\n{\"id\":\"closeout-check\",\"disposition\":\"deferred\",\"evidence\":\"command:pose closeout-check spec:pose-validate-index-reads-residuals\",\"rationale\":\"Ran; it cannot pass before the review is recorded and the spec is done.\"},\n{\"id\":\"review-check\",\"disposition\":\"deferred\",\"evidence\":\"command:pose review-check spec:pose-validate-index-reads-residuals\",\"rationale\":\"Ran; no review record exists yet.\"},\n{\"id\":\"suggest-review\",\"component\":\"pose-mcp\",\"disposition\":\"passed\",\"evidence\":\"command:pose suggest review --path pose-mcp\"},\n{\"id\":\"surface-check\",\"disposition\":\"passed\",\"evidence\":\"integration:pose-mcp/go/delivery-integration\",\"rationale\":\"Ran with --strict: zero findings.\"},\n{\"id\":\"validate\",\"disposition\":\"passed\",\"evidence\":\"unit:pose-mcp/go/test\",\"rationale\":\"Rests on the sealed result. The sandbox rerun FAILED: 236 steps, 224 pass, 11 fail, 1 timeout. Seen causes include HTTP 403 and ownership refusals of /var/tmp and /home; runtime-host, delegate-refused, file-mode and timeout failures were not root-caused, and none of the failing test names is one this change adds or edits.\"},\n{\"id\":\"validate\",\"component\":\"pose-mcp\",\"disposition\":\"passed\",\"evidence\":\"unit:pose-mcp/go/test\",\"rationale\":\"Rests on the sealed result. The sandbox rerun FAILED: 233 steps, 221 pass, 11 fail, 1 error, with network access denied; the eight focused tests of this change passed separately.\"}\n]}\n```",
+  "policy_digest": "sha256:96d45d57ca07ec9abf850150e8563fe243393ebd1604a49798920f6dade4dbe7",
+  "label": "ires-review-r1",
+  "purpose": "review",
+  "env_removed": [
+    "CLAUDECODE",
+    "CLAUDE_CODE_BRIDGE_SESSION_ID",
+    "CLAUDE_CODE_CHILD_SESSION",
+    "CLAUDE_CODE_ENTRYPOINT",
+    "CLAUDE_CODE_EXECPATH",
+    "CLAUDE_CODE_MESSAGING_SOCKET",
+    "CLAUDE_CODE_MESSAGING_TOKEN",
+    "CLAUDE_CODE_SESSION_ATTENDED",
+    "CLAUDE_CODE_SESSION_ID",
+    "CLAUDE_EFFORT",
+    "CLAUDE_PID"
+  ],
+  "events": "claude-stream-json",
+  "events_digest": "sha256:777d688d7d81f4dd9a5ad2a53fb860ab7814ace0ac62415b823e3cf13b8600d9",
+  "routing": {
+    "requested": "claude-sonnet-5-5",
+    "implementation": {
+      "principal": "agent:anthropic/claude-opus-5-5",
+      "vendor": "anthropic",
+      "model": "claude-opus-5-5",
+      "execution_digest": "sha256:344ac5868944c155772d60a95ef6ff20644580a642e772ad5c92c29428464ff8",
+      "source": "declared"
+    },
+    "implementation_from": "bundle",
+    "step": "explicit"
+  },
+  "independence_achieved": "different-model",
+  "round": 1
+}
