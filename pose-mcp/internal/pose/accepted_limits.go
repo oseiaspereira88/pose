@@ -91,7 +91,7 @@ func ParseAcceptedLimits(body string) ([]ReviewAcceptedLimit, []string) {
 		problems = append(problems, "accepted limits: the section holds an HTML comment marker; write the limits without comments")
 		return nil, problems
 	}
-	text := stripHTMLComments(body)
+	text := stripLimitComments(body)
 	fence := ""
 	for _, line := range strings.Split(text, "\n") {
 		trimmed := strings.TrimSpace(line)
@@ -230,20 +230,60 @@ func sealedAcceptedLimit(bundle ReviewBundle, id string) bool {
 	return false
 }
 
-// unterminatedHTMLComment reports whether any "<!--" in body has no "-->"
-// after it.
-func unterminatedHTMLComment(body string) bool {
-	rest := body
+// htmlCommentStart returns the index in s, from from on, of the next "<!--"
+// that opens an HTML comment, or -1. One written in inline code (an odd
+// number of backticks before it on its line) opens nothing: Markdown shows
+// it as text, as a spec that names the marker does (review of
+// pose-review-declared-limits-followups: its own R2 named it).
+func htmlCommentStart(s string, from int) int {
 	for {
-		start := strings.Index(rest, "<!--")
+		k := strings.Index(s[from:], "<!--")
+		if k < 0 {
+			return -1
+		}
+		k += from
+		lineStart := strings.LastIndex(s[:k], "\n") + 1
+		if strings.Count(s[lineStart:k], "`")%2 == 0 {
+			return k
+		}
+		from = k + 4
+	}
+}
+
+// stripLimitComments removes the HTML comments of body, as Markdown hides
+// them; an unterminated one hides the rest.
+func stripLimitComments(body string) string {
+	var b strings.Builder
+	from := 0
+	for {
+		start := htmlCommentStart(body, from)
+		if start < 0 {
+			b.WriteString(body[from:])
+			return b.String()
+		}
+		b.WriteString(body[from:start])
+		end := strings.Index(body[start+4:], "-->")
+		if end < 0 {
+			return b.String()
+		}
+		from = start + 4 + end + 3
+	}
+}
+
+// unterminatedHTMLComment reports whether any comment body opens has no
+// "-->" after it.
+func unterminatedHTMLComment(body string) bool {
+	from := 0
+	for {
+		start := htmlCommentStart(body, from)
 		if start < 0 {
 			return false
 		}
-		end := strings.Index(rest[start+4:], "-->")
+		end := strings.Index(body[start+4:], "-->")
 		if end < 0 {
 			return true
 		}
-		rest = rest[start+4+end+3:]
+		from = start + 4 + end + 3
 	}
 }
 
@@ -265,7 +305,7 @@ func commentInAcceptedLimitsSection(body string) bool {
 		if in && (strings.Contains(line, "<!--") || strings.Contains(line, "-->")) {
 			return true
 		}
-		if k := strings.Index(line, "<!--"); k >= 0 {
+		if k := htmlCommentStart(line, 0); k >= 0 {
 			if !strings.Contains(line[k:], "-->") {
 				inComment = true
 			}

@@ -96,7 +96,7 @@ A spec whose accepted limits section held an HTML comment now has its limits ref
 
 ### Decision D1
 - Basis: R2
-R2 as drafted asked that a comment written in inline code keep its text. Telling inline code from a real comment is the kind of Markdown reading that took the origin spec four rounds to make fail-closed; instead, any comment marker inside the accepted limits section refuses the section whole, and the ready check says so. A comment outside the section, including one that holds an example section, is still stripped and not read.
+R2 as drafted asked that a comment written in inline code keep its text. Telling inline code from a real comment is the kind of Markdown reading that took the origin spec four rounds to make fail-closed; instead, any comment marker inside the accepted limits section refuses the section whole, and the ready check says so. A comment outside the section, including one that holds an example section, is still stripped and not read. A marker written in inline code (an odd number of backticks before it on its line) opens no comment, as Markdown shows it as text; the spec's own ready check found that its R2, which names the marker, was taken for an unterminated comment.
 
 ## 6. Validation
 
@@ -110,13 +110,14 @@ Each requirement gets a regression test shown failing before its code.
 
 ### Execution log
 - 2026-11-27: R1 reports a heading-like line indented under a limit; R2 reports any unterminated comment and any comment marker in the section (D1); R3 adds `limit` to `--finding`; R4 records `within-limit` only for a sealed limit; R5 declares the fields in both schemas; R6 prints within-limit findings. `TestAcceptedLimitsRefuseWhatWouldCutThem`, `TestOnlyASealedLimitIsRecordedWithinLimit`, `TestSchemaDrift`, `TestTheBundleSchemaDeclaresTheAcceptedLimits` and `TestWithinLimitFindingsAreTypedAndShown` fail with each guard mutated out.
+- 2026-11-27: this spec's own ready check failed: its R2 names `<!--` in inline code, which the new check took for an unterminated comment. A marker in inline code now opens no comment (`htmlCommentStart`, `stripLimitComments`); `TestAcceptedLimitsIgnoreAMarkerNamedInCode` fails with the backtick rule mutated out. The five specs of this repository that declare accepted limits pass the ready check unchanged.
 
 ### Results summary
 The full `pose-mcp` suite passes; the canonical result is refreshed with `pose validate --carry`.
 
 ### Requirement trace
 - R1 [satisfied] test:TestAcceptedLimitsRefuseWhatWouldCutThem
-- R2 [satisfied] test:TestAcceptedLimitsRefuseWhatWouldCutThem, test:TestAcceptedLimitsReadWrappedEntriesAndSkipExamples
+- R2 [satisfied] test:TestAcceptedLimitsRefuseWhatWouldCutThem, test:TestAcceptedLimitsIgnoreAMarkerNamedInCode, test:TestAcceptedLimitsReadWrappedEntriesAndSkipExamples
 - R3 [satisfied] test:TestWithinLimitFindingsAreTypedAndShown
 - R4 [satisfied] test:TestOnlyASealedLimitIsRecordedWithinLimit
 - R5 [satisfied] test:TestSchemaDrift, test:TestTheBundleSchemaDeclaresTheAcceptedLimits

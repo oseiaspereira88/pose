@@ -222,6 +222,7 @@ func TestAcceptedLimitsRefuseWhatWouldCutThem(t *testing.T) {
 		{"indented heading", "### Accepted limits\n- L1: An escape is open. Accepted because a shim covers it\n  # of cases on Linux and only for children.\n", "heading inside a limit"},
 		{"second unterminated comment", "<!-- closed -->\n### Accepted limits\n- L1: An escape is open. Accepted because it is rare <!-- and so on\n", "HTML comment"},
 		{"unterminated after a closed one", "<!-- closed -->\n<!-- open\n### Accepted limits\n- L1: An escape is open. Accepted because it is rare.\n", "unterminated HTML comment"},
+		{"unterminated after a closed one, in code", "A spec may name `<!--` in its prose.\n<!-- closed -->\n### Accepted limits\n- L1: An escape is open. Accepted because it is rare <!-- and so on\n", "HTML comment"},
 		{"comment in inline code", "### Accepted limits\n- L1: An escape is open. Accepted because `<!-- x -->` hides it.\n", "comment marker"},
 	}
 	for _, c := range cases {
@@ -251,5 +252,15 @@ func TestOnlyASealedLimitIsRecordedWithinLimit(t *testing.T) {
 		if got["N1"] != "within-limit/L1" || strings.HasPrefix(got["N2"], "within-limit") || strings.HasSuffix(got["N2"], "L9") {
 			t.Fatalf("%s: %v", decision, got)
 		}
+	}
+}
+
+// A spec that names the comment marker in inline code outside the section
+// hides nothing and is not reported (found by the ready check of this spec).
+func TestAcceptedLimitsIgnoreAMarkerNamedInCode(t *testing.T) {
+	body := "## Requirements\n- R2: An unterminated `<!--` anywhere is reported.\n\n### Accepted limits\n- L1: An escape is open. Accepted because it is rare.\n"
+	limits, problems := ParseAcceptedLimits(body)
+	if len(problems) != 0 || len(limits) != 1 {
+		t.Fatalf("a marker named in code: limits %+v problems %v", limits, problems)
 	}
 }
