@@ -99,7 +99,9 @@ func computeChangedScopeWith(root, base, head string, modules []validationModule
 	// keeps its owner, and a rename names both its source and its destination
 	// (review round 2, N1 and N3).
 	// Configuration never hides a changed gitlink (review round 8, N23).
-	gitArgs := []string{"-C", root, "-c", "diff.ignoreSubmodules=none", "diff", "--ignore-submodules=none", "--name-only", "-z", "--no-renames", base}
+	// --relative: with the root below the repository top Git names changes
+	// top-relative otherwise, and no module owns them (review round 1, N7).
+	gitArgs := []string{"-C", root, "-c", "diff.ignoreSubmodules=none", "diff", "--relative", "--ignore-submodules=none", "--name-only", "-z", "--no-renames", base}
 	if head != "" {
 		gitArgs = append(gitArgs, head)
 	}

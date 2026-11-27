@@ -1179,7 +1179,10 @@ func (checker *nativeChecker) checkReadyTransition(rel string) {
 	if simpleFrontmatterIn(checker.fsys(), path)["status"] != "in-progress" {
 		return
 	}
-	old, _ := pose.RawHistoryGit(checker.root, "show", "HEAD:"+rel).Output()
+	// HEAD:./ is relative to the root, as the candidates are; HEAD: alone
+	// resolves from the repository top (spec
+	// pose-validate-index-reads-residuals, review round 1, N1).
+	old, _ := pose.RawHistoryGit(checker.root, "show", "HEAD:./"+rel).Output()
 	if frontmatterFromText(string(old))["status"] == "in-progress" {
 		return
 	}
