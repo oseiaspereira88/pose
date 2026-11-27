@@ -1,7 +1,7 @@
 {
   "schema_version": 2,
-  "input_digest": "sha256:46ac4aa63968553e4ea94e8239ac67fbad71233d0e251c49b3bab04d267d7f05",
-  "provenance_digest": "sha256:3d540d808ebb31caf105febad5ee775ec9666dc2745f8dc53e00335651b1541d",
+  "input_digest": "sha256:d53817e89fdb8b7a6f219ab18ec46a02a00a1deaf6029db3d0afd0abe0a33fdc",
+  "provenance_digest": "sha256:e62546f174c746313ee3898e057d284d9274d18f977d2c109cc43ee60a2b2a08",
   "implied_edges": [
     "changes"
   ],
@@ -8712,6 +8712,13 @@
       "type": "artifact",
       "attributes": {
         "path": ".pose/results/git-locale-independent-review/windows.log"
+      }
+    },
+    {
+      "id": "artifact:.pose/results/lfix-binding.md",
+      "type": "artifact",
+      "attributes": {
+        "path": ".pose/results/lfix-binding.md"
       }
     },
     {
@@ -47449,14 +47456,6 @@
       }
     },
     {
-      "id": "change-set:cs-22b09893ee98",
-      "type": "change-set",
-      "attributes": {
-        "diff_digest": "sha256:21e88d19bf392fe7831a7f8d65c22f331f40983b0c596d3f85100765ba597177",
-        "selector": "trailers:pose-review-declared-limits-followups"
-      }
-    },
-    {
       "id": "change-set:cs-2318207a061e",
       "type": "change-set",
       "attributes": {
@@ -48590,6 +48589,14 @@
       "attributes": {
         "diff_digest": "sha256:b1991a7d988bc4640e5694e8bb8a461639890098680671878d8541f4d098ca3a",
         "selector": "trailers:pose-diagnose-invisible-governance-failures"
+      }
+    },
+    {
+      "id": "change-set:cs-5a4ec257ad59",
+      "type": "change-set",
+      "attributes": {
+        "diff_digest": "sha256:8a77732a8cbbcfd7543957b35e23ddb3287813fdf35cd02c3ab76b3180b8d883",
+        "selector": "trailers:pose-review-declared-limits-followups"
       }
     },
     {
@@ -135649,7 +135656,7 @@
     },
     {
       "from": "spec:pose-review-declared-limits-followups",
-      "to": "change-set:cs-22b09893ee98",
+      "to": "change-set:cs-5a4ec257ad59",
       "type": "observed-by"
     },
     {
@@ -200317,122 +200324,6 @@
       }
     },
     {
-      "id": "cs-22b09893ee98",
-      "spec": "pose-review-declared-limits-followups",
-      "selector": "trailers:pose-review-declared-limits-followups",
-      "base": "cf027c9c43f1aaeaf05cae5761c14fc520194b99^",
-      "head": "2b266d49343e811b547e1e8fddb62104e33ba9d2",
-      "resolved_base": "0b786b14ae35ea41f3ebfa7f7c86fea7d83109d1",
-      "resolved_head": "2b266d49343e811b547e1e8fddb62104e33ba9d2",
-      "commits": [
-        "cf027c9c43f1aaeaf05cae5761c14fc520194b99",
-        "f282a9c0422df4ce0f8cea3d593edb6ef597c38b",
-        "752bc3a20f16d2db0313edcdf8fb43dc0e91b0ac",
-        "6972210d79f7522b71c8bd28713e55f64e79203e",
-        "1cab3a442194e7776f1fd637863d6c7b793628f2",
-        "2b266d49343e811b547e1e8fddb62104e33ba9d2"
-      ],
-      "paths": [
-        {
-          "action": "created",
-          "path": ".pose/specs/2026-11-26-pose-review-declared-limits-followups.md"
-        },
-        {
-          "action": "modified",
-          "path": ".pose/indexes/delivery-integrity.json"
-        },
-        {
-          "action": "modified",
-          "path": ".pose/indexes/generation.json"
-        },
-        {
-          "action": "modified",
-          "path": ".pose/indexes/spec-graph.json"
-        },
-        {
-          "action": "modified",
-          "path": ".pose/results/delivery-validation.json"
-        },
-        {
-          "action": "modified",
-          "path": "POSE.md"
-        },
-        {
-          "action": "modified",
-          "path": "docs-site/docs/cli.md"
-        },
-        {
-          "action": "modified",
-          "path": "locales/pt-BR/POSE.md"
-        },
-        {
-          "action": "modified",
-          "path": "pose-mcp/internal/cli/accepted_limits_lint_test.go"
-        },
-        {
-          "action": "modified",
-          "path": "pose-mcp/internal/cli/review_closeout.go"
-        },
-        {
-          "action": "modified",
-          "path": "pose-mcp/internal/pose/accepted_limits.go"
-        },
-        {
-          "action": "modified",
-          "path": "pose-mcp/internal/pose/accepted_limits_test.go"
-        },
-        {
-          "action": "modified",
-          "path": "pose-mcp/internal/pose/review_conclusions.go"
-        },
-        {
-          "action": "modified",
-          "path": "pose-mcp/internal/pose/schema_test.go"
-        },
-        {
-          "action": "modified",
-          "path": "pose-mcp/internal/scaffold/dist/POSE.md"
-        },
-        {
-          "action": "modified",
-          "path": "pose-mcp/internal/scaffold/dist/locales/pt-BR/POSE.md"
-        },
-        {
-          "action": "modified",
-          "path": "pose-mcp/schemas/v1/review-bundle.schema.json"
-        },
-        {
-          "action": "modified",
-          "path": "pose-mcp/schemas/v1/review-plan.schema.json"
-        }
-      ],
-      "diff_digest": "sha256:21e88d19bf392fe7831a7f8d65c22f331f40983b0c596d3f85100765ba597177",
-      "material_digest": "sha256:86e6f7285c87c5d5772ace7a2eba0c39543bace0636628a22699f19599e5a2fa",
-      "material_inputs": {
-        "names": [
-          ".pose/indexes/delivery-integrity.json",
-          ".pose/indexes/generation.json",
-          ".pose/indexes/spec-graph.json",
-          ".pose/indexes/validation-matrix.json",
-          ".pose/results/delivery-validation.json",
-          ".pose/specs/2026-11-26-pose-review-declared-limits-followups.md",
-          "POSE.md",
-          "docs-site/docs/cli.md",
-          "locales/pt-BR/POSE.md",
-          "pose-mcp/internal/cli/accepted_limits_lint_test.go",
-          "pose-mcp/internal/cli/review_closeout.go",
-          "pose-mcp/internal/pose/accepted_limits.go",
-          "pose-mcp/internal/pose/accepted_limits_test.go",
-          "pose-mcp/internal/pose/review_conclusions.go",
-          "pose-mcp/internal/pose/schema_test.go",
-          "pose-mcp/internal/scaffold/dist/POSE.md",
-          "pose-mcp/internal/scaffold/dist/locales/pt-BR/POSE.md",
-          "pose-mcp/schemas/v1/review-bundle.schema.json",
-          "pose-mcp/schemas/v1/review-plan.schema.json"
-        ]
-      }
-    },
-    {
       "id": "cs-2318207a061e",
       "spec": "pose-retroactive-attribution-record",
       "selector": "trailers:pose-retroactive-attribution-record",
@@ -231045,6 +230936,129 @@
           "pose-mcp/internal/cli/artifact_integrity_test.go",
           "pose-mcp/internal/cli/doctor.go",
           "pose-mcp/internal/cli/doctor_invisible_failures_test.go"
+        ]
+      }
+    },
+    {
+      "id": "cs-5a4ec257ad59",
+      "spec": "pose-review-declared-limits-followups",
+      "selector": "trailers:pose-review-declared-limits-followups",
+      "base": "cf027c9c43f1aaeaf05cae5761c14fc520194b99^",
+      "head": "6e8a4a212d7d0250b30a25a587988d66408657a8",
+      "resolved_base": "0b786b14ae35ea41f3ebfa7f7c86fea7d83109d1",
+      "resolved_head": "6e8a4a212d7d0250b30a25a587988d66408657a8",
+      "commits": [
+        "cf027c9c43f1aaeaf05cae5761c14fc520194b99",
+        "f282a9c0422df4ce0f8cea3d593edb6ef597c38b",
+        "752bc3a20f16d2db0313edcdf8fb43dc0e91b0ac",
+        "6972210d79f7522b71c8bd28713e55f64e79203e",
+        "1cab3a442194e7776f1fd637863d6c7b793628f2",
+        "2b266d49343e811b547e1e8fddb62104e33ba9d2",
+        "adf23572d2d06f5590ae30cac11897db928357c8",
+        "6e8a4a212d7d0250b30a25a587988d66408657a8"
+      ],
+      "paths": [
+        {
+          "action": "created",
+          "path": ".pose/results/lfix-binding.md"
+        },
+        {
+          "action": "created",
+          "path": ".pose/specs/2026-11-26-pose-review-declared-limits-followups.md"
+        },
+        {
+          "action": "modified",
+          "path": ".pose/indexes/delivery-integrity.json"
+        },
+        {
+          "action": "modified",
+          "path": ".pose/indexes/generation.json"
+        },
+        {
+          "action": "modified",
+          "path": ".pose/indexes/spec-graph.json"
+        },
+        {
+          "action": "modified",
+          "path": ".pose/results/delivery-validation.json"
+        },
+        {
+          "action": "modified",
+          "path": "POSE.md"
+        },
+        {
+          "action": "modified",
+          "path": "docs-site/docs/cli.md"
+        },
+        {
+          "action": "modified",
+          "path": "locales/pt-BR/POSE.md"
+        },
+        {
+          "action": "modified",
+          "path": "pose-mcp/internal/cli/accepted_limits_lint_test.go"
+        },
+        {
+          "action": "modified",
+          "path": "pose-mcp/internal/cli/review_closeout.go"
+        },
+        {
+          "action": "modified",
+          "path": "pose-mcp/internal/pose/accepted_limits.go"
+        },
+        {
+          "action": "modified",
+          "path": "pose-mcp/internal/pose/accepted_limits_test.go"
+        },
+        {
+          "action": "modified",
+          "path": "pose-mcp/internal/pose/review_conclusions.go"
+        },
+        {
+          "action": "modified",
+          "path": "pose-mcp/internal/pose/schema_test.go"
+        },
+        {
+          "action": "modified",
+          "path": "pose-mcp/internal/scaffold/dist/POSE.md"
+        },
+        {
+          "action": "modified",
+          "path": "pose-mcp/internal/scaffold/dist/locales/pt-BR/POSE.md"
+        },
+        {
+          "action": "modified",
+          "path": "pose-mcp/schemas/v1/review-bundle.schema.json"
+        },
+        {
+          "action": "modified",
+          "path": "pose-mcp/schemas/v1/review-plan.schema.json"
+        }
+      ],
+      "diff_digest": "sha256:8a77732a8cbbcfd7543957b35e23ddb3287813fdf35cd02c3ab76b3180b8d883",
+      "material_digest": "sha256:86e6f7285c87c5d5772ace7a2eba0c39543bace0636628a22699f19599e5a2fa",
+      "material_inputs": {
+        "names": [
+          ".pose/indexes/delivery-integrity.json",
+          ".pose/indexes/generation.json",
+          ".pose/indexes/spec-graph.json",
+          ".pose/indexes/validation-matrix.json",
+          ".pose/results/delivery-validation.json",
+          ".pose/results/lfix-binding.md",
+          ".pose/specs/2026-11-26-pose-review-declared-limits-followups.md",
+          "POSE.md",
+          "docs-site/docs/cli.md",
+          "locales/pt-BR/POSE.md",
+          "pose-mcp/internal/cli/accepted_limits_lint_test.go",
+          "pose-mcp/internal/cli/review_closeout.go",
+          "pose-mcp/internal/pose/accepted_limits.go",
+          "pose-mcp/internal/pose/accepted_limits_test.go",
+          "pose-mcp/internal/pose/review_conclusions.go",
+          "pose-mcp/internal/pose/schema_test.go",
+          "pose-mcp/internal/scaffold/dist/POSE.md",
+          "pose-mcp/internal/scaffold/dist/locales/pt-BR/POSE.md",
+          "pose-mcp/schemas/v1/review-bundle.schema.json",
+          "pose-mcp/schemas/v1/review-plan.schema.json"
         ]
       }
     },
