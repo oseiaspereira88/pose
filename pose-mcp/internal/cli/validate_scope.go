@@ -106,7 +106,7 @@ func computeChangedScopeWith(root, base, head string, modules []validationModule
 	// pose-validate-reads-leave-the-index-alone R1).
 	out, err := posemodel.RawGitDiffReadOnly(root, gitArgs...)
 	if errors.Is(err, posemodel.ErrIndexUnreadable) {
-		return sel, fmt.Errorf("git diff %s failed: %v", sel.rangeLabel(), err)
+		return sel, fmt.Errorf("scope selection over %s: %v", sel.rangeLabel(), err)
 	}
 	if err != nil {
 		return sel, fmt.Errorf("git diff %s failed (revision unknown?): %v", sel.rangeLabel(), err)

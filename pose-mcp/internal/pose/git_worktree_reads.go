@@ -9,6 +9,7 @@ import (
 	"os"
 	"os/exec"
 	"path/filepath"
+	"regexp"
 	"strings"
 	"time"
 )
@@ -48,9 +49,15 @@ func ReadOnlyIndexContext(ctx context.Context, cmd *exec.Cmd, root string) (func
 	// `--git-path` without `--path-format`, which Git before 2.31 would echo
 	// back as a path that does not exist (review round 5, N26): the answer is
 	// relative to root unless absolute.
-	out, err := gitCommandContext(ctx, "--no-replace-objects", "-C", root, "rev-parse", "--git-path", "index").Output()
+	lookup := gitCommandContext(ctx, "--no-replace-objects", "-C", root, "rev-parse", "--git-path", "index")
+	GitEnglish(lookup)
+	var lookupErr bytes.Buffer
+	lookup.Stderr = &lookupErr
+	out, err := lookup.Output()
 	if err != nil {
-		return func() {}, fmt.Errorf("pose: the index of %s cannot be located: %w: %w", root, ErrIndexUnreadable, err)
+		// Not an index failure: no repository, a broken config or HEAD; Git's
+		// own words say which (review round 2, N14).
+		return func() {}, GitReadError("pose: locating the index of "+root, err, lookupErr.Bytes())
 	}
 	path := strings.TrimSuffix(string(out), "\n")
 	if !filepath.IsAbs(path) {
@@ -87,7 +94,7 @@ func ReadOnlyIndexContext(ctx context.Context, cmd *exec.Cmd, root string) (func
 	// N10, racy-clean entries).
 	// Git's messages in English, so GitReadError can tell an index failure
 	// whatever the user's locale.
-	cmd.Env = append(cmd.Env, "LC_ALL=C", "LANGUAGE=C")
+	GitEnglish(cmd)
 	done, err := readOnlyIndexFor(cmd, raw, info.ModTime())
 	if err != nil {
 		return done, fmt.Errorf("pose: the index of %s cannot be handed to git: %w: %w", root, ErrIndexUnreadable, err)
@@ -95,19 +102,38 @@ func ReadOnlyIndexContext(ctx context.Context, cmd *exec.Cmd, root string) (func
 	return done, nil
 }
 
-// GitReadError describes a failed git read with what git said on standard
-// error, marking it ErrIndexUnreadable when git names the index (review
-// round 1, N1–N2: a corrupt index made git exit 128 with the cause only on
-// its standard error).
+// gitIndexFailureRE matches what Git says, in English, when it refuses the
+// index itself (review round 2, N13: the word "index" alone also matched a
+// revision named after it).
+var gitIndexFailureRE = regexp.MustCompile(`(?i)\bindex file\b|\bbad (index file )?signature\b|\bindex uses \S+ extension\b|\bbad index version\b`)
+
+// gitReadSaidLimit bounds what a read error keeps of Git's standard error.
+const gitReadSaidLimit = 300
+
+// GitReadError describes a failed git read with the first line of what git
+// said on standard error, bounded, marking it ErrIndexUnreadable when git
+// refused the index (review rounds 1 N1–N2, 2 N13, N15). Git must run with
+// LC_ALL=C for the mark to hold in any locale.
 func GitReadError(what string, err error, stderr []byte) error {
 	said := strings.TrimSpace(string(stderr))
+	if k := strings.IndexByte(said, '\n'); k >= 0 {
+		said = strings.TrimSpace(said[:k])
+	}
+	if len(said) > gitReadSaidLimit {
+		said = said[:gitReadSaidLimit] + "…"
+	}
 	if said == "" {
 		return fmt.Errorf("%s failed: %w", what, err)
 	}
-	if strings.Contains(said, "index") {
+	if gitIndexFailureRE.MatchString(said) {
 		return fmt.Errorf("%s failed: %w: %w: %s", what, ErrIndexUnreadable, err, said)
 	}
 	return fmt.Errorf("%s failed: %w: %s", what, err, said)
+}
+
+// GitEnglish makes cmd's messages English, so GitReadError can read them.
+func GitEnglish(cmd *exec.Cmd) {
+	cmd.Env = append(cmd.Env, "LC_ALL=C", "LANGUAGE=C")
 }
 
 // privateIndexCopy hands raw to cmd as a private copy: Git refreshes and may

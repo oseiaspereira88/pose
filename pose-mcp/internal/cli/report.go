@@ -6,7 +6,6 @@ import (
 	"crypto/sha256"
 	"encoding/hex"
 	"encoding/json"
-	"errors"
 	"fmt"
 	"github.com/harne8/pose-mcp/internal/cli/cliout"
 	"io"
@@ -197,14 +196,8 @@ func runReportWith(root string, args []string, validationLog []byte, summary *va
 			}
 		}
 	}
-	filesChanged, err := reportChangedFiles(root, values["since"])
-	if err != nil && values["since"] == "" && !errors.Is(err, posemodel.ErrIndexUnreadable) {
-		// Outside a repository the plain listing stays silent, as before
-		// (review round 1, N9).
-		err = nil
-	}
+	filesChanged, err := reportChangedFilesNoted(root, values["since"], locale)
 	if err != nil {
-		filesChanged = []string{cliText(locale, "_The changed files could not be listed: ", "_Os arquivos alterados não puderam ser listados: ") + err.Error() + "_"}
 		// The report still writes, without the list it could not read
 		// (review round 5, N23).
 		render(stderr, stderr).Finding(cliout.Finding{State: cliout.StateWarning, Code: "report-changed-files", Message: fmt.Sprintf(cliText(locale, "the changed files cannot be listed: %v", "os arquivos alterados não podem ser listados: %v"), err)})
@@ -304,6 +297,22 @@ func readLastReportRecord(path string) *reportRecord {
 	return last
 }
 
+// reportChangedFilesNoted is reportChangedFiles for the report: outside a
+// repository the plain listing stays silent, as before (review round 1, N9);
+// any other failure is returned to warn about and stated in the list, on
+// one line (review round 2, N12, N15).
+func reportChangedFilesNoted(root, since string, locale cliLocale) ([]string, error) {
+	files, err := reportChangedFiles(root, since)
+	if err == nil {
+		return files, nil
+	}
+	if since == "" && posemodel.RawGit("-C", root, "rev-parse", "--git-dir").Run() != nil {
+		return files, nil
+	}
+	note := strings.ReplaceAll(err.Error(), "\n", " ")
+	return []string{cliText(locale, "_The changed files could not be listed: ", "_Os arquivos alterados não puderam ser listados: ") + note + "_"}, err
+}
+
 func reportChangedFiles(root, since string) ([]string, error) {
 	args := []string{"-C", root}
 	if since != "" {
@@ -320,6 +329,7 @@ func reportChangedFiles(root, since string) ([]string, error) {
 	} else {
 		var stderr bytes.Buffer
 		cmd := posemodel.RawGit(args...)
+		posemodel.GitEnglish(cmd)
 		cmd.Stderr = &stderr
 		if output, err = cmd.Output(); err != nil {
 			err = posemodel.GitReadError("git status", err, stderr.Bytes())

@@ -2,6 +2,7 @@ package cli
 
 import (
 	"bytes"
+	"errors"
 	posemodel "github.com/harne8/pose-mcp/internal/pose"
 	"os"
 	"os/exec"
@@ -198,5 +199,34 @@ func TestACorruptIndexIsReportedWithItsCause(t *testing.T) {
 	}
 	if _, err := reportChangedFiles(root, "HEAD"); err == nil || !strings.Contains(err.Error(), "index") {
 		t.Fatalf("report did not name the corrupt index: %v", err)
+	}
+}
+
+// Review round 2 of spec pose-validate-read-only-index-followups, N12–N16:
+// index failures are named in any locale, a revision named after the index
+// stays a revision failure, the report states a failure on one line and stays
+// silent only outside a repository.
+func TestIndexFailuresAreNamedInAnyLocale(t *testing.T) {
+	t.Setenv("LC_ALL", "pt_BR.UTF-8")
+	t.Setenv("LANGUAGE", "pt_BR")
+	root, _ := staleIndexRepo(t)
+	if err := os.WriteFile(filepath.Join(root, ".git", "index"), []byte("not an index at all"), 0o644); err != nil {
+		t.Fatal(err)
+	}
+	files, err := reportChangedFilesNoted(root, "", localeEN)
+	if !errors.Is(err, posemodel.ErrIndexUnreadable) {
+		t.Fatalf("a corrupt index in another locale was not named: %v", err)
+	}
+	if len(files) != 1 || !strings.HasPrefix(files[0], "_The changed files could not be listed: ") || strings.Contains(files[0], "\n") {
+		t.Fatalf("the report did not state the failure on one line: %q", files)
+	}
+	clean, _ := staleIndexRepo(t)
+	if _, err := computeChangedScopeWith(clean, "feature/index-rework", "", nil, scopeMetadata{}); err == nil || !strings.Contains(err.Error(), "revision unknown?") {
+		t.Fatalf("a revision named after the index was taken for an index failure: %v", err)
+	}
+	outside := t.TempDir()
+	t.Setenv("GIT_CEILING_DIRECTORIES", filepath.Dir(outside))
+	if files, err := reportChangedFilesNoted(outside, "", localeEN); err != nil || len(files) != 0 {
+		t.Fatalf("a plain report outside a repository was not silent: %q %v", files, err)
 	}
 }

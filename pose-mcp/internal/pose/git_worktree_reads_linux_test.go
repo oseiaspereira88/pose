@@ -40,3 +40,16 @@ func TestReadOnlyIndexFallsBackWithoutAMemoryFile(t *testing.T) {
 		})
 	}
 }
+
+// Review round 2, N16: a failure handing the index to git, here with neither
+// a memory file nor a usable temporary directory, is an index failure.
+func TestAFailedIndexHandOverIsAnIndexFailure(t *testing.T) {
+	top, _ := staleRepo(t, "")
+	save := memfdCreate
+	defer func() { memfdCreate = save }()
+	memfdCreate = func(string, int) (int, error) { return -1, errors.New("no memfd here") }
+	t.Setenv("TMPDIR", filepath.Join(t.TempDir(), "missing"))
+	if _, err := RawGitDiffReadOnly(top, "-C", top, "diff", "--name-only", "--"); !errors.Is(err, ErrIndexUnreadable) {
+		t.Fatalf("a failed hand-over: %v", err)
+	}
+}

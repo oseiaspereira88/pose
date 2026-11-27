@@ -2,6 +2,8 @@ package pose
 
 import (
 	"bytes"
+	"context"
+	"errors"
 	"os"
 	"os/exec"
 	"path/filepath"
@@ -411,5 +413,34 @@ func TestReadOnlyIndexDiffCoversConflictsRangesAndDirtySubmodules(t *testing.T) 
 	}
 	if after, _ := os.ReadFile(filepath.Join(root, ".git", "index")); !bytes.Equal(before, after) {
 		t.Fatal("concurrent review history reads changed .git/index")
+	}
+}
+
+// Review round 2, N13–N16: Git's message is kept on one bounded line, an
+// index refusal is told from a revision named after the index, a lookup
+// outside a repository is not an index failure, and the lookup honours the
+// caller's context.
+func TestGitReadErrorsNameTheirCause(t *testing.T) {
+	long := "fatal: index file smaller than expected " + strings.Repeat("x", 500) + "\nsecond line"
+	err := GitReadError("git diff", errors.New("exit status 128"), []byte(long))
+	if !errors.Is(err, ErrIndexUnreadable) || strings.Contains(err.Error(), "second line") || len(err.Error()) > 400 {
+		t.Fatalf("an index refusal: %v", err)
+	}
+	if err := GitReadError("git diff", errors.New("exit status 128"), []byte("fatal: index file corrupt\nhint: second line")); strings.Contains(err.Error(), "second line") {
+		t.Fatalf("a multi-line message was kept whole: %v", err)
+	}
+	if err := GitReadError("git diff", errors.New("exit status 128"), []byte("fatal: bad revision 'feature/index-rework'")); errors.Is(err, ErrIndexUnreadable) {
+		t.Fatalf("a revision named after the index: %v", err)
+	}
+	outside := t.TempDir()
+	t.Setenv("GIT_CEILING_DIRECTORIES", filepath.Dir(outside))
+	if _, err := ReadOnlyIndex(RawGit("-C", outside, "diff"), outside); err == nil || errors.Is(err, ErrIndexUnreadable) || !strings.Contains(err.Error(), "not a git repository") {
+		t.Fatalf("a lookup outside a repository: %v", err)
+	}
+	top, _ := staleRepo(t, "")
+	ctx, cancel := context.WithCancel(context.Background())
+	cancel()
+	if _, err := ReadOnlyIndexContext(ctx, RawGit("-C", top, "diff"), top); err == nil {
+		t.Fatal("the lookup ignored a cancelled context")
 	}
 }

@@ -107,7 +107,7 @@ The index is judged on the file actually opened, opened with `O_NONBLOCK` where 
 
 ### Decision D3
 - Basis: R2
-The index lookup runs under the caller's context where the caller has one (`ReadOnlyIndexContext`, used by the review history reader within its 30 s), and under a 30 s bound of its own otherwise. Git's standard error is kept, and a failure in which Git names the index is marked `ErrIndexUnreadable`; the read-only command runs with `LC_ALL=C` so that holds in any locale.
+The index lookup runs under the caller's context where the caller has one (`ReadOnlyIndexContext`, used by the review history reader within its 30 s), and under a 30 s bound of its own otherwise. Git's standard error is kept, as its first line within 300 bytes, and a failure in which Git refuses the index (`index file …`, `bad signature`, `index uses … extension`, `bad index version`) is marked `ErrIndexUnreadable`; every read whose error is classified runs with `LC_ALL=C` (`GitEnglish`), so that holds in any locale. A failed lookup of the index is reported with Git's words and is not an index failure (no repository, a broken config or HEAD). The report stays silent only where the root is not a repository.
 
 ## 6. Validation
 
@@ -122,13 +122,14 @@ Each requirement gets a regression test shown failing before its code.
 ### Execution log
 - 2026-11-26: R1 opens without blocking and judges the opened file; R2 reports a failed index read in `check`, names it in scope selection (`ErrIndexUnreadable`) and warns in `report`; R3 locates the index with `--git-path` relative to the root, within a 30 s deadline; R4 falls back to the private copy when the memory file or its time cannot be set. Each has a test that fails with its guard mutated out: `TestReadOnlyIndexToleratesAnAtomicallyReplacedIndex`, `TestAFailedIndexReadIsReported`, `TestReadOnlyIndexFindsTheIndexFromASubdirectory`, `TestThePrivateIndexCopyLeavesTheIndexAlone`. R6 adds `TestReadOnlyIndexDiffCoversConflictsRangesAndDirtySubmodules`, which passes on the existing reader. R5 is L1 (D1).
 - 2026-11-26: review round 1 (rrn-4262ae59adfc1641) requested changes. N1–N2: a corrupt index, which Git itself refuses, is now reported with Git's own message and marked as an index failure in check, scope selection and report (`TestACorruptIndexIsReportedWithItsCause`; fails with the classification or check's capture removed). N3: D3. N4: the memfd and timestamp calls are replaceable, and `TestReadOnlyIndexFallsBackWithoutAMemoryFile` fails with either fallback removed. N5: the R6 test makes the stat cache stale before every read, so it fails with the protection or the ledger's use of it removed, and the CLI concurrency test runs `ReviewRunHistoryFindings`. N8: failures handing the index to Git are index failures, and a failing memfd write falls back too. N9: the report states that the list could not be read, and a plain `pose report` outside a repository stays silent. N10: the check's findings are localised. N6, N7 and N11 are follow-ups.
+- 2026-11-26: review round 2 (rrn-ef7133259b2c911e) requested changes. N12: the plain `report` listing runs in English and is silent only outside a repository (`reportChangedFilesNoted`); N13: the index-failure test matches Git's index refusals, not the word `index`, and the scope message no longer repeats itself; N14: a failed lookup keeps Git's cause and is not an index failure; N15: Git's message is kept on one bounded line and the report states it on one line; N16: `TestIndexFailuresAreNamedInAnyLocale`, `TestGitReadErrorsNameTheirCause` and `TestAFailedIndexHandOverIsAnIndexFailure` fail with each of those guards, the English locale, the context and the hand-over mark mutated out. A failing memfd write still has no test of its own (it falls back as a failing memfd does).
 
 ### Results summary
 The full `pose-mcp` suite passes; the canonical result is refreshed with `pose validate --carry`.
 
 ### Requirement trace
 - R1 [satisfied] test:TestReadOnlyIndexToleratesAnAtomicallyReplacedIndex, test:TestReadOnlyIndexRefusesAFIFOIndex
-- R2 [satisfied] test:TestAFailedIndexReadIsReported, test:TestACorruptIndexIsReportedWithItsCause
+- R2 [satisfied] test:TestAFailedIndexReadIsReported, test:TestACorruptIndexIsReportedWithItsCause, test:TestIndexFailuresAreNamedInAnyLocale, test:TestGitReadErrorsNameTheirCause, test:TestAFailedIndexHandOverIsAnIndexFailure
 - R3 [satisfied] test:TestReadOnlyIndexFindsTheIndexFromASubdirectory
 - R4 [satisfied] test:TestThePrivateIndexCopyLeavesTheIndexAlone, test:TestReadOnlyIndexFallsBackWithoutAMemoryFile
 - R5 [satisfied] (accepted limit L1, decision D1)

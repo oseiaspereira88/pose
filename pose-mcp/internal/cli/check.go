@@ -1148,6 +1148,7 @@ func (checker *nativeChecker) readyTransitionCandidates() []string {
 		}
 		var stderr bytes.Buffer
 		cmd.Stderr = &stderr
+		pose.GitEnglish(cmd)
 		output, err := cmd.Output()
 		done()
 		if err != nil {
