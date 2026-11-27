@@ -1,0 +1,237 @@
+{
+  "run": {
+    "run_id": "rrn-c3a4b1c0fd2bd2d6",
+    "proof_id": "rrp-4f145e3501c87abb9d6a180889a49e16ba24da94e057726661d497e5357083fa"
+  },
+  "schema_version": 1,
+  "attestation_id": "rva-4dd5919ffa7991af",
+  "bundle_id": "rvb-db4c832a2b60b90a",
+  "bundle_digest": "sha256:db4c832a2b60b90aacf6a48d3515b69f904929fa172de5688586f1f7f6cf5b73",
+  "reviewer": "agent:anthropic/claude-sonnet-5-5",
+  "decision": "changes-requested",
+  "criteria": [
+    {
+      "id": "assumption-integrity",
+      "disposition": "finding",
+      "evidence": "N1",
+      "rationale": "The naming assumes Git always prints top-relative names, which diff.relative changes. L1 was read and is not disputed."
+    },
+    {
+      "id": "backend-concurrency",
+      "disposition": "passed",
+      "evidence": "unit:pose-mcp/go/test",
+      "rationale": "The delta adds one read-only rev-parse and no shared state; the concurrent index-read test is in the focused run, which passed."
+    },
+    {
+      "id": "backend-contracts",
+      "disposition": "passed",
+      "evidence": "integration:pose-mcp/go/delivery-integration",
+      "rationale": "No schema or tool contract changes; at the repository top names are unchanged because the prefix is empty."
+    },
+    {
+      "id": "backend-input-errors",
+      "disposition": "passed",
+      "evidence": "unit:pose-mcp/go/test",
+      "rationale": "Revisions stay validated and a failed untracked listing fails with its cause. The silent prefix fallback is low, in N2."
+    },
+    {
+      "id": "backend-integration-impact",
+      "disposition": "finding",
+      "evidence": "N1"
+    },
+    {
+      "id": "backend-observability",
+      "disposition": "passed",
+      "evidence": "unit:pose-mcp/go/test",
+      "rationale": "The report warning carries the Git message and a test now requires it."
+    },
+    {
+      "id": "compatibility",
+      "disposition": "finding",
+      "evidence": "N1",
+      "rationale": "Nothing differs at the top; a lower root with diff.relative selects less than before."
+    },
+    {
+      "id": "correctness",
+      "disposition": "finding",
+      "evidence": "N1"
+    },
+    {
+      "id": "design-causality",
+      "disposition": "finding",
+      "evidence": "N1",
+      "rationale": "Naming after the diff, instead of filtering with --relative, addresses the cause of R2-N1, but depends on an output form the command does not fix. The design assessment observed no structural deltas."
+    },
+    {
+      "id": "documentation",
+      "disposition": "passed",
+      "evidence": "integration:pose-mcp/go/distributed-instructions-parity-integration",
+      "rationale": "Examined the amended requirements, execution log and follow-up: they match behaviour for the shipped CLI. Leftover wording is N3 and N5."
+    },
+    {
+      "id": "operability",
+      "disposition": "passed",
+      "evidence": "unit:pose-mcp/go/test",
+      "rationale": "Selection errors and the report warning name the failing read and what Git said."
+    },
+    {
+      "id": "requirements",
+      "disposition": "passed",
+      "evidence": "unit:pose-mcp/go/test",
+      "rationale": "R1 to R5 as amended each have a passing focused test; N1 concerns the scope selection fix, which no requirement states."
+    },
+    {
+      "id": "scope",
+      "disposition": "passed",
+      "evidence": "unit:pose-mcp/go/test",
+      "rationale": "The nine code files match the spec artifact list; the lower-root selection change answers earlier findings and is stated in the spec API section and log."
+    },
+    {
+      "id": "security",
+      "disposition": "passed",
+      "evidence": "unit:pose-mcp/go/test",
+      "rationale": "Changed names, including ../ forms, are only matched as strings in the code read, never opened; the versioned report interpolates nothing from Git."
+    },
+    {
+      "id": "solution-proportionality",
+      "disposition": "passed",
+      "evidence": "unit:pose-mcp/go/test",
+      "rationale": "A prefix lookup and a small rename function is proportionate; it holds only while the diff output form is fixed, the condition N1 breaks."
+    }
+  ],
+  "tools": [
+    {
+      "id": "artifact-check",
+      "disposition": "passed",
+      "evidence": "command:pose artifact-check --spec pose-validate-index-reads-residuals --strict",
+      "rationale": "Exit 0."
+    },
+    {
+      "id": "assess-design",
+      "disposition": "passed",
+      "evidence": "structure:design-eee831039bcb1105",
+      "rationale": "Observed, no deltas."
+    },
+    {
+      "id": "assess-discover",
+      "component": "pose-mcp",
+      "disposition": "passed",
+      "evidence": "command:pose assess discover --no-persist --component pose-mcp"
+    },
+    {
+      "id": "assess-integrate",
+      "disposition": "passed",
+      "evidence": "integration:pose-mcp/go/engine-reads-raw-history-integration",
+      "rationale": "Ran with --no-persist."
+    },
+    {
+      "id": "assess-tech-debt",
+      "disposition": "passed",
+      "evidence": "command:pose assess tech-debt --no-persist",
+      "rationale": "The scan reports itself incomplete: two spec sources could not be read."
+    },
+    {
+      "id": "closeout-check",
+      "disposition": "deferred",
+      "evidence": "command:pose closeout-check spec:pose-validate-index-reads-residuals",
+      "rationale": "Ran; cannot pass before the review is recorded and the spec is done."
+    },
+    {
+      "id": "review-check",
+      "disposition": "deferred",
+      "evidence": "command:pose review-check spec:pose-validate-index-reads-residuals",
+      "rationale": "Ran; no fresh review record exists."
+    },
+    {
+      "id": "suggest-review",
+      "component": "pose-mcp",
+      "disposition": "passed",
+      "evidence": "command:pose suggest review --path pose-mcp"
+    },
+    {
+      "id": "surface-check",
+      "disposition": "passed",
+      "evidence": "integration:pose-mcp/go/delivery-integration",
+      "rationale": "Ran with --strict: zero findings."
+    },
+    {
+      "id": "validate",
+      "disposition": "passed",
+      "evidence": "unit:pose-mcp/go/test",
+      "rationale": "Rests on the sealed result. The sandbox rerun FAILED: 236 steps, 224 pass, 11 fail, 1 timeout, the same failing steps as earlier rounds. Causes seen in round 1 include HTTP 403 and ownership refusals of /var/tmp and /home; others were not root-caused. No failing test name is one this change adds or edits."
+    },
+    {
+      "id": "validate",
+      "component": "pose-mcp",
+      "disposition": "passed",
+      "evidence": "unit:pose-mcp/go/test",
+      "rationale": "Rests on the sealed result. The sandbox rerun FAILED: 233 steps, 221 pass, 11 fail, 1 error, with the same failing test names as the root run."
+    }
+  ],
+  "evidence_refs": [
+    "N1",
+    "delegated-run:rrn-c3a4b1c0fd2bd2d6",
+    "integration:pose-mcp/go/delivery-integration",
+    "integration:pose-mcp/go/distributed-instructions-parity-integration",
+    "unit:pose-mcp/go/test"
+  ],
+  "findings": [
+    {
+      "id": "N1",
+      "severity": "medium",
+      "evidence": "file:pose-mcp/internal/cli/validate_scope.go:102",
+      "action": "Regression: the diff does not pin diff.relative, and the new naming assumes top-relative output. With the root below the top and diff.relative=true in Git config, a change to proj/mod/x.txt is named ../mod/x.txt and the self-contained module that owns it is not selected, with no error; the base engine selected it (reproduced against both versions). In that configuration a tracked change outside the root is also still dropped, changed=[], as at base. Validation narrows silently. Reach: only a root below the repository top, which the shipped CLI does not pass (it resolves the top).",
+      "disposition": "open"
+    },
+    {
+      "id": "N2",
+      "severity": "low",
+      "evidence": "file:pose-mcp/internal/cli/validate_scope.go:323",
+      "action": "scopeRootPrefix trims all surrounding space, so below a directory with a leading space every change is named as outside and its self-contained module is not selected (reproduced; base did not select it either). By reading, a failing rev-parse also returns an empty prefix silently, which restores the R1-N7 misnaming.",
+      "disposition": "open"
+    },
+    {
+      "id": "N3",
+      "severity": "low",
+      "evidence": "file:pose-mcp/internal/cli/validate_scope.go:335",
+      "action": "An outside change is named ../ plus its top-relative name, which is root-relative only for a root one level down. With root a/b, a/c/f.txt becomes ../a/c/f.txt, so a self-contained module declaring ../c is not selected (reproduced; base did not select it either). The spec API section says names are relative to the root and records no decision on this outside form.",
+      "disposition": "open"
+    },
+    {
+      "id": "N4",
+      "severity": "low",
+      "evidence": "file:pose-mcp/internal/cli/validate_scope.go:128",
+      "action": "Pre-existing: ls-files runs under the root, so below the top a new untracked file outside the root is not listed and nothing is selected for it (reproduced, same at base), unlike a tracked outside change.",
+      "disposition": "open"
+    },
+    {
+      "id": "N5",
+      "severity": "low",
+      "evidence": "file:pose-mcp/internal/cli/report.go:314",
+      "action": "Rest of R2-N3: report.go:314-317 still describes a bounded line with absolute paths removed, and the comment at validate_index_residuals_test.go:134 still says the report bounds its note.",
+      "disposition": "open"
+    }
+  ],
+  "authority": {
+    "schema_version": 1,
+    "project": "proj.pose-dist",
+    "bundle_digest": "sha256:db4c832a2b60b90aacf6a48d3515b69f904929fa172de5688586f1f7f6cf5b73",
+    "principal": "agent:anthropic/claude-sonnet-5-5",
+    "role": "agent",
+    "review_execution": "rrn-c3a4b1c0fd2bd2d6",
+    "implementation_principal": "agent:anthropic/claude-opus-5-5",
+    "implementation_execution": "sha256:344ac5868944c155772d60a95ef6ff20644580a642e772ad5c92c29428464ff8",
+    "issuer": "b34-local-executor",
+    "issued_at": "2026-11-27T19:34:19Z",
+    "audience": "proj.pose-dist"
+  },
+  "envelope": {
+    "issuer": "b34-local-executor",
+    "subject": "rvb-db4c832a2b60b90a",
+    "algorithm": "ed25519",
+    "public_key": "ck4sApdfePV2GT+hJyAYfJd2qLzeG55P8pevGR0bvZE=",
+    "signature": "rMAHsPYmJ7dJMaw4ycSsYyO4n1Y0NvzyB0f8DDBGSR4uPOohHeG/5YrF94JICTSZu5PZZXhHSVKnveO2hLaRDA=="
+  },
+  "attested_at": "2026-11-27T19:34:19Z",
+  "path": ".pose/review-attestations/rva-4dd5919ffa7991af.json"
+}
