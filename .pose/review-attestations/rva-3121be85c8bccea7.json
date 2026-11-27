@@ -1,0 +1,260 @@
+{
+  "run": {
+    "run_id": "rrn-68956eadb134e1f7",
+    "proof_id": "rrp-0773fb876aa24c6eb39aa15b3bdd024311d5c812e4b4330140079e00f6aa240d"
+  },
+  "schema_version": 1,
+  "attestation_id": "rva-3121be85c8bccea7",
+  "bundle_id": "rvb-ec43aad311ab5a41",
+  "bundle_digest": "sha256:ec43aad311ab5a418078242dbaf3ed2e36bb0505b154d779f70855591d044094",
+  "reviewer": "agent:anthropic/claude-sonnet-5-5",
+  "decision": "approved",
+  "criteria": [
+    {
+      "id": "assumption-integrity",
+      "disposition": "passed",
+      "evidence": "integration:pose-mcp/go/delegated-run-continuity-integration",
+      "rationale": "Verified: the directory is created exclusively, a recorded name is validated, and a held thread path is detected at plan time (probes). Accepted: L1 here, and the origin spec's L1 that a dispatcher with another TMPDIR recreates the checkout elsewhere. Unresolved, reported: a path taken after the plan (N6) and an unreadable ledger (N10)."
+    },
+    {
+      "id": "backend-concurrency",
+      "disposition": "passed",
+      "evidence": "integration:pose-mcp/go/delegated-run-continuity-integration",
+      "rationale": "Exclusive mkdir before the claim; early failures release the directory; a live round's path leads to a new session. Focused tests passed repeatedly with -race. Narrow windows are N6 and N9."
+    },
+    {
+      "id": "backend-contracts",
+      "disposition": "passed",
+      "evidence": "integration:pose-mcp/go/delegated-run-continuity-integration",
+      "rationale": "Run, claim and brief formats are unchanged; the thread reason is a new value of an existing text field."
+    },
+    {
+      "id": "backend-input-errors",
+      "disposition": "passed",
+      "evidence": "integration:pose-mcp/go/delegated-run-continuity-integration",
+      "rationale": "The recorded name is pattern checked and early failure paths release what they took; message precision is N6 and N7."
+    },
+    {
+      "id": "backend-integration-impact",
+      "disposition": "passed",
+      "evidence": "integration:pose-mcp/go/delegated-run-continuity-integration",
+      "rationale": "The focused CLI tests of resume, handoff, dispatch and review rounds pass locally."
+    },
+    {
+      "id": "backend-observability",
+      "disposition": "passed",
+      "evidence": "integration:pose-mcp/go/delegated-run-continuity-integration",
+      "rationale": "Failed continuations record their cause and the fallback records its reason on the run; N7 and N10 are the remaining gaps."
+    },
+    {
+      "id": "compatibility",
+      "disposition": "passed",
+      "evidence": "integration:pose-mcp/go/delegated-run-continuity-integration",
+      "rationale": "No flag, record field or MCP shape changes; records without safety fall back to the attempt id and earlier random names match the accepted pattern."
+    },
+    {
+      "id": "correctness",
+      "disposition": "passed",
+      "evidence": "unit:pose-mcp/go/test",
+      "rationale": "Sealed unit evidence, local focused tests and overlay probes of both former blockers behave as required."
+    },
+    {
+      "id": "design-causality",
+      "disposition": "passed",
+      "evidence": "integration:pose-mcp/go/delegated-run-continuity-integration",
+      "rationale": "D1 makes exclusive creation the lock taken before the claim, removing the check-then-claim race; D2 names the directory from the recorded runtime_id so a session finds its checkout, and opens a new session rather than share a held path, so no continued session meets a missing checkout. The sealed design assessment observes no structural deltas."
+    },
+    {
+      "id": "documentation",
+      "disposition": "finding",
+      "evidence": "N11"
+    },
+    {
+      "id": "operability",
+      "disposition": "passed",
+      "evidence": "integration:pose-mcp/go/delegated-run-continuity-integration",
+      "rationale": "Refusals name the directory and the step to take, and a path held at plan time no longer fails a round; the residual wording issues are N6 and N7."
+    },
+    {
+      "id": "requirements",
+      "disposition": "passed",
+      "evidence": "unit:pose-mcp/go/test",
+      "rationale": "R1: take before claim, release on early failure, pending on a lost race. R2: the recorded name is reused (helper tests and code path). R3: an end-to-end continued round keeps runtime_id, or opens a new session. R4: the test asserts then resume again. Gaps are N8 and N9."
+    },
+    {
+      "id": "scope",
+      "disposition": "passed",
+      "evidence": "integration:pose-mcp/go/delegated-run-continuity-integration",
+      "rationale": "The fix touches the spec and files it declares as artifacts, each hunk tied to R1, R3 or round 1 findings."
+    },
+    {
+      "id": "security",
+      "disposition": "passed",
+      "evidence": "integration:pose-mcp/go/delegated-run-continuity-integration",
+      "rationale": "The name pattern excludes separators and dot segments, paths stay below the temporary directory, creation is exclusive, the new check only lstats, and the new removal targets only the directory this continuation created, without recursion. The ledger origin of the name is accepted limit L1."
+    },
+    {
+      "id": "solution-proportionality",
+      "disposition": "passed",
+      "evidence": "integration:pose-mcp/go/delegated-run-continuity-integration",
+      "rationale": "A removal in finish and one case in thread planning reuse the existing new-session path, smaller than a new lock or record field and with no speculative extension. The choice would be invalidated if runs had to share one name concurrently."
+    }
+  ],
+  "tools": [
+    {
+      "id": "artifact-check",
+      "disposition": "passed",
+      "evidence": "command:pose artifact-check --spec pose-review-resume-runtime-dir-followups --strict",
+      "rationale": "Exit 0; repository-wide provenance warnings."
+    },
+    {
+      "id": "assess-design",
+      "disposition": "passed",
+      "evidence": "structure:design-803c82795ceb380b",
+      "rationale": "Exit 0, status observed, no deltas."
+    },
+    {
+      "id": "assess-discover",
+      "component": "pose-mcp",
+      "disposition": "passed",
+      "evidence": "command:pose assess discover --no-persist --component pose-mcp"
+    },
+    {
+      "id": "assess-integrate",
+      "disposition": "passed",
+      "evidence": "integration:pose-mcp/go/delegated-run-continuity-integration",
+      "rationale": "Exit 0; three unconsumed HTTP endpoint gaps unrelated to this change."
+    },
+    {
+      "id": "assess-tech-debt",
+      "disposition": "passed",
+      "evidence": "command:pose assess tech-debt --no-persist",
+      "rationale": "Exit 0; the scan reports itself incomplete over two older specs."
+    },
+    {
+      "id": "closeout-check",
+      "disposition": "deferred",
+      "rationale": "Run, exit 1: it awaits this review's record and the lifecycle transition."
+    },
+    {
+      "id": "review-check",
+      "disposition": "deferred",
+      "rationale": "Run, exit 1: it cannot pass before the attestation of this review."
+    },
+    {
+      "id": "suggest-review",
+      "component": "pose-mcp",
+      "disposition": "passed",
+      "evidence": "command:pose suggest review --path pose-mcp"
+    },
+    {
+      "id": "surface-check",
+      "disposition": "passed",
+      "evidence": "integration:pose-mcp/go/delegated-run-continuity-integration",
+      "rationale": "Exit 0 with zero findings."
+    },
+    {
+      "id": "validate",
+      "disposition": "passed",
+      "evidence": "unit:pose-mcp/go/test",
+      "rationale": "Sealed evidence is relied on. The local run exited 1 in the sandbox with nine failing pose-mcp checks. Causes seen include HTTP 403 on the published release, denied egress, /var/tmp owned by another user, runtime tests timing out at about 5s and a file-mode test in untouched code. No failure was attributed to the subject."
+    },
+    {
+      "id": "validate",
+      "component": "pose-mcp",
+      "disposition": "passed",
+      "evidence": "unit:pose-mcp/go/test",
+      "rationale": "Sealed evidence is relied on. The local module run exited 1 with the same nine failing checks; go vet passed and focused tests passed, also with -race."
+    }
+  ],
+  "evidence_refs": [
+    "N11",
+    "delegated-run:rrn-68956eadb134e1f7",
+    "integration:pose-mcp/go/delegated-run-continuity-integration",
+    "unit:pose-mcp/go/test"
+  ],
+  "findings": [
+    {
+      "id": "N6",
+      "severity": "low",
+      "evidence": "file:pose-mcp/internal/pose/review_rounds.go:694",
+      "action": "Recheck the thread's path before the attempt is reserved, or fall back or word the error for a path another attempt holds.",
+      "disposition": "accepted-risk",
+      "owner": "pose-maintainers",
+      "rationale": "The held-path check runs only when the round is planned. A path taken between the plan and reviewRunRuntimeDir (review_dispatch.go:832) still fails the run after its attempt is reserved, with a message that blames an earlier run of this attempt and asks to remove a directory that may belong to another run. Reproduced by creating the directory between PlanReviewDispatch and RunReviewDispatch. The window is narrow and the next plan opens a new session.",
+      "review_by": "2026-12-27"
+    },
+    {
+      "id": "N7",
+      "severity": "low",
+      "evidence": "file:pose-mcp/internal/pose/review_rounds.go:700",
+      "action": "Record the full path or name the temporary directory, and treat an unreadable path as held with its cause.",
+      "disposition": "accepted-risk",
+      "owner": "pose-maintainers",
+      "rationale": "The recorded reason calls the runtime name a checkout path: it prints pose-review-run-\u003cid\u003e, or the attempt id when the prior run records no safety, never the full path, so a leftover is hard to locate. previousRoundCheckoutHeld (line 906) also treats an lstat error other than not-exist as a free path.",
+      "review_by": "2026-12-27"
+    },
+    {
+      "id": "N8",
+      "severity": "low",
+      "evidence": "file:pose-mcp/internal/cli/review_run_continuity_test.go:343",
+      "action": "Add dispatch-level tests for the take before the claim, the recorded random name, the claim failure and the pending handoff.",
+      "disposition": "accepted-risk",
+      "owner": "pose-maintainers",
+      "rationale": "Remaining test gaps carried from R1-N3: the dispatch assertion still accepts the replan refusal and never reaches the exclusive take; no test resumes end to end a run whose recorded random name differs from the attempt's stable name (R2 is tested through helpers); coverage of the focused tests reaches neither the claim-failure removal (review_dispatch.go:765-767) nor the pending branch of the handoff plan (delegation_handoff.go:351-354).",
+      "review_by": "2026-12-27"
+    },
+    {
+      "id": "N9",
+      "severity": "low",
+      "evidence": "file:pose-mcp/internal/pose/review_dispatch.go:2210",
+      "action": "Implement the spec follow-up for the claim wait.",
+      "disposition": "accepted-risk",
+      "owner": "pose-maintainers",
+      "rationale": "Carried from R1-N4 and recorded as a spec follow-up: awaitContinuationClaim reports a completed continuation as pending, ignores cancellation and rereads the ledger on every poll, including from the next-action listing; a winner finishing between a loser's replan and take leaves a raw claim conflict.",
+      "review_by": "2026-12-27"
+    },
+    {
+      "id": "N10",
+      "severity": "low",
+      "evidence": "file:pose-mcp/internal/pose/review_dispatch.go:2093",
+      "action": "Record in the run that the thread's runtime name could not be read.",
+      "disposition": "accepted-risk",
+      "owner": "pose-maintainers",
+      "rationale": "Carried from R1-N5 and recorded as a spec follow-up: runtimeSourceFor discards the ledger read error and losses, so a continued thread can silently get a new checkout path.",
+      "review_by": "2026-12-27"
+    },
+    {
+      "id": "N11",
+      "severity": "low",
+      "evidence": "file:POSE.md:956",
+      "action": "Add the held checkout path to the documented conditions in POSE.md, its locale and the scaffold copies.",
+      "disposition": "accepted-risk",
+      "owner": "pose-maintainers",
+      "rationale": "The review rounds documentation lists when continue-thread opens a new session and omits the new condition, a previous round's checkout path that is still there; check the pt-BR copy and the scaffold copies, which document the same rounds behaviour.",
+      "review_by": "2026-12-27"
+    }
+  ],
+  "authority": {
+    "schema_version": 1,
+    "project": "proj.pose-dist",
+    "bundle_digest": "sha256:ec43aad311ab5a418078242dbaf3ed2e36bb0505b154d779f70855591d044094",
+    "principal": "agent:anthropic/claude-sonnet-5-5",
+    "role": "agent",
+    "review_execution": "rrn-68956eadb134e1f7",
+    "implementation_principal": "agent:anthropic/claude-opus-5-5",
+    "implementation_execution": "sha256:344ac5868944c155772d60a95ef6ff20644580a642e772ad5c92c29428464ff8",
+    "issuer": "b34-local-executor",
+    "issued_at": "2026-11-27T09:50:38Z",
+    "audience": "proj.pose-dist"
+  },
+  "envelope": {
+    "issuer": "b34-local-executor",
+    "subject": "rvb-ec43aad311ab5a41",
+    "algorithm": "ed25519",
+    "public_key": "ck4sApdfePV2GT+hJyAYfJd2qLzeG55P8pevGR0bvZE=",
+    "signature": "px8K1b5tMNj/UpQ73tHRNyYeDLEKVdeHMaUns6p3/rWw3JPzxy0wFqS/gTvIrzp234TBKuaobazRQETpxMesBA=="
+  },
+  "attested_at": "2026-11-27T09:50:38Z",
+  "path": ".pose/review-attestations/rva-3121be85c8bccea7.json"
+}
