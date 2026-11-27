@@ -181,7 +181,11 @@ func reviewAttestationFromDraft(run ReviewRun, bundle ReviewBundle, draft Review
 		// A follow-up the reviewer classified inside a declared accepted
 		// limit is recorded as such, naming the limit (spec
 		// pose-review-declared-threat-model R3).
-		if f.Disposition == "follow-up" && f.Limit != "" {
+		// Only a limit the bundle sealed: a draft of any decision naming
+		// another is recorded as the follow-up it otherwise is, so no
+		// attestation names a limit that does not exist (spec
+		// pose-review-declared-limits-followups R4).
+		if f.Disposition == "follow-up" && f.Limit != "" && sealedAcceptedLimit(bundle, f.Limit) {
 			finding.Disposition, finding.Limit, finding.Rationale, finding.Owner, finding.ReviewBy = "within-limit", f.Limit, f.Summary, f.Owner, f.ReviewBy
 		}
 		att.Findings = append(att.Findings, finding)

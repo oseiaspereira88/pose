@@ -79,11 +79,19 @@ func ParseAcceptedLimits(body string) ([]ReviewAcceptedLimit, []string) {
 			entries[len(entries)-1].bad = true
 		}
 	}
-	text := body
-	if start := strings.Index(text, "<!--"); start >= 0 && !strings.Contains(text[start:], "-->") {
+	// Any unterminated comment, not only the first, hides what follows it
+	// (spec pose-review-declared-limits-followups R2).
+	if unterminatedHTMLComment(body) {
 		problems = append(problems, "accepted limits: an unterminated HTML comment hides the rest of the spec")
 	}
-	text = stripHTMLComments(text)
+	// A comment inside the section, also one written in inline code, would
+	// change a limit's sealed text: the section is refused whole instead of
+	// guessing which is meant (R2, D1).
+	if commentInAcceptedLimitsSection(body) {
+		problems = append(problems, "accepted limits: the section holds an HTML comment marker; write the limits without comments")
+		return nil, problems
+	}
+	text := stripHTMLComments(body)
 	fence := ""
 	for _, line := range strings.Split(text, "\n") {
 		trimmed := strings.TrimSpace(line)
@@ -101,6 +109,12 @@ func ParseAcceptedLimits(body string) ([]ReviewAcceptedLimit, []string) {
 			continue
 		}
 		if fence != "" {
+			continue
+		}
+		if in && indent > 0 && len(entries) > 0 && indent > entries[len(entries)-1].indent && indent <= 3 && markdownHeadingRE.MatchString(trimmed) {
+			// A heading-like line indented under a limit: read as a heading it
+			// would end the section and cut the limit (R1).
+			report(line, "is a heading inside a limit; write the limit as one item")
 			continue
 		}
 		if indent <= 3 && markdownHeadingRE.MatchString(trimmed) {
@@ -211,6 +225,57 @@ func sealedAcceptedLimit(bundle ReviewBundle, id string) bool {
 	for _, l := range bundle.Payload.Plan.AcceptedLimits {
 		if l.ID == id {
 			return true
+		}
+	}
+	return false
+}
+
+// unterminatedHTMLComment reports whether any "<!--" in body has no "-->"
+// after it.
+func unterminatedHTMLComment(body string) bool {
+	rest := body
+	for {
+		start := strings.Index(rest, "<!--")
+		if start < 0 {
+			return false
+		}
+		end := strings.Index(rest[start+4:], "-->")
+		if end < 0 {
+			return true
+		}
+		rest = rest[start+4+end+3:]
+	}
+}
+
+// commentInAcceptedLimitsSection reports whether a line of the accepted
+// limits section, read before comments are stripped, holds a comment marker.
+// A comment outside the section, and a section heading inside one, are not
+// the section.
+func commentInAcceptedLimitsSection(body string) bool {
+	in, inComment := false, false
+	for _, line := range strings.Split(body, "\n") {
+		if inComment {
+			k := strings.Index(line, "-->")
+			if k < 0 {
+				continue
+			}
+			inComment = false
+			line = line[k+3:]
+		}
+		if in && (strings.Contains(line, "<!--") || strings.Contains(line, "-->")) {
+			return true
+		}
+		if k := strings.Index(line, "<!--"); k >= 0 {
+			if !strings.Contains(line[k:], "-->") {
+				inComment = true
+			}
+			continue
+		}
+		trimmed := strings.TrimSpace(line)
+		indent := len(line) - len(strings.TrimLeft(line, " \t"))
+		if indent <= 3 && markdownHeadingRE.MatchString(trimmed) {
+			heading := strings.TrimSpace(strings.Trim(trimmed, "# "))
+			in = strings.EqualFold(heading, "Accepted limits") || strings.EqualFold(heading, "Limites aceitos")
 		}
 	}
 	return false

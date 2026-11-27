@@ -2,6 +2,7 @@ package cli
 
 import (
 	"bytes"
+	posemodel "github.com/harne8/pose-mcp/internal/pose"
 	"os"
 	"path/filepath"
 	"strings"
@@ -90,5 +91,19 @@ func TestReadyCheckJudgesAcceptedLimits(t *testing.T) {
 	}
 	if code == 0 || !strings.Contains(out, "cannot be read to check the accepted limits") {
 		t.Fatalf("an ADR link was read: %d %s", code, out)
+	}
+}
+
+// Spec pose-review-declared-limits-followups R3, R6: a within-limit finding
+// can be typed with its limit, and the checks' text output shows it.
+func TestWithinLimitFindingsAreTypedAndShown(t *testing.T) {
+	findings, err := parseCLIReviewFindings([]string{"n1|low|within-limit|-|-||why it is inside||L1"})
+	if err != nil || len(findings) != 1 || findings[0].Limit != "L1" || findings[0].Rationale != "why it is inside" {
+		t.Fatalf("a typed within-limit finding: %+v %v", findings, err)
+	}
+	var out bytes.Buffer
+	renderWithinLimitFindings(render(&out, &out), "review", &posemodel.ReviewAttempt{Findings: []posemodel.ReviewFinding{{ID: "N1", Severity: "low", Disposition: "within-limit", Limit: "L1", Rationale: "inside"}, {ID: "N2", Disposition: "accepted-risk"}}})
+	if !strings.Contains(out.String(), "N1 limit:L1") || strings.Contains(out.String(), "N2") {
+		t.Fatalf("the text output: %q", out.String())
 	}
 }

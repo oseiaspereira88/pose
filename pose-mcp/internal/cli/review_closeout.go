@@ -101,6 +101,7 @@ func cmdReviewCheck(root string, args []string, stdout, stderr io.Writer) int {
 	if eval.Assurance != nil {
 		render(stdout, stderr).Field("review.assurance", posemodel.RenderReviewAssurance(*eval.Assurance))
 	}
+	renderWithinLimitFindings(render(stdout, stderr), "review", eval.Current)
 	for _, warning := range eval.Warnings {
 		fmt.Fprintf(stdout, "[WARN] %s\n", warning)
 	}
@@ -324,6 +325,7 @@ func cmdCloseoutCheck(root string, args []string, stdout, stderr io.Writer) int 
 	if state.Review.Assurance != nil {
 		render(stdout, stderr).Field("closeout.review_assurance", posemodel.RenderReviewAssurance(*state.Review.Assurance))
 	}
+	renderWithinLimitFindings(render(stdout, stderr), "closeout", state.Review.Current)
 	for _, blocker := range state.Blockers {
 		fmt.Fprintf(stderr, "[ERROR] %s\n", blocker)
 	}
@@ -1274,7 +1276,7 @@ func parseCLIReviewFindings(values []string) ([]posemodel.ReviewFinding, error) 
 	for _, raw := range values {
 		parts := strings.Split(raw, "|")
 		if len(parts) < 5 || posemodel.ValidateSlug(parts[0]) != nil {
-			return nil, fmt.Errorf("finding must be ID|severity|disposition|action|evidence[|owner|rationale|review-by]")
+			return nil, fmt.Errorf("finding must be ID|severity|disposition|action|evidence[|owner|rationale|review-by|limit]")
 		}
 		finding := posemodel.ReviewFinding{ID: parts[0], Severity: parts[1], Disposition: parts[2], Action: parts[3], Evidence: parts[4]}
 		if len(parts) > 5 {
@@ -1285,6 +1287,11 @@ func parseCLIReviewFindings(values []string) ([]posemodel.ReviewFinding, error) 
 		}
 		if len(parts) > 7 {
 			finding.ReviewBy = parts[7]
+		}
+		// The accepted limit a within-limit finding falls inside (spec
+		// pose-review-declared-limits-followups R3).
+		if len(parts) > 8 {
+			finding.Limit = parts[8]
 		}
 		result = append(result, finding)
 	}
@@ -2595,4 +2602,18 @@ func closeGateBlocker(root string, scope posemodel.ScopeRef) string {
 		}
 	}
 	return ""
+}
+
+// renderWithinLimitFindings shows, in the text output, each finding the
+// current review recorded within a declared accepted limit, as the JSON
+// does (spec pose-review-declared-limits-followups R6).
+func renderWithinLimitFindings(out *cliout.Renderer, prefix string, current *posemodel.ReviewAttempt) {
+	if current == nil {
+		return
+	}
+	for _, f := range current.Findings {
+		if f.Disposition == "within-limit" {
+			out.Field(prefix+".within_limit", fmt.Sprintf("%s limit:%s severity:%s rationale:%s", f.ID, f.Limit, f.Severity, strings.ReplaceAll(f.Rationale, "\n", " ")))
+		}
+	}
 }

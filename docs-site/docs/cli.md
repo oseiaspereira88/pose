@@ -136,13 +136,13 @@ as current, but named so a reviewer can tell carried-forward evidence apart.
 - `--criterion ID|disposition|evidence|rationale` records a disposition for a
   required criterion: `passed`, `not-applicable` (a rationale is required) or
   `finding` (the evidence slot names a finding this attestation records).
-- `--finding ID|severity|disposition|action|evidence[|owner|rationale|review-by]`
+- `--finding ID|severity|disposition|action|evidence[|owner|rationale|review-by|limit]`
   records a finding. Every finding needs a severity and an action. `resolved`
   and `wont-fix` close it; `accepted-risk` closes it only for a severity the
   sealed gates accept and only with an owner, a rationale and a review date;
   `within-limit` closes it at any severity, only with the id of a limit the
-  spec declares under `### Accepted limits` and the bundle sealed (its
-  `limit` field) and a rationale; `open` and `changes-requested` block
+  spec declares under `### Accepted limits` and the bundle sealed (the ninth
+  field, `limit`) and a rationale; `open` and `changes-requested` block
   closeout. A reviewer records it from a follow-up whose `limit` names that
   sealed limit.
 - The decision must be `approved`, or `approved-with-reservations` where the

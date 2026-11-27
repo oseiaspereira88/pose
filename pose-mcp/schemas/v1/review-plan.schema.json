@@ -25,9 +25,17 @@
     "structure": {"$ref": "#/$defs/structure"},
     "warnings": {"type": "array", "items": {"type": "string"}},
     "blockers": {"type": "array", "items": {"type": "string"}},
-    "explain": {"type": "array", "items": {"type": "string"}}
+    "explain": {"type": "array", "items": {"type": "string"}},
+    "limitations": {"type": "array", "items": {"type": "string"}},
+    "accepted_limits": {"type": "array", "items": {"$ref": "#/$defs/acceptedLimit"}}
   },
   "$defs": {
+    "acceptedLimit": {
+      "type": "object",
+      "additionalProperties": true,
+      "required": ["id", "text"],
+      "properties": {"id": {"type": "string", "pattern": "^([a-z0-9][a-z0-9._-]*#)?L[1-9][0-9]*$"}, "text": {"type": "string"}, "spec": {"type": "string"}}
+    },
     "component": {
       "type": "object",
       "additionalProperties": true,

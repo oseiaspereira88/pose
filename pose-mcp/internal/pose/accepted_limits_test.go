@@ -153,7 +153,9 @@ func TestTheBundlePlanDigestCoversTheAcceptedLimits(t *testing.T) {
 // Review round 8, N1, N2: a wrapped entry keeps its continuation; fenced and
 // commented examples are not sealed.
 func TestAcceptedLimitsReadWrappedEntriesAndSkipExamples(t *testing.T) {
-	body := "### Accepted limits\n- L1: An escape. Accepted because a shim covers it\n  only on Linux and only for children.\n<!--\n- L3: A hidden one. Accepted because nobody sees it.\n-->\n### Notes\n```\n### Accepted limits\n- L2: An example. Accepted because it is only shown.\n```\n"
+	// A commented example outside the section is not read; one inside the
+	// section refuses it (spec pose-review-declared-limits-followups R2).
+	body := "### Accepted limits\n- L1: An escape. Accepted because a shim covers it\n  only on Linux and only for children.\n### Notes\n<!--\n### Accepted limits\n- L3: A hidden one. Accepted because nobody sees it.\n-->\n```\n### Accepted limits\n- L2: An example. Accepted because it is only shown.\n```\n"
 	limits, problems := ParseAcceptedLimits(body)
 	if len(problems) != 0 || len(limits) != 1 {
 		t.Fatalf("limits %+v problems %v", limits, problems)
@@ -207,6 +209,47 @@ func TestAcceptedLimitsEndWhereTheirItemEnds(t *testing.T) {
 		joined := strings.Join(problems, "; ")
 		if (c.problem == "") != (joined == "") || !strings.Contains(joined, c.problem) {
 			t.Fatalf("%s: problems %q, want %q", c.name, joined, c.problem)
+		}
+	}
+}
+
+// Spec pose-review-declared-limits-followups R1, R2: a heading-like line
+// indented under a limit is reported, not taken for a heading that cuts it;
+// any unterminated comment, and any comment marker in the section, inline
+// code included, is reported and nothing is sealed cut by it.
+func TestAcceptedLimitsRefuseWhatWouldCutThem(t *testing.T) {
+	cases := []struct{ name, body, problem string }{
+		{"indented heading", "### Accepted limits\n- L1: An escape is open. Accepted because a shim covers it\n  # of cases on Linux and only for children.\n", "heading inside a limit"},
+		{"second unterminated comment", "<!-- closed -->\n### Accepted limits\n- L1: An escape is open. Accepted because it is rare <!-- and so on\n", "HTML comment"},
+		{"unterminated after a closed one", "<!-- closed -->\n<!-- open\n### Accepted limits\n- L1: An escape is open. Accepted because it is rare.\n", "unterminated HTML comment"},
+		{"comment in inline code", "### Accepted limits\n- L1: An escape is open. Accepted because `<!-- x -->` hides it.\n", "comment marker"},
+	}
+	for _, c := range cases {
+		limits, problems := ParseAcceptedLimits(c.body)
+		if len(limits) != 0 || !strings.Contains(strings.Join(problems, "; "), c.problem) {
+			t.Fatalf("%s: limits %+v problems %v", c.name, limits, problems)
+		}
+	}
+}
+
+// Spec pose-review-declared-limits-followups R4: a follow-up naming a limit
+// the bundle did not seal is not recorded within-limit, whatever the draft's
+// decision; one naming a sealed limit is.
+func TestOnlyASealedLimitIsRecordedWithinLimit(t *testing.T) {
+	bundle := ReviewBundle{BundleID: "rvb-x"}
+	bundle.Payload.Plan.AcceptedLimits = []ReviewAcceptedLimit{{ID: "L1", Text: "x"}}
+	for _, decision := range []string{"approved", "changes-requested", "rejected"} {
+		draft := ReviewDraft{Decision: decision, Findings: []ReviewDraftFinding{
+			{ID: "N1", Severity: "low", Disposition: "follow-up", Summary: "inside", Limit: "L1"},
+			{ID: "N2", Severity: "low", Disposition: "follow-up", Summary: "elsewhere", Limit: "L9"},
+		}}
+		att := reviewAttestationFromDraft(ReviewRun{RunID: "rrn-x"}, bundle, draft, "agent:t")
+		got := map[string]string{}
+		for _, f := range att.Findings {
+			got[f.ID] = f.Disposition + "/" + f.Limit
+		}
+		if got["N1"] != "within-limit/L1" || strings.HasPrefix(got["N2"], "within-limit") || strings.HasSuffix(got["N2"], "L9") {
+			t.Fatalf("%s: %v", decision, got)
 		}
 	}
 }

@@ -39,7 +39,7 @@
         "plan": {
           "type": "object",
           "required": ["plan_digest", "independence", "components", "criteria", "tools"],
-          "properties": {"plan_digest": {"$ref": "#/$defs/digest"}}
+          "properties": {"plan_digest": {"$ref": "#/$defs/digest"}, "limitations": {"type": "array", "items": {"type": "string"}}, "accepted_limits": {"type": "array", "items": {"$ref": "review-plan.schema.json#/$defs/acceptedLimit"}}}
         },
         "gates": {
           "type": "object",
