@@ -106,3 +106,23 @@ func TestRunContinuityTakesTheRuntimeDirectoryBeforeTheClaim(t *testing.T) {
 		t.Fatalf("the refused continuation wrote records: %v", entries)
 	}
 }
+
+// Review round 1, N2: a round does not continue a session whose checkout
+// path is held, so it never fails after its attempt is reserved.
+func TestRunContinuityARoundDoesNotContinueIntoAHeldPath(t *testing.T) {
+	tmp := t.TempDir()
+	for _, name := range []string{"TMPDIR", "TMP", "TEMP"} {
+		t.Setenv(name, tmp)
+	}
+	prior := ReviewRun{RunID: "rrn-prior", AttemptID: "rat-" + strings.Repeat("ab", 32)}
+	if previousRoundCheckoutHeld(prior) {
+		t.Fatal("a free path was taken for held")
+	}
+	dir, _ := reviewRunRuntimeDirPath(runtimeSourceOf(prior))
+	if err := os.Mkdir(dir, 0o700); err != nil {
+		t.Fatal(err)
+	}
+	if !previousRoundCheckoutHeld(prior) {
+		t.Fatal("a held path was taken for free")
+	}
+}

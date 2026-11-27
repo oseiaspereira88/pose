@@ -661,6 +661,8 @@ func (s Store) RunReviewDispatchContext(parent context.Context, plan DispatchPla
 	}
 	run.Safety = safety
 	var cleanup func() error
+	// The runtime directory a continuation took before its claim.
+	preparedRuntimeDir := ""
 	var cleanupErr error
 	var terminationFailed bool
 	cleaned := false
@@ -693,6 +695,12 @@ func (s Store) RunReviewDispatchContext(parent context.Context, plan DispatchPla
 	}()
 	transcript := []byte{}
 	finish := func(status, failure string) (ReviewRun, error) {
+		if cleanup == nil && preparedRuntimeDir != "" {
+			// The continuation took its directory before the claim and fails
+			// before it owns its cleanup: nothing is in it yet (review round
+			// 1, N1).
+			_ = os.Remove(preparedRuntimeDir)
+		}
 		doCleanup()
 		if cancelled != nil && cancelled.Load() && status != ReviewRunCompleted {
 			// A deliberate cancellation is a failure, never a resumable interruption,
@@ -713,7 +721,6 @@ func (s Store) RunReviewDispatchContext(parent context.Context, plan DispatchPla
 		return finish(ReviewRunFailed, "the run was not started: "+err.Error())
 	}
 	var attempt DelegatedReviewAttempt
-	preparedRuntimeDir := ""
 	if plan.predecessor == nil {
 		var err error
 		attempt, err = s.prepareDelegatedReviewAttempt(plan, now())

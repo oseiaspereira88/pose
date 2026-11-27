@@ -58,6 +58,8 @@ Records and indexes written by earlier engines keep their meaning.
 - modified: pose-mcp/internal/pose/delegation_handoff.go
 - modified: pose-mcp/internal/pose/review_run_runtime_dir_test.go
 - modified: pose-mcp/internal/cli/review_run_continuity_test.go
+- modified: pose-mcp/internal/pose/review_rounds.go
+- modified: pose-mcp/internal/cli/delegate_rounds_test.go
 
 ### Delivery targets
 - capability:review-resume-runtime-dir-followups module:pose-mcp profile:composed-capability entrypoint:pose-mcp/internal/cli/delegate.go
@@ -93,7 +95,7 @@ The attempt's runtime directory is the lock: a continuation creates it, exclusiv
 
 ### Decision D2
 - Basis: R2, R3
-The runtime directory of a continuation is named by what its predecessor recorded in `safety.runtime_id`, so a session finds the checkout where it saw it, also when an earlier engine named it at random; a round that continues its thread takes the name of the previous round's run. Only an attempt's first run derives the name from the attempt id. This answers R2 by resuming instead of refusing.
+The runtime directory of a continuation is named by what its predecessor recorded in `safety.runtime_id`, so a session finds the checkout where it saw it, also when an earlier engine named it at random; a round that continues its thread takes the name of the previous round's run, unless that path is already there (a leftover or a live run): then the round opens a new session in its own directory, recording why, before its attempt is reserved. Only an attempt's first run derives the name from the attempt id. This answers R2 by resuming instead of refusing.
 
 ## 6. Validation
 
@@ -107,14 +109,15 @@ Each requirement gets a regression test shown failing before its code.
 
 ### Execution log
 - 2026-11-27: D1 in `RunReviewDispatch` (`takeContinuationRuntimeDir`) and in the plans (`awaitContinuationClaim`); D2 by `runtimeSourceOf` and `runtimeSourceAmong`; the refusal test asserts the resume's own wording (`then resume again`). `TestRunContinuityTakesTheRuntimeDirectoryBeforeTheClaim`, `TestRunContinuityRuntimeNameFollowsTheSession` and `TestRunContinuityResumedReviewFindsItsSealedCheckoutAtTheSamePath` fail with each guard mutated out (the recorded name, the thread's source, the name's path, the exclusive take, the verb).
+- 2026-11-27: review round 1 (rrn-5be6bc059866ee70) requested changes. N1: a continuation that fails before it owns its cleanup removes the directory it took (`TestRunContinuityAFailedContinuationLeavesNoRuntimeDirectory` fails with the removal mutated out). N2: a round does not continue a session whose path is held; it opens a new session with the reason, before reservation (D2). `TestReviewRoundsKeepTheCheckoutPathOfTheirThread` dispatches a continued round, compares `safety.runtime_id` with the previous round's (N3, R3 end to end), and holds the path for the next round; it fails with the held-path check or the dispatch's use of the thread's name mutated out. N4 and N5 are follow-ups.
 
 ### Results summary
 The full `pose-mcp` suite passes; the canonical result is refreshed with `pose validate --carry`.
 
 ### Requirement trace
-- R1 [satisfied] test:TestRunContinuityTakesTheRuntimeDirectoryBeforeTheClaim, test:TestRunContinuityResumedReviewFindsItsSealedCheckoutAtTheSamePath
+- R1 [satisfied] test:TestRunContinuityAFailedContinuationLeavesNoRuntimeDirectory, test:TestRunContinuityTakesTheRuntimeDirectoryBeforeTheClaim, test:TestRunContinuityResumedReviewFindsItsSealedCheckoutAtTheSamePath
 - R2 [satisfied] test:TestRunContinuityRuntimeNameFollowsTheSession
-- R3 [satisfied] test:TestRunContinuityRuntimeNameFollowsTheSession
+- R3 [satisfied] test:TestRunContinuityRuntimeNameFollowsTheSession, test:TestReviewRoundsKeepTheCheckoutPathOfTheirThread
 - R4 [satisfied] test:TestRunContinuityResumedReviewFindsItsSealedCheckoutAtTheSamePath
 
 ### Known gaps
@@ -135,4 +138,6 @@ A continuation takes the attempt's runtime directory before its claim, and every
 L1 above.
 
 ### Follow-ups
-None. Origin: `pose-review-resume-keeps-the-sealed-checkout` (done 2026-11-26).
+Origin: `pose-review-resume-keeps-the-sealed-checkout` (done 2026-11-26).
+- [open] Let the wait for another resume's claim report a completed continuation as such (and to a handoff as already continued), honour cancellation, read the ledger once per poll cheaply, and turn a claim conflict after the winner finished into the recorded result (review round 1, N4). (owner:@pose-maintainers crit:low review:2026-12-27)
+- [open] Record, in the run, a continued round whose runtime name could not be read from the ledger, instead of moving its checkout silently (review round 1, N5). (owner:@pose-maintainers crit:low review:2026-12-27)

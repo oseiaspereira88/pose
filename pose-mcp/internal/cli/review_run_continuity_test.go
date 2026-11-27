@@ -4,6 +4,7 @@ import (
 	"crypto/sha256"
 	"encoding/hex"
 	"encoding/json"
+	"errors"
 	"os"
 	"path/filepath"
 	"strings"
@@ -348,5 +349,34 @@ func TestRunContinuityResumedReviewFindsItsSealedCheckoutAtTheSamePath(t *testin
 	code, out := runPose(t, root, "delegate", "resume", prior.RunID)
 	if code != 0 || !strings.Contains(out, "status=completed") {
 		t.Fatalf("the resumed session did not find its checkout at %s: %d %s", checkout, code, out)
+	}
+}
+
+// Review round 1 of spec pose-review-resume-runtime-dir-followups, N1: a
+// continuation that fails before it owns its cleanup removes the runtime
+// directory it took, so nothing is left for a later continuation to meet.
+func TestRunContinuityAFailedContinuationLeavesNoRuntimeDirectory(t *testing.T) {
+	marks := t.TempDir()
+	first := filepath.Join(marks, "first")
+	root, _, prior := runContinuityFixture(t, func(a *posemodel.ReviewerAdapter) {
+		a.Command = []string{"sh", "-c", `pwd > "$1"; printf 'session: fixture-private-session\nreset: 2030-01-01T00:00:00Z\ndecision: rejected\n'; exit 75`, "sh", first}
+	})
+	raw, err := os.ReadFile(first)
+	if err != nil {
+		t.Fatal(err)
+	}
+	runtimeDir := filepath.Dir(strings.TrimSpace(string(raw)))
+	store := posemodel.Store{Root: root}
+	plan, err := store.PlanReviewResume(prior.RunID)
+	if err != nil {
+		t.Fatal(err)
+	}
+	plan.OnStart = func(string) error { return errors.New("no hand-back here") }
+	run, _ := store.RunReviewDispatch(plan, time.Now)
+	if run.Status != posemodel.ReviewRunFailed {
+		t.Fatalf("a failing hand-back did not fail the continuation: %+v", run.Status)
+	}
+	if _, err := os.Lstat(runtimeDir); !os.IsNotExist(err) {
+		t.Fatalf("a failed continuation left its runtime directory %s: %v", runtimeDir, err)
 	}
 }

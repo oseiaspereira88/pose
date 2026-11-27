@@ -242,3 +242,28 @@ func TestReviewRoundsSurviveLossesAndResumes(t *testing.T) {
 		t.Fatalf("a resumed continued round counted as cold: %s", out)
 	}
 }
+
+// Spec pose-review-resume-runtime-dir-followups R3: a round that continues
+// its thread recreates the checkout under the previous round's runtime name;
+// review round 1, N2: when that path is held, the round opens a new session
+// in its own directory instead of failing after its attempt is reserved.
+func TestReviewRoundsKeepTheCheckoutPathOfTheirThread(t *testing.T) {
+	root := dispatchInstance(t)
+	writeDelegation(t, root, delegationPolicy(roundsAgent("rounder", "other", false)))
+	first := runRecord(t, root, roundRun(t, root, "rounder")["run"].(string))
+	nextReviewRound(t, root, "fix B1")
+	second := runRecord(t, root, roundRun(t, root, "rounder")["run"].(string))
+	if second.Thread == nil || second.Thread.Mode != posemodel.ReviewThreadContinued || second.Safety == nil || first.Safety == nil || second.Safety.RuntimeID != first.Safety.RuntimeID {
+		t.Fatalf("a continued round moved its checkout: thread=%+v first=%v second=%v", second.Thread, first.Safety, second.Safety)
+	}
+	nextReviewRound(t, root, "fix B2")
+	held := filepath.Join(os.TempDir(), second.Safety.RuntimeID)
+	if err := os.Mkdir(held, 0o700); err != nil {
+		t.Fatal(err)
+	}
+	defer os.Remove(held)
+	third := runRecord(t, root, roundRun(t, root, "rounder")["run"].(string))
+	if third.Status != posemodel.ReviewRunCompleted || third.Thread == nil || third.Thread.Mode != posemodel.ReviewThreadNew || !strings.Contains(third.Thread.Reason, "still in use") {
+		t.Fatalf("a round continued into a held path: status=%s thread=%+v failure=%s", third.Status, third.Thread, third.Failure)
+	}
+}
