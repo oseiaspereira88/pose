@@ -61,6 +61,7 @@ Records and indexes written by earlier engines keep their meaning.
 - modified: pose-mcp/internal/pose/git_worktree_reads_linux.go
 - created: pose-mcp/internal/pose/git_reads_residuals_test.go
 - created: pose-mcp/internal/cli/validate_index_residuals_test.go
+- modified: pose-mcp/internal/cli/validate_reads_index_test.go
 - modified: pose-mcp/internal/pose/git_worktree_reads_linux_test.go
 
 ### Delivery targets
