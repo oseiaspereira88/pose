@@ -317,13 +317,30 @@ func TestRunContinuityResumedReviewFindsItsSealedCheckoutAtTheSamePath(t *testin
 	if err := os.Mkdir(runtimeDir, 0o700); err != nil {
 		t.Fatal(err)
 	}
-	if code, out := runPose(t, root, "delegate", "resume", prior.RunID); code == 0 || !strings.Contains(out, "still exists") {
+	if code, out := runPose(t, root, "delegate", "resume", prior.RunID); code == 0 || !strings.Contains(out, "then resume again") {
 		t.Fatalf("a resume beside a leftover runtime directory: %d %s", code, out)
 	}
 	// Review round 2, N6: a handoff is refused the same way, before it
 	// claims the interrupted run.
 	if _, err := (posemodel.Store{Root: root}).PlanReviewHandoff(prior.RunID, "other"); err == nil || !strings.Contains(err.Error(), "still exists") || !strings.Contains(err.Error(), "then hand off again") {
 		t.Fatalf("a handoff beside a leftover runtime directory: %v", err)
+	}
+	if err := os.Remove(runtimeDir); err != nil {
+		t.Fatal(err)
+	}
+	// Spec pose-review-resume-runtime-dir-followups R1: a directory that
+	// appears between the plan and the dispatch is refused before the claim,
+	// so the interrupted run stays resumable.
+	store := posemodel.Store{Root: root}
+	plan, err := store.PlanReviewResume(prior.RunID)
+	if err != nil {
+		t.Fatal(err)
+	}
+	if err := os.Mkdir(runtimeDir, 0o700); err != nil {
+		t.Fatal(err)
+	}
+	if _, err := store.RunReviewDispatch(plan, time.Now); err == nil || !(strings.Contains(err.Error(), "already exists") || strings.Contains(err.Error(), "still exists")) {
+		t.Fatalf("a dispatch beside a directory that appeared: %v", err)
 	}
 	if err := os.Remove(runtimeDir); err != nil {
 		t.Fatal(err)

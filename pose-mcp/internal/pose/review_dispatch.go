@@ -713,6 +713,7 @@ func (s Store) RunReviewDispatchContext(parent context.Context, plan DispatchPla
 		return finish(ReviewRunFailed, "the run was not started: "+err.Error())
 	}
 	var attempt DelegatedReviewAttempt
+	preparedRuntimeDir := ""
 	if plan.predecessor == nil {
 		var err error
 		attempt, err = s.prepareDelegatedReviewAttempt(plan, now())
@@ -743,7 +744,20 @@ func (s Store) RunReviewDispatchContext(parent context.Context, plan DispatchPla
 		run.TreeDigest = fresh.predecessor.TreeDigest
 		// A continuation is the same task: it keeps the predecessor's name and purpose.
 		run.Label, run.Purpose, run.Lead = fresh.predecessor.Label, fresh.predecessor.Purpose, fresh.predecessor.Lead
+		// The attempt's runtime directory is taken before the claim, and is
+		// the lock: a resume that cannot take it claims nothing, so the
+		// predecessor stays resumable, and one that lost the race to another
+		// resume is told the continuation is pending (spec
+		// pose-review-resume-runtime-dir-followups R1).
+		dir, err := s.takeContinuationRuntimeDir(plan)
+		if err != nil {
+			return ReviewRun{}, err
+		}
+		preparedRuntimeDir = dir
 		if err := s.claimReviewContinuation(*fresh.predecessor, now()); err != nil {
+			if dir != "" {
+				_ = os.Remove(dir)
+			}
 			return ReviewRun{}, err
 		}
 	}
@@ -806,7 +820,10 @@ func (s Store) RunReviewDispatchContext(parent context.Context, plan DispatchPla
 			return finish(ReviewRunFailed, "the run was not started: its attempt could not be handed back: "+err.Error())
 		}
 	}
-	tmp, err := reviewRunRuntimeDir(run.AttemptID)
+	tmp, err := preparedRuntimeDir, error(nil)
+	if tmp == "" {
+		tmp, err = reviewRunRuntimeDir(s.runtimeSourceFor(plan, run.AttemptID))
+	}
 	if err != nil {
 		return finish(ReviewRunFailed, "runtime directory setup failed: "+err.Error())
 	}
@@ -2040,6 +2057,52 @@ func sourceMaterializationDiffers(root, commit string, entries []ReviewBundleSub
 // os.MkdirTemp, a uint32 in decimal (ten digits).
 const reviewRunRuntimeHex = 10
 
+// reviewRuntimeNameRE is the form of a runtime directory name a run records
+// in safety.runtime_id: the stable one, or the random one earlier engines
+// and runs without an attempt used.
+var reviewRuntimeNameRE = regexp.MustCompile(`^pose-review-run-[0-9A-Za-z]{1,40}$`)
+
+// runtimeSourceOf is what names the runtime directory of a continuation of
+// prior: the name prior recorded, so the session finds the checkout where it
+// saw it, also when an earlier engine named it at random (spec
+// pose-review-resume-runtime-dir-followups R2); otherwise prior's attempt.
+func runtimeSourceOf(prior ReviewRun) string {
+	if prior.Safety != nil && reviewRuntimeNameRE.MatchString(prior.Safety.RuntimeID) {
+		return prior.Safety.RuntimeID
+	}
+	return prior.AttemptID
+}
+
+// runtimeSourceFor is what names the runtime directory of a run of plan: the
+// predecessor's, for a continuation; the previous round's run, for a round
+// that continues its thread, whose session saw that checkout (R3); the
+// attempt otherwise.
+func (s Store) runtimeSourceFor(plan DispatchPlan, attemptID string) string {
+	if plan.predecessor != nil {
+		return runtimeSourceOf(*plan.predecessor)
+	}
+	var runs []ReviewRun
+	if plan.thread.continued() {
+		runs, _, _ = s.ReadReviewRuns("")
+	}
+	return runtimeSourceAmong(plan, attemptID, runs)
+}
+
+// runtimeSourceAmong is runtimeSourceFor over the recorded runs given.
+func runtimeSourceAmong(plan DispatchPlan, attemptID string, runs []ReviewRun) string {
+	if plan.predecessor != nil {
+		return runtimeSourceOf(*plan.predecessor)
+	}
+	if plan.thread.continued() && plan.thread.From != "" {
+		for _, r := range runs {
+			if r.RunID == plan.thread.From {
+				return runtimeSourceOf(r)
+			}
+		}
+	}
+	return attemptID
+}
+
 // reviewAttemptIDRE is the form of a delegated review attempt's id.
 var reviewAttemptIDRE = regexp.MustCompile(`^rat-[0-9a-f]{64}$`)
 
@@ -2058,7 +2121,7 @@ func reviewRunRuntimeDir(attemptID string) (string, error) {
 	}
 	if err := os.Mkdir(dir, 0o700); err != nil {
 		if errors.Is(err, fs.ErrExist) {
-			return "", fmt.Errorf("the attempt's runtime directory %s already exists; an earlier run of the attempt did not clean up, or another process holds the path; when no run of the attempt is live, remove it, then run again", dir)
+			return "", fmt.Errorf("the attempt's runtime directory %s already exists; an earlier run of the attempt did not clean up, or another process holds the path; when no run of the attempt is live, remove it, then run again: %w", dir, fs.ErrExist)
 		}
 		return "", err
 	}
@@ -2068,6 +2131,11 @@ func reviewRunRuntimeDir(attemptID string) (string, error) {
 // reviewRunRuntimeDirPath is the runtime directory every run of an attempt
 // uses, or false for a run without an attempt.
 func reviewRunRuntimeDirPath(attemptID string) (string, bool) {
+	// A runtime name a run recorded is used as it is (spec
+	// pose-review-resume-runtime-dir-followups R2, R3).
+	if reviewRuntimeNameRE.MatchString(attemptID) {
+		return filepath.Join(os.TempDir(), attemptID), true
+	}
 	if !reviewAttemptIDRE.MatchString(attemptID) {
 		return "", false
 	}
@@ -2093,6 +2161,50 @@ func reviewRunRuntimeDirFree(attemptID, verb string) error {
 		return fmt.Errorf("the attempt's runtime directory %s still exists although its last run cleaned up; another process holds the path, or a run of the attempt is starting; when none is live, remove it, then %s again", dir, verb)
 	} else if !errors.Is(err, fs.ErrNotExist) {
 		return fmt.Errorf("the attempt's runtime directory %s cannot be checked: %w", dir, err)
+	}
+	return nil
+}
+
+// takeContinuationRuntimeDir creates the attempt's runtime directory for a
+// continuation before its claim. When the directory is there, a claim that
+// appears meanwhile means another resume holds it: the continuation is
+// pending. Otherwise the directory belongs to no run of the attempt, and the
+// resume is refused with nothing claimed.
+func (s Store) takeContinuationRuntimeDir(plan DispatchPlan) (string, error) {
+	source := runtimeSourceOf(*plan.predecessor)
+	if _, ok := reviewRunRuntimeDirPath(source); !ok {
+		return "", nil
+	}
+	dir, err := reviewRunRuntimeDir(source)
+	if err == nil {
+		return dir, nil
+	}
+	if !errors.Is(err, fs.ErrExist) {
+		return "", err
+	}
+	// The resume that took it claims right after; look for that claim.
+	if pending := s.awaitContinuationClaim(*plan.predecessor); pending != nil {
+		return "", pending
+	}
+	return "", err
+}
+
+// awaitContinuationClaim waits briefly for a claim on prior's continuation,
+// returning it as pending, or nil when none appears.
+func (s Store) awaitContinuationClaim(prior ReviewRun) *PendingReviewContinuation {
+	for i := 0; i < 20; i++ {
+		runs, _, err := s.ReadReviewRuns("")
+		if err == nil {
+			existing, e := s.existingReviewContinuation(prior, runs)
+			var pending *PendingReviewContinuation
+			if errors.As(e, &pending) {
+				return pending
+			}
+			if e == nil && existing != nil {
+				return &PendingReviewContinuation{ID: "resume-of:" + prior.RunID, Predecessor: prior.RunID, AttemptID: prior.AttemptID}
+			}
+		}
+		time.Sleep(100 * time.Millisecond)
 	}
 	return nil
 }

@@ -428,7 +428,14 @@ func (s Store) PlanReviewResume(id string) (DispatchPlan, error) {
 	}
 	// Only a continuation still to start needs the attempt's runtime
 	// directory free; a repeated resume returns the recorded one.
-	if e = reviewRunRuntimeDirFree(prior.AttemptID, "resume"); e != nil {
+	if e = reviewRunRuntimeDirFree(runtimeSourceOf(*prior), "resume"); e != nil {
+		// Another resume takes the directory just before its claim: a claim
+		// that appears meanwhile makes this one pending (spec
+		// pose-review-resume-runtime-dir-followups R1).
+		if pending := s.awaitContinuationClaim(*prior); pending != nil {
+			plan.PendingContinuation = pending
+			return plan, nil
+		}
 		return DispatchPlan{}, e
 	}
 	// The attempt's budget, not this agent's: after a handoff the resumed
