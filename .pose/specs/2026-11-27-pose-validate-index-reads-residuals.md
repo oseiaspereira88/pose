@@ -110,12 +110,13 @@ Each requirement gets a regression test shown failing before its code.
 - 2026-11-27: R1 adds `--relative` to the ready-transition diff; R2 replaces the root, repository top, Git directories, temporary and home directories whole before the generic pattern, which now also starts after `:`, a backtick or `[`; R3 cuts at a character (`TruncateUTF8`); R4 fails scope selection on a failed untracked listing; R5 adds stand-in Git tests. Each guard fails its test mutated out: `TestReadyTransitionsSeeSpecsBelowTheRepositoryTop`, `TestTheReportStatesNoPath`, `TestBoundsCutAtACharacter`, `TestScopeSelectionReportsAFailedUntrackedListing`, `TestTheIndexLookupNeedsNoPathFormat`, `TestIndexReadsRunGitInEnglish`, `TestTheIndexFallbacksKeepTheAnswer`, `TestTheRemainingIndexReadGuards`.
 - 2026-11-27: the first matrix failed `release-test-compile-darwin` and `-windows`: a test used the Linux-only memfd hooks; it moved to the Linux test file. Review round 1 (rrn-977f027e0e7c7ee5) requested changes. N1: the ready transition reads HEAD's text with `HEAD:./`, relative to the root, so a spec in progress at HEAD below the repository top is not a new transition. N2–N6: the redaction is withdrawn (D1). N7: scope selection runs its diff with `--relative`. `TestReadyTransitionsSeeSpecsBelowTheRepositoryTop` and `TestTheReportStatesNoPath` fail with `HEAD:./`, `--relative` or the note mutated.
 - 2026-11-27: review round 2 (rrn-3dba382397f270c7) requested changes: `--relative` dropped changes outside the root, narrowing validation (N1). Withdrawn: the diff names changes from the repository top, and each is named from the root (`scopeRootRelative`): inside it without the prefix, outside it as `../<name>`, a change outside every module that selects the root. The test changes a tracked file at the top and fails with either branch mutated out. N3: R3 and R5 no longer name the removed note bound, and the bounded-note assertion is gone. N4: the report warning test requires Git's message. N2 is a follow-up.
+- 2026-11-27: review round 3 (rrn-c3a4b1c0fd2bd2d6) requested changes: `diff.relative=true` in the configuration made the diff root-relative, so the new naming misplaced changes (N1); the diff now pins `diff.relative=false`. N2: the root prefix keeps a leading space and a failed lookup fails the selection. N3: a change outside the root is named by its relative path from the root, also for a root two levels down. N5: stale comments fixed. `TestReadyTransitionsSeeSpecsBelowTheRepositoryTop` (with `diff.relative=true`) and `TestScopeSelectionBelowADirectoryWithALeadingSpace` fail with the pin or the prefix rule mutated. N4 is a follow-up.
 
 ### Results summary
 The full `pose-mcp` suite passes; the canonical result is refreshed with `pose validate --carry`.
 
 ### Requirement trace
-- R1 [satisfied] test:TestReadyTransitionsSeeSpecsBelowTheRepositoryTop
+- R1 [satisfied] test:TestReadyTransitionsSeeSpecsBelowTheRepositoryTop, test:TestScopeSelectionBelowADirectoryWithALeadingSpace
 - R2 [satisfied] test:TestTheReportStatesNoPath
 - R3 [satisfied] test:TestBoundsCutAtACharacter
 - R4 [satisfied] test:TestScopeSelectionReportsAFailedUntrackedListing
@@ -141,3 +142,4 @@ L1 above.
 ### Follow-ups
 Origin: `pose-validate-read-only-index-followups` (done 2026-11-27).
 - [open] Name carry exclusions and the `show <head>:<path>` reads of carry from the root, as scope selection now does, for when carry runs below the repository top (review round 2, N2). (owner:@pose-maintainers crit:low review:2026-12-27)
+- [open] List untracked files outside the root when the root is below the repository top, as tracked changes outside it now are (review round 3, N4; pre-existing). (owner:@pose-maintainers crit:low review:2026-12-27)

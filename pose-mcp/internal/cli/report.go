@@ -299,10 +299,9 @@ func readLastReportRecord(path string) *reportRecord {
 
 // reportChangedFilesNoted is reportChangedFiles for the report: outside a
 // repository Git can open at all the plain listing stays silent, as before
-// (review round 1, N9; round 3, N19);
-// any other failure is returned to warn about, with Git's message, while the
-// list states only that it could not be read (spec
-// pose-validate-index-reads-residuals D1).
+// (review round 1, N9; round 3, N19); any other failure is returned to warn
+// about, with Git's message, while the list states only that it could not be
+// read (spec pose-validate-index-reads-residuals D1).
 func reportChangedFilesNoted(root, since string, locale cliLocale) ([]string, error) {
 	files, err := reportChangedFiles(root, since)
 	if err == nil {

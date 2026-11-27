@@ -99,7 +99,9 @@ func computeChangedScopeWith(root, base, head string, modules []validationModule
 	// keeps its owner, and a rename names both its source and its destination
 	// (review round 2, N1 and N3).
 	// Configuration never hides a changed gitlink (review round 8, N23).
-	gitArgs := []string{"-C", root, "-c", "diff.ignoreSubmodules=none", "diff", "--ignore-submodules=none", "--name-only", "-z", "--no-renames", base}
+	// diff.relative=false: the names are read as top-relative below
+	// (review round 3, N1).
+	gitArgs := []string{"-C", root, "-c", "diff.ignoreSubmodules=none", "-c", "diff.relative=false", "diff", "--ignore-submodules=none", "--name-only", "-z", "--no-renames", base}
 	if head != "" {
 		gitArgs = append(gitArgs, head)
 	}
@@ -114,7 +116,10 @@ func computeChangedScopeWith(root, base, head string, modules []validationModule
 	// change inside the root is named from the root, so its module owns it,
 	// and one outside stays a change outside every module, which selects the
 	// root, never nothing (review rounds 1 N7, 2 N1).
-	prefix := scopeRootPrefix(root)
+	prefix, err := scopeRootPrefix(root)
+	if err != nil {
+		return sel, fmt.Errorf("scope selection over %s: %v", sel.rangeLabel(), err)
+	}
 	for _, name := range strings.Split(string(out), "\x00") {
 		if name != "" {
 			sel.Changed = append(sel.Changed, scopeRootRelative(prefix, filepath.ToSlash(name)))
@@ -314,17 +319,25 @@ func scopeRevisions(base, head string) []string {
 }
 
 // scopeRootPrefix is the root's path from the repository top, with a trailing
-// slash, or "" at the top.
-func scopeRootPrefix(root string) string {
-	out, err := posemodel.RawGit("-C", root, "rev-parse", "--show-prefix").Output()
+// slash, or "" at the top. Only the newline Git ends it with is removed, so a
+// directory named with spaces keeps them; a failure fails the selection
+// rather than misnaming every change (review round 3, N2).
+func scopeRootPrefix(root string) (string, error) {
+	cmd := posemodel.RawGit("-C", root, "rev-parse", "--show-prefix")
+	posemodel.GitEnglish(cmd)
+	var stderr bytes.Buffer
+	cmd.Stderr = &stderr
+	out, err := cmd.Output()
 	if err != nil {
-		return ""
+		return "", posemodel.GitReadError("git rev-parse --show-prefix", err, stderr.Bytes())
 	}
-	return strings.TrimSpace(string(out))
+	return strings.TrimSuffix(string(out), "\n"), nil
 }
 
 // scopeRootRelative names a top-relative path from the root: inside it
-// without the prefix, outside it as ../ plus its top-relative name.
+// without the prefix; outside it as the relative path from the root (../ as
+// many times as the root is deep), a change outside every module of the
+// root, which selects the root (review rounds 2 N1, 3 N3).
 func scopeRootRelative(prefix, name string) string {
 	if prefix == "" {
 		return name
@@ -332,5 +345,9 @@ func scopeRootRelative(prefix, name string) string {
 	if rest, ok := strings.CutPrefix(name, prefix); ok {
 		return rest
 	}
-	return "../" + name
+	rel, err := filepath.Rel(filepath.FromSlash(strings.TrimSuffix(prefix, "/")), filepath.FromSlash(name))
+	if err != nil {
+		return "../" + name
+	}
+	return filepath.ToSlash(rel)
 }
