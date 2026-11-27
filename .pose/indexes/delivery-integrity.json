@@ -1,7 +1,7 @@
 {
   "schema_version": 2,
-  "input_digest": "sha256:c6a8af9460406bf9f8cd421bb783eacf66f288eaba15e9d895fd4d7d0bbafc10",
-  "provenance_digest": "sha256:2741e9516ccc7c432273dd318f5aadcc675b33826a5dd3be37e61f895a558067",
+  "input_digest": "sha256:d138f433e54020bf963243f7dc8b03d46a9f4ba0357e6ed42cde77046985f10d",
+  "provenance_digest": "sha256:ce484d31ea55736bd546557740bc6c18f104aa21d0848dd0da5280f2ddf5982b",
   "implied_edges": [
     "changes"
   ],
@@ -49346,14 +49346,6 @@
       }
     },
     {
-      "id": "change-set:cs-87e367e82df5",
-      "type": "change-set",
-      "attributes": {
-        "diff_digest": "sha256:e1dce4f68fcc663da1b8b805b4add8eeddf7b23f58e76d272f56060249abf45e",
-        "selector": "trailers:pose-validate-read-only-index-followups"
-      }
-    },
-    {
       "id": "change-set:cs-8848f958ca69",
       "type": "change-set",
       "attributes": {
@@ -49999,6 +49991,14 @@
       "attributes": {
         "diff_digest": "sha256:b25b59849975719194626f605b448f5b18004eafba3a8bd0c9fe41e3be519997",
         "selector": "trailers:pose-abm-contract-nodes"
+      }
+    },
+    {
+      "id": "change-set:cs-a9f8a7da776e",
+      "type": "change-set",
+      "attributes": {
+        "diff_digest": "sha256:3fce4a07093943244847f5d1ca13c3b4aabcd472b25306a5e9ad891857527e37",
+        "selector": "trailers:pose-validate-read-only-index-followups"
       }
     },
     {
@@ -143036,7 +143036,7 @@
     },
     {
       "from": "spec:pose-validate-read-only-index-followups",
-      "to": "change-set:cs-87e367e82df5",
+      "to": "change-set:cs-a9f8a7da776e",
       "type": "observed-by"
     },
     {
@@ -250841,139 +250841,6 @@
       }
     },
     {
-      "id": "cs-87e367e82df5",
-      "spec": "pose-validate-read-only-index-followups",
-      "selector": "trailers:pose-validate-read-only-index-followups",
-      "base": "4dec279dae11bbb7603b9ccc1f6cc4a9f55cc276^",
-      "head": "6d8562ee70289ec434c9a64b1a847047d667074e",
-      "resolved_base": "d998cf079b1f9dd23d3f5d15e25784d728e5c03d",
-      "resolved_head": "6d8562ee70289ec434c9a64b1a847047d667074e",
-      "commits": [
-        "4dec279dae11bbb7603b9ccc1f6cc4a9f55cc276",
-        "b0b3431e33d2754f8e6242e6d3e49052f4e6fb83",
-        "0a4795fe4ce53a89603bc151e08f075be6eb625c",
-        "c4a22594924f8a06c81c2fe04e4bde3f81e17b42",
-        "fafa9b63117dc721ea0129956743fbf14f9ece66",
-        "c856a4e6d02ddd867d70029b26e039303a07eb81",
-        "850db010702a41b844f5b8e558d8b87ca91b1f6d",
-        "c5ff42b438ecb1b8ed306c7c00fdcdd77f9a6799",
-        "7d5b54ce11470a8f726679f2fedf0935b8980e20",
-        "d1f9a5ffed0ea0c978fdf799fedf10acd60d7305",
-        "911a40510333e0a9acd8d7636fbc7be4c81c59cf",
-        "0b241e7a1102688f50fd766e776171287c7cdaf1",
-        "a8801e0f542d0c8d7c50fa32ea4eb77dbe98d0b2",
-        "d93acdc2446b914c33ddb859195675ce6a9ee681",
-        "aa8f9d3a2f1912a2a9b4fa6bd000c532c038b1bf",
-        "e3dd44614adf484a853e39c7a48046e3b821193d",
-        "e7d42fb09b7f72fed7c94f5233e547cbb48c4a77",
-        "6d8562ee70289ec434c9a64b1a847047d667074e"
-      ],
-      "paths": [
-        {
-          "action": "created",
-          "path": ".pose/results/vfix-binding.md"
-        },
-        {
-          "action": "created",
-          "path": ".pose/specs/2026-11-26-pose-validate-read-only-index-followups.md"
-        },
-        {
-          "action": "created",
-          "path": "pose-mcp/internal/pose/git_index_open_other.go"
-        },
-        {
-          "action": "created",
-          "path": "pose-mcp/internal/pose/git_index_open_unix.go"
-        },
-        {
-          "action": "created",
-          "path": "pose-mcp/internal/pose/git_worktree_reads_linux_test.go"
-        },
-        {
-          "action": "modified",
-          "path": ".pose/indexes/delivery-integrity.json"
-        },
-        {
-          "action": "modified",
-          "path": ".pose/indexes/generation.json"
-        },
-        {
-          "action": "modified",
-          "path": ".pose/indexes/spec-graph.json"
-        },
-        {
-          "action": "modified",
-          "path": ".pose/results/delivery-validation.json"
-        },
-        {
-          "action": "modified",
-          "path": "pose-mcp/internal/cli/check.go"
-        },
-        {
-          "action": "modified",
-          "path": "pose-mcp/internal/cli/report.go"
-        },
-        {
-          "action": "modified",
-          "path": "pose-mcp/internal/cli/report_changed_files_test.go"
-        },
-        {
-          "action": "modified",
-          "path": "pose-mcp/internal/cli/validate_reads_index_test.go"
-        },
-        {
-          "action": "modified",
-          "path": "pose-mcp/internal/cli/validate_scope.go"
-        },
-        {
-          "action": "modified",
-          "path": "pose-mcp/internal/pose/git_worktree_reads.go"
-        },
-        {
-          "action": "modified",
-          "path": "pose-mcp/internal/pose/git_worktree_reads_linux.go"
-        },
-        {
-          "action": "modified",
-          "path": "pose-mcp/internal/pose/git_worktree_reads_other.go"
-        },
-        {
-          "action": "modified",
-          "path": "pose-mcp/internal/pose/git_worktree_reads_test.go"
-        },
-        {
-          "action": "modified",
-          "path": "pose-mcp/internal/pose/review_attempt_ledger.go"
-        }
-      ],
-      "diff_digest": "sha256:e1dce4f68fcc663da1b8b805b4add8eeddf7b23f58e76d272f56060249abf45e",
-      "material_digest": "sha256:532691712929e57bf56ffa9f3904437be8d42337e64db65444b2aaadeace33c2",
-      "material_inputs": {
-        "names": [
-          ".pose/indexes/delivery-integrity.json",
-          ".pose/indexes/generation.json",
-          ".pose/indexes/spec-graph.json",
-          ".pose/indexes/validation-matrix.json",
-          ".pose/results/delivery-validation.json",
-          ".pose/results/vfix-binding.md",
-          ".pose/specs/2026-11-26-pose-validate-read-only-index-followups.md",
-          "pose-mcp/internal/cli/check.go",
-          "pose-mcp/internal/cli/report.go",
-          "pose-mcp/internal/cli/report_changed_files_test.go",
-          "pose-mcp/internal/cli/validate_reads_index_test.go",
-          "pose-mcp/internal/cli/validate_scope.go",
-          "pose-mcp/internal/pose/git_index_open_other.go",
-          "pose-mcp/internal/pose/git_index_open_unix.go",
-          "pose-mcp/internal/pose/git_worktree_reads.go",
-          "pose-mcp/internal/pose/git_worktree_reads_linux.go",
-          "pose-mcp/internal/pose/git_worktree_reads_linux_test.go",
-          "pose-mcp/internal/pose/git_worktree_reads_other.go",
-          "pose-mcp/internal/pose/git_worktree_reads_test.go",
-          "pose-mcp/internal/pose/review_attempt_ledger.go"
-        ]
-      }
-    },
-    {
       "id": "cs-8848f958ca69",
       "spec": "pose-release-doc-discovery-and-sbom-parser",
       "selector": "trailers:pose-release-doc-discovery-and-sbom-parser",
@@ -267328,6 +267195,141 @@
           "pose-mcp/internal/scaffold/dist/locales/pt-BR/POSE.md",
           "pose-mcp/schemas/README.md",
           "pose-mcp/schemas/v1/contract-nodes.schema.json"
+        ]
+      }
+    },
+    {
+      "id": "cs-a9f8a7da776e",
+      "spec": "pose-validate-read-only-index-followups",
+      "selector": "trailers:pose-validate-read-only-index-followups",
+      "base": "4dec279dae11bbb7603b9ccc1f6cc4a9f55cc276^",
+      "head": "f9c297703fe21d8ea219e5e60a6f7fc5b8a23b3c",
+      "resolved_base": "d998cf079b1f9dd23d3f5d15e25784d728e5c03d",
+      "resolved_head": "f9c297703fe21d8ea219e5e60a6f7fc5b8a23b3c",
+      "commits": [
+        "4dec279dae11bbb7603b9ccc1f6cc4a9f55cc276",
+        "b0b3431e33d2754f8e6242e6d3e49052f4e6fb83",
+        "0a4795fe4ce53a89603bc151e08f075be6eb625c",
+        "c4a22594924f8a06c81c2fe04e4bde3f81e17b42",
+        "fafa9b63117dc721ea0129956743fbf14f9ece66",
+        "c856a4e6d02ddd867d70029b26e039303a07eb81",
+        "850db010702a41b844f5b8e558d8b87ca91b1f6d",
+        "c5ff42b438ecb1b8ed306c7c00fdcdd77f9a6799",
+        "7d5b54ce11470a8f726679f2fedf0935b8980e20",
+        "d1f9a5ffed0ea0c978fdf799fedf10acd60d7305",
+        "911a40510333e0a9acd8d7636fbc7be4c81c59cf",
+        "0b241e7a1102688f50fd766e776171287c7cdaf1",
+        "a8801e0f542d0c8d7c50fa32ea4eb77dbe98d0b2",
+        "d93acdc2446b914c33ddb859195675ce6a9ee681",
+        "aa8f9d3a2f1912a2a9b4fa6bd000c532c038b1bf",
+        "e3dd44614adf484a853e39c7a48046e3b821193d",
+        "e7d42fb09b7f72fed7c94f5233e547cbb48c4a77",
+        "6d8562ee70289ec434c9a64b1a847047d667074e",
+        "814b33e80b39853ddbea7d6d92163f2c38d18420",
+        "f9c297703fe21d8ea219e5e60a6f7fc5b8a23b3c"
+      ],
+      "paths": [
+        {
+          "action": "created",
+          "path": ".pose/results/vfix-binding.md"
+        },
+        {
+          "action": "created",
+          "path": ".pose/specs/2026-11-26-pose-validate-read-only-index-followups.md"
+        },
+        {
+          "action": "created",
+          "path": "pose-mcp/internal/pose/git_index_open_other.go"
+        },
+        {
+          "action": "created",
+          "path": "pose-mcp/internal/pose/git_index_open_unix.go"
+        },
+        {
+          "action": "created",
+          "path": "pose-mcp/internal/pose/git_worktree_reads_linux_test.go"
+        },
+        {
+          "action": "modified",
+          "path": ".pose/indexes/delivery-integrity.json"
+        },
+        {
+          "action": "modified",
+          "path": ".pose/indexes/generation.json"
+        },
+        {
+          "action": "modified",
+          "path": ".pose/indexes/spec-graph.json"
+        },
+        {
+          "action": "modified",
+          "path": ".pose/results/delivery-validation.json"
+        },
+        {
+          "action": "modified",
+          "path": "pose-mcp/internal/cli/check.go"
+        },
+        {
+          "action": "modified",
+          "path": "pose-mcp/internal/cli/report.go"
+        },
+        {
+          "action": "modified",
+          "path": "pose-mcp/internal/cli/report_changed_files_test.go"
+        },
+        {
+          "action": "modified",
+          "path": "pose-mcp/internal/cli/validate_reads_index_test.go"
+        },
+        {
+          "action": "modified",
+          "path": "pose-mcp/internal/cli/validate_scope.go"
+        },
+        {
+          "action": "modified",
+          "path": "pose-mcp/internal/pose/git_worktree_reads.go"
+        },
+        {
+          "action": "modified",
+          "path": "pose-mcp/internal/pose/git_worktree_reads_linux.go"
+        },
+        {
+          "action": "modified",
+          "path": "pose-mcp/internal/pose/git_worktree_reads_other.go"
+        },
+        {
+          "action": "modified",
+          "path": "pose-mcp/internal/pose/git_worktree_reads_test.go"
+        },
+        {
+          "action": "modified",
+          "path": "pose-mcp/internal/pose/review_attempt_ledger.go"
+        }
+      ],
+      "diff_digest": "sha256:3fce4a07093943244847f5d1ca13c3b4aabcd472b25306a5e9ad891857527e37",
+      "material_digest": "sha256:532691712929e57bf56ffa9f3904437be8d42337e64db65444b2aaadeace33c2",
+      "material_inputs": {
+        "names": [
+          ".pose/indexes/delivery-integrity.json",
+          ".pose/indexes/generation.json",
+          ".pose/indexes/spec-graph.json",
+          ".pose/indexes/validation-matrix.json",
+          ".pose/results/delivery-validation.json",
+          ".pose/results/vfix-binding.md",
+          ".pose/specs/2026-11-26-pose-validate-read-only-index-followups.md",
+          "pose-mcp/internal/cli/check.go",
+          "pose-mcp/internal/cli/report.go",
+          "pose-mcp/internal/cli/report_changed_files_test.go",
+          "pose-mcp/internal/cli/validate_reads_index_test.go",
+          "pose-mcp/internal/cli/validate_scope.go",
+          "pose-mcp/internal/pose/git_index_open_other.go",
+          "pose-mcp/internal/pose/git_index_open_unix.go",
+          "pose-mcp/internal/pose/git_worktree_reads.go",
+          "pose-mcp/internal/pose/git_worktree_reads_linux.go",
+          "pose-mcp/internal/pose/git_worktree_reads_linux_test.go",
+          "pose-mcp/internal/pose/git_worktree_reads_other.go",
+          "pose-mcp/internal/pose/git_worktree_reads_test.go",
+          "pose-mcp/internal/pose/review_attempt_ledger.go"
         ]
       }
     },
