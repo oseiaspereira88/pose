@@ -1,7 +1,7 @@
 {
   "schema_version": 2,
-  "input_digest": "sha256:bfb58da0c461b09d4ab4c4c6ae0070e6460a2efadfd4b1fea2d4411e79bff2de",
-  "provenance_digest": "sha256:b821652a8ae7e8bce3092f03c4c75c322b627f7e3a5cbab536c428bfcba32059",
+  "input_digest": "sha256:e5b7f6be0d2631df06c48bddd58b2d84a492668f5850b04f4a729190c0b33efd",
+  "provenance_digest": "sha256:4a8c3d93b65bf542018d1adf1619ebd4b30b837c21ace28414681b7f0936268b",
   "implied_edges": [
     "changes"
   ],
@@ -8845,6 +8845,13 @@
       "type": "artifact",
       "attributes": {
         "path": ".pose/results/rfix-binding.md"
+      }
+    },
+    {
+      "id": "artifact:.pose/results/rres-binding.md",
+      "type": "artifact",
+      "attributes": {
+        "path": ".pose/results/rres-binding.md"
       }
     },
     {
@@ -46882,14 +46889,6 @@
       }
     },
     {
-      "id": "change-set:cs-040eabddd8ab",
-      "type": "change-set",
-      "attributes": {
-        "diff_digest": "sha256:31e8d0c9acdfdebbbc37b88864e66d9fabffdba98fe94b8740d61afe256f5b25",
-        "selector": "trailers:pose-review-resume-residuals"
-      }
-    },
-    {
       "id": "change-set:cs-04958d9fe4cb",
       "type": "change-set",
       "attributes": {
@@ -48823,6 +48822,14 @@
       "attributes": {
         "diff_digest": "sha256:99b2044aff72bb289bbce719b0a7ada6e8735fb9bf477ed8f34d499bb30cf2e9",
         "selector": "trailers:pose-federated-source-proof-is-computed-once-per-operation"
+      }
+    },
+    {
+      "id": "change-set:cs-61d69e9d2ff2",
+      "type": "change-set",
+      "attributes": {
+        "diff_digest": "sha256:b6a1ae7532ecb5c6e66f9808d9770e1f5d76da1ae37d8f4e7c2ce3772ffa5130",
+        "selector": "trailers:pose-review-resume-residuals"
       }
     },
     {
@@ -136714,7 +136721,7 @@
     },
     {
       "from": "spec:pose-review-resume-residuals",
-      "to": "change-set:cs-040eabddd8ab",
+      "to": "change-set:cs-61d69e9d2ff2",
       "type": "observed-by"
     },
     {
@@ -184385,106 +184392,6 @@
         }
       ],
       "diff_digest": "sha256:8bd2859bd7c36bf3bab3bef99b08a50373f628aee8ba582e7b59f655af588d24"
-    },
-    {
-      "id": "cs-040eabddd8ab",
-      "spec": "pose-review-resume-residuals",
-      "selector": "trailers:pose-review-resume-residuals",
-      "base": "ee15d25d5762623e085c9ad8a23e39246beff599^",
-      "head": "3ab826b2ebccd14dcd1a691902cc304b7bed4227",
-      "resolved_base": "1e1d80150fa6b6998d95ec385a3d1a8b5bfc5795",
-      "resolved_head": "3ab826b2ebccd14dcd1a691902cc304b7bed4227",
-      "commits": [
-        "ee15d25d5762623e085c9ad8a23e39246beff599",
-        "1019cde3a44d6b6c0a3940de7a450a170e30871b",
-        "aba3703b979379c1c4cf6815d3f875a0a94053db",
-        "45c91e32cfb3547b44ea3c61913832c89739a9aa",
-        "3ab826b2ebccd14dcd1a691902cc304b7bed4227"
-      ],
-      "paths": [
-        {
-          "action": "created",
-          "path": ".pose/specs/2026-11-27-pose-review-resume-residuals.md"
-        },
-        {
-          "action": "modified",
-          "path": ".pose/indexes/delivery-integrity.json"
-        },
-        {
-          "action": "modified",
-          "path": ".pose/indexes/generation.json"
-        },
-        {
-          "action": "modified",
-          "path": ".pose/indexes/spec-graph.json"
-        },
-        {
-          "action": "modified",
-          "path": ".pose/results/delivery-validation.json"
-        },
-        {
-          "action": "modified",
-          "path": "POSE.md"
-        },
-        {
-          "action": "modified",
-          "path": "locales/pt-BR/POSE.md"
-        },
-        {
-          "action": "modified",
-          "path": "pose-mcp/internal/cli/delegate_rounds_test.go"
-        },
-        {
-          "action": "modified",
-          "path": "pose-mcp/internal/pose/delegation_handoff.go"
-        },
-        {
-          "action": "modified",
-          "path": "pose-mcp/internal/pose/review_dispatch.go"
-        },
-        {
-          "action": "modified",
-          "path": "pose-mcp/internal/pose/review_rounds.go"
-        },
-        {
-          "action": "modified",
-          "path": "pose-mcp/internal/pose/review_run_continuity.go"
-        },
-        {
-          "action": "modified",
-          "path": "pose-mcp/internal/pose/review_run_runtime_dir_test.go"
-        },
-        {
-          "action": "modified",
-          "path": "pose-mcp/internal/scaffold/dist/POSE.md"
-        },
-        {
-          "action": "modified",
-          "path": "pose-mcp/internal/scaffold/dist/locales/pt-BR/POSE.md"
-        }
-      ],
-      "diff_digest": "sha256:31e8d0c9acdfdebbbc37b88864e66d9fabffdba98fe94b8740d61afe256f5b25",
-      "material_digest": "sha256:1907585f8c792b8ef2464ed2bc7dda08907fb9fb375258ee5b75d146d44d21b3",
-      "material_inputs": {
-        "names": [
-          ".pose/indexes/delivery-integrity.json",
-          ".pose/indexes/generation.json",
-          ".pose/indexes/spec-graph.json",
-          ".pose/indexes/validation-matrix.json",
-          ".pose/results/delivery-validation.json",
-          ".pose/specs/2026-11-27-pose-review-resume-residuals.md",
-          "POSE.md",
-          "locales/pt-BR/POSE.md",
-          "pose-mcp/internal/cli/delegate_rounds_test.go",
-          "pose-mcp/internal/pose/delegation_handoff.go",
-          "pose-mcp/internal/pose/review_dispatch.go",
-          "pose-mcp/internal/pose/review_rounds.go",
-          "pose-mcp/internal/pose/review_run_continuity.go",
-          "pose-mcp/internal/pose/review_run_runtime_dir_test.go",
-          "pose-mcp/internal/scaffold/dist/POSE.md",
-          "pose-mcp/internal/scaffold/dist/locales/pt-BR/POSE.md"
-        ]
-      }
     },
     {
       "id": "cs-04958d9fe4cb",
@@ -236639,6 +236546,113 @@
           ".pose/state/project-state.md",
           "pose-mcp/internal/pose/federated_acceptance.go",
           "pose-mcp/internal/pose/federated_source_proof_memo_test.go"
+        ]
+      }
+    },
+    {
+      "id": "cs-61d69e9d2ff2",
+      "spec": "pose-review-resume-residuals",
+      "selector": "trailers:pose-review-resume-residuals",
+      "base": "ee15d25d5762623e085c9ad8a23e39246beff599^",
+      "head": "db397d16d2f45d5c7ab42964f8014a20a43b7bc9",
+      "resolved_base": "1e1d80150fa6b6998d95ec385a3d1a8b5bfc5795",
+      "resolved_head": "db397d16d2f45d5c7ab42964f8014a20a43b7bc9",
+      "commits": [
+        "ee15d25d5762623e085c9ad8a23e39246beff599",
+        "1019cde3a44d6b6c0a3940de7a450a170e30871b",
+        "aba3703b979379c1c4cf6815d3f875a0a94053db",
+        "45c91e32cfb3547b44ea3c61913832c89739a9aa",
+        "3ab826b2ebccd14dcd1a691902cc304b7bed4227",
+        "7eb78fb3cc2cff8d3216e65a9f74fc8d03ff79a1",
+        "db397d16d2f45d5c7ab42964f8014a20a43b7bc9"
+      ],
+      "paths": [
+        {
+          "action": "created",
+          "path": ".pose/results/rres-binding.md"
+        },
+        {
+          "action": "created",
+          "path": ".pose/specs/2026-11-27-pose-review-resume-residuals.md"
+        },
+        {
+          "action": "modified",
+          "path": ".pose/indexes/delivery-integrity.json"
+        },
+        {
+          "action": "modified",
+          "path": ".pose/indexes/generation.json"
+        },
+        {
+          "action": "modified",
+          "path": ".pose/indexes/spec-graph.json"
+        },
+        {
+          "action": "modified",
+          "path": ".pose/results/delivery-validation.json"
+        },
+        {
+          "action": "modified",
+          "path": "POSE.md"
+        },
+        {
+          "action": "modified",
+          "path": "locales/pt-BR/POSE.md"
+        },
+        {
+          "action": "modified",
+          "path": "pose-mcp/internal/cli/delegate_rounds_test.go"
+        },
+        {
+          "action": "modified",
+          "path": "pose-mcp/internal/pose/delegation_handoff.go"
+        },
+        {
+          "action": "modified",
+          "path": "pose-mcp/internal/pose/review_dispatch.go"
+        },
+        {
+          "action": "modified",
+          "path": "pose-mcp/internal/pose/review_rounds.go"
+        },
+        {
+          "action": "modified",
+          "path": "pose-mcp/internal/pose/review_run_continuity.go"
+        },
+        {
+          "action": "modified",
+          "path": "pose-mcp/internal/pose/review_run_runtime_dir_test.go"
+        },
+        {
+          "action": "modified",
+          "path": "pose-mcp/internal/scaffold/dist/POSE.md"
+        },
+        {
+          "action": "modified",
+          "path": "pose-mcp/internal/scaffold/dist/locales/pt-BR/POSE.md"
+        }
+      ],
+      "diff_digest": "sha256:b6a1ae7532ecb5c6e66f9808d9770e1f5d76da1ae37d8f4e7c2ce3772ffa5130",
+      "material_digest": "sha256:1907585f8c792b8ef2464ed2bc7dda08907fb9fb375258ee5b75d146d44d21b3",
+      "material_inputs": {
+        "names": [
+          ".pose/indexes/delivery-integrity.json",
+          ".pose/indexes/generation.json",
+          ".pose/indexes/spec-graph.json",
+          ".pose/indexes/validation-matrix.json",
+          ".pose/results/delivery-validation.json",
+          ".pose/results/rres-binding.md",
+          ".pose/specs/2026-11-27-pose-review-resume-residuals.md",
+          "POSE.md",
+          "locales/pt-BR/POSE.md",
+          "pose-mcp/internal/cli/delegate_rounds_test.go",
+          "pose-mcp/internal/pose/delegation_handoff.go",
+          "pose-mcp/internal/pose/review_dispatch.go",
+          "pose-mcp/internal/pose/review_rounds.go",
+          "pose-mcp/internal/pose/review_run_continuity.go",
+          "pose-mcp/internal/pose/review_run_runtime_dir_test.go",
+          "pose-mcp/internal/scaffold/dist/POSE.md",
+          "pose-mcp/internal/scaffold/dist/locales/pt-BR/POSE.md"
         ]
       }
     },
