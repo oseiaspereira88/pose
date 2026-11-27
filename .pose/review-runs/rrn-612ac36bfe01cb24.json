@@ -1,0 +1,139 @@
+{
+  "safety": {
+    "schema_version": 1,
+    "profile": "legacy-trusted",
+    "platform": "linux/amd64",
+    "capabilities": {
+      "automatic-expiry": "unavailable",
+      "bounded-capture": "available",
+      "cpu-limit": "unavailable",
+      "credential-filesystem-isolation": "unavailable",
+      "environment-allowlist": "available",
+      "escaped-descendant-termination": "environment-marked",
+      "filesystem-isolation": "unavailable",
+      "memory-limit": "unavailable",
+      "network-isolation": "unavailable",
+      "origin-isolation": "unavailable",
+      "parent-termination": "available",
+      "process-group-termination": "available",
+      "shared-git-isolation": "unavailable"
+    },
+    "limitations": [
+      "trusted local executable required; worktree is not a sandbox",
+      "outside writes, transient writes, shared Git and credential files are not isolated",
+      "no memory/CPU quota; the review run shim ends every process left in the run's subtree, including one in its own session",
+      "cleanup filesystem calls remain subject to operating-system I/O latency",
+      "legacy compatibility: HOME retained; other ambient credentials excluded"
+    ],
+    "stream_bytes": 8388608,
+    "output_bytes": 65536,
+    "retained_bytes": 16777216,
+    "timeout_ms": 3600000,
+    "max_runs_per_bundle": 3,
+    "retention": "retain-evidence; ttl=0; no automatic deletion",
+    "capture_complete": true,
+    "runtime_id": "pose-review-run-668ca2f6e0",
+    "operation": {
+      "schema_version": 1,
+      "operation": "review.dispatch.cleanup",
+      "scope": "spec:pose-review-resume-residuals",
+      "outcome": "completed",
+      "steps_run": [
+        {
+          "id": "cleanup",
+          "result": "done"
+        }
+      ],
+      "effects": [],
+      "resumable": false
+    }
+  },
+  "provenance": {
+    "execution_state": "started",
+    "planned_wire_digest": "sha256:b334fb440be982c983958413ed54eaebfdcdd6db64d90290f4808a85a7033a7d",
+    "wire_bytes": 30542,
+    "wire_complete": true,
+    "schema_version": 1,
+    "project": "proj.pose-dist",
+    "audience": "proj.pose-dist",
+    "worktree_digest": "sha256:092ca52378c4c0d0f2b627da8d5031dbb854563bd4b9f2474458710c62a14816",
+    "trust": "executor-attested",
+    "implementation": {
+      "principal": "agent:anthropic/claude-opus-5-5",
+      "execution": "sha256:344ac5868944c155772d60a95ef6ff20644580a642e772ad5c92c29428464ff8",
+      "vendor": "anthropic",
+      "model": "claude-opus-5-5"
+    },
+    "reviewer": {
+      "principal": "agent:anthropic/claude-sonnet-5-5",
+      "vendor": "anthropic",
+      "model": "claude-sonnet-5-5"
+    },
+    "config_digest": "sha256:b23684d462090c30b29c472aa98a57bfadccc0b92e14fbacb173eb47d1f5b8ea",
+    "command_template_digest": "sha256:3d843a49f6314194edbdf4f7f3ce02992895b45ad84d90915a0b66a1db8afd54",
+    "argv_digest": "sha256:03e40126c1355cee2d738bd706ff8ee151c02f088b7c9e77dd827fbfe96a0c9c",
+    "executable_digest": "sha256:c157074818b094c84aaf31b8c80a1e149f234bb1c8c84a25e9a53e96afa30a29",
+    "template_version": "review-brief/11",
+    "wire_digest": "sha256:b334fb440be982c983958413ed54eaebfdcdd6db64d90290f4808a85a7033a7d",
+    "notes_digest": "sha256:50bd8f80313bd50588cd2d57e1ab3440820fa79a00e688e636ab2f305e364148",
+    "raw_transcript_digest": "sha256:beeb0dc5e20cbf0fc94931c751b17427f7580e9b69cb3ee655028407d703ddc8",
+    "raw_output_digest": "sha256:a1d27795e59f2a843364b04cf0d7729affe3b813d8b62b4fc860e90f1162b977",
+    "output_source": "stream-final",
+    "output_complete": true
+  },
+  "session_digest": "sha256:6f50faf92147bd60e0ab2d6f759dc6e6ee1f9c010759b40ff7e5a5c8c92042bd",
+  "tree_digest": "sha256:913b46b67d616b2ff89a5a2139a1db4d31803afc343256f88c2757cd85c32453",
+  "brief_notes": "Implementer notes (Claude Opus 5.5, the lead). Use them as context only; the judgment is yours.\n\nIMPORTANT, time budget: the run ends after 60 minutes. Do not run `go test ./...`, `go build ./...`, `pose validate` or `validate --strict`: the sealed results cover them, and a previous run of this round timed out running them. Record each required `validate` tool `passed` with the sealed ref (`unit:pose-mcp/go/test`) as its evidence. Run only the focused tests named below, keep each command's output short (pipe long output through `tail -n 40`), and finish well within the limit.\n\nScope: spec `pose-review-resume-residuals` (R1–R6, accepted limit L1), the follow-ups of `pose-review-resume-runtime-dir-followups`.\n- R1: `awaitContinuationClaim` (review_dispatch.go) returns a recorded continuation, which the dispatch returns as its result and a handoff plan reports as already continued; it reads the ledger only once a claim file exists and stops with its context; a claim-publication conflict replans to the recorded or pending continuation.\n- R2/R3: `runtimeSourceFor` says why a continued round could not take the previous round's name; a path taken after the plan falls back to the round's own directory instead of failing; both are recorded in `safety.limitations`.\n- R4: `previousRoundCheckoutHeld` returns the held path for the reason, and an lstat error other than not-exist counts as held.\n- R5: the rounds paragraph in both locales and the embedded copies.\n- R6: tests; L1 lists the guards without one.\n\nPlease check in particular that a continuation never shares a directory, that the fallback cannot hide a live run's directory, and that a recorded continuation is never re-run.\n\nBefore you finish, run `\"$POSE_REVIEW_CLI\" review draft-check --draft -` on your final message (pipe it on standard input) and fix every reason it reports.\n\nDraft format rules, enforced by the conclusion preflight:\n- New findings use short unprefixed IDs (N1, N2, …).\n- Structural-delta mappings go inside the criterion that answers them, with `basis` set to a requirement or a decision of this spec (R1–R6).\n- A criterion scoped to a component cites evidence from that component only.\n- A finding that falls inside the accepted limit L1 is a follow-up with `limit` set to \"L1\".\n\nSandbox limits: the checkout is sealed and read-only. Never `cd`; keep the checkout root as the working directory. Your Bash is limited to these command prefixes: `go test`, `go vet`, `go -C`, `git diff|log|show|status|ls-files`, `cat`, `printf`, `\"$POSE_REVIEW_CLI\"`, and the pose checks the plan lists. Keep test runs focused (`go -C pose-mcp test ./internal/cli ./internal/pose -run 'RunContinuity|KeepTheCheckoutPathOfTheirThread|ReviewRounds|Handoff'`), and let every command you start finish before you end. Run every planned `pose` command as `\"$POSE_REVIEW_CLI\"`.\n\nA tool you cannot rerun faithfully in the sandbox (the full `validate` hits HTTP 403, `/var/tmp` owned by another user and refused delegation there) is a limit of the run, not a defect of the subject. As the approving rounds of `pose-validate-reads-leave-the-index-alone` and `pose-review-resume-keeps-the-sealed-checkout` did, record it `passed` with the sealed ref (`unit:pose-mcp/go/test`) as its evidence and the sandbox failure in its rationale; record `failed` only for a failure the subject causes.\n\nPlease report every finding you see in this round, classified blocker or follow-up, rather than stopping at the first.\n",
+  "ledger_version": 1,
+  "attempt_id": "rat-668ca2f6e00184dd6af2d2fd0ce78a403ab13e0957dc22948e4ae2450ad7d225",
+  "schema_version": 1,
+  "run_id": "rrn-612ac36bfe01cb24",
+  "scope": "spec:pose-review-resume-residuals",
+  "bundle_id": "rvb-6560d4f2fe465e2d",
+  "bundle_digest": "sha256:6560d4f2fe465e2d91a40006d3e331bb3deae0767bd9115f5947b60c8981d450",
+  "sealed_commit": "db397d16d2f45d5c7ab42964f8014a20a43b7bc9",
+  "kind": "review",
+  "brief_digest": "sha256:34b8edd3a105dfe8236be30d3a91f6589d28260aac0b0ca0048a1be7bcd6059f",
+  "adapter": "claude-sonnet-5-5",
+  "vendor": "anthropic",
+  "model": "claude-sonnet-5-5",
+  "started_at": "2026-11-27T23:07:26.781930803Z",
+  "ended_at": "2026-11-27T23:27:02.347244316Z",
+  "exit_code": 0,
+  "status": "completed",
+  "transcript_digest": "sha256:c3504059e0aae65274b71844e8a88e573cd010fc8e64f2f3a50c77175542632c",
+  "transcript_path": ".pose/review-runs/rrn-612ac36bfe01cb24.transcript",
+  "output": "decision: changes-requested\n\nTwo medium defects block approval and four low ones are follow-ups. All focused `internal/pose` tests passed, as did `TestReviewRoundsKeepTheCheckoutPathOfTheirThread`.\n\nSeveral other focused `internal/cli` tests failed here. The failures I inspected report `/home belongs to another user; set XDG_STATE_HOME…`, a sandbox restriction. I did not inspect every failure, and I relied on the sealed `unit:pose-mcp/go/test` instead of running the full suite or `validate`.\n\n`go clean -cache` and the `go-build*` removal both succeeded inside the sandbox, and the checkout was clean just before.\n\n## Findings\n\n| ID | Severity | Where | Defect |\n|---|---|---|---|\n| N1 (blocker) | medium | `pose-mcp/internal/pose/review_dispatch.go:2263` | A resume or handoff that loses a race can return another kind of continuation, or another agent's, as its own successful result. This skips the \"handed off; it is not resumed\" and \"already continued\" refusals. |\n| N2 (blocker) | medium | `.pose/specs/2026-11-27-pose-review-resume-residuals.md:119` | R6 is marked satisfied but is not delivered. R1's recorded-continuation returns also had no coverage in the focused tests, and L1 does not cover that gap. |\n| N3 | low | `review_dispatch.go:2270` | A cancelled wait reports \"directory already exists, remove it\". Waits reached during replanning ignore cancellation. |\n| N4 | low | `review_dispatch.go:774` | After a claim conflict, the replan's specific refusal is dropped and the raw conflict is returned. |\n| N5 | low | `POSE.md:956` | The manual does not describe a checkout moved after planning while the session continues, and the spec records no decision for it. |\n| N6 | low | `pose-mcp/internal/pose/review_rounds.go:701` | The held path is checked twice, so the recorded reason can end up with an empty path. |\n\nOn your three questions:\n- **Sharing a directory:** I found no way for a continuation to share one, since creation is exclusive.\n- **Hiding a live run's directory:** the fallback does not take or remove it. The resumed session may still refer to the old path, though (N5).\n- **Re-running a recorded continuation:** I found no path that re-runs one, but the wrong one can be returned (N1).\n\n```pose-draft\n{\"schema\":\"pose.review.draft/v1\",\"decision\":\"changes-requested\",\n\"findings\":[\n{\"id\":\"N1\",\"severity\":\"medium\",\"disposition\":\"blocker\",\"file\":\"pose-mcp/internal/pose/review_dispatch.go\",\"line\":2263,\"summary\":\"awaitContinuationClaim returns any recorded continuation without checking its kind or agent. A resume that loses the race to a completed handoff gets that handoff run as its own successful result (review_dispatch.go:761-763; PlanReviewResume at review_run_continuity.go:440-444, returned by the replan at review_dispatch.go:740-741), bypassing the 'handed off; it is not resumed' refusal at review_run_continuity.go:423-424. A handoff that loses inside takeContinuationRuntimeDir to a resume or to another agent's handoff also returns that run as success instead of 'already continued' (delegation_handoff.go:339-342), contrary to R1. Established by code reading.\"},\n{\"id\":\"N2\",\"severity\":\"medium\",\"disposition\":\"blocker\",\"file\":\".pose/specs/2026-11-27-pose-review-resume-residuals.md\",\"line\":119,\"summary\":\"R6 is traced satisfied but is not delivered: no test makes the exclusive take refuse after a successful replan (review_dispatch.go:764-766 uncovered; the dispatch-beside-a-directory test is refused earlier by the replan), none covers the claim-failure removal (769-771 uncovered), and Known gaps admits the random-name resume and the handoff pending branch are missing. R1's recorded-continuation returns (review_dispatch.go:761-763 and the existing return of awaitContinuationClaim, review_run_continuity.go:440-445, delegation_handoff.go:357-361) are also uncovered by the focused tests and are outside L1, which names only the claim-publication conflict.\"},\n{\"id\":\"N3\",\"severity\":\"low\",\"disposition\":\"follow-up\",\"file\":\"pose-mcp/internal/pose/review_dispatch.go\",\"line\":2270,\"summary\":\"A cancelled wait returns (nil,nil), so takeContinuationRuntimeDir returns the 'runtime directory already exists ... remove it' error instead of the context error, advising removal of a directory another resume may hold. The waits reached through replanContinuation use context.Background() (review_run_continuity.go:435, delegation_handoff.go:352), so cancellation is not honoured there for up to about two seconds.\"},\n{\"id\":\"N4\",\"severity\":\"low\",\"disposition\":\"follow-up\",\"file\":\"pose-mcp/internal/pose/review_dispatch.go\",\"line\":774,\"summary\":\"After a claim conflict, a replan that refuses because the winner was a different continuation (resume lost to a handoff, or handoff lost to another agent) is discarded and the raw publication conflict is returned instead of the 'already continued' or 'handed off' answer.\"},\n{\"id\":\"N5\",\"severity\":\"low\",\"disposition\":\"follow-up\",\"file\":\"POSE.md\",\"line\":956,\"summary\":\"The manual (both locales) says a held previous checkout path opens a new session, but a path taken after the plan keeps the continued session and moves its checkout (review_dispatch.go:848-858); the resumed session may still refer to the old path, which can hold another live run's checkout. The manual does not describe this, and spec section 5 records no decision for this or for returning recorded continuations, although its Constraints require one when a fix changes an answer.\"},\n{\"id\":\"N6\",\"severity\":\"low\",\"disposition\":\"follow-up\",\"file\":\"pose-mcp/internal/pose/review_rounds.go\",\"line\":701,\"summary\":\"previousRoundCheckoutHeld is evaluated twice; if the holder removes the directory between line 695 and line 701 the recorded reason is 'checkout path  is still in use' with no path. A path that only failed lstat is also reported as still in use.\"}\n],\n\"criteria\":[\n{\"id\":\"assumption-integrity\",\"disposition\":\"passed\",\"rationale\":\"Checked L1 and the spec's risk statement against the code. Verified: directories are created with exclusive Mkdir (review_dispatch.go:2166), the fallback takes the new attempt's own name exclusively, and an lstat error counts as held. L1's three guards remain untested, accepted by the spec; the untested recorded-continuation returns fall outside it (N2). That a resumed session tolerates a moved checkout is an unverified assumption (N5).\"},\n{\"id\":\"backend-concurrency\",\"disposition\":\"finding\",\"evidence\":\"N1\"},\n{\"id\":\"backend-contracts\",\"disposition\":\"finding\",\"evidence\":\"N1\"},\n{\"id\":\"backend-input-errors\",\"disposition\":\"finding\",\"evidence\":\"N3\"},\n{\"id\":\"backend-integration-impact\",\"disposition\":\"passed\",\"evidence\":\"integration:pose-mcp/go/delegated-run-continuity-integration\",\"rationale\":\"Read the CLI consumers of resume and handoff plans (delegate.go, delegate_handoff.go); signatures changed only inside package pose. The mismatched-continuation behaviour is reported as N1.\"},\n{\"id\":\"backend-observability\",\"disposition\":\"passed\",\"evidence\":\"unit:pose-mcp/go/test\",\"rationale\":\"A moved checkout is recorded in safety.limitations with its reason and the thread reason names the held path; the minor empty-path race is N6.\"},\n{\"id\":\"compatibility\",\"disposition\":\"finding\",\"evidence\":\"N1\"},\n{\"id\":\"correctness\",\"disposition\":\"finding\",\"evidence\":\"N1\"},\n{\"id\":\"design-causality\",\"disposition\":\"passed\",\"evidence\":\"structure:design-1b92e8ee6f296c99\",\"rationale\":\"The design assessment observed no structural deltas, so there is nothing to map. Exclusive directory creation as the lock, claim-file gating of ledger reads, and a fallback to the attempt's own directory address the causes behind R1 to R4; the gap in the R1 result selection is N1.\"},\n{\"id\":\"documentation\",\"disposition\":\"finding\",\"evidence\":\"N5\"},\n{\"id\":\"operability\",\"disposition\":\"finding\",\"evidence\":\"N3\"},\n{\"id\":\"requirements\",\"disposition\":\"finding\",\"evidence\":\"N2\"},\n{\"id\":\"scope\",\"disposition\":\"passed\",\"rationale\":\"Compared the ten files of change set cs-61d69e9d2ff2 with the spec's artifacts and R1 to R6; no unrelated behaviour was found in them. Other commits in the range belong to other specs. Incomplete delivery is N2.\"},\n{\"id\":\"security\",\"disposition\":\"passed\",\"rationale\":\"Examined path derivation and directory creation: the recorded runtime name is bounded by a regular expression, creation is exclusive, nothing removes a directory the dispatch did not create, and session reading is unchanged. The new records include a local temporary path, which R4 asks for. The old-path reference of a resumed session is reported in N5.\"},\n{\"id\":\"solution-proportionality\",\"disposition\":\"passed\",\"rationale\":\"The change is small and local with no new abstraction beyond an error type carrying the recorded run. A smaller alternative for the late-held path (open a new session) would need replanning after attempt reservation; the chosen fallback is proportionate while the run records the move. It would be invalidated if resumed agents depended on the old absolute path.\"}\n],\n\"tools\":[\n{\"id\":\"artifact-check\",\"disposition\":\"passed\",\"evidence\":\"command:pose artifact-check --spec pose-review-resume-residuals --strict\",\"rationale\":\"Exit 0, with repository-wide orphan warnings.\"},\n{\"id\":\"assess-design\",\"disposition\":\"passed\",\"evidence\":\"structure:design-1b92e8ee6f296c99\",\"rationale\":\"Observed, no structural deltas.\"},\n{\"id\":\"assess-discover\",\"component\":\"pose-mcp\",\"disposition\":\"passed\",\"evidence\":\"command:pose assess discover --no-persist --component pose-mcp\"},\n{\"id\":\"assess-integrate\",\"disposition\":\"passed\",\"evidence\":\"integration:pose-mcp/go/delegated-run-continuity-integration\",\"rationale\":\"Ran with --no-persist; the gaps seen in the output tail concern HTTP consumers outside this change.\"},\n{\"id\":\"assess-tech-debt\",\"disposition\":\"passed\",\"evidence\":\"command:pose assess tech-debt --no-persist\",\"rationale\":\"Ran; the scan reports itself incomplete because two older specs could not be read.\"},\n{\"id\":\"closeout-check\",\"disposition\":\"deferred\",\"rationale\":\"Ran; it cannot pass before an approving attestation and the spec is not done.\"},\n{\"id\":\"review-check\",\"disposition\":\"deferred\",\"rationale\":\"Ran; it cannot pass before the attestation of this review.\"},\n{\"id\":\"suggest-review\",\"component\":\"pose-mcp\",\"disposition\":\"passed\",\"evidence\":\"command:pose suggest review --path pose-mcp\"},\n{\"id\":\"surface-check\",\"disposition\":\"passed\",\"evidence\":\"integration:pose-mcp/go/delivery-integration\",\"rationale\":\"Exit 0 with zero findings.\"},\n{\"id\":\"validate\",\"disposition\":\"passed\",\"evidence\":\"unit:pose-mcp/go/test\",\"rationale\":\"Not rerun: the sealed result covers it. Focused tests run here fail in internal/cli where the sandbox's /home ownership blocks task state; internal/pose passes.\"},\n{\"id\":\"validate\",\"component\":\"pose-mcp\",\"disposition\":\"passed\",\"evidence\":\"unit:pose-mcp/go/test\",\"rationale\":\"Not rerun: the sealed result covers it; the sandbox limitation is the same.\"}\n]}\n```",
+  "policy_digest": "sha256:96d45d57ca07ec9abf850150e8563fe243393ebd1604a49798920f6dade4dbe7",
+  "label": "rres-review-r1b",
+  "purpose": "review",
+  "env_removed": [
+    "CLAUDECODE",
+    "CLAUDE_CODE_BRIDGE_SESSION_ID",
+    "CLAUDE_CODE_CHILD_SESSION",
+    "CLAUDE_CODE_ENTRYPOINT",
+    "CLAUDE_CODE_EXECPATH",
+    "CLAUDE_CODE_MESSAGING_SOCKET",
+    "CLAUDE_CODE_MESSAGING_TOKEN",
+    "CLAUDE_CODE_SESSION_ATTENDED",
+    "CLAUDE_CODE_SESSION_ID",
+    "CLAUDE_EFFORT",
+    "CLAUDE_PID"
+  ],
+  "events": "claude-stream-json",
+  "events_digest": "sha256:8f7661fe2022eaa3a11bb84a113406c83d5174dab8388d075dbaed02b71ddcaa",
+  "routing": {
+    "requested": "claude-sonnet-5-5",
+    "implementation": {
+      "principal": "agent:anthropic/claude-opus-5-5",
+      "vendor": "anthropic",
+      "model": "claude-opus-5-5",
+      "execution_digest": "sha256:344ac5868944c155772d60a95ef6ff20644580a642e772ad5c92c29428464ff8",
+      "source": "declared"
+    },
+    "implementation_from": "bundle",
+    "step": "explicit"
+  },
+  "independence_achieved": "different-model",
+  "round": 1
+}
