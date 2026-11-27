@@ -99,9 +99,7 @@ func computeChangedScopeWith(root, base, head string, modules []validationModule
 	// keeps its owner, and a rename names both its source and its destination
 	// (review round 2, N1 and N3).
 	// Configuration never hides a changed gitlink (review round 8, N23).
-	// --relative: with the root below the repository top Git names changes
-	// top-relative otherwise, and no module owns them (review round 1, N7).
-	gitArgs := []string{"-C", root, "-c", "diff.ignoreSubmodules=none", "diff", "--relative", "--ignore-submodules=none", "--name-only", "-z", "--no-renames", base}
+	gitArgs := []string{"-C", root, "-c", "diff.ignoreSubmodules=none", "diff", "--ignore-submodules=none", "--name-only", "-z", "--no-renames", base}
 	if head != "" {
 		gitArgs = append(gitArgs, head)
 	}
@@ -112,9 +110,14 @@ func computeChangedScopeWith(root, base, head string, modules []validationModule
 	if err != nil {
 		return sel, scopeDiffError(root, base, head, sel.rangeLabel(), err)
 	}
+	// Git names changes from the repository top. With the root below it, a
+	// change inside the root is named from the root, so its module owns it,
+	// and one outside stays a change outside every module, which selects the
+	// root, never nothing (review rounds 1 N7, 2 N1).
+	prefix := scopeRootPrefix(root)
 	for _, name := range strings.Split(string(out), "\x00") {
 		if name != "" {
-			sel.Changed = append(sel.Changed, filepath.ToSlash(name))
+			sel.Changed = append(sel.Changed, scopeRootRelative(prefix, filepath.ToSlash(name)))
 		}
 	}
 	if head == "" {
@@ -308,4 +311,26 @@ func scopeRevisions(base, head string) []string {
 		}
 	}
 	return revs
+}
+
+// scopeRootPrefix is the root's path from the repository top, with a trailing
+// slash, or "" at the top.
+func scopeRootPrefix(root string) string {
+	out, err := posemodel.RawGit("-C", root, "rev-parse", "--show-prefix").Output()
+	if err != nil {
+		return ""
+	}
+	return strings.TrimSpace(string(out))
+}
+
+// scopeRootRelative names a top-relative path from the root: inside it
+// without the prefix, outside it as ../ plus its top-relative name.
+func scopeRootRelative(prefix, name string) string {
+	if prefix == "" {
+		return name
+	}
+	if rest, ok := strings.CutPrefix(name, prefix); ok {
+		return rest
+	}
+	return "../" + name
 }

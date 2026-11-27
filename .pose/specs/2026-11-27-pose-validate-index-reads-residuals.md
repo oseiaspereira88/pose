@@ -34,9 +34,9 @@ Reopening the decisions of the origin spec.
 ### Functional
 - R1: With the POSE root below the repository top, the ready-transition read shall list changed specs (Git names them top-relative), so their ready transitions are checked (round 1 N11, round 5 N3).
 - R2: The versioned report shall carry no absolute path of the checkout when the change list cannot be read: it states that the list could not be read, and the warning on standard error carries Git's message (round 5, N1; D1).
-- R3: The bounds on Git's message and the report note shall cut at a character, never inside a UTF-8 sequence (round 5, N4).
+- R3: The bound on Git's message shall cut at a character, never inside a UTF-8 sequence (round 5, N4).
 - R4: A failing `ls-files` in worktree scope selection shall fail the selection with its cause instead of silently dropping untracked files (round 5, N5).
-- R5: The guards listed by rounds 2–5 shall each have a failing test: restoring `--path-format`, the `X^-` cut, the report note bound and stderr warning, `GitEnglish` on the check, lookup and hand-over, the memfd write fallback, the private copy keeping the index's time, a stand-in Git that echoes an unknown `--path-format`, and a locale test independent of installed translations; the ledger's context is L1 (rounds 1 N6–N7, 2 N16, 3 N21, 5 N2).
+- R5: The guards listed by rounds 2–5 shall each have a failing test: restoring `--path-format`, the `X^-` cut, the report's stderr warning, `GitEnglish` on the check, lookup and hand-over, the memfd write fallback, the private copy keeping the index's time, a stand-in Git that echoes an unknown `--path-format`, and a locale test independent of installed translations; the ledger's context is L1 (rounds 1 N6–N7, 2 N16, 3 N21, 5 N2).
 
 ### Non-functional
 Existing behaviour outside the stated requirements is unchanged.
@@ -109,6 +109,7 @@ Each requirement gets a regression test shown failing before its code.
 ### Execution log
 - 2026-11-27: R1 adds `--relative` to the ready-transition diff; R2 replaces the root, repository top, Git directories, temporary and home directories whole before the generic pattern, which now also starts after `:`, a backtick or `[`; R3 cuts at a character (`TruncateUTF8`); R4 fails scope selection on a failed untracked listing; R5 adds stand-in Git tests. Each guard fails its test mutated out: `TestReadyTransitionsSeeSpecsBelowTheRepositoryTop`, `TestTheReportStatesNoPath`, `TestBoundsCutAtACharacter`, `TestScopeSelectionReportsAFailedUntrackedListing`, `TestTheIndexLookupNeedsNoPathFormat`, `TestIndexReadsRunGitInEnglish`, `TestTheIndexFallbacksKeepTheAnswer`, `TestTheRemainingIndexReadGuards`.
 - 2026-11-27: the first matrix failed `release-test-compile-darwin` and `-windows`: a test used the Linux-only memfd hooks; it moved to the Linux test file. Review round 1 (rrn-977f027e0e7c7ee5) requested changes. N1: the ready transition reads HEAD's text with `HEAD:./`, relative to the root, so a spec in progress at HEAD below the repository top is not a new transition. N2–N6: the redaction is withdrawn (D1). N7: scope selection runs its diff with `--relative`. `TestReadyTransitionsSeeSpecsBelowTheRepositoryTop` and `TestTheReportStatesNoPath` fail with `HEAD:./`, `--relative` or the note mutated.
+- 2026-11-27: review round 2 (rrn-3dba382397f270c7) requested changes: `--relative` dropped changes outside the root, narrowing validation (N1). Withdrawn: the diff names changes from the repository top, and each is named from the root (`scopeRootRelative`): inside it without the prefix, outside it as `../<name>`, a change outside every module that selects the root. The test changes a tracked file at the top and fails with either branch mutated out. N3: R3 and R5 no longer name the removed note bound, and the bounded-note assertion is gone. N4: the report warning test requires Git's message. N2 is a follow-up.
 
 ### Results summary
 The full `pose-mcp` suite passes; the canonical result is refreshed with `pose validate --carry`.
@@ -138,4 +139,5 @@ Ready transitions and scope selection see a root below the repository top; the r
 L1 above.
 
 ### Follow-ups
-None. Origin: `pose-validate-read-only-index-followups` (done 2026-11-27).
+Origin: `pose-validate-read-only-index-followups` (done 2026-11-27).
+- [open] Name carry exclusions and the `show <head>:<path>` reads of carry from the root, as scope selection now does, for when carry runs below the repository top (review round 2, N2). (owner:@pose-maintainers crit:low review:2026-12-27)

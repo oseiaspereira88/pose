@@ -84,6 +84,23 @@ func TestReadyTransitionsSeeSpecsBelowTheRepositoryTop(t *testing.T) {
 	if err != nil || len(sel.Changed) != 2 || sel.Changed[1] != "x.txt" || strings.HasPrefix(strings.Join(sel.Changed, ","), "proj/") {
 		t.Fatalf("scope selection below the repository top: %v %v", sel.Changed, err)
 	}
+	// Review round 2, N1: a change outside the root is kept, as a change
+	// outside every module, so it widens the selection instead of vanishing.
+	if err := os.WriteFile(filepath.Join(top, "outside.txt"), []byte("o\n"), 0o644); err != nil {
+		t.Fatal(err)
+	}
+	for _, args := range [][]string{{"add", "-A"}, {"-c", "user.name=t", "-c", "user.email=t@t", "commit", "-q", "-m", "outside"}} {
+		if out, err := exec.Command("git", append([]string{"-C", top}, args...)...).CombinedOutput(); err != nil {
+			t.Fatal(args, err, string(out))
+		}
+	}
+	if err := os.WriteFile(filepath.Join(top, "outside.txt"), []byte("changed\n"), 0o644); err != nil {
+		t.Fatal(err)
+	}
+	sel, err = computeChangedScopeWith(root, "HEAD", "", nil, scopeMetadata{})
+	if err != nil || !strings.Contains(strings.Join(sel.Changed, ","), "../outside.txt") {
+		t.Fatalf("a change outside the root vanished: %v %v", sel.Changed, err)
+	}
 }
 
 // R2: the versioned report carries no message of Git, so no path of the
@@ -126,12 +143,10 @@ func TestTheRemainingIndexReadGuards(t *testing.T) {
 		t.Fatalf("the check's listing did not run in English: %s", out)
 	}
 
-	files, err := reportChangedFilesNoted(root, "", localeEN)
-	if err == nil || len(files) != 1 || len(files[0]) > 700 {
-		t.Fatalf("the report note is not bounded: %d bytes, %v", len(strings.Join(files, "")), err)
-	}
-	if code, out := runPose(t, root, "report", "--task", "residual check"); code != 0 || !strings.Contains(out, "the changed files cannot be listed") {
-		t.Fatalf("the report did not warn: %d %s", code, out)
+	// The warning on standard error carries Git's message (D1; review round
+	// 2, N4).
+	if code, out := runPose(t, root, "report", "--task", "residual check"); code != 0 || !strings.Contains(out, "the changed files cannot be listed") || !strings.Contains(out, "no status here") {
+		t.Fatalf("the report did not warn with Git's message: %d %s", code, out)
 	}
 	index := filepath.Join(root, ".git", "index")
 	if err := os.Remove(index); err != nil {
