@@ -314,16 +314,54 @@ func reportChangedFilesNoted(root, since string, locale cliLocale) ([]string, er
 	// report is versioned (review round 3, N22).
 	// Every absolute path, not only the root: the index may lie outside it
 	// (review round 4, N26).
-	note := reportAbsolutePathRE.ReplaceAllString(strings.ReplaceAll(err.Error(), "\n", " "), "${1}<path>")
-	if len(note) > 600 {
-		note = note[:600] + "…"
-	}
+	note := reportNote(root, err)
 	return []string{cliText(locale, "_The changed files could not be listed: ", "_Os arquivos alterados não puderam ser listados: ") + note + "_"}, err
+}
+
+// reportNote is the one bounded line the report states for err.
+func reportNote(root string, err error) string {
+	return posemodel.TruncateUTF8(reportRedactPaths(root, strings.ReplaceAll(err.Error(), "\n", " ")), 600)
+}
+
+// reportRedactPaths replaces the absolute paths of a message: first the
+// known directories whole (the root, the repository top, its Git directory,
+// the temporary and home directories), so a path with spaces or quotes goes
+// entirely, then any other absolute path (spec
+// pose-validate-index-reads-residuals R2).
+func reportRedactPaths(root, note string) string {
+	var known []string
+	add := func(p string) {
+		if p = strings.TrimSpace(p); len(p) > 1 && filepath.IsAbs(p) {
+			known = append(known, filepath.Clean(p))
+		}
+	}
+	add(root)
+	if abs, err := filepath.Abs(root); err == nil {
+		add(abs)
+	}
+	for _, args := range [][]string{{"rev-parse", "--show-toplevel"}, {"rev-parse", "--absolute-git-dir"}, {"rev-parse", "--git-common-dir"}} {
+		if out, err := posemodel.RawGit(append([]string{"-C", root}, args...)...).Output(); err == nil {
+			p := strings.TrimSpace(string(out))
+			if !filepath.IsAbs(p) {
+				p = filepath.Join(root, p)
+			}
+			add(p)
+		}
+	}
+	add(os.TempDir())
+	if home, err := os.UserHomeDir(); err == nil {
+		add(home)
+	}
+	sort.Slice(known, func(i, j int) bool { return len(known[i]) > len(known[j]) })
+	for _, k := range known {
+		note = strings.ReplaceAll(note, k, "<path>")
+	}
+	return reportAbsolutePathRE.ReplaceAllString(note, "${1}<path>")
 }
 
 // reportAbsolutePathRE matches an absolute path in a message: a Unix path or
 // a Windows drive or UNC path.
-var reportAbsolutePathRE = regexp.MustCompile(`(^|[\s'"(=])((?:[A-Za-z]:[\\/]|\\\\|/)[^\s'"():;,]+)`)
+var reportAbsolutePathRE = regexp.MustCompile(`(^|[\s'"(=:\x60\[])((?:[A-Za-z]:[\\/]|\\\\|/)[^\s'"():;,\x60\]]+)`)
 
 func reportChangedFiles(root, since string) ([]string, error) {
 	args := []string{"-C", root}

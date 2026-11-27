@@ -11,6 +11,7 @@ import (
 	"path/filepath"
 	"strings"
 	"time"
+	"unicode/utf8"
 )
 
 // Spec pose-validate-reads-leave-the-index-alone R1, D1: `git diff` against
@@ -124,9 +125,7 @@ func GitReadError(what string, err error, stderr []byte) error {
 		}
 	}
 	said := strings.Join(append(first, rest...), " ; ")
-	if len(said) > gitReadSaidLimit {
-		said = said[:gitReadSaidLimit] + "…"
-	}
+	said = TruncateUTF8(said, gitReadSaidLimit)
 	if said == "" {
 		return fmt.Errorf("%s failed: %w", what, err)
 	}
@@ -178,4 +177,17 @@ func RawGitDiffReadOnly(root string, args ...string) ([]byte, error) {
 		return nil, GitReadError("git diff", err, stderr.Bytes())
 	}
 	return out, nil
+}
+
+// TruncateUTF8 cuts s to at most n bytes at a character boundary, marking
+// the cut with "…" (spec pose-validate-index-reads-residuals R3).
+func TruncateUTF8(s string, n int) string {
+	if len(s) <= n {
+		return s
+	}
+	cut := n
+	for cut > 0 && !utf8.RuneStart(s[cut]) {
+		cut--
+	}
+	return s[:cut] + "…"
 }

@@ -24,7 +24,7 @@ func readOnlyIndexFor(cmd *exec.Cmd, raw []byte, modTime time.Time) (func(), err
 		return privateIndexCopy(cmd, raw, modTime)
 	}
 	f := os.NewFile(uintptr(fd), "pose-index")
-	if _, err := f.Write(raw); err != nil {
+	if _, err := memfdWrite(f, raw); err != nil {
 		f.Close()
 		return privateIndexCopy(cmd, raw, modTime) // review round 1, N8
 	}
@@ -49,4 +49,5 @@ func readOnlyIndexFor(cmd *exec.Cmd, raw []byte, modTime time.Time) (func(), err
 var (
 	memfdCreate  = unix.MemfdCreate
 	utimesNanoAt = unix.UtimesNanoAt
+	memfdWrite   = func(f *os.File, b []byte) (int, error) { return f.Write(b) }
 )

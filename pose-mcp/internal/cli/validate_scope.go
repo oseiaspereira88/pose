@@ -118,11 +118,19 @@ func computeChangedScopeWith(root, base, head string, modules []validationModule
 	if head == "" {
 		// Worktree comparisons must also see untracked files — invisible new
 		// code must never silently narrow validation (safe execution wins).
-		if untracked, err := posemodel.RawHistoryGit(root, "ls-files", "-z", "--others", "--exclude-standard").Output(); err == nil {
-			for _, name := range strings.Split(string(untracked), "\x00") {
-				if name != "" {
-					sel.Changed = append(sel.Changed, filepath.ToSlash(name))
-				}
+		// A failed listing fails the selection: untracked files never leave
+		// it silently (spec pose-validate-index-reads-residuals R4).
+		lsCmd := posemodel.RawHistoryGit(root, "ls-files", "-z", "--others", "--exclude-standard")
+		posemodel.GitEnglish(lsCmd)
+		var lsErr bytes.Buffer
+		lsCmd.Stderr = &lsErr
+		untracked, err := lsCmd.Output()
+		if err != nil {
+			return sel, fmt.Errorf("scope selection over %s: %v", sel.rangeLabel(), posemodel.GitReadError("git ls-files", err, lsErr.Bytes()))
+		}
+		for _, name := range strings.Split(string(untracked), "\x00") {
+			if name != "" {
+				sel.Changed = append(sel.Changed, filepath.ToSlash(name))
 			}
 		}
 	}

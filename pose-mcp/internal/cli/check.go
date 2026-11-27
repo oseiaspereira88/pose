@@ -1129,7 +1129,10 @@ func (checker *nativeChecker) readyTransitionCandidates() []string {
 	}
 	changed := map[string]bool{}
 	for _, command := range [][]string{
-		{"diff", "--name-only", "HEAD", "--", ".pose/specs"},
+		// --relative: with the root below the repository top, Git names the
+		// paths top-relative otherwise and the filter below drops them (spec
+		// pose-validate-index-reads-residuals R1).
+		{"diff", "--relative", "--name-only", "HEAD", "--", ".pose/specs"},
 		{"ls-files", "--others", "--exclude-standard", "--", ".pose/specs"},
 	} {
 		// The diff reads the index without writing it (spec
