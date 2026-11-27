@@ -1,7 +1,7 @@
 {
   "schema_version": 2,
-  "input_digest": "sha256:11f44c5b70fd8ebc779778a2d118a3d96850d5ba108d55076164cbfceaec2553",
-  "provenance_digest": "sha256:2da9a1366454c97e434f06c328f59ce5ee839ac5ad46ab0285732a8cd7bb9724",
+  "input_digest": "sha256:af1433101d870eb3bc6586f14a8655ea6813c217a8475c565f5c96645f6d6558",
+  "provenance_digest": "sha256:5a8dc9ebc9f8018618bb82dd37212bc912e2ec2cca4cebe4fa549445217fc50c",
   "implied_edges": [
     "changes"
   ],
@@ -47962,6 +47962,14 @@
       }
     },
     {
+      "id": "change-set:cs-35e7eb8f32ae",
+      "type": "change-set",
+      "attributes": {
+        "diff_digest": "sha256:6b618456344811896f5cc4368975cc8aac6373cbea8b50d9b76f7b4177f2715e",
+        "selector": "trailers:pose-validate-index-reads-residuals"
+      }
+    },
+    {
       "id": "change-set:cs-35fd7a03db5d",
       "type": "change-set",
       "attributes": {
@@ -48799,14 +48807,6 @@
       "attributes": {
         "diff_digest": "sha256:8b2754c1b0919c73e89e67b65dacc395bb42db1352c0299644d4019b10049c8e",
         "selector": "trailers:pose-journal-checkpoint-and-lock-recovery"
-      }
-    },
-    {
-      "id": "change-set:cs-61565e3af68f",
-      "type": "change-set",
-      "attributes": {
-        "diff_digest": "sha256:dc8dfb2a439747939b801ae39f15fd81f719fe80999fb391552a92a45da8587e",
-        "selector": "trailers:pose-validate-index-reads-residuals"
       }
     },
     {
@@ -60045,7 +60045,7 @@
       "id": "spec:pose-validate-index-reads-residuals",
       "type": "spec",
       "attributes": {
-        "status": "in-progress"
+        "status": "done"
       }
     },
     {
@@ -143481,7 +143481,7 @@
     },
     {
       "from": "spec:pose-validate-index-reads-residuals",
-      "to": "change-set:cs-61565e3af68f",
+      "to": "change-set:cs-35e7eb8f32ae",
       "type": "observed-by"
     },
     {
@@ -213375,6 +213375,132 @@
       }
     },
     {
+      "id": "cs-35e7eb8f32ae",
+      "spec": "pose-validate-index-reads-residuals",
+      "selector": "trailers:pose-validate-index-reads-residuals",
+      "base": "dea756bdf7e308dd61716a9ce33d06b126ab4f80^",
+      "head": "ea34893d55833ed4d9cb490cf154253d0e927a91",
+      "resolved_base": "aaf37446db1fe436816b4171eef08aaf6015d26a",
+      "resolved_head": "ea34893d55833ed4d9cb490cf154253d0e927a91",
+      "commits": [
+        "dea756bdf7e308dd61716a9ce33d06b126ab4f80",
+        "1e1d80150fa6b6998d95ec385a3d1a8b5bfc5795",
+        "c52b7e9a111a1a22317c70cee4aa798c92513716",
+        "e2cb81be9106432ed301dcefccb470c8e2a8476c",
+        "5841ba48bad510fd049f6f9e7da6c7aec40fbe6c",
+        "4709cca2659beb8f2015e2b509ed733505613845",
+        "e0adb2f0c283ee880408e69edcfa7c1efb808e62",
+        "ff75b62c4079d699b7c5773182da1022d2bf1d9a",
+        "0eb4689ebfceb202e833796d45fb2083c1f7c6e6",
+        "108f8d27c4e3c9f95f956044084601f3ae3db3a9",
+        "6e5962d578cdcd3ae148bdfe6f100930beaa4e2b",
+        "9faf37e04a79d94f29b495724388c3868287b4f7",
+        "65b9dcef85ca134d4d8b95f7c37a66c3acf41f42",
+        "b5b06faf00f9e50b924fcc2781d2b0fb58b855ef",
+        "d4de37839c4c08c94cf7de0f16539ac14817dd7b",
+        "0cf773d1f31fd899f0176d374f2df709a2834e9d",
+        "a73f371a38baa51e3d0e4beb30151178debb10b9",
+        "0015e36ef5dc96978660cd0d6c56fcd36cd6a453",
+        "53e9f889cbe273a2593a511efda76c3a3ac53b30",
+        "c7b37912a68c2ef5e88fd45c13d23f61d52b315d",
+        "44a748f04fc0e14b6877033e36c2eca1f660e8ec",
+        "5bfc126d85c746e72f98c751523b689c57fb5c08",
+        "db5b95bfcf4b2f9ee1f921d168480dba2a96c2ad",
+        "1d65155356dd5b530cb21ad1a3511cf3c0a57699",
+        "8743d6c5be1b85e6342c322d8be4fd8949344ea6",
+        "70dc24f634537330020e202d2c7582c1cdad5691",
+        "dedf273ab98c2baab5576522469f64514b9e8268",
+        "f7cbff7aa711423446bd2d4c52459fbdd947cbea",
+        "0cad568a9629fd76347c6884efb8479b75d5d67f",
+        "175de2b7a9db68d609e3aa601318d9878bb7aab1",
+        "ea34893d55833ed4d9cb490cf154253d0e927a91"
+      ],
+      "paths": [
+        {
+          "action": "created",
+          "path": ".pose/results/ires-binding.md"
+        },
+        {
+          "action": "created",
+          "path": ".pose/specs/2026-11-27-pose-validate-index-reads-residuals.md"
+        },
+        {
+          "action": "created",
+          "path": "pose-mcp/internal/cli/validate_index_residuals_test.go"
+        },
+        {
+          "action": "created",
+          "path": "pose-mcp/internal/pose/git_reads_residuals_test.go"
+        },
+        {
+          "action": "modified",
+          "path": ".pose/indexes/delivery-integrity.json"
+        },
+        {
+          "action": "modified",
+          "path": ".pose/indexes/generation.json"
+        },
+        {
+          "action": "modified",
+          "path": ".pose/indexes/spec-graph.json"
+        },
+        {
+          "action": "modified",
+          "path": ".pose/results/delivery-validation.json"
+        },
+        {
+          "action": "modified",
+          "path": "pose-mcp/internal/cli/check.go"
+        },
+        {
+          "action": "modified",
+          "path": "pose-mcp/internal/cli/report.go"
+        },
+        {
+          "action": "modified",
+          "path": "pose-mcp/internal/cli/validate_reads_index_test.go"
+        },
+        {
+          "action": "modified",
+          "path": "pose-mcp/internal/cli/validate_scope.go"
+        },
+        {
+          "action": "modified",
+          "path": "pose-mcp/internal/pose/git_worktree_reads.go"
+        },
+        {
+          "action": "modified",
+          "path": "pose-mcp/internal/pose/git_worktree_reads_linux.go"
+        },
+        {
+          "action": "modified",
+          "path": "pose-mcp/internal/pose/git_worktree_reads_linux_test.go"
+        }
+      ],
+      "diff_digest": "sha256:6b618456344811896f5cc4368975cc8aac6373cbea8b50d9b76f7b4177f2715e",
+      "material_digest": "sha256:2c03c14c545d6f9b2dda67e4fde5af3e8ea5431a82d6662d7822b56666b3b1ba",
+      "material_inputs": {
+        "names": [
+          ".pose/indexes/delivery-integrity.json",
+          ".pose/indexes/generation.json",
+          ".pose/indexes/spec-graph.json",
+          ".pose/indexes/validation-matrix.json",
+          ".pose/results/delivery-validation.json",
+          ".pose/results/ires-binding.md",
+          ".pose/specs/2026-11-27-pose-validate-index-reads-residuals.md",
+          "pose-mcp/internal/cli/check.go",
+          "pose-mcp/internal/cli/report.go",
+          "pose-mcp/internal/cli/validate_index_residuals_test.go",
+          "pose-mcp/internal/cli/validate_reads_index_test.go",
+          "pose-mcp/internal/cli/validate_scope.go",
+          "pose-mcp/internal/pose/git_reads_residuals_test.go",
+          "pose-mcp/internal/pose/git_worktree_reads.go",
+          "pose-mcp/internal/pose/git_worktree_reads_linux.go",
+          "pose-mcp/internal/pose/git_worktree_reads_linux_test.go"
+        ]
+      }
+    },
+    {
       "id": "cs-35fd7a03db5d",
       "spec": "pose-delegated-review-brief",
       "selector": "trailers:pose-delegated-review-brief",
@@ -235938,130 +236064,6 @@
           "pose-mcp/internal/pose/start_lock_other.go",
           "pose-mcp/internal/scaffold/dist/POSE.md",
           "pose-mcp/internal/scaffold/dist/locales/pt-BR/POSE.md"
-        ]
-      }
-    },
-    {
-      "id": "cs-61565e3af68f",
-      "spec": "pose-validate-index-reads-residuals",
-      "selector": "trailers:pose-validate-index-reads-residuals",
-      "base": "dea756bdf7e308dd61716a9ce33d06b126ab4f80^",
-      "head": "0cad568a9629fd76347c6884efb8479b75d5d67f",
-      "resolved_base": "aaf37446db1fe436816b4171eef08aaf6015d26a",
-      "resolved_head": "0cad568a9629fd76347c6884efb8479b75d5d67f",
-      "commits": [
-        "dea756bdf7e308dd61716a9ce33d06b126ab4f80",
-        "1e1d80150fa6b6998d95ec385a3d1a8b5bfc5795",
-        "c52b7e9a111a1a22317c70cee4aa798c92513716",
-        "e2cb81be9106432ed301dcefccb470c8e2a8476c",
-        "5841ba48bad510fd049f6f9e7da6c7aec40fbe6c",
-        "4709cca2659beb8f2015e2b509ed733505613845",
-        "e0adb2f0c283ee880408e69edcfa7c1efb808e62",
-        "ff75b62c4079d699b7c5773182da1022d2bf1d9a",
-        "0eb4689ebfceb202e833796d45fb2083c1f7c6e6",
-        "108f8d27c4e3c9f95f956044084601f3ae3db3a9",
-        "6e5962d578cdcd3ae148bdfe6f100930beaa4e2b",
-        "9faf37e04a79d94f29b495724388c3868287b4f7",
-        "65b9dcef85ca134d4d8b95f7c37a66c3acf41f42",
-        "b5b06faf00f9e50b924fcc2781d2b0fb58b855ef",
-        "d4de37839c4c08c94cf7de0f16539ac14817dd7b",
-        "0cf773d1f31fd899f0176d374f2df709a2834e9d",
-        "a73f371a38baa51e3d0e4beb30151178debb10b9",
-        "0015e36ef5dc96978660cd0d6c56fcd36cd6a453",
-        "53e9f889cbe273a2593a511efda76c3a3ac53b30",
-        "c7b37912a68c2ef5e88fd45c13d23f61d52b315d",
-        "44a748f04fc0e14b6877033e36c2eca1f660e8ec",
-        "5bfc126d85c746e72f98c751523b689c57fb5c08",
-        "db5b95bfcf4b2f9ee1f921d168480dba2a96c2ad",
-        "1d65155356dd5b530cb21ad1a3511cf3c0a57699",
-        "8743d6c5be1b85e6342c322d8be4fd8949344ea6",
-        "70dc24f634537330020e202d2c7582c1cdad5691",
-        "dedf273ab98c2baab5576522469f64514b9e8268",
-        "f7cbff7aa711423446bd2d4c52459fbdd947cbea",
-        "0cad568a9629fd76347c6884efb8479b75d5d67f"
-      ],
-      "paths": [
-        {
-          "action": "created",
-          "path": ".pose/results/ires-binding.md"
-        },
-        {
-          "action": "created",
-          "path": ".pose/specs/2026-11-27-pose-validate-index-reads-residuals.md"
-        },
-        {
-          "action": "created",
-          "path": "pose-mcp/internal/cli/validate_index_residuals_test.go"
-        },
-        {
-          "action": "created",
-          "path": "pose-mcp/internal/pose/git_reads_residuals_test.go"
-        },
-        {
-          "action": "modified",
-          "path": ".pose/indexes/delivery-integrity.json"
-        },
-        {
-          "action": "modified",
-          "path": ".pose/indexes/generation.json"
-        },
-        {
-          "action": "modified",
-          "path": ".pose/indexes/spec-graph.json"
-        },
-        {
-          "action": "modified",
-          "path": ".pose/results/delivery-validation.json"
-        },
-        {
-          "action": "modified",
-          "path": "pose-mcp/internal/cli/check.go"
-        },
-        {
-          "action": "modified",
-          "path": "pose-mcp/internal/cli/report.go"
-        },
-        {
-          "action": "modified",
-          "path": "pose-mcp/internal/cli/validate_reads_index_test.go"
-        },
-        {
-          "action": "modified",
-          "path": "pose-mcp/internal/cli/validate_scope.go"
-        },
-        {
-          "action": "modified",
-          "path": "pose-mcp/internal/pose/git_worktree_reads.go"
-        },
-        {
-          "action": "modified",
-          "path": "pose-mcp/internal/pose/git_worktree_reads_linux.go"
-        },
-        {
-          "action": "modified",
-          "path": "pose-mcp/internal/pose/git_worktree_reads_linux_test.go"
-        }
-      ],
-      "diff_digest": "sha256:dc8dfb2a439747939b801ae39f15fd81f719fe80999fb391552a92a45da8587e",
-      "material_digest": "sha256:f15c1791e784e01c8b683832c944a0681a6047df0f6dc6d87022a4abba2c82d2",
-      "material_inputs": {
-        "names": [
-          ".pose/indexes/delivery-integrity.json",
-          ".pose/indexes/generation.json",
-          ".pose/indexes/spec-graph.json",
-          ".pose/indexes/validation-matrix.json",
-          ".pose/results/delivery-validation.json",
-          ".pose/results/ires-binding.md",
-          ".pose/specs/2026-11-27-pose-validate-index-reads-residuals.md",
-          "pose-mcp/internal/cli/check.go",
-          "pose-mcp/internal/cli/report.go",
-          "pose-mcp/internal/cli/validate_index_residuals_test.go",
-          "pose-mcp/internal/cli/validate_reads_index_test.go",
-          "pose-mcp/internal/cli/validate_scope.go",
-          "pose-mcp/internal/pose/git_reads_residuals_test.go",
-          "pose-mcp/internal/pose/git_worktree_reads.go",
-          "pose-mcp/internal/pose/git_worktree_reads_linux.go",
-          "pose-mcp/internal/pose/git_worktree_reads_linux_test.go"
         ]
       }
     },
