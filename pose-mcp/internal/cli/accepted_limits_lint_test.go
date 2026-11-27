@@ -36,6 +36,13 @@ func TestReadyCheckJudgesAcceptedLimits(t *testing.T) {
 	if code, out := run(); code != 0 {
 		t.Fatalf("a justified limit failed the ready check: %d %s", code, out)
 	}
+	// Spec pose-review-declared-limits-followups, review round 1, N1: the
+	// ready check reads the raw spec, as the plan does, so a comment in the
+	// section fails it instead of passing a section the plan refuses.
+	write(".pose/specs/limited/spec.md", spec("\n### Accepted limits\n- L1: an escape. Accepted because <!-- x --> it is rare.\n"))
+	if code, out := run(); code == 0 || !strings.Contains(out, "comment marker") {
+		t.Fatalf("a comment in the limits passed the ready check: %d %s", code, out)
+	}
 	write(".pose/specs/limited/spec.md", spec("\n### Accepted limits\n- L1: an escape with no reason.\n"))
 	if code, out := run(); code == 0 || !strings.Contains(out, "does not say why it is accepted") {
 		t.Fatalf("an unjustified limit passed: %d %s", code, out)

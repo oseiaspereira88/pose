@@ -46,6 +46,15 @@ func TestTheReviewPlanSealsTheAcceptedLimits(t *testing.T) {
 	if err != nil || len(after.AcceptedLimits) != 2 || after.AcceptedLimits[0].ID != "L1" {
 		t.Fatalf("plan with limits: %+v %v", after.AcceptedLimits, err)
 	}
+	// Review round 1 of spec pose-review-declared-limits-followups, N1: a
+	// limit that cannot be sealed is said in the plan, not dropped silently.
+	if err := os.WriteFile(path, []byte(strings.Replace(string(raw), "### Technical risks", "### Accepted limits\n- L1: An escape is open. Accepted because <!-- x --> it is rare.\n\n### Technical risks", 1)), 0o644); err != nil {
+		t.Fatal(err)
+	}
+	refused, err := store.ReviewPlan("spec:backend")
+	if err != nil || len(refused.AcceptedLimits) != 0 || !strings.Contains(strings.Join(refused.Warnings, ";"), "accepted limits of spec backend are not all sealed") {
+		t.Fatalf("a refused limit was not said in the plan: %+v %v %v", refused.AcceptedLimits, refused.Warnings, err)
+	}
 	without := after
 	without.AcceptedLimits = nil
 	if digest, err := digestReviewPlan(without); err != nil || digest == after.PlanDigest {
@@ -262,5 +271,39 @@ func TestAcceptedLimitsIgnoreAMarkerNamedInCode(t *testing.T) {
 	limits, problems := ParseAcceptedLimits(body)
 	if len(problems) != 0 || len(limits) != 1 {
 		t.Fatalf("a marker named in code: limits %+v problems %v", limits, problems)
+	}
+}
+
+// Review round 1 of spec pose-review-declared-limits-followups, N2–N5: a
+// comment on the heading line, before it, or in a limit after an indented
+// heading refuses the section; a fenced or commented example elsewhere
+// leaves the real section whole; an indented heading under an indented
+// marker is reported.
+func TestAcceptedLimitsReadCommentsWhereTheSectionIs(t *testing.T) {
+	refused := []struct{ name, body string }{
+		{"trailing on the heading", "### Accepted limits <!-- note -->\n- L1: An escape is open. Accepted because it is rare\n<!-- hidden -->  and only on Linux.\n"},
+		{"leading on the heading", "<!-- note --> ### Accepted limits\n- L1: An escape is open. Accepted because it is rare.\n"},
+		{"ending on the heading", "<!--\nold notes\n--> ### Accepted limits\n- L1: An escape is open. Accepted because it is rare.\n"},
+		{"after an indented heading", "### Accepted limits\n- L1: An escape is open. Accepted because it is rare.\n  # not a heading\n- L2: Another escape. Accepted because <!-- cut --> it is rarer.\n"},
+	}
+	for _, c := range refused {
+		if limits, problems := ParseAcceptedLimits(c.body); len(limits) != 0 || len(problems) == 0 {
+			t.Fatalf("%s: limits %+v problems %v", c.name, limits, problems)
+		}
+	}
+	whole := []struct{ name, body string }{
+		{"fenced example with a comment", "### Notes\n```\n### Accepted limits\n- L9: Example. Accepted because <!-- x --> shown.\n```\n### Accepted limits\n- L1: An escape is open. Accepted because it is rare.\n"},
+		{"unterminated marker in a fence", "### Notes\n```\n<!-- an opening shown as code\n```\n### Accepted limits\n- L1: An escape is open. Accepted because it is rare.\n"},
+		{"second comment on a line", "<!-- a --> text <!-- ### Accepted limits\n- L9: Example. Accepted because hidden. -->\n### Accepted limits\n- L1: An escape is open. Accepted because it is rare.\n"},
+	}
+	for _, c := range whole {
+		limits, problems := ParseAcceptedLimits(c.body)
+		if len(problems) != 0 || len(limits) != 1 || limits[0].ID != "L1" {
+			t.Fatalf("%s: limits %+v problems %v", c.name, limits, problems)
+		}
+	}
+	indented := "### Accepted limits\n  - L1: An escape is open. Accepted because a shim covers it\n  # of cases on Linux.\n"
+	if limits, problems := ParseAcceptedLimits(indented); len(limits) != 0 || !strings.Contains(strings.Join(problems, ";"), "heading inside a limit") {
+		t.Fatalf("an indented heading under an indented marker: %+v %v", limits, problems)
 	}
 }

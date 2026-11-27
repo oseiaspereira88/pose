@@ -571,7 +571,10 @@ func lintOneSpecWith(r *cliout.Renderer, fields bool, specPath string, requiredO
 		// says why it is accepted, and an ADR that names the spec names each
 		// limit, so the decision record carries what the review will treat as
 		// out of scope.
-		limits, limitProblems := posepkg.ParseAcceptedLimits(text)
+		// The raw text, as the review plan reads it: text has its comments
+		// stripped, which would hide a comment the plan refuses (spec
+		// pose-review-declared-limits-followups, review round 1, N1).
+		limits, limitProblems := posepkg.ParseAcceptedLimits(string(raw))
 		for _, problem := range limitProblems {
 			lint.finding(cliout.StateError, "dor", "DoR: "+problem)
 			failures++

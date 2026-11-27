@@ -1290,7 +1290,7 @@ func parseCLIReviewFindings(values []string) ([]posemodel.ReviewFinding, error) 
 		}
 		// The accepted limit a within-limit finding falls inside (spec
 		// pose-review-declared-limits-followups R3).
-		if len(parts) > 8 {
+		if len(parts) > 8 && parts[2] == "within-limit" {
 			finding.Limit = parts[8]
 		}
 		result = append(result, finding)

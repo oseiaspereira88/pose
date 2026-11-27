@@ -58,6 +58,8 @@ Records and indexes written by earlier engines keep their meaning.
 - modified: pose-mcp/internal/pose/accepted_limits.go
 - modified: pose-mcp/internal/pose/accepted_limits_test.go
 - modified: pose-mcp/internal/pose/review_conclusions.go
+- modified: pose-mcp/internal/pose/review_plan.go
+- modified: pose-mcp/internal/cli/lintspec.go
 - modified: pose-mcp/internal/pose/schema_test.go
 - modified: pose-mcp/schemas/v1/review-plan.schema.json
 - modified: pose-mcp/schemas/v1/review-bundle.schema.json
@@ -96,7 +98,7 @@ A spec whose accepted limits section held an HTML comment now has its limits ref
 
 ### Decision D1
 - Basis: R2
-R2 as drafted asked that a comment written in inline code keep its text. Telling inline code from a real comment is the kind of Markdown reading that took the origin spec four rounds to make fail-closed; instead, any comment marker inside the accepted limits section refuses the section whole, and the ready check says so. A comment outside the section, including one that holds an example section, is still stripped and not read. A marker written in inline code (an odd number of backticks before it on its line) opens no comment, as Markdown shows it as text; the spec's own ready check found that its R2, which names the marker, was taken for an unterminated comment.
+R2 as drafted asked that a comment written in inline code keep its text. Telling inline code from a real comment is the kind of Markdown reading that took the origin spec four rounds to make fail-closed; instead, the reader makes one pass over the raw text, tracking comments and fences on the same lines it reads the section from. Outside the section a comment hides what it holds, as Markdown does, a marker in inline code (an odd number of backticks before it on its line) opens none, and comments inside fences are text. Inside the section, and on its heading line, any comment marker refuses the whole section; an unterminated comment anywhere refuses every limit. The ready check reads the same raw text, and the review plan states the problems that kept a spec's limits from being sealed among its warnings.
 
 ## 6. Validation
 
@@ -111,13 +113,14 @@ Each requirement gets a regression test shown failing before its code.
 ### Execution log
 - 2026-11-27: R1 reports a heading-like line indented under a limit; R2 reports any unterminated comment and any comment marker in the section (D1); R3 adds `limit` to `--finding`; R4 records `within-limit` only for a sealed limit; R5 declares the fields in both schemas; R6 prints within-limit findings. `TestAcceptedLimitsRefuseWhatWouldCutThem`, `TestOnlyASealedLimitIsRecordedWithinLimit`, `TestSchemaDrift`, `TestTheBundleSchemaDeclaresTheAcceptedLimits` and `TestWithinLimitFindingsAreTypedAndShown` fail with each guard mutated out.
 - 2026-11-27: this spec's own ready check failed: its R2 names `<!--` in inline code, which the new check took for an unterminated comment. A marker in inline code now opens no comment (`htmlCommentStart`, `stripLimitComments`); `TestAcceptedLimitsIgnoreAMarkerNamedInCode` fails with the backtick rule mutated out. The five specs of this repository that declare accepted limits pass the ready check unchanged.
+- 2026-11-27: review round 1's first run reached its time and capture limits with no draft (a 2.5 GB Go cache); the rerun (rrn-79b4d7a1126643d3) requested changes: the ready check read comment-stripped text (N1), and the separate comment pre-scan disagreed with the parser on comments by the heading, after an indented heading, in fences and after another comment (N2–N4). Withdrawn for a single raw pass (D1); `TestAcceptedLimitsReadCommentsWhereTheSectionIs` (the reviewer's cases, a fence holding an unterminated marker, an indented heading under an indented marker, N5), the ready-check case and the plan-warning case fail with the raw read, the heading rule, the indent rule, the fence rule, the comment tracking or the warning mutated out. `--finding` keeps a limit only for `within-limit` (part of N7).
 
 ### Results summary
 The full `pose-mcp` suite passes; the canonical result is refreshed with `pose validate --carry`.
 
 ### Requirement trace
 - R1 [satisfied] test:TestAcceptedLimitsRefuseWhatWouldCutThem
-- R2 [satisfied] test:TestAcceptedLimitsRefuseWhatWouldCutThem, test:TestAcceptedLimitsIgnoreAMarkerNamedInCode, test:TestAcceptedLimitsReadWrappedEntriesAndSkipExamples
+- R2 [satisfied] test:TestAcceptedLimitsReadCommentsWhereTheSectionIs, test:TestReadyCheckJudgesAcceptedLimits, test:TestTheReviewPlanSealsTheAcceptedLimits, test:TestAcceptedLimitsRefuseWhatWouldCutThem, test:TestAcceptedLimitsIgnoreAMarkerNamedInCode, test:TestAcceptedLimitsReadWrappedEntriesAndSkipExamples
 - R3 [satisfied] test:TestWithinLimitFindingsAreTypedAndShown
 - R4 [satisfied] test:TestOnlyASealedLimitIsRecordedWithinLimit
 - R5 [satisfied] test:TestSchemaDrift, test:TestTheBundleSchemaDeclaresTheAcceptedLimits
@@ -141,4 +144,8 @@ The accepted-limits reader refuses what would cut a limit; a within-limit findin
 None beyond those of the origin spec.
 
 ### Follow-ups
-None. Origin: `pose-review-declared-threat-model` (done 2026-11-26).
+Origin: `pose-review-declared-threat-model` (done 2026-11-26).
+- [open] Read inline code spans as Markdown does (a stray backtick, double-backtick spans) when deciding whether a marker opens a comment (review round 1, N6). (owner:@pose-maintainers crit:low review:2026-12-27)
+- [open] Refuse a manual attestation of any decision whose within-limit finding names a limit the bundle did not seal (review round 1, N7). (owner:@pose-maintainers crit:low review:2026-12-27)
+- [open] Test the within-limit lines through `pose review-check` and `pose closeout-check` themselves (review round 1, N8). (owner:@pose-maintainers crit:low review:2026-12-27)
+- [open] Keep a run-backed attestation an earlier engine recorded within an unsealed limit from differing from its recomputed draft, or record the change of derivation (review round 1, N9). (owner:@pose-maintainers crit:low review:2026-12-27)

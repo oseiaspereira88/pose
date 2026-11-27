@@ -401,7 +401,9 @@ func (s Store) ReviewPlan(ref string) (ReviewPlan, error) {
 		}
 	}
 	plan.Projection = projectDeclaredReviewObligations(plan, scope, base, floor, overlays, context)
-	plan.AcceptedLimits = s.acceptedLimitsOf(scope)
+	var limitProblems []string
+	plan.AcceptedLimits, limitProblems = s.acceptedLimitsAndProblemsOf(scope)
+	plan.Warnings = append(plan.Warnings, limitProblems...)
 	plan.PlanDigest, err = digestReviewPlan(plan)
 	if err != nil {
 		return ReviewPlan{}, err
