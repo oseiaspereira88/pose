@@ -1,0 +1,254 @@
+{
+  "run": {
+    "run_id": "rrn-66f7681304eb8314",
+    "proof_id": "rrp-37d62765147da6dbb7cb76ff5a54bb0d6ed4247e75b0a5c21c577fad35b18e58"
+  },
+  "schema_version": 1,
+  "attestation_id": "rva-7cd8ba5fa324ad64",
+  "bundle_id": "rvb-50b4df3f313bb68e",
+  "bundle_digest": "sha256:50b4df3f313bb68e5e2d27b34e99bb8c6c35c156f23b2b41e996d86cbb63225a",
+  "reviewer": "agent:anthropic/claude-sonnet-5-5",
+  "decision": "approved",
+  "criteria": [
+    {
+      "id": "assumption-integrity",
+      "disposition": "passed",
+      "evidence": "unit:pose-mcp/go/test",
+      "rationale": "Verified: L1 (measured here), O_NONBLOCK on a FIFO (mutation blocks the test), relative index path joined to the root, exit 1 with no output for an unknown revision. Unverified: behaviour on a Git older than 2.31 (no stand-in, N2) and non-Linux runtime (only sealed cross builds). Accepted: L1. The 512 MiB index bound is now reported by check instead of dropped, as R2 asks."
+    },
+    {
+      "id": "backend-concurrency",
+      "disposition": "passed",
+      "evidence": "unit:pose-mcp/go/test",
+      "rationale": "Focused tests including atomic index replacement and concurrent reads pass under -race -count=3; the ledger passes its context (untested, N2)."
+    },
+    {
+      "id": "backend-contracts",
+      "disposition": "passed",
+      "evidence": "integration:pose-mcp/go/machine-channel-integration",
+      "rationale": "No public contract changes outside failure reporting."
+    },
+    {
+      "id": "backend-input-errors",
+      "disposition": "passed",
+      "evidence": "unit:pose-mcp/go/test",
+      "rationale": "Unsafe revisions are still refused first; trees, HEAD^- and ranges keep their answer; errors are one line and bounded (N4 on the cut)."
+    },
+    {
+      "id": "backend-integration-impact",
+      "disposition": "passed",
+      "evidence": "integration:pose-mcp/go/git-dispatch-snapshot-integrity-integration",
+      "rationale": "Callers of the changed reads were traced and remain consistent."
+    },
+    {
+      "id": "backend-observability",
+      "disposition": "passed",
+      "evidence": "unit:pose-mcp/go/test",
+      "rationale": "Check, scope selection and report name the cause; residual path fragments are N1."
+    },
+    {
+      "id": "compatibility",
+      "disposition": "passed",
+      "evidence": "integration:pose-mcp/go/machine-channel-integration",
+      "rationale": "reportChangedFiles is internal; the report gains a warning and a one-line note only on failure; check gains a finding only when a read fails (probe: zero errors on healthy and subdirectory roots, errors on a bare repository, which has no work tree). LC_ALL=C changes message language, not listing output. Dropping --path-format widens Git support."
+    },
+    {
+      "id": "correctness",
+      "disposition": "passed",
+      "evidence": "unit:pose-mcp/go/test",
+      "rationale": "Focused and negative tests pass; full-package failures in this sandbox are ownership, runtime-start and file-mode failures outside the subject."
+    },
+    {
+      "id": "design-causality",
+      "disposition": "passed",
+      "evidence": "structure:design-53d11f68d0751c1b",
+      "rationale": "D2 removes the stat-then-open race behind R1 by judging the opened descriptor. D3 replaces classification of Git text with diff-first and revision resolution after failure, which addresses R2 and the round 3 and 4 causes. D1 follows from measurement. The design assessment reports no structural deltas."
+    },
+    {
+      "id": "documentation",
+      "disposition": "passed",
+      "evidence": "unit:pose-mcp/go/test",
+      "rationale": "Spec sections, decisions, trace and follow-ups match the code and tests, and code comments match the fallback behaviour. One overstatement: D3 says every absolute path is replaced (N1). No operational doc or scaffold describes these internals."
+    },
+    {
+      "id": "operability",
+      "disposition": "passed",
+      "evidence": "unit:pose-mcp/go/test",
+      "rationale": "Failures carry Git's fatal lines first, including broken config causes; check findings are localised."
+    },
+    {
+      "id": "requirements",
+      "disposition": "passed",
+      "evidence": "unit:pose-mcp/go/test",
+      "rationale": "R1 to R4 and R6 have tests that pass and kill their main guard mutations; R5 is L1, measured. Remaining gaps are N2."
+    },
+    {
+      "id": "scope",
+      "disposition": "passed",
+      "evidence": "unit:pose-mcp/go/test",
+      "rationale": "Changed files match the declared artifacts and serve R1 to R6; no non-goal is reopened."
+    },
+    {
+      "id": "security",
+      "disposition": "passed",
+      "evidence": "unit:pose-mcp/go/test",
+      "rationale": "Revisions stay behind safeGitRevRE, which forbids a leading dash; the index is opened without blocking, must be regular and is bounded; the private copy is mode 0600 in a fresh directory; engine reads keep the sanitised Git environment. Path fragments in a failed-read report note are a low disclosure (N1)."
+    },
+    {
+      "id": "solution-proportionality",
+      "disposition": "passed",
+      "evidence": "unit:pose-mcp/go/test",
+      "rationale": "The change is local: an open helper, a private copy shared with the non-Linux path, one error formatter and one resolver run only after failure. The two replaceable syscall variables serve tests. The choice would be invalidated if Git began writing an index through the /proc descriptor or rev-parse --verify --quiet changed its exit contract."
+    }
+  ],
+  "tools": [
+    {
+      "id": "artifact-check",
+      "disposition": "passed",
+      "evidence": "command:pose artifact-check --spec pose-validate-read-only-index-followups --strict",
+      "rationale": "Exit 0; the findings seen are orphan warnings on repository files."
+    },
+    {
+      "id": "assess-design",
+      "disposition": "passed",
+      "evidence": "structure:design-53d11f68d0751c1b",
+      "rationale": "Observed, no deltas."
+    },
+    {
+      "id": "assess-discover",
+      "component": "pose-mcp",
+      "disposition": "passed",
+      "evidence": "command:pose assess discover --no-persist --component pose-mcp",
+      "rationale": "Ran."
+    },
+    {
+      "id": "assess-integrate",
+      "disposition": "passed",
+      "evidence": "integration:pose-mcp/go/git-dispatch-snapshot-integrity-integration",
+      "rationale": "Rerun reports three unobserved HTTP consumers, none touched by this change."
+    },
+    {
+      "id": "assess-tech-debt",
+      "disposition": "passed",
+      "evidence": "command:pose assess tech-debt --no-persist",
+      "rationale": "Ran; the scan declares itself incomplete for two unrelated spec files."
+    },
+    {
+      "id": "closeout-check",
+      "disposition": "deferred",
+      "rationale": "Run: not terminal, awaiting the review conclusion and lifecycle done."
+    },
+    {
+      "id": "review-check",
+      "disposition": "deferred",
+      "rationale": "Run: awaits this attestation."
+    },
+    {
+      "id": "suggest-review",
+      "component": "pose-mcp",
+      "disposition": "passed",
+      "evidence": "command:pose suggest review --path pose-mcp",
+      "rationale": "Ran."
+    },
+    {
+      "id": "surface-check",
+      "disposition": "passed",
+      "evidence": "reachability:pose-mcp/go/delivery-reachability",
+      "rationale": "Rerun reported zero findings."
+    },
+    {
+      "id": "validate",
+      "disposition": "passed",
+      "evidence": "unit:pose-mcp/go/test",
+      "rationale": "Relies on the sealed evidence. The sandbox rerun FAILED (236 steps, 224 pass, 11 fail, 1 timeout): HTTP 403, /var/tmp and /home ownership refusals, runtime hosts unable to start, a file-mode difference. None of the failing tests shown belongs to the subject."
+    },
+    {
+      "id": "validate",
+      "component": "pose-mcp",
+      "disposition": "passed",
+      "evidence": "unit:pose-mcp/go/test",
+      "rationale": "Relies on the sealed evidence. The sandbox module rerun FAILED (233 steps, 221 pass, 11 fail, 1 timeout) for the same causes; a separate full run of internal/cli and internal/pose showed failures of the same kind and none in the subject tests."
+    }
+  ],
+  "evidence_refs": [
+    "delegated-run:rrn-66f7681304eb8314",
+    "integration:pose-mcp/go/git-dispatch-snapshot-integrity-integration",
+    "integration:pose-mcp/go/machine-channel-integration",
+    "structure:design-53d11f68d0751c1b",
+    "unit:pose-mcp/go/test"
+  ],
+  "findings": [
+    {
+      "id": "N1",
+      "severity": "low",
+      "evidence": "file:pose-mcp/internal/cli/report.go:326",
+      "action": "Replace the known root and index paths literally before the pattern, or omit paths from the report note, and test a checkout path containing spaces",
+      "disposition": "accepted-risk",
+      "owner": "pose-maintainers",
+      "rationale": "The versioned report still receives parts of absolute paths, although D3 says every absolute path is replaced. The match stops at spaces, quotes, parentheses, colons, semicolons and commas, so '/home/jane doe/my proj/.git/index' becomes '\u003cpath\u003e doe/my proj/.git/index', a quoted dubious-ownership path '/srv/John Smith/repo' becomes '\u003cpath\u003e Smith/repo', and '/home/a(b)/x:y' keeps '(b)/x:y'. A path preceded by ':', a backtick or '[' is not replaced at all. A real report over a checkout in 'jane doe proj' wrote '\u003cpath\u003e doe proj'. Reproduced with an overlay probe. It needs a failed read and such a path.",
+      "review_by": "2026-12-26"
+    },
+    {
+      "id": "N2",
+      "severity": "low",
+      "evidence": "file:pose-mcp/internal/cli/validate_reads_index_test.go:272",
+      "action": "Add a failing test for each listed guard",
+      "disposition": "accepted-risk",
+      "owner": "pose-maintainers",
+      "rationale": "Guards with no failing test; each mutation leaves the focused cli and pose tests green: restoring --path-format=absolute, dropping the X^- cut in scopeRevisions, dropping the report note bound, dropping the report stderr warning, the ledger calling ReadOnlyIndex without its context, GitEnglish on the check, lookup or hand-over commands, the memfd write fallback, and privateIndexCopy not preserving the index modification time (the racy-clean test reaches only the memory file on Linux).",
+      "review_by": "2026-12-26"
+    },
+    {
+      "id": "N3",
+      "severity": "low",
+      "evidence": "file:pose-mcp/internal/cli/check.go:1161",
+      "action": "Run the ready-transition diff with --relative and test a POSE root below the repository top",
+      "disposition": "accepted-risk",
+      "owner": "pose-maintainers",
+      "rationale": "Pre-existing, carried from round 1 and listed as a spec follow-up: with the POSE root below the repository top, git diff --name-only returns top-relative names that the .pose/specs/ prefix filter drops, so a modified spec's ready transition goes unchecked without a finding.",
+      "review_by": "2026-12-26"
+    },
+    {
+      "id": "N4",
+      "severity": "low",
+      "evidence": "file:pose-mcp/internal/cli/report.go:319",
+      "action": "Cut at a rune boundary in both places",
+      "disposition": "accepted-risk",
+      "owner": "pose-maintainers",
+      "rationale": "Both bounds cut at a byte offset (note[:600] here, said[:gitReadSaidLimit] in git_worktree_reads.go:130), so a non-ASCII file or ref name at the cut leaves invalid UTF-8 in the versioned report or the error. Established by reading the code.",
+      "review_by": "2026-12-26"
+    },
+    {
+      "id": "N5",
+      "severity": "low",
+      "evidence": "file:pose-mcp/internal/cli/validate_scope.go:121",
+      "action": "Return the ls-files failure with Git's standard error",
+      "disposition": "accepted-risk",
+      "owner": "pose-maintainers",
+      "rationale": "Pre-existing: a failing ls-files in worktree scope selection is dropped without a word, so untracked files can silently leave the selection. It reads the real index after the diff read a copy, so an index failure there needs a change between the two reads or another ls-files failure. Established by reading the code, not reproduced.",
+      "review_by": "2026-12-26"
+    }
+  ],
+  "authority": {
+    "schema_version": 1,
+    "project": "proj.pose-dist",
+    "bundle_digest": "sha256:50b4df3f313bb68e5e2d27b34e99bb8c6c35c156f23b2b41e996d86cbb63225a",
+    "principal": "agent:anthropic/claude-sonnet-5-5",
+    "role": "agent",
+    "review_execution": "rrn-66f7681304eb8314",
+    "implementation_principal": "agent:anthropic/claude-opus-5-5",
+    "implementation_execution": "sha256:344ac5868944c155772d60a95ef6ff20644580a642e772ad5c92c29428464ff8",
+    "issuer": "b34-local-executor",
+    "issued_at": "2026-11-27T06:08:57Z",
+    "audience": "proj.pose-dist"
+  },
+  "envelope": {
+    "issuer": "b34-local-executor",
+    "subject": "rvb-50b4df3f313bb68e",
+    "algorithm": "ed25519",
+    "public_key": "ck4sApdfePV2GT+hJyAYfJd2qLzeG55P8pevGR0bvZE=",
+    "signature": "p3DioPQ6wfoqrt3fCEXVxrOBO9V7a7MAfqilWhWnbG/9ExAFV0/hVNypN21dUFgwHq9j4TnJHtnwNI0WBVtXCQ=="
+  },
+  "attested_at": "2026-11-27T06:08:57Z",
+  "path": ".pose/review-attestations/rva-7cd8ba5fa324ad64.json"
+}
