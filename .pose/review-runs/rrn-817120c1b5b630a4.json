@@ -1,0 +1,152 @@
+{
+  "safety": {
+    "schema_version": 1,
+    "profile": "legacy-trusted",
+    "platform": "linux/amd64",
+    "capabilities": {
+      "automatic-expiry": "unavailable",
+      "bounded-capture": "available",
+      "cpu-limit": "unavailable",
+      "credential-filesystem-isolation": "unavailable",
+      "environment-allowlist": "available",
+      "escaped-descendant-termination": "environment-marked",
+      "filesystem-isolation": "unavailable",
+      "memory-limit": "unavailable",
+      "network-isolation": "unavailable",
+      "origin-isolation": "unavailable",
+      "parent-termination": "available",
+      "process-group-termination": "available",
+      "shared-git-isolation": "unavailable"
+    },
+    "limitations": [
+      "trusted local executable required; worktree is not a sandbox",
+      "outside writes, transient writes, shared Git and credential files are not isolated",
+      "no memory/CPU quota; the review run shim ends every process left in the run's subtree, including one in its own session",
+      "cleanup filesystem calls remain subject to operating-system I/O latency",
+      "legacy compatibility: HOME retained; other ambient credentials excluded",
+      "ended 1 process(es) the run left running: 1698355 (orphaned)"
+    ],
+    "stream_bytes": 8388608,
+    "output_bytes": 65536,
+    "retained_bytes": 16777216,
+    "timeout_ms": 3600000,
+    "max_runs_per_bundle": 3,
+    "retention": "retain-evidence; ttl=0; no automatic deletion",
+    "capture_complete": false,
+    "runtime_id": "pose-review-run-7404b8ce2b",
+    "execution_cause": "capture-incomplete",
+    "operation": {
+      "schema_version": 1,
+      "operation": "review.dispatch.cleanup",
+      "scope": "spec:pose-review-declared-limits-followups",
+      "outcome": "failed",
+      "step": "cleanup",
+      "steps_run": [
+        {
+          "id": "cleanup",
+          "result": "failed"
+        }
+      ],
+      "effects": [],
+      "unconfirmed": [
+        {
+          "step": "cleanup",
+          "reason": "owned resources may remain; no automatic respawn"
+        }
+      ],
+      "resumable": false,
+      "error": {
+        "cause": "cleanup-incomplete",
+        "message": "runtime cleanup inventory incomplete; resources retained"
+      }
+    }
+  },
+  "provenance": {
+    "execution_state": "started",
+    "planned_wire_digest": "sha256:1b9f6cd7ec4fc2c164e97fe08c5254e0d51189b583d98aa56d933192bb1f22b8",
+    "wire_bytes": 30254,
+    "wire_complete": true,
+    "schema_version": 1,
+    "project": "proj.pose-dist",
+    "audience": "proj.pose-dist",
+    "worktree_digest": "sha256:092ca52378c4c0d0f2b627da8d5031dbb854563bd4b9f2474458710c62a14816",
+    "trust": "executor-attested",
+    "implementation": {
+      "principal": "agent:anthropic/claude-opus-5-5",
+      "execution": "sha256:344ac5868944c155772d60a95ef6ff20644580a642e772ad5c92c29428464ff8",
+      "vendor": "anthropic",
+      "model": "claude-opus-5-5"
+    },
+    "reviewer": {
+      "principal": "agent:anthropic/claude-sonnet-5-5",
+      "vendor": "anthropic",
+      "model": "claude-sonnet-5-5"
+    },
+    "config_digest": "sha256:b23684d462090c30b29c472aa98a57bfadccc0b92e14fbacb173eb47d1f5b8ea",
+    "command_template_digest": "sha256:3d843a49f6314194edbdf4f7f3ce02992895b45ad84d90915a0b66a1db8afd54",
+    "argv_digest": "sha256:34b4bf6cf64cf400413758ea2b09228e0eeb9b7923f15fcc3a459f73ca3177c5",
+    "executable_digest": "sha256:c157074818b094c84aaf31b8c80a1e149f234bb1c8c84a25e9a53e96afa30a29",
+    "template_version": "review-brief/11",
+    "wire_digest": "sha256:1b9f6cd7ec4fc2c164e97fe08c5254e0d51189b583d98aa56d933192bb1f22b8",
+    "notes_digest": "sha256:1aee8a479dd231fbb7430d65c1181cf57f0efb104b7c53af757939bdff333aac",
+    "raw_transcript_digest": "sha256:0b0367913b496291a02fc9e2f205c71eb46575e5b045fbb85de8b822c96b3dae",
+    "raw_output_digest": "sha256:2b331fc4be7aa351ab7d54162d8fc5611f2c6d9d1de106fdd4b5d9fdc96c12a0",
+    "output_source": "transcript-tail",
+    "output_complete": false
+  },
+  "tree_digest": "sha256:2f649b292f3c424add29b8b9bb8dab5500559ae66f7b7aaa1b9a3b9c8037fec7",
+  "brief_notes": "Implementer notes (Claude Opus 5.5, the lead). Use them as context only; the judgment is yours.\n\nScope: spec `pose-review-declared-limits-followups` (R1–R6, decision D1), the follow-ups of `pose-review-declared-threat-model`.\n- R1: a heading-like line indented one to three spaces under a limit is reported and the limit is not sealed (`ParseAcceptedLimits`).\n- R2 / D1: any unterminated `\u003c!--` anywhere is reported (`unterminatedHTMLComment`), and any comment marker inside the accepted limits section, inline code included, refuses the section whole (`commentInAcceptedLimitsSection`); a comment outside the section is stripped as before, and a marker written in inline code (odd backtick count before it on its line) opens no comment (`htmlCommentStart`), which this spec's own ready check required: its R2 names the marker.\n- R3: `pose review attest --finding` takes a ninth field, `limit`.\n- R4: a draft follow-up becomes `within-limit` only when its limit is sealed in the bundle, whatever the decision (`reviewAttestationFromDraft`).\n- R5: `review-plan.schema.json` and the bundle schema's plan declare `accepted_limits` and `limitations`.\n- R6: `review-check` and `closeout-check` print `\u003cprefix\u003e.within_limit` lines.\nEach has a test that fails with its guard mutated out.\n\nPlease check in particular that no spec in this repository loses limits it declared, that a comment outside the section still hides nothing it should not, and that a non-approving draft cannot record a limit the bundle did not seal.\n\nBefore you finish, run `\"$POSE_REVIEW_CLI\" review draft-check --draft -` on your final message (pipe it on standard input) and fix every reason it reports.\n\nDraft format rules, enforced by the conclusion preflight:\n- New findings use short unprefixed IDs (N1, N2, …).\n- Structural-delta mappings go inside the criterion that answers them, with `basis` set to a requirement or a decision of this spec (R1–R6, D1).\n- A criterion scoped to a component cites evidence from that component only.\n- \n\nSandbox limits: the checkout is sealed and read-only. Never `cd`; keep the checkout root as the working directory. Your Bash is limited to these command prefixes: `go test`, `go vet`, `go -C`, `git diff|log|show|status|ls-files`, `cat`, `printf`, `\"$POSE_REVIEW_CLI\"`, and the pose checks the plan lists. Keep test runs focused (`go -C pose-mcp test ./internal/cli ./internal/pose -run 'AcceptedLimit|WithinLimit|SealedLimit|SchemaDrift|BundleSchema'`), and let every command you start finish before you end. Run every planned `pose` command as `\"$POSE_REVIEW_CLI\"`.\n\nA tool you cannot rerun faithfully in the sandbox (the full `validate` hits HTTP 403, `/var/tmp` owned by another user and refused delegation there) is a limit of the run, not a defect of the subject. As the approving rounds of `pose-validate-reads-leave-the-index-alone` and `pose-review-resume-keeps-the-sealed-checkout` did, record it `passed` with the sealed ref (`unit:pose-mcp/go/test`) as its evidence and the sandbox failure in its rationale; record `failed` only for a failure the subject causes.\n\nPlease report every finding you see in this round, classified blocker or follow-up, rather than stopping at the first.\n",
+  "ledger_version": 1,
+  "attempt_id": "rat-7404b8ce2bb9912e82c5b4ea0a9d98eb52dbc6674441a64f9ee6cd58ea75e1b2",
+  "schema_version": 1,
+  "run_id": "rrn-817120c1b5b630a4",
+  "scope": "spec:pose-review-declared-limits-followups",
+  "bundle_id": "rvb-a75b854e83f70443",
+  "bundle_digest": "sha256:a75b854e83f70443b6139e4f7993a97521c398d32f914b6ae6c8298c5d8ce4fb",
+  "sealed_commit": "6e8a4a212d7d0250b30a25a587988d66408657a8",
+  "kind": "review",
+  "brief_digest": "sha256:e4cce9382c3123c6850c33723d676635b7ac96c68745d4baf74a370f0e1c50b8",
+  "adapter": "claude-sonnet-5-5",
+  "vendor": "anthropic",
+  "model": "claude-sonnet-5-5",
+  "started_at": "2026-11-27T11:00:39.934309873Z",
+  "ended_at": "2026-11-27T12:00:53.059317844Z",
+  "exit_code": 143,
+  "status": "failed",
+  "failure": "adapter capture incomplete: stream/output limit or unsafe output file",
+  "transcript_digest": "sha256:e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+  "transcript_path": ".pose/review-runs/rrn-817120c1b5b630a4.transcript",
+  "output": "",
+  "policy_digest": "sha256:96d45d57ca07ec9abf850150e8563fe243393ebd1604a49798920f6dade4dbe7",
+  "label": "lfix-review-r1",
+  "purpose": "review",
+  "env_removed": [
+    "CLAUDECODE",
+    "CLAUDE_CODE_BRIDGE_SESSION_ID",
+    "CLAUDE_CODE_CHILD_SESSION",
+    "CLAUDE_CODE_ENTRYPOINT",
+    "CLAUDE_CODE_EXECPATH",
+    "CLAUDE_CODE_MESSAGING_SOCKET",
+    "CLAUDE_CODE_MESSAGING_TOKEN",
+    "CLAUDE_CODE_SESSION_ATTENDED",
+    "CLAUDE_CODE_SESSION_ID",
+    "CLAUDE_EFFORT",
+    "CLAUDE_PID"
+  ],
+  "events": "claude-stream-json",
+  "events_digest": "sha256:e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+  "routing": {
+    "requested": "claude-sonnet-5-5",
+    "implementation": {
+      "principal": "agent:anthropic/claude-opus-5-5",
+      "vendor": "anthropic",
+      "model": "claude-opus-5-5",
+      "execution_digest": "sha256:344ac5868944c155772d60a95ef6ff20644580a642e772ad5c92c29428464ff8",
+      "source": "declared"
+    },
+    "implementation_from": "bundle",
+    "step": "explicit"
+  },
+  "independence_achieved": "different-model",
+  "round": 1
+}
