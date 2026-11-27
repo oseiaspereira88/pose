@@ -426,6 +426,11 @@ func TestGitReadErrorsNameTheirCause(t *testing.T) {
 	if !strings.Contains(err.Error(), "fatal: index file corrupt") || strings.Contains(err.Error(), "\n") {
 		t.Fatalf("the cause behind a warning: %q", err)
 	}
+	// A long warning does not push the fatal line past the bound.
+	err = GitReadError("git diff", errors.New("exit status 128"), []byte("warning: "+strings.Repeat("w", 2000)+"\nfatal: index file corrupt\n"))
+	if !strings.Contains(err.Error(), "fatal: index file corrupt") {
+		t.Fatalf("the fatal line behind a long warning: %.120q", err)
+	}
 	// Bounded, and never classified from its words.
 	err = GitReadError("git diff", errors.New("exit status 128"), []byte("fatal: index file smaller than expected "+strings.Repeat("x", 2000)))
 	if len(err.Error()) > 700 || errors.Is(err, ErrIndexUnreadable) {

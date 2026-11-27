@@ -8,11 +8,13 @@ package cli
 // Uncertainty always widens toward safe execution.
 
 import (
+	"bytes"
 	"encoding/json"
 	"errors"
 	"fmt"
 	posemodel "github.com/harne8/pose-mcp/internal/pose"
 	"os"
+	"os/exec"
 	"path/filepath"
 	"regexp"
 	"sort"
@@ -104,17 +106,9 @@ func computeChangedScopeWith(root, base, head string, modules []validationModule
 	gitArgs = append(gitArgs, "--")
 	// The diff reads the index without writing it (spec
 	// pose-validate-reads-leave-the-index-alone R1).
-	// A revision is judged by resolving it, not by reading Git's message
-	// (review rounds 2 N13, 3 N17–N18): only then is a failure "revision
-	// unknown?"; any other is reported with Git's own words.
-	for _, rev := range scopeRevisions(base, head) {
-		if posemodel.RawGit("-C", root, "rev-parse", "--verify", "--quiet", rev+"^{commit}").Run() != nil {
-			return sel, fmt.Errorf("git diff %s failed (revision unknown?): %s does not name a commit", sel.rangeLabel(), rev)
-		}
-	}
 	out, err := posemodel.RawGitDiffReadOnly(root, gitArgs...)
 	if err != nil {
-		return sel, fmt.Errorf("scope selection over %s: %v", sel.rangeLabel(), err)
+		return sel, scopeDiffError(root, base, head, sel.rangeLabel(), err)
 	}
 	for _, name := range strings.Split(string(out), "\x00") {
 		if name != "" {
@@ -254,13 +248,43 @@ func declaredDependencyHits(file string, deps []string) []string {
 	return hits
 }
 
-// scopeRevisions are the revisions a scope diff names: base and head, and the
-// ends of a range written A..B or A...B.
+// scopeDiffError names why a scope diff failed. The diff runs first, so
+// every revision it accepts (a tree, HEAD^-, a range) keeps its answer; only
+// after a failure is each revision resolved, never Git's message read
+// (review rounds 2 N13, 3 N17–N18, 4 N23–N24). A revision Git cannot find
+// (rev-parse --verify --quiet exits 1 and says nothing) is "revision
+// unknown?"; a rev-parse that fails otherwise (no repository, a broken
+// config, dubious ownership) is reported with its own words; when every
+// revision resolves, the diff's own failure is.
+func scopeDiffError(root, base, head, label string, diffErr error) error {
+	for _, rev := range scopeRevisions(base, head) {
+		cmd := posemodel.RawGit("-C", root, "rev-parse", "--verify", "--quiet", rev)
+		posemodel.GitEnglish(cmd)
+		var stderr bytes.Buffer
+		cmd.Stderr = &stderr
+		err := cmd.Run()
+		if err == nil {
+			continue
+		}
+		var exit *exec.ExitError
+		if errors.As(err, &exit) && exit.ExitCode() == 1 && strings.TrimSpace(stderr.String()) == "" {
+			return fmt.Errorf("git diff %s failed (revision unknown?): %s does not resolve", label, rev)
+		}
+		return fmt.Errorf("scope selection over %s: %v", label, posemodel.GitReadError("git rev-parse "+rev, err, stderr.Bytes()))
+	}
+	return fmt.Errorf("scope selection over %s: %v", label, diffErr)
+}
+
+// scopeRevisions are the revisions a scope diff names: base and head, the
+// ends of a range written A..B or A...B, and X for X^-.
 func scopeRevisions(base, head string) []string {
 	var revs []string
 	for _, r := range []string{base, head} {
 		if r == "" {
 			continue
+		}
+		if k := strings.Index(r, "^-"); k > 0 {
+			r = r[:k]
 		}
 		sep := ".."
 		if strings.Contains(r, "...") {

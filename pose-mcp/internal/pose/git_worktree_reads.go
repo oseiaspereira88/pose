@@ -110,7 +110,20 @@ const gitReadSaidLimit = 600
 // words whether the index was at fault: ErrIndexUnreadable marks only the
 // failures of ReadOnlyIndex itself (review rounds 2 N13, 3 N18).
 func GitReadError(what string, err error, stderr []byte) error {
-	said := strings.Join(strings.Fields(strings.ReplaceAll(string(stderr), "\n", " ; ")), " ")
+	// Git's fatal and error lines first, so a long warning before them does
+	// not push the cause past the bound (review round 4, N25).
+	var first, rest []string
+	for _, line := range strings.Split(string(stderr), "\n") {
+		line = strings.Join(strings.Fields(line), " ")
+		switch {
+		case line == "":
+		case strings.HasPrefix(line, "fatal:") || strings.HasPrefix(line, "error:"):
+			first = append(first, line)
+		default:
+			rest = append(rest, line)
+		}
+	}
+	said := strings.Join(append(first, rest...), " ; ")
 	if len(said) > gitReadSaidLimit {
 		said = said[:gitReadSaidLimit] + "…"
 	}

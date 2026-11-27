@@ -230,7 +230,7 @@ func TestIndexFailuresAreNamedInAnyLocale(t *testing.T) {
 	}
 	// A failure naming the checkout reaches the versioned report without its
 	// absolute path (review round 3, N22).
-	if files, err := reportChangedFilesNoted(outside, "HEAD", localeEN); err == nil || len(files) != 1 || strings.Contains(files[0], outside) || !strings.Contains(files[0], "<root>") {
+	if files, err := reportChangedFilesNoted(outside, "HEAD", localeEN); err == nil || len(files) != 1 || strings.Contains(files[0], outside) || !strings.Contains(files[0], "<path>") {
 		t.Fatalf("the report kept the checkout's path: %q %v", files, err)
 	}
 }
@@ -251,7 +251,62 @@ func TestScopeSelectionTellsRevisionsFromIndexFailures(t *testing.T) {
 	if err == nil || strings.Contains(err.Error(), "revision unknown?") || !strings.Contains(err.Error(), "index file") {
 		t.Fatalf("a corrupt index behind a configuration warning: %v", err)
 	}
+	// A healthy range whose read fails on the index is not an unknown
+	// revision: its ends are resolved one by one.
+	ranged, _ := staleIndexRepo(t)
+	rangedIndex := filepath.Join(ranged, ".git", "index")
+	if err := os.Remove(rangedIndex); err != nil {
+		t.Fatal(err)
+	}
+	if err := os.Mkdir(rangedIndex, 0o755); err != nil {
+		t.Fatal(err)
+	}
+	if _, err := computeChangedScopeWith(ranged, "HEAD..HEAD", "", nil, scopeMetadata{}); err == nil || strings.Contains(err.Error(), "revision unknown?") {
+		t.Fatalf("a healthy range was taken for an unknown revision: %v", err)
+	}
 	if _, err := computeChangedScopeWith(root, "HEAD..nonexistent", "", nil, scopeMetadata{}); err == nil || !strings.Contains(err.Error(), "revision unknown?") {
 		t.Fatalf("an unknown revision in a range: %v", err)
+	}
+}
+
+// Review round 4 of spec pose-validate-read-only-index-followups, N23–N27:
+// revisions the diff accepts keep their answer, a repository failure keeps
+// Git's cause, healthy ranges select, and the report keeps relative names.
+func TestScopeSelectionKeepsWhatTheDiffAccepts(t *testing.T) {
+	root, _ := staleIndexRepo(t)
+	git := func(args ...string) string {
+		t.Helper()
+		out, err := exec.Command("git", append([]string{"-C", root, "-c", "user.name=t", "-c", "user.email=t@t"}, args...)...).CombinedOutput()
+		if err != nil {
+			t.Fatal(args, err, string(out))
+		}
+		return strings.TrimSpace(string(out))
+	}
+	if err := os.WriteFile(filepath.Join(root, "b.txt"), []byte("b\n"), 0o644); err != nil {
+		t.Fatal(err)
+	}
+	git("add", "b.txt")
+	git("commit", "-q", "-m", "two")
+	for _, c := range []struct{ base, head string }{
+		{"4b825dc642cb6eb9a060e54bf8d69288fbee4904", "HEAD"},
+		{"HEAD^-", ""},
+		{"HEAD~1..HEAD", ""},
+		{"HEAD~1...HEAD", ""},
+	} {
+		sel, err := computeChangedScopeWith(root, c.base, c.head, nil, scopeMetadata{})
+		if err != nil || len(sel.Changed) == 0 {
+			t.Fatalf("%s %s: %v %v", c.base, c.head, sel.Changed, err)
+		}
+	}
+	if err := os.WriteFile(filepath.Join(root, ".git", "config"), []byte("[bad\n"), 0o644); err != nil {
+		t.Fatal(err)
+	}
+	_, err := computeChangedScopeWith(root, "HEAD", "", nil, scopeMetadata{})
+	if err == nil || strings.Contains(err.Error(), "revision unknown?") || !strings.Contains(err.Error(), "bad config") {
+		t.Fatalf("a broken config lost its cause: %v", err)
+	}
+	note := reportAbsolutePathRE.ReplaceAllString("bad revision 'feature/index-rework' at /abs/root/.git/index", "${1}<path>")
+	if !strings.Contains(note, "feature/index-rework") || strings.Contains(note, "/abs/root") {
+		t.Fatalf("the report note: %q", note)
 	}
 }

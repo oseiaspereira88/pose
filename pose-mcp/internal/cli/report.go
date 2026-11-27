@@ -312,12 +312,18 @@ func reportChangedFilesNoted(root, since string, locale cliLocale) ([]string, er
 	}
 	// One line, bounded, without the checkout's absolute path, since the
 	// report is versioned (review round 3, N22).
-	note := strings.ReplaceAll(strings.ReplaceAll(err.Error(), "\n", " "), root, "<root>")
+	// Every absolute path, not only the root: the index may lie outside it
+	// (review round 4, N26).
+	note := reportAbsolutePathRE.ReplaceAllString(strings.ReplaceAll(err.Error(), "\n", " "), "${1}<path>")
 	if len(note) > 600 {
 		note = note[:600] + "…"
 	}
 	return []string{cliText(locale, "_The changed files could not be listed: ", "_Os arquivos alterados não puderam ser listados: ") + note + "_"}, err
 }
+
+// reportAbsolutePathRE matches an absolute path in a message: a Unix path or
+// a Windows drive or UNC path.
+var reportAbsolutePathRE = regexp.MustCompile(`(^|[\s'"(=])((?:[A-Za-z]:[\\/]|\\\\|/)[^\s'"():;,]+)`)
 
 func reportChangedFiles(root, since string) ([]string, error) {
 	args := []string{"-C", root}
