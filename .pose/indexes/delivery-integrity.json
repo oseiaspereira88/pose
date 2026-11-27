@@ -1,7 +1,7 @@
 {
   "schema_version": 2,
-  "input_digest": "sha256:b00a10a5e3c13fd60f00b94f04bcf447fccd836b71224fe8c85db2f8b46ffdcb",
-  "provenance_digest": "sha256:7e9b78c7d5ccd68a1b9086b9437a20a296c0c65ae949e66ba1b161b084c604ab",
+  "input_digest": "sha256:b68c5742187142da62347273e0672b5c0dc2a78f6d012ad00cb3ae898b79a379",
+  "provenance_digest": "sha256:9f277607bbfd8500cf987252c803536e85ef640556afea7f842fb6cdcbc783dc",
   "implied_edges": [
     "changes"
   ],
@@ -48681,14 +48681,6 @@
       }
     },
     {
-      "id": "change-set:cs-5e1a5cc7cf65",
-      "type": "change-set",
-      "attributes": {
-        "diff_digest": "sha256:2e399a5d0b13f7a8d3677970a8f1f8f44387be23608817042aced4ae1f7976be",
-        "selector": "trailers:pose-review-resume-runtime-dir-followups"
-      }
-    },
-    {
       "id": "change-set:cs-5edd71de4dea",
       "type": "change-set",
       "attributes": {
@@ -48758,6 +48750,14 @@
       "attributes": {
         "diff_digest": "sha256:99b2044aff72bb289bbce719b0a7ada6e8735fb9bf477ed8f34d499bb30cf2e9",
         "selector": "trailers:pose-federated-source-proof-is-computed-once-per-operation"
+      }
+    },
+    {
+      "id": "change-set:cs-61fd6f212ee8",
+      "type": "change-set",
+      "attributes": {
+        "diff_digest": "sha256:5347c0d44679d05df7a70650a8118c1d832a75fde6ce3c9a7bc6a0e9476e6c9e",
+        "selector": "trailers:pose-review-resume-runtime-dir-followups"
       }
     },
     {
@@ -80440,6 +80440,11 @@
       "type": "implemented-by"
     },
     {
+      "from": "artifact:pose-mcp/internal/cli/delegate_rounds_test.go",
+      "to": "delivery:capability:review-resume-runtime-dir-followups",
+      "type": "implemented-by"
+    },
+    {
       "from": "artifact:pose-mcp/internal/cli/delegate_routing_test.go",
       "to": "delivery:capability:delegation-routing",
       "type": "implemented-by"
@@ -94035,6 +94040,11 @@
       "type": "implemented-by"
     },
     {
+      "from": "artifact:pose-mcp/internal/pose/review_rounds.go",
+      "to": "delivery:capability:review-resume-runtime-dir-followups",
+      "type": "implemented-by"
+    },
+    {
       "from": "artifact:pose-mcp/internal/pose/review_rounds_test.go",
       "to": "delivery:capability:delegated-review-rounds",
       "type": "implemented-by"
@@ -101055,11 +101065,6 @@
       "type": "composes"
     },
     {
-      "from": "delivery:capability:review-dispatch-materializes-sealed-gitlinks",
-      "to": "validation-set:cf62b73b2f38838b",
-      "type": "validated-by"
-    },
-    {
       "from": "delivery:capability:review-guard-reads-the-integrity-graph-in-place",
       "to": "entrypoint:pose-mcp/cmd/pose/main.go",
       "type": "composes"
@@ -101113,11 +101118,6 @@
       "from": "delivery:capability:review-resume-runtime-dir-followups",
       "to": "entrypoint:pose-mcp/internal/cli/delegate.go",
       "type": "composes"
-    },
-    {
-      "from": "delivery:capability:review-resume-runtime-dir-followups",
-      "to": "validation-set:cf62b73b2f38838b",
-      "type": "validated-by"
     },
     {
       "from": "delivery:capability:review-run-reaps-lingering-reviewer-processes",
@@ -136226,6 +136226,11 @@
     },
     {
       "from": "spec:pose-review-resume-runtime-dir-followups",
+      "to": "artifact:pose-mcp/internal/cli/delegate_rounds_test.go",
+      "type": "declares"
+    },
+    {
+      "from": "spec:pose-review-resume-runtime-dir-followups",
       "to": "artifact:pose-mcp/internal/cli/review_run_continuity_test.go",
       "type": "declares"
     },
@@ -136237,6 +136242,11 @@
     {
       "from": "spec:pose-review-resume-runtime-dir-followups",
       "to": "artifact:pose-mcp/internal/pose/review_dispatch.go",
+      "type": "declares"
+    },
+    {
+      "from": "spec:pose-review-resume-runtime-dir-followups",
+      "to": "artifact:pose-mcp/internal/pose/review_rounds.go",
       "type": "declares"
     },
     {
@@ -136256,7 +136266,7 @@
     },
     {
       "from": "spec:pose-review-resume-runtime-dir-followups",
-      "to": "change-set:cs-5e1a5cc7cf65",
+      "to": "change-set:cs-61fd6f212ee8",
       "type": "observed-by"
     },
     {
@@ -173729,6 +173739,11 @@
     {
       "spec": "pose-review-resume-runtime-dir-followups",
       "action": "modified",
+      "path": "pose-mcp/internal/cli/delegate_rounds_test.go"
+    },
+    {
+      "spec": "pose-review-resume-runtime-dir-followups",
+      "action": "modified",
       "path": "pose-mcp/internal/cli/review_run_continuity_test.go"
     },
     {
@@ -173740,6 +173755,11 @@
       "spec": "pose-review-resume-runtime-dir-followups",
       "action": "modified",
       "path": "pose-mcp/internal/pose/review_dispatch.go"
+    },
+    {
+      "spec": "pose-review-resume-runtime-dir-followups",
+      "action": "modified",
+      "path": "pose-mcp/internal/pose/review_rounds.go"
     },
     {
       "spec": "pose-review-resume-runtime-dir-followups",
@@ -181304,7 +181324,7 @@
         }
       ],
       "diff_digest": "sha256:60df3069a33822eb6f04b25c7efe7ffa179b66f0222f8c9055b98e66045f3884",
-      "material_digest": "sha256:760d4aa1a459cf3f4d44f2daa6e0fdff00a26c8d77a83cdbc1924bc96f6c9b14",
+      "material_digest": "sha256:99d304bfba559e47f41c189ef1f1ffc877f6a07c9f2faee27cd371a3da66e9f9",
       "material_inputs": {
         "names": [
           ".pose/adr/2026-10-18-git-state-that-cannot-be-read-is-unknown-and-a-worktree-is-judged-by-its-content.md",
@@ -183387,7 +183407,7 @@
         }
       ],
       "diff_digest": "sha256:53aad92ad458e0d39af87b695b3ac42dba6c00e338703528f34324c600ff5581",
-      "material_digest": "sha256:3a6381f45e14096ef65c2658afbd8ad21b10f96bbdc1917840735b2d4e1623f1",
+      "material_digest": "sha256:ade53068c10a7bd2f932cf57ac8826e6c215af87f2c2a210c755f7c8043e83ad",
       "material_inputs": {
         "names": [
           ".pose/adr/2026-10-22-update-preview-records-the-shared-execution-in-an-operation-scoped-view.md",
@@ -183703,7 +183723,7 @@
         }
       ],
       "diff_digest": "sha256:eb7b2ae52f2eb7d260b50b4b05690e9b6c90ffffb8b1042ac9b8f3c1662909cf",
-      "material_digest": "sha256:cb95f1f059828d83b86290636203b5e567944a7087648de297c6ce549ff94e47",
+      "material_digest": "sha256:21622077b9417daa89eda610bce785acf12a39da22705fb8f47886dc7d1bc66e",
       "material_inputs": {
         "names": [
           ".pose/adr/2026-11-20-materialize-review-gitlinks-from-the-sealed-local-origin.md",
@@ -189945,7 +189965,7 @@
         }
       ],
       "diff_digest": "sha256:0b4a836c94759f10badc51e7592c3a26f7f7ca89847fc62090ce034e36d9b747",
-      "material_digest": "sha256:2947121e079882a9dcd923c586e2ac772f53f62ef6139a86e0946ddfe0640c5b",
+      "material_digest": "sha256:d77c386b6dbb8d8825b461df4ac509d1b3d74323edac2b4660b64b92d43466f8",
       "material_inputs": {
         "names": [
           ".pose/indexes/delivery-integrity.json",
@@ -191435,7 +191455,7 @@
         }
       ],
       "diff_digest": "sha256:2e7891cfe232139875db9fc74fc68ea43e522f1885e878eb7deb3fca358cad6e",
-      "material_digest": "sha256:f90e655667eef497f80515000b806ca0ebfb8f9822eaba129142a8534d530075",
+      "material_digest": "sha256:465da9e2dbfbb7f9bb7f7512e1b9e9c8b997cbc17e95fca68b18a537bf7c655e",
       "material_inputs": {
         "names": [
           ".pose/assessments/README.md",
@@ -192755,7 +192775,7 @@
         }
       ],
       "diff_digest": "sha256:42cf16c6d43ac460f2810192005eb1ad21b9be3202b0702613343041a2cac1da",
-      "material_digest": "sha256:e01b71546b1c168126d3cef9bc7384eb20ddb0031353552fe788bebe90e1dad6",
+      "material_digest": "sha256:c8a60f02230d13f2ad31fc59e8cb6bc446ec2380339b56c56a4e299e875de08f",
       "material_inputs": {
         "names": [
           ".pose/assessments/README.md",
@@ -193282,7 +193302,7 @@
         }
       ],
       "diff_digest": "sha256:88d16037057ae68124a66f7d1020fa04c3c2736b625311660f93d74b4f218d1b",
-      "material_digest": "sha256:1a936359c6f0a3de64d82bc4a0875bc009499e528fbb46b920c727bade90e072",
+      "material_digest": "sha256:4abee0c876759b8466ce47862eb6cb3b3967fbcc1b2f6552163de3076ff7ae54",
       "material_inputs": {
         "names": [
           ".pose/adr/2026-10-26-delegation-is-a-first-class-execution-surface.md",
@@ -193485,7 +193505,7 @@
         }
       ],
       "diff_digest": "sha256:24cfb1e1f89849bf12ba363336c981749aaa94498360c9601712acd9ec56780f",
-      "material_digest": "sha256:c55979ec050263af4deb02979e22d715a364c05ebd7fc654822e24927e7a837d",
+      "material_digest": "sha256:2257253573c851c747421975cb15735e73c7ba4e1942dd19e3d54a5ee6e9cbad",
       "material_inputs": {
         "names": [
           ".pose/changelogs/unreleased/pose-delegated-verdict-destinations.md",
@@ -203115,7 +203135,7 @@
         }
       ],
       "diff_digest": "sha256:76c575b963b162f5e84a27b3a0de7d619043ac44c86db22aa8ebb865f3328577",
-      "material_digest": "sha256:af09a12d362b6a7086da21fffc50be1280ee1844758b87c2e64b6d310f41912e",
+      "material_digest": "sha256:59820b366a098a0f67d3b53a76c2b719060b4e33361da6e3a99d1daf398b6cf3",
       "material_inputs": {
         "names": [
           ".pose/adr/2026-11-07-validation-evidence-binds-to-validated-material.md",
@@ -203564,7 +203584,7 @@
         }
       ],
       "diff_digest": "sha256:3e3f269ee04da0e00e873528f4ac60b003353972cd64a26568334bca49ea76fc",
-      "material_digest": "sha256:e6ac5047bf78deac82d9672b7b1f461bfd0cb016f8f6e007c83f5ecaea128427",
+      "material_digest": "sha256:add84ed6e0e48453d0578c11599f008892941c6589f40dc1475219a3a34d7926",
       "material_inputs": {
         "names": [
           ".pose/adr/2026-11-12-sandboxed-claude-review-commands.md",
@@ -208400,7 +208420,7 @@
         }
       ],
       "diff_digest": "sha256:76fc121a2d71ed5871c58bde1dc5dc9b83c81030c81df05d61f539aa3086fa09",
-      "material_digest": "sha256:8bdfe8c7c8b4237bc8de862f3351f502fbadaa471e5e9f7b9231e05ec76a593a",
+      "material_digest": "sha256:9693fde5d61c1c19bded82e9c464be814db7e9cf73e49215c09714ca645f9108",
       "material_inputs": {
         "names": [
           ".pose/adr/2026-11-03-governance-reads-use-bounded-operation-scoped-views.md",
@@ -212134,7 +212154,7 @@
         }
       ],
       "diff_digest": "sha256:3268948233da6e2fc4495fd07bbef68c776381dbb8db784c28b191a57ede856a",
-      "material_digest": "sha256:d56789e3bc6b38d48d8b4ff7ec4deac403f4783ae63f9593dbe8b987c25b31bd",
+      "material_digest": "sha256:d35c4ea364a330507598b2f25cade0c5c45dbc353c62bc83324531e954214831",
       "material_inputs": {
         "names": [
           ".gitleaksignore",
@@ -215659,7 +215679,7 @@
         }
       ],
       "diff_digest": "sha256:5bc9023cbbb9dc75828e33b02102ba1de685cffcf01ea4e88b3fb896e9ec5799",
-      "material_digest": "sha256:8adc3eea8cc46ff21ce77584a77cdb3fdce30058d178f42a2e93fbf46fd0fbed",
+      "material_digest": "sha256:e8bdc3ea6133dd83223250f193a0489796a4df133e5d79ab0733c50e37cc338d",
       "material_inputs": {
         "names": [
           ".pose/changelogs/unreleased/pose-delegation-surface.md",
@@ -219513,7 +219533,7 @@
         }
       ],
       "diff_digest": "sha256:d8dc7e6dc85b13c59e858650fba09858bdca40488bb0ed67bb4d013cb0b9c217",
-      "material_digest": "sha256:18d7ea9565319d8b3a9e09706f89583c061166596b5ec55339895f68f1706770",
+      "material_digest": "sha256:2d6504ba56d649b2ea616683d5d9b6dcabfd06f8d6406c235390de0935b996ef",
       "material_inputs": {
         "names": [
           ".pose/changelogs/unreleased/pose-delegation-handoff.md",
@@ -219881,7 +219901,7 @@
         }
       ],
       "diff_digest": "sha256:c058681364d93e68c9474d5ce4150c108e9e69b13cb822168f8340ecb8737ddc",
-      "material_digest": "sha256:0b3dda32bb47ae3f8516778d4f602dc3490d0f684df55337734f19f23b846d8d",
+      "material_digest": "sha256:ff37d000ea28ad86a7c9fb80bdcb00e0a51fecce980b80b47de8cef5c3f5c960",
       "material_inputs": {
         "names": [
           ".pose/assessments/README.md",
@@ -220394,7 +220414,7 @@
         }
       ],
       "diff_digest": "sha256:5750d18918a105e10427a2c0fa0ecd565ffd4e3ad0dacc7a4d0ee51ad8dc2747",
-      "material_digest": "sha256:08f7c93f2bf2a5216ac3acc85cd0d2a89d412991bcd22d9bfb79b5e27ab4ada1",
+      "material_digest": "sha256:786de8ac282babea61fd03fd9863f996bf80932e22ff0df1f1f751b405f41133",
       "material_inputs": {
         "names": [
           ".pose/adr/2026-11-23-review-readiness-before-seal.md",
@@ -223486,7 +223506,7 @@
         }
       ],
       "diff_digest": "sha256:282032f23922bc46938e8fef05a9342a4a9856936d5bb28e243d2e4ae5b95941",
-      "material_digest": "sha256:f9349b650e1a0f1d54deb3335fbc07fd3c42f770b09e42574226a7d4520eee7d",
+      "material_digest": "sha256:f0b771cfd1897c8c0520e2e7c037cc80342dd1935eb8df14fd6045d73037bcec",
       "material_inputs": {
         "names": [
           ".pose/adr/2026-10-25-bind-delegated-review-authority-to-native-signed-run-proofs.md",
@@ -225153,7 +225173,7 @@
         }
       ],
       "diff_digest": "sha256:00f00471bc10e756aed6f269ffb036a947f4cf6f68d6d7260aa143f261a30cd4",
-      "material_digest": "sha256:663ddf63c54bd398aff42055fc735a5f6abdb3fb64a6181095ad369ba495d77b",
+      "material_digest": "sha256:19e2eab4c1e574c6d4a8f8a1eb13a6af73ba34be684b7c1b9da030527581d7e4",
       "material_inputs": {
         "names": [
           ".pose/indexes/delivery-integrity.json",
@@ -225426,7 +225446,7 @@
         }
       ],
       "diff_digest": "sha256:effa3a7d26b609e0e3432434a22ccc0a8b3230002300250ebb5847a0ecbc1521",
-      "material_digest": "sha256:effcf3597461ffd62180710572f024e6361e2e839e79587af8d7d88b75760507",
+      "material_digest": "sha256:289befaccf66478068298fbba2f6ac078cdb6923a40842c8a5e9486bd893ad63",
       "material_inputs": {
         "names": [
           ".pose/changelogs/unreleased/pose-sealed-checkout-does-not-require-later-child-evidence.md",
@@ -226073,7 +226093,7 @@
         }
       ],
       "diff_digest": "sha256:7effe6db65f59b1a9e6f33e18b4056f7d75f9a5d26e6727044d753531782e544",
-      "material_digest": "sha256:32c8a6bed04a7a699c7a2b55adeed42ca75e80a32dc70ec2290c920a0fabcc38",
+      "material_digest": "sha256:ee5d6c4964a95125752ac251347f031d8abdf42414b22cda864b2184e851095f",
       "material_inputs": {
         "names": [
           ".pose/adr/2026-10-25-bind-delegated-review-authority-to-native-signed-run-proofs.md",
@@ -233354,88 +233374,6 @@
       }
     },
     {
-      "id": "cs-5e1a5cc7cf65",
-      "spec": "pose-review-resume-runtime-dir-followups",
-      "selector": "trailers:pose-review-resume-runtime-dir-followups",
-      "base": "4d556ffdbc0b533f0c9b89b9f08ead40ec31f25c^",
-      "head": "94e4ac80cdfb78ebb09cbe863d71c7f9953dc1ea",
-      "resolved_base": "b0b3431e33d2754f8e6242e6d3e49052f4e6fb83",
-      "resolved_head": "94e4ac80cdfb78ebb09cbe863d71c7f9953dc1ea",
-      "commits": [
-        "4d556ffdbc0b533f0c9b89b9f08ead40ec31f25c",
-        "0b786b14ae35ea41f3ebfa7f7c86fea7d83109d1",
-        "d5e8a5f6132b8087a730088acca7f5cd589e03cc",
-        "f30e392f69b4936ab756832caa8dc8ee915c48c5",
-        "14ce49ff08a9fd682ebff94c4725003c2e01e89b",
-        "abefd57ca3f71deca5235ef631c4544cfefff970",
-        "94e4ac80cdfb78ebb09cbe863d71c7f9953dc1ea"
-      ],
-      "paths": [
-        {
-          "action": "created",
-          "path": ".pose/results/rfix-binding.md"
-        },
-        {
-          "action": "created",
-          "path": ".pose/specs/2026-11-26-pose-review-resume-runtime-dir-followups.md"
-        },
-        {
-          "action": "modified",
-          "path": ".pose/indexes/delivery-integrity.json"
-        },
-        {
-          "action": "modified",
-          "path": ".pose/indexes/generation.json"
-        },
-        {
-          "action": "modified",
-          "path": ".pose/indexes/spec-graph.json"
-        },
-        {
-          "action": "modified",
-          "path": ".pose/results/delivery-validation.json"
-        },
-        {
-          "action": "modified",
-          "path": "pose-mcp/internal/cli/review_run_continuity_test.go"
-        },
-        {
-          "action": "modified",
-          "path": "pose-mcp/internal/pose/delegation_handoff.go"
-        },
-        {
-          "action": "modified",
-          "path": "pose-mcp/internal/pose/review_dispatch.go"
-        },
-        {
-          "action": "modified",
-          "path": "pose-mcp/internal/pose/review_run_continuity.go"
-        },
-        {
-          "action": "modified",
-          "path": "pose-mcp/internal/pose/review_run_runtime_dir_test.go"
-        }
-      ],
-      "diff_digest": "sha256:2e399a5d0b13f7a8d3677970a8f1f8f44387be23608817042aced4ae1f7976be",
-      "material_digest": "sha256:73fe7ff92fcd2e7f9f02ccd6044f1cf1d05fdc141e50bb3e82f4ccb7aa287909",
-      "material_inputs": {
-        "names": [
-          ".pose/indexes/delivery-integrity.json",
-          ".pose/indexes/generation.json",
-          ".pose/indexes/spec-graph.json",
-          ".pose/indexes/validation-matrix.json",
-          ".pose/results/delivery-validation.json",
-          ".pose/results/rfix-binding.md",
-          ".pose/specs/2026-11-26-pose-review-resume-runtime-dir-followups.md",
-          "pose-mcp/internal/cli/review_run_continuity_test.go",
-          "pose-mcp/internal/pose/delegation_handoff.go",
-          "pose-mcp/internal/pose/review_dispatch.go",
-          "pose-mcp/internal/pose/review_run_continuity.go",
-          "pose-mcp/internal/pose/review_run_runtime_dir_test.go"
-        ]
-      }
-    },
-    {
       "id": "cs-5edd71de4dea",
       "spec": "pose-sbom-negative-coverage",
       "selector": "trailers:pose-sbom-negative-coverage",
@@ -233719,7 +233657,7 @@
         }
       ],
       "diff_digest": "sha256:de235b903c528008dfaeb41a26f7d4ef8da951ae0d058811e63eaae69573587d",
-      "material_digest": "sha256:d70a2c036bc270b3a5358770a0129c74e81a044bb9b8321767b506a7e42ccba2",
+      "material_digest": "sha256:d5f2fc8e53d110a8f18e6aaa783c5a2a18db859f56fb7a603edcee9025f7f98a",
       "material_inputs": {
         "names": [
           ".pose/adr/2026-10-25-bound-trusted-reviewer-execution-and-disclose-unavailable-isolation.md",
@@ -235589,6 +235527,100 @@
           ".pose/state/project-state.md",
           "pose-mcp/internal/pose/federated_acceptance.go",
           "pose-mcp/internal/pose/federated_source_proof_memo_test.go"
+        ]
+      }
+    },
+    {
+      "id": "cs-61fd6f212ee8",
+      "spec": "pose-review-resume-runtime-dir-followups",
+      "selector": "trailers:pose-review-resume-runtime-dir-followups",
+      "base": "4d556ffdbc0b533f0c9b89b9f08ead40ec31f25c^",
+      "head": "bc6da5c9e9e21b880da058bf59315251fb55099a",
+      "resolved_base": "b0b3431e33d2754f8e6242e6d3e49052f4e6fb83",
+      "resolved_head": "bc6da5c9e9e21b880da058bf59315251fb55099a",
+      "commits": [
+        "4d556ffdbc0b533f0c9b89b9f08ead40ec31f25c",
+        "0b786b14ae35ea41f3ebfa7f7c86fea7d83109d1",
+        "d5e8a5f6132b8087a730088acca7f5cd589e03cc",
+        "f30e392f69b4936ab756832caa8dc8ee915c48c5",
+        "14ce49ff08a9fd682ebff94c4725003c2e01e89b",
+        "abefd57ca3f71deca5235ef631c4544cfefff970",
+        "94e4ac80cdfb78ebb09cbe863d71c7f9953dc1ea",
+        "117245863601f5eb3e5dc6c3e974cc4d5579c900",
+        "bc6da5c9e9e21b880da058bf59315251fb55099a"
+      ],
+      "paths": [
+        {
+          "action": "created",
+          "path": ".pose/results/rfix-binding.md"
+        },
+        {
+          "action": "created",
+          "path": ".pose/specs/2026-11-26-pose-review-resume-runtime-dir-followups.md"
+        },
+        {
+          "action": "modified",
+          "path": ".pose/indexes/delivery-integrity.json"
+        },
+        {
+          "action": "modified",
+          "path": ".pose/indexes/generation.json"
+        },
+        {
+          "action": "modified",
+          "path": ".pose/indexes/spec-graph.json"
+        },
+        {
+          "action": "modified",
+          "path": ".pose/results/delivery-validation.json"
+        },
+        {
+          "action": "modified",
+          "path": "pose-mcp/internal/cli/delegate_rounds_test.go"
+        },
+        {
+          "action": "modified",
+          "path": "pose-mcp/internal/cli/review_run_continuity_test.go"
+        },
+        {
+          "action": "modified",
+          "path": "pose-mcp/internal/pose/delegation_handoff.go"
+        },
+        {
+          "action": "modified",
+          "path": "pose-mcp/internal/pose/review_dispatch.go"
+        },
+        {
+          "action": "modified",
+          "path": "pose-mcp/internal/pose/review_rounds.go"
+        },
+        {
+          "action": "modified",
+          "path": "pose-mcp/internal/pose/review_run_continuity.go"
+        },
+        {
+          "action": "modified",
+          "path": "pose-mcp/internal/pose/review_run_runtime_dir_test.go"
+        }
+      ],
+      "diff_digest": "sha256:5347c0d44679d05df7a70650a8118c1d832a75fde6ce3c9a7bc6a0e9476e6c9e",
+      "material_digest": "sha256:c89f98c271270156d61edfe52dcdbf976521f87f789915ef8b9b1d2ebcd4989c",
+      "material_inputs": {
+        "names": [
+          ".pose/indexes/delivery-integrity.json",
+          ".pose/indexes/generation.json",
+          ".pose/indexes/spec-graph.json",
+          ".pose/indexes/validation-matrix.json",
+          ".pose/results/delivery-validation.json",
+          ".pose/results/rfix-binding.md",
+          ".pose/specs/2026-11-26-pose-review-resume-runtime-dir-followups.md",
+          "pose-mcp/internal/cli/delegate_rounds_test.go",
+          "pose-mcp/internal/cli/review_run_continuity_test.go",
+          "pose-mcp/internal/pose/delegation_handoff.go",
+          "pose-mcp/internal/pose/review_dispatch.go",
+          "pose-mcp/internal/pose/review_rounds.go",
+          "pose-mcp/internal/pose/review_run_continuity.go",
+          "pose-mcp/internal/pose/review_run_runtime_dir_test.go"
         ]
       }
     },
@@ -238093,7 +238125,7 @@
         }
       ],
       "diff_digest": "sha256:7109ac3294db73a466a732b391769a19a46a6e851a5bf3eac3d245cfddfea62a",
-      "material_digest": "sha256:2861c977e25089dbaaac72110414b022f5f0c893ed299531d8fd91616af42cf8",
+      "material_digest": "sha256:6019134050453232c92bde879f82ea308ec3e05e92fcc7f2181521dcbe9145cc",
       "material_inputs": {
         "names": [
           ".pose/assessments/README.md",
@@ -246557,7 +246589,7 @@
         }
       ],
       "diff_digest": "sha256:bb0a2aba0e9c4b4a658f194066cecdfe741f74fa369881b9250ec9b22cf151c4",
-      "material_digest": "sha256:d49ef1cd6986a297b2ddc68e6d0502e2a107999b48e3cc0b3cf75d8c3cdc111b",
+      "material_digest": "sha256:deb3aaeb27b332a85098d76d097c823be6c3ca79ff5c3ceb4cabd9bdeecee136",
       "material_inputs": {
         "names": [
           ".pose/assessments/README.md",
@@ -246870,7 +246902,7 @@
         }
       ],
       "diff_digest": "sha256:9b26c1e3dbcf738aedccd7e9ddabea8f005453ca42c0d69a9e326132e9f17b29",
-      "material_digest": "sha256:ba63c07f1766f41d8d974f0069e9717f818b7ffb5323ff510c426a12e1e44fef",
+      "material_digest": "sha256:e0d396293816d9600aef5e564c1b7caa08af384aa167891671b14e114368212a",
       "material_inputs": {
         "names": [
           ".pose/indexes/delivery-integrity.json",
@@ -249645,7 +249677,7 @@
         }
       ],
       "diff_digest": "sha256:903c0be8a6ce5179a1c7143012ed9fb7859eee4219cf144366e45b9f7e5020fe",
-      "material_digest": "sha256:ebffc746c1471963b3f3c962e2edacc24fc7f4246cd21459db79d8593e4f1975",
+      "material_digest": "sha256:9d9b4e363f9b49f199c623d51178b35bcd8f88cafea5e85a33bdbdcb0849e6ac",
       "material_inputs": {
         "names": [
           ".pose/adr/2026-10-25-continue-delegated-runs-under-one-immutable-attempt.md",
@@ -250104,7 +250136,7 @@
         }
       ],
       "diff_digest": "sha256:3bb1efd26e36b4dea24f7d66b6f13f19446e6ac85e33dae7fa48b349e31a7a95",
-      "material_digest": "sha256:74d5ec64a4120ebe798ae184d43377872de56e81996bc802ee69a80075441e40",
+      "material_digest": "sha256:f6d7e14542039191ad9fc725283bc69b4c8ea2ef641c9fada8e5af1a0b5f309a",
       "material_inputs": {
         "names": [
           ".pose/adr/2026-10-25-reserve-delegated-attempts-before-launch-and-witness-immutable-runs.md",
@@ -254488,7 +254520,7 @@
         }
       ],
       "diff_digest": "sha256:b3ad9440e15da1a4d19a24101437a9dec8fd31952346620309d51f290ff66c1c",
-      "material_digest": "sha256:7cc56627c2d4e878af772e2281f21c6b81ac43f0cfbc38b7b9c6271c6875fcba",
+      "material_digest": "sha256:599e4c781c5bfc3804d1d42748c25650d074ecae55060d1afe48671f41788700",
       "material_inputs": {
         "names": [
           ".pose/changelogs/unreleased/pose-delegation-mcp.md",
@@ -264059,7 +264091,7 @@
         }
       ],
       "diff_digest": "sha256:4f94bf3e8bfde9b0d9604618a62d82dd7a47b2b4f8d272c187f535e4956175ea",
-      "material_digest": "sha256:033ac9ee40fd17438e9c3f42b96f1ee2e3c1de64e6d56307afd8430bbae921d2",
+      "material_digest": "sha256:799e010685a5a4452079efadb79304a7a084adee81147f3ee52d43f1401786a4",
       "material_inputs": {
         "names": [
           ".pose/adr/2026-10-25-bind-delegated-review-authority-to-native-signed-run-proofs.md",
@@ -280201,7 +280233,7 @@
         }
       ],
       "diff_digest": "sha256:753d0fde7dd0f569c3a2001e873302e4069db2ec3142a1b30fb0eb96dc10ea0b",
-      "material_digest": "sha256:3cc5aec21e385fc54e3c6774978c5e4ef9a5cae441f97d681a361a8cf5546ed1",
+      "material_digest": "sha256:fecafd682a021abef1cca56a3be259ef11fcec42c29c1a427b9b5091ca120542",
       "material_inputs": {
         "names": [
           ".pose/assessments/integrations.md",
@@ -285205,7 +285237,7 @@
         }
       ],
       "diff_digest": "sha256:daf12e251f07d7c8c474fd51b370c71efc95222eb474f5c638ff7b7530c89aba",
-      "material_digest": "sha256:6f81235089f148291a4adfbd7dbb89e1ce8ec78c66833c28ccc6c80a4af75ba8",
+      "material_digest": "sha256:dba4e1f4c3ddc91669607b96cebd93eccce5d03352daceacfbc91bc805d3809c",
       "material_inputs": {
         "names": [
           ".pose/adr/2026-11-03-governance-reads-use-bounded-operation-scoped-views.md",
@@ -286418,7 +286450,7 @@
         }
       ],
       "diff_digest": "sha256:5df3c7cf87a13cdc6a8c558e6d10b46a014868fb1351f43988fc0f87abac9604",
-      "material_digest": "sha256:95b729b57d037433da4feeb4d711126333e81cb95190664e59496c2f2abe4442",
+      "material_digest": "sha256:6cbf684323e2847ec7b66011a7183c0c81af8bd088d3ec283e7f14bae195c2c1",
       "material_inputs": {
         "names": [
           ".pose/changelogs/unreleased/pose-delegation-task.md",
@@ -290783,7 +290815,7 @@
         }
       ],
       "diff_digest": "sha256:7e2ea08b6f25c2f6f3b250823fad8f139b004f5ab98924e431af06a936c49581",
-      "material_digest": "sha256:90f4c7468bc36f524666854d8720faed18818ec3a793d04796aba3217a1baedc",
+      "material_digest": "sha256:8491832972e215fa72df7bcad915e7fee19d91dbc9dd7d127eb323b15857a749",
       "material_inputs": {
         "names": [
           ".pose/indexes/validation-matrix.json",
@@ -292497,7 +292529,7 @@
         }
       ],
       "diff_digest": "sha256:fdd48ba9603b4f38f89320be803897362cb9989555f733e60c55066dc698e81c",
-      "material_digest": "sha256:8316e73bfd26c3e8ec978631c064c7514a1614455a1f41c8822ff8e1b145ed52",
+      "material_digest": "sha256:f7b8a6bd856c85b4276bb2f14d000880176d0146b0f49316129c1811d596894d",
       "material_inputs": {
         "names": [
           ".pose/assessments/README.md",
@@ -304670,7 +304702,7 @@
         }
       ],
       "diff_digest": "sha256:28f6e8c425e4db462ffeb923faf92216dfb59e848e648a1a4e9c1fced4425afe",
-      "material_digest": "sha256:be1ac74d96cc5a03292771cb2c75b3f22d7a6cb20d09040c6e8afde006088273",
+      "material_digest": "sha256:194d81f2ae84bb70c387668039f1363cc4d920a83252888a0264b79bbc18b48b",
       "material_inputs": {
         "names": [
           ".gitleaksignore",
@@ -313023,7 +313055,8 @@
       "pose-claude-sandboxed-profile"
     ],
     "pose-mcp/internal/cli/delegate_rounds_test.go": [
-      "pose-delegated-review-round-protocol"
+      "pose-delegated-review-round-protocol",
+      "pose-review-resume-runtime-dir-followups"
     ],
     "pose-mcp/internal/cli/delegate_routing_test.go": [
       "pose-delegation-parity-gate",
@@ -316887,7 +316920,8 @@
       "pose-delegated-review-expired-session",
       "pose-delegated-review-round-protocol",
       "pose-delegated-verdict-destinations",
-      "pose-review-declared-threat-model"
+      "pose-review-declared-threat-model",
+      "pose-review-resume-runtime-dir-followups"
     ],
     "pose-mcp/internal/pose/review_rounds_test.go": [
       "pose-delegated-review-round-protocol"
@@ -319721,6 +319755,15 @@
       "remediation": "no Git change sets are attributed to spec pose-followup-metadata-and-routing-integrity (ensure commits carry 'POSE-Spec: pose-followup-metadata-and-routing-integrity' trailer or generate report with pose report)"
     },
     {
+      "id": "dif-5afb2e78826e",
+      "code": "unconsumed-capability",
+      "severity": "error",
+      "spec": "pose-review-resume-runtime-dir-followups",
+      "path": "capability:review-resume-runtime-dir-followups",
+      "message": "required current evidence is missing: integration",
+      "remediation": "run registered checks with the required evidenceClass against the current provenance digest"
+    },
+    {
       "id": "dif-5b41158e1a4f",
       "code": "orphan",
       "severity": "warning",
@@ -320021,6 +320064,16 @@
       "change_set": "cs-a3a7991407a9",
       "message": "changed delivery root pose-mcp/internal/cli has no delivery declaration",
       "remediation": "declare a typed delivery target or narrow the attributed change set"
+    },
+    {
+      "id": "dif-6aa1b841f479",
+      "code": "stale-evidence",
+      "severity": "error",
+      "spec": "pose-review-dispatch-materializes-sealed-gitlinks",
+      "path": "capability:review-dispatch-materializes-sealed-gitlinks",
+      "change_set": "pose-mcp/go/abm-atomic-start-integration",
+      "message": "passed integration evidence is bound to a different scoped provenance digest",
+      "remediation": "rerun the registered validation check for this delivery scope"
     },
     {
       "id": "dif-6b13d68bb06c",
@@ -322249,6 +322302,15 @@
       "remediation": "no Git change sets are attributed to spec pose-residual-material-coverage-and-identity (ensure commits carry 'POSE-Spec: pose-residual-material-coverage-and-identity' trailer or generate report with pose report)"
     },
     {
+      "id": "dif-e9e7649f5e12",
+      "code": "unconsumed-capability",
+      "severity": "error",
+      "spec": "pose-review-dispatch-materializes-sealed-gitlinks",
+      "path": "capability:review-dispatch-materializes-sealed-gitlinks",
+      "message": "required current evidence is missing: integration",
+      "remediation": "run registered checks with the required evidenceClass against the current provenance digest"
+    },
+    {
       "id": "dif-ea6728f4c0ef",
       "code": "orphan",
       "severity": "warning",
@@ -322282,6 +322344,16 @@
       "change_set": "cs-2318207a061e",
       "message": "changed delivery root pose-mcp/internal/cli has no delivery declaration",
       "remediation": "declare a typed delivery target or narrow the attributed change set"
+    },
+    {
+      "id": "dif-eb5a8a5c498d",
+      "code": "stale-evidence",
+      "severity": "error",
+      "spec": "pose-review-resume-runtime-dir-followups",
+      "path": "capability:review-resume-runtime-dir-followups",
+      "change_set": "pose-mcp/go/abm-atomic-start-integration",
+      "message": "passed integration evidence is bound to a different scoped provenance digest",
+      "remediation": "rerun the registered validation check for this delivery scope"
     },
     {
       "id": "dif-ebefafeb565d",
@@ -335072,8 +335144,7 @@
       "artifact:pose-mcp/internal/pose/review_adapter_containment.go",
       "artifact:pose-mcp/internal/pose/review_dispatch.go",
       "delivery:capability:review-dispatch-materializes-sealed-gitlinks",
-      "entrypoint:pose-mcp/cmd/pose/main.go",
-      "validation-set:cf62b73b2f38838b"
+      "entrypoint:pose-mcp/cmd/pose/main.go"
     ],
     "capability:review-guard-reads-the-integrity-graph-in-place": [
       "spec:pose-review-guard-reads-the-integrity-graph-in-place",
@@ -335159,14 +335230,15 @@
     "capability:review-resume-runtime-dir-followups": [
       "spec:pose-review-resume-runtime-dir-followups",
       "artifact:.pose/specs/2026-11-26-pose-review-resume-runtime-dir-followups.md",
+      "artifact:pose-mcp/internal/cli/delegate_rounds_test.go",
       "artifact:pose-mcp/internal/cli/review_run_continuity_test.go",
       "artifact:pose-mcp/internal/pose/delegation_handoff.go",
       "artifact:pose-mcp/internal/pose/review_dispatch.go",
+      "artifact:pose-mcp/internal/pose/review_rounds.go",
       "artifact:pose-mcp/internal/pose/review_run_continuity.go",
       "artifact:pose-mcp/internal/pose/review_run_runtime_dir_test.go",
       "delivery:capability:review-resume-runtime-dir-followups",
-      "entrypoint:pose-mcp/internal/cli/delegate.go",
-      "validation-set:cf62b73b2f38838b"
+      "entrypoint:pose-mcp/internal/cli/delegate.go"
     ],
     "capability:review-run-reaps-lingering-reviewer-processes": [
       "spec:pose-review-run-reaps-lingering-reviewer-processes",
