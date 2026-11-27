@@ -756,6 +756,7 @@ func (s Store) RunReviewDispatchContext(parent context.Context, plan DispatchPla
 		// predecessor stays resumable, and one that lost the race to another
 		// resume is told the continuation is pending (spec
 		// pose-review-resume-runtime-dir-followups R1).
+		beforeContinuationTake()
 		dir, err := s.takeContinuationRuntimeDir(parent, plan)
 		var recorded *continuationRecorded
 		if errors.As(err, &recorded) {
@@ -765,19 +766,24 @@ func (s Store) RunReviewDispatchContext(parent context.Context, plan DispatchPla
 			return ReviewRun{}, err
 		}
 		preparedRuntimeDir = dir
+		beforeContinuationClaim()
 		if err := s.claimReviewContinuation(*fresh.predecessor, now()); err != nil {
 			if dir != "" {
 				_ = os.Remove(dir)
 			}
 			// Another resume claimed and may already have ended: its record
 			// is the answer, not the publication conflict (R1).
-			if again, rerr := s.replanContinuation(plan); rerr == nil {
-				if again.Existing != nil {
-					return existingReviewDispatchResult(*again.Existing)
-				}
-				if again.PendingContinuation != nil {
-					return ReviewRun{}, again.PendingContinuation
-				}
+			again, rerr := s.replanContinuation(plan)
+			if rerr != nil {
+				// The plan's own answer: handed off, already continued
+				// (review round 1, N4).
+				return ReviewRun{}, rerr
+			}
+			if again.Existing != nil {
+				return existingReviewDispatchResult(*again.Existing)
+			}
+			if again.PendingContinuation != nil {
+				return ReviewRun{}, again.PendingContinuation
 			}
 			return ReviewRun{}, err
 		}
@@ -2232,10 +2238,42 @@ func (s Store) takeContinuationRuntimeDir(ctx context.Context, plan DispatchPlan
 		return "", pending
 	}
 	if existing != nil {
+		if why := continuationKindMismatch(plan, *existing); why != nil {
+			return "", why
+		}
 		return "", &continuationRecorded{run: *existing}
+	}
+	if ctx.Err() != nil {
+		return "", ctx.Err()
 	}
 	return "", err
 }
+
+// continuationKindMismatch refuses a recorded continuation of another kind
+// than plan's, as the plans do: a resume that met a handoff, or a handoff
+// that met a resume or another agent's handoff (spec
+// pose-review-resume-residuals, review round 1, N1).
+func continuationKindMismatch(plan DispatchPlan, existing ReviewRun) error {
+	prior := plan.predecessor.RunID
+	if plan.handoff {
+		if existing.HandsOffFrom != prior || existing.Adapter != plan.Adapter {
+			return fmt.Errorf("pose: run %s was already continued by run %s", prior, existing.RunID)
+		}
+		return nil
+	}
+	if existing.HandsOffFrom == prior {
+		return fmt.Errorf("pose: run %s was handed off to run %s; it is not resumed", prior, existing.RunID)
+	}
+	return nil
+}
+
+// beforeContinuationTake and beforeContinuationClaim let a test make another
+// continuation win between the replan and the take, or between the take and
+// the claim (review round 1, N2).
+var (
+	beforeContinuationTake  = func() {}
+	beforeContinuationClaim = func() {}
+)
 
 // continuationRecorded carries a continuation another resume already ended,
 // so the dispatch returns it as the recorded result.

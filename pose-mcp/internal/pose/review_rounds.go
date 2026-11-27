@@ -677,6 +677,9 @@ func (s Store) planReviewThread(plan *DispatchPlan) error {
 	threshold := policy.Routing.RoundThresholdOf()
 	failed := FailedContinuation(runs, plan.Bundle.BundleID)
 	session := ""
+	// Evaluated once, so the reason names the path that was held (review
+	// round 1, N6).
+	heldPath := previousRoundCheckoutHeld(*prior)
 	switch {
 	case policy.Routing.RoundsMode() == ReviewRoundsColdSession:
 		thread.Reason = "routing.rounds is cold-session"
@@ -692,13 +695,13 @@ func (s Store) planReviewThread(plan *DispatchPlan) error {
 		thread.Reason = "the previous round's session cannot be resumed: it recorded no session or the agent declares no resume"
 	case failed != nil:
 		thread.Reason = FailedContinuationReason(failed)
-	case previousRoundCheckoutHeld(*prior) != "":
+	case heldPath != "":
 		// The continued session would work where the previous round's run
 		// did; that path is held by a leftover or a live run, so the round
 		// opens a new session in its own directory instead of failing after
 		// its attempt is reserved (spec pose-review-resume-runtime-dir-followups,
 		// review round 1, N2).
-		thread.Reason = "the previous round's checkout path " + previousRoundCheckoutHeld(*prior) + " is still in use"
+		thread.Reason = "the previous round's checkout path " + heldPath + " is still in use or cannot be checked"
 	default:
 		value, rerr := s.readReviewSession(prior.SessionDigest)
 		if rerr != nil {

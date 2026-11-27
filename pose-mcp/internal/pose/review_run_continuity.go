@@ -438,8 +438,12 @@ func (s Store) PlanReviewResume(id string) (DispatchPlan, error) {
 			return plan, nil
 		}
 		if existing != nil {
-			// Another resume ended meanwhile: its record is the answer
-			// (spec pose-review-resume-residuals R1).
+			// Another continuation ended meanwhile: a resume is the answer,
+			// a handoff refuses this resume (spec pose-review-resume-residuals
+			// R1; review round 1, N1).
+			if existing.HandsOffFrom == prior.RunID {
+				return DispatchPlan{}, fmt.Errorf("pose: run %s was handed off to run %s; it is not resumed", prior.RunID, existing.RunID)
+			}
 			plan.Existing = existing
 			return plan, nil
 		}

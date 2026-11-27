@@ -355,9 +355,13 @@ func (s Store) PlanReviewHandoff(id, agent string) (DispatchPlan, error) {
 			return plan, nil
 		}
 		if existing != nil {
-			// Another resume ended meanwhile: its record is the answer
-			// (spec pose-review-resume-residuals R1).
-			return DispatchPlan{}, fmt.Errorf("pose: run %s was already continued by run %s", prior.RunID, existing.RunID)
+			// Another continuation ended meanwhile: this agent's handoff is
+			// the answer; anything else already continued the run (R1, N1).
+			if existing.HandsOffFrom != prior.RunID || existing.Adapter != agent {
+				return DispatchPlan{}, fmt.Errorf("pose: run %s was already continued by run %s", prior.RunID, existing.RunID)
+			}
+			plan.Existing = existing
+			return plan, nil
 		}
 		return DispatchPlan{}, e
 	}
