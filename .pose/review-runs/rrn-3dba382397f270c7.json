@@ -1,0 +1,144 @@
+{
+  "safety": {
+    "schema_version": 1,
+    "profile": "legacy-trusted",
+    "platform": "linux/amd64",
+    "capabilities": {
+      "automatic-expiry": "unavailable",
+      "bounded-capture": "available",
+      "cpu-limit": "unavailable",
+      "credential-filesystem-isolation": "unavailable",
+      "environment-allowlist": "available",
+      "escaped-descendant-termination": "environment-marked",
+      "filesystem-isolation": "unavailable",
+      "memory-limit": "unavailable",
+      "network-isolation": "unavailable",
+      "origin-isolation": "unavailable",
+      "parent-termination": "available",
+      "process-group-termination": "available",
+      "shared-git-isolation": "unavailable"
+    },
+    "limitations": [
+      "trusted local executable required; worktree is not a sandbox",
+      "outside writes, transient writes, shared Git and credential files are not isolated",
+      "no memory/CPU quota; the review run shim ends every process left in the run's subtree, including one in its own session",
+      "cleanup filesystem calls remain subject to operating-system I/O latency",
+      "legacy compatibility: HOME retained; other ambient credentials excluded"
+    ],
+    "stream_bytes": 8388608,
+    "output_bytes": 65536,
+    "retained_bytes": 16777216,
+    "timeout_ms": 3600000,
+    "max_runs_per_bundle": 3,
+    "retention": "retain-evidence; ttl=0; no automatic deletion",
+    "capture_complete": true,
+    "runtime_id": "pose-review-run-a21e9a05af",
+    "operation": {
+      "schema_version": 1,
+      "operation": "review.dispatch.cleanup",
+      "scope": "spec:pose-validate-index-reads-residuals",
+      "outcome": "completed",
+      "steps_run": [
+        {
+          "id": "cleanup",
+          "result": "done"
+        }
+      ],
+      "effects": [],
+      "resumable": false
+    }
+  },
+  "provenance": {
+    "execution_state": "started",
+    "planned_wire_digest": "sha256:4442b355efdbe82999e4cad727194297607a2fa82efe81e4a5d3453ffd5644d0",
+    "wire_bytes": 34765,
+    "wire_complete": true,
+    "schema_version": 1,
+    "project": "proj.pose-dist",
+    "audience": "proj.pose-dist",
+    "worktree_digest": "sha256:092ca52378c4c0d0f2b627da8d5031dbb854563bd4b9f2474458710c62a14816",
+    "trust": "executor-attested",
+    "implementation": {
+      "principal": "agent:anthropic/claude-opus-5-5",
+      "execution": "sha256:344ac5868944c155772d60a95ef6ff20644580a642e772ad5c92c29428464ff8",
+      "vendor": "anthropic",
+      "model": "claude-opus-5-5"
+    },
+    "reviewer": {
+      "principal": "agent:anthropic/claude-sonnet-5-5",
+      "vendor": "anthropic",
+      "model": "claude-sonnet-5-5"
+    },
+    "config_digest": "sha256:b23684d462090c30b29c472aa98a57bfadccc0b92e14fbacb173eb47d1f5b8ea",
+    "command_template_digest": "sha256:0cefa095cbf1815cfe484d70666f139eda05e7e3bbec50e1597597514c69ffb4",
+    "argv_digest": "sha256:e20a1df92537eae5bd2a6909a83739e07141d7483cc72e4faed24a025450e710",
+    "executable_digest": "sha256:c157074818b094c84aaf31b8c80a1e149f234bb1c8c84a25e9a53e96afa30a29",
+    "template_version": "review-brief/11",
+    "wire_digest": "sha256:4442b355efdbe82999e4cad727194297607a2fa82efe81e4a5d3453ffd5644d0",
+    "notes_digest": "sha256:2f17d820e79d3e9479fa71734dd33b2224479ee4ecd47d58c3ac155a6d38df97",
+    "raw_transcript_digest": "sha256:7340ce1a2066c1dffdd247c6d23a5370e527f809fc631dafa1f3ee7e456f739a",
+    "raw_output_digest": "sha256:59069c045445ef2b4ce05c38e37e173e038b2069a8101c3f2752e56156de7186",
+    "output_source": "stream-final",
+    "output_complete": true
+  },
+  "session_digest": "sha256:091a42b8dd1c261108a08a226fddc847417e20bcf165ceb9a24dcf4e06294716",
+  "tree_digest": "sha256:50c31d4232224df040ec1133850ac140e9b5df272b36e6cedb3cfbc275189b88",
+  "brief_notes": "Implementer notes (Claude Opus 5.5, the lead). Use them as context only; the judgment is yours.\n\nScope: spec `pose-validate-index-reads-residuals` (R1–R5, accepted limit L1), the follow-ups of `pose-validate-read-only-index-followups`.\n- R1: the ready-transition diff runs with `--relative`, so a POSE root below the repository top lists its changed specs (`check.go`).\n- R2: the report note replaces the root, repository top, Git directories, temporary and home directories whole, then other absolute paths, now also after `:`, a backtick or `[` (`reportRedactPaths`, `reportNote`).\n- R3: bounds cut at a character (`TruncateUTF8`).\n- R4: a failed untracked listing fails scope selection with its cause (`validate_scope.go`).\n- R5: stand-in Git tests prove the guards (`git_reads_residuals_test.go`, `validate_index_residuals_test.go`); L1 covers the ledger's deadline.\nEach guard has a test that fails with it mutated out.\n\nPlease check in particular that the redaction never removes a relative name, that no read changed its answer, and that a healthy repository's scope selection is unchanged.\n\nBefore you finish, run `\"$POSE_REVIEW_CLI\" review draft-check --draft -` on your final message (pipe it on standard input) and fix every reason it reports.\n\nDraft format rules, enforced by the conclusion preflight:\n- New findings use short unprefixed IDs (N1, N2, …).\n- Structural-delta mappings go inside the criterion that answers them, with `basis` set to a requirement or a decision of this spec (R1–R5).\n- A criterion scoped to a component cites evidence from that component only.\n- A finding that falls inside the accepted limit L1 is a follow-up with `limit` set to \"L1\".\n\nSandbox limits: the checkout is sealed and read-only. Never `cd`; keep the checkout root as the working directory. Your Bash is limited to these command prefixes: `go test`, `go vet`, `go -C`, `git diff|log|show|status|ls-files`, `cat`, `printf`, `\"$POSE_REVIEW_CLI\"`, and the pose checks the plan lists. Keep test runs focused (`go -C pose-mcp test ./internal/cli ./internal/pose -run 'BelowTheRepositoryTop|RemovesWholePaths|FailedUntrackedListing|RemainingIndexReadGuards|NeedsNoPathFormat|RunGitInEnglish|FallbacksKeepTheAnswer|BoundsCutAtACharacter'`), and let every command you start finish before you end. Run every planned `pose` command as `\"$POSE_REVIEW_CLI\"`.\n\nA tool you cannot rerun faithfully in the sandbox (the full `validate` hits HTTP 403, `/var/tmp` owned by another user and refused delegation there) is a limit of the run, not a defect of the subject. As the approving rounds of `pose-validate-reads-leave-the-index-alone` and `pose-review-resume-keeps-the-sealed-checkout` did, record it `passed` with the sealed ref (`unit:pose-mcp/go/test`) as its evidence and the sandbox failure in its rationale; record `failed` only for a failure the subject causes.\n\nPlease report every finding you see in this round, classified blocker or follow-up, rather than stopping at the first.\n\nDo not run `go test ./...`, `go build ./...` or the full `validate`: the sealed results cover them. Keep each command's output short (pipe long output through `tail -n 40`) and finish well within the time limit.\n\nRound 2 notes: round 1 (rrn-977f027e0e7c7ee5) requested changes. N1: `checkReadyTransition` reads `HEAD:./\u003cpath\u003e`, relative to the root. N2–N6: the path redaction is withdrawn (decision D1): the versioned report states only that the list could not be read, and Git's message goes to the standard-error warning. N7: scope selection's diff runs with `--relative`. `TestReadyTransitionsSeeSpecsBelowTheRepositoryTop` now checks the in-progress spec and the scope names; `TestTheReportStatesNoPath` replaces the redaction test.\n",
+  "ledger_version": 1,
+  "attempt_id": "rat-12b6742e9df863c22214f4a5065ccd2a44a7c4ca01b979075deb6a55dabaa56b",
+  "schema_version": 1,
+  "run_id": "rrn-3dba382397f270c7",
+  "scope": "spec:pose-validate-index-reads-residuals",
+  "bundle_id": "rvb-05689b8e8105ecb7",
+  "bundle_digest": "sha256:05689b8e8105ecb7bdbb3c3ea2eb015cf297cfbb290885ce4cb11c2c02c3edde",
+  "sealed_commit": "a73f371a38baa51e3d0e4beb30151178debb10b9",
+  "kind": "review",
+  "brief_digest": "sha256:2025a6c021317451d775d95652b1fd46e224ad03f006605bb28a38fe97eb58c4",
+  "adapter": "claude-sonnet-5-5",
+  "vendor": "anthropic",
+  "model": "claude-sonnet-5-5",
+  "started_at": "2026-11-27T17:34:38.790806012Z",
+  "ended_at": "2026-11-27T18:08:46.296847688Z",
+  "exit_code": 0,
+  "status": "completed",
+  "transcript_digest": "sha256:db451f250f391174c794a368be02a705919e9ced5ba00f40394e21a0542b0b42",
+  "transcript_path": ".pose/review-runs/rrn-3dba382397f270c7.transcript",
+  "output": "decision: changes-requested\n\nOne blocker is left, introduced by the fix for round 1's N7. With the POSE root below the repository top, changed-scope selection now ignores every change outside that root.\n\n## Findings\n\n| ID | Severity | Disposition | Location | Defect |\n|---|---|---|---|---|\n| N1 | medium | blocker | `pose-mcp/internal/cli/validate_scope.go:104` | A changed file at the repository top gives an empty selection and no error. The base engine selected the root and non-self-contained modules (reproduced against both versions). No requirement or decision covers this. |\n| N2 | low | follow-up | `pose-mcp/internal/cli/validate_carry.go:251` | `carryExclusions` still compares top-relative names, and two `show \u003chead\u003e:\u003cpath\u003e` reads resolve from the top. Carry appears disabled below the top, so this is latent. |\n| N3 | low | follow-up | `pose-mcp/internal/cli/validate_index_residuals_test.go:130` | R3, R5, comments and a now-vacuous assertion still refer to a bounded report note that was removed. |\n| N4 | low | follow-up | `pose-mcp/internal/cli/validate_index_residuals_test.go:133` | No test fails if the warning drops Git's message, which R2 requires (by reading). |\n\n**Reach of N1:** the shipped CLI always resolves its root to the repository top (`cli.go:440`), so `pose validate` cannot trigger it. It affects callers that pass a lower root, as R1 does. This limit also applies to round 1's N1 and N7, which I did not point out then.\n\n## Round 1 findings\n\n| Finding | Status |\n|---|---|\n| R1-N1, R1-N2, R1-N3 | fixed |\n| R1-N4, R1-N5, R1-N6 | superseded by decision D1, which removed the redaction |\n| R1-N7 | partial: changes under the root are now attributed correctly, but see N1 |\n\n## Criteria\n\n| Result | Criteria |\n|---|---|\n| finding (N1) | `assumption-integrity`, `backend-integration-impact`, `compatibility`, `correctness`, `design-causality`, `scope` |\n| passed | `backend-concurrency`, `backend-contracts`, `backend-input-errors`, `backend-observability`, `documentation`, `operability`, `requirements`, `security`, `solution-proportionality` |\n\n## What ran\n- **Focused tests:** they passed, and `go vet` on the two packages printed nothing. The updated below-the-top test fails when either round 1 source file is put back.\n- **Full validation:** both runs failed in the sandbox. The root run had 224 of 236 steps passing and the module run 221 of 233, with the same failing steps as in round 1. Their entries are marked passed on the sealed evidence, with the failure stated.\n- **Accepted limit:** I do not dispute L1.\n- **Cleanup:** `go clean -cache` and the `go-build*` removal exited 0 inside the sandbox. The draft check accepted the block below.\n\n```pose-draft\n{\"schema\":\"pose.review.draft/v1\",\"decision\":\"changes-requested\",\n\"findings\":[\n{\"id\":\"N1\",\"severity\":\"medium\",\"disposition\":\"blocker\",\"file\":\"pose-mcp/internal/cli/validate_scope.go\",\"line\":104,\"summary\":\"Regression from the N7 fix: with the root below the repository top, --relative also drops every change outside the root. A changed file at the top gives changed=[] and an empty selection with no error, in worktree and range mode, where the base engine selected the root and non-self-contained modules as a root-level change (reproduced against both versions of validate_scope.go). This narrows validation, against the stated widen-on-uncertainty rule, and no requirement or decision covers it. Reach: the shipped CLI resolves its root to the repository top (cli.go:440) and carry is off below it (by reading), so it affects callers that pass a lower root, the same reach as R1.\"},\n{\"id\":\"N2\",\"severity\":\"low\",\"disposition\":\"follow-up\",\"file\":\"pose-mcp/internal/cli/validate_carry.go\",\"line\":251,\"summary\":\"carryExclusions still lists top-relative names (no --relative) while the selection is now root-relative, so below the top administrative records are not excluded and widen the selection (seen in a direct probe). workingFileDiffersFromHead and scopeMetadataAt also use `show \u003chead\u003e:\u003cpath\u003e`, resolved from the top. Latent and on the safe side: by reading, carry is refused below the top because root/.git is absent.\"},\n{\"id\":\"N3\",\"severity\":\"low\",\"disposition\":\"follow-up\",\"file\":\"pose-mcp/internal/cli/validate_index_residuals_test.go\",\"line\":130,\"summary\":\"Text left behind by D1: R3 and R5 still name a report note bound that no longer exists, the len(files[0])\u003e700 assertion cannot fail for a fixed note, the test comment and message still speak of a bounded note, and report.go:313-316 still describes a bounded, redacted line.\"},\n{\"id\":\"N4\",\"severity\":\"low\",\"disposition\":\"follow-up\",\"file\":\"pose-mcp/internal/cli/validate_index_residuals_test.go\",\"line\":133,\"summary\":\"By reading: no test fails if the standard-error warning drops Git message, the second clause of R2. This test checks only the warning prefix, and TestTheReportStatesNoPath checks the returned error, not what is printed.\"}\n],\n\"prior_findings\":[\n{\"id\":\"R1-N1\",\"status\":\"fixed\",\"evidence\":\"check.go reads HEAD:./\u003cpath\u003e; TestReadyTransitionsSeeSpecsBelowTheRepositoryTop passes at head and fails with the round 1 check.go overlaid (a spec already in progress is taken for a new transition).\"},\n{\"id\":\"R1-N2\",\"status\":\"fixed\",\"evidence\":\"reportRedactPaths is removed; report.go reportNote returns a fixed localized string, so no path tail reaches the report; TestTheReportStatesNoPath passes.\"},\n{\"id\":\"R1-N3\",\"status\":\"fixed\",\"evidence\":\"No substring replacement remains (report.go diff 108f8d27..a73f371a); the versioned report quotes no message, and the warning prints it unaltered.\"},\n{\"id\":\"R1-N4\",\"status\":\"superseded\",\"evidence\":\"Decision D1 rewrites R2: the report states no Git message, so there is no redaction to be incomplete; TestTheReportStatesNoPath passes with a spaced directory name.\"},\n{\"id\":\"R1-N5\",\"status\":\"superseded\",\"evidence\":\"The known-directory replacement and its filepath.Clean were removed from report.go (D1).\"},\n{\"id\":\"R1-N6\",\"status\":\"superseded\",\"evidence\":\"reportAbsolutePathRE and its leading-colon case were removed (D1).\"},\n{\"id\":\"R1-N7\",\"status\":\"partial\",\"evidence\":\"Changes under the root are now root-relative (the test passes, and fails with the round 1 validate_scope.go overlaid), but the same flag drops changes outside the root; see N1.\"}\n],\n\"sweep\":\"The nine code files of the range, with the round 2 delta read line by line: check.go ready transitions, report.go note and warning, validate_scope.go and its consumers in validate.go and validate_carry.go, CLI root resolution, the amended spec with D1, the changed tests; focused tests and go vet, base and previous-round overlays, a probe of changes outside a lower root, and every planned pose tool including both validate runs.\",\n\"criteria\":[\n{\"id\":\"assumption-integrity\",\"disposition\":\"finding\",\"evidence\":\"N1\",\"rationale\":\"The assumption that --relative only renames paths is false: it also filters to the root. D1 premise that free text paths have no delimiter holds; L1 was read and is not disputed.\"},\n{\"id\":\"backend-concurrency\",\"disposition\":\"passed\",\"evidence\":\"unit:pose-mcp/go/test\",\"rationale\":\"No new shared production state; the concurrent index-read test passed in the focused run; L1 covers the ledger deadline.\"},\n{\"id\":\"backend-contracts\",\"disposition\":\"passed\",\"evidence\":\"integration:pose-mcp/go/delivery-integration\",\"rationale\":\"No schema or tool contract changes; the new report line and the scope failure are stated in the spec API section. The selection answer is covered by N1.\"},\n{\"id\":\"backend-input-errors\",\"disposition\":\"passed\",\"evidence\":\"unit:pose-mcp/go/test\",\"rationale\":\"A failed untracked listing fails selection with a bounded cause; the report note is fixed text.\"},\n{\"id\":\"backend-integration-impact\",\"disposition\":\"finding\",\"evidence\":\"N1\"},\n{\"id\":\"backend-observability\",\"disposition\":\"passed\",\"evidence\":\"unit:pose-mcp/go/test\",\"rationale\":\"The warning on standard error still formats the whole error; the versioned report points to it. Its test gap is N4.\"},\n{\"id\":\"compatibility\",\"disposition\":\"finding\",\"evidence\":\"N1\",\"rationale\":\"At the repository top nothing differs; below it, selection answers differently for outside changes.\"},\n{\"id\":\"correctness\",\"disposition\":\"finding\",\"evidence\":\"N1\"},\n{\"id\":\"design-causality\",\"disposition\":\"finding\",\"evidence\":\"N1\",\"rationale\":\"HEAD:./ addresses the cause of R1-N1 and D1 removes the cause of the redaction defects. The scope fix addresses naming but also changes which files are listed. The design assessment observed no structural deltas.\"},\n{\"id\":\"documentation\",\"disposition\":\"passed\",\"evidence\":\"integration:pose-mcp/go/distributed-instructions-parity-integration\",\"rationale\":\"Examined the amended spec and the changed-scope text in architecture.md and monorepo-recipes.md: they match behaviour for the CLI, whose root is the repository top. Leftover wording is N3.\"},\n{\"id\":\"operability\",\"disposition\":\"passed\",\"evidence\":\"unit:pose-mcp/go/test\",\"rationale\":\"The report says the list could not be read and where the cause was printed; the warning and the selection error carry Git words.\"},\n{\"id\":\"requirements\",\"disposition\":\"passed\",\"evidence\":\"unit:pose-mcp/go/test\",\"rationale\":\"R1 to R5 as amended each have a passing focused test; the gaps in R2 and R5 evidence are low and listed as N3 and N4.\"},\n{\"id\":\"scope\",\"disposition\":\"finding\",\"evidence\":\"N1\"},\n{\"id\":\"security\",\"disposition\":\"passed\",\"evidence\":\"unit:pose-mcp/go/test\",\"rationale\":\"The versioned report now interpolates nothing from Git, so no checkout path can enter it through this note; revisions stay validated before reaching Git.\"},\n{\"id\":\"solution-proportionality\",\"disposition\":\"passed\",\"evidence\":\"unit:pose-mcp/go/test\",\"rationale\":\"Dropping the message is smaller than redaction and meets amended R2; it would need revisiting if the report had to carry the cause. HEAD:./ is a minimal fix.\"}\n],\n\"tools\":[\n{\"id\":\"artifact-check\",\"disposition\":\"passed\",\"evidence\":\"command:pose artifact-check --spec pose-validate-index-reads-residuals --strict\",\"rationale\":\"Exit 0 with orphan-path warnings.\"},\n{\"id\":\"assess-design\",\"disposition\":\"passed\",\"evidence\":\"structure:design-766c210d413da3d7\",\"rationale\":\"Observed, no deltas.\"},\n{\"id\":\"assess-discover\",\"component\":\"pose-mcp\",\"disposition\":\"passed\",\"evidence\":\"command:pose assess discover --no-persist --component pose-mcp\"},\n{\"id\":\"assess-integrate\",\"disposition\":\"passed\",\"evidence\":\"integration:pose-mcp/go/engine-reads-raw-history-integration\",\"rationale\":\"Ran with --no-persist.\"},\n{\"id\":\"assess-tech-debt\",\"disposition\":\"passed\",\"evidence\":\"command:pose assess tech-debt --no-persist\",\"rationale\":\"The scan reports itself incomplete: two spec sources could not be read.\"},\n{\"id\":\"closeout-check\",\"disposition\":\"deferred\",\"evidence\":\"command:pose closeout-check spec:pose-validate-index-reads-residuals\",\"rationale\":\"Ran; cannot pass before the review is recorded and the spec is done.\"},\n{\"id\":\"review-check\",\"disposition\":\"deferred\",\"evidence\":\"command:pose review-check spec:pose-validate-index-reads-residuals\",\"rationale\":\"Ran; no fresh review record exists.\"},\n{\"id\":\"suggest-review\",\"component\":\"pose-mcp\",\"disposition\":\"passed\",\"evidence\":\"command:pose suggest review --path pose-mcp\"},\n{\"id\":\"surface-check\",\"disposition\":\"passed\",\"evidence\":\"integration:pose-mcp/go/delivery-integration\",\"rationale\":\"Ran with --strict: zero findings.\"},\n{\"id\":\"validate\",\"disposition\":\"passed\",\"evidence\":\"unit:pose-mcp/go/test\",\"rationale\":\"Rests on the sealed result. The sandbox rerun FAILED: 236 steps, 224 pass, 11 fail, 1 timeout, the same failing steps as round 1. Causes seen in round 1 include HTTP 403 and ownership refusals of /var/tmp and /home; others were not root-caused. No failing test name is one this change adds or edits.\"},\n{\"id\":\"validate\",\"component\":\"pose-mcp\",\"disposition\":\"passed\",\"evidence\":\"unit:pose-mcp/go/test\",\"rationale\":\"Rests on the sealed result. The sandbox rerun FAILED: 233 steps, 221 pass, 11 fail, 1 error, with the same failing test names as the root run.\"}\n]}\n```",
+  "policy_digest": "sha256:96d45d57ca07ec9abf850150e8563fe243393ebd1604a49798920f6dade4dbe7",
+  "label": "ires-review-r2",
+  "purpose": "review",
+  "env_removed": [
+    "CLAUDECODE",
+    "CLAUDE_CODE_BRIDGE_SESSION_ID",
+    "CLAUDE_CODE_CHILD_SESSION",
+    "CLAUDE_CODE_ENTRYPOINT",
+    "CLAUDE_CODE_EXECPATH",
+    "CLAUDE_CODE_MESSAGING_SOCKET",
+    "CLAUDE_CODE_MESSAGING_TOKEN",
+    "CLAUDE_CODE_SESSION_ATTENDED",
+    "CLAUDE_CODE_SESSION_ID",
+    "CLAUDE_EFFORT",
+    "CLAUDE_PID"
+  ],
+  "events": "claude-stream-json",
+  "events_digest": "sha256:093ee6fdbc3458a6621bef30dc374325743bcc15ea5d6e8289097405cdd316dd",
+  "routing": {
+    "requested": "claude-sonnet-5-5",
+    "implementation": {
+      "principal": "agent:anthropic/claude-opus-5-5",
+      "vendor": "anthropic",
+      "model": "claude-opus-5-5",
+      "execution_digest": "sha256:344ac5868944c155772d60a95ef6ff20644580a642e772ad5c92c29428464ff8",
+      "source": "declared"
+    },
+    "implementation_from": "bundle",
+    "step": "explicit"
+  },
+  "independence_achieved": "different-model",
+  "round": 2,
+  "thread": {
+    "round": 2,
+    "mode": "continued",
+    "from": "rrn-977f027e0e7c7ee5"
+  }
+}
