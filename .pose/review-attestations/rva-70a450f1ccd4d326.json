@@ -1,0 +1,251 @@
+{
+  "run": {
+    "run_id": "rrn-bd7106fcc6ae8449",
+    "proof_id": "rrp-232b1b088c40384f4abfcddc0a9888a6331ef615772d51e380ff5bf4344270d7"
+  },
+  "schema_version": 1,
+  "attestation_id": "rva-70a450f1ccd4d326",
+  "bundle_id": "rvb-1ef96bd0cda04387",
+  "bundle_digest": "sha256:1ef96bd0cda0438731d9bac27739fa0c51d8d495452b9d7f8d23b698c5bd4406",
+  "reviewer": "agent:anthropic/claude-sonnet-5-5",
+  "decision": "changes-requested",
+  "criteria": [
+    {
+      "id": "assumption-integrity",
+      "disposition": "finding",
+      "evidence": "N18"
+    },
+    {
+      "id": "backend-concurrency",
+      "disposition": "passed",
+      "evidence": "unit:pose-mcp/go/test"
+    },
+    {
+      "id": "backend-contracts",
+      "disposition": "passed",
+      "evidence": "integration:pose-mcp/go/engine-reads-raw-history-integration"
+    },
+    {
+      "id": "backend-input-errors",
+      "disposition": "finding",
+      "evidence": "N18"
+    },
+    {
+      "id": "backend-integration-impact",
+      "disposition": "passed",
+      "evidence": "integration:pose-mcp/go/check-git-spawns-integration"
+    },
+    {
+      "id": "backend-observability",
+      "disposition": "finding",
+      "evidence": "N17"
+    },
+    {
+      "id": "compatibility",
+      "disposition": "passed",
+      "evidence": "integration:pose-mcp/go/cli-profile-parity-integration",
+      "rationale": "Examined signatures and callers: GitEnglish is an addition, ReadOnlyIndex keeps its signature, report keeps exit 0 and no MCP schema or record format changes. Error wording changes are covered by the findings."
+    },
+    {
+      "id": "correctness",
+      "disposition": "finding",
+      "evidence": "N17"
+    },
+    {
+      "id": "design-causality",
+      "disposition": "passed",
+      "evidence": "structure:design-4d3175efde4220c5",
+      "rationale": "D2 removes the stat-then-open race and keeps FIFOs from blocking; D1 and L1 rest on measured Git behaviour; D3 addresses the deadline and locale causes. Its first-line bound and message list do not fully serve R2, recorded as N17 and N18. The sealed design assessment lists no structural deltas."
+    },
+    {
+      "id": "documentation",
+      "disposition": "finding",
+      "evidence": "N19"
+    },
+    {
+      "id": "operability",
+      "disposition": "finding",
+      "evidence": "N17"
+    },
+    {
+      "id": "requirements",
+      "disposition": "finding",
+      "evidence": "N18"
+    },
+    {
+      "id": "scope",
+      "disposition": "passed",
+      "evidence": "integration:pose-mcp/go/artifact-claim-boundary-integration",
+      "rationale": "The 13 implementation files are the ones the spec lists, artifact-check strict exits 0, and round 3 stays within R2 and D3."
+    },
+    {
+      "id": "security",
+      "disposition": "passed",
+      "evidence": "integration:pose-mcp/go/engine-reads-raw-history-integration",
+      "rationale": "Examined the open and hand-over paths: non-blocking open judged by fstat, 512 MiB bound, sanitised Git environment, 0600 private copy removed after use. Git text kept in errors is now bounded; local paths in the report are noted as low in N22."
+    },
+    {
+      "id": "solution-proportionality",
+      "disposition": "passed",
+      "evidence": "unit:pose-mcp/go/test",
+      "rationale": "One regexp, one locale helper and one report helper are small and used. Classifying by an enumerated first line is invalid once Git warns first or refuses the index in other words (N17, N18); choosing the fatal line and treating a failure as a revision one only when Git rejects the revision would be as small."
+    }
+  ],
+  "tools": [
+    {
+      "id": "artifact-check",
+      "disposition": "passed",
+      "evidence": "command:pose artifact-check --spec pose-validate-read-only-index-followups --strict",
+      "rationale": "Exit 0."
+    },
+    {
+      "id": "assess-design",
+      "disposition": "passed",
+      "evidence": "structure:design-4d3175efde4220c5",
+      "rationale": "Observed, no deltas."
+    },
+    {
+      "id": "assess-discover",
+      "component": "pose-mcp",
+      "disposition": "passed",
+      "evidence": "command:pose assess discover --no-persist --component pose-mcp"
+    },
+    {
+      "id": "assess-integrate",
+      "disposition": "passed",
+      "evidence": "integration:pose-mcp/go/engine-reads-raw-history-integration",
+      "rationale": "Three HTTP consumer gaps reported, on endpoints this range does not touch."
+    },
+    {
+      "id": "assess-tech-debt",
+      "disposition": "passed",
+      "evidence": "command:pose assess tech-debt --no-persist",
+      "rationale": "Ran; the scan reports itself incomplete because two older specs could not be read."
+    },
+    {
+      "id": "closeout-check",
+      "disposition": "deferred",
+      "rationale": "Needs the completed review."
+    },
+    {
+      "id": "review-check",
+      "disposition": "deferred",
+      "rationale": "Needs the recorded attestation."
+    },
+    {
+      "id": "suggest-review",
+      "component": "pose-mcp",
+      "disposition": "passed",
+      "evidence": "command:pose suggest review --path pose-mcp"
+    },
+    {
+      "id": "surface-check",
+      "disposition": "passed",
+      "evidence": "integration:pose-mcp/go/engine-reads-raw-history-integration",
+      "rationale": "Exit 0 with zero findings."
+    },
+    {
+      "id": "validate",
+      "disposition": "passed",
+      "evidence": "unit:pose-mcp/go/test",
+      "rationale": "Rerun in the sandbox: exit 1, 236 steps, 224 pass, 11 fail, 1 timeout. The failed tests match sandbox limits (directory ownership by another user, denied network and delegation, runtime tests failing to start or timing out) or sit in files this range does not touch. Focused subject tests pass under -race. Relies on the sealed evidence."
+    },
+    {
+      "id": "validate",
+      "component": "pose-mcp",
+      "disposition": "passed",
+      "evidence": "unit:pose-mcp/go/test",
+      "rationale": "Rerun in the sandbox: exit 1, 233 steps, 221 pass, 11 fail, 1 timeout. The failed tests match sandbox limits (directory ownership by another user, denied network and delegation, runtime tests failing to start or timing out) or sit in files this range does not touch. Focused subject tests pass under -race. Relies on the sealed evidence."
+    }
+  ],
+  "evidence_refs": [
+    "N17",
+    "N18",
+    "N19",
+    "delegated-run:rrn-bd7106fcc6ae8449",
+    "integration:pose-mcp/go/artifact-claim-boundary-integration",
+    "integration:pose-mcp/go/check-git-spawns-integration",
+    "integration:pose-mcp/go/cli-profile-parity-integration",
+    "integration:pose-mcp/go/engine-reads-raw-history-integration",
+    "structure:design-4d3175efde4220c5",
+    "unit:pose-mcp/go/test"
+  ],
+  "findings": [
+    {
+      "id": "N17",
+      "severity": "medium",
+      "evidence": "file:pose-mcp/internal/pose/git_worktree_reads.go:119",
+      "action": "GitReadError keeps only the first stderr line, which is not the cause when Git warns first. With diff.dirstat=bogus and a corrupt index (bad signature), scope selection reports 'git diff HEAD..worktree failed (revision unknown?): ... exit status 128: warning: Found errors in 'diff.dirstat' config variable:', the check's diff finding and the plain report warning carry only that warning, and the index failure is not marked. An unknown revision loses 'fatal: bad revision' the same way. R2 requires the cause and forbids the revision label; the previous round's commit kept the whole message. Classification also runs on the text after the 300-byte cut. Reproduced with overlay probes.",
+      "disposition": "open"
+    },
+    {
+      "id": "N18",
+      "severity": "medium",
+      "evidence": "file:pose-mcp/internal/pose/git_worktree_reads.go:108",
+      "action": "gitIndexFailureRE misses Git's own index refusals. 'fatal: unknown index entry format 0xff700000' and 'fatal: broken index, expect \u003chash\u003e in .git/sharedindex.\u003chash\u003e, got \u003chash\u003e' are not marked ErrIndexUnreadable, so scope selection labels both '(revision unknown?)' (validate_scope.go:112), which R2 forbids. The previous round's word match marked both. Reproduced on Git 2.56 with overlay probes.",
+      "disposition": "open"
+    },
+    {
+      "id": "N19",
+      "severity": "low",
+      "evidence": "file:pose-mcp/internal/cli/report.go:309",
+      "action": "Stay silent only on Git's not-a-repository answer for a root with no .git, and warn otherwise.",
+      "disposition": "accepted-risk",
+      "owner": "pose-mcp maintainers",
+      "rationale": "A plain report is still silent, writing '_No files detected_' with no warning, when .git/config is broken or HEAD is invalid: rev-parse --git-dir fails there too. D3 says the report stays silent only where the root is not a repository.",
+      "review_by": "2026-12-31"
+    },
+    {
+      "id": "N20",
+      "severity": "low",
+      "evidence": "file:pose-mcp/internal/cli/validate_scope.go:112",
+      "action": "Add the revision label only when Git rejects the revision, and drop the doubled prefix.",
+      "disposition": "accepted-risk",
+      "owner": "pose-mcp maintainers",
+      "rationale": "Every failure not marked as an index failure is still labelled '(revision unknown?)', including a failed index lookup (not a repository, broken config, and by reading an expired lookup deadline), and the message still repeats itself: 'git diff X failed (revision unknown?): git diff failed:'.",
+      "review_by": "2026-12-31"
+    },
+    {
+      "id": "N21",
+      "severity": "low",
+      "evidence": "file:pose-mcp/internal/pose/review_attempt_ledger.go:536",
+      "action": "Test the ledger deadline and each English-locale site with a Git stand-in, and assert the report warning.",
+      "disposition": "accepted-risk",
+      "owner": "pose-mcp maintainers",
+      "rationale": "Guards still without a failing test: the ledger passing its context (ReadOnlyIndex there stays green), GitEnglish on the check, hand-over and lookup commands, the report's stderr warning and the memfd write fallback. TestIndexFailuresAreNamedInAnyLocale can only catch a missing English locale where Git's pt_BR translations are installed.",
+      "review_by": "2026-12-31"
+    },
+    {
+      "id": "N22",
+      "severity": "low",
+      "evidence": "file:pose-mcp/internal/cli/report.go:312",
+      "action": "Write a root-relative, bounded note into the report and keep the full error on stderr.",
+      "disposition": "accepted-risk",
+      "owner": "pose-mcp maintainers",
+      "rationale": "The versioned report still receives the checkout's absolute path, for example when the index cannot be opened ('pose: the index of /abs/root cannot be read: ... open /abs/root/.git/index: permission denied'); those pose-composed errors are not bounded either.",
+      "review_by": "2026-12-31"
+    }
+  ],
+  "authority": {
+    "schema_version": 1,
+    "project": "proj.pose-dist",
+    "bundle_digest": "sha256:1ef96bd0cda0438731d9bac27739fa0c51d8d495452b9d7f8d23b698c5bd4406",
+    "principal": "agent:anthropic/claude-sonnet-5-5",
+    "role": "agent",
+    "review_execution": "rrn-bd7106fcc6ae8449",
+    "implementation_principal": "agent:anthropic/claude-opus-5-5",
+    "implementation_execution": "sha256:344ac5868944c155772d60a95ef6ff20644580a642e772ad5c92c29428464ff8",
+    "issuer": "b34-local-executor",
+    "issued_at": "2026-11-27T02:55:16Z",
+    "audience": "proj.pose-dist"
+  },
+  "envelope": {
+    "issuer": "b34-local-executor",
+    "subject": "rvb-1ef96bd0cda04387",
+    "algorithm": "ed25519",
+    "public_key": "ck4sApdfePV2GT+hJyAYfJd2qLzeG55P8pevGR0bvZE=",
+    "signature": "QRhOlidUbkKGMjrz5M10pxDjiV/sDZPxugzVCFYhPtjbULLlWFpBu+6zMcPzL6gWDmv2BWq7NL3UnlJC/eGDAg=="
+  },
+  "attested_at": "2026-11-27T02:55:16Z",
+  "path": ".pose/review-attestations/rva-70a450f1ccd4d326.json"
+}
