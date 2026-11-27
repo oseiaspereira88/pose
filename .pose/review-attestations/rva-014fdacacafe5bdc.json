@@ -1,0 +1,238 @@
+{
+  "run": {
+    "run_id": "rrn-f0476b1f18d70fb9",
+    "proof_id": "rrp-c2737555d96a68410c8c74a846e1f6aab1e999210a8ffc1adeafa31630818e11"
+  },
+  "schema_version": 1,
+  "attestation_id": "rva-014fdacacafe5bdc",
+  "bundle_id": "rvb-3304387cf2a58734",
+  "bundle_digest": "sha256:3304387cf2a58734d1359eb78650cdb9e582e23e839350c8c0f4f379ee5091c7",
+  "reviewer": "agent:anthropic/claude-sonnet-5-5",
+  "decision": "changes-requested",
+  "criteria": [
+    {
+      "id": "assumption-integrity",
+      "disposition": "finding",
+      "evidence": "N23"
+    },
+    {
+      "id": "backend-concurrency",
+      "disposition": "passed",
+      "evidence": "unit:pose-mcp/go/test"
+    },
+    {
+      "id": "backend-contracts",
+      "disposition": "finding",
+      "evidence": "N23"
+    },
+    {
+      "id": "backend-input-errors",
+      "disposition": "finding",
+      "evidence": "N24"
+    },
+    {
+      "id": "backend-integration-impact",
+      "disposition": "passed",
+      "evidence": "integration:pose-mcp/go/check-git-spawns-integration"
+    },
+    {
+      "id": "backend-observability",
+      "disposition": "finding",
+      "evidence": "N24"
+    },
+    {
+      "id": "compatibility",
+      "disposition": "finding",
+      "evidence": "N23"
+    },
+    {
+      "id": "correctness",
+      "disposition": "finding",
+      "evidence": "N23"
+    },
+    {
+      "id": "design-causality",
+      "disposition": "passed",
+      "evidence": "structure:design-1c8a3d3c63eb7a6a",
+      "rationale": "D2 removes the stat-then-open race and keeps FIFOs from blocking (both mutations fail tests); D1 and L1 rest on measured Git behaviour; rewritten D3 removes the cause of R3-N18 by not classifying from text. Its resolution step is too narrow and drops causes, recorded as N23 and N24. The sealed design assessment lists no structural deltas."
+    },
+    {
+      "id": "documentation",
+      "disposition": "finding",
+      "evidence": "N24"
+    },
+    {
+      "id": "operability",
+      "disposition": "finding",
+      "evidence": "N24"
+    },
+    {
+      "id": "requirements",
+      "disposition": "finding",
+      "evidence": "N24"
+    },
+    {
+      "id": "scope",
+      "disposition": "passed",
+      "evidence": "integration:pose-mcp/go/artifact-claim-boundary-integration",
+      "rationale": "The 13 implementation files are the ones the spec lists, artifact-check strict exits 0, and the round stays within R2 and D3; the behaviour change it brings is recorded as N23."
+    },
+    {
+      "id": "security",
+      "disposition": "passed",
+      "evidence": "integration:pose-mcp/go/engine-reads-raw-history-integration",
+      "rationale": "Revisions pass safeGitRevRE before reaching rev-parse and diff, so none can be an option; the open path stays non-blocking, judged by fstat and bounded; Git environment sanitised; private copy 0600 and removed. Residual local paths in the report are low (N26)."
+    },
+    {
+      "id": "solution-proportionality",
+      "disposition": "passed",
+      "evidence": "unit:pose-mcp/go/test",
+      "rationale": "Dropping the classifier and resolving revisions is small and removes speculative text matching. The choice is invalid where a diff accepts a non-commit or where resolution fails for another reason (N23, N24); running the resolution only after the diff fails, keeping its stderr, would be as small and change no successful answer."
+    }
+  ],
+  "tools": [
+    {
+      "id": "artifact-check",
+      "disposition": "passed",
+      "evidence": "command:pose artifact-check --spec pose-validate-read-only-index-followups --strict",
+      "rationale": "Exit 0."
+    },
+    {
+      "id": "assess-design",
+      "disposition": "passed",
+      "evidence": "structure:design-1c8a3d3c63eb7a6a",
+      "rationale": "Observed, no deltas."
+    },
+    {
+      "id": "assess-discover",
+      "component": "pose-mcp",
+      "disposition": "passed",
+      "evidence": "command:pose assess discover --no-persist --component pose-mcp"
+    },
+    {
+      "id": "assess-integrate",
+      "disposition": "passed",
+      "evidence": "integration:pose-mcp/go/engine-reads-raw-history-integration",
+      "rationale": "Three HTTP consumer gaps reported, on endpoints this range does not touch."
+    },
+    {
+      "id": "assess-tech-debt",
+      "disposition": "passed",
+      "evidence": "command:pose assess tech-debt --no-persist",
+      "rationale": "Ran; the scan reports itself incomplete because two older specs could not be read."
+    },
+    {
+      "id": "closeout-check",
+      "disposition": "deferred",
+      "rationale": "Needs the completed review."
+    },
+    {
+      "id": "review-check",
+      "disposition": "deferred",
+      "rationale": "Needs the recorded attestation."
+    },
+    {
+      "id": "suggest-review",
+      "component": "pose-mcp",
+      "disposition": "passed",
+      "evidence": "command:pose suggest review --path pose-mcp"
+    },
+    {
+      "id": "surface-check",
+      "disposition": "passed",
+      "evidence": "integration:pose-mcp/go/engine-reads-raw-history-integration",
+      "rationale": "Exit 0 with zero findings."
+    },
+    {
+      "id": "validate",
+      "disposition": "passed",
+      "evidence": "unit:pose-mcp/go/test",
+      "rationale": "Rerun in the sandbox: exit 1, 236 steps, 224 pass, 11 fail, 1 timeout. The failed tests match sandbox limits (directory ownership by another user, denied network and delegation, runtime tests failing to start or timing out) or sit in files this range does not touch. Focused subject tests pass under -race. Relies on the sealed evidence."
+    },
+    {
+      "id": "validate",
+      "component": "pose-mcp",
+      "disposition": "passed",
+      "evidence": "unit:pose-mcp/go/test",
+      "rationale": "Rerun in the sandbox: exit 1, 233 steps, 221 pass, 11 fail, 1 timeout. The failed tests match sandbox limits (directory ownership by another user, denied network and delegation, runtime tests failing to start or timing out) or sit in files this range does not touch. Focused subject tests pass under -race. Relies on the sealed evidence."
+    }
+  ],
+  "evidence_refs": [
+    "N23",
+    "N24",
+    "delegated-run:rrn-f0476b1f18d70fb9",
+    "integration:pose-mcp/go/artifact-claim-boundary-integration",
+    "integration:pose-mcp/go/check-git-spawns-integration",
+    "integration:pose-mcp/go/engine-reads-raw-history-integration",
+    "structure:design-1c8a3d3c63eb7a6a",
+    "unit:pose-mcp/go/test"
+  ],
+  "findings": [
+    {
+      "id": "N23",
+      "severity": "medium",
+      "evidence": "file:pose-mcp/internal/cli/validate_scope.go:111",
+      "action": "The new commit resolution refuses revisions that git diff accepts and scope selection answered before: a tree as base or head (the empty tree 4b825dc642cb6eb9a060e54bf8d69288fbee4904, used to select everything, or any tree id) and HEAD^-. Each now fails as '(revision unknown?): \u003crev\u003e does not name a commit' while the plain diff succeeds. A read changed its answer outside any requirement or decision. Reproduced with overlay probes.",
+      "disposition": "open"
+    },
+    {
+      "id": "N24",
+      "severity": "medium",
+      "evidence": "file:pose-mcp/internal/cli/validate_scope.go:112",
+      "action": "Any failure of the rev-parse is reported as an unknown revision and Git's standard error is discarded: with a broken .git/config, outside a repository, or on a dubious-ownership refusal, scope selection says only '(revision unknown?): HEAD does not name a commit'. The cause and Git's safe.directory remedy are gone; the previous round's code reported Git's fatal line. Contradicts R2 and D3 (the label only when a revision does not name a commit, any other failure with Git's standard error). Reproduced with overlay probes.",
+      "disposition": "open"
+    },
+    {
+      "id": "N25",
+      "severity": "low",
+      "evidence": "file:pose-mcp/internal/pose/git_worktree_reads.go:115",
+      "action": "When truncating, keep the fatal and error lines or the tail.",
+      "disposition": "accepted-risk",
+      "owner": "pose-mcp maintainers",
+      "rationale": "The 600-byte bound keeps the start of Git's standard error, so warnings longer than that still hide the fatal line: a long diff.dirstat warning ahead of a corrupt index leaves no cause in scope selection or the report.",
+      "review_by": "2026-12-31"
+    },
+    {
+      "id": "N26",
+      "severity": "low",
+      "evidence": "file:pose-mcp/internal/cli/report.go:315",
+      "action": "Also replace the Git directory, or write no path into the note, and test both layouts.",
+      "disposition": "accepted-risk",
+      "owner": "pose-mcp maintainers",
+      "rationale": "Only the root string is replaced, so the versioned report still carries absolute paths when the index lies outside it: a POSE root below the repository top, or a linked worktree whose index is under the main .git/worktrees.",
+      "review_by": "2026-12-31"
+    },
+    {
+      "id": "N27",
+      "severity": "low",
+      "evidence": "file:pose-mcp/internal/cli/validate_scope.go:264",
+      "action": "Test both range forms with resolvable ends and the note's bound.",
+      "disposition": "accepted-risk",
+      "owner": "pose-mcp maintainers",
+      "rationale": "No test selects a healthy A..B or A...B range: removing the splitting in scopeRevisions, which would refuse every such range, leaves the focused tests green. The report note's bound is untested too.",
+      "review_by": "2026-12-31"
+    }
+  ],
+  "authority": {
+    "schema_version": 1,
+    "project": "proj.pose-dist",
+    "bundle_digest": "sha256:3304387cf2a58734d1359eb78650cdb9e582e23e839350c8c0f4f379ee5091c7",
+    "principal": "agent:anthropic/claude-sonnet-5-5",
+    "role": "agent",
+    "review_execution": "rrn-f0476b1f18d70fb9",
+    "implementation_principal": "agent:anthropic/claude-opus-5-5",
+    "implementation_execution": "sha256:344ac5868944c155772d60a95ef6ff20644580a642e772ad5c92c29428464ff8",
+    "issuer": "b34-local-executor",
+    "issued_at": "2026-11-27T04:23:33Z",
+    "audience": "proj.pose-dist"
+  },
+  "envelope": {
+    "issuer": "b34-local-executor",
+    "subject": "rvb-3304387cf2a58734",
+    "algorithm": "ed25519",
+    "public_key": "ck4sApdfePV2GT+hJyAYfJd2qLzeG55P8pevGR0bvZE=",
+    "signature": "p1pK3EWUnsJYlHOpwuxVbMsZadhUUewQuQU57U7/UTL+x1jy4t+6mvJCy57kPsoVqgppTR6CGa4siRATahcXAA=="
+  },
+  "attested_at": "2026-11-27T04:23:33Z",
+  "path": ".pose/review-attestations/rva-014fdacacafe5bdc.json"
+}
