@@ -1,7 +1,7 @@
 {
   "schema_version": 2,
-  "input_digest": "sha256:76b23dd8dbbbdc52f74e5fc854c635a3636e4086674e01ac5ad445c376ea40c3",
-  "provenance_digest": "sha256:de6ab89e8b72f60064e64e32c08a137a38e4b1a0846953f68f11ee6face00324",
+  "input_digest": "sha256:0fa89927f7b158a9a9efd2e2cb61a1d80ce4cb0299b808add433b47e42ee9cea",
+  "provenance_digest": "sha256:4937574d5c8d7eb0f5496e424bedfd35bdf0142a701e338f82ac6119d76c86f9",
   "implied_edges": [
     "changes"
   ],
@@ -33306,6 +33306,13 @@
       }
     },
     {
+      "id": "artifact:.pose/specs/2026-11-27-pose-review-resume-residuals.md",
+      "type": "artifact",
+      "attributes": {
+        "path": ".pose/specs/2026-11-27-pose-review-resume-residuals.md"
+      }
+    },
+    {
       "id": "artifact:.pose/specs/2026-11-27-pose-validate-index-reads-residuals.md",
       "type": "artifact",
       "attributes": {
@@ -48007,6 +48014,14 @@
       }
     },
     {
+      "id": "change-set:cs-3a26a38a62df",
+      "type": "change-set",
+      "attributes": {
+        "diff_digest": "sha256:aaa9d07c41003df43d23f7f78e6f7ae27e44588aeaeff539fa40742972c08a95",
+        "selector": "trailers:pose-review-resume-residuals"
+      }
+    },
+    {
       "id": "change-set:cs-3b24975e41b1",
       "type": "change-set",
       "attributes": {
@@ -48028,6 +48043,14 @@
       "attributes": {
         "diff_digest": "sha256:ee521bdd8fddc544adb8c1ae811bc6d57a24236a725b4809e6d8b5a7e58538a2",
         "selector": "trailers:pose-ci-avoids-anonymous-rate-limits"
+      }
+    },
+    {
+      "id": "change-set:cs-3c41fde3bb4f",
+      "type": "change-set",
+      "attributes": {
+        "diff_digest": "sha256:9c47fbe8fb1a78f5b3aef2e5d5b073b1c58cad2992a8faa6db1143f44fb263ef",
+        "selector": "trailers:pose-validate-index-reads-residuals"
       }
     },
     {
@@ -51100,14 +51123,6 @@
       "attributes": {
         "diff_digest": "sha256:20d5402559661645950001725106080593e9dc319774cb8b85e775cf2f405345",
         "selector": "range:fe765cf8aaaaff3ec93e91818e69e0781f92116a..HEAD"
-      }
-    },
-    {
-      "id": "change-set:cs-e5a4d050d0d5",
-      "type": "change-set",
-      "attributes": {
-        "diff_digest": "sha256:b7c4724f076cc153b869575b5d6a1a941f758bb2221964cf1563dff1671c3201",
-        "selector": "trailers:pose-validate-index-reads-residuals"
       }
     },
     {
@@ -136456,6 +136471,11 @@
       "type": "observed-by"
     },
     {
+      "from": "spec:pose-review-resume-residuals",
+      "to": "change-set:cs-3a26a38a62df",
+      "type": "observed-by"
+    },
+    {
       "from": "spec:pose-review-resume-runtime-dir-followups",
       "to": "artifact:.pose/specs/2026-11-26-pose-review-resume-runtime-dir-followups.md",
       "type": "declares"
@@ -143297,7 +143317,7 @@
     },
     {
       "from": "spec:pose-validate-index-reads-residuals",
-      "to": "change-set:cs-e5a4d050d0d5",
+      "to": "change-set:cs-3c41fde3bb4f",
       "type": "observed-by"
     },
     {
@@ -214853,6 +214873,32 @@
       "diff_digest": "sha256:b232333315db4cd7c823df9c8059f48039cfb4d03d9f42959b3de6b33c1d8c16"
     },
     {
+      "id": "cs-3a26a38a62df",
+      "spec": "pose-review-resume-residuals",
+      "selector": "trailers:pose-review-resume-residuals",
+      "base": "ee15d25d5762623e085c9ad8a23e39246beff599^",
+      "head": "ee15d25d5762623e085c9ad8a23e39246beff599",
+      "resolved_base": "1e1d80150fa6b6998d95ec385a3d1a8b5bfc5795",
+      "resolved_head": "ee15d25d5762623e085c9ad8a23e39246beff599",
+      "commits": [
+        "ee15d25d5762623e085c9ad8a23e39246beff599"
+      ],
+      "paths": [
+        {
+          "action": "created",
+          "path": ".pose/specs/2026-11-27-pose-review-resume-residuals.md"
+        }
+      ],
+      "diff_digest": "sha256:aaa9d07c41003df43d23f7f78e6f7ae27e44588aeaeff539fa40742972c08a95",
+      "material_digest": "sha256:a2a9f7e0261c7fe02214336d5c4a58202cd09c8c22c99759b9acf96bd69d51fd",
+      "material_inputs": {
+        "names": [
+          ".pose/indexes/validation-matrix.json",
+          ".pose/specs/2026-11-27-pose-review-resume-residuals.md"
+        ]
+      }
+    },
+    {
       "id": "cs-3b24975e41b1",
       "spec": "pose-governance-git-reads-untranslated",
       "selector": "trailers:pose-governance-git-reads-untranslated",
@@ -215700,6 +215746,48 @@
           ".pose/state/refresh-log.jsonl",
           ".pose/state/technical-debt.json",
           "tests/journeys/install-and-upgrade.sh"
+        ]
+      }
+    },
+    {
+      "id": "cs-3c41fde3bb4f",
+      "spec": "pose-validate-index-reads-residuals",
+      "selector": "trailers:pose-validate-index-reads-residuals",
+      "base": "dea756bdf7e308dd61716a9ce33d06b126ab4f80^",
+      "head": "1e1d80150fa6b6998d95ec385a3d1a8b5bfc5795",
+      "resolved_base": "aaf37446db1fe436816b4171eef08aaf6015d26a",
+      "resolved_head": "1e1d80150fa6b6998d95ec385a3d1a8b5bfc5795",
+      "commits": [
+        "dea756bdf7e308dd61716a9ce33d06b126ab4f80",
+        "1e1d80150fa6b6998d95ec385a3d1a8b5bfc5795"
+      ],
+      "paths": [
+        {
+          "action": "created",
+          "path": ".pose/specs/2026-11-27-pose-validate-index-reads-residuals.md"
+        },
+        {
+          "action": "modified",
+          "path": ".pose/indexes/delivery-integrity.json"
+        },
+        {
+          "action": "modified",
+          "path": ".pose/indexes/generation.json"
+        },
+        {
+          "action": "modified",
+          "path": ".pose/indexes/spec-graph.json"
+        }
+      ],
+      "diff_digest": "sha256:9c47fbe8fb1a78f5b3aef2e5d5b073b1c58cad2992a8faa6db1143f44fb263ef",
+      "material_digest": "sha256:f0dab996c592335f465f28d7371b50f3bbac848bf0085d61fb56b7696d1a3633",
+      "material_inputs": {
+        "names": [
+          ".pose/indexes/delivery-integrity.json",
+          ".pose/indexes/generation.json",
+          ".pose/indexes/spec-graph.json",
+          ".pose/indexes/validation-matrix.json",
+          ".pose/specs/2026-11-27-pose-validate-index-reads-residuals.md"
         ]
       }
     },
@@ -292702,32 +292790,6 @@
         }
       ],
       "diff_digest": "sha256:20d5402559661645950001725106080593e9dc319774cb8b85e775cf2f405345"
-    },
-    {
-      "id": "cs-e5a4d050d0d5",
-      "spec": "pose-validate-index-reads-residuals",
-      "selector": "trailers:pose-validate-index-reads-residuals",
-      "base": "dea756bdf7e308dd61716a9ce33d06b126ab4f80^",
-      "head": "dea756bdf7e308dd61716a9ce33d06b126ab4f80",
-      "resolved_base": "aaf37446db1fe436816b4171eef08aaf6015d26a",
-      "resolved_head": "dea756bdf7e308dd61716a9ce33d06b126ab4f80",
-      "commits": [
-        "dea756bdf7e308dd61716a9ce33d06b126ab4f80"
-      ],
-      "paths": [
-        {
-          "action": "created",
-          "path": ".pose/specs/2026-11-27-pose-validate-index-reads-residuals.md"
-        }
-      ],
-      "diff_digest": "sha256:b7c4724f076cc153b869575b5d6a1a941f758bb2221964cf1563dff1671c3201",
-      "material_digest": "sha256:f0dab996c592335f465f28d7371b50f3bbac848bf0085d61fb56b7696d1a3633",
-      "material_inputs": {
-        "names": [
-          ".pose/indexes/validation-matrix.json",
-          ".pose/specs/2026-11-27-pose-validate-index-reads-residuals.md"
-        ]
-      }
     },
     {
       "id": "cs-e5d455484909",
