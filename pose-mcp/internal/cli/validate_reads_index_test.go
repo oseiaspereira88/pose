@@ -2,7 +2,6 @@ package cli
 
 import (
 	"bytes"
-	"errors"
 	posemodel "github.com/harne8/pose-mcp/internal/pose"
 	"os"
 	"os/exec"
@@ -214,10 +213,10 @@ func TestIndexFailuresAreNamedInAnyLocale(t *testing.T) {
 		t.Fatal(err)
 	}
 	files, err := reportChangedFilesNoted(root, "", localeEN)
-	if !errors.Is(err, posemodel.ErrIndexUnreadable) {
-		t.Fatalf("a corrupt index in another locale was not named: %v", err)
+	if err == nil || !strings.Contains(err.Error(), "index file") {
+		t.Fatalf("a corrupt index in another locale was not named in Git's English words: %v", err)
 	}
-	if len(files) != 1 || !strings.HasPrefix(files[0], "_The changed files could not be listed: ") || strings.Contains(files[0], "\n") {
+	if len(files) != 1 || !strings.HasPrefix(files[0], "_The changed files could not be listed: ") || strings.Contains(files[0], "\n") || strings.Contains(files[0], root) {
 		t.Fatalf("the report did not state the failure on one line: %q", files)
 	}
 	clean, _ := staleIndexRepo(t)
@@ -228,5 +227,31 @@ func TestIndexFailuresAreNamedInAnyLocale(t *testing.T) {
 	t.Setenv("GIT_CEILING_DIRECTORIES", filepath.Dir(outside))
 	if files, err := reportChangedFilesNoted(outside, "", localeEN); err != nil || len(files) != 0 {
 		t.Fatalf("a plain report outside a repository was not silent: %q %v", files, err)
+	}
+	// A failure naming the checkout reaches the versioned report without its
+	// absolute path (review round 3, N22).
+	if files, err := reportChangedFilesNoted(outside, "HEAD", localeEN); err == nil || len(files) != 1 || strings.Contains(files[0], outside) || !strings.Contains(files[0], "<root>") {
+		t.Fatalf("the report kept the checkout's path: %q %v", files, err)
+	}
+}
+
+// Review round 3, N17–N18: a corrupt index is not taken for an unknown
+// revision, whatever Git says first, and an unknown revision is found by
+// resolving it.
+func TestScopeSelectionTellsRevisionsFromIndexFailures(t *testing.T) {
+	root, _ := staleIndexRepo(t)
+	cmd := exec.Command("git", "-C", root, "config", "diff.dirstat", "bogus")
+	if out, err := cmd.CombinedOutput(); err != nil {
+		t.Fatal(err, string(out))
+	}
+	if err := os.WriteFile(filepath.Join(root, ".git", "index"), []byte("not an index at all"), 0o644); err != nil {
+		t.Fatal(err)
+	}
+	_, err := computeChangedScopeWith(root, "HEAD", "", nil, scopeMetadata{})
+	if err == nil || strings.Contains(err.Error(), "revision unknown?") || !strings.Contains(err.Error(), "index file") {
+		t.Fatalf("a corrupt index behind a configuration warning: %v", err)
+	}
+	if _, err := computeChangedScopeWith(root, "HEAD..nonexistent", "", nil, scopeMetadata{}); err == nil || !strings.Contains(err.Error(), "revision unknown?") {
+		t.Fatalf("an unknown revision in a range: %v", err)
 	}
 }

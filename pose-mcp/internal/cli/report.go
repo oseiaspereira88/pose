@@ -298,7 +298,8 @@ func readLastReportRecord(path string) *reportRecord {
 }
 
 // reportChangedFilesNoted is reportChangedFiles for the report: outside a
-// repository the plain listing stays silent, as before (review round 1, N9);
+// repository Git can open at all the plain listing stays silent, as before
+// (review round 1, N9; round 3, N19);
 // any other failure is returned to warn about and stated in the list, on
 // one line (review round 2, N12, N15).
 func reportChangedFilesNoted(root, since string, locale cliLocale) ([]string, error) {
@@ -309,7 +310,12 @@ func reportChangedFilesNoted(root, since string, locale cliLocale) ([]string, er
 	if since == "" && posemodel.RawGit("-C", root, "rev-parse", "--git-dir").Run() != nil {
 		return files, nil
 	}
-	note := strings.ReplaceAll(err.Error(), "\n", " ")
+	// One line, bounded, without the checkout's absolute path, since the
+	// report is versioned (review round 3, N22).
+	note := strings.ReplaceAll(strings.ReplaceAll(err.Error(), "\n", " "), root, "<root>")
+	if len(note) > 600 {
+		note = note[:600] + "…"
+	}
 	return []string{cliText(locale, "_The changed files could not be listed: ", "_Os arquivos alterados não puderam ser listados: ") + note + "_"}, err
 }
 

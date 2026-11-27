@@ -9,7 +9,6 @@ import (
 	"os"
 	"os/exec"
 	"path/filepath"
-	"regexp"
 	"strings"
 	"time"
 )
@@ -102,36 +101,27 @@ func ReadOnlyIndexContext(ctx context.Context, cmd *exec.Cmd, root string) (func
 	return done, nil
 }
 
-// gitIndexFailureRE matches what Git says, in English, when it refuses the
-// index itself (review round 2, N13: the word "index" alone also matched a
-// revision named after it).
-var gitIndexFailureRE = regexp.MustCompile(`(?i)\bindex file\b|\bbad (index file )?signature\b|\bindex uses \S+ extension\b|\bbad index version\b`)
-
 // gitReadSaidLimit bounds what a read error keeps of Git's standard error.
-const gitReadSaidLimit = 300
+const gitReadSaidLimit = 600
 
-// GitReadError describes a failed git read with the first line of what git
-// said on standard error, bounded, marking it ErrIndexUnreadable when git
-// refused the index (review rounds 1 N1–N2, 2 N13, N15). Git must run with
-// LC_ALL=C for the mark to hold in any locale.
+// GitReadError describes a failed git read with what git said on standard
+// error, all of it on one line and bounded, so a warning Git prints first
+// does not hide the cause (review round 3, N17). It does not guess from the
+// words whether the index was at fault: ErrIndexUnreadable marks only the
+// failures of ReadOnlyIndex itself (review rounds 2 N13, 3 N18).
 func GitReadError(what string, err error, stderr []byte) error {
-	said := strings.TrimSpace(string(stderr))
-	if k := strings.IndexByte(said, '\n'); k >= 0 {
-		said = strings.TrimSpace(said[:k])
-	}
+	said := strings.Join(strings.Fields(strings.ReplaceAll(string(stderr), "\n", " ; ")), " ")
 	if len(said) > gitReadSaidLimit {
 		said = said[:gitReadSaidLimit] + "…"
 	}
 	if said == "" {
 		return fmt.Errorf("%s failed: %w", what, err)
 	}
-	if gitIndexFailureRE.MatchString(said) {
-		return fmt.Errorf("%s failed: %w: %w: %s", what, ErrIndexUnreadable, err, said)
-	}
 	return fmt.Errorf("%s failed: %w: %s", what, err, said)
 }
 
-// GitEnglish makes cmd's messages English, so GitReadError can read them.
+// GitEnglish makes cmd's messages English, so the causes reported read the
+// same in every locale.
 func GitEnglish(cmd *exec.Cmd) {
 	cmd.Env = append(cmd.Env, "LC_ALL=C", "LANGUAGE=C")
 }

@@ -421,16 +421,15 @@ func TestReadOnlyIndexDiffCoversConflictsRangesAndDirtySubmodules(t *testing.T) 
 // outside a repository is not an index failure, and the lookup honours the
 // caller's context.
 func TestGitReadErrorsNameTheirCause(t *testing.T) {
-	long := "fatal: index file smaller than expected " + strings.Repeat("x", 500) + "\nsecond line"
-	err := GitReadError("git diff", errors.New("exit status 128"), []byte(long))
-	if !errors.Is(err, ErrIndexUnreadable) || strings.Contains(err.Error(), "second line") || len(err.Error()) > 400 {
-		t.Fatalf("an index refusal: %v", err)
+	// A warning first does not hide the cause; all of it is one line.
+	err := GitReadError("git diff", errors.New("exit status 128"), []byte("warning: Found errors in 'diff.dirstat' config variable:\nfatal: index file corrupt\n"))
+	if !strings.Contains(err.Error(), "fatal: index file corrupt") || strings.Contains(err.Error(), "\n") {
+		t.Fatalf("the cause behind a warning: %q", err)
 	}
-	if err := GitReadError("git diff", errors.New("exit status 128"), []byte("fatal: index file corrupt\nhint: second line")); strings.Contains(err.Error(), "second line") {
-		t.Fatalf("a multi-line message was kept whole: %v", err)
-	}
-	if err := GitReadError("git diff", errors.New("exit status 128"), []byte("fatal: bad revision 'feature/index-rework'")); errors.Is(err, ErrIndexUnreadable) {
-		t.Fatalf("a revision named after the index: %v", err)
+	// Bounded, and never classified from its words.
+	err = GitReadError("git diff", errors.New("exit status 128"), []byte("fatal: index file smaller than expected "+strings.Repeat("x", 2000)))
+	if len(err.Error()) > 700 || errors.Is(err, ErrIndexUnreadable) {
+		t.Fatalf("a long message: %d bytes, index-marked %v", len(err.Error()), errors.Is(err, ErrIndexUnreadable))
 	}
 	outside := t.TempDir()
 	t.Setenv("GIT_CEILING_DIRECTORIES", filepath.Dir(outside))

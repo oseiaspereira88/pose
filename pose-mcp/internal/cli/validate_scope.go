@@ -104,12 +104,17 @@ func computeChangedScopeWith(root, base, head string, modules []validationModule
 	gitArgs = append(gitArgs, "--")
 	// The diff reads the index without writing it (spec
 	// pose-validate-reads-leave-the-index-alone R1).
-	out, err := posemodel.RawGitDiffReadOnly(root, gitArgs...)
-	if errors.Is(err, posemodel.ErrIndexUnreadable) {
-		return sel, fmt.Errorf("scope selection over %s: %v", sel.rangeLabel(), err)
+	// A revision is judged by resolving it, not by reading Git's message
+	// (review rounds 2 N13, 3 N17–N18): only then is a failure "revision
+	// unknown?"; any other is reported with Git's own words.
+	for _, rev := range scopeRevisions(base, head) {
+		if posemodel.RawGit("-C", root, "rev-parse", "--verify", "--quiet", rev+"^{commit}").Run() != nil {
+			return sel, fmt.Errorf("git diff %s failed (revision unknown?): %s does not name a commit", sel.rangeLabel(), rev)
+		}
 	}
+	out, err := posemodel.RawGitDiffReadOnly(root, gitArgs...)
 	if err != nil {
-		return sel, fmt.Errorf("git diff %s failed (revision unknown?): %v", sel.rangeLabel(), err)
+		return sel, fmt.Errorf("scope selection over %s: %v", sel.rangeLabel(), err)
 	}
 	for _, name := range strings.Split(string(out), "\x00") {
 		if name != "" {
@@ -247,4 +252,26 @@ func declaredDependencyHits(file string, deps []string) []string {
 		}
 	}
 	return hits
+}
+
+// scopeRevisions are the revisions a scope diff names: base and head, and the
+// ends of a range written A..B or A...B.
+func scopeRevisions(base, head string) []string {
+	var revs []string
+	for _, r := range []string{base, head} {
+		if r == "" {
+			continue
+		}
+		sep := ".."
+		if strings.Contains(r, "...") {
+			sep = "..."
+		}
+		for _, part := range strings.Split(r, sep) {
+			if part == "" {
+				part = "HEAD"
+			}
+			revs = append(revs, part)
+		}
+	}
+	return revs
 }
