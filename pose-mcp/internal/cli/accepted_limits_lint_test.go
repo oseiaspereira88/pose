@@ -2,8 +2,10 @@ package cli
 
 import (
 	"bytes"
+	"encoding/json"
 	posemodel "github.com/harne8/pose-mcp/internal/pose"
 	"os"
+	"os/exec"
 	"path/filepath"
 	"strings"
 	"testing"
@@ -112,5 +114,52 @@ func TestWithinLimitFindingsAreTypedAndShown(t *testing.T) {
 	renderWithinLimitFindings(render(&out, &out), "review", &posemodel.ReviewAttempt{Findings: []posemodel.ReviewFinding{{ID: "N1", Severity: "low", Disposition: "within-limit", Limit: "L1", Rationale: "inside"}, {ID: "N2", Disposition: "accepted-risk"}}})
 	if !strings.Contains(out.String(), "N1 limit:L1") || strings.Contains(out.String(), "N2") {
 		t.Fatalf("the text output: %q", out.String())
+	}
+}
+
+// Spec pose-review-declared-limits-residuals R7: pose review-check and pose
+// closeout-check print a recorded within-limit finding.
+func TestTheChecksPrintWithinLimitFindings(t *testing.T) {
+	root := reviewBundleCLIFixture(t)
+	spec := filepath.Join(root, ".pose/specs/bundle/spec.md")
+	raw, err := os.ReadFile(spec)
+	if err != nil {
+		t.Fatal(err)
+	}
+	if err := os.WriteFile(spec, []byte(strings.Replace(string(raw), "### Risks", "### Accepted limits\n- L1: An escape is open. Accepted because it is rare.\n\n### Risks", 1)), 0o644); err != nil {
+		t.Fatal(err)
+	}
+	for _, args := range [][]string{{"add", "-A"}, {"-c", "user.name=t", "-c", "user.email=t@t", "commit", "-q", "-m", "limits"}} {
+		if out, err := exec.Command("git", append([]string{"-C", root}, args...)...).CombinedOutput(); err != nil {
+			t.Fatal(args, err, string(out))
+		}
+	}
+	var out, errOut bytes.Buffer
+	if code := cmdReview(root, []string{"bundle", "spec:bundle", "--seal", "--json"}, &out, &errOut); code != 0 {
+		t.Fatalf("seal code=%d err=%s", code, errOut.String())
+	}
+	var sealed posemodel.ReviewBundle
+	if err := json.Unmarshal(out.Bytes(), &sealed); err != nil {
+		t.Fatal(err)
+	}
+	evidence := sealed.Payload.Evidence[0].EvidenceClass + ":" + sealed.Payload.Evidence[0].ID
+	out.Reset()
+	errOut.Reset()
+	attest := []string{"attest", sealed.BundleID, "--reviewer", "agent:reviewer", "--decision", "approved", "--evidence", evidence, "--tool", "artifact-check|-|passed|check:artifact|", "--tool", "validate|pose-mcp|passed|validation:module|", "--finding", "n1|low|within-limit|note it|" + evidence + "||it is inside L1||L1", "--apply"}
+	if code := cmdReview(root, attest, &out, &errOut); code != 0 {
+		t.Fatalf("attest code=%d out=%s err=%s", code, out.String(), errOut.String())
+	}
+	run := func(args ...string) string {
+		var o, e bytes.Buffer
+		inDir(t, root, func() { Main(args, &o, &e) })
+		return o.String() + e.String()
+	}
+	for _, tc := range []struct{ out, field string }{
+		{run("review-check", "spec:bundle"), "review.within_limit="},
+		{run("closeout-check", "spec:bundle"), "closeout.within_limit="},
+	} {
+		if !strings.Contains(tc.out, tc.field) || !strings.Contains(tc.out, "n1 limit:L1") {
+			t.Fatalf("%s missing:\n%s", tc.field, tc.out)
+		}
 	}
 }

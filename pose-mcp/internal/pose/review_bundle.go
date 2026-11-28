@@ -3165,7 +3165,9 @@ func reviewDecisionApproves(decision string) bool {
 // its channel's authentication still applies in the writer.
 func (s Store) reviewApprovalAdmissionBlockers(bundle ReviewBundle, att ReviewAttestation, now time.Time) []string {
 	if !reviewDecisionApproves(att.Decision) {
-		return nil
+		// Whatever the decision, no attestation names a limit the bundle
+		// did not seal (spec pose-review-declared-limits-residuals R6).
+		return unsealedLimitBlockers(bundle, att)
 	}
 	blockers := s.atReviewTime(now).validateBundleAttestation(bundle, att)
 	blockers = append(blockers, reviewNewOperationTimeBlockers(att, now)...)
@@ -4947,4 +4949,16 @@ func (s Store) reviewBundleClaudeSkillDigest(rel string) (string, error) {
 		return fail()
 	}
 	return digestBytes([]byte(target)), nil
+}
+
+// unsealedLimitBlockers refuses a within-limit finding whose limit the bundle
+// did not seal.
+func unsealedLimitBlockers(bundle ReviewBundle, att ReviewAttestation) []string {
+	var blockers []string
+	for _, f := range att.Findings {
+		if f.Disposition == "within-limit" && !sealedAcceptedLimit(bundle, f.Limit) {
+			blockers = append(blockers, "finding "+f.ID+" is within-limit of "+quoteLedgerText(f.Limit)+", which bundle "+bundle.BundleID+" did not seal")
+		}
+	}
+	return blockers
 }

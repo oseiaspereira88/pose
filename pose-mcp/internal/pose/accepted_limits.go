@@ -9,6 +9,7 @@ package pose
 // brief and the attestation.
 
 import (
+	"fmt"
 	"regexp"
 	"strings"
 )
@@ -91,6 +92,12 @@ func ParseAcceptedLimits(body string) ([]ReviewAcceptedLimit, []string) {
 	for _, raw := range strings.Split(body, "\n") {
 		marker := strings.Contains(raw, "<!--") || strings.Contains(raw, "-->")
 		if in && marker {
+			// The next section's heading closes the section, whatever
+			// comment it holds (spec pose-review-declared-limits-residuals R4).
+			if vis, still := visibleOutsideComments(raw, inComment); fence == "" && headingLine(vis) && !isAcceptedLimitsHeading(vis) {
+				in, inComment = false, still
+				continue
+			}
 			if !refused {
 				problems = append(problems, "accepted limits: the section holds an HTML comment marker; write the limits without comments")
 			}
@@ -103,7 +110,7 @@ func ParseAcceptedLimits(body string) ([]ReviewAcceptedLimit, []string) {
 			visible, still := visibleOutsideComments(raw, inComment)
 			inComment = still
 			line = visible
-			if marker && acceptedLimitsHeadingRE.MatchString(strings.TrimSpace(line)) {
+			if marker && isAcceptedLimitsHeading(line) {
 				// A comment on the section's own heading line.
 				problems = append(problems, "accepted limits: the section heading holds an HTML comment marker; write it without comments")
 				refused = true
@@ -113,7 +120,9 @@ func ParseAcceptedLimits(body string) ([]ReviewAcceptedLimit, []string) {
 		}
 		trimmed := strings.TrimSpace(line)
 		indent := len(line) - len(strings.TrimLeft(line, " \t"))
-		if m := fenceMarker(trimmed); m != "" {
+		// Four spaces or more is indented code or a limit's continuation,
+		// never a fence (R3).
+		if m := fenceMarker(trimmed); m != "" && (indent <= 3 || fence != "") {
 			if in {
 				report(line, "is a code fence; examples belong outside the section")
 			}
@@ -132,11 +141,11 @@ func ParseAcceptedLimits(body string) ([]ReviewAcceptedLimit, []string) {
 			// An indented heading-like line inside the section: read as a
 			// heading it would end the section and cut a limit (R1; review
 			// round 1, N5).
-			report(line, "is a heading inside a limit; write the limit as one item")
+			report(line, "is an indented heading-like line in the accepted limits section; write headings unindented and each limit as one item")
 			continue
 		}
 		if indent <= 3 && markdownHeadingRE.MatchString(trimmed) {
-			in = acceptedLimitsHeadingRE.MatchString(trimmed)
+			in = isAcceptedLimitsHeading(trimmed)
 			continue
 		}
 		if !in || trimmed == "" {
@@ -168,10 +177,10 @@ func ParseAcceptedLimits(body string) ([]ReviewAcceptedLimit, []string) {
 	}
 	if inComment {
 		problems = append(problems, "accepted limits: an unterminated HTML comment hides the rest of the spec")
-		return nil, problems
+		return nil, boundProblems(problems)
 	}
 	if refused {
-		return nil, problems
+		return nil, boundProblems(problems)
 	}
 	for _, e := range entries {
 		if e.id == "" {
@@ -192,7 +201,32 @@ func ParseAcceptedLimits(body string) ([]ReviewAcceptedLimit, []string) {
 		}
 		limits = append(limits, ReviewAcceptedLimit{ID: e.id, Text: e.text})
 	}
-	return limits, problems
+	return limits, boundProblems(problems)
+}
+
+// acceptedLimitProblemLimit bounds the problems one spec reports.
+const acceptedLimitProblemLimit = 20
+
+// boundProblems keeps the first problems and counts the rest (R4).
+func boundProblems(problems []string) []string {
+	if len(problems) <= acceptedLimitProblemLimit {
+		return problems
+	}
+	rest := len(problems) - acceptedLimitProblemLimit
+	return append(problems[:acceptedLimitProblemLimit:acceptedLimitProblemLimit], fmt.Sprintf("accepted limits: %d more problems not shown", rest))
+}
+
+// isAcceptedLimitsHeading reports whether line, its words read as Markdown
+// shows them (a comment between them removed), is the section's heading (R1).
+func isAcceptedLimitsHeading(line string) bool {
+	return acceptedLimitsHeadingRE.MatchString(strings.Join(strings.Fields(line), " "))
+}
+
+// headingLine reports whether line is a Markdown heading (up to three spaces
+// of indent).
+func headingLine(line string) bool {
+	indent := len(line) - len(strings.TrimLeft(line, " \t"))
+	return indent <= 3 && markdownHeadingRE.MatchString(strings.TrimSpace(line))
 }
 
 var (
@@ -217,12 +251,6 @@ func fenceMarker(trimmed string) string {
 		return trimmed[:n]
 	}
 	return ""
-}
-
-// acceptedLimitsOf collects the limits the scope's specs declare.
-func (s Store) acceptedLimitsOf(scope ScopeRef) []ReviewAcceptedLimit {
-	limits, _ := s.acceptedLimitsAndProblemsOf(scope)
-	return limits
 }
 
 // acceptedLimitsAndProblemsOf is acceptedLimitsOf with the problems that kept
@@ -275,6 +303,9 @@ func sealedAcceptedLimit(bundle ReviewBundle, id string) bool {
 // it as text, as a spec that names the marker does (review of
 // pose-review-declared-limits-followups: its own R2 named it).
 func htmlCommentStart(s string, from int) int {
+	// Inline code is read as Markdown reads it: a run of n backticks opens a
+	// span that only a run of exactly n backticks on the line closes; an
+	// unclosed run is text (R2).
 	for {
 		k := strings.Index(s[from:], "<!--")
 		if k < 0 {
@@ -282,11 +313,55 @@ func htmlCommentStart(s string, from int) int {
 		}
 		k += from
 		lineStart := strings.LastIndex(s[:k], "\n") + 1
-		if strings.Count(s[lineStart:k], "`")%2 == 0 {
+		if !insideCodeSpan(s[lineStart:], k-lineStart) {
 			return k
 		}
 		from = k + 4
 	}
+}
+
+// insideCodeSpan reports whether position pos of line falls inside an inline
+// code span.
+func insideCodeSpan(line string, pos int) bool {
+	i := 0
+	for i < len(line) {
+		if line[i] != '`' {
+			i++
+			continue
+		}
+		n := 0
+		for i+n < len(line) && line[i+n] == '`' {
+			n++
+		}
+		open := i
+		j := i + n
+		closed := -1
+		for j < len(line) {
+			if line[j] != '`' {
+				j++
+				continue
+			}
+			m := 0
+			for j+m < len(line) && line[j+m] == '`' {
+				m++
+			}
+			if m == n {
+				closed = j
+				break
+			}
+			j += m
+		}
+		if closed < 0 {
+			// An unclosed run is text; go on after it.
+			i = open + n
+			continue
+		}
+		if pos > open && pos < closed {
+			return true
+		}
+		i = closed + n
+	}
+	return false
 }
 
 // visibleOutsideComments returns what of line Markdown shows outside HTML

@@ -1,6 +1,6 @@
 ---
 slug: pose-review-declared-limits-residuals
-status: draft        # draft | in-progress | done | superseded | abandoned; blocked = operational wait, not terminal
+status: in-progress        # draft | in-progress | done | superseded | abandoned; blocked = operational wait, not terminal
 created_at: 2026-11-27
 completed_at:        # stamped on the transition to status: done
 supersedes:          # slug of the superseded spec (when applicable)
@@ -10,7 +10,7 @@ priority: 3
 components: pose-mcp
 task_type: bugfix
 surface: standard
-delivers:            # optional typed refs: surface:id, contract:id, capability:id, infrastructure:id, governance:id
+delivers: capability:review-declared-limits-residuals
 ---
 
 # Spec: pose-review-declared-limits-residuals
@@ -56,32 +56,46 @@ Records and indexes written by earlier engines keep their meaning.
 `pose-mcp`: `accepted_limits.go`, `review_closeout.go`, `review_conclusions.go`, the manual in both locales, and their tests.
 
 ### Artifacts
-Declared when the spec starts.
+- created: .pose/specs/2026-11-27-pose-review-declared-limits-residuals.md
+- modified: pose-mcp/internal/pose/accepted_limits.go
+- modified: pose-mcp/internal/pose/accepted_limits_test.go
+- created: pose-mcp/internal/pose/accepted_limits_residuals_test.go
+- modified: pose-mcp/internal/pose/review_bundle.go
+- modified: pose-mcp/internal/pose/review_conclusions.go
+- modified: pose-mcp/internal/cli/accepted_limits_lint_test.go
+- modified: POSE.md
+- modified: locales/pt-BR/POSE.md
+- modified: pose-mcp/internal/scaffold/dist/POSE.md
+- modified: pose-mcp/internal/scaffold/dist/locales/pt-BR/POSE.md
 
 ### Delivery targets
-Declared when the spec starts.
+- capability:review-declared-limits-residuals module:pose-mcp profile:composed-capability entrypoint:pose-mcp/internal/cli/lintspec.go
 
 ### API/contract changes
-To be detailed when the spec starts.
+`pose review attest` refuses, for any decision, a within-limit finding whose limit the bundle did not seal. A recorded run-backed attestation an earlier engine derived within an unsealed limit still matches its draft.
 
 ### Data/storage changes
-To be detailed when the spec starts.
+None.
 
 ### Technical risks
-To be detailed when the spec starts.
+Inline code spans are read per line; a span that Markdown would continue on the next line is read as text, which can only make a marker count as a comment and refuse, never hide a limit.
 
 ## 4. Tasks
 
 ### Planning
-- [ ] Confirm each requirement against the current engine before starting.
+- [x] Confirm each requirement against the current engine before starting.
 
 ### Implementation
-- [ ] Implement each requirement with a test that fails before it.
+- [x] Implement each requirement with a test that fails before it.
 
 ### Validation
 - [ ] `pose validate --carry` and `pose check --strict`.
 
 ## 5. Decisions
+
+### Decision D1
+- Basis: R8
+The legacy derivation is kept beside the current one only to compare records: when a run-backed attestation differs from its draft only in findings, and the earlier derivation (within-limit for any named limit) reproduces them, the record still matches. New attestations always use the current derivation.
 
 ## 6. Validation
 
@@ -94,22 +108,37 @@ Each requirement gets a regression test shown failing before its code.
 - Command: `go test ./...` (in `pose-mcp`), then `pose validate --carry`.
 
 ### Execution log
+- 2026-11-28: R1 reads the heading's words with a comment removed (`isAcceptedLimitsHeading`); R2 reads inline code spans by run length (`insideCodeSpan`); R3 opens fences only up to three spaces of indent; R4 lets the next heading close the section whatever comment it holds, words the indented-heading problem and bounds problems to 20 plus a count; R5 the manual in both locales and the embedded copies; R6 refuses an unsealed limit for any decision (`unsealedLimitBlockers`); R7 tests the checks themselves; R8 keeps the earlier derivation for comparison (D1) and removes `acceptedLimitsOf`. `TestAcceptedLimitsResiduals`, `TestNoAttestationNamesAnUnsealedLimit`, `TestAnEarlierWithinLimitDerivationStillMatches` and `TestTheChecksPrintWithinLimitFindings` fail with each guard mutated out.
 
 ### Results summary
+The full `pose-mcp` suite passes; the canonical result is refreshed with `pose validate --carry`.
 
 ### Requirement trace
+- R1 [satisfied] test:TestAcceptedLimitsResiduals
+- R2 [satisfied] test:TestAcceptedLimitsResiduals
+- R3 [satisfied] test:TestAcceptedLimitsResiduals
+- R4 [satisfied] test:TestAcceptedLimitsResiduals
+- R5 [satisfied] (manual, both locales)
+- R6 [satisfied] test:TestNoAttestationNamesAnUnsealedLimit
+- R7 [satisfied] test:TestTheChecksPrintWithinLimitFindings
+- R8 [satisfied] test:TestAnEarlierWithinLimitDerivationStillMatches
 
 ### Known gaps
+None.
 
 ## 7. Final Report
 
 ### Delivered scope
+The accepted-limits reader handles comments in the heading, code spans and indented code, closes on the next heading and bounds its problems; no attestation names an unsealed limit; the checks print within-limit findings; earlier records keep matching; the manual states the comment rules.
 
 ### Files and modules changed
+`pose-mcp` accepted limits, review admission and conclusions, with their tests; the manual in both locales and its embedded copies.
 
 ### Validation executed
+`go test ./...` in `pose-mcp`; `pose check --strict`; `pose validate --carry --json-out .pose/results/delivery-validation.json`.
 
 ### Residual risks
+None beyond those of the origin spec.
 
 ### Follow-ups
-Origin: `pose-review-declared-limits-followups` (done 2026-11-27).
+None. Origin: `pose-review-declared-limits-followups` (done 2026-11-27).

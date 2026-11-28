@@ -228,7 +228,7 @@ func TestAcceptedLimitsEndWhereTheirItemEnds(t *testing.T) {
 // code included, is reported and nothing is sealed cut by it.
 func TestAcceptedLimitsRefuseWhatWouldCutThem(t *testing.T) {
 	cases := []struct{ name, body, problem string }{
-		{"indented heading", "### Accepted limits\n- L1: An escape is open. Accepted because a shim covers it\n  # of cases on Linux and only for children.\n", "heading inside a limit"},
+		{"indented heading", "### Accepted limits\n- L1: An escape is open. Accepted because a shim covers it\n  # of cases on Linux and only for children.\n", "indented heading-like line"},
 		{"second unterminated comment", "<!-- closed -->\n### Accepted limits\n- L1: An escape is open. Accepted because it is rare <!-- and so on\n", "HTML comment"},
 		{"unterminated after a closed one", "<!-- closed -->\n<!-- open\n### Accepted limits\n- L1: An escape is open. Accepted because it is rare.\n", "unterminated HTML comment"},
 		{"unterminated after a closed one, in code", "A spec may name `<!--` in its prose.\n<!-- closed -->\n### Accepted limits\n- L1: An escape is open. Accepted because it is rare <!-- and so on\n", "HTML comment"},
@@ -303,7 +303,7 @@ func TestAcceptedLimitsReadCommentsWhereTheSectionIs(t *testing.T) {
 		}
 	}
 	indented := "### Accepted limits\n  - L1: An escape is open. Accepted because a shim covers it\n  # of cases on Linux.\n"
-	if limits, problems := ParseAcceptedLimits(indented); len(limits) != 0 || !strings.Contains(strings.Join(problems, ";"), "heading inside a limit") {
+	if limits, problems := ParseAcceptedLimits(indented); len(limits) != 0 || !strings.Contains(strings.Join(problems, ";"), "indented heading-like line") {
 		t.Fatalf("an indented heading under an indented marker: %+v %v", limits, problems)
 	}
 }

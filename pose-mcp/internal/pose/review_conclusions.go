@@ -153,6 +153,13 @@ func (s Store) reviewConclusionCurrency(run ReviewRun, bundle ReviewBundle) []st
 // draft names; a criterion or a tool the draft does not answer is left for
 // the preflight to refuse, never answered for it.
 func reviewAttestationFromDraft(run ReviewRun, bundle ReviewBundle, draft ReviewDraft, reviewer string) ReviewAttestation {
+	return reviewAttestationFromDraftWith(run, bundle, draft, reviewer, true)
+}
+
+// reviewAttestationFromDraftWith derives the attestation; sealedOnly false is
+// the derivation before spec pose-review-declared-limits-followups R4, which
+// recorded within-limit for any named limit (kept to compare older records).
+func reviewAttestationFromDraftWith(run ReviewRun, bundle ReviewBundle, draft ReviewDraft, reviewer string, sealedOnly bool) ReviewAttestation {
 	att := ReviewAttestation{BundleID: bundle.BundleID, BundleDigest: bundle.BundleDigest, Reviewer: reviewer, Decision: draft.Decision}
 	evidence := map[string]bool{"delegated-run:" + run.RunID: true}
 	for _, c := range draft.Criteria {
@@ -185,7 +192,7 @@ func reviewAttestationFromDraft(run ReviewRun, bundle ReviewBundle, draft Review
 		// another is recorded as the follow-up it otherwise is, so no
 		// attestation names a limit that does not exist (spec
 		// pose-review-declared-limits-followups R4).
-		if f.Disposition == "follow-up" && f.Limit != "" && sealedAcceptedLimit(bundle, f.Limit) {
+		if f.Disposition == "follow-up" && f.Limit != "" && (!sealedOnly || sealedAcceptedLimit(bundle, f.Limit)) {
 			finding.Disposition, finding.Limit, finding.Rationale, finding.Owner, finding.ReviewBy = "within-limit", f.Limit, f.Summary, f.Owner, f.ReviewBy
 		}
 		att.Findings = append(att.Findings, finding)
@@ -254,6 +261,13 @@ func runConclusionDiffers(run ReviewRun, bundle ReviewBundle, att ReviewAttestat
 	differ = append(differ, differingItems("tool", concludingTools(bundle.Payload.Plan.Tools, att.Tools), concludingTools(bundle.Payload.Plan.Tools, want.Tools))...)
 	differ = append(differ, differingItems("finding", att.Findings, want.Findings)...)
 	if len(differ) > 0 {
+		// A record an earlier engine derived, within a limit it did not
+		// check was sealed, still matches its draft (spec
+		// pose-review-declared-limits-residuals R8).
+		legacy := reviewAttestationFromDraftWith(run, bundle, *draft, att.Reviewer, false)
+		if len(differingItems("finding", att.Findings, legacy.Findings)) == 0 && len(differ) == len(differingItems("finding", att.Findings, want.Findings)) {
+			return ""
+		}
 		return strings.Join(differ, "; ")
 	}
 	return ""
