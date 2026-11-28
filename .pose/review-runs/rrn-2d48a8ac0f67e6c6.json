@@ -1,0 +1,139 @@
+{
+  "safety": {
+    "schema_version": 1,
+    "profile": "legacy-trusted",
+    "platform": "linux/amd64",
+    "capabilities": {
+      "automatic-expiry": "unavailable",
+      "bounded-capture": "available",
+      "cpu-limit": "unavailable",
+      "credential-filesystem-isolation": "unavailable",
+      "environment-allowlist": "available",
+      "escaped-descendant-termination": "environment-marked",
+      "filesystem-isolation": "unavailable",
+      "memory-limit": "unavailable",
+      "network-isolation": "unavailable",
+      "origin-isolation": "unavailable",
+      "parent-termination": "available",
+      "process-group-termination": "available",
+      "shared-git-isolation": "unavailable"
+    },
+    "limitations": [
+      "trusted local executable required; worktree is not a sandbox",
+      "outside writes, transient writes, shared Git and credential files are not isolated",
+      "no memory/CPU quota; the review run shim ends every process left in the run's subtree, including one in its own session",
+      "cleanup filesystem calls remain subject to operating-system I/O latency",
+      "legacy compatibility: HOME retained; other ambient credentials excluded"
+    ],
+    "stream_bytes": 8388608,
+    "output_bytes": 65536,
+    "retained_bytes": 16777216,
+    "timeout_ms": 3600000,
+    "max_runs_per_bundle": 3,
+    "retention": "retain-evidence; ttl=0; no automatic deletion",
+    "capture_complete": true,
+    "runtime_id": "pose-review-run-6851f68889",
+    "operation": {
+      "schema_version": 1,
+      "operation": "review.dispatch.cleanup",
+      "scope": "spec:pose-validate-carry-report-and-closeout-coverage",
+      "outcome": "completed",
+      "steps_run": [
+        {
+          "id": "cleanup",
+          "result": "done"
+        }
+      ],
+      "effects": [],
+      "resumable": false
+    }
+  },
+  "provenance": {
+    "execution_state": "started",
+    "planned_wire_digest": "sha256:3075d762c47c823286089b8e339654b85ae8e76b21870419b91c7470c96b43d2",
+    "wire_bytes": 29294,
+    "wire_complete": true,
+    "schema_version": 1,
+    "project": "proj.pose-dist",
+    "audience": "proj.pose-dist",
+    "worktree_digest": "sha256:092ca52378c4c0d0f2b627da8d5031dbb854563bd4b9f2474458710c62a14816",
+    "trust": "executor-attested",
+    "implementation": {
+      "principal": "agent:anthropic/claude-opus-5-5",
+      "execution": "sha256:344ac5868944c155772d60a95ef6ff20644580a642e772ad5c92c29428464ff8",
+      "vendor": "anthropic",
+      "model": "claude-opus-5-5"
+    },
+    "reviewer": {
+      "principal": "agent:anthropic/claude-sonnet-5-5",
+      "vendor": "anthropic",
+      "model": "claude-sonnet-5-5"
+    },
+    "config_digest": "sha256:b23684d462090c30b29c472aa98a57bfadccc0b92e14fbacb173eb47d1f5b8ea",
+    "command_template_digest": "sha256:3d843a49f6314194edbdf4f7f3ce02992895b45ad84d90915a0b66a1db8afd54",
+    "argv_digest": "sha256:7cc6eda9d58333b21418e85fabc7b1708fd760921b66a80bd539891814d97d49",
+    "executable_digest": "sha256:c157074818b094c84aaf31b8c80a1e149f234bb1c8c84a25e9a53e96afa30a29",
+    "template_version": "review-brief/11",
+    "wire_digest": "sha256:3075d762c47c823286089b8e339654b85ae8e76b21870419b91c7470c96b43d2",
+    "notes_digest": "sha256:72c57fc95cf2e928ac628008c5a6d7aa4d555ea1b690e23f220bee7d383df444",
+    "raw_transcript_digest": "sha256:0af6ff5c9a9c472bd8b14c2696c92485155c701eea57f04475f6c468a3879302",
+    "raw_output_digest": "sha256:7eec625e2c1f426a7f7dd1a40404d3360386bf59a21ac7489a09da80ace0a918",
+    "output_source": "stream-final",
+    "output_complete": true
+  },
+  "session_digest": "sha256:df310de81c5297bef7d996bf69f8d5279abdcd114c384e063a73e1b1b954b119",
+  "tree_digest": "sha256:98771cbeade4c7636c49830c7295eb973adeb4660c9eaf3086fbcfb73bdc3c45",
+  "brief_notes": "Implementer notes (Claude Opus 5.5, the lead). Use them as context only; the judgment is yours.\n\nIMPORTANT, time budget: the run ends after 60 minutes. Do not run `go test ./...`, `go build ./...`, `pose validate` or `validate --strict`: the sealed results cover them, and a previous run of this round timed out running them. Record each required `validate` tool `passed` with the sealed ref (`unit:pose-mcp/go/test`) as its evidence. Run only the focused tests named below, keep each command's output short (pipe long output through `tail -n 40`), and finish well within the limit.\n\nScope: spec `pose-validate-carry-report-and-closeout-coverage` (R1–R4), the follow-ups F1–F2 of `pose-validate-carries-unchanged-checks`.\n- R1/R2: `validationSummaryOf` (`pose-mcp/internal/cli/validate.go`) keeps carried checks in `Carried`, out of the executed commands and results; `renderReportMarkdown` (`report.go`) adds `## Carried Checks` and states that nothing ran when every check was carried.\n- R3: `TestACarriedRecordIsSealedVerifiedAndClosed` (`review_closeout_test.go`) seals a bundle over a record whose unit check was carried from the feature commit, asserts it is sealed `carried-forward` at that commit, auto-attests, verifies and closes.\nEach has a test that fails with its guard mutated out.\n\nPlease check in particular that an executed check is reported as before, that a carried check is never shown as executed, and that carried evidence is judged at the head it ran at.\n\nBefore you finish, run `\"$POSE_REVIEW_CLI\" review draft-check --draft -` on your final message (pipe it on standard input) and fix every reason it reports.\n\nDraft format rules, enforced by the conclusion preflight:\n- New findings use short unprefixed IDs (N1, N2, …).\n- Structural-delta mappings go inside the criterion that answers them, with `basis` set to a requirement or a decision of this spec (R1–R4).\n- A criterion scoped to a component cites evidence from that component only.\n- A finding that falls inside the accepted limit L1 is a follow-up with `limit` set to \"L1\".\n\nSandbox limits: the checkout is sealed and read-only. Never `cd`; keep the checkout root as the working directory. Your Bash is limited to these command prefixes: `go test`, `go vet`, `go -C`, `git diff|log|show|status|ls-files`, `cat`, `printf`, `\"$POSE_REVIEW_CLI\"`, and the pose checks the plan lists. Keep test runs focused (`go -C pose-mcp test ./internal/cli -run 'CarryReportListsCarriedChecksApart|ACarriedRecordIsSealed|Carry'`), and let every command you start finish before you end. Run every planned `pose` command as `\"$POSE_REVIEW_CLI\"`.\n\nA tool you cannot rerun faithfully in the sandbox (the full `validate` hits HTTP 403, `/var/tmp` owned by another user and refused delegation there) is a limit of the run, not a defect of the subject. As the approving rounds of `pose-validate-reads-leave-the-index-alone` and `pose-review-resume-keeps-the-sealed-checkout` did, record it `passed` with the sealed ref (`unit:pose-mcp/go/test`) as its evidence and the sandbox failure in its rationale; record `failed` only for a failure the subject causes.\n\nPlease report every finding you see in this round, classified blocker or follow-up, rather than stopping at the first.\n",
+  "ledger_version": 1,
+  "attempt_id": "rat-6851f688897db3245b5df7d976f6c15feb8231c9a9504ca58e3dc4eaba789fbd",
+  "schema_version": 1,
+  "run_id": "rrn-2d48a8ac0f67e6c6",
+  "scope": "spec:pose-validate-carry-report-and-closeout-coverage",
+  "bundle_id": "rvb-256d03dca9d89af3",
+  "bundle_digest": "sha256:256d03dca9d89af3d97f87006000369d3a8dfefa4a5276f8abc424a2206ef3e3",
+  "sealed_commit": "c1e3716f6a8b474988235b5670b3ba87b723133c",
+  "kind": "review",
+  "brief_digest": "sha256:a8cbc3b053248efed8532999f8117841338d211978ee467e9d074f64243a9fc1",
+  "adapter": "claude-sonnet-5-5",
+  "vendor": "anthropic",
+  "model": "claude-sonnet-5-5",
+  "started_at": "2026-11-28T13:41:29.860586358Z",
+  "ended_at": "2026-11-28T13:54:25.326658245Z",
+  "exit_code": 0,
+  "status": "completed",
+  "transcript_digest": "sha256:0d4fcaf2688686ccb5e89c64f0610ec8c5e40b6a71d357fc5a5d147984306160",
+  "transcript_path": ".pose/review-runs/rrn-2d48a8ac0f67e6c6.transcript",
+  "output": "The decision is **changes-requested**, with two medium blockers and four low follow-ups. `draft-check` accepted the draft block below.\n\ndecision: changes-requested\n\n## Defects\n\n| ID | Severity | Disposition | Location | Defect |\n|---|---|---|---|---|\n| N1 | medium | blocker | `pose-mcp/internal/cli/report.go:389` | The report says \"every check was carried\" when a selected check was skipped rather than carried. |\n| N2 | medium | blocker | `pose-mcp/internal/cli/review_closeout_test.go:1185` | R3 asks for `closeout-check`, which the test never runs. The record is also hand-written (line 1127), not produced by the engine. |\n| N3 | low | follow-up | spec `2026-11-23-…:106` | R4 is traced to a test that doesn't show it. F1 and F2 are still `[open]` in the parent spec (lines 264–265). |\n| N4 | low | follow-up | `POSE.md:360` | The manual and its pt-BR and embedded copies don't describe the new report behaviour, although the spec lists them as affected. |\n| N5 | low | follow-up | `validate_carry_test.go:1298` | The test doesn't check that carried checks are absent from Results, or their outcome. A missing heading would panic it, and the new `time` import (line 8) is out of `gofmt` order. |\n| N6 | low | follow-up | `validate.go:1625` | Carried lines drop the skip reason and exit code the report used to show. |\n\n- **N1 reproduction:** I ran a real `validate --carry --report` through a temporary test overlay in `$TMPDIR`. Module `a` skipped an isolated check and `b` was carried. The report printed \"None executed: every check was carried from an earlier result\" above `[skipped] a/go/iso`.\n- **N2 limit:** I didn't run `closeout-check` against the test's fixture, so I don't know whether it would pass there.\n\n## What holds\n- Carried checks are kept out of Validation Commands and Results.\n- Executed checks are rendered as before.\n- The R3 test confirms the carried evidence is sealed as `carried-forward` at the commit it ran at.\n\n## Verification\n- **Tests:** the focused carry, report and closeout tests passed, and `go vet ./internal/cli` reported nothing.\n- **Not rerun:** I didn't rerun either `validate` tool; both rely on the sealed `unit:pose-mcp/go/test` result.\n- **Plan tools:** `artifact-check` and `surface-check` exited 0. `review-check` and `closeout-check` are deferred until this conclusion is recorded.\n- **Cleanup:** `go clean -cache` and the `go-build*` removal both exited 0.\n\n```pose-draft\n{\"schema\":\"pose.review.draft/v1\",\"decision\":\"changes-requested\",\n\"findings\":[\n{\"id\":\"N1\",\"severity\":\"medium\",\"disposition\":\"blocker\",\"file\":\"pose-mcp/internal/cli/report.go\",\"line\":389,\"summary\":\"The report says every check was carried whenever no command ran and at least one check was carried, even when a selected check was not carried but skipped (isolated or condition skip). Reproduced with a real validate --carry --report run: module a skipped an isolated check, b was carried, and the report stated None executed: every check was carried, above a Results line for the skipped a check.\"},\n{\"id\":\"N2\",\"severity\":\"medium\",\"disposition\":\"blocker\",\"file\":\"pose-mcp/internal/cli/review_closeout_test.go\",\"line\":1185,\"summary\":\"R3 is not met as written: TestACarriedRecordIsSealedVerifiedAndClosed never runs closeout-check (it runs close and then GetCloseoutState), and it hand-writes the record (line 1127) instead of producing a carried canonical record with the engine, so the record has no material or scope provenance and only the git-head-in-change-set currency path is exercised.\"},\n{\"id\":\"N3\",\"severity\":\"low\",\"disposition\":\"follow-up\",\"file\":\".pose/specs/2026-11-23-pose-validate-carry-report-and-closeout-coverage.md\",\"line\":106,\"summary\":\"R4 is traced to TestCarryReportListsCarriedChecksApart, which does not evidence closing any follow-up, and F1 and F2 are still [open] in 2026-11-22-pose-validate-carries-unchanged-checks.md lines 264-265.\"},\n{\"id\":\"N4\",\"severity\":\"low\",\"disposition\":\"follow-up\",\"file\":\"POSE.md\",\"line\":360,\"summary\":\"The manual was not updated although the spec lists it and its embedded copy as affected: neither the English, pt-BR nor embedded copies describe the Carried Checks section, carried checks leaving Validation Commands and Results, or the all-carried note.\"},\n{\"id\":\"N5\",\"severity\":\"low\",\"disposition\":\"follow-up\",\"file\":\"pose-mcp/internal/cli/validate_carry_test.go\",\"line\":1298,\"summary\":\"The R1/R2 test does not assert that a carried check is absent from Results, nor its outcome in the Carried Checks line, so adding carried checks to Results would pass; it also slices at strings.Index before checking the heading exists, so a missing section panics. The new time import at line 8 is also out of gofmt order.\"},\n{\"id\":\"N6\",\"severity\":\"low\",\"disposition\":\"follow-up\",\"file\":\"pose-mcp/internal/cli/validate.go\",\"line\":1625,\"summary\":\"A carried line drops the skip reason and exit code that the report showed for the same check before this change, so a carried skip or failure is less diagnosable from the report.\"}\n],\n\"criteria\":[\n{\"id\":\"assumption-integrity\",\"disposition\":\"passed\",\"evidence\":\"unit:pose-mcp/go/test\",\"rationale\":\"Verified: CarriedFrom is set only by carriedResult, so it separates carried from executed checks; the delivery reader takes the carried head and time. The spec risk that a carried check seals only through change-set membership or provenance matches deliveryEvidenceCurrent. Unverified by the R3 fixture: sealing of an engine-produced record with material bindings (N2). The all-carried note assumes no non-carried check lacks a command, which is false (N1).\"},\n{\"id\":\"backend-concurrency\",\"disposition\":\"passed\",\"evidence\":\"unit:pose-mcp/go/test\"},\n{\"id\":\"backend-contracts\",\"disposition\":\"passed\",\"evidence\":\"integration:pose-mcp/go/delivery-integration\"},\n{\"id\":\"backend-input-errors\",\"disposition\":\"passed\",\"evidence\":\"unit:pose-mcp/go/test\"},\n{\"id\":\"backend-integration-impact\",\"disposition\":\"passed\",\"evidence\":\"integration:pose-mcp/go/delivery-integration\"},\n{\"id\":\"backend-observability\",\"disposition\":\"passed\",\"evidence\":\"unit:pose-mcp/go/test\"},\n{\"id\":\"compatibility\",\"disposition\":\"passed\",\"evidence\":\"unit:pose-mcp/go/test\",\"rationale\":\"The report gains a Carried Checks section that the spec declares; runs without carried checks render as before; the legacy log parser, report history record and result schema are unchanged. The dropped skip reason and exit code on carried lines are recorded as N6.\"},\n{\"id\":\"correctness\",\"disposition\":\"finding\",\"evidence\":\"N1\"},\n{\"id\":\"design-causality\",\"disposition\":\"passed\",\"evidence\":\"structure:design-e995adc1dbe83863\",\"rationale\":\"The cause of F2 is that validationSummaryOf treated every check as executed; branching there on CarriedFrom before commands and results are built addresses it for R1 and R2 at the one structured feed of the report. The sealed design assessment lists no structural delta. The note condition flaw is N1.\"},\n{\"id\":\"documentation\",\"disposition\":\"finding\",\"evidence\":\"N4\"},\n{\"id\":\"operability\",\"disposition\":\"passed\",\"evidence\":\"unit:pose-mcp/go/test\",\"rationale\":\"Examined the report text: each carried line names outcome, check id, source head and time, which is actionable. No new error path is added. The inaccurate note (N1) and the dropped skip reason and exit code (N6) are recorded as findings.\"},\n{\"id\":\"requirements\",\"disposition\":\"finding\",\"evidence\":\"N2\"},\n{\"id\":\"scope\",\"disposition\":\"passed\",\"evidence\":\"unit:pose-mcp/go/test\",\"rationale\":\"The spec commit 0e05c598 touches only its spec and the four declared files; carry eligibility and selection are unchanged, matching the non-goal. The missing manual update (N4) and follow-up disposition (N3) are recorded.\"},\n{\"id\":\"security\",\"disposition\":\"passed\",\"evidence\":\"unit:pose-mcp/go/test\",\"rationale\":\"No new input, path or authority: the carried fields come from the repository canonical result already used as carry base and are only written into the report; evidence sealing rules are unchanged.\"},\n{\"id\":\"solution-proportionality\",\"disposition\":\"passed\",\"evidence\":\"unit:pose-mcp/go/test\",\"rationale\":\"One summary field, one branch and one report section is the smallest change that keeps carried checks distinct; no new abstraction or option. It would be invalidated if another producer fed carried checks to the report through the line-wise log parser.\"}\n],\n\"tools\":[\n{\"id\":\"artifact-check\",\"disposition\":\"passed\",\"evidence\":\"command:pose artifact-check --spec pose-validate-carry-report-and-closeout-coverage --strict\",\"rationale\":\"Exit 0; it also lists repository-wide warnings.\"},\n{\"id\":\"assess-design\",\"disposition\":\"passed\",\"evidence\":\"structure:design-e995adc1dbe83863\"},\n{\"id\":\"assess-discover\",\"component\":\"pose-mcp\",\"disposition\":\"passed\",\"evidence\":\"command:pose assess discover --no-persist --component pose-mcp\"},\n{\"id\":\"assess-integrate\",\"disposition\":\"passed\",\"evidence\":\"integration:pose-mcp/go/delivery-integration\",\"rationale\":\"Run with --no-persist; it reports three HTTP routes with no observed consumer, unrelated to this change.\"},\n{\"id\":\"assess-tech-debt\",\"disposition\":\"passed\",\"evidence\":\"command:pose assess tech-debt --no-persist\",\"rationale\":\"Scan reported INCOMPLETE because two unrelated specs could not be read.\"},\n{\"id\":\"closeout-check\",\"disposition\":\"deferred\",\"rationale\":\"Run; not terminal because the review and lifecycle closeout are pending this conclusion.\"},\n{\"id\":\"review-check\",\"disposition\":\"deferred\",\"rationale\":\"Run; no approval record exists before this conclusion.\"},\n{\"id\":\"suggest-review\",\"component\":\"pose-mcp\",\"disposition\":\"passed\",\"evidence\":\"command:pose suggest review --path pose-mcp\"},\n{\"id\":\"surface-check\",\"disposition\":\"passed\",\"evidence\":\"integration:pose-mcp/go/delivery-integration\",\"rationale\":\"Run with --strict: 0 findings.\"},\n{\"id\":\"validate\",\"disposition\":\"passed\",\"evidence\":\"unit:pose-mcp/go/test\",\"rationale\":\"Not rerun by this reviewer, to stay inside the run time budget; relies on the sealed result. Focused carry and report tests were run and passed.\"},\n{\"id\":\"validate\",\"component\":\"pose-mcp\",\"disposition\":\"passed\",\"evidence\":\"unit:pose-mcp/go/test\",\"rationale\":\"Not rerun by this reviewer; relies on the sealed result. Focused carry and report tests and go vet of internal/cli were run without failure.\"}\n]}\n```",
+  "policy_digest": "sha256:96d45d57ca07ec9abf850150e8563fe243393ebd1604a49798920f6dade4dbe7",
+  "label": "cfix-review-r1",
+  "purpose": "review",
+  "env_removed": [
+    "CLAUDECODE",
+    "CLAUDE_CODE_BRIDGE_SESSION_ID",
+    "CLAUDE_CODE_CHILD_SESSION",
+    "CLAUDE_CODE_ENTRYPOINT",
+    "CLAUDE_CODE_EXECPATH",
+    "CLAUDE_CODE_MESSAGING_SOCKET",
+    "CLAUDE_CODE_MESSAGING_TOKEN",
+    "CLAUDE_CODE_SESSION_ATTENDED",
+    "CLAUDE_CODE_SESSION_ID",
+    "CLAUDE_EFFORT",
+    "CLAUDE_PID"
+  ],
+  "events": "claude-stream-json",
+  "events_digest": "sha256:f4315860dd4d6d2f1fa39c0656bf31f837149d9d2433a2ebb1377412d4143ac1",
+  "routing": {
+    "requested": "claude-sonnet-5-5",
+    "implementation": {
+      "principal": "agent:anthropic/claude-opus-5-5",
+      "vendor": "anthropic",
+      "model": "claude-opus-5-5",
+      "execution_digest": "sha256:344ac5868944c155772d60a95ef6ff20644580a642e772ad5c92c29428464ff8",
+      "source": "declared"
+    },
+    "implementation_from": "bundle",
+    "step": "explicit"
+  },
+  "independence_achieved": "different-model",
+  "round": 1
+}

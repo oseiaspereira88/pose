@@ -1,0 +1,237 @@
+{
+  "run": {
+    "run_id": "rrn-2d48a8ac0f67e6c6",
+    "proof_id": "rrp-d6d1b766411f826ee56c9496d39c39cf35fb731a82b44ce0fc0c3e877c70092c"
+  },
+  "schema_version": 1,
+  "attestation_id": "rva-298472a63d2f61f4",
+  "bundle_id": "rvb-256d03dca9d89af3",
+  "bundle_digest": "sha256:256d03dca9d89af3d97f87006000369d3a8dfefa4a5276f8abc424a2206ef3e3",
+  "reviewer": "agent:anthropic/claude-sonnet-5-5",
+  "decision": "changes-requested",
+  "criteria": [
+    {
+      "id": "assumption-integrity",
+      "disposition": "passed",
+      "evidence": "unit:pose-mcp/go/test",
+      "rationale": "Verified: CarriedFrom is set only by carriedResult, so it separates carried from executed checks; the delivery reader takes the carried head and time. The spec risk that a carried check seals only through change-set membership or provenance matches deliveryEvidenceCurrent. Unverified by the R3 fixture: sealing of an engine-produced record with material bindings (N2). The all-carried note assumes no non-carried check lacks a command, which is false (N1)."
+    },
+    {
+      "id": "backend-concurrency",
+      "disposition": "passed",
+      "evidence": "unit:pose-mcp/go/test"
+    },
+    {
+      "id": "backend-contracts",
+      "disposition": "passed",
+      "evidence": "integration:pose-mcp/go/delivery-integration"
+    },
+    {
+      "id": "backend-input-errors",
+      "disposition": "passed",
+      "evidence": "unit:pose-mcp/go/test"
+    },
+    {
+      "id": "backend-integration-impact",
+      "disposition": "passed",
+      "evidence": "integration:pose-mcp/go/delivery-integration"
+    },
+    {
+      "id": "backend-observability",
+      "disposition": "passed",
+      "evidence": "unit:pose-mcp/go/test"
+    },
+    {
+      "id": "compatibility",
+      "disposition": "passed",
+      "evidence": "unit:pose-mcp/go/test",
+      "rationale": "The report gains a Carried Checks section that the spec declares; runs without carried checks render as before; the legacy log parser, report history record and result schema are unchanged. The dropped skip reason and exit code on carried lines are recorded as N6."
+    },
+    {
+      "id": "correctness",
+      "disposition": "finding",
+      "evidence": "N1"
+    },
+    {
+      "id": "design-causality",
+      "disposition": "passed",
+      "evidence": "structure:design-e995adc1dbe83863",
+      "rationale": "The cause of F2 is that validationSummaryOf treated every check as executed; branching there on CarriedFrom before commands and results are built addresses it for R1 and R2 at the one structured feed of the report. The sealed design assessment lists no structural delta. The note condition flaw is N1."
+    },
+    {
+      "id": "documentation",
+      "disposition": "finding",
+      "evidence": "N4"
+    },
+    {
+      "id": "operability",
+      "disposition": "passed",
+      "evidence": "unit:pose-mcp/go/test",
+      "rationale": "Examined the report text: each carried line names outcome, check id, source head and time, which is actionable. No new error path is added. The inaccurate note (N1) and the dropped skip reason and exit code (N6) are recorded as findings."
+    },
+    {
+      "id": "requirements",
+      "disposition": "finding",
+      "evidence": "N2"
+    },
+    {
+      "id": "scope",
+      "disposition": "passed",
+      "evidence": "unit:pose-mcp/go/test",
+      "rationale": "The spec commit 0e05c598 touches only its spec and the four declared files; carry eligibility and selection are unchanged, matching the non-goal. The missing manual update (N4) and follow-up disposition (N3) are recorded."
+    },
+    {
+      "id": "security",
+      "disposition": "passed",
+      "evidence": "unit:pose-mcp/go/test",
+      "rationale": "No new input, path or authority: the carried fields come from the repository canonical result already used as carry base and are only written into the report; evidence sealing rules are unchanged."
+    },
+    {
+      "id": "solution-proportionality",
+      "disposition": "passed",
+      "evidence": "unit:pose-mcp/go/test",
+      "rationale": "One summary field, one branch and one report section is the smallest change that keeps carried checks distinct; no new abstraction or option. It would be invalidated if another producer fed carried checks to the report through the line-wise log parser."
+    }
+  ],
+  "tools": [
+    {
+      "id": "artifact-check",
+      "disposition": "passed",
+      "evidence": "command:pose artifact-check --spec pose-validate-carry-report-and-closeout-coverage --strict",
+      "rationale": "Exit 0; it also lists repository-wide warnings."
+    },
+    {
+      "id": "assess-design",
+      "disposition": "passed",
+      "evidence": "structure:design-e995adc1dbe83863"
+    },
+    {
+      "id": "assess-discover",
+      "component": "pose-mcp",
+      "disposition": "passed",
+      "evidence": "command:pose assess discover --no-persist --component pose-mcp"
+    },
+    {
+      "id": "assess-integrate",
+      "disposition": "passed",
+      "evidence": "integration:pose-mcp/go/delivery-integration",
+      "rationale": "Run with --no-persist; it reports three HTTP routes with no observed consumer, unrelated to this change."
+    },
+    {
+      "id": "assess-tech-debt",
+      "disposition": "passed",
+      "evidence": "command:pose assess tech-debt --no-persist",
+      "rationale": "Scan reported INCOMPLETE because two unrelated specs could not be read."
+    },
+    {
+      "id": "closeout-check",
+      "disposition": "deferred",
+      "rationale": "Run; not terminal because the review and lifecycle closeout are pending this conclusion."
+    },
+    {
+      "id": "review-check",
+      "disposition": "deferred",
+      "rationale": "Run; no approval record exists before this conclusion."
+    },
+    {
+      "id": "suggest-review",
+      "component": "pose-mcp",
+      "disposition": "passed",
+      "evidence": "command:pose suggest review --path pose-mcp"
+    },
+    {
+      "id": "surface-check",
+      "disposition": "passed",
+      "evidence": "integration:pose-mcp/go/delivery-integration",
+      "rationale": "Run with --strict: 0 findings."
+    },
+    {
+      "id": "validate",
+      "disposition": "passed",
+      "evidence": "unit:pose-mcp/go/test",
+      "rationale": "Not rerun by this reviewer, to stay inside the run time budget; relies on the sealed result. Focused carry and report tests were run and passed."
+    },
+    {
+      "id": "validate",
+      "component": "pose-mcp",
+      "disposition": "passed",
+      "evidence": "unit:pose-mcp/go/test",
+      "rationale": "Not rerun by this reviewer; relies on the sealed result. Focused carry and report tests and go vet of internal/cli were run without failure."
+    }
+  ],
+  "evidence_refs": [
+    "N1",
+    "N2",
+    "N4",
+    "delegated-run:rrn-2d48a8ac0f67e6c6",
+    "integration:pose-mcp/go/delivery-integration",
+    "structure:design-e995adc1dbe83863",
+    "unit:pose-mcp/go/test"
+  ],
+  "findings": [
+    {
+      "id": "N1",
+      "severity": "medium",
+      "evidence": "file:pose-mcp/internal/cli/report.go:389",
+      "action": "The report says every check was carried whenever no command ran and at least one check was carried, even when a selected check was not carried but skipped (isolated or condition skip). Reproduced with a real validate --carry --report run: module a skipped an isolated check, b was carried, and the report stated None executed: every check was carried, above a Results line for the skipped a check.",
+      "disposition": "open"
+    },
+    {
+      "id": "N2",
+      "severity": "medium",
+      "evidence": "file:pose-mcp/internal/cli/review_closeout_test.go:1185",
+      "action": "R3 is not met as written: TestACarriedRecordIsSealedVerifiedAndClosed never runs closeout-check (it runs close and then GetCloseoutState), and it hand-writes the record (line 1127) instead of producing a carried canonical record with the engine, so the record has no material or scope provenance and only the git-head-in-change-set currency path is exercised.",
+      "disposition": "open"
+    },
+    {
+      "id": "N3",
+      "severity": "low",
+      "evidence": "file:.pose/specs/2026-11-23-pose-validate-carry-report-and-closeout-coverage.md:106",
+      "action": "R4 is traced to TestCarryReportListsCarriedChecksApart, which does not evidence closing any follow-up, and F1 and F2 are still [open] in 2026-11-22-pose-validate-carries-unchanged-checks.md lines 264-265.",
+      "disposition": "open"
+    },
+    {
+      "id": "N4",
+      "severity": "low",
+      "evidence": "file:POSE.md:360",
+      "action": "The manual was not updated although the spec lists it and its embedded copy as affected: neither the English, pt-BR nor embedded copies describe the Carried Checks section, carried checks leaving Validation Commands and Results, or the all-carried note.",
+      "disposition": "open"
+    },
+    {
+      "id": "N5",
+      "severity": "low",
+      "evidence": "file:pose-mcp/internal/cli/validate_carry_test.go:1298",
+      "action": "The R1/R2 test does not assert that a carried check is absent from Results, nor its outcome in the Carried Checks line, so adding carried checks to Results would pass; it also slices at strings.Index before checking the heading exists, so a missing section panics. The new time import at line 8 is also out of gofmt order.",
+      "disposition": "open"
+    },
+    {
+      "id": "N6",
+      "severity": "low",
+      "evidence": "file:pose-mcp/internal/cli/validate.go:1625",
+      "action": "A carried line drops the skip reason and exit code that the report showed for the same check before this change, so a carried skip or failure is less diagnosable from the report.",
+      "disposition": "open"
+    }
+  ],
+  "authority": {
+    "schema_version": 1,
+    "project": "proj.pose-dist",
+    "bundle_digest": "sha256:256d03dca9d89af3d97f87006000369d3a8dfefa4a5276f8abc424a2206ef3e3",
+    "principal": "agent:anthropic/claude-sonnet-5-5",
+    "role": "agent",
+    "review_execution": "rrn-2d48a8ac0f67e6c6",
+    "implementation_principal": "agent:anthropic/claude-opus-5-5",
+    "implementation_execution": "sha256:344ac5868944c155772d60a95ef6ff20644580a642e772ad5c92c29428464ff8",
+    "issuer": "b34-local-executor",
+    "issued_at": "2026-11-28T13:55:07Z",
+    "audience": "proj.pose-dist"
+  },
+  "envelope": {
+    "issuer": "b34-local-executor",
+    "subject": "rvb-256d03dca9d89af3",
+    "algorithm": "ed25519",
+    "public_key": "ck4sApdfePV2GT+hJyAYfJd2qLzeG55P8pevGR0bvZE=",
+    "signature": "E1pPtfEwsrO92X8+WiMdmrZZKfUtjDj9d+GIZlLmrLo+mU8l61NaBd7JzpdPEmHIj74n682zsfzVz+jc1Bt7AA=="
+  },
+  "attested_at": "2026-11-28T13:55:07Z",
+  "path": ".pose/review-attestations/rva-298472a63d2f61f4.json"
+}
