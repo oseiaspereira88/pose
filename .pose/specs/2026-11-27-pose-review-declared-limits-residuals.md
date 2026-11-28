@@ -78,7 +78,7 @@ Records and indexes written by earlier engines keep their meaning.
 None.
 
 ### Technical risks
-Inline code spans are read per line; a span that Markdown would continue on the next line is read as text, which can only make a marker count as a comment and refuse, never hide a limit.
+Inline code spans are read per line; a span Markdown would continue on the next line is read as text, so a comment opener there can hide what follows, as the earlier engine did (round 1, N7, a follow-up).
 
 ## 4. Tasks
 
@@ -109,6 +109,7 @@ Each requirement gets a regression test shown failing before its code.
 
 ### Execution log
 - 2026-11-28: R1 reads the heading's words with a comment removed (`isAcceptedLimitsHeading`); R2 reads inline code spans by run length (`insideCodeSpan`); R3 opens fences only up to three spaces of indent; R4 lets the next heading close the section whatever comment it holds, words the indented-heading problem and bounds problems to 20 plus a count; R5 the manual in both locales and the embedded copies; R6 refuses an unsealed limit for any decision (`unsealedLimitBlockers`); R7 tests the checks themselves; R8 keeps the earlier derivation for comparison (D1) and removes `acceptedLimitsOf`. `TestAcceptedLimitsResiduals`, `TestNoAttestationNamesAnUnsealedLimit`, `TestAnEarlierWithinLimitDerivationStillMatches` and `TestTheChecksPrintWithinLimitFindings` fail with each guard mutated out.
+- 2026-11-28: review round 1 (rrn-5b302e25c07a005e) requested changes. N1: only a line that is an unindented heading as written, its `#` first and outside a comment, closes the section; one that reads as a heading only once a comment is removed stays inside and refuses. N2: each problem is bounded to 300 bytes. N3: `PreflightReviewAttestation` refuses an unsealed limit for any decision, so preview and write agree; the error says attestation, not approval. N8: stale comments fixed. `TestAHeadingRevealedByACommentDoesNotCloseTheSection`, `TestAcceptedLimitProblemsAreBoundedInSize` and `TestThePreviewRefusesAnUnsealedLimitForAnyDecision` fail with each guard mutated out. N4–N7 are follow-ups.
 
 ### Results summary
 The full `pose-mcp` suite passes; the canonical result is refreshed with `pose validate --carry`.
@@ -117,9 +118,9 @@ The full `pose-mcp` suite passes; the canonical result is refreshed with `pose v
 - R1 [satisfied] test:TestAcceptedLimitsResiduals
 - R2 [satisfied] test:TestAcceptedLimitsResiduals
 - R3 [satisfied] test:TestAcceptedLimitsResiduals
-- R4 [satisfied] test:TestAcceptedLimitsResiduals
+- R4 [satisfied] test:TestAcceptedLimitsResiduals, test:TestAHeadingRevealedByACommentDoesNotCloseTheSection, test:TestAcceptedLimitProblemsAreBoundedInSize
 - R5 [satisfied] (manual, both locales)
-- R6 [satisfied] test:TestNoAttestationNamesAnUnsealedLimit
+- R6 [satisfied] test:TestNoAttestationNamesAnUnsealedLimit, test:TestThePreviewRefusesAnUnsealedLimitForAnyDecision
 - R7 [satisfied] test:TestTheChecksPrintWithinLimitFindings
 - R8 [satisfied] test:TestAnEarlierWithinLimitDerivationStillMatches
 
@@ -141,4 +142,8 @@ The accepted-limits reader handles comments in the heading, code spans and inden
 None beyond those of the origin spec.
 
 ### Follow-ups
-None. Origin: `pose-review-declared-limits-followups` (done 2026-11-27).
+Origin: `pose-review-declared-limits-followups` (done 2026-11-27).
+- [open] Refuse a heading whose words hold a stray `-->` or a comment that closes on the next line (review round 1, N4). (owner:@pose-maintainers crit:low review:2026-12-28)
+- [open] Count a tab as indentation to the next multiple of four when deciding whether a line opens a fence (review round 1, N5). (owner:@pose-maintainers crit:low review:2026-12-28)
+- [open] Read a fence nested in a list item at four spaces as a fence, or record the changed answer as a decision (review round 1, N6). (owner:@pose-maintainers crit:low review:2026-12-28)
+- [open] Read an inline code span continued over lines as Markdown does, so a comment opener inside it hides nothing (review round 1, N7). (owner:@pose-maintainers crit:low review:2026-12-28)

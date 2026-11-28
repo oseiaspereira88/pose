@@ -59,3 +59,34 @@ func TestAnEarlierWithinLimitDerivationStillMatches(t *testing.T) {
 		t.Fatalf("the current derivation differs: %s", why)
 	}
 }
+
+// Review round 1, N1: inside the section, a line that reads as a heading only
+// once a comment is removed does not close it: the section is refused.
+func TestAHeadingRevealedByACommentDoesNotCloseTheSection(t *testing.T) {
+	for _, line := range []string{"  # of cases on Linux <!-- note --> only.", "<!-- c --> # only on Linux."} {
+		body := "### Accepted limits\n- L1: An escape is open. Accepted because a shim covers it\n" + line + "\n- L2: Another escape. Accepted because it is rarer.\n"
+		if limits, problems := ParseAcceptedLimits(body); len(limits) != 0 || len(problems) == 0 {
+			t.Fatalf("%q closed the section: %+v %v", line, limits, problems)
+		}
+	}
+}
+
+// Review round 1, N2: each problem is bounded in size.
+func TestAcceptedLimitProblemsAreBoundedInSize(t *testing.T) {
+	_, problems := ParseAcceptedLimits("### Accepted limits\n" + strings.Repeat(strings.Repeat("x", 100000)+"\n", 3))
+	for _, p := range problems {
+		if len(p) > acceptedLimitProblemBytes+3 {
+			t.Fatalf("a problem of %d bytes", len(p))
+		}
+	}
+}
+
+// Review round 1, N3: the preview refuses what the write refuses, for any
+// decision.
+func TestThePreviewRefusesAnUnsealedLimitForAnyDecision(t *testing.T) {
+	f := resumableRunFixture(t)
+	att := ReviewAttestation{BundleID: f.run.BundleID, Decision: "changes-requested", Findings: []ReviewFinding{{ID: "n1", Severity: "low", Disposition: "within-limit", Limit: "L9", Action: "x", Rationale: "y"}}}
+	if got := strings.Join(f.store.PreflightReviewAttestation(att, time.Now()), ";"); !strings.Contains(got, "did not seal") {
+		t.Fatalf("the preview of a non-approving attestation: %q", got)
+	}
+}

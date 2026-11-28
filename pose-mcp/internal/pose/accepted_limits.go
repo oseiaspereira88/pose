@@ -94,7 +94,11 @@ func ParseAcceptedLimits(body string) ([]ReviewAcceptedLimit, []string) {
 		if in && marker {
 			// The next section's heading closes the section, whatever
 			// comment it holds (spec pose-review-declared-limits-residuals R4).
-			if vis, still := visibleOutsideComments(raw, inComment); fence == "" && headingLine(vis) && !isAcceptedLimitsHeading(vis) {
+			// Only a line that is an unindented heading as written, its '#'
+			// first, is the next heading; one that reads as a heading only
+			// once a comment is removed stays inside and refuses (review
+			// round 1, N1).
+			if vis, still := visibleOutsideComments(raw, inComment); fence == "" && !inComment && strings.HasPrefix(raw, "#") && headingLine(vis) && !isAcceptedLimitsHeading(vis) {
 				in, inComment = false, still
 				continue
 			}
@@ -204,11 +208,19 @@ func ParseAcceptedLimits(body string) ([]ReviewAcceptedLimit, []string) {
 	return limits, boundProblems(problems)
 }
 
-// acceptedLimitProblemLimit bounds the problems one spec reports.
-const acceptedLimitProblemLimit = 20
+// acceptedLimitProblemLimit bounds the problems one spec reports, and
+// acceptedLimitProblemBytes the size of each.
+const (
+	acceptedLimitProblemLimit = 20
+	acceptedLimitProblemBytes = 300
+)
 
 // boundProblems keeps the first problems and counts the rest (R4).
 func boundProblems(problems []string) []string {
+	// Each problem is bounded in size too (review round 1, N2).
+	for i, p := range problems {
+		problems[i] = TruncateUTF8(p, acceptedLimitProblemBytes)
+	}
 	if len(problems) <= acceptedLimitProblemLimit {
 		return problems
 	}
@@ -253,7 +265,7 @@ func fenceMarker(trimmed string) string {
 	return ""
 }
 
-// acceptedLimitsAndProblemsOf is acceptedLimitsOf with the problems that kept
+// acceptedLimitsAndProblemsOf collects the limits the scope's specs declare, with the problems that kept
 // limits from being sealed, so the plan says so (review round 1, N1).
 func (s Store) acceptedLimitsAndProblemsOf(scope ScopeRef) ([]ReviewAcceptedLimit, []string) {
 	specs, err := s.reviewScopeSpecs(scope)
@@ -298,10 +310,8 @@ func sealedAcceptedLimit(bundle ReviewBundle, id string) bool {
 }
 
 // htmlCommentStart returns the index in s, from from on, of the next "<!--"
-// that opens an HTML comment, or -1. One written in inline code (an odd
-// number of backticks before it on its line) opens nothing: Markdown shows
-// it as text, as a spec that names the marker does (review of
-// pose-review-declared-limits-followups: its own R2 named it).
+// that opens an HTML comment, or -1. One inside an inline code span of its
+// line opens nothing: Markdown shows it as text.
 func htmlCommentStart(s string, from int) int {
 	// Inline code is read as Markdown reads it: a run of n backticks opens a
 	// span that only a run of exactly n backticks on the line closes; an

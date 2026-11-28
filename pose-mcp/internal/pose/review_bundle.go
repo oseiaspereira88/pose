@@ -3144,7 +3144,7 @@ type ReviewApprovalRefusal struct {
 }
 
 func (e *ReviewApprovalRefusal) Error() string {
-	return "pose: verify would reject this approval for bundle " + e.BundleID + ", so nothing was written: " + strings.Join(e.Blockers, "; ")
+	return "pose: verify would reject this attestation for bundle " + e.BundleID + ", so nothing was written: " + strings.Join(e.Blockers, "; ")
 }
 
 func (e *ReviewApprovalRefusal) Unwrap() error { return ErrReviewApprovalRefused }
@@ -3190,7 +3190,14 @@ func (s Store) reviewApprovalAdmissionBlockers(bundle ReviewBundle, att ReviewAt
 // pose-attest-refuses-what-verify-rejects, pose-review-approval-domain-preflight).
 func (s Store) PreflightReviewAttestation(att ReviewAttestation, now time.Time) []string {
 	if !reviewDecisionApproves(att.Decision) {
-		return nil
+		// A preview and the write agree for any decision: a within-limit
+		// finding of an unsealed limit is refused by both (spec
+		// pose-review-declared-limits-residuals, review round 1, N3).
+		bundle, err := s.LoadReviewBundle(att.BundleID)
+		if err != nil {
+			return nil
+		}
+		return unsealedLimitBlockers(bundle, att)
 	}
 	bundle, err := s.LoadReviewBundle(att.BundleID)
 	if err != nil {
