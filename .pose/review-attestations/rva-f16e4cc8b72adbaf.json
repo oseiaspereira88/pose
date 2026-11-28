@@ -1,0 +1,233 @@
+{
+  "run": {
+    "run_id": "rrn-1699d67aaf4b4df1",
+    "proof_id": "rrp-dd04a6a2d2be87cfb2db9700b3a1e1e88d813dc835b0b4809385db78ab5332b3"
+  },
+  "schema_version": 1,
+  "attestation_id": "rva-f16e4cc8b72adbaf",
+  "bundle_id": "rvb-be6f2ebfef84b3e1",
+  "bundle_digest": "sha256:be6f2ebfef84b3e119e17989598ec3e1a404f45b27b940694746810079392691",
+  "reviewer": "agent:anthropic/claude-sonnet-5-5",
+  "decision": "approved",
+  "criteria": [
+    {
+      "id": "assumption-integrity",
+      "disposition": "passed",
+      "evidence": "unit:pose-mcp/go/test",
+      "rationale": "Verified: CarriedFrom separates carried from executed checks and the delivery reader takes the carried head and time. D1 states that the fixture record is hand-written with a placeholder provenance digest. Residual: material-binding currency of a carried record is not exercised end to end and D1 overstates the change-set shape (N9)."
+    },
+    {
+      "id": "backend-concurrency",
+      "disposition": "passed",
+      "evidence": "unit:pose-mcp/go/test"
+    },
+    {
+      "id": "backend-contracts",
+      "disposition": "passed",
+      "evidence": "integration:pose-mcp/go/delivery-integration"
+    },
+    {
+      "id": "backend-input-errors",
+      "disposition": "passed",
+      "evidence": "unit:pose-mcp/go/test"
+    },
+    {
+      "id": "backend-integration-impact",
+      "disposition": "passed",
+      "evidence": "integration:pose-mcp/go/delivery-integration"
+    },
+    {
+      "id": "backend-observability",
+      "disposition": "passed",
+      "evidence": "unit:pose-mcp/go/test"
+    },
+    {
+      "id": "compatibility",
+      "disposition": "passed",
+      "evidence": "unit:pose-mcp/go/test",
+      "rationale": "The added Carried Checks section is declared by the spec and documented; runs without carried checks render as before; log parsing, report history and result schema are unchanged."
+    },
+    {
+      "id": "correctness",
+      "disposition": "passed",
+      "evidence": "unit:pose-mcp/go/test"
+    },
+    {
+      "id": "design-causality",
+      "disposition": "passed",
+      "evidence": "structure:design-2af3a9d87fc09bb9",
+      "rationale": "The cause was the summary treating every check as executed; branching on CarriedFrom before commands and results are built meets R1 and R2, and D1 gives the basis for the R3 fixture shape. The design assessment lists no structural delta."
+    },
+    {
+      "id": "documentation",
+      "disposition": "passed",
+      "evidence": "unit:pose-mcp/go/test",
+      "rationale": "Read the changed paragraph in the English, pt-BR and embedded manuals; it matches the observed report: carried section, absence from commands and results, and the all-carried statement."
+    },
+    {
+      "id": "operability",
+      "disposition": "passed",
+      "evidence": "unit:pose-mcp/go/test",
+      "rationale": "Carried lines name outcome, check, source head, time, and skip reason or exit code. The placeholder wording in a carried and skipped run is N7."
+    },
+    {
+      "id": "requirements",
+      "disposition": "passed",
+      "evidence": "unit:pose-mcp/go/test"
+    },
+    {
+      "id": "scope",
+      "disposition": "passed",
+      "evidence": "unit:pose-mcp/go/test",
+      "rationale": "Changes are the declared artifacts; carry eligibility and selection are untouched. R3 was reworded after round 1 with decision D1; spec lint reports no amendment failure. The origin follow-up disposition remains (N10)."
+    },
+    {
+      "id": "security",
+      "disposition": "passed",
+      "evidence": "unit:pose-mcp/go/test",
+      "rationale": "No new input, path or authority: fields come from the repository canonical result already used as carry base and are only written to the report; sealing rules are unchanged."
+    },
+    {
+      "id": "solution-proportionality",
+      "disposition": "passed",
+      "evidence": "unit:pose-mcp/go/test",
+      "rationale": "One summary field, one report section and a small guard are sufficient. The guard depends on the result line prefix produced by validationSummaryOf and would need revisiting if that shape changed."
+    }
+  ],
+  "tools": [
+    {
+      "id": "artifact-check",
+      "disposition": "passed",
+      "evidence": "command:pose artifact-check --spec pose-validate-carry-report-and-closeout-coverage --strict",
+      "rationale": "Exit 0; it also lists repository-wide warnings."
+    },
+    {
+      "id": "assess-design",
+      "disposition": "passed",
+      "evidence": "structure:design-2af3a9d87fc09bb9"
+    },
+    {
+      "id": "assess-discover",
+      "component": "pose-mcp",
+      "disposition": "passed",
+      "evidence": "command:pose assess discover --no-persist --component pose-mcp"
+    },
+    {
+      "id": "assess-integrate",
+      "disposition": "passed",
+      "evidence": "integration:pose-mcp/go/delivery-integration",
+      "rationale": "Run with --no-persist; three HTTP routes with no observed consumer, unrelated to this change."
+    },
+    {
+      "id": "assess-tech-debt",
+      "disposition": "passed",
+      "evidence": "command:pose assess tech-debt --no-persist",
+      "rationale": "Scan reported INCOMPLETE because two unrelated specs could not be read."
+    },
+    {
+      "id": "closeout-check",
+      "disposition": "deferred",
+      "rationale": "Run, exit 1: review not yet recorded and lifecycle not done."
+    },
+    {
+      "id": "review-check",
+      "disposition": "deferred",
+      "rationale": "Run, exit 1: no approval exists before this conclusion; the checkout reports no sealed bundle for its current inputs."
+    },
+    {
+      "id": "suggest-review",
+      "component": "pose-mcp",
+      "disposition": "passed",
+      "evidence": "command:pose suggest review --path pose-mcp"
+    },
+    {
+      "id": "surface-check",
+      "disposition": "passed",
+      "evidence": "integration:pose-mcp/go/delivery-integration",
+      "rationale": "Run with --strict: exit 0, 0 findings."
+    },
+    {
+      "id": "validate",
+      "disposition": "passed",
+      "evidence": "unit:pose-mcp/go/test",
+      "rationale": "Not rerun by this reviewer, to stay inside the run time budget; relies on the sealed result. Focused tests were run and passed."
+    },
+    {
+      "id": "validate",
+      "component": "pose-mcp",
+      "disposition": "passed",
+      "evidence": "unit:pose-mcp/go/test",
+      "rationale": "Not rerun by this reviewer; relies on the sealed result. Focused tests and go vet of internal/cli were run without failure."
+    }
+  ],
+  "evidence_refs": [
+    "delegated-run:rrn-1699d67aaf4b4df1",
+    "integration:pose-mcp/go/delivery-integration",
+    "structure:design-2af3a9d87fc09bb9",
+    "unit:pose-mcp/go/test"
+  ],
+  "findings": [
+    {
+      "id": "N7",
+      "severity": "low",
+      "evidence": "file:pose-mcp/internal/cli/report.go:406",
+      "action": "State that no command was executed for a structured run with carried and skipped checks only.",
+      "disposition": "accepted-risk",
+      "owner": "@pose-maintainers",
+      "rationale": "When no command ran, at least one check was carried and another was skipped, Validation Commands reads _Fill manually_ in an automatic report instead of saying nothing ran. Reproduced with a real validate --carry --report run.",
+      "review_by": "2026-12-15"
+    },
+    {
+      "id": "N8",
+      "severity": "low",
+      "evidence": "file:pose-mcp/internal/cli/validate.go:1629",
+      "action": "Assert the skip reason and exit code on carried lines.",
+      "disposition": "accepted-risk",
+      "owner": "@pose-maintainers",
+      "rationale": "No test builds a carried check with a skip reason or exit code, so removing the R1-N6 fix would not fail the tests read in this round. The exit code was observed in a real run.",
+      "review_by": "2026-12-15"
+    },
+    {
+      "id": "N9",
+      "severity": "low",
+      "evidence": "file:.pose/specs/2026-11-23-pose-validate-carry-report-and-closeout-coverage.md:92",
+      "action": "Correct the D1 wording or add a carried-record case with material provenance.",
+      "disposition": "accepted-risk",
+      "owner": "@pose-maintainers",
+      "rationale": "D1 says the fixture carries from a change-set commit as a real carry does, but a real carry takes the base record head, which need not belong to the spec, and real records carry material and scope provenance that govern currency. No end-to-end case read in this round seals a carried check through the material binding.",
+      "review_by": "2026-12-15"
+    },
+    {
+      "id": "N10",
+      "severity": "low",
+      "evidence": "file:.pose/specs/2026-11-22-pose-validate-carries-unchanged-checks.md:264",
+      "action": "At closeout of this spec, set F1 and F2 of the origin spec to a closing disposition (covered by this spec, or done), as other closed specs have had follow-ups updated.",
+      "disposition": "accepted-risk",
+      "owner": "@pose-maintainers",
+      "rationale": "Remainder of R1-N3: F1 and F2 of the origin spec are still [open] (lines 264-265) and pose followups still lists both, although R4 says this spec closes them.",
+      "review_by": "2026-12-15"
+    }
+  ],
+  "authority": {
+    "schema_version": 1,
+    "project": "proj.pose-dist",
+    "bundle_digest": "sha256:be6f2ebfef84b3e119e17989598ec3e1a404f45b27b940694746810079392691",
+    "principal": "agent:anthropic/claude-sonnet-5-5",
+    "role": "agent",
+    "review_execution": "rrn-1699d67aaf4b4df1",
+    "implementation_principal": "agent:anthropic/claude-opus-5-5",
+    "implementation_execution": "sha256:344ac5868944c155772d60a95ef6ff20644580a642e772ad5c92c29428464ff8",
+    "issuer": "b34-local-executor",
+    "issued_at": "2026-11-28T14:58:34Z",
+    "audience": "proj.pose-dist"
+  },
+  "envelope": {
+    "issuer": "b34-local-executor",
+    "subject": "rvb-be6f2ebfef84b3e1",
+    "algorithm": "ed25519",
+    "public_key": "ck4sApdfePV2GT+hJyAYfJd2qLzeG55P8pevGR0bvZE=",
+    "signature": "NFAuhfe2gQVjPi+guQy7FvKpu2np43PPL56BHD7pjerH4haDCnGh9vd84nolbStNEF7OZ1u0TIMaB9TmSbpeDQ=="
+  },
+  "attested_at": "2026-11-28T14:58:34Z",
+  "path": ".pose/review-attestations/rva-f16e4cc8b72adbaf.json"
+}
