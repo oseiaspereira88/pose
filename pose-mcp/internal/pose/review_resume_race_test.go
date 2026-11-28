@@ -1,6 +1,7 @@
 package pose
 
 import (
+	"context"
 	"errors"
 	"os"
 	"runtime"
@@ -94,5 +95,25 @@ func TestRunContinuityARecordedContinuationOfAnotherKindIsRefused(t *testing.T) 
 	}
 	if err := continuationKindMismatch(handoff, ReviewRun{RunID: "rrn-h", HandsOffFrom: "rrn-p", Adapter: "b"}); err != nil {
 		t.Fatalf("a handoff that met its own kind: %v", err)
+	}
+}
+
+// Review round 2, N8: a take whose wait is cancelled returns the context's
+// error, not the advice to remove a directory another resume may hold.
+func TestRunContinuityACancelledTakeReturnsItsContext(t *testing.T) {
+	tmp := t.TempDir()
+	for _, name := range []string{"TMPDIR", "TMP", "TEMP"} {
+		t.Setenv(name, tmp)
+	}
+	prior := ReviewRun{RunID: "rrn-p", AttemptID: "rat-" + strings.Repeat("cd", 32)}
+	dir, _ := reviewRunRuntimeDirPath(runtimeSourceOf(prior))
+	if err := os.Mkdir(dir, 0o700); err != nil {
+		t.Fatal(err)
+	}
+	ctx, cancel := context.WithCancel(context.Background())
+	cancel()
+	_, err := Store{Root: t.TempDir()}.takeContinuationRuntimeDir(ctx, DispatchPlan{predecessor: &prior})
+	if !errors.Is(err, context.Canceled) {
+		t.Fatalf("a cancelled take: %v", err)
 	}
 }

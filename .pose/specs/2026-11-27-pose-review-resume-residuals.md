@@ -37,7 +37,7 @@ Reopening the decisions of the origin spec.
 - R3: A thread path taken between the plan and the dispatch shall not fail the run after its attempt is reserved, nor ask to remove a directory another run may hold (round 2, N6).
 - R4: The recorded reason shall name the held path, and an lstat error other than not-exist shall not count as a free path (round 2, N7).
 - R5: The review rounds documentation, in both locales and the embedded copies, shall list the held-path condition for opening a new session (round 2, N11).
-- R6: Tests shall reach the exclusive take after a replan, resume end to end a run whose recorded random name differs from the stable one, and cover the claim-failure removal and the handoff plan's pending branch (rounds 1 N3, 2 N8).
+- R6: Tests shall make the races of a continuation deterministic: a take refused after a successful replan, the directory released when the claim is lost, the dispatch returning a recorded continuation of its kind, and a cancelled take; the end-to-end resume of a run with a random recorded name and the handoff plan's pending branches are follow-ups (rounds 1 N3, 2 N8; round 1 and 2 of this spec, N2 and N7).
 
 ### Non-functional
 Existing behaviour outside the stated requirements is unchanged.
@@ -71,10 +71,10 @@ Records and indexes written by earlier engines keep their meaning.
 - capability:review-resume-residuals module:pose-mcp profile:composed-capability entrypoint:pose-mcp/internal/cli/delegate.go
 
 ### Accepted limits
-- L1: Two guards have no failing test: an lstat error other than not-exist counting as held, and a continued round whose ledger read fails. Accepted because each needs a permission or ledger fault the fixtures cannot make deterministically, and each fails toward refusing or recording, never toward sharing a directory.
+- L1: Some guards have no failing test: an lstat error other than not-exist counting as held, a continued round whose ledger read fails, the winner's record or the refused replan returned after a claim-publication conflict, the plans' own recorded-continuation returns and kind rules, and the plans' waits, which run without the dispatch's context for up to two seconds. Accepted because each needs a permission or ledger fault, or a race inside a plan the hooks do not reach, and each fails toward refusing, waiting or recording, never toward sharing a directory or re-running a recorded continuation.
 
 ### API/contract changes
-A continued round whose checkout could not follow its session records it among the run's `safety.limitations`. A resume or handoff that meets another's recorded continuation returns that record.
+A continued round whose checkout could not follow its session records it among the run's `safety.limitations`. A resume that meets another resume's recorded continuation returns that record, and a handoff its own agent's; a continuation of another kind or agent is refused (D1).
 
 ### Data/storage changes
 None.
@@ -116,6 +116,7 @@ Each requirement gets a regression test shown failing before its code.
 ### Execution log
 - 2026-11-27: R1 `awaitContinuationClaim` returns a recorded continuation as the result, reads the ledger only once a claim file exists and stops with its context; a claim conflict replans to the recorded or pending continuation. R2/R3 `runtimeSourceFor` says why a continued round cannot take the previous name, and a path taken after the plan falls back to the round's own directory; both are recorded in `safety.limitations`. R4 the reason names the held path, and an lstat error other than not-exist counts as held. R5 the rounds paragraph in both locales and the embedded copies. `TestRunContinuityTheClaimWaitStopsAndHeldPathsAreNamed` and `TestReviewRoundsKeepTheCheckoutPathOfTheirThread` fail with the cancellation, the named path or the fallback mutated out; L1 lists what has no test.
 - 2026-11-27: review round 1's first run timed out running the full suite (the note had lost its time-budget paragraph); the rerun (rrn-612ac36bfe01cb24) requested changes. N1: recorded continuations are checked for kind (D1, `continuationKindMismatch`). N2: test hooks before the take and the claim make the races deterministic: `TestRunContinuityALosingResumeReturnsTheRecordedContinuation`, `TestRunContinuityALostClaimReleasesTheDirectory` and `TestRunContinuityARecordedContinuationOfAnotherKindIsRefused` fail with the recorded return, the directory release or either kind rule mutated out. N3: a cancelled wait returns its context's error. N4: a refused replan's answer is returned. N5: D2 and the manual. N6: the held path is evaluated once.
+- 2026-11-27: review round 2 (rrn-be62d1faa4d225b0) requested changes: R6 was traced satisfied with part of it untested (N7). R6 now states what is delivered; the untested race paths inside the plans are in L1, and the end-to-end random-name resume and the handoff plan's pending branches are follow-ups. N8: `TestRunContinuityACancelledTakeReturnsItsContext` fails with the context return removed; the plans' waits are in L1. N9: the contract text matches D1.
 
 ### Results summary
 The full `pose-mcp` suite passes; the canonical result is refreshed with `pose validate --carry`.
@@ -126,7 +127,7 @@ The full `pose-mcp` suite passes; the canonical result is refreshed with `pose v
 - R3 [satisfied] test:TestReviewRoundsKeepTheCheckoutPathOfTheirThread
 - R4 [satisfied] test:TestRunContinuityTheClaimWaitStopsAndHeldPathsAreNamed, test:TestReviewRoundsKeepTheCheckoutPathOfTheirThread
 - R5 [satisfied] (manual, both locales)
-- R6 [satisfied] test:TestRunContinuityALosingResumeReturnsTheRecordedContinuation, test:TestRunContinuityALostClaimReleasesTheDirectory, test:TestRunContinuityTakesTheRuntimeDirectoryBeforeTheClaim, test:TestReviewRoundsKeepTheCheckoutPathOfTheirThread
+- R6 [satisfied] test:TestRunContinuityACancelledTakeReturnsItsContext, test:TestRunContinuityALosingResumeReturnsTheRecordedContinuation, test:TestRunContinuityALostClaimReleasesTheDirectory, test:TestRunContinuityTakesTheRuntimeDirectoryBeforeTheClaim, test:TestReviewRoundsKeepTheCheckoutPathOfTheirThread
 
 ### Known gaps
 The random-name end-to-end resume and the handoff plan's pending branch remain untested; see Follow-ups.
@@ -147,4 +148,4 @@ L1 above.
 
 ### Follow-ups
 Origin: `pose-review-resume-runtime-dir-followups` (done 2026-11-27).
-- [open] Resume end to end a run whose recorded runtime name is a random one of an earlier engine, and reach the handoff plan's pending branch in a test (R6 in part). (owner:@pose-maintainers crit:low review:2026-12-27)
+- [open] Resume end to end a run whose recorded runtime name is a random one of an earlier engine, reach the handoff plan's pending branches, and pass the dispatch's context to the plans' waits (review rounds 1 N2, 2 N7–N8). (owner:@pose-maintainers crit:low review:2026-12-27)
