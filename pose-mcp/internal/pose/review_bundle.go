@@ -3184,7 +3184,8 @@ func (s Store) reviewApprovalAdmissionBlockers(bundle ReviewBundle, att ReviewAt
 }
 
 // PreflightReviewAttestation returns the reasons the domain writer would
-// refuse an approving attestation, without writing anything. It completes the
+// refuse an attestation, without writing anything: for an approving one the
+// whole admission, for any other its within-limit findings. It completes the
 // attestation exactly as recording would and runs the same admission, so a
 // preview and the write cannot disagree (specs
 // pose-attest-refuses-what-verify-rejects, pose-review-approval-domain-preflight).

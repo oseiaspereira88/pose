@@ -75,7 +75,9 @@ func ParseAcceptedLimits(body string) ([]ReviewAcceptedLimit, []string) {
 	}
 	var entries []entry
 	report := func(line, why string) {
-		problems = append(problems, "accepted limits: "+quoteLedgerText(strings.TrimSpace(line))+" "+why)
+		// The quoted line is cut, never the reason after it (review round 2,
+		// N10).
+		problems = append(problems, "accepted limits: "+quoteLedgerText(TruncateUTF8(strings.TrimSpace(line), acceptedLimitQuoteBytes))+" "+why)
 		if len(entries) > 0 && !entries[len(entries)-1].bad {
 			entries[len(entries)-1].bad = true
 		}
@@ -98,7 +100,7 @@ func ParseAcceptedLimits(body string) ([]ReviewAcceptedLimit, []string) {
 			// first, is the next heading; one that reads as a heading only
 			// once a comment is removed stays inside and refuses (review
 			// round 1, N1).
-			if vis, still := visibleOutsideComments(raw, inComment); fence == "" && !inComment && strings.HasPrefix(raw, "#") && headingLine(vis) && !isAcceptedLimitsHeading(vis) {
+			if vis, still := visibleOutsideComments(raw, inComment); fence == "" && !inComment && strings.HasPrefix(raw, "#") && headingLine(raw) && headingLine(vis) && !isAcceptedLimitsHeading(vis) {
 				in, inComment = false, still
 				continue
 			}
@@ -191,16 +193,16 @@ func ParseAcceptedLimits(body string) ([]ReviewAcceptedLimit, []string) {
 			continue
 		}
 		if seen[e.id] {
-			problems = append(problems, "accepted limit "+e.id+" is declared twice")
+			problems = append(problems, "accepted limit "+TruncateUTF8(e.id, 40)+" is declared twice")
 			continue
 		}
 		seen[e.id] = true
 		if e.bad {
-			problems = append(problems, "accepted limit "+e.id+" is not sealed: part of it could not be read")
+			problems = append(problems, "accepted limit "+TruncateUTF8(e.id, 40)+" is not sealed: part of it could not be read")
 			continue
 		}
 		if !hasAcceptedLimitReason(e.text) {
-			problems = append(problems, "accepted limit "+e.id+" does not say why it is accepted ('Accepted because ...')")
+			problems = append(problems, "accepted limit "+TruncateUTF8(e.id, 40)+" does not say why it is accepted ('Accepted because ...')")
 			continue
 		}
 		limits = append(limits, ReviewAcceptedLimit{ID: e.id, Text: e.text})
@@ -212,7 +214,8 @@ func ParseAcceptedLimits(body string) ([]ReviewAcceptedLimit, []string) {
 // acceptedLimitProblemBytes the size of each.
 const (
 	acceptedLimitProblemLimit = 20
-	acceptedLimitProblemBytes = 300
+	acceptedLimitQuoteBytes   = 160
+	acceptedLimitProblemBytes = 600
 )
 
 // boundProblems keeps the first problems and counts the rest (R4).

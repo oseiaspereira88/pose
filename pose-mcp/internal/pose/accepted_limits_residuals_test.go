@@ -63,7 +63,7 @@ func TestAnEarlierWithinLimitDerivationStillMatches(t *testing.T) {
 // Review round 1, N1: inside the section, a line that reads as a heading only
 // once a comment is removed does not close it: the section is refused.
 func TestAHeadingRevealedByACommentDoesNotCloseTheSection(t *testing.T) {
-	for _, line := range []string{"  # of cases on Linux <!-- note --> only.", "<!-- c --> # only on Linux."} {
+	for _, line := range []string{"  # of cases on Linux <!-- note --> only.", "<!-- c --> # only on Linux.", "#<!----> of cases only on Linux.", "###<!-- c --> only on Linux."} {
 		body := "### Accepted limits\n- L1: An escape is open. Accepted because a shim covers it\n" + line + "\n- L2: Another escape. Accepted because it is rarer.\n"
 		if limits, problems := ParseAcceptedLimits(body); len(limits) != 0 || len(problems) == 0 {
 			t.Fatalf("%q closed the section: %+v %v", line, limits, problems)
@@ -78,6 +78,12 @@ func TestAcceptedLimitProblemsAreBoundedInSize(t *testing.T) {
 		if len(p) > acceptedLimitProblemBytes+3 {
 			t.Fatalf("a problem of %d bytes", len(p))
 		}
+	}
+	// The reason survives the bound (review round 2, N10).
+	_, problems = ParseAcceptedLimits("### Accepted limits\n" + strings.Repeat("prose ", 120) + "\n- " + strings.Repeat("y", 800) + "\n")
+	joined := strings.Join(problems, ";")
+	if !strings.Contains(joined, "is neither a limit") || !strings.Contains(joined, "is not written as") {
+		t.Fatalf("the reasons were cut: %q", joined)
 	}
 }
 
