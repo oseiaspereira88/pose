@@ -5,6 +5,7 @@ package cli
 // affect and carrying the rest with the head it really ran at.
 
 import (
+	"time"
 	"crypto/sha256"
 	"encoding/hex"
 	"encoding/json"
@@ -1279,4 +1280,53 @@ func TestCarryRefusesAnUnreadableMetadataBlob(t *testing.T) {
 	if differs, err := workingFileDiffersFromHead(f.root, head, ".pose/indexes/module-metadata.json"); err == nil && !differs {
 		t.Fatal("an absent working file over an unreadable committed blob must not read as equal")
 	}
+}
+
+// Spec pose-validate-carry-report-and-closeout-coverage R1, R2: --report lists
+// carried checks apart from executed commands, with where and when they ran;
+// an all-carried run lists no executed command.
+func TestCarryReportListsCarriedChecksApart(t *testing.T) {
+	f := newCarryFixture(t, "")
+	base := f.baseline()
+	f.write("a/changed.go", "package a\n")
+	f.commit("change a")
+	code, out, _ := f.validate("--carry", "--report", "--report-task", "carry report")
+	if code != 0 {
+		t.Fatalf("exit=%d %s", code, out)
+	}
+	report := latestCarryReport(t, f.root)
+	carried := report[strings.Index(report, "## Carried Checks"):]
+	if !strings.Contains(report, "## Carried Checks") || !strings.Contains(carried, "carried from "+base) || !strings.Contains(carried, "generated at ") {
+		t.Fatalf("the report does not list the carried check apart:\n%s", report)
+	}
+	commands := report[strings.Index(report, "## Validation Commands"):strings.Index(report, "## Results")]
+	if strings.Count(commands, "- ") != 1 {
+		t.Fatalf("executed commands should list only module a:\n%s", commands)
+	}
+	// An all-carried run lists no executed command.
+	all := validationRunResult{Outcome: "pass", Checks: []checkResult{{ID: "a/go/ok", Outcome: "pass", CarriedFrom: base, CarriedGeneratedAt: "2026-11-28T00:00:00Z", Program: "sh"}}}
+	summary := validationSummaryOf(all)
+	if len(summary.Commands) != 0 || len(summary.Carried) != 1 {
+		t.Fatalf("an all-carried summary: %+v", summary)
+	}
+	if md := renderReportMarkdown(time.Now(), map[string]string{}, "t", "t", "pass", "derived", nil, summary.Commands, summary.Results, summary.Carried, 1, "h", "", "", nil, nil); !strings.Contains(md, "None executed: every check was carried") {
+		t.Fatalf("an all-carried report lists executed commands:\n%s", md)
+	}
+}
+
+func latestCarryReport(t *testing.T, root string) string {
+	t.Helper()
+	paths, _ := filepath.Glob(filepath.Join(root, ".pose", "reports", "*.md"))
+	var newest string
+	var when time.Time
+	for _, p := range paths {
+		if info, err := os.Stat(p); err == nil && info.ModTime().After(when) {
+			newest, when = p, info.ModTime()
+		}
+	}
+	raw, err := os.ReadFile(newest)
+	if err != nil {
+		t.Fatalf("no report: %v", err)
+	}
+	return string(raw)
 }

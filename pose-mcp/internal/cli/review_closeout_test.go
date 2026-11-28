@@ -1021,6 +1021,179 @@ delivers: contract:my-contract
 	}
 }
 
+// Spec pose-validate-carry-report-and-closeout-coverage R3: a canonical
+// record whose check was carried from an earlier head is sealed, verified and
+// closed, its carried evidence judged at the head it ran at.
+func TestACarriedRecordIsSealedVerifiedAndClosed(t *testing.T) {
+	root := t.TempDir()
+	writeCloseoutCLIFile(t, root, "pose-mcp/z_fixture_test.go", "package main\nimport \"testing\"\nfunc TestFixture(t *testing.T) {}\n")
+	artifactGit(t, root, "init", "-q")
+	artifactGit(t, root, "config", "user.email", "pose@example.invalid")
+	artifactGit(t, root, "config", "user.name", "POSE Tests")
+	// The trace cites test:TestFixture, and a traced test must exist (spec pose-trace-test-refs-resolve).
+	writeCloseoutCLIFile(t, root, "fixture_test.go", "package fixture\n\nfunc TestFixture(t *testing.T) {}\n")
+
+	writeCloseoutCLIFile(t, root, ".pose/policy/review.json", `{
+  "schema_version": 2,
+  "enabled": true,
+  "adopted_at": "2026-08-02",
+  "profiles": {"spec": "spec-closeout@2"},
+  "reviewer_independence": {"spec": "same-actor-separate-execution"},
+  "component_aware": true,
+  "component_aware_adopted_at": "2026-08-13",
+  "review_bundles": true,
+  "review_bundles_adopted_at": "2026-08-13",
+  "unmapped_component_behavior": "warning"
+}`)
+	writeCloseoutCLIFile(t, root, ".pose/review-profiles/spec-closeout.json", `{
+  "schema_version": 2,
+  "id": "spec-closeout",
+  "version": 2,
+  "scope": "spec",
+  "criteria": [
+    {"id": "correctness", "description": "reviewed", "evidence_classes": ["unit"]},
+    {"id": "delivery-verification", "description": "verified", "evidence_classes": ["build", "unit", "integration", "e2e"]}
+  ],
+  "tools": [
+    {"id": "review-check", "requiredness": "required", "criteria": ["correctness", "delivery-verification"]}
+  ]
+}`)
+	writeCloseoutCLIFile(t, root, ".pose/policy/artifacts.json", `{"schema_version":1,"enabled":true,"adopted_at":"2026-08-02","governed_roots":["cmd","internal"],"severities":{"action-mismatch":"error","undeclared":"error"}}`)
+	writeCloseoutCLIFile(t, root, ".pose/policy/delivery.json", `{"schema_version":1,"enabled":true,"adopted_at":"2026-08-02","results_path":".pose/results/current.json"}`)
+	writeCloseoutCLIFile(t, root, ".pose/indexes/validation-matrix.json", `{
+  "schema_version": 2,
+  "deliveryProfiles": {
+    "api-contract": {
+      "kind": "contract",
+      "required_evidence_classes": ["integration"]
+    }
+  }
+}`)
+	writeCloseoutCLIFile(t, root, ".pose/rules/security.md", "# Security\n")
+	writeCloseoutCLIFile(t, root, ".pose/rules/documentation-style.md", "# Docs\n")
+
+	// Single module Go repo with go.mod at root
+	writeCloseoutCLIFile(t, root, "go.mod", "module example.com/mycli\n\ngo 1.22\n")
+	writeCloseoutCLIFile(t, root, "README.md", "baseline\n")
+	writeCloseoutCLIFile(t, root, ".pose/specs/my-contract-spec.md", `---
+slug: my-contract-spec
+status: in-progress
+created_at: 2026-08-22
+completed_at:
+delivers: contract:my-contract
+---
+
+# Spec: My Contract Spec
+
+## 2. Requirements
+- R1: Root CLI works.
+
+## 3. Technical Plan
+
+### Artifacts
+- created: internal/mypkg/lib.go
+- created: cmd/myapp/main.go
+
+### Delivery targets
+- contract:my-contract module:internal/mypkg profile:api-contract entrypoint:cmd/myapp/main.go
+
+## 4. Tasks
+- [x] Implement contract and entrypoint.
+
+## 6. Validation
+
+### Requirement trace
+- R1 [satisfied] test:TestFixture
+`)
+	artifactGit(t, root, "add", "--", ".")
+	artifactGit(t, root, "commit", "-q", "-m", "baseline")
+
+	// Implement artifacts
+	writeCloseoutCLIFile(t, root, "internal/mypkg/lib.go", "package mypkg\nfunc Do() {}\n")
+	writeCloseoutCLIFile(t, root, "cmd/myapp/main.go", "package main\nfunc main() {}\n")
+
+	artifactGit(t, root, "add", "--", "internal/mypkg/lib.go", "cmd/myapp/main.go")
+	artifactGit(t, root, "commit", "-q", "-m", "feat: add mypkg and myapp", "-m", "POSE-Spec: my-contract-spec")
+
+	// The unit check ran at the feature commit; a later commit of the spec
+	// recorded the result and carried it, as validate --carry does.
+	baseRaw, _ := gitOutputBounded(root, 1024, "rev-parse", "HEAD")
+	baseSha := strings.TrimSpace(string(baseRaw))
+	artifactGit(t, root, "commit", "-q", "--allow-empty", "-m", "chore: record the matrix", "-m", "POSE-Spec: my-contract-spec")
+	headRaw, _ := gitOutputBounded(root, 1024, "rev-parse", "HEAD")
+	headSha := strings.TrimSpace(string(headRaw))
+
+	// Single-module pose validate records checks under module "."
+	writeCloseoutCLIFile(t, root, ".pose/results/current.json", fmt.Sprintf(`{
+  "schema_version": 1,
+  "git_head": %q,
+  "generated_at": "2026-08-22T00:00:00Z",
+  "provenance_digest": "sha256:1111111111111111111111111111111111111111111111111111111111111111",
+  "checks": [
+    {"id": "test-root", "module": ".", "name": "go-test", "evidence_class": "integration", "severity": "required", "outcome": "pass"},
+    {"id": "unit-root", "module": ".", "name": "go-unit", "evidence_class": "unit", "severity": "required", "outcome": "pass", "carried_from": %q, "carried_generated_at": "2026-08-21T00:00:00Z"}
+  ]
+}`, headSha, baseSha))
+
+	var out, errOut bytes.Buffer
+	// Step 1: artifact-check
+	if code := cmdArtifactCheck(root, []string{"--spec", "my-contract-spec", "--strict"}, &out, &errOut); code != 0 {
+		t.Fatalf("artifact-check failed: code=%d out=%s err=%s", code, out.String(), errOut.String())
+	}
+	// Establish the current generation before the review baseline is sealed.
+	publishReviewCLIIndexFixture(t, root)
+
+	// Step 2: review bundle seal
+	out.Reset()
+	errOut.Reset()
+	if code := cmdReviewBundle(root, []string{"spec:my-contract-spec", "--seal"}, &out, &errOut); code != 0 {
+		t.Fatalf("review bundle seal failed: code=%d out=%s err=%s", code, out.String(), errOut.String())
+	}
+
+	// The carried check is sealed at the head it ran at, not the record's.
+	bundle, err := (posemodel.Store{Root: root}).CurrentReviewBundle("spec:my-contract-spec")
+	if err != nil || bundle == nil {
+		t.Fatalf("no sealed bundle: %v", err)
+	}
+	found := false
+	for _, ev := range bundle.Payload.Evidence {
+		if ev.Check == "go-unit" {
+			found = true
+			if ev.GitHead != baseSha || posemodel.ReviewEvidenceObservationForSubject(bundle.Payload.Subject, ev) != "carried-forward" {
+				t.Fatalf("the carried evidence is judged at %s (%s), not at %s", ev.GitHead, posemodel.ReviewEvidenceObservationForSubject(bundle.Payload.Subject, ev), baseSha)
+			}
+		}
+	}
+	if !found {
+		raw, _ := json.Marshal(bundle.Payload.Evidence)
+		t.Fatalf("the carried check was not sealed: %s", raw)
+	}
+	// Step 3: auto-attest
+	out.Reset()
+	errOut.Reset()
+	if code := cmdReviewAutoAttest(root, []string{"spec:my-contract-spec", "--apply"}, &out, &errOut); code != 0 {
+		t.Fatalf("auto-attest failed: code=%d out=%s err=%s", code, out.String(), errOut.String())
+	}
+
+	// Step 4: review verify
+	out.Reset()
+	errOut.Reset()
+	if code := cmdReviewVerify(root, []string{"spec:my-contract-spec"}, &out, &errOut); code != 0 {
+		t.Fatalf("review verify failed: code=%d out=%s err=%s", code, out.String(), errOut.String())
+	}
+
+	// Step 5: pose close
+	out.Reset()
+	errOut.Reset()
+	if code := cmdClose(root, []string{"spec:my-contract-spec"}, &out, &errOut); code != 0 {
+		t.Fatalf("pose close failed: code=%d out=%s err=%s", code, out.String(), errOut.String())
+	}
+	state, err := (posemodel.Store{Root: root}).GetCloseoutState("spec:my-contract-spec")
+	if err != nil || !state.Terminal {
+		t.Fatalf("expected terminal closeout over a carried record, got: %+v err=%v", state, err)
+	}
+}
+
 func TestReviewVerifyScopeIsolationFromUnrelatedCorruptedBundle(t *testing.T) {
 	root := t.TempDir()
 	writeCloseoutCLIFile(t, root, "pose-mcp/z_fixture_test.go", "package main\nimport \"testing\"\nfunc TestFixture(t *testing.T) {}\n")

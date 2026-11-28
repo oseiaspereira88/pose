@@ -1619,6 +1619,12 @@ func tailLines(text string, n int) string {
 func validationSummaryOf(run validationRunResult) *validationSummary {
 	summary := &validationSummary{Outcome: run.Outcome}
 	for _, check := range run.Checks {
+		if check.CarriedFrom != "" {
+			// Carried, not executed: kept apart with where and when it ran
+			// (spec pose-validate-carry-report-and-closeout-coverage R1, R2).
+			summary.Carried = append(summary.Carried, fmt.Sprintf("[%s] %s (carried from %s, generated at %s)", check.Outcome, check.ID, check.CarriedFrom, check.CarriedGeneratedAt))
+			continue
+		}
 		command := strings.TrimSpace(check.Program + " " + strings.Join(check.Args, " "))
 		if check.Outcome != "skipped" && command != "" {
 			summary.Commands = append(summary.Commands, command)

@@ -52,7 +52,11 @@ func cmdReport(root string, args []string, stdout, stderr io.Writer) int {
 type validationSummary struct {
 	Commands []string
 	Results  []string
-	Outcome  string
+	// Carried are the checks this run reused from an earlier canonical
+	// result, never executed here (spec
+	// pose-validate-carry-report-and-closeout-coverage R1, R2).
+	Carried []string
+	Outcome string
 }
 
 func runReport(root string, args []string, validationLog []byte, stdout, stderr io.Writer) int {
@@ -116,12 +120,14 @@ func runReportWith(root string, args []string, validationLog []byte, summary *va
 			}
 		}
 	}
+	var carriedChecks []string
 	validationCommands, validationResults, derivedOutcome := parseValidationLog(validateOutput)
 	switch {
 	case summary != nil:
 		// The run reports itself. Nothing here parses prose, so restyling the
 		// printed output cannot change what a report records.
 		validationCommands, validationResults, derivedOutcome = summary.Commands, summary.Results, summary.Outcome
+		carriedChecks = summary.Carried
 	case validationLog != nil:
 		// A log written by an older engine, or handed in with
 		// --validate-output, is still read line-wise.
@@ -202,7 +208,7 @@ func runReportWith(root string, args []string, validationLog []byte, summary *va
 		// (review round 5, N23).
 		render(stderr, stderr).Finding(cliout.Finding{State: cliout.StateWarning, Code: "report-changed-files", Message: fmt.Sprintf(cliText(locale, "the changed files cannot be listed: %v", "os arquivos alterados não podem ser listados: %v"), err)})
 	}
-	markdown := renderReportMarkdown(now, values, task, slug, outcome, outcomeSource, filesChanged, validationCommands, validationResults, sequence, stableHash, compareStatus, previousAt, changes, changeSet)
+	markdown := renderReportMarkdown(now, values, task, slug, outcome, outcomeSource, filesChanged, validationCommands, validationResults, carriedChecks, sequence, stableHash, compareStatus, previousAt, changes, changeSet)
 	if err := os.WriteFile(reportPath, []byte(markdown), 0o644); err != nil {
 		fmt.Fprintf(stderr, cliText(locale, "Error: writing report: %v\n", "Erro: escrevendo relatório: %v\n"), err)
 		return 1
@@ -366,7 +372,7 @@ func reportChangedFiles(root, since string) ([]string, error) {
 	return files, nil
 }
 
-func renderReportMarkdown(now time.Time, values map[string]string, task, slug, outcome, outcomeSource string, files, commands, results []string, sequence int, hash, compareStatus, previousAt string, changes []string, changeSet *posemodel.ChangeSet) string {
+func renderReportMarkdown(now time.Time, values map[string]string, task, slug, outcome, outcomeSource string, files, commands, results, carried []string, sequence int, hash, compareStatus, previousAt string, changes []string, changeSet *posemodel.ChangeSet) string {
 	var builder strings.Builder
 	fmt.Fprintf(&builder, "# POSE Report - %s\n\n## Report Type\n- %s\n\n## Task\n- %s\n- Task slug: %s\n", now.Format("2006-01-02"), values["type"], task, slug)
 	if values["spec"] != "" {
@@ -380,9 +386,20 @@ func renderReportMarkdown(now time.Time, values map[string]string, task, slug, o
 	builder.WriteString("\n## Files Changed\n")
 	writeReportList(&builder, files, "_No files detected_")
 	builder.WriteString("\n## Validation Commands\n")
-	writeReportList(&builder, commands, "_Fill manually_")
+	if len(commands) == 0 && len(carried) > 0 {
+		// Every check was carried: nothing ran here (R1).
+		writeReportList(&builder, commands, "_None executed: every check was carried from an earlier result_")
+	} else {
+		writeReportList(&builder, commands, "_Fill manually_")
+	}
 	builder.WriteString("\n## Results\n")
 	writeReportList(&builder, results, "_No validation output detected_")
+	if len(carried) > 0 {
+		// Reused observations, each naming the head and time it ran at,
+		// never listed as executed here (R1).
+		builder.WriteString("\n## Carried Checks\n")
+		writeReportList(&builder, carried, "")
+	}
 	if changeSet != nil {
 		fmt.Fprintf(&builder, "\n## Change Set\n- ID: %s\n- Selector: %s\n- Base: %s (%s)\n- Head: %s (%s)\n- Diff digest: %s\n- Paths:\n", changeSet.ID, changeSet.Selector, changeSet.Base, changeSet.ResolvedBase, changeSet.Head, changeSet.ResolvedHead, changeSet.DiffDigest)
 		for _, path := range changeSet.Paths {
