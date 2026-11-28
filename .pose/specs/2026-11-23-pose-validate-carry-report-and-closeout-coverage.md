@@ -1,6 +1,6 @@
 ---
 slug: pose-validate-carry-report-and-closeout-coverage
-status: draft
+status: in-progress
 created_at: 2026-11-23
 completed_at:
 supersedes:
