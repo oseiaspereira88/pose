@@ -1188,6 +1188,12 @@ delivers: contract:my-contract
 	if code := cmdClose(root, []string{"spec:my-contract-spec"}, &out, &errOut); code != 0 {
 		t.Fatalf("pose close failed: code=%d out=%s err=%s", code, out.String(), errOut.String())
 	}
+	// closeout-check itself judges the closed scope (review round 1, N2).
+	out.Reset()
+	errOut.Reset()
+	if code := cmdCloseoutCheck(root, []string{"spec:my-contract-spec"}, &out, &errOut); code != 0 || !strings.Contains(out.String(), "closeout.terminal=true") {
+		t.Fatalf("closeout-check over a carried record: code=%d out=%s err=%s", code, out.String(), errOut.String())
+	}
 	state, err := (posemodel.Store{Root: root}).GetCloseoutState("spec:my-contract-spec")
 	if err != nil || !state.Terminal {
 		t.Fatalf("expected terminal closeout over a carried record, got: %+v err=%v", state, err)

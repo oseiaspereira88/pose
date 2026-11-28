@@ -5,7 +5,6 @@ package cli
 // affect and carrying the rest with the head it really ran at.
 
 import (
-	"time"
 	"crypto/sha256"
 	"encoding/hex"
 	"encoding/json"
@@ -15,6 +14,7 @@ import (
 	"sort"
 	"strings"
 	"testing"
+	"time"
 
 	posemodel "github.com/harne8/pose-mcp/internal/pose"
 )
@@ -1295,13 +1295,21 @@ func TestCarryReportListsCarriedChecksApart(t *testing.T) {
 		t.Fatalf("exit=%d %s", code, out)
 	}
 	report := latestCarryReport(t, f.root)
+	for _, heading := range []string{"## Validation Commands", "## Results", "## Carried Checks"} {
+		if !strings.Contains(report, heading) {
+			t.Fatalf("the report has no %s:\n%s", heading, report)
+		}
+	}
 	carried := report[strings.Index(report, "## Carried Checks"):]
-	if !strings.Contains(report, "## Carried Checks") || !strings.Contains(carried, "carried from "+base) || !strings.Contains(carried, "generated at ") {
-		t.Fatalf("the report does not list the carried check apart:\n%s", report)
+	if !strings.Contains(carried, "[pass] b/go/ok (carried from "+base) || !strings.Contains(carried, "generated at ") {
+		t.Fatalf("the report does not list the carried check apart with its outcome:\n%s", report)
 	}
 	commands := report[strings.Index(report, "## Validation Commands"):strings.Index(report, "## Results")]
 	if strings.Count(commands, "- ") != 1 {
 		t.Fatalf("executed commands should list only module a:\n%s", commands)
+	}
+	if results := report[strings.Index(report, "## Results"):strings.Index(report, "## Carried Checks")]; strings.Contains(results, "b/go/ok") {
+		t.Fatalf("a carried check is listed among the results:\n%s", results)
 	}
 	// An all-carried run lists no executed command.
 	all := validationRunResult{Outcome: "pass", Checks: []checkResult{{ID: "a/go/ok", Outcome: "pass", CarriedFrom: base, CarriedGeneratedAt: "2026-11-28T00:00:00Z", Program: "sh"}}}
@@ -1311,6 +1319,12 @@ func TestCarryReportListsCarriedChecksApart(t *testing.T) {
 	}
 	if md := renderReportMarkdown(time.Now(), map[string]string{}, "t", "t", "pass", "derived", nil, summary.Commands, summary.Results, summary.Carried, 1, "h", "", "", nil, nil); !strings.Contains(md, "None executed: every check was carried") {
 		t.Fatalf("an all-carried report lists executed commands:\n%s", md)
+	}
+	// Review round 1, N1: a skipped check means not every check was carried.
+	mixed := validationRunResult{Outcome: "pass", Checks: []checkResult{all.Checks[0], {ID: "b/go/ok", Outcome: "skipped", SkipReason: "isolated"}}}
+	ms := validationSummaryOf(mixed)
+	if md := renderReportMarkdown(time.Now(), map[string]string{}, "t", "t", "pass", "derived", nil, ms.Commands, ms.Results, ms.Carried, 1, "h", "", "", nil, nil); strings.Contains(md, "every check was carried") {
+		t.Fatalf("a run with a skipped check was said to carry every check:\n%s", md)
 	}
 }
 

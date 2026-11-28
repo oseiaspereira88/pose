@@ -1622,7 +1622,16 @@ func validationSummaryOf(run validationRunResult) *validationSummary {
 		if check.CarriedFrom != "" {
 			// Carried, not executed: kept apart with where and when it ran
 			// (spec pose-validate-carry-report-and-closeout-coverage R1, R2).
-			summary.Carried = append(summary.Carried, fmt.Sprintf("[%s] %s (carried from %s, generated at %s)", check.Outcome, check.ID, check.CarriedFrom, check.CarriedGeneratedAt))
+			carriedLine := fmt.Sprintf("[%s] %s (carried from %s, generated at %s)", check.Outcome, check.ID, check.CarriedFrom, check.CarriedGeneratedAt)
+			// The skip reason and exit code the check had, as an executed
+			// check shows them (review round 1, N6).
+			if check.SkipReason != "" {
+				carriedLine += " (" + check.SkipReason + ")"
+			}
+			if check.ExitCode != nil {
+				carriedLine += fmt.Sprintf(" exit=%d", *check.ExitCode)
+			}
+			summary.Carried = append(summary.Carried, carriedLine)
 			continue
 		}
 		command := strings.TrimSpace(check.Program + " " + strings.Join(check.Args, " "))

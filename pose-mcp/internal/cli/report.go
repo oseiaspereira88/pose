@@ -323,6 +323,19 @@ func reportChangedFilesNoted(root, since string, locale cliLocale) ([]string, er
 	return []string{reportNote(locale)}, err
 }
 
+// reportListsACheck reports whether results name a check this run ran or
+// skipped (a "- [outcome] id" line), so a run with a skipped check is never
+// said to have carried every check (spec
+// pose-validate-carry-report-and-closeout-coverage, review round 1, N1).
+func reportListsACheck(results []string) bool {
+	for _, line := range results {
+		if strings.HasPrefix(line, "- [") {
+			return true
+		}
+	}
+	return false
+}
+
 // reportNote is what the versioned report states for a list it could not
 // read: no message of Git, which may name absolute paths no pattern can
 // delimit (spaces, quotes); the warning on standard error carries it (spec
@@ -386,7 +399,7 @@ func renderReportMarkdown(now time.Time, values map[string]string, task, slug, o
 	builder.WriteString("\n## Files Changed\n")
 	writeReportList(&builder, files, "_No files detected_")
 	builder.WriteString("\n## Validation Commands\n")
-	if len(commands) == 0 && len(carried) > 0 {
+	if len(commands) == 0 && len(carried) > 0 && !reportListsACheck(results) {
 		// Every check was carried: nothing ran here (R1).
 		writeReportList(&builder, commands, "_None executed: every check was carried from an earlier result_")
 	} else {
