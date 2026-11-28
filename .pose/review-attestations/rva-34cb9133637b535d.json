@@ -1,0 +1,212 @@
+{
+  "run": {
+    "run_id": "rrn-ada6c020a5ba9def",
+    "proof_id": "rrp-c3e0885b7d9c75c3f2e764c33ddccf41a5a718ae893ba626f7aa2bc458df4780"
+  },
+  "schema_version": 1,
+  "attestation_id": "rva-34cb9133637b535d",
+  "bundle_id": "rvb-9c1c14534289216b",
+  "bundle_digest": "sha256:9c1c14534289216ba1c1f987f8e17cf4cfb64b4445f260d3f59e90bf8f764b71",
+  "reviewer": "agent:anthropic/claude-sonnet-5-5",
+  "decision": "changes-requested",
+  "criteria": [
+    {
+      "id": "assumption-integrity",
+      "disposition": "finding",
+      "evidence": "N9"
+    },
+    {
+      "id": "backend-concurrency",
+      "disposition": "passed",
+      "evidence": "unit:pose-mcp/go/test",
+      "rationale": "Parsing and admission logic only; no new shared state or lifecycle."
+    },
+    {
+      "id": "backend-contracts",
+      "disposition": "passed",
+      "evidence": "integration:pose-mcp/go/mcp-review-attest-integration",
+      "rationale": "Preview and write now agree for an unsealed limit; the error wording change has no matcher in code or docs searched."
+    },
+    {
+      "id": "backend-input-errors",
+      "disposition": "finding",
+      "evidence": "N10"
+    },
+    {
+      "id": "backend-integration-impact",
+      "disposition": "passed",
+      "evidence": "integration:pose-mcp/go/review-approval-domain-preflight-integration",
+      "rationale": "CLI and MCP share the preflight and writer; the CLI preview and apply were probed."
+    },
+    {
+      "id": "backend-observability",
+      "disposition": "finding",
+      "evidence": "N10"
+    },
+    {
+      "id": "compatibility",
+      "disposition": "passed",
+      "rationale": "Examined repository specs with the base and new parser: identical limits and problems. A non-approving attestation with an open finding previews and records as before. R6 and the error wording are the declared or review-driven changes; the parser residual is reported as N9."
+    },
+    {
+      "id": "correctness",
+      "disposition": "finding",
+      "evidence": "N9"
+    },
+    {
+      "id": "design-causality",
+      "disposition": "finding",
+      "evidence": "N10"
+    },
+    {
+      "id": "documentation",
+      "disposition": "finding",
+      "evidence": "N9"
+    },
+    {
+      "id": "operability",
+      "disposition": "finding",
+      "evidence": "N10"
+    },
+    {
+      "id": "requirements",
+      "disposition": "finding",
+      "evidence": "N10"
+    },
+    {
+      "id": "scope",
+      "disposition": "passed",
+      "rationale": "Examined change set cs-318e5be12a1a and the round 2 diff against R1-R8 and D1: each hunk serves a requirement or a round 1 finding, and the remaining gaps are recorded as spec follow-ups."
+    },
+    {
+      "id": "security",
+      "disposition": "finding",
+      "evidence": "N9"
+    },
+    {
+      "id": "solution-proportionality",
+      "disposition": "passed",
+      "rationale": "The round 2 fixes are a prefix guard, a truncation with an existing helper and a reuse of unsealedLimitBlockers in the preflight; no new dependency or extension point. Their placement defects are reported as N9 and N10. D1 stays valid while a later derivation changes only the sealed-limit check."
+    }
+  ],
+  "tools": [
+    {
+      "id": "artifact-check",
+      "disposition": "passed",
+      "evidence": "command:pose artifact-check --spec pose-review-declared-limits-residuals --strict",
+      "rationale": "Exit 0; orphan warnings shown."
+    },
+    {
+      "id": "assess-design",
+      "disposition": "passed",
+      "evidence": "structure:design-fa32940a7c8a474b",
+      "rationale": "Observed, with no structural delta."
+    },
+    {
+      "id": "assess-discover",
+      "component": "pose-mcp",
+      "disposition": "passed",
+      "evidence": "command:pose assess discover --no-persist --component pose-mcp"
+    },
+    {
+      "id": "assess-integrate",
+      "disposition": "passed",
+      "evidence": "integration:pose-mcp/go/mcp-review-attest-integration",
+      "rationale": "Run with --no-persist; three unobserved HTTP consumer gaps unrelated to this change. The ref is the sealed integration result."
+    },
+    {
+      "id": "assess-tech-debt",
+      "disposition": "passed",
+      "evidence": "command:pose assess tech-debt --no-persist",
+      "rationale": "The scan reports itself incomplete: two spec sources could not be read."
+    },
+    {
+      "id": "closeout-check",
+      "disposition": "deferred",
+      "rationale": "Needs the completed review."
+    },
+    {
+      "id": "review-check",
+      "disposition": "deferred",
+      "rationale": "Needs the completed review."
+    },
+    {
+      "id": "suggest-review",
+      "component": "pose-mcp",
+      "disposition": "passed",
+      "evidence": "command:pose suggest review --path pose-mcp"
+    },
+    {
+      "id": "surface-check",
+      "disposition": "passed",
+      "evidence": "integration:pose-mcp/go/spec-surface-integration",
+      "rationale": "Run here: exit 0 with zero findings."
+    },
+    {
+      "id": "validate",
+      "disposition": "passed",
+      "evidence": "unit:pose-mcp/go/test",
+      "rationale": "Not re-executed in this run: the full matrix does not fit the time budget and sandbox. This relies on the sealed result; focused tests and go vet of the two changed packages were run here and passed."
+    },
+    {
+      "id": "validate",
+      "component": "pose-mcp",
+      "disposition": "passed",
+      "evidence": "unit:pose-mcp/go/test",
+      "rationale": "Not re-executed in this run: the full matrix does not fit the time budget and sandbox. This relies on the sealed result; focused tests and go vet of the two changed packages were run here and passed."
+    }
+  ],
+  "evidence_refs": [
+    "N10",
+    "N9",
+    "delegated-run:rrn-ada6c020a5ba9def",
+    "integration:pose-mcp/go/mcp-review-attest-integration",
+    "integration:pose-mcp/go/review-approval-domain-preflight-integration",
+    "unit:pose-mcp/go/test"
+  ],
+  "findings": [
+    {
+      "id": "N9",
+      "severity": "low",
+      "evidence": "file:pose-mcp/internal/pose/accepted_limits.go:101",
+      "action": "Residual of R1-N1: the guard tests that the raw line starts with # but judges the heading on the comment-stripped text. After \"- L1: ... a shim covers it\", the unindented line \"#\u003c!----\u003e of cases only on Linux.\" (or \"###\u003c!-- c --\u003e only on Linux.\"), which as written is no Markdown heading, closes the section: L1 is sealed cut, a following L2 is dropped, and no problem is reported. The base engine refused the section. It contradicts the manual and the execution log (a heading as written). Judging headingLine on raw as well would close it. Low because a comment glued to a hash is contrived.",
+      "disposition": "open"
+    },
+    {
+      "id": "N10",
+      "severity": "medium",
+      "evidence": "file:pose-mcp/internal/pose/accepted_limits.go:222",
+      "action": "The R1-N2 fix truncates each whole message at 300 bytes, and the reason comes after the quoted line (line 78). For any offending line of about 270 bytes or more the message loses what it refuses: malformed bullet, prose line and nested list all end in an ellipsis with no \"is not written as\", \"is neither a limit\" or \"is a nested list\". Limits in this repository are single lines of that length. The base engine printed the reason. R4 requires messages that say what they refuse and are bounded; truncate the quoted line, not the message. The new size test does not assert that the reason survives.",
+      "disposition": "open"
+    },
+    {
+      "id": "N11",
+      "severity": "low",
+      "evidence": "file:pose-mcp/internal/pose/review_bundle.go:3186",
+      "action": "The doc comment of PreflightReviewAttestation still says it returns the reasons the writer would refuse an approving attestation, although it now also refuses non-approving ones.",
+      "disposition": "open"
+    }
+  ],
+  "authority": {
+    "schema_version": 1,
+    "project": "proj.pose-dist",
+    "bundle_digest": "sha256:9c1c14534289216ba1c1f987f8e17cf4cfb64b4445f260d3f59e90bf8f764b71",
+    "principal": "agent:anthropic/claude-sonnet-5-5",
+    "role": "agent",
+    "review_execution": "rrn-ada6c020a5ba9def",
+    "implementation_principal": "agent:anthropic/claude-opus-5-5",
+    "implementation_execution": "sha256:344ac5868944c155772d60a95ef6ff20644580a642e772ad5c92c29428464ff8",
+    "issuer": "b34-local-executor",
+    "issued_at": "2026-11-28T03:48:05Z",
+    "audience": "proj.pose-dist"
+  },
+  "envelope": {
+    "issuer": "b34-local-executor",
+    "subject": "rvb-9c1c14534289216b",
+    "algorithm": "ed25519",
+    "public_key": "ck4sApdfePV2GT+hJyAYfJd2qLzeG55P8pevGR0bvZE=",
+    "signature": "23XEpe9HmZ1pfHPp/TfRcbXg3uDQHxtQQtEvG9tmCF6vAt643peXZPKiHPiQlDvV1tJ0vUZXwX7NjDuMcv1xAw=="
+  },
+  "attested_at": "2026-11-28T03:48:05Z",
+  "path": ".pose/review-attestations/rva-34cb9133637b535d.json"
+}
