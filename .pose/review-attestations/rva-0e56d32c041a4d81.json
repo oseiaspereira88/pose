@@ -1,0 +1,215 @@
+{
+  "run": {
+    "run_id": "rrn-be62d1faa4d225b0",
+    "proof_id": "rrp-766fcf3f06ec59e69c3e7013e2536acd4b846a732e1a45003212dba4f6b0d91b"
+  },
+  "schema_version": 1,
+  "attestation_id": "rva-0e56d32c041a4d81",
+  "bundle_id": "rvb-2af09b8917e9bf3b",
+  "bundle_digest": "sha256:2af09b8917e9bf3bebbe9ccf3e77400f51fe6c038f495e29b99975674a73edc8",
+  "reviewer": "agent:anthropic/claude-sonnet-5-5",
+  "decision": "changes-requested",
+  "criteria": [
+    {
+      "id": "assumption-integrity",
+      "disposition": "passed",
+      "rationale": "Checked L1, D1 and D2 against the code. Verified: the runtime directory is created exclusively, the claim is exclusive, and a failed claim removes only the directory this continuation took. L1's two guards fail toward refusing or recording. D2 accepts, as a recorded decision, that a continued session works in a moved directory. L1 no longer covers the untested claim-conflict return, reported in N7."
+    },
+    {
+      "id": "backend-concurrency",
+      "disposition": "passed",
+      "evidence": "unit:pose-mcp/go/test",
+      "rationale": "Lost take and lost claim are exercised by the new race tests, which also pass here; no directory sharing or re-run of a recorded continuation was found. The bounded uncancellable wait is N8."
+    },
+    {
+      "id": "backend-contracts",
+      "disposition": "passed",
+      "evidence": "integration:pose-mcp/go/delegated-run-continuity-integration",
+      "rationale": "Resume and handoff now answer a recorded continuation under the same rules as their plans; the stale spec sentence is N9."
+    },
+    {
+      "id": "backend-input-errors",
+      "disposition": "passed",
+      "evidence": "unit:pose-mcp/go/test",
+      "rationale": "Mismatched continuations return actionable refusals and a cancelled take returns the context error; the remaining planning wait is N8."
+    },
+    {
+      "id": "backend-integration-impact",
+      "disposition": "passed",
+      "evidence": "integration:pose-mcp/go/delegated-run-continuity-integration",
+      "rationale": "The CLI consumers already handle plan.Existing and PendingContinuation; signatures changed only inside package pose."
+    },
+    {
+      "id": "backend-observability",
+      "disposition": "passed",
+      "evidence": "unit:pose-mcp/go/test",
+      "rationale": "A moved checkout is recorded in safety.limitations and the thread reason names the held path."
+    },
+    {
+      "id": "compatibility",
+      "disposition": "passed",
+      "rationale": "Examined the CLI resume and handoff answers and the record fields: no schema change, and the new outcomes follow the existing plan refusals stated in D1."
+    },
+    {
+      "id": "correctness",
+      "disposition": "passed",
+      "evidence": "unit:pose-mcp/go/test",
+      "rationale": "Read the continuation paths and ran the focused tests; no behavioral defect beyond N8 was established."
+    },
+    {
+      "id": "design-causality",
+      "disposition": "passed",
+      "evidence": "structure:design-a7fb2a1d9e87e7a9",
+      "rationale": "No structural deltas were observed, so there is nothing to map. D1 addresses the cause of the wrong-kind result under R1 by applying the plans' rules after a lost race, and D2 addresses R3 by keeping the reserved attempt usable and recording the move."
+    },
+    {
+      "id": "documentation",
+      "disposition": "passed",
+      "rationale": "Compared the added manual sentence in both locales and the embedded copies with the fallback code; they match. The inconsistency inside the spec is N9."
+    },
+    {
+      "id": "operability",
+      "disposition": "passed",
+      "rationale": "Examined the refusal and reason texts: they name the run that continued or the held path, and a cancelled take no longer advises removing a directory."
+    },
+    {
+      "id": "requirements",
+      "disposition": "finding",
+      "evidence": "N7"
+    },
+    {
+      "id": "scope",
+      "disposition": "passed",
+      "rationale": "The subject's files are those the spec lists, including the new race test; nothing outside R1 to R6 was found in them. The undelivered part of R6 is N7."
+    },
+    {
+      "id": "security",
+      "disposition": "passed",
+      "rationale": "Examined directory derivation, exclusive creation, removal on a lost claim and the test hooks: the hooks are unexported no-ops in production, and no new input crosses a trust boundary."
+    },
+    {
+      "id": "solution-proportionality",
+      "disposition": "passed",
+      "rationale": "One small helper and two unexported hooks, following the package's existing hook pattern, are a small way to share the kind rule and make the races testable. Parallel tests in the package would invalidate the global hooks; a search found no t.Parallel there."
+    }
+  ],
+  "tools": [
+    {
+      "id": "artifact-check",
+      "disposition": "passed",
+      "evidence": "command:pose artifact-check --spec pose-review-resume-residuals --strict",
+      "rationale": "Exit 0."
+    },
+    {
+      "id": "assess-design",
+      "disposition": "passed",
+      "evidence": "structure:design-a7fb2a1d9e87e7a9",
+      "rationale": "Exit 0, observed, no deltas."
+    },
+    {
+      "id": "assess-discover",
+      "component": "pose-mcp",
+      "disposition": "passed",
+      "evidence": "command:pose assess discover --no-persist --component pose-mcp"
+    },
+    {
+      "id": "assess-integrate",
+      "disposition": "passed",
+      "evidence": "integration:pose-mcp/go/delegated-run-continuity-integration",
+      "rationale": "Exit 0 with --no-persist; the gap seen in the output tail concerns an HTTP consumer outside this change."
+    },
+    {
+      "id": "assess-tech-debt",
+      "disposition": "passed",
+      "evidence": "command:pose assess tech-debt --no-persist",
+      "rationale": "Exit 0; the scan reports itself incomplete because two older specs could not be read."
+    },
+    {
+      "id": "closeout-check",
+      "disposition": "deferred",
+      "rationale": "Ran, exit 1: no approving review, spec not done, and it reports that current semantic inputs are not represented by a sealed bundle. It cannot pass before the attestation."
+    },
+    {
+      "id": "review-check",
+      "disposition": "deferred",
+      "rationale": "Ran, exit 1 with 'current semantic inputs are not represented by a sealed bundle'; it cannot pass before the attestation of this review."
+    },
+    {
+      "id": "suggest-review",
+      "component": "pose-mcp",
+      "disposition": "passed",
+      "evidence": "command:pose suggest review --path pose-mcp"
+    },
+    {
+      "id": "surface-check",
+      "disposition": "passed",
+      "evidence": "integration:pose-mcp/go/delivery-integration",
+      "rationale": "Exit 0 with zero findings."
+    },
+    {
+      "id": "validate",
+      "disposition": "passed",
+      "evidence": "unit:pose-mcp/go/test",
+      "rationale": "Not rerun: the sealed result covers it. Eight focused internal/cli tests fail in this sandbox; the failure messages seen cite /home ownership blocking task state. internal/pose continuity tests pass."
+    },
+    {
+      "id": "validate",
+      "component": "pose-mcp",
+      "disposition": "passed",
+      "evidence": "unit:pose-mcp/go/test",
+      "rationale": "Not rerun: the sealed result covers it; the same sandbox limitation applies."
+    }
+  ],
+  "evidence_refs": [
+    "N7",
+    "delegated-run:rrn-be62d1faa4d225b0",
+    "integration:pose-mcp/go/delegated-run-continuity-integration",
+    "structure:design-a7fb2a1d9e87e7a9",
+    "unit:pose-mcp/go/test"
+  ],
+  "findings": [
+    {
+      "id": "N7",
+      "severity": "medium",
+      "evidence": "file:.pose/specs/2026-11-27-pose-review-resume-residuals.md:129",
+      "action": "Remainder of R1-N2. R6 is still traced satisfied but half of it is missing: no test resumes end to end a run with a recorded random runtime name (only the unit naming test), and none reaches the handoff plan's pending branches (delegation_handoff.go:331-337 and 353-356 uncovered); Known gaps admits both. L1 was also narrowed to two guards, yet the claim-conflict return of the winner's record that it used to accept still has no covering test (review_dispatch.go:782-784), as do the replan refusal (777-781) and the plan-level recorded returns and kind rules (review_run_continuity.go:440-448, delegation_handoff.go:357-364, wiring at review_dispatch.go:2241-2243).",
+      "disposition": "open"
+    },
+    {
+      "id": "N8",
+      "severity": "low",
+      "evidence": "file:pose-mcp/internal/pose/review_run_continuity.go:435",
+      "action": "Remainder of R1-N3. The take path now returns the context error, but the waits reached through replanContinuation still use context.Background() (also delegation_handoff.go:352), so a cancelled dispatch is not honoured there for up to about two seconds. The new ctx.Err return (review_dispatch.go:2246-2248) is uncovered by the focused tests.",
+      "disposition": "open"
+    },
+    {
+      "id": "N9",
+      "severity": "low",
+      "evidence": "file:.pose/specs/2026-11-27-pose-review-resume-residuals.md:77",
+      "action": "API/contract changes still says a resume or handoff that meets another's recorded continuation returns that record, which contradicts decision D1 and the code: a continuation of another kind or agent is refused.",
+      "disposition": "open"
+    }
+  ],
+  "authority": {
+    "schema_version": 1,
+    "project": "proj.pose-dist",
+    "bundle_digest": "sha256:2af09b8917e9bf3bebbe9ccf3e77400f51fe6c038f495e29b99975674a73edc8",
+    "principal": "agent:anthropic/claude-sonnet-5-5",
+    "role": "agent",
+    "review_execution": "rrn-be62d1faa4d225b0",
+    "implementation_principal": "agent:anthropic/claude-opus-5-5",
+    "implementation_execution": "sha256:344ac5868944c155772d60a95ef6ff20644580a642e772ad5c92c29428464ff8",
+    "issuer": "b34-local-executor",
+    "issued_at": "2026-11-28T00:30:25Z",
+    "audience": "proj.pose-dist"
+  },
+  "envelope": {
+    "issuer": "b34-local-executor",
+    "subject": "rvb-2af09b8917e9bf3b",
+    "algorithm": "ed25519",
+    "public_key": "ck4sApdfePV2GT+hJyAYfJd2qLzeG55P8pevGR0bvZE=",
+    "signature": "Z9qEasswz3AUSP582zlyIziXh1WFd+QhevD0+uqMuT/+8w1ZNEg/6VQPE9yhF8tul+g9E5y9RD9yDliNLHXHAg=="
+  },
+  "attested_at": "2026-11-28T00:30:25Z",
+  "path": ".pose/review-attestations/rva-0e56d32c041a4d81.json"
+}
