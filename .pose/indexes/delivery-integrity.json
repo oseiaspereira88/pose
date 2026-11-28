@@ -1,7 +1,7 @@
 {
   "schema_version": 2,
-  "input_digest": "sha256:ca7b1b67f728f105ecce348b623c9b3c6fe9de93b0e47a28b29a5b98674ddc39",
-  "provenance_digest": "sha256:be210e4e0d077aafa95b3374511a8da2800237e622232d119c1e4aad2c4917eb",
+  "input_digest": "sha256:a5bb4b143f4e7d48aab8c61b4d534c3a50ef8bc6925210f4675ae38ff820bfce",
+  "provenance_digest": "sha256:7d9c219c8a5b775080246321a8a025fe025a1d673b724c46767e647699120369",
   "implied_edges": [
     "changes"
   ],
@@ -48180,14 +48180,6 @@
       }
     },
     {
-      "id": "change-set:cs-3fffb0a9f223",
-      "type": "change-set",
-      "attributes": {
-        "diff_digest": "sha256:169eceec6c73ac7db33e127e93d1185761f0026e08e5f5e05c9a40ad60a0210f",
-        "selector": "trailers:pose-validate-carry-report-and-closeout-coverage"
-      }
-    },
-    {
       "id": "change-set:cs-4158b84f69a1",
       "type": "change-set",
       "attributes": {
@@ -49961,6 +49953,14 @@
       "attributes": {
         "diff_digest": "sha256:0fff30cdbf0ba47f067bd318cec50717a857ad378db57b3bbead4dec38108165",
         "selector": "range:3ee2b03..6bdd0f9"
+      }
+    },
+    {
+      "id": "change-set:cs-a4cd631d2561",
+      "type": "change-set",
+      "attributes": {
+        "diff_digest": "sha256:ca9fd98683510f764560d33238831b785e0a6603c2094d3aea58b5babcd29fa5",
+        "selector": "trailers:pose-validate-carry-report-and-closeout-coverage"
       }
     },
     {
@@ -60112,7 +60112,7 @@
       "id": "spec:pose-validate-carry-report-and-closeout-coverage",
       "type": "spec",
       "attributes": {
-        "status": "in-progress"
+        "status": "done"
       }
     },
     {
@@ -143787,7 +143787,7 @@
     },
     {
       "from": "spec:pose-validate-carry-report-and-closeout-coverage",
-      "to": "change-set:cs-3fffb0a9f223",
+      "to": "change-set:cs-a4cd631d2561",
       "type": "observed-by"
     },
     {
@@ -191400,7 +191400,7 @@
         }
       ],
       "diff_digest": "sha256:0b4a836c94759f10badc51e7592c3a26f7f7ca89847fc62090ce034e36d9b747",
-      "material_digest": "sha256:11b0e288e39a3ded318cb750f8396acc74135bada93ee9b03b84edeaac5097be",
+      "material_digest": "sha256:4cd7f34c9c9f3de1ecbd0bfcc60a7f00b0065028415c73e387b39c1c9e14d639",
       "material_inputs": {
         "names": [
           ".pose/indexes/delivery-integrity.json",
@@ -193813,7 +193813,7 @@
         }
       ],
       "diff_digest": "sha256:81b79af64d04586629d450293f8da1ddc9de839cc71dd9afe9c506ec696c1742",
-      "material_digest": "sha256:752c59ed16d00b7abf774bd339efd11b186cc85d643cc7058254ed8722bfff5a",
+      "material_digest": "sha256:8975b226df3dbc4ed8d70b7ab449a853946eec41f33603930247a67f981c65a7",
       "material_inputs": {
         "names": [
           ".pose/indexes/delivery-integrity.json",
@@ -219298,140 +219298,6 @@
       }
     },
     {
-      "id": "cs-3fffb0a9f223",
-      "spec": "pose-validate-carry-report-and-closeout-coverage",
-      "selector": "trailers:pose-validate-carry-report-and-closeout-coverage",
-      "base": "1f83c1fbba489ef8d0ca5a7d3b0b1c49d56ba00c^",
-      "head": "41668709dee3b901e5437fb9d61c58e469de0a8b",
-      "resolved_base": "3f63a1bb432801957ddb35354961f1825658531a",
-      "resolved_head": "41668709dee3b901e5437fb9d61c58e469de0a8b",
-      "commits": [
-        "1f83c1fbba489ef8d0ca5a7d3b0b1c49d56ba00c",
-        "f3a216771125e9df2d2e4ee51b92be3445ba3bc6",
-        "0e05c5988714a2c620d858dcb1cadad8ec91d4b9",
-        "bfb9add398a485561a435776a2c501c7a3922a23",
-        "eb5ed4692f13fecff1f6fed9e0552cdbcfd2e90f",
-        "467e5de14ba6bf8fd21a202fdadd4cf4a13e3039",
-        "ee0b61f07652028502c429624ec6c748e575f4f7",
-        "c1e3716f6a8b474988235b5670b3ba87b723133c",
-        "7ed03249500bdbd5217ec8e098d556d41d703f0d",
-        "e12d49bfe51c0b61a960c46d8941e2bc059e96b3",
-        "6cdd59535c4ec1f6afc14e292ef1528ddf7acc8a",
-        "2e50adfffbb6aeecef90ae023cbaf54d9d94d9c4",
-        "209e986a3a417507812e7184d52d4c1c9d312b88",
-        "41668709dee3b901e5437fb9d61c58e469de0a8b"
-      ],
-      "paths": [
-        {
-          "action": "created",
-          "path": ".pose/results/cfix-binding.md"
-        },
-        {
-          "action": "created",
-          "path": ".pose/specs/2026-11-23-pose-assess-leaves-sealed-checkouts-alone.md"
-        },
-        {
-          "action": "created",
-          "path": ".pose/specs/2026-11-23-pose-review-declared-threat-model.md"
-        },
-        {
-          "action": "created",
-          "path": ".pose/specs/2026-11-23-pose-review-readiness-before-seal.md"
-        },
-        {
-          "action": "created",
-          "path": ".pose/specs/2026-11-23-pose-review-subject-includes-its-index.md"
-        },
-        {
-          "action": "created",
-          "path": ".pose/specs/2026-11-23-pose-run-verification-pins-brief-inputs.md"
-        },
-        {
-          "action": "created",
-          "path": ".pose/specs/2026-11-23-pose-validate-carry-report-and-closeout-coverage.md"
-        },
-        {
-          "action": "created",
-          "path": ".pose/specs/2026-11-23-pose-validate-reads-leave-the-index-alone.md"
-        },
-        {
-          "action": "modified",
-          "path": ".pose/indexes/delivery-integrity.json"
-        },
-        {
-          "action": "modified",
-          "path": ".pose/indexes/generation.json"
-        },
-        {
-          "action": "modified",
-          "path": ".pose/indexes/spec-graph.json"
-        },
-        {
-          "action": "modified",
-          "path": ".pose/results/delivery-validation.json"
-        },
-        {
-          "action": "modified",
-          "path": "POSE.md"
-        },
-        {
-          "action": "modified",
-          "path": "locales/pt-BR/POSE.md"
-        },
-        {
-          "action": "modified",
-          "path": "pose-mcp/internal/cli/report.go"
-        },
-        {
-          "action": "modified",
-          "path": "pose-mcp/internal/cli/review_closeout_test.go"
-        },
-        {
-          "action": "modified",
-          "path": "pose-mcp/internal/cli/validate.go"
-        },
-        {
-          "action": "modified",
-          "path": "pose-mcp/internal/cli/validate_carry_test.go"
-        },
-        {
-          "action": "modified",
-          "path": "pose-mcp/internal/scaffold/dist/POSE.md"
-        },
-        {
-          "action": "modified",
-          "path": "pose-mcp/internal/scaffold/dist/locales/pt-BR/POSE.md"
-        }
-      ],
-      "diff_digest": "sha256:169eceec6c73ac7db33e127e93d1185761f0026e08e5f5e05c9a40ad60a0210f",
-      "material_digest": "sha256:bfc6f148117331d57a1bad292712313c990d7792a16c5767c8c9a1398e9088c0",
-      "material_inputs": {
-        "names": [
-          ".pose/indexes/delivery-integrity.json",
-          ".pose/indexes/generation.json",
-          ".pose/indexes/spec-graph.json",
-          ".pose/indexes/validation-matrix.json",
-          ".pose/results/cfix-binding.md",
-          ".pose/results/delivery-validation.json",
-          ".pose/specs/2026-11-23-pose-assess-leaves-sealed-checkouts-alone.md",
-          ".pose/specs/2026-11-23-pose-review-declared-threat-model.md",
-          ".pose/specs/2026-11-23-pose-review-readiness-before-seal.md",
-          ".pose/specs/2026-11-23-pose-review-subject-includes-its-index.md",
-          ".pose/specs/2026-11-23-pose-run-verification-pins-brief-inputs.md",
-          ".pose/specs/2026-11-23-pose-validate-carry-report-and-closeout-coverage.md",
-          ".pose/specs/2026-11-23-pose-validate-reads-leave-the-index-alone.md",
-          "POSE.md",
-          "locales/pt-BR/POSE.md",
-          "pose-mcp/internal/cli/report.go",
-          "pose-mcp/internal/cli/review_closeout_test.go",
-          "pose-mcp/internal/cli/validate.go",
-          "pose-mcp/internal/cli/validate_carry_test.go",
-          "pose-mcp/internal/scaffold/dist/POSE.md",
-          "pose-mcp/internal/scaffold/dist/locales/pt-BR/POSE.md"
-        ]
-      }
-    },
-    {
       "id": "cs-4158b84f69a1",
       "spec": "pose-obligation-projection",
       "selector": "trailers:pose-obligation-projection",
@@ -221996,7 +221862,7 @@
         }
       ],
       "diff_digest": "sha256:5750d18918a105e10427a2c0fa0ecd565ffd4e3ad0dacc7a4d0ee51ad8dc2747",
-      "material_digest": "sha256:d80bbaf99801a4258532f02d935c0814f52964d2030a03e142d6f0badfdd6084",
+      "material_digest": "sha256:3b115015edbb0a7a2384f4f158120fee7450df5a055d0e70d2f72b473230287f",
       "material_inputs": {
         "names": [
           ".pose/adr/2026-11-23-review-readiness-before-seal.md",
@@ -241729,7 +241595,7 @@
         }
       ],
       "diff_digest": "sha256:6348681d2889412b53d1f0c3cf9bfff96ba2298275c428463ad9a194b0051571",
-      "material_digest": "sha256:b01521f5716131a44a45cfe59cdbaa386a241137d1c76fb61b7e3e4031de0624",
+      "material_digest": "sha256:b225715e65bbd310c4d1d2252d92369bbb54dd0b0b5c4973f649685c93bf350c",
       "material_inputs": {
         "names": [
           ".pose/indexes/delivery-integrity.json",
@@ -264720,6 +264586,142 @@
       "diff_digest": "sha256:0fff30cdbf0ba47f067bd318cec50717a857ad378db57b3bbead4dec38108165"
     },
     {
+      "id": "cs-a4cd631d2561",
+      "spec": "pose-validate-carry-report-and-closeout-coverage",
+      "selector": "trailers:pose-validate-carry-report-and-closeout-coverage",
+      "base": "1f83c1fbba489ef8d0ca5a7d3b0b1c49d56ba00c^",
+      "head": "d1855ec945344ecd066e4727f6ca05c751f6dd5a",
+      "resolved_base": "3f63a1bb432801957ddb35354961f1825658531a",
+      "resolved_head": "d1855ec945344ecd066e4727f6ca05c751f6dd5a",
+      "commits": [
+        "1f83c1fbba489ef8d0ca5a7d3b0b1c49d56ba00c",
+        "f3a216771125e9df2d2e4ee51b92be3445ba3bc6",
+        "0e05c5988714a2c620d858dcb1cadad8ec91d4b9",
+        "bfb9add398a485561a435776a2c501c7a3922a23",
+        "eb5ed4692f13fecff1f6fed9e0552cdbcfd2e90f",
+        "467e5de14ba6bf8fd21a202fdadd4cf4a13e3039",
+        "ee0b61f07652028502c429624ec6c748e575f4f7",
+        "c1e3716f6a8b474988235b5670b3ba87b723133c",
+        "7ed03249500bdbd5217ec8e098d556d41d703f0d",
+        "e12d49bfe51c0b61a960c46d8941e2bc059e96b3",
+        "6cdd59535c4ec1f6afc14e292ef1528ddf7acc8a",
+        "2e50adfffbb6aeecef90ae023cbaf54d9d94d9c4",
+        "209e986a3a417507812e7184d52d4c1c9d312b88",
+        "41668709dee3b901e5437fb9d61c58e469de0a8b",
+        "a2f598fe76e6b502cf792dff3fc46cbfdc716695",
+        "d1855ec945344ecd066e4727f6ca05c751f6dd5a"
+      ],
+      "paths": [
+        {
+          "action": "created",
+          "path": ".pose/results/cfix-binding.md"
+        },
+        {
+          "action": "created",
+          "path": ".pose/specs/2026-11-23-pose-assess-leaves-sealed-checkouts-alone.md"
+        },
+        {
+          "action": "created",
+          "path": ".pose/specs/2026-11-23-pose-review-declared-threat-model.md"
+        },
+        {
+          "action": "created",
+          "path": ".pose/specs/2026-11-23-pose-review-readiness-before-seal.md"
+        },
+        {
+          "action": "created",
+          "path": ".pose/specs/2026-11-23-pose-review-subject-includes-its-index.md"
+        },
+        {
+          "action": "created",
+          "path": ".pose/specs/2026-11-23-pose-run-verification-pins-brief-inputs.md"
+        },
+        {
+          "action": "created",
+          "path": ".pose/specs/2026-11-23-pose-validate-carry-report-and-closeout-coverage.md"
+        },
+        {
+          "action": "created",
+          "path": ".pose/specs/2026-11-23-pose-validate-reads-leave-the-index-alone.md"
+        },
+        {
+          "action": "modified",
+          "path": ".pose/indexes/delivery-integrity.json"
+        },
+        {
+          "action": "modified",
+          "path": ".pose/indexes/generation.json"
+        },
+        {
+          "action": "modified",
+          "path": ".pose/indexes/spec-graph.json"
+        },
+        {
+          "action": "modified",
+          "path": ".pose/results/delivery-validation.json"
+        },
+        {
+          "action": "modified",
+          "path": "POSE.md"
+        },
+        {
+          "action": "modified",
+          "path": "locales/pt-BR/POSE.md"
+        },
+        {
+          "action": "modified",
+          "path": "pose-mcp/internal/cli/report.go"
+        },
+        {
+          "action": "modified",
+          "path": "pose-mcp/internal/cli/review_closeout_test.go"
+        },
+        {
+          "action": "modified",
+          "path": "pose-mcp/internal/cli/validate.go"
+        },
+        {
+          "action": "modified",
+          "path": "pose-mcp/internal/cli/validate_carry_test.go"
+        },
+        {
+          "action": "modified",
+          "path": "pose-mcp/internal/scaffold/dist/POSE.md"
+        },
+        {
+          "action": "modified",
+          "path": "pose-mcp/internal/scaffold/dist/locales/pt-BR/POSE.md"
+        }
+      ],
+      "diff_digest": "sha256:ca9fd98683510f764560d33238831b785e0a6603c2094d3aea58b5babcd29fa5",
+      "material_digest": "sha256:b2d0ae262b9bdaedceed1a8c27a3575ad8df5a67fcf3af60593f7f8387e5186c",
+      "material_inputs": {
+        "names": [
+          ".pose/indexes/delivery-integrity.json",
+          ".pose/indexes/generation.json",
+          ".pose/indexes/spec-graph.json",
+          ".pose/indexes/validation-matrix.json",
+          ".pose/results/cfix-binding.md",
+          ".pose/results/delivery-validation.json",
+          ".pose/specs/2026-11-23-pose-assess-leaves-sealed-checkouts-alone.md",
+          ".pose/specs/2026-11-23-pose-review-declared-threat-model.md",
+          ".pose/specs/2026-11-23-pose-review-readiness-before-seal.md",
+          ".pose/specs/2026-11-23-pose-review-subject-includes-its-index.md",
+          ".pose/specs/2026-11-23-pose-run-verification-pins-brief-inputs.md",
+          ".pose/specs/2026-11-23-pose-validate-carry-report-and-closeout-coverage.md",
+          ".pose/specs/2026-11-23-pose-validate-reads-leave-the-index-alone.md",
+          "POSE.md",
+          "locales/pt-BR/POSE.md",
+          "pose-mcp/internal/cli/report.go",
+          "pose-mcp/internal/cli/review_closeout_test.go",
+          "pose-mcp/internal/cli/validate.go",
+          "pose-mcp/internal/cli/validate_carry_test.go",
+          "pose-mcp/internal/scaffold/dist/POSE.md",
+          "pose-mcp/internal/scaffold/dist/locales/pt-BR/POSE.md"
+        ]
+      }
+    },
+    {
       "id": "cs-a4dd1b6bb822",
       "spec": "pose-init-is-install",
       "selector": "trailers:pose-init-is-install",
@@ -273204,7 +273206,7 @@
         }
       ],
       "diff_digest": "sha256:4e7e0411d69ef4534f3a3b77e1d1aa10a34f02f87148e9ee9f9de6224a19b51a",
-      "material_digest": "sha256:58ba8e409312eb3ce6da8614ad96f3400d3ea8c40710113c1b4fc16944f6aa04",
+      "material_digest": "sha256:0561246752a46746ebfcd18fafddc9623dadeb774b97abff0add56bab7c99317",
       "material_inputs": {
         "names": [
           ".pose/indexes/delivery-integrity.json",
@@ -275652,7 +275654,7 @@
         }
       ],
       "diff_digest": "sha256:6348681d2889412b53d1f0c3cf9bfff96ba2298275c428463ad9a194b0051571",
-      "material_digest": "sha256:b01521f5716131a44a45cfe59cdbaa386a241137d1c76fb61b7e3e4031de0624",
+      "material_digest": "sha256:b225715e65bbd310c4d1d2252d92369bbb54dd0b0b5c4973f649685c93bf350c",
       "material_inputs": {
         "names": [
           ".pose/indexes/delivery-integrity.json",
