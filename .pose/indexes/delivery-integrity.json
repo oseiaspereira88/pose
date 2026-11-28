@@ -1,7 +1,7 @@
 {
   "schema_version": 2,
-  "input_digest": "sha256:ad0820e9fb227e72c01809a1292f0c46550e65fdb32beb1ce0fbf9eb6eb0e7f9",
-  "provenance_digest": "sha256:f7a18ef889295a1d5a6f521536e289a0e278287c995a307f4d48dfe77564fc4b",
+  "input_digest": "sha256:5582445c80ee230c3188a176161a84c3d6357d7eb00f61d68d4b16a861646dda",
+  "provenance_digest": "sha256:c23471aade03b81e7affb9829f56cb6cc46dded479dbec7e7418f8e68b1ca9bf",
   "implied_edges": [
     "changes"
   ],
@@ -8726,6 +8726,13 @@
       "type": "artifact",
       "attributes": {
         "path": ".pose/results/lfix-binding.md"
+      }
+    },
+    {
+      "id": "artifact:.pose/results/lres-binding.md",
+      "type": "artifact",
+      "attributes": {
+        "path": ".pose/results/lres-binding.md"
       }
     },
     {
@@ -47111,6 +47118,14 @@
       }
     },
     {
+      "id": "change-set:cs-0ddfdf649c3c",
+      "type": "change-set",
+      "attributes": {
+        "diff_digest": "sha256:8975d80e1ac635ceb97dc58afe0d24323f41ef635bfbad4ad572119001efdf64",
+        "selector": "trailers:pose-review-declared-limits-residuals"
+      }
+    },
+    {
       "id": "change-set:cs-0de4fd92e138",
       "type": "change-set",
       "attributes": {
@@ -49332,14 +49347,6 @@
       "attributes": {
         "diff_digest": "sha256:2e9193e2466018a5f23c5c971ccb3c0961c122c6985e01350f5e43ed3cbf31f9",
         "selector": "trailers:pose-consolidation-batch-12-authoring"
-      }
-    },
-    {
-      "id": "change-set:cs-808341e8d090",
-      "type": "change-set",
-      "attributes": {
-        "diff_digest": "sha256:36905538969cf0507b155c7ddb1614519d460dc6974f4e6493c1086304590e18",
-        "selector": "trailers:pose-review-declared-limits-residuals"
       }
     },
     {
@@ -136068,7 +136075,7 @@
     },
     {
       "from": "spec:pose-review-declared-limits-residuals",
-      "to": "change-set:cs-808341e8d090",
+      "to": "change-set:cs-0ddfdf649c3c",
       "type": "observed-by"
     },
     {
@@ -190964,6 +190971,113 @@
           ".pose/state/history.jsonl",
           ".pose/state/project-state.md",
           ".pose/state/refresh-log.jsonl"
+        ]
+      }
+    },
+    {
+      "id": "cs-0ddfdf649c3c",
+      "spec": "pose-review-declared-limits-residuals",
+      "selector": "trailers:pose-review-declared-limits-residuals",
+      "base": "ad5cbee6614750ccdf4885a90db586a140f47f8a^",
+      "head": "1487b0039fc853ed7f7ee7e4355555cb713ba369",
+      "resolved_base": "1019cde3a44d6b6c0a3940de7a450a170e30871b",
+      "resolved_head": "1487b0039fc853ed7f7ee7e4355555cb713ba369",
+      "commits": [
+        "ad5cbee6614750ccdf4885a90db586a140f47f8a",
+        "c393da2223bec27d12127c7d4c0cf273b0a9f130",
+        "64e572f82b7d9ca8f8a0e967f85142bd77d3a54f",
+        "b6cb6ee4782be1279a5732fd4dae8807bdeb16f5",
+        "2fc41a04016472fa48f1cd455fdd8266a224f2f8",
+        "345daadda465e62467266c0a40865f615272c0cc",
+        "1487b0039fc853ed7f7ee7e4355555cb713ba369"
+      ],
+      "paths": [
+        {
+          "action": "created",
+          "path": ".pose/results/lres-binding.md"
+        },
+        {
+          "action": "created",
+          "path": ".pose/specs/2026-11-27-pose-review-declared-limits-residuals.md"
+        },
+        {
+          "action": "created",
+          "path": "pose-mcp/internal/pose/accepted_limits_residuals_test.go"
+        },
+        {
+          "action": "modified",
+          "path": ".pose/indexes/delivery-integrity.json"
+        },
+        {
+          "action": "modified",
+          "path": ".pose/indexes/generation.json"
+        },
+        {
+          "action": "modified",
+          "path": ".pose/indexes/spec-graph.json"
+        },
+        {
+          "action": "modified",
+          "path": ".pose/results/delivery-validation.json"
+        },
+        {
+          "action": "modified",
+          "path": "POSE.md"
+        },
+        {
+          "action": "modified",
+          "path": "locales/pt-BR/POSE.md"
+        },
+        {
+          "action": "modified",
+          "path": "pose-mcp/internal/cli/accepted_limits_lint_test.go"
+        },
+        {
+          "action": "modified",
+          "path": "pose-mcp/internal/pose/accepted_limits.go"
+        },
+        {
+          "action": "modified",
+          "path": "pose-mcp/internal/pose/accepted_limits_test.go"
+        },
+        {
+          "action": "modified",
+          "path": "pose-mcp/internal/pose/review_bundle.go"
+        },
+        {
+          "action": "modified",
+          "path": "pose-mcp/internal/pose/review_conclusions.go"
+        },
+        {
+          "action": "modified",
+          "path": "pose-mcp/internal/scaffold/dist/POSE.md"
+        },
+        {
+          "action": "modified",
+          "path": "pose-mcp/internal/scaffold/dist/locales/pt-BR/POSE.md"
+        }
+      ],
+      "diff_digest": "sha256:8975d80e1ac635ceb97dc58afe0d24323f41ef635bfbad4ad572119001efdf64",
+      "material_digest": "sha256:3a5bd2713077be5638edbf8aff90041a309b9491afe1e3006c801c495b06cf71",
+      "material_inputs": {
+        "names": [
+          ".pose/indexes/delivery-integrity.json",
+          ".pose/indexes/generation.json",
+          ".pose/indexes/spec-graph.json",
+          ".pose/indexes/validation-matrix.json",
+          ".pose/results/delivery-validation.json",
+          ".pose/results/lres-binding.md",
+          ".pose/specs/2026-11-27-pose-review-declared-limits-residuals.md",
+          "POSE.md",
+          "locales/pt-BR/POSE.md",
+          "pose-mcp/internal/cli/accepted_limits_lint_test.go",
+          "pose-mcp/internal/pose/accepted_limits.go",
+          "pose-mcp/internal/pose/accepted_limits_residuals_test.go",
+          "pose-mcp/internal/pose/accepted_limits_test.go",
+          "pose-mcp/internal/pose/review_bundle.go",
+          "pose-mcp/internal/pose/review_conclusions.go",
+          "pose-mcp/internal/scaffold/dist/POSE.md",
+          "pose-mcp/internal/scaffold/dist/locales/pt-BR/POSE.md"
         ]
       }
     },
@@ -249843,106 +249957,6 @@
           ".pose/state/history.jsonl",
           ".pose/state/project-state.md",
           ".pose/state/refresh-log.jsonl"
-        ]
-      }
-    },
-    {
-      "id": "cs-808341e8d090",
-      "spec": "pose-review-declared-limits-residuals",
-      "selector": "trailers:pose-review-declared-limits-residuals",
-      "base": "ad5cbee6614750ccdf4885a90db586a140f47f8a^",
-      "head": "2fc41a04016472fa48f1cd455fdd8266a224f2f8",
-      "resolved_base": "1019cde3a44d6b6c0a3940de7a450a170e30871b",
-      "resolved_head": "2fc41a04016472fa48f1cd455fdd8266a224f2f8",
-      "commits": [
-        "ad5cbee6614750ccdf4885a90db586a140f47f8a",
-        "c393da2223bec27d12127c7d4c0cf273b0a9f130",
-        "64e572f82b7d9ca8f8a0e967f85142bd77d3a54f",
-        "b6cb6ee4782be1279a5732fd4dae8807bdeb16f5",
-        "2fc41a04016472fa48f1cd455fdd8266a224f2f8"
-      ],
-      "paths": [
-        {
-          "action": "created",
-          "path": ".pose/specs/2026-11-27-pose-review-declared-limits-residuals.md"
-        },
-        {
-          "action": "created",
-          "path": "pose-mcp/internal/pose/accepted_limits_residuals_test.go"
-        },
-        {
-          "action": "modified",
-          "path": ".pose/indexes/delivery-integrity.json"
-        },
-        {
-          "action": "modified",
-          "path": ".pose/indexes/generation.json"
-        },
-        {
-          "action": "modified",
-          "path": ".pose/indexes/spec-graph.json"
-        },
-        {
-          "action": "modified",
-          "path": ".pose/results/delivery-validation.json"
-        },
-        {
-          "action": "modified",
-          "path": "POSE.md"
-        },
-        {
-          "action": "modified",
-          "path": "locales/pt-BR/POSE.md"
-        },
-        {
-          "action": "modified",
-          "path": "pose-mcp/internal/cli/accepted_limits_lint_test.go"
-        },
-        {
-          "action": "modified",
-          "path": "pose-mcp/internal/pose/accepted_limits.go"
-        },
-        {
-          "action": "modified",
-          "path": "pose-mcp/internal/pose/accepted_limits_test.go"
-        },
-        {
-          "action": "modified",
-          "path": "pose-mcp/internal/pose/review_bundle.go"
-        },
-        {
-          "action": "modified",
-          "path": "pose-mcp/internal/pose/review_conclusions.go"
-        },
-        {
-          "action": "modified",
-          "path": "pose-mcp/internal/scaffold/dist/POSE.md"
-        },
-        {
-          "action": "modified",
-          "path": "pose-mcp/internal/scaffold/dist/locales/pt-BR/POSE.md"
-        }
-      ],
-      "diff_digest": "sha256:36905538969cf0507b155c7ddb1614519d460dc6974f4e6493c1086304590e18",
-      "material_digest": "sha256:3a5bd2713077be5638edbf8aff90041a309b9491afe1e3006c801c495b06cf71",
-      "material_inputs": {
-        "names": [
-          ".pose/indexes/delivery-integrity.json",
-          ".pose/indexes/generation.json",
-          ".pose/indexes/spec-graph.json",
-          ".pose/indexes/validation-matrix.json",
-          ".pose/results/delivery-validation.json",
-          ".pose/specs/2026-11-27-pose-review-declared-limits-residuals.md",
-          "POSE.md",
-          "locales/pt-BR/POSE.md",
-          "pose-mcp/internal/cli/accepted_limits_lint_test.go",
-          "pose-mcp/internal/pose/accepted_limits.go",
-          "pose-mcp/internal/pose/accepted_limits_residuals_test.go",
-          "pose-mcp/internal/pose/accepted_limits_test.go",
-          "pose-mcp/internal/pose/review_bundle.go",
-          "pose-mcp/internal/pose/review_conclusions.go",
-          "pose-mcp/internal/scaffold/dist/POSE.md",
-          "pose-mcp/internal/scaffold/dist/locales/pt-BR/POSE.md"
         ]
       }
     },
