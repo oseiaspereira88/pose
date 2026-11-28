@@ -1,0 +1,246 @@
+{
+  "run": {
+    "run_id": "rrn-5b302e25c07a005e",
+    "proof_id": "rrp-7e02b5dd4368c628d522d0d760238169f5289bed20f62799611c49a100c77471"
+  },
+  "schema_version": 1,
+  "attestation_id": "rva-623abb5b4563b984",
+  "bundle_id": "rvb-a3f4e06fadbc81fd",
+  "bundle_digest": "sha256:a3f4e06fadbc81fd92537dbb225bc3c3322d1988e6d85d7f2fca52bba3000357",
+  "reviewer": "agent:anthropic/claude-sonnet-5-5",
+  "decision": "changes-requested",
+  "criteria": [
+    {
+      "id": "assumption-integrity",
+      "disposition": "finding",
+      "evidence": "N1"
+    },
+    {
+      "id": "backend-concurrency",
+      "disposition": "passed",
+      "evidence": "unit:pose-mcp/go/test",
+      "rationale": "The change is pure parsing and admission logic with no new shared state or lifecycle."
+    },
+    {
+      "id": "backend-contracts",
+      "disposition": "finding",
+      "evidence": "N3"
+    },
+    {
+      "id": "backend-input-errors",
+      "disposition": "finding",
+      "evidence": "N2"
+    },
+    {
+      "id": "backend-integration-impact",
+      "disposition": "passed",
+      "evidence": "integration:pose-mcp/go/mcp-review-attest-integration",
+      "rationale": "Callers of the writer, preflight and run conclusion were traced; the preview disagreement is reported as N3 under contracts."
+    },
+    {
+      "id": "backend-observability",
+      "disposition": "finding",
+      "evidence": "N1"
+    },
+    {
+      "id": "compatibility",
+      "disposition": "finding",
+      "evidence": "N1"
+    },
+    {
+      "id": "correctness",
+      "disposition": "finding",
+      "evidence": "N1"
+    },
+    {
+      "id": "design-causality",
+      "disposition": "finding",
+      "evidence": "N1"
+    },
+    {
+      "id": "documentation",
+      "disposition": "finding",
+      "evidence": "N1"
+    },
+    {
+      "id": "operability",
+      "disposition": "finding",
+      "evidence": "N3"
+    },
+    {
+      "id": "requirements",
+      "disposition": "finding",
+      "evidence": "N2"
+    },
+    {
+      "id": "scope",
+      "disposition": "passed",
+      "rationale": "Examined the diff of the ten files of change set cs-0ddfdf649c3c against R1-R8 and D1: each hunk serves a requirement, embedded manual copies carry the same edit, and no non-goal is reopened by intent; the unintended behaviour change is reported as N1."
+    },
+    {
+      "id": "security",
+      "disposition": "finding",
+      "evidence": "N1"
+    },
+    {
+      "id": "solution-proportionality",
+      "disposition": "passed",
+      "rationale": "Compared with smaller alternatives: a local span scanner, a bounding helper, one admission function and a flag for the legacy derivation (D1) are proportionate, with no new dependency or extension point. D1 would be invalidated if a later derivation changed more than the sealed-limit check. The excess permissiveness of the R4 branch is reported as N1."
+    }
+  ],
+  "tools": [
+    {
+      "id": "artifact-check",
+      "disposition": "passed",
+      "evidence": "command:pose artifact-check --spec pose-review-declared-limits-residuals --strict",
+      "rationale": "Exit 0; orphan warnings shown."
+    },
+    {
+      "id": "assess-design",
+      "disposition": "passed",
+      "evidence": "structure:design-c3530dc73a394040",
+      "rationale": "Observed, with no structural delta."
+    },
+    {
+      "id": "assess-discover",
+      "component": "pose-mcp",
+      "disposition": "passed",
+      "evidence": "command:pose assess discover --no-persist --component pose-mcp"
+    },
+    {
+      "id": "assess-integrate",
+      "disposition": "passed",
+      "evidence": "integration:pose-mcp/go/mcp-review-attest-integration",
+      "rationale": "Run with --no-persist; it listed three unobserved HTTP consumer gaps unrelated to this change. The ref is the sealed integration result."
+    },
+    {
+      "id": "assess-tech-debt",
+      "disposition": "passed",
+      "evidence": "command:pose assess tech-debt --no-persist",
+      "rationale": "The scan reports itself incomplete: two spec sources could not be read."
+    },
+    {
+      "id": "closeout-check",
+      "disposition": "deferred",
+      "rationale": "Needs the completed review."
+    },
+    {
+      "id": "review-check",
+      "disposition": "deferred",
+      "rationale": "Needs the completed review."
+    },
+    {
+      "id": "suggest-review",
+      "component": "pose-mcp",
+      "disposition": "passed",
+      "evidence": "command:pose suggest review --path pose-mcp"
+    },
+    {
+      "id": "surface-check",
+      "disposition": "passed",
+      "evidence": "integration:pose-mcp/go/spec-surface-integration",
+      "rationale": "Run here: exit 0 with zero findings."
+    },
+    {
+      "id": "validate",
+      "disposition": "passed",
+      "evidence": "unit:pose-mcp/go/test",
+      "rationale": "Not re-executed in this run: the full matrix does not fit the time budget and sandbox. This relies on the sealed result; focused tests and go vet of the two changed packages were run here and passed."
+    },
+    {
+      "id": "validate",
+      "component": "pose-mcp",
+      "disposition": "passed",
+      "evidence": "unit:pose-mcp/go/test",
+      "rationale": "Not re-executed in this run: the full matrix does not fit the time budget and sandbox. This relies on the sealed result; focused tests and go vet of the two changed packages were run here and passed."
+    }
+  ],
+  "evidence_refs": [
+    "N1",
+    "N2",
+    "N3",
+    "delegated-run:rrn-5b302e25c07a005e",
+    "integration:pose-mcp/go/mcp-review-attest-integration",
+    "unit:pose-mcp/go/test"
+  ],
+  "findings": [
+    {
+      "id": "N1",
+      "severity": "high",
+      "evidence": "file:pose-mcp/internal/pose/accepted_limits.go:97",
+      "action": "Regression from the R4 branch: inside the section, a marker line that reads as a heading once comments are removed (indented 1-3 spaces, or with a leading comment) closes the section silently. \"- L1: ... a shim covers it\" followed by \"  # of cases on Linux \u003c!-- note --\u003e only.\" or \"\u003c!-- c --\u003e # only on Linux.\" seals L1 cut with no problem, and a later L2 is dropped silently. The base engine refused the section in each case. Breaks origin R1/R2/D1 and the manual text added by R5.",
+      "disposition": "open"
+    },
+    {
+      "id": "N2",
+      "severity": "medium",
+      "evidence": "file:pose-mcp/internal/pose/accepted_limits.go:78",
+      "action": "R4 requires refusal messages bounded in number and size; only the number is bounded. quoteLedgerText does not truncate, so 25 prose lines of 100000 bytes give 21 problems totalling 2001842 bytes, which flow into plan warnings and lint output. A long limit id is also echoed whole (100074 bytes).",
+      "disposition": "open"
+    },
+    {
+      "id": "N3",
+      "severity": "medium",
+      "evidence": "file:pose-mcp/internal/pose/review_bundle.go:3192",
+      "action": "R6 changed the writer but PreflightReviewAttestation still returns nil for non-approving decisions: attest without --apply of a changes-requested within-limit of unsealed L9 prints review_attestation.plan=record and exits 0, and --apply then refuses it; the MCP preview takes the same function, so verify_blockers is empty. This breaks the rule that preview and write cannot disagree. The comments at 3162 and 3189 and the typed error text (\"reject this approval\", line 3147) are also stale for this case.",
+      "disposition": "open"
+    },
+    {
+      "id": "N4",
+      "severity": "low",
+      "evidence": "file:pose-mcp/internal/pose/accepted_limits.go:221",
+      "action": "R1 gaps: a heading \"### Accepted --\u003e limits\" (stray close marker) or a comment opened in the heading words and closed on the next line yields no limits and no problem.",
+      "disposition": "open"
+    },
+    {
+      "id": "N5",
+      "severity": "low",
+      "evidence": "file:pose-mcp/internal/pose/accepted_limits.go:122",
+      "action": "R3 gap: indent counts characters, so a tab-indented (or two spaces plus tab) code block of backticks still opens a fence that silently hides a later accepted limits section.",
+      "disposition": "open"
+    },
+    {
+      "id": "N6",
+      "severity": "low",
+      "evidence": "file:pose-mcp/internal/pose/accepted_limits.go:125",
+      "action": "R3 side effect: a fence nested in a list item at four spaces is no longer a fence, so a comment opener shown inside it now refuses every limit as unterminated, where the base engine sealed them. It fails closed and visibly, but no decision records the changed answer.",
+      "disposition": "open"
+    },
+    {
+      "id": "N7",
+      "severity": "low",
+      "evidence": "file:.pose/specs/2026-11-27-pose-review-declared-limits-residuals.md:81",
+      "action": "The stated technical risk is false: a code span continued over two lines whose second line holds a comment opener, closed by a later comment closer, hides the accepted limits section with no limit and no problem. The base engine behaves the same.",
+      "disposition": "open"
+    },
+    {
+      "id": "N8",
+      "severity": "low",
+      "evidence": "file:pose-mcp/internal/pose/accepted_limits.go:301",
+      "action": "Stale doc comments: htmlCommentStart still describes the odd-backtick-count rule that R2 replaced, and line 256 refers to the removed acceptedLimitsOf.",
+      "disposition": "open"
+    }
+  ],
+  "authority": {
+    "schema_version": 1,
+    "project": "proj.pose-dist",
+    "bundle_digest": "sha256:a3f4e06fadbc81fd92537dbb225bc3c3322d1988e6d85d7f2fca52bba3000357",
+    "principal": "agent:anthropic/claude-sonnet-5-5",
+    "role": "agent",
+    "review_execution": "rrn-5b302e25c07a005e",
+    "implementation_principal": "agent:anthropic/claude-opus-5-5",
+    "implementation_execution": "sha256:344ac5868944c155772d60a95ef6ff20644580a642e772ad5c92c29428464ff8",
+    "issuer": "b34-local-executor",
+    "issued_at": "2026-11-28T02:48:17Z",
+    "audience": "proj.pose-dist"
+  },
+  "envelope": {
+    "issuer": "b34-local-executor",
+    "subject": "rvb-a3f4e06fadbc81fd",
+    "algorithm": "ed25519",
+    "public_key": "ck4sApdfePV2GT+hJyAYfJd2qLzeG55P8pevGR0bvZE=",
+    "signature": "lJ6jYL7Kqu0skk7yaGRLMyBVHOt9/2PmuHffuB3t1uSds2bTsLqQzC7YBaatqa4ND93F/hJayWtMik931OLHBQ=="
+  },
+  "attested_at": "2026-11-28T02:48:17Z",
+  "path": ".pose/review-attestations/rva-623abb5b4563b984.json"
+}
